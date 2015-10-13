@@ -4965,8 +4965,13 @@ namespace Ship_Game.Gameplay
                                 Ship s = this.Owner.loyalty.GetShips()[k];
                                 if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != this.Owner && !s.isConstructor)
                                 {
+                                    ArtificialIntelligence.ShipGoal plan =null;
                                     s.GetAI().orderqueue.EnterReadLock();
-                                    ArtificialIntelligence.ShipGoal plan = s.GetAI().OrderQueue.LastOrDefault<ArtificialIntelligence.ShipGoal>();
+                                    try
+                                    {
+                                       plan = s.GetAI().OrderQueue.LastOrDefault<ArtificialIntelligence.ShipGoal>();
+                                    }
+                                    catch { }
                                     if (plan != null && s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && plan.Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Food")
                                         cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
                                     s.GetAI().orderqueue.ExitReadLock();
@@ -6159,6 +6164,8 @@ namespace Ship_Game.Gameplay
             {
                 if (nearbyShip.ship.loyalty != this.Owner.loyalty)
                 {
+                    if ((this.Target as Ship) == nearbyShip.ship)
+                        nearbyShip.weight += 1;
                     if (nearbyShip.ship.Weapons.Count ==0)
                     {
                         ArtificialIntelligence.ShipWeight vultureWeight = nearbyShip;
@@ -6190,12 +6197,12 @@ namespace Ship_Game.Gameplay
                        // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
-                        shipWeight.weight = shipWeight.weight + 1f;
+                        shipWeight.weight = shipWeight.weight + .1f;
                     }
-                    else if (rangeToTarget > this.CombatAI.PreferredEngagementDistance + this.Owner.speed)
+                    else if (rangeToTarget > (this.CombatAI.PreferredEngagementDistance + this.Owner.velocityMaximum * 5))
                     {
                         ArtificialIntelligence.ShipWeight shipWeight1 = nearbyShip;
-                        shipWeight1.weight = shipWeight1.weight - 2.5f *(rangeToTarget /(this.CombatAI.PreferredEngagementDistance + this.Owner.speed ));
+                        shipWeight1.weight = shipWeight1.weight - 2.5f * (rangeToTarget / (this.CombatAI.PreferredEngagementDistance + this.Owner.velocityMaximum * 5));
                     }
                     if(this.Owner.Mothership !=null)
                     {
@@ -6207,10 +6214,12 @@ namespace Ship_Game.Gameplay
                     if (this.EscortTarget != null)
                     {
                         rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, this.EscortTarget.Center);
-                        if (rangeToTarget < this.CombatAI.PreferredEngagementDistance)
+                        if( rangeToTarget <5000) // / (this.CombatAI.PreferredEngagementDistance +this.Owner.velocityMaximum ))
                             nearbyShip.weight += 1;
                         else
                             nearbyShip.weight -= 2;
+                        if (nearbyShip.ship.GetAI().Target == this.EscortTarget)
+                            nearbyShip.weight += 1;
 
                     }
                     if(nearbyShip.ship.Weapons.Count <1)

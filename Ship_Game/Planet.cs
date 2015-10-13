@@ -6488,10 +6488,12 @@ output = maxp * take10 = 5
             float EnemyTroopStrength = 0f;
             foreach (PlanetGridSquare pgs in this.TilesList)
             {
+                pgs.TroopsHere.thisLock.EnterReadLock();
                 if (pgs.TroopsHere.Count <= 0 && this.Owner != empire)
                 {
                     if (pgs.building == null || pgs.building.CombatStrength <= 0)
                     {
+                        pgs.TroopsHere.thisLock.ExitReadLock();
                         continue;
                     }
                     EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength));
@@ -6502,9 +6504,12 @@ output = maxp * take10 = 5
                 }
                 if (this.Owner == empire || pgs.building == null || pgs.building.CombatStrength <= 0)
                 {
+                    pgs.TroopsHere.thisLock.ExitReadLock();
                     continue;
                 }
+                pgs.TroopsHere.thisLock.ExitReadLock();
                 EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength));
+
             }
 
             return EnemyTroopStrength;

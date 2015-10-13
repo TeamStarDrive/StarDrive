@@ -638,8 +638,11 @@ namespace Ship_Game.Gameplay
             this.AssembleFleet(facing, fVec);
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
-                ship.GetAI().SetPriorityOrder();
-                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true, null);
+                //if (ship.GetStrength() == 0 || !(ship.GetAI().BadGuysNear && !ship.isInDeepSpace))
+                {
+                    ship.GetAI().SetPriorityOrder();
+                    ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true, null);
+                }
             }
         }
 
@@ -654,6 +657,17 @@ namespace Ship_Game.Gameplay
                 ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, false,null);
             }
         }
+        private void MoveToQueueLowPri(Vector2 MovePosition, float facing, Vector2 fVec)
+        {
+            this.Position = MovePosition;
+            this.facing = facing;
+            this.AssembleFleet(facing, fVec);
+            foreach (Ship ship in (List<Ship>)this.Ships)
+            {
+                
+                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, false, null);
+            }
+        }
 
         private void MoveDirectlyNow(Vector2 MovePosition, float facing, Vector2 fVec)
         {
@@ -664,7 +678,7 @@ namespace Ship_Game.Gameplay
             {
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
 
-                if (this.Owner.isPlayer || this.TaskStep >2 || ship.isInDeepSpace || !ship.GetAI().BadGuysNear  || Vector2.Distance(ship.Center, MovePosition) > 150000f) //this.Owner.isPlayer || ship.GetSystem() ==null|| this.Task != null || 
+                if (this.Owner.isPlayer || (this.TaskStep <2 && Vector2.Distance(ship.Center,this.Position)>300000 )||  this.TaskStep >1 || ship.isInDeepSpace || !ship.GetAI().BadGuysNear  || Vector2.Distance(ship.Center, MovePosition) > 150000f) //this.Owner.isPlayer || ship.GetSystem() ==null|| this.Task != null || 
 
                 {
                     ship.GetAI().SetPriorityOrder();
@@ -1315,13 +1329,13 @@ namespace Ship_Game.Gameplay
                 float num1 = 0.0f;
                 foreach (Ship ship in (List<Ship>)this.Ships)
                     num1 += ship.GetStrength();
-                if ((double)num1 == 0.0)
+                if (num1 == 0.0f)
                     Task.EndTask();
                 int num2 = 0;
                 int num3 = 0;
                 foreach (Ship ship in (List<Ship>)this.Ships)
                 {
-                    if ((double)ship.GetStrength() > 0.0)
+                    if (ship.GetStrength() > 0.0f)
                         ++num3;
                     num2 += ship.TroopList.Count;
                 }
@@ -1345,26 +1359,46 @@ namespace Ship_Game.Gameplay
                 {
                     switch (this.TaskStep)
                     {
+                        case -1:
                         case 0:
                             List<Planet> list1 = new List<Planet>();
                             this.Owner.GetPlanets().thisLock.EnterReadLock();
                             //foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat => combat.ParentSystem.DangerTimer))
-                            foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat => combat.ParentSystem.combatTimer)) //fbedard: DangerTimer is in relation to the player only !
+                            foreach (Planet planet in this.Owner.GetPlanets()
+                                .OrderBy(combat => combat.ParentSystem.combatTimer <=-120)
+                                .ThenBy(shipyard => shipyard.HasShipyard)
+                                .ThenBy(distance=> Vector2.Distance(distance.Position,this.Task.AO))) //fbedard: DangerTimer is in relation to the player only !
                             {
-                                if (planet.HasShipyard )
-                                    list1.Add(planet);
+                                bool flag =false;
+                                foreach(Planet notsafe in  planet.ParentSystem.PlanetList)
+                                {
+                                    Relationship test =null;
+                                    if(notsafe.Owner != null && notsafe.Owner != this.Owner)
+                                    {
+                                        this.Owner.GetRelations().TryGetValue(notsafe.Owner,out test);
+                                            if(!test.Treaty_OpenBorders || !test.Treaty_NAPact)
+                                            {
+                                                flag =true;
+                                                break;
+                                            }
+
+                                    }
+                                    if (flag)
+                                        break;
+                                }
+                                if(!flag)
+                                list1.Add(planet);
                             }
                             this.Owner.GetPlanets().thisLock.ExitReadLock();
-                            IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list1, (Func<Planet, float>)(planet => Vector2.Distance(Task.AO, planet.Position)));
-                            if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1) > 0)
+                            
+                            if ( list1.Count>0          )
                             {
-                                Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
-                                Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
-                                this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
-                                foreach (Ship ship in (List<Ship>)this.Ships)
-                                {
-                                    ship.GetAI().HasPriorityOrder = true;
-                                }
+                                Planet goaltarget = list1.First();
+                                Vector2 fVec = Vector2.Normalize(Task.AO - goaltarget.Position);
+                                Vector2 vector2 = goaltarget.Position;
+ 
+                                    this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
+        
                                 this.TaskStep = 1;
                                 break;
                             }
@@ -1380,15 +1414,21 @@ namespace Ship_Game.Gameplay
                             {
                                 if (!ship.disabled && ship.hasCommand && ship.Active)
                                 {
-                                    if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
+                                    if (Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                     {
                                         flag1 = false;
+                                        //if(ship.isInDeepSpace && ship.engineState != Ship.MoveState.Warp)
+                                        //{
+                                        //    ship.GetAI().OrderMoveToFleetPosition(this.Position + ship.FleetOffset, 0, 0, true, ship.GetFTLSpeed(), this);
+                                        //}
+
                                         this.Ships.thisLock.ExitReadLock();
                                     }
                                     else if (ship.GetAI().BadGuysNear)
                                     {
                                         this.Ships.thisLock.ExitReadLock();
                                         Task.EndTask();
+                                        //this.TaskStep = -1;
                                         flag1 = false;
 
                                     }
