@@ -532,7 +532,8 @@ namespace Ship_Game
                         if (raceTech.ShipType == this.data.Traits.ShipType || (this.data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
                         {
                             techEntry.Discovered = false;
-                            techEntry.Unlocked = false;                            
+                            techEntry.Unlocked = false;     
+                            
                             //techEntry.GetTech().Secret = true;                            
 
                         }
@@ -657,7 +658,7 @@ namespace Ship_Game
                 }
             }
             this.MarkShipDesignsUnlockable();
-            if (true) //purge designs that dont advance the ships
+            if (false) //purge designs that dont advance the ships
             {
                 System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
                 if (!this.isFaction)

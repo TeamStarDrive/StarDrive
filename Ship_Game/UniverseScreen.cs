@@ -2187,7 +2187,7 @@ namespace Ship_Game
                 {
                     system.DangerTimer -= realTime;
                     system.DangerUpdater -= realTime;
-                    if ((double)system.DangerUpdater < 0.0)
+                    if (system.DangerUpdater < 0.0)
                     {
                         system.DangerUpdater = 10f;
                         system.DangerTimer = (double)this.player.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0 ? 0.0f : 120f;
@@ -2195,7 +2195,7 @@ namespace Ship_Game
                     system.combatTimer -= realTime;
 
 
-                    if ((double)system.combatTimer <= 0.0)
+                    if (system.combatTimer <= 0.0)
                         system.CombatInSystem = false;
                     bool viewing = false;
                     this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(system.Position, 0.0f), this.projection, this.view, Matrix.Identity);
