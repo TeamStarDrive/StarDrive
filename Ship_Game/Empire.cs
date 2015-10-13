@@ -2732,7 +2732,7 @@ namespace Ship_Game
                     if(rebelsFromEmpireData == null)
                     foreach (Empire rebel in EmpireManager.EmpireList)
                     {
-                        if (rebel.data.RebelName == this.data.RebelName)
+                        if (rebel.data.PortraitName == this.data.RebelName)
                         {
                             rebelsFromEmpireData = rebel;
                             break;
