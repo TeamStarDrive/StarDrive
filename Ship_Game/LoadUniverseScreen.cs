@@ -174,6 +174,10 @@ namespace Ship_Game
 			}
 			p.guid = data.guid;
 			p.Name = data.Name;
+            if(!string.IsNullOrEmpty(data.SpecialDescription))
+            {
+                p.SpecialDescription = data.SpecialDescription;
+            }
             if (data.Scale != null && data.Scale != 0)
             {
                 p.scale = data.Scale;
