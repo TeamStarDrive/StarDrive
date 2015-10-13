@@ -2586,7 +2586,7 @@ namespace Ship_Game.Gameplay
             this.ProjectilesFired.ApplyPendingRemovals();
             this.ShieldRechargeTimer += elapsedTime;
             this.InhibitedTimer -= elapsedTime;
-            this.Inhibited = this.InhibitedTimer > 0.0;
+            this.Inhibited = this.InhibitedTimer > 0.0f;
             if (this.Inhibited && this.engineState == Ship.MoveState.Warp)
             {
                 this.HyperspaceReturn();
@@ -3911,12 +3911,12 @@ namespace Ship_Game.Gameplay
             }
             if (this.PowerCurrent > this.PowerStoreMax)
                 this.PowerCurrent = this.PowerStoreMax;
-            if (this.shield_percent < 0.0)
-                this.shield_percent = 0.0;
+            if (this.shield_percent < 0.0f)
+                this.shield_percent = 0.0f;
             this.shield_percent = 100.0 * this.shield_power / this.shield_max;
-            if (this.shield_percent < 0.0)
-                this.shield_percent = 0.0;
-            if (this.Mass <= 0.0)
+            if (this.shield_percent < 0.0f)
+                this.shield_percent = 0.0f;
+            if (this.Mass <= 0.0f)
                 this.Mass = 1f;
             switch (this.engineState)
             {

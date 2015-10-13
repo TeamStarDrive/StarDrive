@@ -2654,7 +2654,7 @@ namespace Ship_Game
                         }
                         float num4 = (float)EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).TotalScore;
                         float num5 = num2 + num4;
-                        if ((double)num4 > 0.5 * (double)num5)
+                        if (num4 > 0.5f * num5)
                         {
                             if ((double)num4 > (double)num3 * 2.0)
                             {
