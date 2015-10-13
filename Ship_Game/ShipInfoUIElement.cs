@@ -460,7 +460,7 @@ namespace Ship_Game
                         return false;
                     if (this.DoubleClickTimer > 0)
                         this.DoubleClickTimer -= 0.01666f;
-                    if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
+                    if (HelperFunctions.CheckIntersection(this.ShipInfoRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
                     {
                         Ship.universeScreen.ViewingShip = false;
                         Ship.universeScreen.AdjustCamTimer = 0.5f;

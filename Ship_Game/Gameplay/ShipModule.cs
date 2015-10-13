@@ -2285,7 +2285,7 @@ namespace Ship_Game.Gameplay
                     if (!this.Parent.loyalty.isFaction && (this.hangarShipUID == startingscout 
                         || !this.Parent.loyalty.ShipsWeCanBuild.Contains(this.hangarShipUID)))
                     {
-
+                        temphangarship = ResourceManager.ShipsDict[startingscout];
                         List<Ship> fighters = new List<Ship>();
                         foreach (string shipsWeCanBuild in this.Parent.loyalty.ShipsWeCanBuild)
                         {
@@ -2298,9 +2298,12 @@ namespace Ship_Game.Gameplay
                             Ship tempship =ResourceManager.ShipsDict[shipsWeCanBuild];
                             //fighters.Add(ResourceManager.ShipsDict[shipsWeCanBuild]);
 
-                            if (temphangarship == null)
-                                temphangarship = tempship;
-                            if(temphangarship.BaseStrength  < tempship.BaseStrength || temphangarship.Size < tempship .BaseStrength)
+                            //if (temphangarship == null)
+                            //{
+                            //    temphangarship = tempship;
+                            //    continue;
+                            //}
+                            if(temphangarship.BaseStrength  < tempship.BaseStrength || temphangarship.Size < tempship .Size)
                                 temphangarship = tempship;
                             }
                                 //temphangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).FirstOrDefault();
