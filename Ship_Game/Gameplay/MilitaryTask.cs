@@ -1103,18 +1103,20 @@ namespace Ship_Game.Gameplay
                     EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.Strength + (float)(pgs.building.CombatStrength));
                 }
             }
-
+            //EnemyTroopStrength *= (1.2f + (int)Ship.universeScreen.GameDifficulty * .1f);
             if (EnemyTroopStrength < 80f)
             {
                 EnemyTroopStrength = 80f;
             }
-            EnemyTroopStrength *= (1.2f + (int)Ship.universeScreen.GameDifficulty * .1f);
+            
             List<Ship> PotentialAssaultShips = new List<Ship>();
             List<Troop> PotentialTroops = new List<Troop>();
             List<Ship> PotentialBombers = new List<Ship>();
             foreach (Ship ship in this.empire.GetShips().OrderBy(str=> str.GetStrength()).OrderBy(troops => Vector2.Distance(this.AO, troops.Position)))
             {
-                if (ship.TroopList.Count <= 0 || ship.fleet != null || (!ship.HasTroopBay && ship.shipData.Role != ShipData.RoleName.troop && !ship.hasTransporter))
+                if (
+                    
+                    ship.fleet != null || (!ship.HasTroopBay && ship.shipData.Role != ShipData.RoleName.troop && !ship.hasTransporter && !ship.hasAssaultTransporter))
                 {
                     continue;
                 }
@@ -1129,7 +1131,7 @@ namespace Ship_Game.Gameplay
                 }
                 shipyards.Add(planet1);
             }
-            IOrderedEnumerable<Planet> planets = shipyards.OrderBy(p => p.ParentSystem.DangerTimer <= 0).ThenBy(p => Vector2.Distance(p.Position, this.TargetPlanet.Position));
+            IOrderedEnumerable<Planet> planets = shipyards.OrderBy(p => p.ParentSystem.combatTimer <=-120).ThenBy(p => Vector2.Distance(p.Position, this.AO));
                 //from p in shipyards
                 //orderby Vector2.Distance(p.Position, this.TargetPlanet.Position)
                 
@@ -1171,9 +1173,23 @@ namespace Ship_Game.Gameplay
             float ourAvailableStrength = 0f;
             foreach (Ship ship in PotentialAssaultShips)
             {
+                int troops =0;
+                foreach(ShipModule hangar in  ship.GetHangars())
+                {
+                    if (hangar.IsTroopBay)
+                    {
+                        troops++;
+                        troopCount++;
+                    }
+                }
                 foreach (Troop t in ship.TroopList)
                 {
-                    ourAvailableStrength = ourAvailableStrength + (float)t.Strength;
+                    if (troops > 0)
+
+                        ourAvailableStrength = ourAvailableStrength + (float)t.Strength;
+                    else break;
+                    troops--;
+                    
                 }
             }
             bool GoodToGo = false;
@@ -1216,10 +1232,12 @@ namespace Ship_Game.Gameplay
 
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
             {
-                if (ship.InCombat || ship.fleet != null || tfstrength >= MinimumEscortStrength 
+                if (tfstrength >= MinimumEscortStrength)
+                    break;
+                if (ship.InCombat || ship.fleet != null  
                     || ship.GetAI().State == AIState.Explore
                     || ship.GetStrength() <= 0f || ship.shipData.Role == ShipData.RoleName.station || ship.shipData.Role == ShipData.RoleName.platform
-                    || ship.shipData.Role == ShipData.RoleName.troop || ship.hasAssaultTransporter || ship.HasTroopBay
+                    || ship.shipData.Role == ShipData.RoleName.troop || ship.hasAssaultTransporter || ship.HasTroopBay || ship.BombBays.Count >0
                     )
                 {
                     continue;
@@ -1371,6 +1389,7 @@ namespace Ship_Game.Gameplay
             }
             else if (this.TargetPlanet.GetGroundLandingSpots() < 10  && ourAvailableStrength >= EnemyTroopStrength && tfstrength >= this.MinimumTaskForceStrength)
             {
+                int bombs = 0;
                 foreach (Ship ship in this.empire.GetShips())
                 {
                     if (ship.BombBays.Count <= 0)
@@ -1383,7 +1402,8 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     elTaskForce.Add(ship);
-                    if (PotentialBombers.Count > this.TargetPlanet.GetGroundLandingSpots())
+                    bombs += ship.BombBays.Count;
+                    if (bombs > 25-this.TargetPlanet.GetGroundLandingSpots())
                         break;
                 }
                 if (PotentialBombers.Count > 0)
