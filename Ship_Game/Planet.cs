@@ -2679,29 +2679,41 @@ namespace Ship_Game
             {
                 if (eventLocation.x == start.x + changex && eventLocation.y == start.y + changey)
                 {
-                    eventLocation.TroopsHere.thisLock.EnterWriteLock();
+                    Troop troop = null;
+
+                    eventLocation.TroopsHere.thisLock.EnterReadLock();
+                    if (start.TroopsHere.Count > 0)
+                    {
+                        troop = start.TroopsHere[0];
+                    }
+                    
+
                     if (eventLocation.building != null && eventLocation.building.CombatStrength > 0 || eventLocation.TroopsHere.Count > 0)
                     {
-                        eventLocation.TroopsHere.thisLock.ExitWriteLock();
+                        eventLocation.TroopsHere.thisLock.ExitReadLock();
                         return false;
                     }
-                    if (changex > 0)
-                        start.TroopsHere[0].facingRight = true;
-                    else if (changex < 0)
-                        start.TroopsHere[0].facingRight = false;
-                    start.TroopsHere[0].SetFromRect(start.TroopClickRect);
-                    start.TroopsHere[0].MovingTimer = 0.75f;
-                    --start.TroopsHere[0].AvailableMoveActions;
-                    start.TroopsHere[0].MoveTimer = (float)start.TroopsHere[0].MoveTimerBase;
-                    eventLocation.TroopsHere.Add(start.TroopsHere[0]);
-                    start.TroopsHere.Clear();
+                    if (troop != null)
+                    {
+                        if (changex > 0)
+                            troop.facingRight = true;
+                        else if (changex < 0)
+                            troop.facingRight = false;
+                        troop.SetFromRect(start.TroopClickRect);
+                        troop.MovingTimer = 0.75f;
+                        --troop.AvailableMoveActions;
+                        troop.MoveTimer = (float)troop.MoveTimerBase;
+                        eventLocation.TroopsHere.thisLock.ExitReadLock();
+                        eventLocation.TroopsHere.Add(troop);
+                        start.TroopsHere.Clear();
+                    }
                     if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                     {
-                        eventLocation.TroopsHere.thisLock.ExitWriteLock();
+                        eventLocation.TroopsHere.thisLock.ExitReadLock();
                         return true;
                     }
                     ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), Planet.universeScreen);
-                    eventLocation.TroopsHere.thisLock.ExitWriteLock();
+                    
                 }
             }
             return false;
@@ -6529,7 +6541,11 @@ output = maxp * take10 = 5
             foreach (PlanetGridSquare pgs in this.TilesList)
             {
                 pgs.TroopsHere.thisLock.EnterReadLock();
-                if (pgs.TroopsHere.Count <= 0 && this.Owner != empire)
+                Troop troop = null;
+                if (pgs.TroopsHere.Count > 0)
+                    troop = pgs.TroopsHere[0];
+
+                if (troop == null && this.Owner != empire)
                 {
                     if (pgs.building == null || pgs.building.CombatStrength <= 0)
                     {
@@ -6538,9 +6554,9 @@ output = maxp * take10 = 5
                     }
                     EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength));
                 }
-                else if (pgs.TroopsHere[0] != null && pgs.TroopsHere[0].GetOwner() != empire)
+                else if (troop != null && troop.GetOwner() != empire)
                 {
-                    EnemyTroopStrength = EnemyTroopStrength + (float)pgs.TroopsHere[0].Strength;
+                    EnemyTroopStrength = EnemyTroopStrength + (float)troop.Strength;
                 }
                 if (this.Owner == empire || pgs.building == null || pgs.building.CombatStrength <= 0)
                 {
