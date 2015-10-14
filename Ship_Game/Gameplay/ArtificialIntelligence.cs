@@ -732,7 +732,7 @@ namespace Ship_Game.Gameplay
                 //    this.Owner.Mothership.InCombatTimer = 15f;
                 //}
                 if (this.Owner.shipData.Role != ShipData.RoleName.troop
-                    && (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] || (this.Owner.shield_max > 0 && this.Owner.shield_percent <= 0.0))
+                    && (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] || (this.Owner.shield_max > 0 && this.Owner.shield_percent <= 0))
                     || (this.Owner.OrdinanceMax > 0 && this.Owner.Ordinance / this.Owner.OrdinanceMax <= .1f)
                     || (this.Owner.PowerCurrent <=1f && this.Owner.PowerDraw / this.Owner.PowerFlowMax <=.1f)
                     )
@@ -747,8 +747,9 @@ namespace Ship_Game.Gameplay
                 }
             }
             //if(this.Owner.Level >2 && this.Owner.Health / this.Owner.HealthMax <.5f&&  !(this.HasPriorityOrder||this.hasPriorityTarget))
-            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] && this.Owner.shipData.Role >= ShipData.RoleName.supply)  //fbedard: repair level
-                if (this.Owner.fleet == null || (this.Owner.fleet != null && !this.Owner.fleet.HasRepair))
+            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] 
+                && this.Owner.shipData.Role >= ShipData.RoleName.supply)  //fbedard: repair level
+                if (this.Owner.fleet == null ||  !this.Owner.fleet.HasRepair)
                 {
                     this.OrderResupplyNearest(false);
                     return;
@@ -1410,11 +1411,11 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            else if(this.Owner.Level<2)//if (Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget + this.Target.Radius) //DistanceToTarget < this.Owner.maxWeaponsRange * minRangeMod && 
-            {
-                this.Owner.Velocity = Owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
-            }
-            else
+            //else if(this.Owner.Level<2)//if (Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget + this.Target.Radius) //DistanceToTarget < this.Owner.maxWeaponsRange * minRangeMod && 
+            //{
+            //    this.Owner.Velocity = Owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
+            //}
+            //else
             {
                 rangemod = ((DistanceToTarget + this.Owner.maxWeaponsRange) *.5f)/ (this.Owner.maxWeaponsRange * rangemod);
                 if (rangemod > 1)
@@ -4428,7 +4429,8 @@ namespace Ship_Game.Gameplay
 		//fbedard: Added dont retreat to a near planet in combat, and flee if nowhere to go
         public void OrderResupplyNearest(bool ClearOrders)
 		{
-            if (this.Owner.Mothership != null && this.Owner.Mothership.Active && (this.Owner.shipData.Role != ShipData.RoleName.supply || this.Owner.Ordinance > 0 || this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory]))
+            if (this.Owner.Mothership != null && this.Owner.Mothership.Active && (this.Owner.shipData.Role != ShipData.RoleName.supply 
+                || this.Owner.Ordinance > 0 || this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory]))
 			{
 				this.OrderReturnToHangar();
 				return;
