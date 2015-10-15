@@ -19,7 +19,7 @@
   <TroopsUnlocked />
   <HullsUnlocked>
     <UnlockedHull>
-      <Name>Terran/LightCarrier</Name>
+      <Name>Terran/Battleship</Name>
       <ShipType>Terran</ShipType>
     </UnlockedHull>
     <UnlockedHull>
