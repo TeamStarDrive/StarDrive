@@ -582,11 +582,11 @@ namespace Ship_Game.Gameplay
 			else
 			{
                 float damageAmountvsShields = damageAmount;
-                if (source is Projectile)
+                if (psource!=null)
                 {
-                    if ((source as Projectile).isSecondary)
+                    if (psource.isSecondary)
                     {
-                        Weapon shooter = (source as Projectile).weapon;
+                        Weapon shooter = psource.weapon;
                         ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
                         damageAmountvsShields *= shooter.EffectVSShields; 
                         //damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
@@ -700,8 +700,8 @@ namespace Ship_Game.Gameplay
 					{
 						ShipModule.universeScreen.ScreenManager.inter.LightManager.Remove(this.shield.pointLight);
 						ShipModule.universeScreen.ScreenManager.inter.LightManager.Submit(this.shield.pointLight);
-					}					
-					if (source is Projectile && !(source as Projectile).IgnoresShields && this.Parent.InFrustum)
+					}
+                    if (psource != null && !psource.IgnoresShields && this.Parent.InFrustum)
 					{
 						Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
 						shieldcue.Apply3D(ShipModule.universeScreen.listener, this.Parent.emitter);
@@ -710,16 +710,16 @@ namespace Ship_Game.Gameplay
 						this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
 						this.shield.texscale = 2.8f;
 						this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-						this.shield.pointLight.World = (source as Projectile).GetWorld();
+                        this.shield.pointLight.World = psource.GetWorld();
 						this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
 						this.shield.pointLight.Radius = this.radius;
 						this.shield.pointLight.Intensity = 8f;
 						this.shield.pointLight.Enabled = true;
-						Vector2 vel = Vector2.Normalize((source as Projectile).Center - this.Center);
-						ShipModule.universeScreen.flash.AddParticleThreadB(new Vector3((source as Projectile).Center, this.Center3D.Z), Vector3.Zero);
+                        Vector2 vel = Vector2.Normalize(psource.Center - this.Center);
+                        ShipModule.universeScreen.flash.AddParticleThreadB(new Vector3(psource.Center, this.Center3D.Z), Vector3.Zero);
 						for (int i = 0; i < 20; i++)
 						{
-							ShipModule.universeScreen.sparks.AddParticleThreadB(new Vector3((source as Projectile).Center, this.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
+                            ShipModule.universeScreen.sparks.AddParticleThreadB(new Vector3(psource.Center, this.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
 						}
 					}
 				}
