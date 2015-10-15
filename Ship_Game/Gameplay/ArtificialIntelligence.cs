@@ -2824,58 +2824,57 @@ namespace Ship_Game.Gameplay
 
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
-            //moved this code a little lower as it does not work in some situations
-            //if (this.Owner.speed == 0 && target.Velocity.Length() == 0)
-            //{
-            //    Vector2 fireatstationary = Vector2.Zero;
-            //    fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center));
-            //    if (SalvoFire)
-            //        weapon.FireSalvo(fireatstationary, target);
-            //    else
-            //        weapon.Fire(fireatstationary, target);
-            //    return;
-
-            //}
-
-            float distance = Vector2.Distance(weapon.Center, target.Center);// +target.Velocity.Length() == 0 ? 0 : 500;
-            Vector2 dir =Vector2.Zero;
-            if(this.Owner.Velocity.Length() >0 && weapon.ProjectileSpeed >0 )
-             dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
-            else 
-                dir = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)); 
-            
-            float timeToTarget = distance / dir.Length();
-            Vector2 projectedPosition = target.Center;
-            //this.moduleTarget = target as ShipModule;
             ShipModule moduleTarget = target as ShipModule;
-            if (target is Projectile)
+            Projectile projectileTarget = target as Projectile;
+            Vector2 dir = Vector2.Zero;
+            Vector2 projectedPosition = Vector2.Zero;
+            //this.moduleTarget = target as ShipModule;
+
+            if (projectileTarget !=null)
             {
-                projectedPosition = target.Center + (target.Velocity * timeToTarget);
+                float distance = Vector2.Distance(weapon.Center, projectileTarget.Center) + projectileTarget.Velocity.Length() == 0 ? 0 : 500;
+                 dir = Vector2.Zero;
+      
+                 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectileTarget.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
+
+                float timeToTarget = distance / dir.Length();
+
+                projectedPosition = projectileTarget.Center + (projectileTarget.Velocity * timeToTarget);
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
                 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
                 timeToTarget = distance / dir.Length();
-                projectedPosition = target.Center + ((target.Velocity * timeToTarget) * 0.85f);
+                projectedPosition = projectileTarget.Center + ((projectileTarget.Velocity * timeToTarget) * 0.85f);
             }
             else if (moduleTarget !=null)
             {
-                if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed <= 0)
-                    System.Diagnostics.Debug.WriteLine(this.Owner.GetSystemName() + " - Velocity error compensator in calculate and fire. Fix weird velocity");
-                if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed >0)
-                    projectedPosition = target.Center + ((target as ShipModule).GetParent().Velocity * timeToTarget);
-                else
-                    projectedPosition = target.Center ;
-                if (projectedPosition != target.Center && (target as ShipModule).GetParent().Velocity.Length() <= 0)
+                float distance = Vector2.Distance(weapon.Center, moduleTarget.Center) + moduleTarget.Velocity.Length() == 0 ? 0 : 500;
+                 dir = Vector2.Zero;
+
+                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
+
+                float timeToTarget = distance / dir.Length();
+                projectedPosition = target.Center;
+    //            if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed <= 0)
+             //       System.Diagnostics.Debug.WriteLine(this.Owner.GetSystemName() + " - Velocity error compensator in calculate and fire. Fix weird velocity");
+  //              if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed > 0)
+                    projectedPosition = moduleTarget.Center + (moduleTarget.GetParent().Velocity * timeToTarget);
+                //else
+                //{
+                //    System.Diagnostics.Debug.WriteLine(this.Owner.GetSystemName() + " - posistion compensator in calculate and fire.");
+                //    projectedPosition = moduleTarget.Center;
+                //}
+                if (projectedPosition != moduleTarget.Center && moduleTarget.GetParent().Velocity.Length() <= 0)
                 {
                     System.Diagnostics.Debug.WriteLine(this.Owner.GetSystem().Name + " - calculate and fire error");
                     //moved docs target correction here. 
                     Vector2 fireatstationary = Vector2.Zero;
-                    fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center));
+                    fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, moduleTarget.Center));
                     if (SalvoFire)
                         weapon.FireSalvo(fireatstationary, target);
                     else
                         weapon.Fire(fireatstationary, target);
                     return;
-                    
+
                 }
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
                 if (moduleTarget.GetParent().Velocity.Length() > 0.0f) 
