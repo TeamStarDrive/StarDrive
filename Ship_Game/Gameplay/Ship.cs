@@ -463,7 +463,7 @@ namespace Ship_Game.Gameplay
             {
                 this.troopsOut = value;
                 if (this.troopsOut)
-                    this.ScrambleAssaultShips();
+                    this.ScrambleAssaultShips(0);
                 else
                     this.RecoverAssaultShips();
             }
@@ -2238,17 +2238,19 @@ namespace Ship_Game.Gameplay
             }
         }
         //added by gremlin deveksmod scramble assault ships
-        public void ScrambleAssaultShips()
+        public void ScrambleAssaultShips(float strengthNeeded)
         {
+            bool flag = strengthNeeded > 0;
             foreach (ModuleSlot slot in this.ModuleSlotList.Where(slot => slot.module != null && slot.module.ModuleType == ShipModuleType.Hangar && slot.module.IsTroopBay && this.TroopList.Count > 0 && slot.module.GetHangarShip() == null && slot.module.hangarTimer <= 0f))
-            {
-                //if (slot.module == null || slot.module.ModuleType != ShipModuleType.Hangar || !slot.module.IsTroopBay || this.TroopList.Count <= 0 || slot.module.GetHangarShip() != null || slot.module.hangarTimer > 0f)
-                //{
-                //    continue;
-                //}
-
+            {                
+                if ( flag && strengthNeeded < 0)
+                    break;
+                strengthNeeded -= this.TroopList[0].Strength;
                 slot.module.LaunchBoardingParty(this.TroopList[0]);
+                
                 this.TroopList.RemoveAt(0);
+                
+                
             }
         }
 

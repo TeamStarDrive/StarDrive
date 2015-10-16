@@ -2743,7 +2743,7 @@ namespace Ship_Game
                     //try
                     {
                         this.DoCombats(elapsedTime);
-                        if ((double)this.DecisionTimer <= 0.0)
+                        if (this.DecisionTimer <= 0)
                         {
                             this.MakeCombatDecisions();
                             this.DecisionTimer = 0.5f;
@@ -2764,17 +2764,17 @@ namespace Ship_Game
                     if (building.isWeapon)
                     {
                         building.WeaponTimer -= elapsedTime;
-                        if ((double)building.WeaponTimer < 0.0)
+                        if (building.WeaponTimer < 0)
                         {
                             if (this.Owner != null)
                             {
                                 for (int index2 = 0; index2 < this.system.ShipList.Count; ++index2)
                                 {
                                     Ship ship = this.system.ShipList[index2];
-                                    if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && (double)Vector2.Distance(this.Position, ship.Center) < (double)building.theWeapon.Range)
+                                    if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && Vector2.Distance(this.Position, ship.Center) < building.theWeapon.Range)
                                     {
                                         building.theWeapon.Center = this.Position;
-                                        building.theWeapon.FireFromPlanet(ship.Center - this.Position, this, ship.GetRandomInternalModule(building.theWeapon));
+                                        building.theWeapon.FireFromPlanet(ship.Center +ship.Velocity - this.Position, this, ship.GetRandomInternalModule(building.theWeapon));
                                         building.WeaponTimer = building.theWeapon.fireDelay;
                                         break;
                                     }
@@ -2792,7 +2792,7 @@ namespace Ship_Game
                 Projectile projectile = this.Projectiles[index];
                 if (projectile.Active)
                 {
-                    if ((double)elapsedTime > 0.0)
+                    if (elapsedTime > 0)
                         projectile.Update(elapsedTime);
                 }
                 else
@@ -2817,6 +2817,43 @@ namespace Ship_Game
             for (int i = 0; i < this.system.ShipList.Count; i++)
             {
                 Ship ship = this.system.ShipList[i];
+                if(ship != null && ship.loyalty.isFaction)
+                {
+                    ship.Ordinance = ship.OrdinanceMax;
+                    if (ship.HasTroopBay )
+                    {
+                        if (this.Population >0)
+                        {
+                            if (ship.TroopCapacity > ship.TroopList.Count)
+                            {
+                                string redshirtType = "Wyvern";
+                                Troop xeno = ResourceManager.TroopsDict[redshirtType];
+                                xeno = ResourceManager.CreateTroop(xeno, ship.loyalty);
+                                ship.TroopList.Add(ResourceManager.CreateTroop(xeno, ship.loyalty));
+                            }
+                            if (this.Owner != null && this.Population > 0)
+                            {
+                                this.Population *= .5f;
+                                this.Population -= 1000;
+                                this.ProductionHere *= .5f;
+                                this.FoodHere *= .5f;
+                            }
+                            if (this.Population < 0)
+                                this.Population = 0;
+                        }
+                        else if (this.ParentSystem.combatTimer < -30 && ship.TroopCapacity > ship.TroopList.Count)
+                        {
+                            string redshirtType = "Wyvern";
+                            Troop xeno = ResourceManager.TroopsDict[redshirtType];
+                            xeno = ResourceManager.CreateTroop(xeno, ship.loyalty);
+                            ship.TroopList.Add(ResourceManager.CreateTroop(xeno, ship.loyalty));
+                            this.ParentSystem.combatTimer = 0;
+                        }
+                        
+
+                        
+                    }
+                }
                 if (ship != null && ship.loyalty == this.Owner && this.HasShipyard && Vector2.Distance(this.Position, ship.Position) <= 5000f)
                 {
                     ship.PowerCurrent = ship.PowerStoreMax;
@@ -2892,10 +2929,13 @@ namespace Ship_Game
                     }
                     else if(ship.GetAI().State == AIState.Resupply)
                     {
-                        ship.GetAI().ClearOrdersNext =true;                        
+                        ship.GetAI().orderqueue.EnterWriteLock();
+                        ship.GetAI().OrderQueue.Clear();
+                        ship.GetAI().orderqueue.ExitWriteLock();
                         ship.GetAI().Target = null;
                         ship.GetAI().PotentialTargets.Clear();
                         ship.GetAI().HasPriorityOrder = false;
+                        ship.GetAI().State = AIState.AwaitingOrders;
 
                     }
                     //auto load troop:
