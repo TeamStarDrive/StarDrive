@@ -304,16 +304,34 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				float closestD = 999999f;
+				
+                
+                float closestD = 999999f;
+                bool closestUS =false;
 				foreach (Planet p in this.Owner.GetSystem().PlanetList)
 				{
-					float Distance = Vector2.Distance(this.Owner.Center, p.Position);
-					if (Distance >= closestD)
-					{
-						continue;
-					}
-					closestD = Distance;
-					this.awaitClosest = p;
+                    bool us = false;
+                    if(this.Owner.loyalty.isFaction)
+                    {
+                        us = p.Owner != null || p.habitable;
+                    }
+                    else
+                        us = p.Owner == this.Owner.loyalty;
+                    if (closestUS && !us)
+                        continue;
+                    float Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                    if (us == closestUS)
+                    {
+                        if (Distance >= closestD)
+                        {
+                            continue;
+                        }
+                        
+                    }
+
+                    closestUS = us;
+                    closestD = Distance;
+                    this.awaitClosest = p;
 				}
 			}
 		}
