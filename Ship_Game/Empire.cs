@@ -504,6 +504,7 @@ namespace Ship_Game
             }
             foreach (KeyValuePair<string, Technology> keyValuePair in ResourceManager.TechTree)
             {
+                
                 TechEntry techEntry = new TechEntry();
                 techEntry.Progress = 0.0f;
                 techEntry.UID = keyValuePair.Key;
@@ -706,7 +707,165 @@ namespace Ship_Game
 
             }
         }
+        public void InitializeFromSave()
+        {
+            this.GSAI = new GSAI(this);
+            for (int key = 1; key < 100; ++key)
+            {
+                Fleet fleet = new Fleet();
+                fleet.Owner = this;
+                string str = "";
+                switch (key)
+                {
+                    case 0:
+                        str = "10th";
+                        break;
+                    case 1:
+                        str = "1st";
+                        break;
+                    case 2:
+                        str = "2nd";
+                        break;
+                    case 3:
+                        str = "3rd";
+                        break;
+                    case 4:
+                        str = "4th";
+                        break;
+                    case 5:
+                        str = "5th";
+                        break;
+                    case 6:
+                        str = "6th";
+                        break;
+                    case 7:
+                        str = "7th";
+                        break;
+                    case 8:
+                        str = "8th";
+                        break;
+                    case 9:
+                        str = "9th";
+                        break;
+                }
+                fleet.Name = str + " fleet";
+                this.FleetsDict.TryAdd(key, fleet);
+            }
+            bool excluded = false;
+            List<string> shipkill = new List<string>();
+            int shipsPurged = 0;
+            float SpaceSaved = GC.GetTotalMemory(true);
 
+            if (string.IsNullOrEmpty(this.data.DefaultTroopShip))
+            {
+                this.data.DefaultTroopShip = this.data.PortraitName + " " + "Troop";
+            }
+
+
+
+            foreach (KeyValuePair<string, ShipData> keyValuePair in ResourceManager.HullsDict)
+                this.UnlockedHullsDict.Add(keyValuePair.Value.Hull, false);
+            foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
+                this.UnlockedTroopDict.Add(keyValuePair.Key, false);
+            foreach (KeyValuePair<string, Building> keyValuePair in ResourceManager.BuildingsDict)
+                this.UnlockedBuildingsDict.Add(keyValuePair.Key, false);
+            foreach (KeyValuePair<string, ShipModule> keyValuePair in ResourceManager.ShipModulesDict)
+                this.UnlockedModulesDict.Add(keyValuePair.Key, false);
+            //unlock from empire data file
+
+
+            //fbedard: Add missing troop ship
+            if (this.data.DefaultTroopShip == null)
+                this.data.DefaultTroopShip = this.data.PortraitName + " " + "Troop";
+
+            foreach (KeyValuePair<string, TechEntry> keyValuePair in this.TechnologyDict)
+            {
+                if (keyValuePair.Value.Unlocked)
+                {
+                    keyValuePair.Value.Unlocked = false;
+                    this.UnlockTechFromSave(keyValuePair.Key);
+                }
+            }
+            this.UpdateShipsWeCanBuild();
+            foreach (string building in this.data.unlockBuilding)
+                this.UnlockedBuildingsDict[building] = true;
+            //unlock ships from empire data
+            foreach (string ship in this.data.unlockShips)
+                this.ShipsWeCanBuild.Add(ship);
+            if (this.data.EconomicPersonality == null)
+                this.data.EconomicPersonality = new ETrait
+                {
+                    Name = "Generalists"
+                };
+            //Added by McShooterz: mod support for EconomicResearchStrategy folder
+            try
+            {
+                if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/EconomicResearchStrategy/", this.data.EconomicPersonality.Name, ".xml")))
+                {
+
+                    this.economicResearchStrategy = (EconomicResearchStrategy)ResourceManager.EconSerializer.Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/EconomicResearchStrategy/", this.data.EconomicPersonality.Name, ".xml")).OpenRead());
+                }
+                else
+                {
+                    this.economicResearchStrategy = (EconomicResearchStrategy)ResourceManager.EconSerializer.Deserialize((Stream)new FileInfo("Content/EconomicResearchStrategy/" + this.data.EconomicPersonality.Name + ".xml").OpenRead());
+                }
+            }
+            catch (Exception e)
+            {
+                e.Data.Add("Failing File: ", string.Concat(Ship_Game.ResourceManager.WhichModPath, "/EconomicResearchStrategy/", this.data.EconomicPersonality.Name, ".xml"));
+                e.Data.Add("Fail Reaseon: ", e.InnerException);
+                throw e;
+            }
+
+
+            if (false) //purge designs that dont advance the ships
+            {
+                System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
+                if (!this.isFaction)
+                {
+                    HashSet<string> techs = new HashSet<string>();
+                    HashSet<string> purgelist = new HashSet<string>();
+                    int count = 2; //how many best ships to pick
+                    //pick the best ships and record their techs
+                    foreach (Ship ship in ResourceManager.ShipsDict.Values.OrderByDescending(str => str.BaseStrength))
+                    {
+                        foreach (string techsneeded in ship.shipData.techsNeeded)
+                            techs.Add(techsneeded);
+                        if (count < 0)
+                            break;
+                        count--;
+
+                    }
+                    // use the recorded techs and purge ships that do not have enough of those techs.
+                    foreach (Ship ship in ResourceManager.ShipsDict.Values)
+                    {
+                        if (ship.shipData.techsNeeded.Count == 0 || ship.shipData.BaseStrength == 0
+                            ||
+                            ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.Role == ShipData.RoleName.prototype
+                            || ship.shipData.ShipStyle != this.data.Traits.ShipType || ship.shipData.techsNeeded.Count == 0
+                            )
+                            continue;
+                        var difference = ship.shipData.techsNeeded.Except(techs);
+                        if (difference.Count() == 0)
+                            continue;
+                        if (difference.Count() / ship.shipData.techsNeeded.Count < .1)
+                        {
+                            purgelist.Add(ship.shipData.Name);
+                        }
+
+
+                    }
+                    System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " - Purging " + purgelist.Count.ToString());
+                    foreach (string purge in purgelist)
+                    {
+                        ResourceManager.ShipsDict.Remove(purge);
+                    }
+                }
+                GC.Collect();
+                System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
+
+            }
+        }
         private bool WeCanUseThisLater(TechEntry tech)
         {
             //List<Technology.LeadsToTech> leadsto = new List<Technology.LeadsToTech>();
@@ -1107,6 +1266,87 @@ namespace Ship_Game
             {
                 if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
+            }
+            foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
+            {
+                if (unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == this.TechnologyDict[techID].AcquiredFrom)
+                {
+                    this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
+                    ShipModule checkmod = null;
+                    if (ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID, out checkmod))
+                    {
+                        if (checkmod.IsTroopBay)
+                            this.canBuildTroopShips = true;
+                        if (checkmod.MaximumHangarShipSize > 0)
+                            this.canBuildCarriers = true;
+                        if (checkmod.ModuleType == ShipModuleType.Bomb)
+                            this.canBuildBombers = true;
+                    }
+                }
+
+            }
+            foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
+            {
+                if (unlockedTroop.Type == this.data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null || unlockedTroop.Type == this.TechnologyDict[techID].AcquiredFrom)
+                    this.UnlockedTroopDict[unlockedTroop.Name] = true;
+            }
+            foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
+            {
+                if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
+                {
+                    this.UnlockedHullsDict[unlockedHull.Name] = true;
+                    ShipData hull = ResourceManager.HullsDict[unlockedHull.Name];
+                    switch (hull.Role)
+                    {
+                        case ShipData.RoleName.disabled:
+                            break;
+                        case ShipData.RoleName.platform:
+                            break;
+                        case ShipData.RoleName.station:
+                            break;
+                        case ShipData.RoleName.construction:
+                            break;
+                        case ShipData.RoleName.supply:
+                            break;
+                        case ShipData.RoleName.freighter:
+                            break;
+                        case ShipData.RoleName.troop:
+                            break;
+                        case ShipData.RoleName.fighter:
+                            break;
+                        case ShipData.RoleName.scout:
+                            break;
+                        case ShipData.RoleName.gunboat:
+                            this.canBuildCorvettes = true;
+                            break;
+                        case ShipData.RoleName.drone:
+                            break;
+                        case ShipData.RoleName.corvette:
+                            this.canBuildCorvettes = true;
+                            break;
+                        case ShipData.RoleName.frigate:
+                            this.canBuildFrigates = true;
+                            break;
+                        case ShipData.RoleName.destroyer:
+                            this.canBuildFrigates = true;
+                            break;
+                        case ShipData.RoleName.cruiser:
+                            this.canBuildCruisers = true;
+                            break;
+                        case ShipData.RoleName.carrier:
+                            this.canBuildCapitals = true;
+                            break;
+                        case ShipData.RoleName.capital:
+                            this.canBuildCapitals = true;
+                            break;
+                        case ShipData.RoleName.prototype:
+                            break;
+                        default:
+                            break;
+                    }
+                    //this.UpdateShipsWeCanBuild();
+                }
+
             }
             this.UpdateShipsWeCanBuild();
         }

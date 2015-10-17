@@ -140,26 +140,15 @@ namespace Ship_Game
                 }
 
 			}
-			e.Initialize();
+            foreach(TechEntry tech in data.TechTree)
+            {
+                e.TechnologyDict.Add(tech.UID, tech);
+            }            
+			e.InitializeFromSave();
 			e.Money = data.Money;
 			e.Research = data.Research;
-			e.GetGSAI().AreasOfOperations = data.AOs;
-			foreach (TechEntry tech in data.TechTree)
-			{
-				if (!e.GetTDict().ContainsKey(tech.UID))
-				{
-					continue;
-				}
-                if (tech.AcquiredFrom != null)
-                    e.GetTDict()[tech.UID].AcquiredFrom = tech.AcquiredFrom;
-				if (tech.Unlocked)
-				{
-					e.UnlockTechFromSave(tech.UID);
-				}
-				e.GetTDict()[tech.UID].Progress = tech.Progress;
-				e.GetTDict()[tech.UID].Discovered = tech.Discovered;
-                e.GetTDict()[tech.UID].level = tech.level;
-			}
+			e.GetGSAI().AreasOfOperations = data.AOs;            
+  
 			return e;
 		}
 

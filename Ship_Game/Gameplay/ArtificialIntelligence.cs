@@ -827,6 +827,11 @@ namespace Ship_Game.Gameplay
                     return;
                 }
             }
+            if(!this.Owner.loyalty.isFaction && State == AIState.AwaitingOrders && this.Owner.TroopCapacity >0 && this.Owner.TroopList.Count < this.Owner.GetHangars().Where(hangar=> hangar.IsTroopBay).Count() *.5f)
+            {
+                this.OrderResupplyNearest(false);
+                return;
+            }
             //if(this.Owner.Level >2 && this.Owner.Health / this.Owner.HealthMax <.5f&&  !(this.HasPriorityOrder||this.hasPriorityTarget))
             if (this.Owner.Health >0 && this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] 
                 && this.Owner.shipData.Role >= ShipData.RoleName.supply)  //fbedard: repair level
@@ -4530,7 +4535,15 @@ namespace Ship_Game.Gameplay
 				}
 				shipyards.Add(planet);
 			}
-			IOrderedEnumerable<Planet> sortedList = 
+            IOrderedEnumerable<Planet> sortedList = null;
+            if(this.Owner.NeedResupplyTroops)
+                sortedList =
+                from p in shipyards
+                orderby p.TroopsHere.Count > this.Owner.TroopCapacity,
+                Vector2.Distance(this.Owner.Center, p.Position)                
+                select p;
+            else
+			sortedList = 
 				from p in shipyards
 				orderby Vector2.Distance(this.Owner.Center, p.Position)
 				select p;
@@ -7928,7 +7941,7 @@ namespace Ship_Game.Gameplay
                     bool docombat = false;
                     LinkedListNode<ArtificialIntelligence.ShipGoal> tempShipGoal = this.OrderQueue.First;
                     ShipGoal firstgoal = tempShipGoal != null ? tempShipGoal.Value : null;  //.FirstOrDefault<ArtificialIntelligence.ShipGoal>();
-                    if (this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0)
+                    if (this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0 || this.Owner.Transporters.Count >0)
 #if !DEBUG
                         try
 #endif
@@ -8017,6 +8030,15 @@ namespace Ship_Game.Gameplay
                 {
                     this.OrderResupplyNearest(false);
                 }
+            if(this.State == AIState.AwaitingOrders && this.Owner.NeedResupplyTroops)
+            {
+                this.OrderResupplyNearest(false);
+            }
+            if (this.State == AIState.AwaitingOrders && this.Owner.needResupplyOrdnance)
+            {
+                this.OrderResupplyNearest(false);
+
+            }
             if (this.State == AIState.Resupply && !this.HasPriorityOrder)
             {
                 this.HasPriorityOrder = true;

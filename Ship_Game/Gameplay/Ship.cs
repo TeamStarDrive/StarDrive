@@ -217,6 +217,9 @@ namespace Ship_Game.Gameplay
         private bool LowHealth = false; //fbedard: recalculate strength after repair
         public float TradeTimer;
 
+        //keep track of the number of planetary assaults the ship can do
+        public byte PotentialPlanetTroops = 0;
+
         //public class diplomacticSpace
         //{
         //    public bool IsIndangerousSpace= false;
@@ -264,7 +267,136 @@ namespace Ship_Game.Gameplay
                 return this.beams;
             }
         }
+        public bool needResupplyOrdnance
+        {
+            get
+            {
+                if (this.OrdinanceMax > 0f && this.Ordinance / this.OrdinanceMax < 0.05f && !this.GetAI().hasPriorityTarget)//this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+                {
+                    if (this.GetAI().FriendliesNearby.Where(supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() == 0)
+                    {
+                        return true;
+                    }
+                    else return false;
+                }
+                return false;
+            }
+            
+        }
+        public bool NeedResupplyTroops
+        {
+            get
+            {
+                try
+                {
+                    byte assaultSpots = 0;
+                    if (this.Hangars.Count > 0)
+                        foreach (ShipModule sm in this.Hangars)
+                        {
+                            if (sm.IsTroopBay)
+                                assaultSpots++;
+                        }
+                    if (this.Transporters.Count > 0)
+                        foreach (ShipModule at in this.Transporters)
+                        {
+                            assaultSpots += at.TransporterTroopLanding;
+                        }
+                    byte troops = 0;
+                    if (this.TroopList.Count > 0)
+                        foreach (Troop troop in this.TroopList)
+                        {
+                            troops++;
+                            if (troops >= assaultSpots)
+                                break;
+                        }
+                    return assaultSpots == 0 ? false : troops / (float)assaultSpots < .5f ? true : false; 
+                }
+                catch { }
+                return false;
+            }
+        }
+        public byte ReadyPlanetAssaulttTroops
+        {
+            get
+            {
+                try
+                {
+                    byte assaultSpots = 0;
+                    if (this.Hangars.Count > 0)
+                        foreach (ShipModule sm in this.Hangars)
+                        {
+                            if (sm.hangarTimer < 0)
+                                continue;
+                            if (sm.IsTroopBay)
+                                assaultSpots++;
+                        }
+                    if (this.Transporters.Count > 0)
+                        foreach (ShipModule at in this.Transporters)
+                        {
+                            if (at.TransporterTimer > 0)
+                                continue;
+                            assaultSpots += at.TransporterTroopLanding;
+                        }
+                    byte troops = 0;
+                    if (this.TroopList.Count > 0)
+                        foreach (Troop troop in this.TroopList)
+                        {
+                            troops++;
+                            if (troops >= assaultSpots)
+                                break;
+                        }
 
+                    return troops;
+                }
+                catch
+                { }
+                return 0;
+                
+                
+            }
+        }
+        public float ReadyPlanetAssaultStrength
+        {
+            get
+            {
+                try
+                {
+                    float assaultSpots = 0;
+                    float assaultStrength = 0;
+                    if (this.Hangars.Count > 0)
+                        foreach (ShipModule sm in this.Hangars)
+                        {
+                            if (sm.hangarTimer < 0)
+                                continue;
+                            if (sm.IsTroopBay)
+                                assaultSpots++;
+                        }
+                    if (this.Transporters.Count > 0)
+                        foreach (ShipModule at in this.Transporters)
+                        {
+                            if (at.TransporterTimer > 0)
+                                continue;
+                            assaultSpots += at.TransporterTroopLanding;
+                        }
+                    byte troops = 0;
+                    if (this.TroopList.Count > 0)
+                        foreach (Troop troop in this.TroopList)
+                        {
+                            troops++;
+                            assaultStrength += troop.Strength;
+                            if (troops >= assaultSpots)
+                                break;
+                        }
+
+                    return assaultStrength;
+                }
+                catch
+                { }
+                return 0;
+
+
+            }
+        }
         public bool HasSupplyBays
         {
             get
