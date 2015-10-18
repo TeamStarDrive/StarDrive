@@ -1,4 +1,4 @@
-// Type: Ship_Game.UniverseScreen
+// Type:+836Ship_Game.UniverseScreen
 // Assembly: StarDrive, Version=1.0.9.0, Culture=neutral, PublicKeyToken=null
 // MVID: C34284EE-F947-460F-BF1D-3C6685B19387
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
@@ -1653,7 +1653,7 @@ namespace Ship_Game
       
                 Parallel.Invoke(() =>
                     {
-                        if ((double)elapsedTime > 0.0 && (double)this.shiptimer <= 0.0)
+                        if (elapsedTime > 0.0 && this.shiptimer <= 0.0)
                         {
                             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                                 solarSystem.ShipList.Clear();
@@ -1671,7 +1671,7 @@ namespace Ship_Game
                                    ship.SetSystem((SolarSystem)null);
                                    foreach (SolarSystem s in UniverseScreen.SolarSystemList)
                                    {
-                                       if ((double)Vector2.Distance(ship.Position, s.Position) < 100000.0)
+                                       if (Vector2.Distance(ship.Position, s.Position) < 100000.0)
                                        {
                                            s.ExploredDict[ship.loyalty] = true;
                                            ship.SetSystem(s);
@@ -2187,7 +2187,7 @@ namespace Ship_Game
                 {
                     system.DangerTimer -= realTime;
                     system.DangerUpdater -= realTime;
-                    if ((double)system.DangerUpdater < 0.0)
+                    if (system.DangerUpdater < 0.0)
                     {
                         system.DangerUpdater = 10f;
                         system.DangerTimer = (double)this.player.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0 ? 0.0f : 120f;
@@ -2195,7 +2195,7 @@ namespace Ship_Game
                     system.combatTimer -= realTime;
 
 
-                    if ((double)system.combatTimer <= 0.0)
+                    if (system.combatTimer <= 0.0)
                         system.CombatInSystem = false;
                     bool viewing = false;
                     this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(system.Position, 0.0f), this.projection, this.view, Matrix.Identity);
@@ -2301,7 +2301,7 @@ namespace Ship_Game
         }
         protected void SpatManUpdate2(float elapsedTime)
         {
-            lock (GlobalStats.DeepSpaceLock)
+           // lock (GlobalStats.DeepSpaceLock)
             {
                 foreach (Projectile item_0 in this.DSProjectilesToAdd)
                     UniverseScreen.DeepSpaceManager.CollidableObjects.Add((GameplayObject)item_0);
@@ -2871,7 +2871,7 @@ namespace Ship_Game
                             lastshipcombat = 0;
                         foreach (Ship ship in EmpireManager.GetEmpireByName(this.PlayerLoyalty).GetShips())
                         {
-                            if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active || ship.Name == "Subspace Projector")
+                            if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active)
                                 continue;
                             else
                             {
@@ -3771,7 +3771,7 @@ namespace Ship_Game
                     Vector2 vector2_2 = Vector2.Normalize(target - this.startDrag);
                     if ((double)input.RightMouseTimer > 0.0)
                     {
-                        if (this.SelectedFleet != null && this.SelectedFleet.Owner == this.player)
+                        if (this.SelectedFleet != null && this.SelectedFleet.Owner.isPlayer)
                         {
                             AudioManager.PlayCue("echo_affirm1");
                             this.SelectedSomethingTimer = 3f;
@@ -3812,7 +3812,7 @@ namespace Ship_Game
                             else
                                 this.SelectedFleet.FormationWarpTo(vector2_1, num3, vectorToTarget);
                         }
-                        else if (this.SelectedShip != null && this.SelectedShip.loyalty == this.player)
+                        else if (this.SelectedShip != null && this.SelectedShip.loyalty.isPlayer)
                         {
                             this.player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Remove(this.SelectedShip);
                             this.SelectedSomethingTimer = 3f;
@@ -5327,7 +5327,7 @@ namespace Ship_Game
             foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
             {
                 //Added by McShooterz: Changed it so when shields are turned off manually, do not draw bubble
-                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && (double)moduleSlot.module.shield_power > 0.0 && !moduleSlot.module.shieldsOff)
+                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && moduleSlot.module.shield_power > 0.0 && !moduleSlot.module.shieldsOff)
                 {
                     Vector2 origin1 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2));
                     Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);
