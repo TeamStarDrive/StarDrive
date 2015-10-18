@@ -1600,7 +1600,7 @@ namespace Ship_Game.Gameplay
                             int num10 = 0;
                             foreach (Ship ship in (List<Ship>)this.Ships)
                             {
-                                if (ship.BombBays.Count > 0 && ship.Ordinance / ship.OrdinanceMax > 0.2f)
+                                if (ship.BombBays.Count > 0 && ship.Ordinance / ship.OrdinanceMax > 0.2f && this.Task.GetTargetPlanet().GetGroundLandingSpots() <10)
                                 {
                                     num10 += ship.BombBays.Count;
                                     ship.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
@@ -1635,7 +1635,7 @@ namespace Ship_Game.Gameplay
                                 float num4 = 0.0f;                                
                                 foreach (Ship ship in (List<Ship>)this.Ships)
                                 {
-                                    num4 =ship.ReadyPlanetAssaultStrength;
+                                    num4 +=ship.ReadyPlanetAssaultStrength;
                                 }
                                 if (num4 > groundStrength && Task.GetTargetPlanet().GetGroundLandingSpots() >10)
                                 {
@@ -1663,7 +1663,7 @@ namespace Ship_Game.Gameplay
                                 {
                                     foreach (Ship ship in (List<Ship>)this.Ships)
                                     {
-                                        if (ship.BombBays.Count > 0)
+                                        if (ship.BombBays.Count > 0 && ship.GetAI().State == AIState.Bombard)
                                         {
                                             ship.GetAI().State = AIState.AwaitingOrders;
                                             ship.GetAI().OrderQueue.Clear();
