@@ -380,7 +380,7 @@ namespace Ship_Game
                 if(this.owner != null)
                     this.owner.Beams.pendingRemovals.TryPop(out beam);
                     
-                    if (beam == null)
+                    if (beam == null || beam.quadEffect == null)
                     {
                         try
                         {
