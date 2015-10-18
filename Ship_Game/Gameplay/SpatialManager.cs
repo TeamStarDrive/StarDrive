@@ -356,6 +356,8 @@ namespace Ship_Game.Gameplay
                 {
                     if (gameplayObject2 is Ship)
                     {
+                        if (Vector2.Distance(beam.weapon.Center, gameplayObject2.Center) > beam.range - gameplayObject2.Radius)
+                            continue;
                         if ((gameplayObject2 as Ship).loyalty == beam.owner.loyalty)
                             AlliedShips.Add(gameplayObject2);
                         else if (gameplayObject2 != beam.owner || beam.weapon.HitsFriendlies)
@@ -399,15 +401,15 @@ namespace Ship_Game.Gameplay
                             if (beam.hitLast.GetParent().GetMD().TryGetValue(beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3), out test))
                                 list3.Add(test.module);
                             
-                                //if (beam.hitLast.GetParent().GetMD().ContainsKey(beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)))
-                                //list3.Add(beam.hitLast.GetParent().GetMD()[beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)].module);
+                                if (beam.hitLast.GetParent().GetMD().ContainsKey(beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)))
+                                list3.Add(beam.hitLast.GetParent().GetMD()[beam.hitLast.XMLPosition + new Vector2((float)num2, (float)num3)].module);
                             num3 += 16;
                         }
                         num2 += 16;
                     }
                     foreach (ShipModule shipModule in list3)
                     {
-                        if (shipModule != null && shipModule.isExternal)
+                        if (shipModule != null && shipModule.isExternal && shipModule.quadrant >0)
                         {
                             float num3 = 100000f;
                             foreach (Vector2 vector2_3 in list1)
@@ -480,7 +482,7 @@ namespace Ship_Game.Gameplay
                             {
                                 ++GlobalStats.BeamTests;
                                 ModuleSlot moduleSlot = ship1.ExternalSlots.ElementAt(index);
-                                if (moduleSlot != null 
+                                if (moduleSlot != null && moduleSlot.module.quadrant >0
                                     && (moduleSlot.module.Active || beam.damageAmount <= 0.0) 
                                     && Vector2.Distance(vector2_3, moduleSlot.module.Center) <= (beam.IgnoresShields ? 12.0 : moduleSlot.module.Radius + 4.0))
                                 {
