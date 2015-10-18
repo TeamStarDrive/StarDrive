@@ -9,6 +9,8 @@ namespace Ship_Game
 {
 	public sealed class GlobalStats
 	{
+        public static string branch = "RC";
+        //public static string Version = "1013A";
         public static int ComparisonCounter;
 
 		public static int Comparisons;
@@ -119,7 +121,7 @@ namespace Ship_Game
         public static float MemoryLimiter;
 
         public static float StartingPlanetRichness;
-        public static string ExtendedVersion;
+        public static string ExtendedVersion = "Radical_Elements_";
         public static int IconSize;
         public static byte TurnTimer = 5;
 
@@ -136,6 +138,7 @@ namespace Ship_Game
         public static ReaderWriterLockSlim UILocker;
         public static int BeamOOM = 0;
         public static string bugTracker = "";
+        
 
 		static GlobalStats()
 		{
@@ -183,6 +186,7 @@ namespace Ship_Game
             GlobalStats.RemnantActivation = 0;
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
+            
 			try
 			{
 				GlobalStats.GravityWellRange = float.Parse(ConfigurationManager.AppSettings["GravityWellRange"]); // 8000f;
@@ -195,7 +199,8 @@ namespace Ship_Game
 	            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
 	            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
 	            GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
-	            GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
+                //GlobalStats.ExtendedVersion += "_" + GlobalStats.branch + "_" + GlobalStats.Version;
+                GlobalStats.ExtendedVersion +=  GlobalStats.branch + " : " + ConfigurationManager.AppSettings["ExtendedVersion"];
 	            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
 	            GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
 	            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
@@ -217,7 +222,7 @@ namespace Ship_Game
             GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
             GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
-            GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
+           // GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
             GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);

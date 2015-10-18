@@ -460,7 +460,7 @@ namespace Ship_Game
                         return false;
                     if (this.DoubleClickTimer > 0)
                         this.DoubleClickTimer -= 0.01666f;
-                    if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
+                    if (HelperFunctions.CheckIntersection(this.ShipInfoRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
                     {
                         Ship.universeScreen.ViewingShip = false;
                         Ship.universeScreen.AdjustCamTimer = 0.5f;
@@ -678,20 +678,14 @@ namespace Ship_Game
 				{
 					OrdersButton ob = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterToggle, 19)
 					{
-						ValueToModify = new Ref<bool>(() => this.ship.FightersOut, (bool x) => {
+                        ValueToModify = new Ref<bool>(() => this.ship.FightersOut, (bool x) =>
+                        {
 							this.ship.FightersOut = x;
-							this.ship.ManualHangarOverride = true;
+                            /// !this.ship.ManualHangarOverride;
 						})
 					};
 					this.Orders.Add(ob);
-                    if (this.ship.shipData.Role != ShipData.RoleName.station)
-                    {
-					    OrdersButton ob2 = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterRecall, 146)
-					    {
-						    ValueToModify = new Ref<bool>(() => this.ship.RecallFightersBeforeFTL, (bool x) => this.ship.RecallFightersBeforeFTL = x)
-					    };
-					    this.Orders.Add(ob2);
-                    }
+               
 				}
 				if (hasTroops)
 				{
@@ -699,11 +693,24 @@ namespace Ship_Game
 					{
 						ValueToModify = new Ref<bool>(() => this.ship.TroopsOut, (bool x) => {
 							this.ship.TroopsOut = x;
-							this.ship.ManualHangarOverride = true;
+							//this.ship.ManualHangarOverride = true;
 						})
 					};
 					this.Orders.Add(ob);
 				}
+                //if (this.ship.shipData.Role != ShipData.RoleName.station)
+                {
+                    OrdersButton ob2 = new OrdersButton(this.ship, Vector2.Zero, OrderType.FighterRecall, 146)
+                    {
+                        ValueToModify = new Ref<bool>(() => this.ship.RecallFightersBeforeFTL, (bool x) =>
+                        {
+                            this.ship.RecallFightersBeforeFTL = x;
+                            this.ship.ManualHangarOverride = !x;
+                        }
+                            )
+                    };
+                    this.Orders.Add(ob2);
+                }
 			}
             if (this.ship.shipData.Role >= ShipData.RoleName.fighter && ship.Mothership == null && this.ship.GetAI().State != AIState.Colonize && ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {

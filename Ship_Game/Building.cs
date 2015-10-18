@@ -124,6 +124,8 @@ namespace Ship_Game
 
         public BuildingCategory Category = BuildingCategory.General;
 
+        public bool IsPlayerAdded = false;
+
 		public Building()
 		{
 		}

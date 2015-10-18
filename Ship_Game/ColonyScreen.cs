@@ -402,6 +402,12 @@ namespace Ship_Game
                 if (pgs.building != null)
                 {
                     Rectangle destinationRectangle2 = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                    if(pgs.building.IsPlayerAdded)
+                    {
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + pgs.building.Icon + "_64x64"], destinationRectangle2, Color.WhiteSmoke);
+                    }
+                    else
+                    
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + pgs.building.Icon + "_64x64"], destinationRectangle2, Color.White);
                 }
                 else if (pgs.QItem != null)
@@ -482,12 +488,17 @@ namespace Ship_Game
                         {
                             if (entry.clickRectHover == 0)
                             {
+                                bool wontbuild = false;
+                                if(!this.p.WeCanAffordThis(entry.item as Building,this.p.colonyType))
+                                {
+                                    wontbuild = true;
+                                }
                                 vector2_1.Y = (float)entry.clickRect.Y;
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as Building).Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as Building).Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), wontbuild ? Color.SlateGray : Color.White);
                                 Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((entry.item as Building).NameTranslationIndex), position, Color.White);
+                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((entry.item as Building).NameTranslationIndex), position,  wontbuild ? Color.SlateGray : Color.White);
                                 position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.parseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, Color.Orange);
+                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.parseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
                                 position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
                                 Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
                                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
@@ -2547,6 +2558,7 @@ namespace Ship_Game
                             this.p.ConstructionQueue.Clear();
                             foreach (QueueItem qi in copied)
                             {
+                                //qi.IsPlayerAdded = true;
                                 this.p.ConstructionQueue.Add(qi);
                             }
                             AudioManager.PlayCue("sd_ui_accept_alt3");
@@ -2630,7 +2642,8 @@ namespace Ship_Game
                         QueueItem qi = new QueueItem();
                         //{
                         qi.isBuilding = true;
-                        qi.Building = this.ActiveBuildingEntry.item as Building;
+                        qi.Building = this.ActiveBuildingEntry.item as Building;       //ResourceManager.GetBuilding((this.ActiveBuildingEntry.item as Building).Name);
+                        qi.IsPlayerAdded = true;
                         qi.Cost = ResourceManager.BuildingsDict[qi.Building.Name].Cost * UniverseScreen.GamePaceStatic;
                         qi.productionTowards = 0f;
                         qi.pgs = pgs;
@@ -2652,9 +2665,10 @@ namespace Ship_Game
                         //{
                         qi.isBuilding = true;
                         qi.Building = this.ActiveBuildingEntry.item as Building;
-                        qi.Cost = ResourceManager.BuildingsDict[qi.Building.Name].Cost * UniverseScreen.GamePaceStatic;
+                        qi.Cost = qi.Building.Cost *UniverseScreen.GamePaceStatic; //ResourceManager.BuildingsDict[qi.Building.Name].Cost 
                         qi.productionTowards = 0f;
                         qi.pgs = pgs;
+                        qi.IsPlayerAdded = true;
                         //};
                         pgs.QItem = qi;
                         this.p.ConstructionQueue.Add(qi);
@@ -2740,7 +2754,9 @@ namespace Ship_Game
                                 }
                                 else if (e.item is Building)
                                 {
-                                    this.p.AddBuildingToCQ(ResourceManager.GetBuilding((e.item as Building).Name));
+                                    //Building waitaddstuff = ResourceManager.GetBuilding((e.item as Building).Name);
+                                    //waitaddstuff.IsPlayerAdded=true;
+                                    this.p.AddBuildingToCQ(e.item as Building,true);
                                     AudioManager.PlayCue("sd_ui_mouseover");
                                 }
                             }
@@ -2761,7 +2777,9 @@ namespace Ship_Game
                         QueueItem qi = new QueueItem();
                         if (e.item is Building)
                         {
-                            this.p.AddBuildingToCQ(ResourceManager.GetBuilding((e.item as Building).Name));
+                            //Building b = ResourceManager.GetBuilding((e.item as Building).Name);
+                            //b.IsPlayerAdded =true;
+                            this.p.AddBuildingToCQ(e.item as Building,true);
                         }
                         else if (e.item is Ship)
                         {

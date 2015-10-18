@@ -849,6 +849,7 @@ namespace Ship_Game
 			return s;
 		}
 
+
 		public static Troop CreateTroop(Troop t, Empire Owner)
 		{
 			Troop troop = new Troop()
@@ -1383,7 +1384,8 @@ namespace Ship_Game
                 shield_beam_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_beam_resist,
                 IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower,
                 isPowerArmour = Ship_Game.ResourceManager.ShipModulesDict[uid].isPowerArmour,
-                isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead
+                isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead,
+                TargetTracking = Ship_Game.ResourceManager.ShipModulesDict[uid].TargetTracking
 
 			};
 
@@ -2495,11 +2497,18 @@ namespace Ship_Game
                     data.NameIndex += (ushort)OffSet;
                     Localizer.used[data.NameIndex] = true;
                 }
+                
+                if ( data.hangerTimerConstant >0 )
+                    data.hangarTimerConstant = data.hangerTimerConstant;                                    
                 data.UID = String.Intern( Path.GetFileNameWithoutExtension(FI.Name));
                 if (data.IconTexturePath != null && String.IsInterned(data.IconTexturePath) != null)
                     string.Intern(data.IconTexturePath);
                 if (!string.IsNullOrEmpty(data.WeaponType) && string.IsNullOrEmpty(String.IsInterned(data.WeaponType)))
                     string.Intern(data.WeaponType);
+                if(data.IsCommandModule  && data.TargetTracking ==0)
+                {
+                    data.TargetTracking = Convert.ToSByte((data.XSIZE * data.YSIZE) / 3);
+                }
                 if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(data.UID))
 				{
                     Ship_Game.ResourceManager.ShipModulesDict[data.UID] = data;
@@ -2508,6 +2517,7 @@ namespace Ship_Game
 				{
                     Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data);
 				}
+                
 			}
 			foreach (KeyValuePair<string, ShipModule> entry in Ship_Game.ResourceManager.ShipModulesDict)
 			{
@@ -2518,7 +2528,7 @@ namespace Ship_Game
 
 		public static void LoadShips()
 		{
-			Ship_Game.ResourceManager.ShipsDict.Clear();
+            Ship_Game.ResourceManager.ShipsDict.Clear();// = new Dictionary<string, Ship>();
             //Added by McShooterz: Changed how StarterShips loads from mod if folder exists
             XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
             FileInfo[] textList; //"Mods/", 
@@ -2946,9 +2956,10 @@ namespace Ship_Game
                 }
                 if (!fighters && !weapons) Str = 0;
                 if (def > Str) def = Str;
-                entry.Value.BaseStrength = Str + def;
-                ship.BaseStrength = entry.Value.BaseStrength;
-                return  entry.Value.BaseStrength;
+                entry.Value.shipData.BaseStrength = Str + def;
+                entry.Value.BaseStrength = entry.Value.shipData.BaseStrength;
+                ship.BaseStrength = entry.Value.shipData.BaseStrength;
+                return ship.BaseStrength;
                 
 
 
@@ -2957,6 +2968,83 @@ namespace Ship_Game
             return 0;
         }
 
+        public static float CalculateModuleStrength(ShipModule moduleslot, string OffDefBoth, int slotCount)
+        {
+
+            
+                float Str = 0f;
+                float def = 0f;
+                //int slotCount = moduleslot.XSIZE*moduleslot.YSIZE;
+
+
+
+                bool fighters = false;
+                bool weapons = false;
+                //ModuleSlot slot = moduleslot;
+                //foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
+                {
+
+                    ShipModule module = moduleslot;
+                    float offRate = 0;
+                    if (module.InstalledWeapon != null)
+                    {
+                        weapons = true;
+                        Weapon w = module.InstalledWeapon;
+                        if (!w.explodes)
+                        {
+                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                        }
+                        else
+                        {
+                            offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
+
+                        }
+                        if (offRate > 0 && (w.TruePD || w.Range < 1000))
+                        {
+                            float range = 0f;
+                            if (w.Range < 1000)
+                            {
+                                range = (1000f - w.Range) * .01f;
+                            }
+                            offRate /= (2 + range);
+                        }
+                        if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
+                        Str += offRate;
+                    }
+
+
+                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
+                    {
+
+                        fighters = true;
+                        Ship hangarship;// = new Ship();
+                        ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
+
+                        if (hangarship != null)
+                        {
+                            Str+= hangarship.BaseStrength;
+                            
+                        }
+                        else Str += 100;
+                    }
+                    if (slotCount > 0)
+                    {
+                        def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
+                        //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
+                        def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
+                    }
+
+                }
+                //if (!fighters && !weapons) Str = 0;
+                //if (def > Str) def = Str;
+
+            if(OffDefBoth == "Off")
+                return Str;
+            if (OffDefBoth == "Def")
+                return def;
+            return Str + def;
+
+            }
 
 		private static void LoadSmallStars()
 		{

@@ -80,7 +80,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             if (this.ThreatLevel <
-                this.CoreFleet.GetStrength())
+                this.CoreFleet.GetStrength() || ship.BombBays.Count >0 || ship.hasAssaultTransporter || ship.HasTroopBay)
 			{
 				this.OffensiveForcePool.Add(ship);
 				this.Flip = !this.Flip;

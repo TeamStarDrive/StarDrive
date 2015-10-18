@@ -1134,6 +1134,16 @@
       <TIP_ID>225</TIP_ID>
       <Title>Launch Shuttles</Title>
       <Data>266</Data>
-    </ToolTip>	
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>226</TIP_ID>
+      <Title>Target Tracking</Title>
+      <Data>7083</Data>
+  </ToolTip>
+    <ToolTip>
+      <TIP_ID>227</TIP_ID>
+      <Title>Offensive Strength</Title>
+      <Data>7084</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
