@@ -2709,6 +2709,7 @@ namespace Ship_Game
                     }
                     if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                     {
+                        if (eventLocation.TroopsHere.thisLock.IsReadLockHeld)
                         eventLocation.TroopsHere.thisLock.ExitReadLock();
                         return true;
                     }
@@ -5491,7 +5492,8 @@ namespace Ship_Game
 
         private void ApplyProductionTowardsConstruction()
         {
-
+            if (this.Crippled_Turns > 0)
+                return;
             /*
              * timeToEmptyMax = maxs/maxp; = 2
 
@@ -5504,7 +5506,7 @@ time2ec = cs/maxp = 1
 take10 = time2ec /10; = .1
 output = maxp * take10 = 5
              * */
-
+            
             float maxp = this.GetMaxProductionPotential() *(1-this.FarmerPercentage); //this.NetProductionPerTurn; //
             if (maxp < 5)
                 maxp = 5;
