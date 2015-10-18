@@ -363,6 +363,11 @@ namespace Ship_Game.Gameplay
                 {
                     float assaultSpots = 0;
                     float assaultStrength = 0;
+                    if(this.shipData.Role == ShipData.RoleName.troop)
+                    {
+                        assaultSpots += this.TroopList.Count;
+                        
+                    }
                     if (this.Hangars.Count > 0)
                         foreach (ShipModule sm in this.Hangars)
                         {

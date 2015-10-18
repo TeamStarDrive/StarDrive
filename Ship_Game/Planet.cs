@@ -2709,6 +2709,7 @@ namespace Ship_Game
                     }
                     if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                     {
+                        if (eventLocation.TroopsHere.thisLock.IsReadLockHeld)
                         eventLocation.TroopsHere.thisLock.ExitReadLock();
                         return true;
                     }
