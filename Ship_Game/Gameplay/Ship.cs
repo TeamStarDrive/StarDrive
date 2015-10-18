@@ -217,6 +217,9 @@ namespace Ship_Game.Gameplay
         private bool LowHealth = false; //fbedard: recalculate strength after repair
         public float TradeTimer;
 
+        //keep track of the number of planetary assaults the ship can do
+        public byte PotentialPlanetTroops = 0;
+
         //public class diplomacticSpace
         //{
         //    public bool IsIndangerousSpace= false;
@@ -264,7 +267,141 @@ namespace Ship_Game.Gameplay
                 return this.beams;
             }
         }
+        public bool needResupplyOrdnance
+        {
+            get
+            {
+                if (this.OrdinanceMax > 0f && this.Ordinance / this.OrdinanceMax < 0.05f && !this.GetAI().hasPriorityTarget)//this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+                {
+                    if (this.GetAI().FriendliesNearby.Where(supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() == 0)
+                    {
+                        return true;
+                    }
+                    else return false;
+                }
+                return false;
+            }
+            
+        }
+        public bool NeedResupplyTroops
+        {
+            get
+            {
+                try
+                {
+                    byte assaultSpots = 0;
+                    if (this.Hangars.Count > 0)
+                        foreach (ShipModule sm in this.Hangars)
+                        {
+                            if (sm.IsTroopBay)
+                                assaultSpots++;
+                        }
+                    if (this.Transporters.Count > 0)
+                        foreach (ShipModule at in this.Transporters)
+                        {
+                            assaultSpots += at.TransporterTroopLanding;
+                        }
+                    byte troops = 0;
+                    if (this.TroopList.Count > 0)
+                        foreach (Troop troop in this.TroopList)
+                        {
+                            troops++;
+                            if (troops >= assaultSpots)
+                                break;
+                        }
+                    return assaultSpots == 0 ? false : troops / (float)assaultSpots < .5f ? true : false; 
+                }
+                catch { }
+                return false;
+            }
+        }
+        public byte ReadyPlanetAssaulttTroops
+        {
+            get
+            {
+                try
+                {
+                    byte assaultSpots = 0;
+                    if (this.Hangars.Count > 0)
+                        foreach (ShipModule sm in this.Hangars)
+                        {
+                            if (sm.hangarTimer < 0)
+                                continue;
+                            if (sm.IsTroopBay)
+                                assaultSpots++;
+                        }
+                    if (this.Transporters.Count > 0)
+                        foreach (ShipModule at in this.Transporters)
+                        {
+                            if (at.TransporterTimer > 0)
+                                continue;
+                            assaultSpots += at.TransporterTroopLanding;
+                        }
+                    byte troops = 0;
+                    if (this.TroopList.Count > 0)
+                        foreach (Troop troop in this.TroopList)
+                        {
+                            troops++;
+                            if (troops >= assaultSpots)
+                                break;
+                        }
 
+                    return troops;
+                }
+                catch
+                { }
+                return 0;
+                
+                
+            }
+        }
+        public float ReadyPlanetAssaultStrength
+        {
+            get
+            {
+                try
+                {
+                    float assaultSpots = 0;
+                    float assaultStrength = 0;
+                    if(this.shipData.Role == ShipData.RoleName.troop)
+                    {
+                        assaultSpots += this.TroopList.Count;
+                        
+                    }
+                    if (this.Hangars.Count > 0)
+                        foreach (ShipModule sm in this.Hangars)
+                        {
+                            if (sm.hangarTimer < 0)
+                                continue;
+                            if (sm.IsTroopBay)
+                                assaultSpots++;
+                        }
+                    if (this.Transporters.Count > 0)
+                        foreach (ShipModule at in this.Transporters)
+                        {
+                            if (at.TransporterTimer > 0)
+                                continue;
+                            assaultSpots += at.TransporterTroopLanding;
+                        }
+                    byte troops = 0;
+                    if (this.TroopList.Count > 0)
+                        foreach (Troop troop in this.TroopList)
+                        {
+                            troops++;
+                            assaultStrength += troop.Strength;
+                            if (troops >= assaultSpots)
+                                break;
+                        }
+
+                    return assaultStrength;
+                }
+                catch
+                { }
+                return 0;
+
+
+            }
+        }
         public bool HasSupplyBays
         {
             get
@@ -306,30 +443,38 @@ namespace Ship_Game.Gameplay
                 for (int index = 0; index < this.Hangars.Count; ++index)
                 {
                     try
-                    {
+                    {                       
                         ShipModule shipModule = this.Hangars[index];
-                        if (shipModule.GetHangarShip() != null)
+                        if (shipModule.IsTroopBay || shipModule.IsSupplyBay)
+                            continue;
+                        if (shipModule.GetHangarShip() != null
+                             
+                            )
                         {
-                            if (shipModule.GetHangarShip() != null)
+                            //if ()
+                            //{
+                            if (!shipModule.GetHangarShip().Active && shipModule.hangarTimer > 0.0)
                             {
-                                if (!shipModule.GetHangarShip().Active)
-                                {
-                                    if (shipModule.hangarTimer >= 0.0)
-                                        continue;
-                                }
-                                else
-                                    continue;
-                            }
-                            else
+                                //if (shipModule.hangarTimer >= 0.0)
                                 continue;
+                            }
+                            flag = true;
+                                //return false;
+                            //}
+                            //else
+                            //    continue;
                         }
-                        return false;
+                        //else if (shipModule.hangarTimer <= 0.0 )
+                        //    flag =true;
+                        //else
+                        //return flag;
+                          
                     }
                     catch
                     {
                     }
                 }
-                return !flag;
+                return flag;// !flag;
             }
             set
             {
@@ -455,7 +600,7 @@ namespace Ship_Game.Gameplay
             {
                 this.troopsOut = value;
                 if (this.troopsOut)
-                    this.ScrambleAssaultShips();
+                    this.ScrambleAssaultShips(0);
                 else
                     this.RecoverAssaultShips();
             }
@@ -1625,6 +1770,7 @@ namespace Ship_Game.Gameplay
             this.Weapons.Clear();
             this.Center = new Vector2(this.Position.X + this.Dimensions.X / 2f, this.Position.Y + this.Dimensions.Y / 2f);
             this.InitFromSave();
+            if(string.IsNullOrEmpty(this.VanityName))
             this.VanityName = this.Name;
             if (Ship_Game.ResourceManager.ShipsDict.ContainsKey(this.Name) && Ship_Game.ResourceManager.ShipsDict[this.Name].IsPlayerDesign)
                 this.IsPlayerDesign = true;
@@ -1685,7 +1831,7 @@ namespace Ship_Game.Gameplay
             if (this.shipData.Role == ShipData.RoleName.platform)
                 this.IsPlatform = true;
             this.SetShipData(this.GetShipData());
-            if(string.IsNullOrEmpty(this.VanityName))
+            if (string.IsNullOrEmpty(this.VanityName))
             {
                 this.VanityName = this.Name;
             }
@@ -1739,12 +1885,8 @@ namespace Ship_Game.Gameplay
                 this.ModulesDictionary.Add(moduleSlot.Position, moduleSlot);
             foreach (KeyValuePair<Vector2, ModuleSlot> keyValuePair in this.ModulesDictionary)
             {
-                if (keyValuePair.Value.module.shield_power > 0.0)
-                {
-                    keyValuePair.Value.module.isExternal = true;
-                    this.ExternalSlots.Add(keyValuePair.Value);
-                }
-                else if (keyValuePair.Value.module.Active)
+
+                if (keyValuePair.Value.module.Active)
                 {
                     Vector2 key1 = new Vector2(keyValuePair.Key.X, keyValuePair.Key.Y - 16f);
                     if (this.ModulesDictionary.ContainsKey(key1))
@@ -1752,7 +1894,7 @@ namespace Ship_Game.Gameplay
                         if (!this.ModulesDictionary[key1].module.Active)
                         {
                             keyValuePair.Value.module.isExternal = true;
-                            
+                            keyValuePair.Value.module.quadrant = 1;
                             this.ExternalSlots.Add(keyValuePair.Value);
 
                         }
@@ -1764,7 +1906,7 @@ namespace Ship_Game.Gameplay
                                 if (!this.ModulesDictionary[key2].module.Active)
                                 {
                                     keyValuePair.Value.module.isExternal = true;
-                                    
+                                    keyValuePair.Value.module.quadrant = 2;
                                     this.ExternalSlots.Add(keyValuePair.Value);
                                 }
                                 else
@@ -1775,7 +1917,7 @@ namespace Ship_Game.Gameplay
                                         if (!this.ModulesDictionary[key3].module.Active)
                                         {
                                             keyValuePair.Value.module.isExternal = true;
-                                            
+                                            keyValuePair.Value.module.quadrant = 3;
                                             this.ExternalSlots.Add(keyValuePair.Value);
                                         }
                                         else
@@ -1786,7 +1928,7 @@ namespace Ship_Game.Gameplay
                                                 if (!this.ModulesDictionary[key4].module.Active)
                                                 {
                                                     keyValuePair.Value.module.isExternal = true;
-                                                    
+                                                    keyValuePair.Value.module.quadrant = 4;
                                                     this.ExternalSlots.Add(keyValuePair.Value);
                                                 }
                                             }
@@ -1821,6 +1963,12 @@ namespace Ship_Game.Gameplay
                         keyValuePair.Value.module.quadrant = 1;
                         this.ExternalSlots.Add(keyValuePair.Value);
                     }
+                }
+                if (keyValuePair.Value.module.shield_power > 0.0 && !keyValuePair.Value.module.isExternal)
+                {
+                    keyValuePair.Value.module.isExternal = true;
+                    this.ExternalSlots.Add(keyValuePair.Value);
+
                 }
             }
         }
@@ -2227,17 +2375,19 @@ namespace Ship_Game.Gameplay
             }
         }
         //added by gremlin deveksmod scramble assault ships
-        public void ScrambleAssaultShips()
+        public void ScrambleAssaultShips(float strengthNeeded)
         {
+            bool flag = strengthNeeded > 0;
             foreach (ModuleSlot slot in this.ModuleSlotList.Where(slot => slot.module != null && slot.module.ModuleType == ShipModuleType.Hangar && slot.module.IsTroopBay && this.TroopList.Count > 0 && slot.module.GetHangarShip() == null && slot.module.hangarTimer <= 0f))
-            {
-                //if (slot.module == null || slot.module.ModuleType != ShipModuleType.Hangar || !slot.module.IsTroopBay || this.TroopList.Count <= 0 || slot.module.GetHangarShip() != null || slot.module.hangarTimer > 0f)
-                //{
-                //    continue;
-                //}
-
+            {                
+                if ( flag && strengthNeeded < 0)
+                    break;
+                strengthNeeded -= this.TroopList[0].Strength;
                 slot.module.LaunchBoardingParty(this.TroopList[0]);
+                
                 this.TroopList.RemoveAt(0);
+                
+                
             }
         }
 
@@ -2538,7 +2688,8 @@ namespace Ship_Game.Gameplay
             //if (!GlobalStats.WarpInSystem && this.system != null)
             //    this.InhibitedTimer = 1f;
             //else 
-                if (this.FTLmodifier < 1.0 && this.system != null && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed()))
+                if (this.FTLmodifier < 1.0 && this.system != null 
+                    && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed()))
                 this.HyperspaceReturn();
             if (this.ScuttleTimer > -1.0 || this.ScuttleTimer <-1.0)
             {
@@ -2569,13 +2720,13 @@ namespace Ship_Game.Gameplay
             foreach (ProjectileTracker projectileTracker in (List<ProjectileTracker>)this.ProjectilesFired)
             {
                 projectileTracker.Timer -= elapsedTime;
-                if ((double)projectileTracker.Timer <= 0.0)
+                if (projectileTracker.Timer <= 0.0)
                     this.ProjectilesFired.QueuePendingRemoval(projectileTracker);
             }
             this.ProjectilesFired.ApplyPendingRemovals();
             this.ShieldRechargeTimer += elapsedTime;
             this.InhibitedTimer -= elapsedTime;
-            this.Inhibited = this.InhibitedTimer > 0.0;
+            this.Inhibited = this.InhibitedTimer > 0.0f;
             if (this.Inhibited && this.engineState == Ship.MoveState.Warp)
             {
                 this.HyperspaceReturn();
@@ -2584,6 +2735,7 @@ namespace Ship_Game.Gameplay
             {
                 this.Position = this.TetheredTo.Position + this.TetherOffset;
                 this.Center = this.TetheredTo.Position + this.TetherOffset;
+                this.velocityMaximum = 0;
             }
             if (this.Mothership != null && !this.Mothership.Active)
                 this.Mothership = (Ship)null;
@@ -2620,7 +2772,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if ((double)this.Velocity.Length() > (double)this.velocityMaximum)
+                    if (this.Velocity.Length() > this.velocityMaximum)
                         this.Velocity = Vector2.Normalize(this.Velocity) * this.velocityMaximum;
                     Ship ship1 = this;
                     Vector2 vector2_1 = ship1.Position + this.Velocity * elapsedTime;
@@ -2682,7 +2834,7 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Planet p in this.system.PlanetList)
                     {
-                        if ((double)Vector2.Distance(p.Position, this.Center) < 3000.0)
+                        if (Vector2.Distance(p.Position, this.Center) < 3000.0)
                         {
                             if (this.loyalty == Ship.universeScreen.player && !p.ExploredDict[this.loyalty])
                             {
@@ -2713,7 +2865,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
-                    if (this.InCombat && this.GetAI().Target != null && this.GetAI().Target.GetSystem() != null && this.GetAI().Target.GetSystem() == this.GetSystem())
+                    if (this.GetAI().BadGuysNear && this.InCombat && this.system != null)
                     {
                         this.system.CombatInSystem = true;
                         this.system.combatTimer = 15f;
@@ -2728,14 +2880,14 @@ namespace Ship_Game.Gameplay
                     }
                 }
                 Ship ship1 = this;
-                double num1 = (double)ship1.Rotation + (double)this.RotationalVelocity * (double)elapsedTime;
-                ship1.Rotation = (float)num1;
-                if ((double)Math.Abs(this.RotationalVelocity) > 0.0)
+                float num1 = ship1.Rotation + this.RotationalVelocity * elapsedTime;
+                ship1.Rotation = num1;
+                if (Math.Abs(this.RotationalVelocity) > 0.0)
                     this.isTurning = true;
                 if (!this.isSpooling && this.Afterburner != null && this.Afterburner.IsPlaying)
                     this.Afterburner.Stop(AudioStopOptions.Immediate);
                 this.ClickTimer -= elapsedTime;
-                if ((double)this.ClickTimer < 0.0)
+                if (this.ClickTimer < 0.0)
                     this.ClickTimer = 10f;
                 if (this.Active)
                 {
@@ -2800,7 +2952,7 @@ namespace Ship_Game.Gameplay
                             {
                                 if (this.engineState == Ship.MoveState.Warp)
                                 {
-                                    if ((double)thruster.heat < (double)num2)
+                                    if (thruster.heat < num2)
                                         thruster.heat += 0.06f;
                                     this.pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
                                     this.scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
@@ -2808,9 +2960,9 @@ namespace Ship_Game.Gameplay
                                 }
                                 else
                                 {
-                                    if ((double)thruster.heat < (double)num2)
+                                    if (thruster.heat < num2)
                                         thruster.heat += 0.06f;
-                                    if ((double)thruster.heat > 0.600000023841858)
+                                    if (thruster.heat > 0.600000023841858)
                                         thruster.heat = 0.6f;
                                     this.pointat = new Vector3(vector2_3.X, vector2_3.Y, 0.0f);
                                     this.scalefactors = new Vector3(thruster.tscale, thruster.tscale, thruster.tscale);
@@ -2935,11 +3087,11 @@ namespace Ship_Game.Gameplay
                         }
                     }//);
                     //this.beams.thisLock.ExitReadLock();
-                    
-                    this.beams.ApplyPendingRemovals();
+
+                    this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear);
+                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
 
                     
                 }
@@ -3213,14 +3365,14 @@ namespace Ship_Game.Gameplay
 
         public virtual void UpdateShipStatus(float elapsedTime)
         {
-            if ((double)elapsedTime == 0.0)
+            if (elapsedTime == 0.0)
                 return;
             if (Ship.universeScreen.GravityWells && this.system != null && !this.inborders)
             {
                 bool flag = false;
                 foreach (Planet planet in this.system.PlanetList)
                 {
-                    if ((double)Vector2.Distance(this.Position, planet.Position) < (double)(GlobalStats.GravityWellRange * (1 + ((Math.Log(planet.scale))/1.5) )))
+                    if (Vector2.Distance(this.Position, planet.Position) < (GlobalStats.GravityWellRange * (1 + ((Math.Log(planet.scale))/1.5) )))
                     {
                         flag = true;
                         this.InhibitedTimer = 1.5f;
@@ -3230,28 +3382,32 @@ namespace Ship_Game.Gameplay
                 if (!flag)
                     this.InhibitedTimer = 0.0f;
             }
+            if(this.velocityMaximum==0 && this.shipData.Role <= ShipData.RoleName.station)
+            {
+                this.rotation += 0.003f;
+            }
             this.MoveModulesTimer -= elapsedTime;
             this.updateTimer -= elapsedTime;
             //Disable if enough EMP damage
             --this.EMPDamage;
-            if ((double)this.EMPDamage < 0.0)
+            if (this.EMPDamage < 0.0)
                 this.EMPDamage = 0.0f;
-            else if ((double)this.EMPDamage > (double)this.Size + (double)this.BonusEMP_Protection)
+            else if (this.EMPDamage > this.Size + this.BonusEMP_Protection)
                 this.disabled = true;
             else
                 this.disabled = false;
             this.CargoMass = 0.0f;
-            if ((double)this.rotation > 2.0 * Math.PI)
+            if (this.rotation > 2.0 * Math.PI)
             {
                 Ship ship = this;
-                double num = (double)ship.rotation - 6.28318548202515;
-                ship.rotation = (float)num;
+                float num = ship.rotation - 6.28318548202515f;
+                ship.rotation = num;
             }
-            if ((double)this.rotation < 0.0)
+            if (this.rotation < 0.0)
             {
                 Ship ship = this;
-                double num = (double)ship.rotation + 6.28318548202515;
-                ship.rotation = (float)num;
+                float num = ship.rotation + 6.28318548202515f;
+                ship.rotation = num;
             }
             if (this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip)
             {
@@ -3263,7 +3419,7 @@ namespace Ship_Game.Gameplay
             {
                 troop.SetShip(this);
                 if (troop.GetOwner() == this.loyalty)
-                    this.TroopBoardingDefense += (float)troop.Strength;
+                    this.TroopBoardingDefense += troop.Strength;
             }
             if (this.updateTimer <= 0.0)
             {
@@ -3421,32 +3577,32 @@ namespace Ship_Game.Gameplay
                             ++this.number_Alive_Internal_slots;
                         if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
                             continue;
-                        this.Health = (float)(this.Health + moduleSlot.module.Health);
+                        this.Health =this.Health + moduleSlot.module.Health;
                         if (this.shipStatusChanged)
                         {
                             this.RepairRate += moduleSlot.module.BonusRepairRate;
                             if (moduleSlot.module.Mass < 0.0 && moduleSlot.Powered)
                             {
                                 Ship ship3 = this;
-                                double num3 = (double)ship3.Mass + (double)moduleSlot.module.Mass;
-                                ship3.Mass = (float)num3;
+                                float num3 = ship3.Mass + moduleSlot.module.Mass;
+                                ship3.Mass = num3;
                             }
                             else if (moduleSlot.module.Mass > 0.0)
                             {
                                 Ship ship3 = this;
-                                
-                                double num3;
+
+                                float num3;
                                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor && this.loyalty != null)
                                 {
                                     float ArmourMassModifier = this.loyalty.data.ArmourMassModifier;
-                                    double ArmourMass = (double)moduleSlot.module.Mass * ArmourMassModifier;
+                                    float ArmourMass = moduleSlot.module.Mass * ArmourMassModifier;
                                     num3 =ship3.Mass + ArmourMass;
                                 }
                                 else
                                 {
                                     num3 = ship3.Mass + moduleSlot.module.Mass;
                                 }
-                                ship3.Mass = (float)num3;
+                                ship3.Mass = num3;
                             }
                             //Checks to see if there is an active command module
 
@@ -3454,8 +3610,8 @@ namespace Ship_Game.Gameplay
                             {
                                 if (!this.hasCommand && moduleSlot.module.IsCommandModule)
                                     this.hasCommand = true;
-                                if (this.TrackingPower < moduleSlot.module.TargetTracking)
-                                    this.TrackingPower = moduleSlot.module.TargetTracking;
+                                if (moduleSlot.module.TargetTracking > 0) 
+                                    this.TrackingPower += moduleSlot.module.TargetTracking;
                                 this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
                                 this.CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
                                 this.InhibitionRadius += moduleSlot.module.InhibitionRadius;
@@ -3813,7 +3969,7 @@ namespace Ship_Game.Gameplay
                 {
                     //if (this.Velocity != Vector2.Zero)
                     //this.UpdatedModulesOnce = false;
-                    if (this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null)
+                    if (this.GetAI().BadGuysNear ||  this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null)
                     {
                         this.UpdatedModulesOnce = false;
                         float cos = (float)Math.Cos((double)this.Rotation);
@@ -3895,12 +4051,12 @@ namespace Ship_Game.Gameplay
             }
             if (this.PowerCurrent > this.PowerStoreMax)
                 this.PowerCurrent = this.PowerStoreMax;
-            if (this.shield_percent < 0.0)
-                this.shield_percent = 0.0;
+            if (this.shield_percent < 0.0f)
+                this.shield_percent = 0.0f;
             this.shield_percent = 100.0 * this.shield_power / this.shield_max;
-            if (this.shield_percent < 0.0)
-                this.shield_percent = 0.0;
-            if (this.Mass <= 0.0)
+            if (this.shield_percent < 0.0f)
+                this.shield_percent = 0.0f;
+            if (this.Mass <= 0.0f)
                 this.Mass = 1f;
             switch (this.engineState)
             {
@@ -3922,7 +4078,7 @@ namespace Ship_Game.Gameplay
                     //this.velocityMaximum *= this.FTLmodifier;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
             }
-            if (this.Thrust == 0.0 || this.mass == 0.0)
+            if ((this.Thrust == 0.0 || this.mass == 0.0 )&& !this.IsTethered())
             {
                 this.EnginesKnockedOut = true;
                 this.velocityMaximum = this.Velocity.Length();
@@ -4435,7 +4591,7 @@ namespace Ship_Game.Gameplay
 
             foreach(ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <=0)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <=0 || ES.module.quadrant ==0)
                     continue;
                 temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest )
@@ -4522,7 +4678,7 @@ namespace Ship_Game.Gameplay
 
             foreach (ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active ||  ES.module.Health <=0)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active ||  ES.module.Health <=0 ||ES.module.quadrant ==0)
                     continue;
                 temp = Vector2.Distance(ES.module.Center, center);
                 if (nearest == 0 || temp < nearest)

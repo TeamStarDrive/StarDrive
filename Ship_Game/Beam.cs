@@ -66,6 +66,7 @@ namespace Ship_Game
 		private BasicEffect quadEffect;
 
 		private float displacement = 1f;
+        private bool recycled = false;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
@@ -135,42 +136,68 @@ namespace Ship_Game
 		}
         public void BeamRecreate(Vector2 srcCenter, int Thickness, Ship Owner, GameplayObject target)
         {
-           
-           
-            this.ArmorDamageBonus = 0f;
-            this.ArmorPiercing = 0;
-            this.BeamOffsetAngle = 0f;
-            this.BeamZ = 0f;
-            this.Center = Vector2.Zero;
-            this.collidedThisFrame = false ;
-            this.damageAmount = 0;
-            this.damageRadius = 0;
-            this.DamageToggleOn = false;
-            this.displacement = 1f;
-            this.duration = 0;
+
+
+            //Origin = Vector3.Zero;
+
+            //UpperLeft = Vector3.Zero;
+            //LowerLeft = Vector3.Zero;
+
+            //UpperRight = Vector3.Zero;
+
+            //LowerRight = Vector3.Zero;
+
+            //Normal = Vector3.Zero;
+
+            //Up = Vector3.Zero;
+
+            //Left = Vector3.Zero;
+
+            //thickness = 0;
+
+            //PowerCost = 0f;
+
+            //hitLast = null;
+
+            //Source = Vector2.Zero;
+
+            Vector2 Destination = Vector2.Zero;
+
+            this.Indexes = new int[6]; ;
+
+           this.ActualHitDestination = Vector2.Zero;
+
+            this.followMouse = false;
+
             this.Duration = 2f;
-            this.explodes = false;
-            this.firstRun = true;
-            this.owner = null;
-            this.hitLast = null;
-            this.HitModule = null;
-            this.IgnoresShields = false;
+
+            BeamOffsetAngle = 0f;
+            this.BeamOffsetAngle = 0f;
+
+            //this.Vertices=new VertexPositionNormalTexture();
+
+            Indexes.Initialize();
+
+            this.BeamZ = 0f;
+
+            this.Target = null;
+
             this.infinite = false;
-            this.isInDeepSpace = false;
-            this.LastDamagedBy = null;
-            this.loyalty = null;
-            
-            this.SetSystem(null);
-            this.thickness = 0;
-            this.weapon = null;
-            this.weaponEffect = "";
-            this.WeaponEffectType = "";
-            this.WeaponType = "";
-            this.ShieldDamageBonus = 0;
-            this.RotationRadsPerSecond = 0;
-            
 
+            this.DamageToggleSound = null;
 
+            this.DamageToggleOn = false;
+
+            this.moduleAttachedTo = this.weapon.moduleAttachedTo;
+            this.PowerCost = this.weapon.BeamPowerCostPerSecond;
+            this.range = this.weapon.Range;
+            this.thickness = this.weapon.BeamThickness;
+            this.Duration = (float)this.weapon.BeamDuration > 0 ? this.weapon.BeamDuration : 2f;
+            this.damageAmount = this.weapon.DamageAmount;
+            //this.weapon = this;
+            this.Destination = target.Center;
+            this.Active = true;
+            
 
             this.Target = target;
             this.owner = Owner;
@@ -192,12 +219,12 @@ namespace Ship_Game
             this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, TargetPosition));
             this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
             this.ActualHitDestination = this.Destination;
-            //this.Vertices = new VertexPositionNormalTexture[4];
-            //this.Indexes = new int[6];
+            this.Vertices = new VertexPositionNormalTexture[4];
+            this.Indexes = new int[6];
             this.BeamZ = RandomMath2.RandomBetween(-1f, 1f);
             Vector3[] points = HelperFunctions.BeamPoints(srcCenter, TargetPosition, (float)Thickness, new Vector2[4], 0, this.BeamZ);
             this.UpperLeft = points[0];
-            this.UpperRight = points[1];
+            this.UpperRight = points[1];                                 
             this.LowerLeft = points[2];
             this.LowerRight = points[3];
             this.FillVertices();
@@ -347,30 +374,65 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.BeamEffectLocker)
 			{
-                try
-                {
+                
                     Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
-                    this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+                    Beam beam=null;
+                if(this.owner != null)
+                    this.owner.Beams.pendingRemovals.TryPop(out beam);
+                    
+                    if (beam == null || beam.quadEffect == null)
                     {
-                        World = Matrix.Identity,
-                        View = view,
-                        Projection = projection,
-                        TextureEnabled = true,
-                        Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
-                    };
-                    this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                    Beam.BeamEffect.Parameters["tex"].SetValue(texture);   //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
-                }
-               catch
-                {                     
-                   //GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
-                   GlobalStats.BeamOOM++;
-                   System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
-                   
-                   
-                    this.Active = false;
-                    return false;
-                }
+                        try
+                        {
+                            this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+                                {
+                                    World = Matrix.Identity,
+                                    View = view,
+                                    Projection = projection,
+                                    TextureEnabled = true,
+                                    Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+                                };
+                            this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+                            Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+                        }
+                        catch
+                        {
+                            //GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
+                            GlobalStats.BeamOOM++;
+                            System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
+
+
+                            this.Active = false;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        this.quadEffect = beam.quadEffect;
+                        
+                        if(this.quadEffect.World != Matrix.Identity)
+                        this.quadEffect.World = Matrix.Identity;
+                        if(this.quadEffect.View!=view)
+                        this.quadEffect.View = view;
+                        if(this.quadEffect.Projection != projection)
+                        this.quadEffect.Projection = projection;
+                        this.quadEffect.TextureEnabled = true;
+                        if(this.quadEffect.Texture != texture)
+                        {
+
+                            this.quadEffect.Texture = texture;
+                            Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+                        }
+                        this.quadVertexDecl = beam.quadVertexDecl;
+                        beam.recycled = true;
+                        beam.quadEffect = null;
+                        beam.quadVertexDecl = null;
+                        
+                    }
+                    
+                    
+                       //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+     
               
 			}
             return true;
@@ -533,8 +595,9 @@ namespace Ship_Game
         {
             if (!disposed)
             {
-                if (disposing)
+                if (disposing )
                 {
+                    
                     if (this.quadVertexDecl != null)
                         this.quadVertexDecl.Dispose();
                     if (this.quadEffect != null)

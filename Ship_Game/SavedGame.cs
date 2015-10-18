@@ -108,7 +108,8 @@ namespace Ship_Game
 							prodHere = ring.planet.ProductionHere,
 							GovernorOn = ring.planet.GovernorOn,
 							ColonyType = ring.planet.colonyType,
-							StationsList = new List<Guid>()
+							StationsList = new List<Guid>(),
+                            SpecialDescription = ring.planet.SpecialDescription
 						};
 						foreach (KeyValuePair<Guid, Ship> station in ring.planet.Shipyards)
 						{
@@ -153,6 +154,8 @@ namespace Ship_Game
 								{
 									qi.pgsVector = new Vector2((float)item.pgs.x, (float)item.pgs.y);
 								}
+                                if (item.IsPlayerAdded != null)
+                                    qi.isPlayerAdded = item.IsPlayerAdded;
 								pdata.QISaveList.Add(qi);
 							}
 						}
@@ -206,7 +209,8 @@ namespace Ship_Game
 				this.data.SolarSystemDataList.Add(sdata);
 			}
 			this.data.EmpireDataList = new List<SavedGame.EmpireSaveData>();
-			foreach (Empire e in EmpireManager.EmpireList)
+			
+            foreach (Empire e in EmpireManager.EmpireList)
 			{
 				SavedGame.EmpireSaveData empireToSave = new SavedGame.EmpireSaveData()
 				{
@@ -354,7 +358,8 @@ namespace Ship_Game
 				{
 					empireToSave.TechTree.Add(Tech.Value);
 				}
-				foreach (Ship ship in e.GetShips())
+
+                foreach (Ship ship in e.GetShips())
 				{
 					SavedGame.ShipSaveData sdata = new SavedGame.ShipSaveData()
 					{
@@ -482,6 +487,50 @@ namespace Ship_Game
 					}
 					empireToSave.OwnedShips.Add(sdata);
 				}
+
+                foreach (Ship ship in e.GetProjectors())  //fbedard
+                {
+                    SavedGame.ShipSaveData sdata = new SavedGame.ShipSaveData()
+                    {
+                        guid = ship.guid,
+                        data = ship.ToShipData(),
+                        Position = ship.Position,
+                        experience = ship.experience,
+                        kills = ship.kills,
+                        Velocity = ship.Velocity,
+
+                    };
+                    if (ship.GetTether() != null)
+                    {
+                        sdata.TetheredTo = ship.GetTether().guid;
+                        sdata.TetherOffset = ship.TetherOffset;
+                    }
+                    sdata.Name = ship.Name;
+                    sdata.VanityName = ship.VanityName;
+                    if (ship.PlayerShip)
+                    {
+                        sdata.IsPlayerShip = true;
+                    }
+                    sdata.Hull = ship.GetShipData().Hull;
+                    sdata.Power = ship.PowerCurrent;
+                    sdata.Ordnance = ship.Ordinance;
+                    sdata.yRotation = ship.yRotation;
+                    sdata.Rotation = ship.Rotation;
+                    sdata.InCombatTimer = ship.InCombatTimer;
+                    sdata.AISave = new SavedGame.ShipAISave()
+                    {
+                        FoodOrProd = ship.GetAI().FoodOrProd,
+                        state = ship.GetAI().State
+                    };
+                    sdata.AISave.defaultstate = ship.GetAI().DefaultAIState;
+                    sdata.AISave.GoToStep = ship.GetAI().GotoStep;
+                    sdata.AISave.MovePosition = ship.GetAI().MovePosition;
+                    sdata.AISave.ActiveWayPoints = new List<Vector2>();
+                    sdata.AISave.ShipGoalsList = new List<SavedGame.ShipGoalSave>();
+                    sdata.Projectiles = new List<SavedGame.ProjectileSaveData>();
+                    empireToSave.OwnedShips.Add(sdata);
+                }
+
 				this.data.EmpireDataList.Add(empireToSave);
 			}
 			this.data.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
@@ -672,6 +721,7 @@ namespace Ship_Game
 		public struct PlanetSaveData
 		{
 			public Guid guid;
+            public string SpecialDescription;
 
 			public string Name;
 
@@ -770,6 +820,7 @@ namespace Ship_Game
 			public float RefitCost;
 
 			public Vector2 pgsVector;
+            public bool isPlayerAdded;
 		}
 
 		public struct RingSave

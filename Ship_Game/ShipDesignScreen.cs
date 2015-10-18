@@ -1550,7 +1550,9 @@ namespace Ship_Game
 			Selector sel = new Selector(base.ScreenManager, r, new Color(0, 0, 0, 210));
 			sel.Draw();
 			ShipModule mod = this.ActiveModule;
-			if (this.ActiveModule == null && this.HighlightedModule != null)
+            
+
+            if (this.ActiveModule == null && this.HighlightedModule != null)
 			{
 				mod = this.HighlightedModule;
 			}
@@ -1558,12 +1560,15 @@ namespace Ship_Game
 			{
 				mod = this.ActiveModule;
 			}
+            
 			if (mod != null)
 			{
 				mod.HealthMax = Ship_Game.ResourceManager.ShipModulesDict[mod.UID].HealthMax;
+                 
 			}
 			if (this.activeModSubMenu.Tabs[0].Selected && mod != null)
 			{
+                
                 //Added by McShooterz: Changed how modules names are displayed for allowing longer names
 				Vector2 modTitlePos = new Vector2((float)(this.activeModSubMenu.Menu.X + 10), (float)(this.activeModSubMenu.Menu.Y + 35));
                 if (Fonts.Arial20Bold.MeasureString(Localizer.Token(Ship_Game.ResourceManager.ShipModulesDict[mod.UID].NameIndex)).X + 16 < this.activeModSubMenu.Menu.Width)
@@ -1924,6 +1929,12 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
 				modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
 				float starty = modTitlePos.Y;
+                float strength = ResourceManager.CalculateModuleStrength(mod,"both",this.ActiveHull.ModuleSlotList.Count);                
+                if (strength > 0)
+                {
+                    this.DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
+                    modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                }
 				if (!mod.isWeapon || mod.InstalledWeapon == null)
 				{
                     if (mod.Cost != 0)
@@ -2274,7 +2285,12 @@ namespace Ship_Game
                         this.DrawStat(ref modTitlePos, Localizer.Token(6174), (float)mod.EMP_Protection, 219);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
-
+                      if (mod.TargetTracking >0 || mod.IsCommandModule)
+                    {
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6186), (float)mod.TargetTracking, 226);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+                
 
                     if (mod.PermittedHangarRoles.Count != 0)
                     {
@@ -3426,6 +3442,10 @@ namespace Ship_Game
             float FTLSpoolTimer = 0f;
             float EMPResist = 0f;
             bool bEnergyWeapons = false;
+            float Off = 0f;
+            float Def = 0;
+            float strength = 0;
+            float targets = 0;
 			foreach (SlotStruct slot in this.Slots)
 			{
 				Size = Size + 1f;
@@ -3509,7 +3529,10 @@ namespace Ship_Game
 				Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
 				CargoSpace = CargoSpace + slot.module.Cargo_Capacity;
 
+                targets += slot.module.TargetTracking;
+
             }
+            
 			Mass = Mass + (float)(this.ActiveHull.ModuleSlotList.Count / 2);
 			Mass = Mass * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier;
 			if (Mass < (float)(this.ActiveHull.ModuleSlotList.Count / 2))
@@ -3835,6 +3858,11 @@ namespace Ship_Game
                 this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 159);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
+            if (targets > 0)
+            {
+                this.DrawStat(ref Cursor, string.Concat(" Add. Targets", ":"), (int)((targets)), 226);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);
 			bool hasBridge = false;
 			bool EmptySlots = true;
@@ -3844,13 +3872,26 @@ namespace Ship_Game
 				{
 					EmptySlots = false;
 				}
+                if (slot.module != null && !slot.isDummy)
+                {
+                    Off += ResourceManager.CalculateModuleStrength(slot.module, "Off", (int)Size);
+                    Def += ResourceManager.CalculateModuleStrength(slot.module, "Def", (int)Size);
+                }
+
+            
+            
 				if (slot.ModuleUID == null || !Ship_Game.ResourceManager.ShipModulesDict[slot.ModuleUID].IsCommandModule)
 				{
 					continue;
 				}
 				hasBridge = true;
 			}
-
+            strength = (Def > Off ? Off * 2 : Def + Off);
+            if (strength > 0)
+            {
+                this.DrawStat(ref Cursor, string.Concat("Total Off", ":"), strength, 227);
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+            }
             Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X - 180), (float)(this.ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));
 			if (this.ActiveHull.Role != ShipData.RoleName.platform)
 			{
@@ -6118,9 +6159,10 @@ namespace Ship_Game
 				IsToggle = true
 			};
 			this.SelectedCatTextPos = new Vector2(20f, (float)(w.Y - 25 - Fonts.Arial20Bold.LineSpacing / 2));
-			this.SearchBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47, 210, 25);
-			Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 370), (float)(modSelR.Y + modSelR.Height + 408));
-			Vector2 OrdersBarPos = new Vector2(Cursor.X - 60f, (float)((int)Cursor.Y + 10));
+			this.SearchBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47, 210, 25);            
+            this.classifCursor = new Vector2(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height );
+            Cursor = new Vector2((float)(this.classifCursor.X), (float)(this.classifCursor.Y));
+            Vector2 OrdersBarPos = new Vector2(Cursor.X, (float)((int)Cursor.Y+20 ));
 			ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
 			this.CombatStatusButtons.Add(AttackRuns);
 			AttackRuns.Action = "attack";
@@ -6244,9 +6286,10 @@ namespace Ship_Game
 			}
 			Rectangle ShipStatsPanel = new Rectangle(this.HullSelectionRect.X + 50, this.HullSelectionRect.Y + this.HullSelectionRect.Height - 20, 280, 320);
 
-            this.classifCursor = new Vector2(ShipStatsPanel.X - 100, ShipStatsPanel.Y + ShipStatsPanel.Height + 92);
-
-            dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 118, 100, 18);
+            
+            //base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth
+            dropdownRect = new Rectangle((int)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f), (int) OrdersBarPos.Y, 100, 18);            
+            //dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 118, 100, 18);
 
             this.CategoryList = new DropOptions(dropdownRect);
             this.CategoryList.AddOption("Unclassified", 1);
@@ -6254,7 +6297,7 @@ namespace Ship_Game
             this.CategoryList.AddOption("Recon", 3);
             this.CategoryList.AddOption("Combat", 4);
             this.CategoryList.AddOption("Kamikaze", 5);
-
+            
             this.CarrierOnly = this.ActiveHull.CarrierShip;
             Ref<bool> CORef = new Ref<bool>(() => this.CarrierOnly, (bool x) => {
 				this.CarrierOnly = x;              

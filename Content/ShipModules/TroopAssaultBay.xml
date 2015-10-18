@@ -45,7 +45,7 @@
 
   <!-- for Hangar items -->
   <hangarShipUID>Vulcan Scout</hangarShipUID>
-  <hangerTimerConstant>30</hangerTimerConstant>
+  <hangarTimerConstant>30</hangarTimerConstant>
   <IsTroopBay>true</IsTroopBay>
   <TroopCapacity>1</TroopCapacity>
   

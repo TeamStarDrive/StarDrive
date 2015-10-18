@@ -509,7 +509,7 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.NotificationLocker)
 			{
-                if (this.NotificationList.Count > this.numentriesToDisplay)  //fbedard: remove excess notifications
+                if (this.NotificationList.Count >= this.numentriesToDisplay)  //fbedard: remove excess notifications
                 {
                     for (int i = 0; i < this.NotificationList.Count && i <= this.numentriesToDisplay; i++)
                     {
