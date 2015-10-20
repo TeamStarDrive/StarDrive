@@ -309,7 +309,7 @@ namespace Ship_Game.Gameplay
                     ship2.MoveModulesTimer = 2f;
                     Vector2 vector2_3 = beam.GetTarget().Center;
                     beam.ActualHitDestination = beam.GetTarget().Center;
-                    if (beam.damageAmount >= 0.0)
+                    if (beam.damageAmount >= 0f)
                     {
                         //beam.owner.Beams.QueuePendingRemoval(beam);
                         return;
@@ -359,7 +359,7 @@ namespace Ship_Game.Gameplay
                     if (shipObject2 !=null)
                     {                        
                         if (//Vector2.Distance(beam.weapon.Center, gameplayObject2.Center) > beam.range + gameplayObject2.Radius ||
-                            Vector2.Distance(vector2_3,shipObject2.Center) > shipObject2.Radius+500
+                            Vector2.Distance(vector2_3,shipObject2.Center) > shipObject2.Radius+575 //ship radius plus increment plus canopy shield range.
                             )
                             continue;
                         if (shipObject2.loyalty != beam.owner.loyalty)

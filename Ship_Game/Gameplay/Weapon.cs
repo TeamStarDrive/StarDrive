@@ -1264,7 +1264,7 @@ namespace Ship_Game.Gameplay
 
 		public virtual void FireTargetedBeam(GameplayObject target)
 		{
-			if (this.timeToNextFire > 0f)
+			if (this.timeToNextFire > 0f )
 			{
 				return;
 			}
