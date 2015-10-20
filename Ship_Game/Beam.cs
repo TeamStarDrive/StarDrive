@@ -503,7 +503,7 @@ namespace Ship_Game
                 return;
             }
             Ship ship = this.Target as Ship;
-            if (this.owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp)
+            if (this.owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp )
             {
                 this.Die(null, false);
                 this.Duration = 0f;
@@ -511,31 +511,44 @@ namespace Ship_Game
             }
             this.Duration -= elapsedTime;
             this.Source = srcCenter;
-            if (this.Target == null)
+            if (this.Target != null)// || Vector2.Distance(this.Destination, this.owner.Center) > this.range)
             {
                 this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
 
-            }
-            else if (!this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
-            {
-                float angle = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, this.Target.Center));
-                if (angle > base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f)
+            //}
+            //else
+            //{
+                //float range = 0;
+                //if (Vector2.Distance(this.Destination, this.owner.Center) > this.range)
+                //{
+                //    //this is broken. Something is firing code is firing beams and likely other weapons seeminging randomly in the wrong direction and out of range.
+                //    //this is a visual fix but not a real fix. this is important to fix though as though extra beams are consuming resources that are expensive. 
+
+                    
+                //    this.duration = -1;
+                //    //this.Owner.Beams.QueuePendingRemoval(this);
+                //    return;
+                //    //this.Destination = this.Destination - (this.Destination - this.owner.Center);
+                //}
+                //else 
+                if (!this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
                 {
-                    angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f;
+                    float angle = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, this.Destination));// this.Target.Center));
+                    float angletoradian = MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire);
+                    if (angle > base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f)
+                    {
+                        angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f;
+                    }
+                    else if (angle < base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f)
+                    {
+                        angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f;
+                    }
+                    this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, angle,  this.range);
                 }
-                else if (angle < base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f)
+                else
                 {
-                    angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire) / 2f;
+                    this.Destination = this.Target.Center;
                 }
-                this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, angle, this.range);
-            }
-            else
-            {
-                this.Destination = this.Target.Center;
-            }
-            if (Vector2.Distance(this.Destination, this.owner.Center) > this.range)
-            {
-                this.Destination = this.Destination - (this.Destination - this.owner.Center);
             }
             if (this.quadEffect != null)
             {
@@ -549,7 +562,7 @@ namespace Ship_Game
             this.LowerRight = points[3];
             this.FillVertices();
 
-            if (this.Duration < 0f && !this.infinite)
+            if ((this.Duration < 0f && !this.infinite ))// ||Vector2.Distance(this.Destination, this.owner.Center) > this.range)
             {
                 this.Die(null, true);
             }
