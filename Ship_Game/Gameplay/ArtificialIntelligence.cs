@@ -1695,7 +1695,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            float radius = OrbitTarget.ObjectRadius + this.Owner.Radius + 1000f;
+            float radius = OrbitTarget.ObjectRadius + this.Owner.Radius + 1200f;
             float distanceToOrbitSpot = Vector2.Distance(this.OrbitPos, this.Owner.Center);          
             
             if (this.findNewPosTimer <= 0f)
@@ -2790,29 +2790,32 @@ namespace Ship_Game.Gameplay
                                                            }
                                                            //Is primary target valid
                                                            if (weapon.fireTarget == null)
-                                                           if (this.Owner.CheckIfInsideFireArc(weapon, this.Target))
-                                                           {
-                                                               weapon.fireTarget = this.Target;
-                                                               weapon.PrimaryTarget = true;
-                                                           }
+                                                               if (this.Owner.CheckIfInsideFireArc(weapon, this.Target))
+                                                               {
+                                                                   weapon.fireTarget = this.Target;
+                                                                   weapon.PrimaryTarget = true;
+                                                               }
 
                                                            //Find alternate target to fire on
                                                            //this seems to be very expensive code. 
-                                                           if (weapon.fireTarget == null && this.Owner.TrackingPower >0)
+                                                           if (true)
                                                            {
-                                                               //limit to one target per level.
-                                                               for (int i = 0; i < this.PotentialTargets.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++) //
+                                                               if (weapon.fireTarget == null && this.Owner.TrackingPower > 0)
                                                                {
-                                                                   Ship PotentialTarget = this.PotentialTargets[i];
-                                                                   if (PotentialTarget == this.TargetShip
-                                                                       || !this.Owner.CheckIfInsideFireArc(weapon, PotentialTarget))
+                                                                   //limit to one target per level.
+                                                                   for (int i = 0; i < this.PotentialTargets.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++) //
                                                                    {
-                                                                       continue;
-                                                                   }
-                                                                   weapon.fireTarget = PotentialTarget;
-                                                                   break;
+                                                                       Ship PotentialTarget = this.PotentialTargets[i];
+                                                                       if (PotentialTarget == this.TargetShip
+                                                                           || !this.Owner.CheckIfInsideFireArc(weapon, PotentialTarget))
+                                                                       {
+                                                                           continue;
+                                                                       }
+                                                                       weapon.fireTarget = PotentialTarget;
+                                                                       break;
 
-                                                               }
+                                                                   }
+                                                               } 
                                                            }
                                                            //If a ship was found to fire on, change to target an internal module if target is visible  || weapon.Tag_Intercept
                                                            if (weapon.fireTarget != null)
