@@ -515,22 +515,14 @@ namespace Ship_Game
             {
                 this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
 
-            //}
-            //else
-            //{
-                //float range = 0;
-                //if (Vector2.Distance(this.Destination, this.owner.Center) > this.range)
-                //{
-                //    //this is broken. Something is firing code is firing beams and likely other weapons seeminging randomly in the wrong direction and out of range.
-                //    //this is a visual fix but not a real fix. this is important to fix though as though extra beams are consuming resources that are expensive. 
 
-                    
-                //    this.duration = -1;
-                //    //this.Owner.Beams.QueuePendingRemoval(this);
-                //    return;
-                //    //this.Destination = this.Destination - (this.Destination - this.owner.Center);
-                //}
-                //else 
+                if (Vector2.Distance(this.Destination, this.owner.Center) > this.range)
+                {
+
+                    this.Die(null, true);
+                    return;
+                }
+                else 
                 if (!this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
                 {
                     float angle = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, this.Destination));// this.Target.Center));
