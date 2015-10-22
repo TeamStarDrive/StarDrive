@@ -984,6 +984,8 @@ namespace Ship_Game.Gameplay
             ShipModule targetModule = target as ShipModule;
             if (targetship == null && targetModule != null)
                 targetship = targetModule.GetParent();
+            if (targetship == null && targetModule == null && w.isBeam)
+                return false;
             if (targetship != null)
             {
                 if (targetship.engineState == MoveState.Warp
@@ -1017,15 +1019,18 @@ namespace Ship_Game.Gameplay
         {
             if (!CheckRangeToTarget(w, target))
                 return false;
-            if (w.Tag_Guided && w.RotationRadsPerSecond > 3f)
-                return true;
+            //if (w.Tag_Guided && w.RotationRadsPerSecond > 3f)
+            //    return true;
+            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;            
             Vector2 PickedPos = target.Center;            
             Vector2 pos = PickedPos;
-            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
-            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
+            float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.findAngleToTarget(w.Center, target.Center);//
             float facing = w.moduleAttachedTo.facing + MathHelper.ToDegrees(base.Rotation);
+
+            
             if (facing > 360f)
             {
                 facing = facing - 360f;
@@ -3062,19 +3067,22 @@ namespace Ship_Game.Gameplay
                         if (beam.moduleAttachedTo != null)
                         {
                             ShipModule shipModule = beam.moduleAttachedTo;
-                            origin = (int)shipModule.XSIZE != 1 || (int)shipModule.YSIZE != 3 ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2)) : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
+                            origin = (int)shipModule.XSIZE != 1 
+                                || (int)shipModule.YSIZE != 3 
+                                ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2)) 
+                                : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
                             Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
-                            float angleToTarget = HelperFunctions.findAngleToTarget(origin, target);
+float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Center);
                             Vector2 angleAndDistance = HelperFunctions.findPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees(shipModule.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
                             float num2 = (float)((int)shipModule.XSIZE * 16 / 2);
                             float num3 = (float)((int)shipModule.YSIZE * 16 / 2);
                             float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
                             float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
-                            origin = HelperFunctions.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
-
+                            origin = HelperFunctions.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);                            
                             int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
                             beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
-                            if ((double)beam.duration < 0.0 && !beam.infinite)
+                            //beam.Update(beam.moduleAttachedTo.Center, beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
+                            if ( beam.duration < 0f && !beam.infinite)
                             {
                                 beam.Die(null, false);
                                 this.beams.QueuePendingRemoval(beam);
@@ -4583,18 +4591,22 @@ namespace Ship_Game.Gameplay
         
         public ShipModule GetRandomInternalModule(Weapon source)
         {
-            float nearest=0;
+            float nearest=source.Range +100;
             float temp;
 
             Vector2 center = source.GetOwner() != null ? source.GetOwner().Center : source.Center;
             ModuleSlot ClosestES=null;
+            ModuleSlot ClosestES3 = null;
 
             foreach(ModuleSlot ES in this.ExternalSlots)
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <=0 || ES.module.quadrant ==0)
+                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active ||  ES.module.quadrant ==0)
+                    continue;
+                ClosestES3 = ES;
+                if (ES.module.Health <= 0)
                     continue;
                 temp = Vector2.Distance(ES.module.Center, center);
-                if (nearest == 0 || temp < nearest )
+                if (temp < nearest || ClosestES == null)
                 {
                     nearest = temp;
                     ClosestES = ES;
@@ -4602,8 +4614,12 @@ namespace Ship_Game.Gameplay
             }
             byte level = 0;
             if (ClosestES == null)
+                ClosestES = ClosestES3;
+
+            if (ClosestES == null)
             {
                 System.Diagnostics.Debug.WriteLine(string.Concat("GetRandomInternal: ClosestES was null: ExternalCount:",this.ExternalSlots.Count," Name: " ,this.VanityName ));
+                
                 return null;
             }
             if (source.GetOwner() != null)
