@@ -4860,7 +4860,7 @@ namespace Ship_Game.Gameplay
                             flag = false;
                             float cargoSpaceMax = p.MAX_STORAGE - p.FoodHere;
                             //Planet with negative food production need more food:
-                            cargoSpaceMax = (cargoSpaceMax - (p.NetFoodPerTurn - p.consumption) * 5f) / 2f;  //reduced cargoSpacemax on first try!
+                            cargoSpaceMax = (cargoSpaceMax - (p.NetFoodPerTurn * 5f)) / 2f;  //reduced cargoSpacemax on first try!
                             this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
@@ -5005,7 +5005,7 @@ namespace Ship_Game.Gameplay
                             flag = false;
                             float cargoSpaceMax = p.MAX_STORAGE - p.FoodHere;
                             //Planet with negative food production need more food:
-                            cargoSpaceMax = cargoSpaceMax - (p.NetFoodPerTurn - p.consumption) * 5f;
+                            cargoSpaceMax = cargoSpaceMax - (p.NetFoodPerTurn * 5f);
                             this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
@@ -5074,7 +5074,7 @@ namespace Ship_Game.Gameplay
                         {
                             flag = false;
                             float cargoSpaceMax = p.FoodHere;
-                            cargoSpaceMax = cargoSpaceMax + (p.NetFoodPerTurn - p.consumption) * 20f;
+                            cargoSpaceMax = cargoSpaceMax + p.NetFoodPerTurn * 5f;
                             this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
