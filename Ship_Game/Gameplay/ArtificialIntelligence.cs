@@ -2724,10 +2724,10 @@ namespace Ship_Game.Gameplay
                                                    if (weapon.fireTarget !=null )
                                                    {
                                                        
-                                                       if ( (weapon.PrimaryTarget && weapon.fireTarget != this.Target)                                                           
-                                                           || !this.Owner.CheckIfInsideFireArc(weapon, weapon.fireTarget) 
+                                                       if (  !this.Owner.CheckIfInsideFireArc(weapon, weapon.fireTarget) 
                                                            //check here if the weapon can fire on main target.
-                                                           || (this.Target !=null &&(!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target) ))                                                         
+                                                           || (weapon.PrimaryTarget && weapon.fireTarget != this.Target)
+                                                           || (this.Target != null && (!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target)))                                                         
                                                            )
                                                        {
                                                            weapon.TargetChangeTimer = .1f * weapon.moduleAttachedTo.XSIZE * weapon.moduleAttachedTo.YSIZE;
