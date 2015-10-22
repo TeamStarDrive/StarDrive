@@ -404,6 +404,7 @@ namespace Ship_Game.Gameplay
         protected virtual void CreateTargetedBeam(GameplayObject target)
         {
             Beam beam;
+           
             //if (this.owner.Beams.pendingRemovals.TryPop(out beam))
             //{
             //    //beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
@@ -1264,16 +1265,21 @@ namespace Ship_Game.Gameplay
 
 		public virtual void FireTargetedBeam(GameplayObject target)
 		{
-			if (this.timeToNextFire > 0f)
+			if (this.timeToNextFire > 0f )
 			{
 				return;
 			}
+            if (!this.owner.CheckIfInsideFireArc(this, target.Center, this.owner.Rotation))
+            {
+              
+                return;
+            }
 			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
             
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
-   
+                
                     this.CreateTargetedBeam(target);
                 
                 
