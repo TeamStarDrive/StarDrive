@@ -2724,9 +2724,9 @@ namespace Ship_Game.Gameplay
                                                    if (weapon.fireTarget !=null )
                                                    {
                                                        
-                                                       if (  
+                                                       if (  !this.Owner.CheckIfInsideFireArc(weapon, weapon.fireTarget)
                                                            //check here if the weapon can fire on main target.
-                                                            (weapon.PrimaryTarget && weapon.fireTarget != this.Target)
+                                                            || (weapon.PrimaryTarget && weapon.fireTarget != this.Target)
                                                            || (this.Target != null && (!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target)))                                                         
                                                            )
                                                        {
@@ -2865,8 +2865,8 @@ namespace Ship_Game.Gameplay
                                                        }
 
                                                    }
-                                                   if (weapon.fireTarget !=null && !this.Owner.CheckIfInsideFireArc(weapon, weapon.fireTarget))
-                                                       weapon.fireTarget = null;
+                                                   //if (weapon.fireTarget !=null && )
+                                                   //    weapon.fireTarget = null;
 
                                                }
                                            });

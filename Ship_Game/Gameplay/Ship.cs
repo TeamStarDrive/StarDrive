@@ -3053,8 +3053,8 @@ namespace Ship_Game.Gameplay
 
                     //}
                     //task gremlin look at parallel here for weapons
-                    foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
-                    //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
+                    //foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
+                    Parallel.ForEach<Projectile>(this.projectiles, projectile =>
                     {
                         if (projectile != null && projectile.Active)
                             projectile.Update(elapsedTime);
@@ -3063,9 +3063,11 @@ namespace Ship_Game.Gameplay
                            // projectile.Die(null, true);
                             this.Projectiles.QueuePendingRemoval(projectile);
                         }
-                    }//);
-
-                    foreach (Beam beam in (List<Beam>)this.beams)
+                    });
+                    object locker = new object();
+                    //foreach (Beam beam in (List<Beam>)this.beams)
+                    Parallel.ForEach(this.beams,(beam)=>
+                    
                     {
                         Vector2 origin = new Vector2();
                         if (beam.moduleAttachedTo != null)
@@ -3084,6 +3086,7 @@ float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Cente
                             float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
                             origin = HelperFunctions.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);                            
                             int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
+                            //lock (locker) 
                             beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                             //beam.Update(beam.moduleAttachedTo.Center, beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                             if ( beam.duration < 0f && !beam.infinite)
@@ -3097,7 +3100,7 @@ float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Cente
                             beam.Die(null, false);
                             this.beams.QueuePendingRemoval(beam);
                         }
-                    }//);
+                    });
                     //this.beams.thisLock.ExitReadLock();
 
                     this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));

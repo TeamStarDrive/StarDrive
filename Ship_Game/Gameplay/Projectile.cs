@@ -994,7 +994,7 @@ namespace Ship_Game.Gameplay
                     this.inFlight.Play();
                 }
                 this.particleDelay -= elapsedTime;
-                if ((double)this.duration > 0.0)
+                if (this.duration > 0f)
                 {
                     this.duration -= elapsedTime;
                     if ((double)this.duration < 0.0)

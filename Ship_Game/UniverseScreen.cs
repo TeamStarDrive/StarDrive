@@ -7632,7 +7632,7 @@ namespace Ship_Game
                     {
                         foreach (Beam beam in (List<Beam>)ship.Beams)
                         {
-                            if ((double)Vector2.Distance(beam.Source, beam.ActualHitDestination) < (double)beam.range + 10.0)
+                            if ( Vector2.Distance(beam.Source, beam.ActualHitDestination) <  beam.range + 10.0f)
                                 beam.Draw(this.ScreenManager);
                             else
                                 beam.Die((GameplayObject)null, true);
