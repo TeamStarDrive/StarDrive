@@ -87,12 +87,16 @@ namespace Ship_Game
 			{
 				d.Data.Add(node);
 			}
-			d.FleetIconIndex = this.f.FleetIconIndex;
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			XmlSerializer Serializer = new XmlSerializer(typeof(FleetDesign));
-			TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Fleet Designs/", this.EnterNameArea.Text, ".xml"));
-			Serializer.Serialize(WriteFileStream, d);
-			WriteFileStream.Close();
+            try
+            {
+                d.FleetIconIndex = this.f.FleetIconIndex;
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                XmlSerializer Serializer = new XmlSerializer(typeof(FleetDesign));
+                TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Fleet Designs/", this.EnterNameArea.Text, ".xml"));
+                Serializer.Serialize(WriteFileStream, d);
+                WriteFileStream.Close();
+            }
+            catch { }
 		}
 
 		public override void Draw(GameTime gameTime)
