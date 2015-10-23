@@ -494,6 +494,8 @@ namespace Ship_Game.Gameplay
             }
             set
             {
+                this.GetAI().start = null;
+                this.GetAI().end = null;
                 this.GetAI().OrderTrade(5f);
             }
         }
@@ -506,6 +508,8 @@ namespace Ship_Game.Gameplay
             }
             set
             {
+                this.GetAI().start = null;
+                this.GetAI().end = null;
                 this.GetAI().OrderTransportPassengers(5f);
             }
         }
