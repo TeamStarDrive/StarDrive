@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace Ship_Game.Gameplay
 {
@@ -119,7 +120,7 @@ namespace Ship_Game.Gameplay
         public void UpdateBucketsOnly(float elapsedTime)
         {
             this.bucketUpdateTimer -= elapsedTime;
-            if ((double)this.bucketUpdateTimer <= 0.0)
+            if (this.bucketUpdateTimer <= 0f)
             {
                 this.ClearBuckets();
                 for (int index = 0; index < this.CollidableObjects.Count; ++index)
@@ -349,43 +350,142 @@ namespace Ship_Game.Gameplay
             }
             else if (beam.Owner != null)
                 gameplayObject1 = (GameplayObject)beam.owner;
-            HashSet<GameplayObject> nearby = new HashSet<GameplayObject>(this.GetNearby(gameplayObject1));
-            HashSet<GameplayObject> AlliedShips = new HashSet<GameplayObject>();
-            foreach (Vector2 vector2_3 in list1)
-            {
-                foreach (GameplayObject gameplayObject2 in nearby)
+            List<GameplayObject> nearby = new List<GameplayObject>(this.GetNearby(gameplayObject1).OrderBy(distance=> Vector2.Distance(beam.Source,distance.Center)));
+            List<GameplayObject> AlliedShips = new List<GameplayObject>();
+            //foreach (Vector2 vector2_3 in list1)
+            {                
+                Vector2 unitV = Vector2.Normalize(beam.Destination-beam.Source);
+                
+                Ray beampath = new Ray(new Vector3(beam.Source, 0), new Vector3(unitV.X,unitV.Y,0));
+               // Vector3 shipsphere = Vector3.Zero;
+                
+                float hit2 = beam.range;
+                //if (beam.hitLast != null)
+                //    hit2 = Vector2.Distance(beam.Source, beam.ActualHitDestination)+575;
+                ShipModule shieldTarget = null;
+                object locker = new object();
+                //foreach (GameplayObject gameplayObject2 in nearby)
+                 var source = Enumerable.Range(0, nearby.Count).ToArray();
+                            var rangePartitioner = Partitioner.Create(0, source.Length);
+                    //handle each weapon group in parallel
+                Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                //Parallel.ForEach(nearby, (gameplayObject2) =>
                 {
-                    Ship shipObject2 = gameplayObject2 as Ship;
-                    if (shipObject2 !=null)
-                    {                        
-                        if (//Vector2.Distance(beam.weapon.Center, gameplayObject2.Center) > beam.range + gameplayObject2.Radius ||
-                            Vector2.Distance(vector2_3,shipObject2.Center) > shipObject2.Radius+575 //ship radius plus increment plus canopy shield range.
-                            )
-                            continue;
-                        if (shipObject2.loyalty != beam.owner.loyalty)
+                    for (int T = range.Item1; T < range.Item2; T++)
+                    {
+
+                        Ship shipObject2 = nearby[T] as Ship;
+                        if (shipObject2 != null)
                         {
-                            AlliedShips.Add(gameplayObject2);
-                            //else 
-                            if (gameplayObject2 != beam.owner || beam.weapon.HitsFriendlies)
+                            float? hit = 0;
+                            Vector3 shieldCenter = new Vector3(0, 0, 0);
+                            BoundingSphere shieldhit = new BoundingSphere(new Vector3(0f, 0f, 0f), 0f);
+
+
+                            //shipsphere.X = shipObject2.Center.X;
+                            //shipsphere.Y = shipObject2.Center.Y;                        
+                            //BoundingSphere shipCollide = new BoundingSphere(shipsphere,shipObject2.Radius+575);
+                            //shipCollide.Center=shipsphere; // = new BoundingSphere(new Vector3(shipObject2.Center, 0), shipObject2.Radius + 575f);
+
+
+
+                            if (shipObject2.loyalty != beam.owner.loyalty)// && Vector2.Distance(shipObject2.Center,beam.Source) < hit2)
                             {
-                                ++GlobalStats.BeamTests;
-                                if (Vector2.Distance(gameplayObject2.Center, vector2_3) < gameplayObject2.Radius)
+                                //else 
+                                if (shipObject2 != beam.owner || beam.weapon.HitsFriendlies)
                                 {
-                                    ship1 = shipObject2;
-                                    ship1.MoveModulesTimer = 2f;
-                                    vector2_2 = vector2_3;
-                                    break;
+                                    ++GlobalStats.BeamTests;
+                                    
+
+                                    // if (beam.IgnoresShields || shipObject2.GetShields().Count <= 0)
+                                    hit = beampath.Intersects(shipObject2.GetSO().WorldBoundingSphere);
+                                    if (false)
+                                    {
+                                        //else
+                                        {
+
+                                            foreach (ShipModule shield in shipObject2.GetShields())
+                                            {
+                                                if (!shield.Powered || shield.shield_power <= 0 || !shield.Active)
+                                                    continue;
+                                                shieldhit.Center.X = shield.Center.X;
+                                                shieldhit.Center.Y = shield.Center.Y;
+                                                shieldhit.Radius = shield.shield_radius;
+
+                                                hit = beampath.Intersects(shieldhit);
+
+                                                if (hit.HasValue)
+                                                {
+                                                    //AlliedShips.Add(ship1);
+                                                    lock (locker)
+                                                        if (hit < hit2)
+                                                        {
+                                                            hit2 = (float)hit;
+                                                            ship1 = shipObject2;
+                                                            ship1.MoveModulesTimer = 2f;
+                                                            shieldTarget = shield;
+
+                                                            Vector3 crap = beampath.Position + beampath.Direction * hit.Value;
+                                                            vector2_2.X = crap.X;
+                                                            vector2_2.Y = crap.Y;
+                                                        }
+                                                    //break;
+                                                }
+
+                                            }
+                                            if (!hit.HasValue)
+                                                hit = beampath.Intersects(shipObject2.GetSO().WorldBoundingSphere);
+                                        }
+                                    }
+
+                                    //if (Vector2.Distance(gameplayObject2.Center, vector2_3) < gameplayObject2.Radius)
+                                    if (hit.HasValue)
+                                    {
+                                        //AlliedShips.Add(ship1);
+                                        lock (locker)
+                                            if (hit < hit2)
+                                            {
+                                                hit2 = (float)hit;
+                                                ship1 = shipObject2;
+                                                ship1.MoveModulesTimer = 2f;
+                                                shieldTarget = null;
+
+                                                Vector3 crap = beampath.Position + beampath.Direction * hit.Value;
+                                                vector2_2.X = crap.X;
+                                                vector2_2.Y = crap.Y;
+                                            }
+                                        //break;
+                                    }
                                 }
                             }
                         }
                     }
-                }
+                });
                 //foreach (GameplayObject gameplayObject2 in AlliedShips)
                 //    nearby.Remove(gameplayObject2);
                 //AlliedShips.Clear();
                 //nearby.Add(beam.owner);
-                if (ship1 != null)
-                    break;
+                //if (ship1 != null)
+                //    break;
+                AlliedShips.Add(ship1);
+                if(shieldTarget != null)
+                {
+                    if(shieldTarget.shield_power > beam.damageAmount)
+                        if (beam.Touch(shieldTarget))
+                        {
+                            beam.CollidedThisFrame = shieldTarget.CollidedThisFrame = true;
+                           beam.ActualHitDestination = vector2_2;
+                            
+                            //beam.hitLast = shieldTarget;
+                            this.collisionResults.Add(new SpatialManager.CollisionResult()
+                            {
+                                Distance = shieldTarget.Radius + 8f,
+                                Normal = Vector2.Normalize(Vector2.Zero),
+                                GameplayObject = (GameplayObject)shieldTarget
+                            });
+                            ;
+                        }
+                }
             }
             nearby = AlliedShips;
             if (ship1 != null && ship1 != beam.owner)
