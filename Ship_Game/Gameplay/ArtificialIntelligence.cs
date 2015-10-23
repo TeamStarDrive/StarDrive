@@ -2713,8 +2713,8 @@ namespace Ship_Game.Gameplay
                                                    //Reasons for this weapon not to fire 
                                                    if ( !weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                                                    {
-                                                       //continue;
-                                                       return;
+                                                       continue;
+                                                       //return;
                                                    }
                                                    ShipModule moduletarget = weapon.fireTarget as ShipModule;
                                                    //if firing at the primary target mark weapon as firing on primary.
@@ -2724,9 +2724,9 @@ namespace Ship_Game.Gameplay
                                                    if (weapon.fireTarget !=null )
                                                    {
                                                        
-                                                       if (  !this.Owner.CheckIfInsideFireArc(weapon, weapon.fireTarget) 
+                                                       if (  
                                                            //check here if the weapon can fire on main target.
-                                                           || (weapon.PrimaryTarget && weapon.fireTarget != this.Target)
+                                                            (weapon.PrimaryTarget && weapon.fireTarget != this.Target)
                                                            || (this.Target != null && (!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target)))                                                         
                                                            )
                                                        {
@@ -2760,8 +2760,8 @@ namespace Ship_Game.Gameplay
                                                    //Reasons for this weapon not to fire                    
                                                    if (weapon.fireTarget == null && weapon.TargetChangeTimer >0 ) // ||!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
                                                    {
-                                                       //continue;
-                                                       return;
+                                                       continue;
+                                                       //return;
                                                    }
                                                    //main targeting loop. little check here to disable the whole thing for debugging.
                                                    if (true)
@@ -2865,7 +2865,8 @@ namespace Ship_Game.Gameplay
                                                        }
 
                                                    }
-        
+                                                   if (weapon.fireTarget !=null && !this.Owner.CheckIfInsideFireArc(weapon, weapon.fireTarget))
+                                                       weapon.fireTarget = null;
 
                                                }
                                            });
