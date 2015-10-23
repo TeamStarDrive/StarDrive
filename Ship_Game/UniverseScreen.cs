@@ -577,6 +577,8 @@ namespace Ship_Game
             if (this.SelectedShip == null)
                 return;
             this.SelectedShip.GetAI().State = AIState.SystemTrader;
+            this.SelectedShip.GetAI().start = null;
+            this.SelectedShip.GetAI().end = null;
             this.SelectedShip.GetAI().OrderTrade(0.1f);
         }
 
