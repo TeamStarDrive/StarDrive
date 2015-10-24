@@ -199,9 +199,10 @@ namespace Ship_Game.Gameplay
         {
             //try
             {
+                BatchRemovalCollection<GameplayObject> test;
                 foreach (int key in this.GetIdForObj(obj))
                 {
-                    BatchRemovalCollection<GameplayObject> test;
+                    
 
                     if (this.Buckets.TryGetValue(key, out test))
                         test.Add(obj);
