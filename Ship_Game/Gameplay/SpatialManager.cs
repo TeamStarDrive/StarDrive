@@ -603,7 +603,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             GO1Projectile.CollidedThisFrame = damaged.CollidedThisFrame = true;
                                             (gameplayObject as Ship).MoveModulesTimer = 2f;
-                                            loopState.Break();
+                                            //loopState.Break();
                                             return;
                                         }
                                         if (GOShip.GetSO().WorldBoundingSphere.Intersects(object1))
@@ -675,7 +675,7 @@ namespace Ship_Game.Gameplay
                                     break;
                                 }
                             }
-                            else if (true)
+                            else if (false)
                                 return;
                             else if (gameplayObject1 is Ship && (gameplayObject as Projectile).loyalty != (gameplayObject1 as Ship).loyalty && Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) < gameplayObject1.Radius + gameplayObject.Radius + (gameplayObject as Projectile).speed / 60.0)
                             {

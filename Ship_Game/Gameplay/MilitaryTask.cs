@@ -1107,9 +1107,9 @@ namespace Ship_Game.Gameplay
                 }
             }
             //EnemyTroopStrength *= (1.2f + (int)Ship.universeScreen.GameDifficulty * .1f);
-            if (EnemyTroopStrength < 80f)
+            if (EnemyTroopStrength < 100f)
             {
-                EnemyTroopStrength = 80f;
+                EnemyTroopStrength = 100f;
             }
             
             List<Ship> PotentialAssaultShips = new List<Ship>();

@@ -984,14 +984,14 @@ namespace Ship_Game.Gameplay
                             this.Parent.MechanicalBoardingDefense -= 1f;
                         }
                     }
-                    if ((source as Beam).weapon.MassDamage > 0f && !this.Parent.IsTethered())
+                    if ((source as Beam).weapon.MassDamage > 0f && !this.Parent.IsTethered() && !this.Parent.EnginesKnockedOut)
                     {
                         this.Parent.Mass += (source as Beam).weapon.MassDamage;
                         this.Parent.velocityMaximum = this.Parent.Thrust / this.Parent.Mass;
                         this.Parent.speed = this.Parent.velocityMaximum;
                         this.Parent.rotationRadiansPerSecond = this.Parent.speed / 700f;
                     }
-                    if ((source as Beam).weapon.RepulsionDamage > 0f && !this.Parent.IsTethered())
+                    if ((source as Beam).weapon.RepulsionDamage > 0f && !this.Parent.IsTethered() && !this.Parent.EnginesKnockedOut)
                     {
                         Vector2 vtt = this.Center - (source as Beam).Owner.Center;
                         Ship velocity = this.Parent;
@@ -1501,7 +1501,7 @@ namespace Ship_Game.Gameplay
                             this.Parent.MechanicalBoardingDefense -= 1f;
 						}
 					}
-					if ((source as Beam).weapon.MassDamage > 0f)
+                    if ((source as Beam).weapon.MassDamage > 0f && !this.Parent.IsTethered() && !this.Parent.EnginesKnockedOut)
 					{
 						Ship mass = this.Parent;
 						mass.Mass = mass.Mass + (source as Beam).weapon.MassDamage;
@@ -1509,7 +1509,7 @@ namespace Ship_Game.Gameplay
 						this.Parent.speed = this.Parent.velocityMaximum;
 						this.Parent.rotationRadiansPerSecond = this.Parent.speed / 700f;
 					}
-					if ((source as Beam).weapon.RepulsionDamage > 0f)
+					if ((source as Beam).weapon.RepulsionDamage > 0f && !this.Parent.IsTethered() && !this.Parent.EnginesKnockedOut)
 					{
 						Vector2 vtt = this.Center - (source as Beam).Owner.Center;
 						Ship velocity = this.Parent;
