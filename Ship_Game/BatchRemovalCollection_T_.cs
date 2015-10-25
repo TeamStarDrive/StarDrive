@@ -23,7 +23,13 @@ namespace Ship_Game
             this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         }
+        public BatchRemovalCollection(bool noQueueForRemoval)
+        {
+            //this.pendingRemovals = new List<T>();
+            //this.pendingRemovals = new ConcurrentStack<T>();
+            this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+        }
         public void ApplyPendingRemovals()
         {
             T result;            
@@ -90,6 +96,16 @@ namespace Ship_Game
             thisLock.EnterWriteLock();
             (this as List<T>).Clear();
             thisLock.ExitWriteLock();
+        }
+        new public void ClearAll()
+        {
+            thisLock.EnterWriteLock();
+            (this as List<T>).Clear();
+            thisLock.ExitWriteLock();
+            if(this.pendingRemovals !=null)
+            {
+                this.pendingRemovals.Clear();
+            }
         }
         new public void Remove(T item)
         {
