@@ -5287,7 +5287,7 @@ namespace Ship_Game.Gameplay
 			{
 				if (!hasCargo && (this.start == null || this.end == null))
 				{
-                    this.OrderTrade(0.1f);
+                    this.OrderTrade(5f);
 				}
 				return;
 			}
