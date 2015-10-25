@@ -4837,7 +4837,7 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && PlanetCheck.FoodHere < PlanetCheck.MAX_STORAGE * 0.75f)
+                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -4910,7 +4910,7 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.IMPORT && PlanetCheck.ProductionHere < PlanetCheck.MAX_STORAGE * 0.75f)
+                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -4982,7 +4982,7 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && PlanetCheck.FoodHere < PlanetCheck.MAX_STORAGE * 0.75f)
+                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -5055,7 +5055,7 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.EXPORT && PlanetCheck.FoodHere > PlanetCheck.MAX_STORAGE * 0.25f)
+                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.EXPORT && PlanetCheck.FoodHere >= this.Owner.CargoSpace_Max)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -5121,7 +5121,7 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.EXPORT && PlanetCheck.ProductionHere > PlanetCheck.MAX_STORAGE * 0.25f)
+                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.EXPORT && PlanetCheck.ProductionHere >= this.Owner.CargoSpace_Max)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -5144,7 +5144,7 @@ namespace Ship_Game.Gameplay
                         {
                             flag = false;
                             float cargoSpaceMax = p.ProductionHere;
-                            cargoSpaceMax = cargoSpaceMax + p.NetProductionPerTurn * 20f;
+                            cargoSpaceMax = cargoSpaceMax + p.NetProductionPerTurn * 5f;
                             this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
@@ -5905,7 +5905,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < PickWayPoints.Count; i++)
             {
                 pt = 0;
-                distMult = 1f + (PickWayPoints.Count - i) / PickWayPoints.Count * .25f;
+                distMult = 1f + (PickWayPoints.Count - i) / PickWayPoints.Count * .2f;
                 wp1 = Vector2.Zero;
                 wp2 = Vector2.Zero;
                 DistToEnd1 = 99999999f;
