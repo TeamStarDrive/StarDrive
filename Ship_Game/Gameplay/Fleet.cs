@@ -1368,7 +1368,7 @@ namespace Ship_Game.Gameplay
                             this.Owner.GetPlanets().thisLock.EnterReadLock();
                             //foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat => combat.ParentSystem.DangerTimer))
                             foreach (Planet planet in this.Owner.GetPlanets()
-                                .OrderBy(combat => combat.ParentSystem.combatTimer <=-120)
+                                .OrderBy(combat => combat.ParentSystem.combatTimer < 30)
                                 .ThenBy(shipyard => shipyard.HasShipyard)
                                 .ThenBy(distance=> Vector2.Distance(distance.Position,this.Task.AO))) //fbedard: DangerTimer is in relation to the player only !
                             {
@@ -1567,6 +1567,7 @@ namespace Ship_Game.Gameplay
                                                 if ( num4 >=  toAttack.GetStrength() * 1.5f)
                                                     break;
                                             }
+                                            ship.GetAI().hasPriorityTarget = true;
                                             ship.GetAI().Intercepting = true;
                                             list3.Remove(ship);
                                             ship.GetAI().OrderAttackSpecificTarget(toAttack);
@@ -1598,20 +1599,23 @@ namespace Ship_Game.Gameplay
                             break;
                         case 4:
                             int num10 = 0;
-                            foreach (Ship ship in (List<Ship>)this.Ships)
-                            {
-                                if (ship.BombBays.Count > 0 && ship.Ordinance / ship.OrdinanceMax > 0.2f && this.Task.GetTargetPlanet().GetGroundLandingSpots() <10)
-                                {
-                                    num10 += ship.BombBays.Count;
-                                    ship.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
-                                }
-                            }
+                            //foreach (Ship ship in (List<Ship>)this.Ships)
+                            //{
+                            //    if (ship.BombBays.Count > 0 && ship.Ordinance / ship.OrdinanceMax > 0.2f && this.Task.GetTargetPlanet().GetGroundStrength(this.Owner) <1 && this.Task.GetTargetPlanet().GetGroundLandingSpots() <10)
+                            //    {
+                            //        num10 += ship.BombBays.Count;
+                            //        ship.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
+                            //    }
+                            //}
                             float num11 = 0.0f;
                             float num12 = 0.0f;
                             float num13 = 0.0f;
                             float num14 = 0.0f;
+                            float availableBombers = 0;
+                            float availableBombs = 0; 
                             foreach (Ship ship in (List<Ship>)this.Ships)
                             {
+                                ship.GetAI().hasPriorityTarget = false;
                                 num11 += ship.Ordinance;
                                 num12 += ship.OrdinanceMax;
                                 foreach (Weapon weapon in ship.Weapons)
@@ -1637,33 +1641,32 @@ namespace Ship_Game.Gameplay
                                 {
                                     num4 +=ship.ReadyPlanetAssaultStrength;
                                 }
+                                num4 += this.Task.GetTargetPlanet().GetGroundStrength(this.Owner)  ;
                                 if (num4 > groundStrength && Task.GetTargetPlanet().GetGroundLandingSpots() >10)
                                 {
                                     flag3 = true;
                                 }
                                 else
                                 {
-                                    int num16 = 0;
+                                    
                                     foreach (Ship ship in (List<Ship>)this.Ships)
                                     {
                                         if (ship.BombBays.Count > 0)
                                         {
-                                            ++num16;
+                                            ++availableBombers;
                                             if (ship.Ordinance / ship.OrdinanceMax > 0.2f)
                                             {
-                                                flag3 = false;
-                                                break;
+                                                
                                             }
                                         }
                                     }
-                                    if (num16 == 0)
-                                        flag3 = true;
+                                    
                                 }
                                 if (flag3)
                                 {
                                     foreach (Ship ship in (List<Ship>)this.Ships)
                                     {
-                                        if (ship.BombBays.Count > 0 && ship.GetAI().State == AIState.Bombard)
+                                        if ( ship.GetAI().State == AIState.Bombard && ship.BombBays.Count > 0 )
                                         {
                                             ship.GetAI().State = AIState.AwaitingOrders;
                                             ship.GetAI().OrderQueue.Clear();
@@ -1681,7 +1684,7 @@ namespace Ship_Game.Gameplay
                                         }
                                     }
                                 }
-                                else
+                                else if (availableBombs > 0)
                                 {
                                     this.Ships.thisLock.EnterReadLock();
                                     using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
@@ -1696,6 +1699,15 @@ namespace Ship_Game.Gameplay
                                     }
                                     this.Ships.thisLock.ExitReadLock();
                                     
+                                }
+                                else if(availableBombers >0)
+                                {
+                                    this.TaskStep = 5;
+                                }
+                                else
+                                {
+                                    Task.EndTask();
+                                    break;
                                 }
                                 break;
                             }

@@ -1768,40 +1768,30 @@ namespace Ship_Game
 #if ALTERTHREAD
 
 #if !PLAYERONLY
-            Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);
-            //List<SolarSystem> solarsystems = this.SolarSystemDict.Values.OrderBy(combat=> combat.CombatInSystem).ThenByDescending(amount=> amount.ShipList.Count ).ToList();
-            List<SolarSystem> solarsystems = this.SolarSystemDict.Values.Where(nocombat => !nocombat.CombatInSystem || nocombat.ShipList.Count < 10).ToList();
-            List<SolarSystem> Combatsystems = this.SolarSystemDict.Values.Where(nocombat => nocombat.CombatInSystem && nocombat.ShipList.Count >= 10).ToList();
+            Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);            
+            List<SolarSystem> solarsystems = this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombat).Count() <21).ToList();
+            List<SolarSystem> Combatsystems = this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombat).Count() > 20).ToList();
             var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
-            // Partitioner<int> rangePartitioner1 = Partitioner.Create(source1, true);
-            //OrderablePartitioner<int> rangePartitioner1 = Partitioner.Create(source1, true);
-            //  var source = Enumerable.Range(0, this.Owner.Weapons.Count).ToArray();
+
             var normalsystems = Partitioner.Create(0, source1.Length);
 
             Parallel.ForEach(normalsystems, (range, loopState) =>
-                           {
-                               //standard for loop through each weapon group.
-                               for (int T = range.Item1; T < range.Item2; T++)
-                               {
-                                   SystemUpdaterTaskBased(solarsystems[T]);
-                               }
-                           });
-            ParallelOptions p = new ParallelOptions();
-            p.MaxDegreeOfParallelism = 2;
+            {
+                //standard for loop through each weapon group.
+                for (int T = range.Item1; T < range.Item2; T++)
+                {
+                    SystemUpdaterTaskBased(solarsystems[T]);
+                }
+            });
+    
+
             if (DeepSpaceTask != null)
                 DeepSpaceTask.Wait();
-            Parallel.ForEach(Combatsystems, p, (combat) =>
+            
+            foreach (SolarSystem combatsystem in Combatsystems)
             {
-                SystemUpdaterTaskBased(combat);
-            });
-            //Parallel.ForEach(this.SolarSystemDict.Values, SS =>
-            //    {
-            //        List<SolarSystem> ss = new List<SolarSystem>();
-            //        ss.Add(SS);
-            //        SystemUpdater2(ss);
-            //    });
-
-            //this.DeepSpaceDone.WaitOne();
+                SystemUpdaterTaskBased(combatsystem);
+            }
 
 #endif
 #if PLAYERONLY

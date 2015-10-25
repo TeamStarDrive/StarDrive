@@ -5577,7 +5577,7 @@ output = maxp * take10 = 5
         {
             if (this.Crippled_Turns > 0 || this.RecentCombat || howMuch <= 0.0)
             {
-                if(howMuch >0)
+                if (howMuch > 0 && this.Crippled_Turns <=0)
                 ProductionHere += howMuch;
                 return;
             }
@@ -6594,7 +6594,7 @@ output = maxp * take10 = 5
                         pgs.TroopsHere.thisLock.ExitReadLock();
                         continue;
                     }
-                    EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength));
+                    EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength) *2 + (pgs.building.isWeapon ? pgs.building.theWeapon.DamageAmount:0));
                 }
                 else if (troop != null && troop.GetOwner() != empire)
                 {
@@ -6610,7 +6610,7 @@ output = maxp * take10 = 5
 
             }
 
-            return EnemyTroopStrength;
+            return EnemyTroopStrength *1.5f;
 
 
         }

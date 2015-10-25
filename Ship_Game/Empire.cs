@@ -732,7 +732,7 @@ namespace Ship_Game
                     case 4:
                         str = "4th";
                         break;
-                    case 5:
+                    case 26 :
                         str = "5th";
                         break;
                     case 6:

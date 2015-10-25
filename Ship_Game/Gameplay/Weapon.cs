@@ -1269,11 +1269,11 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-            if (!this.owner.CheckIfInsideFireArc(this, target.Center, this.owner.Rotation))
-            {
+            //if (!this.owner.CheckIfInsideFireArc(this, target.Center, this.owner.Rotation))
+            //{
               
-                return;
-            }
+            //    return;
+            //}
 			this.owner.InCombatTimer = 15f;
 			this.timeToNextFire = this.fireDelay;
             

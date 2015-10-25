@@ -1024,6 +1024,14 @@ namespace Ship_Game.Gameplay
         {
             if (!CheckRangeToTarget(w, target))
                 return false;
+            if (w.MassDamage >0 || w.RepulsionDamage >0)
+            {
+                Ship shiptarget = target as Ship;
+                if (shiptarget != null && (shiptarget.EnginesKnockedOut || shiptarget.IsTethered() )) 
+                {
+                    return false;
+                }
+            }
             //if (w.Tag_Guided && w.RotationRadsPerSecond > 3f)
             //    return true;
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;            
@@ -1119,6 +1127,16 @@ namespace Ship_Game.Gameplay
             GlobalStats.WeaponArcChecks = GlobalStats.WeaponArcChecks + 1;
             float modifyRangeAR = 50f;
             float distance =Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) ;
+
+            if (w.MassDamage > 0 || w.RepulsionDamage > 0)
+            {
+                Ship shiptarget = ship;
+                if (shiptarget != null && (shiptarget.EnginesKnockedOut || shiptarget.IsTethered() ))
+                {
+                    return false;
+                }
+            }
+            
             if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.GetOwner().speed) //&& this.maxWeaponsRange < 2000
             {
                 
@@ -3993,55 +4011,59 @@ float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Cente
                         float cos = (float)Math.Cos((double)this.Rotation);
                         float sin = (float)Math.Sin((double)this.Rotation);
                         float tan = (float)Math.Tan((double)this.yRotation);
-                        List<ModuleSlot> modulelist = this.ModuleSlotList.ToList();
-                        var source = Enumerable.Range(0, modulelist.Count).ToArray();
-                            var rangePartitioner = Partitioner.Create(0, source.Length);
-                    //handle each weapon group in parallel
-                            Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                        int half = this.ModuleSlotList.Count / 2;
+                        List<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
+                        List<ModuleSlot> Secondhalf = this.ModuleSlotList.Reverse().Skip(this.ModuleSlotList.Count - half).ToList();
+
+                        //foreach (ModuleSlot slots in this.ModuleSlotList)
+                        //{
+                        //    if (half > 0)
+                        //        firsthalf.Add(slots.module);
+                        //    else
+                        //        Secondhalf.Add(slots.module);
+                        //    half--;
+                        //}
+
+                        Parallel.Invoke(() =>
+                        {
+                            foreach (ModuleSlot moduleSlot in firsthalf)
                             {
-                                //standard for loop through each weapon group.
-                                for (int T = range.Item1; T < range.Item2; T++)
-                                {
-                                    ModuleSlot slot = modulelist[T];
+                                ++GlobalStats.ModuleUpdates;
+                                moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                            }
+
+                        },
+                             () =>
+                             {
+
+                                 foreach (ModuleSlot moduleSlot in Secondhalf)
+                                 {
+                                     ++GlobalStats.ModuleUpdates;
+                                     moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                                 }
+                             }
+
+                             );
 
 
-                                    //foreach (ModuleSlot moduleSlot in this.ModuleSlotList.ToList())
-                                    //Parallel.ForEach(this.ModuleSlotList, moduleSlot =>
-                                    //{
-                                    ++GlobalStats.ModuleUpdates;
-                                    slot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                                }//);
-                            });
+                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                        {
+                            ++GlobalStats.ModuleUpdates;
+                            moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                        }
                     }
                     else if( !this.UpdatedModulesOnce)
                     {
-                        List<ModuleSlot> modulelist = this.ModuleSlotList.ToList();
-                        var source = Enumerable.Range(0, modulelist.Count).ToArray();
-                        var rangePartitioner = Partitioner.Create(0, source.Length);
+                        
                         float cos = (float)Math.Cos((double)this.Rotation);
                         float sin = (float)Math.Sin((double)this.Rotation);
                         float tan = (float)Math.Tan((double)this.yRotation);
-                        Parallel.ForEach(rangePartitioner, (range, loopState) =>
+
+                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                         {
-                            //standard for loop through each weapon group.
-                            for (int T = range.Item1; T < range.Item2; T++)
-                            {
-                                ModuleSlot slot = modulelist[T];
-
-
-                                //foreach (ModuleSlot moduleSlot in this.ModuleSlotList.ToList())
-                                //Parallel.ForEach(this.ModuleSlotList, moduleSlot =>
-                                //{
-                                ++GlobalStats.ModuleUpdates;
-                                slot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                            }//);
-                        });
-                        //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-                        
-                        //{
-                        //    ++GlobalStats.ModuleUpdates;
-                        //    moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        //}
+                            ++GlobalStats.ModuleUpdates;
+                            moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                        }
                         this.UpdatedModulesOnce = true;
                     }
                 }
@@ -4276,9 +4298,7 @@ float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Cente
             ++this.kills;
             if (this.loyalty == null)
                 return;
-            //Added by McShooterz: a way to prevent remnant story in mods
-			if (this.loyalty == Ship.universeScreen.player && killed.loyalty == EmpireManager.GetEmpireByName("The Remnant") && (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.removeRemnantStory)))
-                GlobalStats.IncrementRemnantKills();
+        
             //Added by McShooterz: change level cap, dynamic experience required per level
             float Exp = 1;
             float ExpLevel = 1;
@@ -4306,6 +4326,10 @@ float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Cente
             Exp += Exp * this.loyalty.data.ExperienceMod;
             this.experience += Exp;
             ExpFound = false;
+            //Added by McShooterz: a way to prevent remnant story in mods
+            Empire remnant = EmpireManager.GetEmpireByName("The Remnant");
+            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == remnant && this.shipData.ShipStyle == remnant.data.Traits.ShipType &&  (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.removeRemnantStory)))
+                GlobalStats.IncrementRemnantKills((int)Exp);
             if (ResourceManager.ShipRoles.ContainsKey(this.shipData.Role))
             {
                 for (int i = 0; i < ResourceManager.ShipRoles[this.shipData.Role].RaceList.Count(); i++)
