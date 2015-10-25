@@ -3516,6 +3516,7 @@ namespace Ship_Game
                         break;
                     if (ship.GetAI().State != AIState.Flee)
                     {
+                        ship.GetAI().State = AIState.SystemTrader;
                         ship.GetAI().OrderTrade(0.1f);
                     }
                     assignedShips.Add(ship);
