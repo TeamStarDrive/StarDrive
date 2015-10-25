@@ -216,10 +216,12 @@ namespace Ship_Game
 						return true;
 					}
 					AudioManager.PlayCue("sd_troop_takeoff");
-					if (this.pgs.TroopsHere.Count > 0)
+                    this.pgs.TroopsHere.thisLock.EnterWriteLock();
+                    if (this.pgs.TroopsHere.Count > 0)
 					{
 						this.pgs.TroopsHere[0].Launch();
 					}
+                    this.pgs.TroopsHere.thisLock.ExitWriteLock();
 					(this.screen.workersPanel as CombatScreen).ActiveTroop = null;
 				}
 			}            

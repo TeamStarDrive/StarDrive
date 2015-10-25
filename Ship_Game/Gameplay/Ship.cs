@@ -20,6 +20,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Configuration;
 using System.Threading;
+using System.Collections.Concurrent;
 
 
 namespace Ship_Game.Gameplay
@@ -2752,7 +2753,7 @@ namespace Ship_Game.Gameplay
             {
                 this.ThrusterList.Clear();
                 this.dietimer -= elapsedTime;
-                if ((double)this.dietimer <= 1.89999997615814 && this.dieCue == null && this.InFrustum)
+                if (this.dietimer <= 1.89999997615814 && this.dieCue == null && this.InFrustum)
                 {
                     if (this.Size < 80)
                     {
@@ -2829,6 +2830,8 @@ namespace Ship_Game.Gameplay
                                 this.Projectiles.QueuePendingRemoval(projectile);
                         }
                     }
+                    this.projectiles.ApplyPendingRemovals();
+                    this.beams.ApplyPendingRemovals();
                     this.emitter.Position = new Vector3( this.Center, 0);//GlobalStats.Config.EffectsVolume * -5000);
                     foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                     //Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
@@ -3990,24 +3993,55 @@ float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Cente
                         float cos = (float)Math.Cos((double)this.Rotation);
                         float sin = (float)Math.Sin((double)this.Rotation);
                         float tan = (float)Math.Tan((double)this.yRotation);
-                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-                        //Parallel.ForEach(this.ModuleSlotList, moduleSlot =>
-                        {
-                            ++GlobalStats.ModuleUpdates;
-                            moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        }//);
+                        List<ModuleSlot> modulelist = this.ModuleSlotList.ToList();
+                        var source = Enumerable.Range(0, modulelist.Count).ToArray();
+                            var rangePartitioner = Partitioner.Create(0, source.Length);
+                    //handle each weapon group in parallel
+                            Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                            {
+                                //standard for loop through each weapon group.
+                                for (int T = range.Item1; T < range.Item2; T++)
+                                {
+                                    ModuleSlot slot = modulelist[T];
+
+
+                                    //foreach (ModuleSlot moduleSlot in this.ModuleSlotList.ToList())
+                                    //Parallel.ForEach(this.ModuleSlotList, moduleSlot =>
+                                    //{
+                                    ++GlobalStats.ModuleUpdates;
+                                    slot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                                }//);
+                            });
                     }
                     else if( !this.UpdatedModulesOnce)
                     {
+                        List<ModuleSlot> modulelist = this.ModuleSlotList.ToList();
+                        var source = Enumerable.Range(0, modulelist.Count).ToArray();
+                        var rangePartitioner = Partitioner.Create(0, source.Length);
                         float cos = (float)Math.Cos((double)this.Rotation);
                         float sin = (float)Math.Sin((double)this.Rotation);
                         float tan = (float)Math.Tan((double)this.yRotation);
-                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-                        //Parallel.ForEach(this.ModuleSlotList, moduleSlot =>
+                        Parallel.ForEach(rangePartitioner, (range, loopState) =>
                         {
-                            ++GlobalStats.ModuleUpdates;
-                            moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        }//);
+                            //standard for loop through each weapon group.
+                            for (int T = range.Item1; T < range.Item2; T++)
+                            {
+                                ModuleSlot slot = modulelist[T];
+
+
+                                //foreach (ModuleSlot moduleSlot in this.ModuleSlotList.ToList())
+                                //Parallel.ForEach(this.ModuleSlotList, moduleSlot =>
+                                //{
+                                ++GlobalStats.ModuleUpdates;
+                                slot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                            }//);
+                        });
+                        //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                        
+                        //{
+                        //    ++GlobalStats.ModuleUpdates;
+                        //    moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                        //}
                         this.UpdatedModulesOnce = true;
                     }
                 }
@@ -4305,8 +4339,8 @@ float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Cente
         {
             for (int index = 0; index < this.beams.Count; ++index)
                 this.beams[index].Die((GameplayObject)this, true);
-            this.beams.Clear();
-            this.beams.ApplyPendingRemovals();
+            this.beams.ClearAll();
+            
 
             ++DebugInfoScreen.ShipsDied;
             Projectile Psource = source as Projectile;
