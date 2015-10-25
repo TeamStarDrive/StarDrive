@@ -284,17 +284,33 @@ namespace Ship_Game.Gameplay
             //    return;
             //if (this.Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
             //    this.ScanForThreatTimer = 0;
-            this.HasPriorityOrder = false;
+            this.HasPriorityOrder = false;            
 			if (this.awaitClosest != null)
 			{
 				this.DoOrbit(this.awaitClosest, elapsedTime);
 			}
 			else if (this.Owner.GetSystem() == null)
 			{
-				IOrderedEnumerable<SolarSystem> sortedList = 
-					from solarsystem in this.Owner.loyalty.GetOwnedSystems()
+				if(this.SystemToDefend != null)
+                {
+                    this.DoOrbit(this.SystemToDefend.PlanetList[0], elapsedTime);
+                    this.awaitClosest = this.SystemToDefend.PlanetList[0];
+                    return;
+                }                
+                IOrderedEnumerable<SolarSystem> sortedList = 
+					from solarsystem in this.Owner.loyalty.GetOwnedSystems()                    
 					orderby Vector2.Distance(this.Owner.Center, solarsystem.Position)
 					select solarsystem;
+                if (this.Owner.loyalty.isFaction)
+                {
+                    sortedList =
+                        from solarsystem in Ship.universeScreen.SolarSystemDict.Values
+                        orderby Vector2.Distance(this.Owner.Center, solarsystem.Position) < 800000
+                        , this.Owner.loyalty.GetOwnedSystems().Contains(solarsystem)
+                        select solarsystem;
+                       
+                }
+                else
 				if (sortedList.Count<SolarSystem>() > 0)
 				{
 					this.DoOrbit(sortedList.First<SolarSystem>().PlanetList[0], elapsedTime);
@@ -310,6 +326,8 @@ namespace Ship_Game.Gameplay
                 bool closestUS =false;
 				foreach (Planet p in this.Owner.GetSystem().PlanetList)
 				{
+                    if (awaitClosest == null)
+                        awaitClosest = p;
                     bool us = false;
                     if(this.Owner.loyalty.isFaction)
                     {
@@ -327,12 +345,14 @@ namespace Ship_Game.Gameplay
                             continue;
                         }
                         
-                    }
-
+                    }                    
                     closestUS = us;
                     closestD = Distance;
                     this.awaitClosest = p;
+                    
+
 				}
+                
 			}
 		}
 
@@ -1493,7 +1513,7 @@ namespace Ship_Game.Gameplay
              * 
              * Still here the ship doesnt move right. Im not sure why this is different than vanilla. Here the ships tend to bounce a at long range. in vanilla that slid around the ship sort of circling it at range.
              */ 
-            float minRangeMod = this.Owner.maxWeaponsRange < 2000 ? .5f : .75f;
+            float minRangeMod = this.Owner.maxWeaponsRange < 2000 ? .70f : .8f;
             float maxRangeMod = this.Owner.maxWeaponsRange < 2000 ? .75f : .9f;
             float rangemod = this.Owner.Radius + this.Target.Radius;
             if (rangemod > this.Owner.maxWeaponsRange)
@@ -1507,13 +1527,14 @@ namespace Ship_Game.Gameplay
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-
+            else if (DistanceToTarget < this.Owner.maxWeaponsRange * minRangeMod)
+            {
                 this.Owner.Velocity = this.Owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
                 if (this.Owner.Velocity.Length() > this.Owner.velocityMaximum)
                 {
-                    this.Owner.Velocity = Vector2.Normalize(-forward) * (this.Owner.velocityMaximum);                   
+                    this.Owner.Velocity = Vector2.Normalize(-forward) * (this.Owner.velocityMaximum);
                 }
-
+            }
             if (angleDiff <= 0.02f)
             {
                 this.DeRotate();
@@ -1878,7 +1899,10 @@ namespace Ship_Game.Gameplay
                 cost = 0;
             }
             cost = cost + 10 * (int)UniverseScreen.GamePaceStatic;
-            qi.Cost = (float)cost;
+            if (this.Owner.loyalty.isFaction)
+                qi.Cost = 0;
+            else
+                qi.Cost = (float)cost;
             qi.isRefit = true;
             //Added by McShooterz: refit keeps name and level
             if(this.Owner.VanityName != this.Owner.Name)
@@ -2724,9 +2748,9 @@ namespace Ship_Game.Gameplay
                                                    if (weapon.fireTarget !=null )
                                                    {
                                                        
-                                                       if (  !this.Owner.CheckIfInsideFireArc(weapon, weapon.fireTarget)
+                                                       if (( weapon.fireTarget !=null && !this.Owner.CheckIfInsideFireArc(weapon, weapon.fireTarget))                                                           
                                                            //check here if the weapon can fire on main target.
-                                                            || (weapon.PrimaryTarget && weapon.fireTarget != this.Target)
+                                                           //(weapon.PrimaryTarget && weapon.fireTarget != this.Target)
                                                            || (this.Target != null && (!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target)))                                                         
                                                            )
                                                        {
@@ -4481,7 +4505,7 @@ namespace Ship_Game.Gameplay
 			this.OrbitTarget = null;
 			foreach (Ship_Game.Planet Planet in sortedList)
 			{
-				if (!Planet.HasShipyard)
+				if (!Planet.HasShipyard && !this.Owner.loyalty.isFaction)
 				{
 					continue;
 				}
@@ -4531,6 +4555,10 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			List<Planet> shipyards = new List<Planet>();
+            if(this.Owner.loyalty.isFaction)
+            {                
+                return;
+            }
 			foreach (Planet planet in this.Owner.loyalty.GetPlanets())
 			{
                 if (!planet.HasShipyard || (this.Owner.InCombat && Vector2.Distance(this.Owner.Center, planet.Position) < 15000f))

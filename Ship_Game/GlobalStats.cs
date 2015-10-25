@@ -244,12 +244,12 @@ namespace Ship_Game
 			}
 		}
 
-		public static void IncrementRemnantKills()
+		public static void IncrementRemnantKills(int exp)
 		{
-			GlobalStats.RemnantKills = GlobalStats.RemnantKills + 1;
+            GlobalStats.RemnantKills = GlobalStats.RemnantKills + exp;
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.RemnantTechCount > 0)
             {
-                if (GlobalStats.RemnantKills == 5 && GlobalStats.RemnantActivation < GlobalStats.ActiveModInfo.RemnantTechCount)
+                if (GlobalStats.RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && GlobalStats.RemnantActivation < GlobalStats.ActiveModInfo.RemnantTechCount)
                 {
                     GlobalStats.RemnantActivation += 1;
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
@@ -258,7 +258,7 @@ namespace Ship_Game
             }
             else
             {
-                if (GlobalStats.RemnantKills == 5)
+                if (GlobalStats.RemnantKills >= 5)
                 {
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
                 }
