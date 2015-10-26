@@ -2740,9 +2740,11 @@ namespace Ship_Game.Gameplay
                                                        continue;
                                                        //return;
                                                    }
+                                                   if ((!weapon.TruePD || !weapon.Tag_PD) && this.Owner.isPlayerShip())
+                                                       continue;
                                                    ShipModule moduletarget = weapon.fireTarget as ShipModule;
                                                    //if firing at the primary target mark weapon as firing on primary.
-                                                   if (!(weapon.fireTarget is Projectile) &&( weapon.fireTarget == this.Target || (moduletarget !=null && (moduletarget.GetParent() as GameplayObject) ==this.Target)))
+                                                   if (!(weapon.fireTarget is Projectile) && weapon.fireTarget != null && (weapon.fireTarget == this.Target || (moduletarget != null && (moduletarget.GetParent() as GameplayObject) == this.Target)))
                                                        weapon.PrimaryTarget = true;                                                   
                                                     //check if weapon target as a gameplay object is still a valid target    
                                                    if (weapon.fireTarget !=null )
@@ -2751,7 +2753,7 @@ namespace Ship_Game.Gameplay
                                                        if (( weapon.fireTarget !=null && !this.Owner.CheckIfInsideFireArc(weapon, weapon.fireTarget))                                                           
                                                            //check here if the weapon can fire on main target.
                                                            //(weapon.PrimaryTarget && weapon.fireTarget != this.Target)
-                                                           || (this.Target != null && (!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target)))                                                         
+                                                           || (this.Target != null && weapon.SalvoTimer <=0 && weapon.BeamDuration <=0 && (!weapon.PrimaryTarget && !(weapon.fireTarget is Projectile) && this.Owner.CheckIfInsideFireArc(weapon, this.Target)))                                                         
                                                            )
                                                        {
                                                            weapon.TargetChangeTimer = .1f * weapon.moduleAttachedTo.XSIZE * weapon.moduleAttachedTo.YSIZE;
@@ -2775,7 +2777,7 @@ namespace Ship_Game.Gameplay
                                                        
                                                    }
                                                    //if weapon target is null reset primary target and decrement target change timer.
-                                                   if (weapon.fireTarget == null)
+                                                   if (weapon.fireTarget == null && !this.Owner.isPlayerShip())
                                                    {
                                                        weapon.TargetChangeTimer -= 0.0167f;
                                                        if (weapon.PrimaryTarget != false)
