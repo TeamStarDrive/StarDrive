@@ -3068,60 +3068,81 @@ namespace Ship_Game.Gameplay
                 }
                 if (elapsedTime > 0.0f)
                 {
-                    //if (this.GetAI().fireTask != null && !this.GetAI().fireTask.IsCompleted)
-                    //{
-                    //    this.GetAI().fireTask.Wait();
+                    var source = Enumerable.Range(0, 0).ToArray();
+                    var rangePartitioner = Partitioner.Create(0, 1);
+                     
 
-                    //}
-                    //task gremlin look at parallel here for weapons
-                    //foreach (Projectile projectile in (List<Projectile>)this.Projectiles)
-                    Parallel.ForEach<Projectile>(this.projectiles, projectile =>
+                    if (this.projectiles.Count >0)
                     {
-                        if (projectile != null && projectile.Active)
-                            projectile.Update(elapsedTime);
-                        else
+                          source = Enumerable.Range(0, this.projectiles.Count).ToArray();
+                          rangePartitioner = Partitioner.Create(0, source.Length);
+                        //handle each weapon group in parallel
+                        Parallel.ForEach(rangePartitioner, (range, loopState) =>
                         {
-                           // projectile.Die(null, true);
-                            this.Projectiles.QueuePendingRemoval(projectile);
-                        }
-                    });
-                    object locker = new object();
-                    //foreach (Beam beam in (List<Beam>)this.beams)
-                    Parallel.ForEach(this.beams,(beam)=>
-                    
-                    {
-                        Vector2 origin = new Vector2();
-                        if (beam.moduleAttachedTo != null)
-                        {
-                            ShipModule shipModule = beam.moduleAttachedTo;
-                            origin = (int)shipModule.XSIZE != 1 
-                                || (int)shipModule.YSIZE != 3 
-                                ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2)) 
-                                : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
-                            Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
-float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Center);
-                            Vector2 angleAndDistance = HelperFunctions.findPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees(shipModule.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
-                            float num2 = (float)((int)shipModule.XSIZE * 16 / 2);
-                            float num3 = (float)((int)shipModule.YSIZE * 16 / 2);
-                            float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
-                            float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
-                            origin = HelperFunctions.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);                            
-                            int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
-                            //lock (locker) 
-                            beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
-                            //beam.Update(beam.moduleAttachedTo.Center, beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
-                            if ( beam.duration < 0f && !beam.infinite)
+                            //standard for loop through each weapon group.
+                            for (int T = range.Item1; T < range.Item2; T++)
                             {
-                                beam.Die(null, false);
-                                this.beams.QueuePendingRemoval(beam);
+                                Projectile projectile = this.projectiles[T];
+                                //Parallel.ForEach<Projectile>(this.projectiles, projectile =>
+                                //{
+                                if (projectile != null && projectile.Active)
+                                    projectile.Update(elapsedTime);
+                                else
+                                {
+                                    // projectile.Die(null, true);
+                                    this.Projectiles.QueuePendingRemoval(projectile);
+                                }
                             }
-                        }
-                        else
+                        }); 
+                    }
+                    object locker = new object();
+
+                    if (this.beams.Count >0)
+                    {
+                        source = Enumerable.Range(0, this.beams.Count).ToArray();
+                        rangePartitioner = Partitioner.Create(0, source.Length);
+                        //handle each weapon group in parallel
+                        Parallel.ForEach(rangePartitioner, (range, loopState) =>
                         {
-                            beam.Die(null, false);
-                            this.beams.QueuePendingRemoval(beam);
-                        }
-                    });
+                            //standard for loop through each weapon group.
+                            for (int T = range.Item1; T < range.Item2; T++)
+                            {
+                                Beam beam = this.beams[T];
+                                Vector2 origin = new Vector2();
+                                if (beam.moduleAttachedTo != null)
+                                {
+                                    ShipModule shipModule = beam.moduleAttachedTo;
+                                    origin = (int)shipModule.XSIZE != 1
+                                        || (int)shipModule.YSIZE != 3
+                                        ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))
+                                        : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
+                                    Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
+                                    float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Center);
+                                    Vector2 angleAndDistance = HelperFunctions.findPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees(shipModule.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+                                    float num2 = (float)((int)shipModule.XSIZE * 16 / 2);
+                                    float num3 = (float)((int)shipModule.YSIZE * 16 / 2);
+                                    float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
+                                    float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
+                                    origin = HelperFunctions.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
+                                    int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
+                                    //lock (locker) 
+                                    beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
+                                    //beam.Update(beam.moduleAttachedTo.Center, beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
+                                    if (beam.duration < 0f && !beam.infinite)
+                                    {
+                                        beam.Die(null, false);
+                                        this.beams.QueuePendingRemoval(beam);
+                                    }
+                                }
+                                else
+                                {
+                                    beam.Die(null, false);
+                                    this.beams.QueuePendingRemoval(beam);
+                                }
+                            }
+
+                        }); 
+                    }
                     //this.beams.thisLock.ExitReadLock();
 
                     this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
