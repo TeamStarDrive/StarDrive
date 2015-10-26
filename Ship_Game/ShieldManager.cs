@@ -4,6 +4,9 @@ using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Lights;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -132,23 +135,32 @@ namespace Ship_Game
 				Shield shield2 = shield;
 				shield2.texscale = shield2.texscale - 0.185f;
 			}
-			for (int i = 0; i < ShieldManager.shieldList.Count; i++)
-			{
-				Shield shield = ShieldManager.shieldList[i];
-				PointLight pointLight = shield.pointLight;
-				pointLight.Intensity = pointLight.Intensity - 2.45f;
-				if (shield.pointLight.Intensity <= 0f)
-				{
-					shield.pointLight.Enabled = false;
-				}
-				if (shield.texscale > 0f)
-				{
-					Shield shield3 = shield;
-					shield3.displacement = shield3.displacement + 0.085f;
-					Shield shield4 = shield;
-					shield4.texscale = shield4.texscale - 0.185f;
-				}
-			}
-		}
+			var source = Enumerable.Range(0, ShieldManager.shieldList.Count).ToArray();
+                            var rangePartitioner = Partitioner.Create(0, source.Length);
+                    //handle each weapon group in parallel
+                Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                {
+                    //standard for loop through each weapon group.
+                    for (int T = range.Item1; T < range.Item2; T++)
+                    {
+
+
+                        Shield shield = ShieldManager.shieldList[T];
+                        PointLight pointLight = shield.pointLight;
+                        pointLight.Intensity = pointLight.Intensity - 2.45f;
+                        if (shield.pointLight.Intensity <= 0f)
+                        {
+                            shield.pointLight.Enabled = false;
+                        }
+                        if (shield.texscale > 0f)
+                        {
+                            Shield shield3 = shield;
+                            shield3.displacement = shield3.displacement + 0.085f;
+                            Shield shield4 = shield;
+                            shield4.texscale = shield4.texscale - 0.185f;
+                        }
+                    }
+                });
+        }
 	}
 }

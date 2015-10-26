@@ -1842,99 +1842,108 @@ namespace Ship_Game
 
 
             //System.Diagnostics.Debug.WriteLine(this.zgameTime.TotalGameTime.Seconds - elapsedTime);
-
-            if ((double)elapsedTime > 0.0)
+            Parallel.Invoke(() =>
             {
-                this.SpatManUpdate2(elapsedTime);
-                UniverseScreen.ShipSpatialManager.UpdateBucketsOnly(elapsedTime);
-            }
-
-            //lock (GlobalStats.ClickableItemLocker)
-            this.UpdateClickableItems();
-            if (this.LookingAtPlanet)
-                this.workersPanel.Update(elapsedTime);
-            bool flag1 = false;
-            lock (GlobalStats.ClickableSystemsLock)
-            {
-                for (int local_11 = 0; local_11 < this.ClickPlanetList.Count; ++local_11)
+                if (elapsedTime > 0)
                 {
-                    try
-                    {
-                        UniverseScreen.ClickablePlanets local_12 = this.ClickPlanetList[local_11];
-                        if ((double)Vector2.Distance(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y), local_12.ScreenPos) <= (double)local_12.Radius)
-                        {
-                            flag1 = true;
-                            this.TooltipTimer -= 0.01666667f;
-                            this.tippedPlanet = local_12;
-                        }
-                    }
-                    catch
-                    {
-                    }
+                    this.SpatManUpdate2(elapsedTime);
+                    UniverseScreen.ShipSpatialManager.UpdateBucketsOnly(elapsedTime);
                 }
-            }
-            if ((double)this.TooltipTimer <= 0.0 && !this.LookingAtPlanet)
-                this.TooltipTimer = 0.5f;
-            if (!flag1)
+            },
+            () =>
             {
-                this.ShowingPlanetToolTip = false;
-                this.TooltipTimer = 0.5f;
-            }
-            bool flag2 = false;
-            if (this.viewState > UniverseScreen.UnivScreenState.SectorView)
-            {
+                //lock (GlobalStats.ClickableItemLocker)
+                this.UpdateClickableItems();
+                if (this.LookingAtPlanet)
+                    this.workersPanel.Update(elapsedTime);
+                bool flag1 = false;
                 lock (GlobalStats.ClickableSystemsLock)
                 {
-                    for (int local_15 = 0; local_15 < this.ClickableSystems.Count; ++local_15)
+                    for (int local_11 = 0; local_11 < this.ClickPlanetList.Count; ++local_11)
                     {
-                        UniverseScreen.ClickableSystem local_16 = this.ClickableSystems[local_15];
-                        if ((double)Vector2.Distance(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y), local_16.ScreenPos) <= (double)local_16.Radius)
+                        try
                         {
-                            this.sTooltipTimer -= 0.01666667f;
-                            this.tippedSystem = local_16;
-                            flag2 = true;
+                            UniverseScreen.ClickablePlanets local_12 = this.ClickPlanetList[local_11];
+                            if (Vector2.Distance(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y), local_12.ScreenPos) <= local_12.Radius)
+                            {
+                                flag1 = true;
+                                this.TooltipTimer -= 0.01666667f;
+                                this.tippedPlanet = local_12;
+                            }
+                        }
+                        catch
+                        {
                         }
                     }
                 }
-                if ((double)this.sTooltipTimer <= 0.0)
-                    this.sTooltipTimer = 0.5f;
-            }
-            if (!flag2)
-                this.ShowingSysTooltip = false;
-            this.Zrotate += 0.03f * elapsedTime;
-
-
-            UniverseScreen.JunkList.ApplyPendingRemovals();
-            if ((double)elapsedTime > 0.0)
-            {
-                lock (GlobalStats.ExplosionLocker)
+                if (this.TooltipTimer <= 0f && !this.LookingAtPlanet)
+                    this.TooltipTimer = 0.5f;
+                if (!flag1)
                 {
-                    ExplosionManager.Update(elapsedTime);
-                    ExplosionManager.ExplosionList.ApplyPendingRemovals();
+                    this.ShowingPlanetToolTip = false;
+                    this.TooltipTimer = 0.5f;
                 }
-                MuzzleFlashManager.Update(elapsedTime);
-            }
-            lock (GlobalStats.ExplosionLocker)
-                MuzzleFlashManager.FlashList.ApplyPendingRemovals();
-            foreach (Anomaly anomaly in (List<Anomaly>)this.anomalyManager.AnomaliesList)
-                anomaly.Update(elapsedTime);
-            if ((double)elapsedTime > 0.0)
-            {
-                //lock (GlobalStats.BombLock)
+           
+                bool flag2 = false;
+                if (this.viewState > UniverseScreen.UnivScreenState.SectorView)
                 {
-                    this.BombList.thisLock.EnterReadLock();
-                    for (int local_19 = 0; local_19 < this.BombList.Count; ++local_19)
+                    lock (GlobalStats.ClickableSystemsLock)
                     {
-                        Bomb local_20 = this.BombList[local_19];
-                        if (local_20 != null)
-                            local_20.Update(elapsedTime);
+                        for (int local_15 = 0; local_15 < this.ClickableSystems.Count; ++local_15)
+                        {
+                            UniverseScreen.ClickableSystem local_16 = this.ClickableSystems[local_15];
+                            if (Vector2.Distance(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y), local_16.ScreenPos) <= local_16.Radius)
+                            {
+                                this.sTooltipTimer -= 0.01666667f;
+                                this.tippedSystem = local_16;
+                                flag2 = true;
+                            }
+                        }
                     }
-                    this.BombList.thisLock.ExitReadLock();
-                    this.BombList.ApplyPendingRemovals();
+                    if (this.sTooltipTimer <= 0f)
+                        this.sTooltipTimer = 0.5f;
                 }
+                if (!flag2)
+                    this.ShowingSysTooltip = false;
+                this.Zrotate += 0.03f * elapsedTime;
+
+
+                UniverseScreen.JunkList.ApplyPendingRemovals();
+            },
+            () =>
+            {
+                if (elapsedTime > 0)
+                {
+                    lock (GlobalStats.ExplosionLocker)
+                    {
+                        ExplosionManager.Update(elapsedTime);
+                        ExplosionManager.ExplosionList.ApplyPendingRemovals();
+                    }
+                    MuzzleFlashManager.Update(elapsedTime);
+                }
+                lock (GlobalStats.ExplosionLocker)
+                    MuzzleFlashManager.FlashList.ApplyPendingRemovals();
+                foreach (Anomaly anomaly in (List<Anomaly>)this.anomalyManager.AnomaliesList)
+                    anomaly.Update(elapsedTime);
+                if (elapsedTime > 0)
+                {
+                    //lock (GlobalStats.BombLock)
+                    {
+                        this.BombList.thisLock.EnterReadLock();
+                        for (int local_19 = 0; local_19 < this.BombList.Count; ++local_19)
+                        {
+                            Bomb local_20 = this.BombList[local_19];
+                            if (local_20 != null)
+                                local_20.Update(elapsedTime);
+                        }
+                        this.BombList.thisLock.ExitReadLock();
+                        this.BombList.ApplyPendingRemovals();
+                    }
+                }
+                this.anomalyManager.AnomaliesList.ApplyPendingRemovals();
             }
-            this.anomalyManager.AnomaliesList.ApplyPendingRemovals();
-            if ((double)elapsedTime > 0.0)
+            );
+            if (elapsedTime > 0)
             {
                 ShieldManager.Update();
                 lock (GlobalStats.ShieldLocker)
