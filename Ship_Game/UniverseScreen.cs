@@ -1909,9 +1909,9 @@ namespace Ship_Game
 
 
                 UniverseScreen.JunkList.ApplyPendingRemovals();
-            },
-            () =>
-            {
+            //},
+            //() =>
+            //{
                 if (elapsedTime > 0)
                 {
                     lock (GlobalStats.ExplosionLocker)

@@ -43,18 +43,20 @@ namespace Ship_Game
 		private MissionEntry InciteRebellion;
 
 		private Selector selector;
-        public int spyLimitCount = 0;
-        public static bool AutoTrain = false;
-        private static Checkbox CBAutoRepeat;
-        public static bool SpyMute = false;
-        private static Checkbox cbSpyMute;
-        public static int empirePlanetSpys = 0;
+        private int spyLimitCount = 0;
+        private bool AutoTrain = false;
+        private Checkbox CBAutoRepeat;
+        private bool SpyMute = false;
+        private Checkbox cbSpyMute;
+        private int empirePlanetSpys = 0;
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
 
         public AgentComponent(Rectangle r, EspionageScreen Escreen)
         {
+            this.SpyMute = EmpireManager.EmpireList.Where(player => player.isPlayer).First().data.SpyMute;
+            this.AutoTrain = EmpireManager.EmpireList.Where(player => player.isPlayer).First().data.SpyMissionRepeat;
             this.Escreen = Escreen;
             this.ComponentRect = r;
             this.ScreenManager = Ship.universeScreen.ScreenManager;
@@ -187,9 +189,12 @@ namespace Ship_Game
             Ref<bool> ATRef = new Ref<bool>(() => AutoTrain, (bool x) => AutoTrain = x);
             Vector2 ATCBPos = new Vector2((float)(this.OpsSubRect.X - 10), (float)(MoneyRect.Y - 30));
             CBAutoRepeat = new Checkbox(ATCBPos, "Repeat Missions", ATRef, Fonts.Arial12);
-            Ref<bool> muteATRef = new Ref<bool>(() => SpyMute, (bool x) => SpyMute = x);
+            Ref<bool> muteATRef = new Ref<bool>(() => this.SpyMute, (bool x) => this.SpyMute = x);
             Vector2 muteCBPos = new Vector2((float)(ATCBPos.X), (float)(ATCBPos.Y + 15));
             cbSpyMute = new Checkbox(muteCBPos, "Mute Spies", muteATRef, Fonts.Arial12);
+
+            EmpireManager.EmpireList.Where(player => player.isPlayer).First().data.SpyMute = this.SpyMute ;
+            EmpireManager.EmpireList.Where(player => player.isPlayer).First().data.SpyMissionRepeat = this.AutoTrain;
 
             CBAutoRepeat.Draw(ScreenManager);
             cbSpyMute.Draw(ScreenManager);
