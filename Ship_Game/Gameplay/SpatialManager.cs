@@ -70,9 +70,10 @@ namespace Ship_Game.Gameplay
                     else if (this.FineDetail || this.Buckets.Count > 20 || this.CollidableProjectiles.Count == 0)
                         this.Setup(200000, 200000, 50000, system.Position);
                 }
+                GameplayObject gameplayObject = null;
                 for (int index = 0; index < this.CollidableObjects.Count; ++index)
                 {
-                    GameplayObject gameplayObject = this.CollidableObjects[index];
+                    gameplayObject = this.CollidableObjects[index];
                     if (gameplayObject != null)
                     {
                         if (gameplayObject.GetSystem() != null && system == null)
