@@ -750,6 +750,7 @@ namespace Ship_Game
                     }
                     if (!flag2)
                         break;
+                    this.freighter.GetAI().State = AIState.SystemTrader;
                     this.freighter.GetAI().OrderTrade(0.1f);
                     this.empire.ReportGoalComplete(this);
                     break;
