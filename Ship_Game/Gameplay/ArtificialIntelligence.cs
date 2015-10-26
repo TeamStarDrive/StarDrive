@@ -4864,7 +4864,8 @@ namespace Ship_Game.Gameplay
                 {
                     //planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
-                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
+                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count(); i++)
+                    if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
                         if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
@@ -4937,7 +4938,8 @@ namespace Ship_Game.Gameplay
                 {
                     planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
-                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
+                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count(); i++)
+                    if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
                         if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max)
@@ -5009,7 +5011,8 @@ namespace Ship_Game.Gameplay
                 {
                     planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
-                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
+                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count(); i++)
+                    if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
                         if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
@@ -5082,7 +5085,8 @@ namespace Ship_Game.Gameplay
                 {
                     planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
-                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
+                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count(); i++)
+                    if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
                         if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.EXPORT && PlanetCheck.FoodHere >= this.Owner.CargoSpace_Max)
@@ -5148,7 +5152,8 @@ namespace Ship_Game.Gameplay
                 {
                     planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
-                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0).Count(); i++)
+                    for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count(); i++)
+                    if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
                         if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.EXPORT && PlanetCheck.ProductionHere >= this.Owner.CargoSpace_Max)
@@ -5284,7 +5289,7 @@ namespace Ship_Game.Gameplay
 			{
 				if (!hasCargo && (this.start == null || this.end == null))
 				{
-                    this.OrderTrade(0.1f);
+                    this.OrderTrade(5f);
 				}
 				return;
 			}
