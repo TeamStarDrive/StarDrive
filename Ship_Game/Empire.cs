@@ -1982,7 +1982,7 @@ namespace Ship_Game
                 Planet planet = this.OwnedPlanets[index];
                 if (planet != null)
                 {
-                    planet.UpdateIncomes();
+                    planet.UpdateIncomes(false);
                     income += (planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod) * this.data.TaxRate;
                     income += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
                 }
@@ -2007,7 +2007,7 @@ namespace Ship_Game
                             Planet planet = this.OwnedPlanets[i];
                             if (planet != null)
                             {
-                                planet.UpdateIncomes();
+                                planet.UpdateIncomes(false);
                                 this.GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
                                 this.OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
                             }

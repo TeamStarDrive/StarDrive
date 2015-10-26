@@ -3079,7 +3079,7 @@ namespace Ship_Game
             }
             if (this.GovernorOn)
                 this.DoGoverning();
-            this.UpdateIncomes();
+            this.UpdateIncomes(false);
             // ADDED BY SHAHMATT (notification about empty queue)
             if (GlobalStats.ExtraNotiofications && this.Owner != null && this.Owner.isPlayer && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
             {
@@ -5827,7 +5827,7 @@ output = maxp * take10 = 5
             return false;
         }
 
-        public void UpdateIncomes()
+        public void UpdateIncomes(bool LoadUniverse)
         {
             if (this.Owner == null)
                 return;
@@ -5851,6 +5851,8 @@ output = maxp * take10 = 5
             float shipbuildingmodifier = 1f;
             List<Guid> list = new List<Guid>();
             float shipyards =1;
+            
+            if (!LoadUniverse)
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
             {
                 if (keyValuePair.Value == null)
@@ -5955,9 +5957,9 @@ output = maxp * take10 = 5
             
             this.GrossProductionPerTurn =  (  this.Population / 1000  * ( this.MineralRichness +  this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
             this.GrossProductionPerTurn = this.GrossProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.GrossProductionPerTurn;
-            
 
-            if (this.Station != null)
+
+            if (this.Station != null && !LoadUniverse)
             {
                 if (!this.HasShipyard)
                     this.Station.SetVisibility(false, Planet.universeScreen.ScreenManager, this);
