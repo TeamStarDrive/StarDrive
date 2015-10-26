@@ -516,26 +516,27 @@ namespace Ship_Game
                 this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
 
 
-                if (Vector2.Distance(this.Destination, this.owner.Center) > this.range)
+                if (!this.owner.isPlayerShip() && Vector2.Distance(this.Destination, this.owner.Center) > this.range)
                 {
 
                     this.Die(null, true);
                     return;
                 }
                 else 
-                if (!this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
+                if (!this.owner.isPlayerShip() && !this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
                 {
-                    float angle = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, this.Destination));// this.Target.Center));
-                    float angletoradian = MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire);
-                    if (angle > base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f)
-                    {
-                        angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f;
-                    }
-                    else if (angle < base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f)
-                    {
-                        angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f;
-                    }
-                    this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, angle,  this.range);
+                    this.Die(null, true);
+                    //float angle = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, this.Destination));// this.Target.Center));
+                    //float angletoradian = MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire);
+                    //if (angle > base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f)
+                    //{
+                    //    angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f;
+                    //}
+                    //else if (angle < base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f)
+                    //{
+                    //    angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f;
+                    //}
+                    //this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, angle,  this.range);
                 }
                 else
                 {
