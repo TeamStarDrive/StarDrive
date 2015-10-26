@@ -371,6 +371,8 @@ namespace Ship_Game.Gameplay
             }
             List<Ship> TaskForce = new List<Ship>();
             float strAdded = 0f;
+            float troopStr = 0f;
+            int numOfTroops = 0;
             List<Ship>.Enumerator enumerator = EverythingElse.GetEnumerator();
             try
             {
@@ -380,9 +382,19 @@ namespace Ship_Game.Gameplay
                     {
                         break;
                     }
+                    
                     Ship ship = enumerator.Current;
+                    if (TaskForce.Contains(ship))
+                        continue;
+                    if(ship.HasTroopBay)
+                    foreach (ShipModule Hangar in ship.GetHangars())
+                    {                        
+                        troopStr += 10;
+                        numOfTroops++;
+                    }
                     TaskForce.Add(ship);
                     strAdded = strAdded + ship.GetStrength();
+                    
                 }
                 while (strAdded <= EnemyShipStr * 1.65f);
             }
@@ -394,17 +406,22 @@ namespace Ship_Game.Gameplay
             int numBombs = 0;
             foreach (Ship ship in Bombers)
             {
-                if (numBombs >= 20)
+                if (numBombs >= 20 || BombTaskForce.Contains(ship))
                 {
                     continue;
                 }
+                if (ship.HasTroopBay)
+                    foreach (ShipModule Hangar in ship.GetHangars())
+                    {
+                        troopStr += 10;
+                        numOfTroops++;
+                    }
                 BombTaskForce.Add(ship);
                 numBombs = numBombs + ship.BombBays.Count;
             }
             List<Troop> PotentialTroops = new List<Troop>();
-            float troopStr = 0f;
+            
             List<Troop>.Enumerator enumerator1 = Troops.GetEnumerator();
-            int numOfTroops =0;
             try
             {
                 do

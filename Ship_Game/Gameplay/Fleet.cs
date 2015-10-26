@@ -1599,14 +1599,18 @@ namespace Ship_Game.Gameplay
                             break;
                         case 4:
                             int num10 = 0;
-                            //foreach (Ship ship in (List<Ship>)this.Ships)
-                            //{
-                            //    if (ship.BombBays.Count > 0 && ship.Ordinance / ship.OrdinanceMax > 0.2f && this.Task.GetTargetPlanet().GetGroundStrength(this.Owner) <1 && this.Task.GetTargetPlanet().GetGroundLandingSpots() <10)
-                            //    {
-                            //        num10 += ship.BombBays.Count;
-                            //        ship.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
-                            //    }
-                            //}
+                            float groundStrength = this.GetGroundStrOfPlanet(Task.GetTargetPlanet());
+                            if (groundStrength > 30 && this.Task.GetTargetPlanet().GetGroundStrength(this.Owner) == 0 )
+                            {
+                                foreach (Ship ship in (List<Ship>)this.Ships)
+                                {
+                                    if (ship.GetAI().State== AIState.AwaitingOrders&& ship.BombBays.Count > 0 && ship.Ordinance / ship.OrdinanceMax > 0.2f )
+                                    {
+                                        num10 += ship.BombBays.Count;
+                                        ship.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
+                                    }
+                                } 
+                            }
                             float num11 = 0.0f;
                             float num12 = 0.0f;
                             float num13 = 0.0f;
@@ -1634,8 +1638,8 @@ namespace Ship_Game.Gameplay
                             }
                             else
                             {
-                                bool flag3 = true;
-                                float groundStrength =  this.GetGroundStrOfPlanet(Task.GetTargetPlanet());
+                                bool flag3 = false;
+                                
                                 float num4 = 0.0f;                                
                                 foreach (Ship ship in (List<Ship>)this.Ships)
                                 {
@@ -1678,9 +1682,11 @@ namespace Ship_Game.Gameplay
                                     {
                                         while (enumerator.MoveNext())
                                         {
-                                            if (!enumerator.Current.GetAI().HasPriorityOrder && enumerator.Current.ReadyPlanetAssaulttTroops >0)
-                                            enumerator.Current.GetAI().OrderLandAllTroops(Task.GetTargetPlanet());
-                                            //break;
+                                            if (!enumerator.Current.GetAI().HasPriorityOrder && enumerator.Current.ReadyPlanetAssaulttTroops > 0)
+                                            {
+                                                enumerator.Current.GetAI().OrderLandAllTroops(Task.GetTargetPlanet());
+                                                enumerator.Current.GetAI().HasPriorityOrder = true;
+                                            }
                                         }
                                     }
                                 }
@@ -1693,7 +1699,10 @@ namespace Ship_Game.Gameplay
                                         {
                                             Ship current = enumerator.Current;
                                             if (current.BombBays.Count > 0)
+                                            {
                                                 current.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
+                                                enumerator.Current.GetAI().HasPriorityOrder = true;
+                                            }
                                         }
                                         
                                     }
@@ -1754,15 +1763,15 @@ namespace Ship_Game.Gameplay
 
         private float GetGroundStrOfPlanet(Planet p)
         {
-            float num = 0.0f;
-            foreach (PlanetGridSquare planetGridSquare in p.TilesList)
-            {
-                if (planetGridSquare.TroopsHere.Count > 0)
-                    num += (float)planetGridSquare.TroopsHere[0].Strength;
-                else if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
-                    num += (float)planetGridSquare.building.CombatStrength;
-            }
-            return num;
+            //float num = 0.0f;
+            //foreach (PlanetGridSquare planetGridSquare in p.TilesList)
+            //{
+            //    if (planetGridSquare.TroopsHere.Count > 0)
+            //        num += (float)planetGridSquare.TroopsHere[0].Strength;
+            //    else if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
+            //        num += (float)planetGridSquare.building.CombatStrength;
+            //}
+            return p.GetGroundStrengthOther(this.Owner);
         }
 
         private void DoPostInvasionDefense(MilitaryTask Task)
