@@ -372,7 +372,7 @@ namespace Ship_Game.Gameplay
                     if (this.Hangars.Count > 0)
                         foreach (ShipModule sm in this.Hangars)
                         {
-                            if (sm.hangarTimer < 0)
+                            if (sm.hangarTimer > 0)
                                 continue;
                             if (sm.IsTroopBay)
                                 assaultSpots++;
