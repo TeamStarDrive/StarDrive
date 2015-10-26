@@ -3905,11 +3905,11 @@ namespace Ship_Game.Gameplay
                 };
                 this.OrderQueue.AddLast(goal);
             }
-            else if (this.Owner.BombBays.Count > 0 && target.GetGroundStrength(this.Owner.loyalty) ==0)  //universeScreen.player == this.Owner.loyalty && 
-            {
-                this.State = AIState.Bombard;
-                this.OrderBombardTroops(target);
-            }
+            //else if (this.Owner.BombBays.Count > 0 && target.GetGroundStrength(this.Owner.loyalty) ==0)  //universeScreen.player == this.Owner.loyalty && 
+            //{
+            //    this.State = AIState.Bombard;
+            //    this.OrderBombardTroops(target);
+            //}
 		}
 
 		public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool ClearOrders)
