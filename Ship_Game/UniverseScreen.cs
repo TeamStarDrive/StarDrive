@@ -6171,7 +6171,7 @@ namespace Ship_Game
             this.stuffSelector = new Selector(this.ScreenManager, this.SelectedStuffRect, new Color((byte)0, (byte)0, (byte)0, (byte)80));
             Planet planet = this.SelectedPlanet;
             if (planet.Owner != null)
-                planet.UpdateIncomes();
+                planet.UpdateIncomes(false);
             this.stuffSelector.Draw();
             if (this.SelectedPlanet.ExploredDict[this.player])
             {

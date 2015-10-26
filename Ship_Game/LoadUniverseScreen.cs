@@ -355,6 +355,7 @@ namespace Ship_Game
 						Asteroids = false
 					};
 					system.RingList.Add(r1);
+                    p.UpdateIncomes(true);  //fbedard: needed for OrderTrade()
 				}
 			}
 			return system;
@@ -1420,6 +1421,7 @@ namespace Ship_Game
 				this.us.player = EmpireManager.GetEmpireByName(this.PlayerLoyalty);
 				this.us.LoadContent();
 				this.us.UpdateAllSystems(0.01f);
+                /*
 				foreach (Ship ship in this.data.MasterShipList)
 				{
 					AIState state = ship.GetAI().State;
@@ -1436,6 +1438,7 @@ namespace Ship_Game
 						ship.GetAI().OrderTransportPassengersFromSave();
 					}
 				}
+                */
 				this.ready = true;
 			}
 			Game1.Instance.ResetElapsedTime();
