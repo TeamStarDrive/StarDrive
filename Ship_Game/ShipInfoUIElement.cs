@@ -137,19 +137,29 @@ namespace Ship_Game
 				Active = true
 			};
 			Vector2 OrdersBarPos = new Vector2((float)(this.Power.X + 15), (float)(this.Ordnance.Y + this.Ordnance.Height + spacing + 3));
-            OrdersBarPos.X = pordrect.X;
+            
+            OrdersBarPos.X = pordrect.X - 15;
 			ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
 			this.CombatStatusButtons.Add(AttackRuns);
 			AttackRuns.Action = "attack";
 			AttackRuns.HasToolTip = true;
 			AttackRuns.WhichToolTip = 1;
-			OrdersBarPos.X = OrdersBarPos.X + 25f;
-			ToggleButton Artillery = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_aft");
-			this.CombatStatusButtons.Add(Artillery);
-			Artillery.Action = "arty";
-			Artillery.HasToolTip = true;
-			Artillery.WhichToolTip = 2;
-			OrdersBarPos.X = OrdersBarPos.X + 25f;
+			
+            OrdersBarPos.X = OrdersBarPos.X + 25f;
+            ToggleButton ShortRange = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_grid");
+            this.CombatStatusButtons.Add(ShortRange);
+            ShortRange.Action = "short";
+            ShortRange.HasToolTip = true;
+            ShortRange.WhichToolTip = 228;
+            
+            OrdersBarPos.X = OrdersBarPos.X + 25f;
+            ToggleButton Artillery = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_aft");
+            this.CombatStatusButtons.Add(Artillery);
+            Artillery.Action = "arty";
+            Artillery.HasToolTip = true;
+            Artillery.WhichToolTip = 2;
+			
+            OrdersBarPos.X = OrdersBarPos.X + 25f;
 			ToggleButton HoldPos = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_x");
 			this.CombatStatusButtons.Add(HoldPos);
 			HoldPos.Action = "hold";
@@ -510,6 +520,9 @@ namespace Ship_Game
                                         case "evade":
                                             this.ship.GetAI().CombatState = CombatState.Evade;
                                             break;
+                                        case "short":
+                                            this.ship.GetAI().CombatState = CombatState.ShortRange;
+                                            break;
                                     }
                                     if (toggleButton.Action != "hold" && this.ship.GetAI().State == AIState.HoldPosition)
                                         this.ship.GetAI().State = AIState.AwaitingOrders;
@@ -542,6 +555,9 @@ namespace Ship_Game
                                     continue;
                                 case "evade":
                                     toggleButton.Active = this.ship.GetAI().CombatState == CombatState.Evade;
+                                    continue;
+                                case "short":
+                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.ShortRange;
                                     continue;
                                 default:
                                     continue;

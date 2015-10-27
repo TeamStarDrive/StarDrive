@@ -362,6 +362,17 @@ namespace Ship_Game
                         button.Active = true;
                     }
                 }
+                else if (str == "short")
+                {
+                    if (this.CombatState != Ship_Game.Gameplay.CombatState.ShortRange)
+                    {
+                        button.Active = false;
+                    }
+                    else
+                    {
+                        button.Active = true;
+                    }
+                }
 				else if (this.CombatState != Ship_Game.Gameplay.CombatState.OrbitRight)
 				{
 					button.Active = false;
@@ -5621,6 +5632,9 @@ namespace Ship_Game
                                     case "evade":
                                         this.CombatState = CombatState.Evade;
                                         break;
+                                    case "short":
+                                        this.CombatState = CombatState.ShortRange;
+                                        break;
                                 }
                             }
                         }
@@ -5651,6 +5665,9 @@ namespace Ship_Game
                                 continue;
                             case "evade":
                                 toggleButton.Active = this.CombatState == CombatState.Evade;
+                                continue;
+                            case "short":
+                                toggleButton.Active = this.CombatState == CombatState.ShortRange;
                                 continue;
                             default:
                                 continue;
@@ -6163,18 +6180,28 @@ namespace Ship_Game
             this.classifCursor = new Vector2(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height );
             Cursor = new Vector2((float)(this.classifCursor.X), (float)(this.classifCursor.Y));
             Vector2 OrdersBarPos = new Vector2(Cursor.X, (float)((int)Cursor.Y+20 ));
-			ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
+            OrdersBarPos.X = OrdersBarPos.X - 15;
+            ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
 			this.CombatStatusButtons.Add(AttackRuns);
 			AttackRuns.Action = "attack";
 			AttackRuns.HasToolTip = true;
 			AttackRuns.WhichToolTip = 1;
-			OrdersBarPos.X = OrdersBarPos.X + 29f;
-			ToggleButton Artillery = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_aft");
-			this.CombatStatusButtons.Add(Artillery);
-			Artillery.Action = "arty";
-			Artillery.HasToolTip = true;
-			Artillery.WhichToolTip = 2;
-			OrdersBarPos.X = OrdersBarPos.X + 29f;
+			
+            OrdersBarPos.X = OrdersBarPos.X + 29f;
+            ToggleButton ShortRange = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_grid");
+            this.CombatStatusButtons.Add(ShortRange);
+            ShortRange.Action = "short";
+            ShortRange.HasToolTip = true;
+            ShortRange.WhichToolTip = 228;
+
+            OrdersBarPos.X = OrdersBarPos.X + 29f;
+            ToggleButton Artillery = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_aft");
+            this.CombatStatusButtons.Add(Artillery);
+            Artillery.Action = "arty";
+            Artillery.HasToolTip = true;
+            Artillery.WhichToolTip = 2;
+
+            OrdersBarPos.X = OrdersBarPos.X + 29f;
 			ToggleButton HoldPos = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_x");
 			this.CombatStatusButtons.Add(HoldPos);
 			HoldPos.Action = "hold";
