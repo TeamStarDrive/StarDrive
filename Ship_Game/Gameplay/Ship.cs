@@ -3482,14 +3482,19 @@ namespace Ship_Game.Gameplay
             {
                 if ((this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip) && this.Weapons.Count > 0)
                 {
-                    IOrderedEnumerable<Weapon> orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)this.Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
+                    IOrderedEnumerable<Weapon> orderedEnumerable;
+                    if(this.GetAI().CombatState == CombatState.ShortRange)
+                        orderedEnumerable = Enumerable.OrderBy<Weapon, float>((IEnumerable<Weapon>)this.Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
+                    else
+                        orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)this.Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
                     bool flag = false;
                     foreach (Weapon weapon in (IEnumerable<Weapon>)orderedEnumerable)
                     {
                         if (weapon.DamageAmount > 0.0 && !flag)
                         {
                             this.maxWeaponsRange = weapon.GetModifiedRange();
-                            flag = true;
+                            if (!weapon.Tag_PD)
+                                flag = true;
                         }
                         weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
                         //Added by McShooterz: weapon tag modifiers with check if mod uses them
