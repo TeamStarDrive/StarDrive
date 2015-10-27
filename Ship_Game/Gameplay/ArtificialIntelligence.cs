@@ -976,6 +976,11 @@ namespace Ship_Game.Gameplay
                             this.DoAssaultShipCombat(elapsedTime);
                             break;
                         }
+                    case CombatState.ShortRange:
+                        {
+                            this.DoNonFleetArtillery(elapsedTime);
+                            break;
+                        }
                 }
             }
             else if (this.Owner.fleet != null)
@@ -1025,6 +1030,11 @@ namespace Ship_Game.Gameplay
                     case CombatState.AssaultShip:
                         {
                             this.DoAssaultShipCombat(elapsedTime);
+                            break;
+                        }
+                    case CombatState.ShortRange:
+                        {
+                            this.DoNonFleetArtillery(elapsedTime);
                             break;
                         }
                 }
