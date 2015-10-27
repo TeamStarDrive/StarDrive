@@ -1769,8 +1769,8 @@ namespace Ship_Game
 
 #if !PLAYERONLY
             Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);            
-            List<SolarSystem> solarsystems = this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombat).Count() <21).ToList();
-            List<SolarSystem> Combatsystems = this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombat).Count() > 20).ToList();
+            List<SolarSystem> solarsystems = this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombatTimer ==15).Count() <5).ToList();
+            List<SolarSystem> Combatsystems = this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombatTimer ==15).Count() >= 5).ToList();
             var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
 
             var normalsystems = Partitioner.Create(0, source1.Length);

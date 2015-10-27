@@ -1791,6 +1791,7 @@
     </Content>
     <Content Include="Content\Hulls\terran\Heavy Cruiser.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\Hulls\terran\Light Carrier.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
