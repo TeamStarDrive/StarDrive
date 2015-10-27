@@ -356,7 +356,7 @@ namespace Ship_Game.Gameplay
                 
             }
         }
-        public float ReadyPlanetAssaultStrength
+        public float PlanetAssaultStrength
         {
             get
             {
@@ -372,16 +372,16 @@ namespace Ship_Game.Gameplay
                     if (this.Hangars.Count > 0)
                         foreach (ShipModule sm in this.Hangars)
                         {
-                            if (sm.hangarTimer > 0)
-                                continue;
+                            //if (sm.hangarTimer > 0)
+                            //    continue;
                             if (sm.IsTroopBay)
                                 assaultSpots++;
                         }
                     if (this.Transporters.Count > 0)
                         foreach (ShipModule at in this.Transporters)
                         {
-                            if (at.TransporterTimer > 0)
-                                continue;
+                            //if (at.TransporterTimer > 0)
+                            //    continue;
                             assaultSpots += at.TransporterTroopLanding;
                         }
                     byte troops = 0;

@@ -604,7 +604,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             GO1Projectile.CollidedThisFrame = damaged.CollidedThisFrame = true;
                                             (gameplayObject as Ship).MoveModulesTimer = 2f;
-                                            //loopState.Break();
+                                            loopState.Break();
                                             return;
                                         }
                                         if (GOShip.GetSO().WorldBoundingSphere.Intersects(object1))
@@ -649,16 +649,16 @@ namespace Ship_Game.Gameplay
                             {
                                 if (gameplayObject1.Health >0 && Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + (gameplayObject1 as Projectile).weapon.ProjectileRadius)
                                 {
-                                    gameplayObject.Touch(gameplayObject1);
-                                    //lock (locker)
-                                    //    this.collisionResults.Add(new SpatialManager.CollisionResult()
-                                    //    {
-                                    //        Distance = 0.0f,
-                                    //        Normal = Vector2.Normalize(Vector2.Zero),
-                                    //        GameplayObject = gameplayObject1
-                                    //    });
+                                    //gameplayObject.Touch(gameplayObject1);
+                                    lock (locker)
+                                        this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                        {
+                                            Distance = 0.0f,
+                                            Normal = Vector2.Normalize(Vector2.Zero),
+                                            GameplayObject = gameplayObject1
+                                        });
                                     loopState.Break();
-                                    break;
+                                    return;
                                 }
                             }
                             else if (gameplayObject1 is Asteroid)
@@ -673,7 +673,7 @@ namespace Ship_Game.Gameplay
                                             GameplayObject = gameplayObject1
                                         });
                                     loopState.Break();
-                                    break;
+                                    return;
                                 }
                             }
                             else if (false)
