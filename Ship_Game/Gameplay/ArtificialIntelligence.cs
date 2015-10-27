@@ -2909,7 +2909,7 @@ namespace Ship_Game.Gameplay
                                     weapon.FireTargetedBeam(target);
                                 else if (weapon.Tag_Guided)
                                 {
-                                    if (index > 10 && lag > .05 && !GlobalStats.ForceFullSim && (!weapon.Tag_Intercept) && (weapon.fireTarget is ShipModule))
+                                    if ((index > 10 && lag > .05 && !GlobalStats.ForceFullSim) && (!weapon.Tag_Intercept) && (weapon.fireTarget is ShipModule))
                                         this.FireOnTargetNonVisible(weapon, (weapon.fireTarget as ShipModule).GetParent());
                                     else
                                         weapon.Fire(new Vector2((float)Math.Sin((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing)), -(float)Math.Cos((double)this.Owner.Rotation + MathHelper.ToRadians(weapon.moduleAttachedTo.facing))), target);

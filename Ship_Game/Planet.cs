@@ -6570,7 +6570,7 @@ output = maxp * take10 = 5
 
 
         }
-        public float GetGroundStrengthOther(Empire empire)
+        public float GetGroundStrengthOther(Empire AllButThisEmpire)
         {
             //float num = 0;
             //if (this.Owner == null || this.Owner != empire)
@@ -6586,33 +6586,39 @@ output = maxp * take10 = 5
             {
                 pgs.TroopsHere.thisLock.EnterReadLock();
                 Troop troop = null;
-                if (pgs.TroopsHere.Count > 0)
-                    troop = pgs.TroopsHere[0];
+                while (pgs.TroopsHere.Count > 0)
+                {
+                    if (pgs.TroopsHere.Count > 0)
+                        troop = pgs.TroopsHere[0];
 
-                if (troop == null && this.Owner != empire)
-                {
-                    if (pgs.building == null || pgs.building.CombatStrength <= 0)
+                    if (troop == null && this.Owner != AllButThisEmpire)
                     {
-                        pgs.TroopsHere.thisLock.ExitReadLock();
-                        continue;
+                        if (pgs.building == null || pgs.building.CombatStrength <= 0)
+                        {
+
+                            break;
+                        }
+                        EnemyTroopStrength = EnemyTroopStrength + (pgs.building.CombatStrength + (pgs.building.Strength)); //+ (pgs.building.isWeapon ? pgs.building.theWeapon.DamageAmount:0));
+                        break;
                     }
-                    EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength) *2 + (pgs.building.isWeapon ? pgs.building.theWeapon.DamageAmount:0));
-                }
-                else if (troop != null && troop.GetOwner() != empire)
-                {
-                    EnemyTroopStrength = EnemyTroopStrength + (float)troop.Strength;
-                }
-                if (this.Owner == empire || pgs.building == null || pgs.building.CombatStrength <= 0)
-                {
-                    pgs.TroopsHere.thisLock.ExitReadLock();
-                    continue;
+                    else if (troop != null && troop.GetOwner() != AllButThisEmpire)
+                    {
+                        EnemyTroopStrength = EnemyTroopStrength + troop.Strength;
+                    }
+                    if (this.Owner == AllButThisEmpire || pgs.building == null || pgs.building.CombatStrength <= 0)
+                    {
+
+                        break;
+                    }
+                    EnemyTroopStrength = EnemyTroopStrength + pgs.building.CombatStrength + pgs.building.Strength;
+                    break;
                 }
                 pgs.TroopsHere.thisLock.ExitReadLock();
-                EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength));
+                
 
             }
 
-            return EnemyTroopStrength *1.5f;
+            return EnemyTroopStrength ;
 
 
         }
