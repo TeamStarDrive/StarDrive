@@ -1960,7 +1960,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>551</Index>
-      <Text>EMP Cannons are used to disable targeted ships by overloading their power grids with random energy. All ships have a natural EMP defense based on their size.  EMP weapons are ineffective against shields. </Text>
+      <Text>EMP Cannons are used to disable targeted ships by overloading their power grids with random energy. All ships have a natural EMP defense based on their size.  EMP weapons are ineffective against shielded targets. </Text>
     </Token>
     <Token>
       <Index>552</Index>
@@ -2742,7 +2742,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>943</Index>
-      <Text>A turret mounted EMP cannon weapon, useful for disabling enemy ships.
+      <Text>A turret mounted EMP cannon weapon, useful for disabling enemy ships, provided their shields are down.
       </Text>
     </Token>
     <Token>
@@ -2751,7 +2751,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>945</Index>
-      <Text>Twin EMP cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire.</Text>
+      <Text>Twin EMP cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire. Not effective against targets who's shields are still active.</Text>
     </Token>
     <Token>
       <Index>946</Index>
