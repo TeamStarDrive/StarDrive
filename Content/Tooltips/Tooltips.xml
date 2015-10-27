@@ -1145,5 +1145,10 @@
       <Title>Offensive Strength</Title>
       <Data>7084</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>228</TIP_ID>
+      <Title>Short range order</Title>
+      <Data>7085</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
