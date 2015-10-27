@@ -1643,7 +1643,7 @@ namespace Ship_Game.Gameplay
                                 float num4 = 0.0f;                                
                                 foreach (Ship ship in (List<Ship>)this.Ships)
                                 {
-                                    num4 +=ship.ReadyPlanetAssaultStrength;
+                                    num4 +=ship.PlanetAssaultStrength;
                                 }
                                 num4 += this.Task.GetTargetPlanet().GetGroundStrength(this.Owner)  ;
                                 if (num4 > groundStrength && Task.GetTargetPlanet().GetGroundLandingSpots() >10)
@@ -1657,11 +1657,10 @@ namespace Ship_Game.Gameplay
                                     {
                                         if (ship.BombBays.Count > 0)
                                         {
-                                            ++availableBombers;
-                                            if (ship.Ordinance / ship.OrdinanceMax > 0.2f)
+                                            ++availableBombers;                                            
+                                            if ( ship.Ordinance / ship.OrdinanceMax > 0.2f)
                                             {
-                                                
-                                            }
+                                                availableBombs += ship.BombBays.Count;                                            }
                                         }
                                     }
                                     
@@ -1701,7 +1700,7 @@ namespace Ship_Game.Gameplay
                                             if (current.BombBays.Count > 0)
                                             {
                                                 current.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
-                                                enumerator.Current.GetAI().HasPriorityOrder = true;
+                                                //enumerator.Current.GetAI().HasPriorityOrder = true;
                                             }
                                         }
                                         
