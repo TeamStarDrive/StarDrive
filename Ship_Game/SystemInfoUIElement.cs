@@ -294,7 +294,7 @@ namespace Ship_Game
 							}
 							else
 							{
-								p.UpdateIncomes();
+                                p.UpdateIncomes(false);
 								SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
 								SpriteFont dataFont = SystemInfoUIElement.DataFont;
 								float netFoodPerTurn = p.GetNetFoodPerTurn();

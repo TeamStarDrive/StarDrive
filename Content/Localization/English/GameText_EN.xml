@@ -8324,5 +8324,9 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7084</Index>
       <Text>Estimated offensive strength of the ship or module. This is based on the size of the ship and strength of defense and strength of weapons. The defensive score of the ship is not shown but it is calculated and restricted to be never more than the offensive value. Metal slugs with a few small weapons wont rate that high. </Text>
     </Token>
+    <Token>
+      <Index>7085</Index>
+      <Text>Ship will rotate so that forward-firing weapons are facing its target. If in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within minimum weapons range</Text>
+    </Token>
   </TokenList>
 </LocalizationFile>
