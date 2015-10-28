@@ -2789,7 +2789,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>958</Index>
-      <Text>Medium Fuel Cell</Text>
+      <Text>Medium Armored Fuel Cell</Text>
     </Token>
     <Token>
       <Index>959</Index>
@@ -7206,7 +7206,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5086</Index>
-      <Text>WARNING: CPU INTENSE! This option will force a full combat simulation for 100% accuracy even when battles are occuring out of sight and between non-player factions. If this option is unchecked, an approximation will be used to speed up the game instead.</Text>
+      <Text>WARNING: CPU INTENSE! This option will force a full combat simulation for 100% accuracy even when battles are occurring out of sight and between non-player factions, including detailed module targeting. If this option is unchecked, approximations will be used to speed up the game when occurring well outside the players view, and for some aspects of combat between AI factions.</Text>
     </Token>
     <Token>
       <Index>5087</Index>
