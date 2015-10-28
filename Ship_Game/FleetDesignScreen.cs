@@ -1113,6 +1113,10 @@ namespace Ship_Game
                                 {
                                     this.SelectedNodeList[0].CombatState = CombatState.Evade;
                                 }
+                                else if (str == "short")
+                                {
+                                    this.SelectedNodeList[0].CombatState = CombatState.ShortRange;
+                                }
 							}
 							if (this.SelectedNodeList[0].GetShip() == null)
 							{
@@ -1214,6 +1218,10 @@ namespace Ship_Game
                                     else if (str1 == "evade")
                                     {
                                         node.CombatState = CombatState.Evade;
+                                    }
+                                    else if (str1 == "short")
+                                    {
+                                        node.CombatState = CombatState.ShortRange;
                                     }
 								}
 								if (node.GetShip() == null)
@@ -1543,6 +1551,10 @@ namespace Ship_Game
                             else if (str == "evade")
                             {
                                 toset = CombatState.Evade;
+                            }
+                            else if (str == "short")
+                            {
+                                toset = CombatState.ShortRange;
                             }
 						}
 						if (node.nodeToClick.CombatState != toset)

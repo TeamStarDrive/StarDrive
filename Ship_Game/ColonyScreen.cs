@@ -355,7 +355,7 @@ namespace Ship_Game
             this.ClickTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (this.p.Owner == null)
                 return;
-            this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
             Vector2 pos;
             // ISSUE: explicit reference operation
             // ISSUE: variable of a reference type
@@ -2113,7 +2113,7 @@ namespace Ship_Game
                 }
                 return;
             }
-            this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
             this.HandleDetailInfo(input);
             this.currentMouse = Mouse.GetState();
             Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
@@ -3111,7 +3111,7 @@ namespace Ship_Game
             this.SliderProd.cursor = new Rectangle(this.SliderProd.sRect.X + (int)((float)this.SliderProd.sRect.Width * this.SliderProd.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderProd.sRect.Y + this.SliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
             this.SliderRes.amount = this.p.ResearcherPercentage;
             this.SliderRes.cursor = new Rectangle(this.SliderRes.sRect.X + (int)((float)this.SliderRes.sRect.Width * this.SliderRes.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderRes.sRect.Y + this.SliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
-            this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
         }
 
         private string parseText(string text, float Width)
@@ -3148,7 +3148,7 @@ namespace Ship_Game
 
         public override void Update(float elapsedTime)
         {
-            this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
             if (!this.p.CanBuildInfantry())
             {
                 bool remove = false;
