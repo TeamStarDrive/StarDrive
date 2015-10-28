@@ -1769,8 +1769,8 @@ namespace Ship_Game
 
 #if !PLAYERONLY
             Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);            
-            List<SolarSystem> solarsystems = this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombat).Count() <21).ToList();
-            List<SolarSystem> Combatsystems = this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombat).Count() > 20).ToList();
+            List<SolarSystem> solarsystems = this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombatTimer ==15).Count() <5).ToList();
+            List<SolarSystem> Combatsystems = this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombatTimer ==15).Count() >= 5).ToList();
             var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
 
             var normalsystems = Partitioner.Create(0, source1.Length);
@@ -1909,9 +1909,9 @@ namespace Ship_Game
 
 
                 UniverseScreen.JunkList.ApplyPendingRemovals();
-            },
-            () =>
-            {
+            //},
+            //() =>
+            //{
                 if (elapsedTime > 0)
                 {
                     lock (GlobalStats.ExplosionLocker)
@@ -6171,7 +6171,7 @@ namespace Ship_Game
             this.stuffSelector = new Selector(this.ScreenManager, this.SelectedStuffRect, new Color((byte)0, (byte)0, (byte)0, (byte)80));
             Planet planet = this.SelectedPlanet;
             if (planet.Owner != null)
-                planet.UpdateIncomes();
+                planet.UpdateIncomes(false);
             this.stuffSelector.Draw();
             if (this.SelectedPlanet.ExploredDict[this.player])
             {

@@ -219,7 +219,7 @@ namespace Ship_Game
             EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets().thisLock.EnterReadLock();
 			foreach (Planet p in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets())
 			{
-				p.UpdateIncomes();
+				p.UpdateIncomes(false);
 			}
             EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets().thisLock.ExitReadLock();
 			if (input.Escaped)
