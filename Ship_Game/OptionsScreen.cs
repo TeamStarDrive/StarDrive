@@ -518,7 +518,7 @@ namespace Ship_Game
             this.GamespeedCap = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y)), Localizer.Token(2206), new Ref<bool>((Func<bool>)(() => GlobalStats.LimitSpeed), (Action<bool>)(x => GlobalStats.LimitSpeed = x)), Fonts.Arial12Bold);
             this.GamespeedCap.Tip_Token = 2205;
             this.ForceFullSim = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y + 30)), "Force Full Simulation", new Ref<bool>((Func<bool>)(() => GlobalStats.ForceFullSim), (Action<bool>)(x => GlobalStats.ForceFullSim = x)), Fonts.Arial12Bold);
-            this.ForceFullSim.Tip_Token = 2205;
+            this.ForceFullSim.Tip_Token = 5086;
             this.pauseOnNotification = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y + 60)), Localizer.Token(6007), new Ref<bool>((Func<bool>)(() => GlobalStats.PauseOnNotification), (Action<bool>)(x => GlobalStats.PauseOnNotification = x)), Fonts.Arial12Bold);
             this.pauseOnNotification.Tip_Token = 7004;
 
