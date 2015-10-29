@@ -1036,6 +1036,86 @@ namespace Ship_Game
                             break;
                     }
                     this.UpdateShipsWeCanBuild();
+                    bool bombs = false;
+                    bool hangars = false;
+                    bool troops = false;
+                    foreach(string shipName in this.ShipsWeCanBuild)
+                    {
+                        Ship ship = ResourceManager.ShipsDict[shipName];
+                        int bombcount = 0;
+                        int hangarcount = 0;
+                        if (!this.GSAI.NonCombatshipIsGoodForGoals(ship))
+                            continue;
+                        foreach (ModuleSlot slot in ship.ModuleSlotList)
+                        {
+                            if (slot.module.ModuleType == ShipModuleType.Bomb)
+                            {
+                                bombcount += slot.module.XSIZE * slot.module.YSIZE;
+                                if(bombcount > ship.Size *.2)
+                                bombs = true;
+                            }
+                            if (slot.module.MaximumHangarShipSize > 0)
+                            {
+                                hangarcount += slot.module.YSIZE * slot.module.XSIZE;
+                                if(hangarcount > ship.Size *.2)
+                                hangars = true;
+                            }
+                            if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
+                                troops = true;
+
+                        }
+                        switch (ship.shipData.Role)
+                        {
+                            case ShipData.RoleName.disabled:
+                                break;
+                            case ShipData.RoleName.platform:
+                                break;
+                            case ShipData.RoleName.station:
+                                break;
+                            case ShipData.RoleName.construction:
+                                break;
+                            case ShipData.RoleName.supply:
+                                break;
+                            case ShipData.RoleName.freighter:
+                                break;
+                            case ShipData.RoleName.troop:
+                                break;
+                            case ShipData.RoleName.fighter:
+                                break;
+                            case ShipData.RoleName.scout:
+                                break;
+                            case ShipData.RoleName.gunboat:
+                                this.canBuildCorvettes = true;
+                                break;
+                            case ShipData.RoleName.drone:
+                                break;
+                            case ShipData.RoleName.corvette:
+                                this.canBuildCorvettes = true;
+                                break;
+                            case ShipData.RoleName.frigate:
+                                this.canBuildFrigates = true;
+                                break;
+                            case ShipData.RoleName.destroyer:
+                                this.canBuildFrigates = true;
+                                break;
+                            case ShipData.RoleName.cruiser:
+                                this.canBuildCruisers = true;
+                                break;
+                            case ShipData.RoleName.carrier:
+                                this.canBuildCapitals = true;
+                                break;
+                            case ShipData.RoleName.capital:
+                                this.canBuildCapitals = true;
+                                break;
+                            case ShipData.RoleName.prototype:
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    this.canBuildBombers = bombs;
+                    this.canBuildCarriers = hangars;
+                    this.canBuildTroopShips = troops;
                 }
 
             }
@@ -2105,6 +2185,10 @@ namespace Ship_Game
         public float EstimateIncomeAtTaxRate(float Rate)
         {
             return this.GrossTaxes * Rate + this.OtherIncome + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus - (this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance());
+        }
+        public float Grossincome()
+        {
+            return  this.OtherIncome + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus ;
         }
         public float EstimateShipCapacityAtTaxRate(float Rate)
         {
