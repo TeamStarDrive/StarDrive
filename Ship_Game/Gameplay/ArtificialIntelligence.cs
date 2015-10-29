@@ -3091,17 +3091,26 @@ namespace Ship_Game.Gameplay
 
             float nearest = 0;
             ModuleSlot ClosestES = null;
-            foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
+            //bad fix for external module badness.
+            //Ray ffer = new Ray();
+            //BoundingBox target = new BoundingBox();
+            //ffer.Position=new Vector3(this.Owner.Center,0f);
+
+            try
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0 )
-                    continue;
-                float temp = Vector2.Distance(ES.module.Center, w.GetOwner().Center);
-                if (nearest == 0 || temp < nearest)
+                foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
                 {
-                    nearest = temp;
-                    ClosestES = ES;
+                    if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0)
+                        continue;
+                    float temp = Vector2.Distance(ES.module.Center, this.Owner.Center);
+                    if (nearest == 0 || temp < nearest)
+                    {
+                        nearest = temp;
+                        ClosestES = ES;
+                    } 
                 }
             }
+            catch { }
             if (ClosestES == null)
                 return;
             // List<ModuleSlot> 

@@ -5347,8 +5347,11 @@ namespace Ship_Game.Gameplay
 */
 
         //fbedard: Build a ship with a random role
+        bool nobuild = false;
         private string GetAShip(float Capacity)
         {
+            if (nobuild)
+                return null;
             float ratio_Fighters = 1f;
             float ratio_Corvettes = 0f;
             float ratio_Frigates = 0f;
@@ -5408,37 +5411,52 @@ namespace Ship_Game.Gameplay
                     }
 
                     //carrier
-                    if (item.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0 == true && str >= ShipData.RoleName.freighter)
+                    if (item.GetHangars().Sum(fighters => fighters.MaximumHangarShipSize > 0 ? fighters.XSIZE* fighters.YSIZE:0) > item.Size*.20f && str >= ShipData.RoleName.freighter)
                     {
-                        numCarriers++;
+                        numCarriers += upkeep;
                         TotalMilShipCount++;
                        // capCarriers += upkeep;
                         TotalUpkeep += upkeep;
                     }
                     //troops ship
-                    else if ((item.HasTroopBay || item.hasTransporter ||item.hasAssaultTransporter) && str >= ShipData.RoleName.freighter)
+                    else if ((item.HasTroopBay || item.hasTransporter ||item.hasAssaultTransporter) && str >= ShipData.RoleName.freighter
+                        && item.GetHangars().Where(troopbay=> troopbay.IsTroopBay).Sum(size=>size.XSIZE*size.YSIZE ) 
+                        + item.Transporters.Sum(troopbay => (troopbay.TransporterTroopAssault>0?troopbay.YSIZE*troopbay.XSIZE:0)) > item.Size *.10f
+                        )
                     {
-                        numTroops++;
+                        numTroops += upkeep;
                         TotalMilShipCount++;
                         TotalUpkeep += upkeep;
                       //  capTroops = +upkeep;
 
                     }
-                    //bomber
-                    else if (item.BombBays.Count > 0 && str >= ShipData.RoleName.freighter)
-                    {
-                        numBombers++;
-                        TotalMilShipCount++;
-                        TotalUpkeep += upkeep;
-                        //capBombers += upkeep;
-                    }
-                    else if (item.hasOrdnanceTransporter || item.hasRepairBeam || item.HasSupplyBays || item.hasOrdnanceTransporter || item.InhibitionRadius > 0)
+                 
+                    else if (item.hasOrdnanceTransporter || item.hasRepairBeam || item.HasSupplyBays || item.hasOrdnanceTransporter || item.InhibitionRadius > 0                         
+                        )
                     {
                         numSupport++;
                         TotalUpkeep += upkeep;
                         TotalMilShipCount++;
                         //capSupport += upkeep;
                     }
+                    else if (item.BombBays.Count * 4 > item.Size * .20f && str >= ShipData.RoleName.freighter
+       )
+                    {
+                        numBombers+=upkeep;
+                        TotalMilShipCount++;
+                        TotalUpkeep += upkeep;
+                        //capBombers += upkeep;
+                    }                               
+
+                    //capital and carrier without hangars
+                    else if (str == ShipData.RoleName.capital || str == ShipData.RoleName.carrier)
+                    {
+                        numCapitals++;
+                        TotalMilShipCount++;
+                        TotalUpkeep += upkeep;
+                    }
+                    //bomber
+               
                     else if (str == ShipData.RoleName.fighter || str == ShipData.RoleName.scout)
                     {
                         numFighters++;
@@ -5464,13 +5482,7 @@ namespace Ship_Game.Gameplay
                         TotalMilShipCount++;
                         TotalUpkeep += upkeep;
                     }
-                    //capital and carrier without hangars
-                    else if (str == ShipData.RoleName.capital || str == ShipData.RoleName.carrier)
-                    {
-                        numCapitals++;
-                        TotalMilShipCount++;
-                        TotalUpkeep += upkeep;
-                    }
+                    
 
                     /*
                     else if (str == ShipData.RoleName.freighter)
@@ -5507,56 +5519,86 @@ namespace Ship_Game.Gameplay
             //    this.empire.canBuildCorvettes = this.empire.GetTDict()["HeavyFighterHull"].Unlocked;
 
             //Set ratio by class
-            if (this.empire.canBuildCapitals && TotalMilShipCount >10)
+            if (this.empire.canBuildCapitals ) //&& TotalMilShipCount >10)
             {
                 ratio_Fighters = 0f;
                 ratio_Corvettes = .0f;
-                ratio_Frigates = 4f;
-                ratio_Cruisers = 2f;
+                ratio_Frigates = 10f;
+                ratio_Cruisers = 5f;
                 ratio_Capitals = 1f;
                 if(this.empire.canBuildBombers)
-                ratio_Bombers = 4f;
-                if(this.empire.canBuildCarriers)
-                ratio_Carriers = 1f;
+                {
+                    ratio_Bombers = 5f;
+                    numBombers = (float)Math.Ceiling((double)(numBombers / ResourceManager.ShipRoles[ShipData.RoleName.cruiser].Upkeep));
+                }
+                
+                if (this.empire.canBuildCarriers)
+                {
+                    ratio_Carriers = 5f;
+                    numCarriers =(float)Math.Ceiling((double)(numCarriers / ResourceManager.ShipRoles[ShipData.RoleName.cruiser].Upkeep));
+                }
                 ratio_Support = 1f;
             }
-            else if (this.empire.canBuildCruisers && TotalMilShipCount > 10)
+            else if (this.empire.canBuildCruisers) // && TotalMilShipCount > 10)
             {
-                ratio_Fighters = .05f;
-                ratio_Corvettes = 1f;
-                ratio_Frigates = 3f;
-                ratio_Cruisers = 5.5f;
+                ratio_Fighters = 10f;
+                ratio_Corvettes = 10f;
+                ratio_Frigates = 5f;
+                ratio_Cruisers = 1f;
                 ratio_Capitals = 0f;
                 if (this.empire.canBuildBombers)
-                    ratio_Bombers = 1f;
+                {
+                    ratio_Bombers = 5f;
+                    numBombers = (float)Math.Ceiling((double)(numBombers / ResourceManager.ShipRoles[ShipData.RoleName.frigate].Upkeep));
+                }
+
                 if (this.empire.canBuildCarriers)
-                    ratio_Carriers = 1f;
+                {
+                    ratio_Carriers = 2f;
+                    numCarriers = (float)Math.Ceiling((double)(numCarriers / ResourceManager.ShipRoles[ShipData.RoleName.frigate].Upkeep));
+                }
                 ratio_Support = 1f;
             }
-            else if (this.empire.canBuildFrigates && TotalMilShipCount > 10)
+            else if (this.empire.canBuildFrigates )//&& TotalMilShipCount > 10)
             {
-                ratio_Fighters = .5f;
-                ratio_Corvettes = 1f;
-                ratio_Frigates = 5f;
+                ratio_Fighters = 10f;
+                ratio_Corvettes = 5f;
+                ratio_Frigates = 1f;
                 ratio_Cruisers = 0f;
                 ratio_Capitals = 0f;
                 if (this.empire.canBuildBombers)
-                    ratio_Bombers = 1f;
+                {
+                    ratio_Bombers = 5f;
+                    numBombers = (float)Math.Ceiling((double)(numBombers / ResourceManager.ShipRoles[ShipData.RoleName.corvette].Upkeep));
+                }
+
                 if (this.empire.canBuildCarriers)
+                {
                     ratio_Carriers = 1f;
+                    numCarriers = (float)Math.Ceiling((double)(numCarriers / ResourceManager.ShipRoles[ShipData.RoleName.corvette].Upkeep));
+                }
                 ratio_Support = 1f;
             }
-            else if (this.empire.canBuildCorvettes && TotalMilShipCount > 10)
+            else if (this.empire.canBuildCorvettes )//&& TotalMilShipCount > 10)
             {
-                ratio_Fighters = 2f;
-                ratio_Corvettes = 6f;
+                ratio_Fighters = 5f;
+                ratio_Corvettes = 1f;
                 ratio_Frigates = 0f;
                 ratio_Cruisers = 0f;
                 ratio_Capitals = 0f;
+                ratio_Carriers=0;
                 if (this.empire.canBuildBombers)
+                {
                     ratio_Bombers = 1f;
+                    numBombers = (float)Math.Ceiling((double)(numBombers / ResourceManager.ShipRoles[ShipData.RoleName.corvette].Upkeep));
+                }
             }
-            float totalRatio = ratio_Fighters + ratio_Corvettes + ratio_Frigates + ratio_Cruisers + ratio_Capitals;
+            else 
+            {
+                ratio_Bombers = 0f;
+                ratio_Carriers = 0;
+            }
+            float totalRatio = ratio_Fighters + ratio_Corvettes + ratio_Frigates + ratio_Cruisers + ratio_Capitals + ratio_Bombers + ratio_Support +ratio_Carriers;
             bool atwar = (this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0);
              
             if (TotalMilShipCount <= 0)
@@ -5564,17 +5606,18 @@ namespace Ship_Game.Gameplay
             if (TotalUpkeep == 0)
                 TotalUpkeep = 1;
             ratio_Bombers += this.toughnuts * .2f;
-            float adjustedRatio = Capacity /( TotalUpkeep  / TotalMilShipCount);
-            adjustedRatio = adjustedRatio  / totalRatio;
+            float goal = Capacity / TotalUpkeep;// / TotalMilShipCount);
+            float adjustedRatio = TotalMilShipCount / totalRatio;
             if (adjustedRatio == 0)
                 adjustedRatio = 10;
-            float DesiredFighters = adjustedRatio * ratio_Fighters;
-            float DesiredCorvettes = adjustedRatio * ratio_Corvettes;
-            float DesiredFrigates = adjustedRatio * ratio_Frigates;
-            float DesiredCruisers = adjustedRatio * ratio_Cruisers;
-            float DesiredCapitals = adjustedRatio * ratio_Capitals;
-            float DesiredCarriers = adjustedRatio * ratio_Carriers;  //this.empire.canBuildCarriers ? (DesiredCapitals + DesiredCruisers) / 4f : 0;
-            float DesiredBombers = adjustedRatio * ratio_Bombers;
+            float DesiredFighters = (float)Math.Ceiling((double)(adjustedRatio * ratio_Fighters * goal));
+            float DesiredCorvettes = (float)Math.Ceiling((double)(adjustedRatio * ratio_Corvettes * goal));
+            float DesiredFrigates = (float)Math.Ceiling((double)(adjustedRatio * ratio_Frigates * goal));
+            float DesiredCruisers = (float)Math.Ceiling((double)(adjustedRatio * ratio_Cruisers * goal));
+            float DesiredCapitals = (float)Math.Ceiling((double)(adjustedRatio * ratio_Capitals * goal));
+            float DesiredCarriers = (float)Math.Ceiling((double)(adjustedRatio * ratio_Carriers * goal));  //this.empire.canBuildCarriers ? (DesiredCapitals + DesiredCruisers) / 4f : 0;
+            float DesiredBombers = (float)Math.Ceiling((double)(adjustedRatio * ratio_Bombers * goal));
+            //float DesiredBombers = (float)Math.Ceiling((double)(adjustedRatio * ratio_Bombers * goal));
             float DesiredTroops = 0;
             
             //if(this.empire.canBuildBombers)
@@ -5584,9 +5627,23 @@ namespace Ship_Game.Gameplay
             //}
             if(this.empire.canBuildTroopShips)
             {
-                DesiredTroops = atwar ? TotalMilShipCount / 10f : TotalMilShipCount / 30f;
+                DesiredTroops = (float)Math.Ceiling((double)(atwar ? TotalMilShipCount / 10f : TotalMilShipCount / 30f));
             }
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine("Build Ratios for: "+ this.empire.data.PortraitName);
+            System.Diagnostics.Debug.WriteLine("fighters: " + DesiredFighters + " / "+numFighters);
+            System.Diagnostics.Debug.WriteLine("corvettes: " +DesiredCorvettes+ " / "+numCorvettes);
+            System.Diagnostics.Debug.WriteLine("Frigates: "+DesiredFrigates+ " / "+numFrigates);
+            System.Diagnostics.Debug.WriteLine("Cruisers: " +DesiredCruisers+ " / "+numCruisers);
+            System.Diagnostics.Debug.WriteLine("Capitals: "+DesiredCapitals+ " / "+numCapitals);
+            System.Diagnostics.Debug.WriteLine("Carriers: " +DesiredCarriers+ " / "+numCarriers);
+            System.Diagnostics.Debug.WriteLine("Bombers: "+DesiredBombers+ " / "+numBombers);
+            System.Diagnostics.Debug.WriteLine("TroopsHips: " +DesiredTroops+ " / "+numTroops);
+            System.Diagnostics.Debug.WriteLine("Capacity: " + Capacity);
+            System.Diagnostics.Debug.WriteLine("ShipGoals: " + this.empire.GetGSAI().numberOfShipGoals);
 
+           
+#endif
             //Scrap ships when overspending by class
            // if ((Capacity + capScrapping) <= 0f)  //capScrapping prevent from scrapping too much
             #region MyRegion
@@ -5667,39 +5724,74 @@ namespace Ship_Game.Gameplay
             #endregion
 
             //Find ship to build
-            float ranA = 0f;
-            float ranB = 0f;
+            bool ranA = false;
+            
             if (RandomMath.RandomBetween(0f, 1f) < 0.5f)
-                ranA = 0.1f;
-            else
-                ranB = 0.1f;
+                ranA = true;
+            
             List<Ship> PotentialShips = new List<Ship>();
             Dictionary<ShipData.RoleName, float> PickRoles = new Dictionary<ShipData.RoleName, float>();
             this.empire.UpdateShipsWeCanBuild();
             string buildThis;
-            
 
+            bool destroyer = false;
+            bool gunboats = false;
+            bool carriers = false;
+            foreach (KeyValuePair<string, bool> hull in this.empire.GetHDict())
+            {
+                if (!hull.Value)
+                    continue;
+                if (ResourceManager.HullsDict[hull.Key].Role == ShipData.RoleName.destroyer)
+                    destroyer = true;
+                if (ResourceManager.HullsDict[hull.Key].Role == ShipData.RoleName.gunboat)
+                    gunboats = true;
+                if (ResourceManager.HullsDict[hull.Key].Role == ShipData.RoleName.carrier)
+                    carriers = true;
+            }
             if (numTroops < DesiredTroops)
                 PickRoles.Add(ShipData.RoleName.troop, numTroops / DesiredTroops);
             if (numFighters < DesiredFighters) {
-                PickRoles.Add(ShipData.RoleName.fighter, numFighters / (DesiredFighters + ranA));
+                PickRoles.Add(ShipData.RoleName.fighter, numFighters / (DesiredFighters));
                 //PickRoles.Add(ShipData.RoleName.scout, numFighters / (DesiredFighters + ranB)); //scouts are handeled somewhere else and generally are not good at anything
                 }
             if (numCorvettes < DesiredCorvettes) {
-                PickRoles.Add(ShipData.RoleName.gunboat, numCorvettes / (DesiredCorvettes + ranA));
-                PickRoles.Add(ShipData.RoleName.corvette, numCorvettes / (DesiredCorvettes + ranB));
+                if (gunboats)
+                {
+                    if(ranA)
+                    PickRoles.Add(ShipData.RoleName.gunboat, numCorvettes / (DesiredCorvettes ));
+                    else
+                    PickRoles.Add(ShipData.RoleName.corvette, numCorvettes / (DesiredCorvettes ));
+                }
+                else
+                    PickRoles.Add(ShipData.RoleName.corvette, numCorvettes / (DesiredCorvettes));
                 }
             if (numBombers < DesiredBombers)
                 PickRoles.Add(ShipData.RoleName.drone, numBombers / DesiredBombers);
-            if (numFrigates < DesiredFrigates) {
-                PickRoles.Add(ShipData.RoleName.frigate, numFrigates / (DesiredFrigates + ranA));
-                PickRoles.Add(ShipData.RoleName.destroyer, numFrigates / (DesiredFrigates + ranB));
+            if (numFrigates < DesiredFrigates)
+            {
+                if (destroyer)
+                {
+                    if(ranA)
+                    PickRoles.Add(ShipData.RoleName.frigate, numFrigates / (DesiredFrigates));
+                    else
+                    PickRoles.Add(ShipData.RoleName.destroyer, numFrigates / (DesiredFrigates));
                 }
+                else
+                    PickRoles.Add(ShipData.RoleName.frigate, numFrigates / (DesiredFrigates));
+            }
             if (numCruisers < DesiredCruisers)
                 PickRoles.Add(ShipData.RoleName.cruiser, numCruisers / DesiredCruisers);
             if (numCapitals < DesiredCapitals) {
-                PickRoles.Add(ShipData.RoleName.carrier, numCapitals / (DesiredCapitals + ranA));
-                PickRoles.Add(ShipData.RoleName.capital, numCapitals / (DesiredCapitals + ranB));
+                if (carriers)
+                {
+                    if(ranA )
+                    PickRoles.Add(ShipData.RoleName.carrier, numCapitals / (DesiredCapitals));
+                    else
+                    PickRoles.Add(ShipData.RoleName.capital, numCapitals / (DesiredCapitals));
+                }
+                else {
+                    PickRoles.Add(ShipData.RoleName.capital, numCapitals / (DesiredCapitals ));
+                }
                 }
             if (numCarriers < DesiredCarriers)
                 PickRoles.Add(ShipData.RoleName.prototype, numCarriers / DesiredCarriers);
@@ -5708,9 +5800,14 @@ namespace Ship_Game.Gameplay
                 {
                     buildThis = this.PickFromCandidates(pick.Key, Capacity, PotentialShips);
                     if (!string.IsNullOrEmpty(buildThis))
+                    {
+                        System.Diagnostics.Debug.WriteLine("Choosen: " + buildThis);
+                        //System.Diagnostics.Debug.WriteLine("TroopsHips: " + DesiredTroops);
                         return buildThis;
-                }
-
+                    }
+                }            
+            System.Diagnostics.Debug.WriteLine("Chosen: Nothing");
+            this.nobuild = true;
             return null;  //Find nothing to build !
         }
 
@@ -5785,19 +5882,38 @@ namespace Ship_Game.Gameplay
                 bool bombs = false;
             bool hangars = false;
                 bool troops =false;
-            foreach(ModuleSlot slot in ship.ModuleSlotList)
+                int bombcount = 0;
+                int hangarcount = 0;             
+           
+            foreach (ModuleSlot slot in ship.ModuleSlotList)
             {
                 if (slot.module.ModuleType == ShipModuleType.Bomb)
-                    bombs = true;
+                {
+                    bombcount += slot.module.XSIZE * slot.module.YSIZE;
+                    if (bombcount > ship.Size * .2)
+                        bombs = true;
+                }
                 if (slot.module.MaximumHangarShipSize > 0)
-                    hangars = true;
-                if (slot.module.IsTroopBay || slot.module.TransporterRange >0)
+                {
+                    hangarcount += slot.module.YSIZE * slot.module.XSIZE;
+                    if (hangarcount > ship.Size * .2)
+                        hangars = true;
+                }
+                if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
                     troops = true;
 
             }
-                    upkeep = ship.GetMaintCost(this.empire); //this automatically calls realistic maintenance cost if needed. 
+
                 
-                if (Capacity < upkeep || !shipIsGoodForGoals(ship) || ship.shipData.Role < ShipData.RoleName.freighter)
+                //    upkeep = ship.GetMaintCost(this.empire); //this automatically calls realistic maintenance cost if needed. 
+            //Capacity < upkeep ||
+            if (role == ShipData.RoleName.drone || role == ShipData.RoleName.troop) 
+            {
+                if(!this.NonCombatshipIsGoodForGoals(ship) || ship.shipData.Role < ShipData.RoleName.freighter)
+                continue;
+            }
+            else
+                if (!shipIsGoodForGoals(ship) || ship.shipData.Role < ShipData.RoleName.freighter)
                     continue;                               
                 if (role == ShipData.RoleName.troop && !troops)
                     continue;
@@ -5824,7 +5940,13 @@ namespace Ship_Game.Gameplay
                 ran = HelperFunctions.GetRandomIndex(ran);
                 if (ran > sortedList.Count())
                     ran = sortedList.Count();
-                name = sortedList.Skip(ran).First().Name;
+                ship = sortedList.Skip(ran).First();
+                name = ship.Name;
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine("Choosen Role: " + ship.GetShipData().Role.ToString() +"  Chosen Hull: "+ship.GetShipData().Hull 
+                    +"  Strength: "+ship.BaseStrength);
+                
+#endif
             }
             PotentialShips.Clear();
             return name;
@@ -5864,9 +5986,17 @@ namespace Ship_Game.Gameplay
             return PotentialSatellites.OrderByDescending(tech=> tech.shipData.TechScore).ThenByDescending(stre=>stre.shipData.BaseStrength).Skip(index).FirstOrDefault().Name;
         }
 
-        private bool shipIsGoodForGoals(Ship ship)
+        public bool shipIsGoodForGoals(Ship ship)
         {
             if (ship.BaseStrength > 0f && ship.shipData.ShipStyle != "Platforms" && !ship.shipData.CarrierShip && ship.BaseCanWarp  && ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
+                || (ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
+                && ship.PowerStoreMax / (ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum > minimumWarpRange))
+                return true;
+            return false;
+        }
+        public bool NonCombatshipIsGoodForGoals(Ship ship)
+        {
+            if ( ship.shipData.ShipStyle != "Platforms" && !ship.shipData.CarrierShip && ship.BaseCanWarp && ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier <= ship.PowerFlowMax
                 || (ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier > ship.PowerFlowMax
                 && ship.PowerStoreMax / (ship.ModulePowerDraw * this.empire.data.FTLPowerDrainModifier - ship.PowerFlowMax) * ship.velocityMaximum > minimumWarpRange))
                 return true;
@@ -6531,7 +6661,7 @@ namespace Ship_Game.Gameplay
 							{
 								ranker.Add(r);
 							}
-                            else if (planetList.Type != "Barren" && ((double)planetList.Fertility >= 1 || this.empire.GetBDict()["Aeroponic Farm"] || this.empire.data.Traits.Cybernetic != 0))
+                            else if (planetList.Type != "Barren" && (planetList.Fertility >= 1 || this.empire.GetBDict()["Aeroponic Farm"] || this.empire.data.Traits.Cybernetic != 0))
 							{
 								ranker.Add(r);
 							}
@@ -7508,6 +7638,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin deveksmod military planner
         private void RunMilitaryPlanner()
         {
+            this.nobuild = false;
             float SizeLimiter = GlobalStats.MemoryLimiter;
             int ShipCountLimit = GlobalStats.ShipCountLimit;
             List<AO>.Enumerator enumerator;
@@ -7598,7 +7729,7 @@ namespace Ship_Game.Gameplay
             //bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
             //int prepareWar = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Count();
             //prepareWar += this.empire.GetRelations().Where(angry => angry.Value.PreparingForWar).Count();
-            float noIncome = this.FindTaxRateToReturnAmount(UnderConstruction);
+            //float noIncome = this.FindTaxRateToReturnAmount(UnderConstruction);
 
 
             //float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .05f);  //.45f - (tasks);
@@ -7615,14 +7746,15 @@ namespace Ship_Game.Gameplay
             //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
             float AtWarBonus = 0.05f;
             if (this.empire.Money > 500f)
-                AtWarBonus += (offenseNeeded * (0.002f + this.empire.getResStrat().MilitaryPriority * .001f));
-            float Capacity = (this.empire.Money*(1-this.empire.data.TaxRate)) * AtWarBonus - UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
-            float allowable_deficit = -(this.empire.Money * (AtWarBonus *(1.5f-this.empire.data.TaxRate))); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
+                AtWarBonus += (offenseNeeded * (0.03f + this.empire.getResStrat().MilitaryPriority * .03f));
+            float Capacity = this.empire.Grossincome() * (.25f + AtWarBonus) - UnderConstruction;// -UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
+            float allowable_deficit = -(this.empire.Money * AtWarBonus);//*(1.5f-this.empire.data.TaxRate))); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
             this.empire.data.ShipBudget = this.empire.Money * AtWarBonus;
             if(Capacity > this.buildCapacity)
-                this.buildCapacity = Capacity;             
-            if (Capacity - allowable_deficit <= 0f)
+                this.buildCapacity = Capacity;
+
+            if (Capacity - UnderConstruction - this.empire.GetTotalShipMaintenance() - allowable_deficit <= 0f)
             {
                
                 float HowMuchWeAreScrapping = 0f;
@@ -7762,7 +7894,8 @@ namespace Ship_Game.Gameplay
                 }
                 numgoals = numgoals + 1f;
             }
-
+            //if(numgoals >this.numberOfShipGoals)
+            //    System.Diagnostics.Debug.WriteLine("Offense Needed: " + this.numberOfShipGoals);
             //Build Offensive ships:
             while (Capacity > 0 //this.buildCapacity > 0 //Capacity > allowable_deficit 
                 && numgoals < this.numberOfShipGoals
@@ -7771,7 +7904,7 @@ namespace Ship_Game.Gameplay
             {
 
                 string s = this.GetAShip(this.buildCapacity);//Capacity - allowable_deficit);
-                if (s == null)
+                if (string.IsNullOrEmpty(s))
                 {
                     break;
                 }
@@ -8971,7 +9104,7 @@ namespace Ship_Game.Gameplay
                             bestShipStrength = ship.BaseStrength;
                             BestShip = wecanbuildit.Key;
                             BestShipTechCost = techCost;
-                            System.Diagnostics.Debug.WriteLine("Choosing Best Ship Tech: " + this.empire.data.Traits.ShipType + " -Ship: " + BestShip + " -TechCount: " + trueTechcost +"/"+techCost);
+                            //System.Diagnostics.Debug.WriteLine("Choosing Best Ship Tech: " + this.empire.data.Traits.ShipType + " -Ship: " + BestShip + " -TechCount: " + trueTechcost +"/"+techCost);
                         }
 
                     }
