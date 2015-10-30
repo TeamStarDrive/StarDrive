@@ -3078,6 +3078,7 @@ namespace Ship_Game.Gameplay
                     sortedList.First<ModuleSlot>().module.Damage(this.Owner, damage);
                 }
                 return;
+                (fireTarget as Ship).MoveModulesTimer = 2;
             }
             w.timeToNextFire = w.fireDelay;
             if ((fireTarget as Ship).ExternalSlots.Count == 0)
