@@ -111,7 +111,7 @@ namespace Ship_Game
         //private Dictionary<string, bool> UnlockAbleDesigns = new Dictionary<string, bool>
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
-
+        public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         float leftoverResearch =0;
 
@@ -986,136 +986,57 @@ namespace Ship_Game
                 if (unlockedHull.ShipType == this.data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == this.TechnologyDict[techID].AcquiredFrom)
                 {
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
-                    ShipData hull = ResourceManager.HullsDict[unlockedHull.Name];
-                    switch (hull.Role)
-                    {
-                        case ShipData.RoleName.disabled:
-                            break;
-                        case ShipData.RoleName.platform:
-                            break;
-                        case ShipData.RoleName.station:
-                            break;
-                        case ShipData.RoleName.construction:
-                            break;
-                        case ShipData.RoleName.supply:
-                            break;
-                        case ShipData.RoleName.freighter:
-                            break;
-                        case ShipData.RoleName.troop:
-                            break;
-                        case ShipData.RoleName.fighter:                            
-                            break;
-                        case ShipData.RoleName.scout:
-                            break;
-                        case ShipData.RoleName.gunboat:
-                            this.canBuildCorvettes = true;
-                            break;
-                        case ShipData.RoleName.drone:
-                            break;
-                        case ShipData.RoleName.corvette:
-                            this.canBuildCorvettes = true;
-                            break;
-                        case ShipData.RoleName.frigate:
-                            this.canBuildFrigates = true;
-                            break;
-                        case ShipData.RoleName.destroyer:
-                            this.canBuildFrigates = true;
-                            break;
-                        case ShipData.RoleName.cruiser:
-                            this.canBuildCruisers = true;
-                            break;
-                        case ShipData.RoleName.carrier:
-                            this.canBuildCapitals = true;
-                            break;
-                        case ShipData.RoleName.capital:
-                            this.canBuildCapitals = true;
-                            break;
-                        case ShipData.RoleName.prototype:
-                            break;
-                        default:
-                            break;
-                    }
+                    //ShipData hull = ResourceManager.HullsDict[unlockedHull.Name];
+                    //switch (hull.Role)
+                    //{
+                    //    case ShipData.RoleName.disabled:
+                    //        break;
+                    //    case ShipData.RoleName.platform:
+                    //        break;
+                    //    case ShipData.RoleName.station:
+                    //        break;
+                    //    case ShipData.RoleName.construction:
+                    //        break;
+                    //    case ShipData.RoleName.supply:
+                    //        break;
+                    //    case ShipData.RoleName.freighter:
+                    //        break;
+                    //    case ShipData.RoleName.troop:
+                    //        break;
+                    //    case ShipData.RoleName.fighter:                            
+                    //        break;
+                    //    case ShipData.RoleName.scout:
+                    //        break;
+                    //    case ShipData.RoleName.gunboat:
+                    //        this.canBuildCorvettes = true;
+                    //        break;
+                    //    case ShipData.RoleName.drone:
+                    //        break;
+                    //    case ShipData.RoleName.corvette:
+                    //        this.canBuildCorvettes = true;
+                    //        break;
+                    //    case ShipData.RoleName.frigate:
+                    //        this.canBuildFrigates = true;
+                    //        break;
+                    //    case ShipData.RoleName.destroyer:
+                    //        this.canBuildFrigates = true;
+                    //        break;
+                    //    case ShipData.RoleName.cruiser:
+                    //        this.canBuildCruisers = true;
+                    //        break;
+                    //    case ShipData.RoleName.carrier:
+                    //        this.canBuildCapitals = true;
+                    //        break;
+                    //    case ShipData.RoleName.capital:
+                    //        this.canBuildCapitals = true;
+                    //        break;
+                    //    case ShipData.RoleName.prototype:
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
                     this.UpdateShipsWeCanBuild();
-                    bool bombs = false;
-                    bool hangars = false;
-                    bool troops = false;
-                    foreach(string shipName in this.ShipsWeCanBuild)
-                    {
-                        Ship ship = ResourceManager.ShipsDict[shipName];
-                        int bombcount = 0;
-                        int hangarcount = 0;
-                        if (!this.GSAI.NonCombatshipIsGoodForGoals(ship))
-                            continue;
-                        foreach (ModuleSlot slot in ship.ModuleSlotList)
-                        {
-                            if (slot.module.ModuleType == ShipModuleType.Bomb)
-                            {
-                                bombcount += slot.module.XSIZE * slot.module.YSIZE;
-                                if(bombcount > ship.Size *.2)
-                                bombs = true;
-                            }
-                            if (slot.module.MaximumHangarShipSize > 0)
-                            {
-                                hangarcount += slot.module.YSIZE * slot.module.XSIZE;
-                                if(hangarcount > ship.Size *.2)
-                                hangars = true;
-                            }
-                            if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
-                                troops = true;
-
-                        }
-                        switch (ship.shipData.Role)
-                        {
-                            case ShipData.RoleName.disabled:
-                                break;
-                            case ShipData.RoleName.platform:
-                                break;
-                            case ShipData.RoleName.station:
-                                break;
-                            case ShipData.RoleName.construction:
-                                break;
-                            case ShipData.RoleName.supply:
-                                break;
-                            case ShipData.RoleName.freighter:
-                                break;
-                            case ShipData.RoleName.troop:
-                                break;
-                            case ShipData.RoleName.fighter:
-                                break;
-                            case ShipData.RoleName.scout:
-                                break;
-                            case ShipData.RoleName.gunboat:
-                                this.canBuildCorvettes = true;
-                                break;
-                            case ShipData.RoleName.drone:
-                                break;
-                            case ShipData.RoleName.corvette:
-                                this.canBuildCorvettes = true;
-                                break;
-                            case ShipData.RoleName.frigate:
-                                this.canBuildFrigates = true;
-                                break;
-                            case ShipData.RoleName.destroyer:
-                                this.canBuildFrigates = true;
-                                break;
-                            case ShipData.RoleName.cruiser:
-                                this.canBuildCruisers = true;
-                                break;
-                            case ShipData.RoleName.carrier:
-                                this.canBuildCapitals = true;
-                                break;
-                            case ShipData.RoleName.capital:
-                                this.canBuildCapitals = true;
-                                break;
-                            case ShipData.RoleName.prototype:
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    this.canBuildBombers = bombs;
-                    this.canBuildCarriers = hangars;
-                    this.canBuildTroopShips = troops;
+                   
                 }
 
             }
@@ -1352,16 +1273,16 @@ namespace Ship_Game
                 if (unlockedMod.Type == this.data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == this.TechnologyDict[techID].AcquiredFrom)
                 {
                     this.UnlockedModulesDict[unlockedMod.ModuleUID] = true;
-                    ShipModule checkmod = null;
-                    if (ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID, out checkmod))
-                    {
-                        if (checkmod.IsTroopBay)
-                            this.canBuildTroopShips = true;
-                        if (checkmod.MaximumHangarShipSize > 0)
-                            this.canBuildCarriers = true;
-                        if (checkmod.ModuleType == ShipModuleType.Bomb)
-                            this.canBuildBombers = true;
-                    }
+                   // ShipModule checkmod = null;
+                    //if (ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID, out checkmod))
+                    //{
+                    //    if (checkmod.IsTroopBay)
+                    //        this.canBuildTroopShips = true;
+                    //    if (checkmod.MaximumHangarShipSize > 0)
+                    //        this.canBuildCarriers = true;
+                    //    if (checkmod.ModuleType == ShipModuleType.Bomb)
+                    //        this.canBuildBombers = true;
+                    //}
                 }
 
             }
@@ -1376,54 +1297,54 @@ namespace Ship_Game
                 {
                     this.UnlockedHullsDict[unlockedHull.Name] = true;
                     ShipData hull = ResourceManager.HullsDict[unlockedHull.Name];
-                    switch (hull.Role)
-                    {
-                        case ShipData.RoleName.disabled:
-                            break;
-                        case ShipData.RoleName.platform:
-                            break;
-                        case ShipData.RoleName.station:
-                            break;
-                        case ShipData.RoleName.construction:
-                            break;
-                        case ShipData.RoleName.supply:
-                            break;
-                        case ShipData.RoleName.freighter:
-                            break;
-                        case ShipData.RoleName.troop:
-                            break;
-                        case ShipData.RoleName.fighter:
-                            break;
-                        case ShipData.RoleName.scout:
-                            break;
-                        case ShipData.RoleName.gunboat:
-                            this.canBuildCorvettes = true;
-                            break;
-                        case ShipData.RoleName.drone:
-                            break;
-                        case ShipData.RoleName.corvette:
-                            this.canBuildCorvettes = true;
-                            break;
-                        case ShipData.RoleName.frigate:
-                            this.canBuildFrigates = true;
-                            break;
-                        case ShipData.RoleName.destroyer:
-                            this.canBuildFrigates = true;
-                            break;
-                        case ShipData.RoleName.cruiser:
-                            this.canBuildCruisers = true;
-                            break;
-                        case ShipData.RoleName.carrier:
-                            this.canBuildCapitals = true;
-                            break;
-                        case ShipData.RoleName.capital:
-                            this.canBuildCapitals = true;
-                            break;
-                        case ShipData.RoleName.prototype:
-                            break;
-                        default:
-                            break;
-                    }
+                    //switch (hull.Role)
+                    //{
+                    //    case ShipData.RoleName.disabled:
+                    //        break;
+                    //    case ShipData.RoleName.platform:
+                    //        break;
+                    //    case ShipData.RoleName.station:
+                    //        break;
+                    //    case ShipData.RoleName.construction:
+                    //        break;
+                    //    case ShipData.RoleName.supply:
+                    //        break;
+                    //    case ShipData.RoleName.freighter:
+                    //        break;
+                    //    case ShipData.RoleName.troop:
+                    //        break;
+                    //    case ShipData.RoleName.fighter:
+                    //        break;
+                    //    case ShipData.RoleName.scout:
+                    //        break;
+                    //    case ShipData.RoleName.gunboat:
+                    //        this.canBuildCorvettes = true;
+                    //        break;
+                    //    case ShipData.RoleName.drone:
+                    //        break;
+                    //    case ShipData.RoleName.corvette:
+                    //        this.canBuildCorvettes = true;
+                    //        break;
+                    //    case ShipData.RoleName.frigate:
+                    //        this.canBuildFrigates = true;
+                    //        break;
+                    //    case ShipData.RoleName.destroyer:
+                    //        this.canBuildFrigates = true;
+                    //        break;
+                    //    case ShipData.RoleName.cruiser:
+                    //        this.canBuildCruisers = true;
+                    //        break;
+                    //    case ShipData.RoleName.carrier:
+                    //        this.canBuildCapitals = true;
+                    //        break;
+                    //    case ShipData.RoleName.capital:
+                    //        this.canBuildCapitals = true;
+                    //        break;
+                    //    case ShipData.RoleName.prototype:
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
                     //this.UpdateShipsWeCanBuild();
                 }
 
@@ -2188,7 +2109,7 @@ namespace Ship_Game
         }
         public float Grossincome()
         {
-            return  this.OtherIncome + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus ;
+            return this.GrossTaxes + this.OtherIncome + this.TradeMoneyAddedThisTurn + this.data.FlatMoneyBonus;
         }
         public float EstimateShipCapacityAtTaxRate(float Rate)
         {
@@ -2211,10 +2132,10 @@ namespace Ship_Game
             {
                 if (keyValuePair.Value.Deleted)
                     continue;
+
                 if (this.WeCanBuildThis(keyValuePair.Key))
                 {
-
-
+                    
                     try
                     {
                         if (!this.structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.shipData.Role <= ShipData.RoleName.station && !keyValuePair.Value.shipData.IsShipyard)
@@ -2230,6 +2151,93 @@ namespace Ship_Game
                         ex.Data["Ship Name"] = keyValuePair.Value.Name;
                         throw;
                     }
+                    foreach (string shiptech in keyValuePair.Value.shipData.techsNeeded)
+                    {
+                        this.ShipTechs.Add(shiptech);
+                    }
+                    Ship ship = keyValuePair.Value;
+                    bool bombs = false;
+                    bool hangars = false;
+                    bool troops = false;
+
+                    {
+
+                        int bombcount = 0;
+                        int hangarcount = 0;
+                        if (!this.GSAI.NonCombatshipIsGoodForGoals(ship))
+                            continue;
+                        foreach (ModuleSlot slot in ship.ModuleSlotList)
+                        {
+                            if (slot.module.ModuleType == ShipModuleType.Bomb)
+                            {
+                                bombcount += slot.module.XSIZE * slot.module.YSIZE;
+                                if (bombcount > ship.Size * .2)
+                                    bombs = true;
+                            }
+                            if (slot.module.MaximumHangarShipSize > 0)
+                            {
+                                hangarcount += slot.module.YSIZE * slot.module.XSIZE;
+                                if (hangarcount > ship.Size * .2)
+                                    hangars = true;
+                            }
+                            if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
+                                troops = true;
+
+                        }
+                        switch (ship.shipData.Role)
+                        {
+                            case ShipData.RoleName.disabled:
+                                break;
+                            case ShipData.RoleName.platform:
+                                break;
+                            case ShipData.RoleName.station:
+                                break;
+                            case ShipData.RoleName.construction:
+                                break;
+                            case ShipData.RoleName.supply:
+                                break;
+                            case ShipData.RoleName.freighter:
+                                break;
+                            case ShipData.RoleName.troop:
+                                break;
+                            case ShipData.RoleName.fighter:
+                                break;
+                            case ShipData.RoleName.scout:
+                                break;
+                            case ShipData.RoleName.gunboat:
+                                this.canBuildCorvettes = true;
+                                break;
+                            case ShipData.RoleName.drone:
+                                break;
+                            case ShipData.RoleName.corvette:
+                                this.canBuildCorvettes = true;
+                                break;
+                            case ShipData.RoleName.frigate:
+                                this.canBuildFrigates = true;
+                                break;
+                            case ShipData.RoleName.destroyer:
+                                this.canBuildFrigates = true;
+                                break;
+                            case ShipData.RoleName.cruiser:
+                                this.canBuildCruisers = true;
+                                break;
+                            case ShipData.RoleName.carrier:
+                                this.canBuildCapitals = true;
+                                break;
+                            case ShipData.RoleName.capital:
+                                this.canBuildCapitals = true;
+                                break;
+                            case ShipData.RoleName.prototype:
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    this.canBuildBombers = bombs;
+                    this.canBuildCarriers = hangars;
+                    this.canBuildTroopShips = troops;
+
+
                 }
             }
             if (Empire.universeScreen == null || this != EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
