@@ -493,10 +493,10 @@ namespace Ship_Game
                 fleet.Name = str + " fleet";
                 this.FleetsDict.TryAdd(key, fleet);
             }
-            bool excluded =false;
+            bool excluded = false;
             List<string> shipkill = new List<string>();
             int shipsPurged = 0;
-            float SpaceSaved = GC.GetTotalMemory(true);            
+            float SpaceSaved = GC.GetTotalMemory(true);
 
             if (string.IsNullOrEmpty(this.data.DefaultTroopShip))
             {
@@ -504,7 +504,7 @@ namespace Ship_Game
             }
             foreach (KeyValuePair<string, Technology> keyValuePair in ResourceManager.TechTree)
             {
-                
+
                 TechEntry techEntry = new TechEntry();
                 techEntry.Progress = 0.0f;
                 techEntry.UID = keyValuePair.Key;
@@ -533,8 +533,8 @@ namespace Ship_Game
                         if (raceTech.ShipType == this.data.Traits.ShipType || (this.data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
                         {
                             techEntry.Discovered = false;
-                            techEntry.Unlocked = false;     
-                            
+                            techEntry.Unlocked = false;
+
                             //techEntry.GetTech().Secret = true;                            
 
                         }
@@ -555,7 +555,7 @@ namespace Ship_Game
                         techEntry.Unlocked = true;
 
                     // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
-					if (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.customMilTraitTechs))
+                    if (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.customMilTraitTechs))
                     {
                         if (techEntry.UID == "HeavyFighterHull")
                         {
@@ -569,9 +569,10 @@ namespace Ship_Game
                         {
                             techEntry.Unlocked = true;
                         }
+                        
                     }
                 }
-                if(this.data.Traits.Cybernetic >0)
+                if (this.data.Traits.Cybernetic > 0)
                 {
                     if (techEntry.UID == "Biospheres")
                         techEntry.Unlocked = true;
@@ -580,6 +581,7 @@ namespace Ship_Game
                 if (techEntry.Unlocked)
                     techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
                 this.TechnologyDict.Add(keyValuePair.Key, techEntry);
+            
             }
             foreach (KeyValuePair<string, ShipData> keyValuePair in ResourceManager.HullsDict)
                 this.UnlockedHullsDict.Add(keyValuePair.Value.Hull, false);
@@ -600,10 +602,33 @@ namespace Ship_Game
                     this.UnlockTech(keyValuePair.Key);
                 }
             }
+            //Added by gremlin Figure out techs with modules that we have ships for.
+            {
+                foreach (KeyValuePair<string, TechEntry> tech in this.TechnologyDict)
+                {
+                    if (tech.Value.GetTech().ModulesUnlocked.Count > 0
+                        && tech.Value.GetTech().HullsUnlocked.Count() == 0 && !this.WeCanUseThis(tech.Value.GetTech()))
+                    {
+                        this.TechnologyDict[tech.Key].shipDesignsCanuseThis = false;
+                    }
+
+                }
+                foreach (KeyValuePair<string, TechEntry> tech in this.TechnologyDict)
+                {
+                    if (!tech.Value.shipDesignsCanuseThis)
+                    {
+                        if (WeCanUseThisLater(tech.Value))
+                        {
+                            tech.Value.shipDesignsCanuseThis = true;
+                        }
+                    }
+                }
+                this.MarkShipDesignsUnlockable();
+            }
             //unlock ships from empire data
             foreach (string ship in this.data.unlockShips)
                 this.ShipsWeCanBuild.Add(ship);
-            
+
             //fbedard: Add missing troop ship
             if (this.data.DefaultTroopShip == null)
                 this.data.DefaultTroopShip = this.data.PortraitName + " " + "Troop";
@@ -630,35 +655,16 @@ namespace Ship_Game
                     this.economicResearchStrategy = (EconomicResearchStrategy)ResourceManager.EconSerializer.Deserialize((Stream)new FileInfo("Content/EconomicResearchStrategy/" + this.data.EconomicPersonality.Name + ".xml").OpenRead());
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 e.Data.Add("Failing File: ", string.Concat(Ship_Game.ResourceManager.WhichModPath, "/EconomicResearchStrategy/", this.data.EconomicPersonality.Name, ".xml"));
                 e.Data.Add("Fail Reaseon: ", e.InnerException);
                 throw e;
             }
 
-            
 
-            //Added by gremlin Figure out techs with modules that we have ships for.
-            foreach (KeyValuePair<string,TechEntry> tech in this.TechnologyDict)
-            {
-                if(tech.Value.GetTech().ModulesUnlocked.Count>0  &&  tech.Value.GetTech().HullsUnlocked.Count()==0 && !this.WeCanUseThis(tech.Value.GetTech()))
-                {
-                    this.TechnologyDict[tech.Key].shipDesignsCanuseThis = false;
-                }
 
-            }
-            foreach (KeyValuePair<string,TechEntry> tech in this.TechnologyDict)
-            {
-                if(!tech.Value.shipDesignsCanuseThis)
-                {
-                    if(WeCanUseThisLater(tech.Value))
-                    {
-                        tech.Value.shipDesignsCanuseThis = true;
-                    }
-                }
-            }
-            this.MarkShipDesignsUnlockable();
+
             if (false) //purge designs that dont advance the ships
             {
                 System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
@@ -681,7 +687,7 @@ namespace Ship_Game
                     foreach (Ship ship in ResourceManager.ShipsDict.Values)
                     {
                         if (ship.shipData.techsNeeded.Count == 0 || ship.shipData.BaseStrength == 0
-                            || 
+                            ||
                             ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.Role == ShipData.RoleName.prototype
                             || ship.shipData.ShipStyle != this.data.Traits.ShipType || ship.shipData.techsNeeded.Count == 0
                             )
@@ -772,7 +778,29 @@ namespace Ship_Game
             foreach (KeyValuePair<string, ShipModule> keyValuePair in ResourceManager.ShipModulesDict)
                 this.UnlockedModulesDict.Add(keyValuePair.Key, false);
             //unlock from empire data file
+            //Added by gremlin Figure out techs with modules that we have ships for.
+            {
+                foreach (KeyValuePair<string, TechEntry> tech in this.TechnologyDict)
+                {
+                    if (tech.Value.GetTech().ModulesUnlocked.Count > 0
+                        && tech.Value.GetTech().HullsUnlocked.Count() == 0 && !this.WeCanUseThis(tech.Value.GetTech()))
+                    {
+                        this.TechnologyDict[tech.Key].shipDesignsCanuseThis = false;
+                    }
 
+                }
+                foreach (KeyValuePair<string, TechEntry> tech in this.TechnologyDict)
+                {
+                    if (!tech.Value.shipDesignsCanuseThis)
+                    {
+                        if (WeCanUseThisLater(tech.Value))
+                        {
+                            tech.Value.shipDesignsCanuseThis = true;
+                        }
+                    }
+                }
+                this.MarkShipDesignsUnlockable();
+            }
 
             //fbedard: Add missing troop ship
             if (this.data.DefaultTroopShip == null)
@@ -1035,12 +1063,12 @@ namespace Ship_Game
                     //    default:
                     //        break;
                     //}
-                    this.UpdateShipsWeCanBuild();
+                    
                    
                 }
 
             }
-
+            //this.UpdateShipsWeCanBuild();
 
             // Added by The Doctor - trigger events with unlocking of techs, via Technology XML
             foreach (Technology.TriggeredEvent triggeredEvent in ResourceManager.TechTree[techID].EventsTriggered)
@@ -2184,7 +2212,11 @@ namespace Ship_Game
                                 troops = true;
 
                         }
-                        switch (ship.shipData.Role)
+                        ShipData goodhull =null;
+                        ResourceManager.HullsDict.TryGetValue(ship.shipData.Hull, out goodhull);
+
+                        if(goodhull != null)
+                        switch (goodhull.Role)
                         {
                             case ShipData.RoleName.disabled:
                                 break;
@@ -2257,25 +2289,63 @@ namespace Ship_Game
 
         public bool WeCanBuildThis(string ship)
         {
-            
+            bool InDictionary = true;
+            bool goodHull = false;
+            bool goodRole = true;
+            bool goodModules = true;
             Ship ship1 = null;
-            if (!ResourceManager.ShipsDict.TryGetValue(ship,out ship1)) // ContainsKey(ship))
-                return false;
-            ShipData shipData = ship1.shipData;
-            if (shipData == null || (!this.UnlockedHullsDict.ContainsKey(shipData.Hull) || !this.UnlockedHullsDict[shipData.Hull]))
-                return false;
-            //If the ship role is not defined don't try to use it
-            //trying to fix issue #348
-            // Added bt Allium Sativum
+            string badmodule = "";
             Ship_Game.ShipRole test;
-            if (!ResourceManager.ShipRoles.TryGetValue(shipData.Role, out test))
-                return false;
-            foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlotList)
+            ShipData shipData = null;
+            if (!ResourceManager.ShipsDict.TryGetValue(ship, out ship1)) // ContainsKey(ship))
+                InDictionary = false;
+                
+            else
             {
-                if (!string.IsNullOrEmpty(moduleSlotData.InstalledModuleUID) && moduleSlotData.InstalledModuleUID != "Dummy" && !this.UnlockedModulesDict[moduleSlotData.InstalledModuleUID]) //&& moduleSlotData.InstalledModuleUID != null
-                    return false;
+                 shipData = ship1.shipData;
+                 
+                 if (shipData == null || (!this.UnlockedHullsDict.TryGetValue(shipData.Hull, out goodHull) || !goodHull))
+                 { }
+                 //If the ship role is not defined don't try to use it
+                 //trying to fix issue #348
+                 // Added bt Allium Sativum
+                 else
+                 {
+
+                     if (!ResourceManager.ShipRoles.TryGetValue(shipData.HullRole, out test))
+                         goodRole = false;
+                     if (goodRole)
+                         foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlotList)
+                         {
+                             if (!string.IsNullOrEmpty(moduleSlotData.InstalledModuleUID)
+                                 && moduleSlotData.InstalledModuleUID != "Dummy"
+                                 && !this.UnlockedModulesDict[moduleSlotData.InstalledModuleUID]) //&& moduleSlotData.InstalledModuleUID != null
+                             {
+                                 goodModules = false;
+                                 badmodule = moduleSlotData.InstalledModuleUID;
+                                 break;
+                             }
+                         }
+                 }
+                if (false)
+                {
+                    if (shipData.HullRole >= ShipData.RoleName.fighter)
+                        if ((!goodHull && goodRole) && shipData.ShipStyle == this.data.Traits.ShipType)
+                            System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " : Bad hull  : " + ship + " : " + shipData.Hull + " : " + shipData.Role.ToString() + " :hull unlockable: " + shipData.hullUnlockable + " :Modules Unlockable: " + shipData.allModulesUnlocakable + " : " + shipData.techsNeeded.Count);
+                    if ((goodHull && !goodRole) && shipData.ShipStyle == this.data.Traits.ShipType)
+                        System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " : Bad  role : " + ship + " : " + shipData.Hull + " : " + shipData.Role.ToString() + " :hull unlockable: " + shipData.hullUnlockable + " :Modules Unlockable: " + shipData.allModulesUnlocakable);
+                    else if (!goodModules)
+                        System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " : Bad Modules : " + ship + " : " + shipData.Hull + " : " + shipData.Role.ToString() + " : " + badmodule + " :hull unlockable: " + shipData.hullUnlockable + " :Modules Unlockable: " + shipData.allModulesUnlocakable);
+                    
+                }
             }
-            return true;
+            if (!goodModules || !goodHull || !goodRole || !InDictionary)
+            return false;
+            else
+            {
+                System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " : good ship : " + ship + " : " + shipData !=null ?( shipData.Hull + " : " + shipData.Role.ToString()) :"" + " : " + badmodule);
+                return true;
+            }
         }
 
         public bool WeCanUseThis(Technology tech)
@@ -2440,14 +2510,14 @@ namespace Ship_Game
                     continue;
                 if (shipData.ShipStyle != this.data.Traits.ShipType)
                     continue;
-                foreach (KeyValuePair<string, bool> hulls in this.UnlockedHullsDict)
-                {
-                    if (shipData.Hull == hulls.Key && hulls.Value)
-                    {
-                        shipData.hullUnlockable = true;
+                //foreach (KeyValuePair<string, bool> hulls in this.UnlockedHullsDict)
+                //{
+                //    if (shipData.Hull == hulls.Key && hulls.Value)
+                //    {
+                //        shipData.hullUnlockable = true;
 
-                    }
-                }
+                //    }
+                //}
                 if (!shipData.hullUnlockable)
                     foreach (Technology Hulltech in ShipTechs.Keys)
                     {
@@ -2456,15 +2526,23 @@ namespace Ship_Game
                             if (hulls.Name == shipData.Hull)
                             {
                                 shipData.hullUnlockable = true;
-                                
-                                foreach(string tree in ShipTechs[Hulltech])
+
+                                foreach (string tree in ShipTechs[Hulltech])
+                                {                                  
                                     shipData.techsNeeded.Add(tree);
+                                }
                                 break;
                             }
 
-                        }
-                    }
 
+                        }
+                        if (shipData.hullUnlockable)
+                            break;
+                    }
+                   if(!shipData.hullUnlockable)
+                        {
+                            System.Diagnostics.Debug.WriteLine(" no tech");
+                        }
 
                 foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
                 {
@@ -2473,11 +2551,11 @@ namespace Ship_Game
                     if (module.InstalledModuleUID == "Dummy")
                         continue;
                     bool modUnlockable = false;
-                    foreach (KeyValuePair<string, bool> empireMods in this.UnlockedModulesDict)
-                    {
-                        if (empireMods.Key == module.InstalledModuleUID && empireMods.Value)
-                            modUnlockable = true;
-                    }
+                    //foreach (KeyValuePair<string, bool> empireMods in this.UnlockedModulesDict)
+                    //{
+                    //    if (empireMods.Key == module.InstalledModuleUID && empireMods.Value)
+                    //        modUnlockable = true;
+                    //}
                     if (!modUnlockable)
                         foreach (Technology technology in ShipTechs.Keys)
                         {
@@ -2494,7 +2572,7 @@ namespace Ship_Game
 
                                     break;
                                 }
-                            }
+                            } 
                             if (modUnlockable)
                                 break;
                         }
@@ -2520,16 +2598,24 @@ namespace Ship_Game
 
 
             }
-            //HashSet<string> shipPack = new HashSet<string>();
-            //int loop = 10;
-            //while (loop >0)
-            //{
-            //    foreach(shipData hull in this.GetHDict() )
-            //    foreach(Ship check in ResourceManager.ShipsDict.Values)
-            //    {
+          foreach(ShipData hull in ResourceManager.HullsDict.Values)
+          {
+              foreach (Technology hulltech2 in ResourceManager.TechTree.Values)
+              {
+                  foreach (Technology.UnlockedHull hulls in hulltech2.HullsUnlocked)
+                  {
+                      if (hulls.Name == hull.Hull)
+                      {                          
+                          foreach (string tree in ShipTechs[hulltech2])
+                              hull.techsNeeded.Add(tree);
+                          break;
+                      }
 
-            //    }
-            //}
+
+                  }
+              }
+                            
+          }
 
         }
 
