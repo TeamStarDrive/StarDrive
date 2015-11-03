@@ -3490,12 +3490,15 @@ namespace Ship_Game.Gameplay
                     bool flag = false;
                     foreach (Weapon weapon in (IEnumerable<Weapon>)orderedEnumerable)
                     {
-                        if (weapon.DamageAmount > 0.0 && !flag)
+                        //Added by Gretman
+                        //This fixes ships with only 'other' damage types thinking it has 0 range, causing them to fly through targets even when set to attack at max/min range
+                        if ((weapon.DamageAmount > 0.0 || weapon.EMPDamage > 0.0 || weapon.SiphonDamage > 0.0 || weapon.MassDamage > 0.0 || weapon.PowerDamage > 0.0 || weapon.RepulsionDamage > 0.0) && !flag)
                         {
                             this.maxWeaponsRange = weapon.GetModifiedRange();
                             if (!weapon.Tag_PD)
                                 flag = true;
                         }
+
                         weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
                         //Added by McShooterz: weapon tag modifiers with check if mod uses them
 						if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useWeaponModifiers)
