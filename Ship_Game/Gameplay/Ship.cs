@@ -3967,6 +3967,7 @@ namespace Ship_Game.Gameplay
                         if (this.fleet != null)
                         {
                             this.fleet.Ships.Remove(this);
+                            this.RemoveFromAllFleets();                                                        
                             this.fleet = (Fleet)null;
                         }
                         this.AI.ClearOrdersNext = true;

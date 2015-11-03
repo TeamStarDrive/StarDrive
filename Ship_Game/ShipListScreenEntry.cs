@@ -485,7 +485,13 @@ namespace Ship_Game
 				case AIState.Rebase:
 				{
 					//text = Localizer.Token(178);
-                    text = string.Concat(Localizer.Token(178), " to ", ship.GetAI().OrderQueue.Last.Value.TargetPlanet.Name);  //fbedard
+                    try
+                    {
+                        ship.GetAI().orderqueue.EnterReadLock();
+                        text = string.Concat(Localizer.Token(178), " to ", ship.GetAI().OrderQueue.Last.Value.TargetPlanet.Name);  //fbedard
+                        ship.GetAI().orderqueue.ExitReadLock();
+                    }
+                    catch { }
 					break;
 				}
 				case AIState.Bombard:
