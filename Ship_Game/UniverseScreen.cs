@@ -1630,7 +1630,7 @@ namespace Ship_Game
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 this.MasterShipList.ApplyPendingRemovals();
 
-                //lock (GlobalStats.AddShipLocker)
+                lock (GlobalStats.AddShipLocker) //needed to fix Issue #629
                 {
                     foreach (Ship item_1 in this.ShipsToAdd)
                     {

@@ -79,7 +79,7 @@ namespace Ship_Game.Gameplay
         private bool disposed;
 
         //added by gremlin: Smart Ship research
-        string BestCombatShip = "";
+        Ship BestCombatShip;
         string BestCombatHull = "";
         string BestSupportShip = "";
         private string postResearchTopic = "";
@@ -5402,7 +5402,7 @@ namespace Ship_Game.Gameplay
                 Ship item = this.empire.GetShips()[i];
                 if (item != null && item.Active && item.Mothership == null && item.GetAI().State != AIState.Scrap)
                 {
-                    ShipData.RoleName str = item.shipData.Role;                    
+                    ShipData.RoleName str = item.shipData.HullRole;                    
                     float upkeep = 0f;
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                         upkeep = item.GetMaintCostRealism();
@@ -5668,13 +5668,13 @@ namespace Ship_Game.Gameplay
                     numTroops > DesiredTroops)
                     {
                     foreach (Ship ship in this.empire.GetShips()
-                        .Where(ship => !ship.InCombat && ship.inborders && ship.fleet == null && ship.GetAI().State != AIState.Scrap && ship.Mothership == null && ship.Active && ship.shipData.Role >= ShipData.RoleName.fighter && ship.GetMaintCost(this.empire) >0)
+                        .Where(ship => !ship.InCombat && ship.inborders && ship.fleet == null && ship.GetAI().State != AIState.Scrap && ship.Mothership == null && ship.Active && ship.shipData.HullRole >= ShipData.RoleName.fighter && ship.GetMaintCost(this.empire) >0)
                         .OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense))
                         .ThenBy(ship => ship.Level)
                         .ThenBy(ship => ship.BaseStrength)
                         )
                     {
-                        if (numFighters > (DesiredFighters) && (ship.shipData.Role == ShipData.RoleName.fighter || ship.shipData.Role == ShipData.RoleName.scout))
+                        if (numFighters > (DesiredFighters) && (ship.shipData.HullRole == ShipData.RoleName.fighter || ship.shipData.HullRole == ShipData.RoleName.scout))
                         {
                             numFighters--;
                             ship.GetAI().OrderScrapShip();
@@ -5694,22 +5694,22 @@ namespace Ship_Game.Gameplay
                             numBombers--;
                             ship.GetAI().OrderScrapShip();
                         }
-                        else if (numCorvettes > (DesiredCorvettes) && (ship.shipData.Role == ShipData.RoleName.corvette || ship.shipData.Role == ShipData.RoleName.gunboat))
+                        else if (numCorvettes > (DesiredCorvettes) && (ship.shipData.HullRole == ShipData.RoleName.corvette || ship.shipData.HullRole == ShipData.RoleName.gunboat))
                         {
                             numCorvettes--;
                             ship.GetAI().OrderScrapShip();
                         }
-                        else if (numFrigates > (DesiredFrigates) && (ship.shipData.Role == ShipData.RoleName.frigate || ship.shipData.Role == ShipData.RoleName.destroyer))
+                        else if (numFrigates > (DesiredFrigates) && (ship.shipData.HullRole == ShipData.RoleName.frigate || ship.shipData.HullRole == ShipData.RoleName.destroyer))
                         {
                             numFrigates--;    
                             ship.GetAI().OrderScrapShip();
                         }
-                        else if (numCruisers > (DesiredCruisers) && ship.shipData.Role == ShipData.RoleName.cruiser)
+                        else if (numCruisers > (DesiredCruisers) && ship.shipData.HullRole == ShipData.RoleName.cruiser)
                         {
                             numCruisers--;
                             ship.GetAI().OrderScrapShip();
                         }
-                        else if (numCapitals > (DesiredCapitals) && (ship.shipData.Role == ShipData.RoleName.capital || ship.shipData.Role == ShipData.RoleName.carrier))
+                        else if (numCapitals > (DesiredCapitals) && (ship.shipData.HullRole == ShipData.RoleName.capital || ship.shipData.HullRole == ShipData.RoleName.carrier))
                         {
                             numCapitals--;    
                             ship.GetAI().OrderScrapShip();
@@ -5811,7 +5811,7 @@ namespace Ship_Game.Gameplay
                     buildThis = this.PickFromCandidates(pick.Key, Capacity, PotentialShips);
                     if (!string.IsNullOrEmpty(buildThis))
                     {
-                        System.Diagnostics.Debug.WriteLine("Choosen: " + buildThis);
+                        System.Diagnostics.Debug.WriteLine("Chosen: " + buildThis);
                         //System.Diagnostics.Debug.WriteLine("TroopsHips: " + DesiredTroops);
                         return buildThis;
                     }
@@ -5890,48 +5890,48 @@ namespace Ship_Game.Gameplay
                 if (!ResourceManager.ShipsDict.TryGetValue(shipsWeCanBuild, out ship))
                     continue;
                 bool bombs = false;
-            bool hangars = false;
-                bool troops =false;
+                bool hangars = false;
+                bool troops = false;
                 int bombcount = 0;
-                int hangarcount = 0;             
-           
-            foreach (ModuleSlot slot in ship.ModuleSlotList)
-            {
-                if (slot.module.ModuleType == ShipModuleType.Bomb)
-                {
-                    bombcount += slot.module.XSIZE * slot.module.YSIZE;
-                    if (bombcount > ship.Size * .2)
-                        bombs = true;
-                }
-                if (slot.module.MaximumHangarShipSize > 0)
-                {
-                    hangarcount += slot.module.YSIZE * slot.module.XSIZE;
-                    if (hangarcount > ship.Size * .2)
-                        hangars = true;
-                }
-                if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
-                    troops = true;
+                int hangarcount = 0;
 
-            }
+                foreach (ModuleSlot slot in ship.ModuleSlotList)
+                {
+                    if (slot.module.ModuleType == ShipModuleType.Bomb)
+                    {
+                        bombcount += slot.module.XSIZE * slot.module.YSIZE;
+                        if (bombcount > ship.Size * .2)
+                            bombs = true;
+                    }
+                    if (slot.module.MaximumHangarShipSize > 0)
+                    {
+                        hangarcount += slot.module.YSIZE * slot.module.XSIZE;
+                        if (hangarcount > ship.Size * .2)
+                            hangars = true;
+                    }
+                    if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
+                        troops = true;
 
-                
+                }
+
+
                 //    upkeep = ship.GetMaintCost(this.empire); //this automatically calls realistic maintenance cost if needed. 
-            //Capacity < upkeep ||
-            if (role == ShipData.RoleName.drone || role == ShipData.RoleName.troop) 
-            {
-                if(!this.NonCombatshipIsGoodForGoals(ship) || ship.shipData.Role < ShipData.RoleName.freighter)
-                continue;
-            }
-            else
-                if (!shipIsGoodForGoals(ship) || ship.shipData.Role < ShipData.RoleName.freighter)
-                    continue;                               
+                //Capacity < upkeep ||
+                if (role == ShipData.RoleName.drone || role == ShipData.RoleName.troop)
+                {
+                    if (!this.NonCombatshipIsGoodForGoals(ship) || ship.shipData.HullRole < ShipData.RoleName.freighter)
+                        continue;
+                }
+                else
+                    if (!shipIsGoodForGoals(ship) || ship.shipData.HullRole < ShipData.RoleName.freighter)
+                        continue;
                 if (role == ShipData.RoleName.troop && !troops)
                     continue;
                 else if (role == ShipData.RoleName.drone && !bombs)
                     continue;
                 else if (role == ShipData.RoleName.prototype && !hangars)
                     continue;
-                else if (role != ship.shipData.Role && role != ShipData.RoleName.prototype && role != ShipData.RoleName.drone && role != ShipData.RoleName.troop)
+                else if (role != ship.shipData.HullRole && role == ShipData.RoleName.prototype && role != ShipData.RoleName.drone && role != ShipData.RoleName.troop)
                     continue;
                 if (ship.shipData.techsNeeded.Count > maxtech)
                     maxtech = ship.shipData.techsNeeded.Count;
@@ -5953,10 +5953,29 @@ namespace Ship_Game.Gameplay
                 ship = sortedList.Skip(ran).First();
                 name = ship.Name;
 #if DEBUG
-                System.Diagnostics.Debug.WriteLine("Choosen Role: " + ship.GetShipData().Role.ToString() +"  Chosen Hull: "+ship.GetShipData().Hull 
-                    +"  Strength: "+ship.BaseStrength);
+                if (false)
+                {
+                    System.Diagnostics.Debug.WriteLine("Choosen Role: " + ship.GetShipData().Role.ToString() + "  Chosen Hull: " + ship.GetShipData().Hull
+                                + "  Strength: " + ship.BaseStrength); 
+                }
                 
 #endif
+            }
+            else
+            {
+                if (false)
+                {
+                    string ships = "Ships empire has: ";
+                    foreach (string known in this.empire.ShipsWeCanBuild)
+                    {
+                        ships += known + " : ";
+                    }
+                    System.Diagnostics.Debug.WriteLine(ships);
+                    System.Diagnostics.Debug.WriteLine(""); 
+                }
+
+                    
+
             }
             PotentialShips.Clear();
             return name;
@@ -7758,15 +7777,15 @@ namespace Ship_Game.Gameplay
             if (this.empire.Money > 500f)
                 AtWarBonus += (offenseNeeded * (0.03f + this.empire.getResStrat().MilitaryPriority * .03f));
             float Capacity = this.empire.Grossincome() * (.25f + AtWarBonus) - UnderConstruction;// -UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
-            float allowable_deficit = -(this.empire.Money * AtWarBonus);//*(1.5f-this.empire.data.TaxRate))); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
+            float allowable_deficit = -(this.empire.Money*.05f) * AtWarBonus;//*(1.5f-this.empire.data.TaxRate))); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
                 //-Capacity;
             
             if(Capacity > this.buildCapacity)
                 this.buildCapacity = Capacity;
             this.empire.data.ShipBudget = this.buildCapacity;
-            if (Capacity - UnderConstruction - this.empire.GetTotalShipMaintenance() - allowable_deficit <= 0f)
+            if (Capacity - this.empire.GetTotalShipMaintenance() - allowable_deficit <= 0f)
             {
-               
+                Capacity -= this.empire.GetTotalShipMaintenance() - allowable_deficit;
                 float HowMuchWeAreScrapping = 0f;
                 
                 foreach (Ship ship1 in this.empire.GetShips())
@@ -8759,7 +8778,7 @@ namespace Ship_Game.Gameplay
             foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
             {
 
-                
+
                 TechEntry tech = null;// new TechEntry();
                 bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);
                 if (!techexists || tech == null)
@@ -8790,7 +8809,7 @@ namespace Ship_Game.Gameplay
 
                     continue;
                 }
-                
+
 
                 AvailableTechsbag.Add(Technology.Value);
             }
@@ -8803,446 +8822,210 @@ namespace Ship_Game.Gameplay
             List<Technology> AvailableTechs = AvailableTechsbag.ToList();//new List<Technology>();
             List<string> useableTech = new List<string>();
 
+
+
             string researchtopic = "";
             TechnologyType techtype;
 
             #region hull checking.
-            
+            this.empire.UpdateShipsWeCanBuild();
 
-            string BestShip = ""; //this.BestCombatShip;
+
+            Ship BestShip = null;// ""; //this.BestCombatShip;
             float bestShipStrength = 0f;
-           
-            float moneyNeeded = 0;
+            float techcost = -1;
+            float str = 0;
+            float moneyNeeded = this.empire.data.ShipBudget * .2f;
+            float curentBestshipStr = 0;
 
-            float money = this.empire.EstimateIncomeAtTaxRate(.55f -((int)Ship.universeScreen.GameDifficulty *.05f) )+ this.empire.GetTotalShipMaintenance();
-            if (this.BestCombatShip != ""                
-               // && weCanBuildCurrentHull 
-                && this.empire.ShipsWeCanBuild.Contains(this.BestCombatShip)
-                )
+            if (this.BestCombatShip !=null)
             {
-                //
-                this.BestCombatShip = "";
+                this.empire.UpdateShipsWeCanBuild();
+                if (this.empire.ShipsWeCanBuild.Contains(this.BestCombatShip.Name))
+                    this.BestCombatShip = null;
             }
-            //    if (string.IsNullOrEmpty(this.BestCombatShip) ||  (money <= moneyNeeded || AvailableTechs.Where(tech => tech.TechnologyType == TechnologyType.ShipHull && tech.Cost / this.empire.Research < 200).Count() < 1))
-            
-           
-
-            List<string> unlockedTech = new List<string>();
-            List<Technology> unlockededTech = new List<Technology>();
-            foreach (KeyValuePair<string, TechEntry> techs in this.empire.TechnologyDict)
+            if (this.BestCombatShip == null && (modifier.Contains("ShipWeapons") || modifier.Contains("ShipDefense") || modifier.Contains("ShipGeneral") 
+                || modifier.Contains("ShipHull")))
             {
-                if (techs.Value.Unlocked)
-                {
-                    unlockedTech.Add(techs.Key);
-                    unlockededTech.Add(techs.Value.GetTech());
-                }
-            }
-
-
-
-            #region shipTechPicker
-            Ship ship;
-
-            bool CanNotSupportNewHull = false;
-            if (!string.IsNullOrEmpty(this.BestCombatShip))
-            {
-
-                if (ResourceManager.ShipsDict.TryGetValue(this.BestCombatShip, out ship))
-                {
-
-                    int techCount = ship.shipData.techsNeeded.Count;
-                    CanNotSupportNewHull = ship.GetMaintCost(this.empire) * 3 >this.empire.data.ShipBudget;
-                    bool flag=false;
-                    foreach (string shiptech in ship.shipData.techsNeeded)
-                    {
-                        if (unlockedTech.Contains(shiptech))
-                            continue;
-                        flag = true;
-                        break;
-                    }
-                    if(!flag)
-                    {
-                        this.BestCombatShip = string.Empty;
-                    }
-
-                }
-            }
-            
-                int BestShipTechCost = 0;
-                //smallest unresearched hull
-                ShipData currentHull = null;
-#region hullpreference
-                //if(string.IsNullOrEmpty(this.BestCombatShip) )
-                //foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
-                foreach (Technology hulls in unlockededTech)
-                {
-                    int hulltechs = 100000;                    
-                    foreach (Technology.UnlockedHull unlockedhull in hulls.HullsUnlocked)
-                    {
-                        bool flag = true;
-                        if (unlockedhull.ShipType != this.empire.data.Traits.ShipType)
-                            continue;
-                        foreach (string checkcurrent in this.empire.ShipsWeCanBuild)
-                        {
-                            Ship hulltocheck = ResourceManager.ShipsDict[checkcurrent];
-                            if (hulltocheck.shipData.Role < ShipData.RoleName.fighter)
-                                continue;
-                            if (hulltocheck.shipData.Role == ShipData.RoleName.fighter
-                                || hulltocheck.shipData.Hull == unlockedhull.Name)
-                            {
-                                flag = false;
-                                break;
-                            }
-                        }
-                        if (flag)
-                        {
-                            ShipData temp = ResourceManager.HullsDict[unlockedhull.Name];
-                            float maint = ResourceManager.ShipRoles[temp.Role].Upkeep;
-                            if (maint > this.empire.data.ShipBudget * .2)
-                                continue;
-
-                            if (currentHull == null)//|| currentHull.ModuleSlotList.Count > temp.ModuleSlotList.Count)
-                            {
-                                int temptech =0;
-                                switch (temp.Role)
-                                {
-                                    case ShipData.RoleName.corvette:
-                                    case ShipData.RoleName.gunboat:
-                                        {
-                                            if (!this.empire.canBuildCorvettes)
-                                            {
-                                                temptech = this.HullChecker(temp, hulltechs);
-                                                if(hulltechs > temptech)
-                                                {
-                                                    currentHull = temp;
-                                                }
-                                                                                                
-                                            }
-                                            break;
-                                        }
-                                    case ShipData.RoleName.frigate:
-                                    case ShipData.RoleName.destroyer:
-                                        {
-                                            if (!this.empire.canBuildFrigates && this.empire.canBuildCorvettes)
-                                            {
-                                                temptech = this.HullChecker(temp, hulltechs);
-                                                if (hulltechs > temptech)
-                                                {
-                                                    currentHull = temp;
-                                                }
-                                                     
-                                            }
-
-                                        }
-                                        break;
-                                    case ShipData.RoleName.cruiser:
-                                        {
-                                            if (!this.empire.canBuildCruisers && this.empire.canBuildFrigates)
-                                            {
-                                                temptech = this.HullChecker(temp, hulltechs);
-                                                if (hulltechs > temptech)
-                                                {
-                                                    currentHull = temp;
-                                                }
-                                                     
-                                            }
-                                            break;
-                                        }
-                                    case ShipData.RoleName.capital:
-                                    case ShipData.RoleName.carrier:
-                                        {
-                                            if (!this.empire.canBuildCapitals && this.empire.canBuildCruisers)
-                                            {
-                                                temptech = this.HullChecker(temp, hulltechs);
-                                                if (hulltechs > temptech)
-                                                {
-                                                    currentHull = temp;
-                                                }
-                                                     
-                                            }
-                                            break;
-                                        }
-                                    default:
-                                        break;
-                                    // currentHull = temp;
-
-                                }
-                            }
-                        }
-                    }
-                }
-                if (currentHull == null)
-                {
-                    int hullTech = 9000;
-                    foreach (Technology hulls in AvailableTechs)
-                        foreach (Technology.UnlockedHull unlockedhull in hulls.HullsUnlocked)
-                        {
-                            if (unlockedhull.ShipType != this.empire.data.Traits.ShipType)
-                                continue;
-                            ShipData temp = ResourceManager.HullsDict[unlockedhull.Name];
-                            if (temp.ShipStyle != this.empire.data.Traits.ShipType || temp.Role <= ShipData.RoleName.fighter)
-                                continue;
-
-                           
-                            float maint = ResourceManager.ShipRoles[temp.Role].Upkeep;
-                            if(maint <this.empire.data.ShipBudget *.2)
-                            {
-                                int tmptech = this.HullChecker(temp, hullTech);
-                                if (tmptech < hullTech)
-                                {
-                                    
-                                    currentHull = temp;
-                                }
-                            }
-
-                        }                    
-                }
-#endregion
-
-
-#region shippicker
-            foreach (KeyValuePair<string, Ship> wecanbuildit in ResourceManager.ShipsDict.OrderBy(techcost => techcost.Value.shipData != null ? techcost.Value.shipData.TechScore : 0)) // techcost.Value.BaseStrength)) //techcost.Value.shipData != null ? techcost.Value.shipData.techsNeeded.Count : 0))// // shipData !=null? techcost.Value.shipData.TechScore:0))   //Value.shipData.techsNeeded.Count:0))
-                {
-                    //if (currentHull != null &&  wecanbuildit.Value.shipData.Hull != currentHull.Hull)
-                    //    continue;
-                    //if (this.BestCombatShip == wecanbuildit.Key )
-                    //    continue;
-                    bool test;
-                    //if (!this.empire.GetHDict().TryGetValue(wecanbuildit.Value.shipData.Hull, out test))
-                    //    continue;
-                    //if (!test)
-                    //    continue;
-                    ship= wecanbuildit.Value;
-                    if (ship.shipData == null)
-                        continue;
-                    if (ship.BaseStrength < 1f)
-                        continue;
-                    Ship_Game.ShipRole roles;
-                    if (!ResourceManager.ShipRoles.TryGetValue(ship.shipData.Role, out roles) 
-                        || roles==null || roles.Protected 
-                        || ship.shipData.Role == ShipData.RoleName.freighter
-                        || ship.shipData.Role == ShipData.RoleName.platform
-                        || ship.shipData.Role == ShipData.RoleName.station
-                        )//  [ship.Role].Protected )//  ship.Role == ShipData.RoleName.prototype)
-                        continue;
-                    
-                    test = false;
-
-                    if (ship.shipData.ShipStyle != this.empire.data.Traits.ShipType 
-                        && (this.empire.GetHDict().TryGetValue(ship.shipData.Hull, out test) && test==true)==false)
-                        continue;
-                    test = false;
-                    if (this.empire.ShipsWeCanBuild.Contains(wecanbuildit.Key) )//this.empire.GetHDict()[ship.shipData.Hull] || 
-                        continue;
-                    int techCost = ship.shipData.techsNeeded.Count;
-                    if (techCost == 0)
-                        continue;
-                    
-                    int trueTechcost = techCost;
-                    if (currentHull != null && ship.shipData.Hull == currentHull.Hull)
-                    //if (ship.shipData.Hull== currentHull.Hull)
-                    {
-                        techCost -=1;
-                    }
-                    //if(!this.empire.canBuildTroopShips || ! this.empire.canBuildCarriers)
-
-                    {
-                        //if (ship.GetHangars().Count > 0)
-                        //    techCost -= 1;
-                        bool hangarflag = false;
-                        bool bombFlag = false;
-                        foreach(ModuleSlot hangar in ship.ModuleSlotList)
-                        {
-                            
-                            if(hangar.module.ModuleType == ShipModuleType.Hangar)
-                            {
-                                hangarflag = true;
-                                
-                            }
-                            if (hangar.module.ModuleType == ShipModuleType.Bomb)
-                                bombFlag = true;
-                            if (bombFlag && hangarflag)
-                                break;
-                        }
-                        techCost -= bombFlag ? 1 : 0;
-                        techCost -= hangarflag ? 1 : 0;
-                    }
-                    //if(!this.empire.canBuildBombers)
-                    //{
-                    //    if (ship.BombBays.Count > 0)
-                    //        techCost -= 1;
-                    //}
-                    if (ship.Name == this.BestCombatShip)
-                        techCost -= 1;
-                    {
-                        moneyNeeded = ship.GetMaintCost(this.empire);// *5;
-                        bool GeneralTechBlock = false;
-                        foreach (string shipTech in ship.shipData.techsNeeded)
-                        {
-
-                            if (!test && !unlockedTech.Contains(shipTech))
-                            {
-                                test = true;
-                            }
-                            //if (!AvailableTechs.Where(tech => tech.TechnologyType == TechnologyType.ShipHull && tech.uid Contains(shipTech))
-                            //{
-                            //    //test = false;
-                            //    //break;
-
-                            //}
-                            //if (!string.IsNullOrEmpty(this.BestCombatShip)  )
-                            {
-                                TechEntry generalTech;
-
-                                if (this.empire.TechnologyDict.TryGetValue(shipTech, out generalTech))
-                                {
-                                    Technology hull = generalTech.GetTech();
-                                    if (generalTech.Unlocked)
-                                    {
-                                        techCost--;
-                                        trueTechcost--;
-                                        continue;
-                                    }
-                                    else if ((hull.RaceRestrictions.Count > 0 && hull.RaceRestrictions.Where(restrict => restrict.ShipType == this.empire.data.Traits.ShipType).Count() ==0 )
-                                        || (hull.RaceRestrictions.Count == 0 && hull.Secret && !hull.Discovered) )
-                                        
-                                    {
-                                        test = false;
-                                        break;
-                                    }
-                                    else if (generalTech.GetTech().TechnologyType == TechnologyType.ShipGeneral)
-                                    {
-                                        if (!GeneralTechBlock)
-                                        {
-                                            techCost--;
-                                            GeneralTechBlock = true;
-                                        }
-                                        else
-                                            GeneralTechBlock = false;
-                                            
-                                        continue;
-                                    }
-                          
-                                    {
-                                        
-                               
-                                        if(this.empire.Money *.01f < ship.GetMaintCost(this.empire) )
-                                        {
-                                            test = false;
-                                            break;
-                                            //techCost += 100;
-                                        }
-                                        if (hull.Cost / (this.empire.Research + 1) > 500)
-                                        {
-                                            techCost += 2; //(int)(hull.Cost / (150 * (this.empire.Research + 1)));
-                                        }
-                                        else if (hull.Cost / (this.empire.Research + 1) > 150)
-                                            techCost += 1;
-                                        
-
-                                    }
-                                    if (!test)
-                                        continue;
-                                }
-                                else
-                                    test = false;
-                            }
-                        }
-                        if (!test)
-                        {
-                            if (ship.Name == this.BestCombatShip)
-                                this.BestCombatShip = string.Empty;
-                            ship = null;
-                            continue;
-                        }
-                        useableTech.AddRange(ship.shipData.techsNeeded);
-                        if (trueTechcost == 0)
-                        {
-                            System.Diagnostics.Debug.WriteLine("skipped: " + ship.Name);
-                            if (ship.Name == this.BestCombatShip)
-                                this.BestCombatShip = string.Empty;
-                            ship = null;
-                            continue;
-                        }
-                        if (string.IsNullOrEmpty(BestShip) ||(bestShipStrength < ship.BaseStrength &&  BestShipTechCost >= techCost)) //BestShipTechCost == 0 ||
-                        {
-                            bestShipStrength = ship.BaseStrength;
-                            BestShip = wecanbuildit.Key;
-                            BestShipTechCost = techCost;
-                            //System.Diagnostics.Debug.WriteLine("Choosing Best Ship Tech: " + this.empire.data.Traits.ShipType + " -Ship: " + BestShip + " -TechCount: " + trueTechcost +"/"+techCost);
-                        }
-
-                    }
-                }
-                if (string.IsNullOrEmpty(this.BestCombatShip) )//|| CanNotSupportNewHull)
-                this.BestCombatShip = BestShip;
-                //if (string.IsNullOrEmpty(this.BestCombatShip) && CanNotSupportNewHull)
+                //foreach (string currentShip in this.empire.ShipsWeCanBuild)
                 //{
-                //    string[] remove =modifier.Split(':');
-                //    foreach(string techtypeTemp in remove)
+                //    Ship currentBest = null;
+                //    if (ResourceManager.ShipsDict.TryGetValue(currentShip, out currentBest))
                 //    {
-                //        foreach(TechnologyType x in Enum.GetValues(typeof(TechnologyType)))
-                //        {
-                //            if(x== TechnologyType.ShipDefense || x==TechnologyType.ShipGeneral || x==TechnologyType.ShipHull || x==TechnologyType.ShipWeapons)
-                //            {
-                //                modifier= modifier.Replace(techtypeTemp,string.Empty);
-                //            }
-                //        }
+                //        if (currentBest.shipData.BaseStrength > curentBestshipStr)
+                //            curentBestshipStr = currentBest.shipData.BaseStrength;
                 //    }
                 //}
-            #endregion
-                System.Diagnostics.Debug.WriteLine("This is Best Ship Tech: " + this.empire.data.Traits.ShipType + " -Ship: " + this.BestCombatShip);//+ " -TechCount: " + ship.shipData.techsNeeded.Count);
-                if (modifier == "TECH:ShipWeapons:ShipDefense:ShipGeneral:ShipHull")
-                {
-                    command2 = "SHIPTECH";
+                //Pick strongest target ship of and size where most of our current tech is used in its design.
+                //foreach (Ship pickstrongest in ResourceManager.ShipsDict.Values)
+                //{
+                //    if (pickstrongest.shipData.ShipStyle != this.empire.data.Traits.ShipType && !this.empire.GetHDict()[pickstrongest.shipData.Hull])
+                //    {
+                //        continue;
+                //    }
+                //    //filter out all the normal non combat roles.
+                //    if (pickstrongest.shipData.HullRole < ShipData.RoleName.fighter)
+                //        continue;
+                //    if (pickstrongest.shipData.techsNeeded.Count == 0)
+                //        continue;
+                //    //filter out ships we already have.
+                //    if (this.empire.ShipsWeCanBuild.Contains(pickstrongest.Name))
+                //        continue;
+                //    //get the difference in tech from our recorded shiptech in use and this ships tech needs.
+                //    int bestshipdifference = this.empire.ShipTechs.Intersect(pickstrongest.shipData.techsNeeded).Count();
+                //    //if more than 10% of the current techs are not used in its deign choose something else. 
+                //    float strongestRatio =  (float)bestshipdifference / this.empire.ShipTechs.Count ;                        
 
+                //    if (BestShip == null)
+                //    {
+                //        if (!this.shipIsGoodForGoals(pickstrongest) || pickstrongest.shipData.techsNeeded.Count == 0)
+                //            continue;
+                //        BestShip = pickstrongest;
+                //        continue;
+                //    }
+                //    if (pickstrongest.shipData.BaseStrength > BestShip.shipData.BaseStrength && pickstrongest.shipData.techsNeeded.Count > 0 && this.shipIsGoodForGoals(pickstrongest))
+                //    {
+                //        BestShip = pickstrongest;
+                //    }
+
+
+                //}
+                List<string> techsincurrent = new List<string>();
+                foreach (Technology bestshiptech in AvailableTechs)
+                {
+                    useableTech.Add(bestshiptech.UID);
                 }
-                if (command2 != "SHIPTECH")
+                useableTech.AddRange(this.empire.ShipTechs);
+
+                //now look through are cheapest to research designs that get use closer to the goal ship using pretty much the same logic. 
+                foreach (Ship shortTermBest in ResourceManager.ShipsDict.Values) //.OrderBy(orderbytech => orderbytech.shipData.TechScore))
                 {
-
-                    if (!this.empire.ShipsWeCanBuild.Contains(this.BestCombatShip))
+                    if (shortTermBest.shipData.HullRole < ShipData.RoleName.fighter || shortTermBest.shipData.Role == ShipData.RoleName.prototype )
+                        continue;
+                    if (shortTermBest.shipData.ShipStyle != this.empire.data.Traits.ShipType && !this.empire.GetHDict()[shortTermBest.shipData.Hull])
                     {
-                        //Ship ship;
-                        if (ResourceManager.ShipsDict.TryGetValue(this.BestCombatShip, out ship) && ship != null && ship.shipData != null && ship.shipData.techsNeeded.Count > 0)
+                        continue;
+                    }
+                    if (shortTermBest.shipData.techsNeeded.Count ==0)
+                        continue;
+                    if (this.empire.ShipsWeCanBuild.Contains(shortTermBest.Name))
+                        continue;
+                    if (!this.shipIsGoodForGoals(shortTermBest))
+                        continue;
+                    
+                    if (shortTermBest.shipData.techsNeeded.Count == 0)
+                    {
+                        if (Ship.universeScreen.Debug)
                         {
-                            //System.Diagnostics.Debug.WriteLine("This is Best Ship Tech: " + this.empire.data.Traits.ShipType + " -Ship: " + ship.Name + " -TechCount: " + ship.shipData.techsNeeded.Where(Notunlocked=> !unlockedTech.Contains(Notunlocked)).Count());
-                            List<Technology> techPurge = new List<Technology>();
-                            foreach (Technology shiptech in AvailableTechs)
-                            {
-                                if (shiptech.TechnologyType == TechnologyType.ShipDefense || shiptech.TechnologyType == TechnologyType.ShipGeneral || shiptech.TechnologyType == TechnologyType.ShipWeapons || shiptech.TechnologyType == TechnologyType.ShipHull)
-                                {
-                                    //if (!weCanBuildCurrentHull)
-                                    {
-                                        if (!ship.shipData.techsNeeded.Contains(shiptech.UID))
-                                            techPurge.Add(shiptech);
-                                    }
-
-
-                                }
-                            }
-
-                            foreach (Technology purge in techPurge)
-                            {
-                                AvailableTechs.Remove(purge);
-                            }
+                            System.Diagnostics.Debug.WriteLine(this.empire.data.PortraitName + " : no techlist :" + shortTermBest.Name);
                         }
-                    } 
-                    else
+                        continue;
+                    }
+
+                    //try to line focus to main goal but if we cant, line focus as best as possible by what we already have. 
+                    
+                    int techdifference = shortTermBest.shipData.techsNeeded.Intersect(useableTech).Count();
+                    if (shortTermBest.BombBays.Count > 0)
+                        techdifference++;
+                    if (shortTermBest.GetHangars().Count > 0)
+                        techdifference++;
+                    if (shortTermBest.hasAssaultTransporter || shortTermBest.hasOrdnanceTransporter || shortTermBest.hasRepairBeam || shortTermBest.HasRepairModule || shortTermBest.HasSupplyBays || shortTermBest.hasTransporter || shortTermBest.InhibitionRadius > 0)
+                        techdifference++;
+                    if (shortTermBest.GetMaintCost(this.empire) > this.empire.data.ShipBudget * .05f)
+                        techdifference--;
+                    if (shortTermBest.GetMaintCost(this.empire) > this.empire.data.ShipBudget * .1f)
+                        techdifference--;
+                    if (shortTermBest.GetMaintCost(this.empire) > this.empire.data.ShipBudget * .2f)
+                        techdifference--;
+                    //if (techdifference == shortTermBest.shipData.techsNeeded.Count)
+                    //    continue;
+                    float techratio = (float)techdifference / shortTermBest.shipData.techsNeeded.Count;
+                    
+         
+                    if (techratio > techcost ) //techratio <= .3f && 
+                    {                                                
+                        str = shortTermBest.shipData.BaseStrength;
+                        this.BestCombatShip = shortTermBest;
+                        techcost = techratio;
+                        continue;
+                    }
+                    //if(str < shortTermBest.shipData.BaseStrength)
+                    //{
+                    //    str = shortTermBest.shipData.BaseStrength;
+                    //    this.BestCombatShip = shortTermBest;
+                    //    techcost = techratio;
+                    //    continue;
+                    //}
+              
+                   
+                }
+                //if (this.BestCombatShip == null)
+                //    this.BestCombatShip = BestShip;
+
+                //End of line focusing. 
+            }
+
+
+            //now that we have a target ship to buiild filter out all the current techs that are not needed to build it. 
+            List<Technology> bestShiptechs = new List<Technology>();
+            if (this.BestCombatShip != null && (modifier.Contains("ShipWeapons") || modifier.Contains("ShipDefense") || modifier.Contains("ShipGeneral")
+                || modifier.Contains("ShipHull")))
+            {
+                //command2 = "SHIPTECH"; //use the shiptech choosers which just chooses tech in the list. 
+                foreach (string shiptech in this.BestCombatShip.shipData.techsNeeded)
+                {
+                    Technology test = null;
+                    if (ResourceManager.TechTree.TryGetValue(shiptech, out test))
                     {
-                        if (useableTech.Count > 0)
-                            AvailableTechs = AvailableTechs.Where(shiptech => (
-                                shiptech.TechnologyType != TechnologyType.ShipDefense
-                                && shiptech.TechnologyType != TechnologyType.ShipGeneral
-                                && shiptech.TechnologyType != TechnologyType.ShipWeapons
-                                && shiptech.TechnologyType != TechnologyType.ShipHull)
-                                || useableTech.Contains(shiptech.UID)).ToList();
+                        
+                        
+                            bool skiprepeater = false;
+                        //repeater compensator. This needs some deeper logic. I current just say if you research one level. Dont research any more.
+                            if (test.MaxLevel > 0)
+                            {
+                                foreach (TechEntry repeater in this.empire.TechnologyDict.Values)
+                                {
+                                    if (test.UID == repeater.UID && (repeater.level > 0 ))
+                                    {
+                                        skiprepeater = true;
+                                        break;
+                                    }
+                                }
+                                if (skiprepeater)
+                                    continue;
+                            }
+                        bestShiptechs.Add(test);
                     }
                 }
+
+                bestShiptechs = AvailableTechs.Intersect(bestShiptechs).ToList();
+            }
+            HashSet<Technology> remove = new HashSet<Technology>();
+            foreach (Technology test in AvailableTechs)
+            {
+                if (test.MaxLevel > 1)
+                {
+                    bool skiprepeater = false;
+                    foreach (TechEntry repeater in this.empire.TechnologyDict.Values)
+                    {
+                        if (test.UID == repeater.UID && repeater.level > 0)
+                        {
+                            skiprepeater = true;
+                            remove.Add(test);
+                            break;
+                        }
+                    }
+                    if (skiprepeater)
+                        continue;
+                }
+
+
+            }
+            
+            AvailableTechs = AvailableTechs.Except(remove).ToList();
+            List<Technology> workingSetoftechs = AvailableTechs;
             #endregion
-            #endregion
-            float CostNormalizer = this.empire.Research > 0.0f ? 1 / (this.empire.Research ) : 1;
-            unlockedTech.AddRange(AvailableTechs.Select(techstring => techstring.UID));
-               
+            float CostNormalizer = .01f;
             switch (command2)
             {
 
@@ -9266,25 +9049,31 @@ namespace Ship_Game.Gameplay
                                 //techtype = TechnologyType.Industry;
                                 continue;
                             }
-
+                            if (techtype < TechnologyType.ShipHull)
+                            {
+                                AvailableTechs = workingSetoftechs;
+                            }
+                            else
+                            {
+                                AvailableTechs = bestShiptechs;
+                            }
                             Technology ResearchTech = null;
                             if (command1 == "CHEAPEST")
                                 ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderBy(cost => cost.Cost).FirstOrDefault();
                             else if (command1 == "EXPENSIVE")
                                 ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault();
-
-
                             //AvailableTechs.Where(econ => econ.TechnologyType == techtype).FirstOrDefault();
                             if (ResearchTech == null)
                                 continue;
-                            //if (AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).Count() == 0)
-                            //    continue;
+                            if (this.empire.Research > 30 && ResearchTech.Cost > this.empire.Research * 1000 && AvailableTechs.Count > 1)
+                                continue;
+
                             if (techtype == TechnologyType.Economic)
                             {
                                 if (ResearchTech.HullsUnlocked.Count > 0)
                                 {
-                                    money = this.empire.EstimateIncomeAtTaxRate(.25f);
-                                    if (money < 5f)
+                                    //money = this.empire.EstimateIncomeAtTaxRate(.25f);
+                                    if (moneyNeeded < 5f)
                                     {
                                         if (command1 == "CHEAPEST")
                                             ResearchTech = AvailableTechs.Where(econ => econ.TechnologyType == techtype && econ != ResearchTech).OrderBy(cost => cost.Cost).FirstOrDefault();
@@ -9298,29 +9087,7 @@ namespace Ship_Game.Gameplay
                                     }
                                 }
                             }
-                            //if (techtype == TechnologyType.ShipDefense || 
-                            //    techtype == TechnologyType.ShipGeneral || 
-                            //    techtype == TechnologyType.ShipHull || 
-                            //    techtype == TechnologyType.ShipWeapons)
-                            //{
-                            //    if (string.IsNullOrEmpty(this.BestCombatShip))
-                            //        return false;
-                            //    ship = ResourceManager.ShipsDict[this.BestCombatShip];
-                            //    Technology shiptech = AvailableTechs.Where(uid => ship.shipData.techsNeeded.Contains(uid.UID)).OrderBy(techcost => techcost.Cost).FirstOrDefault();
-                            //    if (shiptech == null)
-                            //    {
-                            //        System.Diagnostics.Debug.WriteLine(this.BestCombatShip);
-                            //        foreach (string Bestshiptech in ship.shipData.techsNeeded) //.techsNeeded.Where(uid => !ship.shipData.techsNeeded.Contains(uid.UID))
-                            //        {
-                            //            if (unlockedTech.Contains(Bestshiptech))
-                            //                //|| AvailableTechs.Where(uid => uid.UID == Bestshiptech).Count()>0)
-                            //                continue;
-                            //            System.Diagnostics.Debug.WriteLine("Missing Tech: " + Bestshiptech);
-                            //        }
-                            //        return false;
-                            //    }
-                            //    ResearchTech = shiptech;
-                            //}
+
                             string Testresearchtopic = ResearchTech.UID;//AvailableTechs.Where(econ => econ.TechnologyType == techtype).OrderByDescending(cost => cost.Cost).FirstOrDefault().UID;
                             if (string.IsNullOrEmpty(researchtopic))
                                 researchtopic = Testresearchtopic;
@@ -9329,13 +9096,13 @@ namespace Ship_Game.Gameplay
                                 int currentCost = (int)(ResearchTech.Cost * CostNormalizer);
                                 int previousCost = (int)(ResourceManager.TechTree[researchtopic].Cost * CostNormalizer);
 
-                                if (!string.IsNullOrEmpty(this.BestCombatShip) && (techtype != TechnologyType.ShipHull && //techtype == TechnologyType.ShipHull ||//
+                                if (this.BestCombatShip != null && (techtype != TechnologyType.ShipHull && //techtype == TechnologyType.ShipHull ||//
                                     ResearchTech.ModulesUnlocked.Count > 0 || ResourceManager.TechTree[researchtopic].ModulesUnlocked.Count > 0))
                                 {
 
                                     Technology PreviousTech = ResourceManager.TechTree[researchtopic];
                                     //Ship 
-                                        ship = ResourceManager.ShipsDict[this.BestCombatShip];
+                                    Ship ship = this.BestCombatShip;
                                     if (ship.shipData.techsNeeded.Contains(PreviousTech.UID))
                                         previousCost = (int)(previousCost * .5f);
                                     if (ship.shipData.techsNeeded.Contains(ResearchTech.UID))
@@ -9358,20 +9125,21 @@ namespace Ship_Game.Gameplay
                     }
                 case "SHIPTECH":
                     {
-                        if (string.IsNullOrEmpty(this.BestCombatShip))
+                        if (this.BestCombatShip == null)
                             return false;
-                        ship = ResourceManager.ShipsDict[this.BestCombatShip];
-                        Technology shiptech = AvailableTechs.Where(uid => ship.shipData.techsNeeded.Contains(uid.UID)).OrderBy(techcost => techcost.Cost).FirstOrDefault();
+                        Ship ship = this.BestCombatShip;
+                        Technology shiptech = AvailableTechs
+                            .Where(uid => ship.shipData.techsNeeded.Contains(uid.UID)).OrderBy(techscost => techscost.Cost).FirstOrDefault();
                         if (shiptech == null)
                         {
-                            System.Diagnostics.Debug.WriteLine(this.BestCombatShip);
-                            foreach(string  Bestshiptech in ship.shipData.techsNeeded) //.techsNeeded.Where(uid => !ship.shipData.techsNeeded.Contains(uid.UID))
-                            {
-                                if ( unlockedTech.Contains(Bestshiptech)  )
-                                    //|| AvailableTechs.Where(uid => uid.UID == Bestshiptech).Count()>0)
-                                continue;
-                                System.Diagnostics.Debug.WriteLine("Missing Tech: " + Bestshiptech);
-                            }
+                            //System.Diagnostics.Debug.WriteLine(this.BestCombatShip.Name);
+                            //foreach (string Bestshiptech in ship.shipData.techsNeeded) //.techsNeeded.Where(uid => !ship.shipData.techsNeeded.Contains(uid.UID))
+                            //{
+                            //    if (unlockedTech.Contains(Bestshiptech))
+                            //        //|| AvailableTechs.Where(uid => uid.UID == Bestshiptech).Count()>0)
+                            //        continue;
+                            //    System.Diagnostics.Debug.WriteLine("Missing Tech: " + Bestshiptech);
+                            //}
                             return false;
                         }
                         researchtopic = shiptech.UID;
@@ -9447,35 +9215,171 @@ namespace Ship_Game.Gameplay
             }
 
 
+
         }
 
-        public int HullChecker(ShipData hullToCheck, int LowestTechCount)
-        {
-            Ship candidate = null;
-            int techDifference =LowestTechCount;
-            foreach(Ship ship in ResourceManager.ShipsDict.Values)
-            {
-                if (ship.shipData.Hull != hullToCheck.Hull || !ship.shipData.hullUnlockable || this.empire.ShipsWeCanBuild.Contains( ship.Name ))
-                    continue;
-                 if (candidate == null)
-                    {
-                        candidate = ship;
-                        continue;
-                    }
-                
-                    
-                    IEnumerable<string> differenceToWhatWehave = ship.shipData.techsNeeded.Except(this.empire.ShipTechs);
-                    int techs =differenceToWhatWehave.Count();
-                    if (techs == 0)
-                        continue;
-                    if(techs < techDifference)
-                    {
-                        candidate =ship;
-                        techDifference = techs;
-                    }                        
-            }
-            return techDifference;
-        }
+        //public void HullChecker(Ship ship, ShipData currentHull, float moneyNeeded)
+        //{
+        //    foreach (KeyValuePair<string, Ship> wecanbuildit in ResourceManager.ShipsDict.OrderBy(techcost => techcost.Value.shipData != null ? techcost.Value.shipData.TechScore : 0)) // techcost.Value.BaseStrength)) //techcost.Value.shipData != null ? techcost.Value.shipData.techsNeeded.Count : 0))// // shipData !=null? techcost.Value.shipData.TechScore:0))   //Value.shipData.techsNeeded.Count:0))
+        //    {
+
+        //        bool test;
+
+        //        ship = wecanbuildit.Value;
+        //        if (ship.shipData == null)
+        //            continue;
+        //        if (ship.BaseStrength < 1f)
+        //            continue;
+        //        Ship_Game.ShipRole roles;
+        //        if (!ResourceManager.ShipRoles.TryGetValue(ship.shipData.Role, out roles)
+        //            || roles == null || roles.Protected
+        //            || ship.shipData.Role == ShipData.RoleName.freighter
+        //            || ship.shipData.Role == ShipData.RoleName.platform
+        //            || ship.shipData.Role == ShipData.RoleName.station
+        //            )
+        //            continue;
+
+        //        test = false;
+
+        //        if (ship.shipData.ShipStyle != this.empire.data.Traits.ShipType
+        //            && (this.empire.GetHDict().TryGetValue(ship.shipData.Hull, out test) && test == true) == false)
+        //            continue;
+        //        test = false;
+        //        if (this.empire.ShipsWeCanBuild.Contains(wecanbuildit.Key))//this.empire.GetHDict()[ship.shipData.Hull] || 
+        //            continue;
+        //        int techCost = ship.shipData.techsNeeded.Count;
+        //        if (techCost == 0)
+        //            continue;
+
+        //        int trueTechcost = techCost;
+        //        if (currentHull != null && ship.shipData.Hull == currentHull.Hull)
+        //        {
+        //            techCost -= 1;
+        //        }
+             
+
+        //        {
+                   
+        //            bool hangarflag = false;
+        //            bool bombFlag = false;
+        //            foreach (ModuleSlot hangar in ship.ModuleSlotList)
+        //            {
+
+        //                if (hangar.module.ModuleType == ShipModuleType.Hangar)
+        //                {
+        //                    hangarflag = true;
+
+        //                }
+        //                if (hangar.module.ModuleType == ShipModuleType.Bomb)
+        //                    bombFlag = true;
+        //                if (bombFlag && hangarflag)
+        //                    break;
+        //            }
+        //            techCost -= bombFlag ? 1 : 0;
+        //            techCost -= hangarflag ? 1 : 0;
+        //        }
+
+        //        if (ship.Name == this.BestCombatShip)
+        //            techCost -= 1;
+        //        {
+        //            moneyNeeded = ship.GetMaintCost(this.empire);// *5;
+        //            bool GeneralTechBlock = false;
+        //            foreach (string shipTech in ship.shipData.techsNeeded)
+        //            {
+
+        //               // if (!test && !unlockedTech.Contains(shipTech))
+        //                {
+        //                    test = true;
+        //                }
+          
+        //                {
+        //                    TechEntry generalTech;
+
+        //                    if (this.empire.TechnologyDict.TryGetValue(shipTech, out generalTech))
+        //                    {
+        //                        Technology hull = generalTech.GetTech();
+        //                        if (generalTech.Unlocked)
+        //                        {
+        //                            techCost--;
+        //                            trueTechcost--;
+        //                            continue;
+        //                        }
+        //                        else if ((hull.RaceRestrictions.Count > 0 && hull.RaceRestrictions.Where(restrict => restrict.ShipType == this.empire.data.Traits.ShipType).Count() == 0)
+        //                            || (hull.RaceRestrictions.Count == 0 && hull.Secret && !hull.Discovered))
+        //                        {
+        //                            test = false;
+        //                            break;
+        //                        }
+        //                        else if (generalTech.GetTech().TechnologyType == TechnologyType.ShipGeneral)
+        //                        {
+        //                            if (!GeneralTechBlock)
+        //                            {
+        //                                techCost--;
+        //                                GeneralTechBlock = true;
+        //                            }
+        //                            else
+        //                                GeneralTechBlock = false;
+
+        //                            continue;
+        //                        }
+
+        //                        {
+
+
+        //                            if (this.empire.data.ShipBudget * .3f < ship.GetMaintCost(this.empire))
+        //                            {
+        //                                test = false;
+        //                                break;
+        //                                //techCost += 100;
+        //                            }
+        //                            if (hull.Cost / (this.empire.Research + 1) > 500)
+        //                            {
+        //                                techCost += 2; //(int)(hull.Cost / (150 * (this.empire.Research + 1)));
+        //                            }
+        //                            else if (hull.Cost / (this.empire.Research + 1) > 150)
+        //                                techCost += 1;
+
+
+        //                        }
+        //                        if (!test)
+        //                            continue;
+        //                    }
+        //                    else
+        //                        test = false;
+        //                }
+        //            }
+        //            if (!test)
+        //            {
+        //                if (ship.Name == this.BestCombatShip)
+        //                    this.BestCombatShip = string.Empty;
+        //                ship = null;
+        //                continue;
+        //            }
+        //           // useableTech.AddRange(ship.shipData.techsNeeded);
+        //            if (trueTechcost == 0)
+        //            {
+        //                System.Diagnostics.Debug.WriteLine("skipped: " + ship.Name);
+        //                if (ship.Name == this.BestCombatShip)
+        //                    this.BestCombatShip = string.Empty;
+        //                ship = null;
+        //                continue;
+        //            }
+        //            //if (BestShip == null
+        //            //    || (BestShip.BaseStrength < ship.BaseStrength
+        //            //    && BestShipTechCost >= techCost
+        //            //    && BestShip.shipData.techsNeeded.Except(this.empire.ShipTechs).Count() > techCost
+        //            //    )) //(string.IsNullOrEmpty(BestShip) ||(bestShipStrength < ship.BaseStrength &&  BestShipTechCost >= techCost)) //BestShipTechCost == 0 ||
+        //            //{
+        //            //    bestShipStrength = ship.BaseStrength;
+        //            //    BestShip = wecanbuildit.Value;
+        //            //    BestShipTechCost = techCost;
+        //            //    //System.Diagnostics.Debug.WriteLine("Choosing Best Ship Tech: " + this.empire.data.Traits.ShipType + " -Ship: " + BestShip + " -TechCount: " + trueTechcost +"/"+techCost);
+        //            //}
+
+        //        }
+        //    }
+        //}
+
 
         
 
