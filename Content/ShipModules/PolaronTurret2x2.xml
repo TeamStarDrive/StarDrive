@@ -26,7 +26,7 @@
   <Name>Polaron Cannon Turret</Name>
   <Restrictions>O</Restrictions>
   <UID>PolaronTurret2x2</UID>
-  <IconTexturePath>Modules/PolaronTurret</IconTexturePath>
+  <IconTexturePath>Modules/PolaronTurret2x2</IconTexturePath>
   <Mass>10</Mass>
   <Health>450</Health>
   <HealthMax>450</HealthMax>
