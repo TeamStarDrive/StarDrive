@@ -108,8 +108,8 @@ namespace Ship_Game
 			SpriteBatch.DrawString(arial12Bold, num.ToString(), textPos, new Color(255, 239, 208));
 			if (this.Hover && this.Tip_ID != 0)
 			{
-				ToolTip.CreateTooltip(this.Tip_ID, ScreenManager);
-			}
+                ToolTip.CreateTooltip(Localizer.Token(this.Tip_ID), ScreenManager);
+            }
 		}
 
 		public void DrawDecimal(Ship_Game.ScreenManager ScreenManager)
