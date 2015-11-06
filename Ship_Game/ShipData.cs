@@ -56,7 +56,7 @@ namespace Ship_Game
             get
             {
                 ShipData role = null;
-                if (ResourceManager.HullsDict.TryGetValue(this.Hull, out role) && role != null)
+                if (ResourceManager.HullsDict.TryGetValue(this.Hull, out role) && role.Role != null)
                 {
                     return role.Role;
                 }
