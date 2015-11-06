@@ -53,7 +53,7 @@ namespace Ship_Game
         public string StarDateFmt = "0000.0";
         public float StarDateTimer = 5f;
         public float perStarDateTimer = 1000f;
-        public float AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
+        public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
         public bool MultiThread = true;
         public List<UniverseScreen.ClickablePlanets> ClickPlanetList = new List<UniverseScreen.ClickablePlanets>();
         public BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction>();
@@ -1393,7 +1393,7 @@ namespace Ship_Game
 
                     if (this.AutoSaveTimer <= 0.0f)
                     {
-                        this.AutoSaveTimer = GlobalStats.Config.AutoSaveInterval;
+                        this.AutoSaveTimer = GlobalStats.AutoSaveFreq;
                         this.DoAutoSave();
                     }
                     if (this.IsActive)
