@@ -6864,6 +6864,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4099</Index>
       <Text>This broadside-mounted cannon is capable of delivering a higher-powered kinetic blast than its turret-mounted cousins. Weapon mobility and target tracking are traded for the opportunity to unleash hellish volleys of unaimed fire.</Text>
     </Token>
+        <Token>
+      <Index>4100</Index>
+      <Text>The delay between auto saves. This is measured in unpaused, game relative seconds (meaning that running the game at 4x speed will result in more frequent saves).\n--Common Durations--\n60 = 1 Minute\n300 = 5 Minutes (Default)\n600 = 10 Minutes\n900 = 15 Minutes</Text>
+    </Token>
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>

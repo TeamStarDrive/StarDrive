@@ -138,9 +138,11 @@ namespace Ship_Game
         public static ReaderWriterLockSlim UILocker;
         public static int BeamOOM = 0;
         public static string bugTracker = "";
-        
 
-		static GlobalStats()
+        public static int AutoSaveFreq;   //Added by Gretman
+
+
+        static GlobalStats()
 		{
             GlobalStats.UILocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
             GlobalStats.ComparisonCounter = 1;
@@ -206,8 +208,9 @@ namespace Ship_Game
 	            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
 	            GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
 	            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
-	            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);                
-			}
+	            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);
+                GlobalStats.AutoSaveFreq = int.Parse(ConfigurationManager.AppSettings["AutoSaveFreq"]);
+            }
 			catch (Exception)
 			{
 				/// Not doing so much here. It is just empty config
