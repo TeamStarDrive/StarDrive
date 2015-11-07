@@ -4803,6 +4803,8 @@ namespace Ship_Game.Gameplay
 			}
 			this.State = AIState.Orbit;
 			this.OrbitTarget = toOrbit;
+            if (this.Owner.shipData.ShipCategory == ShipData.Category.Civilian)  //fbedard: civilian ship will use projectors
+                this.OrderMoveTowardsPosition(toOrbit.Position, 0f, new Vector2(0f, -1f), false, toOrbit);
 			ArtificialIntelligence.ShipGoal orbit = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Orbit, Vector2.Zero, 0f)
 			{
 				TargetPlanet = toOrbit
