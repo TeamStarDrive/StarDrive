@@ -963,8 +963,8 @@ namespace Ship_Game
 				t.InitializeForViewing();
 			}
 			newShip.TroopList.Add(Ship_Game.ResourceManager.CopyTroop(troop));
-            if (newShip.shipData.Role == ShipData.RoleName.troop && newShip.shipData.ShipCategory == ShipData.Category.Civilian)
-                newShip.shipData.ShipCategory = ShipData.Category.Unclassified;  //fbedard
+            if (newShip.shipData.Role == ShipData.RoleName.troop) // && newShip.shipData.ShipCategory == ShipData.Category.Civilian)
+                newShip.shipData.ShipCategory = ShipData.Category.Combat;  //fbedard
             Owner.AddShip(newShip);
 			return newShip;
 		}
