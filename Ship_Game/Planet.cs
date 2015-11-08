@@ -5934,6 +5934,9 @@ output = maxp * take10 = 5
                     building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
                 }
             }
+            //Added by Gretman -- This will keep a planet from still having sheilds even after the shield building has been scrapped.
+            if (this.ShieldStrengthCurrent > this.ShieldStrengthMax) this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+
             if (shipyard && (this.colonyType != ColonyType.Research || this.Owner.isPlayer))
                 this.HasShipyard = true;
             else
