@@ -511,7 +511,7 @@ namespace Ship_Game
                         }
                     }
                     else
-                    {
+                    {   //Edited by Gretman
                         if (quality > 6f && quality < 10f)
                         {
                             if ((int)RandomMath.RandomBetween(0f, 100f) > 50)

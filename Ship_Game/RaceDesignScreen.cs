@@ -167,7 +167,10 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-		public RaceDesignScreen()
+        private Rectangle ExtraRemnantRect;
+        public RaceDesignScreen.ExtraRemnantPresence ExtraRemnant = RaceDesignScreen.ExtraRemnantPresence.Normal;
+
+        public RaceDesignScreen()
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
@@ -1193,7 +1196,13 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(this.Pacing.ToString(), "%"), new Vector2((float)(this.PacingRect.X + 190) - Fonts.Arial12.MeasureString(string.Concat(this.Pacing.ToString(), "%")).X, (float)this.PacingRect.Y), Color.BurlyWood);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2139), " : "), new Vector2((float)this.DifficultyRect.X, (float)this.DifficultyRect.Y), Color.White);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.difficulty.ToString(), new Vector2((float)(this.DifficultyRect.X + 190) - Fonts.Arial12.MeasureString(this.difficulty.ToString()).X, (float)this.DifficultyRect.Y), Color.BurlyWood);
-			string txt = "";
+
+            //Added by Gretman
+            string ExtraRemnantString = string.Concat(Localizer.Token(4101), " : ");
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, ExtraRemnantString, new Vector2((float)(this.ExtraRemnantRect.X), (float)this.ExtraRemnantRect.Y), Color.White);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.ExtraRemnant.ToString(), new Vector2((float)(this.ExtraRemnantRect.X + 190) - Fonts.Arial12.MeasureString(this.ExtraRemnant.ToString()).X, (float)this.ExtraRemnantRect.Y), Color.BurlyWood);
+
+            string txt = "";
 			int tip = 0;
             //if (this.mode == RaceDesignScreen.GameMode.PreWarp)
             //{
@@ -1927,7 +1936,7 @@ namespace Ship_Game
                         this.numOpponents = 1;
                     }
                 }
-                HelperFunctions.CheckIntersection(this.GameModeRect, mousePos);
+                //HelperFunctions.CheckIntersection(this.GameModeRect, mousePos); // I believer this is here by mistake, since the returned value would do nothing... - Gretman
                 if (HelperFunctions.CheckIntersection(this.ScaleRect, mousePos))
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
@@ -1997,6 +2006,30 @@ namespace Ship_Game
                         }
                     }
                 }
+
+                //Gretman - Remnant Presece Button
+                if (HelperFunctions.CheckIntersection(this.ExtraRemnantRect, mousePos))
+                {
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        this.ExtraRemnant = this.ExtraRemnant + 1;
+                        if ((int)this.ExtraRemnant > 4)
+                        {
+                            this.ExtraRemnant = (RaceDesignScreen.ExtraRemnantPresence)0;
+                        }
+                    }
+                    if (input.RightMouseClick)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        this.ExtraRemnant = this.ExtraRemnant - 1;
+                        if ((int)this.ExtraRemnant < 0)
+                        {
+                            this.ExtraRemnant = (RaceDesignScreen.ExtraRemnantPresence)4;
+                        }
+                    }
+                }// Done adding stuff - Gretman
+
                 if (HelperFunctions.CheckIntersection(this.FlagRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     this.DrawingColorSelector = !this.DrawingColorSelector;
@@ -2183,13 +2216,17 @@ namespace Ship_Game
 			this.PlurEntry.Text = this.SelectedData.Traits.Plural;
 			this.HomeSystemEntry.Text = this.SelectedData.Traits.HomeSystemName;
 			this.HomeWorldName = this.SelectedData.Traits.HomeworldName;
-			this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y + 5, (int)Fonts.Arial12.MeasureString("Galaxy Size                                   ").X, Fonts.Arial12.LineSpacing);
+			this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y - 15, (int)Fonts.Arial12.MeasureString("Galaxy Size                                   ").X, Fonts.Arial12.LineSpacing);
 			this.NumberStarsRect = new Rectangle(this.GalaxySizeRect.X, this.GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GalaxySizeRect.Width, this.GalaxySizeRect.Height);
 			this.NumOpponentsRect = new Rectangle(this.NumberStarsRect.X, this.NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumberStarsRect.Height);
 			this.GameModeRect = new Rectangle(this.NumOpponentsRect.X, this.NumOpponentsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumOpponentsRect.Height);
 			this.PacingRect = new Rectangle(this.GameModeRect.X, this.GameModeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GameModeRect.Width, this.GameModeRect.Height);
 			this.DifficultyRect = new Rectangle(this.PacingRect.X, this.PacingRect.Y + Fonts.Arial12.LineSpacing + 10, this.PacingRect.Width, this.PacingRect.Height);
-			Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
+            
+            //Gretman - Remnant Presence button, relative to Difficulty button
+            this.ExtraRemnantRect = new Rectangle(this.DifficultyRect.X, this.DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, this.DifficultyRect.Width, this.DifficultyRect.Height);
+
+            Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
 			this.Description = new Menu1(base.ScreenManager, dRect, true);
 			this.dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
 			Submenu dsub = new Submenu(base.ScreenManager, this.dslrect);
@@ -2261,6 +2298,9 @@ namespace Ship_Game
             {
                 GlobalStats.EliminationMode = true;
             }
+
+            GlobalStats.ExtraRemnantGS = (int)ExtraRemnant;  //Added by Gretman
+
             ResourceManager.LoadShips();
 			this.Singular = this.SingEntry.Text;
 			this.Plural = this.PlurEntry.Text;
@@ -2291,8 +2331,6 @@ namespace Ship_Game
 
             switch (this.StarEnum)
             {
-
-
 
                 case RaceDesignScreen.StarNum.VeryRare:
                     {
@@ -2654,6 +2692,16 @@ namespace Ship_Game
             Crowded,
             Packed,
             SuperPacked
+        }
+
+        //Added by Gretman
+        public enum ExtraRemnantPresence
+        {
+            Rare,
+            Normal,
+            More,
+            MuchMore,
+            Everywhere
         }
 	}
 }
