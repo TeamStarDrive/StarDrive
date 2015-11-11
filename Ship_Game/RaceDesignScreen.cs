@@ -167,7 +167,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-        private Rectangle ExtraRemnantRect;
+        private Rectangle ExtraRemnantRect; //Added by Gretman
         public RaceDesignScreen.ExtraRemnantPresence ExtraRemnant = RaceDesignScreen.ExtraRemnantPresence.Normal;
 
         public RaceDesignScreen()
@@ -1936,7 +1936,7 @@ namespace Ship_Game
                         this.numOpponents = 1;
                     }
                 }
-                //HelperFunctions.CheckIntersection(this.GameModeRect, mousePos); // I believer this is here by mistake, since the returned value would do nothing... - Gretman
+                //HelperFunctions.CheckIntersection(this.GameModeRect, mousePos); // I believe this is here by mistake, since the returned value would do nothing... - Gretman
                 if (HelperFunctions.CheckIntersection(this.ScaleRect, mousePos))
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
