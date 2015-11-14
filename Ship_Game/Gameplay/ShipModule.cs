@@ -2677,7 +2677,13 @@ namespace Ship_Game.Gameplay
             if (this.TransporterTimer > 0)
                 this.TransporterTimer -= elapsedTime;
 			base.Update(elapsedTime);
-		}
+
+            //Added by Gretman
+            if (this.ParentOfDummy != null && this.isDummy)
+            {
+                this.Health = this.ParentOfDummy.Health;
+            }
+        }
 
 		public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
 		{
