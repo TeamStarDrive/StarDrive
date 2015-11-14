@@ -541,7 +541,7 @@ namespace Ship_Game
                             if (quality > 8f)
                             {
                                 int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 60) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 70) this.AddMinorRemnantPresence(newOrbital);
                             }
                         }
 
@@ -560,21 +560,35 @@ namespace Ship_Game
                             }
                         }
 
+                        //Boost the quality score for planets that are very rich, or very fertile
+                        if (newOrbital.Fertility > 1.6) quality += 1;
+                        if (newOrbital.MineralRichness >1.6) quality += 1;
 
                         if (GlobalStats.ExtraRemnantGS == 2)  //More Remnant
                         {
-                            if (quality > 5.5f && quality < 9f)
+                            if (quality > 6f && quality < 9f)
                             {
                                 int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 30) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 60) this.AddMiniRemnantPresence(newOrbital);
+                                if (chance > 35) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 70) this.AddMiniRemnantPresence(newOrbital);
                             }
-                            else if (quality >= 9f)
+                            else if (quality >= 9f && quality < 12f)
                             {
                                 int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 25) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 50) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 75) this.AddSupportRemnantPresence(newOrbital);
+                                if (chance > 25) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 45) this.AddMajorRemnantPresence(newOrbital);
+                                if (chance > 65) this.AddMiniRemnantPresence(newOrbital);
+                                if (chance > 85) this.AddMiniRemnantPresence(newOrbital);
+                            }
+                            else if (quality >= 12f)
+                            {
+                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
+                                if (chance > 15) this.AddMajorRemnantPresence(newOrbital);
+                                if (chance > 30) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 45) this.AddSupportRemnantPresence(newOrbital);
+                                if (chance > 65) this.AddMiniRemnantPresence(newOrbital);
+                                if (chance > 75) this.AddMiniRemnantPresence(newOrbital);
+                                if (chance > 85) this.AddMiniRemnantPresence(newOrbital);
                             }
                         }
 
@@ -589,25 +603,39 @@ namespace Ship_Game
                             else if (quality >= 6f && quality < 8f)
                             {
                                 int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 30) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 50) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 25) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 50) this.AddMiniRemnantPresence(newOrbital);
+                                if (chance > 75) this.AddMiniRemnantPresence(newOrbital);
                             }
                             else if (quality >= 8f && quality < 10f)
                             {
                                 int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 20) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 40) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 60) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 80) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 15) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 35) this.AddMajorRemnantPresence(newOrbital);
+                                if (chance > 50) this.AddSupportRemnantPresence(newOrbital);
+                                if (chance > 65) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 80) this.AddMiniRemnantPresence(newOrbital);
                             }
-                            else if (quality >= 10f)
+                            else if (quality >= 10f && quality < 12f)
                             {
                                 int chance = (int)RandomMath.RandomBetween(0f, 100f);
                                 if (chance > 05) this.AddMajorRemnantPresence(newOrbital);
                                 if (chance > 25) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 45) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 65) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 80)
+                                if (chance > 30) this.AddSupportRemnantPresence(newOrbital);
+                                if (chance > 45) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 60) this.AddMiniRemnantPresence(newOrbital);
+                                if (chance > 70) this.AddMiniRemnantPresence(newOrbital);
+                                if (chance > 80) this.AddMiniRemnantPresence(newOrbital);
+                            }
+                            else if (quality >= 12f)
+                            {
+                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
+                                if (chance > 00) this.AddMajorRemnantPresence(newOrbital);
+                                if (chance > 10) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 20) this.AddSupportRemnantPresence(newOrbital);
+                                if (chance > 40) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 55) this.AddMiniRemnantPresence(newOrbital);
+                                if (chance > 70)
                                 {
                                     if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
                                         this.AddCarrierRemnantPresence(newOrbital);
@@ -628,14 +656,14 @@ namespace Ship_Game
                             {
                                 int chance = (int)RandomMath.RandomBetween(0f, 100f);
                                 if (chance > 30) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 50) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 50) this.AddMiniRemnantPresence(newOrbital);
                                 if (chance > 80) this.AddMiniRemnantPresence(newOrbital);
                             }
                             else if (quality >= 6f && quality < 8f)
                             {
                                 int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 10) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 30) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 10) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 30) this.AddMiniRemnantPresence(newOrbital);
                                 if (chance > 50) this.AddMiniRemnantPresence(newOrbital);
                                 if (chance > 70) this.AddSupportRemnantPresence(newOrbital);
                             }
@@ -654,25 +682,47 @@ namespace Ship_Game
                                 }
 
                             }
-                            else if (quality >= 10f)
+                            else if (quality >= 10f && quality < 12f)
                             {
                                 int chance = (int)RandomMath.RandomBetween(0f, 100f);
                                 if (chance > 00) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 10) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 40) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 50) this.AddMiniRemnantPresence(newOrbital);
+                                if (chance > 00) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 20) this.AddSupportRemnantPresence(newOrbital);
+                                if (chance > 40) this.AddMiniRemnantPresence(newOrbital);
                                 if (chance > 60)
                                 {
                                     if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
                                         this.AddCarrierRemnantPresence(newOrbital);
                                     else this.AddTorpedoRemnantPresence(newOrbital);
                                 }
-                                if (chance > 80)
+                                if (chance > 85)
                                 {
                                     if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
                                         this.AddCarrierRemnantPresence(newOrbital);
                                     else this.AddTorpedoRemnantPresence(newOrbital);
                                 }
+                            }
+                            else if (quality >= 12f)
+                            {
+                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
+                                if (chance > 00) this.AddMajorRemnantPresence(newOrbital);
+                                if (chance > 00) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 00) this.AddSupportRemnantPresence(newOrbital);
+                                if (chance > 20) this.AddMinorRemnantPresence(newOrbital);
+                                if (chance > 40)
+                                {
+                                    if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
+                                        this.AddCarrierRemnantPresence(newOrbital);
+                                    else this.AddTorpedoRemnantPresence(newOrbital);
+                                }
+                                if (chance > 60)
+                                {
+                                    if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
+                                        this.AddCarrierRemnantPresence(newOrbital);
+                                    else this.AddTorpedoRemnantPresence(newOrbital);
+                                }
+                                if (chance > 80) this.AddMajorRemnantPresence(newOrbital);
+
                             }
                         }
                     }   //Done adding stuff -Gretman
