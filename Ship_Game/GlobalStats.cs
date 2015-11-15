@@ -139,7 +139,7 @@ namespace Ship_Game
         public static int BeamOOM = 0;
         public static string bugTracker = "";
 
-        public static int AutoSaveFreq;   //Added by Gretman
+        public static int AutoSaveFreq = 300;   //Added by Gretman
 
 
         static GlobalStats()
