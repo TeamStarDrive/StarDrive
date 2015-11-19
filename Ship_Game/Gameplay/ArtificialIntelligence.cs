@@ -1511,40 +1511,25 @@ namespace Ship_Game.Gameplay
 
         private void DoNonFleetArtillery(float elapsedTime)
         {
+            //Heavily modified by Gretman
             Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
             Vector2 right = new Vector2(-forward.Y, forward.X);
             Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, this.Target.Center);
             float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
             float DistanceToTarget = Vector2.Distance(this.Owner.Center, this.Target.Center) ;
-            //arbitrary range modifiers. 
-            /* one of the issues here is that these calculations are center of ship to center of ship. but weapons target from weapon location to to weapon location.
-             * so if the weapon is in the back of the ship and the module to be hit is past center of the target it will be out of range for the weapon.
-             * in addition if the radius of the ship is large and the target is large and the weapon range short the ship graphic may extend into the target creating a bad look.
-             * 
-             * Still here the ship doesnt move right. Im not sure why this is different than vanilla. Here the ships tend to bounce a at long range. in vanilla that slid around the ship sort of circling it at range.
-             */ 
-            float minRangeMod = this.Owner.maxWeaponsRange < 2000 ? .70f : .8f;
-            float maxRangeMod = this.Owner.maxWeaponsRange < 2000 ? .75f : .9f;
-            float rangemod = this.Owner.Radius + this.Target.Radius;
-            if (rangemod > this.Owner.maxWeaponsRange)
-                rangemod = this.Owner.maxWeaponsRange;
-            else
-                rangemod = this.Owner.maxWeaponsRange - rangemod;
 
+            float AdjustedRange = this.Owner.maxWeaponsRange - this.Owner.Radius;
 
-            if (DistanceToTarget > this.Owner.maxWeaponsRange * maxRangeMod) //* rangemod) // + this.Target.Radius 
+            if (DistanceToTarget > AdjustedRange) 
             {
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-            else if (DistanceToTarget < this.Owner.maxWeaponsRange * minRangeMod)
+            else if (DistanceToTarget < AdjustedRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget || DistanceToTarget < (this.Owner.Radius * 3))
             {
                 this.Owner.Velocity = this.Owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
-                if (this.Owner.Velocity.Length() > this.Owner.velocityMaximum)
-                {
-                    this.Owner.Velocity = Vector2.Normalize(-forward) * (this.Owner.velocityMaximum);
-                }
             }
+
             if (angleDiff <= 0.02f)
             {
                 this.DeRotate();
