@@ -139,8 +139,7 @@ namespace Ship_Game
         public static int BeamOOM = 0;
         public static string bugTracker = "";
 
-        public static int AutoSaveFreq;   //Added by Gretman
-        public static int ExtraRemnantGS;   //Also Added by Gretman
+        public static int AutoSaveFreq = 300;   //Added by Gretman
 
 
         static GlobalStats()
@@ -189,9 +188,8 @@ namespace Ship_Game
             GlobalStats.RemnantActivation = 0;
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
-            GlobalStats.ExtraRemnantGS = 1;
-
-            try
+            
+			try
 			{
 				GlobalStats.GravityWellRange = float.Parse(ConfigurationManager.AppSettings["GravityWellRange"]); // 8000f;
 	            GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
