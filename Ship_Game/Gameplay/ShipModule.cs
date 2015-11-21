@@ -2682,6 +2682,7 @@ namespace Ship_Game.Gameplay
             if (this.ParentOfDummy != null && this.isDummy)
             {
                 this.Health = this.ParentOfDummy.Health;
+                this.HealthMax = this.ParentOfDummy.HealthMax;
             }
         }
 
