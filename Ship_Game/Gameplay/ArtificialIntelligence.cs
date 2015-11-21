@@ -1525,7 +1525,7 @@ namespace Ship_Game.Gameplay
                 this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
                 return;
             }
-            else if (DistanceToTarget < AdjustedRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget || DistanceToTarget < (this.Owner.Radius * 3))
+            else if (DistanceToTarget < AdjustedRange * 0.75f && Vector2.Distance(this.Owner.Center + (this.Owner.Velocity * elapsedTime), this.Target.Center) < DistanceToTarget || DistanceToTarget < (this.Owner.Radius)) //Center + Radius = Dont touch me
             {
                 this.Owner.Velocity = this.Owner.Velocity + (Vector2.Normalize(-forward) * (elapsedTime * this.Owner.velocityMaximum));
             }
@@ -7547,7 +7547,7 @@ namespace Ship_Game.Gameplay
                                 this.HasPriorityOrder = false;
                             }
                         }
-                        else if (this.State != AIState.HoldPosition)
+                        else if (this.State != AIState.HoldPosition && DistanceToFleetOffset <= 2000f) //modified by Gretman
                         {
                             this.ThrustTowardsPosition(this.Owner.fleet.Position + this.Owner.FleetOffset, elapsedTime, this.Owner.fleet.speed);
                             lock (this.wayPointLocker)
