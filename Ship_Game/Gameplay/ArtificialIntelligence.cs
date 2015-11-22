@@ -3063,6 +3063,7 @@ namespace Ship_Game.Gameplay
                     sortedList.First<ModuleSlot>().module.Damage(this.Owner, damage);
                 }
                 return;
+                (fireTarget as Ship).MoveModulesTimer = 2;
             }
             w.timeToNextFire = w.fireDelay;
             if ((fireTarget as Ship).ExternalSlots.Count == 0)
@@ -3076,17 +3077,26 @@ namespace Ship_Game.Gameplay
 
             float nearest = 0;
             ModuleSlot ClosestES = null;
-            foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
+            //bad fix for external module badness.
+            //Ray ffer = new Ray();
+            //BoundingBox target = new BoundingBox();
+            //ffer.Position=new Vector3(this.Owner.Center,0f);
+
+            try
             {
-                if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0 )
-                    continue;
-                float temp = Vector2.Distance(ES.module.Center, w.GetOwner().Center);
-                if (nearest == 0 || temp < nearest)
+                foreach (ModuleSlot ES in (fireTarget as Ship).ExternalSlots)
                 {
-                    nearest = temp;
-                    ClosestES = ES;
+                    if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0)
+                        continue;
+                    float temp = Vector2.Distance(ES.module.Center, this.Owner.Center);
+                    if (nearest == 0 || temp < nearest)
+                    {
+                        nearest = temp;
+                        ClosestES = ES;
+                    } 
                 }
             }
+            catch { }
             if (ClosestES == null)
                 return;
             // List<ModuleSlot> 
@@ -4778,6 +4788,8 @@ namespace Ship_Game.Gameplay
 			}
 			this.State = AIState.Orbit;
 			this.OrbitTarget = toOrbit;
+            if (this.Owner.shipData.ShipCategory == ShipData.Category.Civilian)  //fbedard: civilian ship will use projectors
+                this.OrderMoveTowardsPosition(toOrbit.Position, 0f, new Vector2(0f, -1f), false, toOrbit);
 			ArtificialIntelligence.ShipGoal orbit = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Orbit, Vector2.Zero, 0f)
 			{
 				TargetPlanet = toOrbit
@@ -7637,7 +7649,7 @@ namespace Ship_Game.Gameplay
                             if (target.TroopsHere.Where(unfriendlyTroops => unfriendlyTroops.GetOwner() != this.Owner.loyalty).Count() * 1.5
                                 >= target.TilesList.Sum(space => space.number_allowed_troops))
                             {
-                                if ((double)this.Owner.Ordinance < 0.0500000007450581 * (double)this.Owner.OrdinanceMax)
+                                if ( this.Owner.Ordinance < 0.05 * (double)this.Owner.OrdinanceMax)
                                 {
                                     this.OrderQueue.Clear();
                                     this.State = AIState.AwaitingOrders;
@@ -7651,14 +7663,14 @@ namespace Ship_Game.Gameplay
                                     this.OrderQueue.Clear();
                                     return;
                                 }                                    
-                                else if ((double)Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
+                                else if ( Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
                                 {
                                     using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                     {
                                         while (enumerator.MoveNext())
                                         {
                                             ShipModule current = enumerator.Current;
-                                            if ((double)current.BombTimer <= 0.0)
+                                            if ( current.BombTimer <= 0.0)
                                             {
                                                 Bomb bomb = new Bomb(new Vector3(this.Owner.Center, 0.0f), this.Owner.loyalty);
                                                 bomb.WeaponName = current.BombType;
@@ -7812,8 +7824,8 @@ namespace Ship_Game.Gameplay
                             }
                         case ArtificialIntelligence.Plan.DefendSystem:
                             {
-                                if (this.Target != null)
-                                    System.Diagnostics.Debug.WriteLine(this.Target);
+                                //if (this.Target != null)
+                                //    System.Diagnostics.Debug.WriteLine(this.Target);
                                 this.DoSystemDefense(elapsedTime);
                                 break;
                             }
@@ -8020,6 +8032,8 @@ namespace Ship_Game.Gameplay
                         purge.fireTarget = null;
                         purge.SalvoTarget = null;
                     }
+                    if(purge.AttackerTargetting != null)
+                    purge.AttackerTargetting.Clear();
                 }
                 if (this.Owner.GetHangars().Count > 0 && this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
                 {

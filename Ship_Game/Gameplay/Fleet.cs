@@ -768,7 +768,7 @@ namespace Ship_Game.Gameplay
             this.facing = facing;
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
-                if (ship.GetAI().State == AIState.AwaitingOrders)
+                if (ship.GetAI().State == AIState.AwaitingOrders || this.IsCoreFleet)
                 {
                     float angle = MathHelper.ToRadians(Math.Abs(HelperFunctions.findAngleToTarget(Vector2.Zero, ship.RelativeFleetOffset)) + MathHelper.ToDegrees(facing));
                     float distance = ship.RelativeFleetOffset.Length();
@@ -2781,11 +2781,15 @@ namespace Ship_Game.Gameplay
                     {
                         if (!ship.disabled && ship.hasCommand && ship.Active)
                         {
-                            if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
+                            if (Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
                                 flag1 = false;
-                            int num = ship.InCombat ? 1 : 0;
+
                             if (!flag1)
+                            {
+                                if (ship.isInDeepSpace && ship.engineState != Ship.MoveState.Warp && ship.speed ==0 && ship.InCombatTimer <15)
+                                    this.Task.EndTask();
                                 break;
+                            }
                         }
                     }
                     if (!flag1)
@@ -2824,7 +2828,7 @@ namespace Ship_Game.Gameplay
                     else
                     {
                         bool flag2 = false;
-                        if ((double)Vector2.Distance(this.findAveragePosition(), Task.AO) < 15000.0)
+                        if (Vector2.Distance(this.findAveragePosition(), Task.AO) < 15000.0)
                         {
                             foreach (Ship ship in (List<Ship>)this.Ships)
                             {
@@ -2840,7 +2844,7 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
-                        if (!flag2 && (double)Vector2.Distance(this.findAveragePosition(), Task.AO) >= 10000.0)
+                        if (!flag2 && Vector2.Distance(this.findAveragePosition(), Task.AO) >= 10000.0)
                             break;
                         this.TaskStep = 3;
                         break;

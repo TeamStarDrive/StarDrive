@@ -5492,7 +5492,7 @@ namespace Ship_Game
 
         private void ApplyProductionTowardsConstruction()
         {
-            if (this.Crippled_Turns > 0)
+            if (this.Crippled_Turns > 0 || this.RecentCombat)
                 return;
             /*
              * timeToEmptyMax = maxs/maxp; = 2

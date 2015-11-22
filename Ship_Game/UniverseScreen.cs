@@ -1630,7 +1630,7 @@ namespace Ship_Game
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 this.MasterShipList.ApplyPendingRemovals();
 
-                //lock (GlobalStats.AddShipLocker)
+                lock (GlobalStats.AddShipLocker) //needed to fix Issue #629
                 {
                     foreach (Ship item_1 in this.ShipsToAdd)
                     {
@@ -3183,12 +3183,10 @@ namespace Ship_Game
                 }
                 if (this.Debug)
                 {
-                    if (input.C)
-                        ResourceManager.CreateShipAtPoint("Kulrathi Assault Ship", this.player, this.mouseWorldPos);
-                    else
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.C)
-                        ResourceManager.CreateShipAtPoint("Kulrathi Assault Ship", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
-
+                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.C) && !input.LastKeyboardState.IsKeyDown(Keys.C))
+                        ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.C) && !input.LastKeyboardState.IsKeyDown(Keys.C))
+                        ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", this.player, this.mouseWorldPos);
 
                     try
                     {
@@ -3213,9 +3211,9 @@ namespace Ship_Game
                         foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
                             this.SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.GetEmpireByName("The Remnant")));
                     }
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
-                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
+                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
                         ResourceManager.CreateShipAtPoint("Remnant Mothership", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
                 }
                 this.HandleFleetSelections(input);

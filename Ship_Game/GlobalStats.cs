@@ -141,7 +141,7 @@ namespace Ship_Game
 
         public static int AutoSaveFreq = 300;   //Added by Gretman
 
-
+        public static int ExtraRemnantGS;
         static GlobalStats()
 		{
             GlobalStats.UILocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);

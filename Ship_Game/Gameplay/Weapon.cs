@@ -2,10 +2,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Ship_Game;
 using System;
+using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
@@ -245,7 +248,8 @@ namespace Ship_Game.Gameplay
         public GameplayObject fireTarget = null;
         public float TargetChangeTimer = 0;
         public bool PrimaryTarget = false;
-       
+        [XmlIgnore]
+        public List<ModuleSlot> AttackerTargetting;// = new List<ModuleSlot>();
 
 		public static AudioListener audioListener
 		{

@@ -45,7 +45,10 @@ namespace Ship_Game
 			{
 				Primitives2D.FillRectangle(screenManager.SpriteBatch, this.r, this.ToggleColor);
 			}
-			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.tPath], this.r, (this.Hover ? this.HoverColor : this.BaseColor));
+            Texture2D path = null;
+            if(!ResourceManager.TextureDict.TryGetValue(this.tPath,out path))            
+                path=ResourceManager.TextureDict["TacticalIcons/symbol_corvette"];
+            screenManager.SpriteBatch.Draw(path, this.r, (this.Hover ? this.HoverColor : this.BaseColor));
 			if (this.SecondSkin != null)
 			{
 				if (this.Toggled)
