@@ -6864,9 +6864,13 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4099</Index>
       <Text>This broadside-mounted cannon is capable of delivering a higher-powered kinetic blast than its turret-mounted cousins. Weapon mobility and target tracking are traded for the opportunity to unleash hellish volleys of unaimed fire.</Text>
     </Token>
-        <Token>
+    <Token>
       <Index>4100</Index>
-      <Text>The delay between auto saves. This is measured in unpaused, game relative seconds (meaning that running the game at 4x speed will result in more frequent saves).\n--Common Durations--\n60 = 1 Minute\n300 = 5 Minutes (Default)\n600 = 10 Minutes\n900 = 15 Minutes</Text>
+      <Text>The delay between auto saves. This is measured in unpaused, game relative seconds.\n--Common Durations--\n60 = 1 Minute\n300 = 5 Minutes (Default)\n600 = 10 Minutes</Text>
+    </Token>
+    <Token>
+      <Index>4101</Index>
+      <Text>Remnant Presence</Text>
     </Token>
     <Token>
       <Index>5000</Index>
