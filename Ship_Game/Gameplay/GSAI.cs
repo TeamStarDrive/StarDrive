@@ -8900,9 +8900,17 @@ namespace Ship_Game.Gameplay
                 //now look through are cheapest to research designs that get use closer to the goal ship using pretty much the same logic. 
                 foreach (Ship shortTermBest in ResourceManager.ShipsDict.Values) //.OrderBy(orderbytech => orderbytech.shipData.TechScore))
                 {
-                    if (shortTermBest.shipData.HullRole < ShipData.RoleName.fighter || shortTermBest.shipData.Role == ShipData.RoleName.prototype )
+                    try
+                    {
+                        if (shortTermBest.shipData.HullRole < ShipData.RoleName.fighter || shortTermBest.shipData.Role == ShipData.RoleName.prototype)
+                            continue;
+                    }
+                    catch 
+                    {
                         continue;
-                    if (shortTermBest.shipData.ShipStyle != this.empire.data.Traits.ShipType && !this.empire.GetHDict()[shortTermBest.shipData.Hull])
+                    }
+                    bool empirehulldict;
+                    if (shortTermBest.shipData.ShipStyle != this.empire.data.Traits.ShipType && (!this.empire.GetHDict().TryGetValue(shortTermBest.shipData.Hull, out empirehulldict) || !empirehulldict))
                     {
                         continue;
                     }
