@@ -570,7 +570,7 @@ namespace Ship_Game
             int ships =0;
 
             r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 290, 225, 50);    //
-            this.AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 840, GlobalStats.AutoSaveFreq);      //Added by Gretman
+            this.AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);      //Added by Gretman
             this.AutoSaveFreq.Tip_ID = 4100;                                                                      //
 
             if (Empire.universeScreen != null )

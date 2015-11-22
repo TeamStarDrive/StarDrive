@@ -963,8 +963,8 @@ namespace Ship_Game
 				t.InitializeForViewing();
 			}
 			newShip.TroopList.Add(Ship_Game.ResourceManager.CopyTroop(troop));
-            if (newShip.shipData.Role == ShipData.RoleName.troop && newShip.shipData.ShipCategory == ShipData.Category.Civilian)
-                newShip.shipData.ShipCategory = ShipData.Category.Unclassified;  //fbedard
+            if (newShip.shipData.Role == ShipData.RoleName.troop) // && newShip.shipData.ShipCategory == ShipData.Category.Civilian)
+                newShip.shipData.ShipCategory = ShipData.Category.Combat;  //fbedard
             Owner.AddShip(newShip);
 			return newShip;
 		}
@@ -3224,7 +3224,7 @@ namespace Ship_Game
 
                                     else
                                         data.TechnologyType = TechnologyType.ShipGeneral;
-
+                                    
                                 }
                             }
                         }
@@ -3814,10 +3814,13 @@ namespace Ship_Game
         public static List<string> FindPreviousTechs(Empire empire, Technology target, List<string> alreadyFound)
         {
             bool found = false;
+            //this is supposed to reverse walk through the tech tree.
             foreach (KeyValuePair<string, TechEntry> TechTreeItem in empire.TechnologyDict)
             {
+                
                 foreach (Technology.LeadsToTech leadsto in TechTreeItem.Value.GetTech().LeadsTo)
                 {
+                    //if if it finds a tech that leads to the target tech then find the tech that leads to it. 
                     if (leadsto.UID == target.UID)
                     {
                         alreadyFound.Add(target.UID);
