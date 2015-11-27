@@ -1,108 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<Name>Heavy Cruiser</Name>
-	<Hull>Heavy Cruiser</Hull>
+	<Animated>false</Animated>
+	<ShipStyle>Kulrathi</ShipStyle>
+	<experience>0</experience>
+	<Level>0</Level>
+	<Name>Mauler</Name>
+	<HasFixedCost>false</HasFixedCost>
+	<FixedCost>0</FixedCost>
+	<IsShipyard>false</IsShipyard>
+	<IconPath>ShipIcons/mauler</IconPath>
+	<CombatState>AttackRuns</CombatState>
+	<MechanicalBoardingDefense>0</MechanicalBoardingDefense>
+	<Hull>Mauler</Hull>
 	<Role>cruiser</Role>
-	<IconPath>ShipIcons/10c</IconPath>
-	<!--Selection graphic is optional; used in the selection box module overlay-->
-	<SelectionGraphic>10c</SelectionGraphic>
 	<ThrusterList>
 		<ThrusterZone>
 			<Position>
-				<X>216</X>
-				<Y>504</Y>
+				<X>248</X>
+				<Y>472</Y>
 			</Position>
-			<scale>110</scale>
-		</ThrusterZone>
-		<ThrusterZone>
-			<Position>
-				<X>296</X>
-				<Y>504</Y>
-			</Position>
-			<scale>110</scale>
+			<scale>119</scale>
 		</ThrusterZone>
 	</ThrusterList>
-	<ModelPath>Model/Ships/Terran/LightCarrierRed/LightCarrier</ModelPath>
-	<DefaultAIState>AttackRunner</DefaultAIState>
+	<ModelPath>Model/Ships/Kulrathi/ship12a</ModelPath>
+	<!--Selection graphic is optional; used in the selection box module overlay-->
+	<SelectionGraphic>12a</SelectionGraphic>
+	<DefaultAIState>DoNothing</DefaultAIState>
 	<ModuleSlotList>
 		<ModuleSlotData>
 			<Position>
-				<X>104</X>
-				<Y>376</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>104</X>
-				<Y>392</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>104</X>
-				<Y>408</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>104</X>
-				<Y>424</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>104</X>
-				<Y>440</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>104</X>
-				<Y>456</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>104</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>104</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>120</X>
-				<Y>360</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
 				<X>120</X>
 				<Y>376</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -110,238 +43,229 @@
 				<X>120</X>
 				<Y>392</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>120</X>
-				<Y>408</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>120</X>
-				<Y>424</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>120</X>
-				<Y>440</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>120</X>
-				<Y>456</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>120</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>120</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>120</X>
-				<Y>504</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
 			<Position>
 				<X>136</X>
+				<Y>376</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>136</X>
+				<Y>392</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>136</X>
+				<Y>408</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>136</X>
+				<Y>424</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>136</X>
+				<Y>440</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>264</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>280</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>296</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>360</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>376</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>392</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>408</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>424</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>440</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>152</X>
+				<Y>456</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>168</X>
+				<Y>248</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>168</X>
+				<Y>264</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>168</X>
+				<Y>280</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>168</X>
+				<Y>296</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>168</X>
 				<Y>344</Y>
 			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>360</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>376</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>392</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>408</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>424</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>440</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>456</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>136</X>
-				<Y>504</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>344</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>360</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>376</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>392</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>408</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>424</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>440</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>456</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>152</X>
-				<Y>504</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -350,6 +274,9 @@
 				<X>168</X>
 				<Y>360</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -358,6 +285,9 @@
 				<X>168</X>
 				<Y>376</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -366,7 +296,10 @@
 				<X>168</X>
 				<Y>392</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -374,7 +307,10 @@
 				<X>168</X>
 				<Y>408</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -382,7 +318,10 @@
 				<X>168</X>
 				<Y>424</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -390,7 +329,10 @@
 				<X>168</X>
 				<Y>440</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -398,70 +340,9 @@
 				<X>168</X>
 				<Y>456</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>168</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>168</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>168</X>
-				<Y>504</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>184</X>
-				<Y>152</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>184</X>
-				<Y>168</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>184</X>
-				<Y>184</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>184</X>
-				<Y>200</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>184</X>
-				<Y>216</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -470,22 +351,42 @@
 				<X>184</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
 			<Position>
 				<X>184</X>
-				<Y>296</Y>
+				<Y>248</Y>
 			</Position>
-			<Restrictions>O</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
 			<Position>
 				<X>184</X>
-				<Y>312</Y>
+				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>184</X>
+				<Y>280</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -494,6 +395,9 @@
 				<X>184</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -502,7 +406,10 @@
 				<X>184</X>
 				<Y>344</Y>
 			</Position>
-			<Restrictions>O</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -510,6 +417,9 @@
 				<X>184</X>
 				<Y>360</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -518,6 +428,9 @@
 				<X>184</X>
 				<Y>376</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -526,7 +439,10 @@
 				<X>184</X>
 				<Y>392</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -534,7 +450,10 @@
 				<X>184</X>
 				<Y>408</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -542,7 +461,10 @@
 				<X>184</X>
 				<Y>424</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -550,7 +472,10 @@
 				<X>184</X>
 				<Y>440</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -558,94 +483,9 @@
 				<X>184</X>
 				<Y>456</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>184</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>184</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>184</X>
-				<Y>504</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>24</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>40</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>56</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>72</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>88</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>104</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>120</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>136</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -654,7 +494,10 @@
 				<X>200</X>
 				<Y>152</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -662,7 +505,10 @@
 				<X>200</X>
 				<Y>168</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -670,7 +516,10 @@
 				<X>200</X>
 				<Y>184</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -678,7 +527,10 @@
 				<X>200</X>
 				<Y>200</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -686,7 +538,10 @@
 				<X>200</X>
 				<Y>216</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -694,6 +549,9 @@
 				<X>200</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -702,6 +560,9 @@
 				<X>200</X>
 				<Y>248</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -710,6 +571,9 @@
 				<X>200</X>
 				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -718,6 +582,9 @@
 				<X>200</X>
 				<Y>280</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -726,6 +593,9 @@
 				<X>200</X>
 				<Y>296</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -734,6 +604,9 @@
 				<X>200</X>
 				<Y>312</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -742,6 +615,9 @@
 				<X>200</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -750,6 +626,9 @@
 				<X>200</X>
 				<Y>344</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -758,7 +637,10 @@
 				<X>200</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -766,7 +648,10 @@
 				<X>200</X>
 				<Y>376</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -774,6 +659,9 @@
 				<X>200</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -782,6 +670,9 @@
 				<X>200</X>
 				<Y>408</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -790,6 +681,9 @@
 				<X>200</X>
 				<Y>424</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -798,7 +692,10 @@
 				<X>200</X>
 				<Y>440</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -806,87 +703,10 @@
 				<X>200</X>
 				<Y>456</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>504</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>200</X>
-				<Y>520</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>216</X>
-				<Y>8</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>216</X>
-				<Y>24</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>216</X>
-				<Y>40</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>216</X>
-				<Y>56</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>216</X>
-				<Y>72</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>216</X>
-				<Y>88</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -894,7 +714,10 @@
 				<X>216</X>
 				<Y>104</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -902,7 +725,10 @@
 				<X>216</X>
 				<Y>120</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -910,7 +736,10 @@
 				<X>216</X>
 				<Y>136</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -918,6 +747,9 @@
 				<X>216</X>
 				<Y>152</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -926,6 +758,9 @@
 				<X>216</X>
 				<Y>168</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -934,6 +769,9 @@
 				<X>216</X>
 				<Y>184</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -942,6 +780,9 @@
 				<X>216</X>
 				<Y>200</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -950,6 +791,9 @@
 				<X>216</X>
 				<Y>216</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -958,6 +802,9 @@
 				<X>216</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -966,6 +813,9 @@
 				<X>216</X>
 				<Y>248</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -974,6 +824,9 @@
 				<X>216</X>
 				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -982,6 +835,9 @@
 				<X>216</X>
 				<Y>280</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -990,6 +846,9 @@
 				<X>216</X>
 				<Y>296</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -998,6 +857,9 @@
 				<X>216</X>
 				<Y>312</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1006,6 +868,9 @@
 				<X>216</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1014,6 +879,9 @@
 				<X>216</X>
 				<Y>344</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1022,7 +890,10 @@
 				<X>216</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1030,7 +901,10 @@
 				<X>216</X>
 				<Y>376</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1038,6 +912,9 @@
 				<X>216</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1046,6 +923,9 @@
 				<X>216</X>
 				<Y>408</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1054,6 +934,9 @@
 				<X>216</X>
 				<Y>424</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1062,7 +945,10 @@
 				<X>216</X>
 				<Y>440</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1070,7 +956,10 @@
 				<X>216</X>
 				<Y>456</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1078,7 +967,10 @@
 				<X>216</X>
 				<Y>472</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1086,6 +978,9 @@
 				<X>216</X>
 				<Y>488</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1094,47 +989,10 @@
 				<X>216</X>
 				<Y>504</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>216</X>
-				<Y>520</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>216</X>
-				<Y>536</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>232</X>
-				<Y>-8</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>232</X>
-				<Y>8</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>232</X>
-				<Y>24</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1142,7 +1000,10 @@
 				<X>232</X>
 				<Y>40</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1150,7 +1011,10 @@
 				<X>232</X>
 				<Y>56</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1158,7 +1022,10 @@
 				<X>232</X>
 				<Y>72</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1166,7 +1033,10 @@
 				<X>232</X>
 				<Y>88</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1174,7 +1044,10 @@
 				<X>232</X>
 				<Y>104</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1182,7 +1055,10 @@
 				<X>232</X>
 				<Y>120</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1190,7 +1066,10 @@
 				<X>232</X>
 				<Y>136</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1198,7 +1077,10 @@
 				<X>232</X>
 				<Y>152</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1206,7 +1088,10 @@
 				<X>232</X>
 				<Y>168</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1214,7 +1099,10 @@
 				<X>232</X>
 				<Y>184</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1222,6 +1110,9 @@
 				<X>232</X>
 				<Y>200</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1230,6 +1121,9 @@
 				<X>232</X>
 				<Y>216</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1238,6 +1132,9 @@
 				<X>232</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1246,6 +1143,9 @@
 				<X>232</X>
 				<Y>248</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1254,6 +1154,9 @@
 				<X>232</X>
 				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1262,6 +1165,9 @@
 				<X>232</X>
 				<Y>280</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1270,6 +1176,9 @@
 				<X>232</X>
 				<Y>296</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1278,6 +1187,9 @@
 				<X>232</X>
 				<Y>312</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1286,6 +1198,9 @@
 				<X>232</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1294,6 +1209,9 @@
 				<X>232</X>
 				<Y>344</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1302,6 +1220,9 @@
 				<X>232</X>
 				<Y>360</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1310,6 +1231,9 @@
 				<X>232</X>
 				<Y>376</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1318,6 +1242,9 @@
 				<X>232</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1326,6 +1253,9 @@
 				<X>232</X>
 				<Y>408</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1334,6 +1264,9 @@
 				<X>232</X>
 				<Y>424</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1342,6 +1275,9 @@
 				<X>232</X>
 				<Y>440</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1350,6 +1286,9 @@
 				<X>232</X>
 				<Y>456</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1358,7 +1297,10 @@
 				<X>232</X>
 				<Y>472</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1366,6 +1308,9 @@
 				<X>232</X>
 				<Y>488</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1374,39 +1319,10 @@
 				<X>232</X>
 				<Y>504</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>232</X>
-				<Y>520</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>232</X>
-				<Y>536</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>232</X>
-				<Y>552</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>248</X>
-				<Y>8</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1414,7 +1330,10 @@
 				<X>248</X>
 				<Y>24</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1422,6 +1341,9 @@
 				<X>248</X>
 				<Y>40</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1430,7 +1352,10 @@
 				<X>248</X>
 				<Y>56</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1438,7 +1363,10 @@
 				<X>248</X>
 				<Y>72</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1446,7 +1374,10 @@
 				<X>248</X>
 				<Y>88</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1454,7 +1385,10 @@
 				<X>248</X>
 				<Y>104</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1462,7 +1396,10 @@
 				<X>248</X>
 				<Y>120</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1470,7 +1407,10 @@
 				<X>248</X>
 				<Y>136</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1478,7 +1418,10 @@
 				<X>248</X>
 				<Y>152</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1486,7 +1429,10 @@
 				<X>248</X>
 				<Y>168</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1494,7 +1440,10 @@
 				<X>248</X>
 				<Y>184</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1502,6 +1451,9 @@
 				<X>248</X>
 				<Y>200</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1510,6 +1462,9 @@
 				<X>248</X>
 				<Y>216</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1518,6 +1473,9 @@
 				<X>248</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1526,6 +1484,9 @@
 				<X>248</X>
 				<Y>248</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1534,6 +1495,9 @@
 				<X>248</X>
 				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1542,6 +1506,9 @@
 				<X>248</X>
 				<Y>280</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1550,6 +1517,9 @@
 				<X>248</X>
 				<Y>296</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1558,6 +1528,9 @@
 				<X>248</X>
 				<Y>312</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1566,6 +1539,9 @@
 				<X>248</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1574,6 +1550,9 @@
 				<X>248</X>
 				<Y>344</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1582,6 +1561,9 @@
 				<X>248</X>
 				<Y>360</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1590,6 +1572,9 @@
 				<X>248</X>
 				<Y>376</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1598,6 +1583,9 @@
 				<X>248</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1606,6 +1594,9 @@
 				<X>248</X>
 				<Y>408</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1614,6 +1605,9 @@
 				<X>248</X>
 				<Y>424</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1622,6 +1616,9 @@
 				<X>248</X>
 				<Y>440</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1630,6 +1627,9 @@
 				<X>248</X>
 				<Y>456</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1638,7 +1638,10 @@
 				<X>248</X>
 				<Y>472</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1646,6 +1649,9 @@
 				<X>248</X>
 				<Y>488</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1654,39 +1660,10 @@
 				<X>248</X>
 				<Y>504</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>248</X>
-				<Y>520</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>248</X>
-				<Y>536</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>248</X>
-				<Y>552</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>264</X>
-				<Y>8</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1694,7 +1671,10 @@
 				<X>264</X>
 				<Y>24</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1702,6 +1682,9 @@
 				<X>264</X>
 				<Y>40</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1710,7 +1693,10 @@
 				<X>264</X>
 				<Y>56</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1718,7 +1704,10 @@
 				<X>264</X>
 				<Y>72</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1726,7 +1715,10 @@
 				<X>264</X>
 				<Y>88</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1734,7 +1726,10 @@
 				<X>264</X>
 				<Y>104</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1742,7 +1737,10 @@
 				<X>264</X>
 				<Y>120</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1750,7 +1748,10 @@
 				<X>264</X>
 				<Y>136</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1758,7 +1759,10 @@
 				<X>264</X>
 				<Y>152</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1766,7 +1770,10 @@
 				<X>264</X>
 				<Y>168</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1774,7 +1781,10 @@
 				<X>264</X>
 				<Y>184</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1782,6 +1792,9 @@
 				<X>264</X>
 				<Y>200</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1790,6 +1803,9 @@
 				<X>264</X>
 				<Y>216</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1798,6 +1814,9 @@
 				<X>264</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1806,6 +1825,9 @@
 				<X>264</X>
 				<Y>248</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1814,6 +1836,9 @@
 				<X>264</X>
 				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1822,6 +1847,9 @@
 				<X>264</X>
 				<Y>280</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1830,6 +1858,9 @@
 				<X>264</X>
 				<Y>296</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1838,6 +1869,9 @@
 				<X>264</X>
 				<Y>312</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1846,6 +1880,9 @@
 				<X>264</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1854,6 +1891,9 @@
 				<X>264</X>
 				<Y>344</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1862,6 +1902,9 @@
 				<X>264</X>
 				<Y>360</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1870,6 +1913,9 @@
 				<X>264</X>
 				<Y>376</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1878,6 +1924,9 @@
 				<X>264</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1886,6 +1935,9 @@
 				<X>264</X>
 				<Y>408</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1894,6 +1946,9 @@
 				<X>264</X>
 				<Y>424</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1902,6 +1957,9 @@
 				<X>264</X>
 				<Y>440</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1910,6 +1968,9 @@
 				<X>264</X>
 				<Y>456</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1918,7 +1979,10 @@
 				<X>264</X>
 				<Y>472</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1926,6 +1990,9 @@
 				<X>264</X>
 				<Y>488</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -1934,55 +2001,10 @@
 				<X>264</X>
 				<Y>504</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>264</X>
-				<Y>520</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>264</X>
-				<Y>536</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>264</X>
-				<Y>552</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>280</X>
-				<Y>-8</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>280</X>
-				<Y>8</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>280</X>
-				<Y>24</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1990,7 +2012,10 @@
 				<X>280</X>
 				<Y>40</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1998,7 +2023,10 @@
 				<X>280</X>
 				<Y>56</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2006,7 +2034,10 @@
 				<X>280</X>
 				<Y>72</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2014,7 +2045,10 @@
 				<X>280</X>
 				<Y>88</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2022,7 +2056,10 @@
 				<X>280</X>
 				<Y>104</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2030,7 +2067,10 @@
 				<X>280</X>
 				<Y>120</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2038,7 +2078,10 @@
 				<X>280</X>
 				<Y>136</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2046,7 +2089,10 @@
 				<X>280</X>
 				<Y>152</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2054,7 +2100,10 @@
 				<X>280</X>
 				<Y>168</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2062,7 +2111,10 @@
 				<X>280</X>
 				<Y>184</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2070,6 +2122,9 @@
 				<X>280</X>
 				<Y>200</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2078,6 +2133,9 @@
 				<X>280</X>
 				<Y>216</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2086,6 +2144,9 @@
 				<X>280</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2094,6 +2155,9 @@
 				<X>280</X>
 				<Y>248</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2102,6 +2166,9 @@
 				<X>280</X>
 				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2110,6 +2177,9 @@
 				<X>280</X>
 				<Y>280</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2118,6 +2188,9 @@
 				<X>280</X>
 				<Y>296</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2126,6 +2199,9 @@
 				<X>280</X>
 				<Y>312</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2134,6 +2210,9 @@
 				<X>280</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2142,6 +2221,9 @@
 				<X>280</X>
 				<Y>344</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2150,6 +2232,9 @@
 				<X>280</X>
 				<Y>360</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2158,6 +2243,9 @@
 				<X>280</X>
 				<Y>376</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2166,6 +2254,9 @@
 				<X>280</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2174,6 +2265,9 @@
 				<X>280</X>
 				<Y>408</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2182,6 +2276,9 @@
 				<X>280</X>
 				<Y>424</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2190,6 +2287,9 @@
 				<X>280</X>
 				<Y>440</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2198,6 +2298,9 @@
 				<X>280</X>
 				<Y>456</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2206,7 +2309,10 @@
 				<X>280</X>
 				<Y>472</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2214,6 +2320,9 @@
 				<X>280</X>
 				<Y>488</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2222,79 +2331,10 @@
 				<X>280</X>
 				<Y>504</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>280</X>
-				<Y>520</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>280</X>
-				<Y>536</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>280</X>
-				<Y>552</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>296</X>
-				<Y>8</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>296</X>
-				<Y>24</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>296</X>
-				<Y>40</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>296</X>
-				<Y>56</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>296</X>
-				<Y>72</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>296</X>
-				<Y>88</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2302,7 +2342,10 @@
 				<X>296</X>
 				<Y>104</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2310,7 +2353,10 @@
 				<X>296</X>
 				<Y>120</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2318,7 +2364,10 @@
 				<X>296</X>
 				<Y>136</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2326,6 +2375,9 @@
 				<X>296</X>
 				<Y>152</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2334,6 +2386,9 @@
 				<X>296</X>
 				<Y>168</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2342,6 +2397,9 @@
 				<X>296</X>
 				<Y>184</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2350,6 +2408,9 @@
 				<X>296</X>
 				<Y>200</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2358,6 +2419,9 @@
 				<X>296</X>
 				<Y>216</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2366,6 +2430,9 @@
 				<X>296</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2374,6 +2441,9 @@
 				<X>296</X>
 				<Y>248</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2382,6 +2452,9 @@
 				<X>296</X>
 				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2390,6 +2463,9 @@
 				<X>296</X>
 				<Y>280</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2398,6 +2474,9 @@
 				<X>296</X>
 				<Y>296</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2406,6 +2485,9 @@
 				<X>296</X>
 				<Y>312</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2414,6 +2496,9 @@
 				<X>296</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2422,6 +2507,9 @@
 				<X>296</X>
 				<Y>344</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2430,7 +2518,10 @@
 				<X>296</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2438,7 +2529,10 @@
 				<X>296</X>
 				<Y>376</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2446,6 +2540,9 @@
 				<X>296</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2454,6 +2551,9 @@
 				<X>296</X>
 				<Y>408</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2462,6 +2562,9 @@
 				<X>296</X>
 				<Y>424</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2470,7 +2573,10 @@
 				<X>296</X>
 				<Y>440</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2478,7 +2584,10 @@
 				<X>296</X>
 				<Y>456</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2486,7 +2595,10 @@
 				<X>296</X>
 				<Y>472</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2494,6 +2606,9 @@
 				<X>296</X>
 				<Y>488</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2502,87 +2617,10 @@
 				<X>296</X>
 				<Y>504</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>296</X>
-				<Y>520</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>296</X>
-				<Y>536</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>24</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>40</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>56</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>72</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>88</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>104</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>120</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>136</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2590,7 +2628,10 @@
 				<X>312</X>
 				<Y>152</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2598,7 +2639,10 @@
 				<X>312</X>
 				<Y>168</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2606,7 +2650,10 @@
 				<X>312</X>
 				<Y>184</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2614,7 +2661,10 @@
 				<X>312</X>
 				<Y>200</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2622,7 +2672,10 @@
 				<X>312</X>
 				<Y>216</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2630,6 +2683,9 @@
 				<X>312</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2638,6 +2694,9 @@
 				<X>312</X>
 				<Y>248</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2646,6 +2705,9 @@
 				<X>312</X>
 				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2654,6 +2716,9 @@
 				<X>312</X>
 				<Y>280</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2662,6 +2727,9 @@
 				<X>312</X>
 				<Y>296</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2670,6 +2738,9 @@
 				<X>312</X>
 				<Y>312</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2678,6 +2749,9 @@
 				<X>312</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2686,6 +2760,9 @@
 				<X>312</X>
 				<Y>344</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2694,7 +2771,10 @@
 				<X>312</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2702,7 +2782,10 @@
 				<X>312</X>
 				<Y>376</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2710,6 +2793,9 @@
 				<X>312</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2718,6 +2804,9 @@
 				<X>312</X>
 				<Y>408</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2726,6 +2815,9 @@
 				<X>312</X>
 				<Y>424</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>I</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2734,7 +2826,10 @@
 				<X>312</X>
 				<Y>440</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2742,78 +2837,9 @@
 				<X>312</X>
 				<Y>456</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>504</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>312</X>
-				<Y>520</Y>
-			</Position>
-			<Restrictions>E</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>328</X>
-				<Y>152</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>328</X>
-				<Y>168</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>328</X>
-				<Y>184</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>328</X>
-				<Y>200</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>328</X>
-				<Y>216</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2822,22 +2848,42 @@
 				<X>328</X>
 				<Y>232</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
 			<Position>
 				<X>328</X>
-				<Y>296</Y>
+				<Y>248</Y>
 			</Position>
-			<Restrictions>O</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
 			<Position>
 				<X>328</X>
-				<Y>312</Y>
+				<Y>264</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>328</X>
+				<Y>280</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2846,6 +2892,9 @@
 				<X>328</X>
 				<Y>328</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2854,7 +2903,10 @@
 				<X>328</X>
 				<Y>344</Y>
 			</Position>
-			<Restrictions>O</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2862,6 +2914,9 @@
 				<X>328</X>
 				<Y>360</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2870,6 +2925,9 @@
 				<X>328</X>
 				<Y>376</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -2878,7 +2936,10 @@
 				<X>328</X>
 				<Y>392</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2886,7 +2947,10 @@
 				<X>328</X>
 				<Y>408</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2894,7 +2958,10 @@
 				<X>328</X>
 				<Y>424</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2902,7 +2969,10 @@
 				<X>328</X>
 				<Y>440</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2910,118 +2980,174 @@
 				<X>328</X>
 				<Y>456</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>328</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>328</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>328</X>
-				<Y>504</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
 			<Position>
 				<X>344</X>
-				<Y>360</Y>
+				<Y>248</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>344</X>
-				<Y>376</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>344</X>
-				<Y>392</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>344</X>
-				<Y>408</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>344</X>
-				<Y>424</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>344</X>
-				<Y>440</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>344</X>
-				<Y>456</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>344</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>I</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>344</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>344</X>
-				<Y>504</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
 			<Position>
-				<X>360</X>
+				<X>344</X>
+				<Y>264</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
+				<Y>280</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
+				<Y>296</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
 				<Y>344</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
+				<Y>360</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
+				<Y>376</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
+				<Y>392</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
+				<Y>408</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
+				<Y>424</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
+				<Y>440</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>IO</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>344</X>
+				<Y>456</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>360</X>
+				<Y>264</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>360</X>
+				<Y>280</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
+			<SlotOptions>NotApplicable</SlotOptions>
+		</ModuleSlotData>
+		<ModuleSlotData>
+			<Position>
+				<X>360</X>
+				<Y>296</Y>
+			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -3030,7 +3156,10 @@
 				<X>360</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3038,6 +3167,9 @@
 				<X>360</X>
 				<Y>376</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -3046,6 +3178,9 @@
 				<X>360</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -3054,6 +3189,9 @@
 				<X>360</X>
 				<Y>408</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -3062,6 +3200,9 @@
 				<X>360</X>
 				<Y>424</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -3070,6 +3211,9 @@
 				<X>360</X>
 				<Y>440</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -3078,47 +3222,10 @@
 				<X>360</X>
 				<Y>456</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>360</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>360</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>360</X>
-				<Y>504</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>376</X>
-				<Y>344</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>376</X>
-				<Y>360</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3126,7 +3233,10 @@
 				<X>376</X>
 				<Y>376</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3134,6 +3244,9 @@
 				<X>376</X>
 				<Y>392</Y>
 			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -3142,7 +3255,10 @@
 				<X>376</X>
 				<Y>408</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3150,7 +3266,10 @@
 				<X>376</X>
 				<Y>424</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3158,46 +3277,9 @@
 				<X>376</X>
 				<Y>440</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>376</X>
-				<Y>456</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>376</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>376</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>376</X>
-				<Y>504</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>392</X>
-				<Y>360</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
@@ -3206,7 +3288,10 @@
 				<X>392</X>
 				<Y>376</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3214,126 +3299,9 @@
 				<X>392</X>
 				<Y>392</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>392</X>
-				<Y>408</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>392</X>
-				<Y>424</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>392</X>
-				<Y>440</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>392</X>
-				<Y>456</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>392</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>392</X>
-				<Y>488</Y>
-			</Position>
-			<Restrictions>IO</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>392</X>
-				<Y>504</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>408</X>
-				<Y>376</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>408</X>
-				<Y>392</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>408</X>
-				<Y>408</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>408</X>
-				<Y>424</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>408</X>
-				<Y>440</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>408</X>
-				<Y>456</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>408</X>
-				<Y>472</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>408</X>
-				<Y>488</Y>
-			</Position>
+			<Health>0</Health>
+			<Shield_Power>0</Shield_Power>
+			<facing>0</facing>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
