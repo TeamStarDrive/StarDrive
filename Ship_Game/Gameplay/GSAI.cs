@@ -5640,18 +5640,17 @@ namespace Ship_Game.Gameplay
                 DesiredTroops = (float)Math.Ceiling((double)(atwar ? TotalMilShipCount / 10f : TotalMilShipCount / 30f));
             }
 #if DEBUG
-            System.Diagnostics.Debug.WriteLine("Build Ratios for: "+ this.empire.data.PortraitName);
-            System.Diagnostics.Debug.WriteLine("fighters: " + DesiredFighters + " / "+numFighters);
-            System.Diagnostics.Debug.WriteLine("corvettes: " +DesiredCorvettes+ " / "+numCorvettes);
-            System.Diagnostics.Debug.WriteLine("Frigates: "+DesiredFrigates+ " / "+numFrigates);
-            System.Diagnostics.Debug.WriteLine("Cruisers: " +DesiredCruisers+ " / "+numCruisers);
-            System.Diagnostics.Debug.WriteLine("Capitals: "+DesiredCapitals+ " / "+numCapitals);
-            System.Diagnostics.Debug.WriteLine("Carriers: " +DesiredCarriers+ " / "+numCarriers);
-            System.Diagnostics.Debug.WriteLine("Bombers: "+DesiredBombers+ " / "+numBombers);
-            System.Diagnostics.Debug.WriteLine("TroopsHips: " +DesiredTroops+ " / "+numTroops);
-            System.Diagnostics.Debug.WriteLine("Capacity: " + Capacity);
-            System.Diagnostics.Debug.WriteLine("ShipGoals: " + this.empire.GetGSAI().numberOfShipGoals);
-
+            //System.Diagnostics.Debug.WriteLine("Build Ratios for: " + this.empire.data.PortraitName);
+            //System.Diagnostics.Debug.WriteLine("fighters: " + DesiredFighters + " / " + numFighters);
+            //System.Diagnostics.Debug.WriteLine("corvettes: " + DesiredCorvettes + " / " + numCorvettes);
+            //System.Diagnostics.Debug.WriteLine("Frigates: " + DesiredFrigates + " / " + numFrigates);
+            //System.Diagnostics.Debug.WriteLine("Cruisers: " + DesiredCruisers + " / " + numCruisers);
+            //System.Diagnostics.Debug.WriteLine("Capitals: " + DesiredCapitals + " / " + numCapitals);
+            //System.Diagnostics.Debug.WriteLine("Carriers: " + DesiredCarriers + " / " + numCarriers);
+            //System.Diagnostics.Debug.WriteLine("Bombers: " + DesiredBombers + " / " + numBombers);
+            //System.Diagnostics.Debug.WriteLine("TroopsHips: " + DesiredTroops + " / " + numTroops);
+            //System.Diagnostics.Debug.WriteLine("Capacity: " + Capacity);
+            //System.Diagnostics.Debug.WriteLine("ShipGoals: " + this.empire.GetGSAI().numberOfShipGoals);
            
 #endif
             //Scrap ships when overspending by class
@@ -5811,7 +5810,7 @@ namespace Ship_Game.Gameplay
                     buildThis = this.PickFromCandidates(pick.Key, Capacity, PotentialShips);
                     if (!string.IsNullOrEmpty(buildThis))
                     {
-                        System.Diagnostics.Debug.WriteLine("Chosen: " + buildThis);
+                        //System.Diagnostics.Debug.WriteLine("Chosen: " + buildThis);
                         //System.Diagnostics.Debug.WriteLine("TroopsHips: " + DesiredTroops);
                         return buildThis;
                     }
