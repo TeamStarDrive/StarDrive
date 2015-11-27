@@ -1193,7 +1193,7 @@ namespace Ship_Game.Gameplay
             {
                 return false;
             }
-            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f + 1; //Gretman - Slight allowance for check (This version of CheckArc seems to only be called by the beam updater)
             Vector2 toTarget = PickedPos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
             float angleToMouse = 180f - MathHelper.ToDegrees(radians);
@@ -3125,8 +3125,11 @@ namespace Ship_Game.Gameplay
                                     float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
                                     origin = HelperFunctions.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
                                     int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
-                                    //lock (locker) 
-                                    beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
+                                    //lock (locker)
+
+                                    beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center,                 beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination,            Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
+                                    //    Mer                              Source: Origin or Center                                                           Mouse pointer or Destination                        
+                                    
                                     //beam.Update(beam.moduleAttachedTo.Center, beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                                     if (beam.duration < 0f && !beam.infinite)
                                     {
@@ -3490,7 +3493,7 @@ namespace Ship_Game.Gameplay
                     bool flag = false;
                     foreach (Weapon weapon in (IEnumerable<Weapon>)orderedEnumerable)
                     {
-                        //Added by Gretman
+                        //Edited by Gretman
                         //This fixes ships with only 'other' damage types thinking it has 0 range, causing them to fly through targets even when set to attack at max/min range
                         if ((weapon.DamageAmount > 0.0 || weapon.EMPDamage > 0.0 || weapon.SiphonDamage > 0.0 || weapon.MassDamage > 0.0 || weapon.PowerDamage > 0.0 || weapon.RepulsionDamage > 0.0) && !flag)
                         {
