@@ -511,38 +511,30 @@ namespace Ship_Game
             }
             this.Duration -= elapsedTime;
             this.Source = srcCenter;
-            if (this.Target != null)// || Vector2.Distance(this.Destination, this.owner.Center) > this.range)
+
+            //Modified by Gretman
+            if (this.Target == null)// If current target sucks, use "destination" instead
             {
+                System.Diagnostics.Debug.WriteLine("Beam assigned alternate destination at update");
                 this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
-
-
-                if (!this.owner.isPlayerShip() && Vector2.Distance(this.Destination, this.owner.Center) > this.range)
-                {
-
-                    this.Die(null, true);
-                    return;
-                }
-                else 
-                if (!this.owner.isPlayerShip() && !this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
-                {
-                    this.Die(null, true);
-                    //float angle = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, this.Destination));// this.Target.Center));
-                    //float angletoradian = MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire);
-                    //if (angle > base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f)
-                    //{
-                    //    angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f;
-                    //}
-                    //else if (angle < base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f)
-                    //{
-                    //    angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f;
-                    //}
-                    //this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, angle,  this.range);
-                }
-                else
-                {
-                    this.Destination = this.Target.Center;
-                }
             }
+            else if (!this.owner.isPlayerShip() && Vector2.Distance(this.Destination, this.Source) > this.range + this.owner.Radius) //So beams at the back of a ship can hit too!
+            {
+                System.Diagnostics.Debug.WriteLine("Beam killed because of distance: Dist = " + Vector2.Distance(this.Destination, this.Source).ToString() + "  Beam Range = " + (this.range).ToString());
+                this.Die(null, true);
+                return;
+            }
+            else if (!this.owner.isPlayerShip() && !this.Owner.CheckIfInsideFireArc(this.weapon, this.Destination, base.Owner.Rotation))
+            {
+                System.Diagnostics.Debug.WriteLine("Beam killed because of angle");
+                this.Die(null, true);
+                return;
+            }
+            else
+            {
+                this.Destination = this.Target.Center;
+            }// Done messing with stuff - Gretman
+
             if (this.quadEffect != null)
             {
                 this.quadEffect.View = view;
