@@ -1150,5 +1150,10 @@
       <Title>Short range order</Title>
       <Data>7085</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>229</TIP_ID>
+      <Title>Corners Game</Title>
+      <Data>4103</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
