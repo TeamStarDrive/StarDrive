@@ -115,7 +115,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(16f * StarNumModifier);
+                            this.numSystems = (int)(16f * StarNumModifier); //16 is ok for Corners match, so no need to change -Gretman
                         this.data.Size = new Vector2(3500000f, 3500000f);
                     }
                     else if (str1 == "Small")
@@ -126,6 +126,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(30f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(32f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(7300000f, 7300000f);
                     }
                     else if (str1 == "Medium")
@@ -136,6 +137,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(9350000f, 9350000f);
                         Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
@@ -147,7 +149,8 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                            this.data.Size = new Vector2(18000000f, 18000000f);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(18000000f, 18000000f);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Huge")
@@ -158,7 +161,8 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                            this.data.Size = new Vector2(27000000f,  27000000f);  //27,000,000
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(27000000f,  27000000f);  //27,000,000
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Epic")
@@ -169,7 +173,8 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
-                            this.data.Size = new Vector2(54000000f, 54000000f);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(54000000f, 54000000f);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                             //this.data.Size = new Vector2(36000000, 36000000);
                         //this.scale = 2;
@@ -186,8 +191,9 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(64f * StarNumModifier); //This one isn't used, but what the heck...
                         //this.numSystems = (int)(100f * StarNumModifier);
-                            this.data.Size = new Vector2(54000000f, 54000000f);
+                        this.data.Size = new Vector2(54000000f, 54000000f);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
@@ -398,6 +404,7 @@ namespace Ship_Game
                             SolarSystem solarSystem = new SolarSystem();
                             solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(system).OpenRead()), null);
                             this.data.SolarSystemsList.Add(solarSystem);
+                            solarSystem.DontStartNearPlayer = true; //Added by Gretman
                             SystemCount++;
                         }
                     }
@@ -414,18 +421,49 @@ namespace Ship_Game
                         ++this.counter;
                         this.percentloaded = (float)(this.counter / (this.numSystems * 2));
                     }
-                    this.ThrusterEffect = this.ScreenManager.Content.Load<Effect>("Effects/Thrust");
-                    foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
+
+                    //Added by Gretman
+                    if (this.mode != RaceDesignScreen.GameMode.Corners)
                     {
-                        if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
-                            solarSystem2.Position = this.GenerateRandom(this.data.Size.X / 4f);
+                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
+                        {
+                            if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                                solarSystem2.Position = this.GenerateRandom(this.data.Size.X / 4f);
+                        }
+
+                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)    //Unaltered Vanilla stuff
+                        {
+                            if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
+                                solarSystem2.Position = this.GenerateRandom(350000f);
+                        }
                     }
-                    foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
+                    else
                     {
-                        if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
-                            solarSystem2.Position = this.GenerateRandom(350000f);
-                    }
+                        short whichcorner = (short)RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
+                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)    //First, put the 4 races into their corners
+                        {
+                            if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                            {
+                                solarSystem2.Position = this.GenerateRandomCorners(whichcorner);
+                                whichcorner += 1;
+                                if (whichcorner > 3) whichcorner = 0;   //This will distribute the home planets and the extra planets from "/SolarSystems/Random" evenly
+                            }
+                        }
+
+                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
+                        {
+                            //This will distribute the rest of the planets evenly
+                            if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
+                            {
+                                solarSystem2.Position = this.GenerateRandomCorners(whichcorner);
+                                whichcorner += 1;   //Only change which corner if a system is actually created
+                                if (whichcorner > 3) whichcorner = 0;
+                            }
+                        }
+                    }// Done breaking stuff -- Gretman
+
                     int count = this.data.SolarSystemsList.Count;
+                    this.ThrusterEffect = this.ScreenManager.Content.Load<Effect>("Effects/Thrust");
                     this.firstRun = false;
                 }
                 this.data.SolarSystemsList[this.systemToMake].spatialManager.Setup((int)(200000.0 * (double)this.scale), (int)(200000.0 * (double)this.scale), (int)(100000.0 * (double)this.scale), this.data.SolarSystemsList[this.systemToMake].Position);
@@ -683,6 +721,37 @@ namespace Ship_Game
                 this.ClaimedSpots.Add(sysPos);
                 return sysPos;
             }
+        }
+
+        public Vector2 GenerateRandomCorners(short corner) //Added by Gretman for Corners Game type (or whatever I end up naming it)
+        {
+            //Corner Values
+            //0 = Top Left
+            //1 = Top Right
+            //2 = Bottom Left
+            //3 = Bottom Right
+
+            double CornerSizeX = this.data.Size.X * 0.4;    //20% of map per corner
+            double CornerSizeY = this.data.Size.Y * 0.4;
+
+            double offsetX = 100000;
+            double offsetY = 100000;
+            if (corner == 1 || corner == 3)
+                offsetX = this.data.Size.X * 0.6 - 100000;    //This creates a Huge blank "Neutral Zone" between corner areas
+            if (corner == 2 || corner == 3)
+                offsetY = this.data.Size.Y * 0.6 - 100000;
+
+            Vector2 sysPos;
+            long noinfiniteloop = 0;
+            do
+            {
+                sysPos = new Vector2(RandomMath.RandomBetween((float)offsetX, (float)(CornerSizeX + offsetX)), RandomMath.RandomBetween((float)offsetY, (float)(CornerSizeY + offsetY)));
+                noinfiniteloop += 1000;
+            } 
+            //Decrease the acceptable proximity slightly each attempt, so there wont be an infinite loop here on 'tiny' + 'SuperPacked' maps
+            while (!this.SystemPosOK(sysPos, 400000 - noinfiniteloop));
+            this.ClaimedSpots.Add(sysPos);
+            return sysPos;
         }
 
         public void GenerateArm(int numOfStars, float rotation)
