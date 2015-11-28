@@ -3120,7 +3120,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Tooltips\Tooltips.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\StarterShips\Type V Prototype.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
