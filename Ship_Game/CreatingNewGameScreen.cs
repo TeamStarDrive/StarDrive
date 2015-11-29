@@ -422,7 +422,7 @@ namespace Ship_Game
                         this.percentloaded = (float)(this.counter / (this.numSystems * 2));
                     }
 
-                    //Added by Gretman
+                    //This section added by Gretman
                     if (this.mode != RaceDesignScreen.GameMode.Corners)
                     {
                         foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
@@ -440,19 +440,49 @@ namespace Ship_Game
                     else
                     {
                         short whichcorner = (short)RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
-                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)    //First, put the 4 races into their corners
+                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)    
                         {
                             if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
                             {
-                                solarSystem2.Position = this.GenerateRandomCorners(whichcorner);
+                                if (solarSystem2.isStartingSystem)
+                                {
+                                    //Put the 4 Home Planets into their corners, nessled nicely back a bit
+                                    float RandomoffsetX = RandomMath.RandomBetween(0, 14) / 100;   //Do want some variance in location, but still in the back
+                                    float RandomoffsetY = RandomMath.RandomBetween(0, 14) / 100;
+                                    float MinOffset = 0.04f;   //Minimum Offset
+                                         //Theorectical Min = 0.04 (4%)                  Theoretical Max = 0.18 (18%)
+
+                                    float CornerOffset = 0.8f;  //Additional Offset for being in corner
+                                         //Theoretical Min with Corneroffset = 0.84 (84%)    Theoretical Max with Corneroffset = 0.98 (98%)  <--- thats wwaayy in the corner, but still good  =)
+                                    switch (whichcorner)
+                                    {
+                                        case 0:
+                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX)), (this.data.Size.Y * (MinOffset + RandomoffsetX)));
+                                            this.ClaimedSpots.Add(solarSystem2.Position);
+                                            break;
+                                        case 1:
+                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)), (this.data.Size.Y * (MinOffset + RandomoffsetX)));
+                                            this.ClaimedSpots.Add(solarSystem2.Position);
+                                            break;
+                                        case 2:
+                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX)), (this.data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                            this.ClaimedSpots.Add(solarSystem2.Position);
+                                            break;
+                                        case 3:
+                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)), (this.data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                            this.ClaimedSpots.Add(solarSystem2.Position);
+                                            break;
+                                    }
+                                }
+                                else solarSystem2.Position = this.GenerateRandomCorners(whichcorner);   //This will distribute the extra planets from "/SolarSystems/Random" evenly
                                 whichcorner += 1;
-                                if (whichcorner > 3) whichcorner = 0;   //This will distribute the home planets and the extra planets from "/SolarSystems/Random" evenly
+                                if (whichcorner > 3) whichcorner = 0;
                             }
                         }
 
                         foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
                         {
-                            //This will distribute the rest of the planets evenly
+                            //This will distribute all the rest of the planets evenly
                             if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
                             {
                                 solarSystem2.Position = this.GenerateRandomCorners(whichcorner);
