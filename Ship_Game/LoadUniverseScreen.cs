@@ -387,7 +387,8 @@ namespace Ship_Game
 			stream.Dispose();
 			decompressed.Delete();
 			GlobalStats.RemnantKills = savedData.RemnantKills;
-			GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
+            GlobalStats.RemnantActivation = savedData.RemnantActivation;
+            GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
             
             GlobalStats.GravityWellRange = savedData.GravityWellRange;            
             GlobalStats.IconSize = savedData.IconSize;        
