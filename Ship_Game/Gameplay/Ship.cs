@@ -4360,9 +4360,13 @@ namespace Ship_Game.Gameplay
             this.experience += Exp;
             ExpFound = false;
             //Added by McShooterz: a way to prevent remnant story in mods
-            Empire remnant = EmpireManager.GetEmpireByName("The Remnant");
-            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == remnant && this.shipData.ShipStyle == remnant.data.Traits.ShipType &&  (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.removeRemnantStory)))
-                GlobalStats.IncrementRemnantKills((int)Exp);
+
+            Empire remnant = EmpireManager.GetEmpireByName("The Remnant");  //Changed by Gretman, because this was preventing any "RemnantKills" from getting counted, thus no remnant event.
+            //if (this.loyalty == Ship.universeScreen.player && killed.loyalty == remnant && this.shipData.ShipStyle == remnant.data.Traits.ShipType &&  (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.removeRemnantStory)))
+            if (this.loyalty == Ship.universeScreen.player && killed.loyalty == remnant &&  (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.removeRemnantStory)))
+                //GlobalStats.IncrementRemnantKills((int)Exp);
+                GlobalStats.IncrementRemnantKills(1);   //I also changed this because the exp before was a lot, killing almost any remnant ship would unlock the remnant event immediately
+
             if (ResourceManager.ShipRoles.ContainsKey(this.shipData.Role))
             {
                 for (int i = 0; i < ResourceManager.ShipRoles[this.shipData.Role].RaceList.Count(); i++)
