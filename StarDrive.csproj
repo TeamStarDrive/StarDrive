@@ -1851,17 +1851,13 @@
     <Content Include="Content\Hulls\terran\Emissary.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Hulls\terran\Heavy Cruiser.xml">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Content\Hulls\terran\HeavyGunboat.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Hulls\terran\Hunter.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Hulls\terran\Light Carrier.xml">
+    <Content Include="Content\Hulls\terran\LightCarrier.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Hulls\Vulfen\Alpha.xml">
@@ -2809,6 +2805,7 @@
     </Content>
     <Content Include="Content\Technology\Ace Training.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\Technology\Advanced Materials.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
