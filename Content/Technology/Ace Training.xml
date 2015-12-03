@@ -24,10 +24,5 @@
   <BuildingsUnlocked />
   <BonusUnlocked />
   <TroopsUnlocked />
-  <HullsUnlocked>
-  <UnlockedHull>
-    <Name>Terran/Light Carrier</Name>
-    <ShipType>Terran</ShipType>
-  </UnlockedHull>
-    </HullsUnlocked>
+  <HullsUnlocked />
 </Technology>
