@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	<Name>Heavy Cruiser</Name>
-	<Hull>Heavy Cruiser</Hull>
-	<Role>cruiser</Role>
+	<Name>Light Carrier</Name>
+	<Hull>LightCarrier</Hull>
+	<Role>carrier</Role>
 	<IconPath>ShipIcons/10c</IconPath>
 	<!--Selection graphic is optional; used in the selection box module overlay-->
 	<SelectionGraphic>10c</SelectionGraphic>
@@ -158,7 +158,7 @@
 				<X>120</X>
 				<Y>488</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -182,7 +182,7 @@
 				<X>136</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -270,7 +270,7 @@
 				<X>152</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -350,7 +350,7 @@
 				<X>168</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -421,14 +421,6 @@
 			<Position>
 				<X>168</X>
 				<Y>504</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>184</X>
-				<Y>152</Y>
 			</Position>
 			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
@@ -510,7 +502,7 @@
 				<X>184</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -654,7 +646,7 @@
 				<X>200</X>
 				<Y>152</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -662,7 +654,7 @@
 				<X>200</X>
 				<Y>168</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -694,7 +686,7 @@
 				<X>200</X>
 				<Y>232</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -702,7 +694,7 @@
 				<X>200</X>
 				<Y>248</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -710,7 +702,7 @@
 				<X>200</X>
 				<Y>264</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -718,7 +710,7 @@
 				<X>200</X>
 				<Y>280</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -726,7 +718,7 @@
 				<X>200</X>
 				<Y>296</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -854,7 +846,7 @@
 				<X>216</X>
 				<Y>24</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1126,7 +1118,7 @@
 				<X>232</X>
 				<Y>8</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1214,7 +1206,7 @@
 				<X>232</X>
 				<Y>184</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1222,7 +1214,7 @@
 				<X>232</X>
 				<Y>200</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1230,7 +1222,7 @@
 				<X>232</X>
 				<Y>216</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1406,7 +1398,7 @@
 				<X>248</X>
 				<Y>8</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1686,7 +1678,7 @@
 				<X>264</X>
 				<Y>8</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -1974,7 +1966,7 @@
 				<X>280</X>
 				<Y>8</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2062,7 +2054,7 @@
 				<X>280</X>
 				<Y>184</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2070,7 +2062,7 @@
 				<X>280</X>
 				<Y>200</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2078,7 +2070,7 @@
 				<X>280</X>
 				<Y>216</Y>
 			</Position>
-			<Restrictions>I</Restrictions>
+			<Restrictions>IO</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2262,7 +2254,7 @@
 				<X>296</X>
 				<Y>24</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2590,7 +2582,7 @@
 				<X>312</X>
 				<Y>152</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2598,7 +2590,7 @@
 				<X>312</X>
 				<Y>168</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2630,7 +2622,7 @@
 				<X>312</X>
 				<Y>232</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2638,7 +2630,7 @@
 				<X>312</X>
 				<Y>248</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2646,7 +2638,7 @@
 				<X>312</X>
 				<Y>264</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2654,7 +2646,7 @@
 				<X>312</X>
 				<Y>280</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2662,7 +2654,7 @@
 				<X>312</X>
 				<Y>296</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2780,14 +2772,6 @@
 		<ModuleSlotData>
 			<Position>
 				<X>328</X>
-				<Y>152</Y>
-			</Position>
-			<Restrictions>O</Restrictions>
-			<SlotOptions>NotApplicable</SlotOptions>
-		</ModuleSlotData>
-		<ModuleSlotData>
-			<Position>
-				<X>328</X>
 				<Y>168</Y>
 			</Position>
 			<Restrictions>O</Restrictions>
@@ -2862,7 +2846,7 @@
 				<X>328</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -2942,7 +2926,7 @@
 				<X>344</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3030,7 +3014,7 @@
 				<X>360</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3118,7 +3102,7 @@
 				<X>376</X>
 				<Y>360</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3206,7 +3190,7 @@
 				<X>392</X>
 				<Y>376</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
@@ -3262,7 +3246,7 @@
 				<X>392</X>
 				<Y>488</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
