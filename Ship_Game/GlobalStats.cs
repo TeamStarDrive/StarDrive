@@ -264,9 +264,10 @@ namespace Ship_Game
             }
             else
             {
-                if (GlobalStats.RemnantKills >= 5)
+                if (GlobalStats.RemnantKills >= 5 && GlobalStats.RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
                 {
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
+                    GlobalStats.RemnantActivation = 1;
                 }
             }
 		}
