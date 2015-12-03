@@ -1235,6 +1235,16 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(tip, base.ScreenManager);
                 }
             }
+            else if (this.mode == RaceDesignScreen.GameMode.Corners)    //Added by Gretman
+            {
+                txt = Localizer.Token(4102);
+                tip = 229;
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
+                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                {
+                    ToolTip.CreateTooltip(tip, base.ScreenManager);
+                }
+            }
             //else if (this.mode == RaceDesignScreen.GameMode.Warlords)
             //{
             //    txt = "War Lords";//Localizer.Token(2103);
@@ -1245,7 +1255,7 @@ namespace Ship_Game
             //        ToolTip.CreateTooltip(tip, base.ScreenManager);
             //    }
             //}
-			if (HelperFunctions.CheckIntersection(this.ScaleRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            if (HelperFunctions.CheckIntersection(this.ScaleRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 			{
 				ToolTip.CreateTooltip(125, base.ScreenManager);
 			}
@@ -1909,9 +1919,10 @@ namespace Ship_Game
                 if (HelperFunctions.CheckIntersection(this.GameModeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     AudioManager.GetCue("blip_click").Play();
-                    RaceDesignScreen gamemode = this;
-                    gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Elimination);
-                    if (this.mode > RaceDesignScreen.GameMode.Elimination)
+                    //RaceDesignScreen gamemode = this;
+                    this.mode = (RaceDesignScreen.GameMode)this.mode + 1;
+                    if (this.mode == RaceDesignScreen.GameMode.Corners) this.numOpponents = 3;
+                    if (this.mode > RaceDesignScreen.GameMode.Corners)  //Updated by Gretman
                     {
                         this.mode = RaceDesignScreen.GameMode.Sandbox;
                     }
@@ -1929,8 +1940,9 @@ namespace Ship_Game
                 if (HelperFunctions.CheckIntersection(this.NumOpponentsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     AudioManager.GetCue("blip_click").Play();
-                    RaceDesignScreen raceDesignScreen1 = this;
-                    raceDesignScreen1.numOpponents = raceDesignScreen1.numOpponents + 1;
+                    //RaceDesignScreen raceDesignScreen1 = this;
+                    this.numOpponents = this.numOpponents + 1;
+                    if (this.mode == RaceDesignScreen.GameMode.Corners) this.numOpponents = 3; // Added by Gretman to enfoce 4 total players for corners game
                     if (this.numOpponents > 7)
                     {
                         this.numOpponents = 1;
@@ -2294,10 +2306,9 @@ namespace Ship_Game
             //    GlobalStats.HardcoreRuleset = true;
             //}
             //else 
-                if (this.mode == RaceDesignScreen.GameMode.Elimination)
-            {
-                GlobalStats.EliminationMode = true;
-            }
+            if (this.mode == RaceDesignScreen.GameMode.Elimination) GlobalStats.EliminationMode = true;
+            if (this.mode == RaceDesignScreen.GameMode.Corners) GlobalStats.CornersGame = true; //Added by Gretman
+
 
             GlobalStats.ExtraRemnantGS = (int)ExtraRemnant;  //Added by Gretman
 
@@ -2678,7 +2689,8 @@ namespace Ship_Game
             Sandbox,
             //Warlords,
             //PreWarp,
-            Elimination
+            Elimination,
+            Corners
         }
 
         public enum StarNum

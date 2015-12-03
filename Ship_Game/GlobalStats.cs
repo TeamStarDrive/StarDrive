@@ -140,6 +140,7 @@ namespace Ship_Game
         public static string bugTracker = "";
 
         public static int AutoSaveFreq = 300;   //Added by Gretman
+        public static bool CornersGame;     //Also added by Gretman
 
         public static int ExtraRemnantGS;
         static GlobalStats()
@@ -188,6 +189,8 @@ namespace Ship_Game
             GlobalStats.RemnantActivation = 0;
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
+
+            GlobalStats.CornersGame = false;    //Added by Gretman
             
 			try
 			{
