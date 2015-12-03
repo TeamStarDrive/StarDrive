@@ -6873,6 +6873,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Remnant Presence</Text>
     </Token>
     <Token>
+      <Index>4102</Index>
+      <Text>Corners</Text>
+    </Token>
+    <Token>
+      <Index>4103</Index>
+      <Text>Corners is a 4 race match similar to a sandbox game, except the map is divided into quarters, with 1 faction in each quarter, offering clear boundaries between regions of space. Defend your territory at all costs!</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
