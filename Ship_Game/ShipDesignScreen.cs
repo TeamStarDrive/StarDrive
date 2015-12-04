@@ -3644,7 +3644,7 @@ namespace Ship_Game
 
             this.DrawStatUpkeep(ref Cursor, "Upkeep Cost:", Upkeep, 175);
             Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);   //Gretman (so we can see how many total slots are on the ships)
-            this.DrawStat(ref Cursor, "Ship Size:", (int)ActiveHull.ModuleSlotList.Count, 4104);
+            this.DrawStat(ref Cursor, "Ship Size:", (int)ActiveHull.ModuleSlotList.Count, 230);
             Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
 
             this.DrawStatEnergy(ref Cursor, string.Concat(Localizer.Token(110), ":"), (int)PowerCapacity, 100);
