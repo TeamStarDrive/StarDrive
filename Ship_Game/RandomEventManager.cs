@@ -77,6 +77,39 @@ namespace Ship_Game
 						}
 					}
 				}
+                if (Random > 6 && Random < 8)   //Added by Gretman
+                {
+                    List<Planet> potentials = new List<Planet>();
+                    foreach (KeyValuePair<Guid, Planet> planet in Ship.universeScreen.PlanetsDict)
+                    {
+                        if (!planet.Value.habitable)
+                        {
+                            continue;
+                        }
+                        potentials.Add(planet.Value);
+                    }
+
+                    if (potentials.Count > 0)
+                    {
+                        Planet targetplanet = potentials[HelperFunctions.GetRandomIndex(potentials.Count)];
+
+                        //System.Diagnostics.Debug.WriteLine("Planet Chosen: " + targetplanet.Name);
+                        //System.Diagnostics.Debug.WriteLine("Pre-Fertility: " + targetplanet.Fertility.ToString());
+                        //System.Diagnostics.Debug.WriteLine("Pre-Richness: " + targetplanet.MineralRichness.ToString());
+
+                        float sizeofmeteor = RandomMath.RandomBetween(1, 3) / 10;
+                        if (targetplanet.Fertility > 0) targetplanet.TerraformExternal(-sizeofmeteor);      //Lose half of the richness gained (if not already 0);
+                        targetplanet.MineralRichness += sizeofmeteor * 2;
+
+                        //System.Diagnostics.Debug.WriteLine("Random number: " + sizeofmeteor);
+                        //System.Diagnostics.Debug.WriteLine("Post-Fertility: " + targetplanet.Fertility.ToString());
+                        //System.Diagnostics.Debug.WriteLine("Post-Richness: " + targetplanet.MineralRichness.ToString());
+
+                        string eventtext = string.Concat(targetplanet.Name, Localizer.Token(4105));
+                        Ship.universeScreen.NotificationManager.AddRandomEventNotification(eventtext, string.Concat("Planets/", targetplanet.planetType), "SnapToPlanet", targetplanet);
+                    }
+
+                }
 			}
 		}
 
