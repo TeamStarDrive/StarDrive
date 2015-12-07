@@ -7562,6 +7562,10 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
+                        else
+                        {
+                        this.Stop(elapsedTime);     //Gretman - Patch for ships drifting away after combat.
+                        }
                     }
                 }
                 else if (this.OrderQueue.Count > 0)
