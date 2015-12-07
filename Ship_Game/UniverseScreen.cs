@@ -6558,7 +6558,7 @@ namespace Ship_Game
                 }
                 else if (this.Debug)
                 {
-                    if (this.Debug && moduleSlot.module.isExternal && moduleSlot.module.Active && false)    //Need this disabled so I can test the module health bug - Gretman
+                    if (this.Debug && moduleSlot.module.isExternal && moduleSlot.module.Active)
                     {
                         string index = "TacticalIcons/symbol_fighter";
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
