@@ -7601,53 +7601,65 @@ namespace Ship_Game.Gameplay
                                 this.ScrapShip(elapsedTime, toEvaluate);
                                 break;
                             }
-                        case ArtificialIntelligence.Plan.Bombard:
-                            target = toEvaluate.TargetPlanet;
-                            if (this.Owner.Ordinance < 0.05* this.Owner.OrdinanceMax
-                                || (target.BuildingList.Count == 0 && target.TroopsHere.Count == 0  && target.Population <0f)
-                                || target.GetGroundStrengthOther(this.Owner.loyalty) * 1.5
-                                <= target.GetGroundStrength(this.Owner.loyalty)
-                                )
+                    case ArtificialIntelligence.Plan.Bombard:   //Modified by Gretman
+                        target = toEvaluate.TargetPlanet;                                             //Stop Bombing if:
+                        if (this.Owner.Ordinance < 0.05 * this.Owner.OrdinanceMax                           //'Aint Got no bombs!
+                            || (target.TroopsHere.Count == 0 && target.Population <= 0f))                   //Everyone is dead
+                        //  || target.GetGroundStrengthOther(this.Owner.loyalty) * 1.5
+                        //     <= target.GetGroundStrengthOther(this.Owner.loyalty)  )   //Removed So Planets with no troops on them at all can still be bombed back to the stone age
+
+                        {   //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrengthOther would both return 0,
+                            //meaning that the planet could not be bombed since that part of the if statement would always be true (0 * 1.5 <= 0)
+
+                            this.OrderQueue.Clear();
+                            this.State = AIState.AwaitingOrders;
+                            ArtificialIntelligence.ShipGoal orbit = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.Orbit, Vector2.Zero, 0f)
                             {
-                                this.OrderQueue.Clear();
-                                if(this.CombatState == CombatState.Evade)
-                                    this.State = AIState.AwaitingOrders;
-                                this.HasPriorityOrder = false;
-                            }
-                            this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
-                            float radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1500;
-                            if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty)
+                                TargetPlanet = toEvaluate.TargetPlanet
+                            };
+                            this.orderqueue.EnterWriteLock();
+                            this.OrderQueue.AddLast(orbit);         //Stay in Orbit
+                            this.orderqueue.ExitWriteLock();
+                            this.HasPriorityOrder = false;
+                            //System.Diagnostics.Debug.WriteLine("Bombardment info! " + target.GetGroundStrengthOther(this.Owner.loyalty) + " : " + target.GetGroundStrength(this.Owner.loyalty));
+
+                        }   //Done -Gretman
+
+                        this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                        float radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1500;
+                        if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty)
+                        {
+                            this.OrderQueue.Clear();
+                            return;
+                        }
+                        else if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
+                        {
+                            using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                             {
-                                this.OrderQueue.Clear();
-                                return;
-                            }                           
-                            else if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
-                            {                                
-                                using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
+                                while (enumerator.MoveNext())
                                 {
-                                    while (enumerator.MoveNext())
+                                    ShipModule current = enumerator.Current;
+                                    if ((double)current.BombTimer <= 0.0)
                                     {
-                                        ShipModule current = enumerator.Current;
-                                        if ((double)current.BombTimer <= 0.0)
+                                        Bomb bomb = new Bomb(new Vector3(this.Owner.Center, 0.0f), this.Owner.loyalty);
+                                        bomb.WeaponName = current.BombType;
+                                        if ((double)this.Owner.Ordinance > (double)ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire)
                                         {
-                                            Bomb bomb = new Bomb(new Vector3(this.Owner.Center, 0.0f), this.Owner.loyalty);
-                                            bomb.WeaponName = current.BombType;
-                                            if ((double)this.Owner.Ordinance > (double)ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire)
-                                            {
-                                                this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire;
-                                                bomb.SetTarget(toEvaluate.TargetPlanet);
-                                                //lock (GlobalStats.BombLock)
-                                                    ArtificialIntelligence.universeScreen.BombList.Add(bomb);
-                                                current.BombTimer = ResourceManager.WeaponsDict[current.BombType].fireDelay;
-                                            }
+                                            this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire;
+                                            bomb.SetTarget(toEvaluate.TargetPlanet);
+                                            //lock (GlobalStats.BombLock)
+                                            ArtificialIntelligence.universeScreen.BombList.Add(bomb);
+                                            current.BombTimer = ResourceManager.WeaponsDict[current.BombType].fireDelay;
                                         }
                                     }
-                                    break;
                                 }
-                            }
-                            else
                                 break;
-                        case ArtificialIntelligence.Plan.BombTroops:
+                            }
+                        }
+                        else
+                            break;
+
+                    case ArtificialIntelligence.Plan.BombTroops:
                             target = toEvaluate.TargetPlanet;
 
                             if (target.TroopsHere.Where(unfriendlyTroops => unfriendlyTroops.GetOwner() != this.Owner.loyalty).Count() * 1.5
