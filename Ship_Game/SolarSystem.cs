@@ -411,9 +411,12 @@ namespace Ship_Game
 			this.Name = name;
 			this.numberOfRings = (int)RandomMath.RandomBetween(1f, 6f);
             // ADDED BY SHAHMATT (more planets in system)
-            if (GlobalStats.ExtraPlanets >0)
-            {
-                this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(0f, (float)GlobalStats.ExtraPlanets);
+            if (GlobalStats.ExtraPlanets > 0)
+            {                                                 //Edited by Gretman, so if lots of extra planets are selected, there will definitely be extra
+                if (GlobalStats.ExtraPlanets < 2) this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(1f, (float)GlobalStats.ExtraPlanets);
+                else if (GlobalStats.ExtraPlanets < 4) this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(2f, (float)GlobalStats.ExtraPlanets);
+                else if (GlobalStats.ExtraPlanets == 6) this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(3f, (float)GlobalStats.ExtraPlanets);
+                else this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(0f, (float)GlobalStats.ExtraPlanets);
             }
             // END OF ADDED BY SHAHMATT
 			this.RingsCount = this.numberOfRings;

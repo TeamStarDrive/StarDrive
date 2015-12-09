@@ -139,7 +139,7 @@ namespace Ship_Game
             Vector2 Cursor = new Vector2((float)(this.win.X + 10), (float)(this.win.Y + 10));
 
 			int column = 0;
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.win, Color.Black);
+			//Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.win, Color.Black);    //by Gretman -- I had to be able to Debug and See the game at the same time...
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
 				if (e.isFaction || e.MinorRace)

@@ -1155,5 +1155,10 @@
       <Title>Corners Game</Title>
       <Data>4103</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>230</TIP_ID>
+      <Title>Total Module Slots</Title>
+      <Data>4104</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
