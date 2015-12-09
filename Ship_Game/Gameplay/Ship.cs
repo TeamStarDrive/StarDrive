@@ -3128,7 +3128,7 @@ namespace Ship_Game.Gameplay
                                     //lock (locker)
 
                                     beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center,                 beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination,            Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
-                                    //    Mer                              Source: Origin or Center                                                           Mouse pointer or Destination                        
+                                    //                                  Source: Origin or Center                                                           Mouse pointer or Destination                        
                                     
                                     //beam.Update(beam.moduleAttachedTo.Center, beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
                                     if (beam.duration < 0f && !beam.infinite)

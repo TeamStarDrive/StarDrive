@@ -200,7 +200,8 @@ namespace Ship_Game.Gameplay
                 where !ship.EnginesKnockedOut && !ship.InCombat && !ship.Inhibited && ship.Active && ship.GetAI().State == AIState.FormationWarp
                 orderby ship.speed
                 select ship;
-            this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
+            //this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
+            if (speedSorted.Count<Ship>() > 0) this.speed = speedSorted.ElementAt<Ship>(0).speed;       //Gretman - To prevent ships from crawling to their destination
             this.Ships.thisLock.ExitReadLock();
             if (this.speed == 0f)
             {

@@ -6864,6 +6864,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4099</Index>
       <Text>This broadside-mounted cannon is capable of delivering a higher-powered kinetic blast than its turret-mounted cousins. Weapon mobility and target tracking are traded for the opportunity to unleash hellish volleys of unaimed fire.</Text>
     </Token>
+	
+	<!-- Somehow the 4100 range has become where I put all my new stuff - Gretman           -->
     <Token>
       <Index>4100</Index>
       <Text>The delay between auto saves. This is measured in unpaused, game relative seconds.\n--Common Durations--\n60 = 1 Minute\n300 = 5 Minutes (Default)\n600 = 10 Minutes</Text>
@@ -6880,6 +6882,16 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4103</Index>
       <Text>Corners is a 4 race match similar to a sandbox game, except the map is divided into quarters, with 1 faction in each quarter, offering clear boundaries between regions of space. Defend your territory at all costs!</Text>
     </Token>
+	<Token>
+      <Index>4104</Index>
+      <Text>The total number of module slots available on the selected ship.</Text>
+    </Token>
+	<Token>
+      <Index>4105</Index>
+      <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\nmeteor was comprised mostly of useful minerals.</Text>
+    </Token>
+	
+	
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
