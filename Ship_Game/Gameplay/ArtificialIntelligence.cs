@@ -4607,7 +4607,7 @@ namespace Ship_Game.Gameplay
 		public void OrderScrapShip()
 		{
 #if SHOWSCRUB
-            System.Diagnostics.Debug.WriteLine(string.Concat(this.Owner.loyalty.PortraitName, " : ", this.Owner.Role)); 
+            //System.Diagnostics.Debug.WriteLine(string.Concat(this.Owner.loyalty.PortraitName, " : ", this.Owner.Role)); 
 #endif
 
             if ((this.Owner.shipData.Role <= ShipData.RoleName.station) && this.Owner.ScuttleTimer < 1)
@@ -7604,12 +7604,14 @@ namespace Ship_Game.Gameplay
                     case ArtificialIntelligence.Plan.Bombard:   //Modified by Gretman
                         target = toEvaluate.TargetPlanet;                                             //Stop Bombing if:
                         if (this.Owner.Ordinance < 0.05 * this.Owner.OrdinanceMax                           //'Aint Got no bombs!
-                            || (target.TroopsHere.Count == 0 && target.Population <= 0f))                   //Everyone is dead
-                        //  || target.GetGroundStrengthOther(this.Owner.loyalty) * 1.5
-                        //     <= target.GetGroundStrengthOther(this.Owner.loyalty)  )   //Removed So Planets with no troops on them at all can still be bombed back to the stone age
+                            || (target.TroopsHere.Count == 0 && target.Population <= 0f)                    //Everyone is dead
+                            || (target.GetGroundStrengthOther(this.Owner.loyalty) + 1) * 1.5
+                             <= target.GetGroundStrength(this.Owner.loyalty)  )   //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
 
-                        {   //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrengthOther would both return 0,
+                        {   //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrength would both return 0,
                             //meaning that the planet could not be bombed since that part of the if statement would always be true (0 * 1.5 <= 0)
+                            //Adding +1 to the result of GetGroundStrengthOther tilts the scale just enough so a planet with no troops at all can still be bombed
+                            //but having even 1 allied troop will cause the bombine action to abort.
 
                             this.OrderQueue.Clear();
                             this.State = AIState.AwaitingOrders;
