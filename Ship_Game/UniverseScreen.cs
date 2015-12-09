@@ -3203,7 +3203,13 @@ namespace Ship_Game
                     }
                     if (this.SelectedShip != null && this.Debug)
                     {
-                        if (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
+                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
+                        {
+                            foreach (ModuleSlot mod in this.SelectedShip.ModuleSlotList)
+                            { mod.module.Health = 1; }    //Added by Gretman so I can hurt ships when the disobey me... I mean for testing... Yea, thats it...
+                            this.SelectedShip.Health = this.SelectedShip.ModuleSlotList.Count;
+                        }
+                        else if (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
                             this.SelectedShip.Die((GameplayObject)null, false);
                     }
                     else if (this.SelectedPlanet != null && this.Debug && (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X)))
@@ -3211,10 +3217,12 @@ namespace Ship_Game
                         foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
                             this.SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.GetEmpireByName("The Remnant")));
                     }
-                    if (input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
-                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
-                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
+
+                    if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
                         ResourceManager.CreateShipAtPoint("Remnant Mothership", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                    else if (input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
+                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+
                 }
                 this.HandleFleetSelections(input);
                 if (input.Escaped)
