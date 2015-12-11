@@ -1549,8 +1549,9 @@ namespace Ship_Game.Gameplay
             this.lastFireSound += elapsedTime;
 			if (this.timeToNextFire > 0f)
 			{
-				this.timeToNextFire = MathHelper.Max(this.timeToNextFire - elapsedTime, 0f);
-			}
+                if (this.WeaponType != "Drone") this.timeToNextFire = MathHelper.Max(this.timeToNextFire - elapsedTime, 0f);
+                //Gretman -- To fix broken Repair Drones, I moved updating the cooldown for drone weapons to the ArtificialIntelligence update function.
+            }
 			foreach (Weapon.Salvo salvo in this.SalvoList)
 			{
                 salvo.Timing -= elapsedTime;
