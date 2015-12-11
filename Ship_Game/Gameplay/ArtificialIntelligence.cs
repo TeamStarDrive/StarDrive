@@ -7289,6 +7289,8 @@ namespace Ship_Game.Gameplay
                         {
                             if (weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || this.Owner.Ordinance < weapon.OrdinanceRequiredToFire || this.Owner.PowerCurrent < weapon.PowerRequiredToFire || !weapon.IsRepairDrone)
                             {
+                                //Gretman -- Added this so repair drones would cooldown outside combat (+15s)
+                                if (weapon.timeToNextFire > 0f) weapon.timeToNextFire = MathHelper.Max(weapon.timeToNextFire - 1, 0f);
                                 continue;
                             }
                             this.DoRepairDroneLogic(weapon);
