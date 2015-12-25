@@ -3100,7 +3100,8 @@ namespace Ship_Game.Gameplay
                 }
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
-            int DesiredOffense = (int)(this.empire.data.AgentList.Count  * .3f);
+            float offSpyModifier = (int)Ship.universeScreen.GameDifficulty * .1f;
+            int DesiredOffense = (int)(this.empire.data.AgentList.Count * offSpyModifier);
             //int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .33f); // (int)(0.33f * (float)this.empire.data.AgentList.Count);
             //int DesiredOffense = this.empire.data.AgentList.Count / 2;
             foreach (Agent agent in this.empire.data.AgentList)
@@ -3308,7 +3309,9 @@ namespace Ship_Game.Gameplay
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
            // int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .2);// (int)(0.20f * (float)this.empire.data.AgentList.Count);
-            int DesiredOffense = (int)(this.empire.data.AgentList.Count *.5f);
+            float offSpyModifier = (int)Ship.universeScreen.GameDifficulty *.17f ;
+
+            int DesiredOffense = (int)(this.empire.data.AgentList.Count * offSpyModifier);
             foreach (Agent agent in this.empire.data.AgentList)
             {
                 if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover || Offense >= DesiredOffense )
@@ -3739,7 +3742,8 @@ namespace Ship_Game.Gameplay
                 }
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
-            int DesiredOffense = (int)(this.empire.data.AgentList.Count*.25f);// /(int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .4f);
+            float offSpyModifier = (int)Ship.universeScreen.GameDifficulty * .08f;
+            int DesiredOffense = (int)(this.empire.data.AgentList.Count * offSpyModifier);// /(int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .4f);
             foreach (Agent agent in this.empire.data.AgentList)
             {
                 if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover || Offense >= DesiredOffense )
@@ -6386,8 +6390,10 @@ namespace Ship_Game.Gameplay
 
 		private void RunAgentManager()
 		{
-            
-            int income = (int)((this.empire.Money *.01) * (1-this.empire.data.TaxRate));//-this.empire.GrossTaxes*5 );//* .2f);
+
+            float spyincomemodifer;
+            spyincomemodifer = .01f; // ((int)Ship.universeScreen.GameDifficulty + 1) * .0033f;
+            int income = (int)((this.empire.Money * spyincomemodifer) * (1 - this.empire.data.TaxRate));//-this.empire.GrossTaxes*5 );//* .2f);
             if (income < 0 || this.empire.data.SpyBudget > this.empire.Money * .75f)
                 income = 0;
             
