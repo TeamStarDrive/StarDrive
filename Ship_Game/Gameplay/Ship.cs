@@ -4253,7 +4253,7 @@ namespace Ship_Game.Gameplay
 #if DEBUG
 
                 if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
-                    System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
+                    //System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
 
 #endif
                 if (!slot.module.isDummy && slot.module.Powered && slot.module.Active)
