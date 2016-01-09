@@ -102,7 +102,7 @@
 				<X>120</X>
 				<Y>376</Y>
 			</Position>
-			<Restrictions>IO</Restrictions>
+			<Restrictions>O</Restrictions>
 			<SlotOptions>NotApplicable</SlotOptions>
 		</ModuleSlotData>
 		<ModuleSlotData>
