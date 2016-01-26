@@ -7549,7 +7549,7 @@ namespace Ship_Game.Gameplay
                                 this.HasPriorityOrder = false;
                             }
                         }
-                        else if (this.State != AIState.HoldPosition && DistanceToFleetOffset <= 2000f) //modified by Gretman
+                        else if (this.State != AIState.HoldPosition && (DistanceToFleetOffset <= 2000f || this.Owner.loyalty.isPlayer == false)) //modified by Gretman
                         {
                             this.ThrustTowardsPosition(this.Owner.fleet.Position + this.Owner.FleetOffset, elapsedTime, this.Owner.fleet.speed);
                             lock (this.wayPointLocker)
