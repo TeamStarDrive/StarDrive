@@ -1240,14 +1240,10 @@ namespace Ship_Game
 					//item = model;
 				}
                 
-
-
-
-
-                //else
-                //{
-                //    item = Ship_Game.ResourceManager.ModelDict[path];
-                //}
+                else
+                {
+                    item = Ship_Game.ResourceManager.ModelDict[path];
+                }
 			}
             catch
             {
