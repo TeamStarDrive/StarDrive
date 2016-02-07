@@ -265,6 +265,13 @@ namespace Ship_Game.Gameplay
 
 		public Weapon()
 		{
+            if(GlobalStats.ActiveMod != null)
+            {
+                if(GlobalStats.ActiveMod.mi !=null)
+                {
+                    this.ExplosionRadiusVisual *= GlobalStats.ActiveMod.mi.GlobalExplosionVisualIncreaser;
+                }
+            }
 		}
 
         private void AddModifiers(string Tag, Projectile projectile)
