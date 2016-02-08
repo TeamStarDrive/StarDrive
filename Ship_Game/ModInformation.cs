@@ -21,6 +21,7 @@ namespace Ship_Game
 
         //added by Gremlin
         public string Version;
+        public float GlobalExplosionVisualIncreaser = 1f;
 
         //added by McShooterz
         public bool useAlternateTech;
