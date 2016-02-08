@@ -2824,11 +2824,16 @@ namespace Ship_Game.Gameplay
                                                                if (weapon.fireTarget == null && this.Owner.TrackingPower > 0)
                                                                {
                                                                    //limit to one target per level.
-                                                                   for (int i = 0; i < this.PotentialTargets.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++) //
+                                                                   sbyte tracking = this.Owner.TrackingPower;
+                                                                   for (int i = 0; i < this.PotentialTargets.Count && i < tracking + this.Owner.Level; i++) //
                                                                    {
                                                                        Ship PotentialTarget = this.PotentialTargets[i];
-                                                                       if (PotentialTarget == this.TargetShip
-                                                                           || !this.Owner.CheckIfInsideFireArc(weapon, PotentialTarget))
+                                                                       if (PotentialTarget == this.TargetShip)
+                                                                       {
+                                                                           tracking++;
+                                                                           continue;
+                                                                       }
+                                                                       if (!this.Owner.CheckIfInsideFireArc(weapon, PotentialTarget))
                                                                        {
                                                                            continue;
                                                                        }
@@ -4623,9 +4628,12 @@ namespace Ship_Game.Gameplay
 				this.ActiveWayPoints.Clear();
 			}
             this.Owner.loyalty.ForcePoolRemove(this.Owner);
-            
+
             if (this.Owner.fleet != null)
+            {
+                this.Owner.fleet.Ships.Remove(this.Owner);
                 this.Owner.fleet = null;
+            }
             this.HasPriorityOrder = true;
             this.IgnoreCombat = true;
 			this.OrderQueue.Clear();
@@ -6217,20 +6225,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (this.Target != null && !this.Target.Active)
-            {
-                this.Target = null;
-                this.hasPriorityTarget = false;
-            }
-            else if (this.Target != null && this.Target.Active && this.hasPriorityTarget)
-            {
-                if (this.Owner.loyalty.GetRelations()[(this.Target as Ship).loyalty].AtWar || this.Owner.loyalty.isFaction || (this.Target as Ship).loyalty.isFaction)
-                {
-                    //this.PotentialTargets.Add(this.Target as Ship);
-                    this.BadGuysNear = true;
-                }
-                return this.Target;
-            }
+
 
             #region supply ship logic   //fbedard: for launch only
             if (this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay).Count() > 0 && this.Owner.engineState != Ship.MoveState.Warp)  // && !this.Owner.isSpooling
@@ -6455,6 +6450,20 @@ namespace Ship_Game.Gameplay
             //trackprojectiles in scan for targets.
                         
             this.PotentialTargets = this.PotentialTargets.Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance).ToList();
+            if (this.Target != null && !this.Target.Active)
+            {
+                this.Target = null;
+                this.hasPriorityTarget = false;
+            }
+            else if (this.Target != null && this.Target.Active && this.hasPriorityTarget)
+            {
+                if (this.Owner.loyalty.GetRelations()[(this.Target as Ship).loyalty].AtWar || this.Owner.loyalty.isFaction || (this.Target as Ship).loyalty.isFaction)
+                {
+                    //this.PotentialTargets.Add(this.Target as Ship);
+                    this.BadGuysNear = true;
+                }
+                return this.Target;
+            }
             if (sortedList2.Count<ArtificialIntelligence.ShipWeight>() > 0)
             {
                 //if (this.Owner.shipData.Role == ShipData.RoleName.supply && this.Owner.VanityName != "Supply Shuttle")
@@ -6463,6 +6472,7 @@ namespace Ship_Game.Gameplay
                 //}
                 this.Target = sortedList2.ElementAt<ArtificialIntelligence.ShipWeight>(0).ship;
             }
+
             if (this.Owner.Weapons.Count > 0 || this.Owner.GetHangars().Count > 0)
                 return this.Target;          
             return null;

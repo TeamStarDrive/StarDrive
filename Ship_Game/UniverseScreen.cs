@@ -1795,13 +1795,13 @@ namespace Ship_Game
 
 #endif
 #if PLAYERONLY
-            
-            foreach (SolarSystem solarsystem in solarsystems)
+            Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);
+            foreach (SolarSystem solarsystem in this.SolarSystemDict.Values)
             {
-                List<SolarSystem> ss = new List<SolarSystem>();
-                ss.Add(solarsystem);
-                SystemUpdater2(ss);
-            } 
+                SystemUpdaterTaskBased(solarsystem);
+            }
+            if (DeepSpaceTask != null)
+                DeepSpaceTask.Wait();
 #endif
 #endif
 
