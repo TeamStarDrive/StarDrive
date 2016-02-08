@@ -1838,7 +1838,7 @@ namespace Ship_Game
             //        this.ForcePoolAdd(s);
             //}
 #if PLAYERONLY
-            if(!this.isPlayer)
+            if(!this.isPlayer && !this.isFaction)
             foreach (Ship ship in this.GetShips())
                 ship.GetAI().OrderScrapShip();
             if (this.GetShips().Count == 0)
