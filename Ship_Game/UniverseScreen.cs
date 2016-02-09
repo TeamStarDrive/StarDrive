@@ -6969,7 +6969,7 @@ namespace Ship_Game
                                 local_9 = new Vector3(this.GeneratePointOnCircle(90f, local_2.Position, local_2.SensorRange), 0.0f);
                                 local_10 = this.ScreenManager.GraphicsDevice.Viewport.Project(local_9, this.projection, this.view, Matrix.Identity);
                                 local_11 = new Vector2(local_10.X, local_10.Y);
-                                local_2.ScreenSensorRadius = Vector2.Distance(local_11, local_7);
+                                //local_2.ScreenSensorRadius = Vector2.Distance(local_11, local_7);    //This is assigned here, but is not referenced anywhere, removing to save memory -Gretman
                             }
                         }
                         else
