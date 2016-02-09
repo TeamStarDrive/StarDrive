@@ -1299,8 +1299,8 @@ namespace Ship_Game
 				shield_recharge_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_rate,
 				TechLevel = Ship_Game.ResourceManager.ShipModulesDict[uid].TechLevel,
 				thrust = Ship_Game.ResourceManager.ShipModulesDict[uid].thrust,
-				TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,
-				TroopCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopCapacity,
+                //TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,    //Not referenced in code, removing to save memory -Gretman
+                TroopCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopCapacity,
 				TroopsSupplied = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopsSupplied,
 				UID = Ship_Game.ResourceManager.ShipModulesDict[uid].UID,
 				WarpThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpThrust,
@@ -1324,17 +1324,17 @@ namespace Ship_Game
 				PermittedHangarRoles = Ship_Game.ResourceManager.ShipModulesDict[uid].PermittedHangarRoles,
 				MaximumHangarShipSize = Ship_Game.ResourceManager.ShipModulesDict[uid].MaximumHangarShipSize,
 				IsRepairModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsRepairModule,
-				MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,
-				MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,
-				MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,
-				WarpMassCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpMassCapacity,
+                //MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,    //Not referenced in code, removing to save memory -Gretman
+                //MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,    //Not referenced in code, removing to save memory -Gretman
+                //MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,    //Not referenced in code, removing to save memory -Gretman
+                WarpMassCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpMassCapacity,
 				PowerDrawAtWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDrawAtWarp,
 				FTLSpeed = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpeed,
 				ResourceStored = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStored,
-				ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,
-				ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,
-				ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,
-				ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
+                //ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,    //Not referenced in code, removing to save memory -Gretman
+                //ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,    //Not referenced in code, removing to save memory -Gretman
+                //ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,    //Not referenced in code, removing to save memory -Gretman
+                ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
 				IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
 				shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
                 FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime,
@@ -2494,8 +2494,8 @@ namespace Ship_Game
                     Localizer.used[data.NameIndex] = true;
                 }
                 
-                if ( data.hangerTimerConstant >0 )
-                    data.hangarTimerConstant = data.hangerTimerConstant;                                    
+                //if ( data.hangerTimerConstant >0 )
+                //    data.hangarTimerConstant = data.hangerTimerConstant;                                    
                 data.UID = String.Intern( Path.GetFileNameWithoutExtension(FI.Name));
                 if (data.IconTexturePath != null && String.IsInterned(data.IconTexturePath) != null)
                     string.Intern(data.IconTexturePath);

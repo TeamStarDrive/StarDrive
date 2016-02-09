@@ -32,13 +32,13 @@ namespace Ship_Game.Gameplay
 
 		public float ResourceStorageAmount;
 
-		public string ResourceRequired;
+		//public string ResourceRequired;    //Not referenced in code, removing to save memory -Gretman
 
-		public float ResourcePerSecond;
+        //public float ResourcePerSecond;    //Not referenced in code, removing to save memory -Gretman
 
-		public float ResourcePerSecondWarp;
+        //public float ResourcePerSecondWarp;    //Not referenced in code, removing to save memory -Gretman
 
-		public bool IsCommandModule;
+        public bool IsCommandModule;
 
 		public bool IsRepairModule;
 
@@ -78,9 +78,9 @@ namespace Ship_Game.Gameplay
 
 		public float EMP_Protection;
 
-		public float TroopBoardingDefense;
+        //public float TroopBoardingDefense;    //Not referenced in code, removing to save memory -Gretman
 
-		public byte PowerRadius;
+        public byte PowerRadius;
 
 		public bool Powered;
 
@@ -178,9 +178,9 @@ namespace Ship_Game.Gameplay
 		private Ship hangarShip;
 
 		public float hangarTimerConstant =30f;
-        public float hangerTimerConstant = -1;
+        //public float hangerTimerConstant = -1;       //Not referenced in code, removing to save memory -Gretman
 
-		public float hangarTimer;
+        public float hangarTimer;
 
 		public float thrust;
 
@@ -202,13 +202,13 @@ namespace Ship_Game.Gameplay
 
 		public Weapon InstalledWeapon;
 
-		public bool MountLeft;
+        //public bool MountLeft;    //Not referenced in code, removing to save memory -Gretman
 
-		public bool MountRight;
+        //public bool MountRight;    //Not referenced in code, removing to save memory -Gretman
 
-		public bool MountRear;
+        //public bool MountRear;    //Not referenced in code, removing to save memory -Gretman
 
-		public short OrdinanceCapacity;
+        public short OrdinanceCapacity;
 
 		private bool onFire;
 
@@ -240,9 +240,9 @@ namespace Ship_Game.Gameplay
 
 		public bool isExternal;
 
-		public bool TrulyExternal;
+        //public bool TrulyExternal;    //Not referenced in code, removing to save memory -Gretman
 
-		public float InhibitionRadius;
+        public float InhibitionRadius;
 
         public float FTLSpoolTime;
 
