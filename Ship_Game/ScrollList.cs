@@ -379,7 +379,15 @@ namespace Ship_Game
 			{
 				for (int i = this.indexAtTop; i < this.Copied.Count && i < this.indexAtTop + this.entriesToDisplay; i++)
 				{
-					ScrollList.Entry e = this.Copied[i];
+                    ScrollList.Entry e = null;
+                    try
+                    {
+                        e = this.Copied[i];
+                    }
+                    catch
+                    {
+                        continue;
+                    }
 					if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
 					{
 						if (input.CurrentMouseState.LeftButton != ButtonState.Pressed)
@@ -410,7 +418,15 @@ namespace Ship_Game
 				int Dragged = 0;
 				for (int i = this.indexAtTop; i < this.Entries.Count && i < this.indexAtTop + this.entriesToDisplay; i++)
 				{
-					ScrollList.Entry e = this.Entries[i];
+                    ScrollList.Entry e = null;
+                    try
+                    {
+                        e = this.Entries[i];
+                    }
+                    catch
+                    {
+                        continue;
+                    }
 					if (e.clickRect == this.DraggedEntry.clickRect)
 					{
 						Dragged = this.Entries.IndexOf(e);
@@ -421,7 +437,15 @@ namespace Ship_Game
 					ScrollList.Entry e = this.Entries[i];
 					if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
 					{
-						int NewIndex = this.Entries.IndexOf(e);
+                        int NewIndex = 0;
+                        try
+                        {
+                            NewIndex = this.Entries.IndexOf(e);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
 						if (NewIndex < Dragged)
 						{
 							ScrollList.Entry toReplace = e;
