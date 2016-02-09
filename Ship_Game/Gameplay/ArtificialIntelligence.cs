@@ -361,21 +361,22 @@ namespace Ship_Game.Gameplay
 			this.HasPriorityOrder = false;
             if (this.Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
                 this.ScanForThreatTimer = 0;
-            if (this.awaitClosest != null)
-			{
-				this.DoOrbit(this.awaitClosest, elapsedTime);
-				return;
-			}
-			List<Planet> planets = new List<Planet>();
-			foreach (KeyValuePair<Guid, Planet> entry in ArtificialIntelligence.universeScreen.PlanetsDict)
-			{
-				planets.Add(entry.Value);
-			}
-			IOrderedEnumerable<Planet> sortedList = 
-				from planet in planets
-				orderby Vector2.Distance(planet.Position, this.Owner.Center)
-				select planet;
-			this.awaitClosest = sortedList.First<Planet>();
+            this.AwaitOrders(elapsedTime);
+            //if (this.awaitClosest != null)
+            //{
+            //    this.DoOrbit(this.awaitClosest, elapsedTime);
+            //    return;
+            //}
+            //List<Planet> planets = new List<Planet>();
+            //foreach (KeyValuePair<Guid, Planet> entry in ArtificialIntelligence.universeScreen.PlanetsDict)
+            //{
+            //    planets.Add(entry.Value);
+            //}
+            //IOrderedEnumerable<Planet> sortedList = 
+            //    from planet in planets
+            //    orderby Vector2.Distance(planet.Position, this.Owner.Center)
+            //    select planet;
+            //this.awaitClosest = sortedList.First<Planet>();
 		}
 
 		private void Colonize(Planet TargetPlanet)
@@ -789,26 +790,30 @@ namespace Ship_Game.Gameplay
                 this.Target = this.PotentialTargets.FirstOrDefault();
                 if (Target ==null)
                 {
-                    this.State = this.DefaultAIState;
-                    this.OrderQueue.Clear();
+                    this.ClearOrdersNext = true;
+                    //this.AwaitOrders(elapsedTime);
+                    //this.State = this.DefaultAIState;
+                    //this.OrderQueue.Clear();
                     return;                
                 }
                 
             }
-            if (this.Target == null )
+            if (this.Target == null || !this.Owner.loyalty.KnownShips.Contains(this.Target))
             {
                 this.Target = this.PotentialTargets.FirstOrDefault();
                 this.Intercepting = false;
                 if (this.Target == null)
                 {
-                    this.OrderQueue.Clear();
-                    this.State = this.DefaultAIState;
+                    this.ClearOrdersNext = true;
+                    //this.OrderQueue.Clear();
+                    //this.State = this.DefaultAIState;
                     return;
                 }
                 if(!this.Target.Active)
                 {
-                    this.OrderQueue.Clear();
-                    this.State = this.DefaultAIState;
+                    this.ClearOrdersNext = true;
+                    //this.OrderQueue.Clear();
+                    //this.State = this.DefaultAIState;
                     return; 
                 }
                 
