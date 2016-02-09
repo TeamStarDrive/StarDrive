@@ -40,7 +40,7 @@ namespace Ship_Game
         private float ZrotateAmount = 0.03f;
         public BatchRemovalCollection<Ship> BasedShips = new BatchRemovalCollection<Ship>();
         public bool GovernorOn = true;
-        private AudioEmitter emit = new AudioEmitter();
+        //private AudioEmitter emit = new AudioEmitter();    //Not referenced in code, removing to save memory -Gretman
         private float DecisionTimer = 0.5f;
         public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
         private List<Building> BuildingsCanBuild = new List<Building>();
@@ -62,7 +62,7 @@ namespace Ship_Game
         public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;
         private int TurnsSinceTurnover;
-        public bool isSelected;
+        //public bool isSelected;    //Not referenced in code, removing to save memory -Gretman
         public Vector2 Position;
         public string SpecialDescription;
         public static UniverseScreen universeScreen;
@@ -86,7 +86,7 @@ namespace Ship_Game
         public float planetTilt;
         public float ringTilt;
         public float scale;
-        public Matrix World;
+        //public Matrix World;    //Not referenced in code, removing to save memory -Gretman
         public Matrix RingWorld;
         public SceneObject SO;
         public bool habitable;
@@ -94,7 +94,7 @@ namespace Ship_Game
         public float MaxPopulation;
         public string Type;
         private float Zrotate;
-        public float BuildingRoomUsed;
+        //public float BuildingRoomUsed;    //Not referenced in code, removing to save memory -Gretman
         public int StorageAdded;
         public float CombatTimer;
         private int numInvadersLast;
