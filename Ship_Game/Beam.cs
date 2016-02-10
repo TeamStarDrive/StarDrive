@@ -10,9 +10,9 @@ namespace Ship_Game
 {
 	public sealed class Beam : Projectile
 	{
-		public Vector3 Origin;
+        //public Vector3 Origin;          //Not referenced in code, removing to save memory -Gretman
 
-		public Vector3 UpperLeft;
+        public Vector3 UpperLeft;
 
 		public Vector3 LowerLeft;
 
@@ -20,19 +20,19 @@ namespace Ship_Game
 
 		public Vector3 LowerRight;
 
-		public Vector3 Normal;
+        //public Vector3 Normal;          //Not referenced in code, removing to save memory -Gretman
 
-		public Vector3 Up;
+        //public Vector3 Up;          //Not referenced in code, removing to save memory -Gretman
 
-		public Vector3 Left;
+        //public Vector3 Left;          //Not referenced in code, removing to save memory -Gretman
 
-		public int thickness;
+        public int thickness;
 
 		public float PowerCost;
 
-		public ShipModule hitLast;
+        //public ShipModule hitLast;          //Not referenced in code, removing to save memory -Gretman
 
-		public Vector2 Source;
+        public Vector2 Source;
 
 		public Vector2 Destination;
 
@@ -66,7 +66,7 @@ namespace Ship_Game
 		private BasicEffect quadEffect;
 
 		private float displacement = 1f;
-        private bool recycled = false;
+        //private bool recycled = false;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
@@ -424,7 +424,7 @@ namespace Ship_Game
                             Beam.BeamEffect.Parameters["tex"].SetValue(texture);
                         }
                         this.quadVertexDecl = beam.quadVertexDecl;
-                        beam.recycled = true;
+                        //beam.recycled = true;
                         beam.quadEffect = null;
                         beam.quadVertexDecl = null;
                         
