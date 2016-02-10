@@ -215,8 +215,8 @@ namespace Ship_Game
 			troop.Range = t.Range;
 			troop.Description = t.Description;
 			troop.HardAttack = t.HardAttack;
-			troop.Initiative = t.Initiative;
-			troop.SoftAttack = t.SoftAttack;
+            //troop.Initiative = t.Initiative;          //Not referenced in code, removing to save memory -Gretman
+            troop.SoftAttack = t.SoftAttack;
 			troop.Strength = t.Strength;
 			troop.StrengthMax = t.StrengthMax;
 			troop.TargetType = t.TargetType;
@@ -859,8 +859,8 @@ namespace Ship_Game
 				Name = t.Name,
 				Description = t.Description,
 				HardAttack = t.HardAttack,
-				Initiative = t.Initiative,
-				SoftAttack = t.SoftAttack,
+                //Initiative = t.Initiative,          //Not referenced in code, removing to save memory -Gretman
+                SoftAttack = t.SoftAttack,
 				Strength = t.Strength,
                 StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength,
 				Icon = t.Icon,
@@ -1665,7 +1665,7 @@ namespace Ship_Game
                 TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
                 ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen,
                 RangeVariance = Ship_Game.ResourceManager.WeaponsDict[uid].RangeVariance,
-                ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,
+                //ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,          //Not referenced in code, removing to save memory -Gretman
                 AltFireMode = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireMode,
                 AltFireTriggerFighter = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireTriggerFighter,
                 SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire
@@ -2970,21 +2970,21 @@ namespace Ship_Game
             
                 float Str = 0f;
                 float def = 0f;
-                //int slotCount = moduleslot.XSIZE*moduleslot.YSIZE;
+            //int slotCount = moduleslot.XSIZE*moduleslot.YSIZE;
 
 
 
-                bool fighters = false;
-                bool weapons = false;
-                //ModuleSlot slot = moduleslot;
-                //foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
-                {
+            //bool fighters = false;          //Not referenced in code, removing to save memory -Gretman
+            //bool weapons = false;          //Not referenced in code, removing to save memory -Gretman
+            //ModuleSlot slot = moduleslot;
+            //foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
+            {
 
-                    ShipModule module = moduleslot;
+                ShipModule module = moduleslot;
                     float offRate = 0;
                     if (module.InstalledWeapon != null)
                     {
-                        weapons = true;
+                        //weapons = true;
                         Weapon w = module.InstalledWeapon;
                         if (!w.explodes)
                         {
@@ -3012,7 +3012,7 @@ namespace Ship_Game
                     if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
                     {
 
-                        fighters = true;
+                        //fighters = true;
                         Ship hangarship;// = new Ship();
                         ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
 

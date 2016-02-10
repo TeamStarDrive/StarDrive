@@ -138,7 +138,7 @@ namespace Ship_Game
         private bool disposed;
         private ReaderWriterLockSlim planetLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private bool PSexport = false;
-        private bool FSexport = false;
+        //private bool FSexport = false;    //Not referenced in code, removing to save memory -Gretman
         public bool UniqueHab = false;
         public int uniqueHabPercent;
 
@@ -3769,7 +3769,7 @@ namespace Ship_Game
         }
         private void SetExportState(ColonyType colonyType)
         {
-            bool FSexport =false;
+            bool FSexport = false;
             bool PSexport = false;
             int pc = 0;
             foreach(Planet planet in this.Owner.GetPlanets())
@@ -3894,12 +3894,6 @@ namespace Ship_Game
             else
             {
                 this.PSexport = false;
-            }
-            if(!FSexport)
-                this.FSexport = true;
-            else
-            {
-                this.FSexport = true;
             }
             if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
             {
@@ -4878,23 +4872,23 @@ namespace Ship_Game
 
 
                         float num9 = 0.0f;
-                        bool flag11 = false;
+                        //bool flag11 = false;          //Not referenced in code, removing to save memory -Gretman
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                         {
                             if (queueItem.isBuilding)
                                 ++num9;
                             if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
                                 ++num9;
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Terraformer")
-                                flag11 = true;
+                            //if (queueItem.isBuilding && queueItem.Building.Name == "Terraformer")
+                                //flag11 = true;
                         }
                         bool flag12 = true;
                         foreach (Building building in this.BuildingList)
                         {
                             if (building.Name == "Outpost" || building.Name == "Capital City")
                                 flag12 = false;
-                            if (building.Name == "Terraformer" && this.Fertility >= 1.0)
-                                flag11 = true;
+                            //if (building.Name == "Terraformer" && this.Fertility >= 1.0)
+                                //flag11 = true;
                         }
                         if (flag12)
                         {
@@ -4942,7 +4936,7 @@ namespace Ship_Game
                             this.GetBuildingsWeCanBuildHere();
                             Building b = (Building)null;
                             float num1 = 99999f;
-                            bool highPri = false;
+                            //bool highPri = false;          //Not referenced in code, removing to save memory -Gretman
                             foreach (Building building in this.BuildingsCanBuild.OrderBy(cost => cost.Cost))
                             {
                                 if (!WeCanAffordThis(building, this.colonyType))
