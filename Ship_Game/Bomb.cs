@@ -9,9 +9,9 @@ namespace Ship_Game
 {
 	public sealed class Bomb
 	{
-		private const float trailParticlesPerSecond = 500f;
+        //private const float trailParticlesPerSecond = 500f;          //Not referenced in code, removing to save memory -Gretman
 
-		public static UniverseScreen screen;
+        public static UniverseScreen screen;
 
 		private Matrix WorldMatrix;
 
@@ -19,11 +19,11 @@ namespace Ship_Game
 
 		public Vector3 Velocity;
 
-		public string FireCueName;
+        //public string FireCueName;          //Not referenced in code, removing to save memory -Gretman
 
-		public string ExplodeCueName;
+        //public string ExplodeCueName;          //Not referenced in code, removing to save memory -Gretman
 
-		public string WeaponName;
+        public string WeaponName;
 
 		public string TextureName = "projBall_02_orange";
 
@@ -31,23 +31,16 @@ namespace Ship_Game
 
 		private Texture2D projTexture;
 
-		private Planet TargetPlanet;
+        private Planet TargetPlanet;
+        //public float PopulationDamage;
+        //public float OrdnanceCost;
+        //public float OreDamage;
+        //public float BuildingDestructionChance;          //None of these are referenced in any code, removing to save memory -Gretman
+        //public float TroopDamageChance;
+        //public float MinTroopDamage;
+        //public float MaxTroopDamage;
 
-		public float PopulationDamage;
-
-		public float OrdnanceCost;
-
-		public float OreDamage;
-
-		public float BuildingDestructionChance;
-
-		public float TroopDamageChance;
-
-		public float MinTroopDamage;
-
-		public float MaxTroopDamage;
-
-		private ParticleEmitter trailEmitter;
+        private ParticleEmitter trailEmitter;
 
 		private ParticleEmitter firetrailEmitter;
 

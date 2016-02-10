@@ -260,12 +260,12 @@ namespace Ship_Game
         //private int cursorFrame;
         private float radlast;
         private int SelectorFrame;
-        private float garbageCollector;
-        private float garbargeCollectorBase = 10;
+        //private float garbageCollector;          //Not referenced in code, removing to save memory -Gretman
+        //private float garbargeCollectorBase = 10;          //Not referenced in code, removing to save memory -Gretman
         public static bool debug;
         public int globalshipCount;
         public int empireShipCountReserve;
-        private float ztimeSnapShot;
+        //private float ztimeSnapShot;          //Not referenced in code, removing to save memory -Gretman
         private int incrementTimer=0;
         public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
         //public ConcurrentBag<Ship> ShipPool = new ConcurrentBag<Ship>();
