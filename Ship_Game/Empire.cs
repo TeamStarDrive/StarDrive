@@ -1861,10 +1861,10 @@ namespace Ship_Game
             //        this.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
             //    }
             //}
-
+            
             this.UpdateTimer -= elapsedTime;
-            if ((double)this.UpdateTimer <= 0.0)
-            {
+            if (this.UpdateTimer <= 0f)
+            {                
                 if (this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
                 {
                     Empire.universeScreen.StarDate += 0.1f;
@@ -1876,7 +1876,7 @@ namespace Ship_Game
                         if (!empire.data.IsRebelFaction && !StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")].ContainsKey(EmpireManager.EmpireList.IndexOf(empire)))
                             StatTracker.SnapshotsDict[Empire.universeScreen.StarDate.ToString("#.0")].Add(EmpireManager.EmpireList.IndexOf(empire), new Snapshot(Empire.universeScreen.StarDate));
                     }
-                    if ((double)Empire.universeScreen.StarDate == 1000.09997558594)
+                    if (Empire.universeScreen.StarDate == 1000.09f)
                     {
                         foreach (Empire empire in EmpireManager.EmpireList)
                         {
