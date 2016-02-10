@@ -361,7 +361,15 @@ namespace Ship_Game.Gameplay
 			this.HasPriorityOrder = false;
             if (this.Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
                 this.ScanForThreatTimer = 0;
+            if (this.EscortTarget != null)
+                this.State = AIState.Escort;
+            else
+            if(!this.HadPO)
             this.AwaitOrders(elapsedTime);
+            else
+            {
+                this.Stop(elapsedTime);
+            }
             //if (this.awaitClosest != null)
             //{
             //    this.DoOrbit(this.awaitClosest, elapsedTime);
@@ -790,7 +798,9 @@ namespace Ship_Game.Gameplay
                 this.Target = this.PotentialTargets.FirstOrDefault();
                 if (Target ==null)
                 {
+                    
                     this.ClearOrdersNext = true;
+                    this.HadPO = true;
                     //this.AwaitOrders(elapsedTime);
                     //this.State = this.DefaultAIState;
                     //this.OrderQueue.Clear();
@@ -804,14 +814,18 @@ namespace Ship_Game.Gameplay
                 this.Intercepting = false;
                 if (this.Target == null)
                 {
+                    
                     this.ClearOrdersNext = true;
+                    this.HadPO = true;
                     //this.OrderQueue.Clear();
                     //this.State = this.DefaultAIState;
                     return;
                 }
                 if(!this.Target.Active)
                 {
+                    
                     this.ClearOrdersNext = true;
+                    this.HadPO = true;
                     //this.OrderQueue.Clear();
                     //this.State = this.DefaultAIState;
                     return; 
@@ -7224,8 +7238,13 @@ namespace Ship_Game.Gameplay
             }
             if (!this.hasPriorityTarget)
                 this.TargetQueue.Clear();
-            if (this.Owner.loyalty == ArtificialIntelligence.universeScreen.player && (  this.State == AIState.MoveTo && Vector2.Distance(this.Owner.Center, this.MovePosition) > 100f || this.State == AIState.Orbit || (this.State == AIState.Bombard || this.State == AIState.AssaultPlanet || this.State == AIState.BombardTroops) || this.State == AIState.Rebase || this.State == AIState.Scrap || this.State == AIState.Resupply || this.State == AIState.Refit || this.State == AIState.FormationWarp))
+            if (this.Owner.loyalty == ArtificialIntelligence.universeScreen.player && (this.State == AIState.MoveTo && Vector2.Distance(this.Owner.Center, this.MovePosition) > 100f || this.State == AIState.Orbit || (this.State == AIState.Bombard || this.State == AIState.AssaultPlanet || this.State == AIState.BombardTroops) || this.State == AIState.Rebase || this.State == AIState.Scrap || this.State == AIState.Resupply || this.State == AIState.Refit || this.State == AIState.FormationWarp))
+            {
                 this.HasPriorityOrder = true;
+                this.HadPO = true;
+            }
+            else if (HadPO && this.State != AIState.AwaitingOrders)
+                HadPO = false;
             if (this.State == AIState.Resupply)
             {
                 this.HasPriorityOrder = true;
@@ -7450,7 +7469,7 @@ namespace Ship_Game.Gameplay
                                                         this.State = AIState.AwaitingOrders;   //fbedard
                                                         break;
                                                 }
-                                                if (this.Owner.BaseStrength ==0 || this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
+                                                if (this.Owner.BaseStrength ==0 || ( this.Owner.Mothership == null && Vector2.Distance(this.EscortTarget.Center,this.Owner.Center) > this.Owner.SensorRange) || this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
                                                 {
                                                     this.OrbitShip(this.EscortTarget, elapsedTime);
                                                     break;

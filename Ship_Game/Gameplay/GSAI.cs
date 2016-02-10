@@ -2360,10 +2360,10 @@ namespace Ship_Game.Gameplay
 		private void AssessDiplomaticAnger(KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship)
 		{
 			if (Relationship.Value.Known && Relationship.Key == EmpireManager.GetEmpireByName(this.empire.GetUS().PlayerLoyalty))
-			{
+			 {
 				Ship_Game.Gameplay.Relationship r = Relationship.Value;
 				Empire them = Relationship.Key;
-				if ((double)r.Anger_MilitaryConflict >= 5 && !r.AtWar)
+				if (r.Anger_MilitaryConflict >= 5 && !r.AtWar)
 				{
 					this.DeclareWarOn(them, WarType.DefensiveWar);
 				}
@@ -2397,7 +2397,7 @@ namespace Ship_Game.Gameplay
 			{
 				Ship_Game.Gameplay.Relationship r = Relationship.Value;
 				Empire them = Relationship.Key;
-				if ((double)r.Anger_MilitaryConflict >= 5 && !r.AtWar && !r.Treaty_Peace)
+				if (r.Anger_MilitaryConflict >= 5 && !r.AtWar && !r.Treaty_Peace)
 				{
 					this.DeclareWarOn(them, WarType.DefensiveWar);
 				}
@@ -2744,7 +2744,7 @@ namespace Ship_Game.Gameplay
             this.empire.GetRelations()[them].Posture = Posture.Hostile;
             this.empire.GetRelations()[them].ActiveWar = new War(this.empire, them, this.empire.GetUS().StarDate);
             this.empire.GetRelations()[them].ActiveWar.WarType = wt;
-            if ((double)this.empire.GetRelations()[them].Trust > 0.0)
+            if (this.empire.GetRelations()[them].Trust > 0f)
                 this.empire.GetRelations()[them].Trust = 0.0f;
             this.empire.GetRelations()[them].Treaty_OpenBorders = false;
             this.empire.GetRelations()[them].Treaty_NAPact = false;
@@ -2866,7 +2866,8 @@ namespace Ship_Game.Gameplay
 				{
 					continue;
 				}
-				numberofWars++;
+				//numberofWars++;
+                numberofWars += (int)Relationship.Key.currentMilitaryStrength;
 			}
 			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
 			{
@@ -2896,7 +2897,7 @@ namespace Ship_Game.Gameplay
 					usedTrust = usedTrust + te.TrustCost;
 				}
 				Relationship.Value.Posture = Posture.Neutral;
-				if (Relationship.Value.Threat <= -25f)
+				if (Relationship.Value.Threat <= 0f)
 				{
 					if (!Relationship.Value.HaveInsulted_Military && Relationship.Value.TurnsKnown > this.FirstDemand)
 					{
@@ -3027,7 +3028,7 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
-			if (PotentialTargets.Count > 0 && numberofWars <= 1)
+			if (PotentialTargets.Count > 0 && numberofWars < this.empire.currentMilitaryStrength )//<= 1)
 			{
 				Empire ToAttack = PotentialTargets.First<Empire>();
 				this.empire.GetRelations()[ToAttack].PreparingForWar = true;
@@ -7042,7 +7043,7 @@ namespace Ship_Game.Gameplay
                                    
                         {
                             if (!(planetList.Type != "Barren") 
-                                || (double)planetList.Fertility < .5 
+                                || planetList.Fertility < .5f 
                                 && !this.empire.GetTDict()["Aeroponics"].Unlocked 
                                 && this.empire.data.Traits.Cybernetic == 0)
                             {
