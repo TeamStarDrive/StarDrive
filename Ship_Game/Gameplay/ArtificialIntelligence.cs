@@ -7242,6 +7242,7 @@ namespace Ship_Game.Gameplay
             {
                 this.HasPriorityOrder = true;
                 this.HadPO = true;
+                this.EscortTarget = null;
             }
             else if (HadPO && this.State != AIState.AwaitingOrders)
                 HadPO = false;
