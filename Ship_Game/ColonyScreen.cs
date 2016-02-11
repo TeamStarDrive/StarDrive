@@ -160,6 +160,7 @@ namespace Ship_Game
 
         public ColonyScreen(Planet p, Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
         {
+            empUI.empire.UpdateShipsWeCanBuild();
             this.eui = empUI;
             this.ScreenManager = ScreenManager;
             this.p = p;

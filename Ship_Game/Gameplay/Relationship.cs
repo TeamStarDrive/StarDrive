@@ -767,9 +767,9 @@ namespace Ship_Game.Gameplay
             //    }
             //}
 
-            float OurMilScore = 230f + us.MilitaryScore;
-            float TheirMilScore = 230f + them.MilitaryScore;
-            this.Threat = (1f - OurMilScore / TheirMilScore) * 100f;
+            float OurMilScore = 2300f + us.MilitaryScore;
+            float TheirMilScore = 2300f + them.MilitaryScore;
+            this.Threat = -.75F +(TheirMilScore  / OurMilScore) * 100f;
             if (this.Threat > 100f)
             {
                 this.Threat = 100f;
