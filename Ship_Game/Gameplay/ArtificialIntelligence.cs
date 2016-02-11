@@ -5956,6 +5956,8 @@ namespace Ship_Game.Gameplay
                     this.ActiveWayPoints.Enqueue(endPos);
                 return;
             }
+            if (PlotCourseToNewViaRoad(endPos, startPos))
+                return;
             List<Vector2> PickWayPoints = new List<Vector2>();
             float d1, d2;
             float DistToEnd1, DistToEnd2;
@@ -5964,7 +5966,7 @@ namespace Ship_Game.Gameplay
             {
                 d1 = Vector2.Distance(proj.Center, startPos);
                 d2 = Vector2.Distance(proj.Center, endPos);
-                if (d1 <= Distance && d2 <= Distance)
+                if (d1 <= Distance && d2 <= Distance )
                     lock (this.wayPointLocker)
                         PickWayPoints.Add(proj.Center);
             }
@@ -6002,9 +6004,10 @@ namespace Ship_Game.Gameplay
                             break;
                         d1 = Vector2.Distance(enumerator.Current, current);
                         d2 = Vector2.Distance(enumerator.Current, endPos);
-                        if (!this.ActiveWayPoints.Contains(enumerator.Current) && (d2 <= Distance || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)))
-                        {
-                            if (d1 <= Empire.ProjectorRadius * 2.5f)
+                        if (!this.ActiveWayPoints.Contains(enumerator.Current)
+                            && (d2 <= Distance && d2 > Empire.ProjectorRadius * 1.5) || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)
+)                        {
+                            if (d1 <= Empire.ProjectorRadius * 2.5f )
                             {
                                 if (d1 + d2 < DistToEnd1)
                                 {
@@ -6042,6 +6045,288 @@ namespace Ship_Game.Gameplay
             if (this.ActiveWayPoints.Count == 0 || this.ActiveWayPoints.Last() != endPos)
                 lock (this.wayPointLocker)
                     this.ActiveWayPoints.Enqueue(endPos);
+        }
+
+        private bool PlotCourseToNewViaRoad(Vector2 endPos, Vector2 startPos)
+        {
+            return false;
+            float Distance = Vector2.Distance(startPos, endPos);
+            if (Distance <= Empire.ProjectorRadius)
+            {
+                lock (this.wayPointLocker)
+                    this.ActiveWayPoints.Enqueue(endPos);
+                return true;
+            }
+            List<SpaceRoad> potentialEndRoads = new List<SpaceRoad>();
+            List<SpaceRoad> potentialStartRoads = new List<SpaceRoad>();
+            RoadNode nearestNode = null;
+            float distanceToNearestNode = 0f;
+            foreach(SpaceRoad road in this.Owner.loyalty.SpaceRoadsList)
+            {
+                if (Vector2.Distance(road.GetOrigin().Position, endPos) < 300000f || Vector2.Distance(road.GetDestination().Position, endPos) < 300000f)
+                {
+                    potentialEndRoads.Add(road);
+                }
+                foreach(RoadNode projector in road.RoadNodesList)
+                {
+                    if (nearestNode == null || Vector2.Distance(projector.Position, startPos) < distanceToNearestNode)
+                    {
+                        potentialStartRoads.Add(road);
+                        nearestNode = projector;
+                        distanceToNearestNode = Vector2.Distance(projector.Position, startPos);
+                    }
+                }
+            }
+
+            List<SpaceRoad> targetRoads = potentialStartRoads.Intersect(potentialEndRoads).ToList();
+            if (targetRoads.Count == 1)
+            {
+                SpaceRoad targetRoad = targetRoads[0];
+                bool startAtOrgin = Vector2.Distance(endPos, targetRoad.GetOrigin().Position) > Vector2.Distance(endPos, targetRoad.GetDestination().Position);
+                bool foundstart = false;
+                if (startAtOrgin)
+                    foreach (RoadNode node in targetRoad.RoadNodesList)
+                    {
+                        if (!foundstart && node != nearestNode)
+                            continue;
+                        else if (!foundstart)
+                        {
+                            foundstart = true;
+                        }
+                        lock (this.wayPointLocker)
+                            this.ActiveWayPoints.Enqueue(node.Position);
+                    }
+                else
+                    foreach (RoadNode node in targetRoad.RoadNodesList.Reverse<RoadNode>())
+                    {
+                        if (!foundstart && node != nearestNode)
+                            continue;
+                        else if (!foundstart)
+                        {
+                            foundstart = true;
+                        }
+                        lock (this.wayPointLocker)
+                            this.ActiveWayPoints.Enqueue(node.Position);
+                    }
+          
+            }
+            else if(false)
+            {
+                while (potentialStartRoads.Intersect(potentialEndRoads).Count() == 0)
+                {
+                    bool test = false;
+                    foreach (SpaceRoad road in this.Owner.loyalty.SpaceRoadsList)
+                    {
+                        bool flag = false;
+
+                        if (!potentialStartRoads.Contains(road))
+                        {
+
+                            foreach (SpaceRoad proad in potentialStartRoads)
+                            {
+                                if (proad.GetDestination() == road.GetOrigin() || proad.GetOrigin() == road.GetDestination())
+                                    flag = true;
+                            }
+
+                        }
+                        if (flag)
+                        {
+                            potentialStartRoads.Add(road);
+                            test = true;
+                        }
+                        
+                    }
+                     if(!test)
+                    {
+                        System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
+                        return false;
+                    }
+                }
+                while (!potentialEndRoads.Contains(potentialStartRoads[0]))
+                {
+                    bool test = false;
+                    foreach (SpaceRoad road in potentialStartRoads)
+                    {
+                        bool flag = false;
+
+                        if (!potentialEndRoads.Contains(road))
+                        {
+
+                            foreach (SpaceRoad proad in potentialEndRoads)
+                            {
+                                if (proad.GetDestination() == road.GetOrigin() || proad.GetOrigin() == road.GetDestination())
+                                    flag = true;
+                                
+                            }
+
+                        }
+                        if (flag)
+                        {
+
+                            test = true;
+                            potentialEndRoads.Add(road);
+                            
+                        }
+                        
+                    }
+                    if(!test)
+                    {
+                        System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
+                        return false;
+                    }
+
+
+                }
+                targetRoads = potentialStartRoads.Intersect(potentialEndRoads).ToList();
+                if (targetRoads.Count >0)
+                {
+                    SpaceRoad targetRoad = null;
+                    RoadNode targetnode = null;
+                    float distance = -1f;
+                    foreach (SpaceRoad road in targetRoads)
+                    {
+                        foreach (RoadNode node in road.RoadNodesList)
+                        {
+                            if (distance == -1f || Vector2.Distance(node.Position, startPos) < distance)
+                            {
+                                targetRoad = road;
+                                targetnode = node;
+                                distance = Vector2.Distance(node.Position, startPos);
+
+                            }
+                        }
+                    }
+                    bool orgin = false;
+                    bool startnode = false;
+                    foreach (SpaceRoad road in targetRoads)
+                    {
+                        if (road.GetDestination() == targetRoad.GetDestination() || road.GetDestination() == targetRoad.GetOrigin())
+                            orgin = true;
+                    }
+                    if (orgin)
+                    {
+                        foreach (RoadNode node in targetRoad.RoadNodesList)
+                        {
+                            if (!startnode || node != targetnode)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                startnode = true;
+                                lock (this.wayPointLocker)
+                                    this.ActiveWayPoints.Enqueue(node.Position);
+                            }
+                        }
+
+
+                    }
+                    else
+                    {
+                        foreach (RoadNode node in targetRoad.RoadNodesList.Reverse<RoadNode>())
+                        {
+                            if (!startnode || node != targetnode)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                startnode = true;
+                                lock (this.wayPointLocker)
+                                    this.ActiveWayPoints.Enqueue(node.Position);
+                            }
+                        }
+                    }
+                    while (Vector2.Distance(targetRoad.GetOrigin().Position,endPos)>300000 
+                        &&  Vector2.Distance(targetRoad.GetDestination().Position,endPos)>300000)
+                    {
+                        targetRoads.Remove(targetRoad);
+                        if(orgin)
+                        {
+                            bool test = false;
+                            foreach(SpaceRoad road in targetRoads)
+                            {
+                                if(road.GetOrigin()==targetRoad.GetDestination())
+                                {
+                                    foreach(RoadNode node in road.RoadNodesList)
+                                    {
+                                        lock (this.wayPointLocker)
+                                            this.ActiveWayPoints.Enqueue(node.Position);
+                                    }
+                                    targetRoad = road;
+                                    test = true;
+                                    break;
+                                }
+                                else if(road.GetDestination() == targetRoad.GetDestination())
+                                {
+                                    orgin = false;
+                                    if (road.GetOrigin() == targetRoad.GetDestination())
+                                    {
+                                        foreach (RoadNode node in road.RoadNodesList.Reverse<RoadNode>())
+                                        {
+                                            lock (this.wayPointLocker)
+                                                this.ActiveWayPoints.Enqueue(node.Position);
+                                        }
+                                    }
+                                    test = true;
+                                    targetRoad = road;
+                                    break;
+                                }
+                            }
+                            if (!test)
+                                orgin = false;
+                        }
+                        else
+                        {
+                            bool test = false;
+                            foreach (SpaceRoad road in targetRoads)
+                            {
+                                if (road.GetOrigin() == targetRoad.GetOrigin())
+                                {
+                                    foreach (RoadNode node in road.RoadNodesList)
+                                    {
+                                        lock (this.wayPointLocker)
+                                            this.ActiveWayPoints.Enqueue(node.Position);
+                                    }
+                                    targetRoad = road;
+                                    test = true;
+                                    break;
+                                }
+                                else if (road.GetDestination() == targetRoad.GetOrigin())
+                                {
+                                    orgin = true;
+                                    if (road.GetOrigin() == targetRoad.GetDestination())
+                                    {
+                                        foreach (RoadNode node in road.RoadNodesList.Reverse<RoadNode>())
+                                        {
+                                            lock (this.wayPointLocker)
+                                                this.ActiveWayPoints.Enqueue(node.Position);
+                                        }
+                                    }
+                                    targetRoad = road;
+                                    test = true;
+                                    break;
+                                }
+
+                                
+                            }
+                            if (!test)
+                                break;
+                        }
+
+                    }
+                }
+            }
+
+
+            if(this.ActiveWayPoints.Count ==0) return false;
+
+
+            lock (this.wayPointLocker)
+                this.ActiveWayPoints.Enqueue(endPos);
+
+
+            return true;
         }
 
 		private void RotateInLineWithVelocity(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
