@@ -364,27 +364,29 @@ namespace Ship_Game.Gameplay
             if (this.EscortTarget != null)
                 this.State = AIState.Escort;
             else
-            if(!this.HadPO)
-            this.AwaitOrders(elapsedTime);
-            else
-            {
-                this.Stop(elapsedTime);
-            }
-            //if (this.awaitClosest != null)
-            //{
-            //    this.DoOrbit(this.awaitClosest, elapsedTime);
-            //    return;
-            //}
-            //List<Planet> planets = new List<Planet>();
-            //foreach (KeyValuePair<Guid, Planet> entry in ArtificialIntelligence.universeScreen.PlanetsDict)
-            //{
-            //    planets.Add(entry.Value);
-            //}
-            //IOrderedEnumerable<Planet> sortedList = 
-            //    from planet in planets
-            //    orderby Vector2.Distance(planet.Position, this.Owner.Center)
-            //    select planet;
-            //this.awaitClosest = sortedList.First<Planet>();
+                if (!this.HadPO)
+                {
+                    if (this.awaitClosest != null)
+                    {
+                        this.DoOrbit(this.awaitClosest, elapsedTime);
+                        return;
+                    }
+                    List<Planet> planets = new List<Planet>();
+                    foreach (KeyValuePair<Guid, Planet> entry in ArtificialIntelligence.universeScreen.PlanetsDict)
+                    {
+                        planets.Add(entry.Value);
+                    }
+                    IOrderedEnumerable<Planet> sortedList =
+                        from planet in planets
+                        orderby Vector2.Distance(planet.Position, this.Owner.Center)
+                        select planet;
+                    this.awaitClosest = sortedList.First<Planet>();
+                }
+                else
+                {
+                    this.Stop(elapsedTime);
+                }
+
 		}
 
 		private void Colonize(Planet TargetPlanet)
@@ -4902,19 +4904,23 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT )
                         {
-                            if (this.Owner.AreaOfOperation.Count > 0)
+                            if(planets.Count ==0 || (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
                             {
-                                foreach (Rectangle areaOfOperation in this.Owner.AreaOfOperation)
-                                    if (HelperFunctions.CheckIntersection(areaOfOperation, PlanetCheck.Position))
-                                    {
-                                        planets.Add(PlanetCheck);
-                                        break;
-                                    }
+                                if (this.Owner.AreaOfOperation.Count > 0)
+                                {
+                                    foreach (Rectangle areaOfOperation in this.Owner.AreaOfOperation)
+                                        if (HelperFunctions.CheckIntersection(areaOfOperation, PlanetCheck.Position))
+                                        {
+                                            planets.Add(PlanetCheck);
+                                            break;
+                                        }
+                                }
+                                else
+                                    planets.Add(PlanetCheck);
                             }
-                            else
-                                planets.Add(PlanetCheck);
+                            
                         }
                     }
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
@@ -4976,7 +4982,8 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.IMPORT )
+                           // && (planets.Count==0 || (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max))
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -4995,9 +5002,11 @@ namespace Ship_Game.Gameplay
                     if (planets.Count > 0)
                     {
                         if (this.Owner.GetCargo()["Production"] > 0f)
-                            sortPlanets = planets.OrderBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
+                            sortPlanets = planets.OrderBy(PlanetCheck=> (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max)
+                                .ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                         else
-                            sortPlanets = planets.OrderBy(dest => (dest.ProductionHere));
+                            sortPlanets = planets.OrderBy(PlanetCheck=> (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max)
+                                .ThenBy(dest => (dest.ProductionHere));
                         foreach (Planet p in sortPlanets)
                         {
                             flag = false;
@@ -5049,7 +5058,7 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT ) //&& (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -5068,9 +5077,11 @@ namespace Ship_Game.Gameplay
                     if (planets.Count > 0)
                     {
                         if (this.Owner.GetCargo()["Food"] > 0f)
-                            sortPlanets = planets.OrderBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
+                            sortPlanets = planets.OrderBy(PlanetCheck => (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                                .ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                         else
-                            sortPlanets = planets.OrderBy(dest => (dest.FoodHere + (dest.NetFoodPerTurn - dest.consumption) * GoodMult));
+                            sortPlanets = planets.OrderBy(PlanetCheck => (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                                .ThenBy(dest => (dest.FoodHere + (dest.NetFoodPerTurn - dest.consumption) * GoodMult));
                         foreach (Planet p in sortPlanets)
                         {
                             flag = false;
@@ -5123,7 +5134,8 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.EXPORT && PlanetCheck.FoodHere >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.EXPORT )
+                            //&& (planets.Count==0 || PlanetCheck.FoodHere >= this.Owner.CargoSpace_Max))
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -5141,7 +5153,8 @@ namespace Ship_Game.Gameplay
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
                     if (planets.Count > 0)
                     {
-                        sortPlanets = planets.OrderBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
+                        sortPlanets = planets.OrderBy(PlanetCheck => (PlanetCheck.FoodHere > this.Owner.CargoSpace_Max))
+                                .ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                         foreach (Planet p in sortPlanets)
                         {
                             flag = false;
@@ -5190,7 +5203,8 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.EXPORT && PlanetCheck.ProductionHere >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.EXPORT )
+                            //&& (planets.Count==0|| PlanetCheck.ProductionHere >= this.Owner.CargoSpace_Max))
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -5208,7 +5222,8 @@ namespace Ship_Game.Gameplay
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
                     if (planets.Count > 0)
                     {
-                        sortPlanets = planets.OrderBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
+                        sortPlanets = planets.OrderBy(PlanetCheck => (PlanetCheck.ProductionHere > this.Owner.CargoSpace_Max))
+                                .ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                         foreach (Planet p in sortPlanets)
                         {
                             flag = false;
