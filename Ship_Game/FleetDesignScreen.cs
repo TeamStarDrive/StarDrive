@@ -169,6 +169,7 @@ namespace Ship_Game
 			this.fleet = new Fleet();
 			this.EmpireUI = EmpireUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.75);
+            EmpireUI.empire.UpdateShipsWeCanBuild();
 		}
 
 		private void AdjustCamera()
