@@ -378,7 +378,7 @@ namespace Ship_Game.Gameplay
                     }
                     IOrderedEnumerable<Planet> sortedList =
                         from planet in planets
-                        orderby Vector2.Distance(planet.Position, this.Owner.Center)
+                        orderby  Vector2.Distance(planet.Position, this.Owner.Center) * (this.Owner.loyalty == planet.Owner ? .1f : 1)
                         select planet;
                     this.awaitClosest = sortedList.First<Planet>();
                 }
@@ -5756,13 +5756,15 @@ namespace Ship_Game.Gameplay
 					population.Population = population.Population + this.Owner.GetCargo()["Colonists_1000"] * (float)this.Owner.loyalty.data.Traits.PassengerModifier;
 					this.Owner.GetCargo()["Colonists_1000"] = 0f;
 				}
-				if (this.start.FoodHere < this.Owner.CargoSpace_Max)
+                float modifier = 0;
+                if (this.start.FoodHere < this.Owner.CargoSpace_Max)
+                {
+                    //this.OrderTrade(0.1f);
+                    modifier = this.start.FoodHere * .5f;
+                }
+                
 				{
-					this.OrderTrade(0.1f);
-				}
-				else
-				{
-					while (this.start.FoodHere > 0f && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
+					while (this.start.FoodHere >  modifier && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
 					{
 						this.Owner.AddGood("Food", 1);
 						Planet foodHere = this.start;
@@ -5792,13 +5794,15 @@ namespace Ship_Game.Gameplay
 					population1.Population = population1.Population + this.Owner.GetCargo()["Colonists_1000"] * (float)this.Owner.loyalty.data.Traits.PassengerModifier;
 					this.Owner.GetCargo()["Colonists_1000"] = 0f;
 				}
-				if (this.start.ProductionHere < this.Owner.CargoSpace_Max)
+                float modifier = 0;
+                if (this.start.ProductionHere < this.Owner.CargoSpace_Max)
+                {
+                    //this.OrderTrade(0.1f);
+                    modifier= this.start.ProductionHere * .5f;
+                }
+                
 				{
-					this.OrderTrade(0.1f);
-				}
-				else
-				{
-					while (this.start.ProductionHere > 0f && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
+                    while (this.start.ProductionHere > modifier && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
 					{
 						this.Owner.AddGood("Production", 1);
 						Planet productionHere1 = this.start;
