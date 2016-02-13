@@ -2856,7 +2856,52 @@ namespace Ship_Game.Gameplay
 			this.empire.GetRelations()[them].Treaty_Peace = false;
 			them.GetGSAI().GetWarDeclaredOnUs(this.empire, wt);
 		}
+        private void AssessTeritorialConflicts(float weight)
+        {
+            
+            foreach (SystemCommander CheckBorders in this.DefensiveCoordinator.DefenseDict.Values)
+            {
+                
+                if (CheckBorders.RankImportance > 5)
+                {
+                    foreach (SolarSystem closeenemies in CheckBorders.system.FiveClosestSystems)
+                    {
+                        foreach (Empire enemy in closeenemies.OwnerList)
+                        {
+                            if (enemy.isFaction)
+                                continue;
+                            Relationship check = null;
 
+                            if (this.empire.GetRelations().TryGetValue(enemy, out check))
+                            {
+                                if (!check.Known)
+                                    continue;
+                                if (!check.Treaty_Alliance)
+                                {
+                                    weight *= (this.empire.currentMilitaryStrength + closeenemies.GetActualStrengthPresent(enemy)) / (this.empire.currentMilitaryStrength +1);
+                                }
+                                if (check.Treaty_OpenBorders)
+                                {
+                                    weight *= .5f;
+                                }
+                                if (check.Treaty_NAPact)
+                                    weight *= .5f;
+                                if (check.Treaty_Alliance)
+                                    weight *= .1f;
+
+                                if (check.Anger_TerritorialConflict > 0)
+                                    check.Anger_TerritorialConflict += (check.Anger_TerritorialConflict + CheckBorders.RankImportance * weight) / (check.Anger_TerritorialConflict);
+                                else
+                                    check.Anger_TerritorialConflict += CheckBorders.RankImportance * weight;
+
+                            }
+                        }
+                        
+                    }
+
+                }
+            }
+        }
 		private void DoAggressiveRelations()
 		{
 			
@@ -2871,6 +2916,7 @@ namespace Ship_Game.Gameplay
 				//numberofWars++;
                 numberofWars += (int)Relationship.Key.currentMilitaryStrength;
 			}
+            this.AssessTeritorialConflicts(this.empire.data.DiplomaticPersonality.Territorialism /10f);
 			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
 			{
 				if (!Relationship.Value.Known || Relationship.Value.AtWar || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
@@ -3503,6 +3549,7 @@ namespace Ship_Game.Gameplay
 
         private void DoHonorableRelations()
         {
+            this.AssessTeritorialConflicts(this.empire.data.DiplomaticPersonality.Territorialism / 10f);
             foreach (KeyValuePair<Empire, Relationship> Relationship in this.empire.GetRelations())
             {
                 if (Relationship.Value.Known && !Relationship.Key.isFaction && !Relationship.Key.data.Defeated)
@@ -3865,6 +3912,7 @@ namespace Ship_Game.Gameplay
         }
         private void DoPacifistRelations()
         {
+            this.AssessTeritorialConflicts(this.empire.data.DiplomaticPersonality.Territorialism / 50f);
             foreach (KeyValuePair<Empire, Relationship> Relationship in this.empire.GetRelations())
             {
                 if (Relationship.Value.Known && !Relationship.Key.isFaction && !Relationship.Key.data.Defeated)
@@ -3939,7 +3987,7 @@ namespace Ship_Game.Gameplay
                             else if (Relationship.Value.TurnsKnown > this.FirstDemand && Relationship.Value.HaveRejected_NAPACT)
                                 Relationship.Value.Posture = Posture.Neutral;
                             this.AssessAngerPacifist(Relationship, Posture.Neutral, usedTrust);
-                            if ((double)Relationship.Value.Trust > 50.0 && (double)Relationship.Value.TotalAnger < 10.0)
+                            if (Relationship.Value.Trust > 50f && Relationship.Value.TotalAnger < 10)
                             {
                                 Relationship.Value.Posture = Posture.Friendly;
                                 continue;
@@ -3963,12 +4011,12 @@ namespace Ship_Game.Gameplay
                                         Relationship.Value.ActiveWar.AlliesCalled.Add(Ally.data.Traits.Name);
                                     }
                                 }
-                                if ((double)Relationship.Value.ActiveWar.TurnsAtWar % 100.0 == 0.0)
+                                if (Relationship.Value.ActiveWar.TurnsAtWar % 100.0 == 0f)
                                 {
                                     switch (Relationship.Value.ActiveWar.WarType)
                                     {
                                         case WarType.BorderConflict:
-                                            if ((double)(Relationship.Value.Anger_FromShipsInOurBorders + Relationship.Value.Anger_TerritorialConflict) > (double)this.empire.data.DiplomaticPersonality.Territorialism)
+                                            if ((Relationship.Value.Anger_FromShipsInOurBorders + Relationship.Value.Anger_TerritorialConflict) > (float)this.empire.data.DiplomaticPersonality.Territorialism)
                                                 return;
                                             switch (Relationship.Value.ActiveWar.GetBorderConflictState())
                                             {
@@ -4041,7 +4089,8 @@ namespace Ship_Game.Gameplay
 
 		private void DoRuthlessRelations()
 		{
-			int numberofWars = 0;
+            this.AssessTeritorialConflicts(this.empire.data.DiplomaticPersonality.Territorialism / 5f);
+            int numberofWars = 0;
 			List<Empire> PotentialTargets = new List<Empire>();
 			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
 			{
@@ -4049,7 +4098,8 @@ namespace Ship_Game.Gameplay
 				{
 					continue;
 				}
-				numberofWars++;
+				numberofWars+=(int)Relationship.Key.currentMilitaryStrength;  //++;
+                
 			}
 		//Label0:
 			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
@@ -4093,7 +4143,7 @@ namespace Ship_Game.Gameplay
 				}
 				if (Relationship.Value.Threat > 0f || Relationship.Value.TurnsKnown <= this.SecondDemand || Relationship.Value.Treaty_Alliance)
 				{
-					if (Relationship.Value.Threat > -45f || numberofWars != 0)
+					if (Relationship.Value.Threat > -45f || numberofWars  >this.empire.currentMilitaryStrength ) //!= 0)
 					{
 						continue;
 					}
@@ -4122,7 +4172,7 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
-			if (PotentialTargets.Count > 0 && numberofWars <= 1)
+            if (PotentialTargets.Count > 0 && numberofWars <= this.empire.currentMilitaryStrength )//1)
 			{
 				IOrderedEnumerable<Empire> sortedList = 
 					from target in PotentialTargets
@@ -4149,7 +4199,8 @@ namespace Ship_Game.Gameplay
 
 		private void DoXenophobicRelations()
 		{
-			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
+            this.AssessTeritorialConflicts(this.empire.data.DiplomaticPersonality.Territorialism / 10f);
+            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
 			{
 				if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
 				{
