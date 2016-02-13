@@ -366,6 +366,12 @@ namespace Ship_Game.Gameplay
             else
                 if (!this.HadPO)
                 {
+                    if (this.SystemToDefend != null)
+                    {
+                        this.DoOrbit(this.SystemToDefend.PlanetList[0], elapsedTime);
+                        this.awaitClosest = this.SystemToDefend.PlanetList[0];
+                        return;
+                    } 
                     if (this.awaitClosest != null)
                     {
                         this.DoOrbit(this.awaitClosest, elapsedTime);
@@ -7525,6 +7531,7 @@ namespace Ship_Game.Gameplay
             {
                 this.OrderQueue.Clear();
                 this.ClearOrdersNext = false;
+                this.awaitClosest = null;
                 this.State = AIState.AwaitingOrders;
             }
             List<Ship> ToRemove = new List<Ship>();
@@ -7545,8 +7552,9 @@ namespace Ship_Game.Gameplay
             if (this.Owner.loyalty == ArtificialIntelligence.universeScreen.player && (this.State == AIState.MoveTo && Vector2.Distance(this.Owner.Center, this.MovePosition) > 100f || this.State == AIState.Orbit || (this.State == AIState.Bombard || this.State == AIState.AssaultPlanet || this.State == AIState.BombardTroops) || this.State == AIState.Rebase || this.State == AIState.Scrap || this.State == AIState.Resupply || this.State == AIState.Refit || this.State == AIState.FormationWarp))
             {
                 this.HasPriorityOrder = true;
-                this.HadPO = true;
+                this.HadPO = false;
                 this.EscortTarget = null;
+                
             }
             else if (HadPO && this.State != AIState.AwaitingOrders)
                 HadPO = false;
@@ -7810,9 +7818,6 @@ namespace Ship_Game.Gameplay
                             {
                                 case AIState.SystemDefender:
                                     {
-                                        if (this.Target != null)
-                                        System.Diagnostics.Debug.WriteLine("SD Tatget" + this.Owner.VanityName);
-                                        //if(this.Target == null)
                                         this.AwaitOrders(elapsedTime);
                                         break;
                                     }
