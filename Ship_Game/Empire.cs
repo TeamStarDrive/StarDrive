@@ -423,7 +423,7 @@ namespace Ship_Game
         {
             this.TradeMoneyAddedThisTurn += HowMuch;
             this.totalTradeIncome += (int)HowMuch;
-            this.Money += HowMuch;
+            //this.Money += HowMuch;
         }
 
         public BatchRemovalCollection<Ship> GetShips()

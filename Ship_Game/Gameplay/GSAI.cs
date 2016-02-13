@@ -2858,7 +2858,7 @@ namespace Ship_Game.Gameplay
 		}
         private void AssessTeritorialConflicts(float weight)
         {
-            
+            weight *= .1f;
             foreach (SystemCommander CheckBorders in this.DefensiveCoordinator.DefenseDict.Values)
             {
                 
@@ -2924,6 +2924,7 @@ namespace Ship_Game.Gameplay
 				{
 					continue;
 				}
+
 				if (Relationship.Key.data.DiplomaticPersonality != null && !Relationship.Value.HaveRejected_TRADE && !Relationship.Value.Treaty_Trade && !Relationship.Value.AtWar && (Relationship.Key.data.DiplomaticPersonality.Name != "Aggressive" || Relationship.Key.data.DiplomaticPersonality.Name != "Ruthless"))
 				{
 					Offer NAPactOffer = new Offer()
@@ -3077,7 +3078,7 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
-			if (PotentialTargets.Count > 0 && numberofWars < this.empire.currentMilitaryStrength )//<= 1)
+			if (PotentialTargets.Count > 0 && numberofWars *2 < this.empire.currentMilitaryStrength )//<= 1)
 			{
 				Empire ToAttack = PotentialTargets.First<Empire>();
 				this.empire.GetRelations()[ToAttack].PreparingForWar = true;
@@ -4099,7 +4100,7 @@ namespace Ship_Game.Gameplay
 				{
 					continue;
 				}
-				numberofWars+=(int)Relationship.Key.currentMilitaryStrength;  //++;
+				numberofWars+=(int)Relationship.Key.currentMilitaryStrength*2;  //++;
                 
 			}
 		//Label0:
