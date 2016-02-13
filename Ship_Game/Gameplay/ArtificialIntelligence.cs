@@ -7559,7 +7559,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             //fbedard: Put back flee! (resupply order with nowhere to go)
-            if (this.State == AIState.Flee && !this.BadGuysNear) // && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000f)
+            if (this.State == AIState.Flee && !this.BadGuysNear && this.State != AIState.Resupply && !this.HasPriorityOrder) // && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000f)
             {
                 if(this.OrderQueue.Count > 0)
                     this.OrderQueue.Remove(this.OrderQueue.Last);
