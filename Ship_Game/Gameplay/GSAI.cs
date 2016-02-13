@@ -2888,6 +2888,7 @@ namespace Ship_Game.Gameplay
                                     weight *= .5f;
                                 if (check.Treaty_Alliance)
                                     weight *= .1f;
+                                weight *= (int)Empire.universeScreen.GameDifficulty;
 
                                 if (check.Anger_TerritorialConflict > 0)
                                     check.Anger_TerritorialConflict += (check.Anger_TerritorialConflict + CheckBorders.RankImportance * weight) / (check.Anger_TerritorialConflict);
@@ -7835,6 +7836,7 @@ namespace Ship_Game.Gameplay
             //float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .05f);  //.45f - (tasks);
             //float offenseNeeded = this.empire.GetRelations().Where(war => war.Value.AtWar || war.Value.PreparingForWar || war.Value.Trust < war.Value.TotalAnger).Sum(power => power.Key.currentMilitaryStrength);
             //offenseNeeded = this.empire.GetRelations().Where(war => !war.Key.isFaction && war.Value.AtWar || war.Value.PreparingForWar).Sum(power => power.Key.currentMilitaryStrength / (this.empire.currentMilitaryStrength + 1));
+            
             offenseNeeded += this.ThreatMatrix.Pins.Values.Sum(power => power.Strength / (this.empire.currentMilitaryStrength + 1)); //.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);
             if (offenseNeeded < 0)
                 offenseNeeded = 0;
@@ -9512,7 +9514,7 @@ namespace Ship_Game.Gameplay
                                     {
                                         Planet current = enumerator.Current;
                                         bool flag = true;
-                                        lock (GlobalStats.TaskLocker)
+                                        this.TaskList.thisLock.EnterReadLock();
                                         {
                                             foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
                                             {
@@ -9523,10 +9525,11 @@ namespace Ship_Game.Gameplay
                                                 }
                                             }
                                         }
+                                        this.TaskList.thisLock.ExitReadLock();
                                         if (flag)
                                         {
                                             MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
-                                            lock (GlobalStats.TaskLocker)
+                                            //lock (GlobalStats.TaskLocker)
                                                 this.TaskList.Add(militaryTask);
                                         }
                                     }
@@ -9547,7 +9550,7 @@ namespace Ship_Game.Gameplay
                                     {
                                         Planet current = enumerator.Current;
                                         bool flag = true;
-                                        lock (GlobalStats.TaskLocker)
+                                        this.TaskList.thisLock.EnterReadLock();
                                         {
                                             foreach (MilitaryTask item_1 in (List<MilitaryTask>)this.TaskList)
                                             {
@@ -9558,11 +9561,13 @@ namespace Ship_Game.Gameplay
                                                 }
                                             }
                                         }
+                                        this.TaskList.thisLock.ExitReadLock();
                                         if (flag)
                                         {
                                             MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
-                                            lock (GlobalStats.TaskLocker)
+                                            
                                                 this.TaskList.Add(militaryTask);
+                                            
                                         }
                                     }
                                     break;
