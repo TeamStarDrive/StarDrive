@@ -12,144 +12,93 @@ using System.Collections.Generic;
 using System.Linq;
 namespace Ship_Game.Gameplay
 {
-	public sealed class ShipModule : GameplayObject
+    public class ShipModule_Slim : GameplayObject
 	{
-		private ParticleEmitter trailEmitter;
+        private static int TotalNumModules = 0; //Gretman, to track how many modules are being created
 
-		private ParticleEmitter firetrailEmitter;
 
-		private ParticleEmitter flameEmitter;
+        private ParticleEmitter trailEmitter;//Dont replace
+        private ParticleEmitter firetrailEmitter;//Dont replace
+        private ParticleEmitter flameEmitter;//Dont replace
+		public byte XSIZE = 1;//Dont replace
+        public byte YSIZE = 1;//Dont replace
+		public List<string> PermittedHangarRoles;//Dont replace
+		public bool Powered;//Dont replace
+        public bool isDummy;//Dont replace
+        public List<ShipModule_Slim> LinkedModulesList = new List<ShipModule_Slim>();//Dont replace
+        public static UniverseScreen universeScreen;//Dont replace
+        private float distanceToParentCenter;//Dont replace
+		private float offsetAngle;//Dont replace
+        public float FieldOfFire;//Dont replace
+        public float facing;//Dont replace
+        public Vector2 XMLPosition;//Dont replace
+        private Ship Parent;//Dont replace
+        public ShipModule_Slim ParentOfDummy;//Dont replace
+		public float HealthMax;//Dont replace
+        public string WeaponType;//Dont replace
+        public ushort NameIndex;//Dont replace
+        public ushort DescriptionIndex;//Dont replace
+        public Ship_Game.Gameplay.Restrictions Restrictions;//Dont replace
+        public float shield_power;//Dont replace
+        public bool shieldsOff=false;//Dont replace
+		private Shield shield;//Dont replace
+		public string hangarShipUID;//Dont replace
+		private Ship hangarShip;//Dont replace
+        public float hangarTimer;//Dont replace
+		public bool isWeapon;//Dont replace
+        public Weapon InstalledWeapon;//Dont replace
+        public short OrdinanceCapacity;//Dont replace
+        private bool onFire;//Dont replace
+        private bool reallyFuckedUp;//Dont replace
+        private Vector3 Center3D = new Vector3();//Dont replace
+        public float BombTimer;//Dont replace
+		public ShipModuleType ModuleType;//Dont replace
+        public Vector2 moduleCenter = new Vector2(0f, 0f);//Dont replace
+        public Vector2 ModuleCenter;//Dont replace
+        public string IconTexturePath;//Dont replace
+        public string UID;//Dont replace
+        public ModuleSlot installedSlot;//Dont replace
+        public bool isExternal;//Dont replace
+        public int TargetValue=0;//Dont replace
+        public sbyte quadrant = -1;//Dont replace
 
-		public float FTLSpeed;
-
-		public string DeployBuildingOnColonize;
-
-		public byte XSIZE = 1;
-
-		public byte YSIZE = 1;
-
-		public string ResourceStored;
-
-		public float ResourceStorageAmount;
-
-		//public string ResourceRequired;    //Not referenced in code, removing to save memory -Gretman
-
-        //public float ResourcePerSecond;    //Not referenced in code, removing to save memory -Gretman
-
-        //public float ResourcePerSecondWarp;    //Not referenced in code, removing to save memory -Gretman
-
+        //These are temporary
+        public float FTLSpeed;
+        public string DeployBuildingOnColonize;
+        public string ResourceStored;
+        public float ResourceStorageAmount;
         public bool IsCommandModule;
-
-		public bool IsRepairModule;
-
-		public List<string> PermittedHangarRoles;
-
-		public short MaximumHangarShipSize;
-
-		public bool FightersOnly;
-
+        public bool IsRepairModule;
+        public short MaximumHangarShipSize;
+        public bool FightersOnly;
         public bool DroneModule = false;
-
         public bool FighterModule = true;
-
         public bool CorvetteModule = true;
-
         public bool FrigateModule = true;
-
         public bool DestroyerModule = true;
-
         public bool CruiserModule = true;
-
         public bool CarrierModule = true;
-
         public bool CapitalModule = true;
-
         public bool FreighterModule = true;
-
         public bool PlatformModule = true;
-
         public bool StationModule = true;
-
-		public bool explodes;
-
-		public float SensorRange;
-
-		public float MechanicalBoardingDefense;
-
-		public float EMP_Protection;
-
-        //public float TroopBoardingDefense;    //Not referenced in code, removing to save memory -Gretman
-
+        public bool explodes;
+        public float SensorRange;
+        public float MechanicalBoardingDefense;
+        public float EMP_Protection;
         public byte PowerRadius;
-
-		public bool Powered;
-
-		public byte TechLevel;
-
-		public float OrdnanceAddedPerSecond;
-
-		public bool isDummy;
-
-		public List<ShipModule> LinkedModulesList = new List<ShipModule>();
-
-		public static UniverseScreen universeScreen;
-
-		private float distanceToParentCenter;
-
-		public string BombType;
-
-		public float WarpMassCapacity;
-
-		private float offsetAngle;
-
-		public float FieldOfFire;
-
-		public float facing;
-
-		public Vector2 XMLPosition;
-
-		private Ship Parent;
-
-		public ShipModule ParentOfDummy;
-
-		public float BonusRepairRate;
-
-		public float Cargo_Capacity;
-
-		public float HealthMax;
-
-		public string WeaponType;
-
-		//public short NameIndex;
-        public ushort NameIndex;
-		//public short DescriptionIndex;
-        public ushort DescriptionIndex;
-		public Ship_Game.Gameplay.Restrictions Restrictions;
-
-		public float shield_power;
-
-        //Added by McShooterz: shields keep charge when manually turned off
-        public bool shieldsOff=false;
-
-		public float shield_radius;
-
-		public float shield_power_max;
-
-		public float shield_recharge_rate;
-
-		public float shield_recharge_combat_rate;
-
-		private Shield shield;
-
-		public float shield_recharge_delay;
-
-        //Threshold for shield damage
-
+        public byte TechLevel;
+        public float OrdnanceAddedPerSecond;
+        public string BombType;
+        public float WarpMassCapacity;
+        public float BonusRepairRate;
+        public float Cargo_Capacity;
+        public float shield_radius;
+        public float shield_power_max;
+        public float shield_recharge_rate;
+        public float shield_recharge_combat_rate;
+        public float shield_recharge_delay;
         public float shield_threshold;
-
-
-        //Shield resistances: cba doing as many of these.
-
         public float shield_kinetic_resist;
         public float shield_energy_resist;
         public float shield_explosive_resist;
@@ -160,96 +109,27 @@ namespace Ship_Game.Gameplay
         public float shield_subspace_resist;
         public float shield_warp_resist;
         public float shield_beam_resist;
-
-
-
-		public float numberOfColonists;
-
-		public float numberOfEquipment;
-
-		public float numberOfFood;
-
-		public string hangarShipUID;
-
-		public bool IsSupplyBay;
-
-		public bool IsTroopBay;
-
-		private Ship hangarShip;
-
-		public float hangarTimerConstant =30f;
-        //public float hangerTimerConstant = -1;       //Not referenced in code, removing to save memory -Gretman
-
-        public float hangarTimer;
-
-		public float thrust;
-
-		public int WarpThrust;
-
-		public int TurnThrust;
-
-		public float PowerFlowMax;
-
-		public float PowerDraw;
-
-		public float PowerDrawAtWarp;
-
-		public float PowerStoreMax;
-
-		public float HealPerTurn;
-
-		public bool isWeapon;
-
-		public Weapon InstalledWeapon;
-
-        //public bool MountLeft;    //Not referenced in code, removing to save memory -Gretman
-
-        //public bool MountRight;    //Not referenced in code, removing to save memory -Gretman
-
-        //public bool MountRear;    //Not referenced in code, removing to save memory -Gretman
-
-        public short OrdinanceCapacity;
-
-		private bool onFire;
-
-		private bool reallyFuckedUp;
-
-		private Vector3 Center3D = new Vector3();
-
-		public float BombTimer;
-
-		public byte TroopCapacity;
-
-		public byte TroopsSupplied;
-
-		public float Cost;
-
-		public ShipModuleType ModuleType;
-
-		public Vector2 moduleCenter = new Vector2(0f, 0f);
-
-		public Vector2 ModuleCenter;
-
-		public string IconTexturePath;
-
-		public string UID;
-
-		public ModuleSlot installedSlot;
-
-		private float offsetAngleRadians;
-
-		public bool isExternal;
-
-        //public bool TrulyExternal;    //Not referenced in code, removing to save memory -Gretman
-
+        public float numberOfColonists;
+        public float numberOfEquipment;
+        public float numberOfFood;
+        public bool IsSupplyBay;
+        public bool IsTroopBay;
+        public float hangarTimerConstant = 30f;
+        public float thrust;
+        public int WarpThrust;
+        public int TurnThrust;
+        public float PowerFlowMax;
+        public float PowerDraw;
+        public float PowerDrawAtWarp;
+        public float PowerStoreMax;
+        public float HealPerTurn;
+        public byte TroopCapacity;
+        public byte TroopsSupplied;
+        public float Cost;
         public float InhibitionRadius;
-
         public float FTLSpoolTime;
-
         public float ECM;
-
         public float SensorBonus;
-        //Transporter Values
         public float TransporterTimerConstant;
         public float TransporterTimer = 0f;
         public float TransporterRange;
@@ -257,14 +137,9 @@ namespace Ship_Game.Gameplay
         public float TransporterOrdnance;
         public byte TransporterTroopLanding;
         public byte TransporterTroopAssault;
-
-        //added by gremlin: target value
-        public int TargetValue=0;
-
-        //Weapon-type specific damage resistance/vulnerability
         public float KineticResist = 0f;
         public float EnergyResist = 0f;
-        public float GuidedResist = 0f; // added for completeness' sake - can't really see how an armour can be more resistant/vulnerable to something guided specifically
+        public float GuidedResist = 0f;
         public float MissileResist = 0f;
         public float HybridResist = 0f;
         public float BeamResist = 0f;
@@ -272,8 +147,8 @@ namespace Ship_Game.Gameplay
         public float InterceptResist = 0f;
         public float RailgunResist = 0f;
         public float SpaceBombResist = 0f;
-        public float BombResist = 0f; // In case a spatial weapon is tagged as bomb
-        public float BioWeaponResist = 0f; // In case a spatial weapon is tagged as biological
+        public float BombResist = 0f;
+        public float BioWeaponResist = 0f;
         public float DroneResist = 0f;
         public float WarpResist = 0f;
         public float TorpedoResist = 0f;
@@ -281,29 +156,15 @@ namespace Ship_Game.Gameplay
         public float SubspaceResist = 0f;
         public float PDResist = 0f;
         public float FlakResist = 0f;
-
-        //Damage threshold - i.e. damage amounts under the threshold apply no damage to that module
         public float DamageThreshold = 0f;
-
-        //AP resistance: this is subtracted from the Armour Piercing/Phasing bonus of incoming projectiles to protect from that effect.
         public int APResist = 0;
-
-        //A module which doesn't require direct powering to function and drain power supplies - e.g. for powered armour.
         public bool IndirectPower = false;
-
-        //Optional-use variable for classification into extra sub-menu in Shipyard for power armour; no module gameplay effect
         public bool isPowerArmour = false;
-
-        //Optional-use variable for classification into extra sub-menu in Shipyard for bulkheads; no module gameplay effect
         public bool isBulkhead = false;
-
-        //record which quadrant the module lives in. Currently only for external modules. internal modules will have an upredicable value.
-        public sbyte quadrant = -1;
-
-        //targetTracking ability of module.
         public sbyte TargetTracking = 0;
+        //Done with temp
 
-		public bool IsWeapon
+        public bool IsWeapon
 		{
 			get
 			{
@@ -315,11 +176,13 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		public ShipModule()
+		public ShipModule_Slim()     //Constructor
 		{
-		}
+            ++TotalNumModules;
+            System.Diagnostics.Debug.WriteLine("ShipModule Created. Total so far: " + TotalNumModules);
+        }
 
-		public ShipModule(ShipModuleType type)
+		public ShipModule_Slim(ShipModuleType type)  //Constructor that is not called anywhere
 		{
 			this.ModuleType = type;
 		}
@@ -1533,13 +1396,13 @@ namespace Ship_Game.Gameplay
                             damageAmount *= (source as Projectile).weapon.EffectVsArmor;
                         }
                     }
-					ShipModule health = this;
-					health.Health = health.Health - damageAmount;
+					//ShipModule health = this;
+					this.Health = this.Health - damageAmount;
 				}
 				else
 				{
-					ShipModule shieldPower = this;
-					shieldPower.shield_power = shieldPower.shield_power - damageAmount;
+					//ShipModule shieldPower = this;
+					this.shield_power = this.shield_power - damageAmount;
 					if (this.shield_power < 0f)
 					{
 						this.shield_power = 0f;
@@ -1558,7 +1421,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				ShipModule shipModule = this;
+				//ShipModule shipModule = this;
                 if (source is Projectile)
                 {
                     if ((source as Projectile).isSecondary)
@@ -1582,85 +1445,85 @@ namespace Ship_Game.Gameplay
                 {
                     if ((source as Projectile).weapon.Tag_Kinetic)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_kinetic_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_kinetic_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Energy)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_energy_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_energy_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Explosive)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_explosive_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_explosive_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Missile)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_missile_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_missile_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Flak)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_flak_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_flak_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Hybrid)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_hybrid_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_hybrid_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Railgun)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_railgun_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_railgun_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Subspace)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_subspace_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_subspace_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Warp)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_warp_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_warp_resist);
                     }
                 }
                 else if (source is Beam)
                 {
                     if ((source as Beam).weapon.Tag_Kinetic)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_kinetic_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_kinetic_resist);
                     }
                     if ((source as Beam).weapon.Tag_Energy)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_energy_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_energy_resist);
                     }
                     if ((source as Beam).weapon.Tag_Explosive)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_explosive_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_explosive_resist);
                     }
                     if ((source as Beam).weapon.Tag_Missile)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_missile_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_missile_resist);
                     }
                     if ((source as Beam).weapon.Tag_Flak)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_flak_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_flak_resist);
                     }
                     if ((source as Beam).weapon.Tag_Hybrid)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_hybrid_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_hybrid_resist);
                     }
                     if ((source as Beam).weapon.Tag_Railgun)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_railgun_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_railgun_resist);
                     }
                     if ((source as Beam).weapon.Tag_Subspace)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_subspace_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_subspace_resist);
                     }
                     if ((source as Beam).weapon.Tag_Warp)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_warp_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_warp_resist);
                     }
                 }
 
-                if (damageAmount <= shipModule.shield_threshold)
+                if (damageAmount <= this.shield_threshold)
                     damageAmount = 0f;
 
-				shipModule.shield_power = shipModule.shield_power - damageAmount;
+				this.shield_power = this.shield_power - damageAmount;
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
 					base.findAngleToTarget(this.Parent.Center, source.Center);
@@ -1700,8 +1563,8 @@ namespace Ship_Game.Gameplay
 						}
 						if ((source as Beam).weapon.SiphonDamage > 0f)
 						{
-							ShipModule shieldPower1 = this;
-							shieldPower1.shield_power = shieldPower1.shield_power - (source as Beam).weapon.SiphonDamage;
+							//ShipModule shieldPower1 = this;
+							this.shield_power = this.shield_power - (source as Beam).weapon.SiphonDamage;
 							if (this.shield_power < 0f)
 							{
 								this.shield_power = 0f;
@@ -1855,10 +1718,10 @@ namespace Ship_Game.Gameplay
 			this.moduleCenter.Y = base.Position.Y + 256f;
 			this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
 			float scaleFactor = 1f;
-			ShipModule shipModule = this;
-			shipModule.distanceToParentCenter = shipModule.distanceToParentCenter * scaleFactor;
+			//ShipModule shipModule = this;
+			this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
 			this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
-			this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
+			//this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
 			this.SetInitialPosition();
 			this.SetAttributesByType();
 			if (this.Parent != null && this.Parent.loyalty != null)
@@ -1988,10 +1851,10 @@ namespace Ship_Game.Gameplay
             this.moduleCenter.Y = base.Position.Y + 256f;
             this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
             float scaleFactor = 1f;
-            ShipModule shipModule = this;
-            shipModule.distanceToParentCenter = shipModule.distanceToParentCenter * scaleFactor;
+            //ShipModule shipModule = this;
+            this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
             this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
-            this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
+            //this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
             this.SetInitialPosition();
             this.SetAttributesByType();
             //if (this.Parent != null && this.Parent.loyalty != null)
@@ -2115,10 +1978,10 @@ namespace Ship_Game.Gameplay
 			this.moduleCenter.Y = base.Position.Y + 256f;
 			this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
 			float scaleFactor = 1f;
-			ShipModule shipModule = this;
-			shipModule.distanceToParentCenter = shipModule.distanceToParentCenter * scaleFactor;
+			//ShipModule shipModule = this;
+			this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
 			this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
-			this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
+			//this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
 			this.SetInitialPosition();
 			this.SetAttributesByType();
 			base.Initialize();
@@ -2209,8 +2072,8 @@ namespace Ship_Game.Gameplay
 			actualVector.Y = actualVector.Y - 256f;
 			this.Center.X = actualVector.X * cos - actualVector.Y * sin;
 			this.Center.Y = actualVector.X * sin + actualVector.Y * cos;
-			ShipModule center = this;
-			center.Center = center.Center + this.Parent.Center;
+			//ShipModule center = this;
+			this.Center = this.Center + this.Parent.Center;
 			float num = 256f - this.XMLPosition.X;
 			this.Center3D.X = this.Center.X;
 			this.Center3D.Y = this.Center.Y;
