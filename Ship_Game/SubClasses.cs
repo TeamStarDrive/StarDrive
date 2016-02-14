@@ -114,6 +114,8 @@ namespace Ship_Game.Gameplay
         public bool isBulkhead = false;
         public sbyte TargetTracking = 0;
 
+        public static ShipModule_Advanced Empty = new ShipModule_Advanced();
+
         public ShipModule_Advanced()    //Constructor
         {
             //This should only be called once per module XML file -Gretman
