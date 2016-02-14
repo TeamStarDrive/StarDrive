@@ -848,9 +848,9 @@ namespace Ship_Game.Gameplay
                         float remainder;
 
                         //Doc: If module has resistance to Armour Piercing effects, deduct that from the projectile's AP before starting AP and damage checks
-                        if (module.Advanced.APResist > 0)
+                        if (module.APResist > 0)
                         {
-                            this.ArmorPiercing -= (byte)module.Advanced.APResist;
+                            this.ArmorPiercing -= (byte)module.APResist;
                             if (this.ArmorPiercing < 0)
                                 this.ArmorPiercing = 0;
                         }

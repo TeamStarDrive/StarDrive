@@ -5474,7 +5474,7 @@ namespace Ship_Game.Gameplay
                     }
 
                     //carrier
-                    if (item.GetHangars().Sum(fighters => fighters.Advanced.MaximumHangarShipSize > 0 ? fighters.XSIZE* fighters.YSIZE:0) > item.Size*.20f && str >= ShipData.RoleName.freighter)
+                    if (item.GetHangars().Sum(fighters => fighters.MaximumHangarShipSize > 0 ? fighters.XSIZE* fighters.YSIZE:0) > item.Size*.20f && str >= ShipData.RoleName.freighter)
                     {
                         numCarriers += upkeep;
                         TotalMilShipCount++;
@@ -5483,8 +5483,8 @@ namespace Ship_Game.Gameplay
                     }
                     //troops ship
                     else if ((item.HasTroopBay || item.hasTransporter ||item.hasAssaultTransporter) && str >= ShipData.RoleName.freighter
-                        && item.GetHangars().Where(troopbay=> troopbay.Advanced.IsTroopBay).Sum(size=>size.XSIZE*size.YSIZE ) 
-                        + item.Transporters.Sum(troopbay => (troopbay.Advanced.TransporterTroopAssault >0?troopbay.YSIZE*troopbay.XSIZE:0)) > item.Size *.10f
+                        && item.GetHangars().Where(troopbay=> troopbay.IsTroopBay).Sum(size=>size.XSIZE*size.YSIZE ) 
+                        + item.Transporters.Sum(troopbay => (troopbay.TransporterTroopAssault >0?troopbay.YSIZE*troopbay.XSIZE:0)) > item.Size *.10f
                         )
                     {
                         numTroops += upkeep;
@@ -5736,7 +5736,7 @@ namespace Ship_Game.Gameplay
                             numFighters--;
                             ship.GetAI().OrderScrapShip();
                         }
-                        else if (numCarriers > (DesiredCarriers) && (ship.GetHangars().Where(fighters => fighters.Advanced.MaximumHangarShipSize > 0).Count() > 0 == true))
+                        else if (numCarriers > (DesiredCarriers) && (ship.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0 == true))
                         {
                             numCarriers--;
                             ship.GetAI().OrderScrapShip();
@@ -5960,13 +5960,13 @@ namespace Ship_Game.Gameplay
                         if (bombcount > ship.Size * .2)
                             bombs = true;
                     }
-                    if (slot.module.Advanced.MaximumHangarShipSize > 0)
+                    if (slot.module.MaximumHangarShipSize > 0)
                     {
                         hangarcount += slot.module.YSIZE * slot.module.XSIZE;
                         if (hangarcount > ship.Size * .2)
                             hangars = true;
                     }
-                    if (slot.module.Advanced.IsTroopBay || slot.module.Advanced.TransporterRange > 0)
+                    if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
                         troops = true;
 
                 }
@@ -9631,57 +9631,57 @@ namespace Ship_Game.Gameplay
                     switch (shipModule.ModuleType)
                     {
                         case ShipModuleType.Turret:
-                            if ((int)shipModule.Advanced.TechLevel > num3)
+                            if ((int)shipModule.TechLevel > num3)
                             {
-                                num3 = (int)shipModule.Advanced.TechLevel;
+                                num3 = (int)shipModule.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.MainGun:
-                            if ((int)shipModule.Advanced.TechLevel > num3)
+                            if ((int)shipModule.TechLevel > num3)
                             {
-                                num3 = (int)shipModule.Advanced.TechLevel;
+                                num3 = (int)shipModule.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.PowerPlant:
-                            if ((int)shipModule.Advanced.TechLevel > num4)
+                            if ((int)shipModule.TechLevel > num4)
                             {
-                                num4 = (int)shipModule.Advanced.TechLevel;
+                                num4 = (int)shipModule.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.Engine:
-                            if ((int)shipModule.Advanced.TechLevel > num2)
+                            if ((int)shipModule.TechLevel > num2)
                             {
-                                num2 = (int)shipModule.Advanced.TechLevel;
+                                num2 = (int)shipModule.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.Shield:
-                            if ((int)shipModule.Advanced.TechLevel > num1)
+                            if ((int)shipModule.TechLevel > num1)
                             {
-                                num1 = (int)shipModule.Advanced.TechLevel;
+                                num1 = (int)shipModule.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.MissileLauncher:
-                            if ((int)shipModule.Advanced.TechLevel > num3)
+                            if ((int)shipModule.TechLevel > num3)
                             {
-                                num3 = (int)shipModule.Advanced.TechLevel;
+                                num3 = (int)shipModule.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.Bomb:
-                            if ((int)shipModule.Advanced.TechLevel > num3)
+                            if ((int)shipModule.TechLevel > num3)
                             {
-                                num3 = (int)shipModule.Advanced.TechLevel;
+                                num3 = (int)shipModule.TechLevel;
                                 continue;
                             }
                             else

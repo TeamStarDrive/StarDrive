@@ -1131,7 +1131,7 @@ namespace Ship_Game
 									continue;
 								}
 								QueueItem cost = qi;
-								cost.Cost = cost.Cost + Ship_Game.ResourceManager.GetModule(slot.InstalledModuleUID).Advanced.Cost * this.savedData.GamePacing;
+								cost.Cost = cost.Cost + Ship_Game.ResourceManager.GetModule(slot.InstalledModuleUID).Cost * this.savedData.GamePacing;
 							}
 							QueueItem queueItem = qi;
                             queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;

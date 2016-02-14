@@ -12,7 +12,7 @@ namespace Ship_Game.Gameplay
 
     public sealed class ShipModule_Advanced
     {
-        private static int TotalNumModules = 0; //This is to track how many advanced modules are being created.
+        private static int TotalNumModules = 0; //To track how many advanced modules are being created.
 
         public float FTLSpeed;
         public string DeployBuildingOnColonize;
@@ -50,16 +50,16 @@ namespace Ship_Game.Gameplay
         public float shield_recharge_combat_rate;
         public float shield_recharge_delay;
         public float shield_threshold;
-        public float shield_kinetic_resist;
-        public float shield_energy_resist;
-        public float shield_explosive_resist;
-        public float shield_missile_resist;
-        public float shield_flak_resist;
-        public float shield_hybrid_resist;
-        public float shield_railgun_resist;
-        public float shield_subspace_resist;
-        public float shield_warp_resist;
-        public float shield_beam_resist;
+        public sbyte shield_kinetic_resist;
+        public sbyte shield_energy_resist;
+        public sbyte shield_explosive_resist;
+        public sbyte shield_missile_resist;
+        public sbyte shield_flak_resist;
+        public sbyte shield_hybrid_resist;
+        public sbyte shield_railgun_resist;
+        public sbyte shield_subspace_resist;
+        public sbyte shield_warp_resist;
+        public sbyte shield_beam_resist;
         public float numberOfColonists;
         public float numberOfEquipment;
         public float numberOfFood;
@@ -82,39 +82,38 @@ namespace Ship_Game.Gameplay
         public float ECM;
         public float SensorBonus;
         public float TransporterTimerConstant;
-        public float TransporterTimer = 0f;
         public float TransporterRange;
         public float TransporterPower;
         public float TransporterOrdnance;
         public byte TransporterTroopLanding;
         public byte TransporterTroopAssault;
-        public float KineticResist = 0f;
-        public float EnergyResist = 0f;
-        public float GuidedResist = 0f;
-        public float MissileResist = 0f;
-        public float HybridResist = 0f;
-        public float BeamResist = 0f;
-        public float ExplosiveResist = 0f;
-        public float InterceptResist = 0f;
-        public float RailgunResist = 0f;
-        public float SpaceBombResist = 0f;
-        public float BombResist = 0f;
-        public float BioWeaponResist = 0f;
-        public float DroneResist = 0f;
-        public float WarpResist = 0f;
-        public float TorpedoResist = 0f;
-        public float CannonResist = 0f;
-        public float SubspaceResist = 0f;
-        public float PDResist = 0f;
-        public float FlakResist = 0f;
-        public float DamageThreshold = 0f;
+        public sbyte KineticResist = 0;
+        public sbyte EnergyResist = 0;
+        public sbyte GuidedResist = 0;
+        public sbyte MissileResist = 0;
+        public sbyte HybridResist = 0;
+        public sbyte BeamResist = 0;
+        public sbyte ExplosiveResist = 0;
+        public sbyte InterceptResist = 0;
+        public sbyte RailgunResist = 0;
+        public sbyte SpaceBombResist = 0;
+        public sbyte BombResist = 0;
+        public sbyte BioWeaponResist = 0;
+        public sbyte DroneResist = 0;
+        public sbyte WarpResist = 0;
+        public sbyte TorpedoResist = 0;
+        public sbyte CannonResist = 0;
+        public sbyte SubspaceResist = 0;
+        public sbyte PDResist = 0;
+        public sbyte FlakResist = 0;
+        public byte DamageThreshold = 0;
         public int APResist = 0;
         public bool IndirectPower = false;
         public bool isPowerArmour = false;
         public bool isBulkhead = false;
         public sbyte TargetTracking = 0;
 
-        public static ShipModule_Advanced Empty = new ShipModule_Advanced();
+        public static ShipModule_Advanced Empty = new ShipModule_Advanced();    //A static instance to be assigned to leftover modules
 
         public ShipModule_Advanced()    //Constructor
         {
@@ -128,7 +127,7 @@ namespace Ship_Game.Gameplay
     public sealed class ShipModule_Deserialize
     {
 
-        //These entries were copied from the older ShipModule.cs before I got ahold of it -Gretman
+        //This is for the Deserialization process, when reading the XML files.  -Gretman
         public float FTLSpeed;
         public string DeployBuildingOnColonize;
         public byte XSIZE = 1;
@@ -271,7 +270,9 @@ namespace Ship_Game.Gameplay
         public sbyte TargetTracking = 0;
 
         public ShipModule ConvertToShipModule()
-        {
+        {                                                           //This functions translates from the old ShipModule (eg the XML files)
+                                                                    //to the new ShipModule, sorting out the variables that now live in the
+                                                                    //'Advanced' object.        -Gretman
             ShipModule ReturnModule = new ShipModule();
             ReturnModule.Advanced = new ShipModule_Advanced();
 
@@ -380,7 +381,6 @@ namespace Ship_Game.Gameplay
             ReturnModule.Advanced.ECM = this.ECM;
             ReturnModule.Advanced.SensorBonus = this.SensorBonus;
             ReturnModule.Advanced.TransporterTimerConstant = this.TransporterTimerConstant;
-            ReturnModule.Advanced.TransporterTimer = this.TransporterTimer;
             ReturnModule.Advanced.TransporterRange = this.TransporterRange;
             ReturnModule.Advanced.TransporterPower = this.TransporterPower;
             ReturnModule.Advanced.TransporterOrdnance = this.TransporterOrdnance;
