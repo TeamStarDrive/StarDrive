@@ -4465,6 +4465,9 @@ namespace Ship_Game.Gameplay
             this.velocityMaximum = 0.0f;
             //this.AfterBurnerAmount = 0.0f;    //Not referenced in code, removing to save memory -Gretman
 
+            float explosionboost =1;
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi != null)
+                explosionboost = GlobalStats.ActiveMod.mi.GlobalShipExplosionVisualIncreaser;
             Vector3 Position = new Vector3(this.Center.X, this.Center.Y, -100f);
             if (this.Active)
             {
@@ -4473,31 +4476,31 @@ namespace Ship_Game.Gameplay
                     switch (this.shipData.Role)
                     {
                         case ShipData.RoleName.freighter:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.platform:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.fighter:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.frigate:
-                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.capital:
-                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
-                            ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 850f * explosionboost, 12f, 0.2f);
+                            ExplosionManager.AddWarpExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.carrier:
-                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
-                            ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 850f * explosionboost, 12f, 0.2f);
+                            ExplosionManager.AddWarpExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.cruiser:
                             ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
-                            ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddWarpExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             break;
                         default:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             break;
                     }
                     if (this.system != null)
@@ -4508,19 +4511,19 @@ namespace Ship_Game.Gameplay
                     switch (this.shipData.Role)
                     {
                         case ShipData.RoleName.freighter:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.platform:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.fighter:
-                            ExplosionManager.AddExplosion(Position, 600f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 600f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.frigate:
-                            ExplosionManager.AddExplosion(Position, 1000f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 1000f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 2000f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.capital:
@@ -4528,11 +4531,11 @@ namespace Ship_Game.Gameplay
                             ExplosionManager.AddWarpExplosion(Position, 2400f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.cruiser:
-                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
                             break;
                         default:
-                            ExplosionManager.AddExplosion(Position, 600f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 600f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
                     }

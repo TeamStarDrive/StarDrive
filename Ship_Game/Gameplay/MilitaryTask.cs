@@ -955,12 +955,12 @@ namespace Ship_Game.Gameplay
 			float currentEnemyStrength = 0f;
 			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.empire.GetGSAI().ThreatMatrix.Pins)
 			{
-				if (Vector2.Distance(this.AO, pin.Value.Position) >= this.AORadius)
+				if (Vector2.Distance(this.AO, pin.Value.Position) >= this.AORadius || pin.Value.ship == null)
 				{
 					continue;
 				}
 				Empire pinEmp = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
-				if (pinEmp == this.empire || !pinEmp.isFaction && !this.empire.GetRelations()[pinEmp].AtWar)
+				if (pinEmp == this.empire || !pinEmp.isFaction && !this.empire.GetRelations()[pinEmp].AtWar )
 				{
 					continue;
 				}
