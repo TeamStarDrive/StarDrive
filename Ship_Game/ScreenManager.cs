@@ -73,6 +73,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
+        public float exitScreenTimer = 0;
 
 		public ContentManager Content
 		{
@@ -246,6 +247,8 @@ namespace Ship_Game
 			}
 			this.screens.Remove(screen);
 			this.screensToUpdate.Remove(screen);
+            this.exitScreenTimer = .025f;
+            
 		}
 
 		public void SetupSunburn()
