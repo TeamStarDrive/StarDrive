@@ -141,7 +141,7 @@ namespace Ship_Game
 
 		public virtual void ExitScreen()
 		{
-			
+			this.screenManager.exitScreenTimer =.024f;
             if (this.TransitionOffTime != TimeSpan.Zero)
 			{
 				this.isExiting = true;
