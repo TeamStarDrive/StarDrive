@@ -2874,20 +2874,18 @@ namespace Ship_Game.Gameplay
 
                             if (this.empire.GetRelations().TryGetValue(enemy, out check))
                             {
-                                if (!check.Known)
+                                if (!check.Known || check.Treaty_Alliance)
                                     continue;
-                                if (!check.Treaty_Alliance)
-                                {
+                                
                                     weight *= (this.empire.currentMilitaryStrength + closeenemies.GetActualStrengthPresent(enemy)) / (this.empire.currentMilitaryStrength +1);
-                                }
+                                
                                 if (check.Treaty_OpenBorders)
                                 {
                                     weight *= .5f;
                                 }
                                 if (check.Treaty_NAPact)
                                     weight *= .5f;
-                                if (check.Treaty_Alliance)
-                                    weight *= .1f;
+                               if (enemy.isPlayer)
                                 weight *= (int)Empire.universeScreen.GameDifficulty;
 
                                 if (check.Anger_TerritorialConflict > 0)
@@ -6322,7 +6320,7 @@ namespace Ship_Game.Gameplay
             //Vector2 empireCenter =this.empire.GetWeightedCenter();
             
             List<AO> aOs = new List<AO>();
-            float empireStr = this.empire.currentMilitaryStrength / (this.AreasOfOperations.Count*2+1);
+            float empireStr = this.empire.currentMilitaryStrength / (this.AreasOfOperations.Count*4+1);
             foreach (AO areasOfOperation in this.AreasOfOperations)
             {
                 areasOfOperation.ThreatLevel = 0;
@@ -6330,17 +6328,20 @@ namespace Ship_Game.Gameplay
                 {
                     aOs.Add(areasOfOperation);
                 }
-                this.empire.KnownShips.thisLock.EnterReadLock();
+                areasOfOperation.ThreatLevel = (int)this.ThreatMatrix.PingRadarStr(areasOfOperation.Position ,areasOfOperation.Radius,this.empire);
+                
+                //this.empire.KnownShips.thisLock.EnterReadLock();
 
-                foreach (Ship ship in this.empire.KnownShips)
-                {
-                    if (ship.loyalty == this.empire || Vector2.Distance(areasOfOperation.GetPlanet().Position, ship.Center) > areasOfOperation.Radius)
-                        continue;
-                    areasOfOperation.ThreatLevel += (int)ship.GetStrength();
-                }
-                this.empire.KnownShips.thisLock.ExitReadLock();
 
-                int min = (int)(empireStr * (this.DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets())*.1f));
+                //foreach (Ship ship in this.empire.KnownShips)
+                //{
+                //    if (ship.loyalty == this.empire || Vector2.Distance(areasOfOperation.GetPlanet().Position, ship.Center) > areasOfOperation.Radius)
+                //        continue;
+                //    areasOfOperation.ThreatLevel += (int)ship.GetStrength();
+                //}
+                //this.empire.KnownShips.thisLock.ExitReadLock();
+
+                int min = (int)(empireStr * (this.DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets()) * .01f));
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
                 //foreach (Empire empireList in EmpireManager.EmpireList)
