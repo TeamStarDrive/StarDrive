@@ -677,9 +677,9 @@ namespace Ship_Game
 				bool hasFighters = false;
 				foreach (ShipModule hangar in this.ship.GetHangars())
 				{
-					if (hangar.TroopCapacity != 0 || hangar.IsSupplyBay)
+					if (hangar.Advanced.TroopCapacity != 0 || hangar.Advanced.IsSupplyBay)
 					{
-						if (!hangar.IsTroopBay)
+						if (!hangar.Advanced.IsTroopBay)
 						{
 							continue;
 						}

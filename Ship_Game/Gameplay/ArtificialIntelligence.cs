@@ -429,11 +429,11 @@ namespace Ship_Game.Gameplay
 			List<string> BuildingsAdded = new List<string>();
 			foreach (ModuleSlot slot in this.Owner.ModuleSlotList)
 			{
-				if (slot.module == null || slot.module.ModuleType != ShipModuleType.Colony || slot.module.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.module.DeployBuildingOnColonize))
+				if (slot.module == null || slot.module.ModuleType != ShipModuleType.Colony || slot.module.Advanced.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.module.Advanced.DeployBuildingOnColonize))
 				{
 					continue;
 				}
-				Building building = ResourceManager.GetBuilding(slot.module.DeployBuildingOnColonize);
+				Building building = ResourceManager.GetBuilding(slot.module.Advanced.DeployBuildingOnColonize);
 				bool ok = true;
 				if (building.Unique)
 				{
@@ -451,7 +451,7 @@ namespace Ship_Game.Gameplay
 				{
 					continue;
 				}
-				BuildingsAdded.Add(slot.module.DeployBuildingOnColonize);
+				BuildingsAdded.Add(slot.module.Advanced.DeployBuildingOnColonize);
 				this.ColonizeTarget.BuildingList.Add(building);
 				this.ColonizeTarget.AssignBuildingToTileOnColonize(building);
 			}
@@ -504,11 +504,11 @@ namespace Ship_Game.Gameplay
 					continue;
 				}
 				Planet foodHere = this.ColonizeTarget;
-				foodHere.FoodHere = foodHere.FoodHere + slot.module.numberOfFood;
+				foodHere.FoodHere = foodHere.FoodHere + slot.module.Advanced.numberOfFood;
 				Planet productionHere = this.ColonizeTarget;
-				productionHere.ProductionHere = productionHere.ProductionHere + slot.module.numberOfEquipment;
+				productionHere.ProductionHere = productionHere.ProductionHere + slot.module.Advanced.numberOfEquipment;
 				Planet population = this.ColonizeTarget;
-				population.Population = population.Population + slot.module.numberOfColonists;
+				population.Population = population.Population + slot.module.Advanced.numberOfColonists;
 			}
             //Added by McShooterz: Remove troops from colonized planet
             bool TroopsRemoved = false;
@@ -584,7 +584,7 @@ namespace Ship_Game.Gameplay
             int tcount = 0;
             foreach (ShipModule s in this.Owner.GetHangars())
             {
-                if (s.IsTroopBay)
+                if (s.Advanced.IsTroopBay)
                 {
                     if (s.GetHangarShip() != null)
                     {
@@ -648,7 +648,7 @@ namespace Ship_Game.Gameplay
                 }
                 foreach (ShipModule hangar in this.Owner.GetHangars())
                 {
-                    if (!hangar.IsTroopBay || hangar.GetHangarShip() == null) //|| !(hangar.GetHangarShip().shipData.Role == ShipData.RoleName.troop)
+                    if (!hangar.Advanced.IsTroopBay || hangar.GetHangarShip() == null) //|| !(hangar.GetHangarShip().shipData.Role == ShipData.RoleName.troop)
                     {
                         continue;
                     }
@@ -868,7 +868,7 @@ namespace Ship_Game.Gameplay
                     return;
                 }
             }
-            if(!this.Owner.loyalty.isFaction && State == AIState.AwaitingOrders && this.Owner.TroopCapacity >0 && this.Owner.TroopList.Count < this.Owner.GetHangars().Where(hangar=> hangar.IsTroopBay).Count() *.5f)
+            if(!this.Owner.loyalty.isFaction && State == AIState.AwaitingOrders && this.Owner.TroopCapacity >0 && this.Owner.TroopList.Count < this.Owner.GetHangars().Where(hangar=> hangar.Advanced.IsTroopBay).Count() *.5f)
             {
                 this.OrderResupplyNearest(false);
                 return;
@@ -902,7 +902,7 @@ namespace Ship_Game.Gameplay
             {
                 this.CombatState = CombatState.Evade;
             } //
-            if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Where(troops => troops.IsTroopBay).Count() > 0 || this.Owner.hasTransporter)
+            if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Where(troops => troops.Advanced.IsTroopBay).Count() > 0 || this.Owner.hasTransporter)
             {
                 if (this.Owner.TroopList.Where(troop => troop.GetOwner() == this.Owner.loyalty).Count() > 0 && this.Owner.TroopList.Where(troop => troop.GetOwner() != this.Owner.loyalty).Count() == 0)
                 {
@@ -920,14 +920,14 @@ namespace Ship_Game.Gameplay
                         if (invadeThis != null)
                         {
                             this.TroopsOut = true;
-                            foreach (Ship troop in this.Owner.GetHangars().Where(troop => troop.IsTroopBay && troop.GetHangarShip() != null && troop.GetHangarShip().Active).Select(ship => ship.GetHangarShip()))
+                            foreach (Ship troop in this.Owner.GetHangars().Where(troop => troop.Advanced.IsTroopBay && troop.GetHangarShip() != null && troop.GetHangarShip().Active).Select(ship => ship.GetHangarShip()))
                             {
                                 troop.GetAI().OrderAssaultPlanet(invadeThis);
                             }
                         }
                         else if (this.Target != null && this.Target is Ship && (this.Target as Ship).shipData.Role >= ShipData.RoleName.drone)
                         {
-                            if (this.Owner.GetHangars().Where(troop => troop.IsTroopBay).Count() * 60 >= (this.Target as Ship).MechanicalBoardingDefense)
+                            if (this.Owner.GetHangars().Where(troop => troop.Advanced.IsTroopBay).Count() * 60 >= (this.Target as Ship).MechanicalBoardingDefense)
                             {
                                 this.TroopsOut = true;
                                 foreach (ShipModule hangar in this.Owner.GetHangars())
@@ -1082,7 +1082,7 @@ namespace Ship_Game.Gameplay
                     this.troopsout = true;
                     return true;
                 }
-                if (this.Owner.GetHangars().Where(troopbay => troopbay.IsTroopBay).Count() == 0)
+                if (this.Owner.GetHangars().Where(troopbay => troopbay.Advanced.IsTroopBay).Count() == 0)
                 {
                     this.troopsout = true;
                     return true;
@@ -1097,7 +1097,7 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (ShipModule hangar in this.Owner.GetHangars())
                     {
-                        if (hangar.IsTroopBay && (hangar.GetHangarShip() == null || hangar.GetHangarShip() != null && !hangar.GetHangarShip().Active) && hangar.hangarTimer <= 0)
+                        if (hangar.Advanced.IsTroopBay && (hangar.GetHangarShip() == null || hangar.GetHangarShip() != null && !hangar.GetHangarShip().Active) && hangar.hangarTimer <= 0)
                         {
                             this.troopsout = false;
                             break;
@@ -1460,7 +1460,7 @@ namespace Ship_Game.Gameplay
                         this.Owner.QueueTotalRemoval();
                 return;
 			}
-            else if (this.Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0 || this.Owner.TroopList.Count <= 0 || (this.Owner.shipData.Role != ShipData.RoleName.troop && (this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count() == 0 && !this.Owner.hasTransporter)))//|| goal.TargetPlanet.GetGroundStrength(this.Owner.loyalty)+3 > goal.TargetPlanet.GetGroundStrength(goal.TargetPlanet.Owner)*1.5)
+            else if (this.Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0 || this.Owner.TroopList.Count <= 0 || (this.Owner.shipData.Role != ShipData.RoleName.troop && (this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.Advanced.IsTroopBay).Count() == 0 && !this.Owner.hasTransporter)))//|| goal.TargetPlanet.GetGroundStrength(this.Owner.loyalty)+3 > goal.TargetPlanet.GetGroundStrength(goal.TargetPlanet.Owner)*1.5)
 			{                
 				if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
 				{
@@ -1477,9 +1477,9 @@ namespace Ship_Game.Gameplay
                 //if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f)
 				{
                     //Get limit of troops to land
-                    int LandLimit = this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count();
-                    foreach (ShipModule module in this.Owner.Transporters.Where(module => module.TransporterTimer <= 1f))
-                        LandLimit += module.TransporterTroopLanding;
+                    int LandLimit = this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.Advanced.IsTroopBay).Count();
+                    foreach (ShipModule module in this.Owner.Transporters.Where(module => module.Advanced.TransporterTimer <= 1f))
+                        LandLimit += module.Advanced.TransporterTroopLanding;
                     //Land troops
                     foreach (Troop troop in this.Owner.TroopList)
                     {
@@ -1504,9 +1504,9 @@ namespace Ship_Game.Gameplay
                             flag = false;
                             foreach (ShipModule module in this.Owner.GetHangars())
                             {
-                                if (module.hangarTimer < module.hangarTimerConstant)
+                                if (module.hangarTimer < module.Advanced.hangarTimerConstant)
                                 {
-                                    module.hangarTimer = module.hangarTimerConstant;
+                                    module.hangarTimer = module.Advanced.hangarTimerConstant;
                                     flag = true;
                                     break;
                                 }
@@ -1514,14 +1514,14 @@ namespace Ship_Game.Gameplay
                             if (flag)
                                 continue;
                             foreach (ShipModule module in this.Owner.Transporters)
-                                if (module.TransporterTimer < module.TransporterTimerConstant)
+                                if (module.Advanced.TransporterTimer < module.Advanced.TransporterTimerConstant)
                                 {
-                                    module.TransporterTimer = module.TransporterTimerConstant;
+                                    module.Advanced.TransporterTimer = module.Advanced.TransporterTimerConstant;
                                     flag = true;
                                     break;
                                 }
                         }
-                                //module.TransporterTimer = module.TransporterTimerConstant;
+                                //module.TransporterTimer = module.Advanced.TransporterTimerConstant;
                             foreach (Troop to in ToRemove)
                                 this.Owner.TroopList.Remove(to);
                         
@@ -2031,24 +2031,24 @@ namespace Ship_Game.Gameplay
 
         private void DoOrdinanceTransporterLogic(ShipModule module)
         {
-            foreach (Ship ship in module.GetParent().loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) <= module.TransporterRange + 500f && ship.Ordinance < ship.OrdinanceMax && !ship.hasOrdnanceTransporter).OrderBy(ship => ship.Ordinance).ToList())
+            foreach (Ship ship in module.GetParent().loyalty.GetShips().Where(ship => Vector2.Distance(this.Owner.Center, ship.Center) <= module.Advanced.TransporterRange + 500f && ship.Ordinance < ship.OrdinanceMax && !ship.hasOrdnanceTransporter).OrderBy(ship => ship.Ordinance).ToList())
             {
                 if (ship != null)
                 {
-                    module.TransporterTimer = module.TransporterTimerConstant;
+                    module.Advanced.TransporterTimer = module.Advanced.TransporterTimerConstant;
                     float TransferAmount = 0f;
                     //check how much can be taken
-                    if (module.TransporterOrdnance > module.GetParent().Ordinance)
+                    if (module.Advanced.TransporterOrdnance > module.GetParent().Ordinance)
                         TransferAmount = module.GetParent().Ordinance;
                     else
-                        TransferAmount = module.TransporterOrdnance;
+                        TransferAmount = module.Advanced.TransporterOrdnance;
                     //check how much can be given
                     if (TransferAmount > ship.OrdinanceMax - ship.Ordinance)
                         TransferAmount = ship.OrdinanceMax - ship.Ordinance;
                     //Transfer
                     ship.Ordinance += TransferAmount;
                     module.GetParent().Ordinance -= TransferAmount;
-                    module.GetParent().PowerCurrent -= module.TransporterPower * (TransferAmount / module.TransporterOrdnance);
+                    module.GetParent().PowerCurrent -= module.Advanced.TransporterPower * (TransferAmount / module.Advanced.TransporterOrdnance);
                     if(this.Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
                     {
                         GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
@@ -2061,7 +2061,7 @@ namespace Ship_Game.Gameplay
 
         private void DoAssaultTransporterLogic(ShipModule module)
         {
-            foreach (ArtificialIntelligence.ShipWeight ship in this.NearbyShips.Where(Ship => Ship.ship.loyalty != null && Ship.ship.loyalty != this.Owner.loyalty && Ship.ship.shield_power <= 0 && Vector2.Distance(this.Owner.Center, Ship.ship.Center) <= module.TransporterRange + 500f).OrderBy(Ship => Vector2.Distance(this.Owner.Center, Ship.ship.Center)))
+            foreach (ArtificialIntelligence.ShipWeight ship in this.NearbyShips.Where(Ship => Ship.ship.loyalty != null && Ship.ship.loyalty != this.Owner.loyalty && Ship.ship.shield_power <= 0 && Vector2.Distance(this.Owner.Center, Ship.ship.Center) <= module.Advanced.TransporterRange + 500f).OrderBy(Ship => Vector2.Distance(this.Owner.Center, Ship.ship.Center)))
             {
                 if (ship != null)
                 {
@@ -2078,12 +2078,12 @@ namespace Ship_Game.Gameplay
                             TroopCount++;
                             Transported = true;
                         }
-                        if (TroopCount == module.TransporterTroopAssault)
+                        if (TroopCount == module.Advanced.TransporterTroopAssault)
                             break;
                     }
                     if (Transported)
                     {
-                        module.TransporterTimer = module.TransporterTimerConstant;
+                        module.Advanced.TransporterTimer = module.Advanced.TransporterTimerConstant;
                         if (this.Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
                         {
                             GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
@@ -2186,7 +2186,7 @@ namespace Ship_Game.Gameplay
                     rearmTime += this.Owner.PowerCurrent * .1f;
                     rearmTime += this.Owner.shield_power * .1f;
                     rearmTime /= (this.Owner.HealthMax + ammoReloadTime + shieldrechargeTime + powerRechargeTime);                    
-                        rearmTime = (1.01f - rearmTime) * (hangar.hangarTimerConstant *(1.01f- (this.Owner.Level + hangar.GetParent().Level)/10 ));  // fbedard: rearm time from 50% to 150%
+                        rearmTime = (1.01f - rearmTime) * (hangar.Advanced.hangarTimerConstant *(1.01f- (this.Owner.Level + hangar.GetParent().Level)/10 ));  // fbedard: rearm time from 50% to 150%
                         if (rearmTime < 0)
                             rearmTime = 1;
                     //CG: if the fighter is fully functional reduce rearm time to very little. The default 5 minute hangar timer is way too high. It cripples fighter usage.
@@ -6551,7 +6551,7 @@ namespace Ship_Game.Gameplay
 
 
             #region supply ship logic   //fbedard: for launch only
-            if (this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay).Count() > 0 && this.Owner.engineState != Ship.MoveState.Warp)  // && !this.Owner.isSpooling
+            if (this.Owner.GetHangars().Where(hangar => hangar.Advanced.IsSupplyBay).Count() > 0 && this.Owner.engineState != Ship.MoveState.Warp)  // && !this.Owner.isSpooling
             {
                 IOrderedEnumerable<Ship> sortedList = null;
                 {
@@ -6572,7 +6572,7 @@ namespace Ship_Game.Gameplay
                     {
                         int skip = 0;
                         float inboundOrdinance = 0f;
-                        foreach (ShipModule hangar in this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay))
+                        foreach (ShipModule hangar in this.Owner.GetHangars().Where(hangar => hangar.Advanced.IsSupplyBay))
                         {
                             if (hangar.GetHangarShip() != null && hangar.GetHangarShip().Active)
                             {
@@ -7599,11 +7599,11 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (ShipModule module in this.Owner.Transporters)
                     {
-                        if (module.TransporterTimer <= 0f && module.Active && module.Powered && module.TransporterPower < this.Owner.PowerCurrent)
+                        if (module.Advanced.TransporterTimer <= 0f && module.Active && module.Powered && module.Advanced.TransporterPower < this.Owner.PowerCurrent)
                         {
-                            if (this.FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && this.Owner.Ordinance > 0)
+                            if (this.FriendliesNearby.Count > 0 && module.Advanced.TransporterOrdnance > 0 && this.Owner.Ordinance > 0)
                                 this.DoOrdinanceTransporterLogic(module);
-                            if (module.TransporterTroopAssault > 0 && this.Owner.TroopList.Count() > 0)
+                            if (module.Advanced.TransporterTroopAssault > 0 && this.Owner.TroopList.Count() > 0)
                                 this.DoAssaultTransporterLogic(module);
                         }
                     }
@@ -7985,14 +7985,14 @@ namespace Ship_Game.Gameplay
                                     if ((double)current.BombTimer <= 0.0)
                                     {
                                         Bomb bomb = new Bomb(new Vector3(this.Owner.Center, 0.0f), this.Owner.loyalty);
-                                        bomb.WeaponName = current.BombType;
-                                        if ((double)this.Owner.Ordinance > (double)ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire)
+                                        bomb.WeaponName = current.Advanced.BombType;
+                                        if ((double)this.Owner.Ordinance > (double)ResourceManager.WeaponsDict[current.Advanced.BombType].OrdinanceRequiredToFire)
                                         {
-                                            this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire;
+                                            this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.Advanced.BombType].OrdinanceRequiredToFire;
                                             bomb.SetTarget(toEvaluate.TargetPlanet);
                                             //lock (GlobalStats.BombLock)
                                             ArtificialIntelligence.universeScreen.BombList.Add(bomb);
-                                            current.BombTimer = ResourceManager.WeaponsDict[current.BombType].fireDelay;
+                                            current.BombTimer = ResourceManager.WeaponsDict[current.Advanced.BombType].fireDelay;
                                         }
                                     }
                                 }
@@ -8032,14 +8032,14 @@ namespace Ship_Game.Gameplay
                                             if ( current.BombTimer <= 0.0)
                                             {
                                                 Bomb bomb = new Bomb(new Vector3(this.Owner.Center, 0.0f), this.Owner.loyalty);
-                                                bomb.WeaponName = current.BombType;
-                                                if ((double)this.Owner.Ordinance > (double)ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire)
+                                                bomb.WeaponName = current.Advanced.BombType;
+                                                if ((double)this.Owner.Ordinance > (double)ResourceManager.WeaponsDict[current.Advanced.BombType].OrdinanceRequiredToFire)
                                                 {
-                                                    this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire;
+                                                    this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.Advanced.BombType].OrdinanceRequiredToFire;
                                                     bomb.SetTarget(toEvaluate.TargetPlanet);
                                                     //lock (GlobalStats.BombLock)
                                                         ArtificialIntelligence.universeScreen.BombList.Add(bomb);
-                                                    current.BombTimer = ResourceManager.WeaponsDict[current.BombType].fireDelay;
+                                                    current.BombTimer = ResourceManager.WeaponsDict[current.Advanced.BombType].fireDelay;
                                                 }
                                             }
                                         }
@@ -8082,20 +8082,20 @@ namespace Ship_Game.Gameplay
                                                 continue;
                                             Bomb b = new Bomb(new Vector3(this.Owner.Center, 0f), this.Owner.loyalty)
                                             {
-                                                WeaponName = mod.BombType
+                                                WeaponName = mod.Advanced.BombType
                                             };
-                                            if (this.Owner.Ordinance <= ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire)
+                                            if (this.Owner.Ordinance <= ResourceManager.WeaponsDict[mod.Advanced.BombType].OrdinanceRequiredToFire)
                                             {
                                                 continue;
                                             }
                                             Ship owner1 = this.Owner;
-                                            owner1.Ordinance = owner1.Ordinance - ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire;
+                                            owner1.Ordinance = owner1.Ordinance - ResourceManager.WeaponsDict[mod.Advanced.BombType].OrdinanceRequiredToFire;
                                             b.SetTarget(toEvaluate.TargetPlanet);
                                             //lock (GlobalStats.BombLock)
                                             {
                                                 ArtificialIntelligence.universeScreen.BombList.Add(b);
                                             }
-                                            mod.BombTimer = ResourceManager.WeaponsDict[mod.BombType].fireDelay;
+                                            mod.BombTimer = ResourceManager.WeaponsDict[mod.Advanced.BombType].fireDelay;
                                         }
                                         break;
                                     }
@@ -8398,7 +8398,7 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (ShipModule hangar in this.Owner.GetHangars())
                     {
-                        if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null
+                        if (hangar.Advanced.IsTroopBay || hangar.Advanced.IsSupplyBay || hangar.GetHangarShip() == null
                             //||hangar.GetHangarShip().InCombat
                             || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar)
                         {
@@ -8411,8 +8411,8 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (ShipModule hangar in this.Owner.GetHangars())
                     {
-                        if (hangar.IsTroopBay
-                            || hangar.IsSupplyBay
+                        if (hangar.Advanced.IsTroopBay
+                            || hangar.Advanced.IsSupplyBay
                             || hangar.GetHangarShip() == null
                             || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar
                             //|| hangar.GetHangarShip().InCombat
