@@ -6231,88 +6231,88 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		public void ManageAOsORIG()
-		{
-			List<AO> ToRemove = new List<AO>();
-			foreach (AO area in this.AreasOfOperations)
-			{
-				area.ThreatLevel = 0;
-				if (area.GetPlanet().Owner != this.empire)
-				{
-					ToRemove.Add(area);
-				}
-				foreach (Empire e in EmpireManager.EmpireList)
-				{
-					if (e == this.empire || e.data.Defeated || !this.empire.GetRelations()[e].AtWar)
-					{
-						continue;
-					}
-					foreach (AO theirAO in e.GetGSAI().AreasOfOperations)
-					{
-						if (Vector2.Distance(area.Position, theirAO.Position) >= area.Radius * 2f)
-						{
-							continue;
-						}
-						AO threatLevel = area;
-						threatLevel.ThreatLevel = threatLevel.ThreatLevel + 1;
-					}
-				}
-			}
-			foreach (AO toremove in ToRemove)
-			{
-				this.AreasOfOperations.Remove(toremove);
-			}
-			List<Planet> PotentialCores = new List<Planet>();
-			foreach (Planet p in this.empire.GetPlanets())
-			{
-				if (p.GetMaxProductionPotential() <= 5f || !p.HasShipyard)
-				{
-					continue;
-				}
-				bool AlreadyExists = false;
-				foreach (AO area in this.AreasOfOperations)
-				{
-					if (area.GetPlanet() != p)
-					{
-						continue;
-					}
-					AlreadyExists = true;
-					break;
-				}
-				if (AlreadyExists)
-				{
-					continue;
-				}
-				PotentialCores.Add(p);
-			}
-			if (PotentialCores.Count == 0)
-			{
-				return;
-			}
-			IOrderedEnumerable<Planet> sortedList = 
-				from planet in PotentialCores
-				orderby planet.GetMaxProductionPotential() descending
-				select planet;
-			foreach (Planet p in sortedList)
-			{
-				bool FarEnough = true;
-				foreach (AO area in this.AreasOfOperations)
-				{
-					if (Vector2.Distance(area.GetPlanet().Position, p.Position) >= 1500000f)
-					{
-						continue;
-					}
-					FarEnough = false;
-					break;
-				}
-				if (!FarEnough)
-				{
-					continue;
-				}
-				AO area0 = new AO(p, 1500000f);
-				this.AreasOfOperations.Add(area0);
-			}
-		}
+        //public void ManageAOsORIG()
+        //{
+        //    List<AO> ToRemove = new List<AO>();
+        //    foreach (AO area in this.AreasOfOperations)
+        //    {
+        //        area.ThreatLevel = 0;
+        //        if (area.GetPlanet().Owner != this.empire)
+        //        {
+        //            ToRemove.Add(area);
+        //        }
+        //        foreach (Empire e in EmpireManager.EmpireList)
+        //        {
+        //            if (e == this.empire || e.data.Defeated || !this.empire.GetRelations()[e].AtWar)
+        //            {
+        //                continue;
+        //            }
+        //            foreach (AO theirAO in e.GetGSAI().AreasOfOperations)
+        //            {
+        //                if (Vector2.Distance(area.Position, theirAO.Position) >= area.Radius * 2f)
+        //                {
+        //                    continue;
+        //                }
+        //                AO threatLevel = area;
+        //                threatLevel.ThreatLevel = threatLevel.ThreatLevel + 1;
+        //            }
+        //        }
+        //    }
+        //    foreach (AO toremove in ToRemove)
+        //    {
+        //        this.AreasOfOperations.Remove(toremove);
+        //    }
+        //    List<Planet> PotentialCores = new List<Planet>();
+        //    foreach (Planet p in this.empire.GetPlanets())
+        //    {
+        //        if (p.GetMaxProductionPotential() <= 5f || !p.HasShipyard)
+        //        {
+        //            continue;
+        //        }
+        //        bool AlreadyExists = false;
+        //        foreach (AO area in this.AreasOfOperations)
+        //        {
+        //            if (area.GetPlanet() != p)
+        //            {
+        //                continue;
+        //            }
+        //            AlreadyExists = true;
+        //            break;
+        //        }
+        //        if (AlreadyExists)
+        //        {
+        //            continue;
+        //        }
+        //        PotentialCores.Add(p);
+        //    }
+        //    if (PotentialCores.Count == 0)
+        //    {
+        //        return;
+        //    }
+        //    IOrderedEnumerable<Planet> sortedList = 
+        //        from planet in PotentialCores
+        //        orderby planet.GetMaxProductionPotential() descending
+        //        select planet;
+        //    foreach (Planet p in sortedList)
+        //    {
+        //        bool FarEnough = true;
+        //        foreach (AO area in this.AreasOfOperations)
+        //        {
+        //            if (Vector2.Distance(area.GetPlanet().Position, p.Position) >= 1500000f)
+        //            {
+        //                continue;
+        //            }
+        //            FarEnough = false;
+        //            break;
+        //        }
+        //        if (!FarEnough)
+        //        {
+        //            continue;
+        //        }
+        //        AO area0 = new AO(p, 1500000f);
+        //        this.AreasOfOperations.Add(area0);
+        //    }
+        //}
         //addedby gremlin manageAOs
         public void ManageAOs()
         {
@@ -6320,7 +6320,7 @@ namespace Ship_Game.Gameplay
             //Vector2 empireCenter =this.empire.GetWeightedCenter();
             
             List<AO> aOs = new List<AO>();
-            float empireStr = this.empire.currentMilitaryStrength / (this.AreasOfOperations.Count*4+1);
+            float empireStr = this.empire.currentMilitaryStrength / (this.AreasOfOperations.Count*2.5f+1);
             foreach (AO areasOfOperation in this.AreasOfOperations)
             {
                 areasOfOperation.ThreatLevel = 0;
