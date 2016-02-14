@@ -79,7 +79,9 @@ namespace Ship_Game.Gameplay
             if (ship.BaseStrength == 0)
                 return;
 
-            if (this.ThreatLevel <
+            
+
+            if (this.ThreatLevel <=
                 this.CoreFleet.GetStrength() || ship.BombBays.Count >0 || ship.hasAssaultTransporter || ship.HasTroopBay)
 			{
 				this.OffensiveForcePool.Add(ship);
@@ -93,10 +95,11 @@ namespace Ship_Game.Gameplay
 				this.CoreFleet.AddShip(ship);
                 foreach (Ship waiting in this.ShipsWaitingForCoreFleet)
                 {
-                    if (waiting.fleet != null)
+                    if (waiting.fleet != null || this.ThreatLevel < this.CoreFleet.GetStrength())
                     {
                         continue;
                     }
+                    
                     this.CoreFleet.AddShip(waiting);
                     waiting.GetAI().OrderQueue.Clear();
                     waiting.GetAI().HasPriorityOrder = false;
@@ -177,8 +180,8 @@ namespace Ship_Game.Gameplay
                 this.OffensiveForcePool.QueuePendingRemoval(ship);
 			}
 			this.OffensiveForcePool.ApplyPendingRemovals();
-            
-			if (this.ShipsWaitingForCoreFleet.Count > 0 && this.CoreFleet.Ships.Count < this.ThreatLevel +1 
+
+            if (this.ShipsWaitingForCoreFleet.Count > 0 && this.CoreFleet.GetStrength() < this.ThreatLevel  
                 && (this.CoreFleet.Ships.Count == 0 || this.CoreFleet.Task == null))
 			{
 				foreach (Ship waiting in this.ShipsWaitingForCoreFleet)
@@ -203,7 +206,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.ThreatLevel  * ( 1-( this.TurnsToRelax /10)) < this.CoreFleet.GetStrength())
 			{
-				if (this.CoreFleet.Task == null && this.CoreWorld.Owner != Ship.universeScreen.player)
+				if (this.CoreFleet.Task == null && !this.CoreWorld.Owner.isPlayer)
 				{
 					MilitaryTask clearArea = new MilitaryTask(this.CoreFleet.Owner)
 					{

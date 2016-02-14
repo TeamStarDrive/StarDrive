@@ -1663,14 +1663,23 @@ namespace Ship_Game
 
                                 //status.Stop();
                             }//);
+                                
                         }
+                            //if (this.UpdateTimer == (float)GlobalStats.TurnTimer) 
+                            Task task4 = new Task(() => { 
+                            this.GSAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
+                                });
+                            task4.Start();
+                            this.GSAI.ThreatMatrix.UpdatePin(nearby, border,flag);
                             if (flag)
                             {
                                 toadd.Add(nearby);
+                                 
+                                
                                 //Shipbag.Add(nearby);
 
-                                if (!this.isFaction)
-                                    this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
+                                //if (!this.isFaction)
+                                    //this.GSAI.ThreatMatrix.UpdatePin(nearby, border);
                                 //if (border)
                                 //{
                                 //   this.GSAI.ThreatMatrix.Pins. 
