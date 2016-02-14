@@ -159,15 +159,30 @@ namespace Ship_Game
                             list.Add(planet2);
                     }
                     int num1 = 9999999;
-                    foreach (Planet planet2 in list)
+                    foreach (Planet planet2 in list.OrderBy(planet =>
+                        {
+                            float weight = 0;
+                            if(planet.colonyType == Planet.ColonyType.Industrial)
+                            {
+                                weight += 4;
+                            }
+                            if (planet.colonyType == Planet.ColonyType.Core || planet.colonyType == Planet.ColonyType.Military || planet.colonyType == Planet.ColonyType.TradeHub)
+                            {
+                                weight += 2;
+                            }
+                            weight += planet.developmentLevel;
+                            weight += planet.MineralRichness;
+
+                            return weight;
+                        }))
                     {
                         if (planet2.HasShipyard)
                         {
                             int num2 = 0;
                             foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
-                                num2 += (int)(((double)queueItem.Cost - (double)queueItem.productionTowards) / (double)planet2.NetProductionPerTurn);
+                                num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());
                             if (planet2.ConstructionQueue.Count == 0)
-                                num2 = (int)(((double)this.beingBuilt.GetCost(this.empire) - (double)planet2.ProductionHere) / (double)planet2.NetProductionPerTurn);
+                                num2 = (int)((this.beingBuilt.GetCost(this.empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());
                             if (num2 < num1)
                             {
                                 num1 = num2;
