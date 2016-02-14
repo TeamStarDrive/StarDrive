@@ -1174,7 +1174,7 @@ namespace Ship_Game.Gameplay
                 int troops =0;
                 foreach(ShipModule hangar in  ship.GetHangars())
                 {
-                    if (hangar.Advanced.IsTroopBay)
+                    if (hangar.IsTroopBay)
                     {
                         troops++;
                         troopCount++;

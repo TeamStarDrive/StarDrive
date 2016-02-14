@@ -994,9 +994,9 @@ namespace Ship_Game
                     ShipModule checkmod =null;
                     if(ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID,out checkmod))
                     {
-                        if (checkmod.Advanced.IsTroopBay)
+                        if (checkmod.IsTroopBay)
                             this.canBuildTroopShips = true;
-                        if (checkmod.Advanced.MaximumHangarShipSize > 0)
+                        if (checkmod.MaximumHangarShipSize > 0)
                             this.canBuildCarriers = true;
                         if (checkmod.ModuleType == ShipModuleType.Bomb)
                             this.canBuildBombers=true;
@@ -2217,13 +2217,13 @@ namespace Ship_Game
                                 if (bombcount > ship.Size * .2)
                                     bombs = true;
                             }
-                            if (slot.module.Advanced.MaximumHangarShipSize > 0)
+                            if (slot.module.MaximumHangarShipSize > 0)
                             {
                                 hangarcount += slot.module.YSIZE * slot.module.XSIZE;
                                 if (hangarcount > ship.Size * .2)
                                     hangars = true;
                             }
-                            if (slot.module.Advanced.IsTroopBay || slot.module.Advanced.TransporterRange > 0)
+                            if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
                                 troops = true;
 
                         }

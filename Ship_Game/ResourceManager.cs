@@ -1295,7 +1295,7 @@ namespace Ship_Game
 				//PowerRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerRadius,
 				//PowerStoreMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerStoreMax,
 				//SensorRange = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorRange,
-				shield_power = Ship_Game.ResourceManager.ShipModulesDict[uid].Advanced.shield_power_max,    //Hmmm... This one is strange -Gretman
+				shield_power = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,    //Hmmm... This one is strange -Gretman
 				//shield_power_max = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,
 				//shield_radius = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_radius,
 				//shield_recharge_delay = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_delay,
@@ -1406,7 +1406,7 @@ namespace Ship_Game
             module.TargetValue += module.ModuleType == ShipModuleType.Spacebomb ? 1 : 0;
             module.TargetValue += module.ModuleType == ShipModuleType.Special ? 1 : 0;
             module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
-            module.TargetValue += module.Advanced.explodes ? 2 : 0;
+            module.TargetValue += module.explodes ? 2 : 0;
             module.TargetValue += module.isWeapon ? 1 : 0;
 
             #endregion
@@ -2508,7 +2508,8 @@ namespace Ship_Game
                 if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(data.UID))
 				{
                     Ship_Game.ResourceManager.ShipModulesDict[data.UID] = data.ConvertToShipModule();
-				}
+                    System.Diagnostics.Debug.WriteLine("ShipModule already found. Conflicting name:  " + data.UID);
+                }
 				else
 				{
                     Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data.ConvertToShipModule());
@@ -2827,7 +2828,7 @@ namespace Ship_Game
                     }
 
 
-                    if (module.hangarShipUID != null && !module.Advanced.IsSupplyBay && !module.Advanced.IsTroopBay)
+                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
                     {
 
                         fighters = true;
@@ -2853,11 +2854,11 @@ namespace Ship_Game
                             
                         }
                     }
-                    def += module.Advanced.shield_power_max * ((module.Advanced.shield_radius * .05f) / slotCount);
+                    def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
                     //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
                     def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
 
-                    if (ResourceManager.ShipModulesDict[module.UID].Advanced.WarpThrust > 0)
+                    if (ResourceManager.ShipModulesDict[module.UID].WarpThrust > 0)
                     {
                         entry.Value.BaseCanWarp = true;
                     }
@@ -2927,7 +2928,7 @@ namespace Ship_Game
                     }
 
 
-                    if (module.hangarShipUID != null && !module.Advanced.IsSupplyBay && !module.Advanced.IsTroopBay)
+                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
                     {
 
                         fighters = true;
@@ -2939,11 +2940,11 @@ namespace Ship_Game
                             Str += 100;
                         }
                     }
-                    def += module.Advanced.shield_power_max * ((module.Advanced.shield_radius * .05f) / slotCount);
+                    def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
                     //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
                     def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
 
-                    if (ResourceManager.ShipModulesDict[module.UID].Advanced.WarpThrust > 0)
+                    if (ResourceManager.ShipModulesDict[module.UID].WarpThrust > 0)
                     {
                         entry.Value.BaseCanWarp = true;
                         ship.BaseCanWarp = entry.Value.BaseCanWarp;
@@ -3009,7 +3010,7 @@ namespace Ship_Game
                     }
 
 
-                    if (module.hangarShipUID != null && !module.Advanced.IsSupplyBay && !module.Advanced.IsTroopBay)
+                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
                     {
 
                         //fighters = true;
@@ -3025,7 +3026,7 @@ namespace Ship_Game
                     }
                     if (slotCount > 0)
                     {
-                        def += module.Advanced.shield_power_max * ((module.Advanced.shield_radius * .05f) / slotCount);
+                        def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
                         //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
                         def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
                     }
@@ -3206,7 +3207,7 @@ namespace Ship_Game
                                 ShipModule module;
                                 if (ResourceManager.ShipModulesDict.TryGetValue(moduleU.ModuleUID, out module))
                                 {
-                                    if (module.InstalledWeapon != null || module.Advanced.MaximumHangarShipSize > 0
+                                    if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
                                         || module.ModuleType == ShipModuleType.Hangar
                                         )
                                         data.TechnologyType = TechnologyType.ShipWeapons;

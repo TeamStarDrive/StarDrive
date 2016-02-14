@@ -140,9 +140,9 @@ namespace Ship_Game
                 {
                     if (ship.TroopList.Count <= 0 || (!ship.HasTroopBay && !ship.hasTransporter && !(p.HasShipyard && p.Owner == ship.loyalty)))  //fbedard
                         continue;
-                    int LandingLimit = ship.GetHangars().Where(ready => ready.Advanced.IsTroopBay && ready.hangarTimer <= 0).Count();
-                    foreach (ShipModule module in ship.Transporters.Where(module => module.Advanced.TransporterTimer <= 1))
-                        LandingLimit += module.Advanced.TransporterTroopLanding;
+                    int LandingLimit = ship.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <= 0).Count();
+                    foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1))
+                        LandingLimit += module.TransporterTroopLanding;
                     if (p.HasShipyard && p.Owner == ship.loyalty) LandingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
                     for (int i = 0; i < ship.TroopList.Count() && LandingLimit > 0; i++)
                     {
@@ -1051,9 +1051,9 @@ namespace Ship_Game
 					}
                     else if (ship.HasTroopBay || ship.hasTransporter)
                     {
-                        int LandingLimit = ship.GetHangars().Where(ready => ready.Advanced.IsTroopBay && ready.hangarTimer <= 0).Count();
-                        foreach (ShipModule module in ship.Transporters.Where(module => module.Advanced.TransporterTimer <= 1f))
-                            LandingLimit += module.Advanced.TransporterTroopLanding;
+                        int LandingLimit = ship.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <= 0).Count();
+                        foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1f))
+                            LandingLimit += module.TransporterTroopLanding;
                         for (int x = 0; x < ship.TroopList.Count && LandingLimit > 0; x++)
                         {
                             if (ship.TroopList[x].GetOwner() == ship.loyalty)
