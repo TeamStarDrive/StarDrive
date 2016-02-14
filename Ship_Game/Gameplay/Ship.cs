@@ -3241,7 +3241,6 @@ namespace Ship_Game.Gameplay
             });
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
-                if (moduleSlot.InstalledModuleUID == "Dummy") continue;
                 if (moduleSlot.Powered)
                 {
                     if (moduleSlot.module != null && moduleSlot.module.ModuleType != ShipModuleType.PowerConduit)
