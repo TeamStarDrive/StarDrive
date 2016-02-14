@@ -365,8 +365,15 @@ namespace Ship_Game
 				}
 				if (this.screen.SelectedShip.GetAI().State == AIState.SystemDefender)
 				{
-					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Defending ", this.screen.SelectedShip.GetAI().SystemToDefend.Name), Cursor, Color.White);
+                    SolarSystem systemToDefend = this.screen.SelectedShip.GetAI().SystemToDefend; 
+                    Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    if (systemToDefend != null)
+
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Defending ", systemToDefend.Name), Cursor, Color.White);
+                    else
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Defending ", "Awaiting Order"), Cursor, Color.White);
+
+                    
 				}
 				if (ship.GetSystem() == null)
 				{
