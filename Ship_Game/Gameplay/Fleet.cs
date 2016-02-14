@@ -1107,11 +1107,13 @@ namespace Ship_Game.Gameplay
                 }
             }
             bool flag2 = false;
+            this.Ships.thisLock.EnterReadLock();
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
                 if (ship.TroopList.Count > 0)
                     flag2 = true;
             }
+            this.Ships.thisLock.ExitReadLock();
             foreach (PlanetGridSquare planetGridSquare in Task.GetTargetPlanet().TilesList)
             {
                 if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() == this.Owner)
