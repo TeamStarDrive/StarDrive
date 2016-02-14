@@ -6560,7 +6560,7 @@ namespace Ship_Game.Gameplay
             //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
 
             float treasuryGoal = this.empire.GrossTaxes + this.empire.OtherIncome + this.empire.TradeMoneyAddedThisTurn + this.empire.data.FlatMoneyBonus;  //mmore savings than GDP 
-            treasuryGoal *=20;
+            treasuryGoal *= (this.empire.data.treasuryGoal *100);
             treasuryGoal = treasuryGoal <= 1 ? 1: treasuryGoal;
             float zero = this.FindTaxRateToReturnAmount(1);
             float tempTax =this.FindTaxRateToReturnAmount( treasuryGoal   *(1-(money/treasuryGoal))    );
