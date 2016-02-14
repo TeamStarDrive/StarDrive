@@ -1408,12 +1408,9 @@ namespace Ship_Game
             module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
             module.TargetValue += module.Advanced.explodes ? 2 : 0;
             module.TargetValue += module.isWeapon ? 1 : 0;
-         
-            
-
-
 
             #endregion
+
             return module;
 		}
 

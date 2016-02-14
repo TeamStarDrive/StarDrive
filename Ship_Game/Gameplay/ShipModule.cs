@@ -76,6 +76,7 @@ namespace Ship_Game.Gameplay
 		public ShipModule()     //Constructor
 		{
             System.Diagnostics.Debug.WriteLine("ShipModule Created.");
+            this.Advanced = ShipModule_Advanced.Empty;
         }
 
 		public ShipModule(ShipModuleType type)  //Constructor that is not called anywhere
