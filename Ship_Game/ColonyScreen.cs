@@ -335,7 +335,10 @@ namespace Ship_Game
                 this.GovSliders = new Checkbox(new Vector2((float)(rectangle5.X - 10), (float)(rectangle5.Y - (Fonts.Arial12Bold.LineSpacing + 10))), "Governor manages labor sliders", connectedTo, Fonts.Arial12Bold);
             }
             else
+            {
                 PlanetScreen.screen.LookingAtPlanet = false;
+                
+            }
         }
 
         private void AddTroopToQ()
