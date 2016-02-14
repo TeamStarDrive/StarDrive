@@ -2457,7 +2457,7 @@ namespace Ship_Game.Gameplay
                     Dictionary<ThreatMatrix.Pin, float> dictionary1 = new Dictionary<ThreatMatrix.Pin, float>();
                     foreach (KeyValuePair<Guid, ThreatMatrix.Pin> keyValuePair1 in this.Owner.GetGSAI().ThreatMatrix.Pins)
                     {
-                        if (!(keyValuePair1.Value.EmpireName == this.Owner.data.Traits.Name) && (EmpireManager.GetEmpireByName(keyValuePair1.Value.EmpireName).isFaction || this.Owner.GetRelations()[EmpireManager.GetEmpireByName(keyValuePair1.Value.EmpireName)].AtWar) && (!list1.Contains(keyValuePair1.Value) && Vector2.Distance(keyValuePair1.Value.Position, Task.AO) < Task.AORadius))
+                        if (!(keyValuePair1.Value.EmpireName == this.Owner.data.Traits.Name) && (EmpireManager.GetEmpireByName(keyValuePair1.Value.EmpireName).isFaction || !this.Owner.GetRelations()[EmpireManager.GetEmpireByName(keyValuePair1.Value.EmpireName)].AtWar) && (!list1.Contains(keyValuePair1.Value) && Vector2.Distance(keyValuePair1.Value.Position, Task.AO) < Task.AORadius))
                         {
                             dictionary1.Add(keyValuePair1.Value, keyValuePair1.Value.Strength);
                             list1.Add(keyValuePair1.Value);
@@ -2585,7 +2585,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
                     float num5 = num3 + num4;
-                    if (num3 >= 0.5 * num5 && num1 <= 0.100000001490116 * num2)
+                    if (num3 >= 0.5f * num5 && num1 <= 0.1f * num2)
                     {
                         this.TaskStep = 5;
                         break;
