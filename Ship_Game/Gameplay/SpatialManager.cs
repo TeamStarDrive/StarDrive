@@ -560,7 +560,7 @@ namespace Ship_Game.Gameplay
                                                     while (num2 < num1 / 60.0)
                                                     {
                                                         ++GlobalStats.Comparisons;
-                                                        if (Vector2.Distance(gameplayObject1.Center + vector2 * num2, shipModule.Center) <= 12.0 + (shipModule.shield_power > 0.0 ? shipModule.shield_radius : 0.0))
+                                                        if (Vector2.Distance(gameplayObject1.Center + vector2 * num2, shipModule.Center) <= 12.0 + (shipModule.shield_power > 0.0 ? shipModule.Advanced.shield_radius : 0.0))
                                                         {
                                                             gameplayObject1.Center = gameplayObject1.Center + vector2 * num2;
                                                             gameplayObject1.Position = gameplayObject1.Center;
@@ -592,7 +592,7 @@ namespace Ship_Game.Gameplay
                                             while (num2 < num1 / 60.0)
                                             {
                                                 ++GlobalStats.Comparisons;
-                                                if (Vector2.Distance(gameplayObject1.Center + vector2 * num2, moduleSlot.module.Center) <= 8.0 + (gameplayObject1 as Projectile).weapon.ProjectileRadius + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
+                                                if (Vector2.Distance(gameplayObject1.Center + vector2 * num2, moduleSlot.module.Center) <= 8.0 + (gameplayObject1 as Projectile).weapon.ProjectileRadius + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.Advanced.shield_radius : 0.0))
                                                 {
                                                     gameplayObject1.Center = gameplayObject1.Center + vector2 * num2;
                                                     gameplayObject1.Position = gameplayObject1.Center;
@@ -617,7 +617,7 @@ namespace Ship_Game.Gameplay
                                         ++GlobalStats.Comparisons;
                                         ++GlobalStats.DistanceCheckTotal;
                                         ShipModule shipModule = (gameplayObject as Ship).GetShields()[index];
-                                        if (shipModule != null && (shipModule.shield_power <= 0.0 || !(gameplayObject1 as Projectile).IgnoresShields) && shipModule.Active && Vector2.Distance(gameplayObject1.Center, shipModule.Center) <= 10.0 + (shipModule.shield_power > 0.0 ? shipModule.shield_radius : 0.0))
+                                        if (shipModule != null && (shipModule.shield_power <= 0.0 || !(gameplayObject1 as Projectile).IgnoresShields) && shipModule.Active && Vector2.Distance(gameplayObject1.Center, shipModule.Center) <= 10.0 + (shipModule.shield_power > 0.0 ? shipModule.Advanced.shield_radius : 0.0))
                                         {
                                             flag = true;
                                             (gameplayObject1 as Projectile).Touch((GameplayObject)shipModule);
@@ -630,7 +630,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             ++GlobalStats.DistanceCheckTotal;
                                             ModuleSlot moduleSlot = (gameplayObject as Ship).ExternalSlots.ElementAt(index);
-                                            if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject1 as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject1.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
+                                            if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject1 as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject1.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.Advanced.shield_radius : 0.0))
                                             {
                                                 (gameplayObject1 as Projectile).Touch((GameplayObject)moduleSlot.module);
                                                 break;
@@ -687,7 +687,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             ++GlobalStats.Comparisons;
                                             //double num2 = (double)Vector2.Distance(gameplayObject.Center + vector2 * (float)num1, moduleSlot.module.Center);
-                                            if (Vector2.Distance(gameplayObject.Center + vector2 * num1, moduleSlot.module.Center) <= 8.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
+                                            if (Vector2.Distance(gameplayObject.Center + vector2 * num1, moduleSlot.module.Center) <= 8.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.Advanced.shield_radius : 0.0))
                                             {
                                                 gameplayObject.Center = gameplayObject.Center + vector2 * num1;
                                                 gameplayObject.Position = gameplayObject.Center;
@@ -715,7 +715,7 @@ namespace Ship_Game.Gameplay
                                     ++GlobalStats.Comparisons;
                                     ++GlobalStats.DistanceCheckTotal;
                                     ModuleSlot moduleSlot = (gameplayObject1 as Ship).ExternalSlots.ElementAt(index);
-                                    if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
+                                    if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.Advanced.shield_radius : 0.0))
                                     {
                                         this.collisionResults.Add(new SpatialManager.CollisionResult()
                                         {
@@ -921,7 +921,7 @@ namespace Ship_Game.Gameplay
                                             {
                                                 ++GlobalStats.Comparisons;
                                                 //double num2 = (double)Vector2.Distance(gameplayObject.Center + vector2 * (float)num1, moduleSlot.module.Center);
-                                                if (Vector2.Distance(gameplayObject.Center + vector2 * num1, moduleSlot.module.Center) <= 8f + (moduleSlot.module.shield_power > 0f ? moduleSlot.module.shield_radius : 0f))
+                                                if (Vector2.Distance(gameplayObject.Center + vector2 * num1, moduleSlot.module.Center) <= 8f + (moduleSlot.module.shield_power > 0f ? moduleSlot.module.Advanced.shield_radius : 0f))
                                                 {
                                                     gameplayObject.Center = gameplayObject.Center + vector2 * num1;
                                                     gameplayObject.Position = gameplayObject.Center;
@@ -950,7 +950,7 @@ namespace Ship_Game.Gameplay
                                         ++GlobalStats.Comparisons;
                                         ++GlobalStats.DistanceCheckTotal;
                                         ModuleSlot moduleSlot = (gameplayObject1 as Ship).ExternalSlots.ElementAt(index);
-                                        if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
+                                        if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.Advanced.shield_radius : 0.0))
                                         {
                                             lock (locker)
                                                 this.collisionResults.Add(new SpatialManager.CollisionResult()
@@ -1062,7 +1062,7 @@ namespace Ship_Game.Gameplay
                                                 float num2 = damageAmount;
                                                 foreach (ShipModule shipModule in list)
                                                 {
-                                                    if (Vector2.Distance(ExplosionCenter, shipModule.Center) <= damageRadius + shipModule.shield_radius && shipModule.shield_power > 0.0)
+                                                    if (Vector2.Distance(ExplosionCenter, shipModule.Center) <= damageRadius + shipModule.Advanced.shield_radius && shipModule.shield_power > 0.0)
                                                     {
                                                         num2 = damageAmount - shipModule.shield_power;
                                                         
@@ -1221,7 +1221,7 @@ namespace Ship_Game.Gameplay
                     }
 
                     float DamageTracker = 0;
-                    IEnumerable<ModuleSlot> modules = (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) <= modifiedRadius + moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center) <= modifiedRadius + 10f).OrderBy(moduleSlot => (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) - moduleSlot.module.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center));
+                    IEnumerable<ModuleSlot> modules = (gameplayObject as Ship).ModuleSlotList.Where(moduleSlot => moduleSlot.module.Health > 0.0 && (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) <= modifiedRadius + moduleSlot.module.Advanced.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center) <= modifiedRadius + 10f).OrderBy(moduleSlot => (moduleSlot.module.shield_power > 0.0 && !source.IgnoresShields) ? Vector2.Distance(source.Center, moduleSlot.module.Center) - moduleSlot.module.Advanced.shield_radius : Vector2.Distance(source.Center, moduleSlot.module.Center));
                     foreach (ModuleSlot moduleSlot in modules)
                     {
                         moduleSlot.module.Damage(source, damageAmount, ref DamageTracker);
@@ -1340,7 +1340,7 @@ namespace Ship_Game.Gameplay
                                                 float num2 = damageAmount;
                                                 foreach (ShipModule shipModule in list)
                                                 {
-                                                    if (Vector2.Distance(ExplosionCenter, shipModule.Center) <= damageRadius + shipModule.shield_radius && shipModule.shield_power > 0.0)
+                                                    if (Vector2.Distance(ExplosionCenter, shipModule.Center) <= damageRadius + shipModule.Advanced.shield_radius && shipModule.shield_power > 0.0)
                                                     {
                                                         num2 = damageAmount - shipModule.shield_power;
                                                         shipModule.Damage(source, damageAmount / 2f);

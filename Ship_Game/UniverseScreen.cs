@@ -5360,11 +5360,11 @@ namespace Ship_Game
                     origin1 = this.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
                     Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(origin1, 0.0f), this.projection, this.view, Matrix.Identity);
                     Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y);
-                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, moduleSlot.module.Center, moduleSlot.module.shield_radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
+                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, moduleSlot.module.Center, moduleSlot.module.Advanced.shield_radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
                     float num3 = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X);
                     Rectangle destinationRectangle = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)num3 * 2, (int)num3 * 2);
                     Vector2 origin2 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                    float num4 = moduleSlot.module.shield_power / (moduleSlot.module.shield_power_max + (ship.loyalty != null ? ship.loyalty.data.ShieldPowerMod * moduleSlot.module.shield_power_max : 0));
+                    float num4 = moduleSlot.module.shield_power / (moduleSlot.module.Advanced.shield_power_max + (ship.loyalty != null ? ship.loyalty.data.ShieldPowerMod * moduleSlot.module.Advanced.shield_power_max : 0));
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], destinationRectangle, new Rectangle?(), new Color(Color.Green.R, Color.Green.G, Color.Green.B, (byte)((double)byte.MaxValue * (double)num4)), 0.0f, origin2, SpriteEffects.None, 1f);
                 }
             }
@@ -6670,7 +6670,7 @@ namespace Ship_Game
                             Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, point1, point2_2, new Color(byte.MaxValue, (byte)0, (byte)0, (byte)75), 1f);
                         }
                     }
-                    if (!moduleSlot.module.Powered && (double)moduleSlot.module.PowerDraw > 0.0 && moduleSlot.module.ModuleType != ShipModuleType.PowerConduit)
+                    if (!moduleSlot.module.Powered && (double)moduleSlot.module.Advanced.PowerDraw > 0.0 && moduleSlot.module.ModuleType != ShipModuleType.PowerConduit)
                     {
                         Vector2 origin2 = new Vector2(8f, 8f);
                         float scale2 = 1250f / this.camHeight;
