@@ -16,7 +16,7 @@ namespace Ship_Game.Gameplay
         //public Dictionary<Guid, Ship> ship = new Dictionary<Guid, Ship>();
         public ConcurrentDictionary<Guid, Ship> ship = new ConcurrentDictionary<Guid, Ship>();
 		private object thislock = new object();
-
+        List<Guid> purge = new List<Guid>();
 		public ThreatMatrix()
 		{
 		}
@@ -90,6 +90,26 @@ namespace Ship_Game.Gameplay
 			return pos;
 		}
 
+        public void ClearPinsInSensorRange(Vector2 Position, float Radius)
+        {
+
+            
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+                if (pin.Value.InBorders || pin.Value.Position == Vector2.Zero || Vector2.Distance(Position, pin.Value.Position) > Radius || (pin.Value.ship != null && Vector2.Distance(Position, pin.Value.ship.Center) <= Radius))
+                {
+                    continue;
+                }
+
+                pin.Value.Position = Vector2.Zero;
+                pin.Value.ship = null;
+                pin.Value.Strength = 0;
+                
+            }
+            
+            
+        }
+
 		public float PingRadarStr(Vector2 Position, float Radius, Empire Us)
 		{
 			float str = 0f;
@@ -97,8 +117,8 @@ namespace Ship_Game.Gameplay
 			{
 				if (Vector2.Distance(Position, pin.Value.Position) >= Radius 
                     || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Us 
-                    || !Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction 
-                    && !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].AtWar)
+                    || (!Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction 
+                    && !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].Treaty_NAPact))
 				{
 					continue;
 				}
@@ -124,11 +144,12 @@ namespace Ship_Game.Gameplay
 			this.Pins[ship.guid].Position = ship.Center;
 		}
 
-        public void UpdatePin(Ship ship, bool ShipinBorders)
+        public void UpdatePin(Ship ship, bool ShipinBorders,bool flag)
         {
             ThreatMatrix.Pin pin = null;
             bool exists = this.Pins.TryGetValue(ship.guid, out pin);
-
+            if (!exists && !flag)
+                return;
             if (pin == null)
             {
                 pin = new ThreatMatrix.Pin()
