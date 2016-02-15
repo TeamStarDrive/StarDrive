@@ -67,8 +67,8 @@ namespace Ship_Game.Gameplay
         public bool IsTroopBay;
         public float hangarTimerConstant = 30f;
         public float thrust;
-        public int WarpThrust;
-        public int TurnThrust;
+        public float WarpThrust;
+        public float TurnThrust;
         public float PowerFlowMax;
         public float PowerDraw;
         public float PowerDrawAtWarp;
@@ -124,7 +124,7 @@ namespace Ship_Game.Gameplay
     }
 
     [System.Xml.Serialization.XmlType("ShipModule")]
-    public sealed class ShipModule_Deserialize
+    public sealed class ShipModule_Deserialize : GameplayObject
     {
 
         //This is for the Deserialization process, when reading the XML files.  -Gretman
@@ -278,6 +278,7 @@ namespace Ship_Game.Gameplay
 
             ReturnModule.XSIZE = this.XSIZE;
             ReturnModule.YSIZE = this.YSIZE;
+            ReturnModule.Mass = this.Mass;
             ReturnModule.PermittedHangarRoles = this.PermittedHangarRoles;
             ReturnModule.Powered = this.Powered;
             ReturnModule.isDummy = this.isDummy;
