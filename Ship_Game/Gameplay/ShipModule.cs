@@ -120,8 +120,8 @@ namespace Ship_Game.Gameplay
         public bool IsTroopBay                  { get { return this.Advanced.IsTroopBay; } }
         public float hangarTimerConstant        { get { return this.Advanced.hangarTimerConstant; } }
         public float thrust                     { get { return this.Advanced.thrust; } }
-        public int WarpThrust                   { get { return this.Advanced.WarpThrust; } }
-        public int TurnThrust                   { get { return this.Advanced.TurnThrust; } }
+        public float WarpThrust                 { get { return this.Advanced.WarpThrust; } }
+        public float TurnThrust                 { get { return this.Advanced.TurnThrust; } }
         public float PowerFlowMax               { get { return this.Advanced.PowerFlowMax; } }
         public float PowerDraw                  { get { return this.Advanced.PowerDraw; } }
         public float PowerDrawAtWarp            { get { return this.Advanced.PowerDrawAtWarp; } }
