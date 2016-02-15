@@ -3698,8 +3698,8 @@ namespace Ship_Game.Gameplay
                                 else
                                     this.ModulePowerDraw += moduleSlot.module.PowerDraw;
                                 this.Thrust += moduleSlot.module.thrust;
-                                this.WarpThrust += (float)moduleSlot.module.WarpThrust;
-                                this.TurnThrust += (float)moduleSlot.module.TurnThrust;
+                                this.WarpThrust += moduleSlot.module.WarpThrust;
+                                this.TurnThrust += moduleSlot.module.TurnThrust;
                                 if (moduleSlot.module.ECM > this.ECMValue)
                                 {
                                     this.ECMValue = moduleSlot.module.ECM;

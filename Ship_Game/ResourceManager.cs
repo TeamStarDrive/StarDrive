@@ -2508,12 +2508,12 @@ namespace Ship_Game
                 if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(data.UID))
 				{
                     Ship_Game.ResourceManager.ShipModulesDict[data.UID] = data.ConvertToShipModule();
-                    System.Diagnostics.Debug.WriteLine("ShipModule already found. Conflicting name:  " + data.UID);
+                    System.Diagnostics.Debug.WriteLine("ShipModule UID already found. Conflicting name:  " + data.UID);
                 }
 				else
 				{
                     Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data.ConvertToShipModule());
-				}
+                }
                 
 			}
 			foreach (KeyValuePair<string, ShipModule> entry in Ship_Game.ResourceManager.ShipModulesDict)
