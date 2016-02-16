@@ -70,11 +70,12 @@ namespace Ship_Game.Gameplay
 				{
 					continue;
 				}
-				MilitaryTask initialEnemyStrength = this;
-				initialEnemyStrength.InitialEnemyStrength = initialEnemyStrength.InitialEnemyStrength + pin.Value.Strength;
-				MilitaryTask enemyStrength = this;
-				enemyStrength.EnemyStrength = enemyStrength.EnemyStrength + pin.Value.Strength;
+                //MilitaryTask initialEnemyStrength = this;
+                //initialEnemyStrength.InitialEnemyStrength = initialEnemyStrength.InitialEnemyStrength + pin.Value.Strength;
+				this.EnemyStrength += pin.Value.Strength;
 			}
+            if (InitialEnemyStrength == 0)
+                this.InitialEnemyStrength = EnemyStrength;
             this.MinimumTaskForceStrength = this.EnemyStrength *.75f;
 			this.empire = Owner;
 		}
@@ -2090,22 +2091,23 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			Ship_Game.Gameplay.AO ClosestAO = sorted.First<Ship_Game.Gameplay.AO>();
-			this.EnemyStrength = 0f;
-			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.empire.GetGSAI().ThreatMatrix.Pins)
-			{
+            this.EnemyStrength = this.empire.GetGSAI().ThreatMatrix.PingRadarStr(this.AO, this.AORadius,this.empire);
+            //this.EnemyStrength = 0f;
+            //foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.empire.GetGSAI().ThreatMatrix.Pins)
+            //{
 				
-                if (Vector2.Distance(this.AO, pin.Value.Position) >= this.AORadius)
-				{
-					continue;
-				}
-				Empire Them = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
-				if (Them == this.empire || !Them.isFaction && this.empire.GetRelations()[Them].Treaty_OpenBorders)
-				{
-					continue;
-				}
-				MilitaryTask enemyStrength = this;
-				enemyStrength.EnemyStrength = enemyStrength.EnemyStrength + pin.Value.Strength;
-			}
+            //    if (Vector2.Distance(this.AO, pin.Value.Position) >= this.AORadius)
+            //    {
+            //        continue;
+            //    }
+            //    Empire Them = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
+            //    if (Them == this.empire || !Them.isFaction && this.empire.GetRelations()[Them].Treaty_OpenBorders)
+            //    {
+            //        continue;
+            //    }
+            //    MilitaryTask enemyStrength = this;
+            //    enemyStrength.EnemyStrength = enemyStrength.EnemyStrength + pin.Value.Strength;
+            //}
             this.MinimumTaskForceStrength = this.EnemyStrength; // +0.35f * this.EnemyStrength;
 			if (this.MinimumTaskForceStrength == 0f)
 			{
