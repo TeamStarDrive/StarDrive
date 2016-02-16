@@ -2673,9 +2673,9 @@ namespace Ship_Game
                 }
                 if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed)
                 {
-                    if ((double)this.AORect.X > (double)vector3.X)
+                    if (this.AORect.X > vector3.X)
                         this.AORect.X = (int)vector3.X;
-                    if ((double)this.AORect.Y > (double)vector3.Y)
+                    if (this.AORect.Y > vector3.Y)
                         this.AORect.Y = (int)vector3.Y;
                     this.AORect.Width = Math.Abs(this.AORect.Width);
                     this.AORect.Height = Math.Abs(this.AORect.Height);

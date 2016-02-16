@@ -7807,27 +7807,33 @@ namespace Ship_Game.Gameplay
             int numWars = 0;
             float offenseNeeded =0;
             float FearTrust =0;
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
+            foreach(MilitaryTask task in this.TaskList)
             {
-                if (!Relationship.Value.Known)
-                    continue;
-                FearTrust += Relationship.Value.Trust *.003f;
-                FearTrust += Relationship.Value.TotalAnger * .003f;
-                FearTrust += Relationship.Value.Threat * .003f;
-                if (!Relationship.Key.isFaction &&( Relationship.Value.AtWar || Relationship.Value.PreparingForWar ))
-                {
-                    numWars++;
-                    offenseNeeded += Relationship.Key.currentMilitaryStrength / (this.empire.currentMilitaryStrength + 1);
-                    continue;
-                }
+                offenseNeeded += task.MinimumTaskForceStrength;
 
-                if (!Relationship.Key.isFaction && (!Relationship.Value.Treaty_Trade || !Relationship.Value.Treaty_OpenBorders) )
-                {
-                    numWars++;
-                    offenseNeeded += Relationship.Key.currentMilitaryStrength / (this.empire.currentMilitaryStrength + 1) *.25f;
-                    continue;
-                }
             }
+
+            //foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.GetRelations())
+            //{
+            //    if (!Relationship.Value.Known)
+            //        continue;
+            //    FearTrust += Relationship.Value.Trust *.003f;
+            //    FearTrust += Relationship.Value.TotalAnger * .003f;
+            //    FearTrust += Relationship.Value.Threat * .003f;
+            //    if (!Relationship.Key.isFaction &&( Relationship.Value.AtWar || Relationship.Value.PreparingForWar ))
+            //    {
+            //        numWars++;
+            //        offenseNeeded += Relationship.Key.currentMilitaryStrength / (this.empire.currentMilitaryStrength + 1);
+            //        continue;
+            //    }
+
+            //    if (!Relationship.Key.isFaction && (!Relationship.Value.Treaty_Trade || !Relationship.Value.Treaty_OpenBorders) )
+            //    {
+            //        numWars++;
+            //        offenseNeeded += Relationship.Key.currentMilitaryStrength / (this.empire.currentMilitaryStrength + 1) *.25f;
+            //        continue;
+            //    }
+            //}
 
             //bool atWar = this.empire.GetRelations().Where(war => war.Value.AtWar).Count() > 0;
             //int prepareWar = this.empire.GetRelations().Where(angry => angry.Value.TotalAnger > angry.Value.Trust).Count();
@@ -7838,10 +7844,15 @@ namespace Ship_Game.Gameplay
             //float tax = atWar ? .40f + (prepareWar * .05f) : .25f + (prepareWar * .05f);  //.45f - (tasks);
             //float offenseNeeded = this.empire.GetRelations().Where(war => war.Value.AtWar || war.Value.PreparingForWar || war.Value.Trust < war.Value.TotalAnger).Sum(power => power.Key.currentMilitaryStrength);
             //offenseNeeded = this.empire.GetRelations().Where(war => !war.Key.isFaction && war.Value.AtWar || war.Value.PreparingForWar).Sum(power => power.Key.currentMilitaryStrength / (this.empire.currentMilitaryStrength + 1));
+            if (offenseNeeded > 0)
+                offenseNeeded += this.ThreatMatrix.Pins.Values.Sum(power => power.Strength) ; //.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);            
+                offenseNeeded /= this.empire.currentMilitaryStrength ;
+            if (offenseNeeded <=0)
+            {    offenseNeeded = 0;
             
-            offenseNeeded += this.ThreatMatrix.Pins.Values.Sum(power => power.Strength / (this.empire.currentMilitaryStrength + 1)); //.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);
-            if (offenseNeeded < 0)
-                offenseNeeded = 0;
+            }
+
+            
             //offenseNeeded += FearTrust;
     
             if (offenseNeeded > 20)
