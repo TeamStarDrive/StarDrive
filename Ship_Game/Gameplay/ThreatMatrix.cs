@@ -24,14 +24,33 @@ namespace Ship_Game.Gameplay
         public float StrengthOfAllEmpireShipsInBorders(Empire them)
         {
             float str = 0f;
-            int count = 0;
+            //int count = 0;
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
                 if (EmpireManager.GetEmpireByName(pin.Value.EmpireName) == them  && pin.Value.InBorders)   
                 str = str + pin.Value.Strength +1;
-                count++;
+                
             }
-            return str*count;
+            return str;// *count;
+        }
+        public float StrengthOfAllThreats(Empire empire)
+        {
+            float str = 0f;
+            //int count = 0;
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+                if(pin.Value.EmpireName == string.Empty)
+                    continue;
+                Relationship rel;
+                Empire emp = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
+                if(!empire.GetRelations().TryGetValue(emp,out rel))
+                    continue;
+               if(rel.Treaty_Alliance)
+                   continue;
+                str+=pin.Value.Strength;               
+
+            }
+            return str;// *count;
         }
 
 		public Vector2 GetPositionOfNearestEnemyWithinRadius(Vector2 Position, float Radius, Empire Us)
