@@ -40,7 +40,7 @@ namespace Ship_Game
         private float ZrotateAmount = 0.03f;
         public BatchRemovalCollection<Ship> BasedShips = new BatchRemovalCollection<Ship>();
         public bool GovernorOn = true;
-        //private AudioEmitter emit = new AudioEmitter();    //Not referenced in code, removing to save memory -Gretman
+        private AudioEmitter emit = new AudioEmitter();
         private float DecisionTimer = 0.5f;
         public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
         private List<Building> BuildingsCanBuild = new List<Building>();
@@ -62,7 +62,7 @@ namespace Ship_Game
         public float ShieldStrengthCurrent;
         public float ShieldStrengthMax;
         private int TurnsSinceTurnover;
-        //public bool isSelected;    //Not referenced in code, removing to save memory -Gretman
+        public bool isSelected;
         public Vector2 Position;
         public string SpecialDescription;
         public static UniverseScreen universeScreen;
@@ -86,7 +86,7 @@ namespace Ship_Game
         public float planetTilt;
         public float ringTilt;
         public float scale;
-        //public Matrix World;    //Not referenced in code, removing to save memory -Gretman
+        public Matrix World;
         public Matrix RingWorld;
         public SceneObject SO;
         public bool habitable;
@@ -94,7 +94,7 @@ namespace Ship_Game
         public float MaxPopulation;
         public string Type;
         private float Zrotate;
-        //public float BuildingRoomUsed;    //Not referenced in code, removing to save memory -Gretman
+        public float BuildingRoomUsed;
         public int StorageAdded;
         public float CombatTimer;
         private int numInvadersLast;
@@ -138,7 +138,7 @@ namespace Ship_Game
         private bool disposed;
         private ReaderWriterLockSlim planetLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private bool PSexport = false;
-        //private bool FSexport = false;    //Not referenced in code, removing to save memory -Gretman
+        private bool FSexport = false;
         public bool UniqueHab = false;
         public int uniqueHabPercent;
 
@@ -3769,7 +3769,7 @@ namespace Ship_Game
         }
         private void SetExportState(ColonyType colonyType)
         {
-            bool FSexport = false;
+            bool FSexport =false;
             bool PSexport = false;
             int pc = 0;
             foreach(Planet planet in this.Owner.GetPlanets())
@@ -3791,6 +3791,8 @@ namespace Ship_Game
             }
             float PRatio = this.ProductionHere /this.MAX_STORAGE;
             float FRatio = this.FoodHere /this.MAX_STORAGE;
+
+            int queueCount = this.ConstructionQueue.Count;
             switch (colonyType)
             {
                 
@@ -3799,9 +3801,9 @@ namespace Ship_Game
                 case ColonyType.Industrial:
                     if (this.NetProductionPerTurn > this.developmentLevel)
                     {
-                        if (PRatio < .9 && this.ConstructionQueue.Count > 0)
+                        if (PRatio < .9 && queueCount > 0 && FSexport)
                             this.ps = GoodState.IMPORT;
-                        else if (this.ConstructionQueue.Count == 0)
+                        else if (queueCount == 0)
                         {
                             this.ps = GoodState.EXPORT;
                         }
@@ -3809,13 +3811,26 @@ namespace Ship_Game
                             this.ps = GoodState.STORE;
 
                     }
-                    else
+                    else if (queueCount > 0 || this.Owner.data.Traits.Cybernetic > 0)
                     {
-                        if (PRatio < .75)
+                        if (PRatio < .5f && PSexport)
                             this.ps = GoodState.IMPORT;
+                        else if (!PSexport && PRatio >.5)
+                            this.ps = GoodState.EXPORT;
                         else
                             this.ps = GoodState.STORE;
+                    } 
+                    else
+                    {
+                        if (PRatio > .5f && !PSexport)
+                            this.ps = GoodState.EXPORT;
+                        else if (PRatio > .5f && PSexport)
+                            this.ps = GoodState.STORE;
+                        else this.ps = GoodState.EXPORT;
+                        
                     }
+                    
+                
                     if (FRatio > .75f)
                         this.fs = Planet.GoodState.STORE;
                     else
@@ -3824,10 +3839,12 @@ namespace Ship_Game
 
                     
                 case ColonyType.Agricultural:
-                if(PRatio >.75)
-                    this.ps = Planet.GoodState.STORE;
-                else
+                if (PRatio > .75 && !PSexport)
+                    this.ps = Planet.GoodState.EXPORT;
+                else if (PRatio < .5 && PSexport)
                     this.ps = Planet.GoodState.IMPORT;
+                else
+                    this.ps = GoodState.STORE;
 
 
                 if (this.NetFoodPerTurn >0 )
@@ -3842,16 +3859,20 @@ namespace Ship_Game
                 case ColonyType.Research:
                 
                 {
-                    if (PRatio > .75f)
-                        this.ps = Planet.GoodState.STORE;
-                    else
+                    if (PRatio > .75f && !PSexport)
+                        this.ps = Planet.GoodState.EXPORT;
+                    else if (PRatio < .5f && PSexport)
                         this.ps = Planet.GoodState.IMPORT;
-
-
-                    if (FRatio > .75f)
-                        this.fs = Planet.GoodState.STORE;
                     else
+                        this.ps = GoodState.STORE;
+
+
+                    if (FRatio > .75f && !FSexport)
+                        this.fs = Planet.GoodState.EXPORT;
+                    else if (FSexport && FRatio <.75)
                         this.fs = Planet.GoodState.IMPORT;
+                    else
+                        this.fs = GoodState.STORE;
 
                     break; 
                 }
@@ -3870,10 +3891,11 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if (PRatio > .75)
-                        this.ps = GoodState.STORE;
-                    else
+                    if (PRatio > .75 && !FSexport)
+                        this.ps = GoodState.EXPORT;
+                    else if (PRatio < .5 && FSexport)
                         this.ps = GoodState.IMPORT;
+                    else this.ps = GoodState.STORE;
                 }
                 
                 if (FRatio > .25)
@@ -3895,17 +3917,23 @@ namespace Ship_Game
             {
                 this.PSexport = false;
             }
-            if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
+            if(!FSexport)
+                this.FSexport = true;
+            else
             {
-                
-                this.ps = GoodState.STORE;
+                this.FSexport = false ;
             }
+            //if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
+            //{
+                
+            //    this.ps = GoodState.STORE;
+            //}
 
-            if(this.developmentLevel>1 && this.fs == GoodState.EXPORT && !FSexport)
-            {
+            //if(this.developmentLevel>1 && this.fs == GoodState.EXPORT && !FSexport)
+            //{
                 
-                this.fs = GoodState.STORE;
-            }
+            //    this.fs = GoodState.STORE;
+            //}
 
            
         }
@@ -4872,23 +4900,23 @@ namespace Ship_Game
 
 
                         float num9 = 0.0f;
-                        //bool flag11 = false;          //Not referenced in code, removing to save memory -Gretman
+                        bool flag11 = false;
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                         {
                             if (queueItem.isBuilding)
                                 ++num9;
                             if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
                                 ++num9;
-                            //if (queueItem.isBuilding && queueItem.Building.Name == "Terraformer")
-                                //flag11 = true;
+                            if (queueItem.isBuilding && queueItem.Building.Name == "Terraformer")
+                                flag11 = true;
                         }
                         bool flag12 = true;
                         foreach (Building building in this.BuildingList)
                         {
                             if (building.Name == "Outpost" || building.Name == "Capital City")
                                 flag12 = false;
-                            //if (building.Name == "Terraformer" && this.Fertility >= 1.0)
-                                //flag11 = true;
+                            if (building.Name == "Terraformer" && this.Fertility >= 1.0)
+                                flag11 = true;
                         }
                         if (flag12)
                         {
@@ -4936,7 +4964,7 @@ namespace Ship_Game
                             this.GetBuildingsWeCanBuildHere();
                             Building b = (Building)null;
                             float num1 = 99999f;
-                            //bool highPri = false;          //Not referenced in code, removing to save memory -Gretman
+                            bool highPri = false;
                             foreach (Building building in this.BuildingsCanBuild.OrderBy(cost => cost.Cost))
                             {
                                 if (!WeCanAffordThis(building, this.colonyType))
