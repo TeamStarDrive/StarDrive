@@ -4252,7 +4252,7 @@ namespace Ship_Game.Gameplay
             {
 #if DEBUG
 
-                if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
+                //if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
                     //System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
 
 #endif
@@ -4265,14 +4265,15 @@ namespace Ship_Game.Gameplay
                         weapons = true;
                         float offRate = 0;
                         Weapon w = module.InstalledWeapon;
+                        float damageAmount = w.DamageAmount + w.EMPDamage + w.PowerDamage + w.MassDamage;
                         if (!w.explodes)
                         {
-                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                            offRate += (!w.isBeam ? (damageAmount * w.SalvoCount) * (1f / w.fireDelay) : damageAmount * 18f);
                         }
                         else
                         {
-                            
-                            offRate += (w.DamageAmount*w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
+
+                            offRate += (damageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
 
                         }
                         if (offRate > 0 && w.TruePD || w.Range < 1000)
@@ -4284,14 +4285,18 @@ namespace Ship_Game.Gameplay
                             }
                             offRate /= (2 + range);
                         }
-                        if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
+                        //if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
                         Str += offRate;
                     }
 
 
-                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
+                    if (module.hangarShipUID != null && !module.IsSupplyBay )
                     {
-
+                        if(module.IsTroopBay)
+                        {
+                            Str += 50;
+                            continue;
+                        }
                         fighters = true;
                         Ship hangarship = new Ship();
                         ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);

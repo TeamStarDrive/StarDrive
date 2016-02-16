@@ -1694,13 +1694,14 @@ namespace Ship_Game
                         }
                         else
                         {
-                            Task task4 = new Task(() =>
-                            {
                                 this.GSAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
-                            });
-                            task4.Start();
-                            nearby.inborders = false;
-                            //lock (GlobalStats.KnownShipsLock)
+                            //Task task4 = new Task(() =>
+                            //{
+                            //    this.GSAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
+                            //});
+                            //task4.Start();
+                            //nearby.inborders = false;
+                            
                             {
                                 Shipbag.Add(nearby);
                               //  lock (this.KnownShips)
@@ -1765,6 +1766,12 @@ namespace Ship_Game
 
                 }
             }
+            Task task4 = new Task(() =>
+            {
+                this.GSAI.ThreatMatrix.ScrubMatrix();
+            });
+            task4.Start();
+            
         }
         public Dictionary<Empire, Relationship> GetRelations()
         {
@@ -2996,14 +3003,11 @@ namespace Ship_Game
                         this.Inhibitors.Add(ship);
                    // Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
                     Empire.InfluenceNode influenceNodeS = this.SensorNodes.RecycleObject();// = new Empire.InfluenceNode();
-                    if(this.BorderNodes.Contains(influenceNodeS))
-                    {
-                        influenceNodeS = null;
-                    }
-                    //Empire.InfluenceNode influenceNodeB = this.BorderNodes.RecycleObject();
-                    //this.BorderNodes.pendingRemovals.TryPop(out influenceNode);
-                    //if (influenceNodeB == null)
-                    //    influenceNodeB = new Empire.InfluenceNode();
+                                        
+                    Empire.InfluenceNode influenceNodeB = this.BorderNodes.RecycleObject();
+
+                    if (influenceNodeB == null)
+                        influenceNodeB = new Empire.InfluenceNode();
                     if (influenceNodeS == null)
                         influenceNodeS = new Empire.InfluenceNode();
                         //this.SensorNodes.pendingRemovals.TryPop(out influenceNode);
@@ -3012,13 +3016,13 @@ namespace Ship_Game
                     influenceNodeS.Radius = Empire.ProjectorRadius;  //projectors used as sensors again
                     influenceNodeS.KeyedObject = (object)ship;
 
-                    //influenceNodeB.Position = ship.Center;
-                    //influenceNodeB.Radius = Empire.ProjectorRadius;  //projectors used as sensors again
-                    //influenceNodeB.KeyedObject = (object)ship;
+                    influenceNodeB.Position = ship.Center;
+                    influenceNodeB.Radius = Empire.ProjectorRadius;  //projectors used as sensors again
+                    influenceNodeB.KeyedObject = (object)ship;
                     
                     this.SensorNodes.Add(influenceNodeS);
                     this.BorderNodeLocker.EnterWriteLock();
-                    this.BorderNodes.Add(influenceNodeS);
+                    this.BorderNodes.Add(influenceNodeB);
                     this.BorderNodeLocker.ExitWriteLock();
                 }
             }
