@@ -2172,21 +2172,23 @@ namespace Ship_Game
 
                 if (this.WeCanBuildThis(keyValuePair.Key))
                 {
-                    
+#if!DEBUG
                     try
+#endif
                     {
                         if (!this.structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.shipData.Role <= ShipData.RoleName.station && !keyValuePair.Value.shipData.IsShipyard)
                             this.structuresWeCanBuild.Add(keyValuePair.Key);
                         if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.shipData.Role].Protected)
                             this.ShipsWeCanBuild.Add(keyValuePair.Key);
                     }
+#if!DEBUG
                     catch //(Exception ex)      //Edited by Gretman, in a desperate attempt to prevent crashing.
                     {
                         //ex.Data["Ship Key"] = keyValuePair.Key;
                         //ex.Data["Role Name"] = keyValuePair.Value.shipData.Role;
                         //ex.Data["Ship Name"] = keyValuePair.Value.Name;
                         //throw;
-
+                        
                         keyValuePair.Value.Deleted = true;  //This should prevent this Key from being evaluated again
                         continue;   //This keeps the game going without crashing
 
@@ -2194,6 +2196,7 @@ namespace Ship_Game
                         //Gretman (with shame)
 
                     }
+#endif
                     foreach (string shiptech in keyValuePair.Value.shipData.techsNeeded)
                     {
                         this.ShipTechs.Add(shiptech);
@@ -2710,18 +2713,18 @@ namespace Ship_Game
             float pop = p.MaxPopulation;
              if(this.data.Traits.Cybernetic >0)
                  fertility = richness;
-             if (fertility < .5 && richness < .5)
+             if (fertility < 1 && richness < 1)
                  return Planet.ColonyType.Research;
-             if (fertility > 1 && richness < .5)
+             if (fertility >= 1 && richness < .5 && pop >=1)
                  return Planet.ColonyType.Agricultural;
-             if (richness > 1 && fertility > 1 && pop >2)
+             if (richness >= 1 && fertility > 1 && pop >2)
                  return Planet.ColonyType.Core;
-             if (richness > 1 && fertility < .5)
+             if (richness >= 1 && fertility < .5)
                  return Planet.ColonyType.Industrial;
-             if (richness > .5 && fertility < .5 && pop < 2)
-                 return Planet.ColonyType.Industrial;
-             if (richness < 1 && fertility < 1 && pop > 1)
-                 return Planet.ColonyType.Research;
+             //if (richness > .5 && fertility < .5 && pop < 2)
+             //    return Planet.ColonyType.Industrial;
+             //if (richness <= 1 && fertility < 1 && pop >= 1)
+             //    return Planet.ColonyType.Research;
              return Planet.ColonyType.Colony;
         }
         public Planet.ColonyType AssessColonyNeeds(Planet p)
@@ -2740,6 +2743,8 @@ namespace Ship_Game
                 Fertility += p.Fertility;
                 //ResearchPotential += 0.5f;
             }
+            else
+                ResearchPotential++;
             if (p.MineralRichness > 1.0)
             {
                 if (p.Fertility > 1.0)
@@ -2747,10 +2752,12 @@ namespace Ship_Game
                 MineralWealth += p.MineralRichness;
                 MilitaryPotential += 0.5f;
             }
+            else
+                ResearchPotential++;
             if (p.MaxPopulation > 1.0)
             {
                 ++ResearchPotential;
-                if ((double)p.Fertility > 1.0)
+                if (p.Fertility > 1f)
                     ++PopSupport;
                 if (p.MaxPopulation > 4.0)
                 {
