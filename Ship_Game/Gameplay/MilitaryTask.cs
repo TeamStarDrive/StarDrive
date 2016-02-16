@@ -64,16 +64,17 @@ namespace Ship_Game.Gameplay
 				g.Held = true;
 				this.HeldGoals.Add(g.guid);
 			}
-			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in Owner.GetGSAI().ThreatMatrix.Pins)
-			{
-				if (Vector2.Distance(this.AO, pin.Value.Position) >= this.AORadius || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Owner)
-				{
-					continue;
-				}
-                //MilitaryTask initialEnemyStrength = this;
-                //initialEnemyStrength.InitialEnemyStrength = initialEnemyStrength.InitialEnemyStrength + pin.Value.Strength;
-				this.EnemyStrength += pin.Value.Strength;
-			}
+            this.EnemyStrength = Owner.GetGSAI().ThreatMatrix.PingRadarStr(location, radius, Owner);
+            //foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in Owner.GetGSAI().ThreatMatrix.Pins)
+            //{
+            //    if (Vector2.Distance(this.AO, pin.Value.Position) >= this.AORadius || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Owner)
+            //    {
+            //        continue;
+            //    }
+            //    //MilitaryTask initialEnemyStrength = this;
+            //    //initialEnemyStrength.InitialEnemyStrength = initialEnemyStrength.InitialEnemyStrength + pin.Value.Strength;
+            //    this.EnemyStrength += pin.Value.Strength;
+            //}
             if (InitialEnemyStrength == 0)
                 this.InitialEnemyStrength = EnemyStrength;
             this.MinimumTaskForceStrength = this.EnemyStrength *.75f;
@@ -1035,22 +1036,25 @@ namespace Ship_Game.Gameplay
 		}
 
 		private float GetEnemyStrAtTarget()
-		{
-			float MinimumEscortStrength = 0f;
-			foreach (Ship ship in this.TargetPlanet.system.ShipList)
-			{
-				if (ship.loyalty != this.TargetPlanet.Owner)
-				{
-					continue;
-				}
-                MinimumEscortStrength += ship.GetStrength();
-			}
-            foreach(KeyValuePair<Guid,Ship> platform in this.TargetPlanet.Shipyards)
-            {
-                Ship ship = platform.Value;
-                MinimumEscortStrength += ship.GetStrength();
-            }
-			return MinimumEscortStrength;
+		{		                        
+            float MinimumEscortStrength = 0f;
+            float distance = this.empire.GetGSAI().GetDistanceFromOurAO(this.TargetPlanet);
+
+            MinimumEscortStrength = this.empire.GetGSAI().ThreatMatrix.PingRadarStr(this.AO, distance,this.empire);
+            //foreach (Ship ship in this.TargetPlanet.system.ShipList)
+            //{
+            //    if (ship.loyalty != this.TargetPlanet.Owner)
+            //    {
+            //        continue;
+            //    }
+            //    MinimumEscortStrength += ship.GetStrength();
+            //}
+            //foreach(KeyValuePair<Guid,Ship> platform in this.TargetPlanet.Shipyards)
+            //{
+            //    Ship ship = platform.Value;
+            //    MinimumEscortStrength += ship.GetStrength();
+            //}
+            return MinimumEscortStrength;
 		}
 
 		private float GetEnemyTroopStr()
@@ -1201,18 +1205,19 @@ namespace Ship_Game.Gameplay
             float OurPresentStrength = 0f;
             foreach (Ship ship in this.TargetPlanet.system.ShipList)
             {
-                if (ship.loyalty == this.TargetPlanet.Owner)
-                {
-                    MinimumEscortStrength = MinimumEscortStrength + ship.GetStrength();
-                    count++;
-                }
+                //if (ship.loyalty == this.TargetPlanet.Owner)
+                //{
+                //    MinimumEscortStrength = MinimumEscortStrength + ship.GetStrength();
+                //    count++;
+                //}
                 if (ship.loyalty != this.empire)
                 {
                     continue;
                 }
                 OurPresentStrength = OurPresentStrength + ship.GetStrength();
             }
-            MinimumEscortStrength *= (1.3f + (int)Ship.universeScreen.GameDifficulty * .1f);
+            MinimumEscortStrength = this.GetEnemyStrAtTarget();
+            //MinimumEscortStrength *= (1.3f + (int)Ship.universeScreen.GameDifficulty * .1f);
             // I'm unsure on ball-park figures for ship strengths. Given it used to build up to 1500, sticking flat +300 on seems a good start
             //updated. Now it will use 1/10th of the current military strength escort strength needed is under 1000
             if (MinimumEscortStrength < 1000)
@@ -1560,9 +1565,12 @@ namespace Ship_Game.Gameplay
             float tfstrength = 0f;
             BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
             int shipCount = 0;
+            float strengthNeeded = this.empire.GetGSAI().ThreatMatrix.PingRadarStr(this.TargetPlanet.Position, 125000, this.empire);
+            if (strengthNeeded < this.empire.currentMilitaryStrength * .02f)
+                strengthNeeded = this.empire.currentMilitaryStrength * .02f;
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool().OrderBy(str=>str.GetStrength()))
             {
-                if (shipCount >= 3 && tfstrength >= this.empire.currentMilitaryStrength * .02)
+                if (shipCount >= 3 && tfstrength >= strengthNeeded)
                 {
                     break;
                 }
@@ -1574,7 +1582,7 @@ namespace Ship_Game.Gameplay
                 elTaskForce.Add(ship);
                 tfstrength = tfstrength + ship.GetStrength();
             }
-            if (shipCount < 3 && tfstrength < this.empire.currentMilitaryStrength *.02)//|| tfstrength < 500f)
+            if (shipCount < 3 && tfstrength < strengthNeeded)//|| tfstrength < 500f)
             {
                 return;
             }

@@ -3791,6 +3791,8 @@ namespace Ship_Game
             }
             float PRatio = this.ProductionHere /this.MAX_STORAGE;
             float FRatio = this.FoodHere /this.MAX_STORAGE;
+
+            int queueCount = this.ConstructionQueue.Count;
             switch (colonyType)
             {
                 
@@ -3799,9 +3801,9 @@ namespace Ship_Game
                 case ColonyType.Industrial:
                     if (this.NetProductionPerTurn > this.developmentLevel)
                     {
-                        if (PRatio < .9 && this.ConstructionQueue.Count > 0)
+                        if (PRatio < .9 && queueCount > 0 && FSexport)
                             this.ps = GoodState.IMPORT;
-                        else if (this.ConstructionQueue.Count == 0)
+                        else if (queueCount == 0)
                         {
                             this.ps = GoodState.EXPORT;
                         }
@@ -3809,13 +3811,26 @@ namespace Ship_Game
                             this.ps = GoodState.STORE;
 
                     }
-                    else
+                    else if (queueCount > 0 || this.Owner.data.Traits.Cybernetic > 0)
                     {
-                        if (PRatio < .75)
+                        if (PRatio < .5f && PSexport)
                             this.ps = GoodState.IMPORT;
+                        else if (!PSexport && PRatio >.5)
+                            this.ps = GoodState.EXPORT;
                         else
                             this.ps = GoodState.STORE;
+                    } 
+                    else
+                    {
+                        if (PRatio > .5f && !PSexport)
+                            this.ps = GoodState.EXPORT;
+                        else if (PRatio > .5f && PSexport)
+                            this.ps = GoodState.STORE;
+                        else this.ps = GoodState.EXPORT;
+                        
                     }
+                    
+                
                     if (FRatio > .75f)
                         this.fs = Planet.GoodState.STORE;
                     else
@@ -3824,10 +3839,12 @@ namespace Ship_Game
 
                     
                 case ColonyType.Agricultural:
-                if(PRatio >.75)
-                    this.ps = Planet.GoodState.STORE;
-                else
+                if (PRatio > .75 && !PSexport)
+                    this.ps = Planet.GoodState.EXPORT;
+                else if (PRatio < .5 && PSexport)
                     this.ps = Planet.GoodState.IMPORT;
+                else
+                    this.ps = GoodState.STORE;
 
 
                 if (this.NetFoodPerTurn >0 )
@@ -3842,16 +3859,20 @@ namespace Ship_Game
                 case ColonyType.Research:
                 
                 {
-                    if (PRatio > .75f)
-                        this.ps = Planet.GoodState.STORE;
-                    else
+                    if (PRatio > .75f && !PSexport)
+                        this.ps = Planet.GoodState.EXPORT;
+                    else if (PRatio < .5f && PSexport)
                         this.ps = Planet.GoodState.IMPORT;
-
-
-                    if (FRatio > .75f)
-                        this.fs = Planet.GoodState.STORE;
                     else
+                        this.ps = GoodState.STORE;
+
+
+                    if (FRatio > .75f && !FSexport)
+                        this.fs = Planet.GoodState.EXPORT;
+                    else if (FSexport && FRatio <.75)
                         this.fs = Planet.GoodState.IMPORT;
+                    else
+                        this.fs = GoodState.STORE;
 
                     break; 
                 }
@@ -3870,10 +3891,11 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if (PRatio > .75)
-                        this.ps = GoodState.STORE;
-                    else
+                    if (PRatio > .75 && !FSexport)
+                        this.ps = GoodState.EXPORT;
+                    else if (PRatio < .5 && FSexport)
                         this.ps = GoodState.IMPORT;
+                    else this.ps = GoodState.STORE;
                 }
                 
                 if (FRatio > .25)
@@ -3899,19 +3921,19 @@ namespace Ship_Game
                 this.FSexport = true;
             else
             {
-                this.FSexport = true;
+                this.FSexport = false ;
             }
-            if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
-            {
+            //if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
+            //{
                 
-                this.ps = GoodState.STORE;
-            }
+            //    this.ps = GoodState.STORE;
+            //}
 
-            if(this.developmentLevel>1 && this.fs == GoodState.EXPORT && !FSexport)
-            {
+            //if(this.developmentLevel>1 && this.fs == GoodState.EXPORT && !FSexport)
+            //{
                 
-                this.fs = GoodState.STORE;
-            }
+            //    this.fs = GoodState.STORE;
+            //}
 
            
         }
