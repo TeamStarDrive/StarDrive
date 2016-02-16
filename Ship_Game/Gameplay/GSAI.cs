@@ -6320,7 +6320,7 @@ namespace Ship_Game.Gameplay
             //Vector2 empireCenter =this.empire.GetWeightedCenter();
             
             List<AO> aOs = new List<AO>();
-            float empireStr = this.empire.currentMilitaryStrength / (this.AreasOfOperations.Count*2.5f+1);
+            float empireStr = this.empire.currentMilitaryStrength; // / (this.AreasOfOperations.Count*2.5f+1);
             foreach (AO areasOfOperation in this.AreasOfOperations)
             {
                 areasOfOperation.ThreatLevel = 0;
@@ -6341,7 +6341,7 @@ namespace Ship_Game.Gameplay
                 //}
                 //this.empire.KnownShips.thisLock.ExitReadLock();
 
-                int min = (int)(empireStr * (this.DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets()) * .01f));
+                int min = (int)(empireStr * ((this.DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets())+1) * .01f));
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
                 //foreach (Empire empireList in EmpireManager.EmpireList)
@@ -6704,6 +6704,27 @@ namespace Ship_Game.Gameplay
 					{
 						continue;
 					}
+                    float enemies = this.ThreatMatrix.PingRadarStr(s.Position, 300000f, this.empire);
+
+                    if (enemies > 0f)
+                    {
+
+                        continue;
+                    }
+#if DEBUG
+                    else
+                    {
+
+                        float str = 0;
+                        foreach (Ship ship in s.ShipList)
+                        {
+                            if (ship.loyalty.isFaction)
+                                str += ship.GetStrength();
+                        }
+                        System.Diagnostics.Debug.WriteLine("Faction Strength in " + s.Name + " = " + str.ToString());
+                    }
+#endif
+
 					foreach (Planet planetList in s.PlanetList)
 					{
 						bool ok = true;
@@ -6732,11 +6753,8 @@ namespace Ship_Game.Gameplay
 							}
 						}
 						if (planetList.ExploredDict[this.empire] && planetList.habitable && planetList.Owner == null)
-						{
-							if (this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) && this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire) > 0f)
-							{
-								continue;
-							}
+                        {//this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) &&
+							
 							Goal.PlanetRanker r = new Goal.PlanetRanker()
 							{
 								Distance = Vector2.Distance(WeightedCenter, planetList.Position)
@@ -6952,6 +6970,12 @@ namespace Ship_Game.Gameplay
 
                         continue;
                     }
+                    float str =this.ThreatMatrix.PingRadarStr(s.Position, 300000f, this.empire,true);
+                    if (str > 0f)
+                    {                                                
+                        System.Diagnostics.Debug.WriteLine("Colonization ignored in " + s.Name + " Incorrect pin str :" +str.ToString() );
+                        continue;
+                    }
                     foreach (Planet planetList in s.PlanetList)
                     {
 
@@ -6968,6 +6992,9 @@ namespace Ship_Game.Gameplay
                         {
                             continue;
                         }
+                        str = this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire);
+                        if (str > 0)
+                            continue;
                         IOrderedEnumerable<AO> sorted =
                             from ao in this.empire.GetGSAI().AreasOfOperations
                             orderby Vector2.Distance(planetList.Position, ao.Position)
@@ -6993,11 +7020,7 @@ namespace Ship_Game.Gameplay
                             && planetList .habitable 
                             && planetList.Owner == null)
                         {
-                            if (this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) 
-                                && this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire) > 0f)
-                            {
-                                continue;
-                            }
+                            
                             Goal.PlanetRanker r2 = new Goal.PlanetRanker()
                             {
                                 Distance = Vector2.Distance(WeightedCenter, planetList.Position)
@@ -7701,7 +7724,7 @@ namespace Ship_Game.Gameplay
 			{
 				ao.Update();
 			}
-			this.UpdateThreatMatrix();
+			//this.UpdateThreatMatrix();
 			if (!this.empire.isFaction && !this.empire.MinorRace)
 			{
                 if (!this.empire.isPlayer || this.empire.AutoColonize)
@@ -7747,7 +7770,7 @@ namespace Ship_Game.Gameplay
             List<AO>.Enumerator enumerator;
             if(!this.empire.MinorRace)
                 this.RunGroundPlanner();
-            this.numberOfShipGoals = 1;
+            this.numberOfShipGoals =6+ this.empire.data.EconomicPersonality.ShipGoalsPlus;
             foreach (Planet p in this.empire.GetPlanets())
             {
                // if (!p.HasShipyard || (p.GetMaxProductionPotential() <2f
@@ -7760,10 +7783,11 @@ namespace Ship_Game.Gameplay
                     continue;
                 }
 
-                this.numberOfShipGoals = this.numberOfShipGoals + p.developmentLevel; //(int)(p.ProductionHere /(1+ p.ConstructionQueue.Sum(q => q.Cost)));
+                this.numberOfShipGoals++; //= this.numberOfShipGoals + p.developmentLevel; //(int)(p.ProductionHere /(1+ p.ConstructionQueue.Sum(q => q.Cost)));
             }
-            this.numberOfShipGoals = this.numberOfShipGoals / this.empire.GetPlanets().Count;
-            this.numberOfShipGoals = (int)((float)this.numberOfShipGoals* (1 - this.empire.data.TaxRate));
+            
+           // this.numberOfShipGoals = this.numberOfShipGoals / this.empire.GetPlanets().Count;
+          //  this.numberOfShipGoals = (int)((float)this.numberOfShipGoals* (1 - this.empire.data.TaxRate));
             float numgoals = 0f;
             float offenseUnderConstruction = 0f;
             float UnderConstruction = 0f;
@@ -7845,7 +7869,7 @@ namespace Ship_Game.Gameplay
             //float offenseNeeded = this.empire.GetRelations().Where(war => war.Value.AtWar || war.Value.PreparingForWar || war.Value.Trust < war.Value.TotalAnger).Sum(power => power.Key.currentMilitaryStrength);
             //offenseNeeded = this.empire.GetRelations().Where(war => !war.Key.isFaction && war.Value.AtWar || war.Value.PreparingForWar).Sum(power => power.Key.currentMilitaryStrength / (this.empire.currentMilitaryStrength + 1));
             if (offenseNeeded > 0)
-                offenseNeeded += this.ThreatMatrix.Pins.Values.Sum(power => power.Strength) ; //.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);            
+                offenseNeeded += this.ThreatMatrix.Pins.Values.Where(faction => faction.ship != null && faction.ship.loyalty.isFaction) .Sum(power => power.Strength) ; //.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);            
                 offenseNeeded /= this.empire.currentMilitaryStrength ;
             if (offenseNeeded <=0)
             {    offenseNeeded = 0;
@@ -7857,7 +7881,7 @@ namespace Ship_Game.Gameplay
     
             if (offenseNeeded > 20)
                 offenseNeeded = 20;
-            this.numberOfShipGoals += (int)offenseNeeded;
+        //    this.numberOfShipGoals += (int)offenseNeeded;
             //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
             float AtWarBonus = 0.05f;
             if (this.empire.Money > 500f)
@@ -8161,15 +8185,16 @@ namespace Ship_Game.Gameplay
                                
                 //               select tasks
                 //               ;
-
+                float distance = 0;
                 foreach (MilitaryTask task in this.TaskList //.OrderBy(target => Vector2.Distance(target.AO, this.empire.GetWeightedCenter()) / 1500000)
                     .OrderByDescending(empire =>
                     {
                         if (empire.type != MilitaryTask.TaskType.AssaultPlanet)
                             return 0;
                         float weight = 0;
-                        weight += (this.empire.currentMilitaryStrength - empire.MinimumTaskForceStrength) / this.empire.currentMilitaryStrength * 100;
-                        weight += (Ship.universeScreen.Size.X - this.GetDistanceFromOurAO(empire.AO)) / Ship.universeScreen.Size.X * 100;
+                        //weight += (this.empire.currentMilitaryStrength - empire.MinimumTaskForceStrength) / this.empire.currentMilitaryStrength * 5;
+                        weight += ((Ship.universeScreen.Size.X*.25f) - this.GetDistanceFromOurAO(empire.AO)) / (Ship.universeScreen.Size.X * .25f) * 10;
+                        
                         if (empire.GetTargetPlanet() == null)
                         {
                             
@@ -8186,16 +8211,19 @@ namespace Ship_Game.Gameplay
                         {
                             if (test.Treaty_NAPact || test.Treaty_Alliance || test.Posture != Posture.Hostile)
                                 return 0;
-                            weight += test.TotalAnger - test.Threat;
-                            
+                            weight += ((test.TotalAnger*.25f) - (100-test.Threat)) /(test.TotalAnger*.25f) *10f;
+                            if (test.AtWar)
+                                weight += 5;                            
 
                         }
                         Planet target =empire.GetTargetPlanet();
                         if(target != null)
                         {
-                            
-                            
-                            weight += (target.MaxPopulation /1000) * (target.MineralRichness + (int)target.developmentLevel);
+                            SystemCommander scom;
+                            target.Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(target.system, out scom);
+                            if(scom != null)
+                            weight += scom.RankImportance;
+                            //weight += (target.MaxPopulation /1000) + (target.MineralRichness + (int)target.developmentLevel);
                         }
                         
                         if (emp.isPlayer)
