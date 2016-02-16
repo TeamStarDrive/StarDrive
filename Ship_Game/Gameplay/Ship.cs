@@ -4571,6 +4571,8 @@ namespace Ship_Game.Gameplay
             this.AI.TargetShip = (Ship)null;
             this.AI.ColonizeTarget = (Planet)null;
             this.AI.EscortTarget = (Ship)null;
+            this.ExternalSlots.Clear();
+     
             this.AI.start = (Planet)null;
             this.AI.end = (Planet)null;
             this.AI.PotentialTargets.Clear();
@@ -4578,6 +4580,7 @@ namespace Ship_Game.Gameplay
             this.AI.NearbyShips.Clear();
             this.AI.FriendliesNearby.Clear();
             Ship.universeScreen.MasterShipList.QueuePendingRemoval(this);
+            this.AttackerTargetting.Clear();
             //UniverseScreen.ShipSpatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
             if (Ship.universeScreen.SelectedShip == this)
                 Ship.universeScreen.SelectedShip = (Ship)null;
@@ -4603,21 +4606,37 @@ namespace Ship_Game.Gameplay
                 if (hanger.GetHangarShip() != null)
                     hanger.GetHangarShip().Mothership = (Ship)null;
             }
+            foreach(Empire empire in EmpireManager.EmpireList)
+            {
+                empire.GetGSAI().ThreatMatrix.UpdatePin(this);
+
+            }
             for (int index = 0; index < this.projectiles.Count; ++index)
                 this.projectiles[index].Die((GameplayObject)this, false);
             this.projectiles.Clear();
             this.projectiles.ApplyPendingRemovals();
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                 moduleSlot.module.Clear();
+            this.Shields.Clear();
+            this.Hangars.Clear();
+            this.BombBays.Clear();
+
             this.ModuleSlotList.Clear();
             this.TroopList.Clear();
             this.RemoveFromAllFleets();
             this.ShipSO.Clear();
             lock (GlobalStats.ObjectManagerLocker)
                 Ship.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.ShipSO);
+
             this.loyalty.RemoveShip(this);
             this.system = (SolarSystem)null;
             this.TetheredTo = (Planet)null;
+            this.Transporters.Clear();
+            this.RepairBeams.Clear();
+            this.ModulesDictionary.Clear();
+            this.ProjectilesFired.Clear();
+
+
         }
 
         public void RemoveFromAllFleets()

@@ -96,15 +96,41 @@ namespace Ship_Game.Gameplay
             
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
-                if (pin.Value.InBorders || pin.Value.Position == Vector2.Zero || Vector2.Distance(Position, pin.Value.Position) > Radius || (pin.Value.ship != null && Vector2.Distance(Position, pin.Value.ship.Center) <= Radius))
-                {
+                if (pin.Value.InBorders || pin.Value.Position == Vector2.Zero || Vector2.Distance(Position, pin.Value.Position) > Radius)
                     continue;
+
+                //lock (pin.Value)
+                {
+                    if (pin.Value.ship == null)
+                    {
+
+                        foreach (Ship ship in Ship.universeScreen.MasterShipList)
+                        {
+                            if (ship.guid == pin.Key)
+                                pin.Value.ship = ship;
+                            break;
+                        }
+
+                    }
+                    if (pin.Value.ship == null)
+                    {
+                        pin.Value.Position = Vector2.Zero;
+                        pin.Value.ship = null;
+                        pin.Value.Strength = 0;
+                        continue;
+                    }
+                    if (pin.Value.ship != null && Vector2.Distance(Position, pin.Value.ship.Center) <= Radius)
+                        continue;
                 }
 
-                pin.Value.Position = Vector2.Zero;
-                pin.Value.ship = null;
-                pin.Value.Strength = 0;
-                
+
+                //lock (pin.Value)
+                {
+                    pin.Value.Position = Vector2.Zero;
+                    pin.Value.ship = null;
+                    pin.Value.Strength = 0;
+                }
+
             }
             
             
@@ -115,10 +141,13 @@ namespace Ship_Game.Gameplay
 			float str = 0f;
 			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
 			{
-				if (Vector2.Distance(Position, pin.Value.Position) >= Radius 
-                    || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Us 
-                    || (!Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction 
-                    && !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].Treaty_NAPact))
+                Empire them = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
+                if (Vector2.Distance(Position, pin.Value.Position) >= Radius
+                    || them == Us 
+                    //|| (!Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction 
+                    //&& !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].Treaty_NAPact))                     
+                    || ( (!them.isFaction && !Us.isFaction) && Us.GetRelations()[them].Treaty_NAPact)
+                    )
 				{
 					continue;
 				}
@@ -129,7 +158,14 @@ namespace Ship_Game.Gameplay
 
 		public void UpdatePin(Ship ship)
 		{
-			if (!this.Pins.ContainsKey(ship.guid))
+            if (ship != null && !ship.Active)
+            {
+                Pin test;
+                this.Pins.TryRemove(ship.guid, out test);
+                return;
+            }
+            
+            if (!this.Pins.ContainsKey(ship.guid))
 			{
 				ThreatMatrix.Pin pin = new ThreatMatrix.Pin()
 				{
@@ -143,7 +179,8 @@ namespace Ship_Game.Gameplay
 			this.Pins[ship.guid].Velocity = ship.Center - this.Pins[ship.guid].Position;
 			this.Pins[ship.guid].Position = ship.Center;
 		}
-
+  
+    
         public void UpdatePin(Ship ship, bool ShipinBorders,bool flag)
         {
             ThreatMatrix.Pin pin = null;
@@ -198,6 +235,13 @@ namespace Ship_Game.Gameplay
         }
         public void UpdatePinShip(Ship ship, Guid guid)
         {
+            if(ship != null && !ship.Active)
+            {
+                Pin test;
+                this.Pins.TryRemove(guid,out test);
+                return;
+            }
+            
             if (!this.Pins.ContainsKey(ship.guid))
             {
                 ThreatMatrix.Pin pin = new ThreatMatrix.Pin()
