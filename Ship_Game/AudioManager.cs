@@ -112,7 +112,7 @@ namespace Ship_Game
 
 		public static void PlayCue(string cueName)
 		{
-			if (AudioManager.audioManager != null && AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
+			if (AudioManager.audioManager != null &&  AudioManager.audioManager.SoundEffectInstances.Count <7 &&   AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
 			{
 				
                 AudioManager.audioManager.soundBank.PlayCue(cueName);
