@@ -27,9 +27,9 @@ namespace Ship_Game
 
 		private DropOptions ResolutionDropDown;
 
-		private DropOptions AntiAliasingDD;
+        //private DropOptions AntiAliasingDD;          //Not referenced in code, removing to save memory -Gretman
 
-		private List<UIButton> Buttons = new List<UIButton>();
+        private List<UIButton> Buttons = new List<UIButton>();
 
 		private UIButton Apply;
 
@@ -606,7 +606,7 @@ namespace Ship_Game
                     }
                 }
             }
-            int qualityLevels = 0;
+            //int qualityLevels = 0;          //Not referenced in code, removing to save memory -Gretman
             //this.AntiAliasingDD = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y + 26, 105, 18));
             //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
             //    this.AntiAliasingDD.AddOption("8x AA", 8);

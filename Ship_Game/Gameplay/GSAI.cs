@@ -80,8 +80,8 @@ namespace Ship_Game.Gameplay
 
         //added by gremlin: Smart Ship research
         Ship BestCombatShip;
-        string BestCombatHull = "";
-        string BestSupportShip = "";
+        //string BestCombatHull = "";
+        //string BestSupportShip = "";
         private string postResearchTopic = "";
 		public GSAI(Empire e)
 		{
@@ -5419,7 +5419,7 @@ namespace Ship_Game.Gameplay
             float ratio_Cruisers = 0f;
             float ratio_Capitals = 0f;
             float ratio_Bombers = 0f;
-            float ratio_TroopShips = 0f;
+            //float ratio_TroopShips = 0f;          //Not referenced in code, removing to save memory -Gretman
             float ratio_Carriers = 0f;
             float ratio_Support = 0f;
                   /*     
@@ -5487,7 +5487,7 @@ namespace Ship_Game.Gameplay
                     //troops ship
                     else if ((item.HasTroopBay || item.hasTransporter ||item.hasAssaultTransporter) && str >= ShipData.RoleName.freighter
                         && item.GetHangars().Where(troopbay=> troopbay.IsTroopBay).Sum(size=>size.XSIZE*size.YSIZE ) 
-                        + item.Transporters.Sum(troopbay => (troopbay.TransporterTroopAssault>0?troopbay.YSIZE*troopbay.XSIZE:0)) > item.Size *.10f
+                        + item.Transporters.Sum(troopbay => (troopbay.TransporterTroopAssault >0?troopbay.YSIZE*troopbay.XSIZE:0)) > item.Size *.10f
                         )
                     {
                         numTroops += upkeep;
@@ -5944,7 +5944,7 @@ namespace Ship_Game.Gameplay
             string name = "";
             Ship ship;
             int maxtech = 0;
-            float upkeep;
+            //float upkeep;          //Not referenced in code, removing to save memory -Gretman
             foreach (string shipsWeCanBuild in this.empire.ShipsWeCanBuild)
             {
                 if (!ResourceManager.ShipsDict.TryGetValue(shipsWeCanBuild, out ship))
@@ -8750,12 +8750,12 @@ namespace Ship_Game.Gameplay
             this.empire.UpdateShipsWeCanBuild();
 
 
-            Ship BestShip = null;// ""; //this.BestCombatShip;
-            float bestShipStrength = 0f;
+            //Ship BestShip = null;// ""; //this.BestCombatShip;          //Not referenced in code, removing to save memory -Gretman
+            //float bestShipStrength = 0f;          //Not referenced in code, removing to save memory -Gretman
             float techcost = -1;
             float str = 0;
             float moneyNeeded = this.empire.data.ShipBudget * .2f;
-            float curentBestshipStr = 0;
+            //float curentBestshipStr = 0;          //Not referenced in code, removing to save memory -Gretman
 
             if (this.BestCombatShip !=null)
             {
