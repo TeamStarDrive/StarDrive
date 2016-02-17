@@ -18,11 +18,11 @@ namespace Ship_Game
 
 		public float Radius;
 
-		public Matrix View;
+        //public Matrix View;          //Not referenced in code, removing to save memory -Gretman
 
-		public Matrix Projection;
+        //public Matrix Projection;          //Not referenced in code, removing to save memory -Gretman
 
-		public float Rotation;
+        public float Rotation;
 
 		public GameplayObject Owner;
 

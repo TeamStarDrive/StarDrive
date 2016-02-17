@@ -139,7 +139,7 @@ namespace Ship_Game
 					bool hasAnamoly = false;
                     bool hasCommodities = false;
                     bool hastroops =false;
-                    bool hasEnemyTroop = false;
+                    //bool hasEnemyTroop = false;          //Not referenced in code, removing to save memory -Gretman
                     int playerTroops = 0;
                     int sideSpacing = 0;
 					if (p.ExploredDict[EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)])
@@ -185,7 +185,7 @@ namespace Ship_Game
                         {
                             if (!this.s.PlanetList[i].TroopsHere[j].GetOwner().isPlayer)
                             {
-                                hasEnemyTroop = true;
+                                //hasEnemyTroop = true;
 
                             }
                             else
