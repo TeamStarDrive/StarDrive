@@ -5,6 +5,8 @@ using Particle3DSample;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Runtime;
+
 
 namespace Ship_Game
 {
@@ -397,8 +399,16 @@ namespace Ship_Game
                         }
                         catch
                         {
-                            //GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
                             GlobalStats.BeamOOM++;
+                            if (GlobalStats.BeamOOM > 10)
+                            {
+                                GC.WaitForPendingFinalizers(); GC.Collect();
+
+                                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                                GC.Collect();
+                                GlobalStats.BeamOOM = 0;
+                            }
+                            
                             System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
 
 

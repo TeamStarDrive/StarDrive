@@ -6752,7 +6752,7 @@ namespace Ship_Game.Gameplay
                     float str =this.ThreatMatrix.PingRadarStr(s.Position, 300000f, this.empire,true);
                     if (str > 0f)
                     {                                                
-                        System.Diagnostics.Debug.WriteLine("Colonization ignored in " + s.Name + " Incorrect pin str :" +str.ToString() );
+                        //System.Diagnostics.Debug.WriteLine("Colonization ignored in " + s.Name + " Incorrect pin str :" +str.ToString() );
                         continue;
                     }
                     foreach (Planet planetList in s.PlanetList)
