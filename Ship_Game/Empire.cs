@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.Xml.Serialization;
+using System.Runtime;
 
 namespace Ship_Game
 {
@@ -709,6 +710,10 @@ namespace Ship_Game
                         ResourceManager.ShipsDict.Remove(purge);
                     }
                 }
+                
+                GC.WaitForPendingFinalizers(); GC.Collect();
+
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
                 System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
 
