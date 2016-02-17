@@ -13,7 +13,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
-
+using System.Runtime;
 namespace Ship_Game
 {
 	public sealed class ResourceManager
@@ -1234,10 +1234,21 @@ namespace Ship_Game
                 lock (Ship_Game.ResourceManager.ModelDict)
                 if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
 				{
-                    GC.Collect();
-                    item= GetContentManager().Load<Model>(path);
-					Ship_Game.ResourceManager.ModelDict.Add(path, item);
+                    
+                    try
+                    {
+                        item = GetContentManager().Load<Model>(path);
+                        Ship_Game.ResourceManager.ModelDict.Add(path, item);
+                    }
 					//item = model;
+                    catch
+                    {
+                        System.Diagnostics.Debug.WriteLine("*****OOM loading", path);
+                        GC.WaitForPendingFinalizers(); GC.Collect();
+                        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                        GC.Collect();
+                        
+                    }
 				}
                 
                 else
