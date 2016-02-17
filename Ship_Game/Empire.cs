@@ -710,6 +710,8 @@ namespace Ship_Game
                     }
                 }
                 GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
                 System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
 
             }
