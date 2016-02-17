@@ -455,17 +455,17 @@ namespace Ship_Game.Gameplay
             {
                 //Added by McShooterz: Use sounds from new sound dictionary
                 SoundEffect beamsound = null;
-                if (ResourceManager.SoundEffectDict.TryGetValue(this.fireCueName,out beamsound))
+                if ( ResourceManager.SoundEffectDict.TryGetValue(this.fireCueName,out beamsound))
                 {
                     AudioManager.PlaySoundEffect(beamsound, Weapon.audioListener, this.owner.emitter, 0.5f);
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(this.fireCueName))
+                    if (!string.IsNullOrEmpty(this.fireCueName) && AudioManager.limitOK)
                     {
                         this.fireCue = AudioManager.GetCue(this.fireCueName);
                         if (!this.owner.isPlayerShip())
-                        {
+                        {                            
                             this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
                         }
                         this.fireCue.Play();
