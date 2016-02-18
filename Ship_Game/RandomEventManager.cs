@@ -17,7 +17,9 @@ namespace Ship_Game
 			if (RandomEventManager.ActiveEvent == null)
 			{
 				float Random = RandomMath.RandomBetween(0f, 1000f);
-				if (Random < 1f)
+
+
+				if (Random < 1f)        //Hyperspace Flux
 				{
 					RandomEventManager.ActiveEvent = new RandomEvent()
 					{
@@ -28,7 +30,9 @@ namespace Ship_Game
 					};
 					Ship.universeScreen.NotificationManager.AddRandomEventNotification(RandomEventManager.ActiveEvent.NotificationString, null, null, null);
 				}
-				if (Random > 2f && Random < 4f)
+
+
+				if (Random > 2f && Random < 4f)         //Shifted in orbit (+ Fertility)
 				{
 					List<Planet> potentials = new List<Planet>();
 					foreach (KeyValuePair<Guid, Planet> planet in Ship.universeScreen.PlanetsDict)
@@ -50,7 +54,9 @@ namespace Ship_Game
 						}
 					}
 				}
-				if (Random > 4f && Random < 6f)
+
+
+				if (Random > 4f && Random < 6f)     //Volcano (- Fertility)
 				{
 					List<Planet> potentials = new List<Planet>();
 					foreach (KeyValuePair<Guid, Planet> planet in Ship.universeScreen.PlanetsDict)
@@ -77,7 +83,7 @@ namespace Ship_Game
 						}
 					}
 				}
-                if (Random > 6 && Random < 8)   //Added by Gretman
+                if (Random > 6 && Random < 8)   //Meteor Strike --  Added by Gretman
                 {
                     List<Planet> potentials = new List<Planet>();
                     foreach (KeyValuePair<Guid, Planet> planet in Ship.universeScreen.PlanetsDict)
@@ -92,21 +98,17 @@ namespace Ship_Game
                     if (potentials.Count > 0)
                     {
                         Planet targetplanet = potentials[HelperFunctions.GetRandomIndex(potentials.Count)];
-
-                        //System.Diagnostics.Debug.WriteLine("Planet Chosen: " + targetplanet.Name);
-                        //System.Diagnostics.Debug.WriteLine("Pre-Fertility: " + targetplanet.Fertility.ToString());
-                        //System.Diagnostics.Debug.WriteLine("Pre-Richness: " + targetplanet.MineralRichness.ToString());
+                        if (targetplanet.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
+                        {
 
                         float sizeofmeteor = RandomMath.RandomBetween(1, 3) / 10;
                         if (targetplanet.Fertility > 0) targetplanet.TerraformExternal(-sizeofmeteor);      //Lose half of the richness gained (if not already 0);
                         targetplanet.MineralRichness += sizeofmeteor * 2;
 
-                        //System.Diagnostics.Debug.WriteLine("Random number: " + sizeofmeteor);
-                        //System.Diagnostics.Debug.WriteLine("Post-Fertility: " + targetplanet.Fertility.ToString());
-                        //System.Diagnostics.Debug.WriteLine("Post-Richness: " + targetplanet.MineralRichness.ToString());
-
                         string eventtext = string.Concat(targetplanet.Name, Localizer.Token(4105));
                         Ship.universeScreen.NotificationManager.AddRandomEventNotification(eventtext, string.Concat("Planets/", targetplanet.planetType), "SnapToPlanet", targetplanet);
+                        }
+                        else System.Diagnostics.Debug.WriteLine("Some shit would have happened to '" + targetplanet.Name + "' but it was on a planet the player hasn't discovered yet.");
                     }
 
                 }

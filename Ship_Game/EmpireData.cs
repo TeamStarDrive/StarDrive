@@ -178,6 +178,7 @@ namespace Ship_Game
 
         public bool SpyMute = false;
         public bool SpyMissionRepeat = false;
+        public float treasuryGoal = .20f;
 
 
 		public EmpireData()

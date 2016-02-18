@@ -314,6 +314,7 @@ namespace Ship_Game
 				}
                 else
                 {
+                    this.screen.SelectedFleet.Ships.thisLock.EnterReadLock();
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "core fleet :"+this.screen.SelectedFleet.IsCoreFleet, Cursor, Color.White);
                     Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.screen.SelectedFleet.Name, Cursor, Color.White);
@@ -322,13 +323,14 @@ namespace Ship_Game
                     Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Strength: " + this.screen.SelectedFleet.GetStrength(), Cursor, Color.White);
                     Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    string shipAI = "";
+                    string shipAI = "";                    
                     foreach(Ship ship in this.screen.SelectedFleet.Ships)
                     {
                         shipAI = ship.GetAI().State.ToString();
                     }
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Ship State: " + shipAI, Cursor, Color.White);
                     Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
 
                 }
 			}
@@ -365,8 +367,15 @@ namespace Ship_Game
 				}
 				if (this.screen.SelectedShip.GetAI().State == AIState.SystemDefender)
 				{
-					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Defending ", this.screen.SelectedShip.GetAI().SystemToDefend.Name), Cursor, Color.White);
+                    SolarSystem systemToDefend = this.screen.SelectedShip.GetAI().SystemToDefend; 
+                    Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    if (systemToDefend != null)
+
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Defending ", systemToDefend.Name), Cursor, Color.White);
+                    else
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Defending ", "Awaiting Order"), Cursor, Color.White);
+
+                    
 				}
 				if (ship.GetSystem() == null)
 				{

@@ -361,21 +361,38 @@ namespace Ship_Game.Gameplay
 			this.HasPriorityOrder = false;
             if (this.Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
                 this.ScanForThreatTimer = 0;
-            if (this.awaitClosest != null)
-			{
-				this.DoOrbit(this.awaitClosest, elapsedTime);
-				return;
-			}
-			List<Planet> planets = new List<Planet>();
-			foreach (KeyValuePair<Guid, Planet> entry in ArtificialIntelligence.universeScreen.PlanetsDict)
-			{
-				planets.Add(entry.Value);
-			}
-			IOrderedEnumerable<Planet> sortedList = 
-				from planet in planets
-				orderby Vector2.Distance(planet.Position, this.Owner.Center)
-				select planet;
-			this.awaitClosest = sortedList.First<Planet>();
+            if (this.EscortTarget != null)
+                this.State = AIState.Escort;
+            else
+                if (!this.HadPO)
+                {
+                    if (this.SystemToDefend != null)
+                    {
+                        this.DoOrbit(this.SystemToDefend.PlanetList[0], elapsedTime);
+                        this.awaitClosest = this.SystemToDefend.PlanetList[0];
+                        return;
+                    } 
+                    if (this.awaitClosest != null)
+                    {
+                        this.DoOrbit(this.awaitClosest, elapsedTime);
+                        return;
+                    }
+                    List<Planet> planets = new List<Planet>();
+                    foreach (KeyValuePair<Guid, Planet> entry in ArtificialIntelligence.universeScreen.PlanetsDict)
+                    {
+                        planets.Add(entry.Value);
+                    }
+                    IOrderedEnumerable<Planet> sortedList =
+                        from planet in planets
+                        orderby  Vector2.Distance(planet.Position, this.Owner.Center) * (this.Owner.loyalty == planet.Owner ? .1f : 1)
+                        select planet;
+                    this.awaitClosest = sortedList.First<Planet>();
+                }
+                else
+                {
+                    this.Stop(elapsedTime);
+                }
+
 		}
 
 		private void Colonize(Planet TargetPlanet)
@@ -789,26 +806,36 @@ namespace Ship_Game.Gameplay
                 this.Target = this.PotentialTargets.FirstOrDefault();
                 if (Target ==null)
                 {
-                    this.State = this.DefaultAIState;
-                    this.OrderQueue.Clear();
+                    
+                    this.ClearOrdersNext = true;
+                    this.HadPO = true;
+                    //this.AwaitOrders(elapsedTime);
+                    //this.State = this.DefaultAIState;
+                    //this.OrderQueue.Clear();
                     return;                
                 }
                 
             }
-            if (this.Target == null )
+            if (this.Target == null || !this.Owner.loyalty.KnownShips.Contains(this.Target))
             {
                 this.Target = this.PotentialTargets.FirstOrDefault();
                 this.Intercepting = false;
                 if (this.Target == null)
                 {
-                    this.OrderQueue.Clear();
-                    this.State = this.DefaultAIState;
+                    
+                    this.ClearOrdersNext = true;
+                    this.HadPO = true;
+                    //this.OrderQueue.Clear();
+                    //this.State = this.DefaultAIState;
                     return;
                 }
                 if(!this.Target.Active)
                 {
-                    this.OrderQueue.Clear();
-                    this.State = this.DefaultAIState;
+                    
+                    this.ClearOrdersNext = true;
+                    this.HadPO = true;
+                    //this.OrderQueue.Clear();
+                    //this.State = this.DefaultAIState;
                     return; 
                 }
                 
@@ -4883,19 +4910,23 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT )
                         {
-                            if (this.Owner.AreaOfOperation.Count > 0)
+                            if(planets.Count ==0 || (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
                             {
-                                foreach (Rectangle areaOfOperation in this.Owner.AreaOfOperation)
-                                    if (HelperFunctions.CheckIntersection(areaOfOperation, PlanetCheck.Position))
-                                    {
-                                        planets.Add(PlanetCheck);
-                                        break;
-                                    }
+                                if (this.Owner.AreaOfOperation.Count > 0)
+                                {
+                                    foreach (Rectangle areaOfOperation in this.Owner.AreaOfOperation)
+                                        if (HelperFunctions.CheckIntersection(areaOfOperation, PlanetCheck.Position))
+                                        {
+                                            planets.Add(PlanetCheck);
+                                            break;
+                                        }
+                                }
+                                else
+                                    planets.Add(PlanetCheck);
                             }
-                            else
-                                planets.Add(PlanetCheck);
+                            
                         }
                     }
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
@@ -4957,7 +4988,8 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.IMPORT )
+                           // && (planets.Count==0 || (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max))
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -4976,9 +5008,11 @@ namespace Ship_Game.Gameplay
                     if (planets.Count > 0)
                     {
                         if (this.Owner.GetCargo()["Production"] > 0f)
-                            sortPlanets = planets.OrderBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
+                            sortPlanets = planets.OrderBy(PlanetCheck=> (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max)
+                                .ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                         else
-                            sortPlanets = planets.OrderBy(dest => (dest.ProductionHere));
+                            sortPlanets = planets.OrderBy(PlanetCheck=> (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max)
+                                .ThenBy(dest => (dest.ProductionHere));
                         foreach (Planet p in sortPlanets)
                         {
                             flag = false;
@@ -5030,7 +5064,7 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT && (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT ) //&& (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -5049,9 +5083,11 @@ namespace Ship_Game.Gameplay
                     if (planets.Count > 0)
                     {
                         if (this.Owner.GetCargo()["Food"] > 0f)
-                            sortPlanets = planets.OrderBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
+                            sortPlanets = planets.OrderBy(PlanetCheck => (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                                .ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                         else
-                            sortPlanets = planets.OrderBy(dest => (dest.FoodHere + (dest.NetFoodPerTurn - dest.consumption) * GoodMult));
+                            sortPlanets = planets.OrderBy(PlanetCheck => (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                                .ThenBy(dest => (dest.FoodHere + (dest.NetFoodPerTurn - dest.consumption) * GoodMult));
                         foreach (Planet p in sortPlanets)
                         {
                             flag = false;
@@ -5104,7 +5140,8 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.EXPORT && PlanetCheck.FoodHere >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.EXPORT )
+                            //&& (planets.Count==0 || PlanetCheck.FoodHere >= this.Owner.CargoSpace_Max))
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -5122,7 +5159,8 @@ namespace Ship_Game.Gameplay
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
                     if (planets.Count > 0)
                     {
-                        sortPlanets = planets.OrderBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
+                        sortPlanets = planets.OrderBy(PlanetCheck => (PlanetCheck.FoodHere > this.Owner.CargoSpace_Max))
+                                .ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                         foreach (Planet p in sortPlanets)
                         {
                             flag = false;
@@ -5171,7 +5209,8 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.EXPORT && PlanetCheck.ProductionHere >= this.Owner.CargoSpace_Max)
+                        if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.EXPORT )
+                            //&& (planets.Count==0|| PlanetCheck.ProductionHere >= this.Owner.CargoSpace_Max))
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
                             {
@@ -5189,7 +5228,8 @@ namespace Ship_Game.Gameplay
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
                     if (planets.Count > 0)
                     {
-                        sortPlanets = planets.OrderBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
+                        sortPlanets = planets.OrderBy(PlanetCheck => (PlanetCheck.ProductionHere > this.Owner.CargoSpace_Max))
+                                .ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                         foreach (Planet p in sortPlanets)
                         {
                             flag = false;
@@ -5722,13 +5762,15 @@ namespace Ship_Game.Gameplay
 					population.Population = population.Population + this.Owner.GetCargo()["Colonists_1000"] * (float)this.Owner.loyalty.data.Traits.PassengerModifier;
 					this.Owner.GetCargo()["Colonists_1000"] = 0f;
 				}
-				if (this.start.FoodHere < this.Owner.CargoSpace_Max)
+                float modifier = 0;
+                if (this.start.FoodHere < this.Owner.CargoSpace_Max)
+                {
+                    //this.OrderTrade(0.1f);
+                    modifier = this.start.FoodHere * .5f;
+                }
+                
 				{
-					this.OrderTrade(0.1f);
-				}
-				else
-				{
-					while (this.start.FoodHere > 0f && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
+					while (this.start.FoodHere >  modifier && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
 					{
 						this.Owner.AddGood("Food", 1);
 						Planet foodHere = this.start;
@@ -5758,13 +5800,15 @@ namespace Ship_Game.Gameplay
 					population1.Population = population1.Population + this.Owner.GetCargo()["Colonists_1000"] * (float)this.Owner.loyalty.data.Traits.PassengerModifier;
 					this.Owner.GetCargo()["Colonists_1000"] = 0f;
 				}
-				if (this.start.ProductionHere < this.Owner.CargoSpace_Max)
+                float modifier = 0;
+                if (this.start.ProductionHere < this.Owner.CargoSpace_Max)
+                {
+                    //this.OrderTrade(0.1f);
+                    modifier= this.start.ProductionHere * .5f;
+                }
+                
 				{
-					this.OrderTrade(0.1f);
-				}
-				else
-				{
-					while (this.start.ProductionHere > 0f && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
+                    while (this.start.ProductionHere > modifier && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
 					{
 						this.Owner.AddGood("Production", 1);
 						Planet productionHere1 = this.start;
@@ -5922,6 +5966,8 @@ namespace Ship_Game.Gameplay
                     this.ActiveWayPoints.Enqueue(endPos);
                 return;
             }
+            if (PlotCourseToNewViaRoad(endPos, startPos))
+                return;
             List<Vector2> PickWayPoints = new List<Vector2>();
             float d1, d2;
             float DistToEnd1, DistToEnd2;
@@ -5930,7 +5976,7 @@ namespace Ship_Game.Gameplay
             {
                 d1 = Vector2.Distance(proj.Center, startPos);
                 d2 = Vector2.Distance(proj.Center, endPos);
-                if (d1 <= Distance && d2 <= Distance)
+                if (d1 <= Distance && d2 <= Distance )
                     lock (this.wayPointLocker)
                         PickWayPoints.Add(proj.Center);
             }
@@ -5968,9 +6014,10 @@ namespace Ship_Game.Gameplay
                             break;
                         d1 = Vector2.Distance(enumerator.Current, current);
                         d2 = Vector2.Distance(enumerator.Current, endPos);
-                        if (!this.ActiveWayPoints.Contains(enumerator.Current) && (d2 <= Distance || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)))
-                        {
-                            if (d1 <= Empire.ProjectorRadius * 2.5f)
+                        if (!this.ActiveWayPoints.Contains(enumerator.Current)
+                            && (d2 <= Distance && d2 > Empire.ProjectorRadius * 1.5) || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)
+)                        {
+                            if (d1 <= Empire.ProjectorRadius * 2.5f )
                             {
                                 if (d1 + d2 < DistToEnd1)
                                 {
@@ -6008,6 +6055,288 @@ namespace Ship_Game.Gameplay
             if (this.ActiveWayPoints.Count == 0 || this.ActiveWayPoints.Last() != endPos)
                 lock (this.wayPointLocker)
                     this.ActiveWayPoints.Enqueue(endPos);
+        }
+
+        private bool PlotCourseToNewViaRoad(Vector2 endPos, Vector2 startPos)
+        {
+            return false;
+            float Distance = Vector2.Distance(startPos, endPos);
+            if (Distance <= Empire.ProjectorRadius)
+            {
+                lock (this.wayPointLocker)
+                    this.ActiveWayPoints.Enqueue(endPos);
+                return true;
+            }
+            List<SpaceRoad> potentialEndRoads = new List<SpaceRoad>();
+            List<SpaceRoad> potentialStartRoads = new List<SpaceRoad>();
+            RoadNode nearestNode = null;
+            float distanceToNearestNode = 0f;
+            foreach(SpaceRoad road in this.Owner.loyalty.SpaceRoadsList)
+            {
+                if (Vector2.Distance(road.GetOrigin().Position, endPos) < 300000f || Vector2.Distance(road.GetDestination().Position, endPos) < 300000f)
+                {
+                    potentialEndRoads.Add(road);
+                }
+                foreach(RoadNode projector in road.RoadNodesList)
+                {
+                    if (nearestNode == null || Vector2.Distance(projector.Position, startPos) < distanceToNearestNode)
+                    {
+                        potentialStartRoads.Add(road);
+                        nearestNode = projector;
+                        distanceToNearestNode = Vector2.Distance(projector.Position, startPos);
+                    }
+                }
+            }
+
+            List<SpaceRoad> targetRoads = potentialStartRoads.Intersect(potentialEndRoads).ToList();
+            if (targetRoads.Count == 1)
+            {
+                SpaceRoad targetRoad = targetRoads[0];
+                bool startAtOrgin = Vector2.Distance(endPos, targetRoad.GetOrigin().Position) > Vector2.Distance(endPos, targetRoad.GetDestination().Position);
+                bool foundstart = false;
+                if (startAtOrgin)
+                    foreach (RoadNode node in targetRoad.RoadNodesList)
+                    {
+                        if (!foundstart && node != nearestNode)
+                            continue;
+                        else if (!foundstart)
+                        {
+                            foundstart = true;
+                        }
+                        lock (this.wayPointLocker)
+                            this.ActiveWayPoints.Enqueue(node.Position);
+                    }
+                else
+                    foreach (RoadNode node in targetRoad.RoadNodesList.Reverse<RoadNode>())
+                    {
+                        if (!foundstart && node != nearestNode)
+                            continue;
+                        else if (!foundstart)
+                        {
+                            foundstart = true;
+                        }
+                        lock (this.wayPointLocker)
+                            this.ActiveWayPoints.Enqueue(node.Position);
+                    }
+          
+            }
+            else if(false)
+            {
+                while (potentialStartRoads.Intersect(potentialEndRoads).Count() == 0)
+                {
+                    bool test = false;
+                    foreach (SpaceRoad road in this.Owner.loyalty.SpaceRoadsList)
+                    {
+                        bool flag = false;
+
+                        if (!potentialStartRoads.Contains(road))
+                        {
+
+                            foreach (SpaceRoad proad in potentialStartRoads)
+                            {
+                                if (proad.GetDestination() == road.GetOrigin() || proad.GetOrigin() == road.GetDestination())
+                                    flag = true;
+                            }
+
+                        }
+                        if (flag)
+                        {
+                            potentialStartRoads.Add(road);
+                            test = true;
+                        }
+                        
+                    }
+                     if(!test)
+                    {
+                        System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
+                        return false;
+                    }
+                }
+                while (!potentialEndRoads.Contains(potentialStartRoads[0]))
+                {
+                    bool test = false;
+                    foreach (SpaceRoad road in potentialStartRoads)
+                    {
+                        bool flag = false;
+
+                        if (!potentialEndRoads.Contains(road))
+                        {
+
+                            foreach (SpaceRoad proad in potentialEndRoads)
+                            {
+                                if (proad.GetDestination() == road.GetOrigin() || proad.GetOrigin() == road.GetDestination())
+                                    flag = true;
+                                
+                            }
+
+                        }
+                        if (flag)
+                        {
+
+                            test = true;
+                            potentialEndRoads.Add(road);
+                            
+                        }
+                        
+                    }
+                    if(!test)
+                    {
+                        System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
+                        return false;
+                    }
+
+
+                }
+                targetRoads = potentialStartRoads.Intersect(potentialEndRoads).ToList();
+                if (targetRoads.Count >0)
+                {
+                    SpaceRoad targetRoad = null;
+                    RoadNode targetnode = null;
+                    float distance = -1f;
+                    foreach (SpaceRoad road in targetRoads)
+                    {
+                        foreach (RoadNode node in road.RoadNodesList)
+                        {
+                            if (distance == -1f || Vector2.Distance(node.Position, startPos) < distance)
+                            {
+                                targetRoad = road;
+                                targetnode = node;
+                                distance = Vector2.Distance(node.Position, startPos);
+
+                            }
+                        }
+                    }
+                    bool orgin = false;
+                    bool startnode = false;
+                    foreach (SpaceRoad road in targetRoads)
+                    {
+                        if (road.GetDestination() == targetRoad.GetDestination() || road.GetDestination() == targetRoad.GetOrigin())
+                            orgin = true;
+                    }
+                    if (orgin)
+                    {
+                        foreach (RoadNode node in targetRoad.RoadNodesList)
+                        {
+                            if (!startnode || node != targetnode)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                startnode = true;
+                                lock (this.wayPointLocker)
+                                    this.ActiveWayPoints.Enqueue(node.Position);
+                            }
+                        }
+
+
+                    }
+                    else
+                    {
+                        foreach (RoadNode node in targetRoad.RoadNodesList.Reverse<RoadNode>())
+                        {
+                            if (!startnode || node != targetnode)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                startnode = true;
+                                lock (this.wayPointLocker)
+                                    this.ActiveWayPoints.Enqueue(node.Position);
+                            }
+                        }
+                    }
+                    while (Vector2.Distance(targetRoad.GetOrigin().Position,endPos)>300000 
+                        &&  Vector2.Distance(targetRoad.GetDestination().Position,endPos)>300000)
+                    {
+                        targetRoads.Remove(targetRoad);
+                        if(orgin)
+                        {
+                            bool test = false;
+                            foreach(SpaceRoad road in targetRoads)
+                            {
+                                if(road.GetOrigin()==targetRoad.GetDestination())
+                                {
+                                    foreach(RoadNode node in road.RoadNodesList)
+                                    {
+                                        lock (this.wayPointLocker)
+                                            this.ActiveWayPoints.Enqueue(node.Position);
+                                    }
+                                    targetRoad = road;
+                                    test = true;
+                                    break;
+                                }
+                                else if(road.GetDestination() == targetRoad.GetDestination())
+                                {
+                                    orgin = false;
+                                    if (road.GetOrigin() == targetRoad.GetDestination())
+                                    {
+                                        foreach (RoadNode node in road.RoadNodesList.Reverse<RoadNode>())
+                                        {
+                                            lock (this.wayPointLocker)
+                                                this.ActiveWayPoints.Enqueue(node.Position);
+                                        }
+                                    }
+                                    test = true;
+                                    targetRoad = road;
+                                    break;
+                                }
+                            }
+                            if (!test)
+                                orgin = false;
+                        }
+                        else
+                        {
+                            bool test = false;
+                            foreach (SpaceRoad road in targetRoads)
+                            {
+                                if (road.GetOrigin() == targetRoad.GetOrigin())
+                                {
+                                    foreach (RoadNode node in road.RoadNodesList)
+                                    {
+                                        lock (this.wayPointLocker)
+                                            this.ActiveWayPoints.Enqueue(node.Position);
+                                    }
+                                    targetRoad = road;
+                                    test = true;
+                                    break;
+                                }
+                                else if (road.GetDestination() == targetRoad.GetOrigin())
+                                {
+                                    orgin = true;
+                                    if (road.GetOrigin() == targetRoad.GetDestination())
+                                    {
+                                        foreach (RoadNode node in road.RoadNodesList.Reverse<RoadNode>())
+                                        {
+                                            lock (this.wayPointLocker)
+                                                this.ActiveWayPoints.Enqueue(node.Position);
+                                        }
+                                    }
+                                    targetRoad = road;
+                                    test = true;
+                                    break;
+                                }
+
+                                
+                            }
+                            if (!test)
+                                break;
+                        }
+
+                    }
+                }
+            }
+
+
+            if(this.ActiveWayPoints.Count ==0) return false;
+
+
+            lock (this.wayPointLocker)
+                this.ActiveWayPoints.Enqueue(endPos);
+
+
+            return true;
         }
 
 		private void RotateInLineWithVelocity(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
@@ -7202,6 +7531,7 @@ namespace Ship_Game.Gameplay
             {
                 this.OrderQueue.Clear();
                 this.ClearOrdersNext = false;
+                this.awaitClosest = null;
                 this.State = AIState.AwaitingOrders;
             }
             List<Ship> ToRemove = new List<Ship>();
@@ -7219,8 +7549,15 @@ namespace Ship_Game.Gameplay
             }
             if (!this.hasPriorityTarget)
                 this.TargetQueue.Clear();
-            if (this.Owner.loyalty == ArtificialIntelligence.universeScreen.player && (  this.State == AIState.MoveTo && Vector2.Distance(this.Owner.Center, this.MovePosition) > 100f || this.State == AIState.Orbit || (this.State == AIState.Bombard || this.State == AIState.AssaultPlanet || this.State == AIState.BombardTroops) || this.State == AIState.Rebase || this.State == AIState.Scrap || this.State == AIState.Resupply || this.State == AIState.Refit || this.State == AIState.FormationWarp))
+            if (this.Owner.loyalty == ArtificialIntelligence.universeScreen.player && (this.State == AIState.MoveTo && Vector2.Distance(this.Owner.Center, this.MovePosition) > 100f || this.State == AIState.Orbit || (this.State == AIState.Bombard || this.State == AIState.AssaultPlanet || this.State == AIState.BombardTroops) || this.State == AIState.Rebase || this.State == AIState.Scrap || this.State == AIState.Resupply || this.State == AIState.Refit || this.State == AIState.FormationWarp))
+            {
                 this.HasPriorityOrder = true;
+                this.HadPO = false;
+                this.EscortTarget = null;
+                
+            }
+            else if (HadPO && this.State != AIState.AwaitingOrders)
+                HadPO = false;
             if (this.State == AIState.Resupply)
             {
                 this.HasPriorityOrder = true;
@@ -7230,7 +7567,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             //fbedard: Put back flee! (resupply order with nowhere to go)
-            if (this.State == AIState.Flee && !this.BadGuysNear) // && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000f)
+            if (this.State == AIState.Flee && !this.BadGuysNear && this.State != AIState.Resupply && !this.HasPriorityOrder) // && Vector2.Distance(this.OrbitTarget.Position, this.Owner.Position) < this.Owner.SensorRange + 10000f)
             {
                 if(this.OrderQueue.Count > 0)
                     this.OrderQueue.Remove(this.OrderQueue.Last);
@@ -7445,7 +7782,7 @@ namespace Ship_Game.Gameplay
                                                         this.State = AIState.AwaitingOrders;   //fbedard
                                                         break;
                                                 }
-                                                if (this.Owner.BaseStrength ==0 || this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
+                                                if (this.Owner.BaseStrength ==0 || ( this.Owner.Mothership == null && Vector2.Distance(this.EscortTarget.Center,this.Owner.Center) > this.Owner.SensorRange) || this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
                                                 {
                                                     this.OrbitShip(this.EscortTarget, elapsedTime);
                                                     break;
@@ -7481,9 +7818,6 @@ namespace Ship_Game.Gameplay
                             {
                                 case AIState.SystemDefender:
                                     {
-                                        if (this.Target != null)
-                                        System.Diagnostics.Debug.WriteLine("SD Tatget" + this.Owner.VanityName);
-                                        //if(this.Target == null)
                                         this.AwaitOrders(elapsedTime);
                                         break;
                                     }

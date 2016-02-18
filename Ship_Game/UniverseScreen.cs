@@ -280,6 +280,7 @@ namespace Ship_Game
         public int lastshipcombat = 0;
         public int lastplanetcombat = 0;
 
+        public float screenDelay = 0f;
         static UniverseScreen()
         {
         }
@@ -2567,11 +2568,11 @@ namespace Ship_Game
                     this.camHeight = 550f;
                 this.camPos = this.camTransitionPosition;
             }
-            if ((double)this.camPos.X > (double)this.Size.X)
+            if (this.camPos.X > this.Size.X)
                 this.camPos.X = this.Size.X;
-            if ((double)this.camPos.X < 0.0)
+            if (this.camPos.X < 0.0)
                 this.camPos.X = 0.0f;
-            if ((double)this.camPos.Y > (double)this.Size.Y)
+            if (this.camPos.Y > (double)this.Size.Y)
                 this.camPos.Y = this.Size.Y;
             if ((double)this.camPos.Y < 0.0)
                 this.camPos.Y = 0.0f;
@@ -2672,9 +2673,9 @@ namespace Ship_Game
                 }
                 if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed)
                 {
-                    if ((double)this.AORect.X > (double)vector3.X)
+                    if (this.AORect.X > vector3.X)
                         this.AORect.X = (int)vector3.X;
-                    if ((double)this.AORect.Y > (double)vector3.Y)
+                    if (this.AORect.Y > vector3.Y)
                         this.AORect.Y = (int)vector3.Y;
                     this.AORect.Width = Math.Abs(this.AORect.Width);
                     this.AORect.Height = Math.Abs(this.AORect.Height);
@@ -2696,6 +2697,15 @@ namespace Ship_Game
         {
             if (this.ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && this.ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
                 this.Paused = !this.Paused;
+            if (!this.LookingAtPlanet)
+            {
+                this.ScreenManager.exitScreenTimer -= .0016f;
+                if (this.ScreenManager.exitScreenTimer > 0f)
+                    return;
+            }
+            else
+            this.ScreenManager.exitScreenTimer = .025f;
+
             for (int index = 0; index < this.SelectedShipList.Count; ++index)
             {
                 Ship ship = this.SelectedShipList[index];
@@ -2997,7 +3007,7 @@ namespace Ship_Game
                 }
             }
 
-            if (!this.LookingAtPlanet)
+            if (!this.LookingAtPlanet )
             {
                 if (this.HandleGUIClicks(input))
                 {
