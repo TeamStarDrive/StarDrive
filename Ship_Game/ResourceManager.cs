@@ -1230,25 +1230,29 @@ namespace Ship_Game
 		{
 			Model item;
 			try
-			{
+			{                
+                //GC.WaitForPendingFinalizers(); GC.Collect();
+                //GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                //GC.Collect();
+                    
                 lock (Ship_Game.ResourceManager.ModelDict)
                 if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
 				{
                     
-                    try
+                    //try
                     {
                         item = GetContentManager().Load<Model>(path);
                         Ship_Game.ResourceManager.ModelDict.Add(path, item);
                     }
 					//item = model;
-                    catch
-                    {
-                        System.Diagnostics.Debug.WriteLine("*****OOM loading", path);
-                        GC.WaitForPendingFinalizers(); GC.Collect();
-                        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                        GC.Collect();
+                    //catch
+                    //{
+                    //    System.Diagnostics.Debug.WriteLine("*****OOM loading", path);
+                    //    GC.WaitForPendingFinalizers(); GC.Collect();
+                    //    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    //    GC.Collect();
                         
-                    }
+                    //}
 				}
                 
                 else
@@ -3399,28 +3403,28 @@ namespace Ship_Game
                 {
                     troop.StrengthMax = troop.Strength;
                 }
-                if (troop.attack_path !=null)
-                string.Intern(troop.attack_path);
-                if (!string.IsNullOrEmpty(troop.Class))
-                string.Intern(troop.Class);
-                if (!string.IsNullOrEmpty(troop.Description))
-                string.Intern(troop.Description);
-                if (!string.IsNullOrEmpty(troop.Icon))
-                string.Intern(troop.Icon);
-                if (!string.IsNullOrEmpty(troop.idle_path))
-                string.Intern(troop.idle_path);
-                if (!string.IsNullOrEmpty(troop.MovementCue))
-                string.Intern(troop.MovementCue);
-                if (troop.OwnerString !=null)
-                string.Intern(troop.OwnerString);
-                if (!string.IsNullOrEmpty(troop.RaceType))
-                string.Intern(troop.RaceType);
-                if (!string.IsNullOrEmpty(troop.sound_attack))
-                string.Intern(troop.sound_attack);
-                if (string.IsNullOrEmpty(troop.TexturePath))
-                string.Intern(troop.TexturePath);
-                if (string.IsNullOrEmpty(troop.TargetType))
-                string.Intern(troop.TargetType);                
+                //if (troop.attack_path !=null)
+                //string.Intern(troop.attack_path);
+                //if (!string.IsNullOrEmpty(troop.Class))
+                //string.Intern(troop.Class);
+                //if (!string.IsNullOrEmpty(troop.Description))
+                //string.Intern(troop.Description);
+                //if (!string.IsNullOrEmpty(troop.Icon))
+                //string.Intern(troop.Icon);
+                //if (!string.IsNullOrEmpty(troop.idle_path))
+                //string.Intern(troop.idle_path);
+                //if (!string.IsNullOrEmpty(troop.MovementCue))
+                //string.Intern(troop.MovementCue);
+                //if (troop.OwnerString !=null)
+                //string.Intern(troop.OwnerString);
+                //if (!string.IsNullOrEmpty(troop.RaceType))
+                //string.Intern(troop.RaceType);
+                //if (!string.IsNullOrEmpty(troop.sound_attack))
+                //string.Intern(troop.sound_attack);
+                //if (string.IsNullOrEmpty(troop.TexturePath))
+                //string.Intern(troop.TexturePath);
+                //if (string.IsNullOrEmpty(troop.TargetType))
+                //string.Intern(troop.TargetType);                
 			}
 		}
 
@@ -3446,14 +3450,14 @@ namespace Ship_Game
 				stream.Dispose();
                 //no localization
                 data.UID = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
-                if (data.AnimationPath != null)
-                String.Intern(data.AnimationPath);
-                if (data.BeamTexture !=null)
-                String.Intern(data.BeamTexture);
-                if (data.dieCue !=null)
-                String.Intern(data.dieCue);
-                if (data.SecondaryFire != null)
-                String.Intern(data.SecondaryFire);
+                //if (data.AnimationPath != null)
+                //String.Intern(data.AnimationPath);
+                //if (data.BeamTexture !=null)
+                //String.Intern(data.BeamTexture);
+                //if (data.dieCue !=null)
+                //String.Intern(data.dieCue);
+                //if (data.SecondaryFire != null)
+                //String.Intern(data.SecondaryFire);
 				if (Ship_Game.ResourceManager.WeaponsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.WeaponsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
