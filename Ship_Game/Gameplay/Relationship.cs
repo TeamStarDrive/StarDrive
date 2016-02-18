@@ -381,11 +381,14 @@ namespace Ship_Game.Gameplay
 						}
 						return;
 					}
+                    float expansion = UniverseScreen.SolarSystemList.Count / Us.GetOwnedSystems().Count + Them.GetOwnedSystems().Count;
 					Relationship angerTerritorialConflict = this;
-					angerTerritorialConflict.Anger_TerritorialConflict = angerTerritorialConflict.Anger_TerritorialConflict + Amount;
+					angerTerritorialConflict.Anger_TerritorialConflict = angerTerritorialConflict.Anger_TerritorialConflict + Amount *1+expansion;
 					Relationship relationship4 = this;
 					relationship4.Trust = relationship4.Trust - Amount;
-					if (this.Anger_TerritorialConflict < (float)Us.data.DiplomaticPersonality.Territorialism && !this.AtWar)
+                    
+
+                    if (this.Anger_TerritorialConflict < (float)Us.data.DiplomaticPersonality.Territorialism && !this.AtWar)
 					{
 						if (this.AtWar)
 						{
@@ -409,6 +412,10 @@ namespace Ship_Game.Gameplay
 						}
 					}
 				}
+                else if(str1=="Expansion")
+                {
+
+                }
 				else
 				{
 					if (str1 != "Destroyed Ship")
@@ -767,9 +774,10 @@ namespace Ship_Game.Gameplay
             //    }
             //}
 
-            float OurMilScore = 230f + us.MilitaryScore;
-            float TheirMilScore = 230f + them.MilitaryScore;
-            this.Threat = (1f - OurMilScore / TheirMilScore) * 100f;
+            float OurMilScore = 2300f + us.MilitaryScore;
+            float TheirMilScore = 2300f + them.MilitaryScore;
+            this.Threat = (TheirMilScore - OurMilScore) / OurMilScore * 100;
+                //-1F +(TheirMilScore  / OurMilScore) * 100f;
             if (this.Threat > 100f)
             {
                 this.Threat = 100f;

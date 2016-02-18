@@ -5,6 +5,8 @@ using Particle3DSample;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Runtime;
+
 
 namespace Ship_Game
 {
@@ -377,10 +379,11 @@ namespace Ship_Game
                 
                     Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
                     Beam beam=null;
-                if(this.owner != null)
-                    this.owner.Beams.pendingRemovals.TryPop(out beam);
-                    
-                    if (beam == null || beam.quadEffect == null)
+                //if(this.owner != null)
+                  //  beam = this.owner.Beams.RecycleObject();
+                    this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+                    Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+                    if (beam != null) // || beam.quadEffect == null)
                     {
                         try
                         {
@@ -397,8 +400,16 @@ namespace Ship_Game
                         }
                         catch
                         {
-                            //GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
                             GlobalStats.BeamOOM++;
+                            if (GlobalStats.BeamOOM > 10)
+                            {
+                                GC.WaitForPendingFinalizers(); GC.Collect();
+
+                                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                                GC.Collect();
+                                GlobalStats.BeamOOM = 0;
+                            }
+                            
                             System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
 
 
@@ -408,25 +419,21 @@ namespace Ship_Game
                     }
                     else
                     {
-                        this.quadEffect = beam.quadEffect;
+                        //this.quadEffect = beam.quadEffect;
                         
-                        if(this.quadEffect.World != Matrix.Identity)
-                        this.quadEffect.World = Matrix.Identity;
-                        if(this.quadEffect.View!=view)
-                        this.quadEffect.View = view;
-                        if(this.quadEffect.Projection != projection)
-                        this.quadEffect.Projection = projection;
-                        this.quadEffect.TextureEnabled = true;
-                        if(this.quadEffect.Texture != texture)
-                        {
+                        //if(this.quadEffect.World != Matrix.Identity)
+                        //this.quadEffect.World = Matrix.Identity;
+                        //if(this.quadEffect.View!=view)
+                        //this.quadEffect.View = view;
+                        //if(this.quadEffect.Projection != projection)
+                        //this.quadEffect.Projection = projection;
+                        //this.quadEffect.TextureEnabled = true;
+                        
 
-                            this.quadEffect.Texture = texture;
+                        //    this.quadEffect.Texture = texture;
                             Beam.BeamEffect.Parameters["tex"].SetValue(texture);
-                        }
-                        this.quadVertexDecl = beam.quadVertexDecl;
-                        beam.recycled = true;
-                        beam.quadEffect = null;
-                        beam.quadVertexDecl = null;
+                      
+                    
                         
                     }
                     
@@ -555,8 +562,7 @@ namespace Ship_Game
 
 		public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
 		{
-            if (this.quadEffect == null)
-                this.Die(null, true);
+        
             if (!this.collidedThisFrame && this.DamageToggleOn)
 			{
 				this.DamageToggleOn = false;
@@ -571,8 +577,12 @@ namespace Ship_Game
 			}
             this.Duration -= elapsedTime;
 			this.Source = srcCenter;
-			this.quadEffect.View = view;
-			this.quadEffect.Projection = projection;
+            if (this.quadEffect != null)
+            //this.Die(null, true);
+            {
+                this.quadEffect.View = view;
+                this.quadEffect.Projection = projection;
+            }
 			this.Destination = dstCenter;
 			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.Destination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
 			this.UpperLeft = points[0];
