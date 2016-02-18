@@ -2757,7 +2757,11 @@ namespace Ship_Game.Gameplay
                                                {
                                                    Weapon weapon = this.Owner.Weapons[T];
                                                    //Reasons for this weapon not to fire 
-                                                   if ( !weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
+                                                   if ( !weapon.moduleAttachedTo.Active 
+                                                       || weapon.timeToNextFire > 0f 
+                                                       || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam
+                                                       || weapon.PowerRequiredToFire < this.Owner.PowerCurrent
+                                                       )
                                                    {
                                                        continue;
                                                        //return;
