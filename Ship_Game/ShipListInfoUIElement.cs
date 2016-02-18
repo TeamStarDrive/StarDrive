@@ -595,15 +595,19 @@ namespace Ship_Game
 					}
 					if (orderhover)
 					{
+                        //this.screen.SelectedFleet.Ships.thisLock.EnterReadLock();      //Enter and Exit lock removed to stop crash -Gretman
                         if (this.screen.SelectedFleet != null && this.screen.SelectedFleet.Ships[0] != null)
                         {
-                            bool flag = true;
+                            bool flag = true;                            
                             foreach (Ship ship2 in (List<Ship>)this.screen.SelectedFleet.Ships)
                                 if (ship2.GetAI().State != AIState.Resupply)
                                     flag = false;
+                            
                             if (flag)
                                 this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].GetAI().OrbitTarget.Position;  //fbedard: center fleet on resupply planet
+                            
                         }
+                        //this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
 						return true;
 					}
 				}

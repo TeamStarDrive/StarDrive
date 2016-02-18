@@ -3148,7 +3148,7 @@ namespace Ship_Game.Gameplay
                     }
                     //this.beams.thisLock.ExitReadLock();
 
-                    this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
+                    this.beams.ApplyPendingRemovals() ; //this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
                     this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
@@ -4252,7 +4252,7 @@ namespace Ship_Game.Gameplay
             {
 #if DEBUG
 
-                if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
+                //if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
                     //System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
 
 #endif
@@ -4265,14 +4265,15 @@ namespace Ship_Game.Gameplay
                         weapons = true;
                         float offRate = 0;
                         Weapon w = module.InstalledWeapon;
+                        float damageAmount = w.DamageAmount + w.EMPDamage + w.PowerDamage + w.MassDamage;
                         if (!w.explodes)
                         {
-                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                            offRate += (!w.isBeam ? (damageAmount * w.SalvoCount) * (1f / w.fireDelay) : damageAmount * 18f);
                         }
                         else
                         {
-                            
-                            offRate += (w.DamageAmount*w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
+
+                            offRate += (damageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
 
                         }
                         if (offRate > 0 && w.TruePD || w.Range < 1000)
@@ -4284,14 +4285,18 @@ namespace Ship_Game.Gameplay
                             }
                             offRate /= (2 + range);
                         }
-                        if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
+                        //if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
                         Str += offRate;
                     }
 
 
-                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
+                    if (module.hangarShipUID != null && !module.IsSupplyBay )
                     {
-
+                        if(module.IsTroopBay)
+                        {
+                            Str += 50;
+                            continue;
+                        }
                         fighters = true;
                         Ship hangarship = new Ship();
                         ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
@@ -4463,7 +4468,9 @@ namespace Ship_Game.Gameplay
             this.Velocity = Vector2.Zero;
             this.velocityMaximum = 0.0f;
             this.AfterBurnerAmount = 0.0f;
-            
+            float explosionboost =1;
+            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi != null)
+                explosionboost = GlobalStats.ActiveMod.mi.GlobalShipExplosionVisualIncreaser;
             Vector3 Position = new Vector3(this.Center.X, this.Center.Y, -100f);
             if (this.Active)
             {
@@ -4472,31 +4479,31 @@ namespace Ship_Game.Gameplay
                     switch (this.shipData.Role)
                     {
                         case ShipData.RoleName.freighter:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.platform:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.fighter:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.frigate:
-                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.capital:
-                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
-                            ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 850f * explosionboost, 12f, 0.2f);
+                            ExplosionManager.AddWarpExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.carrier:
-                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
-                            ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 850f * explosionboost, 12f, 0.2f);
+                            ExplosionManager.AddWarpExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.cruiser:
                             ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
-                            ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddWarpExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             break;
                         default:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             break;
                     }
                     if (this.system != null)
@@ -4507,19 +4514,19 @@ namespace Ship_Game.Gameplay
                     switch (this.shipData.Role)
                     {
                         case ShipData.RoleName.freighter:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.platform:
-                            ExplosionManager.AddExplosion(Position, 500f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 500f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.fighter:
-                            ExplosionManager.AddExplosion(Position, 600f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 600f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.frigate:
-                            ExplosionManager.AddExplosion(Position, 1000f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 1000f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 2000f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.capital:
@@ -4527,11 +4534,11 @@ namespace Ship_Game.Gameplay
                             ExplosionManager.AddWarpExplosion(Position, 2400f, 12f, 0.2f);
                             break;
                         case ShipData.RoleName.cruiser:
-                            ExplosionManager.AddExplosion(Position, 850f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 850f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 850f, 12f, 0.2f);
                             break;
                         default:
-                            ExplosionManager.AddExplosion(Position, 600f, 12f, 0.2f);
+                            ExplosionManager.AddExplosion(Position, 600f * explosionboost, 12f, 0.2f);
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
                     }
@@ -4569,6 +4576,8 @@ namespace Ship_Game.Gameplay
             this.AI.TargetShip = (Ship)null;
             this.AI.ColonizeTarget = (Planet)null;
             this.AI.EscortTarget = (Ship)null;
+            this.ExternalSlots.Clear();
+     
             this.AI.start = (Planet)null;
             this.AI.end = (Planet)null;
             this.AI.PotentialTargets.Clear();
@@ -4576,6 +4585,7 @@ namespace Ship_Game.Gameplay
             this.AI.NearbyShips.Clear();
             this.AI.FriendliesNearby.Clear();
             Ship.universeScreen.MasterShipList.QueuePendingRemoval(this);
+            this.AttackerTargetting.Clear();
             //UniverseScreen.ShipSpatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
             if (Ship.universeScreen.SelectedShip == this)
                 Ship.universeScreen.SelectedShip = (Ship)null;
@@ -4601,21 +4611,37 @@ namespace Ship_Game.Gameplay
                 if (hanger.GetHangarShip() != null)
                     hanger.GetHangarShip().Mothership = (Ship)null;
             }
+            foreach(Empire empire in EmpireManager.EmpireList)
+            {
+                empire.GetGSAI().ThreatMatrix.UpdatePin(this);
+
+            }
             for (int index = 0; index < this.projectiles.Count; ++index)
                 this.projectiles[index].Die((GameplayObject)this, false);
             this.projectiles.Clear();
             this.projectiles.ApplyPendingRemovals();
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                 moduleSlot.module.Clear();
+            this.Shields.Clear();
+            this.Hangars.Clear();
+            this.BombBays.Clear();
+
             this.ModuleSlotList.Clear();
             this.TroopList.Clear();
             this.RemoveFromAllFleets();
             this.ShipSO.Clear();
             lock (GlobalStats.ObjectManagerLocker)
                 Ship.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.ShipSO);
+
             this.loyalty.RemoveShip(this);
             this.system = (SolarSystem)null;
             this.TetheredTo = (Planet)null;
+            this.Transporters.Clear();
+            this.RepairBeams.Clear();
+            this.ModulesDictionary.Clear();
+            this.ProjectilesFired.Clear();
+
+
         }
 
         public void RemoveFromAllFleets()
