@@ -2760,7 +2760,7 @@ namespace Ship_Game.Gameplay
                                                    if ( !weapon.moduleAttachedTo.Active 
                                                        || weapon.timeToNextFire > 0f 
                                                        || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam
-                                                       || weapon.PowerRequiredToFire < this.Owner.PowerCurrent
+                                                       || weapon.PowerRequiredToFire > this.Owner.PowerCurrent
                                                        )
                                                    {
                                                        continue;
