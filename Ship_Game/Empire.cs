@@ -2488,6 +2488,7 @@ namespace Ship_Game
                     shipData.TechScore += (ushort)ResourceManager.TechTree[techname].Cost;
                 }
             }
+            if(false)
             foreach(string purgeThis in purge)
             {
                 Ship ship;
