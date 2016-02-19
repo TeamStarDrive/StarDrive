@@ -2700,6 +2700,8 @@ namespace Ship_Game.Gameplay
                     }
                     foreach (Weapon purge in this.Owner.Weapons)
                     {
+                        purge.TargetChangeTimer -= 0.0167f;
+
                         if (purge.Tag_PD || purge.TruePD)
                             hasPD = true;
                         else continue;
@@ -2757,7 +2759,12 @@ namespace Ship_Game.Gameplay
                                                {
                                                    Weapon weapon = this.Owner.Weapons[T];
                                                    //Reasons for this weapon not to fire 
-                                                   if ( !weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
+                                                   if ( !weapon.moduleAttachedTo.Active 
+                                                       || weapon.timeToNextFire > 0f 
+                                                       || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam
+                                                       || weapon.PowerRequiredToFire > this.Owner.PowerCurrent
+                                                       || weapon.TargetChangeTimer >0
+                                                       )
                                                    {
                                                        continue;
                                                        //return;
@@ -2801,7 +2808,7 @@ namespace Ship_Game.Gameplay
                                                    //if weapon target is null reset primary target and decrement target change timer.
                                                    if (weapon.fireTarget == null && !this.Owner.isPlayerShip())
                                                    {
-                                                       weapon.TargetChangeTimer -= 0.0167f;
+                                                       
                                                        if (weapon.PrimaryTarget != false)
                                                            weapon.PrimaryTarget = false;
                                                    }
