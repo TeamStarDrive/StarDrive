@@ -3149,7 +3149,7 @@ namespace Ship_Game.Gameplay
                     }
                     //this.beams.thisLock.ExitReadLock();
 
-                    this.beams.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
+                    this.beams.ApplyPendingRemovals() ; //this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
                     this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
