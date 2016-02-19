@@ -215,8 +215,8 @@ namespace Ship_Game
 			troop.Range = t.Range;
 			troop.Description = t.Description;
 			troop.HardAttack = t.HardAttack;
-			troop.Initiative = t.Initiative;
-			troop.SoftAttack = t.SoftAttack;
+            //troop.Initiative = t.Initiative;          //Not referenced in code, removing to save memory -Gretman
+            troop.SoftAttack = t.SoftAttack;
 			troop.Strength = t.Strength;
 			troop.StrengthMax = t.StrengthMax;
 			troop.TargetType = t.TargetType;
@@ -859,8 +859,8 @@ namespace Ship_Game
 				Name = t.Name,
 				Description = t.Description,
 				HardAttack = t.HardAttack,
-				Initiative = t.Initiative,
-				SoftAttack = t.SoftAttack,
+                //Initiative = t.Initiative,          //Not referenced in code, removing to save memory -Gretman
+                SoftAttack = t.SoftAttack,
 				Strength = t.Strength,
                 StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength,
 				Icon = t.Icon,
@@ -1275,128 +1275,131 @@ namespace Ship_Game
 			
             ShipModule module = new ShipModule()
 			{
-				BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
-				HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
-				BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
-				Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
-				Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
-				DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
-                ECM = Ship_Game.ResourceManager.ShipModulesDict[uid].ECM,
-				EMP_Protection = Ship_Game.ResourceManager.ShipModulesDict[uid].EMP_Protection,
-				explodes = Ship_Game.ResourceManager.ShipModulesDict[uid].explodes,
+                //All of the commented out properties here have been replaced by this single reference to 'ShipModule_Advanced' which now contains them all - Gretman
+                Advanced = Ship_Game.ResourceManager.ShipModulesDict[uid].Advanced,
+
+                //BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
+                //HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
+                //BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
+                //Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
+                //Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
+                DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
+                //ECM = Ship_Game.ResourceManager.ShipModulesDict[uid].ECM,
+				//EMP_Protection = Ship_Game.ResourceManager.ShipModulesDict[uid].EMP_Protection,
+				//explodes = Ship_Game.ResourceManager.ShipModulesDict[uid].explodes,
 				FieldOfFire = Ship_Game.ResourceManager.ShipModulesDict[uid].FieldOfFire,
 				hangarShipUID = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarShipUID,
 				hangarTimer = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarTimer,
-				hangarTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarTimerConstant,
+				//hangarTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarTimerConstant,
 				Health = Ship_Game.ResourceManager.ShipModulesDict[uid].HealthMax,
-				IsSupplyBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsSupplyBay,
+				//IsSupplyBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsSupplyBay,
 				HealthMax = Ship_Game.ResourceManager.ShipModulesDict[uid].HealthMax,
 				isWeapon = Ship_Game.ResourceManager.ShipModulesDict[uid].isWeapon,
-				IsTroopBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsTroopBay,
+				//IsTroopBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsTroopBay,
 				Mass = Ship_Game.ResourceManager.ShipModulesDict[uid].Mass,
-				MechanicalBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].MechanicalBoardingDefense,
+				//MechanicalBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].MechanicalBoardingDefense,
 				ModuleType = Ship_Game.ResourceManager.ShipModulesDict[uid].ModuleType,
 				NameIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].NameIndex,
-				numberOfColonists = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfColonists,
-				numberOfEquipment = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfEquipment,
-				numberOfFood = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfFood,
+				//numberOfColonists = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfColonists,
+				//numberOfEquipment = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfEquipment,
+				//numberOfFood = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfFood,
 				OrdinanceCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].OrdinanceCapacity,
-				OrdnanceAddedPerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].OrdnanceAddedPerSecond,
-				PowerDraw = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDraw,
-				PowerFlowMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerFlowMax,
-				PowerRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerRadius,
-				PowerStoreMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerStoreMax,
-				SensorRange = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorRange,
-				shield_power = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,
-				shield_power_max = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,
-				shield_radius = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_radius,
-				shield_recharge_delay = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_delay,
-				shield_recharge_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_rate,
-				TechLevel = Ship_Game.ResourceManager.ShipModulesDict[uid].TechLevel,
-				thrust = Ship_Game.ResourceManager.ShipModulesDict[uid].thrust,
-				TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,
-				TroopCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopCapacity,
-				TroopsSupplied = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopsSupplied,
+				//OrdnanceAddedPerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].OrdnanceAddedPerSecond,
+				//PowerDraw = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDraw,
+				//PowerFlowMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerFlowMax,
+				//PowerRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerRadius,
+				//PowerStoreMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerStoreMax,
+				//SensorRange = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorRange,
+				shield_power = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,    //Hmmm... This one is strange -Gretman
+				//shield_power_max = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,
+				//shield_radius = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_radius,
+				//shield_recharge_delay = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_delay,
+				//shield_recharge_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_rate,
+				//TechLevel = Ship_Game.ResourceManager.ShipModulesDict[uid].TechLevel,
+				//thrust = Ship_Game.ResourceManager.ShipModulesDict[uid].thrust,
+                //TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,    //Not referenced in code, removing to save memory -Gretman
+                //TroopCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopCapacity,
+				//TroopsSupplied = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopsSupplied,
 				UID = Ship_Game.ResourceManager.ShipModulesDict[uid].UID,
-				WarpThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpThrust,
+				//WarpThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpThrust,
 				XSIZE = Ship_Game.ResourceManager.ShipModulesDict[uid].XSIZE,
 				YSIZE = Ship_Game.ResourceManager.ShipModulesDict[uid].YSIZE,
-				InhibitionRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].InhibitionRadius,
-				FightersOnly = Ship_Game.ResourceManager.ShipModulesDict[uid].FightersOnly,
-                DroneModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneModule,
-                FighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FighterModule,
-                CorvetteModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CorvetteModule,
-                FrigateModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FrigateModule,
-                DestroyerModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DestroyerModule,
-                CruiserModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CruiserModule,
-                CarrierModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CarrierModule,
-                CapitalModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CapitalModule,
-                FreighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FreighterModule,
-                PlatformModule = Ship_Game.ResourceManager.ShipModulesDict[uid].PlatformModule,
-                StationModule = Ship_Game.ResourceManager.ShipModulesDict[uid].StationModule,
-				TurnThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].TurnThrust,
-				DeployBuildingOnColonize = Ship_Game.ResourceManager.ShipModulesDict[uid].DeployBuildingOnColonize,
+				//InhibitionRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].InhibitionRadius,
+				//FightersOnly = Ship_Game.ResourceManager.ShipModulesDict[uid].FightersOnly,
+                //DroneModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneModule,
+                //FighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FighterModule,
+                //CorvetteModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CorvetteModule,
+                //FrigateModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FrigateModule,
+                //DestroyerModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DestroyerModule,
+                //CruiserModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CruiserModule,
+                //CarrierModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CarrierModule,
+                //CapitalModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CapitalModule,
+                //FreighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FreighterModule,
+                //PlatformModule = Ship_Game.ResourceManager.ShipModulesDict[uid].PlatformModule,
+                //StationModule = Ship_Game.ResourceManager.ShipModulesDict[uid].StationModule,
+				//TurnThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].TurnThrust,
+				//DeployBuildingOnColonize = Ship_Game.ResourceManager.ShipModulesDict[uid].DeployBuildingOnColonize,
 				PermittedHangarRoles = Ship_Game.ResourceManager.ShipModulesDict[uid].PermittedHangarRoles,
-				MaximumHangarShipSize = Ship_Game.ResourceManager.ShipModulesDict[uid].MaximumHangarShipSize,
-				IsRepairModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsRepairModule,
-				MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,
-				MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,
-				MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,
-				WarpMassCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpMassCapacity,
-				PowerDrawAtWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDrawAtWarp,
-				FTLSpeed = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpeed,
-				ResourceStored = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStored,
-				ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,
-				ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,
-				ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,
-				ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
-				IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
-				shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
-                FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime,
+				//MaximumHangarShipSize = Ship_Game.ResourceManager.ShipModulesDict[uid].MaximumHangarShipSize,
+				//IsRepairModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsRepairModule,
+                //MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,    //Not referenced in code, removing to save memory -Gretman
+                //MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,    //Not referenced in code, removing to save memory -Gretman
+                //MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,    //Not referenced in code, removing to save memory -Gretman
+                //WarpMassCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpMassCapacity,
+				//PowerDrawAtWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDrawAtWarp,
+				//FTLSpeed = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpeed,
+				//ResourceStored = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStored,
+                //ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,    //Not referenced in code, removing to save memory -Gretman
+                //ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,    //Not referenced in code, removing to save memory -Gretman
+                //ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,    //Not referenced in code, removing to save memory -Gretman
+                //ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
+				//IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
+				//shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
+                //FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime,
                 shieldsOff = Ship_Game.ResourceManager.ShipModulesDict[uid].shieldsOff,
-                SensorBonus = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorBonus,
-                TransporterOrdnance = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterOrdnance,
-                TransporterPower = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterPower,
-                TransporterRange = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterRange,
-                TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant,
-                TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding,
-                TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault,
-                KineticResist = Ship_Game.ResourceManager.ShipModulesDict[uid].KineticResist,
-                EnergyResist = Ship_Game.ResourceManager.ShipModulesDict[uid].EnergyResist,
-                GuidedResist = Ship_Game.ResourceManager.ShipModulesDict[uid].GuidedResist,
-                MissileResist = Ship_Game.ResourceManager.ShipModulesDict[uid].MissileResist,
-                HybridResist = Ship_Game.ResourceManager.ShipModulesDict[uid].HybridResist,
-                BeamResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BeamResist,
-                ExplosiveResist = Ship_Game.ResourceManager.ShipModulesDict[uid].ExplosiveResist,
-                InterceptResist = Ship_Game.ResourceManager.ShipModulesDict[uid].InterceptResist,
-                RailgunResist = Ship_Game.ResourceManager.ShipModulesDict[uid].RailgunResist,
-                SpaceBombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SpaceBombResist,
-                BombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BombResist,
-                BioWeaponResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BioWeaponResist,
-                DroneResist = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneResist,
-                WarpResist = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpResist,
-                TorpedoResist = Ship_Game.ResourceManager.ShipModulesDict[uid].TorpedoResist,
-                CannonResist = Ship_Game.ResourceManager.ShipModulesDict[uid].CannonResist,
-                SubspaceResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SubspaceResist,
-                PDResist = Ship_Game.ResourceManager.ShipModulesDict[uid].PDResist,
-                FlakResist = Ship_Game.ResourceManager.ShipModulesDict[uid].FlakResist,
-                APResist = Ship_Game.ResourceManager.ShipModulesDict[uid].APResist,
-                DamageThreshold = Ship_Game.ResourceManager.ShipModulesDict[uid].DamageThreshold,
-                shield_threshold = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_threshold,
-                shield_energy_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_energy_resist,
-                shield_kinetic_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_kinetic_resist,
-                shield_explosive_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_explosive_resist,
-                shield_flak_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_flak_resist,
-                shield_hybrid_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_hybrid_resist,
-                shield_missile_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_missile_resist,
-                shield_railgun_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_railgun_resist,
-                shield_subspace_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_subspace_resist,
-                shield_warp_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_warp_resist,
-                shield_beam_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_beam_resist,
-                IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower,
-                isPowerArmour = Ship_Game.ResourceManager.ShipModulesDict[uid].isPowerArmour,
-                isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead,
-                TargetTracking = Ship_Game.ResourceManager.ShipModulesDict[uid].TargetTracking
+                //SensorBonus = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorBonus,
+                //TransporterOrdnance = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterOrdnance,
+                //TransporterPower = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterPower,
+                //TransporterRange = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterRange,
+                //TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant,
+                //TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding,
+                //TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault,
+                //KineticResist = Ship_Game.ResourceManager.ShipModulesDict[uid].KineticResist,
+                //EnergyResist = Ship_Game.ResourceManager.ShipModulesDict[uid].EnergyResist,
+                //GuidedResist = Ship_Game.ResourceManager.ShipModulesDict[uid].GuidedResist,
+                //MissileResist = Ship_Game.ResourceManager.ShipModulesDict[uid].MissileResist,
+                //HybridResist = Ship_Game.ResourceManager.ShipModulesDict[uid].HybridResist,
+                //BeamResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BeamResist,
+                //ExplosiveResist = Ship_Game.ResourceManager.ShipModulesDict[uid].ExplosiveResist,
+                //InterceptResist = Ship_Game.ResourceManager.ShipModulesDict[uid].InterceptResist,
+                //RailgunResist = Ship_Game.ResourceManager.ShipModulesDict[uid].RailgunResist,
+                //SpaceBombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SpaceBombResist,
+                //BombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BombResist,
+                //BioWeaponResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BioWeaponResist,
+                //DroneResist = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneResist,
+                //WarpResist = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpResist,
+                //TorpedoResist = Ship_Game.ResourceManager.ShipModulesDict[uid].TorpedoResist,
+                //CannonResist = Ship_Game.ResourceManager.ShipModulesDict[uid].CannonResist,
+                //SubspaceResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SubspaceResist,
+                //PDResist = Ship_Game.ResourceManager.ShipModulesDict[uid].PDResist,
+                //FlakResist = Ship_Game.ResourceManager.ShipModulesDict[uid].FlakResist,
+                //APResist = Ship_Game.ResourceManager.ShipModulesDict[uid].APResist,
+                //DamageThreshold = Ship_Game.ResourceManager.ShipModulesDict[uid].DamageThreshold,
+                //shield_threshold = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_threshold,
+                //shield_energy_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_energy_resist,
+                //shield_kinetic_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_kinetic_resist,
+                //shield_explosive_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_explosive_resist,
+                //shield_flak_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_flak_resist,
+                //shield_hybrid_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_hybrid_resist,
+                //shield_missile_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_missile_resist,
+                //shield_railgun_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_railgun_resist,
+                //shield_subspace_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_subspace_resist,
+                //shield_warp_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_warp_resist,
+                //shield_beam_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_beam_resist,
+                //IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower,
+                //isPowerArmour = Ship_Game.ResourceManager.ShipModulesDict[uid].isPowerArmour,
+                //isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead,
+                //TargetTracking = Ship_Game.ResourceManager.ShipModulesDict[uid].TargetTracking
 
 			};
 
@@ -1420,12 +1423,9 @@ namespace Ship_Game
             module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
             module.TargetValue += module.explodes ? 2 : 0;
             module.TargetValue += module.isWeapon ? 1 : 0;
-         
-            
-
-
 
             #endregion
+
             return module;
 		}
 
@@ -1680,7 +1680,7 @@ namespace Ship_Game
                 TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
                 ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen,
                 RangeVariance = Ship_Game.ResourceManager.WeaponsDict[uid].RangeVariance,
-                ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,
+                //ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,          //Not referenced in code, removing to save memory -Gretman
                 AltFireMode = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireMode,
                 AltFireTriggerFighter = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireTriggerFighter,
                 SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire
@@ -2475,7 +2475,7 @@ namespace Ship_Game
 		private static void LoadShipModules()
 		{
 			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipModules"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(ShipModule));
+			XmlSerializer serializer1 = new XmlSerializer(typeof(ShipModule_Deserialize));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
@@ -2485,10 +2485,10 @@ namespace Ship_Game
                 if(FI.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase)  >0)
                     continue;
 				FileStream stream = FI.OpenRead();
-                ShipModule data = null;
+                ShipModule_Deserialize data = null;
                 try
                 {
-                     data = (ShipModule)serializer1.Deserialize(stream);
+                     data = (ShipModule_Deserialize)serializer1.Deserialize(stream);
                 }
                 catch (Exception e)
                 {
@@ -2509,8 +2509,8 @@ namespace Ship_Game
                     Localizer.used[data.NameIndex] = true;
                 }
                 
-                if ( data.hangerTimerConstant >0 )
-                    data.hangarTimerConstant = data.hangerTimerConstant;                                    
+                //if ( data.hangerTimerConstant >0 )
+                //    data.hangarTimerConstant = data.hangerTimerConstant;                                    
                 data.UID = String.Intern( Path.GetFileNameWithoutExtension(FI.Name));
                 if (data.IconTexturePath != null && String.IsInterned(data.IconTexturePath) != null)
                     string.Intern(data.IconTexturePath);
@@ -2522,12 +2522,13 @@ namespace Ship_Game
                 }
                 if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(data.UID))
 				{
-                    Ship_Game.ResourceManager.ShipModulesDict[data.UID] = data;
-				}
+                    Ship_Game.ResourceManager.ShipModulesDict[data.UID] = data.ConvertToShipModule();
+                    System.Diagnostics.Debug.WriteLine("ShipModule UID already found. Conflicting name:  " + data.UID);
+                }
 				else
 				{
-                    Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data);
-				}
+                    Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data.ConvertToShipModule());
+                }
                 
 			}
 			foreach (KeyValuePair<string, ShipModule> entry in Ship_Game.ResourceManager.ShipModulesDict)
@@ -2985,21 +2986,21 @@ namespace Ship_Game
             
                 float Str = 0f;
                 float def = 0f;
-                //int slotCount = moduleslot.XSIZE*moduleslot.YSIZE;
+            //int slotCount = moduleslot.XSIZE*moduleslot.YSIZE;
 
 
 
-                bool fighters = false;
-                bool weapons = false;
-                //ModuleSlot slot = moduleslot;
-                //foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
-                {
+            //bool fighters = false;          //Not referenced in code, removing to save memory -Gretman
+            //bool weapons = false;          //Not referenced in code, removing to save memory -Gretman
+            //ModuleSlot slot = moduleslot;
+            //foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
+            {
 
-                    ShipModule module = moduleslot;
+                ShipModule module = moduleslot;
                     float offRate = 0;
                     if (module.InstalledWeapon != null)
                     {
-                        weapons = true;
+                        //weapons = true;
                         Weapon w = module.InstalledWeapon;
                         if (!w.explodes)
                         {
@@ -3027,7 +3028,7 @@ namespace Ship_Game
                     if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
                     {
 
-                        fighters = true;
+                        //fighters = true;
                         Ship hangarship;// = new Ship();
                         ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
 

@@ -167,7 +167,7 @@ namespace Ship_Game
             {
                 p.SpecialDescription = data.SpecialDescription;
             }
-            if (data.Scale != null && data.Scale != 0)
+            if (data.Scale != 0)
             {
                 p.scale = data.Scale;
             }
@@ -726,8 +726,8 @@ namespace Ship_Game
 					ship.GetAI().GotoStep = shipData.AISave.GoToStep;
 					ship.GetAI().MovePosition = shipData.AISave.MovePosition;
 					ship.GetAI().OrbitTargetGuid = shipData.AISave.OrbitTarget;
-					ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;
-					ship.GetAI().TargetGuid = shipData.AISave.AttackTarget;
+                    //ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;          //Not referenced in code, removing to save memory -Gretman
+                    ship.GetAI().TargetGuid = shipData.AISave.AttackTarget;
 					ship.GetAI().SystemToDefendGuid = shipData.AISave.SystemToDefend;
 					ship.GetAI().EscortTargetGuid = shipData.AISave.EscortTarget;
 					bool hasCargo = false;
