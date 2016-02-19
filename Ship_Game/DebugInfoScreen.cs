@@ -51,6 +51,8 @@ namespace Ship_Game
 
 		private string fmt = "0.#";
 
+        public static sbyte loadmodels = 0;
+
 		static DebugInfoScreen()
 		{
 		}
