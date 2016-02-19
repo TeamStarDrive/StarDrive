@@ -55,7 +55,7 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
-        private bool firstSort = true;
+        //private bool firstSort = true;
 
 		public EmpireScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
 		{
@@ -124,7 +124,7 @@ namespace Ship_Game
 				}
 			}
 			this.AutoButton = new Rectangle(0, 0, 140, 33);
-            this.firstSort = true;
+            //this.firstSort = true;
 		}
 
 		       public void Dispose()

@@ -41,9 +41,9 @@ namespace Ship_Game.Gameplay
 		public List<Ship> PotentialTargets = new List<Ship>();
 
 
-		private Vector2 direction = Vector2.Zero;
+        //private Vector2 direction = Vector2.Zero;     //Not referenced in code, removing to save memory -Gretman
 
-		private int resupplystep;
+        private int resupplystep;
 
 		public Planet resupplyTarget;
 
@@ -63,33 +63,33 @@ namespace Ship_Game.Gameplay
 
 		public Guid SystemToDefendGuid;
 
-		private List<SolarSystem> SystemsToExplore = new List<SolarSystem>();
+        //private List<SolarSystem> SystemsToExplore = new List<SolarSystem>();         //Not referenced in code, removing to save memory -Gretman
 
-		public SolarSystem ExplorationTarget;
+        public SolarSystem ExplorationTarget;
 
 		public Ship EscortTarget;
 
 		public Guid EscortTargetGuid;
 
-		private List<float> Distances = new List<float>();
+        //private List<float> Distances = new List<float>();            //Not referenced in code, removing to save memory -Gretman
 
-		private float findNewPosTimer;
+        private float findNewPosTimer;
 
 		private Goal ColonizeGoal;
 
 		private Planet awaitClosest;
 
-		public bool inOrbit;
+        //public bool inOrbit;          //Not referenced in code, removing to save memory -Gretman
 
-		private Vector2 OrbitPos;
+        private Vector2 OrbitPos;
 
 		private float DistanceLast;
 
 		public bool HasPriorityOrder;
 
-		private Vector2 negativeRotation = Vector2.One;
+        //private Vector2 negativeRotation = Vector2.One;          //Not referenced in code, removing to save memory -Gretman
 
-		public int GotoStep;
+        public int GotoStep;
 
 		private bool AttackRunStarted;
 
@@ -121,9 +121,9 @@ namespace Ship_Game.Gameplay
 
 		public string FoodOrProd;
 
-		private float moveTimer;
+		//private float moveTimer;          //Not referenced in code, removing to save memory -Gretman
 
-		public bool hasPriorityTarget;
+        public bool hasPriorityTarget;
 
 		public bool Intercepting;
 
@@ -133,9 +133,9 @@ namespace Ship_Game.Gameplay
 
 		public Guid TargetGuid;
 
-		public Guid ColonizeTargetGuid;
+        //public Guid ColonizeTargetGuid;          //Not referenced in code, removing to save memory -Gretman
 
-		public Planet ColonizeTarget;
+        public Planet ColonizeTarget;
 
 		public bool ReadyToWarp = true;
 
@@ -2700,6 +2700,8 @@ namespace Ship_Game.Gameplay
                     }
                     foreach (Weapon purge in this.Owner.Weapons)
                     {
+                        purge.TargetChangeTimer -= 0.0167f;
+
                         if (purge.Tag_PD || purge.TruePD)
                             hasPD = true;
                         else continue;
@@ -2760,7 +2762,8 @@ namespace Ship_Game.Gameplay
                                                    if ( !weapon.moduleAttachedTo.Active 
                                                        || weapon.timeToNextFire > 0f 
                                                        || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam
-                                                       || weapon.PowerRequiredToFire < this.Owner.PowerCurrent
+                                                       || weapon.PowerRequiredToFire > this.Owner.PowerCurrent
+                                                       || weapon.TargetChangeTimer >0
                                                        )
                                                    {
                                                        continue;
@@ -2805,7 +2808,7 @@ namespace Ship_Game.Gameplay
                                                    //if weapon target is null reset primary target and decrement target change timer.
                                                    if (weapon.fireTarget == null && !this.Owner.isPlayerShip())
                                                    {
-                                                       weapon.TargetChangeTimer -= 0.0167f;
+                                                       
                                                        if (weapon.PrimaryTarget != false)
                                                            weapon.PrimaryTarget = false;
                                                    }
@@ -3228,8 +3231,8 @@ namespace Ship_Game.Gameplay
 			this.State = AIState.Rebase;
 			this.OrbitTarget = p;
 			this.findNewPosTimer = 0f;
-			this.moveTimer = 0f;
-			this.GotoStep = 0;
+            //this.moveTimer = 0f;          //Not referenced in code, removing to save memory -Gretman
+            this.GotoStep = 0;
 			this.HasPriorityOrder = true;
 			this.MovePosition.X = p.Position.X;
 			this.MovePosition.Y = p.Position.Y;
