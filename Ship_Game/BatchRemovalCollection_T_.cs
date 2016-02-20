@@ -30,6 +30,14 @@ namespace Ship_Game
             this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         }
+        public BatchRemovalCollection(List<T> ListToCopy)
+        {
+            List<T> list = this as List<T>;
+            list = ListToCopy.ToList<T>();
+            this.AddRange(list);
+            this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+        }
         public void ApplyPendingRemovals()
         {
             T result;            

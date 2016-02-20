@@ -353,8 +353,9 @@ namespace Ship_Game.Gameplay
             this.AllFlanks.Add(this.ScreenFlank);
             this.AllFlanks.Add(this.RearFlank);
             BatchRemovalCollection<Ship> removalCollection = new BatchRemovalCollection<Ship>();
-            foreach (Ship ship in (List<Ship>)this.Ships)
-                removalCollection.Add(ship);
+            removalCollection.AddRange(this.Ships);
+            //foreach (Ship ship in (List<Ship>)this.Ships)
+            //    removalCollection.Add(ship);
             foreach (Ship ship in (List<Ship>)removalCollection)
             {
                 if (ship.shipData.Role == ShipData.RoleName.scout || ship.shipData.ShipCategory == ShipData.Category.Recon)

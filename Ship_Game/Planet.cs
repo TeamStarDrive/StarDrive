@@ -141,6 +141,8 @@ namespace Ship_Game
         private bool FSexport = false;
         public bool UniqueHab = false;
         public int uniqueHabPercent;
+        public float ExportPSWeight =0;
+        public float ExportFSWeight = 0;
 
         
         public Planet()
@@ -2775,7 +2777,7 @@ namespace Ship_Game
                                 float previousD = building.theWeapon.Range + 1000f;
                                 //float currentT = 0;
                                 float previousT = building.theWeapon.Range + 1000f;
-                                this.system.ShipList.thisLock.EnterReadLock();
+                                //this.system.ShipList.thisLock.EnterReadLock();
                                 for (int index2 = 0; index2 < this.system.ShipList.Count; ++index2)
                                 {
                                     Ship ship = this.system.ShipList[index2];
@@ -2795,7 +2797,7 @@ namespace Ship_Game
                                     }
 
                                 }
-                                this.system.ShipList.thisLock.ExitReadLock();
+                              //  this.system.ShipList.thisLock.ExitReadLock();
                                 //if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && Vector2.Distance(this.Position, ship.Center) < building.theWeapon.Range)
                                 //Ship ship = null;
                                 if (troop != null)
@@ -3798,26 +3800,46 @@ namespace Ship_Game
         }
         private void SetExportState(ColonyType colonyType)
         {
+            
             bool FSexport =false;
             bool PSexport = false;
             int pc = 0;
+            float exportPSNeed = 0;
+            float exportFSNeed = 0;
+            float importPSNeed = 0;
+            float importFSNeed = 0;
+            if(this.ExportPSWeight >0 || this.ExportFSWeight >0)
             foreach(Planet planet in this.Owner.GetPlanets())
             {
                 pc++;
-                if(planet.fs == GoodState.IMPORT)
+                if(planet.fs == GoodState.IMPORT )
                 {
+                    importFSNeed += planet.MAX_STORAGE- planet.FoodHere;
                     FSexport = true;
                 }
+                if (planet.fs == GoodState.EXPORT)
+                    ExportFSWeight += planet.FoodHere;
                 if(planet.ps == GoodState.IMPORT)
                 {
+                    importPSNeed += planet.MAX_STORAGE - planet.ProductionHere;
                     PSexport = true;
                 }
+                if (planet.ps == GoodState.EXPORT)
+                    exportPSNeed += planet.ProductionHere;
             }
             if(pc==1)
             {
                 FSexport = false;
                 PSexport = false;
             }
+            exportFSNeed -= importFSNeed;
+            if (exportFSNeed <= 0)
+                FSexport = true;
+            exportPSNeed -= importPSNeed;
+            if (exportPSNeed <= 0)
+                PSexport = true;
+            this.ExportFSWeight = 0;
+            this.ExportPSWeight = 0;
             float PRatio = this.ProductionHere /this.MAX_STORAGE;
             float FRatio = this.FoodHere /this.MAX_STORAGE;
 

@@ -2126,7 +2126,7 @@ namespace Ship_Game
                 this.OwnedPlanets.thisLock.EnterReadLock();
                 float newBuildM = 0f;
                 
-                foreach (Planet planet in this.OwnedPlanets)
+                foreach (Planet planet in this.OwnedPlanets.OrderBy(weight => weight.ExportFSWeight + weight.ExportPSWeight))
                 {
                     
                     planet.UpdateOwnedPlanet();
