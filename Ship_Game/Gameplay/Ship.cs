@@ -67,7 +67,7 @@ namespace Ship_Game.Gameplay
         private List<ShipModule> Shields = new List<ShipModule>();
         private List<ShipModule> Hangars = new List<ShipModule>();
         public List<ShipModule> BombBays = new List<ShipModule>();
-        public bool shipStatusChanged = true;
+        public bool shipStatusChanged = false;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
         private AnimationController animationController;
@@ -1857,6 +1857,7 @@ namespace Ship_Game.Gameplay
             }
             this.ShipSO.Visibility = ObjectVisibility.Rendered;
             this.radius = this.ShipSO.WorldBoundingSphere.Radius * 2f;
+            this.shipStatusChanged = true;
         }
 
         public override void Initialize()
@@ -1909,6 +1910,7 @@ namespace Ship_Game.Gameplay
                     this.hasRepairBeam = true;
             }
             this.RecalculatePower();
+            this.shipStatusChanged = true;
         }
 
         private void FillExternalSlots()
@@ -2642,13 +2644,14 @@ namespace Ship_Game.Gameplay
 
         public virtual void InitializeModules()
         {
-            this.ModulesInitialized = true;
+            
             this.Weapons.Clear();
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 moduleSlot.SetParent(this);
                 moduleSlot.Initialize();
             }
+            this.ModulesInitialized = true;
         }
 
         public bool InitFromSave()
