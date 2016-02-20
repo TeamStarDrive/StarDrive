@@ -1024,16 +1024,21 @@ namespace Ship_Game.Gameplay
         {
             if (!CheckRangeToTarget(w, target))
                 return false;
+            Ship TargetShip = target as Ship;
             if (w.MassDamage >0 || w.RepulsionDamage >0)
-            {
-                Ship shiptarget = target as Ship;
-                if (shiptarget != null && (shiptarget.EnginesKnockedOut || shiptarget.IsTethered() )) 
+            {                
+                if (TargetShip != null && (TargetShip.EnginesKnockedOut || TargetShip.IsTethered() )) 
                 {
                     return false;
                 }
             }
-            //if (w.Tag_Guided && w.RotationRadsPerSecond > 3f)
-            //    return true;
+            Relationship enemy;
+            if
+            (target != null && TargetShip != null && (this.loyalty == TargetShip.loyalty ||
+             !this.loyalty.isFaction && 
+           this.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
+                return false;
+            
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;            
             Vector2 PickedPos = target.Center;            
             Vector2 pos = PickedPos;
