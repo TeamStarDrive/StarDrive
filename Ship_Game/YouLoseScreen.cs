@@ -131,7 +131,7 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 880)
+            if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 880)
 			{
 				this.LowRes = true;
 			}
