@@ -3073,7 +3073,16 @@ namespace Ship_Game
                 this.SetAsDefeated();
                 if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this)
                 {
+                    foreach(Ship ship in Empire.universeScreen.MasterShipList)
+                    {
+                        ship.Die(null, true);
+                    }
+                    Empire.universeScreen.Paused = true;
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();                    
                     Empire.universeScreen.ScreenManager.AddScreen((GameScreen)new YouLoseScreen());
+                    Empire.universeScreen.Paused = false;
                     return;
                 }
                 else
