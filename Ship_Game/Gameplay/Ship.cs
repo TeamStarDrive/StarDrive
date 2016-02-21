@@ -95,7 +95,7 @@ namespace Ship_Game.Gameplay
         //protected float ThrustLast;    //Not referenced in code, removing to save memory -Gretman
         public float InCombatTimer;
         public bool isTurning;
-        public bool PauseUpdate;
+        //public bool PauseUpdate;      //Not used in code, removing to save memory -Gretman
         public float InhibitionRadius;
         private KeyboardState lastKBState;
         private KeyboardState currentKeyBoardState;
@@ -2710,7 +2710,7 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        public override void Update(float elapsedTime)
+        public override void Update(float elapsedTime)      //Mer
         {
             if (!this.Active)
                 return;

@@ -1088,71 +1088,71 @@ namespace Ship_Game
                     ship.TetherToPlanet(this.PlanetsDict[ship.TetherGuid]);
             }
         }
-        private void EmpireThread()
-        {
+        //private void EmpireThread()       //This is not referenced anywhere. Commenting out so I can code-search without this stuff coming up -Gretman
+        //{
 
             
-            while (true)
-            {
-                //float elapsedTime = this.ztimeSnapShot; 
+        //    while (true)
+        //    {
+        //        //float elapsedTime = this.ztimeSnapShot; 
                  
 
-                this.EmpireGateKeeper.WaitOne();
-                //float elapsedTime = this.ztimeSnapShot;
-                float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-                if (!this.Paused)
-                {
-                    //this.ztimeSnapShot = elapsedTime;
-                    //elapsedTime += !this.Paused ? 0.01666667f : 0.0f;
-                    //float elapsedTime = this.ztimeSnapShot;
-                   // Parallel.ForEach(EmpireManager.EmpireList, empire =>
-                    foreach (Empire empire in EmpireManager.EmpireList)
-                    {
-                        try
-                        {
-                            //var fleetdictClone = new Dictionary<int,Fleet>(empire.GetFleetsDict());
-                            foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())//leetdictClone)
-                            {
-                                if (keyValuePair.Value.Ships.Count > 0)
-                                {
-                                    keyValuePair.Value.Setavgtodestination();
-                                    keyValuePair.Value.SetSpeed();
-                                    try
-                                    {
-                                        keyValuePair.Value.StoredFleetPosistion = keyValuePair.Value.findAveragePositionset();
-                                    }
-                                    catch
-                                    {
-                                        System.Diagnostics.Debug.WriteLine("crash at find average posisiton");
-                                    }
+        //        this.EmpireGateKeeper.WaitOne();
+        //        //float elapsedTime = this.ztimeSnapShot;
+        //        float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
+        //        if (!this.Paused)
+        //        {
+        //            //this.ztimeSnapShot = elapsedTime;
+        //            //elapsedTime += !this.Paused ? 0.01666667f : 0.0f;
+        //            //float elapsedTime = this.ztimeSnapShot;
+        //           // Parallel.ForEach(EmpireManager.EmpireList, empire =>
+        //            foreach (Empire empire in EmpireManager.EmpireList)
+        //            {
+        //                try
+        //                {
+        //                    //var fleetdictClone = new Dictionary<int,Fleet>(empire.GetFleetsDict());
+        //                    foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())//leetdictClone)
+        //                    {
+        //                        if (keyValuePair.Value.Ships.Count > 0)
+        //                        {
+        //                            keyValuePair.Value.Setavgtodestination();
+        //                            keyValuePair.Value.SetSpeed();
+        //                            try
+        //                            {
+        //                                keyValuePair.Value.StoredFleetPosistion = keyValuePair.Value.findAveragePositionset();
+        //                            }
+        //                            catch
+        //                            {
+        //                                System.Diagnostics.Debug.WriteLine("crash at find average posisiton");
+        //                            }
 
 
 
-                                }
-                            }
-                        }
-                        catch { };
-                        //empire.updateContactsTimer -= elapsedTime;
-                        //if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
-                        //{
-                        //    empire.GetGSAI().ThreatMatrix.ScrubMatrix();
-                        //    empire.ResetBorders();
-                        //    lock (GlobalStats.KnownShipsLock)
-                        //        empire.KnownShips.Clear();
-                        //    empire.UpdateKnownShips();
-                        //    empire.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
-                        //}
-                        //catch { }
-                    }//);
+        //                        }
+        //                    }
+        //                }
+        //                catch { };
+        //                //empire.updateContactsTimer -= elapsedTime;
+        //                //if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
+        //                //{
+        //                //    empire.GetGSAI().ThreatMatrix.ScrubMatrix();
+        //                //    empire.ResetBorders();
+        //                //    lock (GlobalStats.KnownShipsLock)
+        //                //        empire.KnownShips.Clear();
+        //                //    empire.UpdateKnownShips();
+        //                //    empire.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
+        //                //}
+        //                //catch { }
+        //            }//);
 
-                    //for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
-                    //    EmpireManager.EmpireList[index].Update(elapsedTime);
-                }
-                    this.EmpireDone.Set();
+        //            //for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
+        //            //    EmpireManager.EmpireList[index].Update(elapsedTime);
+        //        }
+        //            this.EmpireDone.Set();
                 
-            }
+        //    }
 
-        }
+        //}
         private void DoParticleLoad()
         {
             this.beamflashes = new ParticleSystem((Game)Game1.Instance, this.ScreenManager.Content, "3DParticles/BeamFlash", this.ScreenManager.GraphicsDevice);
@@ -1627,6 +1627,7 @@ namespace Ship_Game
                         }
                     }
                 });
+
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 this.MasterShipList.ApplyPendingRemovals();
@@ -1681,6 +1682,7 @@ namespace Ship_Game
                                                        s.ShipList.Add(ship);
                                                        if (!s.spatialManager.CollidableObjects.Contains((GameplayObject)ship))
                                                            s.spatialManager.CollidableObjects.Add((GameplayObject)ship);
+                                                       break;       //No need to keep looping through all other systems if one is found -Gretman
                                                    }
                                                }
                                                if (ship.GetSystem() == null)
@@ -1769,30 +1771,52 @@ namespace Ship_Game
 #if ALTERTHREAD
 
 #if !PLAYERONLY
-            Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);            
-            List<SolarSystem> solarsystems = this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombatTimer ==15).Count() <5).ToList();
-            List<SolarSystem> Combatsystems = this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombatTimer ==15).Count() >= 5).ToList();
-            var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
+            Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);
 
-            var normalsystems = Partitioner.Create(0, source1.Length);
-
-            Parallel.ForEach(normalsystems, (range, loopState) =>
-            {
-                //standard for loop through each weapon group.
-                for (int T = range.Item1; T < range.Item2; T++)
-                {
-                    SystemUpdaterTaskBased(solarsystems[T]);
-                }
+            Parallel.ForEach(this.SolarSystemDict, TheSystem =>
+            {                                                               //Lets try simplifing this a lot, and go with just one clean Parallel.ForEach  -Gretman
+                SystemUpdaterTaskBased(TheSystem.Value);
             });
-    
+
+                        //This commented out area was the original stuff here, which I replaced with the simgle ForEach above -Gretman
+            //List<SolarSystem> solarsystems = this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombatTimer ==15).Count() <5).ToList();
+            //List<SolarSystem> Combatsystems = this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombatTimer ==15).Count() >= 5).ToList();
+            //var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
+
+            //var normalsystems = Partitioner.Create(0, source1.Length);
+
+            //Parallel.ForEach(normalsystems, (range, loopState) =>
+            //{
+            //    //standard for loop through each weapon group.
+            //    for (int T = range.Item1; T < range.Item2; T++)
+            //    {
+            //        SystemUpdaterTaskBased(solarsystems[T]);
+            //    }
+            //});
+
+            //foreach (SolarSystem combatsystem in Combatsystems)               
+            //{         SystemUpdaterTaskBased(combatsystem);           }
+                                                                                //The two above were the originals
+
+
+
+
+            //if (Combatsystems.Count > 0)                                      //This was my first attempt at helping this out a little, with a second ForEach for the systems with 
+            //{
+            //    var source2 = Enumerable.Range(0, Combatsystems.Count).ToArray();
+            //    var SystemsWithCombat = Partitioner.Create(0, source2.Length);
+
+            //    Parallel.ForEach(SystemsWithCombat, (AnotherRange, loopState) =>       //More threading! Yay!  -Gretman
+            //    {
+            //        for (int NotT = AnotherRange.Item1; NotT < AnotherRange.Item2; NotT++)
+            //        {
+            //            SystemUpdaterTaskBased(Combatsystems[NotT]);
+            //        }
+            //    });
+            //}
 
             if (DeepSpaceTask != null)
                 DeepSpaceTask.Wait();
-            
-            foreach (SolarSystem combatsystem in Combatsystems)
-            {
-                SystemUpdaterTaskBased(combatsystem);
-            }
 
 #endif
 #if PLAYERONLY
@@ -1995,198 +2019,198 @@ namespace Ship_Game
 
         }
 
-    
 
 
 
-        public void ShipUpdater()
-        {
-            while (true)
-            {
-                this.ShipGateKeeper.WaitOne();
-                GlobalStats.CombatScans = 0;
-                GlobalStats.DSCombatScans = 0;
-                GlobalStats.ModulesMoved = 0;
-                GlobalStats.WeaponArcChecks = 0;
-                
+
+        //public void ShipUpdater()     //This is not referenced anywhere. Commenting out so I can code-search without this stuff coming up -Gretman
+        //{
+        //    while (true)
+        //    {
+        //        this.ShipGateKeeper.WaitOne();
+        //        GlobalStats.CombatScans = 0;
+        //        GlobalStats.DSCombatScans = 0;
+        //        GlobalStats.ModulesMoved = 0;
+        //        GlobalStats.WeaponArcChecks = 0;
 
 
-                foreach (Empire empire in EmpireManager.EmpireList)
-                {
-                    try
-                    {
-                        foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
-                        {
-                            if (keyValuePair.Value.Ships.Count > 0)
-                            {
-                                keyValuePair.Value.Setavgtodestination();
+
+        //        foreach (Empire empire in EmpireManager.EmpireList)
+        //        {
+        //            try
+        //            {
+        //                foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
+        //                {
+        //                    if (keyValuePair.Value.Ships.Count > 0)
+        //                    {
+        //                        keyValuePair.Value.Setavgtodestination();
 
 
-                            }
-                        }
-                    }
-                    catch { }
-                }
+        //                    }
+        //                }
+        //            }
+        //            catch { }
+        //        }
 
-                for (int i = 0; i < this.MasterShipList.Count; i++)
-                {
-                    Ship item = this.MasterShipList[i];
-                    if (item.Active)
-                    {
-                        if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-                        {
-                            item.Inhibited = true;
-                            item.InhibitedTimer = 10f;
-                        }
-                        item.PauseUpdate = true;
-                        item.Update(0.0166666675f);
-                        if (item.PlayerShip)
-                        {
-                            item.ProcessInput(0.0166666675f);
-                        }
-                    }
-                    else
-                    {
-                        this.MasterShipList.QueuePendingRemoval(item);
-                    }
-                }
-                foreach (KeyValuePair<Guid, Planet> planetsDict in this.PlanetsDict)
-                {
-                    for (int j = 0; j < planetsDict.Value.Projectiles.Count; j++)
-                    {
-                        Projectile projectile = planetsDict.Value.Projectiles[j];
-                        if (!projectile.Active)
-                        {
-                            planetsDict.Value.Projectiles.QueuePendingRemoval(projectile);
-                        }
-                        else
-                        {
-                            projectile.Update(0.0166666675f);
-                        }
-                    }
-                }
-            }
-        }
+        //        for (int i = 0; i < this.MasterShipList.Count; i++)
+        //        {
+        //            Ship item = this.MasterShipList[i];
+        //            if (item.Active)
+        //            {
+        //                if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+        //                {
+        //                    item.Inhibited = true;
+        //                    item.InhibitedTimer = 10f;
+        //                }
+        //                item.PauseUpdate = true;
+        //                item.Update(0.0166666675f);
+        //                if (item.PlayerShip)
+        //                {
+        //                    item.ProcessInput(0.0166666675f);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                this.MasterShipList.QueuePendingRemoval(item);
+        //            }
+        //        }
+        //        foreach (KeyValuePair<Guid, Planet> planetsDict in this.PlanetsDict)
+        //        {
+        //            for (int j = 0; j < planetsDict.Value.Projectiles.Count; j++)
+        //            {
+        //                Projectile projectile = planetsDict.Value.Projectiles[j];
+        //                if (!projectile.Active)
+        //                {
+        //                    planetsDict.Value.Projectiles.QueuePendingRemoval(projectile);
+        //                }
+        //                else
+        //                {
+        //                    projectile.Update(0.0166666675f);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
-        public void SystemUpdater(object data)
-        {
-            List<SolarSystem> list = (List<SolarSystem>)data;
-            while (true)
-            {
-                this.SystemGateKeeper[list[0].IndexOfResetEvent].WaitOne();
-                //float elapsedTime = this.ztimeSnapShot;
-                float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-                foreach (SolarSystem system in list)
-                //Parallel.ForEach(list, system =>
-                {
-                    system.DangerTimer -= elapsedTime;
-                    system.DangerUpdater -= elapsedTime;
-                    if ((double)system.DangerUpdater < 0.0)
-                    {
-                        system.DangerUpdater = 10f;
-                        system.DangerTimer = (double)this.player.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0 ? 0.0f : 120f;
-                    }
-                    system.combatTimer -= elapsedTime;
+        //public void SystemUpdater(object data)        //This is not referenced anywhere. Commenting out so I can code-search without this stuff coming up -Gretman
+        //{
+        //    List<SolarSystem> list = (List<SolarSystem>)data;
+        //    while (true)
+        //    {
+        //        this.SystemGateKeeper[list[0].IndexOfResetEvent].WaitOne();
+        //        //float elapsedTime = this.ztimeSnapShot;
+        //        float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
+        //        foreach (SolarSystem system in list)
+        //        //Parallel.ForEach(list, system =>
+        //        {
+        //            system.DangerTimer -= elapsedTime;
+        //            system.DangerUpdater -= elapsedTime;
+        //            if ((double)system.DangerUpdater < 0.0)
+        //            {
+        //                system.DangerUpdater = 10f;
+        //                system.DangerTimer = (double)this.player.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0 ? 0.0f : 120f;
+        //            }
+        //            system.combatTimer -= elapsedTime;
 
 
-                    if ((double)system.combatTimer <= 0.0)
-                        system.CombatInSystem = false;
-                    bool viewing = false;
-                    this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(system.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-                    if (this.Frustum.Contains(new BoundingSphere(new Vector3(system.Position, 0.0f), 100000f)) != ContainmentType.Disjoint)
-                        viewing = true;
-                    else if (this.viewState == UniverseScreen.UnivScreenState.ShipView)
-                    {
-                        Rectangle rect = new Rectangle((int)system.Position.X - 100000, (int)system.Position.Y - 100000, 200000, 200000);
-                        Vector3 position = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector3 direction = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 1f), this.projection, this.view, Matrix.Identity) - position;
-                        direction.Normalize();
-                        Ray ray = new Ray(position, direction);
-                        float num = -ray.Position.Z / ray.Direction.Z;
-                        Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
-                        Vector2 pos = new Vector2(vector3.X, vector3.Y);
-                        if (HelperFunctions.CheckIntersection(rect, pos))
-                            viewing = true;
-                    }
-                    if (system.ExploredDict[this.player] && viewing)
-                    {
-                        system.isVisible = (double)this.camHeight < 250000.0;
-                    }
-                    if (system.isVisible && this.camHeight < 150000.0)
-                    {
-                        foreach (Asteroid asteroid in system.AsteroidsList)
-                        {
-                            asteroid.GetSO().Visibility = ObjectVisibility.Rendered;
-                            asteroid.Update(elapsedTime);
-                        }
-                        foreach (Moon moon in system.MoonList)
-                        {
-                            moon.GetSO().Visibility = ObjectVisibility.Rendered;
-                            moon.UpdatePosition(elapsedTime);
-                        }
-                    }
-                    else
-                    {
-                        foreach (Asteroid asteroid in system.AsteroidsList)
-                        {
-                            asteroid.GetSO().Visibility = ObjectVisibility.None;
-                        }
-                        foreach (Moon moon in system.MoonList)
-                        {
-                            moon.GetSO().Visibility = ObjectVisibility.None;
-                        }
-                    }
-                    foreach (Planet planet in system.PlanetList)
-                    {
-                        planet.Update(elapsedTime);
-                        if (planet.HasShipyard && system.isVisible)
-                            planet.Station.Update(elapsedTime);
-                    }
+        //            if ((double)system.combatTimer <= 0.0)
+        //                system.CombatInSystem = false;
+        //            bool viewing = false;
+        //            this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(system.Position, 0.0f), this.projection, this.view, Matrix.Identity);
+        //            if (this.Frustum.Contains(new BoundingSphere(new Vector3(system.Position, 0.0f), 100000f)) != ContainmentType.Disjoint)
+        //                viewing = true;
+        //            else if (this.viewState == UniverseScreen.UnivScreenState.ShipView)
+        //            {
+        //                Rectangle rect = new Rectangle((int)system.Position.X - 100000, (int)system.Position.Y - 100000, 200000, 200000);
+        //                Vector3 position = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 0.0f), this.projection, this.view, Matrix.Identity);
+        //                Vector3 direction = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 1f), this.projection, this.view, Matrix.Identity) - position;
+        //                direction.Normalize();
+        //                Ray ray = new Ray(position, direction);
+        //                float num = -ray.Position.Z / ray.Direction.Z;
+        //                Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
+        //                Vector2 pos = new Vector2(vector3.X, vector3.Y);
+        //                if (HelperFunctions.CheckIntersection(rect, pos))
+        //                    viewing = true;
+        //            }
+        //            if (system.ExploredDict[this.player] && viewing)
+        //            {
+        //                system.isVisible = (double)this.camHeight < 250000.0;
+        //            }
+        //            if (system.isVisible && this.camHeight < 150000.0)
+        //            {
+        //                foreach (Asteroid asteroid in system.AsteroidsList)
+        //                {
+        //                    asteroid.GetSO().Visibility = ObjectVisibility.Rendered;
+        //                    asteroid.Update(elapsedTime);
+        //                }
+        //                foreach (Moon moon in system.MoonList)
+        //                {
+        //                    moon.GetSO().Visibility = ObjectVisibility.Rendered;
+        //                    moon.UpdatePosition(elapsedTime);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                foreach (Asteroid asteroid in system.AsteroidsList)
+        //                {
+        //                    asteroid.GetSO().Visibility = ObjectVisibility.None;
+        //                }
+        //                foreach (Moon moon in system.MoonList)
+        //                {
+        //                    moon.GetSO().Visibility = ObjectVisibility.None;
+        //                }
+        //            }
+        //            foreach (Planet planet in system.PlanetList)
+        //            {
+        //                planet.Update(elapsedTime);
+        //                if (planet.HasShipyard && system.isVisible)
+        //                    planet.Station.Update(elapsedTime);
+        //            }
 
-                   foreach (Ship ship in (List<Ship>)system.ShipList)
-                  // Parallel.ForEach(system.ShipList, ship =>
-                    {
-                        //try
-                        {
-                            if (ship.GetSystem() == null)
-                                continue;
-                                //return;
-                            if (!ship.Active)
-                            {
-                                this.MasterShipList.QueuePendingRemoval(ship);
-                            }
-                            else
-                            {
-                                if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-                                {
-                                    ship.Inhibited = true;
-                                    ship.InhibitedTimer = 10f;
-                                }
-                                //try
-                                {
-                                    ship.PauseUpdate = true;
-                                    ship.Update(elapsedTime);
-                                    if (ship.PlayerShip)
-                                        ship.ProcessInput(elapsedTime);
-                                }
-                            //    catch (Exception ex)
-                            //    {
-                            //        System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                            //    }
-                            }
-                        }
-                        //catch
-                        {
-                        }
-                    }//);
-                    if (!this.Paused && this.IsActive)
-                        system.spatialManager.Update(elapsedTime, system);
-                    system.AsteroidsList.ApplyPendingRemovals();
-                    system.ShipList.ApplyPendingRemovals();
-                }//);
-                this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
-            }
-        }
+        //           foreach (Ship ship in (List<Ship>)system.ShipList)
+        //          // Parallel.ForEach(system.ShipList, ship =>
+        //            {
+        //                //try
+        //                {
+        //                    if (ship.GetSystem() == null)
+        //                        continue;
+        //                        //return;
+        //                    if (!ship.Active)
+        //                    {
+        //                        this.MasterShipList.QueuePendingRemoval(ship);
+        //                    }
+        //                    else
+        //                    {
+        //                        if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+        //                        {
+        //                            ship.Inhibited = true;
+        //                            ship.InhibitedTimer = 10f;
+        //                        }
+        //                        //try
+        //                        {
+        //                            ship.PauseUpdate = true;
+        //                            ship.Update(elapsedTime);
+        //                            if (ship.PlayerShip)
+        //                                ship.ProcessInput(elapsedTime);
+        //                        }
+        //                    //    catch (Exception ex)
+        //                    //    {
+        //                    //        System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+        //                    //    }
+        //                    }
+        //                }
+        //                //catch
+        //                {
+        //                }
+        //            }//);
+        //            if (!this.Paused && this.IsActive)
+        //                system.spatialManager.Update(elapsedTime, system);
+        //            system.AsteroidsList.ApplyPendingRemovals();
+        //            system.ShipList.ApplyPendingRemovals();
+        //        }//);
+        //        this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
+        //    }
+        //}
 
         public void SystemUpdaterTaskBased(SolarSystem system)
         {
@@ -2264,48 +2288,33 @@ namespace Ship_Game
                             planet.Station.Update(elapsedTime);
                     }
 
-                    foreach (Ship ship in (List<Ship>)system.ShipList)
-                    // Parallel.ForEach(system.ShipList, ship =>
+                    //foreach (Ship ship in (List<Ship>)system.ShipList)
+                    Parallel.ForEach(system.ShipList, ship =>
                     {
-                        //try
+                        //if (ship.GetSystem() == null)
+                        //    continue;
+                        //added by gremlin ghost ship killer
+                        if (ship.ModuleSlotList.Count == 0)
                         {
-                            if (ship.GetSystem() == null)
-                                continue;
-                            //added by gremlin ghost ship killer
-                            if (ship.ModuleSlotList.Count ==0)
-                            {
-                                ship.Die(null, true);
-                            }
-                            if (!ship.Active)
-                            {
-                                ship.Die(null,true);
-
-                            }
-                            else
-                            {
-                                if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-                                {
-                                    ship.Inhibited = true;
-                                    ship.InhibitedTimer = 10f;
-                                }
-
-                                //try
-                                //{
-                                    ship.PauseUpdate = true;
-                                    ship.Update(elapsedTime);
-                                    if (ship.PlayerShip)
-                                        ship.ProcessInput(elapsedTime);
-                                //}
-                                //    catch (Exception ex)
-                                //    {
-                                //        System.Diagnostics.Debug.WriteLine(ex.StackTrace);
-                                //    }
-                            }
+                            ship.Die(null, true);
                         }
-                        //catch
+                        if (!ship.Active)
                         {
+                            ship.Die(null, true);
                         }
-                    }//);
+                        else
+                        {
+                            if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+                            {
+                                ship.Inhibited = true;
+                                ship.InhibitedTimer = 10f;
+                            }
+                            //ship.PauseUpdate = true;
+                            ship.Update(elapsedTime);
+                            if (ship.PlayerShip)
+                                ship.ProcessInput(elapsedTime);
+                        }
+                    });
                     if (!this.Paused && this.IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();
@@ -2366,7 +2375,7 @@ namespace Ship_Game
                             }
                             //try
                             {
-                                deepSpaceShip.PauseUpdate = true;
+                                //deepSpaceShip.PauseUpdate = true;
                                 if (deepSpaceShip.InCombat || deepSpaceShip.PlayerShip)
                                     deepSpaceShip.Update(elapsedTime);
                                 else
