@@ -141,6 +141,8 @@ namespace Ship_Game
         private bool FSexport = false;
         public bool UniqueHab = false;
         public int uniqueHabPercent;
+        public float ExportPSWeight =0;
+        public float ExportFSWeight = 0;
 
         
         public Planet()
@@ -2759,34 +2761,63 @@ namespace Ship_Game
             }
             for (int index1 = 0; index1 < this.BuildingList.Count; ++index1)
             {
-                try
+                //try
                 {
                     Building building = this.BuildingList[index1];
                     if (building.isWeapon)
                     {
                         building.WeaponTimer -= elapsedTime;
-                        if (building.WeaponTimer < 0)
+                        if (building.WeaponTimer < 0 && this.system.ShipList.Count>0)
                         {
                             if (this.Owner != null)
                             {
+                                Ship target = null;
+                                Ship troop = null;
+                                float currentD = 0;
+                                float previousD = building.theWeapon.Range + 1000f;
+                                //float currentT = 0;
+                                float previousT = building.theWeapon.Range + 1000f;
+                                //this.system.ShipList.thisLock.EnterReadLock();
                                 for (int index2 = 0; index2 < this.system.ShipList.Count; ++index2)
                                 {
                                     Ship ship = this.system.ShipList[index2];
-                                    if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && Vector2.Distance(this.Position, ship.Center) < building.theWeapon.Range)
+                                    if (ship.loyalty == this.Owner || (!ship.loyalty.isFaction && this.Owner.GetRelations()[ship.loyalty].Treaty_NAPact) )
+                                        continue;
+                                    currentD = Vector2.Distance(this.Position, ship.Center);                                   
+                                    if (ship.GetShipData().Role == ShipData.RoleName.troop && currentD  < previousT)
                                     {
-                                        building.theWeapon.Center = this.Position;
-                                        building.theWeapon.FireFromPlanet(ship.Center +ship.Velocity - this.Position, this, ship.GetRandomInternalModule(building.theWeapon));
-                                        building.WeaponTimer = building.theWeapon.fireDelay;
-                                        break;
+                                        previousT = currentD;
+                                        troop = ship;
+                                        continue;
                                     }
+                                    if(currentD < previousD && troop ==null)
+                                    {
+                                        previousD = currentD;
+                                        target = ship;
+                                    }
+
                                 }
+                              //  this.system.ShipList.thisLock.ExitReadLock();
+                                //if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && Vector2.Distance(this.Position, ship.Center) < building.theWeapon.Range)
+                                //Ship ship = null;
+                                if (troop != null)
+                                    target = troop;
+                                if(target != null)
+                                {
+                                    building.theWeapon.Center = this.Position;
+                                    building.theWeapon.FireFromPlanet(target.Center + target.Velocity - this.Position, this, target.GetRandomInternalModule(building.theWeapon));
+                                    building.WeaponTimer = building.theWeapon.fireDelay;
+                                    break;
+                                }
+
+
                             }
                         }
                     }
                 }
-                catch
-                {
-                }
+                //catch
+                //{
+                //}
             }
             for (int index = 0; index < this.Projectiles.Count; ++index)
             {
@@ -3769,26 +3800,46 @@ namespace Ship_Game
         }
         private void SetExportState(ColonyType colonyType)
         {
+            
             bool FSexport =false;
             bool PSexport = false;
             int pc = 0;
+            float exportPSNeed = 0;
+            float exportFSNeed = 0;
+            float importPSNeed = 0;
+            float importFSNeed = 0;
+            if(this.ExportPSWeight >0 || this.ExportFSWeight >0)
             foreach(Planet planet in this.Owner.GetPlanets())
             {
                 pc++;
-                if(planet.fs == GoodState.IMPORT)
+                if(planet.fs == GoodState.IMPORT )
                 {
+                    importFSNeed += planet.MAX_STORAGE- planet.FoodHere;
                     FSexport = true;
                 }
+                if (planet.fs == GoodState.EXPORT)
+                    ExportFSWeight += planet.FoodHere;
                 if(planet.ps == GoodState.IMPORT)
                 {
+                    importPSNeed += planet.MAX_STORAGE - planet.ProductionHere;
                     PSexport = true;
                 }
+                if (planet.ps == GoodState.EXPORT)
+                    exportPSNeed += planet.ProductionHere;
             }
             if(pc==1)
             {
                 FSexport = false;
                 PSexport = false;
             }
+            exportFSNeed -= importFSNeed;
+            if (exportFSNeed <= 0)
+                FSexport = true;
+            exportPSNeed -= importPSNeed;
+            if (exportPSNeed <= 0)
+                PSexport = true;
+            this.ExportFSWeight = 0;
+            this.ExportPSWeight = 0;
             float PRatio = this.ProductionHere /this.MAX_STORAGE;
             float FRatio = this.FoodHere /this.MAX_STORAGE;
 
