@@ -148,7 +148,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.numSystems = (int)(70f * StarNumModifier);
                         if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(18000000f, 18000000f);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
@@ -160,7 +160,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.numSystems = (int)(80f * StarNumModifier);
                         if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(27000000f,  27000000f);  //27,000,000
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
@@ -172,7 +172,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.numSystems = (int)(100f * StarNumModifier);
                         if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(54000000f, 54000000f);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
@@ -193,7 +193,7 @@ namespace Ship_Game
                             this.numSystems = (int)(50f * StarNumModifier);
                         if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(64f * StarNumModifier); //This one isn't used, but what the heck...
                         //this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(54000000f, 54000000f);
+                        this.data.Size = new Vector2(108000000f, 108000000f);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
                             Empire.ProjectorRadius = (this.data.Size.X / 70);

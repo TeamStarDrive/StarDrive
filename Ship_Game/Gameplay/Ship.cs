@@ -67,7 +67,7 @@ namespace Ship_Game.Gameplay
         private List<ShipModule> Shields = new List<ShipModule>();
         private List<ShipModule> Hangars = new List<ShipModule>();
         public List<ShipModule> BombBays = new List<ShipModule>();
-        public bool shipStatusChanged = true;
+        public bool shipStatusChanged = false;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
         private AnimationController animationController;
@@ -1024,16 +1024,21 @@ namespace Ship_Game.Gameplay
         {
             if (!CheckRangeToTarget(w, target))
                 return false;
+            Ship TargetShip = target as Ship;
             if (w.MassDamage >0 || w.RepulsionDamage >0)
-            {
-                Ship shiptarget = target as Ship;
-                if (shiptarget != null && (shiptarget.EnginesKnockedOut || shiptarget.IsTethered() )) 
+            {                
+                if (TargetShip != null && (TargetShip.EnginesKnockedOut || TargetShip.IsTethered() )) 
                 {
                     return false;
                 }
             }
-            //if (w.Tag_Guided && w.RotationRadsPerSecond > 3f)
-            //    return true;
+            Relationship enemy;
+            if
+            (target != null && TargetShip != null && (this.loyalty == TargetShip.loyalty ||
+             !this.loyalty.isFaction && 
+           this.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
+                return false;
+            
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;            
             Vector2 PickedPos = target.Center;            
             Vector2 pos = PickedPos;
@@ -1852,6 +1857,7 @@ namespace Ship_Game.Gameplay
             }
             this.ShipSO.Visibility = ObjectVisibility.Rendered;
             this.radius = this.ShipSO.WorldBoundingSphere.Radius * 2f;
+            this.shipStatusChanged = true;
         }
 
         public override void Initialize()
@@ -1904,6 +1910,7 @@ namespace Ship_Game.Gameplay
                     this.hasRepairBeam = true;
             }
             this.RecalculatePower();
+            this.shipStatusChanged = true;
         }
 
         private void FillExternalSlots()
@@ -2637,13 +2644,14 @@ namespace Ship_Game.Gameplay
 
         public virtual void InitializeModules()
         {
-            this.ModulesInitialized = true;
+            
             this.Weapons.Clear();
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 moduleSlot.SetParent(this);
                 moduleSlot.Initialize();
             }
+            this.ModulesInitialized = true;
         }
 
         public bool InitFromSave()

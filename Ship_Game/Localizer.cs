@@ -64,9 +64,15 @@ namespace Ship_Game
         public static string Token(int index)
         {
             string str;
-            try
+            //try
             {
-                string val = Localizer.LocalizerDict[index];
+                string val;
+                 
+                if(!Localizer.LocalizerDict.TryGetValue(index,out val) || val ==null)
+                {
+                    return "String not found";
+
+                }
                 string[] strArrays = new string[] { "\\n" };
                 string[] array = val.Split(strArrays, StringSplitOptions.None);
                 val = array[0];
@@ -77,10 +83,10 @@ namespace Ship_Game
                 }
                 str = val;
             }
-            catch
-            {
-                str = "String not found";
-            }
+            //catch
+            //{
+            //    str = "String not found";
+            //}
             return str;
         }
         public static void cleanLocalizer()
