@@ -2126,7 +2126,7 @@ namespace Ship_Game
                 this.OwnedPlanets.thisLock.EnterReadLock();
                 float newBuildM = 0f;
                 
-                foreach (Planet planet in this.OwnedPlanets)
+                foreach (Planet planet in this.OwnedPlanets.OrderBy(weight => weight.ExportFSWeight + weight.ExportPSWeight))
                 {
                     
                     planet.UpdateOwnedPlanet();
@@ -3073,7 +3073,16 @@ namespace Ship_Game
                 this.SetAsDefeated();
                 if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this)
                 {
+                    foreach(Ship ship in Empire.universeScreen.MasterShipList)
+                    {
+                        ship.Die(null, true);
+                    }
+                    Empire.universeScreen.Paused = true;
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();                    
                     Empire.universeScreen.ScreenManager.AddScreen((GameScreen)new YouLoseScreen());
+                    Empire.universeScreen.Paused = false;
                     return;
                 }
                 else
