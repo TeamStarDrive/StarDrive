@@ -2291,30 +2291,45 @@ namespace Ship_Game
                     //foreach (Ship ship in (List<Ship>)system.ShipList)
                     Parallel.ForEach(system.ShipList, ship =>
                     {
-                        //if (ship.GetSystem() == null)
-                        //    continue;
-                        //added by gremlin ghost ship killer
-                        if (ship.ModuleSlotList.Count == 0)
+                        //try
                         {
-                            ship.Die(null, true);
-                        }
-                        if (!ship.Active)
-                        {
-                            ship.Die(null, true);
-                        }
-                        else
-                        {
-                            if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+                            if (ship.GetSystem() == null) || !ship.shipInitialized)
+                                continue;
+                            //added by gremlin ghost ship killer
+                            if (ship.ModuleSlotList.Count ==0)
                             {
-                                ship.Inhibited = true;
-                                ship.InhibitedTimer = 10f;
+                                ship.Die(null, true);
                             }
-                            //ship.PauseUpdate = true;
-                            ship.Update(elapsedTime);
-                            if (ship.PlayerShip)                        //Mer
-                                ship.ProcessInput(elapsedTime);
+                            if (!ship.Active)
+                            {
+                                ship.Die(null,true);
+
+                            }
+                            else
+                            {
+                                if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+                                {
+                                    ship.Inhibited = true;
+                                    ship.InhibitedTimer = 10f;
+                                }
+
+                                //try
+                                //{
+                                    ship.PauseUpdate = true;
+                                    ship.Update(elapsedTime);
+                                    if (ship.PlayerShip)
+                                        ship.ProcessInput(elapsedTime);
+                                //}
+                                //    catch (Exception ex)
+                                //    {
+                                //        System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                                //    }
+                            }
                         }
-                    });
+                        //catch
+                        {
+                        }
+                    }//);
                     if (!this.Paused && this.IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();
@@ -2366,6 +2381,8 @@ namespace Ship_Game
                     foreach (Ship deepSpaceShip in this.DeepSpaceShips)
                     //Parallel.ForEach(this.DeepSpaceShips, deepSpaceShip =>
                     {
+                        if (!deepSpaceShip.shipInitialized)
+                            continue;
                         if (deepSpaceShip.Active)
                         {
                             if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
