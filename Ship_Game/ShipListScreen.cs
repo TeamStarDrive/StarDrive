@@ -378,7 +378,7 @@ namespace Ship_Game
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
 							from theship in this.ShipSL.Entries
-							orderby (theship.item as ShipListScreenEntry).ship.GetFTLSpeed() descending
+							orderby (theship.item as ShipListScreenEntry).ship.GetmaxFTLSpeed descending
 							select theship;
 						this.ResetListSorted(sortedList);
 					}
@@ -386,7 +386,7 @@ namespace Ship_Game
 					{
 						IOrderedEnumerable<ScrollList.Entry> sortedList = 
 							from theship in this.ShipSL.Entries
-							orderby (theship.item as ShipListScreenEntry).ship.GetFTLSpeed()
+							orderby (theship.item as ShipListScreenEntry).ship.GetmaxFTLSpeed
 							select theship;
 						this.ResetListSorted(sortedList);
 					}
