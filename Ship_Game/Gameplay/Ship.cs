@@ -2725,7 +2725,7 @@ namespace Ship_Game.Gameplay
             //if (!GlobalStats.WarpInSystem && this.system != null)
             //    this.InhibitedTimer = 1f;
             //else 
-                if (this.FTLmodifier < 1.0 && this.system != null 
+            if (this.FTLmodifier < 1.0 && this.system != null 
                     && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed()))
                 this.HyperspaceReturn();
             if (this.ScuttleTimer > -1.0 || this.ScuttleTimer <-1.0)
@@ -2811,12 +2811,12 @@ namespace Ship_Game.Gameplay
                 {
                     if (this.Velocity.Length() > this.velocityMaximum)
                         this.Velocity = Vector2.Normalize(this.Velocity) * this.velocityMaximum;
-                    Ship ship1 = this;
-                    Vector2 vector2_1 = ship1.Position + this.Velocity * elapsedTime;
-                    ship1.Position = vector2_1;
-                    Ship ship2 = this;
-                    Vector2 vector2_2 = ship2.Center + this.Velocity * elapsedTime;
-                    ship2.Center = vector2_2;
+                    //Ship ship1 = this;
+                    //Vector2 vector2_1 = ship1.Position + this.Velocity * elapsedTime;
+                    this.Position = this.Position + this.Velocity * elapsedTime;
+                    //Ship ship2 = this;
+                    //Vector2 vector2_2 = ship2.Center + this.Velocity * elapsedTime;
+                    this.Center = this.Center + this.Velocity * elapsedTime;
                     int num1 = (int)(this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(0.0f, 60f);
                     if (num1 >= 57 && this.InFrustum)
                     {
@@ -2832,9 +2832,9 @@ namespace Ship_Game.Gameplay
                     }
                     this.yRotation += this.xdie * elapsedTime;
                     this.xRotation += this.ydie * elapsedTime;
-                    Ship ship3 = this;
-                    double num2 = (double)ship3.Rotation + (double)this.zdie * (double)elapsedTime;
-                    ship3.Rotation = (float)num2;
+                    //Ship ship3 = this;
+                    //double num2 = (double)this.Rotation + (double)this.zdie * (double)elapsedTime;
+                    this.Rotation = this.Rotation + this.zdie * elapsedTime;
                     if (this.ShipSO == null)
                         return;
                     if (Ship.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.inSensorRange)
@@ -2869,7 +2869,7 @@ namespace Ship_Game.Gameplay
             }
             else if (!this.dying)
             {
-                if (this.system != null && (double)elapsedTime > 0.0)
+                if (this.system != null && elapsedTime > 0.0)
                 {
                     foreach (Planet p in this.system.PlanetList)
                     {
@@ -2918,9 +2918,9 @@ namespace Ship_Game.Gameplay
                         Ship.universeScreen.lightning.AddParticleThreadA(new Vector3(this.Center, 0.0f) + vector3, Vector3.Zero);
                     }
                 }
-                Ship ship1 = this;
-                float num1 = ship1.Rotation + this.RotationalVelocity * elapsedTime;
-                ship1.Rotation = num1;
+                //Ship ship1 = this;
+                //float num1 = this.Rotation + this.RotationalVelocity * elapsedTime;
+                this.Rotation = this.Rotation + this.RotationalVelocity * elapsedTime;
                 if (Math.Abs(this.RotationalVelocity) > 0.0)
                     this.isTurning = true;
                 if (!this.isSpooling && this.Afterburner != null && this.Afterburner.IsPlaying)
@@ -2954,14 +2954,14 @@ namespace Ship_Game.Gameplay
                         {
                         }
                     }
-                    this.Velocity.Length();
-                    Ship ship2 = this;
-                    Vector2 vector2_1 = ship2.Position + this.Velocity * elapsedTime;
-                    ship2.Position = vector2_1;
-                    Ship ship3 = this;
-                    Vector2 vector2_2 = ship3.Center + this.Velocity * elapsedTime;
-                    ship3.Center = vector2_2;
-                    this.UpdateShipStatus(elapsedTime);
+                    //this.Velocity.Length(); //Pretty sure this return value is a useless waste of 0.00012 CPU cycles... -Gretman
+                    //Ship ship2 = this;
+                    //Vector2 vector2_1 = this.Position + this.Velocity * elapsedTime;
+                    this.Position = this.Position + this.Velocity * elapsedTime;
+                    //Ship ship3 = this;
+                    //Vector2 vector2_2 = this.Center + this.Velocity * elapsedTime;
+                    this.Center = this.Center + this.Velocity * elapsedTime;
+                    this.UpdateShipStatus(elapsedTime);     //Mer
                     if (!this.Active)
                         return;
                     if (!this.disabled && !Ship.universeScreen.Paused) //this.hasCommand &&
@@ -3451,37 +3451,41 @@ namespace Ship_Game.Gameplay
                 if (!flag)
                     this.InhibitedTimer = 0.0f;
             }
-            if(this.velocityMaximum==0 && this.shipData.Role <= ShipData.RoleName.station)
+            if(this.velocityMaximum == 0 && this.shipData.Role <= ShipData.RoleName.station)
             {
                 this.rotation += 0.003f;
             }
             this.MoveModulesTimer -= elapsedTime;
             this.updateTimer -= elapsedTime;
             //Disable if enough EMP damage
-            --this.EMPDamage;
-            if (this.EMPDamage < 0.0)
-                this.EMPDamage = 0.0f;
-            else if (this.EMPDamage > this.Size + this.BonusEMP_Protection)
-                this.disabled = true;
-            else
-                this.disabled = false;
+            if (this.EMPDamage > 0 || this.disabled)
+            {
+                --this.EMPDamage;
+                if (this.EMPDamage < 0.0)
+                    this.EMPDamage = 0.0f;
+
+                if (this.EMPDamage > this.Size + this.BonusEMP_Protection)
+                    this.disabled = true;
+                else
+                    this.disabled = false;
+            }
             //this.CargoMass = 0.0f;    //Not referenced in code, removing to save memory -Gretman
             if (this.rotation > 2.0 * Math.PI)
             {
-                Ship ship = this;
-                float num = ship.rotation - 6.28318548202515f;
-                ship.rotation = num;
+                //Ship ship = this;
+                //float num = ship.rotation - 6.28318548202515f;
+                this.rotation = this.rotation - 6.28318548202515f;
             }
             if (this.rotation < 0.0)
             {
-                Ship ship = this;
-                float num = ship.rotation + 6.28318548202515f;
-                ship.rotation = num;
+                //Ship ship = this;
+                //float num = ship.rotation + 6.28318548202515f;
+                this.rotation = this.rotation + 6.28318548202515f;
             }
             if (this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip)
             {
                 foreach (Weapon weapon in this.Weapons)
-                    weapon.Update(elapsedTime);
+                    weapon.Update(elapsedTime);     //Mer
             }
             this.TroopBoardingDefense = 0.0f;
             foreach (Troop troop in this.TroopList)
@@ -3507,8 +3511,7 @@ namespace Ship_Game.Gameplay
                         if ((weapon.DamageAmount > 0.0 || weapon.EMPDamage > 0.0 || weapon.SiphonDamage > 0.0 || weapon.MassDamage > 0.0 || weapon.PowerDamage > 0.0 || weapon.RepulsionDamage > 0.0) && !flag)
                         {
                             this.maxWeaponsRange = weapon.GetModifiedRange();
-                            if (!weapon.Tag_PD)
-                                flag = true;
+                            if (!weapon.Tag_PD) flag = true;
                         }
 
                         weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
@@ -3654,32 +3657,32 @@ namespace Ship_Game.Gameplay
                             ++this.number_Alive_Internal_slots;
                         if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
                             continue;
-                        this.Health =this.Health + moduleSlot.module.Health;
-                        if (this.shipStatusChanged)
+                        this.Health = this.Health + moduleSlot.module.Health;
+                        if (this.shipStatusChanged) //Mer
                         {
                             this.RepairRate += moduleSlot.module.BonusRepairRate;
                             if (moduleSlot.module.Mass < 0.0 && moduleSlot.Powered)
                             {
-                                Ship ship3 = this;
-                                float num3 = ship3.Mass + moduleSlot.module.Mass;
-                                ship3.Mass = num3;
+                                //Ship ship3 = this;
+                                //float num3 = ship3.Mass + moduleSlot.module.Mass;
+                                this.Mass = this.Mass + moduleSlot.module.Mass;
                             }
                             else if (moduleSlot.module.Mass > 0.0)
                             {
-                                Ship ship3 = this;
+                                //Ship ship3 = this;
 
                                 float num3;
                                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor && this.loyalty != null)
                                 {
                                     float ArmourMassModifier = this.loyalty.data.ArmourMassModifier;
                                     float ArmourMass = moduleSlot.module.Mass * ArmourMassModifier;
-                                    num3 =ship3.Mass + ArmourMass;
+                                    num3 = this.Mass + ArmourMass;
                                 }
                                 else
                                 {
-                                    num3 = ship3.Mass + moduleSlot.module.Mass;
+                                    num3 = this.Mass + moduleSlot.module.Mass;
                                 }
-                                ship3.Mass = num3;
+                                this.Mass = num3;
                             }
                             //Checks to see if there is an active command module
 
