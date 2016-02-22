@@ -2311,7 +2311,7 @@ namespace Ship_Game
                             }
                             //ship.PauseUpdate = true;
                             ship.Update(elapsedTime);
-                            if (ship.PlayerShip)
+                            if (ship.PlayerShip)                        //Mer
                                 ship.ProcessInput(elapsedTime);
                         }
                     });

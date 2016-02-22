@@ -956,7 +956,6 @@ namespace Ship_Game.Gameplay
 
         public override void Update(float elapsedTime)
         {
-
             if(this.DieNextFrame && this.Active)
             {
                 this.Die((GameplayObject)this, false);
