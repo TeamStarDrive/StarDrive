@@ -218,16 +218,8 @@ namespace Ship_Game.Gameplay
         private bool LowHealth = false; //fbedard: recalculate strength after repair
         public float TradeTimer;
         public bool shipInitialized = false;
-        //keep track of the number of planetary assaults the ship can do
-        //public byte PotentialPlanetTroops = 0;    //Not referenced in code, removing to save memory -Gretman
-
-        //public class diplomacticSpace
-        //{
-        //    public bool IsIndangerousSpace= false;
-        //    public bool IsInNeutralSpace= false;
-        //    public bool IsInFriendlySpace= false;
-
-        //}
+        public float maxFTLSpeed;
+        public float maxSTLSpeed;
 
         public float CargoSpace_Used
         {
@@ -706,11 +698,15 @@ namespace Ship_Game.Gameplay
         }
 
         //added by gremlin The Generals GetFTL speed
-        public float GetFTLSpeed()
+        public void SetmaxFTLSpeed()
         {
             //Added by McShooterz: hull bonus speed 
-            return (this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier) * this.FTLmodifier;
+            this.maxFTLSpeed = (this.WarpThrust / base.Mass + this.WarpThrust / base.Mass * this.loyalty.data.FTLModifier) * this.FTLmodifier;
         }
+        public float GetmaxFTLSpeed { get{ return maxFTLSpeed;} }
+        
+
+	
 
         public float GetSTLSpeed()
         {
@@ -2083,7 +2079,7 @@ namespace Ship_Game.Gameplay
 
             }
             #endregion
-            if (this.velocityMaximum > this.GetFTLSpeed())
+            if (this.velocityMaximum > this.GetmaxFTLSpeed)
                 return;
             if (this.engineState == Ship.MoveState.Sublight && !this.isSpooling && this.PowerCurrent / (this.PowerStoreMax + 0.01f) > 0.1f)
             {
@@ -3038,7 +3034,7 @@ namespace Ship_Game.Gameplay
                         }
                         if (this.JumpTimer <= 0.1)
                         {
-                            if (this.engineState == Ship.MoveState.Sublight )//&& (!this.Inhibited && this.GetFTLSpeed() > this.velocityMaximum))
+                            if (this.engineState == Ship.MoveState.Sublight )//&& (!this.Inhibited && this.GetmaxFTLSpeed > this.velocityMaximum))
                             {
                                 FTL ftl = new FTL();
                                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
@@ -4024,7 +4020,7 @@ namespace Ship_Game.Gameplay
                     this.velocityMaximum = this.GetSTLSpeed();
                     break;
                 case Ship.MoveState.Warp:
-                    this.velocityMaximum = this.GetFTLSpeed();
+                    this.velocityMaximum = this.GetmaxFTLSpeed;
                     break;
             }
    
@@ -4177,6 +4173,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
+            
             //Update max health due to bonuses that increase module health
             if (this.Health > this.HealthMax)
                 this.HealthMax = this.Health;
@@ -4208,6 +4205,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
+            this.SetmaxFTLSpeed();
         }
         public bool IsTethered()
         {
