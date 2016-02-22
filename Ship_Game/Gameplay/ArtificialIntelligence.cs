@@ -4864,6 +4864,7 @@ namespace Ship_Game.Gameplay
             test = Vector2.Distance(target.Position, this.Owner.Center) / this.Owner.GetmaxFTLSpeed;
             return test;
         }
+        //added by: Gremalin. returns roughly the number of turns to a target planet restricting to targets that can use the freighter. 
         private float TradeSort(Ship ship, Planet PlanetCheck, string ResourceType, float cargoCount,bool Delivery)
         {
             float resourceRecharge =0;
@@ -4879,7 +4880,7 @@ namespace Ship_Game.Gameplay
             float Effeciency = resourceRecharge * timeTotarget;
             if (Delivery)
             {
-                bool badCargo = cargoCount + Effeciency < 0;
+                bool badCargo = cargoCount + Effeciency < 0 ;
                 if (!badCargo)
                     return (float)Math.Ceiling( (double)timeTotarget );
             }
@@ -4895,7 +4896,7 @@ namespace Ship_Game.Gameplay
         public void OrderTrade(float elapsedTime)
         {            
             this.Owner.TradeTimer -= elapsedTime;
-            if (this.Owner.TradeTimer > 5f)
+            if (this.Owner.TradeTimer > 0f)
                 return;
 
             lock (this.wayPointLocker)
@@ -4969,7 +4970,7 @@ namespace Ship_Game.Gameplay
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
                         if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT )
                         {
-                            if (TradeSort(this.Owner, PlanetCheck, "Food", this.Owner.CargoSpace_Used, true) <30) //|| (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                            if (TradeSort(this.Owner, PlanetCheck, "Food", this.Owner.CargoSpace_Used, true) < 30 && (PlanetCheck.FoodHere / PlanetCheck.MAX_STORAGE  <.9f )) //|| (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
                             {
                                 if (this.Owner.AreaOfOperation.Count > 0)
                                 {
@@ -5090,8 +5091,8 @@ namespace Ship_Game.Gameplay
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
                         if (PlanetCheck == null)
                         continue;
-                        
-                        if( PlanetCheck.ps == Planet.GoodState.IMPORT )
+
+                        if (PlanetCheck.ps == Planet.GoodState.IMPORT && (PlanetCheck.ProductionHere / PlanetCheck.MAX_STORAGE < .9f || PlanetCheck.ProductionHere <1))
                            // && (planets.Count==0 || (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max))
                         {
                             if (this.Owner.AreaOfOperation.Count > 0)
