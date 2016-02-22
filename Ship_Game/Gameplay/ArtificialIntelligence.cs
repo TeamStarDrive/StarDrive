@@ -1152,9 +1152,16 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			if (shipgoal.goal.TetherTarget != Guid.Empty && Vector2.Distance(ArtificialIntelligence.universeScreen.PlanetsDict[shipgoal.goal.TetherTarget].Position + shipgoal.goal.TetherOffset, this.Owner.Center) > 200f)
-			{
-				shipgoal.goal.BuildPosition = ArtificialIntelligence.universeScreen.PlanetsDict[shipgoal.goal.TetherTarget].Position + shipgoal.goal.TetherOffset;
+            Planet target = shipgoal.TargetPlanet;
+            if (shipgoal.goal.TetherTarget != Guid.Empty)
+            {
+                if (target == null)
+                    ArtificialIntelligence.universeScreen.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
+                shipgoal.goal.BuildPosition = target.Position + shipgoal.goal.TetherOffset;                
+            }
+            if (target !=null && Vector2.Distance(target.Position + shipgoal.goal.TetherOffset, this.Owner.Center) > 200f)
+			{				
+                shipgoal.goal.BuildPosition = target.Position + shipgoal.goal.TetherOffset;
 				this.OrderDeepSpaceBuild(shipgoal.goal);
 				return;
 			}
@@ -3840,14 +3847,18 @@ namespace Ship_Game.Gameplay
 
 		public void OrderDeepSpaceBuild(Goal goal)
 		{
-			this.OrderQueue.Clear();
-			this.OrderMoveTowardsPosition(goal.BuildPosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, goal.BuildPosition)), this.findVectorToTarget(this.Owner.Center, goal.BuildPosition), true,null);
+			this.orderqueue.EnterWriteLock();
+            this.OrderQueue.Clear();
+            
+      
+            this.OrderMoveTowardsPosition(goal.BuildPosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, goal.BuildPosition)), this.findVectorToTarget(this.Owner.Center, goal.BuildPosition), true,null);
 			ArtificialIntelligence.ShipGoal Deploy = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DeployStructure, goal.BuildPosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, goal.BuildPosition)))
 			{
 				goal = goal,
-				VariableString = goal.ToBuildUID
-			};
+				VariableString = goal.ToBuildUID                
+			};            
 			this.OrderQueue.AddLast(Deploy);
+            this.orderqueue.ExitWriteLock();
 		}
 
 		public void OrderExplore()
