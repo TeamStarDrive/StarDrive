@@ -138,9 +138,12 @@ namespace Ship_Game
         public static ReaderWriterLockSlim UILocker;
         public static int BeamOOM = 0;
         public static string bugTracker = "";
-        
 
-		static GlobalStats()
+        public static int AutoSaveFreq = 300;   //Added by Gretman
+        public static bool CornersGame;     //Also added by Gretman
+
+        public static int ExtraRemnantGS;
+        static GlobalStats()
 		{
             GlobalStats.UILocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
             GlobalStats.ComparisonCounter = 1;
@@ -186,6 +189,8 @@ namespace Ship_Game
             GlobalStats.RemnantActivation = 0;
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
+
+            GlobalStats.CornersGame = false;    //Added by Gretman
             
 			try
 			{
@@ -206,8 +211,9 @@ namespace Ship_Game
 	            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
 	            GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
 	            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
-	            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);                
-			}
+	            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);
+                GlobalStats.AutoSaveFreq = int.Parse(ConfigurationManager.AppSettings["AutoSaveFreq"]);
+            }
 			catch (Exception)
 			{
 				/// Not doing so much here. It is just empty config
@@ -244,12 +250,12 @@ namespace Ship_Game
 			}
 		}
 
-		public static void IncrementRemnantKills()
+		public static void IncrementRemnantKills(int exp)
 		{
-			GlobalStats.RemnantKills = GlobalStats.RemnantKills + 1;
+            GlobalStats.RemnantKills = GlobalStats.RemnantKills + exp;
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.RemnantTechCount > 0)
             {
-                if (GlobalStats.RemnantKills == 5 && GlobalStats.RemnantActivation < GlobalStats.ActiveModInfo.RemnantTechCount)
+                if (GlobalStats.RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && GlobalStats.RemnantActivation < GlobalStats.ActiveModInfo.RemnantTechCount)
                 {
                     GlobalStats.RemnantActivation += 1;
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
@@ -258,9 +264,10 @@ namespace Ship_Game
             }
             else
             {
-                if (GlobalStats.RemnantKills == 5)
+                if (GlobalStats.RemnantKills >= 5 && GlobalStats.RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
                 {
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
+                    GlobalStats.RemnantActivation = 1;
                 }
             }
 		}

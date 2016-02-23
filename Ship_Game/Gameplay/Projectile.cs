@@ -48,13 +48,13 @@ namespace Ship_Game.Gameplay
 
 		public bool explodes;
 
-		protected Color[] explosionColors;
+        //protected Color[] explosionColors;          //Not referenced in code, removing to save memory -Gretman
 
-		public ShipModule moduleAttachedTo;
+        public ShipModule moduleAttachedTo;
 
-		protected string weaponEffect;
+        //protected string weaponEffect;          //Not referenced in code, removing to save memory -Gretman
 
-		public string WeaponEffectType;
+        public string WeaponEffectType;
 
 		private Matrix WorldMatrix;
 
@@ -122,9 +122,9 @@ namespace Ship_Game.Gameplay
 
 		public string dieCueName = "";
 
-		public ShipModule HitModule;
+        //public ShipModule HitModule;          //Not referenced in code, removing to save memory -Gretman
 
-		private bool wasAddedToSceneGraph;
+        private bool wasAddedToSceneGraph;
 
 		private bool LightWasAddedToSceneGraph;
 
@@ -956,7 +956,8 @@ namespace Ship_Game.Gameplay
 
         public override void Update(float elapsedTime)
         {
-            if (this.DieNextFrame && this.Active)
+
+            if(this.DieNextFrame && this.Active)
             {
                 this.Die((GameplayObject)this, false);
             }
@@ -972,7 +973,7 @@ namespace Ship_Game.Gameplay
                 if (this.weapon.Animated == 1)
                 {
                     this.frameTimer += elapsedTime;
-                    if (this.weapon.LoopAnimation == 0 && (double)this.frameTimer > (double)this.switchFrames)
+                    if (this.weapon.LoopAnimation == 0 && this.frameTimer > this.switchFrames)
                     {
                         this.frameTimer = 0.0f;
                         ++this.AnimationFrame;
@@ -994,10 +995,10 @@ namespace Ship_Game.Gameplay
                     this.inFlight.Play();
                 }
                 this.particleDelay -= elapsedTime;
-                if ((double)this.duration > 0.0)
+                if (this.duration > 0)
                 {
                     this.duration -= elapsedTime;
-                    if ((double)this.duration < 0.0)
+                    if (this.duration < 0)
                     {
                         this.Health = 0.0f;
                         this.Die((GameplayObject)null, false);
@@ -1118,7 +1119,7 @@ namespace Ship_Game.Gameplay
                         lock (GlobalStats.ExplosionLocker)
                             MuzzleFlashManager.FlashList.Add(this.flash);
                     }
-                    else if (this.flashTimer > 0.0 && this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && this.muzzleFlashAdded)
+                    else if (this.flashTimer > 0 && this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && this.muzzleFlashAdded)
                     {
                         this.flashTimer -= elapsedTime;
                         this.MuzzleFlash.Position = new Vector3(this.moduleAttachedTo.Center.X, this.moduleAttachedTo.Center.Y, -45f);
@@ -1126,7 +1127,7 @@ namespace Ship_Game.Gameplay
                         this.MuzzleFlash.World = Matrix.Identity * Matrix.CreateTranslation(this.MuzzleFlash.Position);
                     }
                 }
-                if (this.flashTimer <= 0.0 && this.muzzleFlashAdded)
+                if (this.flashTimer <= 0  && this.muzzleFlashAdded)
                 {
                     lock (GlobalStats.ObjectManagerLocker)
                         Projectile.universeScreen.ScreenManager.inter.LightManager.Remove((ILight)this.MuzzleFlash);
