@@ -2961,9 +2961,9 @@ namespace Ship_Game
                     }
                     else if(ship.GetAI().State == AIState.Resupply)
                     {
-                        ship.GetAI().orderqueue.EnterWriteLock();
+                
                         ship.GetAI().OrderQueue.Clear();
-                        ship.GetAI().orderqueue.ExitWriteLock();
+                    
                         ship.GetAI().Target = null;
                         ship.GetAI().PotentialTargets.Clear();
                         ship.GetAI().HasPriorityOrder = false;
