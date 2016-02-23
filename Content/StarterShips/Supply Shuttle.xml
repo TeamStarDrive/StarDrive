@@ -4,75 +4,27 @@
   <Name>Supply_Shuttle</Name>
   <CombatState>AttackRuns</CombatState>
   <MechanicalBoardingDefense>0</MechanicalBoardingDefense>
-  <Hull>Kulrathi/Fang</Hull>
+  <Hull>Vulfen/Type I</Hull>
   <Role>supply</Role>
   <ThrusterList>
     <ThrusterZone>
       <Position>
-        <X>256</X>
-        <Y>269</Y>
+        <X>257</X>
+        <Y>251</Y>
       </Position>
-      <scale>30</scale>
+      <scale>32</scale>
     </ThrusterZone>
   </ThrusterList>
-  <ModelPath>Model/Ships/Kulrathi/ship11a</ModelPath>
+  <ModelPath>Model/Ships/Vulfen/TypeI</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
   <ShipCategory>Unclassified</ShipCategory>
   <ModuleSlotList>
     <ModuleSlotData>
       <Position>
-        <X>216</X>
-        <Y>264</Y>
-      </Position>
-      <InstalledModuleUID>OrdnanceLocker</InstalledModuleUID>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <state>Normal</state>
-      <Restrictions>IO</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>216</X>
-        <Y>280</Y>
-      </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <state>Normal</state>
-      <Restrictions>IO</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>232</X>
-        <Y>248</Y>
-      </Position>
-      <InstalledModuleUID>Internal Bulkhead</InstalledModuleUID>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <state>Normal</state>
-      <Restrictions>IO</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
         <X>232</X>
         <Y>264</Y>
       </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <state>Normal</state>
-      <Restrictions>IO</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>232</X>
-        <Y>280</Y>
-      </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
+      <InstalledModuleUID>OrdnanceLockerSmall</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -83,18 +35,30 @@
       <Position>
         <X>248</X>
         <Y>232</Y>
+      </Position>
+      <InstalledModuleUID>OrdnanceLockerSmall</InstalledModuleUID>
+      <Health>0</Health>
+      <Shield_Power>0</Shield_Power>
+      <facing>0</facing>
+      <state>Normal</state>
+      <Restrictions>IO</Restrictions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>248</X>
+        <Y>248</Y>
       </Position>
       <InstalledModuleUID>Cockpit</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
       <state>Normal</state>
-      <Restrictions>IO</Restrictions>
+      <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
         <X>248</X>
-        <Y>248</Y>
+        <Y>264</Y>
       </Position>
       <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
       <Health>0</Health>
@@ -106,7 +70,7 @@
     <ModuleSlotData>
       <Position>
         <X>248</X>
-        <Y>264</Y>
+        <Y>280</Y>
       </Position>
       <InstalledModuleUID>Engine</InstalledModuleUID>
       <Health>0</Health>
@@ -120,7 +84,7 @@
         <X>264</X>
         <Y>232</Y>
       </Position>
-      <InstalledModuleUID>Internal Bulkhead</InstalledModuleUID>
+      <InstalledModuleUID>OrdnanceLockerSmall</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -132,7 +96,7 @@
         <X>264</X>
         <Y>248</Y>
       </Position>
-      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
+      <InstalledModuleUID>BasicFuelCell</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
@@ -144,6 +108,18 @@
         <X>264</X>
         <Y>264</Y>
       </Position>
+      <InstalledModuleUID>NuclearReactorSmall</InstalledModuleUID>
+      <Health>0</Health>
+      <Shield_Power>0</Shield_Power>
+      <facing>0</facing>
+      <state>Normal</state>
+      <Restrictions>I</Restrictions>
+    </ModuleSlotData>
+    <ModuleSlotData>
+      <Position>
+        <X>264</X>
+        <Y>280</Y>
+      </Position>
       <InstalledModuleUID>Engine</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -154,57 +130,9 @@
     <ModuleSlotData>
       <Position>
         <X>280</X>
-        <Y>248</Y>
-      </Position>
-      <InstalledModuleUID>Internal Bulkhead</InstalledModuleUID>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <state>Normal</state>
-      <Restrictions>IO</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>280</X>
         <Y>264</Y>
       </Position>
-      <InstalledModuleUID>OrdnanceLocker</InstalledModuleUID>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <state>Normal</state>
-      <Restrictions>IO</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>280</X>
-        <Y>280</Y>
-      </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <state>Normal</state>
-      <Restrictions>IO</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>296</X>
-        <Y>264</Y>
-      </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
-      <Health>0</Health>
-      <Shield_Power>0</Shield_Power>
-      <facing>0</facing>
-      <state>Normal</state>
-      <Restrictions>IO</Restrictions>
-    </ModuleSlotData>
-    <ModuleSlotData>
-      <Position>
-        <X>296</X>
-        <Y>280</Y>
-      </Position>
-      <InstalledModuleUID>Dummy</InstalledModuleUID>
+      <InstalledModuleUID>OrdnanceLockerSmall</InstalledModuleUID>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>

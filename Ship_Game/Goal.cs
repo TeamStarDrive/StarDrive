@@ -159,15 +159,30 @@ namespace Ship_Game
                             list.Add(planet2);
                     }
                     int num1 = 9999999;
-                    foreach (Planet planet2 in list)
+                    foreach (Planet planet2 in list.OrderBy(planet =>
+                        {
+                            float weight = 0;
+                            if(planet.colonyType == Planet.ColonyType.Industrial)
+                            {
+                                weight += 4;
+                            }
+                            if (planet.colonyType == Planet.ColonyType.Core || planet.colonyType == Planet.ColonyType.Military || planet.colonyType == Planet.ColonyType.TradeHub)
+                            {
+                                weight += 2;
+                            }
+                            weight += planet.developmentLevel;
+                            weight += planet.MineralRichness;
+
+                            return weight;
+                        }))
                     {
                         if (planet2.HasShipyard)
                         {
                             int num2 = 0;
                             foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
-                                num2 += (int)(((double)queueItem.Cost - (double)queueItem.productionTowards) / (double)planet2.NetProductionPerTurn);
+                                num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());
                             if (planet2.ConstructionQueue.Count == 0)
-                                num2 = (int)(((double)this.beingBuilt.GetCost(this.empire) - (double)planet2.ProductionHere) / (double)planet2.NetProductionPerTurn);
+                                num2 = (int)((this.beingBuilt.GetCost(this.empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());
                             if (num2 < num1)
                             {
                                 num1 = num2;
@@ -438,15 +453,40 @@ namespace Ship_Game
                     {
                         if (planet.HasShipyard)
                             list.Add(planet);
+                    }                                //I Changed this line so it would pick the LEAST busy shipyard - Gretman
+                    IOrderedEnumerable<Planet> orderedEnumerable = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list, (Func<Planet, float>)(planet => planet.ConstructionQueue.Count ));
+
+                    //Then I got excited, and decided to make it also look for the closest  =)
+                    int TotalPlanets = Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable);
+                    if (TotalPlanets <= 0) break;
+
+                    int leastque = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Count;
+                    float leastdist = float.MaxValue;   //So the first on the list will always overwrite this
+                    int bestplanet = 0;
+
+                    for (short looper = 0; looper < TotalPlanets; looper++)
+                    {   //Look through the list, of all the ones that have the same queue (likely empty) choose the closest of those
+                        
+                        //if the queue of this one is bigger than the last, then we already found all the least busy
+                        if (Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, looper).ConstructionQueue.Count > leastque) break;
+
+                        //If the distance from this planet to the build site is less than the last one, mark this the best planet to assign construction to
+                        float currentdist = Vector2.Distance(Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, looper).Position, this.BuildPosition);
+                        if (currentdist < leastdist)
+                        {
+                            bestplanet = looper;    //Mark this one as the best
+                            leastdist = currentdist;
+                        }
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable = Enumerable.OrderByDescending<Planet, float>((IEnumerable<Planet>)list, (Func<Planet, float>)(planet => planet.ConstructionQueue.Count ));//Vector2.Distance(planet.Position, this.BuildPosition)));
-                    if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable) <= 0)
-                        break;
-                    this.PlanetBuildingAt = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0);
+                    //after all that, assign the contruction site based on the best found above
+                    this.PlanetBuildingAt = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, bestplanet);
+
+                    //Ok, i'm done   -Gretman
+
                     QueueItem queueItem = new QueueItem();
                     queueItem.isShip = true;
                     queueItem.DisplayName = "Construction Ship";
-                    queueItem.QueueNumber = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Count;
+                    queueItem.QueueNumber = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, bestplanet).ConstructionQueue.Count; //Gretman
                     queueItem.sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentConstructor].GetShipData();
                     queueItem.Goal = this;
                     queueItem.Cost = ResourceManager.ShipsDict[this.ToBuildUID].GetCost(this.empire);
@@ -470,7 +510,7 @@ namespace Ship_Game
                         //}
                         this.empire.data.DefaultConstructor = empiredefaultShip;
                     }
-                    Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Add(queueItem);
+                    Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, bestplanet).ConstructionQueue.Add(queueItem); //Gretman
                     ++this.Step;
                     break;
                 case 4:
@@ -750,6 +790,7 @@ namespace Ship_Game
                     }
                     if (!flag2)
                         break;
+                    this.freighter.GetAI().State = AIState.SystemTrader;
                     this.freighter.GetAI().OrderTrade(0.1f);
                     this.empire.ReportGoalComplete(this);
                     break;

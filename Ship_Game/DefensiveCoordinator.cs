@@ -525,7 +525,7 @@ namespace Ship_Game
             List<Planet> planets = new List<Planet>();
             int planetCount = 0;
             int developmentlevel = 0;
-            float maxValue = 0;
+            //float maxValue = 0;          //Not referenced in code, removing to save memory -Gretman
             int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
             int totalTroopWanted = 0;
             int totalCurrentTroops = 0;
@@ -589,8 +589,8 @@ namespace Ship_Game
                 TroopShips.ApplyPendingRemovals();
             }
             this.UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
-            Planet tempPlanet = null;
-            int TroopsSent = 0;
+            //Planet tempPlanet = null;          //Not referenced in code, removing to save memory -Gretman
+            //int TroopsSent = 0;          //Not referenced in code, removing to save memory -Gretman
             foreach (Ship ship4 in TroopShips)
             {
 
@@ -656,8 +656,8 @@ namespace Ship_Game
             // so for now i am disabling the launch code when there are too many troops.
             // Troops will still rebase after they sit idle from fleet activity. 
 
-            float want = 0;
-            float ideal = 0;
+            //float want = 0;          //Not referenced in code, removing to save memory -Gretman
+            //float ideal = 0;          //Not referenced in code, removing to save memory -Gretman
             this.EmpireTroopRatio = UniverseWants;
             if (UniverseWants < .8f)
             {

@@ -27,9 +27,9 @@ namespace Ship_Game
 
 		private DropOptions ResolutionDropDown;
 
-		private DropOptions AntiAliasingDD;
+        //private DropOptions AntiAliasingDD;          //Not referenced in code, removing to save memory -Gretman
 
-		private List<UIButton> Buttons = new List<UIButton>();
+        private List<UIButton> Buttons = new List<UIButton>();
 
 		private UIButton Apply;
 
@@ -72,6 +72,7 @@ namespace Ship_Game
         private FloatSlider memoryLimit;
         private FloatSlider ShipLimiter;
         private FloatSlider FreighterLimiter;
+        private FloatSlider AutoSaveFreq; //Added by Gretman
 
         private Checkbox KeyboardArc;
         private Checkbox LockZoom;
@@ -400,6 +401,7 @@ namespace Ship_Game
             //this.AntiAliasingDD.Draw(base.ScreenManager.SpriteBatch);
 			this.ResolutionDropDown.Draw(base.ScreenManager.SpriteBatch);
             this.FreighterLimiter.Draw(base.ScreenManager);
+            this.AutoSaveFreq.Draw(base.ScreenManager);
             this.ShipLimiter.Draw(base.ScreenManager);
 			ToolTip.Draw(base.ScreenManager);
 			base.ScreenManager.SpriteBatch.End();
@@ -429,8 +431,10 @@ namespace Ship_Game
             GlobalStats.ShipCountLimit = (int)this.ShipLimiter.amountRange;
             this.FreighterLimiter.HandleInput(input);
             GlobalStats.freighterlimit = (int)this.FreighterLimiter.amountRange;
-                
-			if (!this.ResolutionDropDown.Open)// && !this.AntiAliasingDD.Open)
+            this.AutoSaveFreq.HandleInput(input);
+            GlobalStats.AutoSaveFreq = (int)this.AutoSaveFreq.amountRange;
+
+            if (!this.ResolutionDropDown.Open)// && !this.AntiAliasingDD.Open)
 			{
 				this.MusicVolumeSlider.HandleInput(input);
 				GlobalStats.Config.MusicVolume = this.MusicVolumeSlider.amount;
@@ -518,7 +522,7 @@ namespace Ship_Game
             this.GamespeedCap = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y)), Localizer.Token(2206), new Ref<bool>((Func<bool>)(() => GlobalStats.LimitSpeed), (Action<bool>)(x => GlobalStats.LimitSpeed = x)), Fonts.Arial12Bold);
             this.GamespeedCap.Tip_Token = 2205;
             this.ForceFullSim = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y + 30)), "Force Full Simulation", new Ref<bool>((Func<bool>)(() => GlobalStats.ForceFullSim), (Action<bool>)(x => GlobalStats.ForceFullSim = x)), Fonts.Arial12Bold);
-            this.ForceFullSim.Tip_Token = 2205;
+            this.ForceFullSim.Tip_Token = 5086;
             this.pauseOnNotification = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + this.MainOptionsRect.Width + 5), (float)(this.Resolution.NamePosition.Y + 60)), Localizer.Token(6007), new Ref<bool>((Func<bool>)(() => GlobalStats.PauseOnNotification), (Action<bool>)(x => GlobalStats.PauseOnNotification = x)), Fonts.Arial12Bold);
             this.pauseOnNotification.Tip_Token = 7004;
 
@@ -564,6 +568,11 @@ namespace Ship_Game
             
             this.memoryLimit = new FloatSlider(r, string.Concat("Memory limit. KBs In Use: ",(int)(GC.GetTotalMemory(true)/1000f)), 150000, 300000, GlobalStats.MemoryLimiter);
             int ships =0;
+
+            r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 290, 225, 50);    //
+            this.AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);      //Added by Gretman
+            this.AutoSaveFreq.Tip_ID = 4100;                                                                      //
+
             if (Empire.universeScreen != null )
              ships= Empire.universeScreen.globalshipCount;
             r = new Rectangle(this.MainOptionsRect.X - 9 + this.MainOptionsRect.Width, (int)this.FullScreen.NamePosition.Y + 235, 225, 50);
@@ -597,7 +606,7 @@ namespace Ship_Game
                     }
                 }
             }
-            int qualityLevels = 0;
+            //int qualityLevels = 0;          //Not referenced in code, removing to save memory -Gretman
             //this.AntiAliasingDD = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y + 26, 105, 18));
             //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
             //    this.AntiAliasingDD.AddOption("8x AA", 8);
@@ -736,7 +745,7 @@ namespace Ship_Game
 			int effectsVolume = (int)((float)(GlobalStats.Config.EffectsVolume * 100f));
 			amt = effectsVolume.ToString("00");
 			config.AppSettings.Settings["EffectsVolume"].Value = amt;
-            //config.AppSettings.Settings["AutoSaveInterval"].Value = GlobalStats.Config.AutoSaveInterval.ToString();
+            config.AppSettings.Settings["AutoSaveFreq"].Value = GlobalStats.AutoSaveFreq.ToString();
 			config.AppSettings.Settings["XRES"].Value = Game1.Instance.graphics.PreferredBackBufferWidth.ToString();
 			config.AppSettings.Settings["YRES"].Value = Game1.Instance.graphics.PreferredBackBufferHeight.ToString();
 			config.AppSettings.Settings["WindowMode"].Value = GlobalStats.Config.WindowMode.ToString();
