@@ -279,6 +279,8 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
+                                this.ShipList[i].GetAI().start = null;
+                                this.ShipList[i].GetAI().end = null;
 								this.ShipList[i].GetAI().OrderTrade(5f);
 							}
 							return true;
@@ -287,6 +289,8 @@ namespace Ship_Game
 						{
 							for (int i = 0; i < this.ShipList.Count; i++)
 							{
+                                this.ShipList[i].GetAI().start = null;
+                                this.ShipList[i].GetAI().end = null;
 								this.ShipList[i].GetAI().OrderTrade(5f);
 							}
 							return true;

@@ -20,7 +20,8 @@ namespace Ship_Game
 		{
 			Building building;
 			this.data.RemnantKills = GlobalStats.RemnantKills;
-			this.data.RemnantArmageddon = GlobalStats.RemnantArmageddon;
+            this.data.RemnantActivation = GlobalStats.RemnantActivation;
+            this.data.RemnantArmageddon = GlobalStats.RemnantArmageddon;
 			this.data.gameDifficulty = screenToSave.GameDifficulty;
 			this.data.AutoColonize = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoColonize;
 			this.data.AutoExplore = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoExplore;
@@ -1016,7 +1017,9 @@ namespace Ship_Game
 
 			public int RemnantKills;
 
-			public bool RemnantArmageddon;
+            public int RemnantActivation;
+
+            public bool RemnantArmageddon;
 
 			public float FTLModifier = 1.0f;
             public float EnemyFTLModifier = 1.0f;

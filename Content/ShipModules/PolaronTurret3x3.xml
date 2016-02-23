@@ -26,7 +26,7 @@
   <Name>Twin Polaron Cannons</Name>
   <Restrictions>O</Restrictions>
   <UID>PolaronTurret3x3</UID>
-  <IconTexturePath>Modules/PhotonTurret3x3</IconTexturePath>
+  <IconTexturePath>Modules/PolaronTurret3x3</IconTexturePath>
 
 
   <NameIndex>1030</NameIndex>

@@ -176,6 +176,9 @@ namespace Ship_Game
         //techTimers
         public short TechDelayTime=4;
 
+        public bool SpyMute = false;
+        public bool SpyMissionRepeat = false;
+        public float treasuryGoal = .20f;
 
 
 		public EmpireData()

@@ -167,7 +167,7 @@ namespace Ship_Game
             {
                 p.SpecialDescription = data.SpecialDescription;
             }
-            if (data.Scale != null && data.Scale != 0)
+            if (data.Scale != 0)
             {
                 p.scale = data.Scale;
             }
@@ -355,6 +355,7 @@ namespace Ship_Game
 						Asteroids = false
 					};
 					system.RingList.Add(r1);
+                    p.UpdateIncomes(true);  //fbedard: needed for OrderTrade()
 				}
 			}
 			return system;
@@ -386,7 +387,8 @@ namespace Ship_Game
 			stream.Dispose();
 			decompressed.Delete();
 			GlobalStats.RemnantKills = savedData.RemnantKills;
-			GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
+            GlobalStats.RemnantActivation = savedData.RemnantActivation;
+            GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
             
             GlobalStats.GravityWellRange = savedData.GravityWellRange;            
             GlobalStats.IconSize = savedData.IconSize;        
@@ -724,8 +726,8 @@ namespace Ship_Game
 					ship.GetAI().GotoStep = shipData.AISave.GoToStep;
 					ship.GetAI().MovePosition = shipData.AISave.MovePosition;
 					ship.GetAI().OrbitTargetGuid = shipData.AISave.OrbitTarget;
-					ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;
-					ship.GetAI().TargetGuid = shipData.AISave.AttackTarget;
+                    //ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;          //Not referenced in code, removing to save memory -Gretman
+                    ship.GetAI().TargetGuid = shipData.AISave.AttackTarget;
 					ship.GetAI().SystemToDefendGuid = shipData.AISave.SystemToDefend;
 					ship.GetAI().EscortTargetGuid = shipData.AISave.EscortTarget;
 					bool hasCargo = false;
@@ -1420,6 +1422,7 @@ namespace Ship_Game
 				this.us.player = EmpireManager.GetEmpireByName(this.PlayerLoyalty);
 				this.us.LoadContent();
 				this.us.UpdateAllSystems(0.01f);
+                /*
 				foreach (Ship ship in this.data.MasterShipList)
 				{
 					AIState state = ship.GetAI().State;
@@ -1436,6 +1439,7 @@ namespace Ship_Game
 						ship.GetAI().OrderTransportPassengersFromSave();
 					}
 				}
+                */
 				this.ready = true;
 			}
 			Game1.Instance.ResetElapsedTime();

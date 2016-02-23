@@ -5,6 +5,8 @@ using Particle3DSample;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Runtime;
+
 
 namespace Ship_Game
 {
@@ -372,15 +374,17 @@ namespace Ship_Game
 
 		public bool LoadContent(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection)
 		{
-			lock (GlobalStats.BeamEffectLocker)
+			//lock (GlobalStats.BeamEffectLocker)
 			{
                 
-                    Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
-                    Beam beam=null;
-                if(this.owner != null)
-                    this.owner.Beams.pendingRemovals.TryPop(out beam);
-                    
-                    if (beam == null || beam.quadEffect == null)
+                    //Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
+                   // Beam beam=null;
+                //if(this.owner != null)
+                  //  beam = this.owner.Beams.RecycleObject();
+                    this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+                    //Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+                    return true;
+               // if (beam != null) // || beam.quadEffect == null)
                     {
                         try
                         {
@@ -390,15 +394,23 @@ namespace Ship_Game
                                     View = view,
                                     Projection = projection,
                                     TextureEnabled = true,
-                                    Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+                                   // Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
                                 };
                             this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                            Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+                            //Beam.BeamEffect.Parameters["tex"].SetValue(texture);
                         }
                         catch
                         {
-                            //GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
                             GlobalStats.BeamOOM++;
+                            if (GlobalStats.BeamOOM > 10)
+                            {
+                                GC.WaitForPendingFinalizers(); GC.Collect();
+
+                                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                                GC.Collect();
+                                GlobalStats.BeamOOM = 0;
+                            }
+                            
                             System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
 
 
@@ -406,27 +418,23 @@ namespace Ship_Game
                             return false;
                         }
                     }
-                    else
+                  //  else
                     {
-                        this.quadEffect = beam.quadEffect;
+                        //this.quadEffect = beam.quadEffect;
                         
-                        if(this.quadEffect.World != Matrix.Identity)
-                        this.quadEffect.World = Matrix.Identity;
-                        if(this.quadEffect.View!=view)
-                        this.quadEffect.View = view;
-                        if(this.quadEffect.Projection != projection)
-                        this.quadEffect.Projection = projection;
-                        this.quadEffect.TextureEnabled = true;
-                        if(this.quadEffect.Texture != texture)
-                        {
+                        //if(this.quadEffect.World != Matrix.Identity)
+                        //this.quadEffect.World = Matrix.Identity;
+                        //if(this.quadEffect.View!=view)
+                        //this.quadEffect.View = view;
+                        //if(this.quadEffect.Projection != projection)
+                        //this.quadEffect.Projection = projection;
+                        //this.quadEffect.TextureEnabled = true;
+                        
 
-                            this.quadEffect.Texture = texture;
-                            Beam.BeamEffect.Parameters["tex"].SetValue(texture);
-                        }
-                        this.quadVertexDecl = beam.quadVertexDecl;
-                        beam.recycled = true;
-                        beam.quadEffect = null;
-                        beam.quadVertexDecl = null;
+                        //    this.quadEffect.Texture = texture;
+                     //       Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+                      
+                    
                         
                     }
                     
@@ -511,37 +519,30 @@ namespace Ship_Game
             }
             this.Duration -= elapsedTime;
             this.Source = srcCenter;
-            if (this.Target != null)// || Vector2.Distance(this.Destination, this.owner.Center) > this.range)
+
+            //Modified by Gretman
+            if (this.Target == null)// If current target sucks, use "destination" instead
             {
+                System.Diagnostics.Debug.WriteLine("Beam assigned alternate destination at update");
                 this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
-
-
-                if (Vector2.Distance(this.Destination, this.owner.Center) > this.range)
-                {
-
-                    this.Die(null, true);
-                    return;
-                }
-                else 
-                if (!this.Owner.CheckIfInsideFireArc(this.weapon, this.Target.Center, base.Owner.Rotation))
-                {
-                    float angle = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, this.Destination));// this.Target.Center));
-                    float angletoradian = MathHelper.ToRadians(this.weapon.moduleAttachedTo.FieldOfFire);
-                    if (angle > base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f)
-                    {
-                        angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing + angletoradian / 2f;
-                    }
-                    else if (angle < base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f)
-                    {
-                        angle = base.Owner.Rotation + this.weapon.moduleAttachedTo.facing - angletoradian / 2f;
-                    }
-                    this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, angle,  this.range);
-                }
-                else
-                {
-                    this.Destination = this.Target.Center;
-                }
             }
+            else if (!this.owner.isPlayerShip() && Vector2.Distance(this.Destination, this.Source) > this.range + this.owner.Radius) //So beams at the back of a ship can hit too!
+            {
+                System.Diagnostics.Debug.WriteLine("Beam killed because of distance: Dist = " + Vector2.Distance(this.Destination, this.Source).ToString() + "  Beam Range = " + (this.range).ToString());
+                this.Die(null, true);
+                return;
+            }
+            else if (!this.owner.isPlayerShip() && !this.Owner.CheckIfInsideFireArc(this.weapon, this.Destination, base.Owner.Rotation))
+            {
+                System.Diagnostics.Debug.WriteLine("Beam killed because of angle");
+                this.Die(null, true);
+                return;
+            }
+            else
+            {
+                this.Destination = this.Target.Center;
+            }// Done messing with stuff - Gretman
+
             if (this.quadEffect != null)
             {
                 this.quadEffect.View = view;
@@ -562,8 +563,7 @@ namespace Ship_Game
 
 		public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
 		{
-            if (this.quadEffect == null)
-                this.Die(null, true);
+        
             if (!this.collidedThisFrame && this.DamageToggleOn)
 			{
 				this.DamageToggleOn = false;
@@ -578,8 +578,12 @@ namespace Ship_Game
 			}
             this.Duration -= elapsedTime;
 			this.Source = srcCenter;
-			this.quadEffect.View = view;
-			this.quadEffect.Projection = projection;
+            if (this.quadEffect != null)
+            //this.Die(null, true);
+            {
+                this.quadEffect.View = view;
+                this.quadEffect.Projection = projection;
+            }
 			this.Destination = dstCenter;
 			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.Destination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
 			this.UpperLeft = points[0];
