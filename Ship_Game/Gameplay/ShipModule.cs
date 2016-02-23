@@ -2492,20 +2492,19 @@ namespace Ship_Game.Gameplay
 			return colors2D;
 		}
 
-		public override void Update(float elapsedTime)
-		{
-            this.BombTimer -= elapsedTime;
-			if (base.Health > 0f && !this.Active)
-			{
-				this.Active = true;
-				this.SetNewExternals();
-				this.Parent.RecalculatePower();
-			}
-			else if (this.shield_power_max > 0f && !this.isExternal && this.Active )
-			{				
-                this.quadrant=-1;
-                this.isExternal = true;                
-			}
+        public override void Update(float elapsedTime)
+        {
+            if (base.Health > 0f && !this.Active)
+            {
+                this.Active = true;
+                this.SetNewExternals();
+                this.Parent.RecalculatePower();
+            }
+            else if (this.shield_power_max > 0f && !this.isExternal && this.Active)
+            {
+                this.quadrant = -1;
+                this.isExternal = true;
+            }
             if (base.Health <= 0f && this.Active)
             {
                 this.Die(base.LastDamagedBy, false);
@@ -2515,33 +2514,6 @@ namespace Ship_Game.Gameplay
                 base.Health = this.HealthMax;
                 this.onFire = false;
             }
-            //Added by McShooterz: shields keep charge when manually turned off
-            if (this.shield_power <= 0f || shieldsOff)
-            {
-                this.radius = 8f;                
-            }
-            else
-                this.radius = this.shield_radius;
-            if (this.ModuleType == ShipModuleType.Hangar && this.Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
-                this.hangarTimer -= elapsedTime;
-            //Shield Recharge
-            float shieldMax = this.GetShieldsMax();
-            if (this.Active && this.Powered && this.shield_power < shieldMax)
-			{
-                if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
-                    this.shield_power += this.shield_recharge_rate * elapsedTime;
-                else if (this.shield_power > 0)
-                    this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
-                if (this.shield_power > shieldMax)
-                    this.shield_power = shieldMax;
-			}
-			if (this.shield_power < 0f)
-			{
-				this.shield_power = 0f;
-			}
-            if (this.TransporterTimer > 0)
-                this.TransporterTimer -= elapsedTime;
-			base.Update(elapsedTime);
 
             //Added by Gretman
             if (this.ParentOfDummy != null && this.isDummy)
@@ -2549,6 +2521,38 @@ namespace Ship_Game.Gameplay
                 this.Health = this.ParentOfDummy.Health;
                 this.HealthMax = this.ParentOfDummy.HealthMax;
             }
+
+            if (!this.isDummy)
+            {
+                this.BombTimer -= elapsedTime;
+                //Added by McShooterz: shields keep charge when manually turned off
+                if (this.shield_power <= 0f || shieldsOff)
+                {
+                    this.radius = 8f;
+                }
+                else
+                    this.radius = this.shield_radius;
+                if (this.ModuleType == ShipModuleType.Hangar && this.Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
+                    this.hangarTimer -= elapsedTime;
+                //Shield Recharge
+                float shieldMax = this.GetShieldsMax();
+                if (this.Active && this.Powered && this.shield_power < shieldMax)
+                {
+                    if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
+                        this.shield_power += this.shield_recharge_rate * elapsedTime;
+                    else if (this.shield_power > 0)
+                        this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
+                    if (this.shield_power > shieldMax)
+                        this.shield_power = shieldMax;
+                }
+                if (this.shield_power < 0f)
+                {
+                    this.shield_power = 0f;
+                }
+                if (this.TransporterTimer > 0)
+                    this.TransporterTimer -= elapsedTime;
+            }
+			base.Update(elapsedTime);
         }
 
 		public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
