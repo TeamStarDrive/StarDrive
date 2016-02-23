@@ -4061,9 +4061,9 @@ namespace Ship_Game
             }
             ship.fleet = null;
             this.GetGSAI().DefensiveCoordinator.remove(ship);
-            ship.GetAI().orderqueue.EnterWriteLock();
+            
             ship.GetAI().OrderQueue.Clear();
-            ship.GetAI().orderqueue.ExitWriteLock();
+           
             ship.GetAI().State = AIState.AwaitingOrders;
             ship.RemoveFromAllFleets();
 

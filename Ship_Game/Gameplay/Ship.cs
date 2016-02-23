@@ -3890,7 +3890,7 @@ namespace Ship_Game.Gameplay
                 {
                     //if (this.Velocity != Vector2.Zero)
                     //this.UpdatedModulesOnce = false;
-                    if (this.GetAI().BadGuysNear ||  this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null)
+                    if (this.GetAI().BadGuysNear || this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null)
                     {
                         this.UpdatedModulesOnce = false;
                         float cos = (float)Math.Cos((double)this.Rotation);
@@ -3908,38 +3908,38 @@ namespace Ship_Game.Gameplay
                         //        Secondhalf.Add(slots.module);
                         //    half--;
                         //}
+                        if (half > 50)
+                            Parallel.Invoke(() =>
+                            {
+                                foreach (ModuleSlot moduleSlot in firsthalf)
+                                {
+                                    ++GlobalStats.ModuleUpdates;
+                                    moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                                }
 
-                        Parallel.Invoke(() =>
-                        {
-                            foreach (ModuleSlot moduleSlot in firsthalf)
+                            },
+                                 () =>
+                                 {
+
+                                     foreach (ModuleSlot moduleSlot in Secondhalf)
+                                     {
+                                         ++GlobalStats.ModuleUpdates;
+                                         moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                                     }
+                                 }
+
+                                 );
+
+                        else
+                            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                             {
                                 ++GlobalStats.ModuleUpdates;
                                 moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
                             }
-
-                        },
-                             () =>
-                             {
-
-                                 foreach (ModuleSlot moduleSlot in Secondhalf)
-                                 {
-                                     ++GlobalStats.ModuleUpdates;
-                                     moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                                 }
-                             }
-
-                             );
-
-
-                        foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-                        {
-                            ++GlobalStats.ModuleUpdates;
-                            moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        }
                     }
-                    else if( !this.UpdatedModulesOnce)
+                    else if (!this.UpdatedModulesOnce)
                     {
-                        
+
                         float cos = (float)Math.Cos((double)this.Rotation);
                         float sin = (float)Math.Sin((double)this.Rotation);
                         float tan = (float)Math.Tan((double)this.yRotation);
