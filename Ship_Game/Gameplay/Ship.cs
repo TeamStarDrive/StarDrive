@@ -2718,7 +2718,7 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        public override void Update(float elapsedTime)      //Mer
+        public override void Update(float elapsedTime)     //Mer
         {
             if (!this.Active)
                 return;
