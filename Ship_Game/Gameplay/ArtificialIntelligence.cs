@@ -1152,9 +1152,16 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-			if (shipgoal.goal.TetherTarget != Guid.Empty && Vector2.Distance(ArtificialIntelligence.universeScreen.PlanetsDict[shipgoal.goal.TetherTarget].Position + shipgoal.goal.TetherOffset, this.Owner.Center) > 200f)
-			{
-				shipgoal.goal.BuildPosition = ArtificialIntelligence.universeScreen.PlanetsDict[shipgoal.goal.TetherTarget].Position + shipgoal.goal.TetherOffset;
+            Planet target = shipgoal.TargetPlanet;
+            if (shipgoal.goal.TetherTarget != Guid.Empty)
+            {
+                if (target == null)
+                    ArtificialIntelligence.universeScreen.PlanetsDict.TryGetValue(shipgoal.goal.TetherTarget, out target);
+                shipgoal.goal.BuildPosition = target.Position + shipgoal.goal.TetherOffset;                
+            }
+            if (target !=null && Vector2.Distance(target.Position + shipgoal.goal.TetherOffset, this.Owner.Center) > 200f)
+			{				
+                shipgoal.goal.BuildPosition = target.Position + shipgoal.goal.TetherOffset;
 				this.OrderDeepSpaceBuild(shipgoal.goal);
 				return;
 			}
@@ -3290,8 +3297,8 @@ namespace Ship_Game.Gameplay
             //        if (Goal.SpeedLimit > this.Owner.GetSTLSpeed())
             //            Goal.SpeedLimit = this.Owner.GetSTLSpeed();
             //    }
-            //    else if (Goal.SpeedLimit > this.Owner.GetFTLSpeed())
-            //        Goal.SpeedLimit = this.Owner.GetFTLSpeed();
+            //    else if (Goal.SpeedLimit > this.Owner.GetmaxFTLSpeed)
+            //        Goal.SpeedLimit = this.Owner.GetmaxFTLSpeed;
             //}
             this.Owner.HyperspaceReturn();
 			Vector2 velocity = this.Owner.Velocity;
@@ -3840,14 +3847,18 @@ namespace Ship_Game.Gameplay
 
 		public void OrderDeepSpaceBuild(Goal goal)
 		{
-			this.OrderQueue.Clear();
-			this.OrderMoveTowardsPosition(goal.BuildPosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, goal.BuildPosition)), this.findVectorToTarget(this.Owner.Center, goal.BuildPosition), true,null);
+			this.orderqueue.EnterWriteLock();
+            this.OrderQueue.Clear();
+            
+      
+            this.OrderMoveTowardsPosition(goal.BuildPosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, goal.BuildPosition)), this.findVectorToTarget(this.Owner.Center, goal.BuildPosition), true,null);
 			ArtificialIntelligence.ShipGoal Deploy = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DeployStructure, goal.BuildPosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Owner.Center, goal.BuildPosition)))
 			{
 				goal = goal,
-				VariableString = goal.ToBuildUID
-			};
+				VariableString = goal.ToBuildUID                
+			};            
 			this.OrderQueue.AddLast(Deploy);
+            this.orderqueue.ExitWriteLock();
 		}
 
 		public void OrderExplore()
@@ -4847,7 +4858,12 @@ namespace Ship_Game.Gameplay
 			this.OrderQueue.AddLast(orbit);
             this.orderqueue.ExitWriteLock();
 		}
-
+        public float TimeToTarget(Planet target)
+        {
+            float test = 0;
+            test = Vector2.Distance(target.Position, this.Owner.Center) / this.Owner.GetmaxFTLSpeed;
+            return test;
+        }
         //added by fbedard OrderTrade
         public void OrderTrade(float elapsedTime)
         {            
@@ -4952,7 +4968,7 @@ namespace Ship_Game.Gameplay
                             {
                                 float weight = 0;
                                 weight += this.Owner.CargoSpace_Used / (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere);
-                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                                 weight += PlanetCheck.FoodHere / (PlanetCheck.NetFoodPerTurn - PlanetCheck.consumption);
                                 return weight;
                             }
@@ -4963,7 +4979,7 @@ namespace Ship_Game.Gameplay
                             {
                                 float weight = 0;
                                 weight += this.Owner.CargoSpace_Max / (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere);
-                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                                 weight += PlanetCheck.FoodHere / (PlanetCheck.NetFoodPerTurn - PlanetCheck.consumption);
                                 return weight;
                             }
@@ -5049,7 +5065,7 @@ namespace Ship_Game.Gameplay
                             {
                                 float weight = 0;
                                 weight += this.Owner.CargoSpace_Used / (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere);
-                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                                 weight += PlanetCheck.ProductionHere / (PlanetCheck.NetFoodPerTurn - PlanetCheck.consumption);
                                 return weight;
                             }
@@ -5061,7 +5077,7 @@ namespace Ship_Game.Gameplay
                             {
                                 float weight = 0;
                                 weight += this.Owner.CargoSpace_Max / (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere);
-                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                                 weight += PlanetCheck.ProductionHere / PlanetCheck.GetMaxProductionPotential() ;
                                 return weight;
                             }
@@ -5141,7 +5157,7 @@ namespace Ship_Game.Gameplay
                         {
                             float weight = 0;
                             weight += this.Owner.CargoSpace_Used / (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere);
-                            weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                            weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                             weight += PlanetCheck.FoodHere /( PlanetCheck.NetFoodPerTurn - PlanetCheck.consumption);                             
                             return weight;
                         }
@@ -5154,7 +5170,7 @@ namespace Ship_Game.Gameplay
                         {
                             float weight = 0;
                             weight += this.Owner.CargoSpace_Max / (PlanetCheck.FoodHere + 1);
-                            weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                            weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                             weight += PlanetCheck.FoodHere /( PlanetCheck.NetFoodPerTurn - PlanetCheck.consumption);
                             return weight;
                         }
@@ -5214,7 +5230,7 @@ namespace Ship_Game.Gameplay
                         if (PlanetCheck == null)
                         continue;
 
-                        float distanceWeight = Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                        float distanceWeight = Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                         //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.ProductionHere + 1) + distanceWeight;
                         PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.FoodHere + 1) + distanceWeight;   
                         if( PlanetCheck.fs == Planet.GoodState.EXPORT )
@@ -5240,7 +5256,7 @@ namespace Ship_Game.Gameplay
                         sortPlanets = planets.OrderBy(PlanetCheck =>
                             {
                                 weight += this.Owner.CargoSpace_Max / (PlanetCheck.FoodHere + 1);
-                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                                weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                                 return weight;
                             }
                             );
@@ -5294,7 +5310,7 @@ namespace Ship_Game.Gameplay
                             Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
                             if (PlanetCheck == null)
                                 continue;
-                            float distanceWeight = Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                            float distanceWeight = Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                             PlanetCheck.ExportPSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.ProductionHere + 1) +distanceWeight;
                             //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.FoodHere + 1) +distanceWeight;                            
                             
@@ -5322,7 +5338,7 @@ namespace Ship_Game.Gameplay
                                 //.ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                             
                             weight += this.Owner.CargoSpace_Max/(PlanetCheck.ProductionHere +1) ;
-                            weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetFTLSpeed();
+                            weight += Vector2.Distance(PlanetCheck.Position, this.Owner.Position) / this.Owner.GetmaxFTLSpeed;
                             weight += PlanetCheck.ProductionHere / PlanetCheck.GetMaxProductionPotential();
 
                             return weight;
