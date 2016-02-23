@@ -1426,7 +1426,7 @@ namespace Ship_Game.Gameplay
                                         flag1 = false;
                                         //if(ship.isInDeepSpace && ship.engineState != Ship.MoveState.Warp)
                                         //{
-                                        //    ship.GetAI().OrderMoveToFleetPosition(this.Position + ship.FleetOffset, 0, 0, true, ship.GetFTLSpeed(), this);
+                                        //    ship.GetAI().OrderMoveToFleetPosition(this.Position + ship.FleetOffset, 0, 0, true, ship.GetmaxFTLSpeed, this);
                                         //}
 
                                         this.Ships.thisLock.ExitReadLock();
