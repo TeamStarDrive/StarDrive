@@ -2366,6 +2366,8 @@ namespace Ship_Game
                     foreach (Ship deepSpaceShip in this.DeepSpaceShips)
                     //Parallel.ForEach(this.DeepSpaceShips, deepSpaceShip =>
                     {
+                        if (!deepSpaceShip.shipInitialized)
+                            continue;
                         if (deepSpaceShip.Active)
                         {
                             if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
