@@ -487,9 +487,9 @@ namespace Ship_Game
 					//text = Localizer.Token(178);
                     try
                     {
-                        ship.GetAI().orderqueue.EnterReadLock();
+                        ship.GetAI().OrderQueue.thisLock.EnterReadLock();
                         text = string.Concat(Localizer.Token(178), " to ", ship.GetAI().OrderQueue.Last.Value.TargetPlanet.Name);  //fbedard
-                        ship.GetAI().orderqueue.ExitReadLock();
+                        ship.GetAI().OrderQueue.thisLock.ExitReadLock();
                     }
                     catch { }
 					break;
