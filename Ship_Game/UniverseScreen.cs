@@ -2288,11 +2288,11 @@ namespace Ship_Game
                             planet.Station.Update(elapsedTime);
                     }
 
-                    //foreach (Ship ship in (List<Ship>)system.ShipList)
-                    Parallel.ForEach(system.ShipList, ship =>
+                    foreach (Ship ship in (List<Ship>)system.ShipList)
+                    //Parallel.ForEach(system.ShipList, ship =>
                     {
-                        //if (ship.GetSystem() == null)
-                        //    continue;
+                        if (ship.GetSystem() == null)
+                            continue;
                         //added by gremlin ghost ship killer
                         if (ship.ModuleSlotList.Count == 0)
                         {
@@ -2314,7 +2314,7 @@ namespace Ship_Game
                             if (ship.PlayerShip)                        //Mer
                                 ship.ProcessInput(elapsedTime);
                         }
-                    });
+                    }//);
                     if (!this.Paused && this.IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();
