@@ -8634,17 +8634,17 @@ namespace Ship_Game.Gameplay
                         {
                             this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                         }
-                        else
-                        {
-                            this.OrderQueue.thisLock.EnterWriteLock();
-                            foreach(ShipGoal goal in this.OrderQueue)
-                            {
-                                if (goal.Plan == Plan.DoCombat)
-                                    this.OrderQueue.QueuePendingRemoval(goal);
-                            }
-                            this.OrderQueue.thisLock.ExitWriteLock();
-                            this.OrderQueue.ApplyPendingRemovals();
-                        }
+                        //else
+                        //{
+                        //    this.OrderQueue.thisLock.EnterWriteLock();
+                        //    foreach(ShipGoal goal in this.OrderQueue)
+                        //    {
+                        //        if (goal.Plan == Plan.DoCombat)
+                        //            this.OrderQueue.QueuePendingRemoval(goal);
+                        //    }
+                        //    this.OrderQueue.thisLock.ExitWriteLock();
+                        //    this.OrderQueue.ApplyPendingRemovals();
+                        //}
 
                         //this.fireTask = Task.Factory.StartNew(this.FireOnTarget);//,TaskCreationOptions.LongRunning);
                         //fireTask = new Task(this.FireOnTarget);    
