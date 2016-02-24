@@ -4979,7 +4979,7 @@ namespace Ship_Game.Gameplay
                 }
                 //FoodFirst
                 #region Deliver Food FIRST (return if already loaded)
-                if (this.end == null && FoodFirst  && (this.Owner.TradingFood || this.Owner.GetCargo()["Food"] > 0f))
+                if (this.end == null && FoodFirst  && ( this.Owner.GetCargo()["Food"] > 0f))
                 {
                     //planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
@@ -5170,7 +5170,7 @@ namespace Ship_Game.Gameplay
                                         float currenTrade = this.TradeSort(s, p, "Production", s.CargoSpace_Max, true);
                                         if (currenTrade < thisTradeStr)
                                             faster = false;
-                                        if (currenTrade > 1000)
+                                        if (currenTrade > 1000 && !faster)
                                         {
                                             flag = true;
                                             break;
@@ -5275,7 +5275,7 @@ namespace Ship_Game.Gameplay
                                         float currenTrade = this.TradeSort(s, p, "Food", s.CargoSpace_Max, true);
                                         if (currenTrade < mySpeed)
                                             faster = false;
-                                        if (currenTrade > 1000)
+                                        if (currenTrade > 1000 && !faster)
                                             continue;
                                         float efficiency = Math.Abs(currenTrade - mySpeed);
                                         if (mySpeed * p.NetFoodPerTurn < p.FoodHere && faster)

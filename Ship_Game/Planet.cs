@@ -3944,8 +3944,7 @@ namespace Ship_Game
                     break; 
                 }
 
-                case ColonyType.Core:
-                case ColonyType.TradeHub:
+                case ColonyType.Core:                
                 if(this.NetProductionPerTurn >this.developmentLevel)
                 {
 
@@ -3972,6 +3971,19 @@ namespace Ship_Game
                 else
                     this.fs = GoodState.IMPORT;
                         
+
+                break;
+                case ColonyType.TradeHub:
+                if (this.fs != GoodState.STORE)
+                    if (FRatio > .50)
+                        this.fs = GoodState.EXPORT;
+                    else
+                        this.fs = GoodState.IMPORT;
+                if (this.ps != GoodState.STORE)
+                    if (PRatio > .50)
+                        this.ps = GoodState.EXPORT;
+                    else
+                        this.ps = GoodState.IMPORT;
 
                 break;
 
