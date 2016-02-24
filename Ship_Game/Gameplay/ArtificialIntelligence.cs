@@ -5418,8 +5418,8 @@ namespace Ship_Game.Gameplay
                             if (!flag)
                             {
                                 this.start = p;
-                                this.Owner.TradingFood = true;
-                                this.Owner.TradingProd = false;
+                                //this.Owner.TradingFood = true;
+                                //this.Owner.TradingProd = false;
                                 break;
                             }
                         }
@@ -5520,8 +5520,8 @@ namespace Ship_Game.Gameplay
                             if (!flag)
                             {
                                 this.start = p;
-                                this.Owner.TradingFood = false;
-                                this.Owner.TradingProd = true;
+                                //this.Owner.TradingFood = false;
+                                //this.Owner.TradingProd = true;
                                 break;
                             }
                         }
