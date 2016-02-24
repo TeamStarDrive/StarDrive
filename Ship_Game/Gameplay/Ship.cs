@@ -22,7 +22,6 @@ using System.Configuration;
 using System.Threading;
 using System.Collections.Concurrent;
 
-
 namespace Ship_Game.Gameplay
 {
     public class Ship : GameplayObject, IDisposable
@@ -3483,7 +3482,7 @@ namespace Ship_Game.Gameplay
             if (this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip)
             {
                 foreach (Weapon weapon in this.Weapons)
-                    weapon.Update(elapsedTime);     //Mer
+                    weapon.Update(elapsedTime);
             }
             this.TroopBoardingDefense = 0.0f;
             foreach (Troop troop in this.TroopList)
@@ -3889,7 +3888,7 @@ namespace Ship_Game.Gameplay
             }
             else if (this.GetAI().BadGuysNear || (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView )|| this.MoveModulesTimer > 0.0 ||  GlobalStats.ForceFullSim) // || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
             {
-                if (elapsedTime > 0.0)  //Mer
+                if (elapsedTime > 0.0)
                 {
                     //if (this.Velocity != Vector2.Zero)
                     //this.UpdatedModulesOnce = false;
@@ -3900,8 +3899,21 @@ namespace Ship_Game.Gameplay
                         float sin = (float)Math.Sin((double)this.Rotation);
                         float tan = (float)Math.Tan((double)this.yRotation);
                         int half = this.ModuleSlotList.Count / 2;
+
                         List<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
                         List<ModuleSlot> Secondhalf = this.ModuleSlotList.Reverse().Skip(this.ModuleSlotList.Count - half).ToList();
+
+                        bool KeepTime = false;
+                        if (this.VanityName == "MerCraft") KeepTime = true;     //Lets attempt some time measurement -Gretman
+                        DateTime Before = DateTime.Now;
+
+
+                        if (KeepTime)
+                        {
+                            long LotsofTicks = DateTime.Now.Ticks - Before.Ticks;
+                            TimeSpan HowLong = new TimeSpan(LotsofTicks);
+                            System.Diagnostics.Debug.WriteLine("1 Full iteration took: " + HowLong);
+                        }
 
                         //foreach (ModuleSlot slots in this.ModuleSlotList)
                         //{
@@ -3941,7 +3953,7 @@ namespace Ship_Game.Gameplay
                         //    moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
                         //}
                     }
-                    else if( !this.UpdatedModulesOnce)      //Gretmans Where-I-left-off placeholder
+                    else if( !this.UpdatedModulesOnce)
                     {
                         
                         float cos = (float)Math.Cos((double)this.Rotation);

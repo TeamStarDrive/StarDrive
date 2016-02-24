@@ -2067,19 +2067,19 @@ namespace Ship_Game.Gameplay
 
 		public void Move(float elapsedTime, float cos, float sin, float tan)
 		{
-			GlobalStats.ModulesMoved = GlobalStats.ModulesMoved + 1;
+			GlobalStats.ModulesMoved += 1;
 			Vector2 actualVector = this.XMLPosition;
-			actualVector.X = actualVector.X - 256f;
-			actualVector.Y = actualVector.Y - 256f;
+			actualVector.X -= 256f;
+			actualVector.Y -= 256f;
 			this.Center.X = actualVector.X * cos - actualVector.Y * sin;
 			this.Center.Y = actualVector.X * sin + actualVector.Y * cos;
 			//ShipModule center = this;
-			this.Center = this.Center + this.Parent.Center;
-			float num = 256f - this.XMLPosition.X;
-			this.Center3D.X = this.Center.X;
+			this.Center += this.Parent.Center;
+            //float num = 256f - this.XMLPosition.X;
+            this.Center3D.X = this.Center.X;
 			this.Center3D.Y = this.Center.Y;
-			this.Center3D.Z = tan * num;
-			if (this.Parent.dying && this.Parent.InFrustum)
+			this.Center3D.Z = tan * (256f - this.XMLPosition.X);
+            if (this.Parent.dying && this.Parent.InFrustum)
 			{
 				if (this.trailEmitter == null && this.firetrailEmitter == null && this.reallyFuckedUp)
 				{
