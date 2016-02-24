@@ -317,7 +317,7 @@ namespace Ship_Game
 				else
 				{
 					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * scale;// (float)(1 + ((Math.Log(scale)) / 1.5));
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
 					Planet newOrbital = new Planet()
@@ -496,7 +496,7 @@ namespace Ship_Game
                     {
                         scale += 2.5f;
                     }
-                    float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
 					newOrbital.SetPlanetAttributes();
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -805,7 +805,7 @@ namespace Ship_Game
                     {
                         scale += 2.5f;
                     }
-                    float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
 					newOrbital.SetPlanetAttributes();
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -860,7 +860,7 @@ namespace Ship_Game
 				else if (i == 3)
 				{
 					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
 					Planet newOrbital = new Planet()
@@ -962,7 +962,7 @@ namespace Ship_Game
                         }
                     }
 
-					float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = newSys.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
                     

@@ -113,7 +113,7 @@ namespace Ship_Game.Gameplay
 
 		//public LinkedList<ArtificialIntelligence.ShipGoal> OrderQueue = new LinkedList<ArtificialIntelligence.ShipGoal>();
 
-        public SafeQueue<ArtificialIntelligence.ShipGoal> OrderQueue = new SafeQueue<ArtificialIntelligence.ShipGoal>(true);
+        public SafeQueue<ArtificialIntelligence.ShipGoal> OrderQueue = new SafeQueue<ArtificialIntelligence.ShipGoal>();
 		public Queue<Vector2> ActiveWayPoints = new Queue<Vector2>();
 
 		public Planet ExterminationTarget;
@@ -383,12 +383,17 @@ namespace Ship_Game.Gameplay
                     }
                     IOrderedEnumerable<Planet> sortedList =
                         from planet in planets
-                        orderby  Vector2.Distance(planet.Position, this.Owner.Center) * (this.Owner.loyalty == planet.Owner ? .1f : 1)
+                        orderby  Vector2.Distance(planet.Position, this.Owner.Center) + (this.Owner.loyalty != planet.Owner ? 300000 : 0)
                         select planet;
                     this.awaitClosest = sortedList.First<Planet>();
                 }
                 else
                 {
+                    if(this.Owner.GetSystem() != null && this.Owner.GetSystem().OwnerList.Contains(this.Owner.loyalty))
+                    {
+                        this.HadPO = false;
+                    return;
+                    }
                     this.Stop(elapsedTime);
                 }
 
@@ -953,6 +958,8 @@ namespace Ship_Game.Gameplay
 
                 }
             }
+            
+            { 
             if (this.Owner.fleet == null)
             {
                 switch (this.CombatState)
@@ -1064,6 +1071,7 @@ namespace Ship_Game.Gameplay
                             break;
                         }
                 }
+            }
                 if (this.Target != null)
                     return;
                 this.Owner.InCombat = false;
@@ -1457,15 +1465,15 @@ namespace Ship_Game.Gameplay
             if (this.Owner.shipData.Role != ShipData.RoleName.troop || this.Owner.TroopList.Count == 0)
                 this.DoOrbit(goal.TargetPlanet, elapsedTime); //added by gremlin.
 
-            float radius = goal.TargetPlanet.ObjectRadius + this.Owner.Radius + 1500f;
+            float radius = goal.TargetPlanet.ObjectRadius + this.Owner.Radius * 2;
             float distCenter = Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center);
 
             if (this.Owner.shipData.Role == ShipData.RoleName.troop && this.Owner.TroopList.Count > 0)
 			{
                 if (this.Owner.engineState == Ship.MoveState.Warp && distCenter < 7500f)
                     this.Owner.HyperspaceReturn();
-                if (distCenter < radius + 1000f)
-                    this.ThrustTowardsPosition(goal.TargetPlanet.Position, elapsedTime, this.Owner.speed > 150 ? 150 : this.Owner.speed);
+                if (distCenter < radius  )
+                    this.ThrustTowardsPosition(goal.TargetPlanet.Position, elapsedTime, this.Owner.speed > 200 ? this.Owner.speed*.90f : this.Owner.velocityMaximum);
                 else
                     this.ThrustTowardsPosition(goal.TargetPlanet.Position, elapsedTime, this.Owner.speed);
                 if (distCenter < goal.TargetPlanet.ObjectRadius && goal.TargetPlanet.AssignTroopToTile(this.Owner.TroopList[0]))
@@ -1749,7 +1757,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            float radius = OrbitTarget.ObjectRadius + this.Owner.Radius + 1200f;
+            float radius = OrbitTarget.ObjectRadius + this.Owner.Radius +1200f;
             float distanceToOrbitSpot = Vector2.Distance(this.OrbitPos, this.Owner.Center);          
             
             if (this.findNewPosTimer <= 0f)
@@ -1974,6 +1982,7 @@ namespace Ship_Game.Gameplay
 		{
             try
             {
+                this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
                 if (this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
                     {
                         if (ship.Health / ship.HealthMax >= 0.95f || !ship.Active)
@@ -1983,11 +1992,14 @@ namespace Ship_Game.Gameplay
                         return Vector2.Distance(this.Owner.Center, ship.Center) < 20000f;
                     }).Count<Ship>() == 0)
                 {
+                    this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
                     return;
                 }
+                this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
             }
             catch
             {
+                this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
                 return;
             }
             //bool flag = false;
@@ -2152,7 +2164,7 @@ namespace Ship_Game.Gameplay
 						break;
 					}
 					this.State = AIState.AwaitingOrders;
-					if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+					if (this.Owner.loyalty.isPlayer)// == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
 					{
 						this.HadPO = true;
 					}
@@ -4597,7 +4609,12 @@ namespace Ship_Game.Gameplay
             if (ClearOrders)
 			{
 				this.OrderQueue.Clear();
+                this.HadPO = true;
 			}
+            else
+            {
+                this.HadPO = false;
+            }
 			lock (this.wayPointLocker)
 			{
 				this.ActiveWayPoints.Clear();
@@ -7177,7 +7194,7 @@ namespace Ship_Game.Gameplay
 
 		private void ScrapShip(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
-            if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) >= 2500f +goal.TargetPlanet.ObjectRadius + this.Owner.Radius)   //2500f)   //OrbitTarget.ObjectRadius *15)
+            if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) >= goal.TargetPlanet.ObjectRadius + this.Owner.Radius)   //2500f)   //OrbitTarget.ObjectRadius *15)
 			{
                 //goal.MovePosition = goal.TargetPlanet.Position;
                 //this.MoveToWithin1000(elapsedTime, goal);
@@ -7807,7 +7824,7 @@ namespace Ship_Game.Gameplay
                 this.EscortTarget = null;
                 
             }
-            else if (HadPO && this.State != AIState.AwaitingOrders)
+            if (HadPO && this.State != AIState.AwaitingOrders)
                 HadPO = false;
             if (this.State == AIState.Resupply)
             {
@@ -8610,14 +8627,24 @@ namespace Ship_Game.Gameplay
 
                         if(this.Target !=null || this.PotentialTargets.Count >0 )
 
-                        docombat = (!this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat && firstgoal.Plan != Plan.Bombard && firstgoal.Plan != Plan.BoardShip));
+                        docombat = !this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat && firstgoal.Plan != Plan.Bombard && firstgoal.Plan != Plan.BoardShip);
 
 
                         if (docombat)//|| this.OrderQueue.Count == 0))
                         {
                             this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
                         }
-
+                        else
+                        {
+                            this.OrderQueue.thisLock.EnterWriteLock();
+                            foreach(ShipGoal goal in this.OrderQueue)
+                            {
+                                if (goal.Plan == Plan.DoCombat)
+                                    this.OrderQueue.QueuePendingRemoval(goal);
+                            }
+                            this.OrderQueue.thisLock.ExitWriteLock();
+                            this.OrderQueue.ApplyPendingRemovals();
+                        }
 
                         //this.fireTask = Task.Factory.StartNew(this.FireOnTarget);//,TaskCreationOptions.LongRunning);
                         //fireTask = new Task(this.FireOnTarget);    
