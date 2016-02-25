@@ -820,7 +820,7 @@ namespace Ship_Game.Gameplay
                 }
                 
             }
-            Ship ship = null;
+            //Ship ship = null;
             if (this.Target == null) // || this.Target is Ship &&    !this.Owner.loyalty.KnownShips.Contains(this.Target))
             {
                 this.Target = this.PotentialTargets.FirstOrDefault();
