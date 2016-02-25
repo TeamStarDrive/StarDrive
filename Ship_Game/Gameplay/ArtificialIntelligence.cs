@@ -36,8 +36,8 @@ namespace Ship_Game.Gameplay
 
 		public BatchRemovalCollection<ArtificialIntelligence.ShipWeight> NearbyShips = new BatchRemovalCollection<ArtificialIntelligence.ShipWeight>();
 
-		public List<Ship> PotentialTargets = new List<Ship>();
-
+		//public List<Ship> PotentialTargets = new List<Ship>();
+        public BatchRemovalCollection<Ship> PotentialTargets = new BatchRemovalCollection<Ship>();
 
         //private Vector2 direction = Vector2.Zero;     //Not referenced in code, removing to save memory -Gretman
 
@@ -807,7 +807,7 @@ namespace Ship_Game.Gameplay
             {
                 this.Intercepting = false;
                 this.Target = null;
-                this.Target = this.PotentialTargets.FirstOrDefault();
+                this.Target = this.PotentialTargets.FirstOrDefault() as GameplayObject;
                 if (Target ==null)
                 {
                     
@@ -7041,12 +7041,14 @@ namespace Ship_Game.Gameplay
                 from potentialTarget in this.NearbyShips
                 orderby potentialTarget.weight descending
                 select potentialTarget;
-            this.PotentialTargets = sortedList2.Select(ship => ship.ship)
-                .ToList();
+            
+            {
+                this.PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.ship)) ;//.ToList() as BatchRemovalCollection<Ship>;
 
-            //trackprojectiles in scan for targets.
-                        
-            this.PotentialTargets = this.PotentialTargets.Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance).ToList();
+                //trackprojectiles in scan for targets.
+
+                this.PotentialTargets.ClearAdd(this.PotentialTargets.Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance));
+            }
             if (this.Target != null && !this.Target.Active)
             {
                 this.Target = null;
