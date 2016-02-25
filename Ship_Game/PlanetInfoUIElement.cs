@@ -326,7 +326,7 @@ namespace Ship_Game
 			this.PlanetTypeCursor = new Vector2((float)(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.PlanetTypeRichness).X / 2f, (float)(this.PlanetIconRect.Y + this.PlanetIconRect.Height + 5));
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.planetType)], this.PlanetIconRect, Color.White);
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.PlanetTypeRichness, this.PlanetTypeCursor, this.tColor);
-			this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
 			this.SliderFood.amount = this.p.FarmerPercentage;
 			this.SliderFood.cursor = new Rectangle(this.SliderFood.sRect.X + (int)((float)this.SliderFood.sRect.Width * this.SliderFood.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderFood.sRect.Y + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
 			this.SliderProd.amount = this.p.WorkerPercentage;
@@ -616,7 +616,7 @@ namespace Ship_Game
 			{
 				return;
 			}
-			this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
 			Vector2 mousePos = input.CursorPosition;
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{

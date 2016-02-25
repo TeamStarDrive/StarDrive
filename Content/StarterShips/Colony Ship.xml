@@ -8,6 +8,8 @@
   <Name>Colony Ship</Name>
   <HasFixedCost>false</HasFixedCost>
   <FixedCost>0</FixedCost>
+  <HasFixedUpkeep>false</HasFixedUpkeep>
+  <FixedUpkeep>0</FixedUpkeep>
   <IsShipyard>false</IsShipyard>
   <IsOrbitalDefense>false</IsOrbitalDefense>
   <IconPath>ShipIcons/terran_cargo1</IconPath>
@@ -18,22 +20,25 @@
   <ThrusterList>
     <ThrusterZone>
       <Position>
-        <X>239</X>
-        <Y>339</Y>
+        <X>232</X>
+        <Y>344</Y>
       </Position>
       <scale>30</scale>
     </ThrusterZone>
     <ThrusterZone>
       <Position>
-        <X>270</X>
-        <Y>335</Y>
+        <X>264</X>
+        <Y>328</Y>
       </Position>
       <scale>30</scale>
     </ThrusterZone>
   </ThrusterList>
   <ModelPath>Model/Ships/CargoShips/CargoHaulerShort</ModelPath>
   <DefaultAIState>DoNothing</DefaultAIState>
-  <ShipCategory>Civilian</ShipCategory>
+  <ShipCategory>Unclassified</ShipCategory>
+  <CarrierShip>false</CarrierShip>
+  <BaseStrength>0</BaseStrength>
+  <BaseCanWarp>false</BaseCanWarp>
   <ModuleSlotList>
     <ModuleSlotData>
       <Position>
@@ -45,6 +50,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -57,6 +63,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -69,6 +76,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -81,7 +89,8 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
-      <Restrictions>IO</Restrictions>
+      <state>Normal</state>
+      <Restrictions>O</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
@@ -93,7 +102,8 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
-      <Restrictions>IO</Restrictions>
+      <state>Normal</state>
+      <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
@@ -105,7 +115,8 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
-      <Restrictions>IO</Restrictions>
+      <state>Normal</state>
+      <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
@@ -117,7 +128,8 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
-      <Restrictions>IO</Restrictions>
+      <state>Normal</state>
+      <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
@@ -129,6 +141,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -141,6 +154,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -153,6 +167,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -165,6 +180,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -177,6 +193,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>E</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -189,6 +206,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>E</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -201,7 +219,8 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
-      <Restrictions>IO</Restrictions>
+      <state>Normal</state>
+      <Restrictions>O</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
@@ -213,7 +232,8 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
-      <Restrictions>IO</Restrictions>
+      <state>Normal</state>
+      <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
@@ -225,7 +245,8 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
-      <Restrictions>IO</Restrictions>
+      <state>Normal</state>
+      <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
@@ -237,18 +258,20 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
-      <Restrictions>IO</Restrictions>
+      <state>Normal</state>
+      <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
       <Position>
         <X>264</X>
         <Y>264</Y>
       </Position>
-      <InstalledModuleUID>BasicFuelCell</InstalledModuleUID>
+      <InstalledModuleUID>Cockpit</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -256,11 +279,12 @@
         <X>264</X>
         <Y>280</Y>
       </Position>
-      <InstalledModuleUID>Cockpit</InstalledModuleUID>
+      <InstalledModuleUID>BasicFuelCell</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -273,6 +297,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -285,6 +310,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>I</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -297,6 +323,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>E</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -309,6 +336,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>E</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -321,6 +349,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -333,6 +362,7 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
     <ModuleSlotData>
@@ -345,7 +375,13 @@
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
       <facing>0</facing>
+      <state>Normal</state>
       <Restrictions>O</Restrictions>
     </ModuleSlotData>
   </ModuleSlotList>
+  <hullUnlockable>false</hullUnlockable>
+  <allModulesUnlocakable>true</allModulesUnlocakable>
+  <unLockable>false</unLockable>
+  <techsNeeded />
+  <TechScore>0</TechScore>
 </ShipData>

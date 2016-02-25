@@ -2,10 +2,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Ship_Game;
 using System;
+using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
@@ -233,7 +236,7 @@ namespace Ship_Game.Gameplay
 
         public bool AltFireTriggerFighter;
 
-        public bool ExplosionFlash;
+        //public bool ExplosionFlash;          //Not referenced in code, removing to save memory -Gretman
 
         public bool RangeVariance;
 
@@ -245,7 +248,8 @@ namespace Ship_Game.Gameplay
         public GameplayObject fireTarget = null;
         public float TargetChangeTimer = 0;
         public bool PrimaryTarget = false;
-       
+        [XmlIgnore]
+        public List<ModuleSlot> AttackerTargetting;// = new List<ModuleSlot>();
 
 		public static AudioListener audioListener
 		{
@@ -261,6 +265,13 @@ namespace Ship_Game.Gameplay
 
 		public Weapon()
 		{
+            if(GlobalStats.ActiveMod != null)
+            {
+                if(GlobalStats.ActiveMod.mi !=null)
+                {
+                    this.ExplosionRadiusVisual *= GlobalStats.ActiveMod.mi.GlobalExplosionVisualIncreaser;
+                }
+            }
 		}
 
         private void AddModifiers(string Tag, Projectile projectile)
@@ -404,26 +415,8 @@ namespace Ship_Game.Gameplay
         protected virtual void CreateTargetedBeam(GameplayObject target)
         {
             Beam beam;
-           
-            //if (this.owner.Beams.pendingRemovals.TryPop(out beam))
-            //{
-            //    //beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
-                
-            //    //beam.moduleAttachedTo = this.moduleAttachedTo;
-            //    //beam.PowerCost = (float)this.BeamPowerCostPerSecond;
-            //    //beam.range = this.Range;
-            //    //beam.thickness = this.BeamThickness;
-            //    //beam.Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f;
-            //    //beam.damageAmount = this.DamageAmount;
-            //    beam.weapon = this;
-            //    //beam.Destination = target.Center;
-            //    beam.BeamRecreate(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target);
 
-
-            //}
-            //else
-            {
-                beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
+            beam = new Beam(this.moduleAttachedTo.Center, this.BeamThickness, this.moduleAttachedTo.GetParent(), target)
             {
                 moduleAttachedTo = this.moduleAttachedTo,
                 PowerCost = (float)this.BeamPowerCostPerSecond,
@@ -434,8 +427,6 @@ namespace Ship_Game.Gameplay
                 weapon = this,
                 Destination = target.Center
             };
-
-            }
 
             //damage increase by level
             if (this.owner.Level > 0)
@@ -464,17 +455,17 @@ namespace Ship_Game.Gameplay
             {
                 //Added by McShooterz: Use sounds from new sound dictionary
                 SoundEffect beamsound = null;
-                if (ResourceManager.SoundEffectDict.TryGetValue(this.fireCueName,out beamsound))
+                if ( ResourceManager.SoundEffectDict.TryGetValue(this.fireCueName,out beamsound))
                 {
                     AudioManager.PlaySoundEffect(beamsound, Weapon.audioListener, this.owner.emitter, 0.5f);
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(this.fireCueName))
+                    if (!string.IsNullOrEmpty(this.fireCueName) && AudioManager.limitOK)
                     {
                         this.fireCue = AudioManager.GetCue(this.fireCueName);
                         if (!this.owner.isPlayerShip())
-                        {
+                        {                            
                             this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
                         }
                         this.fireCue.Play();
@@ -1062,7 +1053,7 @@ namespace Ship_Game.Gameplay
 				return;
 			this.owner.InCombatTimer = 15f;
 
-			this.timeToNextFire = this.fireDelay;
+			this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) *.016f + -.008f);
 
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -1269,13 +1260,13 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
-            if (!this.owner.CheckIfInsideFireArc(this, target.Center, this.owner.Rotation))
-            {
+            //if (!this.owner.CheckIfInsideFireArc(this, target.Center, this.owner.Rotation))
+            //{
               
-                return;
-            }
+            //    return;
+            //}
 			this.owner.InCombatTimer = 15f;
-			this.timeToNextFire = this.fireDelay;
+            this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) * .016f + -.008f);
             
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -1565,8 +1556,9 @@ namespace Ship_Game.Gameplay
             this.lastFireSound += elapsedTime;
 			if (this.timeToNextFire > 0f)
 			{
-				this.timeToNextFire = MathHelper.Max(this.timeToNextFire - elapsedTime, 0f);
-			}
+                if (this.WeaponType != "Drone") this.timeToNextFire = MathHelper.Max(this.timeToNextFire - elapsedTime, 0f);
+                //Gretman -- To fix broken Repair Drones, I moved updating the cooldown for drone weapons to the ArtificialIntelligence update function.
+            }
 			foreach (Weapon.Salvo salvo in this.SalvoList)
 			{
                 salvo.Timing -= elapsedTime;

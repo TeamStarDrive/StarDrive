@@ -109,9 +109,10 @@ namespace Ship_Game
 			{
 				spriteBatch.Draw(ResourceManager.TextureDict[r.tex], r.r, Color.White);
 			}
-			if (!hover)
+            if (!hover && this.Options.Count > 0)
 			{
-				string txt = this.Options[this.ActiveIndex].Name;
+				
+                string txt = this.Options[this.ActiveIndex].Name;
 				bool addDots = false;
 				while (Fonts.Arial12Bold.MeasureString(txt).X > (float)(this.r.Width - 22))
 				{
@@ -124,7 +125,7 @@ namespace Ship_Game
 				}
 				spriteBatch.DrawString(Fonts.Arial12Bold, txt, new Vector2((float)(this.r.X + 10), (float)(this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2)), new Color(255, 239, 208));
 			}
-			else
+			else if(this.Options.Count >0)
 			{
 				string txt = this.Options[this.ActiveIndex].Name;
 				bool addDots = false;
