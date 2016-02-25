@@ -74,7 +74,7 @@ namespace Ship_Game
         public string Name;
         public string Description;
         public Empire Owner;
-        public float ObjectRadius;
+        public float Objectradius;
         public float OrbitalAngle;
         public float Population;
         public float Density;
@@ -141,7 +141,24 @@ namespace Ship_Game
         private bool FSexport = false;
         public bool UniqueHab = false;
         public int uniqueHabPercent;
+        public float ExportPSWeight =0;
+        public float ExportFSWeight = 0;
 
+        public float ObjectRadius
+        {
+            get
+            {
+                if (this.SO == null)
+                    return this.Objectradius;                
+                return this.SO.WorldBoundingSphere.Radius;
+                ; }
+            set { if (this.SO == null)
+                    this.Objectradius =value;                
+            else
+                this.Objectradius = this.SO.WorldBoundingSphere.Radius;
+            }
+        }
+        
         
         public Planet()
         {
@@ -152,6 +169,7 @@ namespace Ship_Game
 
         public void DropBombORIG(Bomb bomb)
         {
+            
             if (bomb.owner == this.Owner)
                 return;
             if (this.Owner != null && !this.Owner.GetRelations()[bomb.owner].AtWar && (this.TurnsSinceTurnover > 10 && EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) == bomb.owner))
@@ -2759,34 +2777,63 @@ namespace Ship_Game
             }
             for (int index1 = 0; index1 < this.BuildingList.Count; ++index1)
             {
-                try
+                //try
                 {
                     Building building = this.BuildingList[index1];
                     if (building.isWeapon)
                     {
                         building.WeaponTimer -= elapsedTime;
-                        if (building.WeaponTimer < 0)
+                        if (building.WeaponTimer < 0 && this.system.ShipList.Count>0)
                         {
                             if (this.Owner != null)
                             {
+                                Ship target = null;
+                                Ship troop = null;
+                                float currentD = 0;
+                                float previousD = building.theWeapon.Range + 1000f;
+                                //float currentT = 0;
+                                float previousT = building.theWeapon.Range + 1000f;
+                                //this.system.ShipList.thisLock.EnterReadLock();
                                 for (int index2 = 0; index2 < this.system.ShipList.Count; ++index2)
                                 {
                                     Ship ship = this.system.ShipList[index2];
-                                    if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && Vector2.Distance(this.Position, ship.Center) < building.theWeapon.Range)
+                                    if (ship.loyalty == this.Owner || (!ship.loyalty.isFaction && this.Owner.GetRelations()[ship.loyalty].Treaty_NAPact) )
+                                        continue;
+                                    currentD = Vector2.Distance(this.Position, ship.Center);                                   
+                                    if (ship.GetShipData().Role == ShipData.RoleName.troop && currentD  < previousT)
                                     {
-                                        building.theWeapon.Center = this.Position;
-                                        building.theWeapon.FireFromPlanet(ship.Center +ship.Velocity - this.Position, this, ship.GetRandomInternalModule(building.theWeapon));
-                                        building.WeaponTimer = building.theWeapon.fireDelay;
-                                        break;
+                                        previousT = currentD;
+                                        troop = ship;
+                                        continue;
                                     }
+                                    if(currentD < previousD && troop ==null)
+                                    {
+                                        previousD = currentD;
+                                        target = ship;
+                                    }
+
                                 }
+                              //  this.system.ShipList.thisLock.ExitReadLock();
+                                //if (ship.loyalty != this.Owner && (ship.loyalty.isFaction || this.Owner.GetRelations()[ship.loyalty].AtWar) && Vector2.Distance(this.Position, ship.Center) < building.theWeapon.Range)
+                                //Ship ship = null;
+                                if (troop != null)
+                                    target = troop;
+                                if(target != null)
+                                {
+                                    building.theWeapon.Center = this.Position;
+                                    building.theWeapon.FireFromPlanet(target.Center + target.Velocity - this.Position, this, target.GetRandomInternalModule(building.theWeapon));
+                                    building.WeaponTimer = building.theWeapon.fireDelay;
+                                    break;
+                                }
+
+
                             }
                         }
                     }
                 }
-                catch
-                {
-                }
+                //catch
+                //{
+                //}
             }
             for (int index = 0; index < this.Projectiles.Count; ++index)
             {
@@ -2930,9 +2977,9 @@ namespace Ship_Game
                     }
                     else if(ship.GetAI().State == AIState.Resupply)
                     {
-                        ship.GetAI().orderqueue.EnterWriteLock();
+                
                         ship.GetAI().OrderQueue.Clear();
-                        ship.GetAI().orderqueue.ExitWriteLock();
+                    
                         ship.GetAI().Target = null;
                         ship.GetAI().PotentialTargets.Clear();
                         ship.GetAI().HasPriorityOrder = false;
@@ -3079,7 +3126,7 @@ namespace Ship_Game
             }
             if (this.GovernorOn)
                 this.DoGoverning();
-            this.UpdateIncomes();
+            this.UpdateIncomes(false);
             // ADDED BY SHAHMATT (notification about empty queue)
             if (GlobalStats.ExtraNotiofications && this.Owner != null && this.Owner.isPlayer && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
             {
@@ -3769,28 +3816,50 @@ namespace Ship_Game
         }
         private void SetExportState(ColonyType colonyType)
         {
+            
             bool FSexport =false;
             bool PSexport = false;
             int pc = 0;
+            float exportPSNeed = 0;
+            float exportFSNeed = 0;
+            float importPSNeed = 0;
+            float importFSNeed = 0;
+            if(this.ExportPSWeight >0 || this.ExportFSWeight >0)
             foreach(Planet planet in this.Owner.GetPlanets())
             {
                 pc++;
-                if(planet.fs == GoodState.IMPORT)
+                if(planet.fs == GoodState.IMPORT )
                 {
+                    importFSNeed += planet.MAX_STORAGE- planet.FoodHere;
                     FSexport = true;
                 }
+                if (planet.fs == GoodState.EXPORT)
+                    ExportFSWeight += planet.FoodHere;
                 if(planet.ps == GoodState.IMPORT)
                 {
+                    importPSNeed += planet.MAX_STORAGE - planet.ProductionHere;
                     PSexport = true;
                 }
+                if (planet.ps == GoodState.EXPORT)
+                    exportPSNeed += planet.ProductionHere;
             }
             if(pc==1)
             {
                 FSexport = false;
                 PSexport = false;
             }
+            exportFSNeed -= importFSNeed;
+            if (exportFSNeed <= 0)
+                FSexport = true;
+            exportPSNeed -= importPSNeed;
+            if (exportPSNeed <= 0)
+                PSexport = true;
+            this.ExportFSWeight = 0;
+            this.ExportPSWeight = 0;
             float PRatio = this.ProductionHere /this.MAX_STORAGE;
             float FRatio = this.FoodHere /this.MAX_STORAGE;
+
+            int queueCount = this.ConstructionQueue.Count;
             switch (colonyType)
             {
                 
@@ -3799,9 +3868,9 @@ namespace Ship_Game
                 case ColonyType.Industrial:
                     if (this.NetProductionPerTurn > this.developmentLevel)
                     {
-                        if (PRatio < .9 && this.ConstructionQueue.Count > 0)
+                        if (PRatio < .9 && queueCount > 0 && FSexport)
                             this.ps = GoodState.IMPORT;
-                        else if (this.ConstructionQueue.Count == 0)
+                        else if (queueCount == 0)
                         {
                             this.ps = GoodState.EXPORT;
                         }
@@ -3809,13 +3878,26 @@ namespace Ship_Game
                             this.ps = GoodState.STORE;
 
                     }
-                    else
+                    else if (queueCount > 0 || this.Owner.data.Traits.Cybernetic > 0)
                     {
-                        if (PRatio < .75)
+                        if (PRatio < .5f && PSexport)
                             this.ps = GoodState.IMPORT;
+                        else if (!PSexport && PRatio >.5)
+                            this.ps = GoodState.EXPORT;
                         else
                             this.ps = GoodState.STORE;
+                    } 
+                    else
+                    {
+                        if (PRatio > .5f && !PSexport)
+                            this.ps = GoodState.EXPORT;
+                        else if (PRatio > .5f && PSexport)
+                            this.ps = GoodState.STORE;
+                        else this.ps = GoodState.EXPORT;
+                        
                     }
+                    
+                
                     if (FRatio > .75f)
                         this.fs = Planet.GoodState.STORE;
                     else
@@ -3824,10 +3906,12 @@ namespace Ship_Game
 
                     
                 case ColonyType.Agricultural:
-                if(PRatio >.75)
-                    this.ps = Planet.GoodState.STORE;
-                else
+                if (PRatio > .75 && !PSexport)
+                    this.ps = Planet.GoodState.EXPORT;
+                else if (PRatio < .5 && PSexport)
                     this.ps = Planet.GoodState.IMPORT;
+                else
+                    this.ps = GoodState.STORE;
 
 
                 if (this.NetFoodPerTurn >0 )
@@ -3842,22 +3926,25 @@ namespace Ship_Game
                 case ColonyType.Research:
                 
                 {
-                    if (PRatio > .75f)
-                        this.ps = Planet.GoodState.STORE;
-                    else
+                    if (PRatio > .75f && !PSexport)
+                        this.ps = Planet.GoodState.EXPORT;
+                    else if (PRatio < .5f && PSexport)
                         this.ps = Planet.GoodState.IMPORT;
-
-
-                    if (FRatio > .75f)
-                        this.fs = Planet.GoodState.STORE;
                     else
+                        this.ps = GoodState.STORE;
+
+
+                    if (FRatio > .75f && !FSexport)
+                        this.fs = Planet.GoodState.EXPORT;
+                    else if (FSexport && FRatio <.75)
                         this.fs = Planet.GoodState.IMPORT;
+                    else
+                        this.fs = GoodState.STORE;
 
                     break; 
                 }
 
-                case ColonyType.Core:
-                case ColonyType.TradeHub:
+                case ColonyType.Core:                
                 if(this.NetProductionPerTurn >this.developmentLevel)
                 {
 
@@ -3870,10 +3957,11 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if (PRatio > .75)
-                        this.ps = GoodState.STORE;
-                    else
+                    if (PRatio > .75 && !FSexport)
+                        this.ps = GoodState.EXPORT;
+                    else if (PRatio < .5 && FSexport)
                         this.ps = GoodState.IMPORT;
+                    else this.ps = GoodState.STORE;
                 }
                 
                 if (FRatio > .25)
@@ -3883,6 +3971,19 @@ namespace Ship_Game
                 else
                     this.fs = GoodState.IMPORT;
                         
+
+                break;
+                case ColonyType.TradeHub:
+                if (this.fs != GoodState.STORE)
+                    if (FRatio > .50)
+                        this.fs = GoodState.EXPORT;
+                    else
+                        this.fs = GoodState.IMPORT;
+                if (this.ps != GoodState.STORE)
+                    if (PRatio > .50)
+                        this.ps = GoodState.EXPORT;
+                    else
+                        this.ps = GoodState.IMPORT;
 
                 break;
 
@@ -3899,19 +4000,19 @@ namespace Ship_Game
                 this.FSexport = true;
             else
             {
-                this.FSexport = true;
+                this.FSexport = false ;
             }
-            if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
-            {
+            //if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
+            //{
                 
-                this.ps = GoodState.STORE;
-            }
+            //    this.ps = GoodState.STORE;
+            //}
 
-            if(this.developmentLevel>1 && this.fs == GoodState.EXPORT && !FSexport)
-            {
+            //if(this.developmentLevel>1 && this.fs == GoodState.EXPORT && !FSexport)
+            //{
                 
-                this.fs = GoodState.STORE;
-            }
+            //    this.fs = GoodState.STORE;
+            //}
 
            
         }
@@ -5492,7 +5593,7 @@ namespace Ship_Game
 
         private void ApplyProductionTowardsConstruction()
         {
-            if (this.Crippled_Turns > 0)
+            if (this.Crippled_Turns > 0 || this.RecentCombat)
                 return;
             /*
              * timeToEmptyMax = maxs/maxp; = 2
@@ -5577,7 +5678,7 @@ output = maxp * take10 = 5
         {
             if (this.Crippled_Turns > 0 || this.RecentCombat || howMuch <= 0.0)
             {
-                if(howMuch >0)
+                if (howMuch > 0 && this.Crippled_Turns <=0)
                 ProductionHere += howMuch;
                 return;
             }
@@ -5827,7 +5928,7 @@ output = maxp * take10 = 5
             return false;
         }
 
-        public void UpdateIncomes()
+        public void UpdateIncomes(bool LoadUniverse)
         {
             if (this.Owner == null)
                 return;
@@ -5851,6 +5952,8 @@ output = maxp * take10 = 5
             float shipbuildingmodifier = 1f;
             List<Guid> list = new List<Guid>();
             float shipyards =1;
+            
+            if (!LoadUniverse)
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
             {
                 if (keyValuePair.Value == null)
@@ -5932,6 +6035,9 @@ output = maxp * take10 = 5
                     building.Strength = Ship_Game.ResourceManager.BuildingsDict[building.Name].Strength;
                 }
             }
+            //Added by Gretman -- This will keep a planet from still having sheilds even after the shield building has been scrapped.
+            if (this.ShieldStrengthCurrent > this.ShieldStrengthMax) this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+
             if (shipyard && (this.colonyType != ColonyType.Research || this.Owner.isPlayer))
                 this.HasShipyard = true;
             else
@@ -5955,9 +6061,9 @@ output = maxp * take10 = 5
             
             this.GrossProductionPerTurn =  (  this.Population / 1000  * ( this.MineralRichness +  this.PlusProductionPerColonist)) + this.PlusFlatProductionPerTurn;
             this.GrossProductionPerTurn = this.GrossProductionPerTurn + this.Owner.data.Traits.ProductionMod * this.GrossProductionPerTurn;
-            
 
-            if (this.Station != null)
+
+            if (this.Station != null && !LoadUniverse)
             {
                 if (!this.HasShipyard)
                     this.Station.SetVisibility(false, Planet.universeScreen.ScreenManager, this);
@@ -6137,6 +6243,7 @@ output = maxp * take10 = 5
             this.SO.ObjectType = ObjectType.Dynamic;
             this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
             this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(MathHelper.ToRadians(this.ringTilt)) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+            
             //this.initializing = false;
         }
 
@@ -6568,7 +6675,7 @@ output = maxp * take10 = 5
 
 
         }
-        public float GetGroundStrengthOther(Empire empire)
+        public float GetGroundStrengthOther(Empire AllButThisEmpire)
         {
             //float num = 0;
             //if (this.Owner == null || this.Owner != empire)
@@ -6584,33 +6691,39 @@ output = maxp * take10 = 5
             {
                 pgs.TroopsHere.thisLock.EnterReadLock();
                 Troop troop = null;
-                if (pgs.TroopsHere.Count > 0)
-                    troop = pgs.TroopsHere[0];
+                while (pgs.TroopsHere.Count > 0)
+                {
+                    if (pgs.TroopsHere.Count > 0)
+                        troop = pgs.TroopsHere[0];
 
-                if (troop == null && this.Owner != empire)
-                {
-                    if (pgs.building == null || pgs.building.CombatStrength <= 0)
+                    if (troop == null && this.Owner != AllButThisEmpire)
                     {
-                        pgs.TroopsHere.thisLock.ExitReadLock();
-                        continue;
+                        if (pgs.building == null || pgs.building.CombatStrength <= 0)
+                        {
+
+                            break;
+                        }
+                        EnemyTroopStrength = EnemyTroopStrength + (pgs.building.CombatStrength + (pgs.building.Strength)); //+ (pgs.building.isWeapon ? pgs.building.theWeapon.DamageAmount:0));
+                        break;
                     }
-                    EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength));
-                }
-                else if (troop != null && troop.GetOwner() != empire)
-                {
-                    EnemyTroopStrength = EnemyTroopStrength + (float)troop.Strength;
-                }
-                if (this.Owner == empire || pgs.building == null || pgs.building.CombatStrength <= 0)
-                {
-                    pgs.TroopsHere.thisLock.ExitReadLock();
-                    continue;
+                    else if (troop != null && troop.GetOwner() != AllButThisEmpire)
+                    {
+                        EnemyTroopStrength = EnemyTroopStrength + troop.Strength;
+                    }
+                    if (this.Owner == AllButThisEmpire || pgs.building == null || pgs.building.CombatStrength <= 0)
+                    {
+
+                        break;
+                    }
+                    EnemyTroopStrength = EnemyTroopStrength + pgs.building.CombatStrength + pgs.building.Strength;
+                    break;
                 }
                 pgs.TroopsHere.thisLock.ExitReadLock();
-                EnemyTroopStrength = EnemyTroopStrength + (float)(pgs.building.CombatStrength + (pgs.building.Strength));
+                
 
             }
 
-            return EnemyTroopStrength;
+            return EnemyTroopStrength ;
 
 
         }

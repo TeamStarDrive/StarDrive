@@ -53,9 +53,9 @@ namespace Ship_Game
 
 		public Vector3 dir_to_camera;
 
-		public float allscale = 1f;
+        //public float allscale = 1f;          //Not referenced in code, removing to save memory -Gretman
 
-		private float distanceToParentCenter;
+        private float distanceToParentCenter;
 
 		private float offsetAngle;
 

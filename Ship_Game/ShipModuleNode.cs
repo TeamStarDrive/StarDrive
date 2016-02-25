@@ -7,9 +7,9 @@ namespace Ship_Game
 	{
 		public ShipModuleNode Next;
 
-		public Ship_Game.Gameplay.ModuleSlot ModuleSlot;
+        //public Ship_Game.Gameplay.ModuleSlot ModuleSlot;          //Not referenced in code, removing to save memory -Gretman
 
-		public ShipModuleNode()
+        public ShipModuleNode()
 		{
 		}
 	}

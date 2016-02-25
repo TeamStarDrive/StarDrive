@@ -50,7 +50,22 @@ namespace Ship_Game
 
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
-        
+
+        public RoleName HullRole
+        {
+            get
+            {
+                ShipData role = null;
+                if (ResourceManager.HullsDict.TryGetValue(this.Hull, out role) && role.Role != null)
+                {
+                    return role.Role;
+                }
+                return this.Role;
+
+            }
+        }
+
+
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip = false;
         public float BaseStrength;

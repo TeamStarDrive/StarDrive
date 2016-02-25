@@ -13,6 +13,7 @@ namespace Ship_Game.Gameplay
 		HoldPosition,
 		Evade,
 		AssaultShip,
-		OrbitalDefense
+		OrbitalDefense,
+        ShortRange
 	}
 }
