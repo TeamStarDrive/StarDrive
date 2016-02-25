@@ -200,7 +200,7 @@ namespace Ship_Game
 			p.LoadAttributes();
 			p.Crippled_Turns = data.Crippled_Turns;
 			p.planetTilt = RandomMath.RandomBetween(45f, 135f);
-            p.ObjectRadius = 100f * (float)(1 + ((Math.Log(p.scale)) / 1.5)); // p.scale; //(1 + ((Math.Log(planet.scale))/1.5) )
+            p.ObjectRadius = 1000f * (float)(1 + ((Math.Log(p.scale)) / 1.5)); // p.scale; //(1 + ((Math.Log(planet.scale))/1.5) )
 			foreach (Guid guid in data.StationsList)
 			{
 				p.Shipyards.TryAdd(guid, new Ship());

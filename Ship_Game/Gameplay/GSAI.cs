@@ -7466,7 +7466,7 @@ namespace Ship_Game.Gameplay
                                                             
                             foreach (Ship ship in this.empire.GetShips())
                             {
-                                ship.GetAI().orderqueue.EnterReadLock();
+                                ship.GetAI().OrderQueue.thisLock.EnterReadLock();
                                 bool flag = false;
                                 ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.LastOrDefault();
                                 
@@ -7474,7 +7474,7 @@ namespace Ship_Game.Gameplay
                                 {
                                     flag = true;
                                 }
-                                ship.GetAI().orderqueue.ExitReadLock();
+                                ship.GetAI().OrderQueue.thisLock.ExitReadLock();
                                 if (flag)
                                     continue;
                                 ship.GetAI().OrderScrapShip();
