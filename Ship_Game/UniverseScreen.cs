@@ -1771,31 +1771,40 @@ namespace Ship_Game
 #if ALTERTHREAD
 
 #if !PLAYERONLY
-            Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);
+  
+            //Task.Run(() => 
+            //if(Task.CurrentId == null)
+            //Task.Run(() =>
+            //{
+            //
+            //    Parallel.ForEach(this.SolarSystemDict, TheSystem =>
+            //    {                                                               //Lets try simplifing this a lot, and go with just one clean Parallel.ForEach  -Gretman
+            //        SystemUpdaterTaskBased(TheSystem.Value);
+            //    });
+            //});
+            //Task.WaitAll();    //This commented out area was the original stuff here, which I replaced with the simgle ForEach above -Gretman
+            List<SolarSystem> solarsystems = new List<SolarSystem>( this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombatTimer ==15).Count() <5) ); //.ToList();
+            List<SolarSystem> Combatsystems = new List<SolarSystem>( this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombatTimer == 15).Count() >= 5)); //.ToList();
+            Task DeepSpaceTask = Task.Factory.StartNew(() =>
+            {
+                this.DeepSpaceThread();
+                foreach (SolarSystem combatsystem in Combatsystems)
+                { SystemUpdaterTaskBased(combatsystem); }
+            });
+            var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
 
-            Parallel.ForEach(this.SolarSystemDict, TheSystem =>
-            {                                                               //Lets try simplifing this a lot, and go with just one clean Parallel.ForEach  -Gretman
-                SystemUpdaterTaskBased(TheSystem.Value);
+            var normalsystems = Partitioner.Create(0, source1.Length);
+
+            Parallel.ForEach(normalsystems, (range, loopState) =>
+            {
+                //standard for loop through each weapon group.
+                for (int T = range.Item1; T < range.Item2; T++)
+                {
+                    SystemUpdaterTaskBased(solarsystems[T]);
+                }
             });
 
-                        //This commented out area was the original stuff here, which I replaced with the simgle ForEach above -Gretman
-            //List<SolarSystem> solarsystems = this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombatTimer ==15).Count() <5).ToList();
-            //List<SolarSystem> Combatsystems = this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombatTimer ==15).Count() >= 5).ToList();
-            //var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
-
-            //var normalsystems = Partitioner.Create(0, source1.Length);
-
-            //Parallel.ForEach(normalsystems, (range, loopState) =>
-            //{
-            //    //standard for loop through each weapon group.
-            //    for (int T = range.Item1; T < range.Item2; T++)
-            //    {
-            //        SystemUpdaterTaskBased(solarsystems[T]);
-            //    }
-            //});
-
-            //foreach (SolarSystem combatsystem in Combatsystems)               
-            //{         SystemUpdaterTaskBased(combatsystem);           }
+  
                                                                                 //The two above were the originals
 
 
@@ -2287,7 +2296,7 @@ namespace Ship_Game
                         if (planet.HasShipyard && system.isVisible)
                             planet.Station.Update(elapsedTime);
                     }
-
+                    system.ShipList.thisLock.EnterReadLock();
                     foreach (Ship ship in (List<Ship>)system.ShipList)
                     //Parallel.ForEach(system.ShipList, ship =>
                     {
@@ -2315,6 +2324,7 @@ namespace Ship_Game
                                 ship.ProcessInput(elapsedTime);
                         }
                     }//);
+                    system.ShipList.thisLock.ExitReadLock();
                     if (!this.Paused && this.IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();

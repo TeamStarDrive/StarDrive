@@ -13,7 +13,7 @@ namespace Ship_Game.Gameplay
 
 		private GameplayObject Target;
 
-		private List<Ship> TargetList = new List<Ship>();
+		private BatchRemovalCollection<Ship> TargetList = new BatchRemovalCollection<Ship>();
 
 		public static UniverseScreen universeScreen;
 

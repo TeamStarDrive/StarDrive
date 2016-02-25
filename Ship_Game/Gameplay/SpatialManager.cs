@@ -143,7 +143,7 @@ namespace Ship_Game.Gameplay
 
         internal List<GameplayObject> GetNearby(GameplayObject obj)
         {
-            List<GameplayObject> list = new List<GameplayObject>();
+            BatchRemovalCollection<GameplayObject> list = new BatchRemovalCollection<GameplayObject>();
            
             {
                 BatchRemovalCollection<GameplayObject> test;
@@ -262,7 +262,13 @@ namespace Ship_Game.Gameplay
         internal void ClearBuckets()
         {
             for (int index = 0; index < this.Cols * this.Rows; ++index)
-                this.Buckets[index].Clear();
+            {
+                BatchRemovalCollection<GameplayObject> test;
+                if(this.Buckets.TryGetValue(index, out test))
+                {
+                    test.Clear();
+                }
+            }
         }
 
         private Vector2 MoveAndCollide(GameplayObject gameplayObject)
