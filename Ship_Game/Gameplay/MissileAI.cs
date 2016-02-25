@@ -13,7 +13,7 @@ namespace Ship_Game.Gameplay
 
 		private GameplayObject Target;
 
-		private List<Ship> TargetList = new List<Ship>();
+		private BatchRemovalCollection<Ship> TargetList = new BatchRemovalCollection<Ship>();
 
 		public static UniverseScreen universeScreen;
 
@@ -210,8 +210,8 @@ namespace Ship_Game.Gameplay
                 float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
                 if (angleDiff > 0.1f)
                 {
-                    Projectile owner = this.Owner;
-                    owner.Rotation = owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
+                    //Projectile owner = this.Owner;
+                   this.Owner.Rotation = this.Owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
                 }
                 wantedForward = Vector2.Normalize(forward);
                 this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);

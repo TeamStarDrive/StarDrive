@@ -74,7 +74,7 @@ namespace Ship_Game
         public string Name;
         public string Description;
         public Empire Owner;
-        public float ObjectRadius;
+        public float Objectradius;
         public float OrbitalAngle;
         public float Population;
         public float Density;
@@ -144,6 +144,21 @@ namespace Ship_Game
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
 
+        public float ObjectRadius
+        {
+            get
+            {
+                if (this.SO == null)
+                    return this.Objectradius;                
+                return this.SO.WorldBoundingSphere.Radius;
+                ; }
+            set { if (this.SO == null)
+                    this.Objectradius =value;                
+            else
+                this.Objectradius = this.SO.WorldBoundingSphere.Radius;
+            }
+        }
+        
         
         public Planet()
         {
@@ -154,6 +169,7 @@ namespace Ship_Game
 
         public void DropBombORIG(Bomb bomb)
         {
+            
             if (bomb.owner == this.Owner)
                 return;
             if (this.Owner != null && !this.Owner.GetRelations()[bomb.owner].AtWar && (this.TurnsSinceTurnover > 10 && EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) == bomb.owner))
@@ -2961,9 +2977,9 @@ namespace Ship_Game
                     }
                     else if(ship.GetAI().State == AIState.Resupply)
                     {
-                        ship.GetAI().orderqueue.EnterWriteLock();
+                
                         ship.GetAI().OrderQueue.Clear();
-                        ship.GetAI().orderqueue.ExitWriteLock();
+                    
                         ship.GetAI().Target = null;
                         ship.GetAI().PotentialTargets.Clear();
                         ship.GetAI().HasPriorityOrder = false;
@@ -3928,8 +3944,7 @@ namespace Ship_Game
                     break; 
                 }
 
-                case ColonyType.Core:
-                case ColonyType.TradeHub:
+                case ColonyType.Core:                
                 if(this.NetProductionPerTurn >this.developmentLevel)
                 {
 
@@ -3956,6 +3971,19 @@ namespace Ship_Game
                 else
                     this.fs = GoodState.IMPORT;
                         
+
+                break;
+                case ColonyType.TradeHub:
+                if (this.fs != GoodState.STORE)
+                    if (FRatio > .50)
+                        this.fs = GoodState.EXPORT;
+                    else
+                        this.fs = GoodState.IMPORT;
+                if (this.ps != GoodState.STORE)
+                    if (PRatio > .50)
+                        this.ps = GoodState.EXPORT;
+                    else
+                        this.ps = GoodState.IMPORT;
 
                 break;
 
@@ -6215,6 +6243,7 @@ output = maxp * take10 = 5
             this.SO.ObjectType = ObjectType.Dynamic;
             this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
             this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(MathHelper.ToRadians(this.ringTilt)) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+            
             //this.initializing = false;
         }
 
