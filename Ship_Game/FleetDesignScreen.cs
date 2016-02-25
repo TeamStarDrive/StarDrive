@@ -169,6 +169,7 @@ namespace Ship_Game
 			this.fleet = new Fleet();
 			this.EmpireUI = EmpireUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.75);
+            EmpireUI.empire.UpdateShipsWeCanBuild();
 		}
 
 		private void AdjustCamera()
@@ -181,12 +182,15 @@ namespace Ship_Game
 			this.SelectedNodeList.Clear();
 			if (this.FleetToEdit != -1)
 			{
-				foreach (KeyValuePair<int, Ship_Game.Gameplay.Fleet> Fleet in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict())
+				
+                foreach (KeyValuePair<int, Ship_Game.Gameplay.Fleet> Fleet in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict())
 				{
+                    Fleet.Value.Ships.thisLock.EnterReadLock();
 					foreach (Ship ship in Fleet.Value.Ships)
 					{
 						ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
 					}
+                    Fleet.Value.Ships.thisLock.ExitReadLock();
 				}
 			}
 			this.FleetToEdit = which;
@@ -231,11 +235,13 @@ namespace Ship_Game
 				}
 			}
 			this.fleet = EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[which];
-			foreach (Ship ship in this.fleet.Ships)
+            this.fleet.Ships.thisLock.EnterReadLock();
+            foreach (Ship ship in this.fleet.Ships)
 			{
 				ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
 				ship.GetSO().Visibility = ObjectVisibility.Rendered;
 			}
+            this.fleet.Ships.thisLock.ExitReadLock();
 		}
 
 		public void Dispose()
@@ -1113,6 +1119,10 @@ namespace Ship_Game
                                 {
                                     this.SelectedNodeList[0].CombatState = CombatState.Evade;
                                 }
+                                else if (str == "short")
+                                {
+                                    this.SelectedNodeList[0].CombatState = CombatState.ShortRange;
+                                }
 							}
 							if (this.SelectedNodeList[0].GetShip() == null)
 							{
@@ -1214,6 +1224,10 @@ namespace Ship_Game
                                     else if (str1 == "evade")
                                     {
                                         node.CombatState = CombatState.Evade;
+                                    }
+                                    else if (str1 == "short")
+                                    {
+                                        node.CombatState = CombatState.ShortRange;
                                     }
 								}
 								if (node.GetShip() == null)
@@ -1543,6 +1557,10 @@ namespace Ship_Game
                             else if (str == "evade")
                             {
                                 toset = CombatState.Evade;
+                            }
+                            else if (str == "short")
+                            {
+                                toset = CombatState.ShortRange;
                             }
 						}
 						if (node.nodeToClick.CombatState != toset)
@@ -1901,10 +1919,12 @@ namespace Ship_Game
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
 			float aspectRatio = width / (float)viewport.Height;
 			this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 100f, 15000f);
-			foreach (Ship ship in this.fleet.Ships)
+            this.fleet.Ships.thisLock.EnterReadLock();
+            foreach (Ship ship in this.fleet.Ships)
 			{
 				ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
 			}
+            this.fleet.Ships.thisLock.ExitReadLock();
 			base.LoadContent();
 		}
 

@@ -202,8 +202,8 @@ namespace Ship_Game
 			}
 			Explosion newExp = new Explosion()
 			{
-				hasShockwave = Shockwave,
-				pos = Position,
+                //hasShockwave = Shockwave,          //Not referenced in code, removing to save memory -Gretman
+                pos = Position,
 				duration = duration
 			};
 			if (ExplosionManager.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView)

@@ -163,12 +163,12 @@ namespace Ship_Game.Gameplay
 		{
 			if (this.w != null)
 			{
-				Weapon weapon = this.w;
-				weapon.timeToNextFire = weapon.timeToNextFire - elapsedTime;
+				//Weapon weapon = this.w;
+				this.w.timeToNextFire = this.w.timeToNextFire - elapsedTime;
 			}
 			this.Beams.ApplyPendingRemovals();
-			DroneAI droneAI = this;
-			droneAI.thinkTimer = droneAI.thinkTimer - elapsedTime;
+			//DroneAI droneAI = this;
+			this.thinkTimer = this.thinkTimer - elapsedTime;
 			if ((this.Target == null || !this.Target.Active || (this.Target as Ship).Health == (this.Target as Ship).HealthMax) && this.thinkTimer < 0f)
 			{
 				this.ChooseTarget();

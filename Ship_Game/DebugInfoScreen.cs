@@ -51,6 +51,8 @@ namespace Ship_Game
 
 		private string fmt = "0.#";
 
+        public static sbyte loadmodels = 0;
+
 		static DebugInfoScreen()
 		{
 		}
@@ -139,7 +141,7 @@ namespace Ship_Game
             Vector2 Cursor = new Vector2((float)(this.win.X + 10), (float)(this.win.Y + 10));
 
 			int column = 0;
-			Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.win, Color.Black);
+			//Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.win, Color.Black);    //by Gretman -- I had to be able to Debug and See the game at the same time...
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
 				if (e.isFaction || e.MinorRace)
@@ -314,6 +316,7 @@ namespace Ship_Game
 				}
                 else
                 {
+                    this.screen.SelectedFleet.Ships.thisLock.EnterReadLock();
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "core fleet :"+this.screen.SelectedFleet.IsCoreFleet, Cursor, Color.White);
                     Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.screen.SelectedFleet.Name, Cursor, Color.White);
@@ -322,13 +325,14 @@ namespace Ship_Game
                     Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Strength: " + this.screen.SelectedFleet.GetStrength(), Cursor, Color.White);
                     Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    string shipAI = "";
+                    string shipAI = "";                    
                     foreach(Ship ship in this.screen.SelectedFleet.Ships)
                     {
                         shipAI = ship.GetAI().State.ToString();
                     }
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Ship State: " + shipAI, Cursor, Color.White);
                     Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
 
                 }
 			}
@@ -365,8 +369,15 @@ namespace Ship_Game
 				}
 				if (this.screen.SelectedShip.GetAI().State == AIState.SystemDefender)
 				{
-					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Defending ", this.screen.SelectedShip.GetAI().SystemToDefend.Name), Cursor, Color.White);
+                    SolarSystem systemToDefend = this.screen.SelectedShip.GetAI().SystemToDefend; 
+                    Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    if (systemToDefend != null)
+
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Defending ", systemToDefend.Name), Cursor, Color.White);
+                    else
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Defending ", "Awaiting Order"), Cursor, Color.White);
+
+                    
 				}
 				if (ship.GetSystem() == null)
 				{
@@ -410,7 +421,7 @@ namespace Ship_Game
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("AI State: ", ship.GetAI().State.ToString()), Cursor, Color.White);
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                ship.GetAI().orderqueue.EnterReadLock();
+               
                 if (ship.GetAI().OrderQueue.Count <= 0)
 				{
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
@@ -428,7 +439,7 @@ namespace Ship_Game
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ((ship.GetAI().Target as Ship).Active ? "Active" : "Error - Active"), Cursor, Color.White);
 				}
-                ship.GetAI().orderqueue.ExitReadLock();
+                
                 Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Strength: " + ship.BaseStrength.ToString(), Cursor, Color.White);
 				Cursor = new Vector2((float)(this.win.X + 250), 600f);
