@@ -90,7 +90,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.CoreFleet.Task == null && ship.fleet == null)
 			{
-                ship.GetAI().orderqueue.EnterWriteLock();
+              
                 ship.GetAI().OrderQueue.Clear();
 				ship.GetAI().HasPriorityOrder = false;
 				this.CoreFleet.AddShip(ship);
@@ -110,7 +110,7 @@ namespace Ship_Game.Gameplay
 				this.CoreFleet.AutoArrange();
 				this.CoreFleet.MoveToNow(this.Position, 0f, new Vector2(0f, -1f));
 				this.ShipsWaitingForCoreFleet.Clear();
-                ship.GetAI().orderqueue.ExitWriteLock();
+                   
 			}
 			else if (ship.fleet == null)
 			{
@@ -192,9 +192,9 @@ namespace Ship_Game.Gameplay
 					if (waiting.fleet == null)
 					{
 						this.CoreFleet.AddShip(waiting);
-                        waiting.GetAI().orderqueue.EnterWriteLock();
+                           
 						waiting.GetAI().OrderQueue.Clear();
-                        waiting.GetAI().orderqueue.ExitWriteLock();
+                        
 						waiting.GetAI().HasPriorityOrder = false;
 					}
 					this.OffensiveForcePool.Remove(waiting);

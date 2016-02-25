@@ -596,7 +596,7 @@ namespace Ship_Game
 					if (orderhover)
 					{
                         //this.screen.SelectedFleet.Ships.thisLock.EnterReadLock();      //Enter and Exit lock removed to stop crash -Gretman
-                        if (this.screen.SelectedFleet != null && this.screen.SelectedFleet.Ships[0] != null)
+                        if (this.screen.SelectedFleet != null && this.screen.SelectedFleet.Ships.Count >0 && this.screen.SelectedFleet.Ships[0] != null)
                         {
                             bool flag = true;                            
                             foreach (Ship ship2 in (List<Ship>)this.screen.SelectedFleet.Ships)
