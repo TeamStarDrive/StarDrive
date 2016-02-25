@@ -153,13 +153,13 @@ namespace Ship_Game
         }
         //Contains<TSource>(this IEnumerable<TSource> source, TSource value);
         //Contains<TSource>(this IEnumerable<TSource> source, TSource value);
-        public bool Contains<T>(T item)
-        {
-            thisLock.EnterReadLock();
-            var result = (this as IEnumerable<T>).Contains<T>(item);
-            thisLock.ExitReadLock();
-            return result;
-        }
+        //public bool Contains<T>(T item)
+        //{
+        //    thisLock.EnterReadLock();
+        //    var result = this.Contains<T>(item ); //.Contains<T>(item);
+        //    thisLock.ExitReadLock();
+        //    return result;
+        //}
 
         public void AddRange(List<T> item)
         {
