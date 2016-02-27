@@ -207,7 +207,7 @@ namespace Ship_Game
 
 
                             num2 += (int)(this.beingBuilt.GetCost(this.empire) - planet2.ProductionHere);   // Include the cost of the ship to be built on EVERY planet, not just ones with nothing to build
-                            num2 = (int)(((double)num2 * (double)planet2.ShipBuildingModifier) / (double)planet2.GetMaxProductionPotential());         // Apply ship cost reduction to everything just so planets with shipyards in orbit are more likely to be picked
+                            num2 = (int)(((double)num2 * (double)planet2.ShipBuildingModifier) / (planet2.GovernorOn ? (double)planet2.GetMaxProductionPotential() : (double)planet2.NetProductionPerTurn));         // Apply ship cost reduction to everything just so planets with shipyards in orbit are more likely to be picked, also, if on manual control, don't assume you can get max production
                             if (num2 < num1)
                             {
                                 num1 = num2;
