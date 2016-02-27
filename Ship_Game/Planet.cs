@@ -4065,6 +4065,10 @@ namespace Ship_Game
             bool StuffInQueueToBuild = this.ConstructionQueue.Count >0;// .Where(building => building.isBuilding || (building.Cost - building.productionTowards > this.ProductionHere)).Count() > 0;
             bool ForgetReseachAndBuild =
      string.IsNullOrEmpty(this.Owner.ResearchTopic) || StuffInQueueToBuild || (this.developmentLevel < 3 && (this.ProductionHere + 1) / (this.MAX_STORAGE + 1) < .9f);
+            if (this.colonyType == ColonyType.Research && string.IsNullOrEmpty(this.Owner.ResearchTopic))
+            {
+                this.colonyType = ColonyType.Industrial;
+            }
             if ( !true && this.Owner.data.Traits.Cybernetic < 0) //no longer needed
             #region cybernetic
             {

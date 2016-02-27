@@ -2203,8 +2203,8 @@ namespace Ship_Game
                     }
 #endif
                     foreach (string shiptech in keyValuePair.Value.shipData.techsNeeded)
-                    {
-                        this.ShipTechs.Add(shiptech);
+                    {                       
+                        this.ShipTechs.Add(shiptech);                        
                     }
                     Ship ship = keyValuePair.Value;
                     bool bombs = false;
