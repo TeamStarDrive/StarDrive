@@ -1422,6 +1422,7 @@ namespace Ship_Game
 				this.us.player = EmpireManager.GetEmpireByName(this.PlayerLoyalty);
 				this.us.LoadContent();
 				this.us.UpdateAllSystems(0.01f);
+                ResourceManager.MarkShipDesignsUnlockable();
                 /*
 				foreach (Ship ship in this.data.MasterShipList)
 				{
