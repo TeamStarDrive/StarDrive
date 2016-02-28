@@ -5122,12 +5122,7 @@ namespace Ship_Game
             //    this.ShipUpdateThread.Abort();
                 this.WorkerThread.Abort();
                 foreach (Thread thread in this.SystemUpdateThreadList)
-                    thread.Abort();
-                try
-                {
-                    Task.WaitAny(null, 1000);
-                }
-                catch { };
+                    thread.Abort();                
 
             }
             this.EmpireUI.empire = (Empire)null;
