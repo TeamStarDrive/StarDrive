@@ -352,6 +352,7 @@ namespace Ship_Game
                         }
                         EmpireManager.EmpireList.Add(empireFromEmpireData);
                     }
+                    ResourceManager.MarkShipDesignsUnlockable();
                     foreach (EmpireData data in ResourceManager.Empires)
                     {
                         if (data.Faction != 0 || data.MinorRace)
@@ -361,6 +362,7 @@ namespace Ship_Game
                             EmpireManager.EmpireList.Add(empireFromEmpireData);
                         }
                     }
+                   
                     foreach (Empire empire in this.data.EmpireList)
                     {
                         foreach (Empire e in this.data.EmpireList)
