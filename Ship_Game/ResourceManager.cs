@@ -1374,9 +1374,12 @@ namespace Ship_Game
 
 		public static Model GetModel(string path)
 		{
-			Model item;
-			try
-			{                
+			Model item =null;
+#if !DEBUG			
+            try
+#endif
+            {                
+
                 //GC.WaitForPendingFinalizers(); GC.Collect();
                 //GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 //GC.Collect();
@@ -1406,14 +1409,19 @@ namespace Ship_Game
                     item = Ship_Game.ResourceManager.ModelDict[path];
                 }
 			}
+#if !DEBUG
             catch
+#endif
             {
-                
-                item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
-                Ship_Game.ResourceManager.ModelDict.Add(path, item);
-                //item = model;
+                if (item == null)
+                {
+                    item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
+                    Ship_Game.ResourceManager.ModelDict.Add(path, item);
+                    //item = model;
+                }
             }
-			return item;
+
+            return item;
 		}
 
 		public static ShipModule GetModule(string uid)

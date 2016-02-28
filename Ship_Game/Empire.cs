@@ -2870,11 +2870,6 @@ namespace Ship_Game
             //Added by McShooterz: Home World Elimination game mode
             if (!this.isFaction && !this.data.Defeated && (this.OwnedPlanets.Count == 0 || GlobalStats.EliminationMode && this.Capital != null && this.Capital.Owner != this))
             {
-                try
-                {
-                    Task.WaitAny(null, 1000);
-                }
-                catch { }
                 this.SetAsDefeated();
                 if (EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) == this)
                 {
