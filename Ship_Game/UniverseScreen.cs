@@ -2773,9 +2773,9 @@ namespace Ship_Game
                 }
                 else
                 {
-                    this.UseRealLights = true;
-                    this.SetLighting(this.UseRealLights);
+                    this.UseRealLights = true;                    
                 }
+                this.SetLighting(this.UseRealLights);
             } 
             if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.active)
             {
@@ -5123,6 +5123,12 @@ namespace Ship_Game
                 this.WorkerThread.Abort();
                 foreach (Thread thread in this.SystemUpdateThreadList)
                     thread.Abort();
+                try
+                {
+                    Task.WaitAny(null, 1000);
+                }
+                catch { };
+
             }
             this.EmpireUI.empire = (Empire)null;
             this.EmpireUI = (EmpireUIOverlay)null;
@@ -5186,6 +5192,7 @@ namespace Ship_Game
                 this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)spaceJunk.JunkSO);
                 spaceJunk.JunkSO = (SceneObject)null;
             }
+            ResourceManager.ModelDict.Clear();            
             UniverseScreen.JunkList.Clear();
             this.SelectedShip = (Ship)null;
             this.SelectedFleet = (Fleet)null;
@@ -5253,7 +5260,9 @@ namespace Ship_Game
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.EmpireList.Clear();
             this.ScreenManager.inter.Unload();
-            //GC.Collect(2, GCCollectionMode.Optimized);
+            GC.Collect();            
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
             this.Dispose();
             base.ExitScreen();
         }
