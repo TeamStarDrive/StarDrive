@@ -5171,7 +5171,7 @@ namespace Ship_Game.Gameplay
                                         float currenTrade = this.TradeSort(s, p, "Production", s.CargoSpace_Max, true);
                                         if (currenTrade < thisTradeStr)
                                             faster = false;
-                                        if (currenTrade > 1000 && !faster)
+                                        if (currenTrade > UniverseData.UniverseWidth && !faster)
                                         {
                                             flag = true;
                                             break;
@@ -5276,7 +5276,7 @@ namespace Ship_Game.Gameplay
                                         float currenTrade = this.TradeSort(s, p, "Food", s.CargoSpace_Max, true);
                                         if (currenTrade < mySpeed)
                                             faster = false;
-                                        if (currenTrade > 1000 && !faster)
+                                        if (currenTrade > UniverseData.UniverseWidth && !faster)
                                             continue;
                                         float efficiency = Math.Abs(currenTrade - mySpeed);
                                         if (mySpeed * p.NetFoodPerTurn < p.FoodHere && faster)
@@ -5730,8 +5730,12 @@ namespace Ship_Game.Gameplay
             {
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
-                    //if (p.Population <= 1000f)
-                    if (p.Population <= 2000f)
+                    if (p.NetFoodPerTurn < 0 && p.Population > 1000)
+                    {
+                        Possible.Add(p);
+                        continue;
+                    }
+                    if (p.Population <= 2000f )
                     {
                         continue;
                     }
@@ -5750,14 +5754,23 @@ namespace Ship_Game.Gameplay
                 }
             }
             closestD = 999999999f;
+            bool priority =false;
             foreach (Planet p in Possible)
             {
                 Distance = Vector2.Distance(this.Owner.Center, p.Position);
-                if (Distance >= closestD)
-                {
-                    continue;
-                }
+                bool pri2 = p.NetFoodPerTurn < 0 && p.Population > 1000;
+                if(!priority)
+                    if (Distance >= closestD)
+                    {
+                        continue;
+                    }
+                    else
+                        if (!pri2 || Distance >= closestD)
+                        {
+                            continue;
+                        }
                 closestD = Distance;
+                priority = pri2;
                 this.start = p;
             }
 
@@ -5772,7 +5785,8 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
-                    if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
+                  
+                    if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f || p.NetFoodPerTurn <1)
                     {
                         continue;
                     }
@@ -5795,7 +5809,7 @@ namespace Ship_Game.Gameplay
             foreach (Planet p in Possible)
             {
                 Distance = Vector2.Distance(this.Owner.Center, p.Position);
-                if (Distance >= closestD)
+                if (Distance / this.Owner.GetmaxFTLSpeed>= closestD )
                 {
                     continue;
                 }
@@ -5807,7 +5821,7 @@ namespace Ship_Game.Gameplay
             {
                 //if (this.Owner.CargoSpace_Used == 00 && Vector2.Distance(this.Owner.Center, this.end.Position) < 500f)  //fbedard: dont make empty run !
                 //    this.PickupAnyGoods();
-                this.OrderMoveTowardsPosition(this.start.Position, 0f, new Vector2(0f, -1f), true, this.start);
+                this.OrderMoveTowardsPosition(this.start.Position + (RandomMath.RandomDirection() * 500f), 0f, new Vector2(0f, -1f), true, this.start);
                 this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.PickupPassengers, Vector2.Zero, 0f));
             }
             else
