@@ -7674,16 +7674,15 @@ namespace Ship_Game
             else if (this.SelectedShipList.Count > 0)
             {
                 int ships = this.SelectedShipList.Count;
+                bool planetFullCheck = false;
+                Color modeSelected = new Color(Color.Orange, (byte)num);
                 for (int index1 = 0; index1 < this.SelectedShipList.Count; ++index1)
                 {
                     try
                     {
                         Ship ship = this.SelectedShipList[index1];
                         bool flag = false;
-                        bool planetFull = false;
-                        bool planetFullCheck = false;
-                        Color mode;
-                        
+ 
                         if (!ship.InCombat || ship.GetAI().HasPriorityOrder)
                         {
                             if (ship.GetAI().State == AIState.Ferrying)
@@ -7753,34 +7752,33 @@ namespace Ship_Game
                         }
                         if (ship.GetAI().State == AIState.AssaultPlanet && ship.GetAI().OrbitTarget != null)
                         {
-                          
-                            
+
                             if (!planetFullCheck)
-                            {                                
+                            {
                                 planetFullCheck = true;
                                 int spots = 0;// this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
                                 if (Vector2.Distance(this.SelectedShip.GetAI().OrbitTarget.Position, this.SelectedShip.Center) <= this.SelectedShip.SensorRange)
                                     spots = this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
                                 else spots = -1;
-                                
-                                if (spots <0 || (spots > 10 && spots < ships))
+
+                                if (spots < 0 || (spots > 10 && spots < ships))
                                 {
 
-                                    mode = new Color(Color.Red, (byte)num);
+                                    modeSelected = new Color(Color.Red, (byte)num);
                                 }
                                 else if (spots > 0)
-                                    mode = new Color(Color.OrangeRed, (byte)num);
-                                else
-                                    mode = new Color(Color.Orange, (byte)num);
+                                    modeSelected = new Color(Color.OrangeRed, (byte)num);
+                               
+
                             }
-                            if (!planetFull)
-                            {
-                                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.GetAI().OrbitTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
-                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), mode);
-                                flag = true;
-                            }
-                          
+
+
+                            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.GetAI().OrbitTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
+                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), modeSelected);
+                            flag = true;
+
+
                         }
 
                         //try to fix troop assault projected position. Too slow right now. just use single target version. its much faster. 
