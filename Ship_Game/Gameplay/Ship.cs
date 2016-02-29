@@ -2078,6 +2078,11 @@ namespace Ship_Game.Gameplay
 
             }
             #endregion
+            if(EnginesKnockedOut)
+            {
+                this.HyperspaceReturn();
+                return;
+            }
             if (this.velocityMaximum > this.GetmaxFTLSpeed)
                 return;
             if (this.engineState == Ship.MoveState.Sublight && !this.isSpooling && this.PowerCurrent / (this.PowerStoreMax + 0.01f) > 0.1f)
@@ -2122,9 +2127,9 @@ namespace Ship_Game.Gameplay
                 FTL ftl = new FTL();
                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
                 //lock (FTLManager.FTLLock)
-                FTLManager.FTLList.thisLock.EnterWriteLock();
+               // FTLManager.FTLList.thisLock.EnterWriteLock();
                 FTLManager.FTLList.Add(ftl);
-                FTLManager.FTLList.thisLock.ExitWriteLock();
+                //FTLManager.FTLList.thisLock.ExitWriteLock();
             }
             this.engineState = Ship.MoveState.Sublight;
             this.ResetJumpTimer();
@@ -3038,9 +3043,9 @@ namespace Ship_Game.Gameplay
                                 FTL ftl = new FTL();
                                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
                                 //lock (FTLManager.FTLLock)
-                                FTLManager.FTLList.thisLock.EnterWriteLock();
+                                //FTLManager.FTLList.thisLock.EnterWriteLock();
                                     FTLManager.FTLList.Add(ftl);
-                                    FTLManager.FTLList.thisLock.ExitWriteLock();
+                                   // FTLManager.FTLList.thisLock.ExitWriteLock();
                                 this.engineState = Ship.MoveState.Warp;
                             }
                             else
@@ -4057,6 +4062,8 @@ namespace Ship_Game.Gameplay
                 Ship ship = this;
                 Vector2 vector2 = ship.velocity - this.velocity * (elapsedTime * 0.1f);
                 ship.velocity = vector2;
+                if (this.engineState == MoveState.Warp)
+                    HyperspaceReturn();
             }
             else
                 this.EnginesKnockedOut = false;
