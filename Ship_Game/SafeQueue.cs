@@ -85,13 +85,13 @@ namespace Ship_Game
       new public void AddLast(T item)
         {
             thisLock.EnterWriteLock();
-            (this as LinkedList<T>).AddLast(item);
+            base.AddLast(item);
             thisLock.ExitWriteLock();
         }
        new public void AddFirst(T item)
         {
             thisLock.EnterWriteLock();
-            (this as LinkedList<T>).AddFirst(item);
+           base.AddFirst(item);
             thisLock.ExitWriteLock();
         }
         public LinkedList<T> Get()
@@ -148,7 +148,7 @@ namespace Ship_Game
         }
         public T LastOrDefault()
         {
-            //get
+            //get    TSource LastOrDefault<TSource>(this IEnumerable<TSource> source);
             {
                 thisLock.EnterReadLock();
                 var result = (this as LinkedList<T>).LastOrDefault();

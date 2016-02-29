@@ -76,7 +76,20 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
+        private int myVar;
 
+        //public int MyProperty(Empire empire)
+        //{
+             
+        //    foreach(Planet p in this.PlanetList)
+        //    {
+        //        if(p.Owner == null || p.Owner != empire)
+        //            continue;
+        //    }
+        //    this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * empire.data.SensorModifier : 600000f * empire.data.SensorModifier
+            
+        //}
+        
             public class PredictionTimeout{
                 public float prediction;
                 public float predictionTimeout;
