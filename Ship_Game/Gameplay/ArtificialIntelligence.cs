@@ -3974,6 +3974,8 @@ namespace Ship_Game.Gameplay
                 this.State = AIState.AssaultPlanet;
                 this.OrbitTarget = target;
                 this.OrderQueue.Clear();
+                lock (this.ActiveWayPoints) 
+                this.ActiveWayPoints.Clear();
                 ArtificialIntelligence.ShipGoal goal = new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.LandTroop, Vector2.Zero, 0f)
                 {
                     TargetPlanet = target

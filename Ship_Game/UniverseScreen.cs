@@ -7481,8 +7481,8 @@ namespace Ship_Game
             }
             else
                 this.DefiningAO = false;
-            float num = (float)(150.0 * (double)this.SelectedSomethingTimer / 3.0);
-            if ((double)num < 0.0)
+            float num = (float)(150.0 * this.SelectedSomethingTimer / 3f);
+            if (num < 0f)
                 num = 0.0f;
             if (this.SelectedShip != null)
             {
@@ -7584,10 +7584,17 @@ namespace Ship_Game
                         //    break;
                         //}
                         Color mode;
-                        if (this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots() >0)
+                        int spots = 0;// this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
+                        if (Vector2.Distance(this.SelectedShip.GetAI().OrbitTarget.Position, this.SelectedShip.Center) <= this.SelectedShip.SensorRange)
+                            spots = this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
+                        else spots = 11;
+                        if (spots >10)
                         {
+                            
                             mode = new Color(Color.Red, (byte)num);
                         }
+                        else if(spots >0)
+                            mode = new Color(Color.OrangeRed, (byte)num);
                         else
                             mode = new Color(Color.Orange, (byte)num);
                         //New Color
@@ -7666,6 +7673,7 @@ namespace Ship_Game
             }
             else if (this.SelectedShipList.Count > 0)
             {
+                int ships = this.SelectedShipList.Count;
                 for (int index1 = 0; index1 < this.SelectedShipList.Count; ++index1)
                 {
                     try
@@ -7674,6 +7682,7 @@ namespace Ship_Game
                         bool flag = false;
                         bool planetFull = false;
                         bool planetFullCheck = false;
+                        Color mode;
                         
                         if (!ship.InCombat || ship.GetAI().HasPriorityOrder)
                         {
@@ -7744,25 +7753,34 @@ namespace Ship_Game
                         }
                         if (ship.GetAI().State == AIState.AssaultPlanet && ship.GetAI().OrbitTarget != null)
                         {
+                          
+                            
                             if (!planetFullCheck)
-                            {
-                                planetFull = ship.GetAI().OrbitTarget.GetGroundLandingSpots() > 0;
+                            {                                
                                 planetFullCheck = true;
+                                int spots = 0;// this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
+                                if (Vector2.Distance(this.SelectedShip.GetAI().OrbitTarget.Position, this.SelectedShip.Center) <= this.SelectedShip.SensorRange)
+                                    spots = this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
+                                else spots = -1;
+                                
+                                if (spots <0 || (spots > 10 && spots < ships))
+                                {
+
+                                    mode = new Color(Color.Red, (byte)num);
+                                }
+                                else if (spots > 0)
+                                    mode = new Color(Color.OrangeRed, (byte)num);
+                                else
+                                    mode = new Color(Color.Orange, (byte)num);
                             }
                             if (!planetFull)
                             {
                                 Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
                                 Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.GetAI().OrbitTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
-                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color(Color.Red, (byte)num));
+                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), mode);
                                 flag = true;
                             }
-                            else
-                            {
-                                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.GetAI().OrbitTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
-                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color(Color.Orange, (byte)num));
-                                flag = true;
-                            }
+                          
                         }
 
                         //try to fix troop assault projected position. Too slow right now. just use single target version. its much faster. 
