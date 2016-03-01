@@ -3307,6 +3307,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist ..\Config $(ProjectDir)\deploy\7-Zip\7z A sd.7z @$(ProjectDir)deploy\config\include.txt &amp;&amp; copy /b $(ProjectDir)deploy\7-Zip\7ZSD.sfx + $(ProjectDir)deploy\Config\config.txt + sd.7z $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).exe</PostBuildEvent>
+    <PostBuildEvent>if exist ..\Config $(ProjectDir)\deploy\7-Zip\7z A sd.7z @$(ProjectDir)deploy\config\include.txt &amp;&amp; copy /b $(ProjectDir)deploy\7-Zip\7ZSD.sfx + $(ProjectDir)deploy\Config\config.txt + sd.7z $(ConfigurationName)$([System.DateTime]::Now.ToString(`yMMdd`)).exe</PostBuildEvent>
   </PropertyGroup>
 </Project>
