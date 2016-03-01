@@ -25,5 +25,15 @@ namespace Ship_Game
             }
             return (Empire)null;
         }
+
+        public static Empire GetPlayerEmpire()
+        {
+            foreach (Empire empire in EmpireManager.EmpireList)
+            {
+                if (empire.isPlayer)
+                    return empire;
+            }
+            return (Empire)null;
+        }
 	}
 }

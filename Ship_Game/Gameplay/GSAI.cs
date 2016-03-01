@@ -7534,7 +7534,7 @@ namespace Ship_Game.Gameplay
             {
                 if (this.empire.AutoResearch)
                     this.RunResearchPlanner();
-                if (this.empire.AutoTaxes)
+                if (this.empire.data.AutoTaxes)
                     this.RunEconomicPlanner();
             }
 		}
