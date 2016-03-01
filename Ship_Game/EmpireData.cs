@@ -179,7 +179,21 @@ namespace Ship_Game
         public bool SpyMute = false;
         public bool SpyMissionRepeat = false;
         public float treasuryGoal = .20f;
+        public bool AutoTaxes = false;
+        //autosave in save games.        
 
+        private int autosavefreq =0 ;
+
+        public int AutoSaveFreq
+        {
+            get {
+                if (this.autosavefreq == 0)
+                    return GlobalStats.AutoSaveFreq;
+                else
+                    return autosavefreq; 
+            }
+            set { autosavefreq = value; }
+        }
 
 		public EmpireData()
 		{
