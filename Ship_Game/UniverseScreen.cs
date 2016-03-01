@@ -6009,7 +6009,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Saving...", new Vector2((float)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f, (float)(45 + Fonts.Pirulen16.LineSpacing * 2 + 4)), new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)(Math.Abs((float)Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * (float)byte.MaxValue)));
             if (this.IsActive && (this.GameSpeed > 1.0f || this.GameSpeed < 1.0f))
             {
-                Vector2 vector29 = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString(string.Concat(this.GameSpeed, "x")).X - 13f, 44f);
+                Vector2 vector29 = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString(string.Concat(this.GameSpeed, "x")).X - 13f, 64f);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, (this.GameSpeed < 1f ? string.Concat(this.GameSpeed.ToString("#.0"), "x") : string.Concat(this.GameSpeed, "x")), vector29, Color.White);
             }
             if (this.Debug)
