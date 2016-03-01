@@ -4267,7 +4267,7 @@ namespace Ship_Game.Gameplay
         //added by Gremlin : active ship strength calculator
         public float GetStrength()
         {            
-            if (this.Health >= this.HealthMax * .75 && !this.LowHealth)// && this.BaseStrength !=0)
+            if (this.Health >= this.HealthMax * .75 && !this.LowHealth && this.BaseStrength !=-1)
                 return this.BaseStrength;
             float Str = 0f;
             float def = 0f;
@@ -4289,7 +4289,7 @@ namespace Ship_Game.Gameplay
                     //System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
 
 #endif
-                if (!slot.module.isDummy && slot.module.Powered && slot.module.Active)
+                if (!slot.module.isDummy && (this.BaseStrength == -1 ||( slot.module.Powered && slot.module.Active )))
                 {
                     ShipModule module = slot.module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
 
