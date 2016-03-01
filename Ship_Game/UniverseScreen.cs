@@ -1394,7 +1394,7 @@ namespace Ship_Game
 
                     if (this.AutoSaveTimer <= 0.0f)
                     {
-                        this.AutoSaveTimer = GlobalStats.AutoSaveFreq;
+                        this.AutoSaveTimer = EmpireManager.GetPlayerEmpire().data.AutoSaveFreq;
                         this.DoAutoSave();
                     }
                     if (this.IsActive)
