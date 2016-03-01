@@ -4784,13 +4784,23 @@ namespace Ship_Game
 		public void ExitToMenu(string launches)
 		{
 			this.screenToLaunch = launches;
-			if (this.ShipSaved || this.CheckDesign())
+            MessageBoxScreen message;
+			if (this.ShipSaved && this.CheckDesign())
 			{
 				this.LaunchScreen(null, null);
 				this.ReallyExit();
 				return;
 			}
-			MessageBoxScreen message = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
+            else if(!this.ShipSaved && this.CheckDesign())
+            {
+                 message = new MessageBoxScreen(Localizer.Token(2137), "Save", "Exit");
+                message.Cancelled += new EventHandler<EventArgs>(this.LaunchScreen);
+			message.Accepted += new EventHandler<EventArgs>(this.SaveChanges);
+            base.ScreenManager.AddScreen(message);
+                return;
+
+            }
+			 message = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
 			message.Cancelled += new EventHandler<EventArgs>(this.LaunchScreen);
 			message.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenLaunchScreen);
 			base.ScreenManager.AddScreen(message);
@@ -6581,7 +6591,7 @@ namespace Ship_Game
 				newShip.InitForLoad();
 				newShip.InitializeStatus();
 				Ship_Game.ResourceManager.ShipsDict[name] = newShip;
-				Ship_Game.ResourceManager.ShipsDict[name].IsPlayerDesign = true;
+				Ship_Game.ResourceManager.ShipsDict[name].IsPlayerDesign = true;                
 			}
 			else
 			{
@@ -6592,6 +6602,8 @@ namespace Ship_Game
 				Ship_Game.ResourceManager.ShipsDict.Add(name, newShip);
 				Ship_Game.ResourceManager.ShipsDict[name].IsPlayerDesign = true;
 			}
+            ResourceManager.ShipsDict[name].BaseStrength = -1;
+            ResourceManager.ShipsDict[name].BaseStrength = ResourceManager.ShipsDict[name].GetStrength();
 			EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
 			this.ActiveHull.CombatState = this.CombatState;
 			this.ChangeHull(this.ActiveHull);
