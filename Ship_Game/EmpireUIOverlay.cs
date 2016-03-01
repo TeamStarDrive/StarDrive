@@ -703,7 +703,8 @@ namespace Ship_Game
 				}
 				else
 				{
-					if (b.State != EmpireUIOverlay.PressState.Hover && b.State != EmpireUIOverlay.PressState.Pressed)
+                    
+                    if (b.State != EmpireUIOverlay.PressState.Hover && b.State != EmpireUIOverlay.PressState.Pressed)
 					{
 						AudioManager.PlayCue("mouse_over4");
 					}
@@ -724,7 +725,8 @@ namespace Ship_Game
 					{
                         if (caller is ShipDesignScreen)
                         {
-                            (caller as ShipDesignScreen).ExitToMenu(b.launches);
+                            (caller as ShipDesignScreen)//.ExitScreen();
+                                .ExitToMenu(b.launches);
                         }
                         else if (caller is FleetDesignScreen)
                         {
