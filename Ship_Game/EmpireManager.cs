@@ -35,5 +35,39 @@ namespace Ship_Game
             }
             return (Empire)null;
         }
+        public static List<Empire> GetAllies(Empire e)
+        {
+            Ship_Game.Gameplay.Relationship rel;
+            List<Empire> allies = new List<Empire>();
+            foreach (Empire empire in EmpireManager.EmpireList)
+            {
+
+                if (empire.isPlayer || e.isFaction || e.MinorRace )
+                    continue;
+                e.GetRelations().TryGetValue(empire, out rel);
+                if (rel == null || !rel.Known || !rel.Treaty_Alliance)
+                    continue;
+
+                allies.Add(empire);
+            }
+            return allies;
+        }
+        public static List<Empire> GetTradePartners(Empire e)
+        {
+            Ship_Game.Gameplay.Relationship rel;
+            List<Empire> allies = new List<Empire>();
+            foreach (Empire empire in EmpireManager.EmpireList)
+            {
+
+                if (empire.isPlayer || e.isFaction || e.MinorRace)
+                    continue;
+                e.GetRelations().TryGetValue(empire, out rel);
+                if (rel == null || !rel.Known || !rel.Treaty_Trade)
+                    continue;
+
+                allies.Add(empire);
+            }
+            return allies;
+        }
 	}
 }
