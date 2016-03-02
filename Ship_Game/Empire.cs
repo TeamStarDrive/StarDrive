@@ -1624,10 +1624,14 @@ namespace Ship_Game
                                 }
                                 //toadd.Add(nearby);
                                 Insensors = true;
-                                if ((node.KeyedObject is Ship
-                                    && ((node.KeyedObject as Ship).inborders //&& Vector2.Distance(nearby.Position,(node.KeyedObject as Ship).Position ) <300000)
-                                    || (node.KeyedObject as Ship).Name == "Subspace Projector" )) || node.KeyedObject is SolarSystem) //|| (node.KeyedObject as Ship).GetAI().State == AIState.SystemTrader)
-                                {
+                                if ((node.KeyedObject is SolarSystem) || (node.KeyedObject is Planet) ||
+                                    (node.KeyedObject is Ship) && ((node.KeyedObject as Ship).inborders
+                                    || (node.KeyedObject as Ship).Name == "Subspace Projector")
+                                    
+                                    )
+                                    //&& Vector2.Distance(nearby.Position,(node.KeyedObject as Ship).Position ) <300000)
+                                     //|| (node.KeyedObject as Ship).GetAI().State == AIState.SystemTrader)
+                                { 
                                     border = true;
 
                                     if (loyalty.AtWar)
@@ -1721,6 +1725,9 @@ namespace Ship_Game
                                 {
                                     if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
                                     {
+                                        nearby.inborders = false;
+                                        nearby.IsInFriendlySpace = false;
+                                        nearby.IsInNeutralSpace = true;
                                         continue;
                                     }
                                     {
@@ -1729,6 +1736,8 @@ namespace Ship_Game
                                     }
                                     break;
                                 }
+
+                                if(!nearby.inborders)
                                 foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.Relationships)
                                 {
                                     if (Relationship.Key != this || !Relationship.Value.Treaty_OpenBorders)
