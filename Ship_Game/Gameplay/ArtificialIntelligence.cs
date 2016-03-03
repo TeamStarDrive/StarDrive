@@ -4902,7 +4902,7 @@ namespace Ship_Game.Gameplay
             float Effeciency = resourceRecharge * timeTotarget;            
             if (Delivery)
             {
-                bool badCargo = cargoCount + Effeciency < 0 || (cargoCount + Effeciency + resourceAmount) > PlanetCheck.MAX_STORAGE - cargoCount * .5f;
+                bool badCargo = (cargoCount + Effeciency + resourceAmount) > PlanetCheck.MAX_STORAGE - cargoCount * .5f; //cargoCount + Effeciency < 0 ||
                 if (!badCargo)
                     return timeTotarget;// (float)Math.Ceiling((double)timeTotarget);
             }
@@ -5285,9 +5285,12 @@ namespace Ship_Game.Gameplay
                                         {
                                             continue;
                                         }
-                                        if (p.NetFoodPerTurn <= 0)
+                                        if (p.NetFoodPerTurn == 0)
                                             efficiency = s.CargoSpace_Max + efficiency * p.NetFoodPerTurn;
                                         else
+                                            if (p.NetFoodPerTurn < 0)
+                                                efficiency = s.CargoSpace_Max / efficiency ;//- p.NetFoodPerTurn;
+                                            else
                                             efficiency = s.CargoSpace_Max - efficiency * p.NetFoodPerTurn;
                                         if (efficiency > 0)
                                         {
