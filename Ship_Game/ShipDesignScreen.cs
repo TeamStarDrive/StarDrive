@@ -160,6 +160,7 @@ namespace Ship_Game
 		private int HullIndex;
 
 		private ShipModule ActiveModule;
+        private ShipModule ActiveHangarModule;
 
 		private ShipDesignScreen.ActiveModuleState ActiveModState;
 
@@ -197,6 +198,7 @@ namespace Ship_Game
         private bool disposed;
 
         private float HoldTimer = .50f;
+        
 
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
@@ -5799,7 +5801,7 @@ namespace Ship_Game
                 this.ClearSlot(slot);
                 this.ClearDestinationSlots(slot);
                 slot.ModuleUID = this.ActiveModule.UID;
-                slot.module = this.ActiveModule;
+                slot.module = ResourceManager.GetModule(slot.ModuleUID);// this.ActiveModule;
                 slot.module.SetAttributesNoParent();
                 slot.state = this.ActiveModState;
                 slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
@@ -5859,7 +5861,7 @@ namespace Ship_Game
                 this.ClearSlot(slot);
                 this.ClearDestinationSlotsNoStack(slot);
                 slot.ModuleUID = this.ActiveModule.UID;
-                slot.module = this.ActiveModule;
+                slot.module = this.ActiveModule; //ResourceManager.GetModule(slot.ModuleUID);// 
                 slot.module.SetAttributesNoParent();
                 slot.state = activeModuleState;
                 //slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
@@ -6049,7 +6051,7 @@ namespace Ship_Game
 			}
 			this.activeModSubMenu = new Submenu(base.ScreenManager, acsub);
 			this.activeModSubMenu.AddTab("Active Module");
-			this.choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y, 240, 270);
+			this.choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y-90, 240, 270);
 			if (this.choosefighterrect.Y + this.choosefighterrect.Height > base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
 			{
 				int diff = this.choosefighterrect.Y + this.choosefighterrect.Height - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
@@ -6348,7 +6350,7 @@ namespace Ship_Game
 			this.ShipStats = new Menu1(base.ScreenManager, ShipStatsPanel);
 			this.statsSub = new Submenu(base.ScreenManager, ShipStatsPanel);
 			this.statsSub.AddTab(Localizer.Token(108));
-			this.ArcsButton = new GenericButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 32), 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
+            this.ArcsButton = new GenericButton(new Vector2((float)(this.HullSelectionRect.X- 32), 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);//new GenericButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 32), 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 27, 99, 20, 20));
 			this.OriginalZ = this.cameraPosition.Z;
 		}
@@ -6798,9 +6800,10 @@ namespace Ship_Game
                     s.ShowValid = true;
                 }
 			}
-			if (this.ActiveModule.ModuleType == ShipModuleType.Hangar)
+			if (this.ActiveHangarModule != this.ActiveModule && this.ActiveModule.ModuleType == ShipModuleType.Hangar)
 			{
-				this.ChooseFighterSL.Entries.Clear();
+                this.ActiveHangarModule = this.ActiveModule;
+                this.ChooseFighterSL.Entries.Clear();
 				this.ChooseFighterSL.Copied.Clear();
 				foreach (string shipname in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).ShipsWeCanBuild)
 				{
@@ -6826,8 +6829,9 @@ namespace Ship_Game
 
         public void UpdateHangarOptions(ShipModule mod)
         {
-            if (mod.ModuleType == ShipModuleType.Hangar)
+            if (this.ActiveHangarModule != mod &&  mod.ModuleType == ShipModuleType.Hangar)
             {
+                this.ActiveHangarModule = mod;
                 this.ChooseFighterSL.Entries.Clear();
                 this.ChooseFighterSL.Copied.Clear();
                 foreach (string shipname in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).ShipsWeCanBuild)
