@@ -198,6 +198,7 @@ namespace Ship_Game
         private bool disposed;
 
         private float HoldTimer = .50f;
+        private HashSet<string> techs = new HashSet<string>();
         
 
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
@@ -206,6 +207,11 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             
 		}
+        private void AddToTechList(HashSet<string> techlist)
+        {
+            foreach (string tech in techlist)
+                this.techs.Add(tech);
+        }
 
 		public void ChangeHull(ShipData hull)
 		{
@@ -233,6 +239,8 @@ namespace Ship_Game
                 CarrierShip = hull.CarrierShip,
 				ModuleSlotList = new List<ModuleSlotData>(),
 			};
+            this.techs.Clear();
+            this.AddToTechList(this.ActiveHull.HullData.techsNeeded);
             this.CarrierOnly = hull.CarrierShip;
             this.LoadCategory = hull.ShipCategory;
             this.fml = true;
@@ -5801,7 +5809,7 @@ namespace Ship_Game
                 this.ClearSlot(slot);
                 this.ClearDestinationSlots(slot);
                 slot.ModuleUID = this.ActiveModule.UID;
-                slot.module = ResourceManager.GetModule(slot.ModuleUID);// this.ActiveModule;
+                slot.module =  this.ActiveModule;
                 slot.module.SetAttributesNoParent();
                 slot.state = this.ActiveModState;
                 slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
