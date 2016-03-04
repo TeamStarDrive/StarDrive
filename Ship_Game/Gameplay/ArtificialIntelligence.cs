@@ -4886,6 +4886,12 @@ namespace Ship_Game.Gameplay
         //added by: Gremalin. returns roughly the number of turns to a target planet restricting to targets that can use the freighter. 
         private float TradeSort(Ship ship, Planet PlanetCheck, string ResourceType, float cargoCount,bool Delivery)
         {
+            /*here I am trying to predict the planets need versus the ships speed.
+             * I am returning a weighted value that is based on this but primarily the returned value is the time it takes the freighter to get to the target in a straight line
+             * 
+             * 
+             */
+            
             float resourceRecharge =0;
             float resourceAmount =0;
             if (ResourceType == "Food")
@@ -4917,6 +4923,7 @@ namespace Ship_Game.Gameplay
         //added by fbedard OrderTrade
         public void OrderTrade(float elapsedTime)
         {            
+            //trade timer is sent but uses arbitrary timer just to delay the routine.
             this.Owner.TradeTimer -= elapsedTime;
             if (this.Owner.TradeTimer > 0f)
                 return;
@@ -4949,7 +4956,7 @@ namespace Ship_Game.Gameplay
                     return;
                 }
             }
-            Planet potential = null;
+            Planet potential = null;//<-unused
             List<Planet> planets = new List<Planet>();
             IOrderedEnumerable<Planet> sortPlanets;
             bool flag;
@@ -4975,7 +4982,7 @@ namespace Ship_Game.Gameplay
                     FoodFirst = false;
                 float GoodMult = RandomMath.RandomBetween(0f, 25f);
 
-                //if already loaded, give any start planet:
+                //if already loaded, give any start planet: <-- this doesnt look good but doesnt appear to be a problem
                 if (this.start == null && (this.Owner.GetCargo()["Food"] > 0f || this.Owner.GetCargo()["Production"] > 0f))
                 {
                     this.start = this.Owner.loyalty.GetPlanets().FirstOrDefault();
