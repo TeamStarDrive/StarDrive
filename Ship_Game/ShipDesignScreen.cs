@@ -5809,7 +5809,10 @@ namespace Ship_Game
                 this.ClearSlot(slot);
                 this.ClearDestinationSlots(slot);
                 slot.ModuleUID = this.ActiveModule.UID;
-                slot.module =  this.ActiveModule;
+                slot.module =  ResourceManager.GetModule(this.ActiveModule.UID);
+                slot.module.XSIZE = this.ActiveModule.XSIZE;
+                slot.module.YSIZE = this.ActiveModule.YSIZE;
+                slot.module.XMLPosition = this.ActiveModule.XMLPosition;
                 slot.module.SetAttributesNoParent();
                 slot.state = this.ActiveModState;
                 slot.module.hangarShipUID = this.ActiveModule.hangarShipUID;
