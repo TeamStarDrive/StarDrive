@@ -168,6 +168,126 @@ namespace Ship_Game
             thisLock.ExitWriteLock();
             
         }
+        public void ForEach(Action<T> action, Boolean performActionOnClones = true, Boolean asParallel = true, Boolean inParallel = false)
+        {
+            if (action == null)
+            {
+                throw new ArgumentNullException("action");
+            }
+            var wrapper = new Action<T>(obj =>
+            {
+                try
+                {
+                    action(obj);
+                }
+                catch (ArgumentNullException)
+                {
+                    //if a null gets into the list then swallow an ArgumentNullException so we can continue adding
+                }
+            });
+            if (performActionOnClones)
+            {
+                this.thisLock.EnterReadLock();
+                var clones = this.Clone(asParallel: asParallel);
+                if (asParallel)
+                {
+                    clones.AsParallel().ForAll(wrapper);
+                }
+                else if (inParallel)
+                {
+                    Parallel.ForEach(clones, wrapper);
+                }
+                else
+                {
+                    clones.ForEach(wrapper);
+                }
+                this.thisLock.ExitReadLock();
+            }
+            else
+            {
+                this.thisLock.EnterReadLock();
+                {
+                    if (asParallel)
+                    {
+                        this.AsParallel().ForAll(wrapper);
+                    }
+                    else if (inParallel)
+                    {
+                        Parallel.ForEach(this, wrapper);
+                    }
+                    else
+                    {
+                        base.ForEach(wrapper);
+                    }
+                }
+                this.thisLock.ExitReadLock();
+            }
+        }
+
+        public void ForAll(Action<T> action, Boolean performActionOnClones = true, Boolean asParallel = true, Boolean inParallel = false)
+        {
+            if (action == null)
+            {
+                throw new ArgumentNullException("action");
+            }
+            var wrapper = new Action<T>(obj =>
+            {
+                try
+                {
+                    action(obj);
+                }
+                catch (ArgumentNullException)
+                {
+                    //if a null gets into the list then swallow an ArgumentNullException so we can continue adding
+                }
+            });
+            if (performActionOnClones)
+            {
+                var clones = this.Clone(asParallel: asParallel);
+                if (asParallel)
+                {
+                    clones.AsParallel().ForAll(wrapper);
+                }
+                else if (inParallel)
+                {
+                    Parallel.ForEach(clones, wrapper);
+                }
+                else
+                {
+                    clones.ForEach(wrapper);
+                }
+            }
+            else
+            {
+                this.thisLock.EnterReadLock();
+                {
+                    if (asParallel)
+                    {
+                        this.AsParallel().ForAll(wrapper);
+                    }
+                    else if (inParallel)
+                    {
+                        Parallel.ForEach(this, wrapper);
+                    }
+                    else
+                    {
+                        this.ForEach(wrapper);
+                    }
+                }
+                this.thisLock.ExitReadLock();
+            }
+        }
+        public List<T> Clone(Boolean asParallel = true)
+        {
+             
+            this.thisLock.EnterReadLock();
+            
+            var test =asParallel ? new List<T>(this.AsParallel()) : new List<T>(this);
+            this.thisLock.ExitReadLock();
+            return test;
+        }
+ 
+
         public T RecycleObject()
         {            
             T test;
