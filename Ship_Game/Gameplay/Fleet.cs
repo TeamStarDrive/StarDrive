@@ -353,8 +353,9 @@ namespace Ship_Game.Gameplay
             this.AllFlanks.Add(this.ScreenFlank);
             this.AllFlanks.Add(this.RearFlank);
             BatchRemovalCollection<Ship> removalCollection = new BatchRemovalCollection<Ship>();
-            foreach (Ship ship in (List<Ship>)this.Ships)
-                removalCollection.Add(ship);
+            removalCollection.AddRange(this.Ships);
+            //foreach (Ship ship in (List<Ship>)this.Ships)
+            //    removalCollection.Add(ship);
             foreach (Ship ship in (List<Ship>)removalCollection)
             {
                 if (ship.shipData.Role == ShipData.RoleName.scout || ship.shipData.ShipCategory == ShipData.Category.Recon)
@@ -1425,7 +1426,7 @@ namespace Ship_Game.Gameplay
                                         flag1 = false;
                                         //if(ship.isInDeepSpace && ship.engineState != Ship.MoveState.Warp)
                                         //{
-                                        //    ship.GetAI().OrderMoveToFleetPosition(this.Position + ship.FleetOffset, 0, 0, true, ship.GetFTLSpeed(), this);
+                                        //    ship.GetAI().OrderMoveToFleetPosition(this.Position + ship.FleetOffset, 0, 0, true, ship.GetmaxFTLSpeed, this);
                                         //}
 
                                         this.Ships.thisLock.ExitReadLock();

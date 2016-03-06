@@ -148,7 +148,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.numSystems = (int)(70f * StarNumModifier);
                         if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(18000000f, 18000000f);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
@@ -160,7 +160,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.numSystems = (int)(80f * StarNumModifier);
                         if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(27000000f,  27000000f);  //27,000,000
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
@@ -172,9 +172,9 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.numSystems = (int)(90f * StarNumModifier);
                         if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
-                        this.data.Size = new Vector2(54000000f, 54000000f);
+                        this.data.Size = new Vector2(47000000f, 47000000f);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                             //this.data.Size = new Vector2(36000000, 36000000);
                         //this.scale = 2;
@@ -193,7 +193,7 @@ namespace Ship_Game
                             this.numSystems = (int)(50f * StarNumModifier);
                         if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(64f * StarNumModifier); //This one isn't used, but what the heck...
                         //this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(54000000f, 54000000f);
+                        this.data.Size = new Vector2(108000000f, 108000000f);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
@@ -269,56 +269,60 @@ namespace Ship_Game
                             removalCollection.Add(empireData);                        
                     }
                     int num = removalCollection.Count - this.numOpponents;
-                                            int shipsPurged = 0;
-                                            float SpaceSaved = GC.GetTotalMemory(true);
+                    int shipsPurged = 0;
+                    float SpaceSaved = GC.GetTotalMemory(true);
                     for (int opponents = 0; opponents < num; ++opponents)
                     {
                         int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count + 1));
                         if (index2 > removalCollection.Count - 1)
                             index2 = removalCollection.Count - 1;
 
-                        List<string> shipkill = new List<string>();
-
-                        foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+                        if (false)
                         {
-                            if (ship.Value.shipData.ShipStyle == removalCollection[index2].Traits.ShipType )
+                            List<string> shipkill = new List<string>();
+
+                            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
                             {
-                                bool killSwitch = true;
-                                foreach (Empire ebuild in EmpireManager.EmpireList)
+                                if (ship.Value.shipData.ShipStyle == removalCollection[index2].Traits.ShipType)
                                 {
-                                    if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
-                                        killSwitch = false;
-                                    break;
-                                }
-
-
-                                if (killSwitch)
-                                    foreach (Ship mship in this.data.MasterShipList)
+                                    bool killSwitch = true;
+                                    foreach (Empire ebuild in EmpireManager.EmpireList)
                                     {
-                                        if (ship.Key == mship.Name)
-                                        {
+                                        if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
                                             killSwitch = false;
-                                            break;
-                                        }
+                                        break;
                                     }
-                                if (killSwitch)
-                                {
-                                    shipsPurged++;
 
-                                    // System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
-                                    shipkill.Add(ship.Key);
+
+                                    if (killSwitch)
+                                        foreach (Ship mship in this.data.MasterShipList)
+                                        {
+                                            if (ship.Key == mship.Name)
+                                            {
+                                                killSwitch = false;
+                                                break;
+                                            }
+                                        }
+                                    if (killSwitch)
+                                    {
+                                        shipsPurged++;
+
+                                        // System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
+                                        shipkill.Add(ship.Key);
+                                    }
                                 }
                             }
-                        }
-                        foreach (string shiptoclear in shipkill)
-                        {
-                            ResourceManager.ShipsDict.Remove(shiptoclear);
+                            foreach (string shiptoclear in shipkill)
+                            {
+                                ResourceManager.ShipsDict.Remove(shiptoclear);
+                            } 
                         }
                         removalCollection.RemoveAt(index2);
                     }
 
                     System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
                     System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(true)).ToString());
+                                           
                     foreach (EmpireData data in (List<EmpireData>)removalCollection)
                     {
                         Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
@@ -350,6 +354,7 @@ namespace Ship_Game
                         }
                         EmpireManager.EmpireList.Add(empireFromEmpireData);
                     }
+                    
                     foreach (EmpireData data in ResourceManager.Empires)
                     {
                         if (data.Faction != 0 || data.MinorRace)
@@ -359,6 +364,7 @@ namespace Ship_Game
                             EmpireManager.EmpireList.Add(empireFromEmpireData);
                         }
                     }
+                   
                     foreach (Empire empire in this.data.EmpireList)
                     {
                         foreach (Empire e in this.data.EmpireList)
@@ -367,6 +373,12 @@ namespace Ship_Game
                                 empire.AddRelationships(e, new Relationship(e.data.Traits.Name));
                         }
                     }
+                    ResourceManager.MarkShipDesignsUnlockable();                    
+                    
+
+                    System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
+                    System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(true)).ToString());
+
                     foreach (Empire Owner in this.data.EmpireList)
                     {
                         if (!Owner.isFaction && !Owner.MinorRace)

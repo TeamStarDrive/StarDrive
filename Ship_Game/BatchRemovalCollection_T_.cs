@@ -30,6 +30,14 @@ namespace Ship_Game
             this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         }
+        public BatchRemovalCollection(List<T> ListToCopy)
+        {
+            //List<T> list = this as List<T>;
+            //list = ListToCopy.ToList<T>();
+            base.AddRange(ListToCopy);
+            this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+        }
         public void ApplyPendingRemovals()
         {
             T result;            
@@ -77,27 +85,29 @@ namespace Ship_Game
         new public void Add(T item)
         {
             thisLock.EnterWriteLock();
-            (this as List<T>).Add(item);
+            base.Add(item);
             thisLock.ExitWriteLock();
         }
         public List<T> Get()
         {
+            List<T> list = new List<T>();
             thisLock.EnterReadLock();
-            var list = this;
+            list.AddRange(this as List<T>);// = base.ToList();
             thisLock.ExitReadLock();
-            return this as List<T>;
+            return list;// this as List<T>;
         }
+        
         new public Enumerator GetEnumerator()
         {
             thisLock.EnterReadLock();
-            var result = (this as List<T>).GetEnumerator();
+            var result = base.GetEnumerator();
             thisLock.ExitReadLock();
             return result;
         }
         new public void Clear()
         {
             thisLock.EnterWriteLock();
-            (this as List<T>).Clear();
+            base.Clear();
             thisLock.ExitWriteLock();
         }
         public void ClearAndRecycle()
@@ -105,13 +115,13 @@ namespace Ship_Game
             thisLock.EnterWriteLock();
             List<T> test = (this as List<T>);
             this.pendingRemovals =  new ConcurrentStack<T>(test); 
-            (this as List<T>).Clear();
+            base.Clear();
             thisLock.ExitWriteLock();
         }
         public void ClearAll()
         {
             thisLock.EnterWriteLock();
-            (this as List<T>).Clear();
+            base.Clear();
             thisLock.ExitWriteLock();
             if(this.pendingRemovals !=null)
             {
@@ -122,17 +132,165 @@ namespace Ship_Game
         {
             
             thisLock.EnterWriteLock();
-            (this as List<T>).Remove(item);
+            base.Remove(item);
             thisLock.ExitWriteLock();
 
+        }
+        public void ClearAdd(IEnumerable<T> item)
+        {
+            thisLock.EnterWriteLock();
+            base.Clear();
+            base.AddRange(item);
+            thisLock.ExitWriteLock();
+            
         }
         new public bool Contains(T item)
         {
             thisLock.EnterReadLock();
-            var result = (this as List<T>).Contains(item);
+            var result = base.Contains(item);
             thisLock.ExitReadLock();
             return result;
         }
+        //Contains<TSource>(this IEnumerable<TSource> source, TSource value);
+        //Contains<TSource>(this IEnumerable<TSource> source, TSource value);
+        //public bool Contains<T>(T item)
+        //{
+        //    thisLock.EnterReadLock();
+        //    var result = this.Contains<T>(item ); //.Contains<T>(item);
+        //    thisLock.ExitReadLock();
+        //    return result;
+        //}
+
+        public void AddRange(List<T> item)
+        {
+            thisLock.EnterWriteLock();
+            base.AddRange(item);
+            thisLock.ExitWriteLock();
+            
+        }
+        // to use this:
+        // somelist.foreach(action => { do some action with action},false,false,false);
+        // to enable parallel mode set the last false to "true'
+        public void ForEach(Action<T> action, Boolean performActionOnClones = true, Boolean asParallel = true, Boolean inParallel = false)
+        {
+            if (action == null)
+            {
+                throw new ArgumentNullException("action");
+            }
+            var wrapper = new Action<T>(obj =>
+            {
+                try
+                {
+                    action(obj);
+                }
+                catch (ArgumentNullException)
+                {
+                    //if a null gets into the list then swallow an ArgumentNullException so we can continue adding
+                }
+            });
+            if (performActionOnClones)
+            {
+                this.thisLock.EnterReadLock();
+                var clones = this.Clone(asParallel: asParallel);
+                if (asParallel)
+                {
+                    clones.AsParallel().ForAll(wrapper);
+                }
+                else if (inParallel)
+                {
+                    Parallel.ForEach(clones, wrapper);
+                }
+                else
+                {
+                    clones.ForEach(wrapper);
+                }
+                this.thisLock.ExitReadLock();
+            }
+            else
+            {
+                this.thisLock.EnterReadLock();
+                {
+                    if (asParallel)
+                    {
+                        this.AsParallel().ForAll(wrapper);
+                    }
+                    else if (inParallel)
+                    {
+                        Parallel.ForEach(this, wrapper);
+                    }
+                    else
+                    {
+                        base.ForEach(wrapper);
+                    }
+                }
+                this.thisLock.ExitReadLock();
+            }
+        }
+
+        public void ForAll(Action<T> action, Boolean performActionOnClones = true, Boolean asParallel = true, Boolean inParallel = false)
+        {
+            if (action == null)
+            {
+                throw new ArgumentNullException("action");
+            }
+            var wrapper = new Action<T>(obj =>
+            {
+                try
+                {
+                    action(obj);
+                }
+                catch (ArgumentNullException)
+                {
+                    //if a null gets into the list then swallow an ArgumentNullException so we can continue adding
+                }
+            });
+            if (performActionOnClones)
+            {
+                var clones = this.Clone(asParallel: asParallel);
+                if (asParallel)
+                {
+                    clones.AsParallel().ForAll(wrapper);
+                }
+                else if (inParallel)
+                {
+                    Parallel.ForEach(clones, wrapper);
+                }
+                else
+                {
+                    clones.ForEach(wrapper);
+                }
+            }
+            else
+            {
+                this.thisLock.EnterReadLock();
+                {
+                    if (asParallel)
+                    {
+                        this.AsParallel().ForAll(wrapper);
+                    }
+                    else if (inParallel)
+                    {
+                        Parallel.ForEach(this, wrapper);
+                    }
+                    else
+                    {
+                        this.ForEach(wrapper);
+                    }
+                }
+                this.thisLock.ExitReadLock();
+            }
+        }
+        public List<T> Clone(Boolean asParallel = true)
+        {
+             
+            this.thisLock.EnterReadLock();
+            
+            var test =asParallel ? new List<T>(this.AsParallel()) : new List<T>(this);
+            this.thisLock.ExitReadLock();
+            return test;
+        }
+ 
+
         public T RecycleObject()
         {            
             T test;

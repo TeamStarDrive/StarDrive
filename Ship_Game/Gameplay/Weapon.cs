@@ -236,7 +236,7 @@ namespace Ship_Game.Gameplay
 
         public bool AltFireTriggerFighter;
 
-        public bool ExplosionFlash;
+        //public bool ExplosionFlash;          //Not referenced in code, removing to save memory -Gretman
 
         public bool RangeVariance;
 
@@ -1053,7 +1053,7 @@ namespace Ship_Game.Gameplay
 				return;
 			this.owner.InCombatTimer = 15f;
 
-			this.timeToNextFire = this.fireDelay;
+			this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) *.016f + -.008f);
 
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -1266,7 +1266,7 @@ namespace Ship_Game.Gameplay
             //    return;
             //}
 			this.owner.InCombatTimer = 15f;
-			this.timeToNextFire = this.fireDelay;
+            this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) * .016f + -.008f);
             
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{

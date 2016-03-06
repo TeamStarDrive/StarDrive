@@ -27,9 +27,9 @@ namespace Ship_Game
 
 		private DropOptions ResolutionDropDown;
 
-		private DropOptions AntiAliasingDD;
+        //private DropOptions AntiAliasingDD;          //Not referenced in code, removing to save memory -Gretman
 
-		private List<UIButton> Buttons = new List<UIButton>();
+        private List<UIButton> Buttons = new List<UIButton>();
 
 		private UIButton Apply;
 
@@ -432,6 +432,8 @@ namespace Ship_Game
             this.FreighterLimiter.HandleInput(input);
             GlobalStats.freighterlimit = (int)this.FreighterLimiter.amountRange;
             this.AutoSaveFreq.HandleInput(input);
+            if(EmpireManager.GetPlayerEmpire() != null) // ? EmpireManager.GetPlayerEmpire().data.AutoSaveFreq : GlobalStats.AutoSaveFreq) = (int)this.AutoSaveFreq.amountRange; 
+            EmpireManager.GetPlayerEmpire().data.AutoSaveFreq = (int)this.AutoSaveFreq.amountRange;                        
             GlobalStats.AutoSaveFreq = (int)this.AutoSaveFreq.amountRange;
 
             if (!this.ResolutionDropDown.Open)// && !this.AntiAliasingDD.Open)
@@ -570,7 +572,8 @@ namespace Ship_Game
             int ships =0;
 
             r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 290, 225, 50);    //
-            this.AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);      //Added by Gretman
+            int ASF = EmpireManager.GetPlayerEmpire() != null ?EmpireManager.GetPlayerEmpire().data.AutoSaveFreq : GlobalStats.AutoSaveFreq;
+            this.AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 540, ASF);      //Added by Gretman
             this.AutoSaveFreq.Tip_ID = 4100;                                                                      //
 
             if (Empire.universeScreen != null )
@@ -606,7 +609,7 @@ namespace Ship_Game
                     }
                 }
             }
-            int qualityLevels = 0;
+            //int qualityLevels = 0;          //Not referenced in code, removing to save memory -Gretman
             //this.AntiAliasingDD = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y + 26, 105, 18));
             //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
             //    this.AntiAliasingDD.AddOption("8x AA", 8);

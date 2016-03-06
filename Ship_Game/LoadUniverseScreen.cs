@@ -167,7 +167,7 @@ namespace Ship_Game
             {
                 p.SpecialDescription = data.SpecialDescription;
             }
-            if (data.Scale != null && data.Scale != 0)
+            if (data.Scale != 0)
             {
                 p.scale = data.Scale;
             }
@@ -200,7 +200,7 @@ namespace Ship_Game
 			p.LoadAttributes();
 			p.Crippled_Turns = data.Crippled_Turns;
 			p.planetTilt = RandomMath.RandomBetween(45f, 135f);
-            p.ObjectRadius = 100f * (float)(1 + ((Math.Log(p.scale)) / 1.5)); // p.scale; //(1 + ((Math.Log(planet.scale))/1.5) )
+            p.ObjectRadius = 1000f * (float)(1 + ((Math.Log(p.scale)) / 1.5)); // p.scale; //(1 + ((Math.Log(planet.scale))/1.5) )
 			foreach (Guid guid in data.StationsList)
 			{
 				p.Shipyards.TryAdd(guid, new Ship());
@@ -726,8 +726,8 @@ namespace Ship_Game
 					ship.GetAI().GotoStep = shipData.AISave.GoToStep;
 					ship.GetAI().MovePosition = shipData.AISave.MovePosition;
 					ship.GetAI().OrbitTargetGuid = shipData.AISave.OrbitTarget;
-					ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;
-					ship.GetAI().TargetGuid = shipData.AISave.AttackTarget;
+                    //ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;          //Not referenced in code, removing to save memory -Gretman
+                    ship.GetAI().TargetGuid = shipData.AISave.AttackTarget;
 					ship.GetAI().SystemToDefendGuid = shipData.AISave.SystemToDefend;
 					ship.GetAI().EscortTargetGuid = shipData.AISave.EscortTarget;
 					bool hasCargo = false;
@@ -1422,6 +1422,7 @@ namespace Ship_Game
 				this.us.player = EmpireManager.GetEmpireByName(this.PlayerLoyalty);
 				this.us.LoadContent();
 				this.us.UpdateAllSystems(0.01f);
+                ResourceManager.MarkShipDesignsUnlockable();
                 /*
 				foreach (Ship ship in this.data.MasterShipList)
 				{

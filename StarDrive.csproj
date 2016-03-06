@@ -78,7 +78,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\..\StarDrive\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;ALTERTHREAD STEAM PERF AUTOTIME xPLAYERONLY </DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ALTERTHREAD STEAM xPERF AUTOTIME xPLAYERONLY </DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
@@ -356,8 +356,10 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\SafeQueue.cs" />
     <Compile Include="Ship_Game\ShipNames.cs" />
     <Compile Include="Ship_Game\ShipRole.cs" />
+    <Compile Include="Ship_Game\SubClasses.cs" />
     <Compile Include="Ship_Game\TechnologyType.cs" />
     <Compile Include="Ship_Game\TestScreen.cs">
       <AutoGen>false</AutoGen>
@@ -3305,6 +3307,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist "$(DevEnvDir)..\tools\vsvars32.bat" call "$(DevEnvDir)..\tools\vsvars32.bat" &amp;&amp; editbin /largeaddressaware "$(TargetPath)"&amp;&amp;   if exist ..\Config $(ProjectDir)\deploy\7-Zip\7z A sd.7z @$(ProjectDir)deploy\config\include.txt &amp;&amp; copy /b $(ProjectDir)deploy\7-Zip\7ZSD.sfx + $(ProjectDir)deploy\Config\config.txt + sd.7z $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).exe</PostBuildEvent>
+    <PostBuildEvent>if exist "$(DevEnvDir)..\tools\vsvars32.batt" call "$(DevEnvDir)..\tools\vsvars32.bat" &amp;&amp; editbin /largeaddressaware "$(TargetPath)"&amp;&amp;   if exist ..\Config $(ProjectDir)\deploy\7-Zip\7z A sd.7z @$(ProjectDir)deploy\config\include.txt &amp;&amp; copy /b $(ProjectDir)deploy\7-Zip\7ZSD.sfx + $(ProjectDir)deploy\Config\config.txt + sd.7z $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).exe</PostBuildEvent>
   </PropertyGroup>
 </Project>
