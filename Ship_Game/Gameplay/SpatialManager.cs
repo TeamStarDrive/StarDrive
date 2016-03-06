@@ -143,7 +143,7 @@ namespace Ship_Game.Gameplay
 
         internal List<GameplayObject> GetNearby(GameplayObject obj)
         {
-            List<GameplayObject> list = new List<GameplayObject>();
+            BatchRemovalCollection<GameplayObject> list = new BatchRemovalCollection<GameplayObject>();
            
             {
                 BatchRemovalCollection<GameplayObject> test;
@@ -262,7 +262,13 @@ namespace Ship_Game.Gameplay
         internal void ClearBuckets()
         {
             for (int index = 0; index < this.Cols * this.Rows; ++index)
-                this.Buckets[index].Clear();
+            {
+                BatchRemovalCollection<GameplayObject> test;
+                if(this.Buckets.TryGetValue(index, out test))
+                {
+                    test.Clear();
+                }
+            }
         }
 
         private Vector2 MoveAndCollide(GameplayObject gameplayObject)
@@ -348,7 +354,7 @@ namespace Ship_Game.Gameplay
             List<GameplayObject> nearby = new List<GameplayObject>(this.GetNearby(gameplayObject1).OrderBy(distance => Vector2.Distance(beam.Source, distance.Center)));
             List<GameplayObject> AlliedShips = new List<GameplayObject>();
             object locker = new object();
-            bool flag = false;
+            //bool flag = false;          //Not referenced in code, removing to save memory -Gretman
             //foreach (Vector2 vector2_3 in list1)
             {
                 Vector2 unitV = Vector2.Normalize(beam.Destination - beam.Source);
@@ -769,8 +775,8 @@ namespace Ship_Game.Gameplay
                     GameplayObject gameplayObject1 = nearbythings[T];
                     Vector3 object1position;
                         BoundingSphere object1;
-                      
-                        float minHit = 0f;
+
+                    //float minHit = 0f;          //Not referenced in code, removing to save memory -Gretman
                     // foreach (GameplayObject gameplayObject1 in this.GetNearby(gameplayObject))
                     //{
                     if (gameplayObject1 != null && gameplayObject != gameplayObject1 && (gameplayObject1.Active && !gameplayObject1.CollidedThisFrame))

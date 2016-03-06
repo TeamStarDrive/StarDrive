@@ -205,7 +205,7 @@ namespace Ship_Game
 	            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
 	            GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
                 //GlobalStats.ExtendedVersion += "_" + GlobalStats.branch + "_" + GlobalStats.Version;
-                GlobalStats.ExtendedVersion +=  GlobalStats.branch + " : " + ConfigurationManager.AppSettings["ExtendedVersion"];
+                GlobalStats.ExtendedVersion +=  GlobalStats.branch + " : 16_" + ConfigurationManager.AppSettings["ExtendedVersion"] + " ";
 	            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
 	            GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
 	            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);

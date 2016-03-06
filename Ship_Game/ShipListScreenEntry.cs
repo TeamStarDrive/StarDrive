@@ -166,12 +166,12 @@ namespace Ship_Game
 			Vector2 FTLPos = new Vector2((float)(this.FTLRect.X + this.FTLRect.Width / 2f), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
 			float x1 = FTLPos.X;
 			SpriteFont spriteFont = Fonts.Arial12;
-			float fTLSpeed = this.ship.GetFTLSpeed() / 1000f;
+			float fTLSpeed = this.ship.GetmaxFTLSpeed / 1000f;
 			FTLPos.X = x1 - spriteFont.MeasureString(string.Concat(fTLSpeed.ToString("0"), "k")).X / 2f + 6;
 			HelperFunctions.ClampVectorToInt(ref FTLPos);
 			SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
 			SpriteFont arial121 = Fonts.Arial12;
-			float fTLSpeed1 = this.ship.GetFTLSpeed() / 1000f;
+			float fTLSpeed1 = this.ship.GetmaxFTLSpeed / 1000f;
 			spriteBatch1.DrawString(arial121, string.Concat(fTLSpeed1.ToString("0"), "k"), FTLPos, Color.White);
 			Vector2 STLPos = new Vector2((float)(this.STLRect.X + this.STLRect.Width / 2f), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
 			float single1 = STLPos.X;
@@ -487,9 +487,9 @@ namespace Ship_Game
 					//text = Localizer.Token(178);
                     try
                     {
-                        ship.GetAI().orderqueue.EnterReadLock();
+                        ship.GetAI().OrderQueue.thisLock.EnterReadLock();
                         text = string.Concat(Localizer.Token(178), " to ", ship.GetAI().OrderQueue.Last.Value.TargetPlanet.Name);  //fbedard
-                        ship.GetAI().orderqueue.ExitReadLock();
+                        ship.GetAI().OrderQueue.thisLock.ExitReadLock();
                     }
                     catch { }
 					break;

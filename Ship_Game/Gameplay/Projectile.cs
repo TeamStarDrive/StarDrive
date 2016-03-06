@@ -48,13 +48,13 @@ namespace Ship_Game.Gameplay
 
 		public bool explodes;
 
-		protected Color[] explosionColors;
+        //protected Color[] explosionColors;          //Not referenced in code, removing to save memory -Gretman
 
-		public ShipModule moduleAttachedTo;
+        public ShipModule moduleAttachedTo;
 
-		protected string weaponEffect;
+        //protected string weaponEffect;          //Not referenced in code, removing to save memory -Gretman
 
-		public string WeaponEffectType;
+        public string WeaponEffectType;
 
 		private Matrix WorldMatrix;
 
@@ -122,9 +122,9 @@ namespace Ship_Game.Gameplay
 
 		public string dieCueName = "";
 
-		public ShipModule HitModule;
+        //public ShipModule HitModule;          //Not referenced in code, removing to save memory -Gretman
 
-		private bool wasAddedToSceneGraph;
+        private bool wasAddedToSceneGraph;
 
 		private bool LightWasAddedToSceneGraph;
 
@@ -956,7 +956,6 @@ namespace Ship_Game.Gameplay
 
         public override void Update(float elapsedTime)
         {
-
             if(this.DieNextFrame && this.Active)
             {
                 this.Die((GameplayObject)this, false);

@@ -374,16 +374,17 @@ namespace Ship_Game
 
 		public bool LoadContent(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection)
 		{
-			lock (GlobalStats.BeamEffectLocker)
+			//lock (GlobalStats.BeamEffectLocker)
 			{
                 
-                    Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
-                    Beam beam=null;
+                    //Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
+                   // Beam beam=null;
                 //if(this.owner != null)
                   //  beam = this.owner.Beams.RecycleObject();
                     this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                    Beam.BeamEffect.Parameters["tex"].SetValue(texture);
-                    if (beam != null) // || beam.quadEffect == null)
+                    //Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+                    return true;
+               // if (beam != null) // || beam.quadEffect == null)
                     {
                         try
                         {
@@ -393,10 +394,10 @@ namespace Ship_Game
                                     View = view,
                                     Projection = projection,
                                     TextureEnabled = true,
-                                    Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+                                   // Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
                                 };
                             this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                            Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+                            //Beam.BeamEffect.Parameters["tex"].SetValue(texture);
                         }
                         catch
                         {
@@ -417,7 +418,7 @@ namespace Ship_Game
                             return false;
                         }
                     }
-                    else
+                  //  else
                     {
                         //this.quadEffect = beam.quadEffect;
                         
@@ -431,7 +432,7 @@ namespace Ship_Game
                         
 
                         //    this.quadEffect.Texture = texture;
-                            Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+                     //       Beam.BeamEffect.Parameters["tex"].SetValue(texture);
                       
                     
                         
