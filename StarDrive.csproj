@@ -124,7 +124,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_RadicalElements_RC_|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_RadicalElements_RC_16_|x86' ">
     <OutputPath>Deploy\Upload\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>

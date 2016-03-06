@@ -6637,14 +6637,14 @@ namespace Ship_Game.Gameplay
 			}
 			bool MatchFound = false;
 			SolarSystem sharedSystem = null;
-			foreach (Ship ship in Them.Key.GetShips())
-			{
-				if (ship.GetAI().State != AIState.Colonize || ship.GetAI().ColonizeTarget == null)
-				{
-					continue;
-				}
-				TheirTargetPlanets.Add(ship.GetAI().ColonizeTarget);
-			}
+            Them.Key.GetShips().ForEach(ship => //foreach (Ship ship in Them.Key.GetShips())
+            {
+                if (ship.GetAI().State != AIState.Colonize || ship.GetAI().ColonizeTarget == null)
+                {
+                    return;
+                }
+                TheirTargetPlanets.Add(ship.GetAI().ColonizeTarget);
+            }, false, false, false);
 			List<Planet>.Enumerator enumerator = OurTargetPlanets.GetEnumerator();
 			try
 			{
