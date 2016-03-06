@@ -12,298 +12,169 @@ using System.Collections.Generic;
 using System.Linq;
 namespace Ship_Game.Gameplay
 {
-	public sealed class ShipModule : GameplayObject
+    public sealed class ShipModule : GameplayObject
 	{
-		private ParticleEmitter trailEmitter;
-
-		private ParticleEmitter firetrailEmitter;
-
-		private ParticleEmitter flameEmitter;
-
-		public float FTLSpeed;
-
-		public string DeployBuildingOnColonize;
-
+        public ShipModule_Advanced Advanced = null; //This is where all the other member variables went. Having this as a member object
+                                                    //allows me to instance the variables inside it, so they are not duplicated. This
+                                                    //can offer much better memory usage since ShipModules are so numerous.     -Gretman
+        private ParticleEmitter trailEmitter;
+        private ParticleEmitter firetrailEmitter;
+        private ParticleEmitter flameEmitter;
 		public byte XSIZE = 1;
-
-		public byte YSIZE = 1;
-
-		public string ResourceStored;
-
-		public float ResourceStorageAmount;
-
-		public string ResourceRequired;
-
-		public float ResourcePerSecond;
-
-		public float ResourcePerSecondWarp;
-
-		public bool IsCommandModule;
-
-		public bool IsRepairModule;
-
+        public byte YSIZE = 1;
 		public List<string> PermittedHangarRoles;
-
-		public short MaximumHangarShipSize;
-
-		public bool FightersOnly;
-
-        public bool DroneModule = false;
-
-        public bool FighterModule = true;
-
-        public bool CorvetteModule = true;
-
-        public bool FrigateModule = true;
-
-        public bool DestroyerModule = true;
-
-        public bool CruiserModule = true;
-
-        public bool CarrierModule = true;
-
-        public bool CapitalModule = true;
-
-        public bool FreighterModule = true;
-
-        public bool PlatformModule = true;
-
-        public bool StationModule = true;
-
-		public bool explodes;
-
-		public float SensorRange;
-
-		public float MechanicalBoardingDefense;
-
-		public float EMP_Protection;
-
-		public float TroopBoardingDefense;
-
-		public byte PowerRadius;
-
 		public bool Powered;
-
-		public byte TechLevel;
-
-		public float OrdnanceAddedPerSecond;
-
-		public bool isDummy;
-
-		public List<ShipModule> LinkedModulesList = new List<ShipModule>();
-
-		public static UniverseScreen universeScreen;
-
-		private float distanceToParentCenter;
-
-		public string BombType;
-
-		public float WarpMassCapacity;
-
+        public bool isDummy;
+        public List<ShipModule> LinkedModulesList = new List<ShipModule>();
+        public static UniverseScreen universeScreen;
+        private float distanceToParentCenter;
 		private float offsetAngle;
-
-		public float FieldOfFire;
-
-		public float facing;
-
-		public Vector2 XMLPosition;
-
-		private Ship Parent;
-
-		public ShipModule ParentOfDummy;
-
-		public float BonusRepairRate;
-
-		public float Cargo_Capacity;
-
+        public float FieldOfFire;
+        public float facing;
+        public Vector2 XMLPosition;
+        private Ship Parent;
+        public ShipModule ParentOfDummy;
 		public float HealthMax;
-
-		public string WeaponType;
-
-		//public short NameIndex;
+        public string WeaponType;
         public ushort NameIndex;
-		//public short DescriptionIndex;
         public ushort DescriptionIndex;
-		public Ship_Game.Gameplay.Restrictions Restrictions;
-
-		public float shield_power;
-
-        //Added by McShooterz: shields keep charge when manually turned off
+        public Ship_Game.Gameplay.Restrictions Restrictions;
+        public float shield_power;
         public bool shieldsOff=false;
-
-		public float shield_radius;
-
-		public float shield_power_max;
-
-		public float shield_recharge_rate;
-
-		public float shield_recharge_combat_rate;
-
 		private Shield shield;
-
-		public float shield_recharge_delay;
-
-        //Threshold for shield damage
-
-        public float shield_threshold;
-
-
-        //Shield resistances: cba doing as many of these.
-
-        public float shield_kinetic_resist;
-        public float shield_energy_resist;
-        public float shield_explosive_resist;
-        public float shield_missile_resist;
-        public float shield_flak_resist;
-        public float shield_hybrid_resist;
-        public float shield_railgun_resist;
-        public float shield_subspace_resist;
-        public float shield_warp_resist;
-        public float shield_beam_resist;
-
-
-
-		public float numberOfColonists;
-
-		public float numberOfEquipment;
-
-		public float numberOfFood;
-
 		public string hangarShipUID;
-
-		public bool IsSupplyBay;
-
-		public bool IsTroopBay;
-
 		private Ship hangarShip;
-
-		public float hangarTimerConstant =30f;
-        public float hangerTimerConstant = -1;
-
-		public float hangarTimer;
-
-		public float thrust;
-
-		public int WarpThrust;
-
-		public int TurnThrust;
-
-		public float PowerFlowMax;
-
-		public float PowerDraw;
-
-		public float PowerDrawAtWarp;
-
-		public float PowerStoreMax;
-
-		public float HealPerTurn;
-
+        public float hangarTimer;
 		public bool isWeapon;
-
-		public Weapon InstalledWeapon;
-
-		public bool MountLeft;
-
-		public bool MountRight;
-
-		public bool MountRear;
-
-		public short OrdinanceCapacity;
-
-		private bool onFire;
-
-		private bool reallyFuckedUp;
-
-		private Vector3 Center3D = new Vector3();
-
-		public float BombTimer;
-
-		public byte TroopCapacity;
-
-		public byte TroopsSupplied;
-
-		public float Cost;
-
+        public Weapon InstalledWeapon;
+        public short OrdinanceCapacity;
+        private bool onFire;
+        private bool reallyFuckedUp;
+        private Vector3 Center3D = new Vector3();
+        public float BombTimer;
 		public ShipModuleType ModuleType;
+        public Vector2 moduleCenter = new Vector2(0f, 0f);
+        public Vector2 ModuleCenter;
+        public string IconTexturePath;
+        //public string UID;
+        
 
-		public Vector2 moduleCenter = new Vector2(0f, 0f);
-
-		public Vector2 ModuleCenter;
-
-		public string IconTexturePath;
-
-		public string UID;
-
-		public ModuleSlot installedSlot;
-
-		private float offsetAngleRadians;
-
-		public bool isExternal;
-
-		public bool TrulyExternal;
-
-		public float InhibitionRadius;
-
-        public float FTLSpoolTime;
-
-        public float ECM;
-
-        public float SensorBonus;
-        //Transporter Values
-        public float TransporterTimerConstant;
-        public float TransporterTimer = 0f;
-        public float TransporterRange;
-        public float TransporterPower;
-        public float TransporterOrdnance;
-        public byte TransporterTroopLanding;
-        public byte TransporterTroopAssault;
-
-        //added by gremlin: target value
+        public string UID
+        {
+            get { return this.Advanced.UID; }
+            set { this.Advanced.UID = value; }
+        }
+        
+        public ModuleSlot installedSlot;
+        public bool isExternal;
         public int TargetValue=0;
-
-        //Weapon-type specific damage resistance/vulnerability
-        public float KineticResist = 0f;
-        public float EnergyResist = 0f;
-        public float GuidedResist = 0f; // added for completeness' sake - can't really see how an armour can be more resistant/vulnerable to something guided specifically
-        public float MissileResist = 0f;
-        public float HybridResist = 0f;
-        public float BeamResist = 0f;
-        public float ExplosiveResist = 0f;
-        public float InterceptResist = 0f;
-        public float RailgunResist = 0f;
-        public float SpaceBombResist = 0f;
-        public float BombResist = 0f; // In case a spatial weapon is tagged as bomb
-        public float BioWeaponResist = 0f; // In case a spatial weapon is tagged as biological
-        public float DroneResist = 0f;
-        public float WarpResist = 0f;
-        public float TorpedoResist = 0f;
-        public float CannonResist = 0f;
-        public float SubspaceResist = 0f;
-        public float PDResist = 0f;
-        public float FlakResist = 0f;
-
-        //Damage threshold - i.e. damage amounts under the threshold apply no damage to that module
-        public float DamageThreshold = 0f;
-
-        //AP resistance: this is subtracted from the Armour Piercing/Phasing bonus of incoming projectiles to protect from that effect.
-        public int APResist = 0;
-
-        //A module which doesn't require direct powering to function and drain power supplies - e.g. for powered armour.
-        public bool IndirectPower = false;
-
-        //Optional-use variable for classification into extra sub-menu in Shipyard for power armour; no module gameplay effect
-        public bool isPowerArmour = false;
-
-        //Optional-use variable for classification into extra sub-menu in Shipyard for bulkheads; no module gameplay effect
-        public bool isBulkhead = false;
-
-        //record which quadrant the module lives in. Currently only for external modules. internal modules will have an upredicable value.
         public sbyte quadrant = -1;
+        public float TransporterTimer = 0f;
 
-        //targetTracking ability of module.
-        public sbyte TargetTracking = 0;
 
-		public bool IsWeapon
+        //This wall of text is the 'get' functions for all of the variables that got moved to the 'Advanced' object.
+        //This will allow us to still use the normal "Module.IsCommandModule" even though 'IsCommandModule' actually
+        //lives in "Module.Advanced.IsCommandModule" now.    -Gretman
+        public float FTLSpeed                   { get { return this.Advanced.FTLSpeed; } }
+        public string DeployBuildingOnColonize  { get { return this.Advanced.DeployBuildingOnColonize; } }
+        public string ResourceStored            { get { return this.Advanced.ResourceStored; } }
+        public float ResourceStorageAmount      { get { return this.Advanced.ResourceStorageAmount; } }
+        public bool IsCommandModule             { get { return this.Advanced.IsCommandModule; } }
+        public bool IsRepairModule              { get { return this.Advanced.IsRepairModule; } }
+        public short MaximumHangarShipSize      { get { return this.Advanced.MaximumHangarShipSize; } }
+        public bool FightersOnly                { get { return this.Advanced.FightersOnly; } }
+        public bool DroneModule                 { get { return this.Advanced.DroneModule; } }
+        public bool FighterModule               { get { return this.Advanced.FighterModule; } }
+        public bool CorvetteModule              { get { return this.Advanced.CorvetteModule; } }
+        public bool FrigateModule               { get { return this.Advanced.FrigateModule; } }
+        public bool DestroyerModule             { get { return this.Advanced.DestroyerModule; } }
+        public bool CruiserModule               { get { return this.Advanced.CruiserModule; } }
+        public bool CarrierModule               { get { return this.Advanced.CarrierModule; } }
+        public bool CapitalModule               { get { return this.Advanced.CapitalModule; } }
+        public bool FreighterModule             { get { return this.Advanced.FreighterModule; } }
+        public bool PlatformModule              { get { return this.Advanced.PlatformModule; } }
+        public bool StationModule               { get { return this.Advanced.StationModule; } }
+        public bool explodes                    { get { return this.Advanced.explodes; } }
+        public float SensorRange                { get { return this.Advanced.SensorRange; } }
+        public float MechanicalBoardingDefense  { get { return this.Advanced.MechanicalBoardingDefense; } }
+        public float EMP_Protection             { get { return this.Advanced.EMP_Protection; } }
+        public byte PowerRadius                 { get { return this.Advanced.PowerRadius; } }
+        public byte TechLevel                   { get { return this.Advanced.TechLevel; } }
+        public float OrdnanceAddedPerSecond     { get { return this.Advanced.OrdnanceAddedPerSecond; } }
+        public string BombType                  { get { return this.Advanced.BombType; } }
+        public float WarpMassCapacity           { get { return this.Advanced.WarpMassCapacity; } }
+        public float BonusRepairRate            { get { return this.Advanced.BonusRepairRate; } }
+        public float Cargo_Capacity             { get { return this.Advanced.Cargo_Capacity; } }
+        public float shield_radius              { get { return this.Advanced.shield_radius; } }
+        public float shield_power_max           { get { return this.Advanced.shield_power_max; } }
+        public float shield_recharge_rate       { get { return this.Advanced.shield_recharge_rate; } }
+        public float shield_recharge_combat_rate{ get { return this.Advanced.shield_recharge_combat_rate; } }
+        public float shield_recharge_delay      { get { return this.Advanced.shield_recharge_delay; } }
+        public float shield_threshold           { get { return this.Advanced.shield_threshold; } }
+        public float shield_kinetic_resist      { get { return this.Advanced.shield_kinetic_resist; } }
+        public float shield_energy_resist       { get { return this.Advanced.shield_energy_resist; } }
+        public float shield_explosive_resist    { get { return this.Advanced.shield_explosive_resist; } }
+        public float shield_missile_resist      { get { return this.Advanced.shield_missile_resist; } }
+        public float shield_flak_resist         { get { return this.Advanced.shield_flak_resist; } }
+        public float shield_hybrid_resist       { get { return this.Advanced.shield_hybrid_resist; } }
+        public float shield_railgun_resist      { get { return this.Advanced.shield_railgun_resist; } }
+        public float shield_subspace_resist     { get { return this.Advanced.shield_subspace_resist; } }
+        public float shield_warp_resist         { get { return this.Advanced.shield_warp_resist; } }
+        public float shield_beam_resist         { get { return this.Advanced.shield_beam_resist; } }
+        public float numberOfColonists          { get { return this.Advanced.numberOfColonists; } }
+        public float numberOfEquipment          { get { return this.Advanced.numberOfEquipment; } }
+        public float numberOfFood               { get { return this.Advanced.numberOfFood; } }
+        public bool IsSupplyBay                 { get { return this.Advanced.IsSupplyBay; } }
+        public bool IsTroopBay                  { get { return this.Advanced.IsTroopBay; } }
+        public float hangarTimerConstant        { get { return this.Advanced.hangarTimerConstant; } }
+        public float thrust                     { get { return this.Advanced.thrust; } }
+        public float WarpThrust                 { get { return this.Advanced.WarpThrust; } }
+        public float TurnThrust                 { get { return this.Advanced.TurnThrust; } }
+        public float PowerFlowMax               { get { return this.Advanced.PowerFlowMax; } }
+        public float PowerDraw                  { get { return this.Advanced.PowerDraw; } }
+        public float PowerDrawAtWarp            { get { return this.Advanced.PowerDrawAtWarp; } }
+        public float PowerStoreMax              { get { return this.Advanced.PowerStoreMax; } }
+        public float HealPerTurn                { get { return this.Advanced.HealPerTurn; } }
+        public byte TroopCapacity               { get { return this.Advanced.TroopCapacity; } }
+        public byte TroopsSupplied              { get { return this.Advanced.TroopsSupplied; } }
+        public float Cost                       { get { return this.Advanced.Cost; } }
+        public float InhibitionRadius           { get { return this.Advanced.InhibitionRadius; } }
+        public float FTLSpoolTime               { get { return this.Advanced.FTLSpoolTime; } }
+        public float ECM                        { get { return this.Advanced.ECM; } }
+        public float SensorBonus                { get { return this.Advanced.SensorBonus; } }
+        public float TransporterTimerConstant   { get { return this.Advanced.TransporterTimerConstant; } }
+        public float TransporterRange           { get { return this.Advanced.TransporterRange; } }
+        public float TransporterPower           { get { return this.Advanced.TransporterPower; } }
+        public float TransporterOrdnance        { get { return this.Advanced.TransporterOrdnance; } }
+        public byte TransporterTroopLanding     { get { return this.Advanced.TransporterTroopLanding; } }
+        public byte TransporterTroopAssault     { get { return this.Advanced.TransporterTroopAssault; } }
+        public float KineticResist              { get { return this.Advanced.KineticResist; } }
+        public float EnergyResist               { get { return this.Advanced.EnergyResist; } }
+        public float GuidedResist               { get { return this.Advanced.GuidedResist; } }
+        public float MissileResist              { get { return this.Advanced.MissileResist; } }
+        public float HybridResist               { get { return this.Advanced.HybridResist; } }
+        public float BeamResist                 { get { return this.Advanced.BeamResist; } }
+        public float ExplosiveResist            { get { return this.Advanced.ExplosiveResist; } }
+        public float InterceptResist            { get { return this.Advanced.InterceptResist; } }
+        public float RailgunResist              { get { return this.Advanced.RailgunResist; } }
+        public float SpaceBombResist            { get { return this.Advanced.SpaceBombResist; } }
+        public float BombResist                 { get { return this.Advanced.BombResist; } }
+        public float BioWeaponResist            { get { return this.Advanced.BioWeaponResist; } }
+        public float DroneResist                { get { return this.Advanced.DroneResist; } }
+        public float WarpResist                 { get { return this.Advanced.WarpResist; } }
+        public float TorpedoResist              { get { return this.Advanced.TorpedoResist; } }
+        public float CannonResist               { get { return this.Advanced.CannonResist; } }
+        public float SubspaceResist             { get { return this.Advanced.SubspaceResist; } }
+        public float PDResist                   { get { return this.Advanced.PDResist; } }
+        public float FlakResist                 { get { return this.Advanced.FlakResist; } }
+        public float DamageThreshold            { get { return this.Advanced.DamageThreshold; } }
+        public int APResist                     { get { return this.Advanced.APResist; } }
+        public bool IndirectPower               { get { return this.Advanced.IndirectPower; } }
+        public bool isPowerArmour               { get { return this.Advanced.isPowerArmour; } }
+        public bool isBulkhead                  { get { return this.Advanced.isBulkhead; } }
+        public sbyte TargetTracking             { get { return this.Advanced.TargetTracking; } }
+
+        public bool IsWeapon
 		{
 			get
 			{
@@ -315,11 +186,12 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		public ShipModule()
+		public ShipModule()     //Constructor
 		{
-		}
+            this.Advanced = ShipModule_Advanced.Empty;
+        }
 
-		public ShipModule(ShipModuleType type)
+		public ShipModule(ShipModuleType type)  //Constructor that is not called anywhere
 		{
 			this.ModuleType = type;
 		}
@@ -1533,13 +1405,13 @@ namespace Ship_Game.Gameplay
                             damageAmount *= (source as Projectile).weapon.EffectVsArmor;
                         }
                     }
-					ShipModule health = this;
-					health.Health = health.Health - damageAmount;
+					//ShipModule health = this;
+					this.Health = this.Health - damageAmount;
 				}
 				else
 				{
-					ShipModule shieldPower = this;
-					shieldPower.shield_power = shieldPower.shield_power - damageAmount;
+					//ShipModule shieldPower = this;
+					this.shield_power = this.shield_power - damageAmount;
 					if (this.shield_power < 0f)
 					{
 						this.shield_power = 0f;
@@ -1558,7 +1430,7 @@ namespace Ship_Game.Gameplay
 			}
 			else
 			{
-				ShipModule shipModule = this;
+				//ShipModule shipModule = this;
                 if (source is Projectile)
                 {
                     if ((source as Projectile).isSecondary)
@@ -1582,85 +1454,85 @@ namespace Ship_Game.Gameplay
                 {
                     if ((source as Projectile).weapon.Tag_Kinetic)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_kinetic_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_kinetic_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Energy)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_energy_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_energy_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Explosive)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_explosive_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_explosive_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Missile)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_missile_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_missile_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Flak)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_flak_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_flak_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Hybrid)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_hybrid_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_hybrid_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Railgun)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_railgun_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_railgun_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Subspace)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_subspace_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_subspace_resist);
                     }
                     if ((source as Projectile).weapon.Tag_Warp)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_warp_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_warp_resist);
                     }
                 }
                 else if (source is Beam)
                 {
                     if ((source as Beam).weapon.Tag_Kinetic)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_kinetic_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_kinetic_resist);
                     }
                     if ((source as Beam).weapon.Tag_Energy)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_energy_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_energy_resist);
                     }
                     if ((source as Beam).weapon.Tag_Explosive)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_explosive_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_explosive_resist);
                     }
                     if ((source as Beam).weapon.Tag_Missile)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_missile_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_missile_resist);
                     }
                     if ((source as Beam).weapon.Tag_Flak)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_flak_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_flak_resist);
                     }
                     if ((source as Beam).weapon.Tag_Hybrid)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_hybrid_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_hybrid_resist);
                     }
                     if ((source as Beam).weapon.Tag_Railgun)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_railgun_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_railgun_resist);
                     }
                     if ((source as Beam).weapon.Tag_Subspace)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_subspace_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_subspace_resist);
                     }
                     if ((source as Beam).weapon.Tag_Warp)
                     {
-                        damageAmount = damageAmount - (damageAmount * shipModule.shield_warp_resist);
+                        damageAmount = damageAmount - (damageAmount * this.shield_warp_resist);
                     }
                 }
 
-                if (damageAmount <= shipModule.shield_threshold)
+                if (damageAmount <= this.shield_threshold)
                     damageAmount = 0f;
 
-				shipModule.shield_power = shipModule.shield_power - damageAmount;
+				this.shield_power = this.shield_power - damageAmount;
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
 					base.findAngleToTarget(this.Parent.Center, source.Center);
@@ -1700,8 +1572,8 @@ namespace Ship_Game.Gameplay
 						}
 						if ((source as Beam).weapon.SiphonDamage > 0f)
 						{
-							ShipModule shieldPower1 = this;
-							shieldPower1.shield_power = shieldPower1.shield_power - (source as Beam).weapon.SiphonDamage;
+							//ShipModule shieldPower1 = this;
+							this.shield_power = this.shield_power - (source as Beam).weapon.SiphonDamage;
 							if (this.shield_power < 0f)
 							{
 								this.shield_power = 0f;
@@ -1843,9 +1715,9 @@ namespace Ship_Game.Gameplay
 			return this.Parent;
 		}
 
-		public void Initialize(Vector2 pos)
+		public void Initialize(Vector2 pos) //Mer
 		{
-			DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
+            DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
 			this.XMLPosition = pos;
 			this.radius = 8f;
 			base.Position = pos;
@@ -1855,10 +1727,10 @@ namespace Ship_Game.Gameplay
 			this.moduleCenter.Y = base.Position.Y + 256f;
 			this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
 			float scaleFactor = 1f;
-			ShipModule shipModule = this;
-			shipModule.distanceToParentCenter = shipModule.distanceToParentCenter * scaleFactor;
+			//ShipModule shipModule = this;
+			this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
 			this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
-			this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
+			//this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
 			this.SetInitialPosition();
 			this.SetAttributesByType();
 			if (this.Parent != null && this.Parent.loyalty != null)
@@ -1988,10 +1860,10 @@ namespace Ship_Game.Gameplay
             this.moduleCenter.Y = base.Position.Y + 256f;
             this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
             float scaleFactor = 1f;
-            ShipModule shipModule = this;
-            shipModule.distanceToParentCenter = shipModule.distanceToParentCenter * scaleFactor;
+            //ShipModule shipModule = this;
+            this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
             this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
-            this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
+            //this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
             this.SetInitialPosition();
             this.SetAttributesByType();
             //if (this.Parent != null && this.Parent.loyalty != null)
@@ -2115,10 +1987,10 @@ namespace Ship_Game.Gameplay
 			this.moduleCenter.Y = base.Position.Y + 256f;
 			this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
 			float scaleFactor = 1f;
-			ShipModule shipModule = this;
-			shipModule.distanceToParentCenter = shipModule.distanceToParentCenter * scaleFactor;
+			//ShipModule shipModule = this;
+			this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
 			this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
-			this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
+			//this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
 			this.SetInitialPosition();
 			this.SetAttributesByType();
 			base.Initialize();
@@ -2132,7 +2004,7 @@ namespace Ship_Game.Gameplay
                 }
 
             }
-		}
+		}   //Not called anywhere
 
 		public void LaunchBoardingPartyORIG(Troop troop)
 		{
@@ -2203,19 +2075,19 @@ namespace Ship_Game.Gameplay
 
 		public void Move(float elapsedTime, float cos, float sin, float tan)
 		{
-			GlobalStats.ModulesMoved = GlobalStats.ModulesMoved + 1;
+			GlobalStats.ModulesMoved += 1;
 			Vector2 actualVector = this.XMLPosition;
-			actualVector.X = actualVector.X - 256f;
-			actualVector.Y = actualVector.Y - 256f;
+			actualVector.X -= 256f;
+			actualVector.Y -= 256f;
 			this.Center.X = actualVector.X * cos - actualVector.Y * sin;
 			this.Center.Y = actualVector.X * sin + actualVector.Y * cos;
-			ShipModule center = this;
-			center.Center = center.Center + this.Parent.Center;
-			float num = 256f - this.XMLPosition.X;
-			this.Center3D.X = this.Center.X;
+			//ShipModule center = this;
+			this.Center += this.Parent.Center;
+            //float num = 256f - this.XMLPosition.X;
+            this.Center3D.X = this.Center.X;
 			this.Center3D.Y = this.Center.Y;
-			this.Center3D.Z = tan * num;
-			if (this.Parent.dying && this.Parent.InFrustum)
+			this.Center3D.Z = tan * (256f - this.XMLPosition.X);
+            if (this.Parent.dying && this.Parent.InFrustum)
 			{
 				if (this.trailEmitter == null && this.firetrailEmitter == null && this.reallyFuckedUp)
 				{
@@ -2395,6 +2267,8 @@ namespace Ship_Game.Gameplay
                 //    this.TargetTracking = Convert.ToSByte((this.XSIZE*this.YSIZE) / 3);
                 //    break;
             }
+            this.Health = this.HealthMax;
+            if (this.isDummy) return;
             if (this.shield_power_max > 0.0)
             {
                 this.shield = new Shield();
@@ -2410,7 +2284,6 @@ namespace Ship_Game.Gameplay
             {
                 this.Parent.IsSupplyShip = true;
             }
-            this.Health = this.HealthMax;
         }
 
         public void SetAttributesNoParent()
@@ -2578,7 +2451,7 @@ namespace Ship_Game.Gameplay
             ModuleSlot module;
             Vector2 up = new Vector2(this.XMLPosition.X, this.XMLPosition.Y - 16f);
             
-            if (this.Parent.GetMD().TryGetValue(up, out module) && module.module.Active && (!module.module.isExternal || module.module.shield_power_max>0 ))
+            if (this.Parent.GetMD().TryGetValue(up, out module) && module.module.Active && (!module.module.isExternal || module.module.shield_power_max >0 ))
 			{
                 module.module.isExternal = true;
                 module.module.quadrant = 1;
@@ -2627,20 +2500,19 @@ namespace Ship_Game.Gameplay
 			return colors2D;
 		}
 
-		public override void Update(float elapsedTime)
-		{
-            this.BombTimer -= elapsedTime;
-			if (base.Health > 0f && !this.Active)
-			{
-				this.Active = true;
-				this.SetNewExternals();
-				this.Parent.RecalculatePower();
-			}
-			else if (this.shield_power_max > 0f && !this.isExternal && this.Active )
-			{				
-                this.quadrant=-1;
-                this.isExternal = true;                
-			}
+        public override void Update(float elapsedTime)
+        {
+            if (base.Health > 0f && !this.Active)
+            {
+                this.Active = true;
+                this.SetNewExternals();
+                this.Parent.RecalculatePower();
+            }
+            else if (this.shield_power_max > 0f && !this.isExternal && this.Active)
+            {
+                this.quadrant = -1;
+                this.isExternal = true;
+            }
             if (base.Health <= 0f && this.Active)
             {
                 this.Die(base.LastDamagedBy, false);
@@ -2650,33 +2522,6 @@ namespace Ship_Game.Gameplay
                 base.Health = this.HealthMax;
                 this.onFire = false;
             }
-            //Added by McShooterz: shields keep charge when manually turned off
-            if (this.shield_power <= 0f || shieldsOff)
-            {
-                this.radius = 8f;                
-            }
-            else
-                this.radius = this.shield_radius;
-            if (this.ModuleType == ShipModuleType.Hangar && this.Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
-                this.hangarTimer -= elapsedTime;
-            //Shield Recharge
-            float shieldMax = this.GetShieldsMax();
-            if (this.Active && this.Powered && this.shield_power < shieldMax)
-			{
-                if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
-                    this.shield_power += this.shield_recharge_rate * elapsedTime;
-                else if (this.shield_power > 0)
-                    this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
-                if (this.shield_power > shieldMax)
-                    this.shield_power = shieldMax;
-			}
-			if (this.shield_power < 0f)
-			{
-				this.shield_power = 0f;
-			}
-            if (this.TransporterTimer > 0)
-                this.TransporterTimer -= elapsedTime;
-			base.Update(elapsedTime);
 
             //Added by Gretman
             if (this.ParentOfDummy != null && this.isDummy)
@@ -2684,6 +2529,38 @@ namespace Ship_Game.Gameplay
                 this.Health = this.ParentOfDummy.Health;
                 this.HealthMax = this.ParentOfDummy.HealthMax;
             }
+
+            if (!this.isDummy)
+            {
+                this.BombTimer -= elapsedTime;
+                //Added by McShooterz: shields keep charge when manually turned off
+                if (this.shield_power <= 0f || shieldsOff)
+                {
+                    this.radius = 8f;
+                }
+                else
+                    this.radius = this.shield_radius;
+                if (this.ModuleType == ShipModuleType.Hangar && this.Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
+                    this.hangarTimer -= elapsedTime;
+                //Shield Recharge
+                float shieldMax = this.GetShieldsMax();
+                if (this.Active && this.Powered && this.shield_power < shieldMax)
+                {
+                    if (this.Parent.ShieldRechargeTimer > this.shield_recharge_delay)
+                        this.shield_power += this.shield_recharge_rate * elapsedTime;
+                    else if (this.shield_power > 0)
+                        this.shield_power += this.shield_recharge_combat_rate * elapsedTime;
+                    if (this.shield_power > shieldMax)
+                        this.shield_power = shieldMax;
+                }
+                if (this.shield_power < 0f)
+                {
+                    this.shield_power = 0f;
+                }
+                if (this.TransporterTimer > 0)
+                    this.TransporterTimer -= elapsedTime;
+            }
+			base.Update(elapsedTime);
         }
 
 		public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)

@@ -42,9 +42,9 @@ namespace Ship_Game
 
 		public int RingsCount;
 
-		public Vector2 Size = new Vector2(200000f, 200000f);
+        //public Vector2 Size = new Vector2(200000f, 200000f);          //Not referenced in code, removing to save memory -Gretman
 
-		public List<Planet> PlanetList = new List<Planet>();
+        public List<Planet> PlanetList = new List<Planet>();
 
 		public BatchRemovalCollection<Asteroid> AsteroidsList = new BatchRemovalCollection<Asteroid>();
 
@@ -76,7 +76,20 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
+        private int myVar;
 
+        //public int MyProperty(Empire empire)
+        //{
+             
+        //    foreach(Planet p in this.PlanetList)
+        //    {
+        //        if(p.Owner == null || p.Owner != empire)
+        //            continue;
+        //    }
+        //    this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * empire.data.SensorModifier : 600000f * empire.data.SensorModifier
+            
+        //}
+        
             public class PredictionTimeout{
                 public float prediction;
                 public float predictionTimeout;
@@ -317,7 +330,7 @@ namespace Ship_Game
 				else
 				{
 					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * scale;// (float)(1 + ((Math.Log(scale)) / 1.5));
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
 					Planet newOrbital = new Planet()
@@ -496,7 +509,7 @@ namespace Ship_Game
                     {
                         scale += 2.5f;
                     }
-                    float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
 					newOrbital.SetPlanetAttributes();
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -805,7 +818,7 @@ namespace Ship_Game
                     {
                         scale += 2.5f;
                     }
-                    float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
 					newOrbital.SetPlanetAttributes();
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -860,7 +873,7 @@ namespace Ship_Game
 				else if (i == 3)
 				{
 					float scale = RandomMath.RandomBetween(1f, 2f);
-					float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
 					Planet newOrbital = new Planet()
@@ -962,7 +975,7 @@ namespace Ship_Game
                         }
                     }
 
-					float planetRadius = 100f * scale;
+                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
 					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
 					Vector2 planetCenter = newSys.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
                     

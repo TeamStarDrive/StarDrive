@@ -12,7 +12,7 @@
     <ProjectView>ShowAllFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup>
-    <ReferencePath>C:\Program Files (x86)\Steam\steamapps\common\StarDrive\;D:\Steam\steamapps\common\StarDrive\</ReferencePath>
+    <ReferencePath>C:\Program Files (x86)\Steam\steamapps\common\StarDrive\;D:\Steam\steamapps\common\StarDrive\;E:\SteamLibrary\steamapps\common\StarDrive\</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-Debug|x86'">
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
