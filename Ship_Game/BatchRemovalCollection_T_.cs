@@ -168,6 +168,9 @@ namespace Ship_Game
             thisLock.ExitWriteLock();
             
         }
+        // to use this:
+        // somelist.foreach(action => { do some action with action},false,false,false);
+        // to enable parallel mode set the last false to "true'
         public void ForEach(Action<T> action, Boolean performActionOnClones = true, Boolean asParallel = true, Boolean inParallel = false)
         {
             if (action == null)
