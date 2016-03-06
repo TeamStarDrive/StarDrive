@@ -127,16 +127,17 @@ namespace Ship_Game.Gameplay
 				{
 					this.empire.GetFleetsDict()[this.empire.GetRelations()[Them].DefenseFleet].Task.EndTask();
 				}
-				lock (GlobalStats.TaskLocker)
+				//lock (GlobalStats.TaskLocker)
 				{
-					foreach (MilitaryTask task in this.TaskList)
-					{
-						if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != Them)
-						{
-							continue;
-						}
-						task.EndTask();
-					}
+					//foreach (MilitaryTask task in this.TaskList)
+                    this.TaskList.ForEach(task =>
+                    {
+                        if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != Them)
+                        {
+                            return;
+                        }
+                        task.EndTask();
+                    },false,false,false);
 				}
 				this.empire.GetRelations()[Them].ActiveWar = null;
 				Them.GetRelations()[this.empire].AtWar = false;
@@ -164,16 +165,17 @@ namespace Ship_Game.Gameplay
 					{
 						Them.GetFleetsDict()[Them.GetRelations()[this.empire].DefenseFleet].Task.EndTask();
 					}
-					lock (GlobalStats.TaskLocker)
+					//lock (GlobalStats.TaskLocker)
 					{
-						foreach (MilitaryTask task in Them.GetGSAI().TaskList)
-						{
-							if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != this.empire)
-							{
-								continue;
-							}
-							task.EndTask();
-						}
+						//foreach (MilitaryTask task in Them.GetGSAI().TaskList)
+                        Them.GetGSAI().TaskList.ForEach(task =>
+                        {
+                            if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != this.empire)
+                            {
+                                return;
+                            }
+                            task.EndTask();
+                        },false,false,false);
 					}
 				}
 				Them.GetRelations()[this.empire].ActiveWar = null;
@@ -515,16 +517,16 @@ namespace Ship_Game.Gameplay
 				{
 					this.empire.GetFleetsDict()[this.empire.GetRelations()[Them].DefenseFleet].Task.EndTask();
 				}
-				lock (GlobalStats.TaskLocker)
+				//lock (GlobalStats.TaskLocker)
 				{
-					foreach (MilitaryTask task in this.TaskList)
-					{
-						if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != Them)
-						{
-							continue;
-						}
-						task.EndTask();
-					}
+                    this.TaskList.ForEach(task =>//foreach (MilitaryTask task in this.TaskList)
+                    {
+                        if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != Them)
+                        {
+                            return;
+                        }
+                        task.EndTask();
+                    });
 				}
 				this.empire.GetRelations()[Them].ActiveWar = null;
 				Them.GetRelations()[this.empire].AtWar = false;
@@ -552,16 +554,16 @@ namespace Ship_Game.Gameplay
 					{
 						Them.GetFleetsDict()[Them.GetRelations()[this.empire].DefenseFleet].Task.EndTask();
 					}
-					lock (GlobalStats.TaskLocker)
+					//lock (GlobalStats.TaskLocker)
 					{
-						foreach (MilitaryTask task in Them.GetGSAI().TaskList)
-						{
-							if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != this.empire)
-							{
-								continue;
-							}
-							task.EndTask();
-						}
+                        Them.GetGSAI().TaskList.ForEach(task =>//foreach (MilitaryTask task in Them.GetGSAI().TaskList)
+                        {
+                            if (task.GetTargetPlanet() == null || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != this.empire)
+                            {
+                                return;
+                            }
+                            task.EndTask();
+                        },false,false,false);
 					}
 				}
 				Them.GetRelations()[this.empire].ActiveWar = null;
@@ -4308,47 +4310,48 @@ namespace Ship_Game.Gameplay
 		{
 			this.empire.GetRelations()[them].AtWar = false;
 			them.GetRelations()[this.empire].AtWar = false;
-			lock (GlobalStats.TaskLocker)
+			//lock (GlobalStats.TaskLocker)
 			{
-				foreach (MilitaryTask task in this.TaskList)
-				{
-					if (this.empire.GetFleetsDict().ContainsKey(task.WhichFleet) && this.empire.data.Traits.Name == "Corsairs")
-					{
-						bool foundhome = false;
-						foreach (Ship ship in this.empire.GetShips())
-						{
+                this.TaskList.ForEach(task =>//foreach (MilitaryTask task in this.TaskList)
+                {
+                    if (this.empire.GetFleetsDict().ContainsKey(task.WhichFleet) && this.empire.data.Traits.Name == "Corsairs")
+                    {
+                        bool foundhome = false;
+                        foreach (Ship ship in this.empire.GetShips())
+                        {
                             if (!(ship.shipData.Role == ShipData.RoleName.station) && !(ship.shipData.Role == ShipData.RoleName.platform))
-							{
-								continue;
-							}
-							foundhome = true;
-							List<Ship>.Enumerator enumerator = this.empire.GetFleetsDict()[task.WhichFleet].Ships.GetEnumerator();
-							try
-							{
-								while (enumerator.MoveNext())
-								{
-									Ship fship = enumerator.Current;
-									fship.GetAI().OrderQueue.Clear();
-									fship.DoEscort(ship);
-								}
-								break;
-							}
-							finally
-							{
-								((IDisposable)enumerator).Dispose();
-							}
-						}
-						if (!foundhome)
-						{
-							foreach (Ship ship in this.empire.GetFleetsDict()[task.WhichFleet].Ships)
-							{
-								ship.GetAI().OrderQueue.Clear();
-								ship.GetAI().State = AIState.AwaitingOrders;
-							}
-						}
-					}
-					task.EndTaskWithMove();
-				}
+                            {
+                                continue;
+                            }
+                            foundhome = true;
+                            List<Ship>.Enumerator enumerator = this.empire.GetFleetsDict()[task.WhichFleet].Ships.GetEnumerator();
+                            try
+                            {
+                                while (enumerator.MoveNext())
+                                {
+                                    Ship fship = enumerator.Current;
+                                    fship.GetAI().OrderQueue.Clear();
+                                    fship.DoEscort(ship);
+                                }
+                                break;
+                            }
+                            finally
+                            {
+                                ((IDisposable)enumerator).Dispose();
+                            }
+                        }
+                        if (!foundhome)
+                        {
+                            foreach (Ship ship in this.empire.GetFleetsDict()[task.WhichFleet].Ships)
+                            {
+                                ship.GetAI().OrderQueue.Clear();
+                                ship.GetAI().State = AIState.AwaitingOrders;
+                            }
+                        }
+                    }
+                    task.EndTaskWithMove();
+
+                }, false, false, false);
 			}
 		}
 
@@ -4481,16 +4484,16 @@ namespace Ship_Game.Gameplay
                 case "Corsairs":
                     {
                         bool AttackingSomeone = false;
-                        lock (GlobalStats.TaskLocker)
+                        //lock (GlobalStats.TaskLocker)
                         {
-                            foreach (MilitaryTask task in this.TaskList)
+                            this.TaskList.ForEach(task =>//foreach (MilitaryTask task in this.TaskList)
                             {
                                 if (task.type != MilitaryTask.TaskType.CorsairRaid)
                                 {
-                                    continue;
+                                    return;
                                 }
                                 AttackingSomeone = true;
-                            }
+                            }, false, false, false);
                         }
                         if (!AttackingSomeone)
                         {
@@ -4514,7 +4517,7 @@ namespace Ship_Game.Gameplay
                                 task.SetTargetPlanet(sortedList.First<Planet>());
                                 task.TaskTimer = 300f;
                                 task.type = MilitaryTask.TaskType.CorsairRaid;
-                                lock (GlobalStats.TaskLocker)
+                              //  lock (GlobalStats.TaskLocker)
                                 {
                                     this.TaskList.Add(task);
                                 }
@@ -4528,19 +4531,19 @@ namespace Ship_Game.Gameplay
             
             
             
-			lock (GlobalStats.TaskLocker)
+			//lock (GlobalStats.TaskLocker)
 			{
-				foreach (MilitaryTask task in this.TaskList)
-				{
-					if (task.type != MilitaryTask.TaskType.Exploration)
-					{
-						task.Evaluate(this.empire);
-					}
-					else
-					{
-						task.EndTask();
-					}
-				}
+                this.TaskList.ForEach(task =>//foreach (MilitaryTask task in this.TaskList)
+                {
+                    if (task.type != MilitaryTask.TaskType.Exploration)
+                    {
+                        task.Evaluate(this.empire);
+                    }
+                    else
+                    {
+                        task.EndTask();
+                    }
+                }, false, false, false);
 			}
 		}
 
@@ -4562,7 +4565,7 @@ namespace Ship_Game.Gameplay
 			{
 				Planet target = InvasionTargets[0];
 				bool OK = true;
-				lock (GlobalStats.TaskLocker)
+                this.TaskList.thisLock.EnterReadLock();
 				{
 					foreach (MilitaryTask task in this.TaskList)
 					{
@@ -4573,27 +4576,27 @@ namespace Ship_Game.Gameplay
 						OK = false;
 						break;
 					}
-				}
+                } this.TaskList.thisLock.ExitReadLock();
 				if (OK)
 				{
 					MilitaryTask InvadeTask = new MilitaryTask(target, this.empire);
-					lock (GlobalStats.TaskLocker)
+					//lock (GlobalStats.TaskLocker)
 					{
 						this.TaskList.Add(InvadeTask);
 					}
 				}
 			}
 			List<Planet> PlanetsWeAreInvading = new List<Planet>();
-			lock (GlobalStats.TaskLocker)
+			//lock (GlobalStats.TaskLocker)
 			{
-				foreach (MilitaryTask task in this.TaskList)
-				{
-					if (task.type != MilitaryTask.TaskType.AssaultPlanet || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != r.Key)
-					{
-						continue;
-					}
-					PlanetsWeAreInvading.Add(task.GetTargetPlanet());
-				}
+                this.TaskList.ForEach(task =>//foreach (MilitaryTask task in this.TaskList)
+                {
+                    if (task.type != MilitaryTask.TaskType.AssaultPlanet || task.GetTargetPlanet().Owner == null || task.GetTargetPlanet().Owner != r.Key)
+                    {
+                        return;
+                    }
+                    PlanetsWeAreInvading.Add(task.GetTargetPlanet());
+                },false,false,false);
 			}
 			if (PlanetsWeAreInvading.Count < 3 && this.empire.GetPlanets().Count > 0)
 			{
@@ -4615,7 +4618,7 @@ namespace Ship_Game.Gameplay
 					}
 					PlanetsWeAreInvading.Add(p);
 					MilitaryTask invade = new MilitaryTask(p, this.empire);
-					lock (GlobalStats.TaskLocker)
+					//lock (GlobalStats.TaskLocker)
 					{
 						this.TaskList.Add(invade);
 					}
@@ -4625,24 +4628,34 @@ namespace Ship_Game.Gameplay
 
         private void FightDefaultWar(KeyValuePair<Empire, Relationship> r)
         {
+            List<SolarSystem> s;
             switch (r.Value.ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
                     List<Planet> list1 = new List<Planet>();
                     IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet)));
+                        int x = (int)UniverseData.UniverseWidth;
+                    s = new List<SolarSystem>();
+                        
                     for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1); ++index)
                     {
-                        list1.Add(Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable1, index));
-                        if (index == 2)
+                        Planet p = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable1, index);
+                        
+                        
+                        if (!s.Contains(p.ParentSystem))
+                        {s.Add(p.ParentSystem);}
+                        if(s.Count >2)
                             break;
+                        list1.Add(p);
                     }
                     using (List<Planet>.Enumerator enumerator = list1.GetEnumerator())
                     {
+                    
                         while (enumerator.MoveNext())
                         {
                             Planet current = enumerator.Current;
                             bool flag = true;
-                            lock (GlobalStats.TaskLocker)
+                            this.TaskList.thisLock.EnterReadLock();
                             {
                                 foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
                                 {
@@ -4652,11 +4665,11 @@ namespace Ship_Game.Gameplay
                                         break;
                                     }
                                 }
-                            }
+                            } this.TaskList.thisLock.ExitReadLock();
                             if (flag)
                             {
                                 MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
-                                lock (GlobalStats.TaskLocker)
+                                //lock (GlobalStats.TaskLocker)
                                     this.TaskList.Add(militaryTask);
                             }
                         }
@@ -4665,11 +4678,18 @@ namespace Ship_Game.Gameplay
                 case WarType.ImperialistWar:
                     List<Planet> list2 = new List<Planet>();
                     IOrderedEnumerable<Planet> orderedEnumerable2 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet)));
+                    s = new List<SolarSystem>();
                     for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable2); ++index)
                     {
-                        list2.Add(Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable2, index));
-                        if (index == 2)
+                        Planet p = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable2, index);
+
+
+                        if (!s.Contains(p.ParentSystem))
+                        { s.Add(p.ParentSystem); }
+                        if (s.Count > 2)
                             break;
+                        list2.Add(p);
+                 
                     }
                     using (List<Planet>.Enumerator enumerator = list2.GetEnumerator())
                     {
@@ -4677,7 +4697,7 @@ namespace Ship_Game.Gameplay
                         {
                             Planet current = enumerator.Current;
                             bool flag = true;
-                            lock (GlobalStats.TaskLocker)
+                            this.TaskList.thisLock.EnterReadLock();
                             {
                                 foreach (MilitaryTask item_1 in (List<MilitaryTask>)this.TaskList)
                                 {
@@ -4687,11 +4707,11 @@ namespace Ship_Game.Gameplay
                                         break;
                                     }
                                 }
-                            }
+                            } this.TaskList.thisLock.ExitReadLock();
                             if (flag)
                             {
                                 MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
-                                lock (GlobalStats.TaskLocker)
+                              //  lock (GlobalStats.TaskLocker)
                                     this.TaskList.Add(militaryTask);
                             }
                         }
@@ -7547,16 +7567,16 @@ namespace Ship_Game.Gameplay
             float SizeLimiter = GlobalStats.MemoryLimiter;
             int ShipCountLimit = GlobalStats.ShipCountLimit;
             List<AO>.Enumerator enumerator;
-            if(!this.empire.MinorRace)
+            if (!this.empire.MinorRace)
                 this.RunGroundPlanner();
             this.numberOfShipGoals = 0;// 6 + this.empire.data.EconomicPersonality.ShipGoalsPlus;
             foreach (Planet p in this.empire.GetPlanets())
             {
-               // if (!p.HasShipyard || (p.GetMaxProductionPotential() <2f
+                // if (!p.HasShipyard || (p.GetMaxProductionPotential() <2f
                 if (//(p.GetMaxProductionPotential() < 2f //||( this.empire.data.Traits.Cybernetic !=0 && p.GetMaxProductionPotential()-p.consumption <2f)
                     //|| p.ps == Planet.GoodState.IMPORT
-                    ( p.WorkerPercentage) > .75 || p.GetMaxProductionPotential() < 2f
-                    
+                    (p.WorkerPercentage) > .75 || p.GetMaxProductionPotential() < 2f
+
                     )//)   //p.GetNetProductionPerTurn() < .5f))
                 {
                     continue;
@@ -7564,9 +7584,9 @@ namespace Ship_Game.Gameplay
 
                 this.numberOfShipGoals++; //(int)(p.ProductionHere /(1+ p.ConstructionQueue.Sum(q => q.Cost)));
             }
-            
-           // this.numberOfShipGoals = this.numberOfShipGoals / this.empire.GetPlanets().Count;
-          //  this.numberOfShipGoals = (int)((float)this.numberOfShipGoals* (1 - this.empire.data.TaxRate));
+
+            // this.numberOfShipGoals = this.numberOfShipGoals / this.empire.GetPlanets().Count;
+            //  this.numberOfShipGoals = (int)((float)this.numberOfShipGoals* (1 - this.empire.data.TaxRate));
             float numgoals = 0f;
             float offenseUnderConstruction = 0f;
             float UnderConstruction = 0f;
@@ -7576,7 +7596,7 @@ namespace Ship_Game.Gameplay
             {
                 if (g.GoalName == "BuildOffensiveShips" || g.GoalName == "BuildDefensiveShips")
                 {
-					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
                         UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
                     }
@@ -7595,7 +7615,7 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                 {
                     UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
                 }
@@ -7608,8 +7628,8 @@ namespace Ship_Game.Gameplay
             //float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
 
             int numWars = 0;
-            float offenseNeeded =0;
-            float FearTrust =0;
+            float offenseNeeded = 0;
+            float FearTrust = 0;
             //foreach(MilitaryTask task in this.TaskList)
             //{
             //    offenseNeeded += task.EnemyStrength;// .MinimumTaskForceStrength;
@@ -7653,17 +7673,18 @@ namespace Ship_Game.Gameplay
             //    offenseNeeded += this.ThreatMatrix.PingRadarStr(ao.Position, ao.Radius, this.empire, true);
             //}
             offenseNeeded += this.ThreatMatrix.StrengthOfAllThreats(this.empire);
-                //this.ThreatMatrix.Pins.Values.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);            //  .Sum(power => power.Strength) ; //
-                offenseNeeded /= this.empire.currentMilitaryStrength ;
-                
-            if (offenseNeeded <=0)
-            {    offenseNeeded = 0;
-            
+            //this.ThreatMatrix.Pins.Values.Where(faction=>  EmpireManager.GetEmpireByName(faction.EmpireName).isFaction).Sum(power => power.Strength);            //  .Sum(power => power.Strength) ; //
+            offenseNeeded /= this.empire.currentMilitaryStrength;
+
+            if (offenseNeeded <= 0)
+            {
+                offenseNeeded = 0;
+
             }
 
-            
+
             //offenseNeeded += FearTrust;
-    
+
             if (offenseNeeded > 20)
                 offenseNeeded = 20;
             this.numberOfShipGoals += (int)offenseNeeded;
@@ -7672,24 +7693,24 @@ namespace Ship_Game.Gameplay
             if (this.empire.Money > 500f)
                 AtWarBonus += (offenseNeeded * (0.03f + this.empire.getResStrat().MilitaryPriority * .03f));
             float Capacity = this.empire.Grossincome() * (.25f + AtWarBonus) - UnderConstruction;// -UnderConstruction - this.empire.GetTotalShipMaintenance();// +this.empire.GetAverageNetIncome();
-            float allowable_deficit = -(this.empire.Money*.05f) * AtWarBonus;//*(1.5f-this.empire.data.TaxRate))); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
-                //-Capacity;
-            
-            if(Capacity > this.buildCapacity)
+            float allowable_deficit = -(this.empire.Money * .05f) * AtWarBonus;//*(1.5f-this.empire.data.TaxRate))); //>0?(1 - (this.empire.Money * 10 / this.empire.Money)):0); //-Capacity;// +(this.empire.Money * -.1f);
+            //-Capacity;
+
+            if (Capacity > this.buildCapacity)
                 this.buildCapacity = Capacity;
             this.empire.data.ShipBudget = this.buildCapacity;
             if (Capacity - this.empire.GetTotalShipMaintenance() - allowable_deficit <= 0f)
             {
                 Capacity -= this.empire.GetTotalShipMaintenance() - allowable_deficit;
                 float HowMuchWeAreScrapping = 0f;
-                
+
                 foreach (Ship ship1 in this.empire.GetShips())
                 {
                     if (ship1.GetAI().State != AIState.Scrap)
                     {
                         continue;
                     }
-					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
                         HowMuchWeAreScrapping = HowMuchWeAreScrapping + ship1.GetMaintCostRealism();
                     }
@@ -7701,9 +7722,9 @@ namespace Ship_Game.Gameplay
                 if (HowMuchWeAreScrapping < Math.Abs(Capacity))
                 {
                     float Added = 0f;
-                    
+
                     //added by gremlin clear out building ships before active ships.
-					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
                         foreach (Goal g in this.Goals.Where(goal => goal.GoalName == "BuildOffensiveShips" || goal.GoalName == "BuildDefensiveShips").OrderByDescending(goal => ResourceManager.ShipsDict[goal.ToBuildUID].GetMaintCostRealism()))
                         {
@@ -7762,9 +7783,9 @@ namespace Ship_Game.Gameplay
                                 break;
                         }
                     }
-                  
+
                     this.Goals.ApplyPendingRemovals();
-                    Capacity = Capacity + HowMuchWeAreScrapping + Added;                    
+                    Capacity = Capacity + HowMuchWeAreScrapping + Added;
                 }
                 this.buildCapacity = Capacity;
             }
@@ -7787,44 +7808,44 @@ namespace Ship_Game.Gameplay
                     Def = true;
             Capacity = this.buildCapacity;
             if (Def)
-            while (Capacity - HalfCapacity > 0f
-                && numgoals < this.numberOfShipGoals / 2
-                && (Empire.universeScreen.globalshipCount < ShipCountLimit + recyclepool
-                || this.empire.empireShipTotal < this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
-            {
+                while (Capacity - HalfCapacity > 0f
+                    && numgoals < this.numberOfShipGoals / 2
+                    && (Empire.universeScreen.globalshipCount < ShipCountLimit + recyclepool
+                    || this.empire.empireShipTotal < this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
+                {
 
-                string s = this.GetAShip(this.buildCapacity);//Capacity - allowable_deficit);
-                if (s == null || !this.empire.ShipsWeCanBuild.Contains(s))
-                {
-                    break;
-                }
-                if (this.recyclepool > 0)
-                {
-                    this.recyclepool--;
-                }
+                    string s = this.GetAShip(this.buildCapacity);//Capacity - allowable_deficit);
+                    if (s == null || !this.empire.ShipsWeCanBuild.Contains(s))
+                    {
+                        break;
+                    }
+                    if (this.recyclepool > 0)
+                    {
+                        this.recyclepool--;
+                    }
 
-                Goal g = new Goal(s, "BuildDefensiveShips", this.empire)
-                {
-                    type = GoalType.BuildShips
-                };
-                this.Goals.Add(g);
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                {
-                    Capacity = Capacity - ResourceManager.ShipsDict[s].GetMaintCostRealism();
+                    Goal g = new Goal(s, "BuildDefensiveShips", this.empire)
+                    {
+                        type = GoalType.BuildShips
+                    };
+                    this.Goals.Add(g);
+                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                    {
+                        Capacity = Capacity - ResourceManager.ShipsDict[s].GetMaintCostRealism();
+                    }
+                    else
+                    {
+                        Capacity = Capacity - ResourceManager.ShipsDict[s].GetMaintCost(this.empire);
+                    }
+                    numgoals = numgoals + 1f;
                 }
-                else
-                {
-                    Capacity = Capacity - ResourceManager.ShipsDict[s].GetMaintCost(this.empire);
-                }
-                numgoals = numgoals + 1f;
-            }
             //if(numgoals >this.numberOfShipGoals)
             //    System.Diagnostics.Debug.WriteLine("Offense Needed: " + this.numberOfShipGoals);
             //Build Offensive ships:
             while (Capacity > 0 //this.buildCapacity > 0 //Capacity > allowable_deficit 
                 && numgoals < this.numberOfShipGoals
-                && (Empire.universeScreen.globalshipCount < ShipCountLimit+ recyclepool 
-                || this.empire.empireShipTotal <this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
+                && (Empire.universeScreen.globalshipCount < ShipCountLimit + recyclepool
+                || this.empire.empireShipTotal < this.empire.EmpireShipCountReserve)) //shipsize < SizeLimiter)
             {
 
                 string s = this.GetAShip(this.buildCapacity);//Capacity - allowable_deficit);
@@ -7832,7 +7853,7 @@ namespace Ship_Game.Gameplay
                 {
                     break;
                 }
-                if(this.recyclepool>0)
+                if (this.recyclepool > 0)
                 {
                     this.recyclepool--;
                 }
@@ -7842,7 +7863,7 @@ namespace Ship_Game.Gameplay
                     type = GoalType.BuildShips
                 };
                 this.Goals.Add(g);
-				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                 {
                     Capacity = Capacity - ResourceManager.ShipsDict[s].GetMaintCostRealism();
                 }
@@ -7866,7 +7887,7 @@ namespace Ship_Game.Gameplay
                         this.empire.GetGSAI().CheckClaim(Relationship, g.GetMarkedPlanet());
                     }
                     this.Goals.QueuePendingRemoval(g);
-                    lock (GlobalStats.TaskLocker)
+                    this.TaskList.thisLock.EnterReadLock();
                     {
                         foreach (MilitaryTask task in this.TaskList)
                         {
@@ -7880,7 +7901,7 @@ namespace Ship_Game.Gameplay
                                 break;
                             }
                         }
-                    }
+                    } this.TaskList.thisLock.ExitReadLock();
                 }
                 else
                 {
@@ -7897,7 +7918,7 @@ namespace Ship_Game.Gameplay
                             g
                         };
                             MilitaryTask task = new MilitaryTask(g.GetMarkedPlanet().Position, 125000f, tohold, this.empire);
-                            lock (GlobalStats.TaskLocker)
+                            //lock (GlobalStats.TaskLocker)
                             {
                                 this.TaskList.Add(task);
                                 break;
@@ -7906,7 +7927,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (this.empire.data.DiplomaticPersonality.Territorialism<50 && this.empire.data.DiplomaticPersonality.Trustworthiness <50)    //    Name == "Aggressive" || this.empire.data.DiplomaticPersonality.Name == "Ruthless" || this.empire.data.EconomicPersonality.Name == "Expansionist")
+            if (this.empire.data.DiplomaticPersonality.Territorialism < 50 && this.empire.data.DiplomaticPersonality.Trustworthiness < 50)    //    Name == "Aggressive" || this.empire.data.DiplomaticPersonality.Name == "Ruthless" || this.empire.data.EconomicPersonality.Name == "Expansionist")
             {
                 foreach (Goal g in this.Goals)
                 {
@@ -7915,23 +7936,22 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     bool OK = true;
-                    lock (GlobalStats.TaskLocker)
+                    this.TaskList.thisLock.EnterReadLock();
                     {
                         foreach (MilitaryTask mt in this.TaskList)
                         //Parallel.ForEach(this.TaskList, (mt,state) =>
                         {
-                            if ((mt.type != MilitaryTask.TaskType.DefendClaim 
-                                && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies )
-                                || g.GetMarkedPlanet() != null 
+                            if ((mt.type != MilitaryTask.TaskType.DefendClaim
+                                && mt.type != MilitaryTask.TaskType.ClearAreaOfEnemies)
+                                || g.GetMarkedPlanet() != null
                                 && !(mt.TargetPlanetGuid == g.GetMarkedPlanet().guid))
-                                
                             {
                                 continue;
                             }
                             OK = false;
                             break;
                         }
-                    }
+                    } this.TaskList.thisLock.ExitReadLock();
                     if (!OK)
                     {
                         continue;
@@ -7947,7 +7967,7 @@ namespace Ship_Game.Gameplay
                     task.SetTargetPlanet(g.GetMarkedPlanet());
                     task.TargetPlanetGuid = g.GetMarkedPlanet().guid;
                     task.type = MilitaryTask.TaskType.DefendClaim;
-                    lock (GlobalStats.TaskLocker)
+                    //lock (GlobalStats.TaskLocker)
                     {
                         this.TaskList.Add(task);
                     }
@@ -7956,7 +7976,7 @@ namespace Ship_Game.Gameplay
             this.Goals.ApplyPendingRemovals();
 
             //this where the global AI attack stuff happenes.
-            lock (GlobalStats.TaskLocker)
+            this.TaskList.thisLock.EnterReadLock();// lock (GlobalStats.TaskLocker)
             {
                 List<MilitaryTask> ToughNuts = new List<MilitaryTask>();
                 List<MilitaryTask> InOurSystems = new List<MilitaryTask>();
@@ -7967,10 +7987,11 @@ namespace Ship_Game.Gameplay
                 //               where tasks.type == MilitaryTask.TaskType.AssaultPlanet
                 //               orderby Vector2.Distance(EmpireCenter,tasks.GetTargetPlanet().Owner.GetWeightedCenter()),
 
-                               
+
                 //               select tasks
                 //               ;
                 float distance = 0;
+
                 foreach (MilitaryTask task in this.TaskList //.OrderBy(target => Vector2.Distance(target.AO, this.empire.GetWeightedCenter()) / 1500000)
                     .OrderByDescending(empire =>
                     {
@@ -7979,46 +8000,46 @@ namespace Ship_Game.Gameplay
                         float weight = 0;
                         weight += (this.empire.currentMilitaryStrength - empire.MinimumTaskForceStrength) / this.empire.currentMilitaryStrength * 5;
                         //weight += ((Ship.universeScreen.Size.X*.25f) - this.GetDistanceFromOurAO(empire.AO)) / (Ship.universeScreen.Size.X * .25f) * 10;
-                        
+
                         if (empire.GetTargetPlanet() == null)
                         {
-                            
+
                             return weight * 2;
                         }
-                        Empire emp =empire.GetTargetPlanet().Owner ;
+                        Empire emp = empire.GetTargetPlanet().Owner;
                         if (emp == null)
                             return 0;
                         if (emp.isFaction)
                             return 0;
-                                                
-                        Relationship test = null;                        
+
+                        Relationship test = null;
                         if (this.empire.GetRelations().TryGetValue(emp, out test) && test != null)
                         {
                             if (test.Treaty_NAPact || test.Treaty_Alliance || test.Posture != Posture.Hostile)
                                 return 0;
-                            weight += ((test.TotalAnger*.25f) - (100-test.Threat)) /(test.TotalAnger*.25f) *5f;
+                            weight += ((test.TotalAnger * .25f) - (100 - test.Threat)) / (test.TotalAnger * .25f) * 5f;
                             if (test.AtWar)
-                                weight += 5;                            
+                                weight += 5;
 
                         }
-                        Planet target =empire.GetTargetPlanet();
-                        if(target != null)
+                        Planet target = empire.GetTargetPlanet();
+                        if (target != null)
                         {
                             SystemCommander scom;
                             target.Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(target.system, out scom);
-                            if(scom != null)
-                            weight += scom.RankImportance;
+                            if (scom != null)
+                                weight += scom.RankImportance;
                             //weight += (target.MaxPopulation /1000) + (target.MineralRichness + (int)target.developmentLevel);
                         }
-                        
+
                         if (emp.isPlayer)
-                            weight *= ((int)Empire.universeScreen.GameDifficulty >0 ? (int)Empire.universeScreen.GameDifficulty :1 );
+                            weight *= ((int)Empire.universeScreen.GameDifficulty > 0 ? (int)Empire.universeScreen.GameDifficulty : 1);
                         return weight;
 
 
 
                     })
-                    
+
                     )
                 {
                     if (task.type != MilitaryTask.TaskType.AssaultPlanet)
@@ -8070,6 +8091,7 @@ namespace Ship_Game.Gameplay
                         InOurSystems.Add(task);
                     }
                 }
+                //this.TaskList.thisLock.ExitReadLock();
                 List<MilitaryTask> TNInOurSystems = new List<MilitaryTask>();
                 List<MilitaryTask> TNInOurAOs = new List<MilitaryTask>();
                 List<MilitaryTask> TNRemainder = new List<MilitaryTask>();
@@ -8164,10 +8186,11 @@ namespace Ship_Game.Gameplay
                     }
                     task.EndTask();
                 }
-                this.TaskList.AddRange(this.TasksToAdd);
-                this.TasksToAdd.Clear();
-                this.TaskList.ApplyPendingRemovals();
-            }
+            } this.TaskList.thisLock.ExitReadLock();
+            this.TaskList.AddRange(this.TasksToAdd);
+            this.TasksToAdd.Clear();
+            this.TaskList.ApplyPendingRemovals();
+
         }
 
         
@@ -9382,7 +9405,12 @@ namespace Ship_Game.Gameplay
 
         private void RunWarPlanner()
         {
-            foreach (KeyValuePair<Empire, Relationship> r in this.empire.GetRelations())
+  
+            foreach (KeyValuePair<Empire, Relationship> r in this.empire.GetRelations().OrderByDescending( anger =>
+                {
+                    return anger.Value.TotalAnger;
+                }
+                ))
             {
                 if (r.Key.isFaction)
                 {
@@ -9392,16 +9420,27 @@ namespace Ship_Game.Gameplay
                 {
                     if (r.Value.PreparingForWar)
                     {
+                        List<SolarSystem> s;
                         switch (r.Value.PreparingForWarType)
                         {
                             case WarType.BorderConflict:
                                 List<Planet> list1 = new List<Planet>();
+                                s = new List<SolarSystem>();
                                 IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet)));
                                 for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1); ++index)
                                 {
-                                    list1.Add(Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable1, index));
-                                    if (index == 2)
+                                    Planet p = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable1, index);
+
+
+                                    if (!s.Contains(p.ParentSystem))
+                                    { s.Add(p.ParentSystem); }
+                                    if (s.Count > 2)
                                         break;
+                                    list1.Add(p);
+                                    
+                                    //list1.Add(Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable1, index));
+                                    //if (index == 2)
+                                    //    break;
                                 }
                                 using (List<Planet>.Enumerator enumerator = list1.GetEnumerator())
                                 {
@@ -9409,18 +9448,20 @@ namespace Ship_Game.Gameplay
                                     {
                                         Planet current = enumerator.Current;
                                         bool flag = true;
-                                        this.TaskList.thisLock.EnterReadLock();
+                                        //this.TaskList.thisLock.EnterReadLock();
                                         {
-                                            foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
+                                            //foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
+                                            this.TaskList.ForEach(item_0 =>
                                             {
+                                                if (!flag)
+                                                    return;
                                                 if (item_0.GetTargetPlanet() == current && item_0.type == MilitaryTask.TaskType.AssaultPlanet)
                                                 {
-                                                    flag = false;
-                                                    break;
+                                                    flag = false;                                                    
                                                 }
-                                            }
+                                            },false,false,false);
                                         }
-                                        this.TaskList.thisLock.ExitReadLock();
+                                        //this.TaskList.thisLock.ExitReadLock();
                                         if (flag)
                                         {
                                             MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
@@ -9432,12 +9473,19 @@ namespace Ship_Game.Gameplay
                                 }
                             case WarType.ImperialistWar:
                                 List<Planet> list2 = new List<Planet>();
+                                s = new List<SolarSystem>();
                                 IOrderedEnumerable<Planet> orderedEnumerable2 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet)));
                                 for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable2); ++index)
                                 {
-                                    list2.Add(Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable2, index));
-                                    if (index == 2)
+                                    Planet p = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable2, index);
+
+
+                                    if (!s.Contains(p.ParentSystem))
+                                    { s.Add(p.ParentSystem); }
+                                    if (s.Count > 2)
                                         break;
+                                    list2.Add(p);
+                                    
                                 }
                                 using (List<Planet>.Enumerator enumerator = list2.GetEnumerator())
                                 {
@@ -9445,18 +9493,21 @@ namespace Ship_Game.Gameplay
                                     {
                                         Planet current = enumerator.Current;
                                         bool flag = true;
-                                        this.TaskList.thisLock.EnterReadLock();
+                                        //this.TaskList.thisLock.EnterReadLock();
                                         {
-                                            foreach (MilitaryTask item_1 in (List<MilitaryTask>)this.TaskList)
+                                           // foreach (MilitaryTask item_1 in (List<MilitaryTask>)this.TaskList)
+                                            this.TaskList.ForEach(item_1 =>
                                             {
+                                                if (!flag)
+                                                    return;
                                                 if (item_1.GetTargetPlanet() == current && item_1.type == MilitaryTask.TaskType.AssaultPlanet)
                                                 {
-                                                    flag = false;
-                                                    break;
+                                                    flag = false; 
+                                                    
                                                 }
-                                            }
+                                            },false,false,false);
                                         }
-                                        this.TaskList.thisLock.ExitReadLock();
+                                      //  this.TaskList.thisLock.ExitReadLock();
                                         if (flag)
                                         {
                                             MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
