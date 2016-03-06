@@ -2898,7 +2898,7 @@ namespace Ship_Game.Gameplay
                                         militaryTask.SetTargetPlanet(p);
                                         militaryTask.type = MilitaryTask.TaskType.Exploration;
                                         militaryTask.SetEmpire(this.loyalty);
-                                        lock (GlobalStats.TaskLocker)
+                                     //   lock (GlobalStats.TaskLocker)
                                             this.loyalty.GetGSAI().TaskList.Add(militaryTask);
                                     }
                                 }
