@@ -5051,7 +5051,7 @@ namespace Ship_Game.Gameplay
                                 Ship s = this.Owner.loyalty.GetShips()[k];
                                 if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != this.Owner && !s.isConstructor)
                                 {
-                                    if (s.GetAI().State == AIState.SystemTrader && s.GetAI().end == p && s.GetAI().FoodOrProd == "Food"
+                                    if (s.GetAI().State == AIState.SystemTrader && s.GetAI().end == p && s.GetAI().FoodOrProd == "Food" && s.CargoSpace_Used >0
                                         )
                                     {
 
@@ -5063,13 +5063,13 @@ namespace Ship_Game.Gameplay
                                             flag = true;
                                             break;
                                         }
-                                        float efficiency = Math.Abs(currenTrade - mySpeed);
+                                        float efficiency = currenTrade - mySpeed;
                                         if(mySpeed * p.NetFoodPerTurn < p.FoodHere && faster)
                                         {
                                             continue;
                                         }
                                         if(p.NetFoodPerTurn <=0)
-                                        efficiency = s.CargoSpace_Max + efficiency * p.NetFoodPerTurn;                                        
+                                        efficiency = s.CargoSpace_Max - efficiency * p.NetFoodPerTurn;                                        
                                         else
                                             efficiency = s.CargoSpace_Max - efficiency * p.NetFoodPerTurn;                                        
                                         if (efficiency > 0)
@@ -5296,7 +5296,7 @@ namespace Ship_Game.Gameplay
                                             efficiency = s.CargoSpace_Max + efficiency * p.NetFoodPerTurn;
                                         else
                                             if (p.NetFoodPerTurn < 0)
-                                                efficiency = s.CargoSpace_Max / efficiency ;//- p.NetFoodPerTurn;
+                                                efficiency = s.CargoSpace_Max + efficiency * p.NetFoodPerTurn;
                                             else
                                             efficiency = s.CargoSpace_Max - efficiency * p.NetFoodPerTurn;
                                         if (efficiency > 0)

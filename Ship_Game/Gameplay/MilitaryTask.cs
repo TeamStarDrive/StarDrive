@@ -884,22 +884,73 @@ namespace Ship_Game.Gameplay
                     switch (this.Step)
                     {
                         case 0:
-                            if (this.TargetPlanet.Owner != null)
-                                this.EndTask();
-                            this.RequisitionClaimForce();
-                            return;
-                        case 1:
-                            if (this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
                             {
-                                if (this.empire.GetFleetsDict()[this.WhichFleet].Ships.Count == 0)
+                                Relationship rel = null;
+                                if (this.TargetPlanet.Owner != null)
+                                    this.empire.GetRelations().TryGetValue(TargetPlanet.Owner, out rel);
+                                if ( rel != null && (!rel.AtWar && !rel.PreparingForWar) )
                                     this.EndTask();
-                            }
-                            else
-                                this.EndTask();
-                            if (this.TargetPlanet.Owner == null)
+                                this.RequisitionClaimForce();
                                 return;
-                            this.EndTask();
-                            return;
+                            }
+                        case 1:
+                            {
+                                if (this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
+                                {
+                                    if (this.empire.GetFleetsDict()[this.WhichFleet].Ships.Count == 0)
+                                    {
+                                        this.EndTask();
+                                        return;
+                                    }
+                                    Relationship rel = null;
+                                    if (this.TargetPlanet.Owner != null) // &&(this.empire.GetFleetsDict().ContainsKey(this.WhichFleet)))
+                                    {
+                                        this.empire.GetRelations().TryGetValue(TargetPlanet.Owner, out rel);
+                                        if (rel != null && (rel.AtWar || rel.PreparingForWar))
+                                        {
+                                            if (Vector2.Distance(this.empire.GetFleetsDict()[this.WhichFleet].findAveragePosition(), this.TargetPlanet.Position) < this.AORadius)
+                                            {
+                                                this.Step = 2;
+                                            }
+                                            return;
+                                        }
+                                    }
+                                }
+                                else
+                                    this.EndTask();
+                               
+                                if (this.TargetPlanet.Owner == null )
+                                    return;
+                                this.EndTask();
+                                return;
+                               
+                            }
+                        case 2:
+                            {
+                                if (this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
+                                {
+                                    if (this.empire.GetFleetsDict()[this.WhichFleet].Ships.Count == 0)
+                                    {
+                                        this.EndTask();
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    this.EndTask();
+                                    return;
+                                }
+                                
+                                Relationship rel = null;
+                                this.empire.GetRelations().TryGetValue(TargetPlanet.Owner, out rel);
+                                if (rel != null && !(rel.AtWar || rel.PreparingForWar))
+                                    this.EndTask();
+                                if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner == this.empire)
+                                    this.EndTask();
+                                
+
+                                return;
+                            }
                         default:
                             return;
                     }
@@ -1559,7 +1610,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             //else if (EnemyTroopStrength > 100f)
-            else if (troopCount < landingSpots)
+            else if ( landingSpots < 12)
             {
                 this.IsToughNut = true;
             }
@@ -1714,200 +1765,7 @@ namespace Ship_Game.Gameplay
 			this.Step = 1;
 		}
 
-		private void RequisitionExplorationForcebroke()
-		{
-			IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = 
-				from ao in this.empire.GetGSAI().AreasOfOperations
-				orderby Vector2.Distance(this.AO, ao.Position)
-				select ao;
-			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
-			{
-				return;
-			}
-			Ship_Game.Gameplay.AO ClosestAO = sorted.First<Ship_Game.Gameplay.AO>();
-			this.EnemyStrength = 0f;
-			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.empire.GetGSAI().ThreatMatrix.Pins)
-			{
-				if (Vector2.Distance(this.AO, pin.Value.Position) >= this.AORadius || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == this.empire)
-				{
-					continue;
-				}
-				MilitaryTask enemyStrength = this;
-				enemyStrength.EnemyStrength = enemyStrength.EnemyStrength + pin.Value.Strength;
-			}
-			this.MinimumTaskForceStrength = this.EnemyStrength + 0.35f * this.EnemyStrength;
-			if (this.MinimumTaskForceStrength == 0f)
-			{
-				this.MinimumTaskForceStrength = 500f;
-			}
-			foreach (KeyValuePair<Empire, Relationship> entry in this.empire.GetRelations())
-			{
-				if (!entry.Value.AtWar || entry.Key.isFaction || this.MinimumTaskForceStrength <= 1000f)
-				{
-					continue;
-				}
-				this.EndTask();
-				return;
-			}
-			List<Ship> PotentialAssaultShips = new List<Ship>();
-			List<Troop> PotentialTroops = new List<Troop>();
-			foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
-			{
-                if (ship.fleet != null || (!ship.HasTroopBay && !ship.hasTransporter || ship.TroopList.Count <= 0) && !(ship.shipData.Role == ShipData.RoleName.troop) || ship.fleet != null)
-				{
-					continue;
-				}
-				PotentialAssaultShips.Add(ship);
-			}
-			List<Planet> shipyards = new List<Planet>();
-			foreach (Planet planet1 in ClosestAO.GetPlanets())
-			{
-				if (!planet1.HasShipyard)
-				{
-					continue;
-				}
-				shipyards.Add(planet1);
-			}
-			IOrderedEnumerable<Planet> planets = 
-				from p in shipyards
-				orderby Vector2.Distance(p.Position, this.TargetPlanet.Position)
-				select p;
-			if (planets.Count<Planet>() != 0)
-			{
-				IOrderedEnumerable<Planet> sortedList = 
-					from planet in ClosestAO.GetPlanets()
-					orderby Vector2.Distance(planet.Position, planets.First<Planet>().Position)
-					select planet;
-				foreach (Planet planet2 in sortedList)
-				{
-					foreach (Troop t in planet2.TroopsHere)
-					{
-						if (t.GetOwner() != this.empire)
-						{
-							continue;
-						}
-						t.SetPlanet(planet2);
-						PotentialTroops.Add(t);
-					}
-				}
-				float ourAvailableStrength = 0f;
-				foreach (Ship ship in PotentialAssaultShips)
-				{
-					if (ship.fleet != null)
-					{
-						continue;
-					}
-					foreach (Troop t in ship.TroopList)
-					{
-						ourAvailableStrength = ourAvailableStrength + (float)t.Strength;
-					}
-				}
-				foreach (Troop t in PotentialTroops)
-				{
-					ourAvailableStrength = ourAvailableStrength + (float)t.Strength;
-				}
-				float tfstrength = 0f;
-				BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
-				foreach (Ship ship in ClosestAO.GetOffensiveForcePool())
-				{
-					if (ship.InCombat || ship.fleet != null || tfstrength >= this.MinimumTaskForceStrength)
-					{
-						continue;
-					}
-					tfstrength = tfstrength + ship.GetStrength();
-					elTaskForce.Add(ship);
-				}
-				if (tfstrength >= this.MinimumTaskForceStrength && ourAvailableStrength >= 20f)
-				{
-					this.TaskForce = elTaskForce;
-					this.StartingStrength = tfstrength;
-					int i = 1;
-					while (i < 10)
-					{
-						if (this.empire.GetGSAI().UsedFleets.Contains(i))
-						{
-							i++;
-						}
-						else
-						{
-							Fleet newFleet = new Fleet();
-							float ForceStrength = 0f;
-							List<Ship>.Enumerator enumerator = PotentialAssaultShips.GetEnumerator();
-							try
-							{
-								do
-								{
-									if (!enumerator.MoveNext())
-									{
-										break;
-									}
-									Ship ship = enumerator.Current;
-									newFleet.AddShip(ship);
-									foreach (Troop t in ship.TroopList)
-									{
-										ForceStrength = ForceStrength + (float)t.Strength;
-									}
-								}
-								while (ForceStrength < 20f);
-							}
-							finally
-							{
-								((IDisposable)enumerator).Dispose();
-							}
-							List<Troop>.Enumerator enumerator1 = PotentialTroops.GetEnumerator();
-							try
-							{
-								do
-								{
-								Label1:
-									if (!enumerator1.MoveNext())
-									{
-										break;
-									}
-									Troop t = enumerator1.Current;
-									if (t.GetPlanet() != null)
-									{
-										(new List<Troop>()).Add(t);
-										Ship launched = t.Launch();
-										ForceStrength = ForceStrength + (float)t.Strength;
-										newFleet.AddShip(launched);
-									}
-									else
-									{
-										goto Label1;
-									}
-								}
-								while (ForceStrength < 20f);
-							}
-							finally
-							{
-								((IDisposable)enumerator1).Dispose();
-							}
-							foreach (Ship ship in this.TaskForce)
-							{
-								ship.GetAI().OrderQueue.Clear();
-								ship.GetAI().State = AIState.AwaitingOrders;
-								newFleet.AddShip(ship);
-								ClosestAO.GetOffensiveForcePool().Remove(ship);
-								ClosestAO.GetWaitingShips().Remove(ship);
 
-							}
-							newFleet.Owner = this.empire;
-							newFleet.Name = "Exploration Force";
-							newFleet.AutoArrange();
-							this.empire.GetFleetsDict()[i] = newFleet;
-							this.empire.GetGSAI().UsedFleets.Add(i);
-							this.WhichFleet = i;
-							newFleet.Task = this;
-							break;
-						}
-					}
-					this.Step = 1;
-				}
-				return;
-			}
-			this.EndTask();
-		}
         //added by gremlin Req Exploration forces
         private void RequisitionExplorationForce()
         {
