@@ -415,7 +415,9 @@ namespace Ship_Game
 			RandomEventManager.ActiveEvent = null;
 			StatTracker.SnapshotsDict.Clear();
 			StatTracker.SnapshotsDict = savedData.Snapshots;
+            UniverseData.UniverseWidth = savedData.Size.X;
 			this.GateKeeper.Set();
+            
 		}
 
 		public void Dispose()
@@ -1227,6 +1229,7 @@ namespace Ship_Game
             System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
             System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(false)).ToString());
 			this.Loaded = true;
+            UniverseData.UniverseWidth = data.Size.X;
 		}
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
