@@ -4980,7 +4980,7 @@ namespace Ship_Game.Gameplay
                 bool FoodFirst = true;
                 if ((this.Owner.GetCargo()["Production"] > 0f || !this.Owner.TradingFood || RandomMath.RandomBetween(0f, 1f) < 0.5f) && this.Owner.TradingProd && this.Owner.GetCargo()["Food"] == 0f)
                     FoodFirst = false;
-                float GoodMult = RandomMath.RandomBetween(0f, 25f);
+                //float GoodMult = RandomMath.RandomBetween(0f, 25f);
 
                 //if already loaded, give any start planet: <-- this doesnt look good but doesnt appear to be a problem
                 if (this.start == null && (this.Owner.GetCargo()["Food"] > 0f || this.Owner.GetCargo()["Production"] > 0f))
