@@ -40,7 +40,7 @@ namespace Ship_Game
 
         private CloseButton close;
 
-        private FileInfo activeFile;
+        //private FileInfo activeFile;
 
         private MouseState currentMouse;
 
@@ -89,6 +89,7 @@ namespace Ship_Game
 
         public void DoSave()
         {
+            data.Traits.Name = this.EnterNameArea.Text;
             string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             XmlSerializer Serializer = new XmlSerializer(typeof(EmpireData));
             TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Saved Races/", data.Traits.Name, ".xml"));
@@ -160,9 +161,9 @@ namespace Ship_Game
                     this.selector = new Selector(base.ScreenManager, e.clickRect);
                     if (input.InGameSelect)
                     {
-                        this.activeFile = (e.item as HeaderData).GetFileInfo();
+                        this.data = e.item as EmpireData;
                         AudioManager.PlayCue("sd_ui_accept_alt3");
-                        this.EnterNameArea.Text = (e.item as HeaderData).SaveName;
+                        this.EnterNameArea.Text = (e.item as EmpireData).Traits.Name;
                     }
                 }
             }
