@@ -81,7 +81,6 @@ namespace Ship_Game
         public bool AutoColonize;
         public bool AutoFreighters;
         public bool AutoResearch;
-        public bool AutoTaxes;
         public int TotalScore;
         public float TechScore;
         public float ExpansionScore;
@@ -221,7 +220,7 @@ namespace Ship_Game
                 ship.GetAI().State = AIState.AwaitingOrders;
             }
             this.GSAI.Goals.Clear();
-            lock (GlobalStats.TaskLocker)
+            //lock (GlobalStats.TaskLocker)
                 this.GSAI.TaskList.Clear();
             foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
                 keyValuePair.Value.Reset();
@@ -341,7 +340,7 @@ namespace Ship_Game
                 ship.GetAI().State = AIState.AwaitingOrders;
             }
             this.GSAI.Goals.Clear();
-            lock (GlobalStats.TaskLocker)
+           // lock (GlobalStats.TaskLocker)
                 this.GSAI.TaskList.Clear();
             foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
                 keyValuePair.Value.Reset();
@@ -625,7 +624,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                this.MarkShipDesignsUnlockable();
+                
             }
             //unlock ships from empire data
             foreach (string ship in this.data.unlockShips)
@@ -805,7 +804,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                this.MarkShipDesignsUnlockable();
+             
             }
 
             //fbedard: Add missing troop ship
@@ -1625,10 +1624,14 @@ namespace Ship_Game
                                 }
                                 //toadd.Add(nearby);
                                 Insensors = true;
-                                if ((node.KeyedObject is Ship
-                                    && ((node.KeyedObject as Ship).inborders //&& Vector2.Distance(nearby.Position,(node.KeyedObject as Ship).Position ) <300000)
-                                    || (node.KeyedObject as Ship).Name == "Subspace Projector" )) || node.KeyedObject is SolarSystem) //|| (node.KeyedObject as Ship).GetAI().State == AIState.SystemTrader)
-                                {
+                                if ((node.KeyedObject is SolarSystem) || (node.KeyedObject is Planet) ||
+                                    (node.KeyedObject is Ship) && ((node.KeyedObject as Ship).inborders
+                                    || (node.KeyedObject as Ship).Name == "Subspace Projector")
+                                    
+                                    )
+                                    //&& Vector2.Distance(nearby.Position,(node.KeyedObject as Ship).Position ) <300000)
+                                     //|| (node.KeyedObject as Ship).GetAI().State == AIState.SystemTrader)
+                                { 
                                     border = true;
 
                                     if (loyalty.AtWar)
@@ -1722,6 +1725,9 @@ namespace Ship_Game
                                 {
                                     if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
                                     {
+                                        nearby.inborders = false;
+                                        nearby.IsInFriendlySpace = false;
+                                        nearby.IsInNeutralSpace = true;
                                         continue;
                                     }
                                     {
@@ -1730,6 +1736,8 @@ namespace Ship_Game
                                     }
                                     break;
                                 }
+
+                                if(!nearby.inborders)
                                 foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.Relationships)
                                 {
                                     if (Relationship.Key != this || !Relationship.Value.Treaty_OpenBorders)
@@ -2399,249 +2407,9 @@ namespace Ship_Game
             }
             return false;
         }
-        public  void MarkShipDesignsUnlockable2()
-        {
-
-            
-            HashSet<Technology> ShipTechs = new HashSet<Technology>();
-            foreach (KeyValuePair<string, TechEntry> TechTreeItem in this.TechnologyDict )
-            {
-                if (TechTreeItem.Value.GetTech().ModulesUnlocked.Count <= 0 && TechTreeItem.Value.GetTech().HullsUnlocked.Count <= 0)
-                    continue;
-                ShipTechs.Add(TechTreeItem.Value.GetTech());
-            }
-            ShipData shipData;
-            List<string> purge = new List<string>();
-            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
-            {
-
-                shipData = ship.Value.shipData;
-                if (shipData == null)
-                    continue;
-                if (shipData.ShipStyle != this.data.Traits.ShipType)
-                    continue;
-                foreach (KeyValuePair<string, bool> hulls in this.UnlockedHullsDict)
-                {
-                    if(shipData.Hull == hulls.Key && hulls.Value)
-                    {
-                        shipData.hullUnlockable = true;
-                        
-                    }
-                }
-                if (!shipData.hullUnlockable)
-                foreach (Technology Hulltech in ShipTechs)
-                {
-                    foreach (Technology.UnlockedHull hulls in Hulltech.HullsUnlocked)
-                    {
-                        if (hulls.Name == shipData.Hull)
-                        {
-                            shipData.hullUnlockable = true;
-                            shipData.techsNeeded.Add(Hulltech.UID);
-                            break;
-                        }
-
-                    }
-                }
 
 
-                foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
-                {
-                    if (module.InstalledModuleUID == "Dummy")
-                        continue;
-                    bool modUnlockable = false;
-                    foreach (KeyValuePair<string, bool> empireMods in this.UnlockedModulesDict)
-                    {
-                        if (empireMods.Key == module.InstalledModuleUID && empireMods.Value)
-                            modUnlockable = true;
-                    }
-                    if (!modUnlockable)
-                    foreach (Technology technology in ShipTechs)
-                    {
-
-                        foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
-                        {
-                            if (mods.ModuleUID == module.InstalledModuleUID)
-                            {
-                                modUnlockable = true;
-                                
-                                shipData.techsNeeded.Add(technology.UID);
-
-                                break;
-                            }
-                        }
-                        if (modUnlockable)
-                            break;
-                    }
-                    if (!modUnlockable)
-                    {
-                        shipData.allModulesUnlocakable = false;
-                        shipData.hullUnlockable = false;
-                        shipData.techsNeeded.Clear();
-                        purge.Add(ship.Key);
-                        break;
-                    }
-
-                }
-
-                foreach (string techname in shipData.techsNeeded)
-                {
-                    shipData.TechScore += (ushort)ResourceManager.TechTree[techname].Cost;
-                }
-            }
-            if(false)
-            foreach(string purgeThis in purge)
-            {
-                Ship ship;
-                if(ResourceManager.ShipsDict.TryGetValue(purgeThis, out ship))
-                {
-                    if (ship == null)
-                        continue;
-                    if (this.WeCanBuildThis(ship.shipData.Name))
-                        continue;
-                    if (ship.shipData.ShipStyle != this.data.Traits.ShipType)
-                        continue;
-
-                    ResourceManager.ShipsDict.Remove(purgeThis);
-                    
-                }
-            }
-
-        }
-
-        public void MarkShipDesignsUnlockable()
-        {
-
-
-            Dictionary<Technology,List<string>> ShipTechs = new Dictionary<Technology,List<string>>();
-            //foreach (KeyValuePair<string, TechEntry> TechTreeItem in this.TechnologyDict)
-            foreach (KeyValuePair<string, TechEntry> TechTreeItem in this.TechnologyDict)
-            {
-                if (TechTreeItem.Value.GetTech().ModulesUnlocked.Count <= 0 && TechTreeItem.Value.GetTech().HullsUnlocked.Count <= 0)
-                    continue;
-                ShipTechs.Add(TechTreeItem.Value.GetTech(), ResourceManager.FindPreviousTechs(this,TechTreeItem.Value.GetTech(), new List<string>()));
-            }
-
-
-
-            ShipData shipData;
-            List<string> purge = new List<string>();
-            //if(shipData.EmpiresThatCanUseThis.ContainsKey(this.data.Traits.ShipType))
-            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
-            {
-
-                shipData = ship.Value.shipData;
-                if (shipData == null)
-                    continue;
-                if (shipData.ShipStyle != this.data.Traits.ShipType)
-                    continue;
-                //foreach (KeyValuePair<string, bool> hulls in this.UnlockedHullsDict)
-                //{
-                //    if (shipData.Hull == hulls.Key && hulls.Value)
-                //    {
-                //        shipData.hullUnlockable = true;
-
-                //    }
-                //}
-                if (!shipData.hullUnlockable)
-                    foreach (Technology Hulltech in ShipTechs.Keys)
-                    {
-                        foreach (Technology.UnlockedHull hulls in Hulltech.HullsUnlocked)
-                        {
-                            if (hulls.Name == shipData.Hull)
-                            {
-                                shipData.hullUnlockable = true;
-
-                                foreach (string tree in ShipTechs[Hulltech])
-                                {                                  
-                                    shipData.techsNeeded.Add(tree);
-                                }
-                                break;
-                            }
-
-
-                        }
-                        if (shipData.hullUnlockable)
-                            break;
-                    }
-                   if(!shipData.hullUnlockable)
-                        {
-                            System.Diagnostics.Debug.WriteLine(" no tech");
-                        }
-
-                foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
-                {
-                    
-                    
-                    if (module.InstalledModuleUID == "Dummy")
-                        continue;
-                    bool modUnlockable = false;
-                    //foreach (KeyValuePair<string, bool> empireMods in this.UnlockedModulesDict)
-                    //{
-                    //    if (empireMods.Key == module.InstalledModuleUID && empireMods.Value)
-                    //        modUnlockable = true;
-                    //}
-                    if (!modUnlockable)
-                        foreach (Technology technology in ShipTechs.Keys)
-                        {
-
-                            foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
-                            {
-                                if (mods.ModuleUID == module.InstalledModuleUID)
-                                {
-                                    modUnlockable = true;
-
-                                    shipData.techsNeeded.Add(technology.UID);
-                                    foreach (string tree in ShipTechs[technology])
-                                        shipData.techsNeeded.Add(tree);
-
-                                    break;
-                                }
-                            } 
-                            if (modUnlockable)
-                                break;
-                        }
-                    if (!modUnlockable)
-                    {
-                        shipData.allModulesUnlocakable = false;
-                        shipData.hullUnlockable = false;
-                        shipData.techsNeeded.Clear();
-                        purge.Add(ship.Key);
-                        break;
-                    }
-
-                }
-                if(shipData.BaseStrength ==0)
-                {
-                    ResourceManager.CalculateBaseStrength(ship.Value);
-                }
-                foreach (string techname in shipData.techsNeeded)
-                {
-                    shipData.TechScore += (ushort)ResourceManager.TechTree[techname].Cost;
-                }
-
-
-
-            }
-          foreach(ShipData hull in ResourceManager.HullsDict.Values)
-          {
-              foreach (Technology hulltech2 in ResourceManager.TechTree.Values)
-              {
-                  foreach (Technology.UnlockedHull hulls in hulltech2.HullsUnlocked)
-                  {
-                      if (hulls.Name == hull.Hull)
-                      {                          
-                          foreach (string tree in ShipTechs[hulltech2])
-                              hull.techsNeeded.Add(tree);
-                          break;
-                      }
-
-
-                  }
-              }
-                            
-          }
-
-        }
+        
 
         public bool WeCanUseThisNow(Technology tech)
         {
@@ -3598,10 +3366,10 @@ namespace Ship_Game
             if (this != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
             {
                 this.data.difficulty = Difficulty.Brutal;
-                lock (GlobalStats.TaskLocker)
+                //lock (GlobalStats.TaskLocker)
                 {
-                    foreach (MilitaryTask item_7 in (List<MilitaryTask>)this.GSAI.TaskList)
-                        item_7.EndTask();
+                    this.GSAI.TaskList.ForEach(item_7=>//foreach (MilitaryTask item_7 in (List<MilitaryTask>)this.GSAI.TaskList)
+                        { item_7.EndTask(); }, false, false, false);
                     this.GSAI.TaskList.ApplyPendingRemovals();
                 }
                 this.GSAI.DefensiveCoordinator.DefensiveForcePool.Clear();

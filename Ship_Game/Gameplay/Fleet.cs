@@ -1325,7 +1325,7 @@ namespace Ship_Game.Gameplay
                     militaryTask.type = MilitaryTask.TaskType.DefendPostInvasion;
                     this.Owner.GetGSAI().TaskList.QueuePendingRemoval(Task);
                     this.Task = militaryTask;
-                    lock(GlobalStats.TaskLocker)
+                  //  lock(GlobalStats.TaskLocker)
                         this.Owner.GetGSAI().TaskList.Add(Task);
                 }
                 else
@@ -1582,7 +1582,7 @@ namespace Ship_Game.Gameplay
                                 }
                                 if (this.InterceptorDict.Count == 0 ||  this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(Task.GetTargetPlanet().Position, 25000f, this.Owner) < 500 )
                                     this.TaskStep = 4;
-                                lock (GlobalStats.TaskLocker)
+                               // lock (GlobalStats.TaskLocker)
                                 {
                                     this.Owner.GetGSAI().TaskList.thisLock.EnterReadLock();
                                     using (List<MilitaryTask>.Enumerator resource_0 = this.Owner.GetGSAI().TaskList.GetEnumerator())
