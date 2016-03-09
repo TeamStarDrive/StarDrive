@@ -9395,7 +9395,7 @@ namespace Ship_Game.Gameplay
         private void RunWarPlanner()
         {
 
-            float empirestrength = this.empire.currentMilitaryStrength;
+            //float empirestrength = this.empire.currentMilitaryStrength;
             foreach (KeyValuePair<Empire, Relationship> r in this.empire.GetRelations().OrderByDescending( anger =>
             {
                 float angerMod = Vector2.Distance(anger.Key.GetWeightedCenter(),this.empire.GetWeightedCenter());
@@ -9414,9 +9414,9 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if (empirestrength <= 0)
-                        continue;
-                    empirestrength -= r.Key.currentMilitaryStrength;
+                    //if (empirestrength <= 0)
+                    //    continue;
+                    //empirestrength -= r.Key.currentMilitaryStrength;
                     if (r.Value.PreparingForWar)
                     {
                         List<SolarSystem> s;
