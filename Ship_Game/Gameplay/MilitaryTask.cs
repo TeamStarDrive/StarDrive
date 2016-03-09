@@ -940,7 +940,11 @@ namespace Ship_Game.Gameplay
                                     this.EndTask();
                                     return;
                                 }
-                                
+                                if (this.TargetPlanet.Owner == null)
+                                {
+                                    this.EndTask();
+                                    return;
+                                }
                                 Relationship rel = null;
                                 this.empire.GetRelations().TryGetValue(TargetPlanet.Owner, out rel);
                                 if (rel != null && !(rel.AtWar || rel.PreparingForWar))
