@@ -146,6 +146,7 @@ namespace Ship_Game
             this.markedPlanet = p;
         }
 
+        // Edited by EVWeb
         private void DoFleetRequisition()
         {
             switch (this.Step)
@@ -159,30 +160,54 @@ namespace Ship_Game
                             list.Add(planet2);
                     }
                     int num1 = 9999999;
+                    int x = 0;
                     foreach (Planet planet2 in list.OrderBy(planet =>
                         {
-                            float weight = 0;
-                            if(planet.colonyType == Planet.ColonyType.Industrial)
-                            {
-                                weight += 4;
+                            float weight = -6;                      // so shipyard modifier works properly
+                            switch (planet.colonyType)
+                            {                                
+                                case Planet.ColonyType.Core:
+                                    weight -= 4;
+                                    break;
+                                case Planet.ColonyType.Colony:
+                                    break;
+                                case Planet.ColonyType.Industrial:
+                                    weight -= 2;
+                                    break;
+                                case Planet.ColonyType.Research:
+                                    weight += 6;
+                                    break;
+                                case Planet.ColonyType.Agricultural:
+                                    weight += 6;
+                                    break;
+                                case Planet.ColonyType.Military:
+                                    weight -= 2;
+                                    break;
+                                case Planet.ColonyType.TradeHub:
+                                    weight -= 2;
+                                    break;
+                                default:
+                                    break;
                             }
-                            if (planet.colonyType == Planet.ColonyType.Core || planet.colonyType == Planet.ColonyType.Military || planet.colonyType == Planet.ColonyType.TradeHub)
-                            {
-                                weight += 2;
-                            }
-                            weight += planet.developmentLevel;
-                            weight += planet.MineralRichness;
+                            //weight -= planet.ConstructionQueue.Count;
+                 
+                            weight -= planet.developmentLevel;          // minus because order by goes smallest to largest, not other way round
+                            weight -= planet.MineralRichness;
+                            weight /= planet.ShipBuildingModifier;      // planets with shipyards in orbit should be higher in list
 
                             return weight;
-                        }))
+                        }) )
                     {
-                        if (planet2.HasShipyard)
+                        if (x < this.empire.GetPlanets().Count *.2)     // We already checked for whether or not this is a shipyard planet
                         {
                             int num2 = 0;
+                            x++;
                             foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
-                                num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());
-                            if (planet2.ConstructionQueue.Count == 0)
-                                num2 = (int)((this.beingBuilt.GetCost(this.empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());
+                                num2 += (int)(queueItem.Cost - queueItem.productionTowards);
+
+
+                            num2 += (int)(this.beingBuilt.GetCost(this.empire) - planet2.ProductionHere);   // Include the cost of the ship to be built on EVERY planet, not just ones with nothing to build
+                            num2 = (int)(((double)num2 * (double)planet2.ShipBuildingModifier) / (planet2.GovernorOn ? (double)planet2.GetMaxProductionPotential() : (double)planet2.NetProductionPerTurn));         // Apply ship cost reduction to everything just so planets with shipyards in orbit are more likely to be picked, also, if on manual control, don't assume you can get max production
                             if (num2 < num1)
                             {
                                 num1 = num2;
@@ -244,14 +269,51 @@ namespace Ship_Game
                         this.beingBuilt = ResourceManager.ShipsDict[this.ToBuildUID];
                     Planet planet1 = (Planet)null;
                     List<Planet> list = new List<Planet>();
-                    foreach (Planet planet2 in this.empire.GetPlanets())
+                    foreach (Planet planet2 in this.empire.GetPlanets().OrderBy(planet =>
+                    {
+                        float weight = 0;
+                        switch (planet.colonyType)
+                        {
+                            case Planet.ColonyType.Core:
+                                weight += 4;
+                                break;
+                            case Planet.ColonyType.Colony:
+                                break;
+                            case Planet.ColonyType.Industrial:
+                                weight += 2;
+                                break;
+                            case Planet.ColonyType.Research:
+                                weight -= 6;
+                                break;
+                            case Planet.ColonyType.Agricultural:
+                                weight -= 6;
+                                break;
+                            case Planet.ColonyType.Military:
+                                weight += 2;
+                                break;
+                            case Planet.ColonyType.TradeHub:
+                                weight += 2;
+                                break;
+                            default:
+                                break;
+                        }
+                        //weight -= planet.ConstructionQueue.Count;
+
+                        weight += planet.developmentLevel;
+                        weight += planet.MineralRichness;
+
+                        return weight;
+                    }))
                     {
                         if (planet2.HasShipyard  && planet2.colonyType != Planet.ColonyType.Research)
                             list.Add(planet2);
                     }
                     int num1 = 9999999;
+                    int x = 0;
                     foreach (Planet planet2 in list)
                     {
+                        if (x > this.empire.GetPlanets().Count * .2f)
+                            break;
                         int num2 = 0;
                         foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
                             num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());//planet2.NetProductionPerTurn);
@@ -263,7 +325,7 @@ namespace Ship_Game
                             planet1 = planet2;
                         }
                     }
-                    if (planet1 == null)
+                    if (planet1 == null )
                         break;
                     this.PlanetBuildingAt = planet1;
                     planet1.ConstructionQueue.Add(new QueueItem()
