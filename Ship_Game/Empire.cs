@@ -222,7 +222,7 @@ namespace Ship_Game
                 ship.GetAI().State = AIState.AwaitingOrders;
             }
             this.GSAI.Goals.Clear();
-            lock (GlobalStats.TaskLocker)
+            //lock (GlobalStats.TaskLocker)
                 this.GSAI.TaskList.Clear();
             foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
                 keyValuePair.Value.Reset();
@@ -342,7 +342,7 @@ namespace Ship_Game
                 ship.GetAI().State = AIState.AwaitingOrders;
             }
             this.GSAI.Goals.Clear();
-            lock (GlobalStats.TaskLocker)
+           // lock (GlobalStats.TaskLocker)
                 this.GSAI.TaskList.Clear();
             foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
                 keyValuePair.Value.Reset();
@@ -3377,10 +3377,10 @@ namespace Ship_Game
             if (this != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
             {
                 this.data.difficulty = Difficulty.Brutal;
-                lock (GlobalStats.TaskLocker)
+                //lock (GlobalStats.TaskLocker)
                 {
-                    foreach (MilitaryTask item_7 in (List<MilitaryTask>)this.GSAI.TaskList)
-                        item_7.EndTask();
+                    this.GSAI.TaskList.ForEach(item_7=>//foreach (MilitaryTask item_7 in (List<MilitaryTask>)this.GSAI.TaskList)
+                        { item_7.EndTask(); }, false, false, false);
                     this.GSAI.TaskList.ApplyPendingRemovals();
                 }
                 this.GSAI.DefensiveCoordinator.DefensiveForcePool.Clear();

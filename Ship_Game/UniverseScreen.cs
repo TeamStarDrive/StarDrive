@@ -1627,7 +1627,6 @@ namespace Ship_Game
                         }
                     }
                 });
-
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 this.MasterShipList.ApplyPendingRemovals();
