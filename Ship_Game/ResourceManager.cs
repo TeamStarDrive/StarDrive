@@ -1395,8 +1395,9 @@ namespace Ship_Game
                                 item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
                                 loaded = true;
                             }
-                            catch(FileNotFoundException)
-                            {                                
+                            catch(Microsoft.Xna.Framework.Content.ContentLoadException ex)
+                            {
+                                
                             }
                             catch(OutOfMemoryException)
                             {
