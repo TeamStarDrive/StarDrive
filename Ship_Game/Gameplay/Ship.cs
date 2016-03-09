@@ -2078,6 +2078,11 @@ namespace Ship_Game.Gameplay
 
             }
             #endregion
+            if(EnginesKnockedOut)
+            {
+                this.HyperspaceReturn();
+                return;
+            }
             if (this.velocityMaximum > this.GetmaxFTLSpeed)
                 return;
             if (this.engineState == Ship.MoveState.Sublight && !this.isSpooling && this.PowerCurrent / (this.PowerStoreMax + 0.01f) > 0.1f)
@@ -2122,9 +2127,9 @@ namespace Ship_Game.Gameplay
                 FTL ftl = new FTL();
                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
                 //lock (FTLManager.FTLLock)
-                FTLManager.FTLList.thisLock.EnterWriteLock();
+               // FTLManager.FTLList.thisLock.EnterWriteLock();
                 FTLManager.FTLList.Add(ftl);
-                FTLManager.FTLList.thisLock.ExitWriteLock();
+                //FTLManager.FTLList.thisLock.ExitWriteLock();
             }
             this.engineState = Ship.MoveState.Sublight;
             this.ResetJumpTimer();
@@ -2893,7 +2898,7 @@ namespace Ship_Game.Gameplay
                                         militaryTask.SetTargetPlanet(p);
                                         militaryTask.type = MilitaryTask.TaskType.Exploration;
                                         militaryTask.SetEmpire(this.loyalty);
-                                        lock (GlobalStats.TaskLocker)
+                                     //   lock (GlobalStats.TaskLocker)
                                             this.loyalty.GetGSAI().TaskList.Add(militaryTask);
                                     }
                                 }
@@ -3038,9 +3043,9 @@ namespace Ship_Game.Gameplay
                                 FTL ftl = new FTL();
                                 ftl.Center = new Vector2(this.Center.X, this.Center.Y);
                                 //lock (FTLManager.FTLLock)
-                                FTLManager.FTLList.thisLock.EnterWriteLock();
+                                //FTLManager.FTLList.thisLock.EnterWriteLock();
                                     FTLManager.FTLList.Add(ftl);
-                                    FTLManager.FTLList.thisLock.ExitWriteLock();
+                                   // FTLManager.FTLList.thisLock.ExitWriteLock();
                                 this.engineState = Ship.MoveState.Warp;
                             }
                             else
@@ -4057,6 +4062,8 @@ namespace Ship_Game.Gameplay
                 Ship ship = this;
                 Vector2 vector2 = ship.velocity - this.velocity * (elapsedTime * 0.1f);
                 ship.velocity = vector2;
+                if (this.engineState == MoveState.Warp)
+                    HyperspaceReturn();
             }
             else
                 this.EnginesKnockedOut = false;
@@ -4260,7 +4267,7 @@ namespace Ship_Game.Gameplay
         //added by Gremlin : active ship strength calculator
         public float GetStrength()
         {            
-            if (this.Health >= this.HealthMax * .75 && !this.LowHealth)// && this.BaseStrength !=0)
+            if (this.Health >= this.HealthMax * .75 && !this.LowHealth && this.BaseStrength !=-1)
                 return this.BaseStrength;
             float Str = 0f;
             float def = 0f;
@@ -4282,7 +4289,7 @@ namespace Ship_Game.Gameplay
                     //System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
 
 #endif
-                if (!slot.module.isDummy && slot.module.Powered && slot.module.Active)
+                if (!slot.module.isDummy && (this.BaseStrength == -1 ||( slot.module.Powered && slot.module.Active )))
                 {
                     ShipModule module = slot.module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
 

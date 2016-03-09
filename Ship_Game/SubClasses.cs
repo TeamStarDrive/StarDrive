@@ -115,6 +115,10 @@ namespace Ship_Game.Gameplay
 
         public static ShipModule_Advanced Empty = new ShipModule_Advanced();    //A static instance to be assigned to leftover modules
 
+        //CG Causing trouble going to use this for some other purposes! like storing the techs needed for this module. 
+        HashSet<string> TechRequired = new HashSet<string>();
+        public string UID="";
+
         public ShipModule_Advanced()    //Constructor
         {
             //This should only be called once per module XML file -Gretman
