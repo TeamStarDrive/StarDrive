@@ -78,7 +78,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\..\StarDrive\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;ALTERTHREAD STEAM xPERF xAUTOTIME xPLAYERONLY </DefineConstants>
+    <DefineConstants>TRACE;DEBUG;ALTERTHREAD STEAM PERF AUTOTIME xPLAYERONLY </DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
@@ -196,6 +196,7 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\SaveRaceScreen.cs" />
     <Compile Include="Ship_Game\ExceptionTracker.cs" />
     <Compile Include="Ship_Game\ExceptionViewer.cs">
       <SubType>Form</SubType>
@@ -220,6 +221,7 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\HullBonus.cs" />
+    <Compile Include="Ship_Game\LoadRaceScreen.cs" />
     <Compile Include="Ship_Game\Moon.cs" />
     <Compile Include="Ship_Game\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
