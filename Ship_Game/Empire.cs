@@ -2126,7 +2126,7 @@ namespace Ship_Game
                 this.OwnedPlanets.thisLock.EnterReadLock();
                 float newBuildM = 0f;
                 
-                foreach (Planet planet in this.OwnedPlanets.OrderBy(weight => weight.ExportFSWeight + weight.ExportPSWeight))
+                foreach (Planet planet in this.OwnedPlanets)// .OrderBy(weight => (int)(weight.ExportFSWeight) + (int)(weight.ExportPSWeight)))
                 {
                     
                     planet.UpdateOwnedPlanet();
@@ -2203,8 +2203,8 @@ namespace Ship_Game
                     }
 #endif
                     foreach (string shiptech in keyValuePair.Value.shipData.techsNeeded)
-                    {
-                        this.ShipTechs.Add(shiptech);
+                    {                       
+                        this.ShipTechs.Add(shiptech);                        
                     }
                     Ship ship = keyValuePair.Value;
                     bool bombs = false;
@@ -2716,22 +2716,23 @@ namespace Ship_Game
         {
             float fertility = p.Fertility;
             float richness = p.MineralRichness;
-            float pop = p.MaxPopulation;
+            float pop = p.MaxPopulation /1000;
              if(this.data.Traits.Cybernetic >0)
                  fertility = richness;
-             if (fertility < 1 && richness < 1)
+             if (fertility > .5 && fertility <= 1 && richness < 1 && pop <= 4 && pop > .5)
                  return Planet.ColonyType.Research;
-             if (fertility >= 1 && richness < .5 && pop >=1)
+             if (fertility > 1 && richness < 1 && pop >=2)
                  return Planet.ColonyType.Agricultural;
-             if (richness >= 1 && fertility > 1 && pop >2)
+             if (richness > 1 && fertility > 1 && pop >4)
                  return Planet.ColonyType.Core;
              if (richness >= 1 && fertility < .5)
                  return Planet.ColonyType.Industrial;
+             return Planet.ColonyType.Research;
              //if (richness > .5 && fertility < .5 && pop < 2)
              //    return Planet.ColonyType.Industrial;
              //if (richness <= 1 && fertility < 1 && pop >= 1)
              //    return Planet.ColonyType.Research;
-             return Planet.ColonyType.Colony;
+             //return Planet.ColonyType.Colony;
         }
         public Planet.ColonyType AssessColonyNeeds(Planet p)
         {
@@ -2743,38 +2744,74 @@ namespace Ship_Game
             float ResearchPotential = 0.0f;
             float Fertility = 0.0f;
             float MilitaryPotential = 0.0f;
-            if (p.Fertility > 1.0 && this.data.Traits.Cybernetic <= 0)
+            //if (p.Fertility > 1.0)
+            //{
+                
+            //    //ResearchPotential += 0.5f;
+            //}
+            //else
+            //    Fertility += p.Fertility;
+            //else if( this.data.Traits.Cybernetic <= 0)
+            //    ResearchPotential++;
+            
+            if (p.MineralRichness > .50)
             {
-                ++PopSupport;
-                Fertility += p.Fertility;
-                //ResearchPotential += 0.5f;
+                MineralWealth += p.MineralRichness +p.MaxPopulation / 1000;
+                //MilitaryPotential += 0.5f;
             }
             else
-                ResearchPotential++;
-            if (p.MineralRichness > 1.0)
-            {
-                if (p.Fertility > 1.0)
-                    ++PopSupport;
                 MineralWealth += p.MineralRichness;
-                MilitaryPotential += 0.5f;
+            
+
+            
+            if (p.MaxPopulation > 1000)
+            {
+                ResearchPotential += p.MaxPopulation / 1000;
+                if (this.data.Traits.Cybernetic > 0)
+                {
+                    if (p.MineralRichness > 1)
+                    {
+                        PopSupport += p.MaxPopulation / 1000 + p.MineralRichness;
+                    }
+                }
+                else
+                {
+                    if (p.Fertility > 1f)
+                    {
+                        
+                        if (p.MineralRichness > 1)
+                            PopSupport += p.MaxPopulation / 1000 + p.Fertility + p.MineralRichness;
+                        Fertility += p.Fertility + p.MaxPopulation / 1000;
+                    }
+                }
+                
+                //if (p.Fertility > 1f)
+                //    ++PopSupport;
+                //if (p.MaxPopulation > 4000)
+                //{
+                //    ++PopSupport;                    
+                //    if (p.MaxPopulation > 8000)
+                //        ++PopSupport;
+                //    if (p.MaxPopulation > 12000)
+                //        PopSupport += 2f;
+                //}
             }
             else
-                ResearchPotential++;
-            if (p.MaxPopulation > 1.0)
             {
-                ++ResearchPotential;
-                if (p.Fertility > 1f)
-                    ++PopSupport;
-                if (p.MaxPopulation > 4.0)
-                {
-                    ++PopSupport;
-                    ++ResearchPotential;
-                    if (p.MaxPopulation > 8.0)
-                        ++PopSupport;
-                    if (p.MaxPopulation > 12.0)
-                        PopSupport += 2f;
-                }
+                MilitaryPotential += Fertility + p.MineralRichness + p.MaxPopulation / 1000;
+                Technology tech = null;
+               if(p.MaxPopulation >=500)
+                if (ResourceManager.TechTree.TryGetValue(this.ResearchTopic, out tech))
+                    ResearchPotential = (tech.Cost - this.Research) / tech.Cost * (p.Fertility * 2 + p.MineralRichness + p.MaxPopulation / 500); 
+              
             }
+            if (this.data.Traits.Cybernetic > 0)
+            {
+
+                Fertility = 0;
+            }
+                              //(tech.Cost - this.Research) / tech.Cost;// *this.OwnedPlanets.Count;
+
             int CoreCount = 0;
             int IndustrialCount = 0;
             int AgriculturalCount = 0;
@@ -2798,18 +2835,21 @@ namespace Ship_Game
             }
             this.OwnedPlanets.thisLock.ExitReadLock();
             float AssignedFactor = (float)(CoreCount + IndustrialCount + AgriculturalCount + MilitaryCount + ResearchCount) / ((float)this.OwnedPlanets.Count + 0.01f);
-            float CoreDesire = PopSupport + (AssignedFactor - (float)CoreCount) + 2;
+            float CoreDesire = PopSupport + (AssignedFactor - (float)CoreCount) ;
             float IndustrialDesire = MineralWealth + (AssignedFactor - (float)IndustrialCount);
             float AgricultureDesire = Fertility + (AssignedFactor - (float)AgriculturalCount);
             float MilitaryDesire = MilitaryPotential + (AssignedFactor - (float)MilitaryCount);
             float ResearchDesire = ResearchPotential + (AssignedFactor - (float)ResearchCount);
+
+          
+
             if (CoreDesire > IndustrialDesire && CoreDesire > AgricultureDesire && (CoreDesire > MilitaryDesire && CoreDesire > ResearchDesire))
                 return Planet.ColonyType.Core;
             if (IndustrialDesire > CoreDesire && IndustrialDesire > AgricultureDesire && (IndustrialDesire > MilitaryDesire && IndustrialDesire > ResearchDesire))
                 return Planet.ColonyType.Industrial;
             if (AgricultureDesire > IndustrialDesire && AgricultureDesire > CoreDesire && (AgricultureDesire > MilitaryDesire && AgricultureDesire > ResearchDesire))
                 return Planet.ColonyType.Agricultural;
-            return ResearchDesire > CoreDesire && ResearchDesire > AgricultureDesire && (ResearchDesire > MilitaryDesire && ResearchDesire > IndustrialDesire) ? Planet.ColonyType.Research : Planet.ColonyType.Industrial;
+            return ResearchDesire > CoreDesire && ResearchDesire > AgricultureDesire && (ResearchDesire > MilitaryDesire && ResearchDesire > IndustrialDesire) ? Planet.ColonyType.Research : Planet.ColonyType.Military;
         }
 
         public void ResetBorders()
