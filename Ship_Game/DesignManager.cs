@@ -288,6 +288,7 @@ namespace Ship_Game
 				this.screen.SaveShipDesign(this.EnterNameArea.Text);
 			}
 			Empire emp = EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty);
+            ResourceManager.ShipsDict[this.EnterNameArea.Text].BaseStrength = ResourceManager.ShipsDict[this.EnterNameArea.Text].GetStrength();
 			foreach (Planet p in emp.GetPlanets())
 			{
 				foreach (QueueItem qi in p.ConstructionQueue)
@@ -297,7 +298,7 @@ namespace Ship_Game
 						continue;
 					}
 					qi.sData = ResourceManager.ShipsDict[this.EnterNameArea.Text].GetShipData();
-					qi.Cost = ResourceManager.ShipsDict[this.EnterNameArea.Text].GetCost(emp);
+					qi.Cost = ResourceManager.ShipsDict[this.EnterNameArea.Text].GetCost(emp);                                        
 				}
 			}
 			this.ExitScreen();
