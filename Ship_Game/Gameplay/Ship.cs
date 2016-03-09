@@ -5087,7 +5087,7 @@ namespace Ship_Game.Gameplay
 
         public void RecalculateMaxHP()          //Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
         {
-            if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health was " + this.Health + "/" + this.HealthMax + "   (" + this.loyalty.data.Traits.ModHpModifier + ")");
+            if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health was " + this.Health + " / " + this.HealthMax + "   (" + this.loyalty.data.Traits.ModHpModifier + ")");
             this.HealthMax = 0;
             foreach (ModuleSlot Mod in this.ModuleSlotList)
             {
@@ -5097,14 +5097,14 @@ namespace Ship_Game.Gameplay
                 Mod.module.HealthMax = ResourceManager.ShipModulesDict[Mod.module.UID].HealthMax;
                 Mod.module.HealthMax = Mod.module.HealthMax + Mod.module.HealthMax * this.loyalty.data.Traits.ModHpModifier;
                 if (IsFullyHealed)
-                {                                                                   //Basically, if the module is fully healed, adjust its HP so it is
-                    Mod.module.Health = Mod.module.HealthMax;                       //still fully healed. Also calculate and adjust the ships MaxHP
-                    Mod.ModuleHealth = Mod.module.HealthMax;                        //so it will display properly.
-                }
+                {                                                                   //Basically, set maxhealth to what it would be with no modifier, then
+                    Mod.module.Health = Mod.module.HealthMax;                       //apply the total benefit to it. Next, if the module is fully healed,
+                    Mod.ModuleHealth = Mod.module.HealthMax;                        //adjust its HP so it is still fully healed. Also calculate and adjust                                            
+                }                                                                   //the ships MaxHP so it will display properly.        -Gretman
                 this.HealthMax += Mod.module.HealthMax;
             }
             if (this.Health >= this.HealthMax) this.Health = this.HealthMax;
-            if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health is " + this.Health + "/" + this.HealthMax);
+            if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health is  " + this.Health + " / " + this.HealthMax);
         }
 
     }
