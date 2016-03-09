@@ -56,7 +56,15 @@ namespace Ship_Game.Gameplay
         public Vector2 moduleCenter = new Vector2(0f, 0f);
         public Vector2 ModuleCenter;
         public string IconTexturePath;
-        public string UID;
+        //public string UID;
+        
+
+        public string UID
+        {
+            get { return this.Advanced.UID; }
+            set { this.Advanced.UID = value; }
+        }
+        
         public ModuleSlot installedSlot;
         public bool isExternal;
         public int TargetValue=0;
