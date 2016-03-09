@@ -90,23 +90,15 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|x86'">
     <OutputPath>..\..\..\..\StarDrive\</OutputPath>
-    <DefineConstants>STEAM ALTERTHREAD PERF  AUTOTIME</DefineConstants>
+    <DefineConstants>STEAM ALTERTHREAD xPERF  xAUTOTIME</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-Zip Deploy|x86'">
-    <OutputPath>..\stardrive mod\</OutputPath>
-    <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Docs Debug|x86'">
     <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Redux\</OutputPath>
@@ -115,16 +107,6 @@
     <DefineConstants>TRACE;DEBUG;STEAM ALTERTHREAD</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_Gravity_RC_|x86' ">
-    <OutputPath>..\stardrive mod\</OutputPath>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'McShooterz|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -142,17 +124,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup />
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_Gravity_Release_|x86' ">
-    <OutputPath>..\stardrive mod\</OutputPath>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_RadicalElements_RC_|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_RadicalElements_RC_16_|x86' ">
     <OutputPath>Deploy\Upload\</OutputPath>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -161,68 +133,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies RadicalElement Deploy|x86'">
-    <OutputPath>bin\x86\Crunchies RadicalElement Deploy\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'CrimsonED-Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>d:\Steam\SteamApps\common\StarDrive\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;STEAM</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'CrimsonED-Notebook-Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>g:\NGames\Steam\SteamApps\common\StarDrive\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;STEAM</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BlackBox_RE_RC_|x86'">
-    <OutputPath>..\stardrive mod\</OutputPath>
-    <DefineConstants>RELEASE ALTERTHREAD</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'crunchies laptop|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;PERF ALTERTHREAD STEAM AUTOTIME notPLAYERONLY </DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -241,18 +151,15 @@
   <PropertyGroup>
     <SignManifests>false</SignManifests>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'crunchies laptop debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\steamapps\common\StarDrive\</OutputPath>
-    <DefineConstants>DEBUG;PERF AUTOTIME ALTERTHREAD STEAM  notPLAYERONLY </DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BlackBox_UNSTABLE_|x86'">
+    <OutputPath>Deploy\Upload\</OutputPath>
+    <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
     <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
+    <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fasterflect">
@@ -289,6 +196,7 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\SaveRaceScreen.cs" />
     <Compile Include="Ship_Game\ExceptionTracker.cs" />
     <Compile Include="Ship_Game\ExceptionViewer.cs">
       <SubType>Form</SubType>
@@ -313,6 +221,7 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\HullBonus.cs" />
+    <Compile Include="Ship_Game\LoadRaceScreen.cs" />
     <Compile Include="Ship_Game\Moon.cs" />
     <Compile Include="Ship_Game\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
@@ -1583,6 +1492,7 @@
     </Compile>
     <EmbeddedResource Include="Ship_Game\ExceptionViewer.resx">
       <DependentUpon>ExceptionViewer.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Microsoft.Xna.Framework.RuntimeProfile" />
     <EmbeddedResource Include="Properties\Resources.resx">
