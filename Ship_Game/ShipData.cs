@@ -76,7 +76,7 @@ namespace Ship_Game
         public bool unLockable = false;
         //public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
         public HashSet<string> techsNeeded = new HashSet<string>();
-        public ushort TechScore = 0;
+        public int TechScore = 0;
         //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
         private static string[] RoleArray = {"disabled","platform","station","construction","supply","freighter","troop","fighter","scout","gunboat","drone","corvette","frigate","destroyer","cruiser","carrier","capital","prototype"};
         private static string[] CategoryArray = {"Unclassified","Civilian","Recon","Combat","Kamikaze"};
@@ -84,7 +84,19 @@ namespace Ship_Game
 		public ShipData()
 		{
 		}
+        
 
+        public ShipData HullData
+        {
+            get 
+            { 
+                ShipData hull =null;
+                ResourceManager.HullsDict.TryGetValue(this.Hull, out hull);
+                return hull; 
+            }
+            
+        }
+        
 		public ShipData GetClone()
 		{
 			return (ShipData)this.MemberwiseClone();

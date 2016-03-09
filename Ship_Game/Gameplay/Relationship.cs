@@ -717,7 +717,7 @@ namespace Ship_Game.Gameplay
             //    }
             //}
 
-            // Inborders us.GetGSAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them)
+            //Inborders us.GetGSAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them)
             if(!this.Treaty_Alliance && !this.Treaty_OpenBorders)
             {
                 
