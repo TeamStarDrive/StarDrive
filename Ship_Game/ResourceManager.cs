@@ -1399,9 +1399,9 @@ namespace Ship_Game
                             {
                                 
                             }
-                            catch(OutOfMemoryException)
+                            catch(OutOfMemoryException ex)
                             {
-                                throw;
+                                throw (ex);
                             }
                         }
                         if (!loaded)
