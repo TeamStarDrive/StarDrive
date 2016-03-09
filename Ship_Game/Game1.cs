@@ -66,7 +66,8 @@ namespace Ship_Game
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive"));
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive/Saved Games"));
-			Directory.CreateDirectory(string.Concat(path, "/StarDrive/Fleet Designs"));
+            Directory.CreateDirectory(string.Concat(path, "/StarDrive/Saved Races"));       // for saving custom races
+            Directory.CreateDirectory(string.Concat(path, "/StarDrive/Fleet Designs"));
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive/Saved Designs"));
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive/WIP"));
 			Directory.CreateDirectory(string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/Headers"));
