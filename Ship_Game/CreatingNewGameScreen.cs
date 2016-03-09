@@ -203,7 +203,8 @@ namespace Ship_Game
                     //{
                     //    this.numSystems = this.numOpponents + 2;
                     //}
-                }
+                }                
+                UniverseData.UniverseWidth = this.data.Size.X;
                 UniverseData universeDatum = this.data;
                 universeDatum.Size = universeDatum.Size * this.scale;
                 this.data.EmpireList.Add(empire);
