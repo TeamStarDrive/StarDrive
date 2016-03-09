@@ -170,6 +170,9 @@ namespace Ship_Game
         private Rectangle ExtraRemnantRect; //Added by Gretman
         public RaceDesignScreen.ExtraRemnantPresence ExtraRemnant = RaceDesignScreen.ExtraRemnantPresence.Normal;
 
+        private UIButton SaveRace;  // Added by EVWeb
+        private UIButton LoadRace;
+
         public RaceDesignScreen()
 		{
 			base.IsPopup = true;
@@ -1752,6 +1755,16 @@ namespace Ship_Game
                         }
                         this.TotalPointsUsed = 8;
                     }
+                    else if (str == "LoadRace")
+                    {
+                        base.ScreenManager.AddScreen(new LoadRaceScreen(this));
+                        AudioManager.PlayCue("echo_affirm");
+                    }
+                    else if (str == "SaveRace")
+                    {
+                        base.ScreenManager.AddScreen(new SaveRaceScreen(this, this.GetEmpireData()));
+                        AudioManager.PlayCue("echo_affirm");
+                    }
                 }
             }
             this.DescriptionSL.HandleInput(input);
@@ -2117,6 +2130,32 @@ namespace Ship_Game
         }
 
 
+        private EmpireData GetEmpireData()
+        {
+            EmpireData data = this.SelectedData as EmpireData;
+            data.Traits = this.RaceSummary;
+            data.Traits.Singular = this.SingEntry.Text;
+            data.Traits.Plural = this.PlurEntry.Text;
+            data.Traits.HomeSystemName = this.HomeSystemEntry.Text;
+            data.Traits.R = (float)this.currentObjectColor.R;
+            data.Traits.G = (float)this.currentObjectColor.G;
+            data.Traits.B = (float)this.currentObjectColor.B;
+            data.Traits.FlagIndex = this.FlagIndex;
+            data.Traits.HomeworldName = this.HomeWorldName;
+            data.Traits.Name = this.RaceName.Text;
+            /*this.RaceSummary.Singular = this.Singular;
+            this.RaceSummary.Plural = this.Plural;
+            this.RaceSummary.HomeSystemName = this.HomeSystemName;
+            this.RaceSummary.ShipType = this.SelectedData.Traits.ShipType;
+            this.RaceSummary.VideoPath = this.SelectedData.Traits.VideoPath;*/
+            //this.RaceSummary.Adj1 = this.SelectedData.Traits.Adj1;
+            //this.RaceSummary.Adj2 = this.SelectedData.Traits.Adj2;
+            //playerEmpire.EmpireColor = this.currentObjectColor;
+
+            return data;
+        }
+
+
 		private void HandleTextInput(ref string text)
 		{
 			this.currentKeyboardState = Keyboard.GetState();
@@ -2295,7 +2334,28 @@ namespace Ship_Game
             this.Buttons.Add(this.ClearTraits);
 			this.DoRaceDescription();
 			this.SetEmpireData(this.SelectedData);
-			base.LoadContent();
+
+            this.LoadRace = new UIButton()         // Added by EVWeb to allow loading and saving of races
+            {
+                Rect = new Rectangle(smaller.X + (smaller.Width / 2) - 142, smaller.Y - 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
+                Text = "Load Race",
+                Launches = "LoadRace"
+            };
+            this.Buttons.Add(this.LoadRace);
+            this.SaveRace = new UIButton()
+            {
+                Rect = new Rectangle(smaller.X + (smaller.Width / 2) + 10, smaller.Y - 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
+                Text = "Save Race",
+                Launches = "SaveRace"
+            };
+            this.Buttons.Add(this.SaveRace);
+            base.LoadContent();
 		}
 
 		protected virtual void OnEngage()
@@ -2468,6 +2528,11 @@ namespace Ship_Game
 				}
 			}
 		}
+
+        public void SetCustomEmpireData(EmpireData data)    // Sets the empire data externally, currently just a wrapper
+        {
+            this.SetEmpireData(data);
+        }
 
 		private void SetEmpireData(EmpireData data)
 		{

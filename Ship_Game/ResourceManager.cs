@@ -175,7 +175,153 @@ namespace Ship_Game
 		public ResourceManager()
 		{
 		}
+        public static void MarkShipDesignsUnlockable()
+        {
+            int x = 0;
 
+            Dictionary<Technology, List<string>> ShipTechs = new Dictionary<Technology, List<string>>();
+            //foreach (KeyValuePair<string, TechEntry> TechTreeItem in this.TechnologyDict)
+            foreach (KeyValuePair<string, Technology> TechTreeItem in ResourceManager.TechTree)
+            {
+                if (TechTreeItem.Value.ModulesUnlocked.Count <= 0 && TechTreeItem.Value.HullsUnlocked.Count <= 0)
+                    continue;
+                ShipTechs.Add(TechTreeItem.Value, ResourceManager.FindPreviousTechs( TechTreeItem.Value, new List<string>()));
+            }
+
+
+
+            ShipData shipData;
+            HashSet<string> purge = new HashSet<string>();
+            //if(shipData.EmpiresThatCanUseThis.ContainsKey(this.data.Traits.ShipType))
+            foreach (ShipData hull in ResourceManager.HullsDict.Values)
+            {
+                if (hull.Role == ShipData.RoleName.disabled)
+                    continue;
+                if (hull.Role < ShipData.RoleName.gunboat)
+                    hull.unLockable = true;
+                foreach (Technology hulltech2 in ShipTechs.Keys)
+                {
+                    foreach (Technology.UnlockedHull hulls in hulltech2.HullsUnlocked)
+                    {
+                        if (hulls.Name == hull.Hull)
+                        {
+                            foreach (string tree in ShipTechs[hulltech2])
+                            {
+                                hull.techsNeeded.Add(tree);
+                                hull.unLockable = true;
+                            }
+                            break;
+                        }
+                    }
+                    if (hull.unLockable)
+                        break;
+                }
+
+            }
+            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+            {
+
+                shipData = ship.Value.shipData;
+                if (shipData == null)
+                    continue;
+                if (shipData.HullRole == ShipData.RoleName.disabled)
+                    continue;
+                //bool empirehulldict;
+                //if (shipData.ShipStyle != this.data.Traits.ShipType && (!this.GetHDict().TryGetValue(shipData.Hull, out empirehulldict) || !empirehulldict))
+                //    continue;
+                //if (shipData.HullRole < ShipData.RoleName.gunboat || shipData.Role == ShipData.RoleName.prototype)
+                //    shipData.hullUnlockable = true;
+                List<string> techsFound = new List<string>();
+                if (shipData.HullData != null && shipData.HullData.unLockable)
+                {
+                    foreach (string str in shipData.HullData.techsNeeded)
+                        shipData.techsNeeded.Add(str);
+                    shipData.hullUnlockable = true;
+                }
+                else
+                {
+                    //System.Diagnostics.Debug.WriteLine(" no hull tech");
+                    shipData.allModulesUnlocakable = false;
+                    shipData.hullUnlockable = false;
+                    //shipData.techsNeeded.Clear();
+                    purge.Add(ship.Key);
+                }
+
+
+
+                bool flag = false;
+                if (shipData.hullUnlockable)
+                {
+                    shipData.allModulesUnlocakable = true;
+                    foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
+                    {
+
+
+                        if (module.InstalledModuleUID == "Dummy")
+                            continue;
+                        bool modUnlockable = false;
+                        //if (!modUnlockable)
+                        foreach (Technology technology in ShipTechs.Keys)
+                        {
+
+                            foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
+                            {
+                                if (mods.ModuleUID == module.InstalledModuleUID)
+                                {
+                                    modUnlockable = true;
+
+                                    shipData.techsNeeded.Add(technology.UID);
+                                    foreach (string tree in ShipTechs[technology])
+                                        shipData.techsNeeded.Add(tree);
+
+                                    break;
+                                }
+                            }
+                            if (modUnlockable)
+                                break;
+                        }
+                        if (!modUnlockable)
+                        {
+                            shipData.allModulesUnlocakable = false;
+                            //shipData.hullUnlockable = false;
+                            //shipData.techsNeeded.Clear();
+                           // purge.Add(ship.Key);
+                            break;
+                        }
+
+                    }
+                }
+
+                if (shipData.allModulesUnlocakable)
+                    foreach (string techname in shipData.techsNeeded)
+                    {
+                        shipData.TechScore += (int)ResourceManager.TechTree[techname].Cost;
+                        x++;
+                        if (shipData.BaseStrength == 0)
+                        {
+                            ResourceManager.CalculateBaseStrength(ship.Value);
+                        }
+                    }
+                else
+                {                    
+                    //shipData.allModulesUnlocakable = false;
+                    shipData.unLockable = false;
+                    shipData.techsNeeded.Clear();
+                    purge.Add(shipData.Name);
+                    shipData.BaseStrength = 0;
+                    //System.Diagnostics.Debug.WriteLine(shipData.Name);
+                }
+
+            }
+            
+            System.Diagnostics.Debug.WriteLine("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
+            foreach (string purger in purge)
+            {
+                System.Diagnostics.Debug.WriteLine("These are Designs" + purger);
+            }
+            
+
+        }
 		public static Microsoft.Xna.Framework.Content.ContentManager localContentManager;
 		public static bool ignoreLoadingErrors = false;
 		/// <summary>
@@ -1225,34 +1371,66 @@ namespace Ship_Game
 			}
 			return files;
 		}
-
-		public static Model GetModel(string path)
+        public static Model GetModel(string path)
+        {
+            return GetModel(path, false);
+        }
+        public static Model GetModel(string path, bool NoException)
 		{
-			Model item;
-			try
-			{                
-                //GC.WaitForPendingFinalizers(); GC.Collect();
-                //GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                //GC.Collect();
-                    
+			Model item =null;
+//#if !DEBUG			
+//            try
+//#endif
+            {
+                Exception t = null;
+                string loaderror = string.Empty;
+                bool loaded = false;
                 lock (Ship_Game.ResourceManager.ModelDict)
+                    if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
+                    {
+                        if (GlobalStats.ActiveMod != null ) //&& GlobalStats.ActiveModInfo != null)
+                        {
+                            try
+                            {
+                                item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
+                                loaded = true;
+                            }
+                            catch(Microsoft.Xna.Framework.Content.ContentLoadException ex)
+                            {
+                                
+                            }
+                            catch(OutOfMemoryException ex)
+                            {
+                                throw (ex);
+                            }
+                        }
+                        if (!loaded)
+                        {
+                            try
+                            {
+                                item = GetContentManager().Load<Model>(path);
+                            }
+                            catch
+                            {
+                                if (!NoException)
+                                    throw;
+                            }
+                        }
+                        Ship_Game.ResourceManager.ModelDict.Add(path, item);
+                    }
+                   
+                return item;
                 if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
 				{
                     
-                    //try
-                    {
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();
+                   
                         item = GetContentManager().Load<Model>(path);
                         Ship_Game.ResourceManager.ModelDict.Add(path, item);
-                    }
-					//item = model;
-                    //catch
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine("*****OOM loading", path);
-                    //    GC.WaitForPendingFinalizers(); GC.Collect();
-                    //    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    //    GC.Collect();
-                        
-                    //}
+                    
 				}
                 
                 else
@@ -1260,14 +1438,20 @@ namespace Ship_Game
                     item = Ship_Game.ResourceManager.ModelDict[path];
                 }
 			}
-            catch
+//#if !DEBUG
+//            catch
+//#endif
             {
-                
-                item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
-                Ship_Game.ResourceManager.ModelDict.Add(path, item);
-                //item = model;
+                if (item == null)
+                {
+                    item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path)) as Model;
+                    //item = GetContentManager().Load<SkinnedModel>(string.Concat("Mod Models/", path)) ;
+                    Ship_Game.ResourceManager.ModelDict.Add(path, item);
+                    //item = model;
+                }
             }
-			return item;
+
+            return item;
 		}
 
 		public static ShipModule GetModule(string uid)
@@ -1690,7 +1874,8 @@ namespace Ship_Game
 
 		public static void Initialize(ContentManager c)
 		{
-			Ship_Game.ResourceManager.WhichModPath = "Content";
+        
+            Ship_Game.ResourceManager.WhichModPath = "Content";
 			Ship_Game.ResourceManager.LoadItAll();
 		}
 
@@ -3812,6 +3997,9 @@ namespace Ship_Game
             Ship_Game.ResourceManager.RandomItemsList.Clear();
             Ship_Game.ResourceManager.ProjectileMeshDict.Clear();
             Ship_Game.ResourceManager.ProjTextDict.Clear();
+            
+            //Game1.Instance.screenManager.AddScreen(new GameLoadingScreen());
+            //Game1.Instance.IsLoaded = true;
             //if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
             //{
             //    Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);
@@ -3823,20 +4011,20 @@ namespace Ship_Game
           
 
 		}
-        public static List<string> FindPreviousTechs(Empire empire, Technology target, List<string> alreadyFound)
+        public static List<string> FindPreviousTechs( Technology target, List<string> alreadyFound)
         {
             bool found = false;
             //this is supposed to reverse walk through the tech tree.
-            foreach (KeyValuePair<string, TechEntry> TechTreeItem in empire.TechnologyDict)
+            foreach (KeyValuePair<string, Technology> TechTreeItem in ResourceManager.TechTree)
             {
                 
-                foreach (Technology.LeadsToTech leadsto in TechTreeItem.Value.GetTech().LeadsTo)
+                foreach (Technology.LeadsToTech leadsto in TechTreeItem.Value.LeadsTo)
                 {
                     //if if it finds a tech that leads to the target tech then find the tech that leads to it. 
                     if (leadsto.UID == target.UID)
                     {
                         alreadyFound.Add(target.UID);
-                        alreadyFound= FindPreviousTechs(empire, TechTreeItem.Value.GetTech(), alreadyFound);
+                        alreadyFound= FindPreviousTechs( TechTreeItem.Value, alreadyFound);
                         //alreadyFound.AddRange(FindPreviousTechs(empire, TechTreeItem.Value.GetTech(), alreadyFound));
                         found = true;
                         break;
