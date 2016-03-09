@@ -1394,7 +1394,7 @@ namespace Ship_Game
 
                     if (this.AutoSaveTimer <= 0.0f)
                     {
-                        this.AutoSaveTimer = GlobalStats.AutoSaveFreq;
+                        this.AutoSaveTimer = EmpireManager.GetPlayerEmpire().data.AutoSaveFreq;
                         this.DoAutoSave();
                     }
                     if (this.IsActive)
@@ -1627,7 +1627,6 @@ namespace Ship_Game
                         }
                     }
                 });
-
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 this.MasterShipList.ApplyPendingRemovals();
@@ -2770,12 +2769,14 @@ namespace Ship_Game
                 if (this.UseRealLights)
                 {
                     this.UseRealLights = false;
+                    this.SetLighting(this.UseRealLights);
                 }
                 else
                 {
                     this.UseRealLights = true;
                     this.SetLighting(this.UseRealLights);
                 }
+                
             } 
             if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.active)
             {
@@ -5122,7 +5123,8 @@ namespace Ship_Game
             //    this.ShipUpdateThread.Abort();
                 this.WorkerThread.Abort();
                 foreach (Thread thread in this.SystemUpdateThreadList)
-                    thread.Abort();
+                    thread.Abort();                
+
             }
             this.EmpireUI.empire = (Empire)null;
             this.EmpireUI = (EmpireUIOverlay)null;
@@ -5186,6 +5188,7 @@ namespace Ship_Game
                 this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)spaceJunk.JunkSO);
                 spaceJunk.JunkSO = (SceneObject)null;
             }
+            ResourceManager.ModelDict.Clear();            
             UniverseScreen.JunkList.Clear();
             this.SelectedShip = (Ship)null;
             this.SelectedFleet = (Fleet)null;
@@ -5253,7 +5256,9 @@ namespace Ship_Game
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.EmpireList.Clear();
             this.ScreenManager.inter.Unload();
-            //GC.Collect(2, GCCollectionMode.Optimized);
+            GC.Collect();            
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
             this.Dispose();
             base.ExitScreen();
         }
@@ -5477,7 +5482,7 @@ namespace Ship_Game
             foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
             {
                 //Added by McShooterz: Changed it so when shields are turned off manually, do not draw bubble
-                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && moduleSlot.module.shield_power > 0.0 && !moduleSlot.module.shieldsOff)
+                if (moduleSlot.module.ModuleType == ShipModuleType.Shield && moduleSlot.module.Active && moduleSlot.module.shield_power > 0 && !moduleSlot.module.shieldsOff)
                 {
                     Vector2 origin1 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2));
                     Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);
@@ -6003,7 +6008,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Saving...", new Vector2((float)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f, (float)(45 + Fonts.Pirulen16.LineSpacing * 2 + 4)), new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)(Math.Abs((float)Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * (float)byte.MaxValue)));
             if (this.IsActive && (this.GameSpeed > 1.0f || this.GameSpeed < 1.0f))
             {
-                Vector2 vector29 = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString(string.Concat(this.GameSpeed, "x")).X - 13f, 44f);
+                Vector2 vector29 = new Vector2((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString(string.Concat(this.GameSpeed, "x")).X - 13f, 64f);
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, (this.GameSpeed < 1f ? string.Concat(this.GameSpeed.ToString("#.0"), "x") : string.Concat(this.GameSpeed, "x")), vector29, Color.White);
             }
             if (this.Debug)
@@ -7477,8 +7482,8 @@ namespace Ship_Game
             }
             else
                 this.DefiningAO = false;
-            float num = (float)(150.0 * (double)this.SelectedSomethingTimer / 3.0);
-            if ((double)num < 0.0)
+            float num = (float)(150.0 * this.SelectedSomethingTimer / 3f);
+            if (num < 0f)
                 num = 0.0f;
             if (this.SelectedShip != null)
             {
@@ -7571,16 +7576,29 @@ namespace Ship_Game
                     if ( this.SelectedShip.GetAI().State == AIState.AssaultPlanet)
                     {
                         //ArtificialIntelligence.ShipGoal goal =null;
-                        Vector2 target =Vector2.Zero;
-                        foreach(ArtificialIntelligence.ShipGoal Goal in this.SelectedShip.GetAI().OrderQueue)
+                        Vector2 target = this.SelectedShip.GetAI().OrbitTarget.Position;
+                        //foreach(ArtificialIntelligence.ShipGoal Goal in this.SelectedShip.GetAI().OrderQueue)
+                        //{
+                        //    if (Goal.Plan == ArtificialIntelligence.Plan.LandTroop)
+                        //        target = Goal.TargetPlanet.Position;
+                        //    else continue;
+                        //    break;
+                        //}
+                        Color mode;
+                        int spots = 0;// this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
+                        if (Vector2.Distance(this.SelectedShip.GetAI().OrbitTarget.Position, this.SelectedShip.Center) <= this.SelectedShip.SensorRange)
+                            spots = this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
+                        else spots = 11;
+                        if (spots >10)
                         {
-                            if (Goal.Plan == ArtificialIntelligence.Plan.LandTroop)
-                                target = Goal.TargetPlanet.Position;
-                            else continue;
-                            break;
+                            
+                            mode = new Color(Color.Red, (byte)num);
                         }
-                             
-                            // goal = this.SelectedShip.GetAI().OrderQueue.LastOrDefault(); //.Value;
+                        else if(spots >0)
+                            mode = new Color(Color.OrangeRed, (byte)num);
+                        else
+                            mode = new Color(Color.Orange, (byte)num);
+                        //New Color
                         lock (this.SelectedShip.GetAI().wayPointLocker)
                         {
                             bool waydpoint = false;
@@ -7591,20 +7609,20 @@ namespace Ship_Game
                                 {
                                     Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
                                     Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ActiveWayPoints.Peek(), 0.0f), this.projection, this.view, Matrix.Identity);
-                                    Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), new Color(Color.Red, (byte)num));
+                                    Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), mode);
                                 }
                                 else if (local_23 < this.SelectedShip.GetAI().ActiveWayPoints.Count - 1)
                                 {
                                     Vector3 local_26 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ActiveWayPoints.ToArray()[local_23], 0.0f), this.projection, this.view, Matrix.Identity);
                                     Vector3 local_27 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ActiveWayPoints.ToArray()[local_23 + 1], 2500f), this.projection, this.view, Matrix.Identity);
-                                    Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_26.X, local_26.Y), new Vector2(local_27.X, local_27.Y), new Color(Color.Red, (byte)num));
+                                    Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_26.X, local_26.Y), new Vector2(local_27.X, local_27.Y), mode);
                                 }
                             }
                             if (!waydpoint && target != Vector2.Zero) //this.SelectedShip.GetAI().OrderQueue.First.Value.TargetPlanet.Position
                             {
                                 Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
                                 Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(target, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), new Color(Color.Red, (byte)num));
+                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), mode);
                             }
                         }
 
@@ -7656,12 +7674,16 @@ namespace Ship_Game
             }
             else if (this.SelectedShipList.Count > 0)
             {
+                int ships = this.SelectedShipList.Count;
+                bool planetFullCheck = false;
+                Color modeSelected = new Color(Color.Orange, (byte)num);
                 for (int index1 = 0; index1 < this.SelectedShipList.Count; ++index1)
                 {
                     try
                     {
                         Ship ship = this.SelectedShipList[index1];
                         bool flag = false;
+ 
                         if (!ship.InCombat || ship.GetAI().HasPriorityOrder)
                         {
                             if (ship.GetAI().State == AIState.Ferrying)
@@ -7704,6 +7726,7 @@ namespace Ship_Game
                                 Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num));
                                 flag = true;
                             }
+                          
                         }
                         if (!ship.GetAI().HasPriorityOrder && (ship.GetAI().State == AIState.AttackTarget || ship.GetAI().State == AIState.Combat) && (ship.GetAI().Target != null && ship.GetAI().Target is Ship))
                         {
@@ -7728,6 +7751,81 @@ namespace Ship_Game
                             Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color(byte.MaxValue, (byte)0, (byte)0, (byte)num));
                             flag = true;
                         }
+                        if (ship.GetAI().State == AIState.AssaultPlanet && ship.GetAI().OrbitTarget != null)
+                        {
+
+                            if (!planetFullCheck)
+                            {
+                                planetFullCheck = true;
+                                int spots = 0;// this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
+                                if (Vector2.Distance(this.SelectedShip.GetAI().OrbitTarget.Position, this.SelectedShip.Center) <= this.SelectedShip.SensorRange)
+                                    spots = this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
+                                else spots = -1;
+
+                                if (spots < 0 || (spots > 10 && spots < ships))
+                                {
+
+                                    modeSelected = new Color(Color.Red, (byte)num);
+                                }
+                                else if (spots > 0)
+                                    modeSelected = new Color(Color.OrangeRed, (byte)num);
+                               
+
+                            }
+
+
+                            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.GetAI().OrbitTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
+                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), modeSelected);
+                            flag = true;
+
+
+                        }
+
+                        //try to fix troop assault projected position. Too slow right now. just use single target version. its much faster. 
+                        //if (ship.GetAI().State == AIState.AssaultPlanet && ship.GetAI().OrbitTarget != null)
+                        //{
+                        //    //ArtificialIntelligence.ShipGoal goal =null;
+                        //    Vector2 target = ship.GetAI().OrbitTarget.Position;
+                        //    //foreach (ArtificialIntelligence.ShipGoal Goal in this.SelectedShip.GetAI().OrderQueue)
+                        //    //{
+                        //    //    if (Goal.Plan == ArtificialIntelligence.Plan.LandTroop)
+                        //    //        target = Goal.TargetPlanet.Position;
+                        //    //    else continue;
+                        //    //    break;
+                        //    //}
+
+                        //    // goal = this.SelectedShip.GetAI().OrderQueue.LastOrDefault(); //.Value;
+                        //    lock (this.SelectedShip.GetAI().wayPointLocker)
+                        //    {
+                        //        bool waydpoint = false;
+                        //        for (int local_23 = 0; local_23 < this.SelectedShip.GetAI().ActiveWayPoints.Count; ++local_23)
+                        //        {
+                        //            waydpoint = true;
+                        //            if (local_23 == 0)
+                        //            {
+                        //                Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                        //                Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ActiveWayPoints.Peek(), 0.0f), this.projection, this.view, Matrix.Identity);
+                        //                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), new Color(Color.Red, (byte)num));
+                        //            }
+                        //            else if (local_23 < this.SelectedShip.GetAI().ActiveWayPoints.Count - 1)
+                        //            {
+                        //                Vector3 local_26 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ActiveWayPoints.ToArray()[local_23], 0.0f), this.projection, this.view, Matrix.Identity);
+                        //                Vector3 local_27 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ActiveWayPoints.ToArray()[local_23 + 1], 2500f), this.projection, this.view, Matrix.Identity);
+                        //                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_26.X, local_26.Y), new Vector2(local_27.X, local_27.Y), new Color(Color.Red, (byte)num));
+                        //            }
+                        //        }
+                        //        if (!waydpoint && target != Vector2.Zero) //this.SelectedShip.GetAI().OrderQueue.First.Value.TargetPlanet.Position
+                        //        {
+                        //            Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
+                        //            Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(target, 0.0f), this.projection, this.view, Matrix.Identity);
+                        //            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), new Color(Color.Red, (byte)num));
+                        //        }
+                        //    }
+
+                        //}
+
+
                         if (!flag)
                         {
                             if (ship.GetAI().ActiveWayPoints.Count > 0)

@@ -83,7 +83,7 @@ namespace Ship_Game
             this.Checkboxes.Add(cb);
             cb.Tip_Token = 7039;
 
-            Ref<bool> atRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoTaxes, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoTaxes = x);
+            Ref<bool> atRef = new Ref<bool>(() => EmpireManager.GetPlayerEmpire().data.AutoTaxes, (bool x) => EmpireManager.GetPlayerEmpire().data.AutoTaxes = x);
             cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 210 + Fonts.Arial12Bold.LineSpacing * 3 + 9)), Localizer.Token(6138), atRef, Fonts.Arial12Bold);
             this.Checkboxes.Add(cb);
             cb.Tip_Token = 7040;
