@@ -15,6 +15,7 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -815,8 +816,8 @@ namespace Ship_Game
                 while (model == null)
                 {
                     string modelpath = string.Empty;
-                    int index = HelperFunctions.GetRandomIndex(ResourceManager.HullsDict.Count);
-                    foreach (ShipData test in ResourceManager.HullsDict.Values)
+                    int index = HelperFunctions.GetRandomIndex(ResourceManager.HullsDict.Where(role => role.Value.Role == ShipData.RoleName.frigate).Count());
+                    foreach (ShipData test in ResourceManager.HullsDict.Values.Where(role => role.Role == ShipData.RoleName.frigate))
                     {
                         index--;
                         if (index > 0)
@@ -833,7 +834,7 @@ namespace Ship_Game
                 this.shipSO.Visibility = ObjectVisibility.Rendered;
                 base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
             }
-			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/MM_light_rig");
+            LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");// ("example/MM_light_rig");
 			base.ScreenManager.inter.LightManager.Submit(rig);
 			base.ScreenManager.environment = base.ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
 			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
