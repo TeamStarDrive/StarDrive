@@ -850,6 +850,8 @@ namespace Ship_Game
 		}
         public void ReloadContent()
         {
+            GC.WaitForPendingFinalizers();
+            this.LogoAnimation.Clear();
             this.Buttons.Clear();
             this.LoadContent();
 
