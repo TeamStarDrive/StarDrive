@@ -209,8 +209,8 @@ namespace Ship_Game
 					}
 					else if (str == "Disable" && this.CurrentButton==null)
 					{                       
-                        Ship_Game.ResourceManager.GetContentManager().Unload();
-                        
+                        //Ship_Game.ResourceManager.GetContentManager().Unload();
+                        //base.ScreenManager.Content.Unload();
                         //this.mmscreen.ResetMusic();                        
                         GlobalStats.ActiveMod = null;						
 						ResourceManager.WhichModPath = "Content";
@@ -219,7 +219,7 @@ namespace Ship_Game
                         ResourceManager.Reset();
 						ResourceManager.Initialize(base.ScreenManager.Content);                        
 						ResourceManager.LoadEmpires();
-                        //Fonts.LoadContent(this.ScreenManager.Content);
+                       // base.ScreenManager.LoadContent();
                         this.mmscreen.ReloadContent();
 						Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 						config.AppSettings.Settings["ActiveMod"].Value = "";
