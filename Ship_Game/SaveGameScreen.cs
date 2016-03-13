@@ -10,11 +10,11 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class SaveGameScreen : GameScreen, IDisposable
+	public sealed class SaveGameScreen : GenericLoadSaveScreen, IDisposable
 	{
-		private Vector2 Cursor = Vector2.Zero;
+        /*private Vector2 Cursor = Vector2.Zero;
 
-		private UniverseScreen screen;
+		
 
 		private List<UIButton> Buttons = new List<UIButton>();
 
@@ -51,17 +51,18 @@ namespace Ship_Game
 		//private float transitionElapsedTime;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+        private bool disposed;*/
 
-		public SaveGameScreen(UniverseScreen screen)
+        private UniverseScreen screen;
+
+        private FileInfo activeFile;
+
+        public SaveGameScreen(UniverseScreen screen) : base(SLMode.Save, string.Concat(screen.PlayerLoyalty, ", Star Date ", screen.StarDate.ToString(screen.StarDateFmt)), "Save Game", "Saved Game already exists.  Overwrite?")
 		{
 			this.screen = screen;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        public void Dispose()
+        /*public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -82,15 +83,81 @@ namespace Ship_Game
                 this.SavesSL = null;
                 this.disposed = true;
             }
-        }
+        }*/
 
-		public void DoSave()
+		public override void DoSave()
 		{
 			SavedGame savedGame = new SavedGame(this.screen, this.EnterNameArea.Text);
 			this.ExitScreen();
 		}
 
-		public override void Draw(GameTime gameTime)
+        protected override FileHeader GetFileHeader(ScrollList.Entry e)
+        {
+            FileHeader fh = new FileHeader();
+            HeaderData data = e.item as HeaderData;
+
+            fh.FileName = data.SaveName;
+            fh.Info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
+            fh.ExtraInfo = data.RealDate;
+            fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
+
+            return fh;
+        }
+
+        protected override void SetSavesSL()        // Set list of files to show
+        {
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            List<HeaderData> saves = new List<HeaderData>();
+            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Games/Headers"));
+            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            {
+                Stream file = filesFromDirectory[i].OpenRead();
+                try
+                {
+                    HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
+                    data.SetFileInfo(new FileInfo(string.Concat(path, "/StarDrive/Saved Games/", data.SaveName, ".xml.gz")));
+                    saves.Add(data);
+
+                    //file.Close();
+                    file.Dispose();
+                }
+                catch
+                {
+                    //file.Close();
+                    file.Dispose();
+                }
+            }
+            IOrderedEnumerable<HeaderData> sortedList =
+                from header in saves
+                orderby header.Time descending
+                select header;
+            foreach (HeaderData data in sortedList)
+            {
+                this.SavesSL.AddItem(data);
+            }
+        }
+
+        protected override void SwitchFile(ScrollList.Entry e)
+        {
+            this.activeFile = (e.item as HeaderData).GetFileInfo();
+            AudioManager.PlayCue("sd_ui_accept_alt3");
+            this.EnterNameArea.Text = (e.item as HeaderData).SaveName;
+        }
+
+        protected override bool CheckOverWrite()
+        {
+            foreach (ScrollList.Entry entry in this.SavesSL.Entries)
+            {
+                if (this.EnterNameArea.Text == (entry.item as HeaderData).SaveName)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /*public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
@@ -320,6 +387,6 @@ namespace Ship_Game
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-		}
-	}
+		}*/
+    }
 }
