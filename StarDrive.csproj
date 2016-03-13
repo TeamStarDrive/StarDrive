@@ -196,6 +196,8 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\GenericLoadSaveScreen.cs" />
+    <Compile Include="Ship_Game\RaceSave.cs" />
     <Compile Include="Ship_Game\SaveRaceScreen.cs" />
     <Compile Include="Ship_Game\ExceptionTracker.cs" />
     <Compile Include="Ship_Game\ExceptionViewer.cs">
