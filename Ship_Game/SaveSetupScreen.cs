@@ -40,8 +40,15 @@ namespace Ship_Game
             SetupSave data = e.item as SetupSave;
 
             fh.FileName = data.Name;
-            fh.Info = data.Date;
-            fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
+            if (data.Version < 308)
+            {
+                fh.Info = "Invalid Setup File";
+            }
+            else
+            {
+                fh.Info = data.Date;
+                fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
+            }
             fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
 
             return fh;
@@ -59,6 +66,13 @@ namespace Ship_Game
                 {
                     XmlSerializer serializer1 = new XmlSerializer(typeof(SetupSave));
                     SetupSave data = (SetupSave)serializer1.Deserialize(file);
+
+                    if (!string.IsNullOrEmpty(data.Name))
+                    {
+                        data.Name = filesFromDirectory[i].Name;
+                        data.Version = 0;
+                    }
+
                     saves.Add(data);
                     file.Dispose();
                 }
