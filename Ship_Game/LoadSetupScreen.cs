@@ -73,6 +73,13 @@ namespace Ship_Game
                     //EmpireData data = (EmpireData)ResourceManager.HeadeSSerializer.Deserialize(file);
                     XmlSerializer serializer1 = new XmlSerializer(typeof(SetupSave));
                     SetupSave data = (SetupSave)serializer1.Deserialize(file);
+                    if (!string.IsNullOrEmpty(data.Name) || data.Version < 308)
+                    {
+                        //file.Close();
+                        file.Dispose();
+                        continue;
+                    }
+
                     if (GlobalStats.ActiveMod != null)
                     {
                         if (data.ModPath != GlobalStats.ActiveMod.ModPath)
