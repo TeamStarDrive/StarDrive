@@ -122,7 +122,7 @@ namespace Ship_Game
                 ScrollList.Entry e = this.SavesSL.Entries[i];
                 //HeaderData data = e.item as HeaderData;
                 FileHeader data = this.GetFileHeader(e);
-                bCursor.Y = (float)e.clickRect.Y;
+                bCursor.Y = (float)e.clickRect.Y - 7;
                 base.ScreenManager.SpriteBatch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, data.FileName, tCursor, Color.Orange);
