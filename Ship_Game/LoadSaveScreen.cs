@@ -10,21 +10,23 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class LoadSaveScreen : GameScreen, IDisposable
+	public sealed class LoadSaveScreen : GenericLoadSaveScreen, IDisposable
 	{
-		private Vector2 Cursor = Vector2.Zero;
+		//private Vector2 Cursor = Vector2.Zero;
 
 		private UniverseScreen screen;
 
-		private CloseButton close;
+		//private CloseButton close;
 
-		private List<UIButton> Buttons = new List<UIButton>();
+		//private List<UIButton> Buttons = new List<UIButton>();
 
 		private MainMenuScreen mmscreen;
 
-		//private Submenu subSave;
+        private FileInfo activeFile;
 
-		private Rectangle Window;
+        //private Submenu subSave;
+
+        /*private Rectangle Window;
 
 		private Menu1 SaveMenu;
 
@@ -53,27 +55,119 @@ namespace Ship_Game
 		//private float transitionElapsedTime;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+        private bool disposed;*/
 
 
-		public LoadSaveScreen(UniverseScreen screen)
+        public LoadSaveScreen(UniverseScreen screen) : base(SLMode.Load, "", Localizer.Token(6), "")
 		{
 			this.screen = screen;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public LoadSaveScreen(MainMenuScreen mmscreen)
-		{
-            
+		public LoadSaveScreen(MainMenuScreen mmscreen) : base(SLMode.Load, "", Localizer.Token(6), "")
+        {
             this.mmscreen = mmscreen;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        public void Dispose()
+        protected override FileHeader GetFileHeader(ScrollList.Entry e)
+        {
+            FileHeader fh = new FileHeader();
+            HeaderData data = e.item as HeaderData;
+
+            fh.FileName = data.SaveName;
+            fh.Info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
+
+            try
+            {
+                fh.ExtraInfo = data.RealDate;
+            }
+            catch
+            {
+                fh.ExtraInfo = "Bad Date";
+            }
+            
+            fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
+
+            return fh;
+        }
+
+        protected override void Load()
+        {
+            if (this.activeFile != null)
+            {
+                if (this.screen != null)
+                {
+                    this.screen.ExitScreen();
+                }
+                base.ScreenManager.AddScreen(new LoadUniverseScreen(this.activeFile));
+                if (this.mmscreen != null)
+                {
+                    this.mmscreen.ExitScreen();
+                }
+            }
+            else
+            {
+                AudioManager.PlayCue("UI_Misc20");
+            }
+            this.ExitScreen();
+        }
+
+        protected override void SetSavesSL()        // Set list of files to show
+        {
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            List<HeaderData> saves = new List<HeaderData>();
+            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Games/Headers"));
+            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            {
+                Stream file = filesFromDirectory[i].OpenRead();
+                try
+                {
+                    HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
+                    data.SetFileInfo(new FileInfo(string.Concat(path, "/StarDrive/Saved Games/", data.SaveName, ".xml.gz")));
+                    if (GlobalStats.ActiveMod != null)
+                    {
+                        if (data.ModName != GlobalStats.ActiveMod.ModPath)
+                        {
+                            //file.Close();
+                            file.Dispose();
+                            continue;
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(data.ModName))
+                    {
+                        //file.Close();
+                        file.Dispose();
+                        continue;
+                    }
+                    saves.Add(data);
+                    //file.Close();
+                    file.Dispose();
+                }
+                catch
+                {
+                    //file.Close();
+                    file.Dispose();
+                }
+                //Label0:
+                //  continue;
+            }
+            IOrderedEnumerable<HeaderData> sortedList =
+                from header in saves
+                orderby header.Time descending
+                select header;
+            foreach (HeaderData data in sortedList)
+            {
+                this.SavesSL.AddItem(data);
+            }
+        }
+
+        protected override void SwitchFile(ScrollList.Entry e)
+        {
+            this.activeFile = (e.item as HeaderData).GetFileInfo();
+            AudioManager.PlayCue("sd_ui_accept_alt3");
+            this.EnterNameArea.Text = (e.item as HeaderData).SaveName;
+        }
+
+        /*public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -307,6 +401,6 @@ namespace Ship_Game
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-		}
-	}
+		}*/
+    }
 }
