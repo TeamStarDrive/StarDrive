@@ -40,8 +40,15 @@ namespace Ship_Game
             RaceSave data = e.item as RaceSave;
 
             fh.FileName = data.Name;
-            fh.Info = String.Concat( "Original Race: ", data.Traits.ShipType );
-            fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
+            if (data.Version < 308)
+            {
+                fh.Info = "Invalid Race File";
+            }
+            else
+            {
+                fh.Info = String.Concat("Original Race: ", data.Traits.ShipType);
+                fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
+            }
             fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
 
             return fh;
@@ -59,6 +66,13 @@ namespace Ship_Game
                 {
                     XmlSerializer serializer1 = new XmlSerializer(typeof(RaceSave));
                     RaceSave data = (RaceSave)serializer1.Deserialize(file);
+
+                    if (!string.IsNullOrEmpty(data.Name))
+                    {
+                        data.Name = filesFromDirectory[i].Name;
+                        data.Version = 0;
+                    }
+
                     saves.Add(data);
                     file.Dispose();
                 }
