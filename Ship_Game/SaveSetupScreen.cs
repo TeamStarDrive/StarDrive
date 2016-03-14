@@ -10,25 +10,25 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public sealed class SaveRaceScreen : GenericLoadSaveScreen, IDisposable
+    public sealed class SaveSetupScreen : GenericLoadSaveScreen, IDisposable
     {
         private RaceDesignScreen screen;
 
-        private RaceSave RS;
+        private SetupSave SS;
 
-        public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) : base(SLMode.Save, data.Name, "Save Race", "Saved Race already exists.  Overwrite?")
+        public SaveSetupScreen(RaceDesignScreen screen, UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum StarEnum, RaceDesignScreen.GalSize Galaxysize, int Pacing, RaceDesignScreen.ExtraRemnantPresence ExtraRemnant, int numOpponents, RaceDesignScreen.GameMode mode) : base(SLMode.Save, "New Saved Setup", "Save Setup", "Saved Setup already exists.  Overwrite?")
         {
             this.screen = screen;
-            this.RS = new RaceSave(data);            // save some extra info for filtering purposes
+            this.SS = new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode);            // save some extra info for filtering purposes
         }
 
         public override void DoSave()
         {
-            this.RS.Name = this.EnterNameArea.Text;
+            this.SS.Name = this.EnterNameArea.Text;
             string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            XmlSerializer Serializer = new XmlSerializer(typeof(RaceSave));
-            TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Saved Races/", this.RS.Name, ".xml"));
-            Serializer.Serialize(WriteFileStream, this.RS);
+            XmlSerializer Serializer = new XmlSerializer(typeof(SetupSave));
+            TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Saved Setups/", this.SS.Name, ".xml"));
+            Serializer.Serialize(WriteFileStream, this.SS);
             WriteFileStream.Dispose();
             //WriteFileStream.Close();
             this.ExitScreen();
@@ -37,16 +37,16 @@ namespace Ship_Game
         protected override FileHeader GetFileHeader(ScrollList.Entry e)
         {
             FileHeader fh = new FileHeader();
-            RaceSave data = e.item as RaceSave;
+            SetupSave data = e.item as SetupSave;
 
             fh.FileName = data.Name;
             if (data.Version < 308)
             {
-                fh.Info = "Invalid Race File";
+                fh.Info = "Invalid Setup File";
             }
             else
             {
-                fh.Info = String.Concat("Original Race: ", data.Traits.ShipType);
+                fh.Info = data.Date;
                 fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
             }
             fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
@@ -57,15 +57,15 @@ namespace Ship_Game
         protected override void SetSavesSL()        // Set list of files to show
         {
             string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            List<RaceSave> saves = new List<RaceSave>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Races/"));
+            List<SetupSave> saves = new List<SetupSave>();
+            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Setups/"));
             for (int i = 0; i < (int)filesFromDirectory.Length; i++)
             {
                 Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
-                    XmlSerializer serializer1 = new XmlSerializer(typeof(RaceSave));
-                    RaceSave data = (RaceSave)serializer1.Deserialize(file);
+                    XmlSerializer serializer1 = new XmlSerializer(typeof(SetupSave));
+                    SetupSave data = (SetupSave)serializer1.Deserialize(file);
 
                     if (!string.IsNullOrEmpty(data.Name))
                     {
@@ -83,11 +83,11 @@ namespace Ship_Game
                 //Label0:
                 //  continue;
             }
-            IOrderedEnumerable<RaceSave> sortedList =
+            IOrderedEnumerable<SetupSave> sortedList =
                 from data in saves
                 orderby data.Name descending
                 select data;
-            foreach (RaceSave data in sortedList)
+            foreach (SetupSave data in sortedList)
             {
                 this.SavesSL.AddItem(data);
             }
@@ -96,14 +96,14 @@ namespace Ship_Game
         protected override void SwitchFile(ScrollList.Entry e)
         {
             AudioManager.PlayCue("sd_ui_accept_alt3");
-            this.EnterNameArea.Text = (e.item as RaceSave).Name;
+            this.EnterNameArea.Text = (e.item as SetupSave).Name;
         }
 
         protected override bool CheckOverWrite()
         {
             foreach (ScrollList.Entry entry in this.SavesSL.Entries)
             {
-                if (this.EnterNameArea.Text == (entry.item as RaceSave).Name)
+                if (this.EnterNameArea.Text == (entry.item as SetupSave).Name)
                 {
                     return false;
                 }
