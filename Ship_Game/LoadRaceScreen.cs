@@ -28,7 +28,7 @@ namespace Ship_Game
             RaceSave data = e.item as RaceSave;
 
             fh.FileName = data.Name;
-            fh.Info = String.Concat("Original Race: ", data.Data.PortraitName);
+            fh.Info = String.Concat("Original Race: ", data.Traits.ShipType);
             fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
             fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
 
@@ -39,7 +39,7 @@ namespace Ship_Game
         {
             if (this.RS != null)
             {
-                this.screen.SetCustomEmpireData(this.RS.Data);
+                this.screen.SetCustomEmpireData(this.RS.Traits);
             }
             else
             {
