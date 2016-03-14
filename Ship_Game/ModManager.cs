@@ -209,7 +209,7 @@ namespace Ship_Game
 					}
 					else if (str == "Disable" && this.CurrentButton==null)
 					{                       
-                        Ship_Game.ResourceManager.GetContentManager().Unload();
+                       // Ship_Game.ResourceManager.GetContentManager().Unload();
                         
                         //this.mmscreen.ResetMusic();                        
                         GlobalStats.ActiveMod = null;						
