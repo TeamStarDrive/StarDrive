@@ -172,6 +172,8 @@ namespace Ship_Game
 
         private UIButton SaveRace;  // Added by EVWeb
         private UIButton LoadRace;
+        private UIButton SaveSetup;
+        private UIButton LoadSetup;
 
         public RaceDesignScreen()
 		{
@@ -1765,6 +1767,16 @@ namespace Ship_Game
                         base.ScreenManager.AddScreen(new SaveRaceScreen(this, this.GetEmpireData()));
                         AudioManager.PlayCue("echo_affirm");
                     }
+                    else if (str == "LoadSetup")
+                    {
+                        base.ScreenManager.AddScreen(new LoadSetupScreen(this));
+                        AudioManager.PlayCue("echo_affirm");
+                    }
+                    else if (str == "SaveSetup")
+                    {
+                        base.ScreenManager.AddScreen(new SaveSetupScreen(this, this.difficulty, this.StarEnum, this.Galaxysize, this.Pacing, this.ExtraRemnant, this.numOpponents, this.mode));
+                        AudioManager.PlayCue("echo_affirm");
+                    }
                 }
             }
             this.DescriptionSL.HandleInput(input);
@@ -2355,6 +2367,26 @@ namespace Ship_Game
                 Launches = "SaveRace"
             };
             this.Buttons.Add(this.SaveRace);
+            this.LoadSetup = new UIButton()         // Added by EVWeb to allow loading and saving of new game setup
+            {
+                Rect = new Rectangle((int)Position.X - 142, (int)Position.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
+                Text = "Load Setup",
+                Launches = "LoadSetup"
+            };
+            this.Buttons.Add(this.LoadSetup);
+            this.SaveSetup = new UIButton()
+            {
+                Rect = new Rectangle((int)Position.X + 178, (int)Position.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
+                Text = "Save Setup",
+                Launches = "SaveSetup"
+            };
+            this.Buttons.Add(this.SaveSetup);
             base.LoadContent();
 		}
 
@@ -2529,8 +2561,43 @@ namespace Ship_Game
 			}
 		}
 
-        public void SetCustomEmpireData(EmpireData data)    // Sets the empire data externally, currently just a wrapper
+        public void SetCustomSetup(UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum StarEnum, RaceDesignScreen.GalSize Galaxysize, int Pacing, RaceDesignScreen.ExtraRemnantPresence ExtraRemnant, int numOpponents, RaceDesignScreen.GameMode mode)
         {
+            this.difficulty = gameDifficulty;
+            this.StarEnum = StarEnum;
+            this.Galaxysize = Galaxysize;
+            this.Pacing = Pacing;
+            this.ExtraRemnant = ExtraRemnant;
+            this.numOpponents = numOpponents;
+            this.mode = mode;
+        }
+
+        public void SetCustomEmpireData(EmpireData data)    // Sets the empire data externally, checks for fields that are default so don't overwrite
+        {
+            foreach (ScrollList.Entry e in this.RaceArchetypeSL.Entries)
+            {
+                EmpireData origRace = e.item as EmpireData;
+                if( origRace.PortraitName == data.PortraitName )
+                {
+                    if (data.Traits.Name == origRace.Traits.Name)
+                        data.Traits.Name = this.RaceName.Text;
+                    if (data.Traits.Singular == origRace.Traits.Singular)
+                        data.Traits.Singular = this.SingEntry.Text;
+                    if (data.Traits.Plural == origRace.Traits.Plural)
+                        data.Traits.Plural = this.PlurEntry.Text;
+                    if (data.Traits.HomeSystemName == origRace.Traits.HomeSystemName)
+                        data.Traits.HomeSystemName = this.HomeSystemEntry.Text;
+                    if (data.Traits.FlagIndex == origRace.Traits.FlagIndex)
+                        data.Traits.FlagIndex = this.FlagIndex;
+                    if (data.Traits.R == origRace.Traits.R && data.Traits.G == origRace.Traits.G && data.Traits.B == origRace.Traits.B)
+                    {
+                        data.Traits.R = (float)this.currentObjectColor.R;
+                        data.Traits.G = (float)this.currentObjectColor.G;
+                        data.Traits.B = (float)this.currentObjectColor.B;
+                    }
+                    break;
+                }
+            }
             this.SetEmpireData(data);
         }
 
