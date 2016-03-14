@@ -16,7 +16,7 @@ namespace Ship_Game
 
         private RaceSave RS;
 
-        public SaveRaceScreen(RaceDesignScreen screen, EmpireData data) : base(SLMode.Save, data.Traits.Name, "Save Race", "Saved Race already exists.  Overwrite?")
+        public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) : base(SLMode.Save, data.Name, "Save Race", "Saved Race already exists.  Overwrite?")
         {
             this.screen = screen;
             this.RS = new RaceSave(data);            // save some extra info for filtering purposes
@@ -40,7 +40,7 @@ namespace Ship_Game
             RaceSave data = e.item as RaceSave;
 
             fh.FileName = data.Name;
-            fh.Info = String.Concat( "Original Race: ", data.Data.PortraitName );
+            fh.Info = String.Concat( "Original Race: ", data.Traits.ShipType );
             fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
             fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
 
