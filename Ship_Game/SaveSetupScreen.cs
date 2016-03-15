@@ -67,9 +67,10 @@ namespace Ship_Game
                     XmlSerializer serializer1 = new XmlSerializer(typeof(SetupSave));
                     SetupSave data = (SetupSave)serializer1.Deserialize(file);
 
-                    if (!string.IsNullOrEmpty(data.Name))
+                    if (string.IsNullOrEmpty(data.Name))
                     {
                         data.Name = filesFromDirectory[i].Name;
+                        data.Name = data.Name.Substring(0, data.Name.LastIndexOf('.'));
                         data.Version = 0;
                     }
 
@@ -85,7 +86,7 @@ namespace Ship_Game
             }
             IOrderedEnumerable<SetupSave> sortedList =
                 from data in saves
-                orderby data.Name descending
+                orderby data.Name ascending
                 select data;
             foreach (SetupSave data in sortedList)
             {
