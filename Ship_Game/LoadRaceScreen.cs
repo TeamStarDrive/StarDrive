@@ -28,7 +28,7 @@ namespace Ship_Game
             RaceSave data = e.item as RaceSave;
 
             fh.FileName = data.Name;
-            fh.Info = String.Concat("Original Race: ", data.Data.PortraitName);
+            fh.Info = String.Concat("Original Race: ", data.Traits.ShipType);
             fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
             fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
 
@@ -39,7 +39,7 @@ namespace Ship_Game
         {
             if (this.RS != null)
             {
-                this.screen.SetCustomEmpireData(this.RS.Data);
+                this.screen.SetCustomEmpireData(this.RS.Traits);
             }
             else
             {
@@ -61,6 +61,13 @@ namespace Ship_Game
                     //EmpireData data = (EmpireData)ResourceManager.HeaderSerializer.Deserialize(file);
                     XmlSerializer serializer1 = new XmlSerializer(typeof(RaceSave));
                     RaceSave data = (RaceSave)serializer1.Deserialize(file);
+                    if (string.IsNullOrEmpty(data.Name) || data.Version < 308)
+                    {
+                        //file.Close();
+                        file.Dispose();
+                        continue;
+                    }
+
                     if (GlobalStats.ActiveMod != null)
                     {
                         if (data.ModPath != GlobalStats.ActiveMod.ModPath)
@@ -90,7 +97,7 @@ namespace Ship_Game
             }
             IOrderedEnumerable<RaceSave> sortedList =
                 from data in saves
-                orderby data.Name descending
+                orderby data.Name ascending
                 select data;
             foreach (RaceSave data in sortedList)
             {

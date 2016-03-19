@@ -1389,7 +1389,7 @@ namespace Ship_Game
                     }
                     this.SelectedData = e.item as EmpireData;
                     AudioManager.PlayCue("echo_affirm");
-                    this.SetEmpireData(this.SelectedData);
+                    this.SetEmpireData(this.SelectedData.Traits);
                 }
                 this.RaceArchetypeSL.HandleInput(input);
                 this.Traits.HandleInput(this);
@@ -1764,7 +1764,7 @@ namespace Ship_Game
                     }
                     else if (str == "SaveRace")
                     {
-                        base.ScreenManager.AddScreen(new SaveRaceScreen(this, this.GetEmpireData()));
+                        base.ScreenManager.AddScreen(new SaveRaceScreen(this, this.GetRacialTraits()));
                         AudioManager.PlayCue("echo_affirm");
                     }
                     else if (str == "LoadSetup")
@@ -1791,7 +1791,7 @@ namespace Ship_Game
                     }
                     this.SelectedData = e.item as EmpireData;
                     AudioManager.PlayCue("echo_affirm");
-                    this.SetEmpireData(this.SelectedData);
+                    this.SetEmpireData(this.SelectedData.Traits);
                 }
                 this.RaceArchetypeSL.HandleInput(input);
                 this.Traits.HandleInput(this);
@@ -2142,29 +2142,31 @@ namespace Ship_Game
         }
 
 
-        private EmpireData GetEmpireData()
+        private RacialTrait GetRacialTraits()
         {
-            EmpireData data = this.SelectedData as EmpireData;
-            data.Traits = this.RaceSummary;
-            data.Traits.Singular = this.SingEntry.Text;
-            data.Traits.Plural = this.PlurEntry.Text;
-            data.Traits.HomeSystemName = this.HomeSystemEntry.Text;
-            data.Traits.R = (float)this.currentObjectColor.R;
-            data.Traits.G = (float)this.currentObjectColor.G;
-            data.Traits.B = (float)this.currentObjectColor.B;
-            data.Traits.FlagIndex = this.FlagIndex;
-            data.Traits.HomeworldName = this.HomeWorldName;
-            data.Traits.Name = this.RaceName.Text;
+            RacialTrait Traits = new RacialTrait();
+            Traits = this.RaceSummary.GetClone();
+            Traits.Singular = this.SingEntry.Text;
+            Traits.Plural = this.PlurEntry.Text;
+            Traits.HomeSystemName = this.HomeSystemEntry.Text;
+            Traits.R = (float)this.currentObjectColor.R;
+            Traits.G = (float)this.currentObjectColor.G;
+            Traits.B = (float)this.currentObjectColor.B;
+            Traits.FlagIndex = this.FlagIndex;
+            Traits.HomeworldName = this.HomeWorldName;
+            Traits.Name = this.RaceName.Text;
+            Traits.ShipType = this.SelectedData.Traits.ShipType;
+            Traits.VideoPath = this.SelectedData.Traits.VideoPath;
             /*this.RaceSummary.Singular = this.Singular;
             this.RaceSummary.Plural = this.Plural;
             this.RaceSummary.HomeSystemName = this.HomeSystemName;
             this.RaceSummary.ShipType = this.SelectedData.Traits.ShipType;
-            this.RaceSummary.VideoPath = this.SelectedData.Traits.VideoPath;*/
+            this.RaceSummary.VideoPath = this.SelectedData.Traits.VideoPath;
             //this.RaceSummary.Adj1 = this.SelectedData.Traits.Adj1;
             //this.RaceSummary.Adj2 = this.SelectedData.Traits.Adj2;
-            //playerEmpire.EmpireColor = this.currentObjectColor;
+            //playerEmpire.EmpireColor = this.currentObjectColor;*/
 
-            return data;
+            return Traits;
         }
 
 
@@ -2345,7 +2347,7 @@ namespace Ship_Game
             };
             this.Buttons.Add(this.ClearTraits);
 			this.DoRaceDescription();
-			this.SetEmpireData(this.SelectedData);
+			this.SetEmpireData(this.SelectedData.Traits);
 
             this.LoadRace = new UIButton()         // Added by EVWeb to allow loading and saving of races
             {
@@ -2572,88 +2574,88 @@ namespace Ship_Game
             this.mode = mode;
         }
 
-        public void SetCustomEmpireData(EmpireData data)    // Sets the empire data externally, checks for fields that are default so don't overwrite
+        public void SetCustomEmpireData(RacialTrait Traits)    // Sets the empire data externally, checks for fields that are default so don't overwrite
         {
             foreach (ScrollList.Entry e in this.RaceArchetypeSL.Entries)
             {
                 EmpireData origRace = e.item as EmpireData;
-                if( origRace.PortraitName == data.PortraitName )
+                if( origRace.Traits.ShipType == Traits.ShipType)
                 {
-                    if (data.Traits.Name == origRace.Traits.Name)
-                        data.Traits.Name = this.RaceName.Text;
-                    if (data.Traits.Singular == origRace.Traits.Singular)
-                        data.Traits.Singular = this.SingEntry.Text;
-                    if (data.Traits.Plural == origRace.Traits.Plural)
-                        data.Traits.Plural = this.PlurEntry.Text;
-                    if (data.Traits.HomeSystemName == origRace.Traits.HomeSystemName)
-                        data.Traits.HomeSystemName = this.HomeSystemEntry.Text;
-                    if (data.Traits.FlagIndex == origRace.Traits.FlagIndex)
-                        data.Traits.FlagIndex = this.FlagIndex;
-                    if (data.Traits.R == origRace.Traits.R && data.Traits.G == origRace.Traits.G && data.Traits.B == origRace.Traits.B)
+                    if (Traits.Name == origRace.Traits.Name)
+                        Traits.Name = this.RaceName.Text;
+                    if (Traits.Singular == origRace.Traits.Singular)
+                        Traits.Singular = this.SingEntry.Text;
+                    if (Traits.Plural == origRace.Traits.Plural)
+                        Traits.Plural = this.PlurEntry.Text;
+                    if (Traits.HomeSystemName == origRace.Traits.HomeSystemName)
+                        Traits.HomeSystemName = this.HomeSystemEntry.Text;
+                    if (Traits.FlagIndex == origRace.Traits.FlagIndex)
+                        Traits.FlagIndex = this.FlagIndex;
+                    if (Traits.R == origRace.Traits.R && Traits.G == origRace.Traits.G && Traits.B == origRace.Traits.B)
                     {
-                        data.Traits.R = (float)this.currentObjectColor.R;
-                        data.Traits.G = (float)this.currentObjectColor.G;
-                        data.Traits.B = (float)this.currentObjectColor.B;
+                        Traits.R = (float)this.currentObjectColor.R;
+                        Traits.G = (float)this.currentObjectColor.G;
+                        Traits.B = (float)this.currentObjectColor.B;
                     }
                     break;
                 }
             }
-            this.SetEmpireData(data);
+            this.SetEmpireData(Traits);
         }
 
-		private void SetEmpireData(EmpireData data)
+		private void SetEmpireData(RacialTrait Traits)
 		{
-			this.RaceSummary.ShipType = data.Traits.ShipType;
-			this.FlagIndex = data.Traits.FlagIndex;
-			this.currentObjectColor = new Color((byte)data.Traits.R, (byte)data.Traits.G, (byte)data.Traits.B, 255);
-			this.RaceName.Text = data.Traits.Name;
-			this.SingEntry.Text = data.Traits.Singular;
-			this.PlurEntry.Text = data.Traits.Plural;
-			this.HomeSystemEntry.Text = data.Traits.HomeSystemName;
-			this.HomeSystemName = data.Traits.HomeSystemName;
-			this.HomeWorldName = data.Traits.HomeworldName;
+			this.RaceSummary.ShipType = Traits.ShipType;
+			this.FlagIndex = Traits.FlagIndex;
+			this.currentObjectColor = new Color((byte)Traits.R, (byte)Traits.G, (byte)Traits.B, 255);
+			this.RaceName.Text = Traits.Name;
+			this.SingEntry.Text = Traits.Singular;
+			this.PlurEntry.Text = Traits.Plural;
+			this.HomeSystemEntry.Text = Traits.HomeSystemName;
+			this.HomeSystemName = Traits.HomeSystemName;
+			this.HomeWorldName = Traits.HomeworldName;
 			this.TotalPointsUsed = 8;
             foreach (TraitEntry t in this.AllTraits)
 			{
 				t.Selected = false;
                 //Added by McShooterz: Searches for new trait tags
-                if ((data.Traits.ConsumptionModifier > 0f || data.Traits.PhysicalTraitGluttonous) && t.trait.ConsumptionModifier > 0f 
-                    || t.trait.ConsumptionModifier < 0f && (data.Traits.ConsumptionModifier < 0f || data.Traits.PhysicalTraitEfficientMetabolism)
-                    || (data.Traits.DiplomacyMod > 0f || data.Traits.PhysicalTraitAlluring) && t.trait.DiplomacyMod > 0f 
-                    || t.trait.DiplomacyMod < 0f && (data.Traits.DiplomacyMod < 0f || data.Traits.PhysicalTraitRepulsive)
-                    || (data.Traits.EnergyDamageMod > 0f || data.Traits.PhysicalTraitEagleEyed) && t.trait.EnergyDamageMod > 0f
-                    || t.trait.EnergyDamageMod < 0f && (data.Traits.EnergyDamageMod < 0f || data.Traits.PhysicalTraitBlind)
-                    || (data.Traits.MaintMod > 0f || data.Traits.SociologicalTraitWasteful) && t.trait.MaintMod > 0f 
-                    || t.trait.MaintMod < 0f && (data.Traits.MaintMod < 0f || data.Traits.SociologicalTraitEfficient)
-                    || (data.Traits.PopGrowthMax > 0f || data.Traits.PhysicalTraitLessFertile) && t.trait.PopGrowthMax > 0f 
-                    || (data.Traits.PopGrowthMin > 0f || data.Traits.PhysicalTraitFertile) && t.trait.PopGrowthMin > 0f 
-                    || (data.Traits.ResearchMod > 0f || data.Traits.PhysicalTraitSmart) && t.trait.ResearchMod > 0f 
-                    || t.trait.ResearchMod < 0f && (data.Traits.ResearchMod < 0f || data.Traits.PhysicalTraitDumb)
-                    || t.trait.ShipCostMod < 0f && (data.Traits.ShipCostMod < 0f || data.Traits.HistoryTraitNavalTraditions) 
-                    || (data.Traits.TaxMod > 0f || data.Traits.SociologicalTraitMeticulous) && t.trait.TaxMod > 0f 
-                    || t.trait.TaxMod < 0f && (data.Traits.TaxMod < 0f || data.Traits.SociologicalTraitCorrupt)
-                    || (data.Traits.ProductionMod > 0f || data.Traits.SociologicalTraitIndustrious) && t.trait.ProductionMod > 0f 
-                    || t.trait.ProductionMod < 0f && (data.Traits.ProductionMod < 0f || data.Traits.SociologicalTraitLazy)
-                    || (data.Traits.ModHpModifier > 0f || data.Traits.SociologicalTraitSkilledEngineers) && t.trait.ModHpModifier > 0f 
-                    || t.trait.ModHpModifier < 0f && (data.Traits.ModHpModifier < 0f || data.Traits.SociologicalTraitHaphazardEngineers)
-                    || (data.Traits.Mercantile > 0f || data.Traits.SociologicalTraitMercantile) && t.trait.Mercantile > 0f  
-                    || (data.Traits.GroundCombatModifier > 0f || data.Traits.PhysicalTraitSavage) && t.trait.GroundCombatModifier > 0f 
-                    || t.trait.GroundCombatModifier < 0f && (data.Traits.GroundCombatModifier < 0f || data.Traits.PhysicalTraitTimid)
-                    || (data.Traits.Cybernetic > 0 || data.Traits.HistoryTraitCybernetic) && t.trait.Cybernetic > 0 
-                    || (data.Traits.DodgeMod > 0f || data.Traits.PhysicalTraitReflexes) && t.trait.DodgeMod > 0f 
-                    || t.trait.DodgeMod < 0f && (data.Traits.DodgeMod < 0f || data.Traits.PhysicalTraitPonderous) 
-                    || (data.Traits.HomeworldSizeMod > 0f || data.Traits.HistoryTraitHugeHomeWorld) && t.trait.HomeworldSizeMod > 0f 
-                    || t.trait.HomeworldSizeMod < 0f && (data.Traits.HomeworldSizeMod < 0f || data.Traits.HistoryTraitSmallHomeWorld)
-                    || t.trait.HomeworldFertMod < 0f && (data.Traits.HomeworldFertMod < 0f || data.Traits.HistoryTraitPollutedHomeWorld) && t.trait.HomeworldRichMod == 0f
-                    || t.trait.HomeworldFertMod < 0f && (data.Traits.HomeworldFertMod < 0f || data.Traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
-                    || (data.Traits.Militaristic > 0 || data.Traits.HistoryTraitMilitaristic) && t.trait.Militaristic > 0 
-                    || (data.Traits.PassengerModifier > 1 || data.Traits.HistoryTraitManifestDestiny) && t.trait.PassengerModifier > 1 
-                    || (data.Traits.BonusExplored > 0 || data.Traits.HistoryTraitAstronomers) && t.trait.BonusExplored > 0 
-                    || (data.Traits.Spiritual > 0f || data.Traits.HistoryTraitSpiritual) && t.trait.Spiritual > 0f 
-                    || (data.Traits.Prototype > 0 || data.Traits.HistoryTraitPrototypeFlagship) && t.trait.Prototype > 0 
-                    || (data.Traits.Pack || data.Traits.HistoryTraitPackMentality) && t.trait.Pack 
-                    || (data.Traits.SpyMultiplier > 0f || data.Traits.HistoryTraitDuplicitous) && t.trait.SpyMultiplier > 0f 
-                    || (data.Traits.SpyMultiplier < 0f || data.Traits.HistoryTraitHonest) && t.trait.SpyMultiplier < 0f)
+                if ((Traits.ConsumptionModifier > 0f || Traits.PhysicalTraitGluttonous) && t.trait.ConsumptionModifier > 0f 
+                    || t.trait.ConsumptionModifier < 0f && (Traits.ConsumptionModifier < 0f || Traits.PhysicalTraitEfficientMetabolism)
+                    || (Traits.DiplomacyMod > 0f || Traits.PhysicalTraitAlluring) && t.trait.DiplomacyMod > 0f 
+                    || t.trait.DiplomacyMod < 0f && (Traits.DiplomacyMod < 0f || Traits.PhysicalTraitRepulsive)
+                    || (Traits.EnergyDamageMod > 0f || Traits.PhysicalTraitEagleEyed) && t.trait.EnergyDamageMod > 0f
+                    || t.trait.EnergyDamageMod < 0f && (Traits.EnergyDamageMod < 0f || Traits.PhysicalTraitBlind)
+                    || (Traits.MaintMod > 0f || Traits.SociologicalTraitWasteful) && t.trait.MaintMod > 0f 
+                    || t.trait.MaintMod < 0f && (Traits.MaintMod < 0f || Traits.SociologicalTraitEfficient)
+                    || (Traits.PopGrowthMax > 0f || Traits.PhysicalTraitLessFertile) && t.trait.PopGrowthMax > 0f 
+                    || (Traits.PopGrowthMin > 0f || Traits.PhysicalTraitFertile) && t.trait.PopGrowthMin > 0f 
+                    || (Traits.ResearchMod > 0f || Traits.PhysicalTraitSmart) && t.trait.ResearchMod > 0f 
+                    || t.trait.ResearchMod < 0f && (Traits.ResearchMod < 0f || Traits.PhysicalTraitDumb)
+                    || t.trait.ShipCostMod < 0f && (Traits.ShipCostMod < 0f || Traits.HistoryTraitNavalTraditions) 
+                    || (Traits.TaxMod > 0f || Traits.SociologicalTraitMeticulous) && t.trait.TaxMod > 0f 
+                    || t.trait.TaxMod < 0f && (Traits.TaxMod < 0f || Traits.SociologicalTraitCorrupt)
+                    || (Traits.ProductionMod > 0f || Traits.SociologicalTraitIndustrious) && t.trait.ProductionMod > 0f 
+                    || t.trait.ProductionMod < 0f && (Traits.ProductionMod < 0f || Traits.SociologicalTraitLazy)
+                    || (Traits.ModHpModifier > 0f || Traits.SociologicalTraitSkilledEngineers) && t.trait.ModHpModifier > 0f 
+                    || t.trait.ModHpModifier < 0f && (Traits.ModHpModifier < 0f || Traits.SociologicalTraitHaphazardEngineers)
+                    || (Traits.Mercantile > 0f || Traits.SociologicalTraitMercantile) && t.trait.Mercantile > 0f  
+                    || (Traits.GroundCombatModifier > 0f || Traits.PhysicalTraitSavage) && t.trait.GroundCombatModifier > 0f 
+                    || t.trait.GroundCombatModifier < 0f && (Traits.GroundCombatModifier < 0f || Traits.PhysicalTraitTimid)
+                    || (Traits.Cybernetic > 0 || Traits.HistoryTraitCybernetic) && t.trait.Cybernetic > 0 
+                    || (Traits.DodgeMod > 0f || Traits.PhysicalTraitReflexes) && t.trait.DodgeMod > 0f 
+                    || t.trait.DodgeMod < 0f && (Traits.DodgeMod < 0f || Traits.PhysicalTraitPonderous) 
+                    || (Traits.HomeworldSizeMod > 0f || Traits.HistoryTraitHugeHomeWorld) && t.trait.HomeworldSizeMod > 0f 
+                    || t.trait.HomeworldSizeMod < 0f && (Traits.HomeworldSizeMod < 0f || Traits.HistoryTraitSmallHomeWorld)
+                    || t.trait.HomeworldFertMod < 0f && (Traits.HomeworldFertMod < 0f || Traits.HistoryTraitPollutedHomeWorld) && t.trait.HomeworldRichMod == 0f
+                    || t.trait.HomeworldFertMod < 0f && (Traits.HomeworldFertMod < 0f || Traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
+                    || (Traits.Militaristic > 0 || Traits.HistoryTraitMilitaristic) && t.trait.Militaristic > 0 
+                    || (Traits.PassengerModifier > 1 || Traits.HistoryTraitManifestDestiny) && t.trait.PassengerModifier > 1 
+                    || (Traits.BonusExplored > 0 || Traits.HistoryTraitAstronomers) && t.trait.BonusExplored > 0 
+                    || (Traits.Spiritual > 0f || Traits.HistoryTraitSpiritual) && t.trait.Spiritual > 0f 
+                    || (Traits.Prototype > 0 || Traits.HistoryTraitPrototypeFlagship) && t.trait.Prototype > 0 
+                    || (Traits.Pack || Traits.HistoryTraitPackMentality) && t.trait.Pack 
+                    || (Traits.SpyMultiplier > 0f || Traits.HistoryTraitDuplicitous) && t.trait.SpyMultiplier > 0f 
+                    || (Traits.SpyMultiplier < 0f || Traits.HistoryTraitHonest) && t.trait.SpyMultiplier < 0f)
 				{
 
 					t.Selected = true;

@@ -173,6 +173,11 @@ namespace Ship_Game
 		{
 		}
 
+        public RacialTrait GetClone()
+        {
+            return (RacialTrait)this.MemberwiseClone();
+        }
+
         //Added by McShooterz: set old values from new bools
         public void SetValues()
         {
