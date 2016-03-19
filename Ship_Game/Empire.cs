@@ -1551,7 +1551,8 @@ namespace Ship_Game
         public void UpdateKnownShips()
         {
            // this.GetGSAI().ThreatMatrix.ScrubMatrix(true);
-            
+            if (this.data.Defeated)
+                return;
             {
                 if (this.isPlayer && Empire.universeScreen.Debug)
                 {
@@ -1572,7 +1573,7 @@ namespace Ship_Game
                 }
             }
             //added by gremlin ships in border search
-            //for (int i = 0; i < Empire.universeScreen.MasterShipList.Count; i++)
+            //for (int i = 0; i < Empire.universeScreen.MasterShipList.Count; i++)            
             var source = Empire.universeScreen.MasterShipList.ToArray();
             var rangePartitioner = Partitioner.Create(0, source.Length);
             ConcurrentBag<Ship> Shipbag =new ConcurrentBag<Ship>();
@@ -3470,11 +3471,61 @@ namespace Ship_Game
             }
             return false;
         }
+        private void FigureFreighterCargoCap(List<Ship> traders, List<Ship> popTrans, float cargoNeed)
+        {
+            float avgCargo = 0;
+            
+            for (int x = 0; x < this.OwnedShips.Count; x++)
+            {
+                Ship ship;
+                try
+                {
+                    ship = this.OwnedShips[x];
+                }
+                catch
+                {
+                    continue;
+                }
+                if (ship == null || !ship.Active)
+                    continue;
+                //fbedard: civilian can be freighter too!
+                //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null || ship.isConstructor)
+                    continue;
+                
+                if (ship.GetAI().State == AIState.SystemTrader)
+                {
+                    traders.Add(ship);
+                    cargoNeed -= ship.CargoSpace_Max;
+                    avgCargo +=ship.CargoSpace_Max;
+                }
+                else if (ship.GetAI().State == AIState.PassengerTransport)
+                {
+                    popTrans.Add(ship);
+                }
+                
+            }
+            if(traders.Count > 0)
+            {
+                avgCargo /= traders.Count;
+            }
+            //get number of freighters being built
+            foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
+            {
+                if (goal.GoalName == "IncreaseFreighters")
+                    cargoNeed -= avgCargo;
+            }
 
+        }
         //Added by McShooterz: Change to freighter needs logic
         //modfied by gremlin to try not to use 
         private void AssessFreighterNeeds()
         {
+            List<Ship> traders = new List<Ship>();
+            List<Ship> popTrans = new List<Ship>();
+            float cargoNeed = 0;
+            this.FigureFreighterCargoCap(traders, popTrans, cargoNeed);
+            
             int tradeShips = 0;
             int passengerShips = 0;
             Double naturalLimit = 0; 
@@ -3488,11 +3539,17 @@ namespace Ship_Game
             Double inneed = 0;
             float inneedofciv = 0f;  //fbedard: New formulas for passenger needed
             bool exportPop = false;
-            float cargoNeed = 0;
+            //float cargoNeed = 0;
             foreach(Planet planet in this.OwnedPlanets)
             {
                 if (planet.fs == Planet.GoodState.EXPORT || planet.ps == Planet.GoodState.EXPORT)
+                {
                     naturalLimit++;
+                    //if (planet.fs == Planet.GoodState.EXPORT)
+                    //    cargoNeed -= planet.FoodHere;
+                    //if (planet.ps == Planet.GoodState.EXPORT)
+                    //    cargoNeed -= planet.ProductionHere;
+                }
                 if (planet.Population / planet.MaxPopulation > .5 && planet.MaxPopulation > 3000)
                     naturalLimit++;
                 if (planet.Population / planet.MaxPopulation < .5 && planet.MaxPopulation > 2000)
@@ -3503,10 +3560,16 @@ namespace Ship_Game
                     exportPop = true;
                 if (planet.fs == Planet.GoodState.IMPORT && planet.FoodHere / planet.MAX_STORAGE < .25f)
                 {
-                    inneed++;                    
-                }
-                if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere / planet.MAX_STORAGE <.25f)
                     inneed++;
+                    cargoNeed += planet.FoodHere;
+                    
+                }
+                if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere / planet.MAX_STORAGE < .25f)
+                {
+                    inneed++;
+                    
+                    cargoNeed -= planet.ProductionHere;
+                }
             }
             if (naturalLimit < inneed )
                 naturalLimit = inneed;
@@ -3523,24 +3586,9 @@ namespace Ship_Game
             List<Ship> unusedFreighters = new List<Ship>();
             List<Ship> assignedShips = new List<Ship>();
            
-            for (int x = 0; x < this.OwnedShips.Count; x++)
+            foreach(Ship ship in traders)
             {
-                Ship ship;
-                try
-                {
-                    ship = this.OwnedShips[x];
-                }
-                catch
-                {
-                    continue;
-                }
-                if (ship == null)
-                    continue;
-                //fbedard: civilian can be freighter too!
-                //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null || ship.isConstructor)
-                    continue;
-                if(ship.GetAI().State != AIState.Scrap )
+                if (ship.GetAI().State != AIState.Scrap)
                     this.freighterBudget += ship.GetMaintCost();
                 if (ship.GetAI().State == AIState.SystemTrader)
                 {
@@ -3553,11 +3601,15 @@ namespace Ship_Game
                     else
                         unusedFreighters.Add(ship);
                 }
-                else if (ship.GetAI().State == AIState.PassengerTransport)
+            }
+
+            foreach (Ship ship in popTrans)
+            {
+                if (ship.GetAI().State == AIState.PassengerTransport)
                 {
                     if (ship.CargoSpace_Used == 0 && passengerShips > PassLimit + 3)  //fbedard: dont scrap loaded ship
                         ship.GetAI().OrderScrapShip();
-                    else if (ship.GetAI().start !=null || ship.GetAI().start!=null)
+                    else if (ship.GetAI().start != null || ship.GetAI().start != null)
                     {
                         passengerShips++;
                     }
@@ -3567,29 +3619,7 @@ namespace Ship_Game
                 else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
                     unusedFreighters.Add(ship);
             }
-            //get number of freighters being built
-            foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
-            {
-                if (goal.GoalName == "IncreaseFreighters")
-                    ++tradeShips;
-                else if (goal.GoalName == "IncreasePassengerShips")
-                    ++passengerShips;
-            }
-            if (unusedFreighters.Count > inneed)
-                naturalLimit -= unusedFreighters.Count; // tradeShips + passengerShips;
-            //int extraFrieghters =0;
-            //foreach (Planet needs in this.GetPlanets())
-            //{
-            //    if (needs.fs == Planet.GoodState.IMPORT && needs.FoodHere > needs.MAX_STORAGE * .7f
-            //        || needs.ps == Planet.GoodState.IMPORT && needs.ProductionHere > needs.MAX_STORAGE * .7f)
-            //        moreFrieghters++;
-            //    else
-            //        doesntHelp++;
-
-            //}
-            //if (doesntHelp < moreFrieghters)
-            //    moreFrieghters = doesntHelp;
-
+                     
 
             if (tradeShips < TradeLimit )
             {
@@ -3614,7 +3644,7 @@ namespace Ship_Game
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
                 //extraFrieghters = unusedFreighters.Count;
-                if(unusedFreighters.Count == 0 && moneyForFreighters > 0 && naturalLimit > 0)
+                if(unusedFreighters.Count == 0 && moneyForFreighters > 0 && cargoNeed > 0)
                 //for (; tradeShips < TradeLimit; ++tradeShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
@@ -3665,14 +3695,17 @@ namespace Ship_Game
             {                
                 foreach(Planet p in this.OwnedPlanets)
                 {
+                    float mod = 0;
                     if (p.ParentSystem.combatTimer > 0)
-                        continue;
-                    if (lowestFood == null || (p.NetFoodPerTurn <0 &&  lowestFood.FoodHere / lowestFood.consumption > p.FoodHere / p.consumption))
-                    { 
+                        mod = 1000 * p.ParentSystem.combatTimer;
+                    
+                    if (lowestFood == null || (p.NetFoodPerTurn <0 &&  lowestFood.FoodHere / lowestFood.consumption > (p.FoodHere+ mod) / p.consumption))
+                    {
+                        
                         lowestFood = p;
                         
                     }
-                    if (lowestProduction == null || (lowestProduction.ProductionHere / (lowestProduction.ConstructionQueue.Count +1)
+                    if (lowestProduction == null || ((lowestProduction.ProductionHere +mod) / (lowestProduction.ConstructionQueue.Count +1)
                         > p.ProductionHere / (p.ConstructionQueue.Count +1)))
                     {
                         lowestProduction = p;
@@ -3696,12 +3729,16 @@ namespace Ship_Game
                 }
                 foreach (Ship ship in unusedFreighters)
                 {
-                    if (ship.GetAI().State == AIState.SystemTrader)
-                        ship.GetAI().OrderTrade(0.1f);
-                    else
-                    ship.GetAI().OrderTransportPassengers(0.1f);  //fbedard: default to passenger
-                    if(ship.GetAI().end !=null && ship.GetAI().start !=null && goHere !=null && goHere.Owner == this)
-                    ship.GetAI().OrderOrbitPlanet(goHere);
+                    //if (ship.GetAI().OrderQueue.Count == 0)
+                    {
+                        if (ship.GetAI().State == AIState.SystemTrader)
+                            ship.GetAI().OrderTransportPassengers(0.1f);
+                            
+                        else
+                            ship.GetAI().OrderTrade(0.1f);                            
+                        if (ship.GetAI().end != null && ship.GetAI().start != null && goHere != null && goHere.Owner == this)
+                            ship.GetAI().OrderOrbitPlanet(goHere);
+                    }
 
                 }
             }
