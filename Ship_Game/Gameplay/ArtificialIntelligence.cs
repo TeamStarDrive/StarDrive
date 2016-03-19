@@ -5678,6 +5678,7 @@ namespace Ship_Game.Gameplay
             List<Planet> Possible = new List<Planet>();
 
             // fbedard: Where to drop nearest Population
+            #region Already loaded
             if (this.Owner.GetCargo()["Colonists_1000"] > 0f)
             {
                 foreach (Planet p in SafePlanets)
@@ -5693,15 +5694,15 @@ namespace Ship_Game.Gameplay
                     }
                     if (this.Owner.AreaOfOperation.Count <= 0)
                     {
-                        
-                      
+
+
                         Possible.Add(p);
                     }
                     else
                     {
                         foreach (Rectangle AO in this.Owner.AreaOfOperation)
                         {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) )
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position))
                             {
                                 continue;
                             }
@@ -5712,16 +5713,16 @@ namespace Ship_Game.Gameplay
 
                 closestD = 999999999f;
                 this.end = null;
-              
+
                 this.OrderQueue.Clear();
-                
+
                 foreach (Planet p in Possible)
                 {
                     Distance = Vector2.Distance(this.Owner.Center, p.Position);
                     if (Distance >= closestD)
                     {
                         continue;
-                    }                  
+                    }
                     closestD = Distance;
                     this.end = p;
                 }
@@ -5733,7 +5734,8 @@ namespace Ship_Game.Gameplay
                     this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DropoffPassengers, Vector2.Zero, 0f));
                 }
                 return;
-            }
+            } 
+            #endregion
 
             //fbedard: Where to load nearest Population
             this.start = null;
@@ -5807,7 +5809,7 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-                float f = p.Owner.data.Traits.Cybernetic > 0 ? p.NetProductionPerTurn : p.NetFoodPerTurn;
+                float f = p.Owner.data.Traits.Cybernetic > 0 ? p.MineralRichness : p.Fertility;
                 if (p.Population / p.MaxPopulation >= 0.5f || p.MaxPopulation <= 2000f || f < 1)
                 {
                     continue;
