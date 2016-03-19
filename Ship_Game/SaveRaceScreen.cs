@@ -16,7 +16,7 @@ namespace Ship_Game
 
         private RaceSave RS;
 
-        public SaveRaceScreen(RaceDesignScreen screen, EmpireData data) : base(SLMode.Save, data.Traits.Name, "Save Race", "Saved Race already exists.  Overwrite?")
+        public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) : base(SLMode.Save, data.Name, "Save Race", "Saved Race already exists.  Overwrite?")
         {
             this.screen = screen;
             this.RS = new RaceSave(data);            // save some extra info for filtering purposes
@@ -40,8 +40,15 @@ namespace Ship_Game
             RaceSave data = e.item as RaceSave;
 
             fh.FileName = data.Name;
-            fh.Info = String.Concat( "Original Race: ", data.Data.PortraitName );
-            fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
+            if (data.Version < 308)
+            {
+                fh.Info = "Invalid Race File";
+            }
+            else
+            {
+                fh.Info = String.Concat("Original Race: ", data.Traits.ShipType);
+                fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
+            }
             fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
 
             return fh;
@@ -59,6 +66,14 @@ namespace Ship_Game
                 {
                     XmlSerializer serializer1 = new XmlSerializer(typeof(RaceSave));
                     RaceSave data = (RaceSave)serializer1.Deserialize(file);
+
+                    if (string.IsNullOrEmpty(data.Name))
+                    {
+                        data.Name = filesFromDirectory[i].Name;
+                        data.Name = data.Name.Substring(0, data.Name.LastIndexOf('.'));
+                        data.Version = 0;
+                    }
+
                     saves.Add(data);
                     file.Dispose();
                 }
@@ -71,7 +86,7 @@ namespace Ship_Game
             }
             IOrderedEnumerable<RaceSave> sortedList =
                 from data in saves
-                orderby data.Name descending
+                orderby data.Name ascending
                 select data;
             foreach (RaceSave data in sortedList)
             {

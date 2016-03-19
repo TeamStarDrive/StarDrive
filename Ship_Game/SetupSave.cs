@@ -14,7 +14,7 @@ namespace Ship_Game
         public string Date = "";
         public string ModName = "";
         public string ModPath = "";
-        public string Version;
+        public int Version;
         public UniverseData.GameDifficulty GameDifficulty;
         public RaceDesignScreen.StarNum StarEnum;
         public RaceDesignScreen.GalSize Galaxysize;
@@ -45,7 +45,7 @@ namespace Ship_Game
                 this.ModName = GlobalStats.ActiveMod.mi.ModName;
                 this.ModPath = GlobalStats.ActiveMod.ModPath;
             }
-            this.Version = ConfigurationManager.AppSettings["ExtendedVersion"];
+            this.Version = Convert.ToInt32(ConfigurationManager.AppSettings["ExtendedVersion"]);
             this.GameDifficulty = gameDifficulty;
             this.StarEnum = StarEnum;
             this.Galaxysize = Galaxysize;
