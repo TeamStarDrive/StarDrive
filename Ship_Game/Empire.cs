@@ -3488,6 +3488,7 @@ namespace Ship_Game
             Double inneed = 0;
             float inneedofciv = 0f;  //fbedard: New formulas for passenger needed
             bool exportPop = false;
+            float cargoNeed = 0;
             foreach(Planet planet in this.OwnedPlanets)
             {
                 if (planet.fs == Planet.GoodState.EXPORT || planet.ps == Planet.GoodState.EXPORT)
@@ -3500,11 +3501,15 @@ namespace Ship_Game
                     inneedofciv++;
                 else
                     exportPop = true;
-                if (planet.fs == Planet.GoodState.IMPORT && planet.FoodHere /planet.MAX_STORAGE <.25f)
-                    inneed++;
+                if (planet.fs == Planet.GoodState.IMPORT && planet.FoodHere / planet.MAX_STORAGE < .25f)
+                {
+                    inneed++;                    
+                }
                 if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere / planet.MAX_STORAGE <.25f)
                     inneed++;
             }
+            if (naturalLimit < inneed )
+                naturalLimit = inneed;
             naturalLimit *= Math.Sqrt(inneed) * 1.5f;  //fbedard
             float moneyForFreighters = (this.Money * .1f) * .1f -this.freighterBudget;
             this.freighterBudget = 0;
@@ -3540,16 +3545,24 @@ namespace Ship_Game
                 if (ship.GetAI().State == AIState.SystemTrader)
                 {
                     if (ship.CargoSpace_Used == 0 && tradeShips > TradeLimit + 3)  //fbedard: dont scrap loaded ship
-                            ship.GetAI().OrderScrapShip();
-                    else
+                        ship.GetAI().OrderScrapShip();
+                    else if (ship.GetAI().start != null || ship.GetAI().start != null)
+                    {
                         tradeShips++;
+                    }
+                    else
+                        unusedFreighters.Add(ship);
                 }
                 else if (ship.GetAI().State == AIState.PassengerTransport)
                 {
                     if (ship.CargoSpace_Used == 0 && passengerShips > PassLimit + 3)  //fbedard: dont scrap loaded ship
-                            ship.GetAI().OrderScrapShip();
-                    else
+                        ship.GetAI().OrderScrapShip();
+                    else if (ship.GetAI().start !=null || ship.GetAI().start!=null)
+                    {
                         passengerShips++;
+                    }
+                    else
+                        unusedFreighters.Add(ship);
                 }
                 else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
                     unusedFreighters.Add(ship);
@@ -3562,8 +3575,8 @@ namespace Ship_Game
                 else if (goal.GoalName == "IncreasePassengerShips")
                     ++passengerShips;
             }
-            if (unusedFreighters.Count > 1)
-                naturalLimit = 0;
+            if (unusedFreighters.Count > inneed)
+                naturalLimit -= unusedFreighters.Count; // tradeShips + passengerShips;
             //int extraFrieghters =0;
             //foreach (Planet needs in this.GetPlanets())
             //{
@@ -3589,6 +3602,10 @@ namespace Ship_Game
                     {
                         ship.GetAI().State = AIState.SystemTrader;
                         ship.GetAI().OrderTrade(0.1f);
+                        if(ship.GetAI().OrderQueue.Count ==0)
+                        {
+                            continue;
+                        }
                     }
                     assignedShips.Add(ship);
                     ++tradeShips;
@@ -3614,6 +3631,10 @@ namespace Ship_Game
                     if (passengerShips > PassLimit)
                         break;
                     ship.GetAI().OrderTransportPassengers(0.1f);
+                    if (ship.GetAI().OrderQueue.Count == 0)
+                    {
+                        continue;
+                    }
                     assignedShips.Add(ship);
                     ++passengerShips;
                 }
@@ -3627,9 +3648,65 @@ namespace Ship_Game
                         type = GoalType.BuildShips,
                         GoalName = "IncreasePassengerShips"
                     });
+            }            
+            /*
+              check AO's for freighters. try to divide the unused freighters between the AO's evenly.
+             * The point is to attempt to make sure that planets in a wide empire are being serviced.
+             * Maybe each AO should have its own freighter assesment code?
+             what is the optimum number of idle freights in each AO?
+              how do i know i have reached that number? 
+             * Some freighters may be enroute.
+             * Should AO's have a freighter ship list?
+             */
+            Planet lowestProduction = null;
+            Planet lowestFood =null;
+            bool flip =false;
+            if(unusedFreighters.Count >0)
+            {                
+                foreach(Planet p in this.OwnedPlanets)
+                {
+                    if (p.ParentSystem.combatTimer > 0)
+                        continue;
+                    if (lowestFood == null || (p.NetFoodPerTurn <0 &&  lowestFood.FoodHere / lowestFood.consumption > p.FoodHere / p.consumption))
+                    { 
+                        lowestFood = p;
+                        
+                    }
+                    if (lowestProduction == null || (lowestProduction.ProductionHere / (lowestProduction.ConstructionQueue.Count +1)
+                        > p.ProductionHere / (p.ConstructionQueue.Count +1)))
+                    {
+                        lowestProduction = p;
+
+                    }
+                }
+                Planet goHere;
+                if (flip)
+                {
+                    goHere = lowestProduction;
+                    flip = false;
+                }
+                else
+                {
+                    goHere = lowestFood;
+                    if (lowestProduction != null)
+                    {
+                        flip = true;
+
+                    }
+                }
+                foreach (Ship ship in unusedFreighters)
+                {
+                    if (ship.GetAI().State == AIState.SystemTrader)
+                        ship.GetAI().OrderTrade(0.1f);
+                    else
+                    ship.GetAI().OrderTransportPassengers(0.1f);  //fbedard: default to passenger
+                    if(ship.GetAI().end !=null && ship.GetAI().start !=null && goHere !=null && goHere.Owner == this)
+                    ship.GetAI().OrderOrbitPlanet(goHere);
+
+                }
             }
-            foreach (Ship ship in unusedFreighters)
-                ship.GetAI().OrderTransportPassengers(0.1f);  //fbedard: default to passenger
+                
+            
         }
 
         public void ReportGoalComplete(Goal g)
