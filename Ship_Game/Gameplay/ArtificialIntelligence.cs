@@ -5672,8 +5672,8 @@ namespace Ship_Game.Gameplay
             {
                 this.Owner.GetCargo().Add("Colonists_1000", 0f);
             }
-            List<Planet> SafePlanets = new List<Planet>(this.Owner.loyalty.GetPlanets());
-            SafePlanets = SafePlanets.Where(combat => combat.ParentSystem.combatTimer <= 0).ToList();
+            List<Planet> SafePlanets = new List<Planet>(this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0));
+            //SafePlanets = SafePlanets.Where(combat => combat.ParentSystem.combatTimer <= 0).ToList();
 
             List<Planet> Possible = new List<Planet>();
 
@@ -5686,19 +5686,22 @@ namespace Ship_Game.Gameplay
                     {
                         continue;
                     }
+                    float f = p.Owner.data.Traits.Cybernetic > 0 ? p.MineralRichness : p.Fertility;
+                    if (p.Population / p.MaxPopulation >= 0.5f || p.MaxPopulation <= 2000f || f < 1)
+                    {
+                        continue;
+                    }
                     if (this.Owner.AreaOfOperation.Count <= 0)
                     {
-                        if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
-                        {
-                            continue;
-                        }
+                        
+                      
                         Possible.Add(p);
                     }
                     else
                     {
                         foreach (Rectangle AO in this.Owner.AreaOfOperation)
                         {
-                            if (!HelperFunctions.CheckIntersection(AO, p.Position) || ((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
+                            if (!HelperFunctions.CheckIntersection(AO, p.Position) )
                             {
                                 continue;
                             }
@@ -5718,7 +5721,7 @@ namespace Ship_Game.Gameplay
                     if (Distance >= closestD)
                     {
                         continue;
-                    }
+                    }                  
                     closestD = Distance;
                     this.end = p;
                 }
@@ -5740,24 +5743,22 @@ namespace Ship_Game.Gameplay
             Possible = new List<Planet>();
             foreach (Planet p in SafePlanets)
             {
+                
+                if (p.MaxPopulation < 1000) //p.Population / p.MaxPopulation <.5f || 
+                {                
+                    continue;
+                }
+                
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
-                    if (p.NetFoodPerTurn < 0 && p.Population > 1000)
-                    {
-                        Possible.Add(p);
-                        continue;
-                    }
-                    if (p.Population <= 2000f )
-                    {
-                        continue;
-                    }
+                  
                     Possible.Add(p);
                 }
                 else
                 {
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
-                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || p.Population <= 2000f)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position))
                         {
                             continue;
                         }
@@ -5769,18 +5770,29 @@ namespace Ship_Game.Gameplay
             bool priority =false;
             foreach (Planet p in Possible)
             {
+                float f = p.Owner.data.Traits.Cybernetic > 0 ? p.NetProductionPerTurn : p.NetFoodPerTurn;
                 Distance = Vector2.Distance(this.Owner.Center, p.Position);
-                bool pri2 = p.NetFoodPerTurn < 0 && p.Population > 1000;
-                if(!priority)
+                bool pri2 = f < 0 && p.Population > 1000;
+                if (!priority)
+                {
                     if (Distance >= closestD)
                     {
-                        continue;
-                    }
-                    else
-                        if (!pri2 || Distance >= closestD)
+                        
                         {
                             continue;
                         }
+                        
+                    }
+                    if(!pri2 && p.Population/p.MaxPopulation <.5f)
+                    {
+                        continue;
+                    }
+                }
+                else
+                    if (!pri2 || Distance >= closestD)
+                    {
+                        continue;
+                    }
                 closestD = Distance;
                 priority = pri2;
                 this.start = p;
@@ -5790,25 +5802,27 @@ namespace Ship_Game.Gameplay
             this.end = null;
             Possible = new List<Planet>();
             foreach (Planet p in SafePlanets)
-            {
+            {                
                 if (p == this.start)
+                {
+                    continue;
+                }
+                float f = p.Owner.data.Traits.Cybernetic > 0 ? p.NetProductionPerTurn : p.NetFoodPerTurn;
+                if (p.Population / p.MaxPopulation >= 0.5f || p.MaxPopulation <= 2000f || f < 1)
                 {
                     continue;
                 }
                 if (this.Owner.AreaOfOperation.Count <= 0)
                 {
-                  
-                    if (((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f || p.NetFoodPerTurn <1)
-                    {
-                        continue;
-                    }
+
+                    
                     Possible.Add(p);
                 }
                 else
                 {
                     foreach (Rectangle AO in this.Owner.AreaOfOperation)
                     {
-                        if (!HelperFunctions.CheckIntersection(AO, p.Position) || ((p.Population / p.MaxPopulation) >= 0.8 && p.MaxPopulation <= 2000f) || p.Population >= 2000f)
+                        if (!HelperFunctions.CheckIntersection(AO, p.Position) )
                         {
                             continue;
                         }
