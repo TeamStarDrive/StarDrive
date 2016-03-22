@@ -22,8 +22,6 @@ namespace Ship_Game
 
 		private MainMenuScreen mmscreen;
 
-        private FileInfo activeFile;
-
         //private Submenu subSave;
 
         /*private Rectangle Window;
@@ -61,44 +59,41 @@ namespace Ship_Game
         public LoadSaveScreen(UniverseScreen screen) : base(SLMode.Load, "", Localizer.Token(6), "")
 		{
 			this.screen = screen;
-		}
+            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
+        }
 
 		public LoadSaveScreen(MainMenuScreen mmscreen) : base(SLMode.Load, "", Localizer.Token(6), "")
         {
             this.mmscreen = mmscreen;
-		}
+            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
+        }
 
-        protected override FileHeader GetFileHeader(ScrollList.Entry e)
+        protected override void DeleteFile(object sender, EventArgs e)
         {
-            FileHeader fh = new FileHeader();
-            HeaderData data = e.item as HeaderData;
-
-            fh.FileName = data.SaveName;
-            fh.Info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
+            AudioManager.PlayCue("echo_affirm");
 
             try
             {
-                fh.ExtraInfo = data.RealDate;
+                FileInfo headerToDel = new FileInfo(string.Concat(this.Path, "Headers/", this.fileToDel.Name.Substring(0, this.fileToDel.Name.LastIndexOf('.'))));       // find header of save file
+                //Console.WriteLine(headerToDel.FullName);
+                headerToDel.Delete();
+                this.fileToDel.Delete();        // delete the file
             }
-            catch
-            {
-                fh.ExtraInfo = "Bad Date";
-            }
-            
-            fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
+            catch { }
 
-            return fh;
+            this.Buttons.Clear();
+            this.LoadContent();
         }
 
         protected override void Load()
         {
-            if (this.activeFile != null)
+            if (this.selectedFile != null)
             {
                 if (this.screen != null)
                 {
                     this.screen.ExitScreen();
                 }
-                base.ScreenManager.AddScreen(new LoadUniverseScreen(this.activeFile));
+                base.ScreenManager.AddScreen(new LoadUniverseScreen(this.selectedFile.FileLink));
                 if (this.mmscreen != null)
                 {
                     this.mmscreen.ExitScreen();
@@ -113,58 +108,53 @@ namespace Ship_Game
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            List<HeaderData> saves = new List<HeaderData>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Games/Headers"));
+            List<FileData> saves = new List<FileData>();
+            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(this.Path, "Headers"));
             for (int i = 0; i < (int)filesFromDirectory.Length; i++)
             {
                 Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
                     HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
-                    data.SetFileInfo(new FileInfo(string.Concat(path, "/StarDrive/Saved Games/", data.SaveName, ".xml.gz")));
+                    data.SetFileInfo(new FileInfo(string.Concat(this.Path, data.SaveName, ".xml.gz")));
+                    if (string.IsNullOrEmpty(data.SaveName))
+                    {
+                        file.Dispose();
+                        continue;
+                    }
+
                     if (GlobalStats.ActiveMod != null)
                     {
-                        if (data.ModName != GlobalStats.ActiveMod.ModPath)
+                        if ((data.Version > 0 && data.ModPath != GlobalStats.ActiveMod.ModPath) || (data.Version == 0 && data.ModName != GlobalStats.ActiveMod.ModPath))    // check mod and check version of save file since format changed
                         {
-                            //file.Close();
                             file.Dispose();
                             continue;
                         }
                     }
-                    else if (!string.IsNullOrEmpty(data.ModName))
+                    else if ((!string.IsNullOrEmpty(data.ModPath) && data.Version > 0) || (data.Version == 0 && !string.IsNullOrEmpty(data.ModName)))
                     {
-                        //file.Close();
                         file.Dispose();
                         continue;
                     }
-                    saves.Add(data);
-                    //file.Close();
+
+                    string info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
+                    string extraInfo = data.RealDate;
+                    saves.Add(new FileData(data.GetFileInfo(), data, data.SaveName, info, extraInfo));
                     file.Dispose();
                 }
                 catch
                 {
-                    //file.Close();
                     file.Dispose();
                 }
-                //Label0:
-                //  continue;
             }
-            IOrderedEnumerable<HeaderData> sortedList =
+            IOrderedEnumerable<FileData> sortedList =
                 from header in saves
-                orderby header.Time descending
+                orderby (header.Data as HeaderData).Time descending
                 select header;
-            foreach (HeaderData data in sortedList)
+            foreach (FileData data in sortedList)
             {
-                this.SavesSL.AddItem(data);
+                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
             }
-        }
-
-        protected override void SwitchFile(ScrollList.Entry e)
-        {
-            this.activeFile = (e.item as HeaderData).GetFileInfo();
-            AudioManager.PlayCue("sd_ui_accept_alt3");
-            this.EnterNameArea.Text = (e.item as HeaderData).SaveName;
         }
 
         /*public void Dispose()

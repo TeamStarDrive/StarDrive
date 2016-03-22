@@ -55,12 +55,12 @@ namespace Ship_Game
 
         private UniverseScreen screen;
 
-        private FileInfo activeFile;
-
         public SaveGameScreen(UniverseScreen screen) : base(SLMode.Save, string.Concat(screen.PlayerLoyalty, ", Star Date ", screen.StarDate.ToString(screen.StarDateFmt)), "Save Game", "Saved Game already exists.  Overwrite?")
 		{
 			this.screen = screen;
-		}
+            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
+            this.selectedFile = new FileData();
+        }
 
         /*public void Dispose()
         {
@@ -89,72 +89,67 @@ namespace Ship_Game
 		{
 			SavedGame savedGame = new SavedGame(this.screen, this.EnterNameArea.Text);
 			this.ExitScreen();
-		}
+        }
 
-        protected override FileHeader GetFileHeader(ScrollList.Entry e)
+        protected override void DeleteFile(object sender, EventArgs e)
         {
-            FileHeader fh = new FileHeader();
-            HeaderData data = e.item as HeaderData;
+            AudioManager.PlayCue("echo_affirm");
 
-            fh.FileName = data.SaveName;
-            fh.Info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
-            fh.ExtraInfo = data.RealDate;
-            fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
+            try
+            {
+                FileInfo headerToDel = new FileInfo(string.Concat(this.Path, "Headers/", this.fileToDel.Name.Substring(0, this.fileToDel.Name.LastIndexOf('.'))));       // find header of save file
+                //Console.WriteLine(headerToDel.FullName);
+                headerToDel.Delete();
+                this.fileToDel.Delete();        // delete the file
+            }
+            catch { }
 
-            return fh;
+            this.Buttons.Clear();
+            this.LoadContent();
         }
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            List<HeaderData> saves = new List<HeaderData>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Games/Headers"));
+            List<FileData> saves = new List<FileData>();
+            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(this.Path, "Headers"));
             for (int i = 0; i < (int)filesFromDirectory.Length; i++)
             {
                 Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
                     HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
-                    data.SetFileInfo(new FileInfo(string.Concat(path, "/StarDrive/Saved Games/", data.SaveName, ".xml.gz")));
-                    saves.Add(data);
+                    data.SetFileInfo(new FileInfo(string.Concat(this.Path, data.SaveName, ".xml.gz")));
+                    if (string.IsNullOrEmpty(data.SaveName))
+                    {
+                        data.SaveName = filesFromDirectory[i].Name;
+                        data.SaveName = data.SaveName.Substring(0, data.SaveName.LastIndexOf('.'));
+                        data.Version = 0;
+                    }
 
-                    //file.Close();
+                    if ((!string.IsNullOrEmpty(data.ModPath) && data.Version > 0) || (data.Version == 0 && !string.IsNullOrEmpty(data.ModName)))
+                    {
+                        file.Dispose();
+                        continue;
+                    }
+
+                    string info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
+                    string extraInfo = data.RealDate;
+                    saves.Add(new FileData(data.GetFileInfo(), data, data.SaveName, info, extraInfo));
                     file.Dispose();
                 }
                 catch
                 {
-                    //file.Close();
                     file.Dispose();
                 }
             }
-            IOrderedEnumerable<HeaderData> sortedList =
+            IOrderedEnumerable<FileData> sortedList =
                 from header in saves
-                orderby header.Time descending
+                orderby (header.Data as HeaderData).Time descending
                 select header;
-            foreach (HeaderData data in sortedList)
+            foreach (FileData data in sortedList)
             {
-                this.SavesSL.AddItem(data);
+                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
             }
-        }
-
-        protected override void SwitchFile(ScrollList.Entry e)
-        {
-            this.activeFile = (e.item as HeaderData).GetFileInfo();
-            AudioManager.PlayCue("sd_ui_accept_alt3");
-            this.EnterNameArea.Text = (e.item as HeaderData).SaveName;
-        }
-
-        protected override bool CheckOverWrite()
-        {
-            foreach (ScrollList.Entry entry in this.SavesSL.Entries)
-            {
-                if (this.EnterNameArea.Text == (entry.item as HeaderData).SaveName)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         /*public override void Draw(GameTime gameTime)

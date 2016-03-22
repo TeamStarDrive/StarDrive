@@ -15,31 +15,17 @@ namespace Ship_Game
     {
         private RaceDesignScreen screen;
 
-        private RaceSave RS;
-
         public LoadRaceScreen(RaceDesignScreen screen) : base(SLMode.Load, "", "Load Saved Race", "")
         {
             this.screen = screen;
-        }
-
-        protected override FileHeader GetFileHeader(ScrollList.Entry e)
-        {
-            FileHeader fh = new FileHeader();
-            RaceSave data = e.item as RaceSave;
-
-            fh.FileName = data.Name;
-            fh.Info = String.Concat("Original Race: ", data.Traits.ShipType);
-            fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
-            fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
-
-            return fh;
+            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Races/");
         }
 
         protected override void Load()
         {
-            if (this.RS != null)
+            if (this.selectedFile != null)
             {
-                this.screen.SetCustomEmpireData(this.RS.Traits);
+                this.screen.SetCustomEmpireData((this.selectedFile.Data as RaceSave).Traits);
             }
             else
             {
@@ -50,20 +36,17 @@ namespace Ship_Game
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            List<RaceSave> saves = new List<RaceSave>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Races/"));
+            List<FileData> saves = new List<FileData>();
+            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(this.Path);
             for (int i = 0; i < (int)filesFromDirectory.Length; i++)
             {
                 Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
-                    //EmpireData data = (EmpireData)ResourceManager.HeaderSerializer.Deserialize(file);
                     XmlSerializer serializer1 = new XmlSerializer(typeof(RaceSave));
                     RaceSave data = (RaceSave)serializer1.Deserialize(file);
                     if (string.IsNullOrEmpty(data.Name) || data.Version < 308)
                     {
-                        //file.Close();
                         file.Dispose();
                         continue;
                     }
@@ -72,44 +55,34 @@ namespace Ship_Game
                     {
                         if (data.ModPath != GlobalStats.ActiveMod.ModPath)
                         {
-                            //file.Close();
                             file.Dispose();
                             continue;
                         }
                     }
                     else if (!string.IsNullOrEmpty(data.ModPath))
                     {
-                        //file.Close();
                         file.Dispose();
                         continue;
                     }
-                    saves.Add(data);
-                    //file.Close();
+
+                    string info = String.Concat("Race Name: ", data.Traits.Name);
+                    string extraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
+                    saves.Add(new FileData(filesFromDirectory[i], data, data.Name, info, extraInfo));
                     file.Dispose();
                 }
                 catch
                 {
-                    //file.Close();
                     file.Dispose();
                 }
-                //Label0:
-                //  continue;
             }
-            IOrderedEnumerable<RaceSave> sortedList =
+            IOrderedEnumerable<FileData> sortedList =
                 from data in saves
-                orderby data.Name ascending
+                orderby data.FileName ascending
                 select data;
-            foreach (RaceSave data in sortedList)
+            foreach (FileData data in sortedList)
             {
-                this.SavesSL.AddItem(data);
+                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
             }
-        }
-
-        protected override void SwitchFile(ScrollList.Entry e)
-        {
-            this.RS = (e.item as RaceSave);
-            AudioManager.PlayCue("sd_ui_accept_alt3");
-            this.EnterNameArea.Text = (e.item as RaceSave).Name;
         }
     }
 }
