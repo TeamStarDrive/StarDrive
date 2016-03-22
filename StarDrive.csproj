@@ -151,7 +151,7 @@
   <PropertyGroup>
     <SignManifests>false</SignManifests>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BlackBox_UNSTABLE_|x86'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_UNSTABLE_Test_RC_16_|x86' ">
     <OutputPath>Deploy\Upload\</OutputPath>
     <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
     <Optimize>true</Optimize>
@@ -161,7 +161,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BlackBox_Testing_|x86'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_Experimental_|x86' ">
     <OutputPath>Deploy\Upload\</OutputPath>
     <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
     <Optimize>true</Optimize>
