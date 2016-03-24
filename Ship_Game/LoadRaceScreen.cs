@@ -15,7 +15,7 @@ namespace Ship_Game
     {
         private RaceDesignScreen screen;
 
-        public LoadRaceScreen(RaceDesignScreen screen) : base(SLMode.Load, "", "Load Saved Race", "")
+        public LoadRaceScreen(RaceDesignScreen screen) : base(SLMode.Load, "", "Load Saved Race", "Saved Races")
         {
             this.screen = screen;
             this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Races/");

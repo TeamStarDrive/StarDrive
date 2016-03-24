@@ -15,7 +15,7 @@ namespace Ship_Game
     {
         private RaceDesignScreen screen;
 
-        public LoadSetupScreen(RaceDesignScreen screen) : base(SLMode.Load, "", "Load Saved Setup", "")
+        public LoadSetupScreen(RaceDesignScreen screen) : base(SLMode.Load, "", "Load Saved Setup", "Saved Setups")
         {
             this.screen = screen;
             this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Setups/");
