@@ -131,8 +131,11 @@ namespace Ship_Game
                 this.fileToDel.Delete();        // delete the file
             } catch { }
 
+            int iAT = this.SavesSL.indexAtTop;
             this.Buttons.Clear();
             this.LoadContent();
+            this.SavesSL.indexAtTop = iAT;
+
         }
 
         public override void Draw(GameTime gameTime)
