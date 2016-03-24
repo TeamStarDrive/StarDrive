@@ -40,8 +40,10 @@ namespace Ship_Game
             }
             catch { }
 
+            int iAT = this.SavesSL.indexAtTop;
             this.Buttons.Clear();
             this.LoadContent();
+            this.SavesSL.indexAtTop = iAT;
         }
 
         protected override void SetSavesSL()        // Set list of files to show
