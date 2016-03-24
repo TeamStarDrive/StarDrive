@@ -14,11 +14,7 @@ namespace Ship_Game
     {
         protected Vector2 Cursor = Vector2.Zero;
 
-        //private UniverseScreen screen;
-
         protected List<UIButton> Buttons = new List<UIButton>();
-
-        //private Submenu subSave;
 
         protected Rectangle Window;
 
@@ -50,6 +46,8 @@ namespace Ship_Game
 
         protected string Path = "";
 
+        protected string TabText = "";
+
         protected CloseButton close;
 
         protected MouseState currentMouse;
@@ -67,16 +65,32 @@ namespace Ship_Game
 
         protected FileData selectedFile;
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string OverWriteText)
+        protected int eHeight = 55;      // element height
+
+        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText)
         {
-            //this.screen = screen;
             this.mode = mode;
             this.InitText = InitText;
             this.TitleText = TitleText;
-            this.OverWriteText = OverWriteText;
+            this.TabText = TabText;
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+        }
+
+        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText) : this(mode, InitText, TitleText, TabText)
+        {
+            this.OverWriteText = OverWriteText;
+        }
+
+        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, int eHeight) : this(mode, InitText, TitleText, TabText)
+        {
+            this.eHeight = eHeight;
+        }
+
+        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText, int eHeight) : this(mode, InitText, TitleText, TabText, OverWriteText)
+        {
+            this.eHeight = eHeight;
         }
 
         public void Dispose()
@@ -151,7 +165,7 @@ namespace Ship_Game
                     if (HelperFunctions.CheckIntersection(e.cancel, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
                     {
                         base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
-                        ToolTip.CreateTooltip(78, base.ScreenManager);
+                        ToolTip.CreateTooltip("Delete File", base.ScreenManager);
                     }
                 }
             }
@@ -166,6 +180,7 @@ namespace Ship_Game
                 this.selector.Draw();
             }
             this.close.Draw(base.ScreenManager);
+            ToolTip.Draw(base.ScreenManager);
             base.ScreenManager.SpriteBatch.End();
         }
 
@@ -260,7 +275,7 @@ namespace Ship_Game
                     }
                 }
             }
-            if (SLMode.Save == this.mode)       // Only check when saving
+            if (SLMode.Save == this.mode)       // Only check name field change when saving
             {
                 if (!HelperFunctions.CheckIntersection(this.EnterNameArea.ClickableArea, MousePos))
                 {
@@ -305,8 +320,8 @@ namespace Ship_Game
             this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
             Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
             this.AllSaves = new Submenu(base.ScreenManager, scrollList);
-            this.AllSaves.AddTab("All Saves");
-            this.SavesSL = new ScrollList(this.AllSaves, 55);
+            this.AllSaves.AddTab(this.TabText);
+            this.SavesSL = new ScrollList(this.AllSaves, this.eHeight, true, false, false, false);
 
             this.SetSavesSL();
 
@@ -378,23 +393,22 @@ namespace Ship_Game
 
             public FileData()
             {
+            }
+
+            /*public FileData(FileInfo fileLink, object data)
+            {
                 this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
                 this.FileName = "";
                 this.Info = "";
                 this.ExtraInfo = "";
-            }
+                this.FileLink = fileLink;
+                this.Data = data;
+            }*/
 
-            public FileData(object data, string fileName)
+            public FileData(FileInfo fileLink, object data, string fileName)
             {
                 this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
                 this.FileName = fileName;
-                this.Data = data;
-            }
-
-            public FileData(FileInfo fileLink, object data)
-            {
-                this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
-                this.FileName = "";
                 this.Info = "";
                 this.ExtraInfo = "";
                 this.FileLink = fileLink;

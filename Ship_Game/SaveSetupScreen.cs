@@ -13,23 +13,23 @@ namespace Ship_Game
     public sealed class SaveSetupScreen : GenericLoadSaveScreen, IDisposable
     {
         private RaceDesignScreen screen;
+        private SetupSave SS;
 
-        public SaveSetupScreen(RaceDesignScreen screen, UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum StarEnum, RaceDesignScreen.GalSize Galaxysize, int Pacing, RaceDesignScreen.ExtraRemnantPresence ExtraRemnant, int numOpponents, RaceDesignScreen.GameMode mode) : base(SLMode.Save, "New Saved Setup", "Save Setup", "Saved Setup already exists.  Overwrite?")
+        public SaveSetupScreen(RaceDesignScreen screen, UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum StarEnum, RaceDesignScreen.GalSize Galaxysize, int Pacing, RaceDesignScreen.ExtraRemnantPresence ExtraRemnant, int numOpponents, RaceDesignScreen.GameMode mode) : base(SLMode.Save, "New Saved Setup", "Save Setup", "Saved Setups", "Saved Setup already exists.  Overwrite?")
         {
             this.screen = screen;
             this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Setups/");
-            this.selectedFile = new FileData(new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode), this.TitleText);            // save some extra info for filtering purposes
+            //this.selectedFile = new FileData(null, new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode), this.TitleText);            // save some extra info for filtering purposes
+            this.SS = new SetupSave(gameDifficulty, StarEnum, Galaxysize, Pacing, ExtraRemnant, numOpponents, mode);
         }
 
         public override void DoSave()
         {
-            this.selectedFile.FileName = this.EnterNameArea.Text;
-            (this.selectedFile.Data as SetupSave).Name = this.EnterNameArea.Text;
+            this.SS.Name = this.EnterNameArea.Text;
             XmlSerializer Serializer = new XmlSerializer(typeof(SetupSave));
-            TextWriter WriteFileStream = new StreamWriter(string.Concat(this.Path, this.selectedFile.FileName, ".xml"));
-            Serializer.Serialize(WriteFileStream, this.selectedFile.Data as SetupSave);
+            TextWriter WriteFileStream = new StreamWriter(string.Concat(this.Path, this.EnterNameArea.Text, ".xml"));
+            Serializer.Serialize(WriteFileStream, this.SS);
             WriteFileStream.Dispose();
-            //WriteFileStream.Close();
             this.ExitScreen();
         }
 
@@ -46,8 +46,7 @@ namespace Ship_Game
                     SetupSave data = (SetupSave)serializer1.Deserialize(file);
                     if (string.IsNullOrEmpty(data.Name))
                     {
-                        data.Name = filesFromDirectory[i].Name;
-                        data.Name = data.Name.Substring(0, data.Name.LastIndexOf('.'));
+                        data.Name = System.IO.Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
                         data.Version = 0;
                     }
 

@@ -13,23 +13,23 @@ namespace Ship_Game
     public sealed class SaveRaceScreen : GenericLoadSaveScreen, IDisposable
     {
         private RaceDesignScreen screen;
+        private RaceSave RS;
 
-        public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) : base(SLMode.Save, data.Name, "Save Race", "Saved Race already exists.  Overwrite?")
+        public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) : base(SLMode.Save, data.Name, "Save Race", "Saved Races", "Saved Race already exists.  Overwrite?")
         {
             this.screen = screen;
-            this.selectedFile = new FileData(new RaceSave(data), this.TitleText);            // save some extra info for filtering purposes
+            //this.selectedFile = new FileData(null, new RaceSave(data), this.TitleText);            // save some extra info for filtering purposes
             this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Races/");
+            this.RS = new RaceSave(data);
         }
 
         public override void DoSave()
         {
-            this.selectedFile.FileName = this.EnterNameArea.Text;
-            (this.selectedFile.Data as RaceSave).Name = this.EnterNameArea.Text;
+            this.RS.Name = this.EnterNameArea.Text;
             XmlSerializer Serializer = new XmlSerializer(typeof(RaceSave));
-            TextWriter WriteFileStream = new StreamWriter(string.Concat(this.Path, this.selectedFile.FileName, ".xml"));
-            Serializer.Serialize(WriteFileStream, this.selectedFile.Data as RaceSave);
+            TextWriter WriteFileStream = new StreamWriter(string.Concat(this.Path, this.EnterNameArea.Text, ".xml"));
+            Serializer.Serialize(WriteFileStream, this.RS);
             WriteFileStream.Dispose();
-            //WriteFileStream.Close();
             this.ExitScreen();
         }
 
@@ -47,8 +47,7 @@ namespace Ship_Game
 
                     if (string.IsNullOrEmpty(data.Name))
                     {
-                        data.Name = filesFromDirectory[i].Name;
-                        data.Name = data.Name.Substring(0, data.Name.LastIndexOf('.'));
+                        data.Name = System.IO.Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
                         data.Version = 0;
                     }
 

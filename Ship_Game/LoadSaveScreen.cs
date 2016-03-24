@@ -12,57 +12,17 @@ namespace Ship_Game
 {
 	public sealed class LoadSaveScreen : GenericLoadSaveScreen, IDisposable
 	{
-		//private Vector2 Cursor = Vector2.Zero;
-
-		private UniverseScreen screen;
-
-		//private CloseButton close;
-
-		//private List<UIButton> Buttons = new List<UIButton>();
+        private UniverseScreen screen;
 
 		private MainMenuScreen mmscreen;
 
-        //private Submenu subSave;
-
-        /*private Rectangle Window;
-
-		private Menu1 SaveMenu;
-
-		private Submenu NameSave;
-
-		private Submenu AllSaves;
-
-		private Vector2 TitlePosition;
-
-		private Vector2 EnternamePos;
-
-		private UITextEntry EnterNameArea;
-
-		private ScrollList SavesSL;
-
-		private UIButton Save;
-
-		private Selector selector;
-
-		private FileInfo activeFile;
-
-		private MouseState currentMouse;
-
-		private MouseState previousMouse;
-
-		//private float transitionElapsedTime;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;*/
-
-
-        public LoadSaveScreen(UniverseScreen screen) : base(SLMode.Load, "", Localizer.Token(6), "")
+        public LoadSaveScreen(UniverseScreen screen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
 		{
 			this.screen = screen;
             this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
         }
 
-		public LoadSaveScreen(MainMenuScreen mmscreen) : base(SLMode.Load, "", Localizer.Token(6), "")
+		public LoadSaveScreen(MainMenuScreen mmscreen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
         {
             this.mmscreen = mmscreen;
             this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
