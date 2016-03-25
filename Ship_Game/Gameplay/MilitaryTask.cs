@@ -674,7 +674,7 @@ namespace Ship_Game.Gameplay
 				else
 				{
 					if (!this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
-					{
+					{ //what the hell is this for? dictionary doesnt contain the key the foreach below would blow up. 
                         if (!this.IsCoreFleetTask && this.WhichFleet != -1 && this.empire != Ship.universeScreen.player)
                             foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
                             {
@@ -940,7 +940,11 @@ namespace Ship_Game.Gameplay
                                     this.EndTask();
                                     return;
                                 }
-                                
+                                if (this.TargetPlanet.Owner == null)
+                                {
+                                    this.EndTask();
+                                    return;
+                                }
                                 Relationship rel = null;
                                 this.empire.GetRelations().TryGetValue(TargetPlanet.Owner, out rel);
                                 if (rel != null && !(rel.AtWar || rel.PreparingForWar))

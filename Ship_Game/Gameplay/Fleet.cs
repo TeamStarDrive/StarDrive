@@ -2509,12 +2509,18 @@ namespace Ship_Game.Gameplay
                 case 3:
                     this.EnemyClumpsDict.Clear();
                     List<Ship> list2 = new List<Ship>();
-                    Vector2 averagePosition = this.findAveragePosition();
-                    List<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                    Vector2 averagePosition = this.findAveragePosition();                  
+                    // List<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                    List<ThreatMatrix.Pin> nearby1 = this.Owner.GetGSAI().ThreatMatrix.PingRadar(this.Position, 25000);
                     for (int index1 = 0; index1 < nearby1.Count; ++index1)
                     {
-                        Ship ship1 = nearby1[index1] as Ship;
-                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations()[ship1.loyalty].AtWar) && (!list2.Contains(ship1) && Vector2.Distance(ship1.Center, averagePosition) < 50000 && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                        Ship ship1 = nearby1[index1].ship;// as Ship;
+                        if (ship1 == null)
+                            continue;
+                        if (ship1 != null && ship1.loyalty != this.Owner && ship1.Active
+                            && (ship1.loyalty.isFaction || this.Owner.GetRelations()[ship1.loyalty].AtWar) 
+                            && (!list2.Contains(ship1) //&& Vector2.Distance(nearby1, averagePosition) < 250000 
+                            && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
                         {
                             this.EnemyClumpsDict.Add(ship1.Center, new List<Ship>());
                             this.EnemyClumpsDict[ship1.Center].Add(ship1);
@@ -2523,7 +2529,10 @@ namespace Ship_Game.Gameplay
                             for (int index2 = 0; index2 < nearby2.Count; ++index2)
                             {
                                 Ship ship2 = nearby2[index2] as Ship;
-                                if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && Vector2.Distance(ship1.Center, ship2.Center) < 10000) && !list2.Contains(ship2))
+                                if (ship2 != null && ship2.loyalty != this.Owner 
+                                    && (ship2.loyalty == ship1.loyalty 
+                                    && Vector2.Distance(ship1.Center, ship2.Center) < 10000) 
+                                    && !list2.Contains(ship2))
                                     this.EnemyClumpsDict[ship1.Center].Add(ship2);
                             }
                         }
