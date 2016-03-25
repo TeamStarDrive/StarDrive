@@ -26,7 +26,7 @@ namespace Ship_Game
                 this.ModName = GlobalStats.ActiveMod.mi.ModName;
                 this.ModPath = GlobalStats.ActiveMod.ModPath;
             }
-            this.Version = Convert.ToInt32( ConfigurationManager.AppSettings["ExtendedVersion"] );
+            this.Version = Convert.ToInt32( ConfigurationManager.AppSettings["SaveVersion"] );
             this.Traits = Traits;
         }
     }
