@@ -2851,7 +2851,10 @@ namespace Ship_Game
                     Game1.Instance.graphics.ToggleFullScreen();
                 }
             }
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde) && input.LastKeyboardState.IsKeyUp(Keys.OemTilde) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))
+            if ((input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde) && input.LastKeyboardState.IsKeyUp(Keys.OemTilde) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))                
+                || (input.CurrentKeyboardState.IsKeyDown(Keys.Tab) && input.LastKeyboardState.IsKeyUp(Keys.Tab) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))
+                
+            )
             {
                 this.Debug = !this.Debug;
                 UniverseScreen.debug = !this.Debug;
