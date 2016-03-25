@@ -30,21 +30,15 @@ namespace Ship_Game
 
         protected override void DeleteFile(object sender, EventArgs e)
         {
-            AudioManager.PlayCue("echo_affirm");
-
             try
             {
                 FileInfo headerToDel = new FileInfo(string.Concat(this.Path, "Headers/", this.fileToDel.Name.Substring(0, this.fileToDel.Name.LastIndexOf('.'))));       // find header of save file
                 //Console.WriteLine(headerToDel.FullName);
                 headerToDel.Delete();
-                this.fileToDel.Delete();        // delete the file
             }
             catch { }
 
-            int iAT = this.SavesSL.indexAtTop;
-            this.Buttons.Clear();
-            this.LoadContent();
-            this.SavesSL.indexAtTop = iAT;
+            base.DeleteFile(sender, e);
         }
 
         protected override void Load()

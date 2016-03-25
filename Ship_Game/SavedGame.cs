@@ -584,7 +584,7 @@ namespace Ship_Game
 				header.ModPath = GlobalStats.ActiveMod.ModPath;
                 header.ModName = GlobalStats.ActiveMod.mi.ModName;
             }
-            header.Version = Convert.ToInt32(ConfigurationManager.AppSettings["ExtendedVersion"]);
+            header.Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
             XmlSerializer Serializer1 = new XmlSerializer(typeof(HeaderData));
 			TextWriter wf = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/Headers/", data.SaveAs, ".xml"));
 			Serializer1.Serialize(wf, header);
