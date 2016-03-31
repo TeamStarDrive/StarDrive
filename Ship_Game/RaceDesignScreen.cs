@@ -2647,7 +2647,7 @@ namespace Ship_Game
                     || (Traits.HomeworldSizeMod > 0f || Traits.HistoryTraitHugeHomeWorld) && t.trait.HomeworldSizeMod > 0f 
                     || t.trait.HomeworldSizeMod < 0f && (Traits.HomeworldSizeMod < 0f || Traits.HistoryTraitSmallHomeWorld)
                     || t.trait.HomeworldFertMod < 0f && (Traits.HomeworldFertMod < 0f || Traits.HistoryTraitPollutedHomeWorld) && t.trait.HomeworldRichMod == 0f
-                    || t.trait.HomeworldFertMod < 0f && (Traits.HomeworldFertMod < 0f || Traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
+                    || t.trait.HomeworldFertMod < 0f && (Traits.HomeworldRichMod > 0f || Traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
                     || (Traits.Militaristic > 0 || Traits.HistoryTraitMilitaristic) && t.trait.Militaristic > 0 
                     || (Traits.PassengerModifier > 1 || Traits.HistoryTraitManifestDestiny) && t.trait.PassengerModifier > 1 
                     || (Traits.BonusExplored > 0 || Traits.HistoryTraitAstronomers) && t.trait.BonusExplored > 0 
