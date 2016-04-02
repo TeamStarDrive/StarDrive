@@ -325,7 +325,7 @@ namespace Ship_Game
                     System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(true)).ToString());
                                            
                     foreach (EmpireData data in (List<EmpireData>)removalCollection)
-                    {
+                    {                        
                         Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
                         this.data.EmpireList.Add(empireFromEmpireData);
                         switch (this.difficulty)
@@ -371,7 +371,18 @@ namespace Ship_Game
                         foreach (Empire e in this.data.EmpireList)
                         {
                             if (empire != e)
-                                empire.AddRelationships(e, new Relationship(e.data.Traits.Name));
+                            {
+                                Relationship r = new Relationship(e.data.Traits.Name);
+                                empire.AddRelationships(e, r);
+                                if(this.playerEmpire == e)
+                                {                                    
+                                    float angerMod = ((int)this.difficulty ) * (90-empire.data.DiplomaticPersonality.Trustworthiness);
+                                    r.Anger_DiplomaticConflict = angerMod;
+                                    //r.Anger_FromShipsInOurBorders = angerMod;
+                                    r.Anger_MilitaryConflict = 1;
+                                    //r.Anger_TerritorialConflict = angerMod;
+                                }
+                            }
                         }
                     }
                     ResourceManager.MarkShipDesignsUnlockable();                    
