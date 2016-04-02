@@ -2891,7 +2891,7 @@ namespace Ship_Game.Gameplay
                                 if (check.Treaty_NAPact)
                                     weight *= .5f;
                                if (enemy.isPlayer)
-                                weight *= (int)Empire.universeScreen.GameDifficulty;
+                                weight *= ((int)Empire.universeScreen.GameDifficulty+1);
 
                                 if (check.Anger_TerritorialConflict > 0)
                                     check.Anger_TerritorialConflict += (check.Anger_TerritorialConflict + CheckBorders.RankImportance * weight) / (check.Anger_TerritorialConflict);
