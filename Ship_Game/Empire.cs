@@ -3573,7 +3573,7 @@ namespace Ship_Game
             }
             if (naturalLimit < inneed )
                 naturalLimit = inneed;
-            naturalLimit *= Math.Sqrt(inneed) * 1.5f;  //fbedard
+            //naturalLimit *= Math.Sqrt(inneed) * 1.5f;  //fbedard
             float moneyForFreighters = (this.Money * .1f) * .1f -this.freighterBudget;
             this.freighterBudget = 0;
 
