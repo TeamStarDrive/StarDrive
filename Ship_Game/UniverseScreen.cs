@@ -1616,11 +1616,11 @@ namespace Ship_Game
                         if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
                         {
                             empire.ResetBorders();
-                            empire.KnownShips.thisLock.EnterWriteLock();
+                           // empire.KnownShips.thisLock.EnterWriteLock();
                             {
                                 empire.KnownShips.Clear();
                             }
-                            empire.KnownShips.thisLock.ExitWriteLock();
+                            //empire.KnownShips.thisLock.ExitWriteLock();
                             //this.UnownedShipsInOurBorders.Clear();
                             empire.UpdateKnownShips();
                             empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
