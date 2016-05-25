@@ -3961,7 +3961,7 @@ namespace Ship_Game
                 }
 
                 case ColonyType.Core:                
-                if(this.NetProductionPerTurn >this.developmentLevel)
+                if(this.GrossProductionPerTurn >this.developmentLevel)
                 {
 
                     if (PRatio > .33f )
