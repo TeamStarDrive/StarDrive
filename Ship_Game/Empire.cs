@@ -3619,19 +3619,36 @@ namespace Ship_Game
                 else if (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
                     unusedFreighters.Add(ship);
             }
-                     
-
-            if (tradeShips < TradeLimit )
+            int fgoals = 0;
+            int pgoals = 0;
+foreach(Goal goal in this.GetGSAI().Goals)
             {
+                if (goal.type == GoalType.BuildShips)
+                {
+                    if(goal.GoalName == "IncreaseFreighters")
+                    fgoals++;
+                    if (goal.GoalName == "IncreasePassengerShips")
+                        pgoals++;
+                }
+            }
+
+
+
+            //if (tradeShips < TradeLimit )
+            {
+                //bool flag = unusedFreighters.Count <2 || passengerShips >0 ;
                 //Do trade ships
                 foreach (Ship ship in unusedFreighters)
                 {
-                    if (tradeShips > TradeLimit)
-                        break;
+                
                     if (ship.GetAI().State != AIState.Flee)
                     {
-                        ship.GetAI().State = AIState.SystemTrader;
-                        ship.GetAI().OrderTrade(0.1f);
+                        //if (passengerShips > 0 || flag)
+                        {
+                            ship.GetAI().State = AIState.SystemTrader;
+                            ship.GetAI().OrderTrade(0.1f);
+                        }
+                 
                         if(ship.GetAI().OrderQueue.Count ==0)
                         {
                             continue;
@@ -3644,7 +3661,7 @@ namespace Ship_Game
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
                 //extraFrieghters = unusedFreighters.Count;
-                if(unusedFreighters.Count == 0 && moneyForFreighters > 0 && cargoNeed > 0)
+                if(unusedFreighters.Count == 0 && moneyForFreighters > 0  && fgoals ==0) //&& cargoNeed > 0
                 //for (; tradeShips < TradeLimit; ++tradeShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
@@ -3653,14 +3670,15 @@ namespace Ship_Game
                     });          
             }
             
-            if (passengerShips < PassLimit)
+            //if (passengerShips < PassLimit)
             {
                 //Do passenger ships
                 foreach (Ship ship in unusedFreighters)
                 {
-                    if (passengerShips > PassLimit)
-                        break;
+                    //if (passengerShips > PassLimit)
+                    //    break;
                     ship.GetAI().OrderTransportPassengers(0.1f);
+                    //ship.GetAI().State = AIState.PassengerTransport;
                     if (ship.GetAI().OrderQueue.Count == 0)
                     {
                         continue;
@@ -3671,7 +3689,7 @@ namespace Ship_Game
                 foreach (Ship ship in assignedShips)
                     unusedFreighters.Remove(ship);
                 assignedShips.Clear();
-                if (unusedFreighters.Count == 0 && moneyForFreighters > 0 && naturalLimit > 0)
+                if (unusedFreighters.Count == 0 && moneyForFreighters > 0 && naturalLimit > 0 && pgoals ==0)
                 //for (; passengerShips < PassLimit; ++passengerShips)
                     this.GSAI.Goals.Add(new Goal(this)
                     {
