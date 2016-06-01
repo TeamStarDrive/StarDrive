@@ -9,7 +9,7 @@
     <ErrorReportUrlHistory />
     <FallbackCulture>en-US</FallbackCulture>
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
-    <ProjectView>ProjectFiles</ProjectView>
+    <ProjectView>ShowAllFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup>
     <ReferencePath>C:\Program Files (x86)\Steam\steamapps\common\StarDrive\;D:\Steam\steamapps\common\StarDrive\;E:\SteamLibrary\steamapps\common\StarDrive\</ReferencePath>
