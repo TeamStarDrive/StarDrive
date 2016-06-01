@@ -339,8 +339,8 @@ namespace Ship_Game
 
 		private string GetDesignStateText()
 		{
-			switch (this.DesignState)
-			{
+			switch (this.DesignState)   //Mer May need to update this for new slot types -Gretman
+            {
 				case Restrictions.I:
 				{
 					this.DescriptionOfState = "Internal hull slots are important to the health of your ship. If these slots are 70% destroyed or more, then your ship will die. There are many modules, such as power plants, that can only be placed in Internal slots";
