@@ -2209,7 +2209,7 @@ namespace Ship_Game.Gameplay
             
             foreach (ModuleSlot moduleSlotList in this.ModuleSlotList)
             {
-                if (moduleSlotList.Restrictions == Restrictions.I)
+                if (moduleSlotList.Restrictions == Restrictions.I)  //Mer May need to update this for new slot types -Gretman
                     ++this.number_Internal_slots;
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Dummy)
                     continue;
@@ -2509,7 +2509,7 @@ namespace Ship_Game.Gameplay
             this.FTLSpoolTime = 0f;
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
-                if (moduleSlot.Restrictions == Restrictions.I)
+                if (moduleSlot.Restrictions == Restrictions.I)  //Mer May need to update this for new slot types -Gretman
                     ++this.number_Internal_slots;
                 if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
                     continue;
@@ -4112,7 +4112,7 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 //Get total internal slots
-                if (moduleSlot.Restrictions == Restrictions.I && moduleSlot.module.Active)
+                if (moduleSlot.Restrictions == Restrictions.I && moduleSlot.module.Active)  //Mer May need to update this for new slot types -Gretman
                     ++this.number_Alive_Internal_slots;
                 if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
                     continue;
