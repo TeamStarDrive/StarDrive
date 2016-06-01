@@ -4974,7 +4974,7 @@ namespace Ship_Game.Gameplay
                     return;
                 }
 
-                if (this.Owner.loyalty.data.Traits.Cybernetic == 1)
+                if (this.Owner.loyalty.data.Traits.Cybernetic >0)
                     this.Owner.TradingFood = false;
 
                 bool FoodFirst = true;
