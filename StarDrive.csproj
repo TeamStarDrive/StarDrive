@@ -80,17 +80,17 @@
     <OutputPath>..\..\..\..\StarDrive\</OutputPath>
     <DefineConstants>TRACE;DEBUG;ALTERTHREAD STEAM PERF AUTOTIME xPLAYERONLY </DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|x86'">
     <OutputPath>..\..\..\..\StarDrive\</OutputPath>
-    <DefineConstants>STEAM ALTERTHREAD PERF  AUTOTIME</DefineConstants>
+    <DefineConstants>STEAM ALTERTHREAD xPERF  xAUTOTIME</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -151,7 +151,17 @@
   <PropertyGroup>
     <SignManifests>false</SignManifests>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BlackBox_UNSTABLE_|x86'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_UNSTABLE_Test_RC_16_|x86' ">
+    <OutputPath>Deploy\Upload\</OutputPath>
+    <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BlackBox_Experimental_|x86' ">
     <OutputPath>Deploy\Upload\</OutputPath>
     <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
     <Optimize>true</Optimize>
@@ -196,6 +206,9 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\GenericLoadSaveScreen.cs" />
+    <Compile Include="Ship_Game\LoadSetupScreen.cs" />
+    <Compile Include="Ship_Game\RaceSave.cs" />
     <Compile Include="Ship_Game\SaveRaceScreen.cs" />
     <Compile Include="Ship_Game\ExceptionTracker.cs" />
     <Compile Include="Ship_Game\ExceptionViewer.cs">
@@ -266,6 +279,8 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\SafeQueue.cs" />
+    <Compile Include="Ship_Game\SaveSetupScreen.cs" />
+    <Compile Include="Ship_Game\SetupSave.cs" />
     <Compile Include="Ship_Game\ShipNames.cs" />
     <Compile Include="Ship_Game\ShipRole.cs" />
     <Compile Include="Ship_Game\SubClasses.cs" />
@@ -1492,6 +1507,7 @@
     </Compile>
     <EmbeddedResource Include="Ship_Game\ExceptionViewer.resx">
       <DependentUpon>ExceptionViewer.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Microsoft.Xna.Framework.RuntimeProfile" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -3213,6 +3229,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Deploy\upload\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

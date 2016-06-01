@@ -16,8 +16,11 @@ namespace Ship_Game
 		public string RealDate;
 
 		public string ModName = "";
+        public string ModPath = "";
 
 		private FileInfo FI;
+
+        public int Version;
 
 		public HeaderData()
 		{

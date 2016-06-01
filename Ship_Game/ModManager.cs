@@ -8,6 +8,10 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
 
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
+using SynapseGaming.LightingSystem.Rendering;
 namespace Ship_Game
 {
 	public sealed class ModManager : GameScreen, IDisposable
@@ -88,7 +92,9 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
+            if (this.IsExiting)
+                return;
+            base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
 			this.SaveMenu.Draw();
 			this.NameSave.Draw();
@@ -114,7 +120,9 @@ namespace Ship_Game
 
 		public override void ExitScreen()
 		{
-			base.ExitScreen();
+            
+                base.ExitScreen();
+            
 		}
 
 
@@ -127,7 +135,9 @@ namespace Ship_Game
 			{
 				this.ExitScreen();
 			}
-			foreach (UIButton b in this.Buttons)
+            bool reset = false;
+			if(base.IsExiting != true)
+            foreach (UIButton b in this.Buttons)
 			{
                 if (CurrentButton != null && b.Launches != "Visit")
                     continue;
@@ -174,31 +184,56 @@ namespace Ship_Game
 					else if (str == "Visit" )
 					{
                         if (this.ActiveEntry == null || string.IsNullOrEmpty(this.ActiveEntry.mi.URL))
-                            Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+                            try
+                            {
+                                SteamManager.ActivateOverlayWebPage("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+                            }
+                            catch
+                            {
+                                Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+                            }
                         else
-                            Process.Start(this.ActiveEntry.mi.URL);
+
+                            try
+                            {
+                                SteamManager.ActivateOverlayWebPage(this.ActiveEntry.mi.URL);
+                            }
+                            catch
+                            {
+                                Process.Start(this.ActiveEntry.mi.URL);
+                            }
 					}
                     else if (str == "shiptool" && this.CurrentButton == null)
 					{
 						base.ScreenManager.AddScreen(new ShipToolScreen());
 					}
 					else if (str == "Disable" && this.CurrentButton==null)
-					{
-						GlobalStats.ActiveMod = null;						
+					{                       
+                       // Ship_Game.ResourceManager.GetContentManager().Unload();
+                        
+                        //this.mmscreen.ResetMusic();                        
+                        GlobalStats.ActiveMod = null;						
 						ResourceManager.WhichModPath = "Content";
                         GlobalStats.ActiveMod = null;
-                        GlobalStats.ActiveModInfo = null;
-						ResourceManager.Reset();
-						ResourceManager.Initialize(base.ScreenManager.Content);
+                        GlobalStats.ActiveModInfo = null;						                     
+                        ResourceManager.Reset();
+						ResourceManager.Initialize(base.ScreenManager.Content);                        
 						ResourceManager.LoadEmpires();
+                        //Fonts.LoadContent(this.ScreenManager.Content);
+                        this.mmscreen.ReloadContent();
 						Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 						config.AppSettings.Settings["ActiveMod"].Value = "";
-						config.Save();
+						config.Save();              
 						this.ExitScreen();
-						this.mmscreen.ResetMusic();
+                        reset = true;
 					}
 				}
 			}
+            if(reset)
+            {
+          
+                
+            }
             if (this.CurrentButton != null)
             {
                 if (this.flip)
@@ -263,6 +298,7 @@ namespace Ship_Game
         {
             if (GlobalStats.ActiveMod != null)
             {
+                
                 ResourceManager.Reset();
                 ResourceManager.Initialize(base.ScreenManager.Content);
             }     
@@ -281,6 +317,8 @@ namespace Ship_Game
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             config.AppSettings.Settings["ActiveMod"].Value = this.ActiveEntry.ModPath;
             config.Save();
+            this.mmscreen.Buttons.Clear();
+            this.mmscreen.LoadContent();
             this.ExitScreen();
             this.mmscreen.ResetMusic();
         }

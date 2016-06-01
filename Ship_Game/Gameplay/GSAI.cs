@@ -2891,7 +2891,7 @@ namespace Ship_Game.Gameplay
                                 if (check.Treaty_NAPact)
                                     weight *= .5f;
                                if (enemy.isPlayer)
-                                weight *= (int)Empire.universeScreen.GameDifficulty;
+                                weight *= ((int)Empire.universeScreen.GameDifficulty+1);
 
                                 if (check.Anger_TerritorialConflict > 0)
                                     check.Anger_TerritorialConflict += (check.Anger_TerritorialConflict + CheckBorders.RankImportance * weight) / (check.Anger_TerritorialConflict);
@@ -9395,7 +9395,7 @@ namespace Ship_Game.Gameplay
         private void RunWarPlanner()
         {
 
-            float empirestrength = this.empire.currentMilitaryStrength;
+            //float empirestrength = this.empire.currentMilitaryStrength;
             foreach (KeyValuePair<Empire, Relationship> r in this.empire.GetRelations().OrderByDescending( anger =>
             {
                 float angerMod = Vector2.Distance(anger.Key.GetWeightedCenter(),this.empire.GetWeightedCenter());
@@ -9414,9 +9414,9 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if (empirestrength <= 0)
-                        continue;
-                    empirestrength -= r.Key.currentMilitaryStrength;
+                    //if (empirestrength <= 0)
+                    //    continue;
+                    //empirestrength -= r.Key.currentMilitaryStrength;
                     if (r.Value.PreparingForWar)
                     {
                         List<SolarSystem> s;

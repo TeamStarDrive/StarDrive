@@ -1616,11 +1616,11 @@ namespace Ship_Game
                         if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
                         {
                             empire.ResetBorders();
-                            empire.KnownShips.thisLock.EnterWriteLock();
+                           // empire.KnownShips.thisLock.EnterWriteLock();
                             {
                                 empire.KnownShips.Clear();
                             }
-                            empire.KnownShips.thisLock.ExitWriteLock();
+                            //empire.KnownShips.thisLock.ExitWriteLock();
                             //this.UnownedShipsInOurBorders.Clear();
                             empire.UpdateKnownShips();
                             empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
@@ -2851,7 +2851,10 @@ namespace Ship_Game
                     Game1.Instance.graphics.ToggleFullScreen();
                 }
             }
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde) && input.LastKeyboardState.IsKeyUp(Keys.OemTilde) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))
+            if ((input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde) && input.LastKeyboardState.IsKeyUp(Keys.OemTilde) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))                
+                || (input.CurrentKeyboardState.IsKeyDown(Keys.Tab) && input.LastKeyboardState.IsKeyUp(Keys.Tab) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))
+                
+            )
             {
                 this.Debug = !this.Debug;
                 UniverseScreen.debug = !this.Debug;
