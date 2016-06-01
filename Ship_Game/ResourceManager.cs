@@ -1371,37 +1371,66 @@ namespace Ship_Game
 			}
 			return files;
 		}
-
-		public static Model GetModel(string path)
+        public static Model GetModel(string path)
+        {
+            return GetModel(path, false);
+        }
+        public static Model GetModel(string path, bool NoException)
 		{
 			Model item =null;
-#if !DEBUG			
-            try
-#endif
-            {                
-
-                //GC.WaitForPendingFinalizers(); GC.Collect();
-                //GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                //GC.Collect();
-                    
+//#if !DEBUG			
+//            try
+//#endif
+            {
+                Exception t = null;
+                string loaderror = string.Empty;
+                bool loaded = false;
                 lock (Ship_Game.ResourceManager.ModelDict)
+                    if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
+                    {
+                        if (GlobalStats.ActiveMod != null ) //&& GlobalStats.ActiveModInfo != null)
+                        {
+                            try
+                            {
+                                item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
+                                loaded = true;
+                            }
+                            catch(Microsoft.Xna.Framework.Content.ContentLoadException ex)
+                            {
+                                
+                            }
+                            catch(OutOfMemoryException ex)
+                            {
+                                throw (ex);
+                            }
+                        }
+                        if (!loaded)
+                        {
+                            try
+                            {
+                                item = GetContentManager().Load<Model>(path);
+                            }
+                            catch
+                            {
+                                if (!NoException)
+                                    throw;
+                            }
+                        }
+                        Ship_Game.ResourceManager.ModelDict.Add(path, item);
+                    }
+                   
+                return item;
                 if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
 				{
                     
-                    //try
-                    {
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();
+                   
                         item = GetContentManager().Load<Model>(path);
                         Ship_Game.ResourceManager.ModelDict.Add(path, item);
-                    }
-					//item = model;
-                    //catch
-                    //{
-                    //    System.Diagnostics.Debug.WriteLine("*****OOM loading", path);
-                    //    GC.WaitForPendingFinalizers(); GC.Collect();
-                    //    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    //    GC.Collect();
-                        
-                    //}
+                    
 				}
                 
                 else
@@ -1409,13 +1438,14 @@ namespace Ship_Game
                     item = Ship_Game.ResourceManager.ModelDict[path];
                 }
 			}
-#if !DEBUG
-            catch
-#endif
+//#if !DEBUG
+//            catch
+//#endif
             {
                 if (item == null)
                 {
-                    item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
+                    item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path)) as Model;
+                    //item = GetContentManager().Load<SkinnedModel>(string.Concat("Mod Models/", path)) ;
                     Ship_Game.ResourceManager.ModelDict.Add(path, item);
                     //item = model;
                 }
@@ -1844,7 +1874,8 @@ namespace Ship_Game
 
 		public static void Initialize(ContentManager c)
 		{
-			Ship_Game.ResourceManager.WhichModPath = "Content";
+        
+            Ship_Game.ResourceManager.WhichModPath = "Content";
 			Ship_Game.ResourceManager.LoadItAll();
 		}
 
@@ -3966,6 +3997,9 @@ namespace Ship_Game
             Ship_Game.ResourceManager.RandomItemsList.Clear();
             Ship_Game.ResourceManager.ProjectileMeshDict.Clear();
             Ship_Game.ResourceManager.ProjTextDict.Clear();
+            
+            //Game1.Instance.screenManager.AddScreen(new GameLoadingScreen());
+            //Game1.Instance.IsLoaded = true;
             //if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
             //{
             //    Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);

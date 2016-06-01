@@ -3901,7 +3901,7 @@ namespace Ship_Game.Gameplay
                 {
                     //if (this.Velocity != Vector2.Zero)
                     //this.UpdatedModulesOnce = false;
-                    if (this.GetAI().BadGuysNear ||  this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null)
+                    if (this.GetAI().BadGuysNear ||  this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null || this.shipData.Role <= ShipData.RoleName.station)
                     {
                         this.UpdatedModulesOnce = false;
                         float cos = (float)Math.Cos((double)this.Rotation);

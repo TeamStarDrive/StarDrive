@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
 using System.Globalization;
+using System.Configuration;
 
 namespace Ship_Game
 {
@@ -580,9 +581,11 @@ namespace Ship_Game
 			header.SaveName = data.SaveAs;
 			if (GlobalStats.ActiveMod != null)
 			{
-				header.ModName = GlobalStats.ActiveMod.ModPath;
-			}
-			XmlSerializer Serializer1 = new XmlSerializer(typeof(HeaderData));
+				header.ModPath = GlobalStats.ActiveMod.ModPath;
+                header.ModName = GlobalStats.ActiveMod.mi.ModName;
+            }
+            header.Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
+            XmlSerializer Serializer1 = new XmlSerializer(typeof(HeaderData));
 			TextWriter wf = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/Headers/", data.SaveAs, ".xml"));
 			Serializer1.Serialize(wf, header);
 			//wf.Close();
