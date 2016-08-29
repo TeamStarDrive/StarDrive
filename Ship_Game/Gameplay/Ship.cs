@@ -2152,6 +2152,7 @@ namespace Ship_Game.Gameplay
             base.Mass = 0f;
             this.Mass += (float)this.Size;
             this.Thrust = 0f;
+            this.WarpThrust = 0f;
             this.PowerStoreMax = 0f;
             this.PowerFlowMax = 0f;
             this.ModulePowerDraw = 0f;
@@ -2292,6 +2293,7 @@ namespace Ship_Game.Gameplay
                 else
                     this.mass += moduleSlotList.module.Mass;
                 this.Thrust += moduleSlotList.module.thrust;
+                this.WarpThrust += moduleSlotList.module.WarpThrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
                 this.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? this.loyalty.data.FuelCellModifier : 0);
                 this.PowerCurrent += moduleSlotList.module.PowerStoreMax;
@@ -2529,6 +2531,7 @@ namespace Ship_Game.Gameplay
                 }
                 ship1.mass = (float)num1;
                 this.Thrust += moduleSlot.module.thrust;
+                this.WarpThrust += moduleSlot.module.WarpThrust;
                 this.MechanicalBoardingDefense += moduleSlot.module.MechanicalBoardingDefense;
                 //Added by McShooterz
                 this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
