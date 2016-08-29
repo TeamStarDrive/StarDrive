@@ -103,7 +103,7 @@ namespace Ship_Game
         public bool canBuildTroopShips;
         public float currentMilitaryStrength;
         public float freighterBudget = 0;
-        
+        public float cargoNeed = 0;
         [XmlIgnore]
         public ReaderWriterLockSlim SensorNodeLocker;
         [XmlIgnore]
@@ -3471,7 +3471,7 @@ namespace Ship_Game
             }
             return false;
         }
-        private void FigureFreighterCargoCap(List<Ship> traders, List<Ship> popTrans, float cargoNeed)
+        private void FigureFreighterCargoCap(List<Ship> traders, List<Ship> popTrans)
         {
             float avgCargo = 0;
             
@@ -3524,8 +3524,8 @@ namespace Ship_Game
         {
             List<Ship> traders = new List<Ship>();
             List<Ship> popTrans = new List<Ship>();
-            float cargoNeed = 0;
-            this.FigureFreighterCargoCap(traders, popTrans, cargoNeed);
+            this.cargoNeed = 0;
+            this.FigureFreighterCargoCap(traders, popTrans);
             
             int tradeShips = 0;
             int passengerShips = 0;
@@ -3559,17 +3559,19 @@ namespace Ship_Game
                     inneedofciv++;
                 else
                     exportPop = true;
-                if (planet.fs == Planet.GoodState.IMPORT && planet.FoodHere / planet.MAX_STORAGE < .25f)
+                if (planet.fs == Planet.GoodState.IMPORT)
                 {
-                    inneed++;
-                    cargoNeed += planet.FoodHere;
+                    //if (  planet.FoodHere / planet.MAX_STORAGE < .25f)
+                        inneed+=3;
+                    cargoNeed += planet.MAX_STORAGE- planet.FoodHere;
                     
                 }
-                if (planet.ps == Planet.GoodState.IMPORT && planet.ProductionHere / planet.MAX_STORAGE < .25f)
+                if (planet.ps == Planet.GoodState.IMPORT )
                 {
-                    inneed++;
+                   //if( planet.ProductionHere / planet.MAX_STORAGE < .25f)
+                        inneed+=3;
                     
-                    cargoNeed -= planet.ProductionHere;
+                    cargoNeed += planet.MAX_STORAGE - planet.ProductionHere;
                 }
             }
             if (naturalLimit < inneed )
@@ -3577,7 +3579,8 @@ namespace Ship_Game
             //naturalLimit *= Math.Sqrt(inneed) * 1.5f;  //fbedard
             float moneyForFreighters = (this.Money * .1f) * .1f -this.freighterBudget;
             this.freighterBudget = 0;
-
+            if (cargoNeed > 0)
+                naturalLimit++;
             int freighterLimit = ((int)naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : (int)naturalLimit );
             float CivLimit = (inneedofciv / this.OwnedPlanets.Count);
             if (CivLimit > 0.3) CivLimit = .3f;

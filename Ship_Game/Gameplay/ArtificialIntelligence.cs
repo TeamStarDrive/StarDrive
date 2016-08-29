@@ -4891,7 +4891,7 @@ namespace Ship_Game.Gameplay
              * 
              * 
              */
-            
+            //cargoCount = cargoCount > PlanetCheck.MAX_STORAGE ? PlanetCheck.MAX_STORAGE : cargoCount;
             float resourceRecharge =0;
             float resourceAmount =0;
             if (ResourceType == "Food")
@@ -4901,22 +4901,33 @@ namespace Ship_Game.Gameplay
             }
             else if(ResourceType == "Production")
             {
-                resourceRecharge = PlanetCheck.NetProductionPerTurn;
+                resourceRecharge =  PlanetCheck.NetProductionPerTurn;
                 resourceAmount = PlanetCheck.ProductionHere;
             }
             float timeTotarget = ship.GetAI().TimeToTarget(PlanetCheck);
-            float Effeciency = resourceRecharge * timeTotarget;            
+            float Effeciency =  resourceRecharge * timeTotarget;
+            
+            // return PlanetCheck.MAX_STORAGE / (PlanetCheck.MAX_STORAGE -(Effeciency + resourceAmount));
+
             if (Delivery)
             {
-                bool badCargo = (cargoCount + Effeciency + resourceAmount) > PlanetCheck.MAX_STORAGE - cargoCount * .5f; //cargoCount + Effeciency < 0 ||
+                // return Effeciency;// * ((PlanetCheck.MAX_STORAGE + cargoCount) / ((PlanetCheck.MAX_STORAGE - resourceAmount + 1)));
+                // Effeciency =  (PlanetCheck.MAX_STORAGE - cargoCount) / (cargoCount + Effeciency + resourceAmount) ;
+                //return timeTotarget * Effeciency;
+                bool badCargo = ( Effeciency + resourceAmount) > PlanetCheck.MAX_STORAGE ;
+                //bool badCargo = (cargoCount + Effeciency + resourceAmount) > PlanetCheck.MAX_STORAGE - cargoCount * .5f; //cargoCount + Effeciency < 0 ||
                 if (!badCargo)
-                    return timeTotarget;// (float)Math.Ceiling((double)timeTotarget);
+                    return timeTotarget * (badCargo ? PlanetCheck.MAX_STORAGE / (Effeciency + resourceAmount) : 1);// (float)Math.Ceiling((double)timeTotarget);                
             }
             else
             {
-                bool BadSupply = PlanetCheck.MAX_STORAGE * .5f < ship.CargoSpace_Max && PlanetCheck.FoodHere + Effeciency < ship.CargoSpace_Max * .5f;
-                if (!BadSupply)
-                    return timeTotarget;// (float)Math.Ceiling((double)timeTotarget);
+                //return Effeciency * (PlanetCheck.MAX_STORAGE / ((PlanetCheck.MAX_STORAGE - resourceAmount + 1)));
+                // Effeciency = (ship.CargoSpace_Max) / (PlanetCheck.MAX_STORAGE);
+                //return timeTotarget * Effeciency;
+                Effeciency = PlanetCheck.MAX_STORAGE * .5f < ship.CargoSpace_Max ? resourceAmount + Effeciency < ship.CargoSpace_Max * .5f ? (ship.CargoSpace_Max*.5f) / (resourceAmount + Effeciency) :1:1;
+                //bool BadSupply = PlanetCheck.MAX_STORAGE * .5f < ship.CargoSpace_Max && PlanetCheck.FoodHere + Effeciency < ship.CargoSpace_Max * .5f;
+                //if (!BadSupply)
+                    return timeTotarget * Effeciency;// (float)Math.Ceiling((double)timeTotarget);
             }
             return timeTotarget + universeScreen.Size.X;
         }
@@ -4962,7 +4973,7 @@ namespace Ship_Game.Gameplay
             bool flag;
 
             //added by gremlin if fleeing keep fleeing
-            if (this.Owner.CargoSpace_Max == 0 || this.State == AIState.Flee || this.Owner.isConstructor)
+            if (this.Owner.CargoSpace_Max == 0 || this.State == AIState.Flee || this.Owner.isConstructor || this.Owner.isColonyShip)
                 return;
 
             //try
@@ -4983,10 +4994,10 @@ namespace Ship_Game.Gameplay
                 float GoodMult = RandomMath.RandomBetween(0f, 25f);
 
                 //if already loaded, give any start planet: <-- this doesnt look good but doesnt appear to be a problem
-                if (this.start == null && (this.Owner.GetCargo()["Food"] > 0f || this.Owner.GetCargo()["Production"] > 0f))
-                {
-                    this.start = this.Owner.loyalty.GetPlanets().FirstOrDefault();
-                }
+                //if (this.start == null && (this.Owner.GetCargo()["Food"] > 0f || this.Owner.GetCargo()["Production"] > 0f))
+                //{
+                //    this.start = this.Owner.loyalty.GetPlanets().FirstOrDefault();
+                //}
                 //FoodFirst
                 #region Deliver Food FIRST (return if already loaded)
                 if (this.end == null && FoodFirst  && ( this.Owner.GetCargo()["Food"] > 0f))
@@ -6076,12 +6087,12 @@ namespace Ship_Game.Gameplay
 					population.Population = population.Population + this.Owner.GetCargo()["Colonists_1000"] * (float)this.Owner.loyalty.data.Traits.PassengerModifier;
 					this.Owner.GetCargo()["Colonists_1000"] = 0f;
 				}
-                float modifier = 0;
-                if (this.start.FoodHere < this.Owner.CargoSpace_Max)
-                {
-                    //this.OrderTrade(0.1f);
-                    modifier = this.start.FoodHere * .5f;
-                }
+                float modifier = this.start.MAX_STORAGE * .10f;
+                //if (this.start.FoodHere < this.Owner.CargoSpace_Max)
+                //{
+                //    //this.OrderTrade(0.1f);
+                //    modifier = this.start.FoodHere * .5f;
+                //}
                 
 				{
 					while (this.start.FoodHere >  modifier && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
@@ -6115,12 +6126,12 @@ namespace Ship_Game.Gameplay
 					population1.Population = population1.Population + this.Owner.GetCargo()["Colonists_1000"] * (float)this.Owner.loyalty.data.Traits.PassengerModifier;
 					this.Owner.GetCargo()["Colonists_1000"] = 0f;
 				}
-                float modifier = 0;
-                if (this.start.ProductionHere < this.Owner.CargoSpace_Max)
-                {
-                    //this.OrderTrade(0.1f);
-                    modifier= this.start.ProductionHere * .5f;
-                }
+                float modifier = this.start.MAX_STORAGE *.10f;
+                //if (this.start.ProductionHere < this.Owner.CargoSpace_Max)
+                //{
+                //    //this.OrderTrade(0.1f);
+                //    modifier= this.start.ProductionHere * .5f;
+                //}
                 
 				{
                     while (this.start.ProductionHere > modifier && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
