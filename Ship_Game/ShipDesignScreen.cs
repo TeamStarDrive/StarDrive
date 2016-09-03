@@ -6582,12 +6582,12 @@ namespace Ship_Game
                     }
                 case 5:
                     {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Combat;
+                        this.ActiveHull.ShipCategory = ShipData.Category.Fighter;
                         break;
                     }
                 case 6:
                     {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Kamikaze;
+                        this.ActiveHull.ShipCategory = ShipData.Category.Bomber;
                         break;
                     }
                 case 7:
