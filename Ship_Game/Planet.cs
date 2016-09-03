@@ -3831,7 +3831,8 @@ namespace Ship_Game
             float exportFSNeed = 0;
             float importPSNeed = 0;
             float importFSNeed = 0;
-            bool exportFlag = false;
+            bool exportPSFlag = true;
+            bool exportFSFlag = true;
             float exportPTrack = 0;
             float exportFTrack = 0;
             foreach(Planet planet in this.Owner.GetPlanets())
@@ -3845,7 +3846,7 @@ namespace Ship_Game
                 }
                 if (planet.fs == GoodState.EXPORT )
                     exportFSNeed += planet.FoodHere *(this.ExportFSWeight *-.01f) ;
-                else 
+                 
                     if (planet.ExportFSWeight < exportFTrack)
                     exportFTrack = planet.ExportFSWeight;
                 if(planet.ps == GoodState.IMPORT)
@@ -3855,9 +3856,10 @@ namespace Ship_Game
                 }
                 if (planet.ps == GoodState.EXPORT)
                     exportPSNeed += planet.ProductionHere * (this.ExportFSWeight * -.01f);                
-                else                
+                
                 if (planet.ExportPSWeight < exportPTrack)
                     exportPTrack = planet.ExportPSWeight;
+
 
             }
             if(pc==1)
@@ -3866,10 +3868,10 @@ namespace Ship_Game
                 PSexport = false;
             }
             exportFSNeed -= importFSNeed;
-            if (exportFSNeed <= 0 || this.ExportFSWeight ==0)
+            if (exportFSNeed <= 0 || this.ExportFSWeight > exportFTrack)
                 FSexport = true;
             exportPSNeed -= importPSNeed;
-            if (exportPSNeed <= 0 || this.ExportPSWeight ==0)
+            if (exportPSNeed <= 0 || this.ExportPSWeight > exportPTrack)
                 PSexport = true;
             this.ExportFSWeight = 0;
             this.ExportPSWeight = 0;

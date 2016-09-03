@@ -118,6 +118,8 @@ namespace Ship_Game
             Civilian,
             Recon,
             Combat,
+            Bomber,
+            Fighter,            
             Kamikaze
         }
 
