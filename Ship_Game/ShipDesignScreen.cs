@@ -5143,11 +5143,13 @@ namespace Ship_Game
                             break;
                         }
                     case 4:
+                    case 5:
+                    case 6:
                         {
                             ToolTip.CreateTooltip("Repair when damaged at 55%", this.ScreenManager);
                             break;
                         }
-                    case 5:
+                    case 7:
                         {
                             ToolTip.CreateTooltip("Never Repair!", this.ScreenManager);
                             break;
@@ -6558,49 +6560,60 @@ namespace Ship_Game
 			toSave.Name = name;
 
             //Cases correspond to the 5 options in the drop-down menu; default exists for... Propriety, mainly. The option selected when saving will always be the Category saved, pretty straightforward.
-            switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
+            foreach (Ship_Game.ShipData.Category item in Enum.GetValues(typeof(Ship_Game.ShipData.Category)).Cast<Ship_Game.ShipData.Category>())
             {
-                case 1:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
-                        break;
-                    }
-                case 2:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Civilian;
-                        break;
-                    }
-                case 3:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Recon;
-                        break;
-                    }
-                case 4:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Combat;
-                        break;
-                    }
-                case 5:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Fighter;
-                        break;
-                    }
-                case 6:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Bomber;
-                        break;
-                    }
-                case 7:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Kamikaze;
-                        break;
-                    }
-                default:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
-                        break;
-                    }
+                if(this.CategoryList.Options[this.CategoryList.ActiveIndex].Name == Enum.GetName(typeof(Ship_Game.ShipData.Category), item))
+                {
+                    this.ActiveHull.ShipCategory = item;
+                    break;
+                }
+
             }
+           
+
+            //    switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
+            //{
+            //    case 1:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
+            //            break;
+            //        }
+            //    case 2:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Civilian;
+            //            break;
+            //        }
+            //    case 3:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Recon;
+            //            break;
+            //        }
+            //    case 4:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Combat;
+            //            break;
+            //        }
+            //    case 5:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Fighter;
+            //            break;
+            //        }
+            //    case 6:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Bomber;
+            //            break;
+            //        }
+            //    case 7:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Kamikaze;
+            //            break;
+            //        }
+            //    default:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
+            //            break;
+            //        }
+            //}
 
             //this.CategoryList.AddOption("Unclassified", 1);
             //this.CategoryList.AddOption("Civilian", 2);
