@@ -5362,9 +5362,9 @@ namespace Ship_Game.Gameplay
 
                         float distanceWeight = this.TradeSort(this.Owner, PlanetCheck, "Food", this.Owner.CargoSpace_Max, false);
                         //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.ProductionHere + 1) + distanceWeight;
-                        distanceWeight -= 100;
-                        distanceWeight = distanceWeight <0 && distanceWeight < PlanetCheck.ExportFSWeight? distanceWeight : 0;
-                        PlanetCheck.ExportFSWeight += distanceWeight;   
+                        //distanceWeight -= 100;
+                        distanceWeight = distanceWeight <0 ? distanceWeight : 0; //&& distanceWeight < PlanetCheck.ExportFSWeight
+                            PlanetCheck.ExportFSWeight += distanceWeight;   
                         if( PlanetCheck.fs == Planet.GoodState.EXPORT )
                             //&& (planets.Count==0 || PlanetCheck.FoodHere >= this.Owner.CargoSpace_Max))
                         {                            
@@ -5465,8 +5465,8 @@ namespace Ship_Game.Gameplay
                             if (PlanetCheck == null)
                                 continue;
                             float distanceWeight =this.TradeSort(this.Owner, PlanetCheck, "Production", this.Owner.CargoSpace_Max, false);
-                            distanceWeight -= 100;
-                            distanceWeight = distanceWeight < 0 && distanceWeight < PlanetCheck.ExportPSWeight ? distanceWeight : 0;
+                           // distanceWeight -= 100;
+                          //  distanceWeight = distanceWeight < 0  ? distanceWeight : 0; //&& distanceWeight < PlanetCheck.ExportPSWeight
                             PlanetCheck.ExportPSWeight += distanceWeight;
                             //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.FoodHere + 1) +distanceWeight;                            
                             

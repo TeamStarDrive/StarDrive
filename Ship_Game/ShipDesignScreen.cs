@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml.Serialization;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -6340,16 +6341,21 @@ namespace Ship_Game
 
             
             //base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth
-            dropdownRect = new Rectangle((int)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f), (int) OrdersBarPos.Y, 100, 18);            
+            dropdownRect = new Rectangle((int)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f), (int) OrdersBarPos.Y, 100, 18);
             //dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 118, 100, 18);
-
+                        
             this.CategoryList = new DropOptions(dropdownRect);
-            this.CategoryList.AddOption("Unclassified", 1);
-            this.CategoryList.AddOption("Civilian", 2);
-            this.CategoryList.AddOption("Recon", 3);
-            this.CategoryList.AddOption("Combat", 4);
-            this.CategoryList.AddOption("Kamikaze", 5);
-            
+            //this.CategoryList.AddOption("Unclassified", 1);
+            //this.CategoryList.AddOption("Civilian", 2);
+            //this.CategoryList.AddOption("Recon", 3);
+            //this.CategoryList.AddOption("Combat", 4);
+            //this.CategoryList.AddOption("Kamikaze", 5);
+            foreach(Ship_Game.ShipData.Category item in Enum.GetValues(typeof(Ship_Game.ShipData.Category)).Cast<Ship_Game.ShipData.Category>())
+            {
+                this.CategoryList.AddOption(item.ToString(),(int)item +1);
+
+            }
+
             this.CarrierOnly = this.ActiveHull.CarrierShip;
             Ref<bool> CORef = new Ref<bool>(() => this.CarrierOnly, (bool x) => {
 				this.CarrierOnly = x;              
@@ -6576,6 +6582,16 @@ namespace Ship_Game
                     }
                 case 5:
                     {
+                        this.ActiveHull.ShipCategory = ShipData.Category.Combat;
+                        break;
+                    }
+                case 6:
+                    {
+                        this.ActiveHull.ShipCategory = ShipData.Category.Kamikaze;
+                        break;
+                    }
+                case 7:
+                    {
                         this.ActiveHull.ShipCategory = ShipData.Category.Kamikaze;
                         break;
                     }
@@ -6585,6 +6601,12 @@ namespace Ship_Game
                         break;
                     }
             }
+
+            //this.CategoryList.AddOption("Unclassified", 1);
+            //this.CategoryList.AddOption("Civilian", 2);
+            //this.CategoryList.AddOption("Recon", 3);
+            //this.CategoryList.AddOption("Fighter", 4);
+            //this.CategoryList.AddOption("Bomber", 5);
 
             //Adds the category determined by the case from the dropdown to the 'toSave' ShipData.
             toSave.ShipCategory = this.ActiveHull.ShipCategory;
