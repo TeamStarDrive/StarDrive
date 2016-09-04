@@ -163,7 +163,7 @@ namespace Ship_Game.Gameplay
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         public List<Projectile> TrackProjectiles = new List<Projectile>();
-        private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.0f };  //fbedard: dmg level for repair
+        private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
                 
 		public ArtificialIntelligence()
 		{
