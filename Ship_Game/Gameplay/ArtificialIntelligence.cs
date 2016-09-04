@@ -6295,36 +6295,44 @@ namespace Ship_Game.Gameplay
                 return;
             }
             if (PlotCourseToNewViaRoad(endPos, startPos))
-                return;
-            List<Vector2> PickWayPoints = new List<Vector2>();
+                return;            
+            List<Vector2> PickWayPoints = new List<Vector2>(this.GoodRoad(endPos, startPos));
             float d1, d2;
             float DistToEnd1, DistToEnd2;
-
-            foreach (Ship proj in this.Owner.loyalty.GetProjectors())
+            if (PickWayPoints.Count == 0)
             {
-                d1 = Vector2.Distance(proj.Center, startPos);
-                d2 = Vector2.Distance(proj.Center, endPos);
-                if (d1 <= Distance && d2 <= Distance )
-                    lock (this.wayPointLocker)
-                        PickWayPoints.Add(proj.Center);
+                foreach (Ship proj in this.Owner.loyalty.GetProjectors())
+                {
+                    d1 = Vector2.Distance(proj.Center, startPos);
+                    d2 = Vector2.Distance(proj.Center, endPos);
+                    if (d1 <= Distance && d2 <= Distance)
+                       // lock (this.wayPointLocker)
+                            PickWayPoints.Add(proj.Center);
+                }
+                foreach (SolarSystem p in this.Owner.loyalty.GetOwnedSystems())
+                {
+                    d1 = Vector2.Distance(p.Position, startPos);
+                    d2 = Vector2.Distance(p.Position, endPos);
+                    if (d1 <= Distance && d2 <= Distance)
+                       // lock (this.wayPointLocker)
+                            PickWayPoints.Add(p.Position);
+                }
             }
-            foreach (Planet p in this.Owner.loyalty.GetPlanets())
+#if DEBUG
+            else
             {
-                d1 = Vector2.Distance(p.Position, startPos);
-                d2 = Vector2.Distance(p.Position, endPos);
-                if (d1 <= Distance && d2 <= Distance)
-                    lock (this.wayPointLocker)
-                        PickWayPoints.Add(p.Position);
+                System.Diagnostics.Debug.WriteLine("Empire :" + this.Owner.loyalty.PortraitName);
+                System.Diagnostics.Debug.WriteLine("Ship :" + this.Owner.VanityName);
             }
+#endif            
             if (!this.ActiveWayPoints.Contains(endPos))
-                lock (this.wayPointLocker)
                     PickWayPoints.Add(endPos);
 
             int pt;
             float distMult;
             Vector2 wp1, wp2, current = this.Owner.Center;
             IOrderedEnumerable<Vector2> sortedList = from point in PickWayPoints where current != point orderby Vector2.Distance(current, point) select point;
-
+           
             // Loop through points.
             for (int i = 0; i < PickWayPoints.Count; i++)
             {
@@ -6342,9 +6350,13 @@ namespace Ship_Game.Gameplay
                             break;
                         d1 = Vector2.Distance(enumerator.Current, current);
                         d2 = Vector2.Distance(enumerator.Current, endPos);
+
                         if (!this.ActiveWayPoints.Contains(enumerator.Current)
-                            && (d2 <= Distance && d2 > Empire.ProjectorRadius * 1.5) || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)
-)                        {
+                            && (d2 <= Distance && d2 > Empire.ProjectorRadius * 1.5)
+                            || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)
+                             
+                            )
+                        {
                             if (d1 <= Empire.ProjectorRadius * 2.5f )
                             {
                                 if (d1 + d2 < DistToEnd1)
@@ -6361,6 +6373,7 @@ namespace Ship_Game.Gameplay
                                 }
                             pt++;
                         }
+                        
                     }
                     while (pt != 3);
                 }
@@ -6373,6 +6386,9 @@ namespace Ship_Game.Gameplay
                         current = wp2;
                     sortedList = from point in PickWayPoints where current != point orderby Vector2.Distance(current, point) select point;
                     Distance = Vector2.Distance(current, endPos);
+                    //goodroad = this.GoodRoad(current, endPos);
+                    //if(goodroad !=null && current != endPos)
+
                     lock (this.wayPointLocker)
                         this.ActiveWayPoints.Enqueue(current);
                     if (current == endPos)
@@ -6383,6 +6399,52 @@ namespace Ship_Game.Gameplay
             if (this.ActiveWayPoints.Count == 0 || this.ActiveWayPoints.Last() != endPos)
                 lock (this.wayPointLocker)
                     this.ActiveWayPoints.Enqueue(endPos);
+        }
+
+        private List<Vector2> GoodRoad(Vector2 endPos, Vector2 startPos)
+        {
+            SpaceRoad targetRoad =null;
+            List<SpaceRoad> StartRoads = new List<SpaceRoad>();
+            List<SpaceRoad> endRoads = new List<SpaceRoad>();
+            List<Vector2> nodePos = new List<Vector2>();
+            foreach (SpaceRoad road in this.Owner.loyalty.SpaceRoadsList)
+            {
+                Vector2 start = road.GetOrigin().Position;
+                Vector2 end = road.GetDestination().Position;
+                if (Vector2.Distance(start, startPos) < Empire.ProjectorRadius)
+                {
+                    if (Vector2.Distance(end, endPos) < Empire.ProjectorRadius)
+                        targetRoad = road;
+                    else
+                        StartRoads.Add(road);
+                }
+                else if (Vector2.Distance(end, startPos) < Empire.ProjectorRadius)
+                {
+                    if (Vector2.Distance(start, endPos) < Empire.ProjectorRadius)
+                        targetRoad = road;
+                    else
+                        endRoads.Add(road);
+                }
+
+                if (  targetRoad !=null)
+                    break;
+            }
+            
+
+            if(targetRoad != null)
+            {
+                foreach(RoadNode node in targetRoad.RoadNodesList)
+                {
+                    nodePos.Add(node.Position);
+                }
+                nodePos.Add(endPos);
+                nodePos.Add(targetRoad.GetDestination().Position);
+                nodePos.Add(targetRoad.GetOrigin().Position);
+            }
+            return nodePos;
+            
+
+
         }
 
         private bool PlotCourseToNewViaRoad(Vector2 endPos, Vector2 startPos)
