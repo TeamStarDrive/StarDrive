@@ -3823,8 +3823,8 @@ namespace Ship_Game
         }
         private void SetExportState(ColonyType colonyType)
         {
-            
-            bool FSexport =false;
+
+            bool FSexport = false;
             bool PSexport = false;
             int pc = 0;
             float exportPSNeed = 0;
@@ -3835,46 +3835,51 @@ namespace Ship_Game
             bool exportFSFlag = true;
             float exportPTrack = 0;
             float exportFTrack = 0;
-            foreach(Planet planet in this.Owner.GetPlanets())
+            float Storage = 0;
+
+            foreach (Planet planet in this.Owner.GetPlanets())
             {
                 pc++;
-//                if (this.ExportPSWeight < 0 || this.ExportFSWeight < 0)
-                if(planet.fs == GoodState.IMPORT )
+                //                if (this.ExportPSWeight < 0 || this.ExportFSWeight < 0)
+                if (planet.fs == GoodState.IMPORT)
                 {
-                    importFSNeed += planet.MAX_STORAGE- planet.FoodHere;
+                    importFSNeed += planet.MAX_STORAGE - planet.FoodHere;
                     FSexport = true;
                 }
-                if (planet.fs == GoodState.EXPORT )
-                    exportFSNeed += planet.FoodHere *(this.ExportFSWeight *-.01f) ;
-                 
-                    if (planet.ExportFSWeight < exportFTrack)
-                    exportFTrack = planet.ExportFSWeight;
-                if(planet.ps == GoodState.IMPORT)
+                if (planet.fs == GoodState.EXPORT)
+                    exportFSNeed += planet.FoodHere * (this.ExportFSWeight * -.01f);
+
+                //if (planet.ExportFSWeight < exportFTrack)
+                exportFTrack += planet.ExportFSWeight;
+                if (planet.ps == GoodState.IMPORT)
                 {
                     importPSNeed += planet.MAX_STORAGE - planet.ProductionHere;
                     PSexport = true;
                 }
                 if (planet.ps == GoodState.EXPORT)
-                    exportPSNeed += planet.ProductionHere * (this.ExportFSWeight * -.01f);                
-                
-                if (planet.ExportPSWeight < exportPTrack)
-                    exportPTrack = planet.ExportPSWeight;
+                    exportPSNeed += planet.ProductionHere * (this.ExportFSWeight * -.01f);
+
+                //if (planet.ExportPSWeight < exportPTrack)
+                exportPTrack += planet.ExportPSWeight;
+                Storage += planet.MAX_STORAGE;
 
 
             }
-            if(pc==1)
+            if (pc == 1)
             {
                 FSexport = false;
                 PSexport = false;
             }
+            exportFSFlag = exportFTrack / pc *2 >= this.ExportFSWeight;
+            exportPSFlag = exportPTrack / pc *2  >= this.ExportPSWeight;
             exportFSNeed -= importFSNeed;
-            if (exportFSNeed <= 0 || this.ExportFSWeight > exportFTrack)
+            if (!exportFSFlag || Storage /pc >= this.MAX_STORAGE ) //|| this.ExportFSWeight > exportFTrack //exportFSNeed <= 0 ||
                 FSexport = true;
             exportPSNeed -= importPSNeed;
-            if (exportPSNeed <= 0 || this.ExportPSWeight > exportPTrack)
+            if ( !exportPSFlag || Storage / pc >= this.MAX_STORAGE ) //|| this.ExportPSWeight > exportPTrack //exportPSNeed <= 0 ||
                 PSexport = true;
-            this.ExportFSWeight = 0;
-            this.ExportPSWeight = 0;
+            //this.ExportFSWeight = 0;
+            //this.ExportPSWeight = 0;
             float PRatio = this.ProductionHere /this.MAX_STORAGE;
             float FRatio = this.FoodHere /this.MAX_STORAGE;
 
