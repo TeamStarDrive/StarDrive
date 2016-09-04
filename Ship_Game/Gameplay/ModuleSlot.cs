@@ -60,12 +60,23 @@ namespace Ship_Game.Gameplay
 			if (this.InstalledModuleUID != "Dummy" && this.InstalledModuleUID != null)
 			{
 				this.module = ResourceManager.GetModule(this.InstalledModuleUID);
-				this.module.installedSlot = this;
+                this.module.installedSlot = this;
 				this.module.SetParent(this.Parent);
 				this.module.facing = this.facing;
 				this.module.Initialize(this.Position);
 			}
 		}
+        public void InitializeFromSave()
+        {
+            if (this.InstalledModuleUID != "Dummy" && this.InstalledModuleUID != null)
+            {
+                this.module = ResourceManager.GetModule(this.InstalledModuleUID);
+                this.module.installedSlot = this;
+                this.module.SetParent(this.Parent);
+                this.module.facing = this.facing;
+                this.module.InitializeFromSave(this.Position);
+            }
+        }
 
 		public void InitializeForLoad()
 		{

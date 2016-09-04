@@ -7,6 +7,7 @@
   <StartingScout>Unarmed Thorn Scout</StartingScout>
   <PrototypeShip>Prototype Fern</PrototypeShip>
   <DefaultSmallTransport>Seeder Transport</DefaultSmallTransport>
+  <DefaultTroopShip>Pollops Troop</DefaultTroopShip>
   <DefaultColonyShip>Pollop Sporeship</DefaultColonyShip>
   <DefaultConstructor>Seeder Transport</DefaultConstructor>
 

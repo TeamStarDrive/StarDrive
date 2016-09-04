@@ -529,25 +529,22 @@ namespace Ship_Game
 				PlanetListScreenEntry entry = this.PlanetSL.Entries[i].item as PlanetListScreenEntry;
 				entry.HandleInput(input);
 				entry.SetNewPos(this.eRect.X + 22, this.PlanetSL.Entries[i].clickRect.Y);
-				if (HelperFunctions.CheckIntersection(entry.TotalEntrySize, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+				if (!GlobalStats.TakingInput
+                    && HelperFunctions.CheckIntersection(entry.TotalEntrySize, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
 				{
 					if (this.ClickTimer >= this.ClickDelay)
 					{
 						this.ClickTimer = 0f;
 					}
-					else
-					{
-						this.ExitScreen();
-						this.empUI.screen.SelectedPlanet = entry.planet;
-						this.empUI.screen.ViewPlanet(null);
-						this.empUI.screen.transitionStartPosition = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y, 10000f);
-						this.empUI.screen.returnToShip = false;
-					}
-					if (this.SelectedPlanet != entry.planet)
-					{
-						AudioManager.PlayCue("sd_ui_accept_alt3");
-						this.SelectedPlanet = entry.planet;
-					}
+                    else 
+                    {
+                        this.ExitScreen();
+                        AudioManager.PlayCue("sd_ui_accept_alt3");
+                        this.empUI.screen.SelectedPlanet = entry.planet;
+                        this.empUI.screen.ViewingShip = false;
+                        this.empUI.screen.returnToShip = false;
+                        this.empUI.screen.transitionDestination = new Vector3(entry.planet.Position.X, entry.planet.Position.Y, 10000f);
+                    }
 				}
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.L) && !input.LastKeyboardState.IsKeyDown(Keys.L) && !GlobalStats.TakingInput)
@@ -556,7 +553,7 @@ namespace Ship_Game
                 this.ExitScreen();
                 return;
             }
-			if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input))
+            if (input.Escaped || input.RightMouseClick || this.close.HandleInput(input) )
 			{
                 //this.empUI.empire.data.PLSort = this.LastSorted;
                 this.ExitScreen();

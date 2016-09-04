@@ -8,6 +8,7 @@
   <StartingScout>Wisp Scout</StartingScout>
   <PrototypeShip>Scythe Prototype</PrototypeShip>
   <DefaultSmallTransport>Draylok Transporter</DefaultSmallTransport>
+  <DefaultTroopShip>Draylok Troop</DefaultTroopShip>
   <DefaultColonyShip>Draylok Colonizer</DefaultColonyShip>
   <DefaultConstructor>Draylok Transporter</DefaultConstructor>
   

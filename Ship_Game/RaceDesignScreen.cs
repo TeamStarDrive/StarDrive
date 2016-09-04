@@ -167,7 +167,15 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-		public RaceDesignScreen()
+        private Rectangle ExtraRemnantRect; //Added by Gretman
+        public RaceDesignScreen.ExtraRemnantPresence ExtraRemnant = RaceDesignScreen.ExtraRemnantPresence.Normal;
+
+        private UIButton SaveRace;  // Added by EVWeb
+        private UIButton LoadRace;
+        private UIButton SaveSetup;
+        private UIButton LoadSetup;
+
+        public RaceDesignScreen()
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
@@ -1193,7 +1201,13 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(this.Pacing.ToString(), "%"), new Vector2((float)(this.PacingRect.X + 190) - Fonts.Arial12.MeasureString(string.Concat(this.Pacing.ToString(), "%")).X, (float)this.PacingRect.Y), Color.BurlyWood);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2139), " : "), new Vector2((float)this.DifficultyRect.X, (float)this.DifficultyRect.Y), Color.White);
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.difficulty.ToString(), new Vector2((float)(this.DifficultyRect.X + 190) - Fonts.Arial12.MeasureString(this.difficulty.ToString()).X, (float)this.DifficultyRect.Y), Color.BurlyWood);
-			string txt = "";
+
+            //Added by Gretman
+            string ExtraRemnantString = string.Concat(Localizer.Token(4101), " : ");
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, ExtraRemnantString, new Vector2((float)(this.ExtraRemnantRect.X), (float)this.ExtraRemnantRect.Y), Color.White);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.ExtraRemnant.ToString(), new Vector2((float)(this.ExtraRemnantRect.X + 190) - Fonts.Arial12.MeasureString(this.ExtraRemnant.ToString()).X, (float)this.ExtraRemnantRect.Y), Color.BurlyWood);
+
+            string txt = "";
 			int tip = 0;
             //if (this.mode == RaceDesignScreen.GameMode.PreWarp)
             //{
@@ -1226,6 +1240,16 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(tip, base.ScreenManager);
                 }
             }
+            else if (this.mode == RaceDesignScreen.GameMode.Corners)    //Added by Gretman
+            {
+                txt = Localizer.Token(4102);
+                tip = 229;
+                base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, new Vector2((float)(this.GameModeRect.X + 190) - Fonts.Arial12.MeasureString(txt).X, (float)this.GameModeRect.Y), Color.BurlyWood);
+                if (HelperFunctions.CheckIntersection(this.GameModeRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                {
+                    ToolTip.CreateTooltip(tip, base.ScreenManager);
+                }
+            }
             //else if (this.mode == RaceDesignScreen.GameMode.Warlords)
             //{
             //    txt = "War Lords";//Localizer.Token(2103);
@@ -1236,7 +1260,7 @@ namespace Ship_Game
             //        ToolTip.CreateTooltip(tip, base.ScreenManager);
             //    }
             //}
-			if (HelperFunctions.CheckIntersection(this.ScaleRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+            if (HelperFunctions.CheckIntersection(this.ScaleRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
 			{
 				ToolTip.CreateTooltip(125, base.ScreenManager);
 			}
@@ -1365,7 +1389,7 @@ namespace Ship_Game
                     }
                     this.SelectedData = e.item as EmpireData;
                     AudioManager.PlayCue("echo_affirm");
-                    this.SetEmpireData(this.SelectedData);
+                    this.SetEmpireData(this.SelectedData.Traits);
                 }
                 this.RaceArchetypeSL.HandleInput(input);
                 this.Traits.HandleInput(this);
@@ -1733,6 +1757,26 @@ namespace Ship_Game
                         }
                         this.TotalPointsUsed = 8;
                     }
+                    else if (str == "LoadRace")
+                    {
+                        base.ScreenManager.AddScreen(new LoadRaceScreen(this));
+                        AudioManager.PlayCue("echo_affirm");
+                    }
+                    else if (str == "SaveRace")
+                    {
+                        base.ScreenManager.AddScreen(new SaveRaceScreen(this, this.GetRacialTraits()));
+                        AudioManager.PlayCue("echo_affirm");
+                    }
+                    else if (str == "LoadSetup")
+                    {
+                        base.ScreenManager.AddScreen(new LoadSetupScreen(this));
+                        AudioManager.PlayCue("echo_affirm");
+                    }
+                    else if (str == "SaveSetup")
+                    {
+                        base.ScreenManager.AddScreen(new SaveSetupScreen(this, this.difficulty, this.StarEnum, this.Galaxysize, this.Pacing, this.ExtraRemnant, this.numOpponents, this.mode));
+                        AudioManager.PlayCue("echo_affirm");
+                    }
                 }
             }
             this.DescriptionSL.HandleInput(input);
@@ -1747,7 +1791,7 @@ namespace Ship_Game
                     }
                     this.SelectedData = e.item as EmpireData;
                     AudioManager.PlayCue("echo_affirm");
-                    this.SetEmpireData(this.SelectedData);
+                    this.SetEmpireData(this.SelectedData.Traits);
                 }
                 this.RaceArchetypeSL.HandleInput(input);
                 this.Traits.HandleInput(this);
@@ -1900,9 +1944,10 @@ namespace Ship_Game
                 if (HelperFunctions.CheckIntersection(this.GameModeRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     AudioManager.GetCue("blip_click").Play();
-                    RaceDesignScreen gamemode = this;
-                    gamemode.mode = (RaceDesignScreen.GameMode)((int)gamemode.mode + (int)RaceDesignScreen.GameMode.Elimination);
-                    if (this.mode > RaceDesignScreen.GameMode.Elimination)
+                    //RaceDesignScreen gamemode = this;
+                    this.mode = (RaceDesignScreen.GameMode)this.mode + 1;
+                    if (this.mode == RaceDesignScreen.GameMode.Corners) this.numOpponents = 3;
+                    if (this.mode > RaceDesignScreen.GameMode.Corners)  //Updated by Gretman
                     {
                         this.mode = RaceDesignScreen.GameMode.Sandbox;
                     }
@@ -1920,14 +1965,15 @@ namespace Ship_Game
                 if (HelperFunctions.CheckIntersection(this.NumOpponentsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     AudioManager.GetCue("blip_click").Play();
-                    RaceDesignScreen raceDesignScreen1 = this;
-                    raceDesignScreen1.numOpponents = raceDesignScreen1.numOpponents + 1;
+                    //RaceDesignScreen raceDesignScreen1 = this;
+                    this.numOpponents = this.numOpponents + 1;
+                    if (this.mode == RaceDesignScreen.GameMode.Corners) this.numOpponents = 3; // Added by Gretman to enfoce 4 total players for corners game
                     if (this.numOpponents > 7)
                     {
                         this.numOpponents = 1;
                     }
                 }
-                HelperFunctions.CheckIntersection(this.GameModeRect, mousePos);
+                //HelperFunctions.CheckIntersection(this.GameModeRect, mousePos); // I believe this is here by mistake, since the returned value would do nothing... - Gretman
                 if (HelperFunctions.CheckIntersection(this.ScaleRect, mousePos))
                 {
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
@@ -1997,6 +2043,30 @@ namespace Ship_Game
                         }
                     }
                 }
+
+                //Gretman - Remnant Presece Button
+                if (HelperFunctions.CheckIntersection(this.ExtraRemnantRect, mousePos))
+                {
+                    if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        this.ExtraRemnant = this.ExtraRemnant + 1;
+                        if ((int)this.ExtraRemnant > 4)
+                        {
+                            this.ExtraRemnant = (RaceDesignScreen.ExtraRemnantPresence)0;
+                        }
+                    }
+                    if (input.RightMouseClick)
+                    {
+                        AudioManager.GetCue("blip_click").Play();
+                        this.ExtraRemnant = this.ExtraRemnant - 1;
+                        if ((int)this.ExtraRemnant < 0)
+                        {
+                            this.ExtraRemnant = (RaceDesignScreen.ExtraRemnantPresence)4;
+                        }
+                    }
+                }// Done adding stuff - Gretman
+
                 if (HelperFunctions.CheckIntersection(this.FlagRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                 {
                     this.DrawingColorSelector = !this.DrawingColorSelector;
@@ -2069,6 +2139,34 @@ namespace Ship_Game
             {
                 this.ExitScreen();
             }
+        }
+
+
+        private RacialTrait GetRacialTraits()
+        {
+            RacialTrait Traits = new RacialTrait();
+            Traits = this.RaceSummary.GetClone();
+            Traits.Singular = this.SingEntry.Text;
+            Traits.Plural = this.PlurEntry.Text;
+            Traits.HomeSystemName = this.HomeSystemEntry.Text;
+            Traits.R = (float)this.currentObjectColor.R;
+            Traits.G = (float)this.currentObjectColor.G;
+            Traits.B = (float)this.currentObjectColor.B;
+            Traits.FlagIndex = this.FlagIndex;
+            Traits.HomeworldName = this.HomeWorldName;
+            Traits.Name = this.RaceName.Text;
+            Traits.ShipType = this.SelectedData.Traits.ShipType;
+            Traits.VideoPath = this.SelectedData.Traits.VideoPath;
+            /*this.RaceSummary.Singular = this.Singular;
+            this.RaceSummary.Plural = this.Plural;
+            this.RaceSummary.HomeSystemName = this.HomeSystemName;
+            this.RaceSummary.ShipType = this.SelectedData.Traits.ShipType;
+            this.RaceSummary.VideoPath = this.SelectedData.Traits.VideoPath;
+            //this.RaceSummary.Adj1 = this.SelectedData.Traits.Adj1;
+            //this.RaceSummary.Adj2 = this.SelectedData.Traits.Adj2;
+            //playerEmpire.EmpireColor = this.currentObjectColor;*/
+
+            return Traits;
         }
 
 
@@ -2183,13 +2281,17 @@ namespace Ship_Game
 			this.PlurEntry.Text = this.SelectedData.Traits.Plural;
 			this.HomeSystemEntry.Text = this.SelectedData.Traits.HomeSystemName;
 			this.HomeWorldName = this.SelectedData.Traits.HomeworldName;
-			this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y + 5, (int)Fonts.Arial12.MeasureString("Galaxy Size                                   ").X, Fonts.Arial12.LineSpacing);
+			this.GalaxySizeRect = new Rectangle(nameRect.X + nameRect.Width + 40 - 22, nameRect.Y - 15, (int)Fonts.Arial12.MeasureString("Galaxy Size                                   ").X, Fonts.Arial12.LineSpacing);
 			this.NumberStarsRect = new Rectangle(this.GalaxySizeRect.X, this.GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GalaxySizeRect.Width, this.GalaxySizeRect.Height);
 			this.NumOpponentsRect = new Rectangle(this.NumberStarsRect.X, this.NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumberStarsRect.Height);
 			this.GameModeRect = new Rectangle(this.NumOpponentsRect.X, this.NumOpponentsRect.Y + Fonts.Arial12.LineSpacing + 10, this.NumberStarsRect.Width, this.NumOpponentsRect.Height);
 			this.PacingRect = new Rectangle(this.GameModeRect.X, this.GameModeRect.Y + Fonts.Arial12.LineSpacing + 10, this.GameModeRect.Width, this.GameModeRect.Height);
 			this.DifficultyRect = new Rectangle(this.PacingRect.X, this.PacingRect.Y + Fonts.Arial12.LineSpacing + 10, this.PacingRect.Width, this.PacingRect.Height);
-			Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
+            
+            //Gretman - Remnant Presence button, relative to Difficulty button
+            this.ExtraRemnantRect = new Rectangle(this.DifficultyRect.X, this.DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, this.DifficultyRect.Width, this.DifficultyRect.Height);
+
+            Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
 			this.Description = new Menu1(base.ScreenManager, dRect, true);
 			this.dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
 			Submenu dsub = new Submenu(base.ScreenManager, this.dslrect);
@@ -2245,8 +2347,49 @@ namespace Ship_Game
             };
             this.Buttons.Add(this.ClearTraits);
 			this.DoRaceDescription();
-			this.SetEmpireData(this.SelectedData);
-			base.LoadContent();
+			this.SetEmpireData(this.SelectedData.Traits);
+
+            this.LoadRace = new UIButton()         // Added by EVWeb to allow loading and saving of races
+            {
+                Rect = new Rectangle(smaller.X + (smaller.Width / 2) - 142, smaller.Y - 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
+                Text = "Load Race",
+                Launches = "LoadRace"
+            };
+            this.Buttons.Add(this.LoadRace);
+            this.SaveRace = new UIButton()
+            {
+                Rect = new Rectangle(smaller.X + (smaller.Width / 2) + 10, smaller.Y - 20, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
+                Text = "Save Race",
+                Launches = "SaveRace"
+            };
+            this.Buttons.Add(this.SaveRace);
+            this.LoadSetup = new UIButton()         // Added by EVWeb to allow loading and saving of new game setup
+            {
+                Rect = new Rectangle((int)Position.X - 142, (int)Position.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
+                Text = "Load Setup",
+                Launches = "LoadSetup"
+            };
+            this.Buttons.Add(this.LoadSetup);
+            this.SaveSetup = new UIButton()
+            {
+                Rect = new Rectangle((int)Position.X + 178, (int)Position.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"],
+                Text = "Save Setup",
+                Launches = "SaveSetup"
+            };
+            this.Buttons.Add(this.SaveSetup);
+            base.LoadContent();
 		}
 
 		protected virtual void OnEngage()
@@ -2257,10 +2400,13 @@ namespace Ship_Game
             //    GlobalStats.HardcoreRuleset = true;
             //}
             //else 
-                if (this.mode == RaceDesignScreen.GameMode.Elimination)
-            {
-                GlobalStats.EliminationMode = true;
-            }
+            if (this.mode == RaceDesignScreen.GameMode.Elimination) GlobalStats.EliminationMode = true;
+            if (this.mode == RaceDesignScreen.GameMode.Corners) GlobalStats.CornersGame = true; //Added by Gretman
+
+
+            GlobalStats.ExtraRemnantGS = (int)ExtraRemnant;  //Added by Gretman
+
+            ResourceManager.LoadShips();
 			this.Singular = this.SingEntry.Text;
 			this.Plural = this.PlurEntry.Text;
 			this.HomeSystemName = this.HomeSystemEntry.Text;
@@ -2290,8 +2436,6 @@ namespace Ship_Game
 
             switch (this.StarEnum)
             {
-
-
 
                 case RaceDesignScreen.StarNum.VeryRare:
                     {
@@ -2419,59 +2563,99 @@ namespace Ship_Game
 			}
 		}
 
-		private void SetEmpireData(EmpireData data)
+        public void SetCustomSetup(UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum StarEnum, RaceDesignScreen.GalSize Galaxysize, int Pacing, RaceDesignScreen.ExtraRemnantPresence ExtraRemnant, int numOpponents, RaceDesignScreen.GameMode mode)
+        {
+            this.difficulty = gameDifficulty;
+            this.StarEnum = StarEnum;
+            this.Galaxysize = Galaxysize;
+            this.Pacing = Pacing;
+            this.ExtraRemnant = ExtraRemnant;
+            this.numOpponents = numOpponents;
+            this.mode = mode;
+        }
+
+        public void SetCustomEmpireData(RacialTrait Traits)    // Sets the empire data externally, checks for fields that are default so don't overwrite
+        {
+            foreach (ScrollList.Entry e in this.RaceArchetypeSL.Entries)
+            {
+                EmpireData origRace = e.item as EmpireData;
+                if( origRace.Traits.ShipType == Traits.ShipType)
+                {
+                    if (Traits.Name == origRace.Traits.Name)
+                        Traits.Name = this.RaceName.Text;
+                    if (Traits.Singular == origRace.Traits.Singular)
+                        Traits.Singular = this.SingEntry.Text;
+                    if (Traits.Plural == origRace.Traits.Plural)
+                        Traits.Plural = this.PlurEntry.Text;
+                    if (Traits.HomeSystemName == origRace.Traits.HomeSystemName)
+                        Traits.HomeSystemName = this.HomeSystemEntry.Text;
+                    if (Traits.FlagIndex == origRace.Traits.FlagIndex)
+                        Traits.FlagIndex = this.FlagIndex;
+                    if (Traits.R == origRace.Traits.R && Traits.G == origRace.Traits.G && Traits.B == origRace.Traits.B)
+                    {
+                        Traits.R = (float)this.currentObjectColor.R;
+                        Traits.G = (float)this.currentObjectColor.G;
+                        Traits.B = (float)this.currentObjectColor.B;
+                    }
+                    break;
+                }
+            }
+            this.SetEmpireData(Traits);
+        }
+
+		private void SetEmpireData(RacialTrait Traits)
 		{
-			this.RaceSummary.ShipType = data.Traits.ShipType;
-			this.FlagIndex = data.Traits.FlagIndex;
-			this.currentObjectColor = new Color((byte)data.Traits.R, (byte)data.Traits.G, (byte)data.Traits.B, 255);
-			this.RaceName.Text = data.Traits.Name;
-			this.SingEntry.Text = data.Traits.Singular;
-			this.PlurEntry.Text = data.Traits.Plural;
-			this.HomeSystemEntry.Text = data.Traits.HomeSystemName;
-			this.HomeSystemName = data.Traits.HomeSystemName;
-			this.HomeWorldName = data.Traits.HomeworldName;
+			this.RaceSummary.ShipType = Traits.ShipType;
+			this.FlagIndex = Traits.FlagIndex;
+			this.currentObjectColor = new Color((byte)Traits.R, (byte)Traits.G, (byte)Traits.B, 255);
+			this.RaceName.Text = Traits.Name;
+			this.SingEntry.Text = Traits.Singular;
+			this.PlurEntry.Text = Traits.Plural;
+			this.HomeSystemEntry.Text = Traits.HomeSystemName;
+			this.HomeSystemName = Traits.HomeSystemName;
+			this.HomeWorldName = Traits.HomeworldName;
 			this.TotalPointsUsed = 8;
             foreach (TraitEntry t in this.AllTraits)
 			{
 				t.Selected = false;
                 //Added by McShooterz: Searches for new trait tags
-                if ((data.Traits.ConsumptionModifier > 0f || data.Traits.PhysicalTraitGluttonous) && t.trait.ConsumptionModifier > 0f 
-                    || t.trait.ConsumptionModifier < 0f && (data.Traits.ConsumptionModifier < 0f || data.Traits.PhysicalTraitEfficientMetabolism)
-                    || (data.Traits.DiplomacyMod > 0f || data.Traits.PhysicalTraitAlluring) && t.trait.DiplomacyMod > 0f 
-                    || t.trait.DiplomacyMod < 0f && (data.Traits.DiplomacyMod < 0f || data.Traits.PhysicalTraitRepulsive)
-                    || (data.Traits.EnergyDamageMod > 0f || data.Traits.PhysicalTraitEagleEyed) && t.trait.EnergyDamageMod > 0f
-                    || t.trait.EnergyDamageMod < 0f && (data.Traits.EnergyDamageMod < 0f || data.Traits.PhysicalTraitBlind)
-                    || (data.Traits.MaintMod > 0f || data.Traits.SociologicalTraitWasteful) && t.trait.MaintMod > 0f 
-                    || t.trait.MaintMod < 0f && (data.Traits.MaintMod < 0f || data.Traits.SociologicalTraitEfficient)
-                    || (data.Traits.PopGrowthMax > 0f || data.Traits.PhysicalTraitLessFertile) && t.trait.PopGrowthMax > 0f 
-                    || (data.Traits.PopGrowthMin > 0f || data.Traits.PhysicalTraitFertile) && t.trait.PopGrowthMin > 0f 
-                    || (data.Traits.ResearchMod > 0f || data.Traits.PhysicalTraitSmart) && t.trait.ResearchMod > 0f 
-                    || t.trait.ResearchMod < 0f && (data.Traits.ResearchMod < 0f || data.Traits.PhysicalTraitDumb)
-                    || t.trait.ShipCostMod < 0f && (data.Traits.ShipCostMod < 0f || data.Traits.HistoryTraitNavalTraditions) 
-                    || (data.Traits.TaxMod > 0f || data.Traits.SociologicalTraitMeticulous) && t.trait.TaxMod > 0f 
-                    || t.trait.TaxMod < 0f && (data.Traits.TaxMod < 0f || data.Traits.SociologicalTraitCorrupt)
-                    || (data.Traits.ProductionMod > 0f || data.Traits.SociologicalTraitIndustrious) && t.trait.ProductionMod > 0f 
-                    || t.trait.ProductionMod < 0f && (data.Traits.ProductionMod < 0f || data.Traits.SociologicalTraitLazy)
-                    || (data.Traits.ModHpModifier > 0f || data.Traits.SociologicalTraitSkilledEngineers) && t.trait.ModHpModifier > 0f 
-                    || t.trait.ModHpModifier < 0f && (data.Traits.ModHpModifier < 0f || data.Traits.SociologicalTraitHaphazardEngineers)
-                    || (data.Traits.Mercantile > 0f || data.Traits.SociologicalTraitMercantile) && t.trait.Mercantile > 0f  
-                    || (data.Traits.GroundCombatModifier > 0f || data.Traits.PhysicalTraitSavage) && t.trait.GroundCombatModifier > 0f 
-                    || t.trait.GroundCombatModifier < 0f && (data.Traits.GroundCombatModifier < 0f || data.Traits.PhysicalTraitTimid)
-                    || (data.Traits.Cybernetic > 0 || data.Traits.HistoryTraitCybernetic) && t.trait.Cybernetic > 0 
-                    || (data.Traits.DodgeMod > 0f || data.Traits.PhysicalTraitReflexes) && t.trait.DodgeMod > 0f 
-                    || t.trait.DodgeMod < 0f && (data.Traits.DodgeMod < 0f || data.Traits.PhysicalTraitPonderous) 
-                    || (data.Traits.HomeworldSizeMod > 0f || data.Traits.HistoryTraitHugeHomeWorld) && t.trait.HomeworldSizeMod > 0f 
-                    || t.trait.HomeworldSizeMod < 0f && (data.Traits.HomeworldSizeMod < 0f || data.Traits.HistoryTraitSmallHomeWorld)
-                    || t.trait.HomeworldFertMod < 0f && (data.Traits.HomeworldFertMod < 0f || data.Traits.HistoryTraitPollutedHomeWorld) && t.trait.HomeworldRichMod == 0f
-                    || t.trait.HomeworldFertMod < 0f && (data.Traits.HomeworldFertMod < 0f || data.Traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
-                    || (data.Traits.Militaristic > 0 || data.Traits.HistoryTraitMilitaristic) && t.trait.Militaristic > 0 
-                    || (data.Traits.PassengerModifier > 1 || data.Traits.HistoryTraitManifestDestiny) && t.trait.PassengerModifier > 1 
-                    || (data.Traits.BonusExplored > 0 || data.Traits.HistoryTraitAstronomers) && t.trait.BonusExplored > 0 
-                    || (data.Traits.Spiritual > 0f || data.Traits.HistoryTraitSpiritual) && t.trait.Spiritual > 0f 
-                    || (data.Traits.Prototype > 0 || data.Traits.HistoryTraitPrototypeFlagship) && t.trait.Prototype > 0 
-                    || (data.Traits.Pack || data.Traits.HistoryTraitPackMentality) && t.trait.Pack 
-                    || (data.Traits.SpyMultiplier > 0f || data.Traits.HistoryTraitDuplicitous) && t.trait.SpyMultiplier > 0f 
-                    || (data.Traits.SpyMultiplier < 0f || data.Traits.HistoryTraitHonest) && t.trait.SpyMultiplier < 0f)
+                if ((Traits.ConsumptionModifier > 0f || Traits.PhysicalTraitGluttonous) && t.trait.ConsumptionModifier > 0f 
+                    || t.trait.ConsumptionModifier < 0f && (Traits.ConsumptionModifier < 0f || Traits.PhysicalTraitEfficientMetabolism)
+                    || (Traits.DiplomacyMod > 0f || Traits.PhysicalTraitAlluring) && t.trait.DiplomacyMod > 0f 
+                    || t.trait.DiplomacyMod < 0f && (Traits.DiplomacyMod < 0f || Traits.PhysicalTraitRepulsive)
+                    || (Traits.EnergyDamageMod > 0f || Traits.PhysicalTraitEagleEyed) && t.trait.EnergyDamageMod > 0f
+                    || t.trait.EnergyDamageMod < 0f && (Traits.EnergyDamageMod < 0f || Traits.PhysicalTraitBlind)
+                    || (Traits.MaintMod > 0f || Traits.SociologicalTraitWasteful) && t.trait.MaintMod > 0f 
+                    || t.trait.MaintMod < 0f && (Traits.MaintMod < 0f || Traits.SociologicalTraitEfficient)
+                    || (Traits.PopGrowthMax > 0f || Traits.PhysicalTraitLessFertile) && t.trait.PopGrowthMax > 0f 
+                    || (Traits.PopGrowthMin > 0f || Traits.PhysicalTraitFertile) && t.trait.PopGrowthMin > 0f 
+                    || (Traits.ResearchMod > 0f || Traits.PhysicalTraitSmart) && t.trait.ResearchMod > 0f 
+                    || t.trait.ResearchMod < 0f && (Traits.ResearchMod < 0f || Traits.PhysicalTraitDumb)
+                    || t.trait.ShipCostMod < 0f && (Traits.ShipCostMod < 0f || Traits.HistoryTraitNavalTraditions) 
+                    || (Traits.TaxMod > 0f || Traits.SociologicalTraitMeticulous) && t.trait.TaxMod > 0f 
+                    || t.trait.TaxMod < 0f && (Traits.TaxMod < 0f || Traits.SociologicalTraitCorrupt)
+                    || (Traits.ProductionMod > 0f || Traits.SociologicalTraitIndustrious) && t.trait.ProductionMod > 0f 
+                    || t.trait.ProductionMod < 0f && (Traits.ProductionMod < 0f || Traits.SociologicalTraitLazy)
+                    || (Traits.ModHpModifier > 0f || Traits.SociologicalTraitSkilledEngineers) && t.trait.ModHpModifier > 0f 
+                    || t.trait.ModHpModifier < 0f && (Traits.ModHpModifier < 0f || Traits.SociologicalTraitHaphazardEngineers)
+                    || (Traits.Mercantile > 0f || Traits.SociologicalTraitMercantile) && t.trait.Mercantile > 0f  
+                    || (Traits.GroundCombatModifier > 0f || Traits.PhysicalTraitSavage) && t.trait.GroundCombatModifier > 0f 
+                    || t.trait.GroundCombatModifier < 0f && (Traits.GroundCombatModifier < 0f || Traits.PhysicalTraitTimid)
+                    || (Traits.Cybernetic > 0 || Traits.HistoryTraitCybernetic) && t.trait.Cybernetic > 0 
+                    || (Traits.DodgeMod > 0f || Traits.PhysicalTraitReflexes) && t.trait.DodgeMod > 0f 
+                    || t.trait.DodgeMod < 0f && (Traits.DodgeMod < 0f || Traits.PhysicalTraitPonderous) 
+                    || (Traits.HomeworldSizeMod > 0f || Traits.HistoryTraitHugeHomeWorld) && t.trait.HomeworldSizeMod > 0f 
+                    || t.trait.HomeworldSizeMod < 0f && (Traits.HomeworldSizeMod < 0f || Traits.HistoryTraitSmallHomeWorld)
+                    || t.trait.HomeworldFertMod < 0f && (Traits.HomeworldFertMod < 0f || Traits.HistoryTraitPollutedHomeWorld) && t.trait.HomeworldRichMod == 0f
+                    || t.trait.HomeworldFertMod < 0f && (Traits.HomeworldRichMod > 0f || Traits.HistoryTraitIndustrializedHomeWorld) && t.trait.HomeworldRichMod != 0f
+                    || (Traits.Militaristic > 0 || Traits.HistoryTraitMilitaristic) && t.trait.Militaristic > 0 
+                    || (Traits.PassengerModifier > 1 || Traits.HistoryTraitManifestDestiny) && t.trait.PassengerModifier > 1 
+                    || (Traits.BonusExplored > 0 || Traits.HistoryTraitAstronomers) && t.trait.BonusExplored > 0 
+                    || (Traits.Spiritual > 0f || Traits.HistoryTraitSpiritual) && t.trait.Spiritual > 0f 
+                    || (Traits.Prototype > 0 || Traits.HistoryTraitPrototypeFlagship) && t.trait.Prototype > 0 
+                    || (Traits.Pack || Traits.HistoryTraitPackMentality) && t.trait.Pack 
+                    || (Traits.SpyMultiplier > 0f || Traits.HistoryTraitDuplicitous) && t.trait.SpyMultiplier > 0f 
+                    || (Traits.SpyMultiplier < 0f || Traits.HistoryTraitHonest) && t.trait.SpyMultiplier < 0f)
 				{
 
 					t.Selected = true;
@@ -2639,7 +2823,8 @@ namespace Ship_Game
             Sandbox,
             //Warlords,
             //PreWarp,
-            Elimination
+            Elimination,
+            Corners
         }
 
         public enum StarNum
@@ -2653,6 +2838,16 @@ namespace Ship_Game
             Crowded,
             Packed,
             SuperPacked
+        }
+
+        //Added by Gretman
+        public enum ExtraRemnantPresence
+        {
+            Rare,
+            Normal,
+            More,
+            MuchMore,
+            Everywhere
         }
 	}
 }

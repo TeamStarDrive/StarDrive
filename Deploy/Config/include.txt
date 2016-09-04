@@ -1,0 +1,4 @@
+"content"
+"Stardrive.exe"
+"Stardrive.exe.config"
+"StarDrive.pdb"

@@ -22,7 +22,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         public float EmpireTroopRatio;
-
+        public float UniverseWants;
 		public DefensiveCoordinator(Empire e)
 		{
 			this.us = e;
@@ -124,7 +124,7 @@ namespace Ship_Game
            {
                if (p.Owner != us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(this.us))
                {
-                   
+                   p.TroopsHere.ApplyPendingRemovals();
                    foreach (Troop troop in p.TroopsHere.Where(loyalty => loyalty.GetOwner() == this.us).ToList())
                    {
                        p.TroopsHere.QueuePendingRemoval(troop);
@@ -193,7 +193,8 @@ namespace Ship_Game
                         //value.ValueToUs += p.CombatTimer >0 ? p.CombatTimer :0;
                         cummulator += p.developmentLevel;
                         cummulator += p.GovBuildings ? 1 : 0;
-                        cummulator += entry.Value.system.DangerTimer > 0 ? 5 : 0;
+                        //cummulator += entry.Value.system.DangerTimer > 0 ? 5 : 0;
+                        cummulator += entry.Value.system.combatTimer > 0 ? 5 : 0;  //fbedard: DangerTimer is in relation to the player only !
 
                         if (this.us.data.Traits.Cybernetic > 0)
                         {
@@ -300,7 +301,7 @@ namespace Ship_Game
             //        select system;                    
             int StrToAssign = (int)this.GetForcePoolStrength();
             float StartingStr = StrToAssign;
-            float minimumStrength = 0;
+            //float minimumStrength = 0;
             Parallel.ForEach(SComs, dd=>
                 {
                     SolarSystem solarSystem  = dd.Key;
@@ -352,6 +353,7 @@ namespace Ship_Game
             
             Dictionary<Guid, Ship> AssignedShips = new Dictionary<Guid, Ship>();
             List<Ship> ShipsAvailableForAssignment = new List<Ship>();
+            //Remove excess force:
             foreach (KeyValuePair<SolarSystem, SystemCommander> defenseDict in this.DefenseDict)
             {
 
@@ -382,6 +384,7 @@ namespace Ship_Game
                     while (defenseDict.Value.GetOurStrength() >= defenseDict.Value.IdealShipStrength );
                 }
             }
+            //Add available force to pool:
             foreach (Ship defensiveForcePool in this.DefensiveForcePool)
             {
                 if (!(defensiveForcePool.GetAI().HasPriorityOrder || defensiveForcePool.GetAI().State == AIState.Resupply )
@@ -400,6 +403,7 @@ namespace Ship_Game
                     this.DefensiveForcePool.QueuePendingRemoval(defensiveForcePool);
                 }
             }
+            //Assign available force:
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
                 if (entry.Key == null)
@@ -491,7 +495,7 @@ namespace Ship_Game
             }
             foreach (Ship ship2 in this.us.GetShips())
             {
-                if (ship2.Role != "troop" || ship2.fleet != null ||ship2.Mothership !=null || ship2.GetAI().HasPriorityOrder) //|| ship2.GetAI().State != AIState.AwaitingOrders)
+                if (ship2.shipData.Role != ShipData.RoleName.troop || ship2.fleet != null || ship2.Mothership != null || ship2.GetAI().HasPriorityOrder) //|| ship2.GetAI().State != AIState.AwaitingOrders)
                 {
                     continue;
                 }
@@ -521,7 +525,7 @@ namespace Ship_Game
             List<Planet> planets = new List<Planet>();
             int planetCount = 0;
             int developmentlevel = 0;
-            float maxValue = 0;
+            //float maxValue = 0;          //Not referenced in code, removing to save memory -Gretman
             int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
             int totalTroopWanted = 0;
             int totalCurrentTroops = 0;
@@ -584,9 +588,9 @@ namespace Ship_Game
                 }
                 TroopShips.ApplyPendingRemovals();
             }
-            float UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
-            Planet tempPlanet = null;
-            int TroopsSent = 0;
+            this.UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
+            //Planet tempPlanet = null;          //Not referenced in code, removing to save memory -Gretman
+            //int TroopsSent = 0;          //Not referenced in code, removing to save memory -Gretman
             foreach (Ship ship4 in TroopShips)
             {
 
@@ -615,9 +619,17 @@ namespace Ship_Game
 
 
                     //send troops to the first planet in the system with the lowest troop count.
-                    Planet target = solarSystem2.PlanetList.Where(planet => planet.Owner == ship4.loyalty)
-                    .OrderBy(planet => planet.GetDefendingTroopCount() < defenseSystem.IdealTroopStr / solarSystem2.PlanetList.Count * (planet.developmentLevel / defenseSystem.SystemDevelopmentlevel))
-                    .FirstOrDefault();
+                    //Planet target = solarSystem2.PlanetList.Where(planet => planet.Owner == ship4.loyalty)
+                    //.OrderBy(planet => planet.GetDefendingTroopCount() < defenseSystem.IdealTroopStr / solarSystem2.PlanetList.Count * (planet.developmentLevel / defenseSystem.SystemDevelopmentlevel))
+                    //.FirstOrDefault();
+                    Planet target = null;
+                    foreach(Planet lowTroops in solarSystem2.PlanetList )
+                    {
+                        if (lowTroops.Owner != ship4.loyalty)
+                            continue;
+                        if (target==null || lowTroops.TroopsHere.Count < target.TroopsHere.Count)
+                            target = lowTroops;
+                    }
                     if (target == null)
                         continue;
                     //if (target != tempPlanet)
@@ -644,8 +656,8 @@ namespace Ship_Game
             // so for now i am disabling the launch code when there are too many troops.
             // Troops will still rebase after they sit idle from fleet activity. 
 
-            float want = 0;
-            float ideal = 0;
+            //float want = 0;          //Not referenced in code, removing to save memory -Gretman
+            //float ideal = 0;          //Not referenced in code, removing to save memory -Gretman
             this.EmpireTroopRatio = UniverseWants;
             if (UniverseWants < .8f)
             {

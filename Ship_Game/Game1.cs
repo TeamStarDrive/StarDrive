@@ -66,17 +66,19 @@ namespace Ship_Game
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive"));
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive/Saved Games"));
-			Directory.CreateDirectory(string.Concat(path, "/StarDrive/Fleet Designs"));
+            Directory.CreateDirectory(string.Concat(path, "/StarDrive/Saved Races"));       // for saving custom races
+            Directory.CreateDirectory(string.Concat(path, "/StarDrive/Saved Setups"));       // for saving new game setups
+            Directory.CreateDirectory(string.Concat(path, "/StarDrive/Fleet Designs"));
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive/Saved Designs"));
 			Directory.CreateDirectory(string.Concat(path, "/StarDrive/WIP"));
 			Directory.CreateDirectory(string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/Headers"));
 			Directory.CreateDirectory(string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/Fog Maps"));
 			GlobalStats.Config = new Config();
-            string asi = ConfigurationSettings.AppSettings["AutoSaveInterval"];
-            int autosaveinterval;
-            if (int.TryParse(asi, out autosaveinterval))
+            string asi = ConfigurationSettings.AppSettings["AutoSaveFreq"];
+            int autosavefreq;
+            if (int.TryParse(asi, out autosavefreq))
             {
-                GlobalStats.Config.AutoSaveInterval = (float)autosaveinterval;
+                GlobalStats.AutoSaveFreq = autosavefreq;
             }
 			string vol = ConfigurationSettings.AppSettings["MusicVolume"];
 			int musicVol = 100;

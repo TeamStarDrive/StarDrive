@@ -90,6 +90,10 @@ namespace Ship_Game
         {
             get
             {
+                // hack fix for french font error. 
+                if (GlobalStats.Config.Language == "French")
+                    return Fonts.arial12Bold;
+                else 
                 return Fonts.arial11Bold;
             }
         }
@@ -98,7 +102,8 @@ namespace Ship_Game
 		{
 			get
 			{
-				return Fonts.arial12;
+          
+                return Fonts.arial12;
 			}
 		}
 
@@ -106,6 +111,7 @@ namespace Ship_Game
 		{
 			get
 			{
+
 				return Fonts.arial12Bold;
 			}
 		}

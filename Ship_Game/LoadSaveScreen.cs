@@ -10,70 +10,110 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class LoadSaveScreen : GameScreen, IDisposable
+	public sealed class LoadSaveScreen : GenericLoadSaveScreen, IDisposable
 	{
-		private Vector2 Cursor = Vector2.Zero;
-
-		private UniverseScreen screen;
-
-		private CloseButton close;
-
-		private List<UIButton> Buttons = new List<UIButton>();
+        private UniverseScreen screen;
 
 		private MainMenuScreen mmscreen;
 
-		//private Submenu subSave;
-
-		private Rectangle Window;
-
-		private Menu1 SaveMenu;
-
-		private Submenu NameSave;
-
-		private Submenu AllSaves;
-
-		private Vector2 TitlePosition;
-
-		private Vector2 EnternamePos;
-
-		private UITextEntry EnterNameArea;
-
-		private ScrollList SavesSL;
-
-		private UIButton Save;
-
-		private Selector selector;
-
-		private FileInfo activeFile;
-
-		private MouseState currentMouse;
-
-		private MouseState previousMouse;
-
-		//private float transitionElapsedTime;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-
-		public LoadSaveScreen(UniverseScreen screen)
+        public LoadSaveScreen(UniverseScreen screen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
 		{
 			this.screen = screen;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
+            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
+        }
 
-		public LoadSaveScreen(MainMenuScreen mmscreen)
-		{
-            
+		public LoadSaveScreen(MainMenuScreen mmscreen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
+        {
             this.mmscreen = mmscreen;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
+            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
+        }
 
-        public void Dispose()
+        protected override void DeleteFile(object sender, EventArgs e)
+        {
+            try
+            {
+                FileInfo headerToDel = new FileInfo(string.Concat(this.Path, "Headers/", this.fileToDel.Name.Substring(0, this.fileToDel.Name.LastIndexOf('.'))));       // find header of save file
+                //Console.WriteLine(headerToDel.FullName);
+                headerToDel.Delete();
+            }
+            catch { }
+
+            base.DeleteFile(sender, e);
+        }
+
+        protected override void Load()
+        {
+            if (this.selectedFile != null)
+            {
+                if (this.screen != null)
+                {
+                    this.screen.ExitScreen();
+                }
+                base.ScreenManager.AddScreen(new LoadUniverseScreen(this.selectedFile.FileLink));
+                if (this.mmscreen != null)
+                {
+                    this.mmscreen.ExitScreen();
+                }
+            }
+            else
+            {
+                AudioManager.PlayCue("UI_Misc20");
+            }
+            this.ExitScreen();
+        }
+
+        protected override void SetSavesSL()        // Set list of files to show
+        {
+            List<FileData> saves = new List<FileData>();
+            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(this.Path, "Headers"));
+            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            {
+                Stream file = filesFromDirectory[i].OpenRead();
+                try
+                {
+                    HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
+                    data.SetFileInfo(new FileInfo(string.Concat(this.Path, data.SaveName, ".xml.gz")));
+                    if (string.IsNullOrEmpty(data.SaveName))
+                    {
+                        file.Dispose();
+                        continue;
+                    }
+
+                    if (GlobalStats.ActiveMod != null)
+                    {
+                        if ((data.Version > 0 && data.ModPath != GlobalStats.ActiveMod.ModPath) || (data.Version == 0 && data.ModName != GlobalStats.ActiveMod.ModPath))    // check mod and check version of save file since format changed
+                        {
+                            file.Dispose();
+                            continue;
+                        }
+                    }
+                    else if ((!string.IsNullOrEmpty(data.ModPath) && data.Version > 0) || (data.Version == 0 && !string.IsNullOrEmpty(data.ModName)))
+                    {
+                        file.Dispose();
+                        continue;
+                    }
+
+                    string info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
+                    string extraInfo = data.RealDate;
+                    saves.Add(new FileData(data.GetFileInfo(), data, data.SaveName, info, extraInfo));
+                    file.Dispose();
+                }
+                catch
+                {
+                    file.Dispose();
+                }
+            }
+            IOrderedEnumerable<FileData> sortedList =
+                from header in saves
+                orderby (header.Data as HeaderData).Time descending
+                select header;
+            foreach (FileData data in sortedList)
+            {
+                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
+            }
+        }
+
+        /*public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -114,7 +154,14 @@ namespace Ship_Game
 				tCursor.Y = tCursor.Y + (float)Fonts.Arial20Bold.LineSpacing;
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(data.PlayerName, " StarDate ", data.StarDate), tCursor, Color.White);
 				tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.RealDate, tCursor, Color.White);
+                try
+                {
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.RealDate, tCursor, Color.White);
+                }
+                catch
+                {
+                    base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "badDate", tCursor, Color.White);
+                }
 			}
 			this.SavesSL.Draw(base.ScreenManager.SpriteBatch);
 			this.EnterNameArea.Draw(Fonts.Arial12Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, gameTime, (this.EnterNameArea.Hover ? Color.White : Color.Orange));
@@ -300,6 +347,6 @@ namespace Ship_Game
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-		}
-	}
+		}*/
+    }
 }

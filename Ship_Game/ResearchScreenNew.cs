@@ -118,7 +118,7 @@ namespace Ship_Game
             foreach (KeyValuePair<string, Node> keyValuePair in this.TechTree)
             {
                 if (keyValuePair.Value is RootNode && (keyValuePair.Value as RootNode).nodeState == NodeState.Press)
-                {
+                {                    
                     Vector2 vector2_1 = new Vector2((float)((keyValuePair.Value as RootNode).RootRect.X + (keyValuePair.Value as RootNode).RootRect.Width - 10), (float)((keyValuePair.Value as RootNode).RootRect.Y + (keyValuePair.Value as RootNode).RootRect.Height / 2));
                     Vector2 vector2_2 = this.MainMenuOffset + new Vector2((float)this.ColumnOffset, 0.0f);
                     vector2_2.Y = vector2_1.Y;
@@ -285,16 +285,18 @@ namespace Ship_Game
 				this.ExitScreen();
 				return;
 			}
-			if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
+            if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
 			{
 				this.StartDragPos = input.CursorPosition;
 				this.cameraVelocity.X = 0f;
 				this.cameraVelocity.Y = 0f;
 			}
-			if (input.CurrentMouseState.RightButton != ButtonState.Pressed || input.LastMouseState.RightButton != ButtonState.Pressed)
+            if (input.CurrentMouseState.RightButton != ButtonState.Pressed || input.LastMouseState.RightButton != ButtonState.Pressed || this.RightClicked) 
 			{
 				this.cameraVelocity.X = 0f;
 				this.cameraVelocity.Y = 0f;
+                if (this.RightClicked)  //fbedard: prevent screen scroll
+                    this.StartDragPos = input.CursorPosition;
 			}
 			else
 			{
@@ -375,6 +377,8 @@ namespace Ship_Game
 			{
 				if (!(tech.Value as TreeNode).HandleInput(input, base.ScreenManager, this.camera))
 				{
+                    if ((tech.Value as TreeNode).screen.RightClicked)  //fbedard: popup open
+                        this.RightClicked = true;
 					continue;
 				}
 				if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.Key].Unlocked)
@@ -506,7 +510,15 @@ namespace Ship_Game
 			string resTop = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic;
 			if (!string.IsNullOrEmpty(resTop))
 			{
-				this.qcomponent.LoadQueue(this.CompleteSubNodeTree[resTop] as TreeNode);
+                Node resTopNode = null;
+                this.CompleteSubNodeTree.TryGetValue(resTop, out resTopNode);
+                if(resTopNode != null)
+                this.qcomponent.LoadQueue(resTopNode as TreeNode);
+                else
+                {
+                    resTop = string.Empty;
+                    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic = string.Empty;
+                }
 			}
 			foreach (string uid in EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.ResearchQueue)
 			{

@@ -9,6 +9,8 @@ namespace Ship_Game
 {
 	public sealed class GlobalStats
 	{
+        public static string branch = "RC";
+        //public static string Version = "1013A";
         public static int ComparisonCounter;
 
 		public static int Comparisons;
@@ -119,12 +121,13 @@ namespace Ship_Game
         public static float MemoryLimiter;
 
         public static float StartingPlanetRichness;
-        public static string ExtendedVersion;
+        public static string ExtendedVersion = "Radical_Elements_";
         public static int IconSize;
         public static byte TurnTimer = 5;
 
         public static bool preventFederations;
         public static bool EliminationMode;
+        public static bool ZoomTracking;
 
         public static int ShipCountLimit;
         public static float spaceroadlimit = .025f;
@@ -135,7 +138,12 @@ namespace Ship_Game
         public static ReaderWriterLockSlim UILocker;
         public static int BeamOOM = 0;
         public static string bugTracker = "";
-		static GlobalStats()
+
+        public static int AutoSaveFreq = 300;   //Added by Gretman
+        public static bool CornersGame;     //Also added by Gretman
+
+        public static int ExtraRemnantGS;
+        static GlobalStats()
 		{
             GlobalStats.UILocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
             GlobalStats.ComparisonCounter = 1;
@@ -181,6 +189,9 @@ namespace Ship_Game
             GlobalStats.RemnantActivation = 0;
 			GlobalStats.RemnantArmageddon = false;
 			GlobalStats.CordrazinePlanetsCaptured = 0;
+
+            GlobalStats.CornersGame = false;    //Added by Gretman
+            
 			try
 			{
 				GlobalStats.GravityWellRange = float.Parse(ConfigurationManager.AppSettings["GravityWellRange"]); // 8000f;
@@ -188,19 +199,21 @@ namespace Ship_Game
 	            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
 	            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
                 GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
-	
+                GlobalStats.ZoomTracking = bool.Parse(ConfigurationManager.AppSettings["ZoomTracking"]);
 	            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
 	            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
 	            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
 	            GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
-	            GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
+                //GlobalStats.ExtendedVersion += "_" + GlobalStats.branch + "_" + GlobalStats.Version;
+                GlobalStats.ExtendedVersion +=  GlobalStats.branch + " : 16_" + ConfigurationManager.AppSettings["ExtendedVersion"] + " ";
 	            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
 	            GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
 	            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
 	            GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
 	            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
-	            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);                
-			}
+	            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);
+                GlobalStats.AutoSaveFreq = int.Parse(ConfigurationManager.AppSettings["AutoSaveFreq"]);
+            }
 			catch (Exception)
 			{
 				/// Not doing so much here. It is just empty config
@@ -215,11 +228,12 @@ namespace Ship_Game
             GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
             GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
             GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
-            GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
+           // GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
             GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
             GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
             GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
             GlobalStats.EliminationMode = bool.Parse(ConfigurationManager.AppSettings["EliminationMode"]);
+            GlobalStats.ZoomTracking = bool.Parse(ConfigurationManager.AppSettings["ZoomTracking"]);
             GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
             GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
         }
@@ -236,12 +250,12 @@ namespace Ship_Game
 			}
 		}
 
-		public static void IncrementRemnantKills()
+		public static void IncrementRemnantKills(int exp)
 		{
-			GlobalStats.RemnantKills = GlobalStats.RemnantKills + 1;
+            GlobalStats.RemnantKills = GlobalStats.RemnantKills + exp;
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.RemnantTechCount > 0)
             {
-                if (GlobalStats.RemnantKills == 5 && GlobalStats.RemnantActivation < GlobalStats.ActiveModInfo.RemnantTechCount)
+                if (GlobalStats.RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && GlobalStats.RemnantActivation < GlobalStats.ActiveModInfo.RemnantTechCount)
                 {
                     GlobalStats.RemnantActivation += 1;
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
@@ -250,9 +264,10 @@ namespace Ship_Game
             }
             else
             {
-                if (GlobalStats.RemnantKills == 5)
+                if (GlobalStats.RemnantKills >= 5 && GlobalStats.RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
                 {
                     Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
+                    GlobalStats.RemnantActivation = 1;
                 }
             }
 		}
