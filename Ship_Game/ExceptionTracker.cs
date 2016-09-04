@@ -12,8 +12,10 @@ namespace Ship_Game
     internal static class ExceptionTracker
     {
         public const string BugtrackerURL = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new";
+        public const string KudosURL = "http://www.indiedb.com/mods/deveks-mod/reviews";
         const string DefaultText = "Whoops! Please post this StarDrive forums or in the Bugtracker";
-
+        public static bool active = false;
+        public static bool Kudos = false;
         private static string GenerateErrorLines(Exception ex)
         {
 
@@ -71,6 +73,7 @@ namespace Ship_Game
             msg += data+rn+rn;
             msg += "Exception : "+ ex.Message.ToString()+rn;
             msg += "ExceptionClass : "+ex.GetType().ToString()+rn;
+            if(ex.StackTrace != null)
             msg += "Stacktrace: " + rn + ex.StackTrace.ToString()+ rn ;
             if (ex.InnerException != null)
             {
@@ -89,13 +92,17 @@ namespace Ship_Game
         }
         private static string GenerateErrorLines_withWhoops(Exception ex)
         {
+            if (!(ex.Message == "Manual Report" || ex.Message == "Kudos"))
             return DefaultText + Environment.NewLine + GenerateErrorLines(ex);
+            else
+                return ex.Message + Environment.NewLine + GenerateErrorLines(ex);            
         }
 
         public static void TrackException(Exception ex)
         {
             try
             {
+                ExceptionTracker.active = true;
                 string dts = DateTime.Now.ToString("yyyy-MM-dd hh-mm-ss");
                 string path = AppDomain.CurrentDomain.BaseDirectory + "Exception " + dts + ".log";
                 System.IO.StreamWriter file = new System.IO.StreamWriter(path);
@@ -114,17 +121,27 @@ namespace Ship_Game
         public static void DisplayException(Exception ex)
         {
 #if DEBUG
+            if(!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
             return;
 #endif
             try
             {
+                Form form = (Form)Control.FromHandle(Game1.Instance.Window.Handle);
+                form.WindowState = FormWindowState.Minimized;
+                form.Update();
+            }
+            catch { }
+            try
+            {
                 ExceptionViewer exviewer = new ExceptionViewer();
                 exviewer.ShowDialog(GenerateErrorLines_withWhoops(ex));
+               
             }
             catch (Exception)
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
             }
+            ExceptionTracker.active = false;
         }
 
         #if DEBUG

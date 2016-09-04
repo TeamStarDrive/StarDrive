@@ -129,19 +129,29 @@ namespace Ship_Game
 			this.ShipInfoRect = new Rectangle(this.Housing.X + 60, this.Housing.Y + 110, 115, 115);
 			Rectangle rectangle = new Rectangle(this.Housing.X + 187, this.Housing.Y + 120 + 20 + (int)spacing + 20 + (int)spacing, 20, 20);
 			Vector2 OrdersBarPos = new Vector2((float)(this.Power.X + 12), (float)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 45));
-			ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");
-			this.CombatStatusButtons.Add(AttackRuns);
+            OrdersBarPos.X = OrdersBarPos.X - 15;
+            ToggleButton AttackRuns = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_headon");			
+            this.CombatStatusButtons.Add(AttackRuns);
 			AttackRuns.Action = "attack";
 			AttackRuns.HasToolTip = true;
 			AttackRuns.WhichToolTip = 1;
+
 			OrdersBarPos.X = OrdersBarPos.X + 29f;
-			ToggleButton Artillery = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_aft");
-			this.CombatStatusButtons.Add(Artillery);
-			Artillery.Action = "arty";
-			Artillery.HasToolTip = true;
-			Artillery.WhichToolTip = 2;
-			OrdersBarPos.X = OrdersBarPos.X + 29f;
-			ToggleButton HoldPos = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_x");
+            ToggleButton ShortRange = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_grid");
+            this.CombatStatusButtons.Add(ShortRange);
+            ShortRange.Action = "short";
+            ShortRange.HasToolTip = true;
+            ShortRange.WhichToolTip = 228;
+
+            OrdersBarPos.X = OrdersBarPos.X + 29f;
+            ToggleButton Artillery = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_aft");
+            this.CombatStatusButtons.Add(Artillery);
+            Artillery.Action = "arty";
+            Artillery.HasToolTip = true;
+            Artillery.WhichToolTip = 2;
+
+			OrdersBarPos.X = OrdersBarPos.X + 29f;			
+            ToggleButton HoldPos = new ToggleButton(new Rectangle((int)OrdersBarPos.X, (int)OrdersBarPos.Y, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "SelectionBox/icon_formation_x");
 			this.CombatStatusButtons.Add(HoldPos);
 			HoldPos.Action = "hold";
 			HoldPos.HasToolTip = true;
@@ -196,7 +206,11 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
+            string longName;
+
+            if (this.screen.SelectedShipList == null) return;  //fbedard
+
+            float transitionOffset = MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
 			int columns = this.Orders.Count / 2 + this.Orders.Count % 2;
 			if (this.AllShipsMine)
 			{
@@ -262,10 +276,10 @@ namespace Ship_Game
 				this.HoverOff = 0f;
 				this.HoveredShip.RenderOverlay(this.ScreenManager.SpriteBatch, this.ShipInfoRect, this.ShowModules);
 				text = this.HoveredShip.VanityName;
-				Vector2 tpos = new Vector2((float)(this.Housing.X + 38), (float)(this.Housing.Y + 63));
+				Vector2 tpos = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 63));
 				string name = (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name);
 				SpriteFont TitleFont = Fonts.Arial14Bold;
-                Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 39), (float)(this.Housing.Y + 79));
+                Vector2 ShipSuperName = new Vector2((float)(this.Housing.X + 30), (float)(this.Housing.Y + 79));
 				if (Fonts.Arial14Bold.MeasureString(name).X > 180f)
 				{
 					TitleFont = Fonts.Arial12Bold;
@@ -274,8 +288,11 @@ namespace Ship_Game
 				}
 				this.ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(this.HoveredShip.VanityName) ? this.HoveredShip.VanityName : this.HoveredShip.Name), tpos, this.tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
-
+                //this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
+                longName = string.Concat(this.HoveredShip.Name, " - ", this.HoveredShip.shipData.GetRole());
+                if (this.HoveredShip.shipData.ShipCategory != ShipData.Category.Unclassified)
+                    longName += string.Concat(" - ", this.HoveredShip.shipData.GetCategory());
+                this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_shield"], this.DefenseRect, Color.White);
 				Vector2 defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
 				SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
@@ -305,7 +322,9 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
-			List<Ship> ships = new List<Ship>();
+            if (this.screen.SelectedShipList == null) return false;  //fbedard
+
+            List<Ship> ships = new List<Ship>();
 			bool reset = false;
 			for (int i = this.SelectedShipsSL.indexAtTop; i < this.SelectedShipsSL.Entries.Count && i < this.SelectedShipsSL.indexAtTop + this.SelectedShipsSL.entriesToDisplay; i++)
 			{
@@ -420,6 +439,13 @@ namespace Ship_Game
                                         ship.GetAI().CombatState = CombatState.BroadsideRight;
                                     }
                                 }
+                                else if (str == "short")
+                                {
+                                    foreach (Ship ship in this.ShipList)
+                                    {
+                                        ship.GetAI().CombatState = CombatState.ShortRange;
+                                    }
+                                }
                                 else if (str == "evade")
                                 {
                                     foreach (Ship ship in this.ShipList)
@@ -522,6 +548,17 @@ namespace Ship_Game
                                 button.Active = true;
                             }
                         }
+                        else if (str1 == "short")
+                        {
+                            if (this.HoveredShip.GetAI().CombatState != CombatState.ShortRange)
+                            {
+                                button.Active = false;
+                            }
+                            else
+                            {
+                                button.Active = true;
+                            }
+                        }
                         else if (this.HoveredShip.GetAI().CombatState != CombatState.OrbitRight)
                         {
                             button.Active = false;
@@ -544,6 +581,7 @@ namespace Ship_Game
 					}
 					return true;
 				}
+                
 				if (base.State == UIElement.ElementState.Open)
 				{
 					bool orderhover = false;
@@ -557,6 +595,19 @@ namespace Ship_Game
 					}
 					if (orderhover)
 					{
+                        //this.screen.SelectedFleet.Ships.thisLock.EnterReadLock();      //Enter and Exit lock removed to stop crash -Gretman
+                        if (this.screen.SelectedFleet != null && this.screen.SelectedFleet.Ships.Count >0 && this.screen.SelectedFleet.Ships[0] != null)
+                        {
+                            bool flag = true;                            
+                            foreach (Ship ship2 in (List<Ship>)this.screen.SelectedFleet.Ships)
+                                if (ship2.GetAI().State != AIState.Resupply)
+                                    flag = false;
+                            
+                            if (flag)
+                                this.screen.SelectedFleet.Position = this.screen.SelectedFleet.Ships[0].GetAI().OrbitTarget.Position;  //fbedard: center fleet on resupply planet
+                            
+                        }
+                        //this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
 						return true;
 					}
 				}
@@ -593,7 +644,7 @@ namespace Ship_Game
                                 foreach(Ship filter in this.screen.SelectedShipList)
 
                                 {
-                                    if(filter.Role != this.HoveredShip.Role)
+                                    if (filter.shipData.Role != this.HoveredShip.shipData.Role)
                                     {
                                         this.screen.SelectedShipList.QueuePendingRemoval(filter);
                                         
@@ -612,7 +663,8 @@ namespace Ship_Game
                             {
                                 this.screen.SelectedFleet = null;
                                 this.screen.SelectedShipList.Clear();
-                                this.screen.SelectedShip = this.HoveredShip;
+                                this.screen.SelectedShip = this.HoveredShip;  //fbedard: multi-select
+                                this.screen.ShipInfoUIElement.SetShip(this.HoveredShip);
                             }
 							return true;
 						}
@@ -651,10 +703,11 @@ namespace Ship_Game
 			bool AllResupply = true;
 			this.AllShipsMine = true;
 			bool AllFreighters = true;
+            bool AllCombat = true;
 			for (int i = 0; i < shipList.Count; i++)
 			{
 				Ship ship = shipList[i];
-				SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), string.Concat("TacticalIcons/symbol_", ship.Role))
+                SkinnableButton button = new SkinnableButton(new Rectangle(0, 0, 20, 20), string.Concat("TacticalIcons/symbol_", (ship.isConstructor ? "construction" : ship.shipData.GetRole())))
 				{
 					IsToggle = false,
 					ReferenceObject = ship,
@@ -677,10 +730,15 @@ namespace Ship_Game
 				{
 					this.AllShipsMine = false;
 				}
-				if (ship.CargoSpace_Max == 0f)
+				//if (ship.CargoSpace_Max == 0f)
+                if (ship.CargoSpace_Max == 0f || ship.shipData.Role == ShipData.RoleName.troop || ship.GetAI().State == AIState.Colonize || ship.shipData.Role == ShipData.RoleName.station || ship.Mothership != null)
 				{
 					AllFreighters = false;
 				}
+                if (ship.shipData.Role < ShipData.RoleName.fighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.GetAI().State == AIState.Colonize || ship.Mothership != null)
+                {
+                    AllCombat = false;
+                }
 			}
 			OrdersButton resupply = new OrdersButton(shipList, Vector2.Zero, OrderType.OrderResupply, 149)
 			{
@@ -688,6 +746,10 @@ namespace Ship_Game
 				Active = AllResupply
 			};
 			this.Orders.Add(resupply);
+
+
+            if (AllCombat)
+            {
 			OrdersButton SystemDefense = new OrdersButton(shipList, Vector2.Zero, OrderType.EmpireDefense, 150)
 			{
 				SimpleToggle = true,
@@ -700,18 +762,17 @@ namespace Ship_Game
 				Active = false
 			};
 			this.Orders.Add(Explore);
-            //Added by McShooterz: fleet scrap button
-            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
-            {
-                SimpleToggle = true,
-                Active = false
-            };
-            this.Orders.Add(Scrap);
-			OrdersButton ordersButton = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15);
-			SystemDefense.SimpleToggle = true;
+            }
+
 			if (AllFreighters)
 			{
-				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 15)
+                //OrdersButton ao = new OrdersButton(shipList, Vector2.Zero, OrderType.DefineAO, 15)
+                //{
+                //  SimpleToggle = true,
+                //  Active = false
+                //};
+                //this.Orders.Add(ao);
+				OrdersButton tf = new OrdersButton(shipList, Vector2.Zero, OrderType.TradeFood, 16)
 				{
 					SimpleToggle = true
 				};
@@ -722,6 +783,15 @@ namespace Ship_Game
 				};
 				this.Orders.Add(tpass);
 			}
+
+            //Added by McShooterz: fleet scrap button
+            OrdersButton Scrap = new OrdersButton(shipList, Vector2.Zero, OrderType.Scrap, 157)
+            {
+                SimpleToggle = true,
+                Active = false
+            };
+            this.Orders.Add(Scrap);
+
 			int ex = 0;
 			int y = 0;
 			for (int i = 0; i < this.Orders.Count; i++)

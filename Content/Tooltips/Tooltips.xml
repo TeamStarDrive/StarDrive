@@ -1129,7 +1129,36 @@
       <TIP_ID>224</TIP_ID>
       <Title>Weapons Range overlay</Title>
       <Data>6183</Data>
-    </ToolTip>	
-	
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>225</TIP_ID>
+      <Title>Launch Shuttles</Title>
+      <Data>266</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>226</TIP_ID>
+      <Title>Target Tracking</Title>
+      <Data>7083</Data>
+  </ToolTip>
+    <ToolTip>
+      <TIP_ID>227</TIP_ID>
+      <Title>Offensive Strength</Title>
+      <Data>7084</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>228</TIP_ID>
+      <Title>Short range order</Title>
+      <Data>7085</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>229</TIP_ID>
+      <Title>Corners Game</Title>
+      <Data>4103</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>230</TIP_ID>
+      <Title>Total Module Slots</Title>
+      <Data>4104</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

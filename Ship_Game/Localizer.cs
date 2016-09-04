@@ -28,7 +28,7 @@ namespace Ship_Game
                 t.Index += ResourceManager.OffSet;
                 if (Localizer.LocalizerDict.ContainsKey(t.Index))
                 {
-                    Localizer.LocalizerDict[t.Index] = t.Text;
+                    Localizer.LocalizerDict[t.Index] = string.Intern(t.Text);
                     if (ResourceManager.OffSet > 0)
                         Localizer.used[t.Index] = false;
                 }
@@ -42,7 +42,7 @@ namespace Ship_Game
 
         }
 
-        public static string GetRole(string role, Empire Owner)
+        public static string GetRole(ShipData.RoleName role, Empire Owner)
         {
             if (ResourceManager.ShipRoles.ContainsKey(role))
             {
@@ -57,16 +57,22 @@ namespace Ship_Game
             }
             else
             {
-                return role;
+                return "unknown";
             }
         }
 
         public static string Token(int index)
         {
             string str;
-            try
+            //try
             {
-                string val = Localizer.LocalizerDict[index];
+                string val;
+                 
+                if(!Localizer.LocalizerDict.TryGetValue(index,out val) || val ==null)
+                {
+                    return "String not found";
+
+                }
                 string[] strArrays = new string[] { "\\n" };
                 string[] array = val.Split(strArrays, StringSplitOptions.None);
                 val = array[0];
@@ -77,10 +83,10 @@ namespace Ship_Game
                 }
                 str = val;
             }
-            catch
-            {
-                str = "String not found";
-            }
+            //catch
+            //{
+            //    str = "String not found";
+            //}
             return str;
         }
         public static void cleanLocalizer()

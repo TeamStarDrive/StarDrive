@@ -63,20 +63,7 @@ namespace Ship_Game
 			{
 				width = width + 1f;
 			}
-			this.Colonize = new UIButton()
-			{
-				Rect = new Rectangle(this.OrdersRect.X + 10, this.OrdersRect.Y + this.OrdersRect.Height / 2 - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height / 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"]
-			};
-            this.SendTroops = new UIButton()
-            {
-                Rect = new Rectangle(this.OrdersRect.X + this.Colonize.Rect.Width + 10, this.Colonize.Rect.Y, this.Colonize.Rect.Width, this.Colonize.Rect.Height),
-                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"]
-            };
+
 			Goal goal = new Goal();
 			foreach (Goal g in Ship.universeScreen.player.GetGSAI().Goals)
 			{
@@ -86,15 +73,36 @@ namespace Ship_Game
 				}
 				this.marked = true;
 			}
-			if (!this.marked)
-			{
-				this.Colonize.Text = Localizer.Token(1425);
-			}
-			else
-			{
-				this.Colonize.Text = Localizer.Token(1426);
-			}
-			this.Colonize.Launches = Localizer.Token(1425);
+
+            if (this.marked)
+                this.Colonize = new UIButton()
+                {
+                    Rect = new Rectangle(this.OrdersRect.X + 10, this.OrdersRect.Y + this.OrdersRect.Height / 2 - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height / 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
+                    NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
+                    HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
+                    PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"]
+                };
+            else
+                this.Colonize = new UIButton()
+                {
+                    Rect = new Rectangle(this.OrdersRect.X + 10, this.OrdersRect.Y + this.OrdersRect.Height / 2 - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height / 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
+                    NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip"],
+                    HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_hover"],
+                    PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_pressed"]
+                };
+            if (!this.marked)
+                this.Colonize.Text = Localizer.Token(1425);
+            else
+                this.Colonize.Text = "Cancel Colonize";
+            this.Colonize.Launches = Localizer.Token(1425);
+
+            this.SendTroops = new UIButton()
+            {
+                Rect = new Rectangle(this.OrdersRect.X + this.Colonize.Rect.Width + 10, this.Colonize.Rect.Y, this.Colonize.Rect.Width, this.Colonize.Rect.Height),
+                NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip"],
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_pressed"]
+            };
 		}
 
         public void Draw(Ship_Game.ScreenManager ScreenManager, GameTime gameTime)
@@ -275,17 +283,27 @@ namespace Ship_Game
                 this.Colonize.Draw(ScreenManager.SpriteBatch);
             }
 
-            if (i > 0 && this.planet.Owner ==null)
+            //if (i > 0 && this.planet.Owner == null)
+            if (this.planet.Owner ==null && this.planet.habitable)  //fbedard: can send troop anywhere
             {
                 int troopsInvading = this.screen.empUI.empire.GetShips()
          .Where(troop => troop.TroopList.Count > 0)
+         .Where(ai => ai.GetAI().State != AIState.Resupply)
          .Where(troopAI => troopAI.GetAI().OrderQueue
              .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet).Count() > 0).Count();
                 if (troopsInvading > 0)
+                {
                     this.SendTroops.Text = "Invading: " + troopsInvading.ToString();
+                    this.SendTroops.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+                    this.SendTroops.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
+                    this.SendTroops.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
+                }
                 else
                 {
                     this.SendTroops.Text = "Send Troops";
+                    this.SendTroops.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip"];
+                    this.SendTroops.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_hover"];
+                    this.SendTroops.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_pressed"];
                 }
                 this.SendTroops.Draw(ScreenManager.SpriteBatch);
             }
@@ -294,13 +312,22 @@ namespace Ship_Game
             {
                 int troopsInvading = this.screen.empUI.empire.GetShips()
          .Where(troop => troop.TroopList.Count > 0)
+         .Where(ai => ai.GetAI().State != AIState.Resupply)
          .Where(troopAI => troopAI.GetAI().OrderQueue
              .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet).Count() > 0).Count();
                 if (troopsInvading > 0)
+                {
                     this.SendTroops.Text = "Landing: " + troopsInvading.ToString();
+                    this.SendTroops.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+                    this.SendTroops.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
+                    this.SendTroops.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
+                }
                 else
                 {
                     this.SendTroops.Text = "Send Troops";
+                    this.SendTroops.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip"];
+                    this.SendTroops.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_hover"];
+                    this.SendTroops.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_pressed"];
                 }
                 this.SendTroops.Draw(ScreenManager.SpriteBatch);
             }
@@ -321,7 +348,7 @@ namespace Ship_Game
                     this.screen.empUI.empire.GetShips().thisLock.EnterReadLock();
                     List<Ship> troopShips = new List<Ship>(this.screen.empUI.empire.GetShips()
                         .Where(troop => troop.TroopList.Count > 0
-                            && troop.GetAI().State == AIState.AwaitingOrders
+                            && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
                             && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.planet.Position)));
                     this.screen.empUI.empire.GetShips().thisLock.ExitReadLock();
                     this.screen.empUI.empire.GetPlanets().thisLock.EnterReadLock();
@@ -367,6 +394,9 @@ namespace Ship_Game
 						Goal g = new Goal(this.planet, Ship.universeScreen.player);
 						Ship.universeScreen.player.GetGSAI().Goals.Add(g);
 						this.Colonize.Text = "Cancel Colonize";
+                        this.Colonize.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+                        this.Colonize.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
+                        this.Colonize.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
 						this.marked = true;
 						return;
 					}
@@ -384,6 +414,9 @@ namespace Ship_Game
 						Ship.universeScreen.player.GetGSAI().Goals.QueuePendingRemoval(g);
 						this.marked = false;
 						this.Colonize.Text = "Colonize";
+                        this.Colonize.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip"];
+                        this.Colonize.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_hover"];
+                        this.Colonize.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_pressed"];
 						break;
 					}
 					Ship.universeScreen.player.GetGSAI().Goals.ApplyPendingRemovals();

@@ -30,6 +30,10 @@
       <ShipType>Terran</ShipType>
     </UnlockedHull>
     <UnlockedHull>
+      <Name>Terran/LightCarrier</Name>
+      <ShipType>Terran</ShipType>
+    </UnlockedHull>
+    <UnlockedHull>
       <Name>Kulrathi/Mauler</Name>
       <ShipType>Kulrathi</ShipType>
     </UnlockedHull>

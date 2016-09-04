@@ -1078,7 +1078,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>265</Index>
       <Text>Launch this troop into orbit</Text>
     </Token>
-
+    <Token>
+      <Index>266</Index>
+      <Text>Toggles whether this ship's shuttles should be launched or recovered to hangars</Text>
+    </Token>
 
     <!-- Gameplay Main Menu -->
     <Token>
@@ -1957,7 +1960,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>551</Index>
-      <Text>EMP Cannons are used to disable targeted ships by overloading their power grids with random energy. All ships have a natural EMP defense based on their size.  EMP weapons are ineffective against shields. </Text>
+      <Text>EMP Cannons are used to disable targeted ships by overloading their power grids with random energy. All ships have a natural EMP defense based on their size.  EMP weapons are ineffective against shielded targets. </Text>
     </Token>
     <Token>
       <Index>552</Index>
@@ -2739,7 +2742,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>943</Index>
-      <Text>A turret mounted EMP cannon weapon, useful for disabling enemy ships.
+      <Text>A turret mounted EMP cannon weapon, useful for disabling enemy ships, provided their shields are down.
       </Text>
     </Token>
     <Token>
@@ -2748,7 +2751,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>945</Index>
-      <Text>Twin EMP cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire.</Text>
+      <Text>Twin EMP cannons mounted on a turret platform with advance cooling systems for rapid and sustained fire. Not effective against targets who's shields are still active.</Text>
     </Token>
     <Token>
       <Index>946</Index>
@@ -2786,7 +2789,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>958</Index>
-      <Text>Medium Fuel Cell</Text>
+      <Text>Medium Armored Fuel Cell</Text>
     </Token>
     <Token>
       <Index>959</Index>
@@ -2989,7 +2992,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1011</Index>
-      <Text>An ordnance supply bay allows a ship to launch resupply shuttles filled with ammunition to resupply friendly ships. Only one shuttle may be active per bay at a time. Supply shuttles can ferry 50 ordnance at a time.
+      <Text>An ordnance supply bay allows a ship to launch supply shuttles filled with ammunition to resupply friendly ships. Only one shuttle may be active per bay at a time. Supply shuttles can ferry 100 ordnance at a time.
       </Text>
     </Token>
     <Token>
@@ -6477,11 +6480,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4009</Index>
-      <Text>The Hyperspace Flux has abated \nShips may once again warp freely</Text>
+      <Text>The Hyperspace Flux has abated\nShips may once again warp freely</Text>
     </Token>
     <Token>
       <Index>4010</Index>
-      <Text>A massive hyperspace flux is inhibiting warp travel throughout the galaxy</Text>
+      <Text>A massive hyperspace flux\nis inhibiting warp travel throughout the galaxy</Text>
     </Token>
     <Token>
       <Index>4011</Index>
@@ -6670,7 +6673,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4055</Index>
-      <Text>You are not currently editing a fleet. Click a hotkey on th eleft side of the screen to begin creating or editing the corresponding fleet.\n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.</Text>
+      <Text>You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet.\n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.</Text>
     </Token>
     <Token>
       <Index>4056</Index>
@@ -6861,6 +6864,34 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4099</Index>
       <Text>This broadside-mounted cannon is capable of delivering a higher-powered kinetic blast than its turret-mounted cousins. Weapon mobility and target tracking are traded for the opportunity to unleash hellish volleys of unaimed fire.</Text>
     </Token>
+	
+	<!-- Somehow the 4100 range has become where I put all my new stuff - Gretman           -->
+    <Token>
+      <Index>4100</Index>
+      <Text>The delay between auto saves. This is measured in unpaused, game relative seconds.\n--Common Durations--\n60 = 1 Minute\n300 = 5 Minutes (Default)\n600 = 10 Minutes</Text>
+    </Token>
+    <Token>
+      <Index>4101</Index>
+      <Text>Remnant Presence</Text>
+    </Token>
+    <Token>
+      <Index>4102</Index>
+      <Text>Corners</Text>
+    </Token>
+    <Token>
+      <Index>4103</Index>
+      <Text>Corners is a 4 race match similar to a sandbox game, except the map is divided into quarters, with 1 faction in each quarter, offering clear boundaries between regions of space. Defend your territory at all costs!</Text>
+    </Token>
+	<Token>
+      <Index>4104</Index>
+      <Text>The total number of module slots available on the selected ship.</Text>
+    </Token>
+	<Token>
+      <Index>4105</Index>
+      <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\nmeteor was comprised mostly of useful minerals.</Text>
+    </Token>
+	
+	
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
@@ -7203,7 +7234,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5086</Index>
-      <Text>WARNING: CPU INTENSE! This option will force a full combat simulation for 100% accuracy even when battles are occuring out of sight and between non-player factions. If this option is unchecked, an approximation will be used to speed up the game instead.</Text>
+      <Text>WARNING: CPU INTENSE! This option will force a full combat simulation for 100% accuracy even when battles are occurring out of sight and between non-player factions, including detailed module targeting. If this option is unchecked, approximations will be used to speed up the game when occurring well outside the players view, and for some aspects of combat between AI factions.</Text>
     </Token>
     <Token>
       <Index>5087</Index>
@@ -7968,7 +7999,15 @@ An empire's counter-espionage budget reduces your intelligence penetration
 		<Index>6184</Index>
 		<Text>Keyboard Fire Arc Locking</Text>
 	</Token>
-	
+    <Token>
+      <Index>6185</Index>
+      <Text>Toggle Zoom Tracking</Text>
+    </Token>
+    <Token>
+      <Index>6186</Index>
+      <Text>Targets</Text>
+    </Token>
+    
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
 	<Token>
@@ -8232,7 +8271,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7065</Index>
       <Text>Indicates resistance to Armour Piercing effects - each point of AP resistance negates 1 point of Armour Piercing on enemy projectiles.</Text>
     </Token>
-	
+
 	
 	<!-- Shield Resistance Tooltips -->
 	
@@ -8301,6 +8340,21 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7081</Index>
       <Text>When active, arcs in the shipyard can only be moved by ALT-clicking them, preventing accidental rotation while providing immediate control of arcs when using ALT.\n\nWhen inactive, arcs in the shipyard can be moved by left-clicking and holding for a time delay to grab the arc.</Text>
     </Token>
-	
+    <Token>
+      <Index>7082</Index>
+      <Text>Zoom will center on selected object.</Text>
+    </Token>
+    <Token>
+      <Index>7083</Index>
+      <Text>Number of addition targets that can be tracked. A ship with any command can track 1 target. A command module with 0 additional targets can not track PD targets or fire at targets of opportunity unless it has a carrier and experience levels.</Text>
+    </Token>
+    <Token>
+      <Index>7084</Index>
+      <Text>Estimated offensive strength of the ship or module. This is based on the size of the ship and strength of defense and strength of weapons. The defensive score of the ship is not shown but it is calculated and restricted to be never more than the offensive value. Metal slugs with a few small weapons wont rate that high. </Text>
+    </Token>
+    <Token>
+      <Index>7085</Index>
+      <Text>Ship will rotate so that forward-firing weapons are facing its target. If in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within minimum weapons range</Text>
+    </Token>
   </TokenList>
 </LocalizationFile>

@@ -36,7 +36,7 @@ namespace Ship_Game
 
 		public PlanetGridSquare pgs;
 
-		private List<TroopInfoUIElement.TippedItem> ToolTipItems = new List<TroopInfoUIElement.TippedItem>();
+        private List<TroopInfoUIElement.TippedItem> ToolTipItems = new List<TroopInfoUIElement.TippedItem>();
 
 		new private Color tColor = new Color(255, 239, 208);
 
@@ -122,7 +122,7 @@ namespace Ship_Game
 			defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.SoftAttackRect.Y + 8 - Fonts.Arial12Bold.LineSpacing / 2));
 			SpriteBatch spriteBatch = this.ScreenManager.SpriteBatch;
 			SpriteFont arial12Bold = Fonts.Arial12Bold;
-			if (Troop)
+            if (this.pgs.TroopsHere.Count > 0)
 			{
 				int softAttack = this.pgs.TroopsHere[0].GetSoftAttack();
 				str = softAttack.ToString(this.fmt);
@@ -135,7 +135,7 @@ namespace Ship_Game
 			defPos = new Vector2((float)(this.DefenseRect.X + this.DefenseRect.Width + 2), (float)(this.HardAttackRect.Y + 8 - Fonts.Arial12Bold.LineSpacing / 2));
 			SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
 			SpriteFont spriteFont = Fonts.Arial12Bold;
-			if (Troop)
+            if (this.pgs.TroopsHere.Count > 0)
 			{
 				int hardAttack = this.pgs.TroopsHere[0].GetHardAttack();
 				str1 = hardAttack.ToString(this.fmt);
@@ -145,7 +145,7 @@ namespace Ship_Game
 				str1 = this.pgs.building.HardAttack.ToString();
 			}
 			spriteBatch1.DrawString(spriteFont, str1, defPos, Color.White);
-			if (!Troop)
+            if (this.pgs.TroopsHere.Count == 0)
 			{
 				this.ItemDisplayRect = new Rectangle(this.LeftRect.X + 85 + 16, this.LeftRect.Y + 5 + 16, 64, 64);
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", this.pgs.building.Icon, "_64x64")], this.ItemDisplayRect, Color.White);
@@ -189,7 +189,14 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
-			this.DescriptionSL.HandleInput(input);
+            try
+            {
+                this.DescriptionSL.HandleInput(input);
+            }
+            catch
+            {
+                return false;
+            }
 			foreach (TroopInfoUIElement.TippedItem ti in this.ToolTipItems)
 			{
 				if (!HelperFunctions.CheckIntersection(ti.r, input.CursorPosition))
@@ -205,17 +212,19 @@ namespace Ship_Game
 				{
 					if ((this.screen.workersPanel as CombatScreen).ActiveTroop.TroopsHere[0].AvailableMoveActions < 1)
 					{
-						AudioManager.PlayCue("UI_Misc20");
+						AudioManager.PlayCue("UI_Misc20");                        
 						return true;
 					}
 					AudioManager.PlayCue("sd_troop_takeoff");
-					if (this.pgs.TroopsHere.Count > 0)
+                    this.pgs.TroopsHere.thisLock.EnterWriteLock();
+                    if (this.pgs.TroopsHere.Count > 0)
 					{
 						this.pgs.TroopsHere[0].Launch();
 					}
+                    this.pgs.TroopsHere.thisLock.ExitWriteLock();
 					(this.screen.workersPanel as CombatScreen).ActiveTroop = null;
 				}
-			}
+			}            
 			return false;
 		}
 

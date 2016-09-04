@@ -24,7 +24,14 @@ namespace Ship_Game
 		static AudioManager()
 		{
 		}
+        
 
+	static public bool limitOK
+	{
+        get { return AudioManager.audioManager.SoundEffectInstances.Count <7 ; }
+		
+	}
+	
 		private AudioManager(Microsoft.Xna.Framework.Game game, string settingsFile, string waveBankFile, string soundBankFile) : base(game)
 		{
             this.SoundEffectInstances = new List<SoundEffectInstance>();
@@ -105,7 +112,7 @@ namespace Ship_Game
 
 		public static void PlayCue(string cueName)
 		{
-			if (AudioManager.audioManager != null && AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
+			if (AudioManager.audioManager != null &&  AudioManager.audioManager.SoundEffectInstances.Count <7 &&   AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
 			{
 				
                 AudioManager.audioManager.soundBank.PlayCue(cueName);
@@ -133,7 +140,7 @@ namespace Ship_Game
         //Added by McShooterz: Play a sound
         public static void PlaySoundEffect(SoundEffect se, float VolumeMod)
         {
-            if (AudioManager.audioManager.SoundEffectInstances.Count > 20)
+            if (AudioManager.audioManager.SoundEffectInstances.Count > 6)
                 return;
             SoundEffectInstance sei = se.CreateInstance();
             AudioManager.audioManager.SoundEffectInstances.Add(sei);
@@ -144,7 +151,7 @@ namespace Ship_Game
         //Added by McShooterz: Play 3d sound effect
         public static void PlaySoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae, float VolumeMod)
         {
-            if (AudioManager.audioManager.SoundEffectInstances.Count > 20)
+            if (AudioManager.audioManager.SoundEffectInstances.Count > 6)
                 return;
             SoundEffectInstance sei = se.CreateInstance();
             AudioManager.audioManager.SoundEffectInstances.Add(sei);

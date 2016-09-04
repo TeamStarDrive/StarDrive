@@ -132,7 +132,9 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			string str;
+			if (this.p == null) return;  //fbedard
+
+            string str;
 			string str1;
 			MathHelper.SmoothStep(0f, 1f, base.TransitionPosition);
 			this.ToolTipItems.Clear();
@@ -263,6 +265,8 @@ namespace Ship_Game
 					};
 					this.ToolTipItems.Add(ti);
 				}
+
+                //Ship troopShip
                 ti = new PlanetInfoUIElement.TippedItem()
                 {
                     r = pIcon,
@@ -272,21 +276,16 @@ namespace Ship_Game
                 this.ToolTipItems.Add(ti);
 
                 this.SendTroops = new Rectangle(this.Mark.X, this.Mark.Y - this.Mark.Height -5, 182, 25);
-                Text = new Vector2((float)(SendTroops.X + 25), (float)(SendTroops.Y));
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], SendTroops, Color.White);
-                 //Ship troopShip; 
-
-                
+                Text = new Vector2((float)(SendTroops.X + 25), (float)(SendTroops.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2));
+                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], SendTroops, Color.White);         
                 troops= this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0 )
                      .Where(troopAI => troopAI.GetAI().OrderQueue
                          .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() >0).Count();
-                    
-                     
-          
-
-
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,String.Concat("Invading : ",troops) , Text, new Color(88, 108, 146)); // Localizer.Token(1425)
+                if (!HelperFunctions.CheckIntersection(this.SendTroops, MousePos))
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,String.Concat("Invading : ",troops) , Text, new Color(88, 108, 146)); // Localizer.Token(1425)
+                else
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text, new Color(174, 202, 255)); // Localizer.Token(1425)
 
 				this.Inspect.Draw(this.ScreenManager);
 				this.Invade.Draw(this.ScreenManager);
@@ -327,7 +326,7 @@ namespace Ship_Game
 			this.PlanetTypeCursor = new Vector2((float)(this.PlanetIconRect.X + this.PlanetIconRect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.PlanetTypeRichness).X / 2f, (float)(this.PlanetIconRect.Y + this.PlanetIconRect.Height + 5));
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Planets/", this.p.planetType)], this.PlanetIconRect, Color.White);
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.PlanetTypeRichness, this.PlanetTypeCursor, this.tColor);
-			this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
 			this.SliderFood.amount = this.p.FarmerPercentage;
 			this.SliderFood.cursor = new Rectangle(this.SliderFood.sRect.X + (int)((float)this.SliderFood.sRect.Width * this.SliderFood.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderFood.sRect.Y + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
 			this.SliderProd.amount = this.p.WorkerPercentage;
@@ -545,7 +544,7 @@ namespace Ship_Game
             {
                 List<Ship> troopShips = new List<Ship>(this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0
-                         && troop.GetAI().State == AIState.AwaitingOrders
+                         && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
                          && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Position)));
                 List<Planet> planetTroops = new List<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
                 if (troopShips.Count > 0)
@@ -557,16 +556,11 @@ namespace Ship_Game
                 else
                     if (planetTroops.Count > 0)
                     {
-
-
                         {
                             Ship troop = planetTroops.First().TroopsHere.First().Launch();
                             if (troop != null)
                             {
-
-
-                                AudioManager.PlayCue("echo_affirm");
-                                
+                                AudioManager.PlayCue("echo_affirm");                              
                                 troop.GetAI().OrderAssaultPlanet(this.p);
                             }
                         }
@@ -622,7 +616,7 @@ namespace Ship_Game
 			{
 				return;
 			}
-			this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
 			Vector2 mousePos = input.CursorPosition;
 			if (this.p.Owner.data.Traits.Cybernetic == 0)
 			{

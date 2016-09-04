@@ -40,7 +40,7 @@ namespace Ship_Game
 
 		public string Hull;
 
-		public string Role;
+        public RoleName Role = RoleName.fighter;
 
 		public List<ShipToolScreen.ThrusterZone> ThrusterList;
 
@@ -50,6 +50,21 @@ namespace Ship_Game
 
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
         public Category ShipCategory = Category.Unclassified;
+
+        public RoleName HullRole
+        {
+            get
+            {
+                ShipData role = null;
+                if (ResourceManager.HullsDict.TryGetValue(this.Hull, out role) && role.Role != null)
+                {
+                    return role.Role;
+                }
+                return this.Role;
+
+            }
+        }
+
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip = false;
@@ -61,25 +76,73 @@ namespace Ship_Game
         public bool unLockable = false;
         //public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
         public HashSet<string> techsNeeded = new HashSet<string>();
-        public ushort TechScore = 0;
+        public int TechScore = 0;
         //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
+        private static string[] RoleArray = {"disabled","platform","station","construction","supply","freighter","troop","fighter","scout","gunboat","drone","corvette","frigate","destroyer","cruiser","carrier","capital","prototype"};
+        private static string[] CategoryArray = {"Unclassified","Civilian","Recon","Combat","Kamikaze"};
 
 		public ShipData()
 		{
 		}
+        
 
+        public ShipData HullData
+        {
+            get 
+            { 
+                ShipData hull =null;
+                ResourceManager.HullsDict.TryGetValue(this.Hull, out hull);
+                return hull; 
+            }
+            
+        }
+        
 		public ShipData GetClone()
 		{
 			return (ShipData)this.MemberwiseClone();
 		}
+
+        public string GetRole()
+		{
+            return RoleArray[(int)Role];
+		}
+
+        public string GetCategory()
+        {
+            return CategoryArray[(int)ShipCategory];
+        }
 
         public enum Category
         {
             Unclassified,
             Civilian,
             Recon,
-            Fighter,
+            Combat,
             Bomber,
+            Fighter,            
+            Kamikaze
+        }
+
+        public enum RoleName
+        {
+            disabled,
+            platform,
+            station,
+            construction,
+            supply,
+            freighter,
+            troop,
+            fighter,
+            scout,
+            gunboat,
+            drone,
+            corvette,
+            frigate,
+            destroyer,
+            cruiser,
+            carrier,
+            capital,
+            prototype
         }
 	}
 }

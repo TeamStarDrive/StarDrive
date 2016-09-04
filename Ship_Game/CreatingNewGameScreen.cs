@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
 
+
 namespace Ship_Game
 {
     public sealed class CreatingNewGameScreen : GameScreen, IDisposable
@@ -114,7 +115,7 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(16f * StarNumModifier);
+                            this.numSystems = (int)(16f * StarNumModifier); //16 is ok for Corners match, so no need to change -Gretman
                         this.data.Size = new Vector2(3500000f, 3500000f);
                     }
                     else if (str1 == "Small")
@@ -125,6 +126,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(30f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(32f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(7300000f, 7300000f);
                     }
                     else if (str1 == "Medium")
@@ -135,6 +137,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(9350000f, 9350000f);
                         Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
@@ -145,7 +148,9 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
+                            this.numSystems = (int)(70f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(18000000f, 18000000f);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Huge")
@@ -155,8 +160,9 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
-                            this.data.Size = new Vector2(18000000f, 18000000f);
+                            this.numSystems = (int)(80f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(23000000);  //27,000,000
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Epic")
@@ -165,9 +171,10 @@ namespace Ship_Game
                         //{
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
-                        //else
-                            this.numSystems = (int)(50f * StarNumModifier);
-                            this.data.Size = new Vector2(54000000, 54000000);
+                        //else //33554423  33,554,432.
+                            this.numSystems = (int)(90f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(33554423f);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                             //this.data.Size = new Vector2(36000000, 36000000);
                         //this.scale = 2;
@@ -184,8 +191,9 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(50f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(64f * StarNumModifier); //This one isn't used, but what the heck...
                         //this.numSystems = (int)(100f * StarNumModifier);
-                            this.data.Size = new Vector2(54000000, 54000000);
+                        this.data.Size = new Vector2(108000000f, 108000000f);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
@@ -195,7 +203,8 @@ namespace Ship_Game
                     //{
                     //    this.numSystems = this.numOpponents + 2;
                     //}
-                }
+                }                
+                UniverseData.UniverseWidth = this.data.Size.X;
                 UniverseData universeDatum = this.data;
                 universeDatum.Size = universeDatum.Size * this.scale;
                 this.data.EmpireList.Add(empire);
@@ -252,25 +261,71 @@ namespace Ship_Game
             {
                 if (this.firstRun)
                 {
+                    
                     UniverseScreen.DeepSpaceManager = new SpatialManager();
                     BatchRemovalCollection<EmpireData> removalCollection = new BatchRemovalCollection<EmpireData>();
                     foreach (EmpireData empireData in ResourceManager.Empires)
                     {
                         if (!(empireData.Traits.Name == this.EmpireToRemoveName) && empireData.Faction == 0 && !empireData.MinorRace)
-                            removalCollection.Add(empireData);
+                            removalCollection.Add(empireData);                        
                     }
                     int num = removalCollection.Count - this.numOpponents;
+                    int shipsPurged = 0;
+                    float SpaceSaved = GC.GetTotalMemory(true);
                     for (int opponents = 0; opponents < num; ++opponents)
                     {
                         int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count + 1));
                         if (index2 > removalCollection.Count - 1)
                             index2 = removalCollection.Count - 1;
+
+                        if (false)
+                        {
+                            List<string> shipkill = new List<string>();
+
+                            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+                            {
+                                if (ship.Value.shipData.ShipStyle == removalCollection[index2].Traits.ShipType)
+                                {
+                                    bool killSwitch = true;
+                                    foreach (Empire ebuild in EmpireManager.EmpireList)
+                                    {
+                                        if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+                                            killSwitch = false;
+                                        break;
+                                    }
+
+
+                                    if (killSwitch)
+                                        foreach (Ship mship in this.data.MasterShipList)
+                                        {
+                                            if (ship.Key == mship.Name)
+                                            {
+                                                killSwitch = false;
+                                                break;
+                                            }
+                                        }
+                                    if (killSwitch)
+                                    {
+                                        shipsPurged++;
+
+                                        // System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
+                                        shipkill.Add(ship.Key);
+                                    }
+                                }
+                            }
+                            foreach (string shiptoclear in shipkill)
+                            {
+                                ResourceManager.ShipsDict.Remove(shiptoclear);
+                            } 
+                        }
                         removalCollection.RemoveAt(index2);
                     }
 
-
+                    System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
+                    System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(true)).ToString());
+                                           
                     foreach (EmpireData data in (List<EmpireData>)removalCollection)
-                    {
+                    {                        
                         Empire empireFromEmpireData = this.CreateEmpireFromEmpireData(data);
                         this.data.EmpireList.Add(empireFromEmpireData);
                         switch (this.difficulty)
@@ -300,6 +355,7 @@ namespace Ship_Game
                         }
                         EmpireManager.EmpireList.Add(empireFromEmpireData);
                     }
+                    
                     foreach (EmpireData data in ResourceManager.Empires)
                     {
                         if (data.Faction != 0 || data.MinorRace)
@@ -309,14 +365,32 @@ namespace Ship_Game
                             EmpireManager.EmpireList.Add(empireFromEmpireData);
                         }
                     }
+                   
                     foreach (Empire empire in this.data.EmpireList)
                     {
                         foreach (Empire e in this.data.EmpireList)
                         {
                             if (empire != e)
-                                empire.AddRelationships(e, new Relationship(e.data.Traits.Name));
+                            {
+                                Relationship r = new Relationship(e.data.Traits.Name);
+                                empire.AddRelationships(e, r);
+                                if(this.playerEmpire == e)
+                                {                                    
+                                    float angerMod = ((int)this.difficulty ) * (90-empire.data.DiplomaticPersonality.Trustworthiness);
+                                    r.Anger_DiplomaticConflict = angerMod;
+                                    //r.Anger_FromShipsInOurBorders = angerMod;
+                                    r.Anger_MilitaryConflict = 1;
+                                    //r.Anger_TerritorialConflict = angerMod;
+                                }
+                            }
                         }
                     }
+                    ResourceManager.MarkShipDesignsUnlockable();                    
+                    
+
+                    System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
+                    System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(true)).ToString());
+
                     foreach (Empire Owner in this.data.EmpireList)
                     {
                         if (!Owner.isFaction && !Owner.MinorRace)
@@ -354,6 +428,7 @@ namespace Ship_Game
                             SolarSystem solarSystem = new SolarSystem();
                             solarSystem = SolarSystem.GenerateSystemFromData((SolarSystemData)new XmlSerializer(typeof(SolarSystemData)).Deserialize((Stream)new FileInfo(system).OpenRead()), null);
                             this.data.SolarSystemsList.Add(solarSystem);
+                            solarSystem.DontStartNearPlayer = true; //Added by Gretman
                             SystemCount++;
                         }
                     }
@@ -370,18 +445,79 @@ namespace Ship_Game
                         ++this.counter;
                         this.percentloaded = (float)(this.counter / (this.numSystems * 2));
                     }
-                    this.ThrusterEffect = this.ScreenManager.Content.Load<Effect>("Effects/Thrust");
-                    foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
+
+                    //This section added by Gretman
+                    if (this.mode != RaceDesignScreen.GameMode.Corners)
                     {
-                        if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
-                            solarSystem2.Position = this.GenerateRandom(this.data.Size.X / 4f);
+                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
+                        {
+                            if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                                solarSystem2.Position = this.GenerateRandom(this.data.Size.X / 4f);
+                        }
+
+                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)    //Unaltered Vanilla stuff
+                        {
+                            if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
+                                solarSystem2.Position = this.GenerateRandom(350000f);
+                        }
                     }
-                    foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
+                    else
                     {
-                        if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
-                            solarSystem2.Position = this.GenerateRandom(350000f);
-                    }
+                        short whichcorner = (short)RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
+                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)    
+                        {
+                            if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                            {
+                                if (solarSystem2.isStartingSystem)
+                                {
+                                    //Put the 4 Home Planets into their corners, nessled nicely back a bit
+                                    float RandomoffsetX = RandomMath.RandomBetween(0, 14) / 100;   //Do want some variance in location, but still in the back
+                                    float RandomoffsetY = RandomMath.RandomBetween(0, 14) / 100;
+                                    float MinOffset = 0.04f;   //Minimum Offset
+                                         //Theorectical Min = 0.04 (4%)                  Theoretical Max = 0.18 (18%)
+
+                                    float CornerOffset = 0.8f;  //Additional Offset for being in corner
+                                         //Theoretical Min with Corneroffset = 0.84 (84%)    Theoretical Max with Corneroffset = 0.98 (98%)  <--- thats wwaayy in the corner, but still good  =)
+                                    switch (whichcorner)
+                                    {
+                                        case 0:
+                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX)), (this.data.Size.Y * (MinOffset + RandomoffsetX)));
+                                            this.ClaimedSpots.Add(solarSystem2.Position);
+                                            break;
+                                        case 1:
+                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)), (this.data.Size.Y * (MinOffset + RandomoffsetX)));
+                                            this.ClaimedSpots.Add(solarSystem2.Position);
+                                            break;
+                                        case 2:
+                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX)), (this.data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                            this.ClaimedSpots.Add(solarSystem2.Position);
+                                            break;
+                                        case 3:
+                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)), (this.data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                            this.ClaimedSpots.Add(solarSystem2.Position);
+                                            break;
+                                    }
+                                }
+                                else solarSystem2.Position = this.GenerateRandomCorners(whichcorner);   //This will distribute the extra planets from "/SolarSystems/Random" evenly
+                                whichcorner += 1;
+                                if (whichcorner > 3) whichcorner = 0;
+                            }
+                        }
+
+                        foreach (SolarSystem solarSystem2 in this.data.SolarSystemsList)
+                        {
+                            //This will distribute all the rest of the planets evenly
+                            if (!solarSystem2.isStartingSystem && !solarSystem2.DontStartNearPlayer)
+                            {
+                                solarSystem2.Position = this.GenerateRandomCorners(whichcorner);
+                                whichcorner += 1;   //Only change which corner if a system is actually created
+                                if (whichcorner > 3) whichcorner = 0;
+                            }
+                        }
+                    }// Done breaking stuff -- Gretman
+
                     int count = this.data.SolarSystemsList.Count;
+                    this.ThrusterEffect = this.ScreenManager.Content.Load<Effect>("Effects/Thrust");
                     this.firstRun = false;
                 }
                 this.data.SolarSystemsList[this.systemToMake].spatialManager.Setup((int)(200000.0 * (double)this.scale), (int)(200000.0 * (double)this.scale), (int)(100000.0 * (double)this.scale), this.data.SolarSystemsList[this.systemToMake].Position);
@@ -497,8 +633,8 @@ namespace Ship_Game
                                 ship1.loyalty = index;
                                 ship1.Initialize();
                                 //Added by McShooterz: Starting ship support for automatic naming
-                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship1.loyalty.data.Traits.ShipType, ship1.Role))
-                                    ship1.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship1.loyalty.data.Traits.ShipType, ship1.Role);
+                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship1.loyalty.data.Traits.ShipType, ship1.shipData.Role))
+                                    ship1.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship1.loyalty.data.Traits.ShipType, ship1.shipData.Role);
                                 ship1.DoOrbit(planet1);
                                 ship1.GetSO().World = Matrix.CreateTranslation(new Vector3(ship1.Position, 0.0f));
                                 ship1.isInDeepSpace = false;
@@ -521,8 +657,8 @@ namespace Ship_Game
                                 ship2.loyalty = index;
                                 ship2.Initialize();
                                 //Added by McShooterz: Starting ship support for automatic naming
-                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship2.loyalty.data.Traits.ShipType, ship2.Role))
-                                    ship2.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship2.loyalty.data.Traits.ShipType, ship2.Role);
+                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship2.loyalty.data.Traits.ShipType, ship2.shipData.Role))
+                                    ship2.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship2.loyalty.data.Traits.ShipType, ship2.shipData.Role);
                                 ship2.DoOrbit(planet1);
                                 ship2.GetSO().World = Matrix.CreateTranslation(new Vector3(ship2.Position, 0.0f));
                                 ship2.isInDeepSpace = false;
@@ -549,8 +685,8 @@ namespace Ship_Game
                                     //this.playerShip.GetAI().State = AIState.ManualControl;
                                     this.playerShip.DoOrbit(planet1);
                                     //Added by McShooterz: Starting ship support for automatic naming
-									if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role))
-                                        this.playerShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.Role);
+                                    if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.shipData.Role))
+                                        this.playerShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.shipData.Role);
                                     else
                                         this.playerShip.VanityName = "Perseverance";
                                     this.playerShip.GetSO().World = Matrix.CreateRotationY(this.playerShip.yBankAmount) * Matrix.CreateRotationZ(this.playerShip.Rotation) * Matrix.CreateTranslation(new Vector3(this.playerShip.Center, 0.0f));
@@ -581,8 +717,8 @@ namespace Ship_Game
                                     ship3.loyalty = index;
                                     ship3.Initialize();
                                     //Added by McShooterz: Starting ship support for automatic naming
-									if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.Role))
-                                        ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.Role);
+                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.shipData.Role))
+                                        ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.shipData.Role);
                                     ship3.DoOrbit(planet1);
                                     ship3.GetSO().World = Matrix.CreateTranslation(new Vector3(ship3.Position, 0.0f));
                                     this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)ship3.GetSO());
@@ -639,6 +775,37 @@ namespace Ship_Game
                 this.ClaimedSpots.Add(sysPos);
                 return sysPos;
             }
+        }
+
+        public Vector2 GenerateRandomCorners(short corner) //Added by Gretman for Corners Game type (or whatever I end up naming it)
+        {
+            //Corner Values
+            //0 = Top Left
+            //1 = Top Right
+            //2 = Bottom Left
+            //3 = Bottom Right
+
+            double CornerSizeX = this.data.Size.X * 0.4;    //20% of map per corner
+            double CornerSizeY = this.data.Size.Y * 0.4;
+
+            double offsetX = 100000;
+            double offsetY = 100000;
+            if (corner == 1 || corner == 3)
+                offsetX = this.data.Size.X * 0.6 - 100000;    //This creates a Huge blank "Neutral Zone" between corner areas
+            if (corner == 2 || corner == 3)
+                offsetY = this.data.Size.Y * 0.6 - 100000;
+
+            Vector2 sysPos;
+            long noinfiniteloop = 0;
+            do
+            {
+                sysPos = new Vector2(RandomMath.RandomBetween((float)offsetX, (float)(CornerSizeX + offsetX)), RandomMath.RandomBetween((float)offsetY, (float)(CornerSizeY + offsetY)));
+                noinfiniteloop += 1000;
+            } 
+            //Decrease the acceptable proximity slightly each attempt, so there wont be an infinite loop here on 'tiny' + 'SuperPacked' maps
+            while (!this.SystemPosOK(sysPos, 400000 - noinfiniteloop));
+            this.ClaimedSpots.Add(sysPos);
+            return sysPos;
         }
 
         public void GenerateArm(int numOfStars, float rotation)
@@ -704,6 +871,10 @@ namespace Ship_Game
             empireData.DefaultColonyShip = data.DefaultColonyShip;
             empireData.DefaultSmallTransport = data.DefaultSmallTransport;
             empireData.DefaultTroopShip = data.DefaultTroopShip;
+            if (string.IsNullOrEmpty(empireData.DefaultTroopShip))
+            {
+                empireData.DefaultTroopShip = empireData.PortraitName + " " + "Troop";
+            }
             empireData.DefaultConstructor = data.DefaultConstructor;
             empireData.DefaultShipyard = data.DefaultShipyard;
             empireData.DiplomacyDialogPath = data.DiplomacyDialogPath;

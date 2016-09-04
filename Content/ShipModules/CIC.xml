@@ -42,6 +42,7 @@
   <BonusRepairRate>400</BonusRepairRate>
 
   <SensorRange>150000</SensorRange>
+  <TargetTracking>5</TargetTracking>
 
 
   <NameIndex>920</NameIndex>

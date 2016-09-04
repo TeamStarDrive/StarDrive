@@ -27,11 +27,11 @@
   <Restrictions>O</Restrictions>
   <UID>OrdnanceSupplyBay</UID>
   <IconTexturePath>Modules/OrdSupplyBay</IconTexturePath>
-  <Mass>10</Mass>
+  <Mass>80</Mass>
   <Health>600</Health>
   <HealthMax>600</HealthMax>
   <energyreq>0</energyreq>
-  <Description>An ordnance supply bay allows a ship to launch resupply shuttles filled with ammunition to resupply friendly ships. Only one shuttle may be active per bay at a time. Supply shuttles can ferry 50 ordnance at a time.
+  <Description>An ordnance supply bay allows a ship to launch supply shuttles filled with ammunition to resupply friendly ships. Only one shuttle may be active per bay at a time. Supply shuttles can ferry 100 ordnance at a time.
   </Description>
   <CrewRequired>0</CrewRequired>
   <CrewSupplied>0</CrewSupplied>
@@ -43,8 +43,8 @@
 
 
   <!-- for Hangar items -->
-  <hangarShipUID>Vulcan Scout</hangarShipUID>
-  <hangerTimerConstant>60</hangerTimerConstant>
+  <hangarShipUID>Supply_Shuttle</hangarShipUID>
+  <hangarTimerConstant>60</hangarTimerConstant>
   <IsSupplyBay>true</IsSupplyBay>
 
   <!-- for shield items -->

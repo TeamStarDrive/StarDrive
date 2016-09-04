@@ -327,7 +327,10 @@ namespace Ship_Game
 				{
 					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[qi.sData.Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.sData.Name, tCursor, Color.White);
+                    if (qi.DisplayName != null)
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.DisplayName, tCursor, Color.White);
+                    else
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.sData.Name, tCursor, Color.White);  //display construction ship
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					Rectangle pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
 					ProgressBar pb = new ProgressBar(pbRect)
@@ -515,7 +518,7 @@ namespace Ship_Game
 
 		public void HandleInput(InputState input, Ship_Game.ScreenManager ScreenManager)
 		{
-			this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
 			this.currentMouse = Mouse.GetState();
 			if (!HelperFunctions.CheckIntersection(this.ApplyProductionRect, input.CursorPosition))
 			{
@@ -927,7 +930,7 @@ namespace Ship_Game
 			this.SliderRes.amount = this.p.ResearcherPercentage;
 			this.SliderRes.cursor = new Rectangle(this.SliderRes.sRect.X + (int)((float)this.SliderRes.sRect.Width * this.SliderRes.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderRes.sRect.Y + this.SliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
 			this.previousMouse = this.currentMouse;
-			this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
 		}
 
 		public void SetNewPos(int x, int y)
@@ -941,7 +944,7 @@ namespace Ship_Game
 			{
 				SliderWidth = 250;
 			}
-			this.p.UpdateIncomes();
+            this.p.UpdateIncomes(false);
 			this.TotalEntrySize = new Rectangle(x, y, this.TotalEntrySize.Width, this.TotalEntrySize.Height);
 			this.SysNameRect = new Rectangle(x, y, (int)((float)(this.TotalEntrySize.Width - (SliderWidth + 150)) * 0.17f) - 30, this.TotalEntrySize.Height);
 			this.PlanetNameRect = new Rectangle(x + this.SysNameRect.Width, y, (int)((float)(this.TotalEntrySize.Width - (SliderWidth + 150)) * 0.17f), this.TotalEntrySize.Height);

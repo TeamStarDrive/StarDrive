@@ -57,6 +57,12 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
+        // Added by EVWeb to not waste space when a list won't use certain buttons
+        private bool CancelCol = true;
+        private bool UpCol = true;
+        private bool DownCol = true;
+        private bool ApplyCol = true;
+
 
 		public ScrollList(Submenu p)
 		{
@@ -68,7 +74,15 @@ namespace Ship_Game
 			this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y, ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, 0);
 		}
 
-		public ScrollList(Submenu p, int eHeight)
+        public ScrollList(Submenu p, bool cc, bool uc, bool dc, bool ac) : this(p)
+        {
+            this.CancelCol = cc;
+            this.UpCol = uc;
+            this.DownCol = dc;
+            this.ApplyCol = ac;
+        }
+
+        public ScrollList(Submenu p, int eHeight)
 		{
 			this.entryHeight = eHeight;
 			this.Parent = p;
@@ -79,7 +93,15 @@ namespace Ship_Game
 			this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y, ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, 0);
 		}
 
-		public ScrollList(Submenu p, int eHeight, bool RealRect)
+        public ScrollList(Submenu p, int eHeight, bool cc, bool uc, bool dc, bool ac) : this(p, eHeight)
+        {
+            this.CancelCol = cc;
+            this.UpCol = uc;
+            this.DownCol = dc;
+            this.ApplyCol = ac;
+        }
+
+        public ScrollList(Submenu p, int eHeight, bool RealRect)
 		{
 			this.entryHeight = eHeight;
 			this.Parent = p;
@@ -90,7 +112,15 @@ namespace Ship_Game
 			this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, this.ScrollBarHousing.Y, ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, 0);
 		}
 
-		public ScrollList.Entry AddItem(object o)
+        public ScrollList(Submenu p, int eHeight, bool RealRect, bool cc, bool uc, bool dc, bool ac) : this(p, eHeight, RealRect)
+        {
+            this.CancelCol = cc;
+            this.UpCol = uc;
+            this.DownCol = dc;
+            this.ApplyCol = ac;
+        }
+
+        public ScrollList.Entry AddItem(object o)
 		{
 			ScrollList.Entry e = new ScrollList.Entry()
 			{
@@ -379,7 +409,15 @@ namespace Ship_Game
 			{
 				for (int i = this.indexAtTop; i < this.Copied.Count && i < this.indexAtTop + this.entriesToDisplay; i++)
 				{
-					ScrollList.Entry e = this.Copied[i];
+                    ScrollList.Entry e = null;
+                    try
+                    {
+                        e = this.Copied[i];
+                    }
+                    catch
+                    {
+                        continue;
+                    }
 					if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
 					{
 						if (input.CurrentMouseState.LeftButton != ButtonState.Pressed)
@@ -410,7 +448,15 @@ namespace Ship_Game
 				int Dragged = 0;
 				for (int i = this.indexAtTop; i < this.Entries.Count && i < this.indexAtTop + this.entriesToDisplay; i++)
 				{
-					ScrollList.Entry e = this.Entries[i];
+                    ScrollList.Entry e = null;
+                    try
+                    {
+                        e = this.Entries[i];
+                    }
+                    catch
+                    {
+                        continue;
+                    }
 					if (e.clickRect == this.DraggedEntry.clickRect)
 					{
 						Dragged = this.Entries.IndexOf(e);
@@ -421,7 +467,15 @@ namespace Ship_Game
 					ScrollList.Entry e = this.Entries[i];
 					if (HelperFunctions.CheckIntersection(e.clickRect, input.CursorPosition))
 					{
-						int NewIndex = this.Entries.IndexOf(e);
+                        int NewIndex = 0;
+                        try
+                        {
+                            NewIndex = this.Entries.IndexOf(e);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
 						if (NewIndex < Dragged)
 						{
 							ScrollList.Entry toReplace = e;
@@ -705,15 +759,28 @@ namespace Ship_Game
 						Rectangle plusRect = new Rectangle(this.Entries[i].clickRect.X + this.Entries[i].clickRect.Width - 60, this.Entries[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_build_add"].Height / 2, ResourceManager.TextureDict["NewUI/icon_build_add"].Width, ResourceManager.TextureDict["NewUI/icon_build_add"].Height);
 						this.Entries[i].editRect = plusRect;
 					}
-					Rectangle item = this.Entries[i].up;
-					this.Entries[i].up = new Rectangle(this.Entries[i].clickRect.X + this.Entries[i].clickRect.Width - 30, this.Entries[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
-					Rectangle rectangle = this.Entries[i].down;
-					this.Entries[i].down = new Rectangle(this.Entries[i].clickRect.X + this.Entries[i].clickRect.Width - 60, this.Entries[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
-					Rectangle item1 = this.Entries[i].apply;
-					this.Entries[i].apply = new Rectangle(this.Entries[i].clickRect.X + this.Entries[i].clickRect.Width - 90, this.Entries[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
-					Rectangle rectangle1 = this.Entries[i].cancel;
-					this.Entries[i].cancel = new Rectangle(this.Entries[i].clickRect.X + this.Entries[i].clickRect.Width - 120, this.Entries[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
-					j++;
+                    int x = 0;
+                    if (this.UpCol)
+                    {
+                        Rectangle item = this.Entries[i].up;
+                        this.Entries[i].up = new Rectangle(this.Entries[i].clickRect.X + this.Entries[i].clickRect.Width - (x += 30), this.Entries[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
+                    }
+                    if (this.DownCol)
+                    {
+                        Rectangle rectangle = this.Entries[i].down;
+                        this.Entries[i].down = new Rectangle(this.Entries[i].clickRect.X + this.Entries[i].clickRect.Width - (x += 30), this.Entries[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
+                    }
+                    if (this.ApplyCol)
+                    {
+                        Rectangle item1 = this.Entries[i].apply;
+                        this.Entries[i].apply = new Rectangle(this.Entries[i].clickRect.X + this.Entries[i].clickRect.Width - (x += 30), this.Entries[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
+                    }
+                    if (this.CancelCol)
+                    {
+                        Rectangle rectangle1 = this.Entries[i].cancel;
+                        this.Entries[i].cancel = new Rectangle(this.Entries[i].clickRect.X + this.Entries[i].clickRect.Width - (x += 30), this.Entries[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
+                    }
+                    j++;
 				}
 			}
 			this.Entries.ApplyPendingRemovals();
@@ -756,15 +823,28 @@ namespace Ship_Game
 							Rectangle plusRect = new Rectangle(this.Copied[i].clickRect.X + this.Copied[i].clickRect.Width - 60, this.Copied[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_build_add"].Height / 2, ResourceManager.TextureDict["NewUI/icon_build_add"].Width, ResourceManager.TextureDict["NewUI/icon_build_add"].Height);
 							this.Copied[i].editRect = plusRect;
 						}
-						Rectangle item = this.Copied[i].up;
-						this.Copied[i].up = new Rectangle(this.Copied[i].clickRect.X + this.Copied[i].clickRect.Width - 30, this.Copied[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
-						Rectangle rectangle = this.Copied[i].down;
-						this.Copied[i].down = new Rectangle(this.Copied[i].clickRect.X + this.Copied[i].clickRect.Width - 60, this.Copied[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
-						Rectangle item1 = this.Copied[i].apply;
-						this.Copied[i].apply = new Rectangle(this.Copied[i].clickRect.X + this.Copied[i].clickRect.Width - 90, this.Copied[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
-						Rectangle rectangle1 = this.Copied[i].cancel;
-						this.Copied[i].cancel = new Rectangle(this.Copied[i].clickRect.X + this.Copied[i].clickRect.Width - 120, this.Copied[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
-						j++;
+                        int x = 0;
+                        if (this.UpCol)
+                        {
+                            Rectangle item = this.Copied[i].up;
+                            this.Copied[i].up = new Rectangle(this.Copied[i].clickRect.X + this.Copied[i].clickRect.Width - (x += 30), this.Copied[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
+                        }
+                        if (this.DownCol)
+                        {
+                            Rectangle rectangle = this.Copied[i].down;
+                            this.Copied[i].down = new Rectangle(this.Copied[i].clickRect.X + this.Copied[i].clickRect.Width - (x += 30), this.Copied[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
+                        }
+                        if (this.ApplyCol)
+                        {
+                            Rectangle item1 = this.Copied[i].apply;
+                            this.Copied[i].apply = new Rectangle(this.Copied[i].clickRect.X + this.Copied[i].clickRect.Width - (x += 30), this.Copied[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
+                        }
+                        if (this.CancelCol)
+                        {
+                            Rectangle rectangle1 = this.Copied[i].cancel;
+                            this.Copied[i].cancel = new Rectangle(this.Copied[i].clickRect.X + this.Copied[i].clickRect.Width - (x += 30), this.Copied[i].clickRect.Y + 15 - ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height / 2, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Width, ResourceManager.TextureDict["NewUI/icon_queue_arrow_up"].Height);
+                        }
+                        j++;
 					}
 					else
 					{
