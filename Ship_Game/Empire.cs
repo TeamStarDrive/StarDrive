@@ -115,6 +115,9 @@ namespace Ship_Game
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         float leftoverResearch =0;
+        public float exportPTrack = 0;
+        public float exportFTrack = 0;
+        public float averagePLanetStorage =0;
         static Empire()
         {
             
@@ -2133,6 +2136,19 @@ namespace Ship_Game
             {
                 this.OwnedPlanets.thisLock.EnterReadLock();
                 float newBuildM = 0f;
+   
+                int planetcount = this.GetPlanets().Count;
+                this.exportFTrack =0;
+                this.exportPTrack =0;
+                this.averagePLanetStorage =0;
+                foreach (Planet planet in this.OwnedPlanets)
+                {
+
+                    this.exportFTrack += planet.ExportFSWeight;
+                    this.exportPTrack += planet.ExportPSWeight;
+                    this.averagePLanetStorage += (int)planet.MAX_STORAGE;
+                }
+                this.averagePLanetStorage /= planetcount;
                 
                 foreach (Planet planet in this.OwnedPlanets)// .OrderBy(weight => (int)(weight.ExportFSWeight) + (int)(weight.ExportPSWeight)))
                 {
@@ -2141,6 +2157,12 @@ namespace Ship_Game
 
                     newBuildM += planet.TotalMaintenanceCostsPerTurn;
                 }
+                //foreach (Planet planet in this.OwnedPlanets)
+                //{
+
+                //    planet.ExportFSWeight = 0;
+                //    planet.ExportPSWeight = 0;
+                //}
                 this.OwnedPlanets.thisLock.ExitReadLock();
                 this.totalBuildingMaintenance = newBuildM;
             }

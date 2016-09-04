@@ -143,6 +143,7 @@ namespace Ship_Game
         public int uniqueHabPercent;
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
+       
 
         public float ObjectRadius
         {
@@ -3826,45 +3827,45 @@ namespace Ship_Game
 
             bool FSexport = false;
             bool PSexport = false;
-            int pc = 0;
-            float exportPSNeed = 0;
-            float exportFSNeed = 0;
-            float importPSNeed = 0;
-            float importFSNeed = 0;
+            int pc = this.Owner.GetPlanets().Count;
+            
+            
+            
+            
             bool exportPSFlag = true;
             bool exportFSFlag = true;
-            float exportPTrack = 0;
-            float exportFTrack = 0;
-            float Storage = 0;
+             float exportPTrack = this.Owner.exportPTrack;
+         float exportFTrack = this.Owner.exportFTrack;
+     
+            
+            //foreach (Planet planet in this.Owner.GetPlanets())
+            //{
+            //    pc++;
+            //    //                if (this.ExportPSWeight < 0 || this.ExportFSWeight < 0)
+            //    if (planet.fs == GoodState.IMPORT)
+            //    {
+            //        importFSNeed += planet.MAX_STORAGE - planet.FoodHere;
+            //        FSexport = true;
+            //    }
+            //    if (planet.fs == GoodState.EXPORT)
+            //        exportFSNeed += planet.FoodHere * (this.ExportFSWeight * -.01f);
 
-            foreach (Planet planet in this.Owner.GetPlanets())
-            {
-                pc++;
-                //                if (this.ExportPSWeight < 0 || this.ExportFSWeight < 0)
-                if (planet.fs == GoodState.IMPORT)
-                {
-                    importFSNeed += planet.MAX_STORAGE - planet.FoodHere;
-                    FSexport = true;
-                }
-                if (planet.fs == GoodState.EXPORT)
-                    exportFSNeed += planet.FoodHere * (this.ExportFSWeight * -.01f);
+            //    //if (planet.ExportFSWeight < exportFTrack)
+            //    exportFTrack += planet.ExportFSWeight;
+            //    if (planet.ps == GoodState.IMPORT)
+            //    {
+            //        importPSNeed += planet.MAX_STORAGE - planet.ProductionHere;
+            //        PSexport = true;
+            //    }
+            //    if (planet.ps == GoodState.EXPORT)
+            //        exportPSNeed += planet.ProductionHere * (this.ExportFSWeight * -.01f);
 
-                //if (planet.ExportFSWeight < exportFTrack)
-                exportFTrack += planet.ExportFSWeight;
-                if (planet.ps == GoodState.IMPORT)
-                {
-                    importPSNeed += planet.MAX_STORAGE - planet.ProductionHere;
-                    PSexport = true;
-                }
-                if (planet.ps == GoodState.EXPORT)
-                    exportPSNeed += planet.ProductionHere * (this.ExportFSWeight * -.01f);
-
-                //if (planet.ExportPSWeight < exportPTrack)
-                exportPTrack += planet.ExportPSWeight;
-                Storage += planet.MAX_STORAGE;
+            //    //if (planet.ExportPSWeight < exportPTrack)
+            //    exportPTrack += planet.ExportPSWeight;
+            //    Storage += planet.MAX_STORAGE;
 
 
-            }
+            //}
             if (pc == 1)
             {
                 FSexport = false;
@@ -3872,11 +3873,11 @@ namespace Ship_Game
             }
             exportFSFlag = exportFTrack / pc *2 >= this.ExportFSWeight;
             exportPSFlag = exportPTrack / pc *2  >= this.ExportPSWeight;
-            exportFSNeed -= importFSNeed;
-            if (!exportFSFlag || Storage /pc >= this.MAX_STORAGE ) //|| this.ExportFSWeight > exportFTrack //exportFSNeed <= 0 ||
+            
+            if (!exportFSFlag || this.Owner.averagePLanetStorage >= this.MAX_STORAGE ) //|| this.ExportFSWeight > exportFTrack //exportFSNeed <= 0 ||
                 FSexport = true;
-            exportPSNeed -= importPSNeed;
-            if ( !exportPSFlag || Storage / pc >= this.MAX_STORAGE ) //|| this.ExportPSWeight > exportPTrack //exportPSNeed <= 0 ||
+            
+            if ( !exportPSFlag || this.Owner.averagePLanetStorage >= this.MAX_STORAGE ) //|| this.ExportPSWeight > exportPTrack //exportPSNeed <= 0 ||
                 PSexport = true;
             //this.ExportFSWeight = 0;
             //this.ExportPSWeight = 0;
