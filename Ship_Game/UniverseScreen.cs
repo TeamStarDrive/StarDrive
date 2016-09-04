@@ -1791,7 +1791,7 @@ namespace Ship_Game
                 { SystemUpdaterTaskBased(combatsystem); }
             });
 
-            if (true)
+            if (false)
             {
                 var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
 
