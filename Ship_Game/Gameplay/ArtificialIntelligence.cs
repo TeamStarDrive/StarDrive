@@ -5361,10 +5361,10 @@ namespace Ship_Game.Gameplay
                         continue;
 
                         float distanceWeight = this.TradeSort(this.Owner, PlanetCheck, "Food", this.Owner.CargoSpace_Max, false);
-                        //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.ProductionHere + 1) + distanceWeight;
-                        //distanceWeight -= 100;
-                        distanceWeight = distanceWeight <0 ? distanceWeight : 0; //&& distanceWeight < PlanetCheck.ExportFSWeight
-                            PlanetCheck.ExportFSWeight += distanceWeight;   
+                            //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.ProductionHere + 1) + distanceWeight;
+                            //distanceWeight -= 100;
+                            //distanceWeight = distanceWeight < 0 && distanceWeight < PlanetCheck.ExportFSWeight ? distanceWeight : 0;
+                            PlanetCheck.ExportFSWeight = distanceWeight < PlanetCheck.ExportFSWeight ? distanceWeight : PlanetCheck.ExportFSWeight;   
                         if( PlanetCheck.fs == Planet.GoodState.EXPORT )
                             //&& (planets.Count==0 || PlanetCheck.FoodHere >= this.Owner.CargoSpace_Max))
                         {                            
@@ -5433,7 +5433,7 @@ namespace Ship_Game.Gameplay
                                         //cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
                                     }
                                     
-                                    if (cargoSpaceMax < this.Owner.CargoSpace_Max)
+                                    if (cargoSpaceMax <=0+p.MAX_STORAGE*.1f)// < this.Owner.CargoSpace_Max)
                                     {
                                         flag = true;
                                         break;
@@ -5466,8 +5466,8 @@ namespace Ship_Game.Gameplay
                                 continue;
                             float distanceWeight =this.TradeSort(this.Owner, PlanetCheck, "Production", this.Owner.CargoSpace_Max, false);
                            // distanceWeight -= 100;
-                          //  distanceWeight = distanceWeight < 0  ? distanceWeight : 0; //&& distanceWeight < PlanetCheck.ExportPSWeight
-                            PlanetCheck.ExportPSWeight += distanceWeight;
+                            //distanceWeight = distanceWeight < PlanetCheck.ExportPSWeight ?//distanceWeight < 0  ? distanceWeight : 0; //
+                            PlanetCheck.ExportPSWeight = distanceWeight < PlanetCheck.ExportPSWeight ? distanceWeight : PlanetCheck.ExportPSWeight;
                             //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.FoodHere + 1) +distanceWeight;                            
                             
                             if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.EXPORT)
@@ -5501,11 +5501,13 @@ namespace Ship_Game.Gameplay
                         {
                             flag = false;
                             float cargoSpaceMax = p.ProductionHere;
+                            
                             float mySpeed = this.TradeSort(this.Owner, p, "Production", this.Owner.CargoSpace_Max, false);
                             //cargoSpaceMax = cargoSpaceMax + p.NetProductionPerTurn * mySpeed;
+
+                            //+ this.TradeSort(this.Owner, this.end, "Production", this.Owner.CargoSpace_Max);
                             
-                                   //+ this.TradeSort(this.Owner, this.end, "Production", this.Owner.CargoSpace_Max);
-                            ArtificialIntelligence.ShipGoal plan;
+                                ArtificialIntelligence.ShipGoal plan;
                             this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
@@ -5537,7 +5539,7 @@ namespace Ship_Game.Gameplay
                                         cargoSpaceMax = cargoSpaceMax - efficiency;
                                     }
                                     
-                                    if (cargoSpaceMax < this.Owner.CargoSpace_Max)
+                                    if (cargoSpaceMax <= 0 + p.MAX_STORAGE * .1f) // this.Owner.CargoSpace_Max)
                                     {
                                         flag = true;
                                         break;
