@@ -102,12 +102,20 @@ namespace Ship_Game
 				float roomoneitherside = (rangeforbuttons - 734f) / 2f;
                 //Added by McShooterz: Shifted buttons to add new ones, added dummy espionage button
 				Cursor.X = (float)(r4.Rect.X + r4.Rect.Width) + roomoneitherside;
+
+
                 if (this.screen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth >= 1920)
                 {
+                    float saveY = Cursor.Y;
+                    
                     Cursor.X -= 220f;
+                    //saveY = Cursor.Y + 5;
+
+                    //Cursor.Y += ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height;
+
                     EmpireUIOverlay.Button ShipList = new EmpireUIOverlay.Button();
 
-                    ShipList.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
+                    ShipList.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
                     ShipList.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military"];
                     ShipList.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_hover"];
                     ShipList.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_pressed"];
@@ -118,7 +126,7 @@ namespace Ship_Game
                     Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 5;
                     EmpireUIOverlay.Button Fleets = new EmpireUIOverlay.Button();
 
-                    Fleets.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
+                    Fleets.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
                     Fleets.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military"];
                     Fleets.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_hover"];
                     Fleets.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_pressed"];
@@ -127,9 +135,14 @@ namespace Ship_Game
 
                     this.Buttons.Add(Fleets);
                     Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 5;
+                    Cursor.Y = saveY;
+                    
                 }
                 else
-                    Cursor.X -= 50f;
+                {
+                    Cursor.X -= 50f;                    
+                   
+                }
 				EmpireUIOverlay.Button Shipyard = new EmpireUIOverlay.Button();
 
                 Shipyard.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
@@ -266,6 +279,38 @@ namespace Ship_Game
 				launches = "Shipyard"
 			};
 			this.Buttons.Add(Shipyard0);
+            {
+                float saveY = Cursor0.Y;
+                float saveX = Cursor0.X;
+                saveY = Cursor0.Y + 5;
+
+                Cursor0.Y += ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height;
+
+                EmpireUIOverlay.Button ShipList = new EmpireUIOverlay.Button();
+
+                ShipList.Rect = new Rectangle((int)Cursor0.X, (int)Cursor0.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
+                ShipList.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military"];
+                ShipList.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_hover"];
+                ShipList.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_pressed"];
+                ShipList.Text = Localizer.Token(104);
+                ShipList.launches = "ShipList";
+
+                this.Buttons.Add(ShipList);
+                Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 5;
+                EmpireUIOverlay.Button Fleets = new EmpireUIOverlay.Button();
+
+                Fleets.Rect = new Rectangle((int)Cursor0.X, (int)Cursor0.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
+                Fleets.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military"];
+                Fleets.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_hover"];
+                Fleets.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_military_pressed"];
+                Fleets.Text = Localizer.Token(103);
+                Fleets.launches = "Fleets";
+
+                this.Buttons.Add(Fleets);
+                Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 5;
+                Cursor0.Y = saveY;
+                Cursor0.X = saveX;
+            }
 			Cursor0.X = Cursor0.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 18);
 			EmpireUIOverlay.Button Empire0 = new EmpireUIOverlay.Button()
 			{
@@ -592,7 +637,7 @@ namespace Ship_Game
                             }
                             case "ShipList":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(7044), Ship.universeScreen.ScreenManager);
+                                ToolTip.CreateTooltip(Localizer.Token(7044), Ship.universeScreen.ScreenManager, "K");
                                 break;
                             }
                             case "Fleets":
@@ -703,7 +748,8 @@ namespace Ship_Game
 				}
 				else
 				{
-					if (b.State != EmpireUIOverlay.PressState.Hover && b.State != EmpireUIOverlay.PressState.Pressed)
+                    
+                    if (b.State != EmpireUIOverlay.PressState.Hover && b.State != EmpireUIOverlay.PressState.Pressed)
 					{
 						AudioManager.PlayCue("mouse_over4");
 					}
@@ -724,7 +770,8 @@ namespace Ship_Game
 					{
                         if (caller is ShipDesignScreen)
                         {
-                            (caller as ShipDesignScreen).ExitToMenu(b.launches);
+                            (caller as ShipDesignScreen)//.ExitScreen();
+                                .ExitToMenu(b.launches);
                         }
                         else if (caller is FleetDesignScreen)
                         {

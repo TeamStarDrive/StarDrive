@@ -35,12 +35,20 @@ namespace Ship_Game
 
         private void btClose_Click(object sender, EventArgs e)
         {
+            
             Close();
+
         }
 
         private void btOpenBugTracker_Click(object sender, EventArgs e)
         {
+            if(!ExceptionTracker.Kudos)
             Process.Start(ExceptionTracker.BugtrackerURL);
+            else
+            {
+                ExceptionTracker.Kudos = false;
+                Process.Start(ExceptionTracker.KudosURL);
+            }
         }
 
   

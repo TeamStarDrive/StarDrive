@@ -13,7 +13,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
-
+using System.Runtime;
 namespace Ship_Game
 {
 	public sealed class ResourceManager
@@ -106,10 +106,18 @@ namespace Ship_Game
         public static ShipNames ShipNames;
         public static AgentMissionData AgentMissionData;
         public static MainMenuShipList MainMenuShipList;
-        public static Dictionary<string, ShipRole> ShipRoles;
+        public static Dictionary<ShipData.RoleName, ShipRole> ShipRoles;
         public static Dictionary<string, HullBonus> HullBonuses;
         public static Dictionary<string, PlanetEdict> PlanetaryEdicts;
-
+        //public static Dictionary<string, string> DefaultStrings;
+        
+        //private static void AddDefaultString(string addme)
+        //{
+        //    if(!DefaultStrings.ContainsKey(addme))
+        //    {
+        //        DefaultStrings.Add()
+        //    }
+        //}
 		static ResourceManager()
 		{
 			Ship_Game.ResourceManager.TextureDict = new Dictionary<string, Texture2D>();
@@ -157,16 +165,163 @@ namespace Ship_Game
             Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
             Ship_Game.ResourceManager.AgentMissionData = new AgentMissionData();
             Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
-            Ship_Game.ResourceManager.ShipRoles = new Dictionary<string, ShipRole>();
+            Ship_Game.ResourceManager.ShipRoles = new Dictionary<ShipData.RoleName, ShipRole>();
             Ship_Game.ResourceManager.HullBonuses = new Dictionary<string, HullBonus>();
             Ship_Game.ResourceManager.PlanetaryEdicts = new Dictionary<string, PlanetEdict>();
             Ship_Game.ResourceManager.OffSet = 0;
+            
 		}
 
 		public ResourceManager()
 		{
 		}
+        public static void MarkShipDesignsUnlockable()
+        {
+            int x = 0;
 
+            Dictionary<Technology, List<string>> ShipTechs = new Dictionary<Technology, List<string>>();
+            //foreach (KeyValuePair<string, TechEntry> TechTreeItem in this.TechnologyDict)
+            foreach (KeyValuePair<string, Technology> TechTreeItem in ResourceManager.TechTree)
+            {
+                if (TechTreeItem.Value.ModulesUnlocked.Count <= 0 && TechTreeItem.Value.HullsUnlocked.Count <= 0)
+                    continue;
+                ShipTechs.Add(TechTreeItem.Value, ResourceManager.FindPreviousTechs( TechTreeItem.Value, new List<string>()));
+            }
+
+
+
+            ShipData shipData;
+            HashSet<string> purge = new HashSet<string>();
+            //if(shipData.EmpiresThatCanUseThis.ContainsKey(this.data.Traits.ShipType))
+            foreach (ShipData hull in ResourceManager.HullsDict.Values)
+            {
+                if (hull.Role == ShipData.RoleName.disabled)
+                    continue;
+                if (hull.Role < ShipData.RoleName.gunboat)
+                    hull.unLockable = true;
+                foreach (Technology hulltech2 in ShipTechs.Keys)
+                {
+                    foreach (Technology.UnlockedHull hulls in hulltech2.HullsUnlocked)
+                    {
+                        if (hulls.Name == hull.Hull)
+                        {
+                            foreach (string tree in ShipTechs[hulltech2])
+                            {
+                                hull.techsNeeded.Add(tree);
+                                hull.unLockable = true;
+                            }
+                            break;
+                        }
+                    }
+                    if (hull.unLockable)
+                        break;
+                }
+
+            }
+            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+            {
+
+                shipData = ship.Value.shipData;
+                if (shipData == null)
+                    continue;
+                if (shipData.HullRole == ShipData.RoleName.disabled)
+                    continue;
+                //bool empirehulldict;
+                //if (shipData.ShipStyle != this.data.Traits.ShipType && (!this.GetHDict().TryGetValue(shipData.Hull, out empirehulldict) || !empirehulldict))
+                //    continue;
+                //if (shipData.HullRole < ShipData.RoleName.gunboat || shipData.Role == ShipData.RoleName.prototype)
+                //    shipData.hullUnlockable = true;
+                List<string> techsFound = new List<string>();
+                if (shipData.HullData != null && shipData.HullData.unLockable)
+                {
+                    foreach (string str in shipData.HullData.techsNeeded)
+                        shipData.techsNeeded.Add(str);
+                    shipData.hullUnlockable = true;
+                }
+                else
+                {
+                    //System.Diagnostics.Debug.WriteLine(" no hull tech");
+                    shipData.allModulesUnlocakable = false;
+                    shipData.hullUnlockable = false;
+                    //shipData.techsNeeded.Clear();
+                    purge.Add(ship.Key);
+                }
+
+
+
+                bool flag = false;
+                if (shipData.hullUnlockable)
+                {
+                    shipData.allModulesUnlocakable = true;
+                    foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
+                    {
+
+
+                        if (module.InstalledModuleUID == "Dummy")
+                            continue;
+                        bool modUnlockable = false;
+                        //if (!modUnlockable)
+                        foreach (Technology technology in ShipTechs.Keys)
+                        {
+
+                            foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
+                            {
+                                if (mods.ModuleUID == module.InstalledModuleUID)
+                                {
+                                    modUnlockable = true;
+
+                                    shipData.techsNeeded.Add(technology.UID);
+                                    foreach (string tree in ShipTechs[technology])
+                                        shipData.techsNeeded.Add(tree);
+
+                                    break;
+                                }
+                            }
+                            if (modUnlockable)
+                                break;
+                        }
+                        if (!modUnlockable)
+                        {
+                            shipData.allModulesUnlocakable = false;
+                            //shipData.hullUnlockable = false;
+                            //shipData.techsNeeded.Clear();
+                           // purge.Add(ship.Key);
+                            break;
+                        }
+
+                    }
+                }
+
+                if (shipData.allModulesUnlocakable)
+                    foreach (string techname in shipData.techsNeeded)
+                    {
+                        shipData.TechScore += (int)ResourceManager.TechTree[techname].Cost;
+                        x++;
+                        if (shipData.BaseStrength == 0)
+                        {
+                            ResourceManager.CalculateBaseStrength(ship.Value);
+                        }
+                    }
+                else
+                {                    
+                    //shipData.allModulesUnlocakable = false;
+                    shipData.unLockable = false;
+                    shipData.techsNeeded.Clear();
+                    purge.Add(shipData.Name);
+                    shipData.BaseStrength = 0;
+                    //System.Diagnostics.Debug.WriteLine(shipData.Name);
+                }
+
+            }
+            
+            System.Diagnostics.Debug.WriteLine("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
+            foreach (string purger in purge)
+            {
+                System.Diagnostics.Debug.WriteLine("These are Designs" + purger);
+            }
+            
+
+        }
 		public static Microsoft.Xna.Framework.Content.ContentManager localContentManager;
 		public static bool ignoreLoadingErrors = false;
 		/// <summary>
@@ -206,8 +361,8 @@ namespace Ship_Game
 			troop.Range = t.Range;
 			troop.Description = t.Description;
 			troop.HardAttack = t.HardAttack;
-			troop.Initiative = t.Initiative;
-			troop.SoftAttack = t.SoftAttack;
+            //troop.Initiative = t.Initiative;          //Not referenced in code, removing to save memory -Gretman
+            troop.SoftAttack = t.SoftAttack;
 			troop.Strength = t.Strength;
 			troop.StrengthMax = t.StrengthMax;
 			troop.TargetType = t.TargetType;
@@ -242,20 +397,36 @@ namespace Ship_Game
             //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
             //{
             //    newShip.ShipRecreate();
-            //    newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            //    newShip.shipData.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
             //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
             //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
             //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
             //}
             //else 
+            if (!Ship_Game.ResourceManager.ShipsDict.TryGetValue(key, out newShip))
+            {
+                Ship_Game.ResourceManager.ShipsDict.TryGetValue(Owner.data.StartingScout, out newShip);
                 newShip = new Ship()
-			{
-				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
-				Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
-                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
-                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
-                
-			};
+                {
+                    shipData = newShip.shipData,
+                    Name = newShip.Name,
+                    BaseStrength = newShip.BaseStrength,
+                    BaseCanWarp = newShip.BaseCanWarp,
+                    VanityName = "I am a bug"
+
+                };
+            }
+            else
+            {
+                newShip = new Ship()
+                    {
+                        shipData = newShip.shipData,
+                        Name = newShip.Name,
+                        BaseStrength = newShip.BaseStrength,
+                        BaseCanWarp = newShip.BaseCanWarp
+
+                    };
+            }
 			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
@@ -301,8 +472,8 @@ namespace Ship_Game
             
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -313,7 +484,7 @@ namespace Ship_Game
 				t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
 				t.InitializeForViewing();
 			}
-			if (newShip.Role == "fighter")
+            if (newShip.shipData.Role == ShipData.RoleName.fighter)
 			{
 				Ship level = newShip;
 				level.Level = level.Level + Owner.data.BonusFighterLevels;
@@ -335,15 +506,15 @@ namespace Ship_Game
             //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
             //{
             //    newShip.ShipRecreate();
-            //    newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            //    newShip.shipData.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
             //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
             //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
             //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
             //}
             //else
-    newShip = new Ship()
+            newShip = new Ship()
             {
-                Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
+                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
                 Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
                 BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
@@ -406,7 +577,7 @@ namespace Ship_Game
                 t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
                 t.InitializeForViewing();
             }
-            if (newShip.Role == "fighter")
+            if (newShip.shipData.Role == ShipData.RoleName.fighter)
             {
                 Ship level = newShip;
                 level.Level += Owner.data.BonusFighterLevels;
@@ -416,15 +587,17 @@ namespace Ship_Game
             return newShip;
         }
 
-		public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, string role, List<Troop> Troops)
+		//fbedard: do not use, cannot change role of shipdata !
+        public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, ShipData.RoleName role, List<Troop> Troops)
 		{
 			Ship newShip = new Ship()
 			{
-				Role = role,
+                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
                 BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
 			};
-			if (role == "troop")
+            //newShip.shipData.Role = role;
+			if (role == ShipData.RoleName.troop)
 			{
 				if (Troops.Count <= 0)
 				{
@@ -475,7 +648,7 @@ namespace Ship_Game
 				newSlot.InstalledModuleUID = slot.InstalledModuleUID;
 				newShip.ModuleSlotList.AddLast(newSlot);
 			}
-			if (newShip.Role == "fighter")
+            if (newShip.shipData.Role == ShipData.RoleName.fighter)
 			{
 				Ship level = newShip;
 				level.Level = level.Level + Owner.data.BonusFighterLevels;
@@ -483,8 +656,8 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-			if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
+			if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -520,9 +693,8 @@ namespace Ship_Game
             //}
             //else
             newShip = new Ship();
-			
 
-			newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            newShip.shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData;
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
             newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
             newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
@@ -544,7 +716,7 @@ namespace Ship_Game
 			}
 			newSO.ObjectType = ObjectType.Dynamic;
 			newShip.SetSO(newSO);
-			if (newShip.Role == "fighter" && Owner.data != null)
+            if (newShip.shipData.Role == ShipData.RoleName.fighter && Owner.data != null)
 			{
 				Ship level = newShip;
 				level.Level = level.Level + Owner.data.BonusFighterLevels;
@@ -575,8 +747,8 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -599,7 +771,7 @@ namespace Ship_Game
             //{
             //    newShip.ShipRecreate();
             //    newShip.Rotation = facing;
-            //    newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            //    newShip.shipData.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
             //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
             //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
             //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
@@ -608,14 +780,14 @@ namespace Ship_Game
             newShip = new Ship()
 			{
 				Rotation = facing,
-				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
+                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
                 Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
                 BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
                 
 			};
 			newShip.LoadContent(GetContentManager());
-			if (newShip.Role == "fighter")
+            if (newShip.shipData.Role == ShipData.RoleName.fighter)
 			{
 				Ship level = newShip;
 				level.Level = level.Level + Owner.data.BonusFighterLevels;
@@ -662,8 +834,8 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -686,7 +858,7 @@ namespace Ship_Game
 			{
 				return null;
 			}
-			newShip.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
+            newShip.shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData;
 			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
             newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
             newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
@@ -708,7 +880,7 @@ namespace Ship_Game
 			}
 			newSO.ObjectType = ObjectType.Dynamic;
 			newShip.SetSO(newSO);
-			if (newShip.Role == "fighter" && Owner.data != null)
+            if (newShip.shipData.Role == ShipData.RoleName.fighter && Owner.data != null)
 			{
 				Ship level = newShip;
 				level.Level = level.Level + Owner.data.BonusFighterLevels;
@@ -739,8 +911,8 @@ namespace Ship_Game
 			newShip.loyalty = Owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.Role);
+            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -760,7 +932,7 @@ namespace Ship_Game
 		{
 			Ship newShip = new Ship()
 			{
-				Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
+                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
                 Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
                 BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
@@ -818,11 +990,11 @@ namespace Ship_Game
 			if (s != null)
 			{
 				s.Mothership = Parent;
-				s.Velocity = Parent.Velocity;
-                
+				s.Velocity = Parent.Velocity;                
 			}
 			return s;
 		}
+
 
 		public static Troop CreateTroop(Troop t, Empire Owner)
 		{
@@ -833,8 +1005,8 @@ namespace Ship_Game
 				Name = t.Name,
 				Description = t.Description,
 				HardAttack = t.HardAttack,
-				Initiative = t.Initiative,
-				SoftAttack = t.SoftAttack,
+                //Initiative = t.Initiative,          //Not referenced in code, removing to save memory -Gretman
+                SoftAttack = t.SoftAttack,
 				Strength = t.Strength,
                 StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength,
 				Icon = t.Icon,
@@ -872,31 +1044,37 @@ namespace Ship_Game
 
 		public static Ship CreateTroopShipAtPoint(string key, Empire Owner, Vector2 point, Troop troop)
 		{
-			Ship newShip = new Ship()
+			Ship Ship =null;
+            if(!Ship_Game.ResourceManager.ShipsDict.TryGetValue(key, out Ship) ) //|| Ship.Size > Ship_Game.ResourceManager.ShipsDict[Owner.data.DefaultSmallTransport].Size)
+            {
+                Ship_Game.ResourceManager.ShipsDict.TryGetValue("Default Troop", out Ship);
+                //key = "Default Troop";
+            }
+            Ship newShip = new Ship()
 			{
-				Role = "troop",
-				Name = key,
+                shipData = Ship.shipData,
+                Name = Ship.Name,
 				VanityName = troop.Name
 			};
-			newShip.LoadContent(GetContentManager());
+            newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+            if (!Ship.GetShipData().Animated)
 			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+                newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship.ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
 			}
 			else
 			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+                SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship.ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
 			newSO.ObjectType = ObjectType.Dynamic;
 			newShip.SetSO(newSO);
 			newShip.Position = point;
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+            foreach (Thruster t in Ship.GetTList())
 			{
 				Thruster thr = new Thruster()
 				{
@@ -906,7 +1084,7 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+			foreach (ModuleSlot slot in Ship.ModuleSlotList)
 			{
 				ModuleSlot newSlot = new ModuleSlot();
 				newSlot.SetParent(newShip);
@@ -931,7 +1109,9 @@ namespace Ship_Game
 				t.InitializeForViewing();
 			}
 			newShip.TroopList.Add(Ship_Game.ResourceManager.CopyTroop(troop));
-			Owner.AddShip(newShip);
+            if (newShip.shipData.Role == ShipData.RoleName.troop) // && newShip.shipData.ShipCategory == ShipData.Category.Civilian)
+                newShip.shipData.ShipCategory = ShipData.Category.Combat;  //fbedard
+            Owner.AddShip(newShip);
 			return newShip;
 		}
 
@@ -985,7 +1165,22 @@ namespace Ship_Game
 			{
 				FileInfo FI = filesFromDirectory1[num2];
 				FileStream stream = FI.OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
+                if (FI.Extension != "XML")
+                {
+                    num2++;
+                    continue;
+                }
+                ShipData newShipData  =null;
+                try
+                {
+                    newShipData = (ShipData)serializer0.Deserialize(stream);
+                }
+                catch
+                {
+                    num2++;
+                    continue;
+                    
+                }
 				//stream.Close();
 				stream.Dispose();
 				if (newShipData.Name != Name)
@@ -1176,36 +1371,87 @@ namespace Ship_Game
 			}
 			return files;
 		}
-
-		public static Model GetModel(string path)
+        public static Model GetModel(string path)
+        {
+            return GetModel(path, false);
+        }
+        public static Model GetModel(string path, bool NoException)
 		{
-			Model item;
-			try
-			{
-				if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
+			Model item =null;
+//#if !DEBUG			
+//            try
+//#endif
+            {
+                Exception t = null;
+                string loaderror = string.Empty;
+                bool loaded = false;
+                lock (Ship_Game.ResourceManager.ModelDict)
+                    if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
+                    {
+                        if (GlobalStats.ActiveMod != null ) //&& GlobalStats.ActiveModInfo != null)
+                        {
+                            try
+                            {
+                                item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
+                                loaded = true;
+                            }
+                            catch(Microsoft.Xna.Framework.Content.ContentLoadException ex)
+                            {
+                                
+                            }
+                            catch(OutOfMemoryException ex)
+                            {
+                                throw (ex);
+                            }
+                        }
+                        if (!loaded)
+                        {
+                            try
+                            {
+                                item = GetContentManager().Load<Model>(path);
+                            }
+                            catch
+                            {
+                                if (!NoException)
+                                    throw;
+                            }
+                        }
+                        Ship_Game.ResourceManager.ModelDict.Add(path, item);
+                    }
+                   
+                return item;
+                if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
 				{
-					item= GetContentManager().Load<Model>(path);
-					Ship_Game.ResourceManager.ModelDict.Add(path, item);
-					//item = model;
+                    
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();
+                   
+                        item = GetContentManager().Load<Model>(path);
+                        Ship_Game.ResourceManager.ModelDict.Add(path, item);
+                    
 				}
                 
-
-
-
-
-                //else
-                //{
-                //    item = Ship_Game.ResourceManager.ModelDict[path];
-                //}
+                else
+                {
+                    item = Ship_Game.ResourceManager.ModelDict[path];
+                }
 			}
-			catch
-			{
-                
-				item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
-                Ship_Game.ResourceManager.ModelDict.Add(path, item);
-				//item = model;
-			}
-			return item;
+//#if !DEBUG
+//            catch
+//#endif
+            {
+                if (item == null)
+                {
+                    item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path)) as Model;
+                    //item = GetContentManager().Load<SkinnedModel>(string.Concat("Mod Models/", path)) ;
+                    Ship_Game.ResourceManager.ModelDict.Add(path, item);
+                    //item = model;
+                }
+            }
+
+            return item;
 		}
 
 		public static ShipModule GetModule(string uid)
@@ -1213,127 +1459,131 @@ namespace Ship_Game
 			
             ShipModule module = new ShipModule()
 			{
-				BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
-				HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
-				BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
-				Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
-				Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
-				DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
-                ECM = Ship_Game.ResourceManager.ShipModulesDict[uid].ECM,
-				EMP_Protection = Ship_Game.ResourceManager.ShipModulesDict[uid].EMP_Protection,
-				explodes = Ship_Game.ResourceManager.ShipModulesDict[uid].explodes,
+                //All of the commented out properties here have been replaced by this single reference to 'ShipModule_Advanced' which now contains them all - Gretman
+                Advanced = Ship_Game.ResourceManager.ShipModulesDict[uid].Advanced,
+
+                //BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
+                //HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
+                //BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
+                //Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
+                //Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
+                DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
+                //ECM = Ship_Game.ResourceManager.ShipModulesDict[uid].ECM,
+				//EMP_Protection = Ship_Game.ResourceManager.ShipModulesDict[uid].EMP_Protection,
+				//explodes = Ship_Game.ResourceManager.ShipModulesDict[uid].explodes,
 				FieldOfFire = Ship_Game.ResourceManager.ShipModulesDict[uid].FieldOfFire,
 				hangarShipUID = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarShipUID,
 				hangarTimer = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarTimer,
-				hangarTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarTimerConstant,
+				//hangarTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarTimerConstant,
 				Health = Ship_Game.ResourceManager.ShipModulesDict[uid].HealthMax,
-				IsSupplyBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsSupplyBay,
+				//IsSupplyBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsSupplyBay,
 				HealthMax = Ship_Game.ResourceManager.ShipModulesDict[uid].HealthMax,
 				isWeapon = Ship_Game.ResourceManager.ShipModulesDict[uid].isWeapon,
-				IsTroopBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsTroopBay,
+				//IsTroopBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsTroopBay,
 				Mass = Ship_Game.ResourceManager.ShipModulesDict[uid].Mass,
-				MechanicalBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].MechanicalBoardingDefense,
+				//MechanicalBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].MechanicalBoardingDefense,
 				ModuleType = Ship_Game.ResourceManager.ShipModulesDict[uid].ModuleType,
 				NameIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].NameIndex,
-				numberOfColonists = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfColonists,
-				numberOfEquipment = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfEquipment,
-				numberOfFood = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfFood,
+				//numberOfColonists = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfColonists,
+				//numberOfEquipment = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfEquipment,
+				//numberOfFood = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfFood,
 				OrdinanceCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].OrdinanceCapacity,
-				OrdnanceAddedPerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].OrdnanceAddedPerSecond,
-				PowerDraw = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDraw,
-				PowerFlowMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerFlowMax,
-				PowerRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerRadius,
-				PowerStoreMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerStoreMax,
-				SensorRange = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorRange,
-				shield_power = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,
-				shield_power_max = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,
-				shield_radius = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_radius,
-				shield_recharge_delay = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_delay,
-				shield_recharge_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_rate,
-				TechLevel = Ship_Game.ResourceManager.ShipModulesDict[uid].TechLevel,
-				thrust = Ship_Game.ResourceManager.ShipModulesDict[uid].thrust,
-				TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,
-				TroopCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopCapacity,
-				TroopsSupplied = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopsSupplied,
+				//OrdnanceAddedPerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].OrdnanceAddedPerSecond,
+				//PowerDraw = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDraw,
+				//PowerFlowMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerFlowMax,
+				//PowerRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerRadius,
+				//PowerStoreMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerStoreMax,
+				//SensorRange = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorRange,
+				shield_power = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,    //Hmmm... This one is strange -Gretman
+				//shield_power_max = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,
+				//shield_radius = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_radius,
+				//shield_recharge_delay = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_delay,
+				//shield_recharge_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_rate,
+				//TechLevel = Ship_Game.ResourceManager.ShipModulesDict[uid].TechLevel,
+				//thrust = Ship_Game.ResourceManager.ShipModulesDict[uid].thrust,
+                //TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,    //Not referenced in code, removing to save memory -Gretman
+                //TroopCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopCapacity,
+				//TroopsSupplied = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopsSupplied,
 				UID = Ship_Game.ResourceManager.ShipModulesDict[uid].UID,
-				WarpThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpThrust,
+				//WarpThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpThrust,
 				XSIZE = Ship_Game.ResourceManager.ShipModulesDict[uid].XSIZE,
 				YSIZE = Ship_Game.ResourceManager.ShipModulesDict[uid].YSIZE,
-				InhibitionRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].InhibitionRadius,
-				FightersOnly = Ship_Game.ResourceManager.ShipModulesDict[uid].FightersOnly,
-                DroneModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneModule,
-                FighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FighterModule,
-                CorvetteModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CorvetteModule,
-                FrigateModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FrigateModule,
-                DestroyerModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DestroyerModule,
-                CruiserModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CruiserModule,
-                CarrierModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CarrierModule,
-                CapitalModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CapitalModule,
-                FreighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FreighterModule,
-                PlatformModule = Ship_Game.ResourceManager.ShipModulesDict[uid].PlatformModule,
-                StationModule = Ship_Game.ResourceManager.ShipModulesDict[uid].StationModule,
-				TurnThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].TurnThrust,
-				DeployBuildingOnColonize = Ship_Game.ResourceManager.ShipModulesDict[uid].DeployBuildingOnColonize,
+				//InhibitionRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].InhibitionRadius,
+				//FightersOnly = Ship_Game.ResourceManager.ShipModulesDict[uid].FightersOnly,
+                //DroneModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneModule,
+                //FighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FighterModule,
+                //CorvetteModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CorvetteModule,
+                //FrigateModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FrigateModule,
+                //DestroyerModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DestroyerModule,
+                //CruiserModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CruiserModule,
+                //CarrierModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CarrierModule,
+                //CapitalModule = Ship_Game.ResourceManager.ShipModulesDict[uid].CapitalModule,
+                //FreighterModule = Ship_Game.ResourceManager.ShipModulesDict[uid].FreighterModule,
+                //PlatformModule = Ship_Game.ResourceManager.ShipModulesDict[uid].PlatformModule,
+                //StationModule = Ship_Game.ResourceManager.ShipModulesDict[uid].StationModule,
+				//TurnThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].TurnThrust,
+				//DeployBuildingOnColonize = Ship_Game.ResourceManager.ShipModulesDict[uid].DeployBuildingOnColonize,
 				PermittedHangarRoles = Ship_Game.ResourceManager.ShipModulesDict[uid].PermittedHangarRoles,
-				MaximumHangarShipSize = Ship_Game.ResourceManager.ShipModulesDict[uid].MaximumHangarShipSize,
-				IsRepairModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsRepairModule,
-				MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,
-				MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,
-				MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,
-				WarpMassCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpMassCapacity,
-				PowerDrawAtWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDrawAtWarp,
-				FTLSpeed = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpeed,
-				ResourceStored = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStored,
-				ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,
-				ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,
-				ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,
-				ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
-				IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
-				shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
-                FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime,
+				//MaximumHangarShipSize = Ship_Game.ResourceManager.ShipModulesDict[uid].MaximumHangarShipSize,
+				//IsRepairModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsRepairModule,
+                //MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,    //Not referenced in code, removing to save memory -Gretman
+                //MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,    //Not referenced in code, removing to save memory -Gretman
+                //MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,    //Not referenced in code, removing to save memory -Gretman
+                //WarpMassCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpMassCapacity,
+				//PowerDrawAtWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDrawAtWarp,
+				//FTLSpeed = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpeed,
+				//ResourceStored = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStored,
+                //ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,    //Not referenced in code, removing to save memory -Gretman
+                //ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,    //Not referenced in code, removing to save memory -Gretman
+                //ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,    //Not referenced in code, removing to save memory -Gretman
+                //ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
+				//IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
+				//shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
+                //FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime,
                 shieldsOff = Ship_Game.ResourceManager.ShipModulesDict[uid].shieldsOff,
-                SensorBonus = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorBonus,
-                TransporterOrdnance = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterOrdnance,
-                TransporterPower = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterPower,
-                TransporterRange = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterRange,
-                TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant,
-                TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding,
-                TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault,
-                KineticResist = Ship_Game.ResourceManager.ShipModulesDict[uid].KineticResist,
-                EnergyResist = Ship_Game.ResourceManager.ShipModulesDict[uid].EnergyResist,
-                GuidedResist = Ship_Game.ResourceManager.ShipModulesDict[uid].GuidedResist,
-                MissileResist = Ship_Game.ResourceManager.ShipModulesDict[uid].MissileResist,
-                HybridResist = Ship_Game.ResourceManager.ShipModulesDict[uid].HybridResist,
-                BeamResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BeamResist,
-                ExplosiveResist = Ship_Game.ResourceManager.ShipModulesDict[uid].ExplosiveResist,
-                InterceptResist = Ship_Game.ResourceManager.ShipModulesDict[uid].InterceptResist,
-                RailgunResist = Ship_Game.ResourceManager.ShipModulesDict[uid].RailgunResist,
-                SpaceBombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SpaceBombResist,
-                BombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BombResist,
-                BioWeaponResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BioWeaponResist,
-                DroneResist = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneResist,
-                WarpResist = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpResist,
-                TorpedoResist = Ship_Game.ResourceManager.ShipModulesDict[uid].TorpedoResist,
-                CannonResist = Ship_Game.ResourceManager.ShipModulesDict[uid].CannonResist,
-                SubspaceResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SubspaceResist,
-                PDResist = Ship_Game.ResourceManager.ShipModulesDict[uid].PDResist,
-                FlakResist = Ship_Game.ResourceManager.ShipModulesDict[uid].FlakResist,
-                APResist = Ship_Game.ResourceManager.ShipModulesDict[uid].APResist,
-                DamageThreshold = Ship_Game.ResourceManager.ShipModulesDict[uid].DamageThreshold,
-                shield_threshold = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_threshold,
-                shield_energy_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_energy_resist,
-                shield_kinetic_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_kinetic_resist,
-                shield_explosive_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_explosive_resist,
-                shield_flak_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_flak_resist,
-                shield_hybrid_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_hybrid_resist,
-                shield_missile_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_missile_resist,
-                shield_railgun_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_railgun_resist,
-                shield_subspace_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_subspace_resist,
-                shield_warp_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_warp_resist,
-                shield_beam_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_beam_resist,
-                IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower,
-                isPowerArmour = Ship_Game.ResourceManager.ShipModulesDict[uid].isPowerArmour,
-                isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead
+                //SensorBonus = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorBonus,
+                //TransporterOrdnance = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterOrdnance,
+                //TransporterPower = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterPower,
+                //TransporterRange = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterRange,
+                //TransporterTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTimerConstant,
+                //TransporterTroopLanding = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopLanding,
+                //TransporterTroopAssault = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterTroopAssault,
+                //KineticResist = Ship_Game.ResourceManager.ShipModulesDict[uid].KineticResist,
+                //EnergyResist = Ship_Game.ResourceManager.ShipModulesDict[uid].EnergyResist,
+                //GuidedResist = Ship_Game.ResourceManager.ShipModulesDict[uid].GuidedResist,
+                //MissileResist = Ship_Game.ResourceManager.ShipModulesDict[uid].MissileResist,
+                //HybridResist = Ship_Game.ResourceManager.ShipModulesDict[uid].HybridResist,
+                //BeamResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BeamResist,
+                //ExplosiveResist = Ship_Game.ResourceManager.ShipModulesDict[uid].ExplosiveResist,
+                //InterceptResist = Ship_Game.ResourceManager.ShipModulesDict[uid].InterceptResist,
+                //RailgunResist = Ship_Game.ResourceManager.ShipModulesDict[uid].RailgunResist,
+                //SpaceBombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SpaceBombResist,
+                //BombResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BombResist,
+                //BioWeaponResist = Ship_Game.ResourceManager.ShipModulesDict[uid].BioWeaponResist,
+                //DroneResist = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneResist,
+                //WarpResist = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpResist,
+                //TorpedoResist = Ship_Game.ResourceManager.ShipModulesDict[uid].TorpedoResist,
+                //CannonResist = Ship_Game.ResourceManager.ShipModulesDict[uid].CannonResist,
+                //SubspaceResist = Ship_Game.ResourceManager.ShipModulesDict[uid].SubspaceResist,
+                //PDResist = Ship_Game.ResourceManager.ShipModulesDict[uid].PDResist,
+                //FlakResist = Ship_Game.ResourceManager.ShipModulesDict[uid].FlakResist,
+                //APResist = Ship_Game.ResourceManager.ShipModulesDict[uid].APResist,
+                //DamageThreshold = Ship_Game.ResourceManager.ShipModulesDict[uid].DamageThreshold,
+                //shield_threshold = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_threshold,
+                //shield_energy_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_energy_resist,
+                //shield_kinetic_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_kinetic_resist,
+                //shield_explosive_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_explosive_resist,
+                //shield_flak_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_flak_resist,
+                //shield_hybrid_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_hybrid_resist,
+                //shield_missile_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_missile_resist,
+                //shield_railgun_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_railgun_resist,
+                //shield_subspace_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_subspace_resist,
+                //shield_warp_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_warp_resist,
+                //shield_beam_resist = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_beam_resist,
+                //IndirectPower = Ship_Game.ResourceManager.ShipModulesDict[uid].IndirectPower,
+                //isPowerArmour = Ship_Game.ResourceManager.ShipModulesDict[uid].isPowerArmour,
+                //isBulkhead = Ship_Game.ResourceManager.ShipModulesDict[uid].isBulkhead,
+                //TargetTracking = Ship_Game.ResourceManager.ShipModulesDict[uid].TargetTracking
 
 			};
 
@@ -1357,12 +1607,9 @@ namespace Ship_Game
             module.TargetValue += module.ModuleType == ShipModuleType.Turret ? 1 : 0;
             module.TargetValue += module.explodes ? 2 : 0;
             module.TargetValue += module.isWeapon ? 1 : 0;
-         
-            
-
-
 
             #endregion
+
             return module;
 		}
 
@@ -1370,9 +1617,10 @@ namespace Ship_Game
 		{
 			Ship newShip = new Ship()
 			{
-				PlayerShip = true,
-				Role = Ship_Game.ResourceManager.ShipsDict[key].Role
+				PlayerShip = true
+				//Role = Ship_Game.ResourceManager.ShipsDict[key].Role
 			};
+            newShip.shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData;
 			newShip.LoadContent(GetContentManager());
 			SceneObject newSO = new SceneObject();
 			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
@@ -1465,7 +1713,7 @@ namespace Ship_Game
 		{
             Ship newShip = new Ship()
             {
-                Role = Ship_Game.ResourceManager.ShipsDict[key].Role,
+                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
                 BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
             };
@@ -1616,7 +1864,7 @@ namespace Ship_Game
                 TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
                 ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen,
                 RangeVariance = Ship_Game.ResourceManager.WeaponsDict[uid].RangeVariance,
-                ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,
+                //ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,          //Not referenced in code, removing to save memory -Gretman
                 AltFireMode = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireMode,
                 AltFireTriggerFighter = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireTriggerFighter,
                 SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire
@@ -1626,7 +1874,8 @@ namespace Ship_Game
 
 		public static void Initialize(ContentManager c)
 		{
-			Ship_Game.ResourceManager.WhichModPath = "Content";
+        
+            Ship_Game.ResourceManager.WhichModPath = "Content";
 			Ship_Game.ResourceManager.LoadItAll();
 		}
 
@@ -1656,13 +1905,14 @@ namespace Ship_Game
 				{
                     art.DescriptionIndex += OffSet;
                     art.NameIndex += OffSet;
-                    if (Ship_Game.ResourceManager.ArtifactsDict.ContainsKey(art.Name))
+                    string name = String.Intern(art.Name);
+                    if (Ship_Game.ResourceManager.ArtifactsDict.ContainsKey(name))
 					{
 						Ship_Game.ResourceManager.ArtifactsDict[art.Name] = art;
 					}
 					else
 					{
-						Ship_Game.ResourceManager.ArtifactsDict.Add(art.Name, art);
+                        Ship_Game.ResourceManager.ArtifactsDict.Add(name, art);
 					}
 				}
 			}
@@ -1710,11 +1960,11 @@ namespace Ship_Game
                     
                     if (Ship_Game.ResourceManager.BuildingsDict.ContainsKey(newB.Name))
                     {
-                        Ship_Game.ResourceManager.BuildingsDict[newB.Name] = newB;
+                        Ship_Game.ResourceManager.BuildingsDict[String.Intern(newB.Name)] = newB;
                     }
                     else
                     {
-                        Ship_Game.ResourceManager.BuildingsDict.Add(newB.Name, newB);
+                        Ship_Game.ResourceManager.BuildingsDict.Add(String.Intern(newB.Name), newB);
                     }
                 }
                 catch(NullReferenceException ex)
@@ -1751,11 +2001,11 @@ namespace Ship_Game
 
                 if (Ship_Game.ResourceManager.DDDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
-					Ship_Game.ResourceManager.DDDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+					Ship_Game.ResourceManager.DDDict[string.Intern(Path.GetFileNameWithoutExtension(FI.Name))] = data;
 				}
 				else
 				{
-					Ship_Game.ResourceManager.DDDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+                    Ship_Game.ResourceManager.DDDict.Add(string.Intern(Path.GetFileNameWithoutExtension(FI.Name)), data);
 				}
 			}
 		}
@@ -1876,7 +2126,7 @@ namespace Ship_Game
                 {
                     ReportLoadingError(fileInfoArray[i], "LoadGoods", e);
                 }
-				data.UID = Path.GetFileNameWithoutExtension(FI.Name);
+				data.UID = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
 				//stream.Close();
 				stream.Dispose();
                 //noLocalization
@@ -1905,13 +2155,15 @@ namespace Ship_Game
 				Technology data = (Technology)serializer1.Deserialize(stream);
 				//stream.Close();
 				stream.Dispose();
+                string.Intern(data.UID);
 				if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
 				}
 				else
 				{
-					Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+					//Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+                    Ship_Game.ResourceManager.TechTree.Add(data.UID, data);
 				}
 			}
 			textList = null;
@@ -1941,8 +2193,22 @@ namespace Ship_Game
 				
                 //stream.Close();
 				stream.Dispose();
-				newShipData.Hull = string.Concat(FI.Directory.Name, "/", newShipData.Hull);
-				newShipData.ShipStyle = FI.Directory.Name;
+				newShipData.Hull = String.Intern(string.Concat(FI.Directory.Name, "/", newShipData.Hull));
+                if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                    string.Intern(newShipData.EventOnDeath);
+                if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                    string.Intern(newShipData.ModelPath);
+                if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                    string.Intern(newShipData.ShipStyle);
+                if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                    string.Intern(newShipData.Name);
+                if (!string.IsNullOrEmpty(newShipData.IconPath))
+                    string.Intern(newShipData.IconPath);
+                if (!string.IsNullOrEmpty(newShipData.Hull))
+                    string.Intern(newShipData.Hull);
+                if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                    string.Intern(newShipData.SelectionGraphic);
+				newShipData.ShipStyle = String.Intern(FI.Directory.Name);
 				if (Ship_Game.ResourceManager.HullsDict.ContainsKey(newShipData.Hull))
 				{
 					Ship_Game.ResourceManager.HullsDict[newShipData.Hull] = newShipData;
@@ -2394,7 +2660,7 @@ namespace Ship_Game
 		private static void LoadShipModules()
 		{
 			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipModules"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(ShipModule));
+			XmlSerializer serializer1 = new XmlSerializer(typeof(ShipModule_Deserialize));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
@@ -2404,10 +2670,10 @@ namespace Ship_Game
                 if(FI.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase)  >0)
                     continue;
 				FileStream stream = FI.OpenRead();
-                ShipModule data = null;
+                ShipModule_Deserialize data = null;
                 try
                 {
-                     data = (ShipModule)serializer1.Deserialize(stream);
+                     data = (ShipModule_Deserialize)serializer1.Deserialize(stream);
                 }
                 catch (Exception e)
                 {
@@ -2427,16 +2693,28 @@ namespace Ship_Game
                     data.NameIndex += (ushort)OffSet;
                     Localizer.used[data.NameIndex] = true;
                 }
-                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
                 
-                if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
+                //if ( data.hangerTimerConstant >0 )
+                //    data.hangarTimerConstant = data.hangerTimerConstant;                                    
+                data.UID = String.Intern( Path.GetFileNameWithoutExtension(FI.Name));
+                if (data.IconTexturePath != null && String.IsInterned(data.IconTexturePath) != null)
+                    string.Intern(data.IconTexturePath);
+                if (!string.IsNullOrEmpty(data.WeaponType) && string.IsNullOrEmpty(String.IsInterned(data.WeaponType)))
+                    string.Intern(data.WeaponType);
+                if(data.IsCommandModule  && data.TargetTracking ==0)
+                {
+                    data.TargetTracking = Convert.ToSByte((data.XSIZE * data.YSIZE) / 3);
+                }
+                if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(data.UID))
 				{
-					Ship_Game.ResourceManager.ShipModulesDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
-				}
+                    Ship_Game.ResourceManager.ShipModulesDict[data.UID] = data.ConvertToShipModule();
+                    System.Diagnostics.Debug.WriteLine("ShipModule UID already found. Conflicting name:  " + data.UID);
+                }
 				else
 				{
-					Ship_Game.ResourceManager.ShipModulesDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
-				}
+                    Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data.ConvertToShipModule());
+                }
+                
 			}
 			foreach (KeyValuePair<string, ShipModule> entry in Ship_Game.ResourceManager.ShipModulesDict)
 			{
@@ -2447,7 +2725,7 @@ namespace Ship_Game
 
 		public static void LoadShips()
 		{
-			Ship_Game.ResourceManager.ShipsDict.Clear();
+            Ship_Game.ResourceManager.ShipsDict.Clear();// = new Dictionary<string, Ship>();
             //Added by McShooterz: Changed how StarterShips loads from mod if folder exists
             XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
             FileInfo[] textList; //"Mods/", 
@@ -2474,13 +2752,27 @@ namespace Ship_Game
                 //stream.Close();
                 stream.Dispose();
                 Ship newShip = Ship.CreateShipFromShipData(newShipData);
-                if(newShip.Role!="disabled")
+                if (newShipData.Role != ShipData.RoleName.disabled)
                 {
                     newShip.SetShipData(newShipData);
                     newShip.reserved = true;
                     if (newShip.InitForLoad())
                     {
                         newShip.InitializeStatus();
+                        if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                            string.Intern(newShipData.EventOnDeath);
+                        if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                            string.Intern(newShipData.ModelPath);
+                        if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                            string.Intern(newShipData.ShipStyle);
+                        if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                            string.Intern(newShipData.Name);
+                        if (!string.IsNullOrEmpty(newShipData.IconPath) )
+                            string.Intern(newShipData.IconPath);
+                        if (!string.IsNullOrEmpty(newShipData.Hull))
+                            string.Intern(newShipData.Hull);
+                        if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                            string.Intern(newShipData.SelectionGraphic);
                         Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
                     }
                 }
@@ -2501,18 +2793,34 @@ namespace Ship_Game
 				//stream.Close();
 				stream.Dispose();
 				Ship newShip = Ship.CreateShipFromShipData(newShipData);
-                if (newShip.Role != "disabled")
+                if (newShipData.Role != ShipData.RoleName.disabled)
                 {
                     newShip.SetShipData(newShipData);
+                    newShip.reserved = true;
                     if (newShip.InitForLoad())
                     {
                         newShip.InitializeStatus();
-                        Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                        Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
                     }
+                    if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                        string.Intern(newShipData.EventOnDeath);
+                    if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                        string.Intern(newShipData.ModelPath);
+                    if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                        string.Intern(newShipData.ShipStyle);
+                    if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                        string.Intern(newShipData.Name);   
+                                            if (!string.IsNullOrEmpty(newShipData.IconPath) )
+                            string.Intern(newShipData.IconPath);
+                        if (!string.IsNullOrEmpty(newShipData.Hull))
+                            string.Intern(newShipData.Hull);
+                        if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                            string.Intern(newShipData.SelectionGraphic);
+
                 }
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			FileInfo[] filesFromDirectory1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Designs"));
+            FileInfo[] filesFromDirectory1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Designs"));
 			for (int k = 0; k < (int)filesFromDirectory1.Length; k++)
 			{
 				FileInfo FI = filesFromDirectory1[k];
@@ -2538,16 +2846,32 @@ namespace Ship_Game
 					//stream.Close();
 					stream.Dispose();
 					Ship newShip = Ship.CreateShipFromShipData(newShipData);
-                    if (newShip.Role != "disabled")
+                    if (newShipData.Role != ShipData.RoleName.disabled)
                     {
                         newShip.IsPlayerDesign = true;
                         newShip.SetShipData(newShipData);
                         if (newShip.InitForLoad())
                         {
                             newShip.InitializeStatus();
-                            Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                            Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
                         }
+                        if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                            string.Intern(newShipData.EventOnDeath);
+                        if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                            string.Intern(newShipData.ModelPath);
+                        if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                            string.Intern(newShipData.ShipStyle);
+                        if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                            string.Intern(newShipData.Name); 
+                                                if (!string.IsNullOrEmpty(newShipData.IconPath) )
+                            string.Intern(newShipData.IconPath);
+                        if (!string.IsNullOrEmpty(newShipData.Hull))
+                            string.Intern(newShipData.Hull);
+                        if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                            string.Intern(newShipData.SelectionGraphic);
+
                     }
+                    
 				}
 #if !DEBUG
 				catch
@@ -2562,29 +2886,67 @@ namespace Ship_Game
 				for (int l = 0; l < (int)fileInfoArray1.Length; l++)
 				{
 					FileInfo FI = fileInfoArray1[l];
-					try
+					
+                //try
+
 					{
 						FileStream stream = FI.OpenRead();
 						ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
 						//stream.Close();
 						stream.Dispose();
 						Ship newShip = Ship.CreateShipFromShipData(newShipData);
-                        if (newShip.Role != "disabled")
+                        if (newShipData.Role != ShipData.RoleName.disabled)
                         {
                             newShip.IsPlayerDesign = true;
                             newShip.SetShipData(newShipData);
+                            newShip.reserved = true;
                             if (newShip.InitForLoad())
                             {
                                 newShip.InitializeStatus();
-                                Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                                Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
                             }
+                            if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
+                                string.Intern(newShipData.EventOnDeath);
+                            if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
+                                string.Intern(newShipData.ModelPath);
+                            if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
+                                string.Intern(newShipData.ShipStyle);  
+                            if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
+                            string.Intern(newShipData.Name); 
+                                                    if (!string.IsNullOrEmpty(newShipData.IconPath) )
+                            string.Intern(newShipData.IconPath);
+                        if (!string.IsNullOrEmpty(newShipData.Hull))
+                            string.Intern(newShipData.Hull);
+                        if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
+                            string.Intern(newShipData.SelectionGraphic);
+
                         }
 					}
-					catch
-					{
-					}
+      
+			
+                //catch
+                //    {
+                //    }  
+	
 				}
 			}
+            /*
+            //fbedard: Create a copy of Unarmed Scout for Assault Ship
+            Ship scout = null;
+            Ship_Game.ResourceManager.ShipsDict.TryGetValue("Unarmed Scout", out scout);
+            ShipData newScoutData = scout.shipData.GetClone();
+            newScoutData.Name = "Assault_Ship";
+            newScoutData.Role = ShipData.RoleName.troop;
+            newScoutData.ShipCategory = ShipData.Category.Unclassified;
+            Ship newscout = Ship.CreateShipFromShipData(newScoutData);
+            newscout.IsPlayerDesign = false;
+            newscout.SetShipData(newScoutData);
+            newscout.Name = "Assault_Ship";
+            newscout.VanityName = "Assault Ship";
+            newscout.InitForLoad();
+            newscout.InitializeStatus();
+            Ship_Game.ResourceManager.ShipsDict[String.Intern("Assault_Ship")] = newscout;
+            */
             #region old strength calculator
             //foreach (KeyValuePair<string, Ship> entry in Ship_Game.ResourceManager.ShipsDict)
             //{
@@ -2622,8 +2984,8 @@ namespace Ship_Game
             //added by gremlin : Base strength Calculator
             foreach (KeyValuePair<string, Ship> entry in ResourceManager.ShipsDict)
             {
-                if (entry.Value.BaseStrength != 0)
-                    continue;
+                //if (entry.Value.BaseStrength != 0)
+                //    continue;
 
                 float Str = 0f;
                 float def = 0f;
@@ -2704,7 +3066,8 @@ namespace Ship_Game
                 }
                 if (!fighters && !weapons) Str = 0;
                 if (def > Str) def = Str;
-                entry.Value.BaseStrength = Str + def;
+                entry.Value.shipData.BaseStrength = Str + def;
+                entry.Value.BaseStrength = entry.Value.shipData.BaseStrength;
             }
 		}
 
@@ -2790,9 +3153,10 @@ namespace Ship_Game
                 }
                 if (!fighters && !weapons) Str = 0;
                 if (def > Str) def = Str;
-                entry.Value.BaseStrength = Str + def;
-                ship.BaseStrength = entry.Value.BaseStrength;
-                return  entry.Value.BaseStrength;
+                entry.Value.shipData.BaseStrength = Str + def;
+                entry.Value.BaseStrength = entry.Value.shipData.BaseStrength;
+                ship.BaseStrength = entry.Value.shipData.BaseStrength;
+                return ship.BaseStrength;
                 
 
 
@@ -2801,6 +3165,83 @@ namespace Ship_Game
             return 0;
         }
 
+        public static float CalculateModuleStrength(ShipModule moduleslot, string OffDefBoth, int slotCount)
+        {
+
+            
+                float Str = 0f;
+                float def = 0f;
+            //int slotCount = moduleslot.XSIZE*moduleslot.YSIZE;
+
+
+
+            //bool fighters = false;          //Not referenced in code, removing to save memory -Gretman
+            //bool weapons = false;          //Not referenced in code, removing to save memory -Gretman
+            //ModuleSlot slot = moduleslot;
+            //foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
+            {
+
+                ShipModule module = moduleslot;
+                    float offRate = 0;
+                    if (module.InstalledWeapon != null)
+                    {
+                        //weapons = true;
+                        Weapon w = module.InstalledWeapon;
+                        if (!w.explodes)
+                        {
+                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                        }
+                        else
+                        {
+                            offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
+
+                        }
+                        if (offRate > 0 && (w.TruePD || w.Range < 1000))
+                        {
+                            float range = 0f;
+                            if (w.Range < 1000)
+                            {
+                                range = (1000f - w.Range) * .01f;
+                            }
+                            offRate /= (2 + range);
+                        }
+                        if (w.EMPDamage > 0) offRate += w.EMPDamage * (1f / w.fireDelay) * .2f;
+                        Str += offRate;
+                    }
+
+
+                    if (module.hangarShipUID != null && !module.IsSupplyBay && !module.IsTroopBay)
+                    {
+
+                        //fighters = true;
+                        Ship hangarship;// = new Ship();
+                        ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
+
+                        if (hangarship != null)
+                        {
+                            Str+= hangarship.BaseStrength;
+                            
+                        }
+                        else Str += 100;
+                    }
+                    if (slotCount > 0)
+                    {
+                        def += module.shield_power_max * ((module.shield_radius * .05f) / slotCount);
+                        //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
+                        def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
+                    }
+
+                }
+                //if (!fighters && !weapons) Str = 0;
+                //if (def > Str) def = Str;
+
+            if(OffDefBoth == "Off")
+                return Str;
+            if (OffDefBoth == "Def")
+                return def;
+            return Str + def;
+
+            }
 
 		private static void LoadSmallStars()
 		{
@@ -2851,32 +3292,32 @@ namespace Ship_Game
             FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
 			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileInfo FI = fileInfoArray[i];
-				FileStream stream = FI.OpenRead();
+            for (int i = 0; i < (int)fileInfoArray.Length; i++)
+            {
+                FileInfo FI = fileInfoArray[i];
+                FileStream stream = FI.OpenRead();
                 Technology data = null;
                 try
                 {
-                     data = (Technology)serializer1.Deserialize(stream);
+                    data = (Technology)serializer1.Deserialize(stream);
                 }
                 catch (Exception e)
                 {
-					ReportLoadingError(FI, "LoadTechTree", e);
+                    ReportLoadingError(FI, "LoadTechTree", e);
                 }
-				//stream.Close();
-				stream.Dispose();
+                //stream.Close();
+                stream.Dispose();
                 if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
                 {
                     data.DescriptionIndex += OffSet;
                     Localizer.used[data.DescriptionIndex] = true;
                 }
                 if (Localizer.LocalizerDict.ContainsKey(data.NameIndex + OffSet))
-                { 
+                {
                     data.NameIndex += OffSet;
                     Localizer.used[data.NameIndex] = true;
                 }
-                foreach(Technology.UnlockedBonus bonus in data.BonusUnlocked)
+                foreach (Technology.UnlockedBonus bonus in data.BonusUnlocked)
                 {
                     if (Localizer.LocalizerDict.ContainsKey(bonus.BonusIndex + OffSet))
                     {
@@ -2887,38 +3328,41 @@ namespace Ship_Game
                     {
                         bonus.BonusNameIndex += OffSet;
                         Localizer.used[bonus.BonusNameIndex] = true;
-                    }                   
+                    }
                 }
                 data.UID = Path.GetFileNameWithoutExtension(FI.Name);
-               
-                
+                data.UID = string.IsInterned(data.UID);
+                if (data.UID == null)
+                {
+                    data.UID = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
+                }
+
+
                 if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
-				{
-                    
+                {
+
                     Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
-                   
-				}
-				else
-				{
-					
-                    Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
-				}
+
+                }
+                else
+                {
+
+                    //Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
+                    Ship_Game.ResourceManager.TechTree.Add(data.UID, data);
+                }
                 //catagorize uncatagoried techs
                 {
-                    if(data.TechnologyType == TechnologyType.General)
+                    if (data.TechnologyType == TechnologyType.General)
                     {
-                        if (data.HullsUnlocked.Count > 0)
-                        {
-                            data.TechnologyType = TechnologyType.ShipHull;
-                        }
-                        else if (data.BuildingsUnlocked.Count > 0)
+                        if (data.BuildingsUnlocked.Count > 0)
                         {
                             foreach (Technology.UnlockedBuilding buildingU in data.BuildingsUnlocked)
                             {
                                 Building building;
                                 if (ResourceManager.BuildingsDict.TryGetValue(buildingU.Name, out building))
                                 {
-                                    if (building.AllowInfantry || building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0 || building.isWeapon || building.Strength > 0)
+                                    if (building.AllowInfantry || building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0
+                                        || building.isWeapon || building.Strength > 0 || building.IsSensor)
                                         data.TechnologyType = TechnologyType.GroundCombat;
                                     else if (building.AllowShipBuilding || building.PlusFlatProductionAmount > 0 || building.PlusProdPerRichness > 0
                                         || building.StorageAdded > 0 || building.PlusFlatProductionAmount > 0)
@@ -2928,7 +3372,8 @@ namespace Ship_Game
                                     else if (building.PlusFlatResearchAmount > 0 || building.PlusResearchPerColonist > 0)
                                         data.TechnologyType = TechnologyType.Research;
                                     else if (building.PlusFoodPerColonist > 0 || building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0
-                                        || building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0
+                                        || building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0 || building.Name == "Biosspheres"
+                                        || building.PlusTerraformPoints > 0
                                         )
                                         data.TechnologyType = TechnologyType.Colonization;
                                 }
@@ -2940,6 +3385,20 @@ namespace Ship_Game
                         else if (data.TroopsUnlocked.Count > 0)
                         {
                             data.TechnologyType = TechnologyType.GroundCombat;
+                        }
+                        else if (data.TechnologyType == TechnologyType.General && data.BonusUnlocked.Count > 0)
+                        {
+                            foreach (Technology.UnlockedBonus bonus in data.BonusUnlocked)
+                            {
+                                if (bonus.Type == "SHIPMODULE" || bonus.Type == "HULL")
+                                    data.TechnologyType = TechnologyType.ShipGeneral;
+                                else if (bonus.Type == "TROOP")
+                                    data.TechnologyType = TechnologyType.GroundCombat;
+                                else if (bonus.Type == "BUILDING")
+                                    data.TechnologyType = TechnologyType.Colonization;
+                                else if (bonus.Type == "ADVANCE")
+                                    data.TechnologyType = TechnologyType.ShipGeneral;
+                            }
                         }
                         else if (data.ModulesUnlocked.Count > 0)
                         {
@@ -2958,19 +3417,35 @@ namespace Ship_Game
 
                                         )
                                         data.TechnologyType = TechnologyType.ShipDefense;
+
+
                                     else
                                         data.TechnologyType = TechnologyType.ShipGeneral;
-
+                                    
                                 }
                             }
                         }
+
                         else data.TechnologyType = TechnologyType.General;
 
-                        
+                        if (data.HullsUnlocked.Count > 0)
+                        {
+                            data.TechnologyType = TechnologyType.ShipHull;
+                            foreach (Technology.UnlockedHull hull in data.HullsUnlocked)
+                            {
+                                ShipData.RoleName role = ResourceManager.HullsDict[hull.Name].Role;
+                                if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform
+                                    || role == ShipData.RoleName.construction || role == ShipData.RoleName.station)
+                                    data.TechnologyType = TechnologyType.Industry;
+                            }
+
+                        }
+
+
                     }
                 }
 
-			}
+            }
 			textList = null;
 		}
 
@@ -2986,18 +3461,27 @@ namespace Ship_Game
 					if (FI.Directory.Name != "Textures")
 					{
 						string name = Path.GetFileNameWithoutExtension(FI.Name);
+                        if(string.IsInterned(name) == null)
+                        {
+                            string.Intern(name);
+                        }
+                        if (string.IsInterned(name) == null)
+                        {
+                            string.Intern(name);
+                        }
+
 						if (name != "Thumbs")
 						{
 							ContentManager content = GetContentManager();
 							string[] whichModPath = new string[] { "../", Ship_Game.ResourceManager.WhichModPath, "/Textures/", FI.Directory.Name, "/", name };
 							Texture2D tex = content.Load<Texture2D>(string.Concat(whichModPath));
-							Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", name)] = tex;
+							Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", name))] = tex;
 						}
 					}
 					else if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
 					{
 						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
-						Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name))] = tex;
+						Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name)))] = tex;
 					}
 				}
 				return;
@@ -3008,25 +3492,25 @@ namespace Ship_Game
 				FileInfo FI = fileInfoArray1[j];
 				if (FI.Directory.Name == "Textures")
 				{
-					string name = Path.GetFileNameWithoutExtension(FI.Name);
+					string name = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
 					if (name != "Thumbs")
 					{
 						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
 						if (!Ship_Game.ResourceManager.TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
 						{
-							Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name))] = tex;
+							Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name)))] = tex;
 						}
 					}
 				}
 				else
 				{
-					string name = Path.GetFileNameWithoutExtension(FI.Name);
+					string name = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
 					if (name != "Thumbs")
 					{
 						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Textures/", FI.Directory.Name, "/", name));
 						if (!Ship_Game.ResourceManager.TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
 						{
-							Ship_Game.ResourceManager.TextureDict[string.Concat(FI.Directory.Name, "/", name)] = tex;
+							Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", name))] = tex;
 						}
 					}
 				}
@@ -3089,7 +3573,7 @@ namespace Ship_Game
 				//stream.Close();
 				stream.Dispose();
 				//no localization
-                data.Name = Path.GetFileNameWithoutExtension(FI.Name);
+                data.Name = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
                 if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -3098,12 +3582,34 @@ namespace Ship_Game
 				{
 					Ship_Game.ResourceManager.TroopsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
-
+                
                 Troop troop = Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)];
                 if(troop.StrengthMax <= 0)
                 {
                     troop.StrengthMax = troop.Strength;
                 }
+                //if (troop.attack_path !=null)
+                //string.Intern(troop.attack_path);
+                //if (!string.IsNullOrEmpty(troop.Class))
+                //string.Intern(troop.Class);
+                //if (!string.IsNullOrEmpty(troop.Description))
+                //string.Intern(troop.Description);
+                //if (!string.IsNullOrEmpty(troop.Icon))
+                //string.Intern(troop.Icon);
+                //if (!string.IsNullOrEmpty(troop.idle_path))
+                //string.Intern(troop.idle_path);
+                //if (!string.IsNullOrEmpty(troop.MovementCue))
+                //string.Intern(troop.MovementCue);
+                //if (troop.OwnerString !=null)
+                //string.Intern(troop.OwnerString);
+                //if (!string.IsNullOrEmpty(troop.RaceType))
+                //string.Intern(troop.RaceType);
+                //if (!string.IsNullOrEmpty(troop.sound_attack))
+                //string.Intern(troop.sound_attack);
+                //if (string.IsNullOrEmpty(troop.TexturePath))
+                //string.Intern(troop.TexturePath);
+                //if (string.IsNullOrEmpty(troop.TargetType))
+                //string.Intern(troop.TargetType);                
 			}
 		}
 
@@ -3128,7 +3634,15 @@ namespace Ship_Game
 				//stream.Close();
 				stream.Dispose();
                 //no localization
-                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
+                data.UID = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
+                //if (data.AnimationPath != null)
+                //String.Intern(data.AnimationPath);
+                //if (data.BeamTexture !=null)
+                //String.Intern(data.BeamTexture);
+                //if (data.dieCue !=null)
+                //String.Intern(data.dieCue);
+                //if (data.SecondaryFire != null)
+                //String.Intern(data.SecondaryFire);
 				if (Ship_Game.ResourceManager.WeaponsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
 				{
 					Ship_Game.ResourceManager.WeaponsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
@@ -3137,6 +3651,8 @@ namespace Ship_Game
 				{
 					Ship_Game.ResourceManager.WeaponsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
 				}
+                
+                
 			}
 			textList = null;
 		}
@@ -3147,6 +3663,8 @@ namespace Ship_Game
             FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipRoles"));
             XmlSerializer serializer1 = new XmlSerializer(typeof(ShipRole));
             FileInfo[] fileInfoArray = textList;
+            ShipData.RoleName key = new ShipData.RoleName();
+
             for (int i = 0; i < (int)fileInfoArray.Length; i++)
             {
                 FileInfo FI = fileInfoArray[i];
@@ -3161,11 +3679,104 @@ namespace Ship_Game
                     ReportLoadingError(FI, "LoadShipRoles", e);
                 }
                 //stream.Close();
-                stream.Dispose();                              
+                stream.Dispose();
                 if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
                 {
                     data.Localization += ResourceManager.OffSet;
                     Localizer.used[data.Localization] = true;
+                }
+                switch (data.Name)  //fbedard: translate string into enum
+                {
+                    case "platform":
+				    {
+					    key = ShipData.RoleName.platform;
+					    break;
+				    }
+                    case "station":
+                    {
+                        key = ShipData.RoleName.station;
+                        break;
+                    }
+                    case "construction":
+                    {
+                        key = ShipData.RoleName.construction;
+                        break;
+                    }
+                    case "supply":
+                    {
+                        key = ShipData.RoleName.supply;
+                        break;
+                    }
+                    case "freighter":
+                    {
+                        key = ShipData.RoleName.freighter;
+                        break;
+                    }
+                    case "troop":
+                    {
+                        key = ShipData.RoleName.troop;
+                        break;
+                    }
+                    case "fighter":
+                    {
+                        key = ShipData.RoleName.fighter;
+                        break;
+                    }
+                    case "scout":
+                    {
+                        key = ShipData.RoleName.scout;
+                        break;
+                    }
+                    case "gunboat":
+                    {
+                        key = ShipData.RoleName.gunboat;
+                        break;
+                    }
+                    case "drone":
+                    {
+                        key = ShipData.RoleName.drone;
+                        break;
+                    }
+                    case "corvette":
+                    {
+                        key = ShipData.RoleName.corvette;
+                        break;
+                    }
+                    case "frigate":
+                    {
+                        key = ShipData.RoleName.frigate;
+                        break;
+                    }
+                    case "destroyer":
+                    {
+                        key = ShipData.RoleName.destroyer;
+                        break;
+                    }
+                    case "cruiser":
+                    {
+                        key = ShipData.RoleName.cruiser;
+                        break;
+                    }
+                    case "carrier":
+                    {
+                        key = ShipData.RoleName.carrier;
+                        break;
+                    }
+                    case "capital":
+                    {
+                        key = ShipData.RoleName.capital;
+                        break;
+                    }
+                    case "prototype":
+                    {
+                        key = ShipData.RoleName.prototype;
+                        break;
+                    }
+                    default:
+                    {
+                        key = ShipData.RoleName.disabled;
+                        break;
+                    }
                 }
                 for (int j = 0; j < data.RaceList.Count(); j++)
                 {
@@ -3175,14 +3786,15 @@ namespace Ship_Game
                         Localizer.used[data.RaceList[j].Localization] = true;
                     }
                 }
-                if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(data.Name))
+                if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(key))
                 {
-                    Ship_Game.ResourceManager.ShipRoles[data.Name] = data;
+                    Ship_Game.ResourceManager.ShipRoles[key] = data;
                 }
                 else
                 {
-                    Ship_Game.ResourceManager.ShipRoles.Add(data.Name, data);
+                    Ship_Game.ResourceManager.ShipRoles.Add(key, data);
                 }
+
             }
             textList = null;
         }
@@ -3210,6 +3822,7 @@ namespace Ship_Game
                     }
                     //stream.Close();
                     stream.Dispose();
+                    String.Intern(data.Hull);
                     if (Ship_Game.ResourceManager.HullBonuses.ContainsKey(data.Hull))
                     {
                         Ship_Game.ResourceManager.HullBonuses[data.Hull] = data;
@@ -3218,6 +3831,7 @@ namespace Ship_Game
                     {
                         Ship_Game.ResourceManager.HullBonuses.Add(data.Hull, data);
                     }
+                    
                 }
                 textList = null;
             }
@@ -3285,6 +3899,8 @@ namespace Ship_Game
             {
                 return;
             }
+            
+
         }
 
         //Added by McShooterz: Load AgentMissionData.xml
@@ -3293,12 +3909,14 @@ namespace Ship_Game
             if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")))
             {
                 Ship_Game.ResourceManager.AgentMissionData = (AgentMissionData)new XmlSerializer(typeof(AgentMissionData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")).OpenRead());
+
             
             }
             else
             {
                 return;
             }
+            
         }
 
         //Added by McShooterz: Load AgentMissionData.xml
@@ -3312,6 +3930,10 @@ namespace Ship_Game
             {
                 return;
             }
+            foreach(string name in Ship_Game.ResourceManager.MainMenuShipList .ModelPaths )
+            {
+                String.Intern(name);
+            }
         }
 
         //Added by McShooterz: load sound effects
@@ -3322,6 +3944,7 @@ namespace Ship_Game
             {
                 FileInfo FI = fileInfoArray1[j];
                 string name = Path.GetFileNameWithoutExtension(FI.Name);
+                String.Intern(name);
                 if (name != "Thumbs")
                 {
                     SoundEffect se = GetContentManager().Load<SoundEffect>(string.Concat("..\\", Ship_Game.ResourceManager.WhichModPath, "\\SoundEffects\\", name));
@@ -3374,6 +3997,9 @@ namespace Ship_Game
             Ship_Game.ResourceManager.RandomItemsList.Clear();
             Ship_Game.ResourceManager.ProjectileMeshDict.Clear();
             Ship_Game.ResourceManager.ProjTextDict.Clear();
+            
+            //Game1.Instance.screenManager.AddScreen(new GameLoadingScreen());
+            //Game1.Instance.IsLoaded = true;
             //if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
             //{
             //    Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);
@@ -3385,17 +4011,20 @@ namespace Ship_Game
           
 
 		}
-        public static List<string> FindPreviousTechs(Empire empire, Technology target, List<string> alreadyFound)
+        public static List<string> FindPreviousTechs( Technology target, List<string> alreadyFound)
         {
             bool found = false;
-            foreach (KeyValuePair<string, TechEntry> TechTreeItem in empire.TechnologyDict)
+            //this is supposed to reverse walk through the tech tree.
+            foreach (KeyValuePair<string, Technology> TechTreeItem in ResourceManager.TechTree)
             {
-                foreach (Technology.LeadsToTech leadsto in TechTreeItem.Value.GetTech().LeadsTo)
+                
+                foreach (Technology.LeadsToTech leadsto in TechTreeItem.Value.LeadsTo)
                 {
+                    //if if it finds a tech that leads to the target tech then find the tech that leads to it. 
                     if (leadsto.UID == target.UID)
                     {
                         alreadyFound.Add(target.UID);
-                        alreadyFound= FindPreviousTechs(empire, TechTreeItem.Value.GetTech(), alreadyFound);
+                        alreadyFound= FindPreviousTechs( TechTreeItem.Value, alreadyFound);
                         //alreadyFound.AddRange(FindPreviousTechs(empire, TechTreeItem.Value.GetTech(), alreadyFound));
                         found = true;
                         break;

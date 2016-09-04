@@ -48,7 +48,7 @@ namespace Ship_Game
 		public Color DemoteColor = Color.White;
         public bool NotifyOnEmpty =true;
         public bool notifyWhenBuilt =false;
-
+        public bool IsPlayerAdded = false;
 		public QueueItem()
 		{
 		}

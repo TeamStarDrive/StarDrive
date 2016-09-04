@@ -13,7 +13,7 @@ namespace Ship_Game.Gameplay
 
 		private GameplayObject Target;
 
-		private List<Ship> TargetList = new List<Ship>();
+		private BatchRemovalCollection<Ship> TargetList = new BatchRemovalCollection<Ship>();
 
 		public static UniverseScreen universeScreen;
 
@@ -30,37 +30,92 @@ namespace Ship_Game.Gameplay
 			this.Owner = owner;
 			if (MissileAI.universeScreen != null)
 			{
-				List<GameplayObject> GPO = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
-				for (int i = 0; i < GPO.Count; i++)
-				{
-					if (GPO[i] is Ship)
-					{
-						Ship target = GPO[i] as Ship;
-                        if (target != null && target.loyalty != this.Owner.loyalty && this.Owner.weapon.TargetValid(target.Role))
-                            this.TargetList.Add(target);
-					}
-				}
+				List<GameplayObject> GPO;
+                if (this.Owner.Owner == null)
+                {
+                    GPO = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
+                    for (int i = 0; i < GPO.Count; i++)
+                    {
+                        Ship target = GPO[i] as Ship;
+                        if (target != null)
+                        {
+
+                            if (target != null && target.loyalty != this.Owner.loyalty && this.Owner.weapon.TargetValid(target.shipData.Role))
+                                this.TargetList.Add(target);
+                        }
+                    }
+                }
+                else
+                {
+                    this.TargetList = this.Owner.Owner.GetAI().PotentialTargets;
+                }
 			}
 		}
 
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
         {
-            if (this.Owner.owner != null)
+            if (this.Owner.owner != null && this.Owner.owner.Active && !this.Owner.owner.dying)
             {
                 GameplayObject sourceTarget = this.Owner.owner.GetAI().Target;
+                Relationship relTarget = null;
+   
                 Ship sourceTargetShip = sourceTarget as Ship;
-                if (sourceTarget != null && sourceTarget.Active && sourceTarget is Ship && sourceTargetShip.loyalty != this.Owner.loyalty)
+                if (this.Owner.owner != null && sourceTargetShip!=null)
+                {
+                    this.Owner.loyalty.GetRelations().TryGetValue(sourceTargetShip.loyalty, out relTarget);
+                }
+                if (sourceTarget != null && sourceTarget.Active
+                    && sourceTargetShip.loyalty != this.Owner.loyalty && (relTarget == null || !relTarget.Known || !relTarget.Treaty_NAPact))
                 {
                     this.SetTarget(sourceTargetShip.GetRandomInternalModule(this.Owner));
                     
                     return;
                 }
+                if (true)
+                    foreach (Ship ship in TargetList)
+                    {
+                        if (!ship.Active || ship.dying || ship.engineState == Ship.MoveState.Warp)
+                            continue;
+                        this.SetTarget(ship
+                        .GetRandomInternalModule(this.Owner));
+                        return;
+                    }                
             }
             if (TargetList.Count > 0)
             {
-                Ship test = this.TargetList.Where(ship => ship.Active && !ship.dying).OrderBy(ship => Vector2.Distance(this.Owner.Center, ship.Center)).FirstOrDefault<Ship>();
-                if(test != null) this.SetTarget(test.GetRandomInternalModule(this.Owner));
+                Empire owner =null;
+                if(this.Owner.owner !=null)
+                owner=this.Owner.owner.loyalty;
+                if(owner == null)
+                    owner = this.Owner.Planet.Owner;
+                if(owner == null)
+                    return;
+                
+                Relationship relTarget = null;
+                float distance = 1000000;
+                float currentd =0;
+                Ship test1 = null;
+                foreach (Ship sourceTargetShip in this.TargetList)
+                {
+                    if (!sourceTargetShip.Active || sourceTargetShip.dying )
+                        continue;
+                    
+                        this.Owner.loyalty.GetRelations().TryGetValue(owner, out relTarget);
+                    
+                    currentd = Vector2.Distance(this.Owner.Center, sourceTargetShip.Center) ;
+                    if ((relTarget != null && relTarget.Treaty_NAPact) || currentd > distance)
+                    {
+                        continue;
+                    }
+                    distance =currentd ;
+                    test1 = sourceTargetShip;                    
+                }
+
+                if (test1 != null)
+                    if (distance < 30000)
+                        this.SetTarget(test1
+                        .GetRandomInternalModule(this.Owner));
             }
         }
 
@@ -155,8 +210,8 @@ namespace Ship_Game.Gameplay
                 float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
                 if (angleDiff > 0.1f)
                 {
-                    Projectile owner = this.Owner;
-                    owner.Rotation = owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
+                    //Projectile owner = this.Owner;
+                   this.Owner.Rotation = this.Owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
                 }
                 wantedForward = Vector2.Normalize(forward);
                 this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);

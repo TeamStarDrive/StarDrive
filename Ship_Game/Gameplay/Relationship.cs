@@ -193,6 +193,8 @@ namespace Ship_Game.Gameplay
             
             if (GlobalStats.perf && EmpireManager.GetEmpireByName(Us.GetUS().PlayerLoyalty) == Them)
                 return;
+            float angerMod = 1+ ((int)Ship.universeScreen.GameDifficulty+1) * .2f;
+            Amount *= angerMod;
             string str = why;
 			string str1 = str;
 			if (str != null)
@@ -381,11 +383,14 @@ namespace Ship_Game.Gameplay
 						}
 						return;
 					}
+                    float expansion = UniverseScreen.SolarSystemList.Count / Us.GetOwnedSystems().Count + Them.GetOwnedSystems().Count;
 					Relationship angerTerritorialConflict = this;
-					angerTerritorialConflict.Anger_TerritorialConflict = angerTerritorialConflict.Anger_TerritorialConflict + Amount;
+					angerTerritorialConflict.Anger_TerritorialConflict = angerTerritorialConflict.Anger_TerritorialConflict + Amount *1+expansion;
 					Relationship relationship4 = this;
 					relationship4.Trust = relationship4.Trust - Amount;
-					if (this.Anger_TerritorialConflict < (float)Us.data.DiplomaticPersonality.Territorialism && !this.AtWar)
+                    
+
+                    if (this.Anger_TerritorialConflict < (float)Us.data.DiplomaticPersonality.Territorialism && !this.AtWar)
 					{
 						if (this.AtWar)
 						{
@@ -409,6 +414,10 @@ namespace Ship_Game.Gameplay
 						}
 					}
 				}
+                else if(str1=="Expansion")
+                {
+
+                }
 				else
 				{
 					if (str1 != "Destroyed Ship")
@@ -710,7 +719,7 @@ namespace Ship_Game.Gameplay
             //    }
             //}
 
-            // Inborders us.GetGSAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them)
+            //Inborders us.GetGSAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them)
             if(!this.Treaty_Alliance && !this.Treaty_OpenBorders)
             {
                 
@@ -767,9 +776,10 @@ namespace Ship_Game.Gameplay
             //    }
             //}
 
-            float OurMilScore = 230f + us.MilitaryScore;
-            float TheirMilScore = 230f + them.MilitaryScore;
-            this.Threat = (1f - OurMilScore / TheirMilScore) * 100f;
+            float OurMilScore = 2300f + us.MilitaryScore;
+            float TheirMilScore = 2300f + them.MilitaryScore;
+            this.Threat = (TheirMilScore - OurMilScore) / OurMilScore * 100;
+                //-1F +(TheirMilScore  / OurMilScore) * 100f;
             if (this.Threat > 100f)
             {
                 this.Threat = 100f;
@@ -812,8 +822,7 @@ namespace Ship_Game.Gameplay
             }
             if (this.Anger_MilitaryConflict > 0f)
             {
-                Relationship angerTerritorialConflict2 = this;
-                angerTerritorialConflict2.Anger_TerritorialConflict = angerTerritorialConflict2.Anger_TerritorialConflict - dt.AngerDissipation;
+                this.Anger_MilitaryConflict -= dt.AngerDissipation;
             }
             if (this.Anger_MilitaryConflict < 0f)
             {
@@ -829,6 +838,7 @@ namespace Ship_Game.Gameplay
                 this.Anger_DiplomaticConflict = 0f;
             }
             this.TotalAnger = 0f;
+
             Relationship totalAnger = this;
             totalAnger.TotalAnger = totalAnger.TotalAnger + this.Anger_DiplomaticConflict;
             Relationship totalAnger1 = this;

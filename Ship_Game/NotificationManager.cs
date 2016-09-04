@@ -27,7 +27,7 @@ namespace Ship_Game
 		{
 			this.screen = screen;
 			this.ScreenManager = ScreenManager;
-			this.NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 250);
+			this.NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 275);
 			this.numentriesToDisplay = this.NotificationArea.Height / 70;
 		}
 
@@ -191,7 +191,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = Localizer.Token(2295),
+                Pause = false,
+                Message = Localizer.Token(2295),
 				ReferencedItem1 = expEvent,
 				IconPath = "ResearchMenu/icon_event_science",
 				Action = "LoadEvent",
@@ -209,6 +210,7 @@ namespace Ship_Game
         {
             Notification cNote = new Notification()
             {
+                Pause = false,
                 Message = cMessage,
                 ReferencedItem1 = expEvent,
                 IconPath = "ResearchMenu/icon_event_science",
@@ -227,7 +229,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat(Localizer.Token(1505), p.Name, Localizer.Token(1506)),
+                Pause = false,
+                Message = string.Concat(Localizer.Token(1505), p.Name, Localizer.Token(1506)),
 				ReferencedItem1 = p.system,
                 ReferencedItem2=p,
 				IconPath = string.Concat("Planets/", p.planetType),
@@ -246,7 +249,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				RelevantEmpire = Us,
+                Pause = false,
+                RelevantEmpire = Us,
 				Message = string.Concat(Localizer.Token(1510), wasConquered.Name),
 				ReferencedItem1 = wasConquered,
 				IconPath = string.Concat("Planets/", wasConquered.planetType),
@@ -265,7 +269,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				RelevantEmpire = Us,
+                Pause = false,
+                RelevantEmpire = Us,
 				Message = string.Concat("Removed ", them.data.Traits.Singular, " agent from ", wasConquered.Name),
 				ReferencedItem1 = wasConquered,
 				IconPath = string.Concat("Planets/", wasConquered.planetType),
@@ -284,7 +289,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = Localizer.Token(2296),
+                Pause = false,
+                Message = Localizer.Token(2296),
 				IconPath = "UI/icon_warning_money",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
@@ -301,7 +307,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				RelevantEmpire = Us,
+                Pause = false,
+                RelevantEmpire = Us,
 				Message = string.Concat(Localizer.Token(1508), them.data.Traits.Singular, Localizer.Token(1509)),
 				IconPath = "NewUI/icon_planet_terran_01_mid",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
@@ -332,7 +339,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\n are now at peace"),
+                Pause = false,
+                Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\nare now at peace"),
 				IconPath = "UI/icon_peace",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 78, 58),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
@@ -348,7 +356,8 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat("Peace Treaty expired with \n", otherEmpire.data.Traits.Name),
+                Pause = false,
+                Message = string.Concat("Peace Treaty expired with \n", otherEmpire.data.Traits.Name),
 				IconPath = "UI/icon_peace_cancel",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
@@ -463,11 +472,13 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat(Declarant.data.Traits.Name, " and ", Other.data.Traits.Name, " are now at war"),
+                Message = string.Concat(Declarant.data.Traits.Name, " and ", Other.data.Traits.Name, "\nare now at war"),
 				IconPath = "ResearchMenu/icons_techroot_infantry_hover",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 78, 58),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
 			};
+            if (!Declarant.isPlayer && !Other.isPlayer)
+                cNote.Pause = false;
 			AudioManager.PlayCue("sd_troop_march_01");
 			AudioManager.PlayCue("sd_notify_alert");
 			lock (GlobalStats.NotificationLocker)
@@ -480,11 +491,13 @@ namespace Ship_Game
 		{
 			Notification cNote = new Notification()
 			{
-				Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\n are now at War"),
+				Message = string.Concat(First.data.Traits.Name, " and ", Second.data.Traits.Name, "\nare now at War"),
 				IconPath = "UI/icon_warning_money",
 				ClickRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y, 64, 64),
 				DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (this.NotificationList.Count + 1) * 70, 64, 64)
 			};
+            if (!First.isPlayer && !Second.isPlayer)
+                cNote.Pause = false;
 			AudioManager.PlayCue("sd_ui_notification_startgame");
 			lock (GlobalStats.NotificationLocker)
 			{
@@ -496,6 +509,25 @@ namespace Ship_Game
 		{
 			lock (GlobalStats.NotificationLocker)
 			{
+                if (this.NotificationList.Count >= this.numentriesToDisplay)  //fbedard: remove excess notifications
+                {
+                    for (int i = 0; i < this.NotificationList.Count && i <= this.numentriesToDisplay; i++)
+                    {
+                        Notification n = this.NotificationList[i];
+                        if (n.Action != "LoadEvent" && !n.Pause)
+                            this.NotificationList.QueuePendingRemoval(n);
+                        break;
+                    }
+                    this.NotificationList.ApplyPendingRemovals();
+                    for (int i = 0; i < this.NotificationList.Count; i++)
+                    {
+                        Notification n = this.NotificationList[i];
+                        n.DestinationRect = new Rectangle(this.NotificationArea.X, this.NotificationArea.Y + this.NotificationArea.Height - (i + 1) * 70, 64, 64);
+                        n.transitionElapsedTime = 0f;
+                        n.ClickRect = new Rectangle(this.NotificationArea.X, n.ClickRect.Y, n.ClickRect.Width, n.ClickRect.Height);
+                    }
+                }
+
 				for (int i = 0; i < this.NotificationList.Count && i <= this.numentriesToDisplay; i++)
 				{
 					Notification n = this.NotificationList[i];
@@ -532,11 +564,13 @@ namespace Ship_Game
 					{
 						Vector2 Cursor = new Vector2((float)n.ClickRect.X - Fonts.Arial12Bold.MeasureString(n.Message).X - 3f, (float)(n.ClickRect.Y + 32) - Fonts.Arial12Bold.MeasureString(n.Message).Y / 2f);
 						HelperFunctions.ClampVectorToInt(ref Cursor);
-						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, Cursor, Color.White);
+                        if (n.Pause)
+						    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, Cursor, Color.Red);
+                        else
+                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, n.Message, Cursor, Color.White);
 					}
-                //Label0:
-                  //  continue;
 				}
+
 			}
 		}
 
@@ -603,7 +637,7 @@ namespace Ship_Game
 							Recalculate = true;
 							retValue = true;
                             // ADDED BY SHAHMATT (to unpause game on right clicking notification icon)
-                            if (GlobalStats.PauseOnNotification )
+                            if (GlobalStats.PauseOnNotification && n.Pause)
                                 this.screen.Paused = false;
 						}
 						n.ShowMessage = true;
@@ -747,8 +781,8 @@ namespace Ship_Game
 					n.ClickRect.Y = (int)MathHelper.SmoothStep((float)n.ClickRect.Y, (float)n.DestinationRect.Y, amount);
                     // ADDED BY SHAHMATT (pause game when there are any notifications)
                     //if (GlobalStats.PauseOnNotification && this.screen.viewState > UniverseScreen.UnivScreenState.SystemView && n.ClickRect.Y >= n.DestinationRect.Y)
-                    //fbedard : Fix because don"t always works !
-                    if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y)
+                    //fbedard : Add filter to pause
+                    if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
                         this.screen.Paused = true;                   
                     // END OF ADDED BY SHAHMATT
 				}

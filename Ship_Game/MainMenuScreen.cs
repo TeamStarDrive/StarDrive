@@ -15,6 +15,7 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -151,7 +152,7 @@ namespace Ship_Game
 				this.CometList.Add(c);
 			}
 			Vector2 CometOrigin = new Vector2((float)(Ship_Game.ResourceManager.TextureDict["GameScreens/comet"].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict["GameScreens/comet"].Height / 2));
-			if (SplashScreen.DisplayComplete)
+			if (SplashScreen.DisplayComplete )
 			{
 				base.ScreenManager.splashScreenGameComponent.Visible = false;
 				base.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, base.ScreenManager.environment, true);
@@ -771,15 +772,31 @@ namespace Ship_Game
 			}
 			//this.whichPlanet = 1;
             //Added by McShooterz: Random Main menu planet
+            //int index = HelperFunctions.GetRandomIndex(ResourceManager.HullsDict.Count);
+            //string model = "";
+            //foreach (ShipData test in ResourceManager.HullsDict.Values)
+            //{
+            //    index--;
+            //    if (index > 0)
+            //        continue;
+            //    model = test.ModelPath;
+            //    break;
+            //}
+            
             Random rd = new Random();
             int planetIndex = rd.Next(1,30);
-            Model planetModel = base.ScreenManager.Content.Load<Model>(string.Concat("Model/SpaceObjects/planet_", planetIndex));
+            string planet ="";            
+             planet = string.Concat("Model/SpaceObjects/planet_", planetIndex);
+            
+
+            Model planetModel = base.ScreenManager.Content.Load<Model>(planet);
             ModelMesh mesh = planetModel.Meshes[0];
 			this.planetSO = new SceneObject(mesh)
 			{
 				ObjectType = ObjectType.Dynamic,
 				World = (((((Matrix.Identity * Matrix.CreateScale(25f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 30000f, this.ShipPosition.Y - 500f, 80000f)
 			};
+
 			base.ScreenManager.inter.ObjectManager.Submit(this.planetSO);
             //Added by McShooterz: random ship in main menu
             this.ShipPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 1200), (float)(this.LogoRect.Y + 400 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
@@ -794,14 +811,30 @@ namespace Ship_Game
                 base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
             }
             else
-            {
-                this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel("Model/Ships/speeder/ship07").Meshes)[0]);
+            {                                
+                Model model =null;
+                while (model == null)
+                {
+                    string modelpath = string.Empty;
+                    int index = HelperFunctions.GetRandomIndex(ResourceManager.HullsDict.Where(role => role.Value.Role == ShipData.RoleName.frigate).Count());
+                    foreach (ShipData test in ResourceManager.HullsDict.Values.Where(role => role.Role == ShipData.RoleName.frigate))
+                    {
+                        index--;
+                        if (index > 0)
+                            continue;
+                        modelpath = test.ModelPath;
+                        break;
+                    }
+                    model = Ship_Game.ResourceManager.GetModel(modelpath,true);
+                }
+                //this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel("Model/Ships/speeder/ship07").Meshes)[0]);
+                this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)model.Meshes)[0]);
                 this.shipSO.ObjectType = ObjectType.Dynamic;
                 this.shipSO.World = this.worldMatrix;
                 this.shipSO.Visibility = ObjectVisibility.Rendered;
                 base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
             }
-			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/MM_light_rig");
+            LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");// ("example/MM_light_rig");
 			base.ScreenManager.inter.LightManager.Submit(rig);
 			base.ScreenManager.environment = base.ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
 			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
@@ -815,7 +848,25 @@ namespace Ship_Game
 			this.MoonPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300), (float)(this.LogoRect.Y + 70 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
 			this.planetSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(new Vector3(this.MoonPosition, this.zshift));
 		}
+        public void ReloadContent()
+        {
+            GC.WaitForPendingFinalizers();
+            this.LogoAnimation.Clear();
+            this.Buttons.Clear();
+            this.LoadContent();
 
+            //base.ScreenManager.inter.Clear();
+            //this.ScreenManager.inter.ObjectManager.Clear();
+            //this.LogoAnimation.Clear();
+            //this.IsLoaded = false;
+            //this.CometList.Clear();
+            //this.Buttons.Clear();
+            //this.UnloadContent();
+            //this.LoadContent();
+            //Fonts.LoadContent(this.ScreenManager.Content);
+            //this.IsLoaded = true;
+            
+        }
 		protected void OnAdventure()
 		{
 		}

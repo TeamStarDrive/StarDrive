@@ -28,6 +28,7 @@ namespace Ship_Game
 		private Rectangle TradeRect;
 
 		private GenericSlider TaxSlider;
+        private GenericSlider TreasuryGoal;
 
 		private MouseState currentMouse;
 
@@ -60,6 +61,14 @@ namespace Ship_Game
 			this.TaxSlider.UpdatePosition(Cursor, 313, 12, string.Concat(Localizer.Token(311), " : "));
 			this.TaxSlider.amount = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.TaxRate;
 			this.TaxSlider.DrawPct(base.ScreenManager);
+            
+            //treasury Slider
+            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing * 2);
+            Cursor.X = (float)(this.window.Menu.X + 30);
+            this.TreasuryGoal.UpdatePosition(Cursor, 313, 12, string.Concat("Auto Tax Treasury Goal : ", (int)(100* EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GrossTaxes * this.TreasuryGoal.amount)));
+            this.TreasuryGoal.amount = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.treasuryGoal;
+            this.TreasuryGoal.DrawPct(base.ScreenManager);
+
 			Cursor = new Vector2((float)(this.IncomesRect.X + 10), (float)(this.IncomesRect.Y + 8));
 			HelperFunctions.DrawDropShadowText(base.ScreenManager, Localizer.Token(312), Cursor, Fonts.Arial12Bold);
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
@@ -214,12 +223,14 @@ namespace Ship_Game
 				this.ExitScreen();
 				return;
 			}
+            this.TreasuryGoal.HandleInput(input);
+            EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.treasuryGoal = this.TreasuryGoal.amount;
 			this.TaxSlider.HandleInput(input);
 			EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.TaxRate = this.TaxSlider.amount;
             EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets().thisLock.EnterReadLock();
 			foreach (Planet p in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets())
 			{
-				p.UpdateIncomes();
+				p.UpdateIncomes(false);
 			}
             EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetPlanets().thisLock.ExitReadLock();
 			if (input.Escaped)
@@ -230,6 +241,10 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(66, base.ScreenManager);
 			}
+            if (HelperFunctions.CheckIntersection(this.TreasuryGoal.rect, input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(66, base.ScreenManager);
+            }
 			if (input.CurrentMouseState.RightButton == ButtonState.Released && input.LastMouseState.RightButton == ButtonState.Pressed)
 			{
 				this.ExitScreen();
@@ -247,6 +262,11 @@ namespace Ship_Game
 			{
 				amount = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.TaxRate
 			};
+            Rectangle rectangle2 = new Rectangle(rectangle.X +20,rectangle.Y +37,rectangle.Width,rectangle.Height);
+            this.TreasuryGoal = new GenericSlider(rectangle2, "Treasury Goal", 1f, 20f)
+            {
+                amount = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.treasuryGoal
+            };
 			this.TaxRateRect = new Rectangle(this.window.Menu.X + 20, this.window.Menu.Y + 37, 350, 52);
 			this.IncomesRect = new Rectangle(this.TaxRateRect.X, this.TaxRateRect.Y + this.TaxRateRect.Height + 6, 168, 118);
 			this.TradeRect = new Rectangle(this.TaxRateRect.X, this.IncomesRect.Y + this.IncomesRect.Height + 6, 168, 208);

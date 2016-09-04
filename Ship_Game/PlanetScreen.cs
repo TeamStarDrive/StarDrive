@@ -84,7 +84,7 @@ namespace Ship_Game
 
 		private List<QueueItem> DisplayedConstructionQ = new List<QueueItem>();
 
-		private List<ShipQueueItem> ShipsList = new List<ShipQueueItem>();
+		//private List<ShipQueueItem> ShipsList = new List<ShipQueueItem>();
 
 		//private Rectangle foodIconRect;
 

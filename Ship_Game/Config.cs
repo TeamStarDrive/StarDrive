@@ -4,9 +4,8 @@ namespace Ship_Game
 {
 	public sealed class Config
 	{
-        public float AutoSaveInterval = 600.0f;
 
-		public int XRES;
+        public int XRES;
 
 		public int YRES;
 
