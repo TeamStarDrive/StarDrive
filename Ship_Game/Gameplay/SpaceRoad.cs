@@ -64,7 +64,8 @@ namespace Ship_Game.Gameplay
 			return this.Destination;
 		}
 
-		public SolarSystem GetOrigin()
+		public SolarSystem GetOrigin
+            ()
 		{
 			return this.Origin;
 		}
