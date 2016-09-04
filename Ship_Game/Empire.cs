@@ -115,7 +115,6 @@ namespace Ship_Game
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
         float leftoverResearch =0;
-
         static Empire()
         {
             
