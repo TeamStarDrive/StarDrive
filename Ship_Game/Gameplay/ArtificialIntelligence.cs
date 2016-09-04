@@ -7053,6 +7053,8 @@ namespace Ship_Game.Gameplay
 
             //}           
             foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips )
+                // Doctor: I put modifiers for the ship roles Fighter and Bomber in here, so that when searching for targets they prioritise their targets based on their selected ship role.
+                // I'll additionally put a ScanForCombatTargets into the carrier fighter code such that they use this code to select their own weighted targets.
             //Parallel.ForEach(this.NearbyShips, nearbyShip =>
             {
                 if (nearbyShip.ship.loyalty != this.Owner.loyalty)
@@ -7074,16 +7076,36 @@ namespace Ship_Game.Gameplay
                     {
                         ArtificialIntelligence.ShipWeight smallAttackWeight = nearbyShip;
                         smallAttackWeight.weight = smallAttackWeight.weight + this.CombatAI.SmallAttackWeight;
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Fighter)
+                        {
+                            smallAttackWeight.weight *= 2f;
+                        }
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Bomber)
+                        {
+                            smallAttackWeight.weight /= 2f;
+                        }
                     }
                     if (nearbyShip.ship.Size > 30 && nearbyShip.ship.Size < 100)
                     {
                         ArtificialIntelligence.ShipWeight mediumAttackWeight = nearbyShip;
                         mediumAttackWeight.weight = mediumAttackWeight.weight + this.CombatAI.MediumAttackWeight;
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Bomber)
+                        {
+                            mediumAttackWeight.weight *= 1.5f;
+                        }
                     }
                     if (nearbyShip.ship.Size > 100)
                     {
                         ArtificialIntelligence.ShipWeight largeAttackWeight = nearbyShip;
                         largeAttackWeight.weight = largeAttackWeight.weight + this.CombatAI.LargeAttackWeight;
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Fighter)
+                        {
+                            largeAttackWeight.weight /= 2f;
+                        }
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Bomber)
+                        {
+                            largeAttackWeight.weight *= 2f;
+                        }
                     }
                     float rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center);
                     if (rangeToTarget <= this.CombatAI.PreferredEngagementDistance) 
@@ -8179,10 +8201,19 @@ namespace Ship_Game.Gameplay
                                                     this.OrbitShip(this.EscortTarget, elapsedTime);
                                                     break;
                                                 }
+                                                // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
+                                                // and a standard 30k around it instead of their own. This hopefully will prevent them flying off too much, as well as keeping them
+                                                // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
                                                 else
                                                 {
-                                                    if (this.Owner.Mothership !=null && this.Target == null )
-                                                        this.Target = this.Owner.Mothership.GetAI().Target;
+                                                    if (this.Owner.Mothership != null && this.Target == null)
+                                                    {
+                                                        this.ScanForCombatTargets(this.Owner.Mothership.Center, 30000f);
+                                                        if (this.Target == null)
+                                                        {
+                                                            this.Target = this.Owner.Mothership.GetAI().Target;
+                                                        }
+                                                    }
                                                     this.DoCombat(elapsedTime);
                                                     break;
                                                 }
