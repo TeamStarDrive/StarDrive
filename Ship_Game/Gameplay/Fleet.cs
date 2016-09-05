@@ -2253,7 +2253,7 @@ namespace Ship_Game.Gameplay
                     {
                         if (!ship.disabled && ship.hasCommand && ship.Active)
                         {
-                            if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
+                            if (Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000f)
                                 flag1 = false;
                             int num = ship.InCombat ? 1 : 0;
                             if (!flag1)
@@ -2272,7 +2272,7 @@ namespace Ship_Game.Gameplay
                     }
                 case 2:
                     bool flag2 = false;
-                    if ((double)Vector2.Distance(this.findAveragePosition(), Task.GetTargetPlanet().Position) < 15000.0)
+                    if (Vector2.Distance(this.findAveragePosition(), Task.GetTargetPlanet().Position) < 15000f)
                     {
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
@@ -2288,32 +2288,45 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
-                    if (!flag2 && (double)Vector2.Distance(this.findAveragePosition(), Task.GetTargetPlanet().Position) >= 5000.0)
+                    if (!flag2 && Vector2.Distance(this.findAveragePosition(), Task.GetTargetPlanet().Position) >= 5000f)
                         break;
                     this.TaskStep = 3;
                     break;
                 case 3:
                     this.EnemyClumpsDict.Clear();
                     List<Ship> list2 = new List<Ship>();
-                    List<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+
+
+                    List<Ship> nearby1; // = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                    nearby1 = this.Owner.GetGSAI().ThreatMatrix.PingRadarShip(this.Task.GetTargetPlanet().Position, 150000f);
                     for (int index1 = 0; index1 < nearby1.Count; ++index1)
                     {
-                        Ship ship1 = nearby1[index1] as Ship;
+                        Ship ship1 = nearby1[index1];
                         if (ship1 != null)
                         {
-                            ship1.GetAI().HasPriorityOrder = false;
-                            if (ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations()[ship1.loyalty].AtWar || ship1.isColonyShip && !this.Owner.GetRelations()[ship1.loyalty].Treaty_NAPact) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.GetTargetPlanet().Position) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                            if (list2.Contains(ship1))
+                                continue;
+                            //ship1.GetAI().HasPriorityOrder = false;
+                            if (ship1.loyalty != this.Owner 
+                                && (ship1.loyalty.isFaction || this.Owner.GetRelations()[ship1.loyalty].AtWar || ship1.isColonyShip && !this.Owner.GetRelations()[ship1.loyalty].Treaty_OpenBorders) 
+                                //&& (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.GetTargetPlanet().Position) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                                )
+                            
                             {
-                                this.EnemyClumpsDict.Add(ship1.Center, new List<Ship>());
-                                this.EnemyClumpsDict[ship1.Center].Add(ship1);
-                                list2.Add(ship1);
-                                List<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-                                for (int index2 = 0; index2 < nearby2.Count; ++index2)
+                                List<Ship> areaPing = this.Owner.GetGSAI().ThreatMatrix.PingRadarShip(ship1.Center, 10000f);
+                                if (areaPing.Count > 0)
                                 {
-                                    Ship ship2 = nearby2[index2] as Ship;
-                                    if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
-                                        this.EnemyClumpsDict[ship1.Center].Add(ship2);
+                                    this.EnemyClumpsDict.Add(ship1.Center, new List<Ship>(areaPing));
+                                    //this.EnemyClumpsDict[ship1.Center].Add(ship1);
+                                    list2.AddRange(this.EnemyClumpsDict[ship1.Center]);
                                 }
+                                //List<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                                //for (int index2 = 0; index2 < nearby2.Count; ++index2)
+                                //{
+                                //    Ship ship2 = nearby2[index2] as Ship;
+                                //    if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
+                                //        this.EnemyClumpsDict[ship1.Center].Add(ship2);
+                                //}
                             }
                         }
                     }
@@ -2324,10 +2337,19 @@ namespace Ship_Game.Gameplay
                             while (enumerator.MoveNext())
                             {
                                 Ship current = enumerator.Current;
-                                if (!(current.GetAI().State == AIState.Orbit ))
-                                    current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());
-                                else if (current.GetAI().State == AIState.Orbit && (current.GetAI().OrbitTarget == null || current.GetAI().OrbitTarget != null && current.GetAI().OrbitTarget != Task.GetTargetPlanet()))
-                                    current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());
+                                if (!current.InCombat)
+                                {
+                                    if (!(current.GetAI().State == AIState.Orbit))
+                                        current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());
+                                    else if (current.GetAI().State == AIState.Orbit && (current.GetAI().OrbitTarget == null || current.GetAI().OrbitTarget != null && current.GetAI().OrbitTarget != Task.GetTargetPlanet()))
+                                        current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());
+                                }
+                                else // if (current.GetAI().TargetQueue.Count == 0)
+                                {
+                                    current.GetAI().OrderMoveDirectlyTowardsPosition(this.Task.GetTargetPlanet().ParentSystem.Position, 0, Vector2.Zero, true);
+                                    current.GetAI().HasPriorityOrder = true;
+                                }
+
                             }
                             break;
                         }
@@ -2371,21 +2393,29 @@ namespace Ship_Game.Gameplay
                     float num1 = 0.0f;
                     float num2 = 0.0f;
                     float num3 = 0.0f;
-                    float num4 = 0.0f;
+                    float num4 = 0.0f;                    
                     foreach (Ship ship in (List<Ship>)this.Ships)
                     {
+                        if (Vector2.Distance(ship.Center, this.Task.GetTargetPlanet().ParentSystem.Position) > 150000f)
+                        {
+                            
+                            ship.GetAI().OrderQueue.Clear();
+                            ship.GetAI().OrderMoveDirectlyTowardsPosition(this.Task.GetTargetPlanet().ParentSystem.Position, 0, Vector2.Zero, true);
+                            //ship.GetAI().HasPriorityOrder = true;
+
+                        }
                         num1 += ship.Ordinance;
                         num2 += ship.OrdinanceMax;
                         foreach (Weapon weapon in ship.Weapons)
                         {
-                            if ((double)weapon.OrdinanceRequiredToFire > 0.0)
+                            if (weapon.OrdinanceRequiredToFire > 0)
                                 num3 = weapon.DamageAmount / weapon.fireDelay;
-                            if ((double)weapon.PowerRequiredToFire > 0.0)
+                            if (weapon.PowerRequiredToFire > 0.0)
                                 num4 = weapon.DamageAmount / weapon.fireDelay;
                         }
                     }
                     float num5 = num3 + num4;
-                    if ((double)num3 >= 0.5 * (double)num5 && (double)num1 <= 0.100000001490116 * (double)num2)
+                    if (num3 >= 0.5 * num5 && num1 <= 0.1 * num2)
                     {
                         this.TaskStep = 5;
                         break;

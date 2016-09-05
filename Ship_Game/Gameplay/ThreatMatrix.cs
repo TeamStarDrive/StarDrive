@@ -88,8 +88,34 @@ namespace Ship_Game.Gameplay
 			}
 			return retList;
 		}
-
-		public Vector2 PingRadarAvgPos(Vector2 Position, float Radius, Empire Us)
+      
+        public List<GameplayObject> PingRadarOBJ(Vector2 Position, float Radius)
+        {
+            List<GameplayObject> retList = new List<GameplayObject>();
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+                if (Vector2.Distance(Position, pin.Value.Position) >= Radius)
+                {
+                    continue;
+                }
+                retList.Add(pin.Value.ship);
+            }
+            return retList;
+        }
+        public List<Ship> PingRadarShip(Vector2 Position, float Radius)
+        {
+            List<Ship> retList = new List<Ship>();
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+                if (Vector2.Distance(Position, pin.Value.Position) >= Radius)
+                {
+                    continue;
+                }
+                retList.Add(pin.Value.ship);
+            }
+            return retList;
+        }
+        public Vector2 PingRadarAvgPos(Vector2 Position, float Radius, Empire Us)
 		{
 			Vector2 pos = new Vector2();
 			int num = 0;
