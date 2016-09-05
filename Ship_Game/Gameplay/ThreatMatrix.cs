@@ -115,6 +115,45 @@ namespace Ship_Game.Gameplay
             }
             return retList;
         }
+        public List<Ship> PingRadarShip(Vector2 Position, float Radius,Empire empire)
+        {
+            List<Ship> retList = new List<Ship>();
+            Ship ship;
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+                if (Vector2.Distance(Position, pin.Value.Position) >= Radius)
+                {
+                    continue;
+                }
+                ship = pin.Value.ship;
+                if (ship.loyalty != empire
+                             && (ship.loyalty.isFaction || empire.GetRelations()[ship.loyalty].Treaty_OpenBorders))
+                    continue;
+                    retList.Add(pin.Value.ship);
+            }
+            return retList;
+        }
+        public Dictionary<Vector2,List<Ship>> PingRadarClusters(Vector2 Position, float Radius, float granularity,Empire empire)
+        {
+            Dictionary<Vector2, List<Ship>> retList = new Dictionary<Vector2, List<Ship>>();
+            List<Ship> pings = new List<Ship>(PingRadarShip(Position,Radius,empire));
+            HashSet<Ship > filter = new HashSet<Ship>();
+            
+            foreach(Ship ship in pings)
+            {
+                if (ship == null || filter.Contains(ship))
+                    continue;
+              
+                        List<Ship> cluster = PingRadarShip(ship.Center, granularity,empire);
+                if (cluster.Count == 0)
+                    continue;
+                retList.Add(ship.Center, cluster);                
+                filter.UnionWith(cluster);
+
+            }
+            return retList;
+
+        }
         public Vector2 PingRadarAvgPos(Vector2 Position, float Radius, Empire Us)
 		{
 			Vector2 pos = new Vector2();
