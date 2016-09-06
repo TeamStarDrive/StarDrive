@@ -119,16 +119,25 @@ namespace Ship_Game.Gameplay
         {
             List<Ship> retList = new List<Ship>();
             Ship ship;
+            Relationship rel;
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
                 if (Vector2.Distance(Position, pin.Value.Position) >= Radius)
                 {
                     continue;
-                }
+                }              
                 ship = pin.Value.ship;
-                if (ship.loyalty != empire
-                             && (ship.loyalty.isFaction || empire.GetRelations()[ship.loyalty].Treaty_OpenBorders))
+                if (ship == null)
                     continue;
+                rel = empire.GetRelations()[ship.loyalty];
+                if (ship.loyalty != empire
+                             && (ship.loyalty.isFaction || rel.AtWar)
+                             || (pin.Value.InBorders && !rel.Treaty_OpenBorders)
+                             || (ship.isColonyShip && 
+                             ( ship.GetSystem() != null && rel.WarnedSystemsList.Contains(ship.GetSystem().guid )))
+                    
+                             )
+                    
                     retList.Add(pin.Value.ship);
             }
             return retList;
@@ -148,6 +157,27 @@ namespace Ship_Game.Gameplay
                 if (cluster.Count == 0)
                     continue;
                 retList.Add(ship.Center, cluster);                
+                filter.UnionWith(cluster);
+
+            }
+            return retList;
+
+        }
+        public Dictionary<Vector2, float> PingRadarThreatClusters(Vector2 Position, float Radius, float granularity, Empire empire)
+        {
+            Dictionary<Vector2, float> retList = new Dictionary<Vector2, float>();
+            List<Ship> pings = new List<Ship>(PingRadarShip(Position, Radius, empire));
+            HashSet<Ship> filter = new HashSet<Ship>();
+
+            foreach (Ship ship in pings)
+            {
+                if (ship == null || filter.Contains(ship))
+                    continue;
+
+                List<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
+                if (cluster.Count == 0)
+                    continue;
+                retList.Add(ship.Center, cluster.Sum(str=> str.GetStrength()));
                 filter.UnionWith(cluster);
 
             }

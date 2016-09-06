@@ -2488,31 +2488,18 @@ namespace Ship_Game.Gameplay
                     this.DoCohesiveClearAreaOfEnemies(Task);
                     break;
                 case 1:
-                    List<ThreatMatrix.Pin> list1 = new List<ThreatMatrix.Pin>();
-                    Dictionary<ThreatMatrix.Pin, float> dictionary1 = new Dictionary<ThreatMatrix.Pin, float>();
-                    foreach (KeyValuePair<Guid, ThreatMatrix.Pin> keyValuePair1 in this.Owner.GetGSAI().ThreatMatrix.Pins)
-                    {
-                        if (!(keyValuePair1.Value.EmpireName == this.Owner.data.Traits.Name) && (EmpireManager.GetEmpireByName(keyValuePair1.Value.EmpireName).isFaction || !this.Owner.GetRelations()[EmpireManager.GetEmpireByName(keyValuePair1.Value.EmpireName)].AtWar) && (!list1.Contains(keyValuePair1.Value) && Vector2.Distance(keyValuePair1.Value.Position, Task.AO) < Task.AORadius))
-                        {
-                            dictionary1.Add(keyValuePair1.Value, keyValuePair1.Value.Strength);
-                            list1.Add(keyValuePair1.Value);
-                            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> keyValuePair2 in this.Owner.GetGSAI().ThreatMatrix.Pins)
-                            {
-                                if (!(keyValuePair2.Value.EmpireName == this.Owner.data.Traits.Name) && keyValuePair2.Value.EmpireName == keyValuePair1.Value.EmpireName && (Vector2.Distance(keyValuePair1.Value.Position, keyValuePair2.Value.Position) < 150000 && !list1.Contains(keyValuePair2.Value)))
-                                {
-                                    Dictionary<ThreatMatrix.Pin, float> dictionary2;
-                                    ThreatMatrix.Pin index;
-                                    (dictionary2 = dictionary1)[index = keyValuePair1.Value] = dictionary2[index] + keyValuePair2.Value.Strength;
-                                }
-                            }
-                        }
-                    }
+                   // List<ThreatMatrix.Pin> list1 = new List<ThreatMatrix.Pin>();
+                    Dictionary<Vector2, float> threatDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarThreatClusters(this.Task.AO, this.Task.AORadius, 10000f, this.Owner);
                     float strength = this.GetStrength();
                     this.targetPosition = Vector2.Zero;
-                    foreach (KeyValuePair<ThreatMatrix.Pin, float> keyValuePair in dictionary1)
+                    
+                    if (threatDict.Count != 0)
                     {
-                        if (strength > keyValuePair.Value * 1.35f && keyValuePair.Value > 750)
-                            this.targetPosition = keyValuePair.Key.Position;
+                        KeyValuePair<Vector2, float> targetSpot = threatDict
+                            .OrderByDescending(p => p.Value < strength * .9f)
+                            .ThenByDescending(p => p.Value).First();
+                        if (targetSpot.Value < strength)
+                            targetPosition = targetSpot.Key;
                     }
                     if (this.targetPosition != Vector2.Zero)
                     {
@@ -2527,50 +2514,23 @@ namespace Ship_Game.Gameplay
                         break;
                     }
                 case 2:
-                   
-                    if (this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.targetPosition, 20000f, this.Owner) == 0)
+
+                    if (this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.targetPosition, 150000, this.Owner) == 0)
                     {
                         this.TaskStep = 1;
                         break;
                     }
                     else
                     {
-                        if (Vector2.Distance(this.targetPosition, this.findAveragePosition()) >= 25000)
+                        
+                        if (Vector2.Distance(this.targetPosition, this.findAveragePosition()) > 25000)
                             break;
                         this.TaskStep = 3;
                         break;
                     }
                 case 3:
-                    this.EnemyClumpsDict.Clear();
-                    List<Ship> list2 = new List<Ship>();
-                    Vector2 averagePosition = this.findAveragePosition();                  
-                    // List<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-                    List<ThreatMatrix.Pin> nearby1 = this.Owner.GetGSAI().ThreatMatrix.PingRadar(this.Position, 25000);
-                    for (int index1 = 0; index1 < nearby1.Count; ++index1)
-                    {
-                        Ship ship1 = nearby1[index1].ship;// as Ship;
-                        if (ship1 == null)
-                            continue;
-                        if (ship1 != null && ship1.loyalty != this.Owner && ship1.Active
-                            && (ship1.loyalty.isFaction || this.Owner.GetRelations()[ship1.loyalty].AtWar) 
-                            && (!list2.Contains(ship1) //&& Vector2.Distance(nearby1, averagePosition) < 250000 
-                            && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
-                        {
-                            this.EnemyClumpsDict.Add(ship1.Center, new List<Ship>());
-                            this.EnemyClumpsDict[ship1.Center].Add(ship1);
-                            list2.Add(ship1);
-                            List<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-                            for (int index2 = 0; index2 < nearby2.Count; ++index2)
-                            {
-                                Ship ship2 = nearby2[index2] as Ship;
-                                if (ship2 != null && ship2.loyalty != this.Owner 
-                                    && (ship2.loyalty == ship1.loyalty 
-                                    && Vector2.Distance(ship1.Center, ship2.Center) < 10000) 
-                                    && !list2.Contains(ship2))
-                                    this.EnemyClumpsDict[ship1.Center].Add(ship2);
-                            }
-                        }
-                    }
+                    this.EnemyClumpsDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarClusters(this.Position, 150000, 10000, this.Owner);
+                   
                     if (this.EnemyClumpsDict.Count == 0)
                     {
                         Task.EndTask();
@@ -2608,6 +2568,7 @@ namespace Ship_Game.Gameplay
                             ship.GetAI().Intercepting = true;
                             ship.GetAI().OrderAttackSpecificTarget(list4[0].GetAI().Target as Ship);
                         }
+                        
                         this.TaskStep = 4;
                         break;
                     }
@@ -2616,8 +2577,14 @@ namespace Ship_Game.Gameplay
                     float num2 = 0.0f;
                     float num3 = 0.0f;
                     float num4 = 0.0f;
+                    bool AllInCombat = false;                    
                     foreach (Ship ship in (List<Ship>)this.Ships)
                     {
+                        if (ship.GetAI().BadGuysNear && !ship.isInDeepSpace)
+                        {
+                            AllInCombat = true;
+
+                        }
                         num1 += ship.Ordinance;
                         num2 += ship.OrdinanceMax;
                         foreach (Weapon weapon in ship.Weapons)
@@ -2634,22 +2601,28 @@ namespace Ship_Game.Gameplay
                         this.TaskStep = 5;
                         break;
                     }
-                    else
+
+
+
+                    if (this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.Position, 150000, this.Owner) > 0)
                     {
-                        bool flag = false;
-                        foreach (Ship ship in (List<Ship>)this.Ships)
+                        
+                        if(!AllInCombat )
                         {
-                            if (!ship.GetAI().BadGuysNear || ship.isInDeepSpace)
-                            {
-                                flag = true;
-                                break;
-                            }
-                        }
-                        if (!flag)
+                            this.TaskStep = 3;
                             break;
-                        this.TaskStep = 3;
+                        }
+                        this.TaskStep = 4;
                         break;
                     }
+                    else
+                    {
+                        this.TaskStep = 2;
+                        break;
+                    }
+                       
+                    
+                    
                 case 5:
                     foreach (Ship ship in (List<Ship>)this.Ships)
                         ship.GetAI().OrderResupplyNearest(true);
