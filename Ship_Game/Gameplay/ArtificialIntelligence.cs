@@ -6311,8 +6311,8 @@ namespace Ship_Game.Gameplay
                 }
                 if (PickWayPoints.Count == 0) //if no projectors then just go to target.
                 {
-                    if (!this.ActiveWayPoints.Contains(endPos))
-                        PickWayPoints.Add(endPos);
+                    lock (this.wayPointLocker)
+                   this.ActiveWayPoints.Enqueue(endPos);
                     return;
                 }
                 foreach (SolarSystem p in this.Owner.loyalty.GetOwnedSystems())
