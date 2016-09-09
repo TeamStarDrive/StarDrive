@@ -6306,8 +6306,14 @@ namespace Ship_Game.Gameplay
                     d1 = Vector2.Distance(proj.Center, startPos);
                     d2 = Vector2.Distance(proj.Center, endPos);
                     if (d1 <= Distance && d2 <= Distance)
-                       // lock (this.wayPointLocker)
-                            PickWayPoints.Add(proj.Center);
+                        // lock (this.wayPointLocker)
+                        PickWayPoints.Add(proj.Center);
+                }
+                if (PickWayPoints.Count == 0) //if no projectors then just go to target.
+                {
+                    lock (this.wayPointLocker)
+                   this.ActiveWayPoints.Enqueue(endPos);
+                    return;
                 }
                 foreach (SolarSystem p in this.Owner.loyalty.GetOwnedSystems())
                 {

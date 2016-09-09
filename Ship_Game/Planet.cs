@@ -6766,9 +6766,34 @@ output = maxp * take10 = 5
             //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == null || empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
             //this.TroopsHere.thisLock.ExitReadLock();
             //return num;
-
-
             float EnemyTroopStrength = 0f;
+            this.TroopsHere.ForEach(trooper =>
+            {
+
+                if (trooper.GetOwner() != AllButThisEmpire)
+                {
+                    EnemyTroopStrength += trooper.Strength;
+                }
+            });
+            for(int i =0; i<this.BuildingList.Count;i++)
+            {
+                Building b;
+                try
+                {
+                    b = this.BuildingList[i];
+                }
+                catch
+                {
+                    continue;
+                }
+                if (b == null)
+                    continue;
+                if(b.CombatStrength>0)
+                EnemyTroopStrength += b.Strength + b.CombatStrength;
+            }
+          
+
+            return EnemyTroopStrength;
             foreach (PlanetGridSquare pgs in this.TilesList)
             {
                 pgs.TroopsHere.thisLock.EnterReadLock();
