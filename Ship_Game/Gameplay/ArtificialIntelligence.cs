@@ -2776,7 +2776,7 @@ namespace Ship_Game.Gameplay
                     //save target ship if it is a ship.
                     this.TargetShip = this.Target as Ship;
                     //group of weapons into chunks per thread available
-                    sbyte AddTargetsTracked = 0;
+                    //sbyte AddTargetsTracked = 0;
                     var source = Enumerable.Range(0, this.Owner.Weapons.Count).ToArray();
                             var rangePartitioner = Partitioner.Create(0, source.Length);
                     //handle each weapon group in parallel
@@ -2855,7 +2855,7 @@ namespace Ship_Game.Gameplay
                                                            //if there are projectile to hit and weapons that can shoot at them. do so. 
                                                            if(this.TrackProjectiles.Count >0 && weapon.Tag_PD )
                                                            {
-                                                               for (int i = 0; i < this.TrackProjectiles.Count && AddTargetsTracked < this.Owner.TrackingPower + this.Owner.Level; i++)
+                                                               for (int i = 0; i < this.TrackProjectiles.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++)
                                                                {
                                                                    Projectile proj;
                                                                    {
@@ -2867,7 +2867,7 @@ namespace Ship_Game.Gameplay
                                                                    if (this.Owner.CheckIfInsideFireArc(weapon, proj as GameplayObject))
                                                                    {
                                                                        weapon.fireTarget = proj;
-                                                                       AddTargetsTracked++;
+                                                                       //AddTargetsTracked++;
                                                                        break;
                                                                    }
                                                                }
@@ -2888,19 +2888,20 @@ namespace Ship_Game.Gameplay
                                                                {
                                                                    //limit to one target per level.
                                                                    sbyte tracking = this.Owner.TrackingPower;
-                                                                   for (int i = 0; i < this.PotentialTargets.Count && AddTargetsTracked < tracking + this.Owner.Level; i++) //
+                                                                   for (int i = 0; i < this.PotentialTargets.Count && i < tracking + this.Owner.Level; i++) //
                                                                    {
                                                                        Ship PotentialTarget = this.PotentialTargets[i];
                                                                        if (PotentialTarget == this.TargetShip)
                                                                        {
-                                                                           continue;
+                                                                           tracking++;
+                                                                           continue;                                                                           
                                                                        }
                                                                        if (!this.Owner.CheckIfInsideFireArc(weapon, PotentialTarget))
                                                                        {
                                                                            continue;
                                                                        }
                                                                        weapon.fireTarget = PotentialTarget;
-                                                                       AddTargetsTracked++;
+                                                                       //AddTargetsTracked++;
                                                                        break;
 
                                                                    }
@@ -2928,7 +2929,7 @@ namespace Ship_Game.Gameplay
                                                            if (weapon.fireTarget == null)
                                                            {
 
-                                                               for (int i = 0; i < this.TrackProjectiles.Count && AddTargetsTracked < this.Owner.TrackingPower + this.Owner.Level; i++)
+                                                               for (int i = 0; i < this.TrackProjectiles.Count && i < this.Owner.TrackingPower + this.Owner.Level; i++)
                                                                {
                                                                    Projectile proj;
                                                                    {
@@ -2940,7 +2941,7 @@ namespace Ship_Game.Gameplay
                                                                    if (this.Owner.CheckIfInsideFireArc(weapon, proj as GameplayObject))
                                                                    {
                                                                        weapon.fireTarget = proj;
-                                                                       AddTargetsTracked++;
+                                                                       //AddTargetsTracked++;
                                                                        break;
                                                                    }
                                                                }

@@ -3898,11 +3898,7 @@ namespace Ship_Game
                 this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6188), ":"), (int)((targets + 1f)), 232);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-            if (targets == 0)
-            {
-                this.DrawStatNeutral(ref Cursor, string.Concat(Localizer.Token(6188), ":"), 1f, 233);
-                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-            }
+
             Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);
 			bool hasBridge = false;
 			bool EmptySlots = true;
