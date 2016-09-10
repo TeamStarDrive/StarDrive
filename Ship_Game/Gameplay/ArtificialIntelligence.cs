@@ -2776,6 +2776,7 @@ namespace Ship_Game.Gameplay
                     //save target ship if it is a ship.
                     this.TargetShip = this.Target as Ship;
                     //group of weapons into chunks per thread available
+                    //sbyte AddTargetsTracked = 0;
                     var source = Enumerable.Range(0, this.Owner.Weapons.Count).ToArray();
                             var rangePartitioner = Partitioner.Create(0, source.Length);
                     //handle each weapon group in parallel
@@ -2866,6 +2867,7 @@ namespace Ship_Game.Gameplay
                                                                    if (this.Owner.CheckIfInsideFireArc(weapon, proj as GameplayObject))
                                                                    {
                                                                        weapon.fireTarget = proj;
+                                                                       //AddTargetsTracked++;
                                                                        break;
                                                                    }
                                                                }
@@ -2892,13 +2894,14 @@ namespace Ship_Game.Gameplay
                                                                        if (PotentialTarget == this.TargetShip)
                                                                        {
                                                                            tracking++;
-                                                                           continue;
+                                                                           continue;                                                                           
                                                                        }
                                                                        if (!this.Owner.CheckIfInsideFireArc(weapon, PotentialTarget))
                                                                        {
                                                                            continue;
                                                                        }
                                                                        weapon.fireTarget = PotentialTarget;
+                                                                       //AddTargetsTracked++;
                                                                        break;
 
                                                                    }
@@ -2938,6 +2941,7 @@ namespace Ship_Game.Gameplay
                                                                    if (this.Owner.CheckIfInsideFireArc(weapon, proj as GameplayObject))
                                                                    {
                                                                        weapon.fireTarget = proj;
+                                                                       //AddTargetsTracked++;
                                                                        break;
                                                                    }
                                                                }
@@ -6952,7 +6956,8 @@ namespace Ship_Game.Gameplay
                     return (GameplayObject)null;
                 }
             }
-            this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.66f;
+            //Doctor: Increased this from 0.66f as seemed slightly on the low side. 
+            this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.75f;
             SolarSystem thisSystem = this.Owner.GetSystem();
             if(thisSystem != null)
                 foreach (Planet p in thisSystem.PlanetList)
