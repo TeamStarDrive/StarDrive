@@ -1160,5 +1160,20 @@
       <Title>Total Module Slots</Title>
       <Data>4104</Data>
     </ToolTip>
+		<ToolTip>
+      <TIP_ID>231</TIP_ID>
+      <Title>Targets</Title>
+      <Data>7086</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>232</TIP_ID>
+      <Title>Max Targets</Title>
+      <Data>7087</Data>
+    </ToolTip>
+	<ToolTip>
+      <TIP_ID>233</TIP_ID>
+      <Title>Max Targets 1</Title>
+      <Data>7088</Data>
+    </ToolTip>		
   </ToolTipsList>
 </Tooltips>
