@@ -6876,7 +6876,8 @@ namespace Ship_Game.Gameplay
                     return (GameplayObject)null;
                 }
             }
-            this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.66f;
+            //Doctor: Increased this from 0.66f as seemed slightly on the low side. 
+            this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.75f;
             SolarSystem thisSystem = this.Owner.GetSystem();
             if(thisSystem != null)
                 foreach (Planet p in thisSystem.PlanetList)
