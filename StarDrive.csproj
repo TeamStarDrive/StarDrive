@@ -29,7 +29,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>..\..\..\..\Program Files %28x86%29\Steam\SteamApps\common\StarDrive Debug\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE;STEAM ALTERTHREAD</DefineConstants>
+    <DefineConstants>TRACE;STEAM ALTERTHREAD</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
@@ -3236,6 +3236,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist "$(DevEnvDir)..\tools\vsvars32.bat" call "$(DevEnvDir)..\tools\vsvars32.bat" &amp;&amp; editbin /largeaddressaware "$(TargetPath)"&amp;&amp;   if exist ..\Config $(ProjectDir)\deploy\7-Zip\7z A sd.7z @$(ProjectDir)deploy\config\include.txt &amp;&amp; copy /b $(ProjectDir)deploy\7-Zip\7ZSD.sfx + $(ProjectDir)deploy\Config\config.txt + sd.7z $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).exe</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
