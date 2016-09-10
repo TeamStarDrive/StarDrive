@@ -4201,18 +4201,18 @@ namespace Ship_Game.Gameplay
 			}
 			this.State = AIState.MoveTo;
 			this.MovePosition = position;
-			try
-			{
-				this.PlotCourseToNew(position, (this.ActiveWayPoints.Count > 0 ? this.ActiveWayPoints.Last<Vector2>() : this.Owner.Center));
-			}
-			catch
-			{
-				lock (this.wayPointLocker)
-				{
-					this.ActiveWayPoints.Clear();
-				}
-			}
-			this.FinalFacingVector = fVec;
+            try
+            {
+                this.PlotCourseToNew(position, (this.ActiveWayPoints.Count > 0 ? this.ActiveWayPoints.Last<Vector2>() : this.Owner.Center));
+            }
+            catch
+            {
+                lock (this.wayPointLocker)
+                {
+                    this.ActiveWayPoints.Clear();
+                }
+            }
+            this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
 
 			lock (this.wayPointLocker)
@@ -6284,9 +6284,85 @@ namespace Ship_Game.Gameplay
 		}
         */
 
+
+
+
+
         //fbedard: new version not recursive        
         private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
         {
+            if (false && Empire.universeScreen.Debug)
+            {
+                List<Vector2> goodpoints = new List<Vector2>();
+                Grid path = new Grid(this.Owner.loyalty);
+                goodpoints = path.Pathfind(startPos, endPos);
+                if (goodpoints != null && goodpoints.Count > 0)
+                {
+                    lock (this.wayPointLocker)
+                    {
+                        foreach (Vector2 wayp in goodpoints)
+                        {
+
+                            this.ActiveWayPoints.Enqueue(wayp);
+                        }
+                        this.ActiveWayPoints.Enqueue(endPos);
+                    }
+                    return;
+                }
+            }
+            //if (UniverseData.UniverseWidth <= 0)
+            //    return;
+            //List<Vector2> goodpoints = new List<Vector2>();
+            //int reducer =  (int)(Empire.ProjectorRadius/4) ;
+            //foreach (Ship p in this.Owner.loyalty.GetProjectors())
+            //    goodpoints.Add(p.Center);
+            //foreach (SolarSystem s in this.Owner.loyalty.GetOwnedSystems())
+            //{
+            //    goodpoints.Add(s.Position);
+
+            //}
+            //int size = (int)(UniverseData.UniverseWidth / reducer);
+            //Grid path = new Grid(size, size, 1);
+            //Vector2 fillspot = new Vector2();
+            //for (int k = 0; k < path.Weight.GetLength(0); k++)
+            //    for (int l = 0; l < path.Weight.GetLength(1); l++)
+            //    {
+            //        float x = k * reducer;
+            //        float y = l * reducer;
+            //        fillspot.X = x;
+            //        fillspot.Y = y;
+
+            //        foreach (Vector2 p in goodpoints)
+            //        {
+            //            float distance = Vector2.Distance(p, fillspot);
+
+            //            if (distance <= Empire.ProjectorRadius)
+            //            {
+            //                distance = distance / Empire.ProjectorRadius;
+            //                path.Weight[k, l] = (byte)(254 *distance);
+            //            }
+
+            //        }
+            //    }
+            //Vector2 startPosN = new Vector2(startPos.X / reducer ,startPos.Y /reducer);
+            //Vector2 endPosN = new Vector2(endPos.X / reducer, endPos.Y / reducer);
+            //Point startP = new Point((int)startPosN.X, (int)startPosN.Y);
+            //Point endP = new Point((int)endPosN.X, (int)endPosN.Y);
+            //List<Point> paths = path.Pathfind(startP, endP);
+            //if (paths != null)
+            //{
+            //    lock (this.wayPointLocker)
+            //    {
+            //        foreach (Point wayp in paths)
+            //        {
+            //            Vector2 wp = new Vector2(wayp.X * reducer, wayp.Y * reducer);
+
+            //            this.ActiveWayPoints.Enqueue(wp);
+            //        }
+            //        this.ActiveWayPoints.Enqueue(endPos);
+            //    }
+            //    return;
+            //}
             float Distance = Vector2.Distance(startPos, endPos);
             if (Distance <= Empire.ProjectorRadius)
             {
@@ -6294,9 +6370,9 @@ namespace Ship_Game.Gameplay
                     this.ActiveWayPoints.Enqueue(endPos);
                 return;
             }
-            if (PlotCourseToNewViaRoad(endPos, startPos))
-                return;            
-            List<Vector2> PickWayPoints = new List<Vector2>(this.GoodRoad(endPos, startPos));
+            //if (PlotCourseToNewViaRoad(endPos, startPos) != null)
+
+            List<Vector2> PickWayPoints = new List<Vector2>(this.GoodRoad(endPos, startPos)); //PlotCourseToNewViaRoad(endPos, startPos));//
             float d1, d2;
             float DistToEnd1, DistToEnd2;
             if (PickWayPoints.Count == 0)
@@ -6324,13 +6400,13 @@ namespace Ship_Game.Gameplay
                             PickWayPoints.Add(p.Position);
                 }
             }
-#if DEBUG
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("Empire :" + this.Owner.loyalty.PortraitName);
-                System.Diagnostics.Debug.WriteLine("Ship :" + this.Owner.VanityName);
-            }
-#endif            
+//#if DEBUG
+//            else
+//            {
+//                System.Diagnostics.Debug.WriteLine("Empire :" + this.Owner.loyalty.PortraitName);
+//                System.Diagnostics.Debug.WriteLine("Ship :" + this.Owner.VanityName);
+//            }
+//#endif            
             if (!this.ActiveWayPoints.Contains(endPos))
                     PickWayPoints.Add(endPos);
 
@@ -6453,16 +6529,10 @@ namespace Ship_Game.Gameplay
 
         }
 
-        private bool PlotCourseToNewViaRoad(Vector2 endPos, Vector2 startPos)
+        private List<Vector2> PlotCourseToNewViaRoad(Vector2 endPos, Vector2 startPos)
         {
-            return false;
-            float Distance = Vector2.Distance(startPos, endPos);
-            if (Distance <= Empire.ProjectorRadius)
-            {
-                lock (this.wayPointLocker)
-                    this.ActiveWayPoints.Enqueue(endPos);
-                return true;
-            }
+            //return null;
+            List<Vector2> goodPoints = new List<Vector2>();
             List<SpaceRoad> potentialEndRoads = new List<SpaceRoad>();
             List<SpaceRoad> potentialStartRoads = new List<SpaceRoad>();
             RoadNode nearestNode = null;
@@ -6499,8 +6569,10 @@ namespace Ship_Game.Gameplay
                         {
                             foundstart = true;
                         }
-                        lock (this.wayPointLocker)
-                            this.ActiveWayPoints.Enqueue(node.Position);
+                        goodPoints.Add(node.Position);
+                        goodPoints.Add(targetRoad.GetDestination().Position);
+                        goodPoints.Add(targetRoad.GetOrigin().Position);
+
                     }
                 else
                     foreach (RoadNode node in targetRoad.RoadNodesList.Reverse<RoadNode>())
@@ -6511,12 +6583,14 @@ namespace Ship_Game.Gameplay
                         {
                             foundstart = true;
                         }
-                        lock (this.wayPointLocker)
-                            this.ActiveWayPoints.Enqueue(node.Position);
+                        goodPoints.Add(node.Position);
+                        goodPoints.Add(targetRoad.GetDestination().Position);
+                        goodPoints.Add(targetRoad.GetOrigin().Position);
+
                     }
           
             }
-            else if(false)
+            else if(true)
             {
                 while (potentialStartRoads.Intersect(potentialEndRoads).Count() == 0)
                 {
@@ -6545,7 +6619,7 @@ namespace Ship_Game.Gameplay
                      if(!test)
                     {
                         System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
-                        return false;
+                        return new List<Vector2>();
                     }
                 }
                 while (!potentialEndRoads.Contains(potentialStartRoads[0]))
@@ -6578,7 +6652,7 @@ namespace Ship_Game.Gameplay
                     if(!test)
                     {
                         System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
-                        return false;
+                        return new List<Vector2>();
                     }
 
 
@@ -6620,8 +6694,9 @@ namespace Ship_Game.Gameplay
                             else
                             {
                                 startnode = true;
-                                lock (this.wayPointLocker)
-                                    this.ActiveWayPoints.Enqueue(node.Position);
+                                goodPoints.Add(node.Position);
+                                goodPoints.Add(targetRoad.GetDestination().Position);
+                                goodPoints.Add(targetRoad.GetOrigin().Position);
                             }
                         }
 
@@ -6638,8 +6713,9 @@ namespace Ship_Game.Gameplay
                             else
                             {
                                 startnode = true;
-                                lock (this.wayPointLocker)
-                                    this.ActiveWayPoints.Enqueue(node.Position);
+                                goodPoints.Add(node.Position);
+                                goodPoints.Add(targetRoad.GetDestination().Position);
+                                goodPoints.Add(targetRoad.GetOrigin().Position);
                             }
                         }
                     }
@@ -6656,8 +6732,9 @@ namespace Ship_Game.Gameplay
                                 {
                                     foreach(RoadNode node in road.RoadNodesList)
                                     {
-                                        lock (this.wayPointLocker)
-                                            this.ActiveWayPoints.Enqueue(node.Position);
+                                        goodPoints.Add(node.Position);
+                                        goodPoints.Add(targetRoad.GetDestination().Position);
+                                        goodPoints.Add(targetRoad.GetOrigin().Position);
                                     }
                                     targetRoad = road;
                                     test = true;
@@ -6670,8 +6747,9 @@ namespace Ship_Game.Gameplay
                                     {
                                         foreach (RoadNode node in road.RoadNodesList.Reverse<RoadNode>())
                                         {
-                                            lock (this.wayPointLocker)
-                                                this.ActiveWayPoints.Enqueue(node.Position);
+                                            goodPoints.Add(node.Position);
+                                            goodPoints.Add(targetRoad.GetDestination().Position);
+                                            goodPoints.Add(targetRoad.GetOrigin().Position);
                                         }
                                     }
                                     test = true;
@@ -6691,8 +6769,9 @@ namespace Ship_Game.Gameplay
                                 {
                                     foreach (RoadNode node in road.RoadNodesList)
                                     {
-                                        lock (this.wayPointLocker)
-                                            this.ActiveWayPoints.Enqueue(node.Position);
+                                        goodPoints.Add(node.Position);
+                                        goodPoints.Add(targetRoad.GetDestination().Position);
+                                        goodPoints.Add(targetRoad.GetOrigin().Position);
                                     }
                                     targetRoad = road;
                                     test = true;
@@ -6705,8 +6784,9 @@ namespace Ship_Game.Gameplay
                                     {
                                         foreach (RoadNode node in road.RoadNodesList.Reverse<RoadNode>())
                                         {
-                                            lock (this.wayPointLocker)
-                                                this.ActiveWayPoints.Enqueue(node.Position);
+                                            goodPoints.Add(node.Position);
+                                            goodPoints.Add(targetRoad.GetDestination().Position);
+                                            goodPoints.Add(targetRoad.GetOrigin().Position);
                                         }
                                     }
                                     targetRoad = road;
@@ -6725,14 +6805,13 @@ namespace Ship_Game.Gameplay
             }
 
 
-            if(this.ActiveWayPoints.Count ==0) return false;
+            if(goodPoints.Count ==0) return new List<Vector2>();
 
 
-            lock (this.wayPointLocker)
-                this.ActiveWayPoints.Enqueue(endPos);
+            
 
 
-            return true;
+            return goodPoints;
         }
 
 		private void RotateInLineWithVelocity(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
@@ -7066,7 +7145,7 @@ namespace Ship_Game.Gameplay
                 if (nearbyShip.ship.loyalty != this.Owner.loyalty)
                 {
                     if ((this.Target as Ship) == nearbyShip.ship)
-                        nearbyShip.weight += 1;
+                        nearbyShip.weight += 3;
                     if (nearbyShip.ship.Weapons.Count ==0)
                     {
                         ArtificialIntelligence.ShipWeight vultureWeight = nearbyShip;
@@ -7118,7 +7197,11 @@ namespace Ship_Game.Gameplay
                        // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
-                        shipWeight.weight = shipWeight.weight + .1f;
+                        shipWeight.weight = shipWeight.weight + 5 *
+                            ((this.CombatAI.PreferredEngagementDistance -Vector2.Distance(this.Owner.Center,nearbyShip.ship.Center))
+                            / this.CombatAI.PreferredEngagementDistance  )
+                            
+                            ;
                     }
                     else if (rangeToTarget > (this.CombatAI.PreferredEngagementDistance + this.Owner.velocityMaximum * 5))
                     {
@@ -7189,15 +7272,17 @@ namespace Ship_Game.Gameplay
             this.NearbyShips.ApplyPendingRemovals();
             IEnumerable<ArtificialIntelligence.ShipWeight> sortedList2 =
                 from potentialTarget in this.NearbyShips
-                orderby potentialTarget.weight descending
+                orderby potentialTarget.weight descending //, Vector2.Distance(potentialTarget.ship.Center,this.Owner.Center) 
                 select potentialTarget;
             
             {
-                this.PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.ship)) ;//.ToList() as BatchRemovalCollection<Ship>;
+                //this.PotentialTargets.ClearAdd() ;//.ToList() as BatchRemovalCollection<Ship>;
 
                 //trackprojectiles in scan for targets.
 
-                this.PotentialTargets.ClearAdd(this.PotentialTargets.Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance));
+                this.PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.ship));
+                   // .Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance));
+                    
             }
             if (this.Target != null && !this.Target.Active)
             {
@@ -9038,6 +9123,374 @@ namespace Ship_Game.Gameplay
                 this.NearbyShips = null;
                 this.FriendliesNearby = null;
                 this.disposed = true;
+            }
+        }
+
+        //public struct Grid
+        //{
+        //    public Rectangle Size;
+
+        //    public byte[,] Weight;
+
+        //    public Grid(int x, int y, byte defaultValue = 0)
+        //    {
+        //        Size = new Rectangle(0, 0, x, y);
+        //        Weight = new byte[x, y];
+
+        //        for (var i = 0; i < x; i++)
+        //        {
+        //            for (var j = 0; j < y; j++)
+        //            {
+        //                Weight[i, j] = defaultValue;
+        //            }
+        //        }
+        //    }
+
+        //    public List<Point> Pathfind(Point start, Point end)
+        //    {
+        //        // nodes that have already been analyzed and have a path from the start to them
+        //        var closedSet = new List<Point>();
+        //        // nodes that have been identified as a neighbor of an analyzed node, but have 
+        //        // yet to be fully analyzed
+        //        var openSet = new List<Point> { start };
+        //        // a dictionary identifying the optimal origin point to each node. this is used 
+        //        // to back-track from the end to find the optimal path
+        //        var cameFrom = new Dictionary<Point, Point>();
+        //        // a dictionary indicating how far each analyzed node is from the start
+        //        var currentDistance = new Dictionary<Point, int>();
+        //        // a dictionary indicating how far it is expected to reach the end, if the path 
+        //        // travels through the specified node. 
+        //        var predictedDistance = new Dictionary<Point, float>();
+
+        //        // initialize the start node as having a distance of 0, and an estmated distance 
+        //        // of y-distance + x-distance, which is the optimal path in a square grid that 
+        //        // doesn't allow for diagonal movement
+        //        currentDistance.Add(start, 0);
+        //        predictedDistance.Add(
+        //            start,
+        //            0 + +Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y)
+        //        );
+
+        //        // if there are any unanalyzed nodes, process them
+        //        while (openSet.Count > 0)
+        //        {
+        //            // get the node with the lowest estimated cost to finish
+        //            var current = (
+        //                from p in openSet orderby predictedDistance[p] ascending select p
+        //            ).First();
+
+        //            // if it is the finish, return the path
+        //            if (current.X == end.X && current.Y == end.Y)
+        //            {
+        //                // generate the found path
+        //                return ReconstructPath(cameFrom, end);
+        //            }
+
+        //            // move current node from open to closed
+        //            openSet.Remove(current);
+        //            closedSet.Add(current);
+
+        //            // process each valid node around the current node
+        //            foreach (var neighbor in GetNeighborNodes(current))
+        //            {
+        //                var tempCurrentDistance = currentDistance[current] + 1;
+
+        //                // if we already know a faster way to this neighbor, use that route and 
+        //                // ignore this one
+        //                if (closedSet.Contains(neighbor)
+        //                    && tempCurrentDistance >= currentDistance[neighbor])
+        //                {
+        //                    continue;
+        //                }
+
+        //                // if we don't know a route to this neighbor, or if this is faster, 
+        //                // store this route
+        //                if (!closedSet.Contains(neighbor)
+        //                    || tempCurrentDistance < currentDistance[neighbor])
+        //                {
+        //                    if (cameFrom.Keys.Contains(neighbor))
+        //                    {
+        //                        cameFrom[neighbor] = current;
+        //                    }
+        //                    else
+        //                    {
+        //                        cameFrom.Add(neighbor, current);
+        //                    }
+
+        //                    currentDistance[neighbor] = tempCurrentDistance;
+        //                    predictedDistance[neighbor] =
+        //                        currentDistance[neighbor]
+        //                        + Math.Abs(neighbor.X - end.X)
+        //                        + Math.Abs(neighbor.Y - end.Y);
+
+        //                    // if this is a new node, add it to processing
+        //                    if (!openSet.Contains(neighbor))
+        //                    {
+        //                        openSet.Add(neighbor);
+        //                    }
+        //                }
+        //            }
+        //        }
+
+        //        System.Diagnostics.Debug.WriteLine(string.Format(
+        //                "unable to find a path between {0},{1} and {2},{3}",
+        //                start.X, start.Y,
+        //                end.X, end.Y
+        //            ));
+        //        return null;// cameFrom.Keys.ToList();
+        //    }
+
+        //    /// <summary>
+        //    /// Return a list of accessible nodes neighboring a specified node
+        //    /// </summary>
+        //    /// <param name="node">The center node to be analyzed.</param>
+        //    /// <returns>A list of nodes neighboring the node that are accessible.</returns>
+        //    private IEnumerable<Point> GetNeighborNodes(Point node)
+        //    {
+        //        var nodes = new List<Point>();
+        //        bool added = false;
+        //        // up
+        //        if (Weight[node.X, node.Y - 1] > 100)
+        //        {
+        //            nodes.Add(new Point(node.X, node.Y - 1));
+        //            added = true;
+        //        }
+
+        //        // right
+        //        if (Weight[node.X + 1, node.Y] > 100)
+        //        {
+        //            nodes.Add(new Point(node.X + 1, node.Y));
+        //            added = true;
+        //        }
+
+        //        // down
+        //        if (Weight[node.X, node.Y + 1] > 100)
+        //        {
+        //            nodes.Add(new Point(node.X, node.Y + 1));
+        //            added = true;
+        //        }
+
+        //        // left
+        //        if (Weight[node.X - 1, node.Y] > 100)
+        //        {
+        //            nodes.Add(new Point(node.X - 1, node.Y));
+        //            added = true;
+        //        }
+        //        if (!added)
+        //        {
+        //            if (Weight[node.X, node.Y - 1] > 0)
+        //            {
+        //                nodes.Add(new Point(node.X, node.Y - 1));
+        //                added = true;
+        //            }
+
+        //            // right
+        //            if (Weight[node.X + 1, node.Y] > 0)
+        //            {
+        //                nodes.Add(new Point(node.X + 1, node.Y));
+        //                added = true;
+        //            }
+
+        //            // down
+        //            if (Weight[node.X, node.Y + 1] > 0)
+        //            {
+        //                nodes.Add(new Point(node.X, node.Y + 1));
+        //                added = true;
+        //            }
+
+        //            // left
+        //            if (Weight[node.X - 1, node.Y] > 0)
+        //            {
+        //                nodes.Add(new Point(node.X - 1, node.Y));
+        //                added = true;
+        //            }
+        //        }
+
+        //        return nodes;
+        //    }
+
+        //    /// <summary>
+        //    /// Process a list of valid paths generated by the Pathfind function and return 
+        //    /// a coherent path to current.
+        //    /// </summary>
+        //    /// <param name="cameFrom">A list of nodes and the origin to that node.</param>
+        //    /// <param name="current">The destination node being sought out.</param>
+        //    /// <returns>The shortest path from the start to the destination node.</returns>
+        //    private List<Point> ReconstructPath(Dictionary<Point, Point> cameFrom, Point current)
+        //    {
+        //        if (!cameFrom.Keys.Contains(current))
+        //        {
+        //            return new List<Point> { current };
+        //        }
+
+        //        var path = ReconstructPath(cameFrom, cameFrom[current]);
+        //        path.Add(current);
+        //        return path;
+        //    }
+        //}
+        public struct Grid
+        {
+            public List<Vector2> goodpoints; //= //new List<Vector2>();
+            public float projectorsize;
+
+            //public byte[,] Weight;
+
+            public Grid(Empire empire)
+            {
+                projectorsize = Empire.ProjectorRadius;
+                goodpoints = new List<Vector2>();
+                foreach (Ship p in empire.GetProjectors())
+                    goodpoints.Add(p.Center);
+                foreach (SolarSystem s in empire.GetOwnedSystems())
+                {
+                    goodpoints.Add(s.Position);
+
+                }
+            }
+
+            public List<Vector2> Pathfind(Vector2 start, Vector2 end)
+            {
+                // nodes that have already been analyzed and have a path from the start to them
+                var closedSet = new List<Vector2>();
+                // nodes that have been identified as a neighbor of an analyzed node, but have 
+                // yet to be fully analyzed
+                var openSet = new List<Vector2> { start };
+                // a dictionary identifying the optimal origin point to each node. this is used 
+                // to back-track from the end to find the optimal path
+                var cameFrom = new Dictionary<Vector2, Vector2>();
+                // a dictionary indicating how far each analyzed node is from the start
+                var currentDistance = new Dictionary<Vector2, float>();
+                // a dictionary indicating how far it is expected to reach the end, if the path 
+                // travels through the specified node. 
+                var predictedDistance = new Dictionary<Vector2, float>();
+
+                // initialize the start node as having a distance of 0, and an estmated distance 
+                // of y-distance + x-distance, which is the optimal path in a square grid that 
+                // doesn't allow for diagonal movement
+                currentDistance.Add(start, 0);
+                predictedDistance.Add(
+                    start,
+                    Vector2.Distance(start, end)
+                    //0 + +Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y)
+                );
+
+                // if there are any unanalyzed nodes, process them
+                while (openSet.Count > 0)
+                {
+                    // get the node with the lowest estimated cost to finish
+                    var current = (
+                        from p in openSet orderby predictedDistance[p] ascending select p
+                    ).First();
+
+                    // if it is the finish, return the path
+                    if (Vector2.Distance(current,end) <=projectorsize *2.5)// current.X == end.X && current.Y == end.Y)
+                    {
+                        // generate the found path
+                        return ReconstructPath(cameFrom, end);
+                    }
+
+                    // move current node from open to closed
+                    openSet.Remove(current);
+                    closedSet.Add(current);
+
+                    // process each valid node around the current node
+                    foreach (var neighbor in GetNeighborNodes(current))
+                    {
+                        var tempCurrentDistance = Vector2.Distance(neighbor, current); // currentDistance[current] + 1;
+
+                        // if we already know a faster way to this neighbor, use that route and 
+                        // ignore this one
+                        if (closedSet.Contains(neighbor)
+                            && tempCurrentDistance >= currentDistance[neighbor])
+                        {
+                            continue;
+                        }
+
+                        // if we don't know a route to this neighbor, or if this is faster, 
+                        // store this route
+                        if (!closedSet.Contains(neighbor)
+                            || tempCurrentDistance < currentDistance[neighbor])
+                        {
+                            if (cameFrom.Keys.Contains(neighbor))
+                            {
+                                cameFrom[neighbor] = current;
+                            }
+                            else
+                            {
+                                cameFrom.Add(neighbor, current);
+                            }
+
+                            currentDistance[neighbor] = tempCurrentDistance;
+                            predictedDistance[neighbor] =
+                                currentDistance[neighbor]
+                                + Vector2.Distance(neighbor, end);
+                                //+ Math.Abs(neighbor.X - end.X)
+                                //+ Math.Abs(neighbor.Y - end.Y);
+
+                            // if this is a new node, add it to processing
+                            if (!openSet.Contains(neighbor))
+                            {
+                                openSet.Add(neighbor);
+                            }
+                        }
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine(string.Format(
+                        "unable to find a path between {0},{1} and {2},{3}",
+                        start.X, start.Y,
+                        end.X, end.Y
+                    ));
+                return null;// cameFrom.Keys.ToList();
+            }
+
+            /// <summary>
+            /// Return a list of accessible nodes neighboring a specified node
+            /// </summary>
+            /// <param name="node">The center node to be analyzed.</param>
+            /// <returns>A list of nodes neighboring the node that are accessible.</returns>
+            private IEnumerable<Vector2> GetNeighborNodes(Vector2 node)
+            {
+                var nodes = new List<Vector2>();
+                Vector2 nearest = new Vector2();
+                float nearestd = 0;
+                foreach(Vector2 point in goodpoints)
+                {
+                    if (point == node)
+                        continue;
+                    float test = Vector2.Distance(node, point);
+                    if (test < projectorsize*2.5f )
+                        nodes.Add(point);
+                    if(nearestd <0 || nearestd > test)
+                    {
+                        nearestd = test;
+                        nearest = point;
+                    }
+                }
+                if (nodes.Count == 0)
+                    nodes.Add(nearest);
+               
+
+                return nodes;
+            }
+
+            /// <summary>
+            /// Process a list of valid paths generated by the Pathfind function and return 
+            /// a coherent path to current.
+            /// </summary>
+            /// <param name="cameFrom">A list of nodes and the origin to that node.</param>
+            /// <param name="current">The destination node being sought out.</param>
+            /// <returns>The shortest path from the start to the destination node.</returns>
+            private List<Vector2> ReconstructPath(Dictionary<Vector2, Vector2> cameFrom, Vector2 current)
+            {
+                if (!cameFrom.Keys.Contains(current))
+                {
+                    return new List<Vector2> { current };
+                }
+
+                var path = ReconstructPath(cameFrom, cameFrom[current]);
+                path.Add(current);
+                return path;
             }
         }
     }
