@@ -602,14 +602,17 @@ namespace Ship_Game.Gameplay
             this.Position = MovePosition;
             this.facing = facing;
             this.AssembleFleet(facing, fvec);
-            foreach (Ship ship in (List<Ship>)this.Ships)
+            this.Ships.ForEach(ship =>
             {
-                //if (ship.fleet != null && (!ship.GetAI().BadGuysNear || ship.shipData.Role == ShipData.RoleName.troop))
+                if (ship.fleet != null)
                 {
                     ship.GetAI().SetPriorityOrder();
                     ship.GetAI().OrderFormationWarp(MovePosition + ship.FleetOffset, facing, fvec);
                 }
             }
+            );
+
+   
         }
 
         public void FormationWarpToQ(Vector2 MovePosition, float facing, Vector2 fvec)
@@ -3061,19 +3064,30 @@ namespace Ship_Game.Gameplay
         {
             List<Ship> list = new List<Ship>();
             this.HasRepair = false;
-            foreach (Ship ship in this.Ships as List<Ship>)
+
+            foreach(Ship ship in this.Ships)
             {
                 if (!ship.Active)
-                    list.Add(ship);
+                {
+                    ship.fleet = (Fleet)null;
+                    this.Ships.QueuePendingRemoval(ship);
+                }
                 else
-                    if (ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0))
-                        this.HasRepair = true;
+                               if (ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0))
+                    this.HasRepair = true;
             }
-            foreach (Ship ship in list)
-            {
-                ship.fleet = (Fleet)null;
-                this.Ships.Remove(ship);
-            }
+            //this.Ships.ForEach(ship =>
+            //{
+              
+            //});
+
+            this.Ships.ApplyPendingRemovals();
+            //foreach (Ship ship in list)
+            //{
+            //    ship.fleet = (Fleet)null;
+            //    this.Ships.Remove(ship);
+            //}
+            //this.Ships.thisLock.ExitWriteLock();
             if (this.Ships.Count <= 0 || this.GoalStack.Count <= 0)
                 return;
             this.GoalStack.Peek().Evaluate(elapsedTime);
