@@ -6291,7 +6291,7 @@ namespace Ship_Game.Gameplay
         //fbedard: new version not recursive        
         private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
         {
-            if (false && Empire.universeScreen.Debug)
+            if (true && Empire.universeScreen.Debug)
             {
                 List<Vector2> goodpoints = new List<Vector2>();
                 Grid path = new Grid(this.Owner.loyalty);
@@ -6305,7 +6305,7 @@ namespace Ship_Game.Gameplay
 
                             this.ActiveWayPoints.Enqueue(wayp);
                         }
-                        this.ActiveWayPoints.Enqueue(endPos);
+                        //this.ActiveWayPoints.Enqueue(endPos);
                     }
                     return;
                 }
@@ -9396,7 +9396,9 @@ namespace Ship_Game.Gameplay
                     // process each valid node around the current node
                     foreach (var neighbor in GetNeighborNodes(current))
                     {
-                        var tempCurrentDistance = Vector2.Distance(neighbor, current); // currentDistance[current] + 1;
+                        var neighborDistance = Vector2.Distance(neighbor, current);
+                        var tempCurrentDistance = currentDistance[current] + neighborDistance;
+                            //+projectorsize *2.5f; // currentDistance[current] + 1;
 
                         // if we already know a faster way to this neighbor, use that route and 
                         // ignore this one
@@ -9459,17 +9461,25 @@ namespace Ship_Game.Gameplay
                     if (point == node)
                         continue;
                     float test = Vector2.Distance(node, point);
-                    if (test < projectorsize*2.5f )
-                        nodes.Add(point);
+                    //if (test < projectorsize*2.5f )
+                    //    nodes.Add(point);
                     if(nearestd <0 || nearestd > test)
                     {
                         nearestd = test;
                         nearest = point;
                     }
                 }
-                if (nodes.Count == 0)
+                //if (nodes.Count == 0)
                     nodes.Add(nearest);
+                foreach (Vector2 point in goodpoints)
+                {
+                    if (point == node)
+                        continue;
+                    float test = Vector2.Distance(node, point);
+                    if (test < projectorsize + nearestd)
+                        nodes.Add(point);
                
+                }
 
                 return nodes;
             }
@@ -9483,7 +9493,15 @@ namespace Ship_Game.Gameplay
             /// <returns>The shortest path from the start to the destination node.</returns>
             private List<Vector2> ReconstructPath(Dictionary<Vector2, Vector2> cameFrom, Vector2 current)
             {
-                if (!cameFrom.Keys.Contains(current))
+                //!cameFrom.Keys.Contains(current)
+                //  ||
+                float pros = this.projectorsize;
+                if (cameFrom.Keys.Where(approx =>
+
+                Vector2.Distance(approx, current) < pros *2.5f).Count() == 0)
+
+
+                    
                 {
                     return new List<Vector2> { current };
                 }
