@@ -150,7 +150,7 @@ namespace Ship_Game.Gameplay
             
             foreach(Ship ship in pings)
             {
-                if (ship == null || filter.Contains(ship))
+                if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
                     continue;
               
                         List<Ship> cluster = PingRadarShip(ship.Center, granularity,empire);
@@ -171,7 +171,7 @@ namespace Ship_Game.Gameplay
 
             foreach (Ship ship in pings)
             {
-                if (ship == null || filter.Contains(ship))
+                if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
                     continue;
 
                 List<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
