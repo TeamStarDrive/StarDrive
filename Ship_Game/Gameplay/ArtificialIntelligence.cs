@@ -4201,17 +4201,17 @@ namespace Ship_Game.Gameplay
 			}
 			this.State = AIState.MoveTo;
 			this.MovePosition = position;
-            try
+           // try
             {
                 this.PlotCourseToNew(position, (this.ActiveWayPoints.Count > 0 ? this.ActiveWayPoints.Last<Vector2>() : this.Owner.Center));
             }
-            catch
-            {
-                lock (this.wayPointLocker)
-                {
-                    this.ActiveWayPoints.Clear();
-                }
-            }
+         //   catch
+            //{
+            //    lock (this.wayPointLocker)
+            //    {
+            //        this.ActiveWayPoints.Clear();
+            //    }
+            //}
             this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
 
@@ -6291,10 +6291,10 @@ namespace Ship_Game.Gameplay
         //fbedard: new version not recursive        
         private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
         {
-            if (true && Empire.universeScreen.Debug)
+            if (true && Empire.universeScreen !=null && Empire.universeScreen.Debug)
             {
                 List<Vector2> goodpoints = new List<Vector2>();
-                Grid path = new Grid(this.Owner.loyalty);
+                Grid path = new Grid(this);
                 goodpoints = path.Pathfind(startPos, endPos);
                 if (goodpoints != null && goodpoints.Count > 0)
                 {
@@ -6307,9 +6307,11 @@ namespace Ship_Game.Gameplay
                         }
                         //this.ActiveWayPoints.Enqueue(endPos);
                     }
-                    return;
+                    
                 }
+                
             }
+            return;
             //if (UniverseData.UniverseWidth <= 0)
             //    return;
             //List<Vector2> goodpoints = new List<Vector2>();
@@ -7197,9 +7199,9 @@ namespace Ship_Game.Gameplay
                        // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
-                        shipWeight.weight = shipWeight.weight + 5 *
+                        shipWeight.weight = (int)Math.Ceiling(shipWeight.weight + 5 *
                             ((this.CombatAI.PreferredEngagementDistance -Vector2.Distance(this.Owner.Center,nearbyShip.ship.Center))
-                            / this.CombatAI.PreferredEngagementDistance  )
+                            / this.CombatAI.PreferredEngagementDistance  ))
                             
                             ;
                     }
@@ -9332,20 +9334,51 @@ namespace Ship_Game.Gameplay
         {
             public List<Vector2> goodpoints; //= //new List<Vector2>();
             public float projectorsize;
-
+            public ArtificialIntelligence ai;
             //public byte[,] Weight;
-
-            public Grid(Empire empire)
+            float radius;
+            Vector2 end;
+            Vector2 start;
+            class mappoint
             {
+                public float radius;
+                public Vector2 pin;
+
+            }
+
+            public Grid(ArtificialIntelligence ai)
+            {
+                this.ai = ai;
+                Empire empire = ai.Owner.loyalty;
                 projectorsize = Empire.ProjectorRadius;
                 goodpoints = new List<Vector2>();
-                foreach (Ship p in empire.GetProjectors())
+                radius = 2.5f * projectorsize;
+                end = Vector2.Zero;
+                start = Vector2.Zero;
+                List < Ship > ps = empire.GetProjectors();
+                foreach (Ship p in ps )
                     goodpoints.Add(p.Center);
                 foreach (SolarSystem s in empire.GetOwnedSystems())
                 {
                     goodpoints.Add(s.Position);
-
                 }
+                foreach (Planet p in empire.GetPlanets())
+                {
+                    goodpoints.Add(p.Position);
+                    
+                }
+                Relationship rel;
+                foreach(Empire e in EmpireManager.EmpireList)
+                {
+                    if (empire.GetRelations().TryGetValue(e, out rel) && rel.Treaty_OpenBorders || empire.isPlayer)
+                    {
+                        foreach (Ship s in e.GetProjectors())
+                        {
+                            goodpoints.Add(s.Position);
+                        }
+                    }
+                }
+                
             }
 
             public List<Vector2> Pathfind(Vector2 start, Vector2 end)
@@ -9363,7 +9396,8 @@ namespace Ship_Game.Gameplay
                 // a dictionary indicating how far it is expected to reach the end, if the path 
                 // travels through the specified node. 
                 var predictedDistance = new Dictionary<Vector2, float>();
-
+                if (!goodpoints.Contains(end))
+                    goodpoints.Add(end);
                 // initialize the start node as having a distance of 0, and an estmated distance 
                 // of y-distance + x-distance, which is the optimal path in a square grid that 
                 // doesn't allow for diagonal movement
@@ -9373,17 +9407,24 @@ namespace Ship_Game.Gameplay
                     Vector2.Distance(start, end)
                     //0 + +Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y)
                 );
-
+                this.end = end;
+                this.start = start;
                 // if there are any unanalyzed nodes, process them
+                
+                
+                float max = 0;
+                max += Vector2.Distance(start, end);
                 while (openSet.Count > 0)
                 {
+               
+
                     // get the node with the lowest estimated cost to finish
                     var current = (
                         from p in openSet orderby predictedDistance[p] ascending select p
                     ).First();
 
                     // if it is the finish, return the path
-                    if (Vector2.Distance(current,end) <=projectorsize *2.5)// current.X == end.X && current.Y == end.Y)
+                    if (current ==end    )//Vector2.Distance(current,end) <=projectorsize *2.5)// current.X == end.X && current.Y == end.Y)
                     {
                         // generate the found path
                         return ReconstructPath(cameFrom, end);
@@ -9394,12 +9435,14 @@ namespace Ship_Game.Gameplay
                     closedSet.Add(current);
 
                     // process each valid node around the current node
-                    foreach (var neighbor in GetNeighborNodes(current))
+                    //radius += projectorsize * 2.5f;
+                    foreach (Vector2 neighbor in GetNeighborNodes(current, cameFrom, closedSet, openSet))
                     {
                         var neighborDistance = Vector2.Distance(neighbor, current);
-                        var tempCurrentDistance = currentDistance[current] + neighborDistance;
-                            //+projectorsize *2.5f; // currentDistance[current] + 1;
+                        var tempCurrentDistance = currentDistance[current] +  neighborDistance;              
 
+                        //if (neighbor == end)
+                        //    openSet.Add(end);
                         // if we already know a faster way to this neighbor, use that route and 
                         // ignore this one
                         if (closedSet.Contains(neighbor)
@@ -9416,28 +9459,33 @@ namespace Ship_Game.Gameplay
                             if (cameFrom.Keys.Contains(neighbor))
                             {
                                 cameFrom[neighbor] = current;
+                                
                             }
                             else
                             {
                                 cameFrom.Add(neighbor, current);
+                                //radius = 0;
                             }
 
                             currentDistance[neighbor] = tempCurrentDistance;
                             predictedDistance[neighbor] =
                                 currentDistance[neighbor]
                                 + Vector2.Distance(neighbor, end);
-                                //+ Math.Abs(neighbor.X - end.X)
-                                //+ Math.Abs(neighbor.Y - end.Y);
 
                             // if this is a new node, add it to processing
                             if (!openSet.Contains(neighbor))
                             {
                                 openSet.Add(neighbor);
+                               // radius = 0;
                             }
                         }
+                    
                     }
+                   
+
                 }
 
+                return ReconstructPath(cameFrom, end);
                 System.Diagnostics.Debug.WriteLine(string.Format(
                         "unable to find a path between {0},{1} and {2},{3}",
                         start.X, start.Y,
@@ -9451,37 +9499,48 @@ namespace Ship_Game.Gameplay
             /// </summary>
             /// <param name="node">The center node to be analyzed.</param>
             /// <returns>A list of nodes neighboring the node that are accessible.</returns>
-            private IEnumerable<Vector2> GetNeighborNodes(Vector2 node)
+       
+
+            
+            private IEnumerable<Vector2> GetNeighborNodes(Vector2 node, Dictionary<Vector2, Vector2> camefrom, List<Vector2> closedset, List<Vector2> openset)
             {
-                var nodes = new List<Vector2>();
-                Vector2 nearest = new Vector2();
-                float nearestd = 0;
-                foreach(Vector2 point in goodpoints)
+                var nodes = new HashSet<Vector2>();
+                              
+                Vector2 endrange = Vector2.Zero;
+                
+                Vector2[] nearest =
                 {
-                    if (point == node)
-                        continue;
-                    float test = Vector2.Distance(node, point);
-                    //if (test < projectorsize*2.5f )
-                    //    nodes.Add(point);
-                    if(nearestd <0 || nearestd > test)
-                    {
-                        nearestd = test;
-                        nearest = point;
-                    }
-                }
-                //if (nodes.Count == 0)
-                    nodes.Add(nearest);
+                    Vector2.Zero,
+                    Vector2.Zero,
+                    Vector2.Zero,
+                    Vector2.Zero,
+                    Vector2.Zero,
+                    Vector2.Zero
+                };
+                float[] distance= { 0, 0, 0, 0, 0, 0 };
+                float angletonode = 0;
+                int y = 0;
+                float distancecheck = 0;
                 foreach (Vector2 point in goodpoints)
                 {
-                    if (point == node)
-                        continue;
-                    float test = Vector2.Distance(node, point);
-                    if (test < projectorsize + nearestd)
-                        nodes.Add(point);
-               
+                    angletonode = HelperFunctions.findAngleToTarget(node, point);
+                    y = (int)Math.Floor(angletonode / 60);
+                    distancecheck = Vector2.Distance(node, point);
+                    if (distance[y] == 0 || distance[y] > distancecheck)
+                    {
+                        nearest[y] =(point);
+                        distance[y] = distancecheck;
+                    }
+                   
+
+                }
+                
+                foreach(Vector2 filternodes in nearest)
+                {
+                    nodes.Add(filternodes);
                 }
 
-                return nodes;
+                return new List<Vector2>(nodes);
             }
 
             /// <summary>
@@ -9493,15 +9552,7 @@ namespace Ship_Game.Gameplay
             /// <returns>The shortest path from the start to the destination node.</returns>
             private List<Vector2> ReconstructPath(Dictionary<Vector2, Vector2> cameFrom, Vector2 current)
             {
-                //!cameFrom.Keys.Contains(current)
-                //  ||
-                float pros = this.projectorsize;
-                if (cameFrom.Keys.Where(approx =>
-
-                Vector2.Distance(approx, current) < pros *2.5f).Count() == 0)
-
-
-                    
+                if (!cameFrom.Keys.Contains(current))
                 {
                     return new List<Vector2> { current };
                 }
@@ -9509,6 +9560,28 @@ namespace Ship_Game.Gameplay
                 var path = ReconstructPath(cameFrom, cameFrom[current]);
                 path.Add(current);
                 return path;
+            }
+            public List<Vector2> createNodes (Vector2 Origin, Vector2 Destination, float projectorad)
+            {
+           
+                float Distance = Vector2.Distance(Origin, Destination);
+                //List<Vector2> tempNodes = new List<Vector2>();
+
+                List<Vector2> Position = new List<Vector2>();
+                float offset = projectorad *2f;
+                int NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
+                int max = 2;
+                float angle = HelperFunctions.findAngleToTarget(Origin, Destination);
+                Position.Add(HelperFunctions.GeneratePointOnCircle(angle, Origin, (float)1 * (Distance / NumberOfProjectors)));
+                return Position;
+                //max = NumberOfProjectors < 2 ? 1 : NumberOfProjectors;
+                //for (int i = 1; i < max; i++)
+                //{                    
+                //    float angle = HelperFunctions.findAngleToTarget(Origin, Destination);
+                //    Position.Add(HelperFunctions.GeneratePointOnCircle(angle, Origin, (float)i * (Distance / NumberOfProjectors)));
+           
+                //}
+                return Position;
             }
         }
     }
