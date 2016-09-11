@@ -430,9 +430,14 @@ namespace Ship_Game
 				}
 				else
 				{
-					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Executing Order: ", ship.GetAI().OrderQueue.First.Value.Plan), Cursor, Color.White);
-				}
+                    foreach(ArtificialIntelligence.ShipGoal order in ship.GetAI().OrderQueue)
+                    {
+                        Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Executing Order: ", order.Plan), Cursor, Color.White);
+                    }
+                    					
+                                        
+                }
 				if (ship.GetAI().Target != null)
 				{
 					Cursor = new Vector2((float)(this.win.X + 150), 600f);
