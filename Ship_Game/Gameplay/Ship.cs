@@ -211,6 +211,7 @@ namespace Ship_Game.Gameplay
         private bool disposed;
         List<ModuleSlot> AttackerTargetting = new List<ModuleSlot>();
         public sbyte TrackingPower = 0;
+        public sbyte FixedTrackingPower = 0;
 
         //public ushort purgeCount =0;    //Not referenced in code, removing to save memory -Gretman
         public Ship lastAttacker = null;
@@ -2155,6 +2156,7 @@ namespace Ship_Game.Gameplay
             base.Mass = 0f;
             this.Mass += (float)this.Size;
             this.Thrust = 0f;
+            this.WarpThrust = 0f;
             this.PowerStoreMax = 0f;
             this.PowerFlowMax = 0f;
             this.ModulePowerDraw = 0f;
@@ -2295,6 +2297,7 @@ namespace Ship_Game.Gameplay
                 else
                     this.mass += moduleSlotList.module.Mass;
                 this.Thrust += moduleSlotList.module.thrust;
+                this.WarpThrust += moduleSlotList.module.WarpThrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
                 this.PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (this.loyalty != null ? this.loyalty.data.FuelCellModifier : 0);
                 this.PowerCurrent += moduleSlotList.module.PowerStoreMax;
@@ -2532,6 +2535,7 @@ namespace Ship_Game.Gameplay
                 }
                 ship1.mass = (float)num1;
                 this.Thrust += moduleSlot.module.thrust;
+                this.WarpThrust += moduleSlot.module.WarpThrust;
                 this.MechanicalBoardingDefense += moduleSlot.module.MechanicalBoardingDefense;
                 //Added by McShooterz
                 this.PowerStoreMax += this.loyalty.data.FuelCellModifier * moduleSlot.module.PowerStoreMax + moduleSlot.module.PowerStoreMax;
@@ -4108,6 +4112,7 @@ namespace Ship_Game.Gameplay
                 this.FTLSpoolTime = 0f;
                 this.hasCommand = this.IsPlatform;
                 this.TrackingPower = 0;
+                this.FixedTrackingPower = 0;
             }
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
@@ -4149,6 +4154,10 @@ namespace Ship_Game.Gameplay
                     {
                         if (!this.hasCommand && moduleSlot.module.IsCommandModule)
                             this.hasCommand = true;
+                        //Doctor: For 'Fixed' tracking power modules - i.e. a system whereby a module provides a non-cumulative/non-stacking tracking power.
+                        //The normal stacking/cumulative tracking is added on after the for loop for mods that want to mix methods. The original cumulative function is unaffected.
+                        if (moduleSlot.module.FixedTracking > 0 && moduleSlot.module.FixedTracking > this.FixedTrackingPower)
+                            this.FixedTrackingPower = moduleSlot.module.FixedTracking;
                         if (moduleSlot.module.TargetTracking > 0)
                             this.TrackingPower += moduleSlot.module.TargetTracking;
                         this.OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
@@ -4200,6 +4209,9 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
+
+            //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
+            this.TrackingPower += FixedTrackingPower;
             
             //Update max health due to bonuses that increase module health
             if (this.Health > this.HealthMax)

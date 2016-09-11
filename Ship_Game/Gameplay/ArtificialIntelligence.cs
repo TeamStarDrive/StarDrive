@@ -163,7 +163,7 @@ namespace Ship_Game.Gameplay
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         public List<Projectile> TrackProjectiles = new List<Projectile>();
-        private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.0f };  //fbedard: dmg level for repair
+        private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
                 
 		public ArtificialIntelligence()
 		{
@@ -2776,6 +2776,7 @@ namespace Ship_Game.Gameplay
                     //save target ship if it is a ship.
                     this.TargetShip = this.Target as Ship;
                     //group of weapons into chunks per thread available
+                    //sbyte AddTargetsTracked = 0;
                     var source = Enumerable.Range(0, this.Owner.Weapons.Count).ToArray();
                             var rangePartitioner = Partitioner.Create(0, source.Length);
                     //handle each weapon group in parallel
@@ -2866,6 +2867,7 @@ namespace Ship_Game.Gameplay
                                                                    if (this.Owner.CheckIfInsideFireArc(weapon, proj as GameplayObject))
                                                                    {
                                                                        weapon.fireTarget = proj;
+                                                                       //AddTargetsTracked++;
                                                                        break;
                                                                    }
                                                                }
@@ -2892,13 +2894,14 @@ namespace Ship_Game.Gameplay
                                                                        if (PotentialTarget == this.TargetShip)
                                                                        {
                                                                            tracking++;
-                                                                           continue;
+                                                                           continue;                                                                           
                                                                        }
                                                                        if (!this.Owner.CheckIfInsideFireArc(weapon, PotentialTarget))
                                                                        {
                                                                            continue;
                                                                        }
                                                                        weapon.fireTarget = PotentialTarget;
+                                                                       //AddTargetsTracked++;
                                                                        break;
 
                                                                    }
@@ -2938,6 +2941,7 @@ namespace Ship_Game.Gameplay
                                                                    if (this.Owner.CheckIfInsideFireArc(weapon, proj as GameplayObject))
                                                                    {
                                                                        weapon.fireTarget = proj;
+                                                                       //AddTargetsTracked++;
                                                                        break;
                                                                    }
                                                                }
@@ -4201,18 +4205,18 @@ namespace Ship_Game.Gameplay
 			}
 			this.State = AIState.MoveTo;
 			this.MovePosition = position;
-			try
-			{
-				this.PlotCourseToNew(position, (this.ActiveWayPoints.Count > 0 ? this.ActiveWayPoints.Last<Vector2>() : this.Owner.Center));
-			}
-			catch
-			{
-				lock (this.wayPointLocker)
-				{
-					this.ActiveWayPoints.Clear();
-				}
-			}
-			this.FinalFacingVector = fVec;
+            try
+            {
+                this.PlotCourseToNew(position, (this.ActiveWayPoints.Count > 0 ? this.ActiveWayPoints.Last<Vector2>() : this.Owner.Center));
+            }
+            catch
+            {
+                lock (this.wayPointLocker)
+                {
+                    this.ActiveWayPoints.Clear();
+                }
+            }
+            this.FinalFacingVector = fVec;
 			this.DesiredFacing = desiredFacing;
 
 			lock (this.wayPointLocker)
@@ -4891,7 +4895,7 @@ namespace Ship_Game.Gameplay
              * 
              * 
              */
-            
+            //cargoCount = cargoCount > PlanetCheck.MAX_STORAGE ? PlanetCheck.MAX_STORAGE : cargoCount;
             float resourceRecharge =0;
             float resourceAmount =0;
             if (ResourceType == "Food")
@@ -4901,22 +4905,33 @@ namespace Ship_Game.Gameplay
             }
             else if(ResourceType == "Production")
             {
-                resourceRecharge = PlanetCheck.NetProductionPerTurn;
+                resourceRecharge =  PlanetCheck.NetProductionPerTurn;
                 resourceAmount = PlanetCheck.ProductionHere;
             }
             float timeTotarget = ship.GetAI().TimeToTarget(PlanetCheck);
-            float Effeciency = resourceRecharge * timeTotarget;            
+            float Effeciency =  resourceRecharge * timeTotarget;
+            
+            // return PlanetCheck.MAX_STORAGE / (PlanetCheck.MAX_STORAGE -(Effeciency + resourceAmount));
+
             if (Delivery)
             {
-                bool badCargo = (cargoCount + Effeciency + resourceAmount) > PlanetCheck.MAX_STORAGE - cargoCount * .5f; //cargoCount + Effeciency < 0 ||
+                // return Effeciency;// * ((PlanetCheck.MAX_STORAGE + cargoCount) / ((PlanetCheck.MAX_STORAGE - resourceAmount + 1)));
+                // Effeciency =  (PlanetCheck.MAX_STORAGE - cargoCount) / (cargoCount + Effeciency + resourceAmount) ;
+                //return timeTotarget * Effeciency;
+                bool badCargo = ( Effeciency + resourceAmount) > PlanetCheck.MAX_STORAGE ;
+                //bool badCargo = (cargoCount + Effeciency + resourceAmount) > PlanetCheck.MAX_STORAGE - cargoCount * .5f; //cargoCount + Effeciency < 0 ||
                 if (!badCargo)
-                    return timeTotarget;// (float)Math.Ceiling((double)timeTotarget);
+                    return timeTotarget * (badCargo ? PlanetCheck.MAX_STORAGE / (Effeciency + resourceAmount) : 1);// (float)Math.Ceiling((double)timeTotarget);                
             }
             else
             {
-                bool BadSupply = PlanetCheck.MAX_STORAGE * .5f < ship.CargoSpace_Max && PlanetCheck.FoodHere + Effeciency < ship.CargoSpace_Max * .5f;
-                if (!BadSupply)
-                    return timeTotarget;// (float)Math.Ceiling((double)timeTotarget);
+                //return Effeciency * (PlanetCheck.MAX_STORAGE / ((PlanetCheck.MAX_STORAGE - resourceAmount + 1)));
+                // Effeciency = (ship.CargoSpace_Max) / (PlanetCheck.MAX_STORAGE);
+                //return timeTotarget * Effeciency;
+                Effeciency = PlanetCheck.MAX_STORAGE * .5f < ship.CargoSpace_Max ? resourceAmount + Effeciency < ship.CargoSpace_Max * .5f ? (ship.CargoSpace_Max*.5f) / (resourceAmount + Effeciency) :1:1;
+                //bool BadSupply = PlanetCheck.MAX_STORAGE * .5f < ship.CargoSpace_Max && PlanetCheck.FoodHere + Effeciency < ship.CargoSpace_Max * .5f;
+                //if (!BadSupply)
+                    return timeTotarget * Effeciency;// (float)Math.Ceiling((double)timeTotarget);
             }
             return timeTotarget + universeScreen.Size.X;
         }
@@ -4962,7 +4977,7 @@ namespace Ship_Game.Gameplay
             bool flag;
 
             //added by gremlin if fleeing keep fleeing
-            if (this.Owner.CargoSpace_Max == 0 || this.State == AIState.Flee || this.Owner.isConstructor)
+            if (this.Owner.CargoSpace_Max == 0 || this.State == AIState.Flee || this.Owner.isConstructor || this.Owner.isColonyShip)
                 return;
 
             //try
@@ -4974,7 +4989,7 @@ namespace Ship_Game.Gameplay
                     return;
                 }
 
-                if (this.Owner.loyalty.data.Traits.Cybernetic == 1)
+                if (this.Owner.loyalty.data.Traits.Cybernetic >0)
                     this.Owner.TradingFood = false;
 
                 bool FoodFirst = true;
@@ -4983,10 +4998,10 @@ namespace Ship_Game.Gameplay
                 //float GoodMult = RandomMath.RandomBetween(0f, 25f);
 
                 //if already loaded, give any start planet: <-- this doesnt look good but doesnt appear to be a problem
-                if (this.start == null && (this.Owner.GetCargo()["Food"] > 0f || this.Owner.GetCargo()["Production"] > 0f))
-                {
-                    this.start = this.Owner.loyalty.GetPlanets().FirstOrDefault();
-                }
+                //if (this.start == null && (this.Owner.GetCargo()["Food"] > 0f || this.Owner.GetCargo()["Production"] > 0f))
+                //{
+                //    this.start = this.Owner.loyalty.GetPlanets().FirstOrDefault();
+                //}
                 //FoodFirst
                 #region Deliver Food FIRST (return if already loaded)
                 if (this.end == null && FoodFirst  && ( this.Owner.GetCargo()["Food"] > 0f))
@@ -5350,10 +5365,10 @@ namespace Ship_Game.Gameplay
                         continue;
 
                         float distanceWeight = this.TradeSort(this.Owner, PlanetCheck, "Food", this.Owner.CargoSpace_Max, false);
-                        //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.ProductionHere + 1) + distanceWeight;
-                        distanceWeight -= 100;
-                        distanceWeight = distanceWeight <0 && distanceWeight < PlanetCheck.ExportFSWeight? distanceWeight : 0;
-                        PlanetCheck.ExportFSWeight += distanceWeight;   
+                            //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.ProductionHere + 1) + distanceWeight;
+                            //distanceWeight -= 100;
+                            //distanceWeight = distanceWeight < 0 && distanceWeight < PlanetCheck.ExportFSWeight ? distanceWeight : 0;
+                            PlanetCheck.ExportFSWeight = distanceWeight < PlanetCheck.ExportFSWeight ? distanceWeight : PlanetCheck.ExportFSWeight;   
                         if( PlanetCheck.fs == Planet.GoodState.EXPORT )
                             //&& (planets.Count==0 || PlanetCheck.FoodHere >= this.Owner.CargoSpace_Max))
                         {                            
@@ -5422,7 +5437,7 @@ namespace Ship_Game.Gameplay
                                         //cargoSpaceMax = cargoSpaceMax - s.CargoSpace_Max;
                                     }
                                     
-                                    if (cargoSpaceMax < this.Owner.CargoSpace_Max)
+                                    if (cargoSpaceMax <=0+p.MAX_STORAGE*.1f)// < this.Owner.CargoSpace_Max)
                                     {
                                         flag = true;
                                         break;
@@ -5454,9 +5469,9 @@ namespace Ship_Game.Gameplay
                             if (PlanetCheck == null)
                                 continue;
                             float distanceWeight =this.TradeSort(this.Owner, PlanetCheck, "Production", this.Owner.CargoSpace_Max, false);
-                            distanceWeight -= 100;
-                            distanceWeight = distanceWeight < 0 && distanceWeight < PlanetCheck.ExportPSWeight ? distanceWeight : 0;
-                            PlanetCheck.ExportPSWeight += distanceWeight;
+                           // distanceWeight -= 100;
+                            //distanceWeight = distanceWeight < PlanetCheck.ExportPSWeight ?//distanceWeight < 0  ? distanceWeight : 0; //
+                            PlanetCheck.ExportPSWeight = distanceWeight < PlanetCheck.ExportPSWeight ? distanceWeight : PlanetCheck.ExportPSWeight;
                             //PlanetCheck.ExportFSWeight += this.Owner.CargoSpace_Max / (PlanetCheck.FoodHere + 1) +distanceWeight;                            
                             
                             if (PlanetCheck != null && PlanetCheck.ps == Planet.GoodState.EXPORT)
@@ -5490,11 +5505,13 @@ namespace Ship_Game.Gameplay
                         {
                             flag = false;
                             float cargoSpaceMax = p.ProductionHere;
+                            
                             float mySpeed = this.TradeSort(this.Owner, p, "Production", this.Owner.CargoSpace_Max, false);
                             //cargoSpaceMax = cargoSpaceMax + p.NetProductionPerTurn * mySpeed;
+
+                            //+ this.TradeSort(this.Owner, this.end, "Production", this.Owner.CargoSpace_Max);
                             
-                                   //+ this.TradeSort(this.Owner, this.end, "Production", this.Owner.CargoSpace_Max);
-                            ArtificialIntelligence.ShipGoal plan;
+                                ArtificialIntelligence.ShipGoal plan;
                             this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
@@ -5526,7 +5543,7 @@ namespace Ship_Game.Gameplay
                                         cargoSpaceMax = cargoSpaceMax - efficiency;
                                     }
                                     
-                                    if (cargoSpaceMax < this.Owner.CargoSpace_Max)
+                                    if (cargoSpaceMax <= 0 + p.MAX_STORAGE * .1f) // this.Owner.CargoSpace_Max)
                                     {
                                         flag = true;
                                         break;
@@ -6076,12 +6093,12 @@ namespace Ship_Game.Gameplay
 					population.Population = population.Population + this.Owner.GetCargo()["Colonists_1000"] * (float)this.Owner.loyalty.data.Traits.PassengerModifier;
 					this.Owner.GetCargo()["Colonists_1000"] = 0f;
 				}
-                float modifier = 0;
-                if (this.start.FoodHere < this.Owner.CargoSpace_Max)
-                {
-                    //this.OrderTrade(0.1f);
-                    modifier = this.start.FoodHere * .5f;
-                }
+                float modifier = this.start.MAX_STORAGE * .10f;
+                //if (this.start.FoodHere < this.Owner.CargoSpace_Max)
+                //{
+                //    //this.OrderTrade(0.1f);
+                //    modifier = this.start.FoodHere * .5f;
+                //}
                 
 				{
 					while (this.start.FoodHere >  modifier && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
@@ -6115,12 +6132,12 @@ namespace Ship_Game.Gameplay
 					population1.Population = population1.Population + this.Owner.GetCargo()["Colonists_1000"] * (float)this.Owner.loyalty.data.Traits.PassengerModifier;
 					this.Owner.GetCargo()["Colonists_1000"] = 0f;
 				}
-                float modifier = 0;
-                if (this.start.ProductionHere < this.Owner.CargoSpace_Max)
-                {
-                    //this.OrderTrade(0.1f);
-                    modifier= this.start.ProductionHere * .5f;
-                }
+                float modifier = this.start.MAX_STORAGE *.10f;
+                //if (this.start.ProductionHere < this.Owner.CargoSpace_Max)
+                //{
+                //    //this.OrderTrade(0.1f);
+                //    modifier= this.start.ProductionHere * .5f;
+                //}
                 
 				{
                     while (this.start.ProductionHere > modifier && (int)this.Owner.CargoSpace_Max - (int)this.Owner.CargoSpace_Used > 0)
@@ -6271,9 +6288,85 @@ namespace Ship_Game.Gameplay
 		}
         */
 
+
+
+
+
         //fbedard: new version not recursive        
         private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
         {
+            if (false && Empire.universeScreen.Debug)
+            {
+                List<Vector2> goodpoints = new List<Vector2>();
+                Grid path = new Grid(this.Owner.loyalty);
+                goodpoints = path.Pathfind(startPos, endPos);
+                if (goodpoints != null && goodpoints.Count > 0)
+                {
+                    lock (this.wayPointLocker)
+                    {
+                        foreach (Vector2 wayp in goodpoints)
+                        {
+
+                            this.ActiveWayPoints.Enqueue(wayp);
+                        }
+                        this.ActiveWayPoints.Enqueue(endPos);
+                    }
+                    return;
+                }
+            }
+            //if (UniverseData.UniverseWidth <= 0)
+            //    return;
+            //List<Vector2> goodpoints = new List<Vector2>();
+            //int reducer =  (int)(Empire.ProjectorRadius/4) ;
+            //foreach (Ship p in this.Owner.loyalty.GetProjectors())
+            //    goodpoints.Add(p.Center);
+            //foreach (SolarSystem s in this.Owner.loyalty.GetOwnedSystems())
+            //{
+            //    goodpoints.Add(s.Position);
+
+            //}
+            //int size = (int)(UniverseData.UniverseWidth / reducer);
+            //Grid path = new Grid(size, size, 1);
+            //Vector2 fillspot = new Vector2();
+            //for (int k = 0; k < path.Weight.GetLength(0); k++)
+            //    for (int l = 0; l < path.Weight.GetLength(1); l++)
+            //    {
+            //        float x = k * reducer;
+            //        float y = l * reducer;
+            //        fillspot.X = x;
+            //        fillspot.Y = y;
+
+            //        foreach (Vector2 p in goodpoints)
+            //        {
+            //            float distance = Vector2.Distance(p, fillspot);
+
+            //            if (distance <= Empire.ProjectorRadius)
+            //            {
+            //                distance = distance / Empire.ProjectorRadius;
+            //                path.Weight[k, l] = (byte)(254 *distance);
+            //            }
+
+            //        }
+            //    }
+            //Vector2 startPosN = new Vector2(startPos.X / reducer ,startPos.Y /reducer);
+            //Vector2 endPosN = new Vector2(endPos.X / reducer, endPos.Y / reducer);
+            //Point startP = new Point((int)startPosN.X, (int)startPosN.Y);
+            //Point endP = new Point((int)endPosN.X, (int)endPosN.Y);
+            //List<Point> paths = path.Pathfind(startP, endP);
+            //if (paths != null)
+            //{
+            //    lock (this.wayPointLocker)
+            //    {
+            //        foreach (Point wayp in paths)
+            //        {
+            //            Vector2 wp = new Vector2(wayp.X * reducer, wayp.Y * reducer);
+
+            //            this.ActiveWayPoints.Enqueue(wp);
+            //        }
+            //        this.ActiveWayPoints.Enqueue(endPos);
+            //    }
+            //    return;
+            //}
             float Distance = Vector2.Distance(startPos, endPos);
             if (Distance <= Empire.ProjectorRadius)
             {
@@ -6281,37 +6374,51 @@ namespace Ship_Game.Gameplay
                     this.ActiveWayPoints.Enqueue(endPos);
                 return;
             }
-            if (PlotCourseToNewViaRoad(endPos, startPos))
-                return;
-            List<Vector2> PickWayPoints = new List<Vector2>();
+            //if (PlotCourseToNewViaRoad(endPos, startPos) != null)
+
+            List<Vector2> PickWayPoints = new List<Vector2>(this.GoodRoad(endPos, startPos)); //PlotCourseToNewViaRoad(endPos, startPos));//
             float d1, d2;
             float DistToEnd1, DistToEnd2;
-
-            foreach (Ship proj in this.Owner.loyalty.GetProjectors())
+            if (PickWayPoints.Count == 0)
             {
-                d1 = Vector2.Distance(proj.Center, startPos);
-                d2 = Vector2.Distance(proj.Center, endPos);
-                if (d1 <= Distance && d2 <= Distance )
-                    lock (this.wayPointLocker)
+                foreach (Ship proj in this.Owner.loyalty.GetProjectors())
+                {
+                    d1 = Vector2.Distance(proj.Center, startPos);
+                    d2 = Vector2.Distance(proj.Center, endPos);
+                    if (d1 <= Distance && d2 <= Distance)
+                        // lock (this.wayPointLocker)
                         PickWayPoints.Add(proj.Center);
-            }
-            foreach (Planet p in this.Owner.loyalty.GetPlanets())
-            {
-                d1 = Vector2.Distance(p.Position, startPos);
-                d2 = Vector2.Distance(p.Position, endPos);
-                if (d1 <= Distance && d2 <= Distance)
+                }
+                if (PickWayPoints.Count == 0) //if no projectors then just go to target.
+                {
                     lock (this.wayPointLocker)
-                        PickWayPoints.Add(p.Position);
+                   this.ActiveWayPoints.Enqueue(endPos);
+                    return;
+                }
+                foreach (SolarSystem p in this.Owner.loyalty.GetOwnedSystems())
+                {
+                    d1 = Vector2.Distance(p.Position, startPos);
+                    d2 = Vector2.Distance(p.Position, endPos);
+                    if (d1 <= Distance && d2 <= Distance)
+                       // lock (this.wayPointLocker)
+                            PickWayPoints.Add(p.Position);
+                }
             }
+//#if DEBUG
+//            else
+//            {
+//                System.Diagnostics.Debug.WriteLine("Empire :" + this.Owner.loyalty.PortraitName);
+//                System.Diagnostics.Debug.WriteLine("Ship :" + this.Owner.VanityName);
+//            }
+//#endif            
             if (!this.ActiveWayPoints.Contains(endPos))
-                lock (this.wayPointLocker)
                     PickWayPoints.Add(endPos);
 
             int pt;
             float distMult;
             Vector2 wp1, wp2, current = this.Owner.Center;
             IOrderedEnumerable<Vector2> sortedList = from point in PickWayPoints where current != point orderby Vector2.Distance(current, point) select point;
-
+           
             // Loop through points.
             for (int i = 0; i < PickWayPoints.Count; i++)
             {
@@ -6329,9 +6436,13 @@ namespace Ship_Game.Gameplay
                             break;
                         d1 = Vector2.Distance(enumerator.Current, current);
                         d2 = Vector2.Distance(enumerator.Current, endPos);
+
                         if (!this.ActiveWayPoints.Contains(enumerator.Current)
-                            && (d2 <= Distance && d2 > Empire.ProjectorRadius * 1.5) || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)
-)                        {
+                            && (d2 <= Distance && d2 > Empire.ProjectorRadius * 1.5)
+                            || (d1 <= Empire.ProjectorRadius * 2.5f && d2 <= Distance * distMult)
+                             
+                            )
+                        {
                             if (d1 <= Empire.ProjectorRadius * 2.5f )
                             {
                                 if (d1 + d2 < DistToEnd1)
@@ -6348,6 +6459,7 @@ namespace Ship_Game.Gameplay
                                 }
                             pt++;
                         }
+                        
                     }
                     while (pt != 3);
                 }
@@ -6360,6 +6472,9 @@ namespace Ship_Game.Gameplay
                         current = wp2;
                     sortedList = from point in PickWayPoints where current != point orderby Vector2.Distance(current, point) select point;
                     Distance = Vector2.Distance(current, endPos);
+                    //goodroad = this.GoodRoad(current, endPos);
+                    //if(goodroad !=null && current != endPos)
+
                     lock (this.wayPointLocker)
                         this.ActiveWayPoints.Enqueue(current);
                     if (current == endPos)
@@ -6372,16 +6487,56 @@ namespace Ship_Game.Gameplay
                     this.ActiveWayPoints.Enqueue(endPos);
         }
 
-        private bool PlotCourseToNewViaRoad(Vector2 endPos, Vector2 startPos)
+        private List<Vector2> GoodRoad(Vector2 endPos, Vector2 startPos)
         {
-            return false;
-            float Distance = Vector2.Distance(startPos, endPos);
-            if (Distance <= Empire.ProjectorRadius)
+            SpaceRoad targetRoad =null;
+            List<SpaceRoad> StartRoads = new List<SpaceRoad>();
+            List<SpaceRoad> endRoads = new List<SpaceRoad>();
+            List<Vector2> nodePos = new List<Vector2>();
+            foreach (SpaceRoad road in this.Owner.loyalty.SpaceRoadsList)
             {
-                lock (this.wayPointLocker)
-                    this.ActiveWayPoints.Enqueue(endPos);
-                return true;
+                Vector2 start = road.GetOrigin().Position;
+                Vector2 end = road.GetDestination().Position;
+                if (Vector2.Distance(start, startPos) < Empire.ProjectorRadius)
+                {
+                    if (Vector2.Distance(end, endPos) < Empire.ProjectorRadius)
+                        targetRoad = road;
+                    else
+                        StartRoads.Add(road);
+                }
+                else if (Vector2.Distance(end, startPos) < Empire.ProjectorRadius)
+                {
+                    if (Vector2.Distance(start, endPos) < Empire.ProjectorRadius)
+                        targetRoad = road;
+                    else
+                        endRoads.Add(road);
+                }
+
+                if (  targetRoad !=null)
+                    break;
             }
+            
+
+            if(targetRoad != null)
+            {
+                foreach(RoadNode node in targetRoad.RoadNodesList)
+                {
+                    nodePos.Add(node.Position);
+                }
+                nodePos.Add(endPos);
+                nodePos.Add(targetRoad.GetDestination().Position);
+                nodePos.Add(targetRoad.GetOrigin().Position);
+            }
+            return nodePos;
+            
+
+
+        }
+
+        private List<Vector2> PlotCourseToNewViaRoad(Vector2 endPos, Vector2 startPos)
+        {
+            //return null;
+            List<Vector2> goodPoints = new List<Vector2>();
             List<SpaceRoad> potentialEndRoads = new List<SpaceRoad>();
             List<SpaceRoad> potentialStartRoads = new List<SpaceRoad>();
             RoadNode nearestNode = null;
@@ -6418,8 +6573,10 @@ namespace Ship_Game.Gameplay
                         {
                             foundstart = true;
                         }
-                        lock (this.wayPointLocker)
-                            this.ActiveWayPoints.Enqueue(node.Position);
+                        goodPoints.Add(node.Position);
+                        goodPoints.Add(targetRoad.GetDestination().Position);
+                        goodPoints.Add(targetRoad.GetOrigin().Position);
+
                     }
                 else
                     foreach (RoadNode node in targetRoad.RoadNodesList.Reverse<RoadNode>())
@@ -6430,12 +6587,14 @@ namespace Ship_Game.Gameplay
                         {
                             foundstart = true;
                         }
-                        lock (this.wayPointLocker)
-                            this.ActiveWayPoints.Enqueue(node.Position);
+                        goodPoints.Add(node.Position);
+                        goodPoints.Add(targetRoad.GetDestination().Position);
+                        goodPoints.Add(targetRoad.GetOrigin().Position);
+
                     }
           
             }
-            else if(false)
+            else if(true)
             {
                 while (potentialStartRoads.Intersect(potentialEndRoads).Count() == 0)
                 {
@@ -6464,7 +6623,7 @@ namespace Ship_Game.Gameplay
                      if(!test)
                     {
                         System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
-                        return false;
+                        return new List<Vector2>();
                     }
                 }
                 while (!potentialEndRoads.Contains(potentialStartRoads[0]))
@@ -6497,7 +6656,7 @@ namespace Ship_Game.Gameplay
                     if(!test)
                     {
                         System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
-                        return false;
+                        return new List<Vector2>();
                     }
 
 
@@ -6539,8 +6698,9 @@ namespace Ship_Game.Gameplay
                             else
                             {
                                 startnode = true;
-                                lock (this.wayPointLocker)
-                                    this.ActiveWayPoints.Enqueue(node.Position);
+                                goodPoints.Add(node.Position);
+                                goodPoints.Add(targetRoad.GetDestination().Position);
+                                goodPoints.Add(targetRoad.GetOrigin().Position);
                             }
                         }
 
@@ -6557,8 +6717,9 @@ namespace Ship_Game.Gameplay
                             else
                             {
                                 startnode = true;
-                                lock (this.wayPointLocker)
-                                    this.ActiveWayPoints.Enqueue(node.Position);
+                                goodPoints.Add(node.Position);
+                                goodPoints.Add(targetRoad.GetDestination().Position);
+                                goodPoints.Add(targetRoad.GetOrigin().Position);
                             }
                         }
                     }
@@ -6575,8 +6736,9 @@ namespace Ship_Game.Gameplay
                                 {
                                     foreach(RoadNode node in road.RoadNodesList)
                                     {
-                                        lock (this.wayPointLocker)
-                                            this.ActiveWayPoints.Enqueue(node.Position);
+                                        goodPoints.Add(node.Position);
+                                        goodPoints.Add(targetRoad.GetDestination().Position);
+                                        goodPoints.Add(targetRoad.GetOrigin().Position);
                                     }
                                     targetRoad = road;
                                     test = true;
@@ -6589,8 +6751,9 @@ namespace Ship_Game.Gameplay
                                     {
                                         foreach (RoadNode node in road.RoadNodesList.Reverse<RoadNode>())
                                         {
-                                            lock (this.wayPointLocker)
-                                                this.ActiveWayPoints.Enqueue(node.Position);
+                                            goodPoints.Add(node.Position);
+                                            goodPoints.Add(targetRoad.GetDestination().Position);
+                                            goodPoints.Add(targetRoad.GetOrigin().Position);
                                         }
                                     }
                                     test = true;
@@ -6610,8 +6773,9 @@ namespace Ship_Game.Gameplay
                                 {
                                     foreach (RoadNode node in road.RoadNodesList)
                                     {
-                                        lock (this.wayPointLocker)
-                                            this.ActiveWayPoints.Enqueue(node.Position);
+                                        goodPoints.Add(node.Position);
+                                        goodPoints.Add(targetRoad.GetDestination().Position);
+                                        goodPoints.Add(targetRoad.GetOrigin().Position);
                                     }
                                     targetRoad = road;
                                     test = true;
@@ -6624,8 +6788,9 @@ namespace Ship_Game.Gameplay
                                     {
                                         foreach (RoadNode node in road.RoadNodesList.Reverse<RoadNode>())
                                         {
-                                            lock (this.wayPointLocker)
-                                                this.ActiveWayPoints.Enqueue(node.Position);
+                                            goodPoints.Add(node.Position);
+                                            goodPoints.Add(targetRoad.GetDestination().Position);
+                                            goodPoints.Add(targetRoad.GetOrigin().Position);
                                         }
                                     }
                                     targetRoad = road;
@@ -6644,14 +6809,13 @@ namespace Ship_Game.Gameplay
             }
 
 
-            if(this.ActiveWayPoints.Count ==0) return false;
+            if(goodPoints.Count ==0) return new List<Vector2>();
 
 
-            lock (this.wayPointLocker)
-                this.ActiveWayPoints.Enqueue(endPos);
+            
 
 
-            return true;
+            return goodPoints;
         }
 
 		private void RotateInLineWithVelocity(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
@@ -6792,7 +6956,8 @@ namespace Ship_Game.Gameplay
                     return (GameplayObject)null;
                 }
             }
-            this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.66f;
+            //Doctor: Increased this from 0.66f as seemed slightly on the low side. 
+            this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.75f;
             SolarSystem thisSystem = this.Owner.GetSystem();
             if(thisSystem != null)
                 foreach (Planet p in thisSystem.PlanetList)
@@ -6978,12 +7143,14 @@ namespace Ship_Game.Gameplay
 
             //}           
             foreach (ArtificialIntelligence.ShipWeight nearbyShip in this.NearbyShips )
+                // Doctor: I put modifiers for the ship roles Fighter and Bomber in here, so that when searching for targets they prioritise their targets based on their selected ship role.
+                // I'll additionally put a ScanForCombatTargets into the carrier fighter code such that they use this code to select their own weighted targets.
             //Parallel.ForEach(this.NearbyShips, nearbyShip =>
             {
                 if (nearbyShip.ship.loyalty != this.Owner.loyalty)
                 {
                     if ((this.Target as Ship) == nearbyShip.ship)
-                        nearbyShip.weight += 1;
+                        nearbyShip.weight += 3;
                     if (nearbyShip.ship.Weapons.Count ==0)
                     {
                         ArtificialIntelligence.ShipWeight vultureWeight = nearbyShip;
@@ -6999,23 +7166,47 @@ namespace Ship_Game.Gameplay
                     {
                         ArtificialIntelligence.ShipWeight smallAttackWeight = nearbyShip;
                         smallAttackWeight.weight = smallAttackWeight.weight + this.CombatAI.SmallAttackWeight;
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Fighter)
+                        {
+                            smallAttackWeight.weight *= 2f;
+                        }
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Bomber)
+                        {
+                            smallAttackWeight.weight /= 2f;
+                        }
                     }
                     if (nearbyShip.ship.Size > 30 && nearbyShip.ship.Size < 100)
                     {
                         ArtificialIntelligence.ShipWeight mediumAttackWeight = nearbyShip;
                         mediumAttackWeight.weight = mediumAttackWeight.weight + this.CombatAI.MediumAttackWeight;
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Bomber)
+                        {
+                            mediumAttackWeight.weight *= 1.5f;
+                        }
                     }
                     if (nearbyShip.ship.Size > 100)
                     {
                         ArtificialIntelligence.ShipWeight largeAttackWeight = nearbyShip;
                         largeAttackWeight.weight = largeAttackWeight.weight + this.CombatAI.LargeAttackWeight;
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Fighter)
+                        {
+                            largeAttackWeight.weight /= 2f;
+                        }
+                        if (this.Owner.shipData.ShipCategory == ShipData.Category.Bomber)
+                        {
+                            largeAttackWeight.weight *= 2f;
+                        }
                     }
                     float rangeToTarget = Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center);
                     if (rangeToTarget <= this.CombatAI.PreferredEngagementDistance) 
                        // && Vector2.Distance(nearbyShip.ship.Center, this.Owner.Center) >= this.Owner.maxWeaponsRange)
                     {
                         ArtificialIntelligence.ShipWeight shipWeight = nearbyShip;
-                        shipWeight.weight = shipWeight.weight + .1f;
+                        shipWeight.weight = shipWeight.weight + 5 *
+                            ((this.CombatAI.PreferredEngagementDistance -Vector2.Distance(this.Owner.Center,nearbyShip.ship.Center))
+                            / this.CombatAI.PreferredEngagementDistance  )
+                            
+                            ;
                     }
                     else if (rangeToTarget > (this.CombatAI.PreferredEngagementDistance + this.Owner.velocityMaximum * 5))
                     {
@@ -7086,15 +7277,17 @@ namespace Ship_Game.Gameplay
             this.NearbyShips.ApplyPendingRemovals();
             IEnumerable<ArtificialIntelligence.ShipWeight> sortedList2 =
                 from potentialTarget in this.NearbyShips
-                orderby potentialTarget.weight descending
+                orderby potentialTarget.weight descending //, Vector2.Distance(potentialTarget.ship.Center,this.Owner.Center) 
                 select potentialTarget;
             
             {
-                this.PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.ship)) ;//.ToList() as BatchRemovalCollection<Ship>;
+                //this.PotentialTargets.ClearAdd() ;//.ToList() as BatchRemovalCollection<Ship>;
 
                 //trackprojectiles in scan for targets.
 
-                this.PotentialTargets.ClearAdd(this.PotentialTargets.Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance));
+                this.PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.ship));
+                   // .Where(potentialTarget => Vector2.Distance(potentialTarget.Center, this.Owner.Center) < this.CombatAI.PreferredEngagementDistance));
+                    
             }
             if (this.Target != null && !this.Target.Active)
             {
@@ -8104,10 +8297,19 @@ namespace Ship_Game.Gameplay
                                                     this.OrbitShip(this.EscortTarget, elapsedTime);
                                                     break;
                                                 }
+                                                // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
+                                                // and a standard 30k around it instead of their own. This hopefully will prevent them flying off too much, as well as keeping them
+                                                // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
                                                 else
                                                 {
-                                                    if (this.Owner.Mothership !=null && this.Target == null )
-                                                        this.Target = this.Owner.Mothership.GetAI().Target;
+                                                    if (this.Owner.Mothership != null && this.Target == null)
+                                                    {
+                                                        this.ScanForCombatTargets(this.Owner.Mothership.Center, 30000f);
+                                                        if (this.Target == null)
+                                                        {
+                                                            this.Target = this.Owner.Mothership.GetAI().Target;
+                                                        }
+                                                    }
                                                     this.DoCombat(elapsedTime);
                                                     break;
                                                 }
@@ -8926,6 +9128,374 @@ namespace Ship_Game.Gameplay
                 this.NearbyShips = null;
                 this.FriendliesNearby = null;
                 this.disposed = true;
+            }
+        }
+
+        //public struct Grid
+        //{
+        //    public Rectangle Size;
+
+        //    public byte[,] Weight;
+
+        //    public Grid(int x, int y, byte defaultValue = 0)
+        //    {
+        //        Size = new Rectangle(0, 0, x, y);
+        //        Weight = new byte[x, y];
+
+        //        for (var i = 0; i < x; i++)
+        //        {
+        //            for (var j = 0; j < y; j++)
+        //            {
+        //                Weight[i, j] = defaultValue;
+        //            }
+        //        }
+        //    }
+
+        //    public List<Point> Pathfind(Point start, Point end)
+        //    {
+        //        // nodes that have already been analyzed and have a path from the start to them
+        //        var closedSet = new List<Point>();
+        //        // nodes that have been identified as a neighbor of an analyzed node, but have 
+        //        // yet to be fully analyzed
+        //        var openSet = new List<Point> { start };
+        //        // a dictionary identifying the optimal origin point to each node. this is used 
+        //        // to back-track from the end to find the optimal path
+        //        var cameFrom = new Dictionary<Point, Point>();
+        //        // a dictionary indicating how far each analyzed node is from the start
+        //        var currentDistance = new Dictionary<Point, int>();
+        //        // a dictionary indicating how far it is expected to reach the end, if the path 
+        //        // travels through the specified node. 
+        //        var predictedDistance = new Dictionary<Point, float>();
+
+        //        // initialize the start node as having a distance of 0, and an estmated distance 
+        //        // of y-distance + x-distance, which is the optimal path in a square grid that 
+        //        // doesn't allow for diagonal movement
+        //        currentDistance.Add(start, 0);
+        //        predictedDistance.Add(
+        //            start,
+        //            0 + +Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y)
+        //        );
+
+        //        // if there are any unanalyzed nodes, process them
+        //        while (openSet.Count > 0)
+        //        {
+        //            // get the node with the lowest estimated cost to finish
+        //            var current = (
+        //                from p in openSet orderby predictedDistance[p] ascending select p
+        //            ).First();
+
+        //            // if it is the finish, return the path
+        //            if (current.X == end.X && current.Y == end.Y)
+        //            {
+        //                // generate the found path
+        //                return ReconstructPath(cameFrom, end);
+        //            }
+
+        //            // move current node from open to closed
+        //            openSet.Remove(current);
+        //            closedSet.Add(current);
+
+        //            // process each valid node around the current node
+        //            foreach (var neighbor in GetNeighborNodes(current))
+        //            {
+        //                var tempCurrentDistance = currentDistance[current] + 1;
+
+        //                // if we already know a faster way to this neighbor, use that route and 
+        //                // ignore this one
+        //                if (closedSet.Contains(neighbor)
+        //                    && tempCurrentDistance >= currentDistance[neighbor])
+        //                {
+        //                    continue;
+        //                }
+
+        //                // if we don't know a route to this neighbor, or if this is faster, 
+        //                // store this route
+        //                if (!closedSet.Contains(neighbor)
+        //                    || tempCurrentDistance < currentDistance[neighbor])
+        //                {
+        //                    if (cameFrom.Keys.Contains(neighbor))
+        //                    {
+        //                        cameFrom[neighbor] = current;
+        //                    }
+        //                    else
+        //                    {
+        //                        cameFrom.Add(neighbor, current);
+        //                    }
+
+        //                    currentDistance[neighbor] = tempCurrentDistance;
+        //                    predictedDistance[neighbor] =
+        //                        currentDistance[neighbor]
+        //                        + Math.Abs(neighbor.X - end.X)
+        //                        + Math.Abs(neighbor.Y - end.Y);
+
+        //                    // if this is a new node, add it to processing
+        //                    if (!openSet.Contains(neighbor))
+        //                    {
+        //                        openSet.Add(neighbor);
+        //                    }
+        //                }
+        //            }
+        //        }
+
+        //        System.Diagnostics.Debug.WriteLine(string.Format(
+        //                "unable to find a path between {0},{1} and {2},{3}",
+        //                start.X, start.Y,
+        //                end.X, end.Y
+        //            ));
+        //        return null;// cameFrom.Keys.ToList();
+        //    }
+
+        //    /// <summary>
+        //    /// Return a list of accessible nodes neighboring a specified node
+        //    /// </summary>
+        //    /// <param name="node">The center node to be analyzed.</param>
+        //    /// <returns>A list of nodes neighboring the node that are accessible.</returns>
+        //    private IEnumerable<Point> GetNeighborNodes(Point node)
+        //    {
+        //        var nodes = new List<Point>();
+        //        bool added = false;
+        //        // up
+        //        if (Weight[node.X, node.Y - 1] > 100)
+        //        {
+        //            nodes.Add(new Point(node.X, node.Y - 1));
+        //            added = true;
+        //        }
+
+        //        // right
+        //        if (Weight[node.X + 1, node.Y] > 100)
+        //        {
+        //            nodes.Add(new Point(node.X + 1, node.Y));
+        //            added = true;
+        //        }
+
+        //        // down
+        //        if (Weight[node.X, node.Y + 1] > 100)
+        //        {
+        //            nodes.Add(new Point(node.X, node.Y + 1));
+        //            added = true;
+        //        }
+
+        //        // left
+        //        if (Weight[node.X - 1, node.Y] > 100)
+        //        {
+        //            nodes.Add(new Point(node.X - 1, node.Y));
+        //            added = true;
+        //        }
+        //        if (!added)
+        //        {
+        //            if (Weight[node.X, node.Y - 1] > 0)
+        //            {
+        //                nodes.Add(new Point(node.X, node.Y - 1));
+        //                added = true;
+        //            }
+
+        //            // right
+        //            if (Weight[node.X + 1, node.Y] > 0)
+        //            {
+        //                nodes.Add(new Point(node.X + 1, node.Y));
+        //                added = true;
+        //            }
+
+        //            // down
+        //            if (Weight[node.X, node.Y + 1] > 0)
+        //            {
+        //                nodes.Add(new Point(node.X, node.Y + 1));
+        //                added = true;
+        //            }
+
+        //            // left
+        //            if (Weight[node.X - 1, node.Y] > 0)
+        //            {
+        //                nodes.Add(new Point(node.X - 1, node.Y));
+        //                added = true;
+        //            }
+        //        }
+
+        //        return nodes;
+        //    }
+
+        //    /// <summary>
+        //    /// Process a list of valid paths generated by the Pathfind function and return 
+        //    /// a coherent path to current.
+        //    /// </summary>
+        //    /// <param name="cameFrom">A list of nodes and the origin to that node.</param>
+        //    /// <param name="current">The destination node being sought out.</param>
+        //    /// <returns>The shortest path from the start to the destination node.</returns>
+        //    private List<Point> ReconstructPath(Dictionary<Point, Point> cameFrom, Point current)
+        //    {
+        //        if (!cameFrom.Keys.Contains(current))
+        //        {
+        //            return new List<Point> { current };
+        //        }
+
+        //        var path = ReconstructPath(cameFrom, cameFrom[current]);
+        //        path.Add(current);
+        //        return path;
+        //    }
+        //}
+        public struct Grid
+        {
+            public List<Vector2> goodpoints; //= //new List<Vector2>();
+            public float projectorsize;
+
+            //public byte[,] Weight;
+
+            public Grid(Empire empire)
+            {
+                projectorsize = Empire.ProjectorRadius;
+                goodpoints = new List<Vector2>();
+                foreach (Ship p in empire.GetProjectors())
+                    goodpoints.Add(p.Center);
+                foreach (SolarSystem s in empire.GetOwnedSystems())
+                {
+                    goodpoints.Add(s.Position);
+
+                }
+            }
+
+            public List<Vector2> Pathfind(Vector2 start, Vector2 end)
+            {
+                // nodes that have already been analyzed and have a path from the start to them
+                var closedSet = new List<Vector2>();
+                // nodes that have been identified as a neighbor of an analyzed node, but have 
+                // yet to be fully analyzed
+                var openSet = new List<Vector2> { start };
+                // a dictionary identifying the optimal origin point to each node. this is used 
+                // to back-track from the end to find the optimal path
+                var cameFrom = new Dictionary<Vector2, Vector2>();
+                // a dictionary indicating how far each analyzed node is from the start
+                var currentDistance = new Dictionary<Vector2, float>();
+                // a dictionary indicating how far it is expected to reach the end, if the path 
+                // travels through the specified node. 
+                var predictedDistance = new Dictionary<Vector2, float>();
+
+                // initialize the start node as having a distance of 0, and an estmated distance 
+                // of y-distance + x-distance, which is the optimal path in a square grid that 
+                // doesn't allow for diagonal movement
+                currentDistance.Add(start, 0);
+                predictedDistance.Add(
+                    start,
+                    Vector2.Distance(start, end)
+                    //0 + +Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y)
+                );
+
+                // if there are any unanalyzed nodes, process them
+                while (openSet.Count > 0)
+                {
+                    // get the node with the lowest estimated cost to finish
+                    var current = (
+                        from p in openSet orderby predictedDistance[p] ascending select p
+                    ).First();
+
+                    // if it is the finish, return the path
+                    if (Vector2.Distance(current,end) <=projectorsize *2.5)// current.X == end.X && current.Y == end.Y)
+                    {
+                        // generate the found path
+                        return ReconstructPath(cameFrom, end);
+                    }
+
+                    // move current node from open to closed
+                    openSet.Remove(current);
+                    closedSet.Add(current);
+
+                    // process each valid node around the current node
+                    foreach (var neighbor in GetNeighborNodes(current))
+                    {
+                        var tempCurrentDistance = Vector2.Distance(neighbor, current); // currentDistance[current] + 1;
+
+                        // if we already know a faster way to this neighbor, use that route and 
+                        // ignore this one
+                        if (closedSet.Contains(neighbor)
+                            && tempCurrentDistance >= currentDistance[neighbor])
+                        {
+                            continue;
+                        }
+
+                        // if we don't know a route to this neighbor, or if this is faster, 
+                        // store this route
+                        if (!closedSet.Contains(neighbor)
+                            || tempCurrentDistance < currentDistance[neighbor])
+                        {
+                            if (cameFrom.Keys.Contains(neighbor))
+                            {
+                                cameFrom[neighbor] = current;
+                            }
+                            else
+                            {
+                                cameFrom.Add(neighbor, current);
+                            }
+
+                            currentDistance[neighbor] = tempCurrentDistance;
+                            predictedDistance[neighbor] =
+                                currentDistance[neighbor]
+                                + Vector2.Distance(neighbor, end);
+                                //+ Math.Abs(neighbor.X - end.X)
+                                //+ Math.Abs(neighbor.Y - end.Y);
+
+                            // if this is a new node, add it to processing
+                            if (!openSet.Contains(neighbor))
+                            {
+                                openSet.Add(neighbor);
+                            }
+                        }
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine(string.Format(
+                        "unable to find a path between {0},{1} and {2},{3}",
+                        start.X, start.Y,
+                        end.X, end.Y
+                    ));
+                return null;// cameFrom.Keys.ToList();
+            }
+
+            /// <summary>
+            /// Return a list of accessible nodes neighboring a specified node
+            /// </summary>
+            /// <param name="node">The center node to be analyzed.</param>
+            /// <returns>A list of nodes neighboring the node that are accessible.</returns>
+            private IEnumerable<Vector2> GetNeighborNodes(Vector2 node)
+            {
+                var nodes = new List<Vector2>();
+                Vector2 nearest = new Vector2();
+                float nearestd = 0;
+                foreach(Vector2 point in goodpoints)
+                {
+                    if (point == node)
+                        continue;
+                    float test = Vector2.Distance(node, point);
+                    if (test < projectorsize*2.5f )
+                        nodes.Add(point);
+                    if(nearestd <0 || nearestd > test)
+                    {
+                        nearestd = test;
+                        nearest = point;
+                    }
+                }
+                if (nodes.Count == 0)
+                    nodes.Add(nearest);
+               
+
+                return nodes;
+            }
+
+            /// <summary>
+            /// Process a list of valid paths generated by the Pathfind function and return 
+            /// a coherent path to current.
+            /// </summary>
+            /// <param name="cameFrom">A list of nodes and the origin to that node.</param>
+            /// <param name="current">The destination node being sought out.</param>
+            /// <returns>The shortest path from the start to the destination node.</returns>
+            private List<Vector2> ReconstructPath(Dictionary<Vector2, Vector2> cameFrom, Vector2 current)
+            {
+                if (!cameFrom.Keys.Contains(current))
+                {
+                    return new List<Vector2> { current };
+                }
+
+                var path = ReconstructPath(cameFrom, cameFrom[current]);
+                path.Add(current);
+                return path;
             }
         }
     }

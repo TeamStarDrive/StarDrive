@@ -771,7 +771,11 @@ namespace Ship_Game
                         List<Planet> list1 = new List<Planet>();
                         foreach (Planet planet in this.empire.GetPlanets())
                         {
-                            if (planet.HasShipyard && planet.ParentSystem.combatTimer <=0)  //fbedard: do not build freighter if combat in system
+                            if (planet.HasShipyard && planet.ParentSystem.combatTimer <=0
+                                && planet.developmentLevel >2
+                                && planet.colonyType != Planet.ColonyType.Research
+                                && (planet.colonyType != Planet.ColonyType.Industrial || planet.developmentLevel >3)
+                                )  //fbedard: do not build freighter if combat in system
                                 list1.Add(planet);
                         }
                         Planet planet1 = (Planet)null;
@@ -782,7 +786,7 @@ namespace Ship_Game
                             int finCon = 0;
                             foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
                             {
-                                num2 += (int)(((double)queueItem.Cost - queueItem.productionTowards) / planet2.NetProductionPerTurn);
+                                num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.NetProductionPerTurn);
                                 if (queueItem.Goal != null && queueItem.Goal.GoalName == "IncreaseFreighters")
                                     finCon++;
                             }
@@ -818,23 +822,33 @@ namespace Ship_Game
                                 if (!ResourceManager.ShipsDict[index].isColonyShip && (ResourceManager.ShipsDict[index].shipData.Role == ShipData.RoleName.freighter || ResourceManager.ShipsDict[index].shipData.ShipCategory == ShipData.Category.Civilian))
                                     list2.Add(ResourceManager.ShipsDict[index]);
                             }
-                            IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.CargoSpace_Max));
-                            List<Ship> list3 = new List<Ship>();
-                            foreach (Ship ship in (IEnumerable<Ship>)orderedEnumerable1)
-                            {
-                                if (!ship.isColonyShip && (double)ship.CargoSpace_Max >= (double)Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable1).CargoSpace_Max)
-                                    list3.Add(ship);
-                            }
-                            IOrderedEnumerable<Ship> orderedEnumerable2 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list3, (Func<Ship, float>)(ship => ship.WarpThrust / ship.Mass));
-                            if (Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable2) <= 0)
-                                break;
+                            //IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list2, (Func<Ship, float>)(ship => ship.CargoSpace_Max <= empire.cargoNeed ? ship.CargoSpace_Max : 0));
+                            //List<Ship> list3 = new List<Ship>();
+                            Ship toBuild = list2
+                                .OrderByDescending(ship => ship.CargoSpace_Max <= empire.cargoNeed *.5f  ? ship.CargoSpace_Max : 0)
+                                .ThenByDescending(ship => (int)(ship.WarpThrust / ship.Mass/1000f))
+                                .ThenByDescending(ship => ship.Thrust / ship.Mass)
+                                .First();
+
+                        
+
+                            //foreach (Ship ship in (IEnumerable<Ship>)orderedEnumerable1)
+                            //{
+                            //    if (!ship.isColonyShip && ship.CargoSpace_Max >= Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable1).CargoSpace_Max)
+                            //        list3.Add(ship);
+                            //}
+                            //IOrderedEnumerable<Ship> orderedEnumerable2 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)list3, (Func<Ship, float>)(ship => ship.WarpThrust / ship.Mass));
+                            //if (Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable2) <= 0)
+                            //    break;
                             planet1.ConstructionQueue.Add(new QueueItem()
                             {
                                 isShip = true,
                                 QueueNumber = planet1.ConstructionQueue.Count,
-                                sData = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetShipData(),
+                                //sData = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetShipData(),
+                                sData = toBuild.GetShipData(),
                                 Goal = this,
-                                Cost = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetCost(this.empire)
+                                //Cost = ResourceManager.ShipsDict[Enumerable.First<Ship>((IEnumerable<Ship>)orderedEnumerable2).Name].GetCost(this.empire)
+                                Cost = toBuild.GetCost(this.empire)
                             });
                             ++this.Step;
                             break;
@@ -852,7 +866,7 @@ namespace Ship_Game
                     }
                     if (!flag2)
                         break;
-                    this.freighter.GetAI().State = AIState.SystemTrader;
+                    this.freighter.GetAI().State = AIState.SystemTrader;                    
                     this.freighter.GetAI().OrderTrade(0.1f);
                     this.empire.ReportGoalComplete(this);
                     break;

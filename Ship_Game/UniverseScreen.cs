@@ -1790,21 +1790,33 @@ namespace Ship_Game
                 foreach (SolarSystem combatsystem in Combatsystems)
                 { SystemUpdaterTaskBased(combatsystem); }
             });
-            var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
 
-            var normalsystems = Partitioner.Create(0, source1.Length);
-
-            Parallel.ForEach(normalsystems, (range, loopState) =>
+            if (true)
             {
+                var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
+
+                var normalsystems = Partitioner.Create(0, source1.Length);
+
+                Parallel.ForEach(normalsystems, (range, loopState) =>
+                {
                 //standard for loop through each weapon group.
                 for (int T = range.Item1; T < range.Item2; T++)
-                {
-                    SystemUpdaterTaskBased(solarsystems[T]);
-                }
-            });
+                    {
+                        SystemUpdaterTaskBased(solarsystems[T]);
+                    }
+                });
 
-  
-                                                                                //The two above were the originals
+
+            } 
+            else
+            {
+                foreach(SolarSystem s in solarsystems)
+                {
+                    SystemUpdaterTaskBased(s);
+                }
+            }
+            
+            //The two above were the originals
 
 
 

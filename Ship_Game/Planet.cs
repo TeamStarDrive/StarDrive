@@ -143,6 +143,7 @@ namespace Ship_Game
         public int uniqueHabPercent;
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
+       
 
         public float ObjectRadius
         {
@@ -3823,56 +3824,63 @@ namespace Ship_Game
         }
         private void SetExportState(ColonyType colonyType)
         {
-            
-            bool FSexport =false;
-            bool PSexport = false;
-            int pc = 0;
-            float exportPSNeed = 0;
-            float exportFSNeed = 0;
-            float importPSNeed = 0;
-            float importFSNeed = 0;
-            bool exportFlag = false;
-            float exportPTrack = 0;
-            float exportFTrack = 0;
-            foreach(Planet planet in this.Owner.GetPlanets())
-            {
-                pc++;
-//                if (this.ExportPSWeight < 0 || this.ExportFSWeight < 0)
-                if(planet.fs == GoodState.IMPORT )
-                {
-                    importFSNeed += planet.MAX_STORAGE- planet.FoodHere;
-                    FSexport = true;
-                }
-                if (planet.fs == GoodState.EXPORT )
-                    exportFSNeed += planet.FoodHere *(this.ExportFSWeight *-.01f) ;
-                else 
-                    if (planet.ExportFSWeight < exportFTrack)
-                    exportFTrack = planet.ExportFSWeight;
-                if(planet.ps == GoodState.IMPORT)
-                {
-                    importPSNeed += planet.MAX_STORAGE - planet.ProductionHere;
-                    PSexport = true;
-                }
-                if (planet.ps == GoodState.EXPORT)
-                    exportPSNeed += planet.ProductionHere * (this.ExportFSWeight * -.01f);                
-                else                
-                if (planet.ExportPSWeight < exportPTrack)
-                    exportPTrack = planet.ExportPSWeight;
 
-            }
-            if(pc==1)
+            bool FSexport = false;
+            bool PSexport = false;
+            int pc = this.Owner.GetPlanets().Count;
+            
+            
+            
+            
+            bool exportPSFlag = true;
+            bool exportFSFlag = true;
+             float exportPTrack = this.Owner.exportPTrack;
+         float exportFTrack = this.Owner.exportFTrack;
+     
+            
+            //foreach (Planet planet in this.Owner.GetPlanets())
+            //{
+            //    pc++;
+            //    //                if (this.ExportPSWeight < 0 || this.ExportFSWeight < 0)
+            //    if (planet.fs == GoodState.IMPORT)
+            //    {
+            //        importFSNeed += planet.MAX_STORAGE - planet.FoodHere;
+            //        FSexport = true;
+            //    }
+            //    if (planet.fs == GoodState.EXPORT)
+            //        exportFSNeed += planet.FoodHere * (this.ExportFSWeight * -.01f);
+
+            //    //if (planet.ExportFSWeight < exportFTrack)
+            //    exportFTrack += planet.ExportFSWeight;
+            //    if (planet.ps == GoodState.IMPORT)
+            //    {
+            //        importPSNeed += planet.MAX_STORAGE - planet.ProductionHere;
+            //        PSexport = true;
+            //    }
+            //    if (planet.ps == GoodState.EXPORT)
+            //        exportPSNeed += planet.ProductionHere * (this.ExportFSWeight * -.01f);
+
+            //    //if (planet.ExportPSWeight < exportPTrack)
+            //    exportPTrack += planet.ExportPSWeight;
+            //    Storage += planet.MAX_STORAGE;
+
+
+            //}
+            if (pc == 1)
             {
                 FSexport = false;
                 PSexport = false;
             }
-            exportFSNeed -= importFSNeed;
-            if (exportFSNeed <= 0 || this.ExportFSWeight ==0)
+            exportFSFlag = exportFTrack / pc *2 >= this.ExportFSWeight;
+            exportPSFlag = exportPTrack / pc *2  >= this.ExportPSWeight;
+            
+            if (!exportFSFlag || this.Owner.averagePLanetStorage >= this.MAX_STORAGE ) //|| this.ExportFSWeight > exportFTrack //exportFSNeed <= 0 ||
                 FSexport = true;
-            exportPSNeed -= importPSNeed;
-            if (exportPSNeed <= 0 || this.ExportPSWeight ==0)
+            
+            if ( !exportPSFlag || this.Owner.averagePLanetStorage >= this.MAX_STORAGE ) //|| this.ExportPSWeight > exportPTrack //exportPSNeed <= 0 ||
                 PSexport = true;
-            this.ExportFSWeight = 0;
-            this.ExportPSWeight = 0;
+            //this.ExportFSWeight = 0;
+            //this.ExportPSWeight = 0;
             float PRatio = this.ProductionHere /this.MAX_STORAGE;
             float FRatio = this.FoodHere /this.MAX_STORAGE;
 
@@ -3882,7 +3890,7 @@ namespace Ship_Game
                 
                 case ColonyType.Colony:               
                 case ColonyType.Industrial:
-                    if (this.NetProductionPerTurn > this.developmentLevel)
+                    if (this.Population >=1000 &&this.MaxPopulation >= this.Population)
                     {
                         if (PRatio < .9 && queueCount > 0 && FSexport)
                             this.ps = GoodState.IMPORT;
@@ -3913,8 +3921,9 @@ namespace Ship_Game
                         
                     }
                     
-                
-                    if (FRatio > .75f)
+                if(this.NetFoodPerTurn <0)
+                        this.fs = Planet.GoodState.IMPORT;
+                    else if (FRatio > .75f)
                         this.fs = Planet.GoodState.STORE;
                     else
                         this.fs = Planet.GoodState.IMPORT;
@@ -3932,7 +3941,9 @@ namespace Ship_Game
 
                 if (this.NetFoodPerTurn >0 )
                     this.fs = Planet.GoodState.EXPORT;
-                else if (FRatio> .75f )
+                else if (this.NetFoodPerTurn < 0)
+                        this.fs = Planet.GoodState.IMPORT;
+                    else if(FRatio> .75f )
                     this.fs = Planet.GoodState.STORE;
                 else
                     this.fs = Planet.GoodState.IMPORT;
@@ -3949,7 +3960,11 @@ namespace Ship_Game
                     else
                         this.ps = GoodState.STORE;
 
-
+                        if (this.NetFoodPerTurn < 0)
+                            this.fs = Planet.GoodState.IMPORT;
+                        else if(this.NetFoodPerTurn <0)
+                        this.fs = Planet.GoodState.IMPORT;
+                    else
                     if (FRatio > .75f && !FSexport)
                         this.fs = Planet.GoodState.EXPORT;
                     else if (FSexport && FRatio <.75)
@@ -3961,7 +3976,7 @@ namespace Ship_Game
                 }
 
                 case ColonyType.Core:                
-                if(this.GrossProductionPerTurn >this.developmentLevel)
+                if(this.MaxPopulation > this.Population *.75f && this.Population >this.developmentLevel *1000)
                 {
 
                     if (PRatio > .33f )
@@ -3979,8 +3994,10 @@ namespace Ship_Game
                         this.ps = GoodState.IMPORT;
                     else this.ps = GoodState.STORE;
                 }
-                
-                if (FRatio > .25)
+
+                    if (this.NetFoodPerTurn < 0)
+                        this.fs = Planet.GoodState.IMPORT;
+                    else if(FRatio > .25)
                     this.fs = GoodState.EXPORT;
                 else if (this.NetFoodPerTurn > this.developmentLevel * .5)
                     this.fs = GoodState.STORE;
@@ -6749,9 +6766,34 @@ output = maxp * take10 = 5
             //num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == null || empiresTroops.GetOwner() != empire).Sum(strength => strength.Strength);
             //this.TroopsHere.thisLock.ExitReadLock();
             //return num;
-
-
             float EnemyTroopStrength = 0f;
+            this.TroopsHere.ForEach(trooper =>
+            {
+
+                if (trooper.GetOwner() != AllButThisEmpire)
+                {
+                    EnemyTroopStrength += trooper.Strength;
+                }
+            });
+            for(int i =0; i<this.BuildingList.Count;i++)
+            {
+                Building b;
+                try
+                {
+                    b = this.BuildingList[i];
+                }
+                catch
+                {
+                    continue;
+                }
+                if (b == null)
+                    continue;
+                if(b.CombatStrength>0)
+                EnemyTroopStrength += b.Strength + b.CombatStrength;
+            }
+          
+
+            return EnemyTroopStrength;
             foreach (PlanetGridSquare pgs in this.TilesList)
             {
                 pgs.TroopsHere.thisLock.EnterReadLock();
