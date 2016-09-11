@@ -6295,7 +6295,7 @@ namespace Ship_Game.Gameplay
         //fbedard: new version not recursive        
         private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
         {
-            if (true && Empire.universeScreen !=null && Empire.universeScreen.Debug)
+            if (true)
             {
                 List<Vector2> goodpoints = new List<Vector2>();
                 Grid path = new Grid(this);
@@ -9367,15 +9367,11 @@ namespace Ship_Game.Gameplay
                 {
                     goodpoints.Add(s.Position);
                 }
-                foreach (Planet p in empire.GetPlanets())
-                {
-                    goodpoints.Add(p.Position);
-                    
-                }
+           
                 Relationship rel;
                 foreach(Empire e in EmpireManager.EmpireList)
                 {
-                    if (empire.GetRelations().TryGetValue(e, out rel) && rel.Treaty_OpenBorders || empire.isPlayer)
+                    if (empire.GetRelations().TryGetValue(e, out rel) && rel.Treaty_OpenBorders )
                     {
                         foreach (Ship s in e.GetProjectors())
                         {
