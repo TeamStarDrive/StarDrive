@@ -8015,6 +8015,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6188</Index>
       <Text>FCS Power</Text>
     </Token>
+	<Token>
+      <Index>6189</Index>
+      <Text>ECM</Text>
+    </Token>
+	<Token>
+      <Index>6190</Index>
+      <Text>Total Off</Text>
+    </Token>
     
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
 	
@@ -8375,6 +8383,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	<Token>
       <Index>7088</Index>
       <Text>This is the total number of targets this ship's fire control systems can track at a time. This ship can only track a single target, so is incapable of firing at other targets, including incoming projectiles, simultaneously.</Text>
+    </Token>
+	<Token>
+      <Index>7089</Index>
+      <Text>This is the total electronic countermeasure (ECM) value for this ship. It represents the baseline % chance to jam an incoming missile with no ECM resistance.</Text>
+    </Token>
+	<Token>
+      <Index>7090</Index>
+      <Text>This is the maximum sensor range of this vessel: essentially how far this vessel can detect spaceborne objects. A basic local scan is available through command modules; to scan further dedicated sensor modules are required.</Text>
+    </Token>
+	<Token>
+      <Index>7091</Index>
+      <Text>This is this ship's self-repair rate per tick - it can self repair this many hitpoints of a module per tick when outside of combat. Better command and engineering modules improve this.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>

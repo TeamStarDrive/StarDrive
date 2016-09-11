@@ -1867,7 +1867,8 @@ namespace Ship_Game
                 //ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,          //Not referenced in code, removing to save memory -Gretman
                 AltFireMode = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireMode,
                 AltFireTriggerFighter = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireTriggerFighter,
-                SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire
+                SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire,
+                OffPowerMod = Ship_Game.ResourceManager.WeaponsDict[uid].OffPowerMod
 			};
 			return w;
 		}
@@ -2701,7 +2702,7 @@ namespace Ship_Game
                     string.Intern(data.IconTexturePath);
                 if (!string.IsNullOrEmpty(data.WeaponType) && string.IsNullOrEmpty(String.IsInterned(data.WeaponType)))
                     string.Intern(data.WeaponType);
-                if(data.IsCommandModule  && data.TargetTracking ==0)
+                if(data.IsCommandModule  && data.TargetTracking ==0 && data.FixedTracking == 0)
                 {
                     data.TargetTracking = Convert.ToSByte((data.XSIZE * data.YSIZE) / 3);
                 }
@@ -3187,16 +3188,78 @@ namespace Ship_Game
                     {
                         //weapons = true;
                         Weapon w = module.InstalledWeapon;
-                        if (!w.explodes)
-                        {
-                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
-                        }
-                        else
-                        {
-                            offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
 
-                        }
-                        if (offRate > 0 && (w.TruePD || w.Range < 1000))
+                    //Doctor: The 25% penalty to explosive weapons is presumably to note that not all the damage is applied to a single module - this isn't really weaker overall, though
+                    //and unfairly penalises weapons with explosive damage and makes them appear falsely weaker.
+
+                        //if (!w.explodes)
+                        //{
+                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                       // }
+                        //else
+                        //{
+                         //   offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
+
+                       // }
+
+                    //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
+                    if (w.Tag_Guided)
+                    {
+                        offRate *= 1.25f;
+                    }
+
+                    //Doctor: Higher range on a weapon attracts a small bonus to offensive rating. E.g. a range 2000 weapon gets 5% uplift vs a 5000 range weapon 12.5% uplift. 
+                    offRate *= (1 + (w.Range / 40000));
+
+
+                    //Doctor: Here follows multipliers which modify the perceived offensive value of weapons based on any modifiers they may have against armour and shields
+                    //Previously if e.g. a rapid-fire cannon only did 20% damage to armour, it could have amuch higher off rating than a railgun that had less technical DPS but did double armour damage.
+                    if (w.EffectVsArmor < 1)
+                    {
+                        if (w.EffectVsArmor > 0.75)
+                            offRate *= 0.9f;
+                        else if (w.EffectVsArmor > 0.5)
+                            offRate *= 0.85f;
+                        else if (w.EffectVsArmor > 0.25)
+                            offRate *= 0.8f;
+                        else
+                            offRate *= 0.75f;
+                    }
+                    if (w.EffectVsArmor > 1)
+                    {
+                        if (w.EffectVsArmor > 2.0)
+                            offRate *= 1.5f;
+                        else if (w.EffectVsArmor > 1.5)
+                            offRate *= 1.3f;
+                        else
+                            offRate *= 1.1f;
+                    }
+                    if (w.EffectVSShields < 1)
+                    {
+                        if (w.EffectVSShields > 0.75)
+                            offRate *= 0.9f;
+                        else if (w.EffectVSShields > 0.5)
+                            offRate *= 0.85f;
+                        else if (w.EffectVSShields > 0.25)
+                            offRate *= 0.8f;
+                        else
+                            offRate *= 0.75f;
+                    }
+                    if (w.EffectVSShields > 1)
+                    {
+                        if (w.EffectVSShields > 2)
+                            offRate *= 1.5f;
+                        else if (w.EffectVSShields > 1.5)
+                            offRate *= 1.3f;
+                        else
+                            offRate *= 1.1f;
+                    }
+
+
+                    //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+                    offRate *= w.OffPowerMod;
+
+                    if (offRate > 0 && (w.TruePD || w.Range < 1000))
                         {
                             float range = 0f;
                             if (w.Range < 1000)
