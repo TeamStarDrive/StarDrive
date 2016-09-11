@@ -115,6 +115,7 @@ namespace Ship_Game.Gameplay
         public bool isPowerArmour = false;
         public bool isBulkhead = false;
         public sbyte TargetTracking = 0;
+        public sbyte FixedTracking = 0;
 
         public static ShipModule_Advanced Empty = new ShipModule_Advanced();    //A static instance to be assigned to leftover modules
 
@@ -275,6 +276,7 @@ namespace Ship_Game.Gameplay
         public bool isBulkhead = false;
         public sbyte quadrant = -1;
         public sbyte TargetTracking = 0;
+        public sbyte FixedTracking = 0;
 
         public ShipModule ConvertToShipModule()
         {                                                           //This functions translates from the old ShipModule (eg the XML files)
@@ -419,6 +421,7 @@ namespace Ship_Game.Gameplay
             ReturnModule.Advanced.isPowerArmour = this.isPowerArmour;
             ReturnModule.Advanced.isBulkhead = this.isBulkhead;
             ReturnModule.Advanced.TargetTracking = this.TargetTracking;
+            ReturnModule.Advanced.FixedTracking = this.FixedTracking;
 
             return ReturnModule;
         }
