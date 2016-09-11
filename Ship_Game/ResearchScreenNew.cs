@@ -510,7 +510,15 @@ namespace Ship_Game
 			string resTop = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic;
 			if (!string.IsNullOrEmpty(resTop))
 			{
-				this.qcomponent.LoadQueue(this.CompleteSubNodeTree[resTop] as TreeNode);
+                Node resTopNode = null;
+                this.CompleteSubNodeTree.TryGetValue(resTop, out resTopNode);
+                if(resTopNode != null)
+                this.qcomponent.LoadQueue(resTopNode as TreeNode);
+                else
+                {
+                    resTop = string.Empty;
+                    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic = string.Empty;
+                }
 			}
 			foreach (string uid in EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.ResearchQueue)
 			{

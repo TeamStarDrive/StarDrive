@@ -173,7 +173,7 @@ namespace Ship_Game.Gameplay
         public bool isPowerArmour               { get { return this.Advanced.isPowerArmour; } }
         public bool isBulkhead                  { get { return this.Advanced.isBulkhead; } }
         public sbyte TargetTracking             { get { return this.Advanced.TargetTracking; } }
-
+        public sbyte FixedTracking              { get { return this.Advanced.FixedTracking; } }
         public bool IsWeapon
 		{
 			get
