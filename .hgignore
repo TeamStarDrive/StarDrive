@@ -12,3 +12,4 @@ UpgradeLog2.htm
 *.vspx
 Deploy/Upload/
 Deploy/
+*.suo
