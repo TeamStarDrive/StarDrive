@@ -12,4 +12,4 @@ UpgradeLog2.htm
 *.vspx
 Deploy/Upload/
 Deploy/
-.vs\StarDrive\v14\.suo
+*.suo
