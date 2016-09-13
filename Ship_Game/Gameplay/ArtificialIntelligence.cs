@@ -6295,11 +6295,12 @@ namespace Ship_Game.Gameplay
         //fbedard: new version not recursive        
         private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
         {
-            if (true && Empire.universeScreen !=null)
+            if (true)
             {
                 List<Vector2> goodpoints = new List<Vector2>();
-                Grid path = new Grid(this,36,100);
-                goodpoints = path.Pathfind(startPos, endPos);
+                Grid path = new Grid(this.Owner.loyalty, 10, 100);
+                if (Empire.universeScreen != null)
+                    goodpoints = path.Pathfind(startPos, endPos);
                 if (goodpoints != null && goodpoints.Count > 0)
                 {
                     lock (this.wayPointLocker)
@@ -6311,11 +6312,13 @@ namespace Ship_Game.Gameplay
                         }
                         //this.ActiveWayPoints.Enqueue(endPos);
                     }
-                    
+
                 }
-                
+                else
+                    this.ActiveWayPoints.Clear();
+
             }
-            return;
+        return;
             //if (UniverseData.UniverseWidth <= 0)
             //    return;
             //List<Vector2> goodpoints = new List<Vector2>();
@@ -9137,8 +9140,9 @@ namespace Ship_Game.Gameplay
         public struct Grid
         {
             public List<Vector2> goodpoints; //= //new List<Vector2>();
+            public List<Vector2> badpoints;
             public float projectorsize;
-            public ArtificialIntelligence ai;
+            public Empire    ai;
             //public byte[,] Weight;
             float radius;
             Vector2 end;
@@ -9158,16 +9162,17 @@ namespace Ship_Game.Gameplay
             /// <param name="ai"></param> 
             /// <param name="PointSearchGranuality"></param> //divide all the points around a point into buckets of angles. Creates a vector2 and a float for each granularity
             /// <param name="ProjectorWeight"></param> //this multiplies the effect of the inborders bonus. (doesnt seem to work yet...)
-            public Grid(ArtificialIntelligence ai, int PointSearchGranuality, int ProjectorWeight)
+            public Grid(Empire ai, int PointSearchGranuality, int ProjectorWeight)
             {
                 this.ai = ai;
                 projectorWeight = ProjectorWeight;
                 granularity = 36f;  
-                nearest = new Vector2[(int)granularity];
-                distance = new float[(int)granularity];
-                Empire empire = ai.Owner.loyalty;
+                nearest = new Vector2[(int)granularity+1];
+                distance = new float[(int)granularity+1];
+                Empire empire = ai;
                 projectorsize = Empire.ProjectorRadius;
                 goodpoints = new List<Vector2>();
+                badpoints = new List<Vector2>();
                 radius = 2.5f * projectorsize;
                 end = Vector2.Zero;
                 start = Vector2.Zero;
@@ -9178,21 +9183,62 @@ namespace Ship_Game.Gameplay
                 {
                     goodpoints.Add(s.Position);
                 }
-                //foreach (Planet s in empire.GetPlanets())
-                //{
-                //    goodpoints.Add(s.Position);
-                //}
+                foreach (Planet s in empire.GetPlanets())
+                {
+                    goodpoints.Add(s.Position);
+                }
+
                 Relationship rel;
                 foreach(Empire e in EmpireManager.EmpireList)
                 {
-                    if (empire.GetRelations().TryGetValue(e, out rel) && rel.Treaty_OpenBorders )
+                    if (empire.GetRelations().TryGetValue(e, out rel) && rel.Treaty_OpenBorders)
                     {
                         foreach (Ship s in e.GetProjectors())
                         {
                             goodpoints.Add(s.Position);
                         }
+                        foreach (SolarSystem s in e.GetOwnedSystems())
+                        {
+                            goodpoints.Add(s.Position);
+                        }
                     }
+                    //else 
+                    //{
+                    //    foreach (Ship s in e.GetProjectors())
+                    //    {
+                    //        badpoints.Add(s.Position);
+                    //    }
+                    //    foreach (SolarSystem s in e.GetOwnedSystems())
+                    //    {
+                    //        badpoints.Add(s.Position);
+                    //    }
+                    //}
                 }
+                //List<Vector2> extrabad = new List<Vector2>();
+                //List<Vector2> extragood = new List<Vector2>();
+                //foreach (Vector2 bp in badpoints)
+                //{                   
+                //    for (int rad = 0; rad < 360; rad += 60)
+                //    {
+                //        extragood.Add(HelperFunctions.GeneratePointOnCircle(rad, bp, projectorsize * 2.6f));
+                       
+                //        extrabad.Add(HelperFunctions.GeneratePointOnCircle(rad, bp, projectorsize*2.5f ));
+                //    }
+                //}
+                //List<Vector2> removep = new List<Vector2>();
+                //goodpoints.AddRange(extragood);
+                //foreach (Vector2 bp in badpoints)
+                //{
+                //    foreach(Vector2 eg in extragood )
+                //    {
+                //        if (Vector2.Distance(bp, eg) < projectorsize*2.5f )
+                //            goodpoints.Remove(eg);
+                //    }
+                //}
+                
+                //badpoints.AddRange(extrabad);
+               
+                //goodpoints.AddRange(badpoints);
                 
             }
             
@@ -9201,6 +9247,8 @@ namespace Ship_Game.Gameplay
                 float Pathlength = Vector2.Distance(start, end);
                 if (Pathlength < projectorsize * 2)
                     return new List<Vector2> { start, end };
+                if (Empire.universeScreen == null)
+                    return null;
                 // nodes that have already been analyzed and have a path from the start to them
                 var closedSet = new List<Vector2>();
                 // nodes that have been identified as a neighbor of an analyzed node, but have 
@@ -9257,7 +9305,7 @@ namespace Ship_Game.Gameplay
                     {
                         var neighborDistance = Vector2.Distance(neighbor, current);
                         float reduction = neighborDistance < projectorsize * 2 ? neighborDistance : projectorsize * 2;
-                        neighborDistance -= reduction - reduction / (1 + projectorWeight * ai.Owner.loyalty.data.Traits.InBordersSpeedBonus);// (neighborDistance - projectorsize * 2) *     ai.Owner.loyalty.data.Traits.InBordersSpeedBonus;
+                        neighborDistance -= reduction - reduction / (1 + projectorWeight * ai.data.Traits.InBordersSpeedBonus);// (neighborDistance - projectorsize * 2) *     ai.Owner.loyalty.data.Traits.InBordersSpeedBonus;
                         var tempCurrentDistance = currentDistance[current] +  neighborDistance;              
 
                         //if (neighbor == end)
@@ -9287,7 +9335,7 @@ namespace Ship_Game.Gameplay
                             }
                             float tempendDist = Vector2.Distance(neighbor, end);
                             reduction = tempendDist < projectorsize * 2 ? tempendDist : projectorsize * 2;
-                            tempendDist -= reduction - reduction / (1 + projectorWeight * ai.Owner.loyalty.data.Traits.InBordersSpeedBonus);
+                            tempendDist -= reduction - reduction / (1 + projectorWeight * ai.data.Traits.InBordersSpeedBonus);
                             currentDistance[neighbor] = tempCurrentDistance;
                             predictedDistance[neighbor] =
                                 currentDistance[neighbor]
@@ -9306,7 +9354,7 @@ namespace Ship_Game.Gameplay
 
                 }
 
-                return ReconstructPath(cameFrom, end);
+               // return ReconstructPath(cameFrom, end);
                 System.Diagnostics.Debug.WriteLine(string.Format(
                         "unable to find a path between {0},{1} and {2},{3}",
                         start.X, start.Y,
@@ -9325,7 +9373,7 @@ namespace Ship_Game.Gameplay
             
             private IEnumerable<Vector2> GetNeighborNodes(Vector2 node, Dictionary<Vector2, Vector2> camefrom, List<Vector2> closedset, List<Vector2> openset)
             {
-                var nodes = new HashSet<Vector2>();
+                var nodes = new List<Vector2>();
                               
                 Vector2 endrange = Vector2.Zero;
                 for (int i=0;i<(int)granularity;i++)
@@ -9360,8 +9408,8 @@ namespace Ship_Game.Gameplay
                     if(filternodes != Vector2.Zero)
                     nodes.Add(filternodes);
                 }
-
-                return new List<Vector2>(nodes);
+                //IEnumerable<Vector2> test = nodes.Except(badpoints);
+                return nodes;
             }
 
             /// <summary>
