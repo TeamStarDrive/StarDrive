@@ -6298,7 +6298,7 @@ namespace Ship_Game.Gameplay
             if (true)
             {
                 List<Vector2> goodpoints = new List<Vector2>();
-                Grid path = new Grid(this.Owner.loyalty, 10, 100);
+                Grid path = new Grid(this.Owner.loyalty, 20, 10f);
                 if (Empire.universeScreen != null)
                     goodpoints = path.Pathfind(startPos, endPos);
                 if (goodpoints != null && goodpoints.Count > 0)
@@ -9150,7 +9150,7 @@ namespace Ship_Game.Gameplay
             Vector2[] nearest;// = new Vector2[(int)granularity];
             float[] distance;// = new float[(int)granularity];
             float granularity; //= 8f;
-            int projectorWeight;
+            float projectorWeight;
             class mappoint
             {
                 public float radius;
@@ -9162,10 +9162,10 @@ namespace Ship_Game.Gameplay
             /// <param name="ai"></param> 
             /// <param name="PointSearchGranuality"></param> //divide all the points around a point into buckets of angles. Creates a vector2 and a float for each granularity
             /// <param name="ProjectorWeight"></param> //this multiplies the effect of the inborders bonus. (doesnt seem to work yet...)
-            public Grid(Empire ai, int PointSearchGranuality, int ProjectorWeight)
+            public Grid(Empire ai, int PointSearchGranuality, float ProjectorWeightPercentage)
             {
                 this.ai = ai;
-                projectorWeight = ProjectorWeight;
+                projectorWeight = ProjectorWeightPercentage;
                 granularity = 36f;  
                 nearest = new Vector2[(int)granularity+1];
                 distance = new float[(int)granularity+1];
@@ -9245,8 +9245,14 @@ namespace Ship_Game.Gameplay
             public List<Vector2> Pathfind(Vector2 start, Vector2 end)
             {
                 float Pathlength = Vector2.Distance(start, end);
-                if (Pathlength < projectorsize * 2)
+                
+                if (Pathlength < projectorsize )
                     return new List<Vector2> { start, end };
+                else
+                {
+                    float tempd = Pathlength - (projectorsize);
+                    Pathlength = projectorsize + tempd * projectorWeight;// * ai.data.Traits.InBordersSpeedBonus);// - tempd;
+                }
                 if (Empire.universeScreen == null)
                     return null;
                 // nodes that have already been analyzed and have a path from the start to them
@@ -9277,8 +9283,8 @@ namespace Ship_Game.Gameplay
                 // if there are any unanalyzed nodes, process them
                 
                 
-                float max = 0;
-                max += Vector2.Distance(start, end);
+                //float max = 0;
+                //max += Vector2.Distance(start, end);
                 while (openSet.Count > 0)
                 {
                
@@ -9298,18 +9304,25 @@ namespace Ship_Game.Gameplay
                     // move current node from open to closed
                     openSet.Remove(current);
                     closedSet.Add(current);
-
                     // process each valid node around the current node
                     //radius += projectorsize * 2.5f;
                     foreach (Vector2 neighbor in GetNeighborNodes(current, cameFrom, closedSet, openSet))
                     {
                         var neighborDistance = Vector2.Distance(neighbor, current);
-                        float reduction = neighborDistance < projectorsize * 2 ? neighborDistance : projectorsize * 2;
-                        neighborDistance -= reduction - reduction / (1 + projectorWeight * ai.data.Traits.InBordersSpeedBonus);// (neighborDistance - projectorsize * 2) *     ai.Owner.loyalty.data.Traits.InBordersSpeedBonus;
-                        var tempCurrentDistance = currentDistance[current] +  neighborDistance;              
+                        float tempend = (neighbor == end ? 1 : 2.5f);
+                        if (  neighborDistance > projectorsize * tempend)
+                        {
+                            float tempd = neighborDistance - (projectorsize) ;
+                            neighborDistance = (projectorsize *2.5f) + tempd * projectorWeight;
+                            //neighborDistance += tempd * (1 + projectorWeight); // * ai.data.Traits.InBordersSpeedBonus) - tempd;
+                        }
+                        //else if(neighborDistance > projectorsize * tempend)
+                        //{
 
-                        //if (neighbor == end)
-                        //    openSet.Add(end);
+                        //}
+
+                        var tempCurrentDistance = currentDistance[current] +  neighborDistance;              
+                    
                         // if we already know a faster way to this neighbor, use that route and 
                         // ignore this one
                         if (closedSet.Contains(neighbor)
@@ -9334,8 +9347,13 @@ namespace Ship_Game.Gameplay
                                 //radius = 0;
                             }
                             float tempendDist = Vector2.Distance(neighbor, end);
-                            reduction = tempendDist < projectorsize * 2 ? tempendDist : projectorsize * 2;
-                            tempendDist -= reduction - reduction / (1 + projectorWeight * ai.data.Traits.InBordersSpeedBonus);
+                            if (Vector2.Distance(neighbor, current) > projectorsize * 2.5f)
+                            {
+                                float tempd = tempendDist - (projectorsize) * 2.5f;
+                                tempendDist = (projectorsize *2.5f )+ tempd * projectorWeight;
+                                // tempendDist += tempd * ((1 + projectorWeight));// * ai.data.Traits.InBordersSpeedBonus) - tempd; //+ projectorWeight
+
+                            }
                             currentDistance[neighbor] = tempCurrentDistance;
                             predictedDistance[neighbor] =
                                 currentDistance[neighbor]
