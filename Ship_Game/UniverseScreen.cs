@@ -1600,8 +1600,8 @@ namespace Ship_Game
             if (!this.Paused)
             {
 
-                //Parallel.ForEach(EmpireManager.EmpireList, empire =>
-                foreach(Empire empire in EmpireManager.EmpireList)
+                Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                //foreach(Empire empire in EmpireManager.EmpireList)
                 {
                     foreach (Ship s in empire.ShipsToAdd)
                     {
@@ -1627,7 +1627,7 @@ namespace Ship_Game
                             empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
                         }
                     }
-                }//);
+                });
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 this.MasterShipList.ApplyPendingRemovals();
