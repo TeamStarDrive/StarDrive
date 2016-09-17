@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace Ship_Game.Gameplay
 {
 	public sealed class ArtificialIntelligence : IDisposable
@@ -423,12 +424,18 @@ namespace Ship_Game.Gameplay
 			this.ColonizeTarget = TargetPlanet;
 			this.ColonizeTarget.Owner = this.Owner.loyalty;
 			this.ColonizeTarget.system.OwnerList.Add(this.Owner.loyalty);
-			this.ColonizeTarget.colonyType = this.Owner.loyalty.AssessColonyNeeds(this.ColonizeTarget);
-			if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+            if (!this.Owner.loyalty.AutoColonize)
+            {
+                this.ColonizeTarget.colonyType = Planet.ColonyType.Colony;
+                this.ColonizeTarget.GovernorOn = false;
+            }
+            else
+                this.ColonizeTarget.colonyType = this.Owner.loyalty.AssessColonyNeeds(this.ColonizeTarget);
+			if (this.Owner.loyalty.isPlayer )  //.data.CurrentAutoColony))
 			{
 				ArtificialIntelligence.universeScreen.NotificationManager.AddColonizedNotification(this.ColonizeTarget, EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty));
-				this.ColonizeTarget.colonyType = Planet.ColonyType.Colony;
-                this.ColonizeTarget.GovernorOn = false;
+                
+              
 			}
 			//lock (GlobalStats.OwnedPlanetsLock)
 			{
@@ -6298,9 +6305,9 @@ namespace Ship_Game.Gameplay
             if (true)
             {
                 List<Vector2> goodpoints = new List<Vector2>();
-                Grid path = new Grid(this.Owner.loyalty, 20, 10f);
+                Grid path = new Grid(this.Owner.loyalty, 36, 10f);
                 if (Empire.universeScreen != null)
-                    goodpoints = path.Pathfind(startPos, endPos);
+                    goodpoints = path.Pathfind(startPos, endPos,false);
                 if (goodpoints != null && goodpoints.Count > 0)
                 {
                     lock (this.wayPointLocker)
@@ -9166,7 +9173,7 @@ namespace Ship_Game.Gameplay
             {
                 this.ai = ai;
                 projectorWeight = ProjectorWeightPercentage;
-                granularity = 36f;  
+                granularity = PointSearchGranuality;  
                 nearest = new Vector2[(int)granularity+1];
                 distance = new float[(int)granularity+1];
                 Empire empire = ai;
@@ -9242,17 +9249,14 @@ namespace Ship_Game.Gameplay
                 
             }
             
-            public List<Vector2> Pathfind(Vector2 start, Vector2 end)
+            public List<Vector2> Pathfind(Vector2 start, Vector2 end,bool mode2)
             {
                 float Pathlength = Vector2.Distance(start, end);
+
                 
                 if (Pathlength < projectorsize )
                     return new List<Vector2> { start, end };
-                else
-                {
-                    float tempd = Pathlength - (projectorsize);
-                    Pathlength = projectorsize + tempd * projectorWeight;// * ai.data.Traits.InBordersSpeedBonus);// - tempd;
-                }
+                Vector2 closestNodeToEnd = goodpoints.OrderBy(p => Vector2.Distance(p, end)).First();
                 if (Empire.universeScreen == null)
                     return null;
                 // nodes that have already been analyzed and have a path from the start to them
@@ -9270,6 +9274,8 @@ namespace Ship_Game.Gameplay
                 var predictedDistance = new Dictionary<Vector2, float>();
                 if (!goodpoints.Contains(end))
                     goodpoints.Add(end);
+                if (!goodpoints.Contains(start))
+                    goodpoints.Add(start);
                 // initialize the start node as having a distance of 0, and an estmated distance 
                 // of y-distance + x-distance, which is the optimal path in a square grid that 
                 // doesn't allow for diagonal movement
@@ -9281,7 +9287,7 @@ namespace Ship_Game.Gameplay
                 this.end = end;
                 this.start = start;
                 // if there are any unanalyzed nodes, process them
-                
+                float doublepro = projectorsize * 2.5f;
                 
                 //float max = 0;
                 //max += Vector2.Distance(start, end);
@@ -9305,22 +9311,16 @@ namespace Ship_Game.Gameplay
                     openSet.Remove(current);
                     closedSet.Add(current);
                     // process each valid node around the current node
-                    //radius += projectorsize * 2.5f;
-                    foreach (Vector2 neighbor in GetNeighborNodes(current, cameFrom, closedSet, openSet))
+                    foreach (Vector2 neighbor in GetNeighborNodes(current, cameFrom, closestNodeToEnd, openSet, closedSet, mode2))
                     {
-                        var neighborDistance = Vector2.Distance(neighbor, current);
-                        float tempend = (neighbor == end ? 1 : 2.5f);
-                        if (  neighborDistance > projectorsize * tempend)
+
+                        var neighborDistance = Vector2.Distance(neighbor, current) ;
+                        if (neighborDistance > doublepro)
                         {
-                            float tempd = neighborDistance - (projectorsize) ;
-                            neighborDistance = (projectorsize *2.5f) + tempd * projectorWeight;
-                            //neighborDistance += tempd * (1 + projectorWeight); // * ai.data.Traits.InBordersSpeedBonus) - tempd;
+                            float tempd = (neighborDistance - doublepro);
+                            neighborDistance += tempd * (1+ ai.data.Traits.InBordersSpeedBonus )- tempd;
                         }
-                        //else if(neighborDistance > projectorsize * tempend)
-                        //{
-
-                        //}
-
+                       // neighborDistance = (float)Math.Pow((Double)neighborDistance, (Double)(neighborDistance / doublepro));
                         var tempCurrentDistance = currentDistance[current] +  neighborDistance;              
                     
                         // if we already know a faster way to this neighbor, use that route and 
@@ -9346,18 +9346,18 @@ namespace Ship_Game.Gameplay
                                 cameFrom.Add(neighbor, current);
                                 //radius = 0;
                             }
-                            float tempendDist = Vector2.Distance(neighbor, end);
-                            if (Vector2.Distance(neighbor, current) > projectorsize * 2.5f)
+                            float tempendDist = Vector2.Distance(neighbor, end) ;
+                            if (tempendDist > doublepro)
                             {
-                                float tempd = tempendDist - (projectorsize) * 2.5f;
-                                tempendDist = (projectorsize *2.5f )+ tempd * projectorWeight;
-                                // tempendDist += tempd * ((1 + projectorWeight));// * ai.data.Traits.InBordersSpeedBonus) - tempd; //+ projectorWeight
-
+                                float tempd = (tempendDist - doublepro);
+                                tempendDist += tempd *(1+ ai.data.Traits.InBordersSpeedBonus) - tempd;
                             }
                             currentDistance[neighbor] = tempCurrentDistance;
+                            
                             predictedDistance[neighbor] =
                                 currentDistance[neighbor]
                                 + tempendDist;
+                            
 
                             // if this is a new node, add it to processing
                             if (!openSet.Contains(neighbor))
@@ -9366,18 +9366,23 @@ namespace Ship_Game.Gameplay
                                // radius = 0;
                             }
                         }
+                      
                     
                     }
+
                    
-
                 }
-
+                if (!mode2)
+                {
+                    return Pathfind(start, end, true);
+                }
                // return ReconstructPath(cameFrom, end);
                 System.Diagnostics.Debug.WriteLine(string.Format(
                         "unable to find a path between {0},{1} and {2},{3}",
                         start.X, start.Y,
                         end.X, end.Y
                     ));
+                
                 return null;// cameFrom.Keys.ToList();
             }
 
@@ -9389,12 +9394,12 @@ namespace Ship_Game.Gameplay
        
 
             
-            private IEnumerable<Vector2> GetNeighborNodes(Vector2 node, Dictionary<Vector2, Vector2> camefrom, List<Vector2> closedset, List<Vector2> openset)
+            private IEnumerable<Vector2> GetNeighborNodes2(Vector2 node)
             {
                 var nodes = new List<Vector2>();
-                              
+                int granularityl =(int) granularity;
                 Vector2 endrange = Vector2.Zero;
-                for (int i=0;i<(int)granularity;i++)
+                for (int i=0;i<(int)granularityl; i++)
                 {
                     nearest[i] = Vector2.Zero;
                     distance[i] = 0;
@@ -9404,12 +9409,12 @@ namespace Ship_Game.Gameplay
                 float angletonode = 0;
                 int y = 0;
                 float distancecheck = 0;
- 
-                granularity = 360 / granularity;
+
+                granularityl = (int)(360 / granularityl);
                 foreach (Vector2 point in goodpoints)
                 {
                     angletonode = HelperFunctions.findAngleToTarget(node, point);                    
-                    y = (int)Math.Floor(angletonode / granularity);
+                    y = (int)Math.Floor(angletonode / granularityl);
                     distancecheck = Vector2.Distance(node, point);
 
                     if (distance[y] == 0 || distance[y] > distancecheck)
@@ -9429,7 +9434,57 @@ namespace Ship_Game.Gameplay
                 //IEnumerable<Vector2> test = nodes.Except(badpoints);
                 return nodes;
             }
+            private IEnumerable<Vector2> GetNeighborNodes(Vector2 node, Dictionary<Vector2, Vector2> camefrom, Vector2 closestNodeToEnd, List<Vector2> openset, List<Vector2> closedset, bool mode2)
+            {
+                if(mode2)
+                {
+                    return GetNeighborNodes2(node);
+                }
+                HashSet<Vector2> nodes = new HashSet<Vector2>();
+                float projector = projectorsize * 2.5f;             
+                float distancecheck = 0;                               
+                float radius = 0;
+                //radius = Vector2.Distance(node, previousPoint) ;
+                float max = Vector2.Distance(start, end);
+               // do
+                {
+                    Vector2 lastpoint = camefrom.Count > 0 ? camefrom.Keys.Last() : start;
+                    float angletonode = HelperFunctions.findAngleToTarget(lastpoint, node);
+                    float angletopoint = 0;
+                    foreach (Vector2 point in goodpoints)
+                    {
+                        distancecheck = Vector2.Distance(point, node);
+                        // if (point != previousPoint && point != node)
+                        if (distancecheck < radius + projector) //
+                            nodes.Add(point);
+                        else
+                        {
+                            angletopoint = HelperFunctions.findAngleToTarget(node, point);
 
+                            if (distancecheck < radius + projector*2 && Math.Abs(angletonode - angletopoint) < 5f)
+                                nodes.Add(point);
+                        }
+                        
+
+
+                    }
+    //                radius += projector;
+
+                }
+    foreach(Vector2 point in nodes)
+                {
+
+                    distancecheck = Vector2.Distance(point, node);
+                    if (distancecheck < radius + projector * 2 && camefrom.Count > 0)
+                    {
+                        float angletonode = HelperFunctions.findAngleToTarget(node, point);
+                        float anglefrom = HelperFunctions.findAngleToTarget(camefrom.Keys.Last(), point);
+                        if (Math.Abs(anglefrom - angletonode) < 5f)
+                            nodes.Add(point);
+                    }
+                }
+                return nodes;
+            }
             /// <summary>
             /// Process a list of valid paths generated by the Pathfind function and return 
             /// a coherent path to current.
