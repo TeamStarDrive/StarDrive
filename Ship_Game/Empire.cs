@@ -119,6 +119,10 @@ namespace Ship_Game
         public float exportPTrack = 0;
         public float exportFTrack = 0;
         public float averagePLanetStorage =0;
+        [XmlIgnore]        
+        public Dictionary<List<Vector2>, int> pathcache = new Dictionary<List<Vector2>, int>();
+        [XmlIgnore]
+        public ReaderWriterLockSlim lockPatchCache = new ReaderWriterLockSlim();
         static Empire()
         {
             
@@ -4127,6 +4131,388 @@ foreach(Goal goal in this.GetGSAI().Goals)
                 this.GSAI = null;
                 this.disposed = true;
 
+            }
+        }
+
+        public struct Grid
+        {
+            public List<Vector2> goodpoints; //= //new List<Vector2>();
+            public List<Vector2> badpoints;
+            public float projectorsize;
+            public Empire ai;
+            //public byte[,] Weight;
+            float radius;
+            Vector2 end;
+            Vector2 start;
+            Vector2[] nearest;// = new Vector2[(int)granularity];
+            float[] distance;// = new float[(int)granularity];
+            float granularity; //= 8f;
+            float projectorWeight;
+            class mappoint
+            {
+                public float radius;
+                public Vector2 pin;
+
+            }
+            /// <summary>            
+            /// </summary>
+            /// <param name="ai"></param> 
+            /// <param name="PointSearchGranuality"></param> //divide all the points around a point into buckets of angles. Creates a vector2 and a float for each granularity
+            /// <param name="ProjectorWeight"></param> //this multiplies the effect of the inborders bonus. (doesnt seem to work yet...)
+            public Grid(Empire ai, int PointSearchGranuality, float ProjectorWeightPercentage)
+            {
+                this.ai = ai;
+                projectorWeight = ProjectorWeightPercentage;
+                granularity = PointSearchGranuality;
+                nearest = new Vector2[(int)granularity + 1];
+                distance = new float[(int)granularity + 1];
+                Empire empire = ai;
+                projectorsize = Empire.ProjectorRadius;
+                goodpoints = new List<Vector2>();
+                badpoints = new List<Vector2>();
+                radius = 2.5f * projectorsize;
+                end = Vector2.Zero;
+                start = Vector2.Zero;
+                List<Ship> ps = empire.GetProjectors();
+                foreach (Ship p in ps)
+                    goodpoints.Add(p.Center);
+                foreach (SolarSystem s in empire.GetOwnedSystems())
+                {
+                    goodpoints.Add(s.Position);
+                }
+                foreach (Planet s in empire.GetPlanets())
+                {
+                    goodpoints.Add(s.Position);
+                }
+
+                Relationship rel;
+                foreach (Empire e in EmpireManager.EmpireList)
+                {
+                    if (empire.GetRelations().TryGetValue(e, out rel) && rel.Treaty_OpenBorders)
+                    {
+                        foreach (Ship s in e.GetProjectors())
+                        {
+                            goodpoints.Add(s.Position);
+                        }
+                        foreach (SolarSystem s in e.GetOwnedSystems())
+                        {
+                            goodpoints.Add(s.Position);
+                        }
+                    }
+                    //else 
+                    //{
+                    //    foreach (Ship s in e.GetProjectors())
+                    //    {
+                    //        badpoints.Add(s.Position);
+                    //    }
+                    //    foreach (SolarSystem s in e.GetOwnedSystems())
+                    //    {
+                    //        badpoints.Add(s.Position);
+                    //    }
+                    //}
+                }
+                //List<Vector2> extrabad = new List<Vector2>();
+                //List<Vector2> extragood = new List<Vector2>();
+                //foreach (Vector2 bp in badpoints)
+                //{                   
+                //    for (int rad = 0; rad < 360; rad += 60)
+                //    {
+                //        extragood.Add(HelperFunctions.GeneratePointOnCircle(rad, bp, projectorsize * 2.6f));
+
+                //        extrabad.Add(HelperFunctions.GeneratePointOnCircle(rad, bp, projectorsize*2.5f ));
+                //    }
+                //}
+                //List<Vector2> removep = new List<Vector2>();
+                //goodpoints.AddRange(extragood);
+                //foreach (Vector2 bp in badpoints)
+                //{
+                //    foreach(Vector2 eg in extragood )
+                //    {
+                //        if (Vector2.Distance(bp, eg) < projectorsize*2.5f )
+                //            goodpoints.Remove(eg);
+                //    }
+                //}
+
+                //badpoints.AddRange(extrabad);
+
+                //goodpoints.AddRange(badpoints);
+
+            }
+
+            public List<Vector2> Pathfind(Vector2 start, Vector2 end, bool mode2)
+            {
+                float Pathlength = Vector2.Distance(start, end);
+
+
+                if (Pathlength < projectorsize)
+                    return new List<Vector2> { start, end };
+                Vector2 closestNodeToEnd = goodpoints.OrderBy(p => Vector2.Distance(p, end)).First();
+                if (Empire.universeScreen == null)
+                    return null;
+                // nodes that have already been analyzed and have a path from the start to them
+                var closedSet = new List<Vector2>();
+                // nodes that have been identified as a neighbor of an analyzed node, but have 
+                // yet to be fully analyzed
+                var openSet = new List<Vector2> { start };
+                // a dictionary identifying the optimal origin point to each node. this is used 
+                // to back-track from the end to find the optimal path
+                var cameFrom = new Dictionary<Vector2, Vector2>();
+                // a dictionary indicating how far each analyzed node is from the start
+                var currentDistance = new Dictionary<Vector2, float>();
+                // a dictionary indicating how far it is expected to reach the end, if the path 
+                // travels through the specified node. 
+                var predictedDistance = new Dictionary<Vector2, float>();
+                if (!goodpoints.Contains(end))
+                    goodpoints.Add(end);
+                if (!goodpoints.Contains(start))
+                    goodpoints.Add(start);
+                // initialize the start node as having a distance of 0, and an estmated distance 
+                // of y-distance + x-distance, which is the optimal path in a square grid that 
+                // doesn't allow for diagonal movement
+                currentDistance.Add(start, 0);
+                predictedDistance.Add(
+                    start,
+                    Pathlength
+                );
+                //this.end = end;
+                //this.start = start;
+                // if there are any unanalyzed nodes, process them
+                float doublepro = projectorsize * 2.5f;
+
+                //float max = 0;
+                //max += Vector2.Distance(start, end);
+                while (openSet.Count > 0)
+                {
+
+
+                    // get the node with the lowest estimated cost to finish
+                    var current = (
+                        from p in openSet orderby predictedDistance[p] ascending select p
+                    ).First();
+
+                    // if it is the finish, return the path
+                    if (current == end)//Vector2.Distance(current,end) <=projectorsize *2.5)// current.X == end.X && current.Y == end.Y)
+                    {
+                        // generate the found path
+                        return ReconstructPath(cameFrom, end);
+                    }
+
+                    // move current node from open to closed
+                    openSet.Remove(current);
+                    closedSet.Add(current);
+                    // process each valid node around the current node
+                    foreach (Vector2 neighbor in GetNeighborNodes(current, cameFrom, closestNodeToEnd, openSet, closedSet, mode2))
+                    {
+
+                        var neighborDistance = Vector2.Distance(neighbor, current);
+                        if (neighborDistance > doublepro)
+                        {
+                            float tempd = (neighborDistance - doublepro);
+                            neighborDistance += tempd * (1 + ai.data.Traits.InBordersSpeedBonus) - tempd;
+                        }
+                        // neighborDistance = (float)Math.Pow((Double)neighborDistance, (Double)(neighborDistance / doublepro));
+                        var tempCurrentDistance = currentDistance[current] + neighborDistance;
+
+                        // if we already know a faster way to this neighbor, use that route and 
+                        // ignore this one
+                        if (closedSet.Contains(neighbor)
+                            && tempCurrentDistance >= currentDistance[neighbor])
+                        {
+                            continue;
+                        }
+
+                        // if we don't know a route to this neighbor, or if this is faster, 
+                        // store this route
+                        if (!closedSet.Contains(neighbor)
+                            || tempCurrentDistance < currentDistance[neighbor])
+                        {
+                            if (cameFrom.Keys.Contains(neighbor))
+                            {
+                                cameFrom[neighbor] = current;
+
+                            }
+                            else
+                            {
+                                cameFrom.Add(neighbor, current);
+                                //radius = 0;
+                            }
+                            float tempendDist = Vector2.Distance(neighbor, end);
+                            if (tempendDist > doublepro)
+                            {
+                                float tempd = (tempendDist - doublepro);
+                                tempendDist += tempd * (1 + ai.data.Traits.InBordersSpeedBonus) - tempd;
+                            }
+                            currentDistance[neighbor] = tempCurrentDistance;
+
+                            predictedDistance[neighbor] =
+                                currentDistance[neighbor]
+                                + tempendDist;
+
+
+                            // if this is a new node, add it to processing
+                            if (!openSet.Contains(neighbor))
+                            {
+                                openSet.Add(neighbor);
+                                // radius = 0;
+                            }
+                        }
+
+
+                    }
+
+
+                }
+                if (!mode2)
+                {
+                    return Pathfind(start, end, true);
+                }
+                // return ReconstructPath(cameFrom, end);
+                System.Diagnostics.Debug.WriteLine(string.Format(
+                        "unable to find a path between {0},{1} and {2},{3}",
+                        start.X, start.Y,
+                        end.X, end.Y
+                    ));
+
+                return null;// cameFrom.Keys.ToList();
+            }
+
+            /// <summary>
+            /// Return a list of accessible nodes neighboring a specified node
+            /// </summary>
+            /// <param name="node">The center node to be analyzed.</param>
+            /// <returns>A list of nodes neighboring the node that are accessible.</returns>
+
+
+
+            private IEnumerable<Vector2> GetNeighborNodes2(Vector2 node)
+            {
+                var nodes = new List<Vector2>();
+                int granularityl = (int)granularity;
+                Vector2 endrange = Vector2.Zero;
+                for (int i = 0; i < (int)granularityl; i++)
+                {
+                    nearest[i] = Vector2.Zero;
+                    distance[i] = 0;
+                }
+
+
+                float angletonode = 0;
+                int y = 0;
+                float distancecheck = 0;
+
+                granularityl = (int)(360 / granularityl);
+                foreach (Vector2 point in goodpoints)
+                {
+                    angletonode = HelperFunctions.findAngleToTarget(node, point);
+                    y = (int)Math.Floor(angletonode / granularityl);
+                    distancecheck = Vector2.Distance(node, point);
+
+                    if (distance[y] == 0 || distance[y] > distancecheck)
+                    {
+                        nearest[y] = (point);
+                        distance[y] = distancecheck;
+                    }
+
+
+                }
+
+                foreach (Vector2 filternodes in nearest)
+                {
+                    if (filternodes != Vector2.Zero)
+                        nodes.Add(filternodes);
+                }
+                //IEnumerable<Vector2> test = nodes.Except(badpoints);
+                return nodes;
+            }
+            private IEnumerable<Vector2> GetNeighborNodes(Vector2 node, Dictionary<Vector2, Vector2> camefrom, Vector2 closestNodeToEnd, List<Vector2> openset, List<Vector2> closedset, bool mode2)
+            {
+                if (mode2)
+                {
+                    return GetNeighborNodes2(node);
+                }
+                HashSet<Vector2> nodes = new HashSet<Vector2>();
+                float projector = projectorsize * 2.5f;
+                float distancecheck = 0;
+                float radius = 0;
+  
+                // do
+                {
+                    Vector2 lastpoint = camefrom.Count > 0 ? camefrom.Keys.Last() : start;
+                    float angletonode = HelperFunctions.findAngleToTarget(lastpoint, node);
+                    float angletopoint = 0;
+                    foreach (Vector2 point in goodpoints)
+                    {
+                        distancecheck = Vector2.Distance(point, node);
+                        // if (point != previousPoint && point != node)
+                        if (distancecheck < radius + projector) //
+                            nodes.Add(point);
+                        else
+                        {
+                            angletopoint = HelperFunctions.findAngleToTarget(node, point);
+
+                            if (distancecheck < radius + projector * 2 && Math.Abs(angletonode - angletopoint) < 5f)
+                                nodes.Add(point);
+                        }
+
+
+
+                    }
+                    //                radius += projector;
+
+                }
+                foreach (Vector2 point in nodes)
+                {
+
+                    distancecheck = Vector2.Distance(point, node);
+                    if (distancecheck < radius + projector * 2 && camefrom.Count > 0)
+                    {
+                        float angletonode = HelperFunctions.findAngleToTarget(node, point);
+                        float anglefrom = HelperFunctions.findAngleToTarget(camefrom.Keys.Last(), point);
+                        if (Math.Abs(anglefrom - angletonode) < 5f)
+                            nodes.Add(point);
+                    }
+                }
+                return nodes;
+            }
+            /// <summary>
+            /// Process a list of valid paths generated by the Pathfind function and return 
+            /// a coherent path to current.
+            /// </summary>
+            /// <param name="cameFrom">A list of nodes and the origin to that node.</param>
+            /// <param name="current">The destination node being sought out.</param>
+            /// <returns>The shortest path from the start to the destination node.</returns>
+            private List<Vector2> ReconstructPath(Dictionary<Vector2, Vector2> cameFrom, Vector2 current)
+            {
+                if (!cameFrom.Keys.Contains(current))
+                {
+                    return new List<Vector2> { current };
+                }
+
+                var path = ReconstructPath(cameFrom, cameFrom[current]);
+                path.Add(current);
+                return path;
+            }
+            public List<Vector2> createNodes(Vector2 Origin, Vector2 Destination, float projectorad)
+            {
+
+                float Distance = Vector2.Distance(Origin, Destination);
+                //List<Vector2> tempNodes = new List<Vector2>();
+
+                List<Vector2> Position = new List<Vector2>();
+                float offset = projectorad * 2f;
+                int NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
+                int max = 2;
+                float angle = HelperFunctions.findAngleToTarget(Origin, Destination);
+                Position.Add(HelperFunctions.GeneratePointOnCircle(angle, Origin, (float)1 * (Distance / NumberOfProjectors)));
+                return Position;
+                //max = NumberOfProjectors < 2 ? 1 : NumberOfProjectors;
+                //for (int i = 1; i < max; i++)
+                //{                    
+                //    float angle = HelperFunctions.findAngleToTarget(Origin, Destination);
+                //    Position.Add(HelperFunctions.GeneratePointOnCircle(angle, Origin, (float)i * (Distance / NumberOfProjectors)));
+
+                //}
+                return Position;
             }
         }
     }
