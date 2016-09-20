@@ -90,7 +90,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|x86'">
     <OutputPath>..\..\..\..\StarDrive\</OutputPath>
-    <DefineConstants>STEAM ALTERTHREAD xPERF  xAUTOTIME</DefineConstants>
+    <DefineConstants>STEAM ALTERTHREAD PERF  AUTOTIME</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -3236,7 +3236,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>if exist "$(DevEnvDir)..\tools\vsvars32.bat" call "$(DevEnvDir)..\tools\vsvars32.bat" &amp;&amp; editbin /largeaddressaware "$(TargetPath)"&amp;&amp;   if exist ..\Config $(ProjectDir)\deploy\7-Zip\7z A sd.7z @$(ProjectDir)deploy\config\include.txt &amp;&amp; copy /b $(ProjectDir)deploy\7-Zip\7ZSD.sfx + $(ProjectDir)deploy\Config\config.txt + sd.7z $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).exe</PostBuildEvent>
   </PropertyGroup>
 </Project>

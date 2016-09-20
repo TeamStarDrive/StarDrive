@@ -1600,8 +1600,8 @@ namespace Ship_Game
             if (!this.Paused)
             {
 
-                //Parallel.ForEach(EmpireManager.EmpireList, empire =>
-                foreach(Empire empire in EmpireManager.EmpireList)
+                Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                //foreach(Empire empire in EmpireManager.EmpireList)
                 {
                     foreach (Ship s in empire.ShipsToAdd)
                     {
@@ -1616,7 +1616,40 @@ namespace Ship_Game
                         empire.updateContactsTimer = empire.updateContactsTimer - 0.01666667f;//elapsedTime;
                         if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
                         {
+                            int check = empire.BorderNodes.Count;                            
                             empire.ResetBorders();
+                            int pathcount = empire.pathcache.Count;
+                            if(empire.BorderNodes.Count != check && pathcount >0)
+                            {
+                                empire.pathcache.Clear();
+                                //ArtificialIntelligence.Grid repath =new ArtificialIntelligence.Grid(empire,36,10);
+                                //List<Vector2> pathcheck = new List<Vector2>();
+                                //List<List<Vector2>> keylist =  empire.pathcache.Keys.OrderByDescending(hit=> empire.pathcache[hit]).ToList();
+                                //foreach (List<Vector2> path in keylist)
+                                //{
+                                //    int saveuse = --empire.pathcache[path];
+                                //    if(saveuse < -0)
+                                //        empire.pathcache.Remove(path);
+                                //    foreach (List<Vector2> duppath in keylist)
+                                //    {
+                                //        int count = 0;
+                                //        if (duppath.First() == path.First() && duppath.Last() == path.Last())
+                                //        {
+                                //            if (count > 0)
+                                //                empire.pathcache.Remove(path);
+                                //            count++;
+                                //        }
+                                //    }
+                                //    if (empire.pathcache.ContainsKey(path))
+                                //    {
+                                //        pathcheck = repath.Pathfind(path.First(), path.Last(), false);
+                                //        empire.pathcache.Remove(path);
+                                //        empire.pathcache.Add(pathcheck, saveuse);
+                                //    }
+                                    
+
+                                //}
+                            }
                            // empire.KnownShips.thisLock.EnterWriteLock();
                             {
                                 empire.KnownShips.Clear();
@@ -1627,7 +1660,7 @@ namespace Ship_Game
                             empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
                         }
                     }
-                }//);
+                });
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                     EmpireManager.EmpireList[index].Update(elapsedTime);
                 this.MasterShipList.ApplyPendingRemovals();
