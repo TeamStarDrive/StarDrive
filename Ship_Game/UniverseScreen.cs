@@ -781,74 +781,74 @@ namespace Ship_Game
             this.transitionElapsedTime = 0.0f;
         }
 
-        public void GenerateArm(int numOfStars, float rotation)
-        {
-            Random random = new Random();
-            Vector2 vector2 = new Vector2(this.Size.X / 2f, this.Size.Y / 2f);
-            float num1 = (float)((double)(6f / (float)numOfStars) * 2.0 * 3.14159274101257);
-            for (int index = 120; index < numOfStars; ++index)
-            {
-                float num2 = (float)Math.Pow((double)this.Size.X - 0.100000001490116 * (double)this.Size.X, (double)((float)index / (float)numOfStars));
-                float num3 = (float)index * num1 + rotation;
-                float x = vector2.X + (float)Math.Cos((double)num3) * num2;
-                float y = vector2.Y + (float)Math.Sin((double)num3) * num2;
-                NebulousOverlay nebulousOverlay = new NebulousOverlay();
-                float z = RandomMath.RandomBetween(50000f, 450000f) - num2;
-                if ((double)z < 0.0)
-                    z = RandomMath.RandomBetween(25000f, 50000f);
-                if ((double)RandomMath.RandomBetween(0.0f, 100f) > 50.0)
-                    z *= -1f;
-                double num4 = (double)RandomMath.RandomBetween(0.0f, 100f);
-                nebulousOverlay.Path = "Textures/smoke";
-                nebulousOverlay.Position = new Vector3(x, y, z);
-                float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
-                nebulousOverlay.Scale = RandomMath.RandomBetween(10f, 100f);
-                nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f) * Matrix.CreateScale(nebulousOverlay.Scale) * Matrix.CreateRotationZ(radians) * Matrix.CreateTranslation(nebulousOverlay.Position);
-                this.NebulousShit.Add(nebulousOverlay);
-            }
-            for (int index = 135; index < numOfStars; ++index)
-            {
-                float num2 = (float)Math.Pow((double)this.Size.X - 0.100000001490116 * (double)this.Size.X, (double)((float)index / (float)numOfStars));
-                float num3 = (float)index * num1 + rotation;
-                float x = vector2.X + (float)Math.Cos((double)num3) * num2 + RandomMath.RandomBetween(-200000f, 200000f);
-                float y = vector2.Y + (float)Math.Sin((double)num3) * num2 + RandomMath.RandomBetween(-100000f, 100000f);
-                NebulousOverlay nebulousOverlay = new NebulousOverlay();
-                float z = RandomMath.RandomBetween(250000f, 800000f) - num2;
-                if ((double)z < 50000.0)
-                    z = RandomMath.RandomBetween(100000f, 400000f);
-                if ((double)RandomMath.RandomBetween(0.0f, 100f) > 50.0)
-                    z *= -1f;
-                double num4 = (double)RandomMath.RandomBetween(0.0f, 100f);
-                nebulousOverlay.Path = "Textures/smoke";
-                nebulousOverlay.Position = new Vector3(x, y, z);
-                float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
-                nebulousOverlay.Scale = RandomMath.RandomBetween(100f, 200f);
-                nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f) * Matrix.CreateScale(nebulousOverlay.Scale) * Matrix.CreateRotationZ(radians) * Matrix.CreateTranslation(nebulousOverlay.Position);
-                this.NebulousShit.Add(nebulousOverlay);
-            }
-            for (int index1 = 0; index1 < 5; ++index1)
-            {
-                for (int index2 = 130; index2 < numOfStars; ++index2)
-                {
-                    float num2 = (float)Math.Pow((double)this.Size.X - 0.100000001490116 * (double)this.Size.X, (double)((float)index2 / (float)numOfStars));
-                    float num3 = (float)index2 * num1 + rotation;
-                    float x = vector2.X + (float)Math.Cos((double)num3) * num2 + RandomMath.RandomBetween(-200000f, 200000f);
-                    float y = vector2.Y + (float)Math.Sin((double)num3) * num2 + RandomMath.RandomBetween(-100000f, 100000f);
-                    NebulousOverlay nebulousOverlay = new NebulousOverlay();
-                    float z = RandomMath.RandomBetween(250000f, 800000f) - num2;
-                    if ((double)z < 50000.0)
-                        z = RandomMath.RandomBetween(50000f, 200000f);
-                    if ((double)RandomMath.RandomBetween(0.0f, 100f) > 50.0)
-                        z *= -1f;
-                    nebulousOverlay.Path = "Textures/smoke";
-                    nebulousOverlay.Position = new Vector3(x, y, z);
-                    float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
-                    nebulousOverlay.Scale = RandomMath.RandomBetween(10f, 50f);
-                    nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f) * Matrix.CreateScale(nebulousOverlay.Scale) * Matrix.CreateRotationZ(radians) * Matrix.CreateTranslation(nebulousOverlay.Position);
-                    this.NebulousShit.Add(nebulousOverlay);
-                }
-            }
-        }
+        //public void GenerateArm(int numOfStars, float rotation)       //Not referenced in code, commenting out so I can code search without this coming up. -Gretman
+        //{
+        //    Random random = new Random();
+        //    Vector2 vector2 = new Vector2(this.Size.X / 2f, this.Size.Y / 2f);
+        //    float num1 = (float)((double)(6f / (float)numOfStars) * 2.0 * 3.14159274101257);
+        //    for (int index = 120; index < numOfStars; ++index)
+        //    {
+        //        float num2 = (float)Math.Pow((double)this.Size.X - 0.100000001490116 * (double)this.Size.X, (double)((float)index / (float)numOfStars));
+        //        float num3 = (float)index * num1 + rotation;
+        //        float x = vector2.X + (float)Math.Cos((double)num3) * num2;
+        //        float y = vector2.Y + (float)Math.Sin((double)num3) * num2;
+        //        NebulousOverlay nebulousOverlay = new NebulousOverlay();
+        //        float z = RandomMath.RandomBetween(50000f, 450000f) - num2;
+        //        if ((double)z < 0.0)
+        //            z = RandomMath.RandomBetween(25000f, 50000f);
+        //        if ((double)RandomMath.RandomBetween(0.0f, 100f) > 50.0)
+        //            z *= -1f;
+        //        double num4 = (double)RandomMath.RandomBetween(0.0f, 100f);
+        //        nebulousOverlay.Path = "Textures/smoke";
+        //        nebulousOverlay.Position = new Vector3(x, y, z);
+        //        float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
+        //        nebulousOverlay.Scale = RandomMath.RandomBetween(10f, 100f);
+        //        nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f) * Matrix.CreateScale(nebulousOverlay.Scale) * Matrix.CreateRotationZ(radians) * Matrix.CreateTranslation(nebulousOverlay.Position);
+        //        this.NebulousShit.Add(nebulousOverlay);
+        //    }
+        //    for (int index = 135; index < numOfStars; ++index)
+        //    {
+        //        float num2 = (float)Math.Pow((double)this.Size.X - 0.100000001490116 * (double)this.Size.X, (double)((float)index / (float)numOfStars));
+        //        float num3 = (float)index * num1 + rotation;
+        //        float x = vector2.X + (float)Math.Cos((double)num3) * num2 + RandomMath.RandomBetween(-200000f, 200000f);
+        //        float y = vector2.Y + (float)Math.Sin((double)num3) * num2 + RandomMath.RandomBetween(-100000f, 100000f);
+        //        NebulousOverlay nebulousOverlay = new NebulousOverlay();
+        //        float z = RandomMath.RandomBetween(250000f, 800000f) - num2;
+        //        if ((double)z < 50000.0)
+        //            z = RandomMath.RandomBetween(100000f, 400000f);
+        //        if ((double)RandomMath.RandomBetween(0.0f, 100f) > 50.0)
+        //            z *= -1f;
+        //        double num4 = (double)RandomMath.RandomBetween(0.0f, 100f);
+        //        nebulousOverlay.Path = "Textures/smoke";
+        //        nebulousOverlay.Position = new Vector3(x, y, z);
+        //        float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
+        //        nebulousOverlay.Scale = RandomMath.RandomBetween(100f, 200f);
+        //        nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f) * Matrix.CreateScale(nebulousOverlay.Scale) * Matrix.CreateRotationZ(radians) * Matrix.CreateTranslation(nebulousOverlay.Position);
+        //        this.NebulousShit.Add(nebulousOverlay);
+        //    }
+        //    for (int index1 = 0; index1 < 5; ++index1)
+        //    {
+        //        for (int index2 = 130; index2 < numOfStars; ++index2)
+        //        {
+        //            float num2 = (float)Math.Pow((double)this.Size.X - 0.100000001490116 * (double)this.Size.X, (double)((float)index2 / (float)numOfStars));
+        //            float num3 = (float)index2 * num1 + rotation;
+        //            float x = vector2.X + (float)Math.Cos((double)num3) * num2 + RandomMath.RandomBetween(-200000f, 200000f);
+        //            float y = vector2.Y + (float)Math.Sin((double)num3) * num2 + RandomMath.RandomBetween(-100000f, 100000f);
+        //            NebulousOverlay nebulousOverlay = new NebulousOverlay();
+        //            float z = RandomMath.RandomBetween(250000f, 800000f) - num2;
+        //            if ((double)z < 50000.0)
+        //                z = RandomMath.RandomBetween(50000f, 200000f);
+        //            if ((double)RandomMath.RandomBetween(0.0f, 100f) > 50.0)
+        //                z *= -1f;
+        //            nebulousOverlay.Path = "Textures/smoke";
+        //            nebulousOverlay.Position = new Vector3(x, y, z);
+        //            float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
+        //            nebulousOverlay.Scale = RandomMath.RandomBetween(10f, 50f);
+        //            nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f) * Matrix.CreateScale(nebulousOverlay.Scale) * Matrix.CreateRotationZ(radians) * Matrix.CreateTranslation(nebulousOverlay.Position);
+        //            this.NebulousShit.Add(nebulousOverlay);
+        //        }
+        //    }
+        //}
 
         public override void LoadContent()
         {
@@ -861,7 +861,7 @@ namespace Ship_Game
             {
                 NebulousOverlay nebulousOverlay = new NebulousOverlay();
                 float z = RandomMath.RandomBetween(-200000f, -2E+07f);
-                nebulousOverlay.Path = "Textures/smoke";
+                nebulousOverlay.Path = "Textures/smoke";                                    //Mer    Below
                 nebulousOverlay.Position = new Vector3(RandomMath.RandomBetween(-0.5f * this.Size.X, this.Size.X + 0.5f * this.Size.X), RandomMath.RandomBetween(-0.5f * this.Size.X, this.Size.X + 0.5f * this.Size.X), z);
                 float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
                 nebulousOverlay.Scale = RandomMath.RandomBetween(10f, 100f);
@@ -2365,7 +2365,7 @@ namespace Ship_Game
                             }
                             //ship.PauseUpdate = true;
                             ship.Update(elapsedTime);
-                            if (ship.PlayerShip)                        //Mer
+                            if (ship.PlayerShip)
                                 ship.ProcessInput(elapsedTime);
                         }
                     }//);
@@ -2636,12 +2636,12 @@ namespace Ship_Game
             }
             if (this.camPos.X > this.Size.X)
                 this.camPos.X = this.Size.X;
-            if (this.camPos.X < 0.0)
-                this.camPos.X = 0.0f;
+            if (this.camPos.X < -this.Size.X)    //Mer
+                this.camPos.X = -this.Size.X;
             if (this.camPos.Y > (double)this.Size.Y)
                 this.camPos.Y = this.Size.Y;
-            if ((double)this.camPos.Y < 0.0)
-                this.camPos.Y = 0.0f;
+            if ((double)this.camPos.Y < -this.Size.Y)
+                this.camPos.Y = -this.Size.Y;
             if ((double)this.camHeight > (double)this.MaxCamHeight * (double)this.GameScale)
                 this.camHeight = this.MaxCamHeight * this.GameScale;
             else if ((double)this.camHeight < 1337.0)
@@ -2678,9 +2678,9 @@ namespace Ship_Game
                 if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                 {
                     Vector2 vector2 = input.CursorPosition - new Vector2((float)this.MinimapDisplayRect.X, (float)this.MinimapDisplayRect.Y);
-                    float num = (float)this.MinimapDisplayRect.Width / this.Size.X;
-                    this.transitionDestination.X = vector2.X / num;
-                    this.transitionDestination.Y = vector2.Y / num;
+                    float num = (float)this.MinimapDisplayRect.Width / (this.Size.X * 2);     //Mer     Mini-map stuff
+                    this.transitionDestination.X = -this.Size.X + (vector2.X / num);        //Mer
+                    this.transitionDestination.Y = -this.Size.X + (vector2.Y / num);        //Mer
                     this.snappingToShip = false;
                     this.ViewingShip = false;
                 }
