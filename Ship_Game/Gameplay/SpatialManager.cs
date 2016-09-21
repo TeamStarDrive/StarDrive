@@ -37,7 +37,7 @@ namespace Ship_Game.Gameplay
 
         public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 Pos)
         {
-            this.UpperLeftBound.X = Pos.X - (float)(sceneWidth / 2);
+            this.UpperLeftBound.X = Pos.X - (float)(sceneWidth / 2);        //Mer Investigate me
             this.UpperLeftBound.Y = Pos.Y - (float)(sceneHeight / 2);
             this.Cols = sceneWidth / cellSize;
             this.Rows = sceneHeight / cellSize;
