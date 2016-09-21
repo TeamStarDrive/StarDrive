@@ -2211,7 +2211,7 @@ namespace Ship_Game.Gameplay
             
             foreach (ModuleSlot moduleSlotList in this.ModuleSlotList)
             {
-                if (moduleSlotList.Restrictions == Restrictions.I)  //Mer May need to update this for new slot types -Gretman
+                if (moduleSlotList.Restrictions == Restrictions.I)
                     ++this.number_Internal_slots;
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Dummy)
                     continue;
@@ -2512,7 +2512,7 @@ namespace Ship_Game.Gameplay
             this.FTLSpoolTime = 0f;
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
-                if (moduleSlot.Restrictions == Restrictions.I)  //Mer May need to update this for new slot types -Gretman
+                if (moduleSlot.Restrictions == Restrictions.I)
                     ++this.number_Internal_slots;
                 if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
                     continue;
@@ -2726,7 +2726,7 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        public override void Update(float elapsedTime)     //Mer
+        public override void Update(float elapsedTime)
         {
             if (!this.Active)
                 return;
@@ -2969,7 +2969,7 @@ namespace Ship_Game.Gameplay
                     //Ship ship3 = this;
                     //Vector2 vector2_2 = this.Center + this.Velocity * elapsedTime;
                     this.Center += this.Velocity * elapsedTime;
-                    this.UpdateShipStatus(elapsedTime);     //Mer
+                    this.UpdateShipStatus(elapsedTime);
                     if (!this.Active)
                         return;
                     if (!this.disabled && !Ship.universeScreen.Paused) //this.hasCommand &&
@@ -4117,7 +4117,7 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 //Get total internal slots
-                if (moduleSlot.Restrictions == Restrictions.I && moduleSlot.module.Active)  //Mer May need to update this for new slot types -Gretman
+                if (moduleSlot.Restrictions == Restrictions.I && moduleSlot.module.Active)
                     ++this.number_Alive_Internal_slots;
                 if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
                     continue;

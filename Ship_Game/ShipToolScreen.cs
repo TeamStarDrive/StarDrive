@@ -339,7 +339,7 @@ namespace Ship_Game
 
 		private string GetDesignStateText()
 		{
-			switch (this.DesignState)   //Mer May need to update this for new slot types -Gretman
+			switch (this.DesignState)
             {
 				case Restrictions.I:
 				{
