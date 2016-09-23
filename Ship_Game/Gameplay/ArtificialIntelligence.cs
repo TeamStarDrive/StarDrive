@@ -6347,9 +6347,9 @@ namespace Ship_Game.Gameplay
                 if (pathfound)
                     return;
                 List<Vector2> goodpoints = new List<Vector2>();
-                Grid path = new Grid(this.Owner.loyalty, 36, 10f);
+                //Grid path = new Grid(this.Owner.loyalty, 36, 10f);
                 if (Empire.universeScreen != null && this.Owner.loyalty.SensorNodes.Count !=0)
-                    goodpoints = path.Pathfind(startPos, endPos,false);
+                    goodpoints = this.Owner.loyalty.pathhMap.Pathfind(startPos, endPos,false);
                 if (goodpoints != null && goodpoints.Count > 0)
                 {
                     lock (this.wayPointLocker)
@@ -6362,12 +6362,14 @@ namespace Ship_Game.Gameplay
                         //this.ActiveWayPoints.Enqueue(endPos);
                     }
                     int cache;
+                    this.Owner.loyalty.lockPatchCache.EnterWriteLock();
                     if (!this.Owner.loyalty.pathcache.TryGetValue(goodpoints, out cache))
                     {
-                        this.Owner.loyalty.lockPatchCache.EnterWriteLock();
+                       
                         this.Owner.loyalty.pathcache.Add(goodpoints, 0);
-                        this.Owner.loyalty.lockPatchCache.ExitWriteLock();
+                        
                     }
+                    this.Owner.loyalty.lockPatchCache.ExitWriteLock();
                     cache++;
                 }
                 else
@@ -9212,8 +9214,7 @@ namespace Ship_Game.Gameplay
             public Empire    ai;
             //public byte[,] Weight;
        
-            Empire.InfluenceNode end;
-            Empire.InfluenceNode start;
+           
             Empire.InfluenceNode[] nearest;// = new Vector2[(int)granularity];
             float[] distance;// = new float[(int)granularity];
             float granularity; //= 8f;
@@ -9240,8 +9241,7 @@ namespace Ship_Game.Gameplay
                 projectorsize = Empire.ProjectorRadius;
                 goodpoints = new List<Empire.InfluenceNode>();
                 badpoints = new List<Vector2>();            
-                end = new Empire.InfluenceNode();
-                start = new Empire.InfluenceNode();
+                 
                 // List < Ship > ps = empire.GetProjectors();
                 ai.BorderNodeLocker.EnterReadLock();
                 {
@@ -9315,8 +9315,9 @@ namespace Ship_Game.Gameplay
             public List<Vector2> Pathfind(Vector2 startv, Vector2 endv,bool mode2)
             {
                 float Pathlength = Vector2.Distance(startv, endv);
+                //Empire.InfluenceNode end;
+                //Empire.InfluenceNode start;
 
-                
                 if (Pathlength < projectorsize )
                     return new List<Vector2> { startv, endv };
                 Empire.InfluenceNode closestNodeToEnd = goodpoints.OrderBy(p => Vector2.Distance(p.Position, endv)).First();
@@ -9353,8 +9354,8 @@ namespace Ship_Game.Gameplay
                     start,
                     Pathlength
                 );
-                this.end = end;
-                this.start = start;
+                //this.end = end;
+                //this.start = start;
                 // if there are any unanalyzed nodes, process them
                 float doublepro = projectorsize * 2.5f;
                 
@@ -9380,7 +9381,7 @@ namespace Ship_Game.Gameplay
                     openSet.Remove(current);
                     closedSet.Add(current);
                     // process each valid node around the current node
-                    foreach (Empire.InfluenceNode neighbor in GetNeighborNodes(current, cameFrom, closestNodeToEnd, openSet, closedSet, mode2))
+                    foreach (Empire.InfluenceNode neighbor in GetNeighborNodes(current, cameFrom, start, mode2))
                     {
 
                         var neighborDistance = Vector2.Distance(neighbor.Position, current.Position) ;
@@ -9503,7 +9504,7 @@ namespace Ship_Game.Gameplay
                 //IEnumerable<Vector2> test = nodes.Except(badpoints);
                 return nodes;
             }
-            private IEnumerable<Empire.InfluenceNode> GetNeighborNodes(Empire.InfluenceNode node, Dictionary<Empire.InfluenceNode, Empire.InfluenceNode> camefrom, Empire.InfluenceNode closestNodeToEnd, List<Empire.InfluenceNode> openset, List<Empire.InfluenceNode> closedset, bool mode2)
+            private IEnumerable<Empire.InfluenceNode> GetNeighborNodes(Empire.InfluenceNode node, Dictionary<Empire.InfluenceNode, Empire.InfluenceNode> camefrom, Empire.InfluenceNode start, bool mode2)
             {
                 if(mode2)
                 {
