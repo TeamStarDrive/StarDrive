@@ -1534,9 +1534,9 @@ namespace Ship_Game
                     AudioManager.GetCue("blip_click").Play();
                     RaceDesignScreen galaxysize = this;
                     galaxysize.Galaxysize = (RaceDesignScreen.GalSize)((int)galaxysize.Galaxysize + (int)RaceDesignScreen.GalSize.Small);
-                    if (this.Galaxysize > RaceDesignScreen.GalSize.Epic)
+                    if (this.Galaxysize > RaceDesignScreen.GalSize.TrulyEpic)
                     {
-                        this.Galaxysize = RaceDesignScreen.GalSize.Tiny;
+                        this.Galaxysize = RaceDesignScreen.GalSize.Tiny;        //Resurrecting TrulyEpic Map Size -Gretman
                     }
                 }
                 if (HelperFunctions.CheckIntersection(this.NumberStarsRect, mousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
@@ -1936,7 +1936,7 @@ namespace Ship_Game
                     AudioManager.GetCue("blip_click").Play();
                     RaceDesignScreen galaxysize = this;
                     galaxysize.Galaxysize = (RaceDesignScreen.GalSize)((int)galaxysize.Galaxysize + (int)RaceDesignScreen.GalSize.Small);
-                    if (this.Galaxysize > RaceDesignScreen.GalSize.Epic)
+                    if (this.Galaxysize > RaceDesignScreen.GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map Size -Gretman
                     {
                         this.Galaxysize = RaceDesignScreen.GalSize.Tiny;
                     }
@@ -2814,8 +2814,8 @@ namespace Ship_Game
             Medium,
             Large,
             Huge,
-            Epic
-            //TrulyEpic
+            Epic,
+            TrulyEpic       //Reenabled by Gretman, to make use of the new negative map sizes
         }
 
         public enum GameMode
