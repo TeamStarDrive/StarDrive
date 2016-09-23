@@ -53,8 +53,8 @@ namespace Ship_Game
 		public void Draw(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar"], this.Housing, Color.White);
-			float scale = (float)this.ActualMap.Width / (screen.Size.X * 2);        //mer
-			Vector2 MinimapZero = new Vector2((float)this.ActualMap.X + 100, (float)this.ActualMap.Y + 100);        //mer
+			float scale = (float)this.ActualMap.Width / (screen.Size.X * 2);        //Updated to play nice with the new negative map values -Gretman
+			Vector2 MinimapZero = new Vector2((float)this.ActualMap.X + 100, (float)this.ActualMap.Y + 100);
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
 				if (e != EmpireManager.GetEmpireByName(screen.PlayerLoyalty) && !EmpireManager.GetEmpireByName(screen.PlayerLoyalty).GetRelations()[e].Known)

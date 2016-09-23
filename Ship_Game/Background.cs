@@ -227,7 +227,6 @@ namespace Ship_Game
 			Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, Color.Black);
 			Viewport viewport3 = universe.ScreenManager.GraphicsDevice.Viewport;
             Vector3 UpperLeft = viewport3.Project(Vector3.Zero, universe.projection, universe.view, Matrix.Identity);
-            //Vector3 UpperLeft = viewport3.Project(new Vector3(-universe.Size.X, -universe.Size.Y, 0f), universe.projection, universe.view, Matrix.Identity);    //Mer
 			Viewport viewport4 = universe.ScreenManager.GraphicsDevice.Viewport;
 			Vector3 LowerRight = viewport4.Project(new Vector3(universe.Size.X, universe.Size.Y, 0f), universe.projection, universe.view, Matrix.Identity);
 			Viewport viewport5 = universe.ScreenManager.GraphicsDevice.Viewport;
