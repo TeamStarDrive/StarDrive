@@ -274,9 +274,7 @@ namespace Ship_Game
                     float SpaceSaved = GC.GetTotalMemory(true);
                     for (int opponents = 0; opponents < num; ++opponents)
                     {
-                        int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count + 1));
-                        if (index2 > removalCollection.Count - 1)
-                            index2 = removalCollection.Count - 1;
+                        int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count - 1));
 
                         if (false)
                         {
@@ -318,6 +316,8 @@ namespace Ship_Game
                                 ResourceManager.ShipsDict.Remove(shiptoclear);
                             } 
                         }
+
+                        System.Diagnostics.Debug.WriteLine("Race excluded from game: " + removalCollection[index2].PortraitName + "  (Index " + index2 + " of " + (removalCollection.Count - 1) + ")");
                         removalCollection.RemoveAt(index2);
                     }
 
