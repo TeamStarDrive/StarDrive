@@ -1661,8 +1661,15 @@ namespace Ship_Game
                         }
                     }
                 });
+
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
-                    EmpireManager.EmpireList[index].Update(elapsedTime);
+                {
+                    Empire empire = EmpireManager.EmpireList[index];
+                    empire.pathhMap = new ArtificialIntelligence.Grid(empire, 20, 10);
+                    empire.Update(elapsedTime);
+                    
+
+                }
                 this.MasterShipList.ApplyPendingRemovals();
 
                 lock (GlobalStats.AddShipLocker) //needed to fix Issue #629
