@@ -2231,19 +2231,10 @@ namespace Ship_Game
                             this.ShipsWeCanBuild.Add(keyValuePair.Key);
                     }
 #if!DEBUG
-                    catch //(Exception ex)      //Edited by Gretman, in a desperate attempt to prevent crashing.
+                    catch
                     {
-                        //ex.Data["Ship Key"] = keyValuePair.Key;
-                        //ex.Data["Role Name"] = keyValuePair.Value.shipData.Role;
-                        //ex.Data["Ship Name"] = keyValuePair.Value.Name;
-                        //throw;
-                        
                         keyValuePair.Value.Deleted = true;  //This should prevent this Key from being evaluated again
                         continue;   //This keeps the game going without crashing
-
-                        //This is a horrible fix. I feel dirty putting it in here, but much of the code chains leading here are too complex for me...
-                        //Gretman (with shame)
-
                     }
 #endif
                     foreach (string shiptech in keyValuePair.Value.shipData.techsNeeded)

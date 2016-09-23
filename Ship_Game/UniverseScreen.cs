@@ -869,7 +869,7 @@ namespace Ship_Game
                 this.Stars.Add(nebulousOverlay);
             }
             this.LoadGraphics();
-            UniverseScreen.DeepSpaceManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));
+            UniverseScreen.DeepSpaceManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));       //Mer Investigate me
             UniverseScreen.ShipSpatialManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));
             this.DoParticleLoad();
             this.bg3d = new Background3D(this);
@@ -2636,8 +2636,8 @@ namespace Ship_Game
             }
             if (this.camPos.X > this.Size.X)
                 this.camPos.X = this.Size.X;
-            if (this.camPos.X < -this.Size.X)   //Mer
-                this.camPos.X = -this.Size.X;   //Mer
+            if (this.camPos.X < -this.Size.X)   //So the camera can pan out into the new negative map coordinates -Gretman
+                this.camPos.X = -this.Size.X;
             if (this.camPos.Y > (double)this.Size.Y)
                 this.camPos.Y = this.Size.Y;
             if ((double)this.camPos.Y < -this.Size.Y)
@@ -2678,9 +2678,9 @@ namespace Ship_Game
                 if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                 {
                     Vector2 vector2 = input.CursorPosition - new Vector2((float)this.MinimapDisplayRect.X, (float)this.MinimapDisplayRect.Y);
-                    float num = (float)this.MinimapDisplayRect.Width / (this.Size.X * 2);     //Mer     Mini-map stuff
-                    this.transitionDestination.X = -this.Size.X + (vector2.X / num);        //Mer
-                    this.transitionDestination.Y = -this.Size.X + (vector2.Y / num);        //Mer
+                    float num = (float)this.MinimapDisplayRect.Width / (this.Size.X * 2);
+                    this.transitionDestination.X = -this.Size.X + (vector2.X / num);        //Fixed clicking on the mini-map on location with negative coordinates -Gretman
+                    this.transitionDestination.Y = -this.Size.X + (vector2.Y / num);
                     this.snappingToShip = false;
                     this.ViewingShip = false;
                 }
