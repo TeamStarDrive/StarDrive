@@ -861,7 +861,7 @@ namespace Ship_Game
             {
                 NebulousOverlay nebulousOverlay = new NebulousOverlay();
                 float z = RandomMath.RandomBetween(-200000f, -2E+07f);
-                nebulousOverlay.Path = "Textures/smoke";                                    //Mer    Below
+                nebulousOverlay.Path = "Textures/smoke";
                 nebulousOverlay.Position = new Vector3(RandomMath.RandomBetween(-0.5f * this.Size.X, this.Size.X + 0.5f * this.Size.X), RandomMath.RandomBetween(-0.5f * this.Size.X, this.Size.X + 0.5f * this.Size.X), z);
                 float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
                 nebulousOverlay.Scale = RandomMath.RandomBetween(10f, 100f);
@@ -2636,8 +2636,8 @@ namespace Ship_Game
             }
             if (this.camPos.X > this.Size.X)
                 this.camPos.X = this.Size.X;
-            if (this.camPos.X < -this.Size.X)    //Mer
-                this.camPos.X = -this.Size.X;
+            if (this.camPos.X < -this.Size.X)   //Mer
+                this.camPos.X = -this.Size.X;   //Mer
             if (this.camPos.Y > (double)this.Size.Y)
                 this.camPos.Y = this.Size.Y;
             if ((double)this.camPos.Y < -this.Size.Y)
