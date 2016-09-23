@@ -6321,20 +6321,20 @@ namespace Ship_Game.Gameplay
                             lock (this.wayPointLocker)
                             {
                                 if (this.ActiveWayPoints.Count == 0)
-                                    this.ActiveWayPoints = new Queue<Vector2>(test);
+                                    this.ActiveWayPoints = new Queue<Vector2>(test.Skip(1));
                                 else
 
-                                {   
-                                    foreach (Vector2 wayp in test)
+                                {
+                                    foreach (Vector2 wayp in test.Skip(2))
                                     {
 
                                         this.ActiveWayPoints.Enqueue(wayp);
                                     }
                                 }
-                                
-                                
-                                
-                            }                          
+
+
+
+                            }
                             pathfound = true;
                             break;
                         }
@@ -6348,13 +6348,13 @@ namespace Ship_Game.Gameplay
                     return;
                 List<Vector2> goodpoints = new List<Vector2>();
                 //Grid path = new Grid(this.Owner.loyalty, 36, 10f);
-                if (Empire.universeScreen != null && this.Owner.loyalty.SensorNodes.Count !=0)
-                    goodpoints = this.Owner.loyalty.pathhMap.Pathfind(startPos, endPos,false);
+                if (Empire.universeScreen != null && this.Owner.loyalty.SensorNodes.Count != 0)
+                    goodpoints = this.Owner.loyalty.pathhMap.Pathfind(startPos, endPos, false);
                 if (goodpoints != null && goodpoints.Count > 0)
                 {
                     lock (this.wayPointLocker)
                     {
-                        foreach (Vector2 wayp in goodpoints)
+                        foreach (Vector2 wayp in goodpoints.Skip(1))
                         {
 
                             this.ActiveWayPoints.Enqueue(wayp);
@@ -6365,9 +6365,9 @@ namespace Ship_Game.Gameplay
                     this.Owner.loyalty.lockPatchCache.EnterWriteLock();
                     if (!this.Owner.loyalty.pathcache.TryGetValue(goodpoints, out cache))
                     {
-                       
+
                         this.Owner.loyalty.pathcache.Add(goodpoints, 0);
-                        
+
                     }
                     this.Owner.loyalty.lockPatchCache.ExitWriteLock();
                     cache++;
@@ -6376,70 +6376,19 @@ namespace Ship_Game.Gameplay
                 {
                     if (startPos != Vector2.Zero && endPos != Vector2.Zero)
                     {
-                        this.ActiveWayPoints.Enqueue(startPos);
+                       // this.ActiveWayPoints.Enqueue(startPos);
                         this.ActiveWayPoints.Enqueue(endPos);
                     }
                     else
                         this.ActiveWayPoints.Clear();
                 }
 
+
+
+
+                return;
             }
-            
-            
-        return;
-            //if (UniverseData.UniverseWidth <= 0)
-            //    return;
-            //List<Vector2> goodpoints = new List<Vector2>();
-            //int reducer =  (int)(Empire.ProjectorRadius/4) ;
-            //foreach (Ship p in this.Owner.loyalty.GetProjectors())
-            //    goodpoints.Add(p.Center);
-            //foreach (SolarSystem s in this.Owner.loyalty.GetOwnedSystems())
-            //{
-            //    goodpoints.Add(s.Position);
-
-            //}
-            //int size = (int)(UniverseData.UniverseWidth / reducer);
-            //Grid path = new Grid(size, size, 1);
-            //Vector2 fillspot = new Vector2();
-            //for (int k = 0; k < path.Weight.GetLength(0); k++)
-            //    for (int l = 0; l < path.Weight.GetLength(1); l++)
-            //    {
-            //        float x = k * reducer;
-            //        float y = l * reducer;
-            //        fillspot.X = x;
-            //        fillspot.Y = y;
-
-            //        foreach (Vector2 p in goodpoints)
-            //        {
-            //            float distance = Vector2.Distance(p, fillspot);
-
-            //            if (distance <= Empire.ProjectorRadius)
-            //            {
-            //                distance = distance / Empire.ProjectorRadius;
-            //                path.Weight[k, l] = (byte)(254 *distance);
-            //            }
-
-            //        }
-            //    }
-            //Vector2 startPosN = new Vector2(startPos.X / reducer ,startPos.Y /reducer);
-            //Vector2 endPosN = new Vector2(endPos.X / reducer, endPos.Y / reducer);
-            //Point startP = new Point((int)startPosN.X, (int)startPosN.Y);
-            //Point endP = new Point((int)endPosN.X, (int)endPosN.Y);
-            //List<Point> paths = path.Pathfind(startP, endP);
-            //if (paths != null)
-            //{
-            //    lock (this.wayPointLocker)
-            //    {
-            //        foreach (Point wayp in paths)
-            //        {
-            //            Vector2 wp = new Vector2(wayp.X * reducer, wayp.Y * reducer);
-
-            //            this.ActiveWayPoints.Enqueue(wp);
-            //        }
-            //        this.ActiveWayPoints.Enqueue(endPos);
-            //    }
-            //    return;
-            //}
+           
             float Distance = Vector2.Distance(startPos, endPos);
             if (Distance <= Empire.ProjectorRadius)
             {
@@ -9342,10 +9291,10 @@ namespace Ship_Game.Gameplay
                 // a dictionary indicating how far it is expected to reach the end, if the path 
                 // travels through the specified node. 
                 var predictedDistance = new Dictionary<Empire.InfluenceNode, float>();
-                if (!goodpoints.Contains(end))
-                    goodpoints.Add(end);
-                if (!goodpoints.Contains(start))
-                    goodpoints.Add(start);
+                //if (!goodpoints.Contains(end))
+                //    goodpoints.Add(end);
+                //if (!goodpoints.Contains(start))
+                //    goodpoints.Add(start);
                 // initialize the start node as having a distance of 0, and an estmated distance 
                 // of y-distance + x-distance, which is the optimal path in a square grid that 
                 // doesn't allow for diagonal movement
@@ -9374,14 +9323,14 @@ namespace Ship_Game.Gameplay
                     if (current ==end    )//Vector2.Distance(current,end) <=projectorsize *2.5)// current.X == end.X && current.Y == end.Y)
                     {
                         // generate the found path
-                        return ReconstructPath(cameFrom, end);
+                        return ReconstructPath(cameFrom, end, start);
                     }
 
                     // move current node from open to closed
                     openSet.Remove(current);
                     closedSet.Add(current);
                     // process each valid node around the current node
-                    foreach (Empire.InfluenceNode neighbor in GetNeighborNodes(current, cameFrom, start, mode2))
+                    foreach (Empire.InfluenceNode neighbor in GetNeighborNodes(current, mode2,end )) //, cameFrom, start, mode2))
                     {
 
                         var neighborDistance = Vector2.Distance(neighbor.Position, current.Position) ;
@@ -9464,11 +9413,11 @@ namespace Ship_Game.Gameplay
        
 
             
-            private IEnumerable<Empire.InfluenceNode> GetNeighborNodes2(Empire.InfluenceNode node)
+            private IEnumerable<Empire.InfluenceNode> GetNeighborNodes2(Empire.InfluenceNode node, Empire.InfluenceNode end)
             {
                 var nodes = new List<Empire.InfluenceNode>();
                 int granularityl =(int) granularity;
-                Vector2 endrange = Vector2.Zero;
+                //Vector2 endrange = Vector2.Zero;
                 for (int i=0;i<(int)granularityl; i++)
                 {
                     nearest[i] = null;
@@ -9483,6 +9432,8 @@ namespace Ship_Game.Gameplay
                 granularityl = (int)(360 / granularityl);
                 foreach (Empire.InfluenceNode point in goodpoints)
                 {
+                    if (point == node)
+                        continue;
                     angletonode = HelperFunctions.findAngleToTarget(node.Position, point.Position);                    
                     y = (int)Math.Floor(angletonode / granularityl);
                     distancecheck = Vector2.Distance(node.Position, point.Position);
@@ -9501,14 +9452,18 @@ namespace Ship_Game.Gameplay
                     if(filternodes != null)
                     nodes.Add(filternodes);
                 }
-                //IEnumerable<Vector2> test = nodes.Except(badpoints);
+                if(Vector2.Distance(end.Position,node.Position) < projectorsize*2.5f)
+                {
+                    nodes.Add(end);
+                }
+
                 return nodes;
             }
-            private IEnumerable<Empire.InfluenceNode> GetNeighborNodes(Empire.InfluenceNode node, Dictionary<Empire.InfluenceNode, Empire.InfluenceNode> camefrom, Empire.InfluenceNode start, bool mode2)
+            private IEnumerable<Empire.InfluenceNode> GetNeighborNodes3(Empire.InfluenceNode node, Dictionary<Empire.InfluenceNode, Empire.InfluenceNode> camefrom, Empire.InfluenceNode start, bool mode2)
             {
                 if(mode2)
                 {
-                    return GetNeighborNodes2(node);
+                    //return GetNeighborNodes2(node,camefrom);
                 }
                 HashSet<Empire.InfluenceNode> nodes = new HashSet<Empire.InfluenceNode>();
                 float projector = node.Radius;            
@@ -9554,6 +9509,56 @@ namespace Ship_Game.Gameplay
                 }
                 return nodes;
             }
+            private IEnumerable<Empire.InfluenceNode> GetNeighborNodes(Empire.InfluenceNode node,  bool mode2,Empire.InfluenceNode end)
+            {
+                if (mode2)
+                {
+                    return GetNeighborNodes2(node,end);
+                }
+
+                var nodes = new List<Empire.InfluenceNode>();
+                int granularityl = (int)granularity;
+                Vector2 endrange = Vector2.Zero;
+                for (int i = 0; i < (int)granularityl; i++)
+                {
+                    nearest[i] = null;
+                    distance[i] = 0;
+                }
+
+
+                float angletonode = 0;
+                int y = 0;
+                float distancecheck = 0;
+
+                granularityl = (int)(360 / granularityl);
+                foreach (Empire.InfluenceNode point in goodpoints)
+                {
+                    if (node == point)
+                        continue;
+                    angletonode = HelperFunctions.findAngleToTarget(node.Position, point.Position);
+                    y = (int)Math.Floor(angletonode / granularityl);
+                    distancecheck = Vector2.Distance(node.Position, point.Position);
+                    float max = node.Radius > projectorsize ? node.Radius : projectorsize;
+                    if (distancecheck < max * 2f)
+                    {
+                        nearest[y] = (point);
+                       // distance[y] = distancecheck;
+                    }
+
+
+                }
+
+                foreach (Empire.InfluenceNode filternodes in nearest)
+                {
+                    if (filternodes != null)
+                        nodes.Add(filternodes);
+                }
+                if (Vector2.Distance(end.Position, node.Position) < projectorsize * 2.5f)
+                {
+                    nodes.Add(end);
+                }
+                return nodes;
+            }
             /// <summary>
             /// Process a list of valid paths generated by the Pathfind function and return 
             /// a coherent path to current.
@@ -9561,15 +9566,20 @@ namespace Ship_Game.Gameplay
             /// <param name="cameFrom">A list of nodes and the origin to that node.</param>
             /// <param name="current">The destination node being sought out.</param>
             /// <returns>The shortest path from the start to the destination node.</returns>
-            private List<Vector2> ReconstructPath(Dictionary<Empire.InfluenceNode, Empire.InfluenceNode> cameFrom, Empire.InfluenceNode current)
+            private List<Vector2> ReconstructPath(Dictionary<Empire.InfluenceNode, Empire.InfluenceNode> cameFrom, Empire.InfluenceNode current, Empire.InfluenceNode start)
             {
-                if (!cameFrom.Keys.Contains(current))
+                Empire.InfluenceNode test;
+                if (!cameFrom.TryGetValue(current, out test) ) // .Keys.Contains( current) && )
                 {
                     return new List<Vector2> { current.Position };
                 }
-
-                var path = ReconstructPath(cameFrom, cameFrom[current]);
-                path.Add(current.Position);
+                
+                    var path = ReconstructPath(cameFrom, cameFrom[current], start);
+                if (start != current)
+                {
+                    path.Add(current.Position);
+                }
+                
                 return path;
             }
             public List<Vector2> createNodes (Vector2 Origin, Vector2 Destination, float projectorad)
