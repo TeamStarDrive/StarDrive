@@ -1621,7 +1621,9 @@ namespace Ship_Game
                             int pathcount = empire.pathcache.Count;
                             if(empire.BorderNodes.Count != check && pathcount >0)
                             {
+                                empire.lockPatchCache.EnterWriteLock();
                                 empire.pathcache.Clear();
+                                empire.lockPatchCache.ExitWriteLock();
                                 //ArtificialIntelligence.Grid repath =new ArtificialIntelligence.Grid(empire,36,10);
                                 //List<Vector2> pathcheck = new List<Vector2>();
                                 //List<List<Vector2>> keylist =  empire.pathcache.Keys.OrderByDescending(hit=> empire.pathcache[hit]).ToList();
