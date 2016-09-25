@@ -7306,11 +7306,7 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                {
-                    UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCostRealism();
-                }
-                else
+             
                 {
                     UnderConstruction = UnderConstruction + ResourceManager.ShipsDict[g.ToBuildUID].GetMaintCost(this.empire);
                 }
@@ -7450,18 +7446,24 @@ namespace Ship_Game.Gameplay
 							AddNew = false;
 						}
                         this.empire.BorderNodeLocker.EnterReadLock();
-						{
-							foreach (Empire.InfluenceNode bordernode in this.empire.BorderNodes)
-							{
-								if (Vector2.Distance(node.Position, bordernode.Position) >= bordernode.Radius)
-								{
-									continue;
-								}
-								AddNew = false;
-							}
-						}
+                        {
+                            float sizecheck = 0;
+                            foreach (Empire.InfluenceNode bordernode in this.empire.BorderNodes)
+                            {
+                                 sizecheck = Vector2.Distance(node.Position, bordernode.Position);
+
+                                sizecheck += !(bordernode.KeyedObject is Ship) ? Empire.ProjectorRadius : 0;
+
+                                if (sizecheck >= bordernode.Radius)
+                                {
+                                    continue;
+                                }
+                                
+                                AddNew = false;
+                            }
+                        }
                         this.empire.BorderNodeLocker.ExitReadLock();
-						if (!AddNew)
+                        if (!AddNew)
 						{
 							continue;
 						}
