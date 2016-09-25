@@ -9269,7 +9269,7 @@ namespace Ship_Game.Gameplay
 
                 if (Pathlength < projectorsize )
                     return new List<Vector2> { startv, endv };
-                Empire.InfluenceNode closestNodeToEnd = goodpoints.OrderBy(p => Vector2.Distance(p.Position, endv)).First();
+               
                 if (Empire.universeScreen == null)
                     return null;
                 Empire.InfluenceNode end = new Empire.InfluenceNode();
@@ -9291,8 +9291,7 @@ namespace Ship_Game.Gameplay
                 // a dictionary indicating how far it is expected to reach the end, if the path 
                 // travels through the specified node. 
                 var predictedDistance = new Dictionary<Empire.InfluenceNode, float>();
-                //if (!goodpoints.Contains(end))
-                //    goodpoints.Add(end);
+                
                 //if (!goodpoints.Contains(start))
                 //    goodpoints.Add(start);
                 // initialize the start node as having a distance of 0, and an estmated distance 
@@ -9424,16 +9423,19 @@ namespace Ship_Game.Gameplay
                     distance[i] = 0;
                 }
 
-                
+                float distancetoend = Vector2.Distance(end.Position, node.Position);
                 float angletonode = 0;
+                float angletoend = HelperFunctions.findAngleToTarget(node.Position, end.Position);
                 int y = 0;
+                int Ey = y = (int)Math.Floor(angletoend / granularityl);
                 float distancecheck = 0;
-
+                
                 granularityl = (int)(360 / granularityl);
                 foreach (Empire.InfluenceNode point in goodpoints)
                 {
                     if (point == node)
                         continue;
+                    
                     angletonode = HelperFunctions.findAngleToTarget(node.Position, point.Position);                    
                     y = (int)Math.Floor(angletonode / granularityl);
                     distancecheck = Vector2.Distance(node.Position, point.Position);
@@ -9446,17 +9448,16 @@ namespace Ship_Game.Gameplay
 
 
                 }
+                if (nearest[Ey] == null || distance[Ey] >= distancetoend)
+                    nearest[Ey] = end;
                 
                 foreach(Empire.InfluenceNode filternodes in nearest)
                 {
                     if(filternodes != null)
                     nodes.Add(filternodes);
                 }
-                if(Vector2.Distance(end.Position,node.Position) < projectorsize*2.5f)
-                {
-                    nodes.Add(end);
-                }
-
+                               
+                    
                 return nodes;
             }
             private IEnumerable<Empire.InfluenceNode> GetNeighborNodes3(Empire.InfluenceNode node, Dictionary<Empire.InfluenceNode, Empire.InfluenceNode> camefrom, Empire.InfluenceNode start, bool mode2)
