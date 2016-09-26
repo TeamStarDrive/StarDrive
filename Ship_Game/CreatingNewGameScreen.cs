@@ -116,7 +116,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(16f * StarNumModifier); //16 is ok for Corners match, so no need to change -Gretman
-                        this.data.Size = new Vector2(3500000f, 3500000f);
+                        this.data.Size = new Vector2(1750000);
                     }
                     else if (str1 == "Small")
                     {
@@ -126,8 +126,8 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(30f * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(32f * StarNumModifier); //Gretman
-                        this.data.Size = new Vector2(7300000f, 7300000f);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(28f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(3500000);
                     }
                     else if (str1 == "Medium")
                     {
@@ -136,9 +136,9 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
-                        this.data.Size = new Vector2(9350000f, 9350000f);
+                            this.numSystems = (int)(45f * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(40f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(5500000);
                         Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Large")
@@ -149,8 +149,8 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(70f * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
-                        this.data.Size = new Vector2(18000000f, 18000000f);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(64f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(9000000);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Huge")
@@ -160,9 +160,9 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(80f * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
-                        this.data.Size = new Vector2(23000000);  //27,000,000
+                            this.numSystems = (int)(92 * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(84f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(13500000);  //27,000,000
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
                     else if (str1 == "Epic")
@@ -172,9 +172,9 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else //33554423  33,554,432.
-                            this.numSystems = (int)(90f * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
-                        this.data.Size = new Vector2(33554423f);
+                            this.numSystems = (int)(115 * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(104f * StarNumModifier); //Gretman
+                        this.data.Size = new Vector2(20000000);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                             //this.data.Size = new Vector2(36000000, 36000000);
                         //this.scale = 2;
@@ -190,10 +190,9 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(50f * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(64f * StarNumModifier); //This one isn't used, but what the heck...
-                        //this.numSystems = (int)(100f * StarNumModifier);
-                        this.data.Size = new Vector2(108000000f, 108000000f);
+                        this.numSystems = (int)(160 * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(140f * StarNumModifier); //I have resurrected the TrulyEpic Map size! -Gretman
+                        this.data.Size = new Vector2(33554423);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
@@ -209,7 +208,7 @@ namespace Ship_Game
                 universeDatum.Size = universeDatum.Size * this.scale;
                 this.data.EmpireList.Add(empire);
                 EmpireManager.EmpireList.Add(empire);
-                this.GalacticCenter = new Vector2(this.data.Size.X / 2f, this.data.Size.Y / 2f);
+                this.GalacticCenter = new Vector2(0f, 0f);  //Gretman (for new negative Map dimentions)
                 StatTracker.SnapshotsDict.Clear();
                 
             }
@@ -470,30 +469,45 @@ namespace Ship_Game
                             {
                                 if (solarSystem2.isStartingSystem)
                                 {
+
+                                    //Corner Values
+                                    //0 = Top Left
+                                    //1 = Top Right
+                                    //2 = Bottom Left
+                                    //3 = Bottom Right
+
                                     //Put the 4 Home Planets into their corners, nessled nicely back a bit
-                                    float RandomoffsetX = RandomMath.RandomBetween(0, 14) / 100;   //Do want some variance in location, but still in the back
-                                    float RandomoffsetY = RandomMath.RandomBetween(0, 14) / 100;
+                                    float RandomoffsetX = RandomMath.RandomBetween(0, 19) / 100;   //Do want some variance in location, but still in the back
+                                    float RandomoffsetY = RandomMath.RandomBetween(0, 19) / 100;
                                     float MinOffset = 0.04f;   //Minimum Offset
                                          //Theorectical Min = 0.04 (4%)                  Theoretical Max = 0.18 (18%)
 
-                                    float CornerOffset = 0.8f;  //Additional Offset for being in corner
+                                    float CornerOffset = 0.75f;  //Additional Offset for being in corner
                                          //Theoretical Min with Corneroffset = 0.84 (84%)    Theoretical Max with Corneroffset = 0.98 (98%)  <--- thats wwaayy in the corner, but still good  =)
                                     switch (whichcorner)
                                     {
                                         case 0:
-                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX)), (this.data.Size.Y * (MinOffset + RandomoffsetX)));
+                                            solarSystem2.Position = new Vector2(
+                                                                    (-this.data.Size.X + (this.data.Size.X * (MinOffset + RandomoffsetX))),
+                                                                    (-this.data.Size.Y + (this.data.Size.Y * (MinOffset + RandomoffsetX))));
                                             this.ClaimedSpots.Add(solarSystem2.Position);
                                             break;
                                         case 1:
-                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)), (this.data.Size.Y * (MinOffset + RandomoffsetX)));
+                                            solarSystem2.Position = new Vector2(
+                                                                    (this.data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
+                                                                    (-this.data.Size.Y + (this.data.Size.Y * (MinOffset + RandomoffsetX))));
                                             this.ClaimedSpots.Add(solarSystem2.Position);
                                             break;
                                         case 2:
-                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX)), (this.data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                            solarSystem2.Position = new Vector2(
+                                                                    (-this.data.Size.X + (this.data.Size.X * (MinOffset + RandomoffsetX))),
+                                                                    (this.data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
                                             this.ClaimedSpots.Add(solarSystem2.Position);
                                             break;
                                         case 3:
-                                            solarSystem2.Position = new Vector2((this.data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)), (this.data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
+                                            solarSystem2.Position = new Vector2(
+                                                                    (this.data.Size.X * (MinOffset + RandomoffsetX + CornerOffset)),
+                                                                    (this.data.Size.Y * (MinOffset + RandomoffsetX + CornerOffset)));
                                             this.ClaimedSpots.Add(solarSystem2.Position);
                                             break;
                                     }
@@ -762,7 +776,7 @@ namespace Ship_Game
 
         public Vector2 GenerateRandom(float spacing)
         {
-            Vector2 sysPos = new Vector2(RandomMath.RandomBetween(100000f, this.data.Size.X - 100000f), RandomMath.RandomBetween(100000f, this.data.Size.Y - 100000f));
+            Vector2 sysPos = new Vector2(RandomMath.RandomBetween(-this.data.Size.X + 100000f, this.data.Size.X - 100000f), RandomMath.RandomBetween(-this.data.Size.X + 100000f, this.data.Size.Y - 100000f)); //Fixed to make use of negative map values -Gretman
             if (this.SystemPosOK(sysPos, spacing))
             {
                 this.ClaimedSpots.Add(sysPos);
@@ -771,13 +785,13 @@ namespace Ship_Game
             else
             {
                 while (!this.SystemPosOK(sysPos, spacing))
-                    sysPos = new Vector2(RandomMath.RandomBetween(100000f, this.data.Size.X - 100000f), RandomMath.RandomBetween(100000f, this.data.Size.Y - 100000f));
+                    sysPos = new Vector2(RandomMath.RandomBetween(-this.data.Size.X + 100000f, this.data.Size.X - 100000f), RandomMath.RandomBetween(-this.data.Size.X + 100000f, this.data.Size.Y - 100000f));
                 this.ClaimedSpots.Add(sysPos);
                 return sysPos;
             }
         }
 
-        public Vector2 GenerateRandomCorners(short corner) //Added by Gretman for Corners Game type (or whatever I end up naming it)
+        public Vector2 GenerateRandomCorners(short corner) //Added by Gretman for Corners Game type
         {
             //Corner Values
             //0 = Top Left
@@ -785,21 +799,25 @@ namespace Ship_Game
             //2 = Bottom Left
             //3 = Bottom Right
 
-            double CornerSizeX = this.data.Size.X * 0.4;    //20% of map per corner
-            double CornerSizeY = this.data.Size.Y * 0.4;
+            float SizeX = this.data.Size.X * 2;     //Allow for new negative coordinates
+            float SizeY = this.data.Size.Y * 2;
+
+            double CornerSizeX = SizeX * 0.4;    //20% of map per corner
+            double CornerSizeY = SizeY * 0.4;
 
             double offsetX = 100000;
             double offsetY = 100000;
             if (corner == 1 || corner == 3)
-                offsetX = this.data.Size.X * 0.6 - 100000;    //This creates a Huge blank "Neutral Zone" between corner areas
+                offsetX = SizeX * 0.6 - 100000;    //This creates a Huge blank "Neutral Zone" between corner areas
             if (corner == 2 || corner == 3)
-                offsetY = this.data.Size.Y * 0.6 - 100000;
+                offsetY = SizeY * 0.6 - 100000;
 
             Vector2 sysPos;
             long noinfiniteloop = 0;
             do
             {
-                sysPos = new Vector2(RandomMath.RandomBetween((float)offsetX, (float)(CornerSizeX + offsetX)), RandomMath.RandomBetween((float)offsetY, (float)(CornerSizeY + offsetY)));
+                sysPos = new Vector2(   RandomMath.RandomBetween(-this.data.Size.X + (float)offsetX, -this.data.Size.X + (float)(CornerSizeX + offsetX)),
+                                        RandomMath.RandomBetween(-this.data.Size.Y + (float)offsetY, -this.data.Size.Y + (float)(CornerSizeY + offsetY)));
                 noinfiniteloop += 1000;
             } 
             //Decrease the acceptable proximity slightly each attempt, so there wont be an infinite loop here on 'tiny' + 'SuperPacked' maps
@@ -843,8 +861,8 @@ namespace Ship_Game
         {
             bool flag = true;
             foreach (Vector2 vector2 in this.ClaimedSpots)
-            {
-                if ((double)Vector2.Distance(vector2, sysPos) < 300000.0 * (double)this.scale || ((double)sysPos.X > (double)this.data.Size.X || (double)sysPos.Y > (double)this.data.Size.Y || ((double)sysPos.X < 0.0 || (double)sysPos.Y < 0.0)))
+            {                                                                   //Updated to make use of the negative map values -Gretman
+                if ((double)Vector2.Distance(vector2, sysPos) < 300000.0 * (double)this.scale || ((double)sysPos.X > (double)this.data.Size.X || (double)sysPos.Y > (double)this.data.Size.Y || ((double)sysPos.X < -this.data.Size.X || (double)sysPos.Y < -this.data.Size.Y)))
                     return false;
             }
             return flag;
@@ -855,7 +873,7 @@ namespace Ship_Game
             bool flag = true;
             foreach (Vector2 vector2 in this.ClaimedSpots)
             {
-                if ((double)Vector2.Distance(vector2, sysPos) < (double)spacing || ((double)sysPos.X > (double)this.data.Size.X || (double)sysPos.Y > (double)this.data.Size.Y || ((double)sysPos.X < 0.0 || (double)sysPos.Y < 0.0)))
+                if ((double)Vector2.Distance(vector2, sysPos) < (double)spacing || ((double)sysPos.X > (double)this.data.Size.X || (double)sysPos.Y > (double)this.data.Size.Y || ((double)sysPos.X < -this.data.Size.X || (double)sysPos.Y < -this.data.Size.Y)))
                     return false;
             }
             return flag;
