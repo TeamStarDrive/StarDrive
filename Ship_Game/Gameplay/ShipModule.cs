@@ -1715,7 +1715,7 @@ namespace Ship_Game.Gameplay
 			return this.Parent;
 		}
 
-		public void Initialize(Vector2 pos) //Mer
+		public void Initialize(Vector2 pos)
 		{
             DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
 			this.XMLPosition = pos;
