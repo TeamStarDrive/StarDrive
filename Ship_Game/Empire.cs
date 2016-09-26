@@ -103,6 +103,7 @@ namespace Ship_Game
         public bool canBuildTroopShips;
         public float currentMilitaryStrength;
         public float freighterBudget = 0;
+        public bool RecalculateMaxHP = false;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
         public float cargoNeed = 0;
         [XmlIgnore]
         public ReaderWriterLockSlim SensorNodeLocker;
@@ -1207,7 +1208,10 @@ namespace Ship_Game
                     if (str == "Missile Armor" || str == "Missile HP Bonus")
                         this.data.MissileHPModifier += unlockedBonus.Bonus;
                     if (str == "Hull Strengthening" || str == "Module HP Bonus")
+                    {
                         this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
+                        this.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
+                    }
                     if (str == "Reaction Drive Upgrade" || str == "STL Speed Bonus")
                         this.data.SubLightModifier += unlockedBonus.Bonus;
                     if (str == "Reactive Armor" || str == "Armor Explosion Reduction")
@@ -1242,7 +1246,10 @@ namespace Ship_Game
                     if (str == "Armor Piercing" || str == "Armor Phasing")
                         this.data.ArmorPiercingBonus += (int)unlockedBonus.Bonus;
                     if (str == "Kulrathi Might")
+                    {
                         this.data.Traits.ModHpModifier += unlockedBonus.Bonus;
+                        this.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
+                    }
                     if (str == "Subspace Inhibition")
                         this.data.Inhibitors = true;
                     //added by McShooterz: New Bonuses
@@ -1995,12 +2002,15 @@ namespace Ship_Game
                 this.empireShipCombat = 0;
                 foreach (Ship ship in this.OwnedShips)
                 {
+                    if (this.RecalculateMaxHP)            //This applies any new ModHPModifier that may have been gained -Gretman
+                        ship.RecalculateMaxHP();
                     if (ship.fleet == null && ship.InCombat && ship.Mothership == null)  //fbedard: total ships in combat
                         this.empireShipCombat++;                    
                     if (ship.Mothership != null || ship.shipData.Role == ShipData.RoleName.troop || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                         continue;
                     this.empireShipTotal++;
                 }
+                this.RecalculateMaxHP = false;
                 this.UpdateTimer = (float)GlobalStats.TurnTimer;
                 this.DoMoney();
                 this.TakeTurn();
@@ -2224,19 +2234,10 @@ namespace Ship_Game
                             this.ShipsWeCanBuild.Add(keyValuePair.Key);
                     }
 #if!DEBUG
-                    catch //(Exception ex)      //Edited by Gretman, in a desperate attempt to prevent crashing.
+                    catch
                     {
-                        //ex.Data["Ship Key"] = keyValuePair.Key;
-                        //ex.Data["Role Name"] = keyValuePair.Value.shipData.Role;
-                        //ex.Data["Ship Name"] = keyValuePair.Value.Name;
-                        //throw;
-                        
                         keyValuePair.Value.Deleted = true;  //This should prevent this Key from being evaluated again
                         continue;   //This keeps the game going without crashing
-
-                        //This is a horrible fix. I feel dirty putting it in here, but much of the code chains leading here are too complex for me...
-                        //Gretman (with shame)
-
                     }
 #endif
                     foreach (string shiptech in keyValuePair.Value.shipData.techsNeeded)
@@ -3956,6 +3957,7 @@ foreach(Goal goal in this.GetGSAI().Goals)
             if (art.ModuleHPMod > 0f)
             {
                 this.data.Traits.ModHpModifier += (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
+                this.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
             }
             if (art.PlusFlatMoney > 0f)
             {
@@ -4005,6 +4007,7 @@ foreach(Goal goal in this.GetGSAI().Goals)
             if (art.ModuleHPMod > 0f)
             {
                 this.data.Traits.ModHpModifier -= (art.ModuleHPMod + art.ModuleHPMod * this.data.Traits.Spiritual);
+                this.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
             }
             if (art.PlusFlatMoney > 0f)
             {

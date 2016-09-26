@@ -321,7 +321,6 @@ namespace Ship_Game
 					{
 						if ((e.item as Ship).TroopList.Count == 0)
 						{
-							//goto Label0;  //jumping to the end of a for loop by goto is bad mojo
                             continue;
 						}
 						Troop t = (e.item as Ship).TroopList[0];
@@ -370,8 +369,6 @@ namespace Ship_Game
 					{
 						e.clickRectHover = 1;
 					}
-                //Label0:
-                 //   continue;
 				}
 				if (this.OrbitSL.Entries.Count > 0)
 				{
