@@ -6305,19 +6305,23 @@ namespace Ship_Game.Gameplay
             if (true)
             {
                 bool pathfound = false;
+                
+                int check = this.Owner.loyalty.pathcache.Count;
+                List<Vector2> keyfound = null;
                 this.Owner.loyalty.lockPatchCache.EnterReadLock();
                 foreach (KeyValuePair<List<Vector2>, int> cache in this.Owner.loyalty.pathcache)
                 {
-                    List<Vector2> test = cache.Key;
+                    List<Vector2> test = cache.Key .ToList();
                     Vector2 aprox = test[0];
 
                     float area = Vector2.Distance(aprox, startPos);
-                    if (area < Empire.ProjectorRadius * 2.5f)
-                        if (Vector2.Distance(test.Last(), endPos) < Empire.ProjectorRadius * 2.5f)
+                    if (area < Empire.ProjectorRadius)
+                        if (Vector2.Distance(test[test.Count - 1], endPos) < Empire.ProjectorRadius )
                         {
                             test[0] = startPos;
                             test[test.Count - 1] = endPos;
-                            this.Owner.loyalty.pathcache[cache.Key]++;
+                            keyfound = cache.Key;
+                           // this.Owner.loyalty.pathcache[cache.Key]++;
                             lock (this.wayPointLocker)
                             {
                                 if (this.ActiveWayPoints.Count == 0)
@@ -6325,7 +6329,7 @@ namespace Ship_Game.Gameplay
                                 else
 
                                 {
-                                    foreach (Vector2 wayp in test.Skip(2))
+                                    foreach (Vector2 wayp in test.Skip(1))
                                     {
 
                                         this.ActiveWayPoints.Enqueue(wayp);
@@ -6345,7 +6349,12 @@ namespace Ship_Game.Gameplay
                 }
                 this.Owner.loyalty.lockPatchCache.ExitReadLock();
                 if (pathfound)
+                {
+                    this.Owner.loyalty.lockPatchCache.EnterWriteLock();
+                    this.Owner.loyalty.pathcache[keyfound]++;
+                    this.Owner.loyalty.lockPatchCache.ExitWriteLock();
                     return;
+                }
                 List<Vector2> goodpoints = new List<Vector2>();
                 //Grid path = new Grid(this.Owner.loyalty, 36, 10f);
                 if (Empire.universeScreen != null && this.Owner.loyalty.SensorNodes.Count != 0)
@@ -6360,17 +6369,18 @@ namespace Ship_Game.Gameplay
                             this.ActiveWayPoints.Enqueue(wayp);
                         }
                         //this.ActiveWayPoints.Enqueue(endPos);
-                    }
-                    int cache;
+                    }                    
                     this.Owner.loyalty.lockPatchCache.EnterWriteLock();
+                    int cache;
                     if (!this.Owner.loyalty.pathcache.TryGetValue(goodpoints, out cache))
                     {
 
                         this.Owner.loyalty.pathcache.Add(goodpoints, 0);
 
                     }
-                    this.Owner.loyalty.lockPatchCache.ExitWriteLock();
                     cache++;
+                    this.Owner.loyalty.lockPatchCache.ExitWriteLock();
+                    
                 }
                 else
                 {
@@ -9183,55 +9193,96 @@ namespace Ship_Game.Gameplay
             {
                 this.ai = ai;
                 projectorWeight = ProjectorWeightPercentage;
-                granularity = PointSearchGranuality;  
-                nearest = new Empire.InfluenceNode[(int)granularity+1];
-                distance = new float[(int)granularity+1];
+                granularity = PointSearchGranuality;
+                nearest = new Empire.InfluenceNode[(int)granularity + 1];
+                distance = new float[(int)granularity + 1];
                 Empire empire = ai;
                 projectorsize = Empire.ProjectorRadius;
                 goodpoints = new List<Empire.InfluenceNode>();
-                badpoints = new List<Vector2>();            
-                 
-                // List < Ship > ps = empire.GetProjectors();
-                ai.BorderNodeLocker.EnterReadLock();
-                {
-                    goodpoints = new List<Empire.InfluenceNode>(ai.BorderNodes);
-                }
-                ai.BorderNodeLocker.ExitReadLock();
-                
-                //foreach (Ship p in ps)
-                //    goodpoints.Add(p.Center);
-                //foreach (SolarSystem s in empire.GetOwnedSystems())
-                //{
-                //    goodpoints.Add(s.Position);
-                //}
-                //foreach (Planet s in empire.GetPlanets())
-                //{
-                //    goodpoints.Add(s.Position);
-                //}
+                badpoints = new List<Vector2>();
 
-            Relationship rel;
+                // List < Ship > ps = empire.GetProjectors();
+                Empire.InfluenceNode newpoint = null;
+  //              ai.BorderNodeLocker.EnterReadLock();
+                {
+                    foreach(Empire.InfluenceNode point  in ai.BorderNodes)
+                    {
+                        float radius = point.Radius * .50f;
+                        float radius2 = point.Radius * .50f;
+                        if (point.KeyedObject is SolarSystem)
+                        {
+                            radius = 140000;
+                            radius2 = 10000;
+                        }
+
+                            for (int x = 0; x < 360; x += 60)
+                        {
+                            float angle = x;
+                            newpoint = new Empire.InfluenceNode();
+                            newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, point.Position, radius);
+                            newpoint.Radius = radius2;
+                            newpoint.KeyedObject = point.KeyedObject;
+                            goodpoints.Add(newpoint);
+                        }
+                    }
+                  //  goodpoints = new List<Empire.InfluenceNode>(ai.BorderNodes .Where(ss => !(ss.KeyedObject is SolarSystem) && !(ss.KeyedObject is Planet)) );
+                }
+//                ai.BorderNodeLocker.ExitReadLock();
+
+           
+
+
+
+                Relationship rel;
                 foreach(Empire e in EmpireManager.EmpireList)
                 {
-                    if (empire.GetRelations().TryGetValue(e, out rel) && rel.Treaty_OpenBorders)
+                    if (empire.GetRelations().TryGetValue(e, out rel) && rel.Treaty_Alliance)
                     {
-                        e.BorderNodeLocker.EnterReadLock();
+                        foreach (Empire.InfluenceNode point in e.BorderNodes)
                         {
-                            goodpoints.AddRange(e.BorderNodes.Clone());
+                            if (point.KeyedObject is Planet)
+                                continue;
+                            float radius = point.Radius * .50f;
+                            float radius2 = point.Radius * .50f;
+                            
+                            //if (point.KeyedObject is SolarSystem)
+                            //{
+                            //    radius = 140000;
+                            //    radius2 = 10000;
+                            //}
+
+                            for (int x = 0; x < 360; x += 60)
+                            {
+                                float angle = x;
+                                newpoint = new Empire.InfluenceNode();
+                                newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, point.Position, radius);
+                                newpoint.Radius = radius2;
+                                newpoint.KeyedObject = point.KeyedObject;
+                                goodpoints.Add(newpoint);
+                            }
                         }
-                        e.BorderNodeLocker.ExitReadLock();
-                      //  goodpoints.AddRange(e.SensorNodes.Clone());
                     }
-                    //else 
-                    //{
-                    //    foreach (Ship s in e.GetProjectors())
-                    //    {
-                    //        badpoints.Add(s.Position);
-                    //    }
-                    //    foreach (SolarSystem s in e.GetOwnedSystems())
-                    //    {
-                    //        badpoints.Add(s.Position);
-                    //    }
-                    //}
+                    else
+                    if (false && rel != null && !rel.Treaty_OpenBorders && !rel.AtWar)
+                    {
+                        foreach (Empire.InfluenceNode s in e.BorderNodes)
+                        {
+                            for (int x = 0; x < 360; x += 60)
+                            {
+                                float angle = x;
+                                newpoint = new Empire.InfluenceNode();
+                                newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, s.Position, s.Radius * 1.5f);
+                                newpoint.Radius = 0;
+                                goodpoints.Add(newpoint);
+                                newpoint = new Empire.InfluenceNode();
+                                newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, s.Position, s.Radius);
+                                newpoint.Radius = -1;
+                                goodpoints.Add(newpoint);
+                            }
+
+                        }
+                    }
+
                 }
                 //List<Vector2> extrabad = new List<Vector2>();
                 //List<Vector2> extragood = new List<Vector2>();
@@ -9240,7 +9291,7 @@ namespace Ship_Game.Gameplay
                 //    for (int rad = 0; rad < 360; rad += 60)
                 //    {
                 //        extragood.Add(HelperFunctions.GeneratePointOnCircle(rad, bp, projectorsize * 2.6f));
-                       
+
                 //        extrabad.Add(HelperFunctions.GeneratePointOnCircle(rad, bp, projectorsize*2.5f ));
                 //    }
                 //}
@@ -9254,11 +9305,11 @@ namespace Ship_Game.Gameplay
                 //            goodpoints.Remove(eg);
                 //    }
                 //}
-                
+
                 //badpoints.AddRange(extrabad);
-               
+
                 //goodpoints.AddRange(badpoints);
-                
+
             }
             
             public List<Vector2> Pathfind(Vector2 startv, Vector2 endv,bool mode2)
@@ -9333,12 +9384,15 @@ namespace Ship_Game.Gameplay
                     {
 
                         var neighborDistance = Vector2.Distance(neighbor.Position, current.Position) ;
-                        if (neighborDistance > doublepro)
-                        {
-                            float tempd = (neighborDistance - doublepro);
-                            neighborDistance += tempd * (1+ ai.data.Traits.InBordersSpeedBonus )- tempd;
-                        }
-                       // neighborDistance = (float)Math.Pow((Double)neighborDistance, (Double)(neighborDistance / doublepro));
+                        if (current.Radius + neighbor.Radius < neighborDistance)
+                            neighborDistance += (neighborDistance - current.Radius - neighbor.Radius) * (projectorWeight * ai.data.Traits.InBordersSpeedBonus);
+                        doublepro = (neighbor.Radius + current.Radius) *1.25f;
+                        //if (neighborDistance > doublepro)
+                        //{
+                        //    float tempd = (neighborDistance - doublepro);
+                        //    neighborDistance += tempd * (1 + ai.data.Traits.InBordersSpeedBonus) - tempd;
+                        //}
+
                         var tempCurrentDistance = currentDistance[current] +  neighborDistance;              
                     
                         // if we already know a faster way to this neighbor, use that route and 
@@ -9365,11 +9419,13 @@ namespace Ship_Game.Gameplay
                                 //radius = 0;
                             }
                             float tempendDist = Vector2.Distance(neighbor.Position, end.Position) ;
-                            if (tempendDist > doublepro)
-                            {
-                                float tempd = (tempendDist - doublepro);
-                                tempendDist += tempd *(1+ ai.data.Traits.InBordersSpeedBonus) - tempd;
-                            }
+                            if (current.Radius + neighbor.Radius < tempendDist)
+                                tempendDist += (tempendDist - current.Radius - neighbor.Radius) * ((1+projectorWeight) * ai.data.Traits.InBordersSpeedBonus);
+                            //if (tempendDist > doublepro)
+                            //{
+                            //    float tempd = (tempendDist - doublepro);
+                            //    tempendDist += tempd * (1 + ai.data.Traits.InBordersSpeedBonus) - tempd;
+                            //}
                             currentDistance[neighbor] = tempCurrentDistance;
                             
                             predictedDistance[neighbor] =
