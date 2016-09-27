@@ -1613,15 +1613,15 @@ namespace Ship_Game
                     empire.ShipsToAdd.Clear();
                     {
                         int pathcount = empire.pathcache.Count;
-                        if (pathcount == 0)
-                            rebuild = true;
+                       // if (!empire.isFaction && !empire.MinorRace && !empire.data.Defeated &&   pathcount == 0)
+                           
                         empire.updateContactsTimer = empire.updateContactsTimer - 0.01666667f;//elapsedTime;
                         if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
                         {
                             int check = empire.BorderNodes.Count;                            
                             empire.ResetBorders();
                           
-                            if (empire.BorderNodes.Count != check && pathcount >0)
+                            if (empire.BorderNodes.Count != check )
                             {
                                 rebuild = true;
                                 empire.pathcache.Clear();
