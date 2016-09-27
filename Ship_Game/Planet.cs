@@ -3892,7 +3892,7 @@ namespace Ship_Game
                 case ColonyType.Industrial:
                     if (this.Population >=1000 &&this.MaxPopulation >= this.Population)
                     {
-                        if (PRatio < .9 && queueCount > 0 && FSexport)
+                        if (PRatio < .9 && queueCount > 0) //&& FSexport
                             this.ps = GoodState.IMPORT;
                         else if (queueCount == 0)
                         {
@@ -3904,7 +3904,7 @@ namespace Ship_Game
                     }
                     else if (queueCount > 0 || this.Owner.data.Traits.Cybernetic > 0)
                     {
-                        if (PRatio < .5f && PSexport)
+                        if (PRatio < .5f ) //&& PSexport
                             this.ps = GoodState.IMPORT;
                         else if (!PSexport && PRatio >.5)
                             this.ps = GoodState.EXPORT;
@@ -3951,29 +3951,29 @@ namespace Ship_Game
                 break;
                 
                 case ColonyType.Research:
-                
-                {
-                    if (PRatio > .75f && !PSexport)
-                        this.ps = Planet.GoodState.EXPORT;
-                    else if (PRatio < .5f && PSexport)
-                        this.ps = Planet.GoodState.IMPORT;
-                    else
-                        this.ps = GoodState.STORE;
+
+                    {
+                        if (PRatio > .75f && !PSexport)
+                            this.ps = Planet.GoodState.EXPORT;
+                        else if (PRatio < .5f) //&& PSexport
+                            this.ps = Planet.GoodState.IMPORT;
+                        else
+                            this.ps = GoodState.STORE;
 
                         if (this.NetFoodPerTurn < 0)
                             this.fs = Planet.GoodState.IMPORT;
-                        else if(this.NetFoodPerTurn <0)
-                        this.fs = Planet.GoodState.IMPORT;
-                    else
-                    if (FRatio > .75f && !FSexport)
-                        this.fs = Planet.GoodState.EXPORT;
-                    else if (FSexport && FRatio <.75)
-                        this.fs = Planet.GoodState.IMPORT;
-                    else
-                        this.fs = GoodState.STORE;
+                        else if (this.NetFoodPerTurn < 0)
+                            this.fs = Planet.GoodState.IMPORT;
+                        else
+                        if (FRatio > .75f && !FSexport)
+                            this.fs = Planet.GoodState.EXPORT;
+                        else if ( FRatio < .75) //FSexport &&
+                            this.fs = Planet.GoodState.IMPORT;
+                        else
+                            this.fs = GoodState.STORE;
 
-                    break; 
-                }
+                        break;
+                    }
 
                 case ColonyType.Core:                
                 if(this.MaxPopulation > this.Population *.75f && this.Population >this.developmentLevel *1000)
@@ -3990,8 +3990,8 @@ namespace Ship_Game
                 {
                     if (PRatio > .75 && !FSexport)
                         this.ps = GoodState.EXPORT;
-                    else if (PRatio < .5 && FSexport)
-                        this.ps = GoodState.IMPORT;
+                    else if (PRatio < .5) //&& FSexport
+                            this.ps = GoodState.IMPORT;
                     else this.ps = GoodState.STORE;
                 }
 
