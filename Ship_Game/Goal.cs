@@ -755,7 +755,7 @@ namespace Ship_Game
                     for (int index = 0; index < this.empire.GetShips().Count; ++index)
                     {
                         Ship ship = this.empire.GetShips()[index];
-                        if (ship != null && !ship.isColonyShip && !ship.isConstructor && ((ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && !ship.isPlayerShip()) && (ship.GetAI() != null && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
+                        if (ship != null && !ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0 && ((ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && !ship.isPlayerShip()) && (ship.GetAI() != null && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
                         {
                             this.freighter = ship;
                             flag1 = true;
@@ -964,7 +964,7 @@ namespace Ship_Game
                     bool flag1 = false;
                     foreach (Ship ship in (List<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && !ship.isConstructor && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
+                        if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0 && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
                         {
                             this.passTran = ship;
                             flag1 = true;
