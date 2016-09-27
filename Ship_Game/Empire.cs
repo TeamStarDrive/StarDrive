@@ -3528,12 +3528,14 @@ namespace Ship_Game
                     continue;
                 //fbedard: civilian can be freighter too!
                 //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null || ship.isConstructor)
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null || ship.isConstructor
+                    || ship.GetAI().State == AIState.Refit || ship.GetAI().State == AIState.Scrap
+                    )
                     continue;
-                if (ship.GetAI().State != AIState.Scrap)
+                //if (ship.GetAI().State != AIState.Scrap)
                     this.freighterBudget += ship.GetMaintCost();
                 if (ship.CargoSpace_Used == 0 && ship.GetAI().OrderQueue.Count == 0 //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
-                    && (ship.GetAI().State != AIState.Refit && ship.GetAI().State != AIState.Scrap)
+                    
                     )
                 {
                     // if ()  //fbedard: dont scrap loaded ship
@@ -3545,27 +3547,34 @@ namespace Ship_Game
                 {
                     passengerShips++;
                 }
-                else
+                else if (ship.GetAI().State == AIState.SystemTrader)
                     tradeShips++;
+                else
+                {
+                    unusedFreighters.Add(ship);
+                }
             }
             int totalShipcount = tradeShips + passengerShips + unusedFreighters.Count;
             totalShipcount = totalShipcount > 0 ? totalShipcount : 1;
             freighterBudget = freighterBudget > 0 ? freighterBudget : .1f;
             float avgmaint = freighterBudget / totalShipcount;
-            int minFreightCount = (int)(moneyForFreighters * .5f);
-            if (minFreightCount < 3)
-                minFreightCount = 3;
-            if (unusedFreighters.Count > minFreightCount)
+            moneyForFreighters -= freighterBudget;
+          
+            int minFreightCount = 3 + this.getResStrat().ExpansionPriority;
+
+            int skipped = 0;
+
+            while (unusedFreighters.Count - skipped > minFreightCount)
             {
-                int scrappedFreighters = 0;
-                foreach (Ship ship in unusedFreighters)
+                Ship ship = unusedFreighters[0 + skipped];                
+                if (ship.TradeTimer < 0)
                 {
-                    if (unusedFreighters.Count - scrappedFreighters <= minFreightCount)
-                        break;
                     ship.GetAI().OrderScrapShip();
-                    scrappedFreighters += 1;
+                    unusedFreighters.Remove(ship);
                 }
+                else skipped++;
             }
+           
             int freighters = unusedFreighters.Count;
             //get number of freighters being built
 
@@ -3573,9 +3582,9 @@ namespace Ship_Game
             int type = 1;
             while (freighters > 0 && moneyForFreighters > 0)
             {
-                Ship ship = unusedFreighters[0];
-                assignedShips.Add(ship);
-                //unusedFreighters.Remove(ship);
+                Ship ship = unusedFreighters[0];                
+                //assignedShips.Add(ship);
+                unusedFreighters.Remove(ship);
                 freighters--;
                 if (ship.GetAI().State != AIState.Flee)
                 {
@@ -3618,7 +3627,7 @@ namespace Ship_Game
                     ++freighters;
             }
             moneyForFreighters -= freighters * avgmaint;
-            freighters += unusedFreighters.Count;
+            freighters += unusedFreighters.Count ;
             if (moneyForFreighters > 0 && freighters < minFreightCount)
             {
                 freighters++;
