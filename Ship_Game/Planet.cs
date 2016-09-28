@@ -2947,21 +2947,33 @@ namespace Ship_Game
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
                     if (!ship.InCombat && RepairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent <90))
                     {
-                        
-                        foreach (ModuleSlot slot in ship.ModuleSlotList.Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax))
+                        bool repairing = false;
+                        ship.shipStatusChanged = true;
+                        foreach (ModuleSlot slot in ship.ModuleSlotList) // .Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health != slot.module.HealthMax))
                         {
-                            if (slot.module.HealthMax - slot.module.Health > RepairPool)
+                            if (slot.module.ModuleType == ShipModuleType.Dummy)
+                                continue;
+                            repairing = true;
+                            if(ship.loyalty.data.Traits.ModHpModifier >0 )
                             {
-                                slot.module.Repair(RepairPool);
-                                RepairPool = 0;
-                                break;
+                                float test = ResourceManager.ShipModulesDict[slot.module.UID].HealthMax;
+                                slot.module.HealthMax = test + test * ship.loyalty.data.Traits.ModHpModifier; 
                             }
-                            else
+                            if (slot.module.Health < slot.module.HealthMax)
                             {
-                                RepairPool -= slot.module.HealthMax - slot.module.Health;
-                                slot.module.Repair(slot.module.HealthMax);
+                                if (slot.module.HealthMax - slot.module.Health > RepairPool)
+                                {
+                                    slot.module.Repair(RepairPool);
+                                    RepairPool = 0;
+                                    break;
+                                }
+                                else
+                                {
+                                    RepairPool -= slot.module.HealthMax - slot.module.Health;
+                                    slot.module.Repair(slot.module.HealthMax);
+                                }
                             }
-                        }
+                        }                        
                         if (RepairPool > 0)
                         {
                             float shieldrepair = .2f * RepairPool;
