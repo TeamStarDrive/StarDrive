@@ -3531,15 +3531,22 @@ namespace Ship_Game
                 if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null || ship.isConstructor
                     || ship.GetAI().State == AIState.Refit || ship.GetAI().State == AIState.Scrap
                     )
+                {
+                    if (ship.GetAI().State == AIState.PassengerTransport || ship.GetAI().State == AIState.SystemTrader)
+                        ship.GetAI().State = AIState.AwaitingOrders;
                     continue;
-                //if (ship.GetAI().State != AIState.Scrap)
-                    this.freighterBudget += ship.GetMaintCost();
-                if (ship.CargoSpace_Used == 0 && ship.GetAI().OrderQueue.Count == 0 //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
+                }
+                this.freighterBudget += ship.GetMaintCost();
+                if (ship.GetAI().State != AIState.AwaitingOrders && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader)
+                    continue;
                     
-                    )
+                if ( ship.GetAI().start ==null || ship.GetAI().end == null ) //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
                 {
                     // if ()  //fbedard: dont scrap loaded ship
-                    unusedFreighters.Add(ship);
+                    if (ship.TradeTimer != 0 && ship.TradeTimer < 1)
+                        unusedFreighters.Add(ship);
+                    else
+                        assignedShips.Add(ship);
 
 
                 }
@@ -3567,20 +3574,20 @@ namespace Ship_Game
             while (unusedFreighters.Count - skipped > minFreightCount)
             {
                 Ship ship = unusedFreighters[0 + skipped];                
-                if (ship.TradeTimer < 0)
+                if ( ship.TradeTimer < 1 && ship.CargoSpace_Used ==0)
                 {
                     ship.GetAI().OrderScrapShip();
                     unusedFreighters.Remove(ship);
                 }
                 else skipped++;
             }
-           
+            unusedFreighters.AddRange(assignedShips);
             int freighters = unusedFreighters.Count;
             //get number of freighters being built
 
 
             int type = 1;
-            while (freighters > 0 && moneyForFreighters > 0)
+            while (freighters > 0 )
             {
                 Ship ship = unusedFreighters[0];                
                 //assignedShips.Add(ship);
