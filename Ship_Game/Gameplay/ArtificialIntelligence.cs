@@ -284,6 +284,7 @@ namespace Ship_Game.Gameplay
             //    return;
             //if (this.Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
             //    this.ScanForThreatTimer = 0;
+            if(this.State != AIState.Resupply)
             this.HasPriorityOrder = false;            
 			if (this.awaitClosest != null)
 			{
@@ -878,7 +879,7 @@ namespace Ship_Game.Gameplay
                     )
                     this.OrderReturnToHangar();
             }
-            if (this.Owner.OrdinanceMax > 0f && this.Owner.Ordinance / this.Owner.OrdinanceMax < 0.05f &&  !this.hasPriorityTarget)//this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
+            if (this.State!= AIState.Resupply && this.Owner.OrdinanceMax > 0f && this.Owner.Ordinance / this.Owner.OrdinanceMax < 0.05f &&  !this.hasPriorityTarget)//this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
             {
                 if (FriendliesNearby.Where(supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() == 0)
                 {
@@ -886,13 +887,13 @@ namespace Ship_Game.Gameplay
                     return;
                 }
             }
-            if(!this.Owner.loyalty.isFaction && State == AIState.AwaitingOrders && this.Owner.TroopCapacity >0 && this.Owner.TroopList.Count < this.Owner.GetHangars().Where(hangar=> hangar.IsTroopBay).Count() *.5f)
+            if(this.State != AIState.Resupply && !this.Owner.loyalty.isFaction && State == AIState.AwaitingOrders && this.Owner.TroopCapacity >0 && this.Owner.TroopList.Count < this.Owner.GetHangars().Where(hangar=> hangar.IsTroopBay).Count() *.5f)
             {
                 this.OrderResupplyNearest(false);
                 return;
             }
             //if(this.Owner.Level >2 && this.Owner.Health / this.Owner.HealthMax <.5f&&  !(this.HasPriorityOrder||this.hasPriorityTarget))
-            if (this.Owner.Health >0 && this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] 
+            if (this.State != AIState.Resupply && this.Owner.Health >0 && this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] 
                 && this.Owner.shipData.Role >= ShipData.RoleName.supply)  //fbedard: repair level
                 if (this.Owner.fleet == null ||  !this.Owner.fleet.HasRepair)
                 {
@@ -4635,6 +4636,7 @@ namespace Ship_Game.Gameplay
 			}
 			this.Target = null;
 			this.OrbitTarget = toOrbit;
+            this.awaitClosest = toOrbit;
             this.OrderMoveTowardsPosition(toOrbit.Position, 0f, Vector2.One, ClearOrders, toOrbit);
 			this.State = AIState.Resupply;
 			this.HasPriorityOrder = true;
@@ -7090,6 +7092,7 @@ namespace Ship_Game.Gameplay
                     {
                         int skip = 0;
                         float inboundOrdinance = 0f;
+                    if(Owner.HasSupplyBays)
                         foreach (ShipModule hangar in this.Owner.GetHangars().Where(hangar => hangar.IsSupplyBay))
                         {
                             if (hangar.GetHangarShip() != null && hangar.GetHangarShip().Active)
@@ -7378,6 +7381,13 @@ namespace Ship_Game.Gameplay
                     if (this.Owner.inborders) radius += 10000;
                 }
             }
+            else if (this.Owner.Mothership != null )
+            {
+                senseCenter = this.Owner.Mothership.Center;
+                                
+            }
+         
+
             if (this.Owner.fleet != null)
             {
                 if (!this.hasPriorityTarget)
@@ -7391,15 +7401,37 @@ namespace Ship_Game.Gameplay
             }
             else if (!this.hasPriorityTarget)
             {
-//#if DEBUG
-//                if (this.State == AIState.Intercept && this.Target != null)
-//                    System.Diagnostics.Debug.WriteLine(this.Target); 
-//#endif
+                //#if DEBUG
+                //                if (this.State == AIState.Intercept && this.Target != null)
+                //                    System.Diagnostics.Debug.WriteLine(this.Target); 
+                //#endif
+                if (this.Owner.Mothership != null)
+                {
+                    this.Target = this.ScanForCombatTargets(senseCenter, radius);
+
+                    if (this.Target == null)
+                    {
+                        this.Target = this.Owner.Mothership.GetAI().Target;
+                    }
+                    
+                        
+                }
+                else
                 this.Target = this.ScanForCombatTargets(senseCenter, radius);
             }
             else
             {
-                this.ScanForCombatTargets(senseCenter, radius);
+
+                if (this.Owner.Mothership != null)
+                {
+                    this.Target = this.ScanForCombatTargets(senseCenter, radius);
+                    if (this.Target == null)
+                    {
+                        this.Target = this.Owner.Mothership.GetAI().Target;
+                    }
+                }
+                else
+                    this.ScanForCombatTargets(senseCenter, radius);
             }
             if (this.State == AIState.Resupply)
             {
@@ -8065,6 +8097,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin Devekmod AuUpdate(fixed)
         public void Update(float elapsedTime)
         {
+            if(this.BadGuysNear)
             this.CombatAI.UpdateCombatAI(this.Owner);
             ArtificialIntelligence.ShipGoal toEvaluate;
             if (this.State == AIState.AwaitingOrders && this.DefaultAIState == AIState.Exterminate)
@@ -8106,6 +8139,7 @@ namespace Ship_Game.Gameplay
 				if (this.Owner.Ordinance >= this.Owner.OrdinanceMax && this.Owner.Health >= this.Owner.HealthMax)  //fbedard: consider health also
                 {
                     this.HasPriorityOrder = false;
+                    this.State = AIState.AwaitingOrders;
                 }
             }
             //fbedard: Put back flee! (resupply order with nowhere to go)
@@ -8276,12 +8310,12 @@ namespace Ship_Game.Gameplay
                                                 if (this.Owner.loyalty.isFaction)
                                                     break;
                                                 //fbedard: resume trading
-                                                if (this.FoodOrProd == "Pass")
-                                                    this.State = AIState.PassengerTransport;
-                                                else if (this.FoodOrProd == "Food" || this.FoodOrProd == "Prod")
-                                                    this.State = AIState.SystemTrader;
-                                                if ((this.Owner.OrdinanceMax <1 ||  this.Owner.Ordinance / this.Owner.OrdinanceMax >= 0.2f) 
-                                                    )
+                                                //if (this.FoodOrProd == "Pass")
+                                                //    this.State = AIState.PassengerTransport;
+                                                //else if (this.FoodOrProd == "Food" || this.FoodOrProd == "Prod")
+                                                //    this.State = AIState.SystemTrader;
+                                                if (this.Owner.OrdinanceMax <1 ||  this.Owner.Ordinance / this.Owner.OrdinanceMax >= 0.2f) 
+                                                    
                                                 {
                                                     break;
                                                 }
@@ -8332,17 +8366,19 @@ namespace Ship_Game.Gameplay
                                                 // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
                                                 // and a standard 30k around it instead of their own. This hopefully will prevent them flying off too much, as well as keeping them
                                                 // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
+                                                //gremlin Moved to setcombat status as target scan is expensive and did some of this already. this also shortcuts the UseSensorforTargets switch. Im not sure abuot the using the mothership target. 
+                                                // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own. 
                                                 else
                                                 {
-                                                    if (this.Owner.Mothership != null && this.Target == null)
-                                                    {
-                                                        this.ScanForCombatTargets(this.Owner.Mothership.Center, 30000f);
-                                                        if (this.Target == null)
-                                                        {
-                                                            this.Target = this.Owner.Mothership.GetAI().Target;
-                                                        }
-                                                    }
-                                                    this.DoCombat(elapsedTime);
+                                                //if (this.Owner.Mothership != null && this.Target == null)
+                                                //{
+                                                //    this.ScanForCombatTargets(this.Owner.Mothership.Center, 30000f);
+                                                //    if (this.Target == null)
+                                                //    {
+                                                //        this.Target = this.Owner.Mothership.GetAI().Target;
+                                                //    }
+                                                //}
+                                                this.DoCombat(elapsedTime);
                                                     break;
                                                 }
                                             }
@@ -8377,20 +8413,10 @@ namespace Ship_Game.Gameplay
                                         break;
                                     }
                                 case AIState.Resupply:
-                                    {
-                                        if (this.Owner.Ordinance < this.Owner.OrdinanceMax || this.Owner.Health < this.Owner.HealthMax)
-                                        {
-                                            break;
-                                        }
-                                        this.ClearOrdersNext = false;
-                                        if (this.FoodOrProd == "Pass")
-                                            this.State = AIState.PassengerTransport;
-                                        else if (this.FoodOrProd == "Food" || this.FoodOrProd == "Prod")
-                                            this.State = AIState.SystemTrader;
-                                        else
-                                            this.State = AIState.AwaitingOrders;
-                                        break;
-                                    }
+                                {
+                                    this.AwaitOrders(elapsedTime);
+                                    break;
+                                }
                                 default:
                                     {
                                         if (state == AIState.ReturnToHangar)
@@ -8438,7 +8464,7 @@ namespace Ship_Game.Gameplay
                             {
                                 this.RotateToFacing(elapsedTime, angleDiff, facing);
                             }                            
-                            if (DistanceToFleetOffset <= 75f || this.State != AIState.Resupply)  //fbedard: dont override high priority resupply
+                            if (DistanceToFleetOffset <= 75f || (this.State != AIState.Resupply || !this.HasPriorityOrder))  //fbedard: dont override high priority resupply
                             {
 								this.State = AIState.AwaitingOrders;
                                 this.HasPriorityOrder = false;
@@ -8896,7 +8922,7 @@ namespace Ship_Game.Gameplay
             //targetChangeTimer -= elapsedTime;
             //if(TriggerDelay >-1)
             TriggerDelay -= elapsedTime;
-            if (!this.IgnoreCombat && this.BadGuysNear)// || this.Owner.InCombat )
+            if ( this.BadGuysNear)// || this.Owner.InCombat )
             {
               
                     bool docombat = false;
@@ -8910,7 +8936,7 @@ namespace Ship_Game.Gameplay
 
                         if(this.Target !=null || this.PotentialTargets.Count >0 )
 
-                        docombat = !this.HasPriorityOrder && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat && firstgoal.Plan != Plan.Bombard && firstgoal.Plan != Plan.BoardShip);
+                        docombat = !this.HasPriorityOrder && !this.IgnoreCombat && this.State != AIState.Resupply && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat && firstgoal.Plan != Plan.Bombard && firstgoal.Plan != Plan.BoardShip);
 
 
                         if (docombat)//|| this.OrderQueue.Count == 0))
@@ -8998,7 +9024,7 @@ namespace Ship_Game.Gameplay
                 this.CombatState = Gameplay.CombatState.Evade;
             }
 
-            if (this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] && this.State != AIState.Resupply && this.Owner.shipData.Role >= ShipData.RoleName.supply) //fbedard: ships will go for repair
+            if (this.State != AIState.Resupply && !this.HasPriorityOrder && this.Owner.Health / this.Owner.HealthMax < DmgLevel[(int)this.Owner.shipData.ShipCategory] &&  this.Owner.shipData.Role >= ShipData.RoleName.supply) //fbedard: ships will go for repair
                 if (this.Owner.fleet == null || (this.Owner.fleet != null && !this.Owner.fleet.HasRepair))
                 {
                     this.OrderResupplyNearest(false);
