@@ -1735,11 +1735,13 @@ namespace Ship_Game.Gameplay
 			this.SetAttributesByType();
 			if (this.Parent != null && this.Parent.loyalty != null)
 			{
-                //bool flag = false;
-                //if (this.HealthMax == base.Health)
-                //    flag = true;
-                this.HealthMax = this.HealthMax + this.HealthMax * this.Parent.loyalty.data.Traits.ModHpModifier;
-				base.Health = base.Health + base.Health * this.Parent.loyalty.data.Traits.ModHpModifier;
+                float test = this.HealthMax;
+                if (this.ModuleType != ShipModuleType.Dummy)
+                 test = ResourceManager.ShipModulesDict[this.UID].HealthMax;
+                else if(this.ParentOfDummy != null && !string.IsNullOrEmpty(this.ParentOfDummy.UID))
+                    test = ResourceManager.ShipModulesDict[this.ParentOfDummy.UID].HealthMax;
+                this.HealthMax = test + test * this.Parent.loyalty.data.Traits.ModHpModifier;
+                base.Health = base.Health; // + base.Health * this.Parent.loyalty.data.Traits.ModHpModifier;
                 this.Health = base.Health;
                 //if (flag)
                 //    this.Health = this.HealthMax;
