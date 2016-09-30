@@ -5613,7 +5613,7 @@ namespace Ship_Game.Gameplay
                         this.Owner.CargoClear();
                     }
                 }
-                //this.State = AIState.SystemTrader;
+                this.State = AIState.SystemTrader;
                 this.Owner.TradeTimer = 5f;
                 if (string.IsNullOrEmpty(this.FoodOrProd))
                     if (this.Owner.TradingFood)
