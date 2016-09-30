@@ -4984,7 +4984,7 @@ namespace Ship_Game.Gameplay
             List<Planet> planets = new List<Planet>();
             IOrderedEnumerable<Planet> sortPlanets;
             bool flag;
-
+            List<Planet> secondaryPlanets = new List<Planet>();
             //added by gremlin if fleeing keep fleeing
             if (this.Owner.CargoSpace_Max == 0 || this.State == AIState.Flee || this.Owner.isConstructor || this.Owner.isColonyShip)
                 return;
@@ -5016,47 +5016,60 @@ namespace Ship_Game.Gameplay
                 if (this.end == null && FoodFirst  && ( this.Owner.GetCargo()["Food"] > 0f))
                 {
                     //planets.Clear();
+
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
                     for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count(); i++)
-                    if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
-                    {
-                        Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
-                        if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT )
+                        if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
                         {
-                            if (PlanetCheck.FoodHere / PlanetCheck.MAX_STORAGE  <.1f && PlanetCheck.NetFoodPerTurn <0 ) //(PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
+                            Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
+                            if (PlanetCheck == null)
+                                continue;
+
+                            if (PlanetCheck.fs == Planet.GoodState.IMPORT)
                             {
-                                if (this.Owner.AreaOfOperation.Count > 0)
+                                //if (PlanetCheck.FoodHere / PlanetCheck.MAX_STORAGE  <.1f && PlanetCheck.NetFoodPerTurn <0 ) //(PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
                                 {
-                                    foreach (Rectangle areaOfOperation in this.Owner.AreaOfOperation)
-                                        if (HelperFunctions.CheckIntersection(areaOfOperation, PlanetCheck.Position))
-                                        {
-                                            planets.Add(PlanetCheck);
-                                            break;
-                                        }
+                                    if (this.Owner.AreaOfOperation.Count > 0)
+                                    {
+                                        foreach (Rectangle areaOfOperation in this.Owner.AreaOfOperation)
+                                            if (HelperFunctions.CheckIntersection(areaOfOperation, PlanetCheck.Position))
+                                            {
+                                                planets.Add(PlanetCheck);
+                                                break;
+                                            }
+                                    }
+                                    else
+                                        planets.Add(PlanetCheck);
                                 }
-                                else
-                                    planets.Add(PlanetCheck);
+
                             }
-                            
+                            else if (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere > 0)
+                            {
+                                secondaryPlanets.Add(PlanetCheck);
+                            }
+
                         }
+                   if(planets.Count ==0)
+                    {
+                        planets.AddRange(secondaryPlanets);
                     }
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
                     if (planets.Count > 0)
                     {
-                        if (this.Owner.GetCargo()["Food"] > 0f)
+                       // if (this.Owner.GetCargo()["Food"] > 0f)
                             //sortPlanets = planets.OrderBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                             sortPlanets = planets.OrderBy(PlanetCheck =>
                             {
-                                return TradeSort(this.Owner,PlanetCheck, "Food",this.Owner.CargoSpace_Used, true);
-                            }
-                      ) ;
-                        else
-                        //    sortPlanets = planets.OrderBy(dest => (dest.FoodHere + (dest.NetFoodPerTurn - dest.consumption) * GoodMult));
-                            sortPlanets = planets.OrderBy(PlanetCheck =>
-                            {
-                                return TradeSort(this.Owner, PlanetCheck, "Food", this.Owner.CargoSpace_Max, true);   
+                                return TradeSort(this.Owner, PlanetCheck, "Food", this.Owner.CargoSpace_Used, true);
                             }
                       );
+                      //  else
+                      //      //    sortPlanets = planets.OrderBy(dest => (dest.FoodHere + (dest.NetFoodPerTurn - dest.consumption) * GoodMult));
+                      //      sortPlanets = planets.OrderBy(PlanetCheck =>
+                      //      {
+                      //          return TradeSort(this.Owner, PlanetCheck, "Food", this.Owner.CargoSpace_Max, true);
+                      //      }
+                      //);
                         foreach (Planet p in sortPlanets)
                         {
                             flag = false;
@@ -5140,6 +5153,7 @@ namespace Ship_Game.Gameplay
                 if (this.end == null && (this.Owner.TradingProd || this.Owner.GetCargo()["Production"] > 0f))
                 {
                     planets.Clear();
+                    secondaryPlanets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
                     for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count(); i++)
                     if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
@@ -5163,8 +5177,15 @@ namespace Ship_Game.Gameplay
                             else
                                 planets.Add(PlanetCheck);
                         }
-                    }
+                            else if (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere > 0)
+                            {
+                                secondaryPlanets.Add(PlanetCheck);
+                            }
+
+                        }                    
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
+                    if (planets.Count == 0)
+                        planets.AddRange(secondaryPlanets);
                     if (planets.Count > 0)
                     {
                         if (this.Owner.GetCargo()["Production"] > 0f)
@@ -5362,7 +5383,7 @@ namespace Ship_Game.Gameplay
                 #endregion
                 
                 #region Get Food
-                if (this.start == null && this.end != null && this.FoodOrProd == "Food")
+                if (this.start == null && this.end != null) // && this.FoodOrProd == "Food")
                 {
                     planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
@@ -5467,7 +5488,7 @@ namespace Ship_Game.Gameplay
                 #endregion
 
                 #region Get Production
-                if (this.start == null && this.end != null && this.FoodOrProd == "Prod")
+                if (this.start == null && this.end != null) // && this.FoodOrProd == "Prod")
                 {
                     planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
@@ -5587,8 +5608,12 @@ namespace Ship_Game.Gameplay
                 {
                     this.start = null;
                     this.end = null;
+                    if(this.Owner.CargoSpace_Used >0)
+                    {
+                        this.Owner.CargoClear();
+                    }
                 }
-                this.State = AIState.SystemTrader;
+                //this.State = AIState.SystemTrader;
                 this.Owner.TradeTimer = 5f;
                 if (string.IsNullOrEmpty(this.FoodOrProd))
                     if (this.Owner.TradingFood)
