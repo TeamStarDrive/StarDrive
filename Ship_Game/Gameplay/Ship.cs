@@ -238,6 +238,15 @@ namespace Ship_Game.Gameplay
             {
             }
         }
+        public void CargoClear()
+        {
+            List<string> keys = new List<string>(CargoDict.Keys);
+            foreach (string cargo in keys)
+            {
+                CargoDict[cargo] = 0;
+            }
+            
+        }
         public float GetFTLmodifier 
         { 
             get
