@@ -9530,7 +9530,7 @@ namespace Ship_Game.Gameplay
                                             // foreach (MilitaryTask item_1 in (List<MilitaryTask>)this.TaskList)
                                             this.TaskList.ForEach(item_1 =>
                                             {
-                                                if (!flag)
+                                                if (!flag && claim)
                                                     return;
                                                 if (item_1.GetTargetPlanet() == current && item_1.type == MilitaryTask.TaskType.AssaultPlanet)
                                                 {
@@ -9554,8 +9554,9 @@ namespace Ship_Game.Gameplay
                                             this.TaskList.Add(militaryTask);
 
                                         }
-                                        if (!claim)
+                                        if (!claim )
                                         {
+                                            //public MilitaryTask(Vector2 location, float radius, List<Goal> GoalsToHold, Empire Owner)
                                             MilitaryTask task = new MilitaryTask()
                                             {
                                                 AO = current.Position
@@ -9565,6 +9566,7 @@ namespace Ship_Game.Gameplay
                                             task.SetTargetPlanet(current);
                                             task.TargetPlanetGuid = current.guid;
                                             task.type = MilitaryTask.TaskType.DefendClaim;
+                                            task.EnemyStrength = 0;
                                             //lock (GlobalStats.TaskLocker)
                                             {
                                                 this.TaskList.Add(task);
