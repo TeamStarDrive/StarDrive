@@ -3627,16 +3627,23 @@ namespace Ship_Game
 
             }
             freighters = 0;// unusedFreighters.Count;
+            int goalLimt = 1  + this.getResStrat().IndustryPriority;
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
+                {
                     ++freighters;
+                    goalLimt--;
+                }
                 else if (goal.GoalName == "IncreasePassengerShips")
+                {
+                    goalLimt--;
                     ++freighters;
+                }
             }
             moneyForFreighters -= freighters * avgmaint;
             freighters += unusedFreighters.Count ;
-            if (moneyForFreighters > 0 && freighters < minFreightCount)
+            if (moneyForFreighters > 0 && freighters < minFreightCount && goalLimt >0)
             {
                 freighters++;
                 this.GSAI.Goals.Add(new Goal(this)
@@ -3646,15 +3653,15 @@ namespace Ship_Game
                 });
                 moneyForFreighters -= avgmaint;
 
-                if (freighters < minFreightCount && moneyForFreighters > 0)
-                {
-                    freighters++;
-                    this.GSAI.Goals.Add(new Goal(this)
-                    {
-                        type = GoalType.BuildShips,
-                        GoalName = "IncreasePassengerShips"
-                    });
-                }
+                //if (freighters < minFreightCount && moneyForFreighters > 0)
+                //{
+                //    freighters++;
+                //    this.GSAI.Goals.Add(new Goal(this)
+                //    {
+                //        type = GoalType.BuildShips,
+                //        GoalName = "IncreasePassengerShips"
+                //    });
+                //}
             }
 
         }

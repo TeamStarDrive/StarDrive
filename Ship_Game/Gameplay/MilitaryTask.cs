@@ -1616,7 +1616,9 @@ namespace Ship_Game.Gameplay
             float tfstrength = 0f;
             BatchRemovalCollection<Ship> elTaskForce = new BatchRemovalCollection<Ship>();
             int shipCount = 0;
-            float strengthNeeded = this.empire.GetGSAI().ThreatMatrix.PingRadarStr(this.TargetPlanet.Position, 125000, this.empire);
+            float strengthNeeded = this.EnemyStrength;
+            if (strengthNeeded == 0)
+                strengthNeeded = this.empire.GetGSAI().ThreatMatrix.PingRadarStr(this.TargetPlanet.Position, 125000, this.empire);
             if (strengthNeeded < this.empire.currentMilitaryStrength * .02f)
                 strengthNeeded = this.empire.currentMilitaryStrength * .02f;
             foreach (Ship ship in ClosestAO.GetOffensiveForcePool().OrderBy(str=>str.GetStrength()))
