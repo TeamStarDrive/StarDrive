@@ -1599,7 +1599,7 @@ namespace Ship_Game
 
             if (!this.Paused)
             {
-
+                bool rebuild = false;
                 Parallel.ForEach(EmpireManager.EmpireList, empire =>
                 //foreach(Empire empire in EmpireManager.EmpireList)
                 {
@@ -1612,16 +1612,20 @@ namespace Ship_Game
 
                     empire.ShipsToAdd.Clear();
                     {
-
+                        int pathcount = empire.pathcache.Count;
+                       // if (!empire.isFaction && !empire.MinorRace && !empire.data.Defeated &&   pathcount == 0)
+                           
                         empire.updateContactsTimer = empire.updateContactsTimer - 0.01666667f;//elapsedTime;
                         if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
                         {
                             int check = empire.BorderNodes.Count;                            
                             empire.ResetBorders();
-                            int pathcount = empire.pathcache.Count;
-                            if(empire.BorderNodes.Count != check && pathcount >0)
+                          
+                            if (empire.BorderNodes.Count != check )
                             {
+                                rebuild = true;
                                 empire.pathcache.Clear();
+                               // empire.lockPatchCache.ExitWriteLock();
                                 //ArtificialIntelligence.Grid repath =new ArtificialIntelligence.Grid(empire,36,10);
                                 //List<Vector2> pathcheck = new List<Vector2>();
                                 //List<List<Vector2>> keylist =  empire.pathcache.Keys.OrderByDescending(hit=> empire.pathcache[hit]).ToList();
@@ -1660,12 +1664,18 @@ namespace Ship_Game
                             empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
                         }
                     }
+                    
                 });
-
+                if(rebuild)
+                Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                {
+                   
+                    empire.pathhMap = new ArtificialIntelligence.Grid(empire, 20, 2);
+                });
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
                 {
                     Empire empire = EmpireManager.EmpireList[index];
-                    empire.pathhMap = new ArtificialIntelligence.Grid(empire, 20, 10);
+                   // empire.pathhMap = new ArtificialIntelligence.Grid(empire, 20, 10);
                     empire.Update(elapsedTime);
                     
 
