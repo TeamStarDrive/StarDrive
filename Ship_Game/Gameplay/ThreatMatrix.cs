@@ -128,9 +128,8 @@ namespace Ship_Game.Gameplay
                 }              
                 ship = pin.Value.ship;
                 if (ship == null)
-                    continue;
-                rel = empire.GetRelations()[ship.loyalty];
-                if (ship.loyalty != empire
+                    continue;                
+                if (!empire.GetRelations().TryGetValue(ship.loyalty, out rel) ||  ship.loyalty != empire
                              && (ship.loyalty.isFaction || rel.AtWar)
                              || (pin.Value.InBorders && !rel.Treaty_OpenBorders)
                              || (ship.isColonyShip && 
