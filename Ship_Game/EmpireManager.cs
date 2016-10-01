@@ -7,10 +7,13 @@ namespace Ship_Game
 	{
 		public static List<Empire> EmpireList;
 
+        private static Dictionary<string, Empire> EmpireDict; 
+
 		static EmpireManager()
 		{
 			EmpireManager.EmpireList = new List<Empire>();
-		}
+            EmpireManager.EmpireDict = new Dictionary<string, Empire>();
+        }
 
 		public EmpireManager()
 		{
@@ -18,10 +21,19 @@ namespace Ship_Game
 
 		public static Empire GetEmpireByName(string name)
         {
+            Empire e = null;
+            if (EmpireDict.TryGetValue(name, out e))
+            {
+                return e;
+            }
+            else
             foreach (Empire empire in EmpireManager.EmpireList)
             {
-                if (string.Equals(empire.data.Traits.Name, name))
-                    return empire;
+                    if (string.Equals(empire.data.Traits.Name, name))
+                    {
+                        EmpireDict.Add(name, empire);
+                        return empire;
+                    }
             }
             return (Empire)null;
         }

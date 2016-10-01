@@ -190,7 +190,10 @@ namespace Ship_Game.Gameplay
 			int num = 0;
 			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
 			{
-				if (Vector2.Distance(Position, pin.Value.Position) >= Radius || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Us || !Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction && !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].AtWar)
+                if (string.Equals(Us.data.Traits.Name, pin.Value.EmpireName) || Vector2.Distance(Position, pin.Value.Position) >= Radius)
+                    continue;
+                Empire them = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
+                if (!Us.isFaction && !them.isFaction && !Us.GetRelations()[them].AtWar)
 				{
 					continue;
 				}
@@ -220,8 +223,10 @@ namespace Ship_Game.Gameplay
                         foreach (Ship ship in Ship.universeScreen.MasterShipList)
                         {
                             if (ship.guid == pin.Key)
+                            {
                                 pin.Value.ship = ship;
-                            break;
+                                break;
+                            }
                         }
                         if (pin.Value.ship == null)
                         {
@@ -254,20 +259,15 @@ namespace Ship_Game.Gameplay
 		public float PingRadarStr(Vector2 Position, float Radius, Empire Us)
 		{
 			float str = 0f;
-            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)            
             {
+                if (string.Equals(Us.data.Traits.Name, pin.Value.EmpireName) || Vector2.Distance(Position, pin.Value.Position) >= Radius)
+                    continue;                     
                 Empire them = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
-                if (them == Us || Vector2.Distance(Position, pin.Value.Position) >= Radius
-
-                    //|| (!Us.isFaction && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction 
-                    //&& !Us.GetRelations()[EmpireManager.GetEmpireByName(pin.Value.EmpireName)].Treaty_NAPact))                     
-                    //|| ( (!them.isFaction && !Us.isFaction) && Us.GetRelations()[them].Treaty_NAPact)
-                    )
-                    continue;
 
                 Relationship test;
                 if (Us.GetRelations().TryGetValue(them, out test) && test.Treaty_NAPact)
-                    continue;
+                    continue;                    
 
                 str = str + pin.Value.Strength;
             }
@@ -279,6 +279,8 @@ namespace Ship_Game.Gameplay
             float str = 0f;
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
+                if (string.Equals(Us.data.Traits.Name, pin.Value.EmpireName) || Vector2.Distance(Position, pin.Value.Position) >= Radius)
+                    continue;
                 Empire them = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
                 if (them == Us || Vector2.Distance(Position, pin.Value.Position) >= Radius
                     || (factionOnly && !them.isFaction)
