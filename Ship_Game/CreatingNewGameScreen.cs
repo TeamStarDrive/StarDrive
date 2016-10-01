@@ -125,8 +125,8 @@ namespace Ship_Game
                         //    this.numSystems = (int)(12 * StarNumModifier);
                         //}
                         //else
-                            this.numSystems = (int)(30f * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(28f * StarNumModifier); //Gretman
+                            this.numSystems = (int)(30 * StarNumModifier);
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(32f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(3500000);
                     }
                     else if (str1 == "Medium")
@@ -137,7 +137,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(45f * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(40f * StarNumModifier); //Gretman
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(48f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(5500000);
                         Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
@@ -161,7 +161,7 @@ namespace Ship_Game
                         //}
                         //else
                             this.numSystems = (int)(92 * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(84f * StarNumModifier); //Gretman
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(80f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(13500000);  //27,000,000
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                     }
@@ -173,7 +173,7 @@ namespace Ship_Game
                         //}
                         //else //33554423  33,554,432.
                             this.numSystems = (int)(115 * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(104f * StarNumModifier); //Gretman
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(112f * StarNumModifier); //Gretman
                         this.data.Size = new Vector2(20000000);
                             Empire.ProjectorRadius = (this.data.Size.X / 70);
                             //this.data.Size = new Vector2(36000000, 36000000);
@@ -191,7 +191,7 @@ namespace Ship_Game
                         //}
                         //else
                         this.numSystems = (int)(160 * StarNumModifier);
-                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(140f * StarNumModifier); //I have resurrected the TrulyEpic Map size! -Gretman
+                        if (this.mode == RaceDesignScreen.GameMode.Corners) this.numSystems = (int)(144f * StarNumModifier); //I have resurrected the TrulyEpic Map size! -Gretman
                         this.data.Size = new Vector2(33554423);
                         //this.data.Size = new Vector2(7.2E+07f, 7.2E+07f);
                         //this.scale = 4;
