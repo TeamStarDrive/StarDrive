@@ -83,7 +83,8 @@ namespace Ship_Game
 					{
 						RacialTrait modHpModifier = Triggerer.data.Traits;
 						modHpModifier.ModHpModifier = modHpModifier.ModHpModifier + (triggeredOutcome.GetArtifact().ModuleHPMod + triggeredOutcome.GetArtifact().ModuleHPMod * Triggerer.data.Traits.Spiritual);
-					}
+                        Triggerer.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
+                    }
 					if (triggeredOutcome.GetArtifact().PlusFlatMoney > 0f)
 					{
 						EmpireData flatMoneyBonus = Triggerer.data;
@@ -269,7 +270,8 @@ namespace Ship_Game
 						{
 							RacialTrait modHpModifier = Triggerer.data.Traits;
 							modHpModifier.ModHpModifier = modHpModifier.ModHpModifier + (triggeredOutcome.GetArtifact().ModuleHPMod + triggeredOutcome.GetArtifact().ModuleHPMod * Triggerer.data.Traits.Spiritual);
-						}
+                            Triggerer.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
+                        }
 						if (triggeredOutcome.GetArtifact().PlusFlatMoney > 0f)
 						{
 							EmpireData flatMoneyBonus = Triggerer.data;

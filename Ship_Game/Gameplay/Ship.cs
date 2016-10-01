@@ -1808,7 +1808,7 @@ namespace Ship_Game.Gameplay
             this.Weapons.Clear();
             this.Center = new Vector2(this.Position.X + this.Dimensions.X / 2f, this.Position.Y + this.Dimensions.Y / 2f);
             this.InitFromSave();
-            if(string.IsNullOrEmpty(this.VanityName))
+            if (string.IsNullOrEmpty(this.VanityName))
             this.VanityName = this.Name;
             if (Ship_Game.ResourceManager.ShipsDict.ContainsKey(this.Name) && Ship_Game.ResourceManager.ShipsDict[this.Name].IsPlayerDesign)
                 this.IsPlayerDesign = true;
@@ -1864,6 +1864,9 @@ namespace Ship_Game.Gameplay
             this.radius = this.ShipSO.WorldBoundingSphere.Radius * 2f;
             this.ShipStatusChange();
             this.shipInitialized = true;
+            this.RecalculateMaxHP();            //Fix for Ship Max health being greater than all modules combined (those damned haphazard engineers). -Gretman
+
+            if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health from InitializeFromSave is:  " + this.HealthMax);
         }
 
         public override void Initialize()
@@ -2659,7 +2662,6 @@ namespace Ship_Game.Gameplay
 
         public virtual void InitializeModules()
         {
-            
             this.Weapons.Clear();
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
@@ -2733,7 +2735,7 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        public override void Update(float elapsedTime)     //Mer
+        public override void Update(float elapsedTime)
         {
             if (!this.Active)
                 return;
@@ -2976,7 +2978,7 @@ namespace Ship_Game.Gameplay
                     //Ship ship3 = this;
                     //Vector2 vector2_2 = this.Center + this.Velocity * elapsedTime;
                     this.Center += this.Velocity * elapsedTime;
-                    this.UpdateShipStatus(elapsedTime);     //Mer
+                    this.UpdateShipStatus(elapsedTime);
                     if (!this.Active)
                         return;
                     if (!this.disabled && !Ship.universeScreen.Paused) //this.hasCommand &&
@@ -3642,7 +3644,9 @@ namespace Ship_Game.Gameplay
                     this.PowerDraw = this.ModulePowerDraw + this.ShieldPowerDraw;
                 else
                     this.PowerDraw = this.ModulePowerDraw;
+
                 //This is what updates all of the modules of a ship
+                if (this.loyalty.RecalculateMaxHP) this.HealthMax = 0;
                 foreach (ModuleSlot slot in this.ModuleSlotList)
                     slot.module.Update(1f);
                 //Check Current Shields
@@ -5100,6 +5104,28 @@ namespace Ship_Game.Gameplay
         {
             Sublight,
             Warp,
+        }
+
+        public void RecalculateMaxHP()          //Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
+        {
+            if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health was " + this.Health + " / " + this.HealthMax + "   (" + this.loyalty.data.Traits.ModHpModifier + ")");
+            this.HealthMax = 0;
+            foreach (ModuleSlot Mod in this.ModuleSlotList)
+            {
+                if (Mod.module.isDummy) continue;
+                bool IsFullyHealed = false;
+                if (Mod.module.Health >= Mod.module.HealthMax) IsFullyHealed = true;
+                Mod.module.HealthMax = ResourceManager.ShipModulesDict[Mod.module.UID].HealthMax;
+                Mod.module.HealthMax = Mod.module.HealthMax + Mod.module.HealthMax * this.loyalty.data.Traits.ModHpModifier;
+                if (IsFullyHealed)
+                {                                                                   //Basically, set maxhealth to what it would be with no modifier, then
+                    Mod.module.Health = Mod.module.HealthMax;                       //apply the total benefit to it. Next, if the module is fully healed,
+                    Mod.ModuleHealth = Mod.module.HealthMax;                        //adjust its HP so it is still fully healed. Also calculate and adjust                                            
+                }                                                                   //the ships MaxHP so it will display properly.        -Gretman
+                this.HealthMax += Mod.module.HealthMax;
+            }
+            if (this.Health >= this.HealthMax) this.Health = this.HealthMax;
+            if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health is  " + this.Health + " / " + this.HealthMax);
         }
 
     }

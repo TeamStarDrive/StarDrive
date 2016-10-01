@@ -5004,7 +5004,7 @@ namespace Ship_Game.Gameplay
                 bool FoodFirst = true;
                 if ((this.Owner.GetCargo()["Production"] > 0f || !this.Owner.TradingFood || RandomMath.RandomBetween(0f, 1f) < 0.5f) && this.Owner.TradingProd && this.Owner.GetCargo()["Food"] == 0f)
                     FoodFirst = false;
-                float GoodMult = RandomMath.RandomBetween(0f, 25f);
+                //float GoodMult = RandomMath.RandomBetween(0f, 25f);
 
                 //if already loaded, give any start planet: <-- this doesnt look good but doesnt appear to be a problem
                 //if (this.start == null && (this.Owner.GetCargo()["Food"] > 0f || this.Owner.GetCargo()["Production"] > 0f))
@@ -9225,8 +9225,8 @@ namespace Ship_Game.Gameplay
             //public byte[,] Weight;
        
            
-            Empire.InfluenceNode[] nearest;// = new Vector2[(int)granularity];
-            float[] distance;// = new float[(int)granularity];
+            // = new Vector2[(int)granularity];
+           // = new float[(int)granularity];
             float granularity; //= 8f;
             float projectorWeight;
             class mappoint
@@ -9245,8 +9245,8 @@ namespace Ship_Game.Gameplay
                 this.ai = ai;
                 projectorWeight = ProjectorWeightPercentage;
                 granularity = PointSearchGranuality;
-                nearest = new Empire.InfluenceNode[(int)granularity + 1];
-                distance = new float[(int)granularity + 1];
+                
+                //distance = new float[(int)granularity + 1];
                 Empire empire = ai;
                 projectorsize = Empire.ProjectorRadius;
                 goodpoints = new List<Empire.InfluenceNode>();
@@ -9437,7 +9437,7 @@ namespace Ship_Game.Gameplay
                         var neighborDistance = Vector2.Distance(neighbor.Position, current.Position) ;
                         if (current.Radius + neighbor.Radius < neighborDistance)
                             neighborDistance += (neighborDistance - current.Radius - neighbor.Radius) * (projectorWeight * ai.data.Traits.InBordersSpeedBonus);
-                        doublepro = (neighbor.Radius + current.Radius) *1.25f;
+                        //doublepro = (neighbor.Radius + current.Radius) *1.25f;
                         //if (neighborDistance > doublepro)
                         //{
                         //    float tempd = (neighborDistance - doublepro);
@@ -9471,7 +9471,7 @@ namespace Ship_Game.Gameplay
                             }
                             float tempendDist = Vector2.Distance(neighbor.Position, end.Position) ;
                             if (current.Radius + neighbor.Radius < tempendDist)
-                                tempendDist += (tempendDist - current.Radius - neighbor.Radius) * ((1+projectorWeight) * ai.data.Traits.InBordersSpeedBonus);
+                                tempendDist += (tempendDist - current.Radius - neighbor.Radius) * ((1 + projectorWeight) * ai.data.Traits.InBordersSpeedBonus);
                             //if (tempendDist > doublepro)
                             //{
                             //    float tempd = (tempendDist - doublepro);
@@ -9523,7 +9523,8 @@ namespace Ship_Game.Gameplay
             {
                 var nodes = new List<Empire.InfluenceNode>();
                 int granularityl =(int) granularity;
-                //Vector2 endrange = Vector2.Zero;
+                float[] distance = new float[(int)granularity + 1];
+                Empire.InfluenceNode[] nearest = new Empire.InfluenceNode[(int)granularity + 1];
                 for (int i=0;i<(int)granularityl; i++)
                 {
                     nearest[i] = null;
@@ -9623,7 +9624,8 @@ namespace Ship_Game.Gameplay
                 {
                     return GetNeighborNodes2(node,end);
                 }
-
+                float[] distance = new float[(int)granularity + 1];
+                Empire.InfluenceNode[] nearest = new Empire.InfluenceNode[(int)granularity + 1];
                 var nodes = new List<Empire.InfluenceNode>();
                 int granularityl = (int)granularity;
                 Vector2 endrange = Vector2.Zero;
@@ -9632,7 +9634,8 @@ namespace Ship_Game.Gameplay
                     nearest[i] = null;
                     distance[i] = 0;
                 }
-
+                if (node.KeyedObject != null)
+                { }
 
                 float angletonode = 0;
                 int y = 0;
@@ -9647,10 +9650,10 @@ namespace Ship_Game.Gameplay
                     y = (int)Math.Floor(angletonode / granularityl);
                     distancecheck = Vector2.Distance(node.Position, point.Position);
                     float max = node.Radius > projectorsize ? node.Radius : projectorsize;
-                    if (distancecheck < max * 2f)
+                    if (distancecheck < max * 2f && distancecheck > distance[y])
                     {
                         nearest[y] = (point);
-                       // distance[y] = distancecheck;
+                       distance[y] = distancecheck;
                     }
 
 
