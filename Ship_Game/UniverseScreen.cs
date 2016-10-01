@@ -1841,13 +1841,14 @@ namespace Ship_Game
                 foreach (SolarSystem combatsystem in Combatsystems)
                 { SystemUpdaterTaskBased(combatsystem); }
             });
-
+     
             if (true)
             {
                 var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
 
                 var normalsystems = Partitioner.Create(0, source1.Length);
-
+                //ParallelOptions parOpts = new ParallelOptions();
+                //parOpts.MaxDegreeOfParallelism = 2;               
                 Parallel.ForEach(normalsystems, (range, loopState) =>
                 {
                 //standard for loop through each weapon group.
@@ -1866,10 +1867,11 @@ namespace Ship_Game
                     SystemUpdaterTaskBased(s);
                 }
             }
-            
+
             //The two above were the originals
 
-
+            if (DeepSpaceTask != null)
+                DeepSpaceTask.Wait();
 
 
             //if (Combatsystems.Count > 0)                                      //This was my first attempt at helping this out a little, with a second ForEach for the systems with 
@@ -1886,8 +1888,7 @@ namespace Ship_Game
             //    });
             //}
 
-            if (DeepSpaceTask != null)
-                DeepSpaceTask.Wait();
+
 
 #endif
 #if PLAYERONLY
