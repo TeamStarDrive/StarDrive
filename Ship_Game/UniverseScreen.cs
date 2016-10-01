@@ -1672,7 +1672,7 @@ namespace Ship_Game
                    
                     empire.pathhMap = new ArtificialIntelligence.Grid(empire, 20, 2);
                 });
-                for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
+                for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)    
                 {
                     Empire empire = EmpireManager.EmpireList[index];
                    // empire.pathhMap = new ArtificialIntelligence.Grid(empire, 20, 10);
