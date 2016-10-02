@@ -277,7 +277,100 @@ namespace Ship_Game.Gameplay
 			}
 		}
         */
-		private void AwaitOrders(float elapsedTime)
+        private void AwaitOrdersWithPlot(float elapsedTime)
+        {            
+            if (this.State != AIState.Resupply)
+                this.HasPriorityOrder = false;
+            if (this.awaitClosest != null)
+            {
+                if(Vector2.Distance(this.awaitClosest.Position,this.Owner.Center) > Empire.ProjectorRadius *2)
+                {
+                    this.OrderMoveTowardsPosition(this.awaitClosest.Position, 0, Vector2.Zero, false, this.awaitClosest);
+                }
+                else
+                    this.DoOrbit(this.awaitClosest, elapsedTime);
+            }
+            else if (this.Owner.GetSystem() == null)
+            {
+                if (this.SystemToDefend != null)
+                {
+                    //this.DoOrbit(this.SystemToDefend.PlanetList[0], elapsedTime);
+                    this.awaitClosest = this.SystemToDefend.PlanetList[0];
+                    if (Vector2.Distance(this.awaitClosest.Position, this.Owner.Center) > Empire.ProjectorRadius * 2)
+                    {
+                        this.OrderMoveTowardsPosition(this.awaitClosest.Position, 0, Vector2.Zero, false, this.awaitClosest);
+                    }
+                    else
+                        this.DoOrbit(this.awaitClosest, elapsedTime);
+                    return;
+                }
+                IOrderedEnumerable<SolarSystem> sortedList = null;
+                if(!this.Owner.loyalty.isFaction)
+                    sortedList =
+                    from solarsystem in this.Owner.loyalty.GetOwnedSystems()
+                    orderby Vector2.Distance(this.Owner.Center, solarsystem.Position)
+                    select solarsystem;
+                else if(this.Owner.loyalty.isFaction)
+                {
+                    sortedList =
+                        from solarsystem in Ship.universeScreen.SolarSystemDict.Values
+                        orderby Vector2.Distance(this.Owner.Center, solarsystem.Position) < 800000
+                        , this.Owner.loyalty.GetOwnedSystems().Contains(solarsystem)
+                        select solarsystem;
+
+                }
+                
+                if (sortedList.Count<SolarSystem>() > 0)
+                {
+                    ///this.DoOrbit(sortedList.First<SolarSystem>().PlanetList[0], elapsedTime);
+                    this.awaitClosest = sortedList.First<SolarSystem>().PlanetList[0];
+                    if (Vector2.Distance(this.awaitClosest.Position, this.Owner.Center) > Empire.ProjectorRadius * 2)
+                    {
+                        this.OrderMoveTowardsPosition(this.awaitClosest.Position, 0, Vector2.Zero, false, this.awaitClosest);
+                    }
+                    else
+                        this.DoOrbit(this.awaitClosest, elapsedTime);
+                    return;
+                }
+            }
+            else
+            {
+
+
+                float closestD = 999999f;
+                bool closestUS = false;
+                foreach (Planet p in this.Owner.GetSystem().PlanetList)
+                {
+                    if (awaitClosest == null)
+                        awaitClosest = p;
+                    bool us = false;
+                    if (this.Owner.loyalty.isFaction)
+                    {
+                        us = p.Owner != null || p.habitable;
+                    }
+                    else
+                        us = p.Owner == this.Owner.loyalty;
+                    if (closestUS && !us)
+                        continue;
+                    float Distance = Vector2.Distance(this.Owner.Center, p.Position);
+                    if (us == closestUS)
+                    {
+                        if (Distance >= closestD)
+                        {
+                            continue;
+                        }
+
+                    }
+                    closestUS = us;
+                    closestD = Distance;
+                    this.awaitClosest = p;
+
+
+                }
+
+            }
+        }
+        private void AwaitOrders(float elapsedTime)
 		{
             //if ((this.Owner.GetSystem() ==null && this.State == AIState.Intercept) 
             //    || this.Target != null && this.Owner.GetSystem()!=null && this.Target.GetSystem()!=null && this.Target.GetSystem()==this.Owner.GetSystem())
@@ -1758,6 +1851,15 @@ namespace Ship_Game.Gameplay
         {            
             if (this.Owner.velocityMaximum == 0)
                 return;
+
+            if (this.Owner.GetShipData().ShipCategory == ShipData.Category.Civilian && Vector2.Distance(OrbitTarget.Position, this.Owner.Center) > Empire.ProjectorRadius * 2)
+            {
+                //this.PlotCourseToNew(OrbitPos, this.Owner.Center);
+                this.OrderMoveTowardsPosition(OrbitPos, 0, Vector2.Zero, false, this.OrbitTarget);
+                //this.ThrustTowardsPosition(OrbitTarget.Position, elapsedTime, this.Owner.speed);
+                this.OrbitPos = OrbitTarget.Position;
+                return;
+            }
 
             if (Vector2.Distance(OrbitTarget.Position, this.Owner.Center) > 15000f)
             {
@@ -8411,7 +8513,7 @@ namespace Ship_Game.Gameplay
                                             {
                                                 this.OrderTrade(elapsedTime);
                                                 if (this.start == null || this.end == null)
-                                                    this.AwaitOrders(elapsedTime);
+                                                    this.AwaitOrdersWithPlot(elapsedTime);
                                                 break;
                                             }
                                     }
@@ -8421,7 +8523,7 @@ namespace Ship_Game.Gameplay
                             {
                                 this.OrderTransportPassengers(elapsedTime);
                                 if (this.start == null || this.end == null)
-                                    this.AwaitOrders(elapsedTime);
+                                    this.AwaitOrdersWithPlot(elapsedTime);
                             }
                         }
                         else if (state <= AIState.ReturnToHangar)
