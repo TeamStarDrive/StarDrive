@@ -22,7 +22,7 @@ namespace Ship_Game
 		public static Empire GetEmpireByName(string name)
         {
             Empire e = null;
-            if (EmpireDict.TryGetValue(name, out e))
+            if (name != null && EmpireDict.TryGetValue(name, out e))
             {
                 return e;
             }
