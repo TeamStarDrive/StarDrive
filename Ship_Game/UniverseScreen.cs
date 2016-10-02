@@ -5321,7 +5321,7 @@ namespace Ship_Game
             FTLManager.universeScreen = (UniverseScreen)null;
             DroneAI.universeScreen = (UniverseScreen)null;
             StatTracker.SnapshotsDict.Clear();
-            EmpireManager.EmpireList.Clear();
+            EmpireManager.Clear();            
             this.ScreenManager.inter.Unload();
             GC.Collect();            
             GC.WaitForPendingFinalizers();
