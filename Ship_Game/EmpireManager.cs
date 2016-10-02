@@ -18,8 +18,12 @@ namespace Ship_Game
 		public EmpireManager()
 		{
 		}
-
-		public static Empire GetEmpireByName(string name)
+        public static void Clear()
+        {
+            EmpireList.Clear();
+            EmpireDict.Clear();
+        }
+        public static Empire GetEmpireByName(string name)
         {
             Empire e = null;
             if (name != null && EmpireDict.TryGetValue(name, out e))
