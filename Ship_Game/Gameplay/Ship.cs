@@ -404,6 +404,44 @@ namespace Ship_Game.Gameplay
 
             }
         }
+        public int PlanetAssaultCount
+        {
+            get
+            {
+                try
+                {
+                    int assaultSpots = 0;                                       
+                    if (this.shipData.Role == ShipData.RoleName.troop)
+                    {
+                        assaultSpots += this.TroopList.Count;
+
+                    }
+                    if (this.HasTroopBay)
+                        foreach (ShipModule sm in this.Hangars)
+                        {
+                            if (sm.IsTroopBay)
+                                assaultSpots++;
+                        }
+                    if (this.hasAssaultTransporter) //  this.Transporters.Count > 0)
+                        foreach (ShipModule at in this.Transporters)
+                        {                            
+                            assaultSpots += at.TransporterTroopLanding;
+                        }
+                    
+                    if(assaultSpots >0)
+                    {
+                        int temp = assaultSpots - this.TroopList.Count;
+                        assaultSpots -= temp < 0 ? 0 : temp;
+                    }
+                    return assaultSpots;
+                }
+                catch
+                { }
+                return 0;
+
+
+            }
+        }
         public bool HasSupplyBays
         {
             get
@@ -422,7 +460,23 @@ namespace Ship_Game.Gameplay
                 return false;
             }
         }
-
+        public int BombCount
+        {
+            get
+            {
+                int Bombs = 0;
+                if (this.BombBays.Count > 0)
+                {
+                    ++Bombs;
+                    if (this.Ordinance / this.OrdinanceMax > 0.2f)
+                    {
+                        Bombs += this.BombBays.Count;
+                    }
+                }
+                return Bombs;
+            }
+            
+        }
         public bool Resupplying
         {
             get
