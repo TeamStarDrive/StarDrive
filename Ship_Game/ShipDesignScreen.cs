@@ -180,6 +180,8 @@ namespace Ship_Game
         private Vector2 classifCursor;
 
 		public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
+        private string lastActiveUID = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
+        private Vector2 lastDesignActionPos = Vector2.Zero;
 
         private Vector2 COBoxCursor;
 
@@ -218,7 +220,10 @@ namespace Ship_Game
 		{
 			this.Reset = true;
             this.DesignStack.Clear();
-			lock (GlobalStats.ObjectManagerLocker)
+            lastDesignActionPos = Vector2.Zero;
+            lastActiveUID = "";
+
+            lock (GlobalStats.ObjectManagerLocker)
 			{
 				if (this.shipSO != null)
 				{
@@ -5654,7 +5659,14 @@ namespace Ship_Game
                         if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
                         {
                             AudioManager.GetCue("sub_bass_mouseover").Play();
-                            this.InstallModule(slot);
+
+                            if (slot.pq.X != this.lastDesignActionPos.X || slot.pq.Y != this.lastDesignActionPos.Y || ActiveModule.UID != this.lastActiveUID)
+                            {
+                                this.InstallModule(slot);                       //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
+                                this.lastDesignActionPos.X = slot.pq.X;
+                                this.lastDesignActionPos.Y = slot.pq.Y;
+                                this.lastActiveUID = ActiveModule.UID;
+                            }
                         }
                     }
                 }
