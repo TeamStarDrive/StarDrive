@@ -1741,10 +1741,7 @@ namespace Ship_Game.Gameplay
                 else if(this.ParentOfDummy != null && !string.IsNullOrEmpty(this.ParentOfDummy.UID))
                     test = ResourceManager.ShipModulesDict[this.ParentOfDummy.UID].HealthMax;
                 this.HealthMax = test + test * this.Parent.loyalty.data.Traits.ModHpModifier;
-                base.Health = base.Health; // + base.Health * this.Parent.loyalty.data.Traits.ModHpModifier;
-                this.Health = base.Health;
-                //if (flag)
-                //    this.Health = this.HealthMax;
+                base.Health = this.Health = this.HealthMax;     //Gretman (Health bug fix)
 			}
 			if (!this.isDummy && (this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
 			{
