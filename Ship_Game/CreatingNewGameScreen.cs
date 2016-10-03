@@ -86,7 +86,7 @@ namespace Ship_Game
                 this.mode = gamemode;
                 this.numOpponents = numOpponents;
                 this.EmpireToRemoveName = EmpireToRemoveName;
-                EmpireManager.EmpireList.Clear();
+                EmpireManager.Clear();
                 XmlSerializer serializer2 = new XmlSerializer(typeof(DiplomaticTraits));
                 //Added by McShooterz: mod folder support
                 this.dtraits = (DiplomaticTraits)serializer2.Deserialize((new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml") : "Content/Diplomacy/DiplomaticTraits.xml")).OpenRead());
