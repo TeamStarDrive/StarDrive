@@ -1231,11 +1231,15 @@ namespace Ship_Game.Gameplay
                 from planet in empire.GetPlanets()
                 //where planet.system.CombatInSystem ==false
                 orderby empire.GetGSAI().DefensiveCoordinator.DefenseDict[planet.ParentSystem].RankImportance
-                orderby Vector2.Distance(planet.Position, planets.First<Planet>().Position)
+                , Vector2.Distance(planet.Position, planets.First<Planet>().Position)
                 select planet;
 
             foreach (Planet planet2 in sortedList)
             {
+                if (PotentialTroops.Count > 30)
+                    break;
+                SystemCommander scom = empire.GetGSAI().DefensiveCoordinator.DefenseDict[planet2.ParentSystem];
+                int extra = (int)scom.RankImportance;
                 foreach (Troop t in planet2.TroopsHere)
                 {
                     if (t.GetOwner() != this.empire)
@@ -1243,6 +1247,8 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     t.SetPlanet(planet2);
+                    extra--;
+                    if(extra <0)                    
                     PotentialTroops.Add(t);
                 }
             }
@@ -1398,7 +1404,7 @@ namespace Ship_Game.Gameplay
                                 this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
                                 landingSpots -= ship.PlanetAssaultCount;
                             }
-                            while (ForceStrength <= EnemyTroopStrength && landingSpots >0);//* 2f);
+                            while (ForceStrength <= EnemyTroopStrength*1.25f && landingSpots >-5);//* 2f);
                         }
                         finally
                         {
@@ -1417,9 +1423,9 @@ namespace Ship_Game.Gameplay
                                 Troop t = enumerator2.Current;
                                 if (t.GetPlanet() != null && t.GetPlanet().ParentSystem.combatTimer <= 0 && !t.GetPlanet().RecentCombat )
                                 {
-                                    SystemCommander scom = this.empire.GetGSAI().DefensiveCoordinator.DefenseDict[t.GetPlanet().ParentSystem];
-                                    if (t.GetPlanet().TroopsHere.Count < 5 + scom.RankImportance *.01f)
-                                        continue;
+                                    //SystemCommander scom = this.empire.GetGSAI().DefensiveCoordinator.DefenseDict[t.GetPlanet().ParentSystem];
+                                    //if (t.GetPlanet().TroopsHere.Count <= (int)scom.RankImportance )
+                                    //    continue;
                                     (new List<Troop>()).Add(t);
                                     if (t.GetOwner() != null)
                                     {
@@ -1438,7 +1444,7 @@ namespace Ship_Game.Gameplay
                                     goto Label1;
                                 }
                             }
-                            while (ForceStrength <= EnemyTroopStrength  && landingSpots *1.5f >0);//+ EnemyTroopStrength * 0.3f);
+                            while (ForceStrength <= EnemyTroopStrength  && landingSpots  >-5);//+ EnemyTroopStrength * 0.3f);
                         }
                         finally
                         {
@@ -1523,7 +1529,7 @@ namespace Ship_Game.Gameplay
                                     }
                                     troopCount++;
                                 }
-                                while (ForceStrength <= EnemyTroopStrength && troopCount < 1);
+                                while (ForceStrength <= EnemyTroopStrength && troopCount < 10);
                             }
                             finally
                             {
@@ -1553,7 +1559,7 @@ namespace Ship_Game.Gameplay
                                         goto Label0;
                                     }
                                 }
-                                while (ForceStrength <= EnemyTroopStrength && troopCount < 1);
+                                while (ForceStrength <= EnemyTroopStrength && troopCount < 10);
                             }
                             finally
                             {

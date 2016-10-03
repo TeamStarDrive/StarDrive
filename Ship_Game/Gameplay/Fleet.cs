@@ -1316,8 +1316,7 @@ namespace Ship_Game.Gameplay
 
         private void DoAssaultPlanet(MilitaryTask Task)
         {
-            if (Task.GetTargetPlanet().Owner == this.Owner || Task.GetTargetPlanet().Owner == null || Task.GetTargetPlanet().Owner != null 
-                && !this.Owner.GetRelations()[Task.GetTargetPlanet().Owner].AtWar)
+            if (Task.GetTargetPlanet().Owner == this.Owner || Task.GetTargetPlanet().Owner == null || !this.Owner.GetRelations()[Task.GetTargetPlanet().Owner].AtWar)
             {
                 if (Task.GetTargetPlanet().Owner == this.Owner)
                 {
@@ -1606,7 +1605,8 @@ namespace Ship_Game.Gameplay
                         case 4:
                             int num10 = 0;
                             float groundStrength = this.GetGroundStrOfPlanet(Task.GetTargetPlanet());
-                            if (groundStrength > 30 && this.Task.GetTargetPlanet().GetGroundStrength(this.Owner) == 0 )
+                            float ourGroundStrength = this.Task.GetTargetPlanet().GetGroundStrength(this.Owner);
+                            if (groundStrength > 30 && ourGroundStrength == 0 )
                             {
                                 foreach (Ship ship in (List<Ship>)this.Ships)
                                 {
@@ -1651,8 +1651,8 @@ namespace Ship_Game.Gameplay
                                 {
                                     num4 +=ship.PlanetAssaultStrength;
                                 }
-                                num4 += this.Task.GetTargetPlanet().GetGroundStrength(this.Owner)  ;
-                                if (num4 > groundStrength && Task.GetTargetPlanet().GetGroundLandingSpots() >8)
+                                num4 += ourGroundStrength;
+                                if (ourGroundStrength >0 || num4 > groundStrength && Task.GetTargetPlanet().GetGroundLandingSpots() >8)
                                 {
                                     flag3 = true;
                                 }
@@ -1660,14 +1660,10 @@ namespace Ship_Game.Gameplay
                                 {                                    
                                     foreach (Ship ship in (List<Ship>)this.Ships)
                                     {
+                                        int bombs = ship.BombCount;
                                         availableBombs += ship.BombCount;
-                                        //if (ship.BombBays.Count > 0)
-                                        //{
-                                        //    ++availableBombers;                                            
-                                        //    if ( ship.Ordinance / ship.OrdinanceMax > 0.2f)
-                                        //    {
-                                        //        availableBombs += ship.BombBays.Count;                                            }
-                                        //}
+                                        availableBombers += bombs > 0 ? 1 : 0;
+                                  
                                     }                                    
                                 }
                                 if (flag3)
