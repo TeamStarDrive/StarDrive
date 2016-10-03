@@ -575,7 +575,7 @@ namespace Ship_Game
             //this is pretty bad as its not connected to the creating game screen code that sets the map sizes. If someone changes the map size they wont know to change this as well.
             if (this.data.Size.X > 7300000f)
             Empire.ProjectorRadius = this.data.Size.X / 70f;
-			EmpireManager.EmpireList.Clear();
+			EmpireManager.Clear();
             if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
                 Empire.universeScreen.MasterShipList.Clear();
             

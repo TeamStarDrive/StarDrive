@@ -281,11 +281,13 @@ namespace Ship_Game.Gameplay
         {            
             if (this.State != AIState.Resupply)
                 this.HasPriorityOrder = false;
+            AIState savestate = this.State;
             if (this.awaitClosest != null)
             {
                 if(Vector2.Distance(this.awaitClosest.Position,this.Owner.Center) > Empire.ProjectorRadius *2)
                 {
                     this.OrderMoveTowardsPosition(this.awaitClosest.Position, 0, Vector2.Zero, false, this.awaitClosest);
+                    this.State = savestate;
                 }
                 else
                     this.DoOrbit(this.awaitClosest, elapsedTime);
@@ -299,6 +301,7 @@ namespace Ship_Game.Gameplay
                     if (Vector2.Distance(this.awaitClosest.Position, this.Owner.Center) > Empire.ProjectorRadius * 2)
                     {
                         this.OrderMoveTowardsPosition(this.awaitClosest.Position, 0, Vector2.Zero, false, this.awaitClosest);
+                        this.State = savestate;
                     }
                     else
                         this.DoOrbit(this.awaitClosest, elapsedTime);
@@ -327,6 +330,7 @@ namespace Ship_Game.Gameplay
                     if (Vector2.Distance(this.awaitClosest.Position, this.Owner.Center) > Empire.ProjectorRadius * 2)
                     {
                         this.OrderMoveTowardsPosition(this.awaitClosest.Position, 0, Vector2.Zero, false, this.awaitClosest);
+                        this.State = savestate;
                     }
                     else
                         this.DoOrbit(this.awaitClosest, elapsedTime);
@@ -902,14 +906,15 @@ namespace Ship_Game.Gameplay
 
         private void DoCombat(float elapsedTime)
         {
-      
 
-            if (this.Target != null && !this.Target.Active)
+
+            Ship ctarget = this.Target as Ship;
+            if (this.Target != null && (!this.Target.Active || ctarget.engineState == Ship.MoveState.Warp))
             {
                 this.Intercepting = false;
                 this.Target = null;
-                this.Target = this.PotentialTargets.FirstOrDefault() as GameplayObject;
-                if (Target ==null)
+                this.Target = this.PotentialTargets.Where(t => t.Active && t.engineState != Ship.MoveState.Warp && Vector2.Distance(t.Center, this.Owner.Center) <= this.Owner.SensorRange).FirstOrDefault() as GameplayObject;
+                if (Target ==null )
                 {
                     
                     this.ClearOrdersNext = true;
@@ -922,9 +927,9 @@ namespace Ship_Game.Gameplay
                 
             }
             //Ship ship = null;
-            if (this.Target == null) // || this.Target is Ship &&    !this.Owner.loyalty.KnownShips.Contains(this.Target))
+            if (this.Target == null) 
             {
-                this.Target = this.PotentialTargets.FirstOrDefault();
+                this.Target = this.PotentialTargets.Where(t => t.Active && t.engineState != Ship.MoveState.Warp && Vector2.Distance(t.Center, this.Owner.Center) <= this.Owner.SensorRange).FirstOrDefault() as GameplayObject;
                 this.Intercepting = false;
                 if (this.Target == null)
                 {
@@ -5707,7 +5712,8 @@ namespace Ship_Game.Gameplay
                    
                 }
                 else
-                {
+                {                    
+                    this.awaitClosest = this.start ?? this.end;
                     this.start = null;
                     this.end = null;
                     if(this.Owner.CargoSpace_Used >0)
@@ -5735,7 +5741,7 @@ namespace Ship_Game.Gameplay
             }
             if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer < 1).Count() == 0)
                 return;
-#if DEBUG
+#if DEBUG2
             this.end = null;
             this.start = null;
             return;
@@ -6007,6 +6013,7 @@ namespace Ship_Game.Gameplay
             }
             else
             {
+                this.awaitClosest = this.start ?? this.end;
                 this.start = null;
                 this.end = null;
             }
@@ -8512,8 +8519,11 @@ namespace Ship_Game.Gameplay
                                         case AIState.SystemTrader:
                                             {
                                                 this.OrderTrade(elapsedTime);
-                                                if (this.start == null || this.end == null)
-                                                    this.AwaitOrdersWithPlot(elapsedTime);
+                                            if (this.start == null || this.end == null)
+                                            {
+                                                
+                                                this.AwaitOrders(elapsedTime);
+                                            }
                                                 break;
                                             }
                                     }
@@ -8523,7 +8533,7 @@ namespace Ship_Game.Gameplay
                             {
                                 this.OrderTransportPassengers(elapsedTime);
                                 if (this.start == null || this.end == null)
-                                    this.AwaitOrdersWithPlot(elapsedTime);
+                                    this.AwaitOrders(elapsedTime);
                             }
                         }
                         else if (state <= AIState.ReturnToHangar)
@@ -8612,10 +8622,10 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
-                        else
-                        {
-                        this.Stop(elapsedTime);     //Gretman - Patch for ships drifting away after combat.
-                        }
+                        //else 
+                        //{
+                        //this.Stop(elapsedTime);     //Gretman - Patch for ships drifting away after combat.
+                        //}
                     }
                 }
                 else if (this.OrderQueue.Count > 0)
