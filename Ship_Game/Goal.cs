@@ -752,10 +752,13 @@ namespace Ship_Game
             {
                 case 0:
                     bool flag1 = false;
+
                     for (int index = 0; index < this.empire.GetShips().Count; ++index)
                     {
                         Ship ship = this.empire.GetShips()[index];
-                        if (ship != null && !ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0 && ((ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && !ship.isPlayerShip()) && (ship.GetAI() != null && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
+                        if (ship != null && !ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0 && (ship.shipData.Role == ShipData.RoleName.freighter && (ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.shipData.ShipCategory == ShipData.Category.Unclassified) 
+                            && !ship.isPlayerShip()) 
+                            && (ship.GetAI() != null && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
                         {
                             this.freighter = ship;
                             flag1 = true;
@@ -826,8 +829,11 @@ namespace Ship_Game
                             List<Ship> list2 = new List<Ship>();
                             foreach (string index in this.empire.ShipsWeCanBuild)
                             {
-                                if (!ResourceManager.ShipsDict[index].isColonyShip && (ResourceManager.ShipsDict[index].shipData.Role == ShipData.RoleName.freighter || ResourceManager.ShipsDict[index].shipData.ShipCategory == ShipData.Category.Civilian))
-                                    list2.Add(ResourceManager.ShipsDict[index]);
+                                Ship ship = ResourceManager.ShipsDict[index];
+                                if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0
+                                    && (ship.shipData.Role == ShipData.RoleName.freighter 
+                                    && (ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.shipData.ShipCategory == ShipData.Category.Unclassified)))
+                                    list2.Add(ship);
                             }
                             Ship toBuild = list2
                                 .OrderByDescending(ship => ship.CargoSpace_Max <= empire.cargoNeed *.5f  ? ship.CargoSpace_Max : 0)
