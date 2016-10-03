@@ -180,6 +180,8 @@ namespace Ship_Game
         private Vector2 classifCursor;
 
 		public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
+        private string lastActiveUID = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
+        private Vector2 lastDesignActionPos = Vector2.Zero;
 
         private Vector2 COBoxCursor;
 
@@ -205,9 +207,11 @@ namespace Ship_Game
 		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
 			this.EmpireUI = EmpireUI;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            
-		}
+			base.TransitionOnTime = TimeSpan.FromSeconds(2);
+#if GRETMAN
+            Debug = true;
+#endif
+        }
         private void AddToTechList(HashSet<string> techlist)
         {
             foreach (string tech in techlist)
@@ -218,7 +222,10 @@ namespace Ship_Game
 		{
 			this.Reset = true;
             this.DesignStack.Clear();
-			lock (GlobalStats.ObjectManagerLocker)
+            lastDesignActionPos = Vector2.Zero;
+            lastActiveUID = "";
+
+            lock (GlobalStats.ObjectManagerLocker)
 			{
 				if (this.shipSO != null)
 				{
@@ -793,17 +800,11 @@ namespace Ship_Game
 					toRemove = null;
 					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
 					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
+						if (slotdata.Position != SlotPos) continue;
 						toRemove = slotdata;
 						break;
 					}
-					if (toRemove == null)
-					{
-						return;
-					}
+					if (toRemove == null) return;
 					this.ActiveHull.ModuleSlotList.Remove(toRemove);
 					this.ChangeHull(this.ActiveHull);
 					return;
@@ -813,38 +814,12 @@ namespace Ship_Game
 					toRemove = null;
 					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
 					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
+						if (slotdata.Position != SlotPos) continue;
 						toRemove = slotdata;
 						break;
 					}
-					if (toRemove == null)
-					{
-						return;
-					}
+					if (toRemove == null) return;
 					toRemove.Restrictions = Restrictions.I;
-					this.ChangeHull(this.ActiveHull);
-					return;
-				}
-				case ShipDesignScreen.SlotModOperation.IO:
-				{
-					toRemove = null;
-					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
-					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
-						toRemove = slotdata;
-						break;
-					}
-					if (toRemove == null)
-					{
-						return;
-					}
-					toRemove.Restrictions = Restrictions.IO;
 					this.ChangeHull(this.ActiveHull);
 					return;
 				}
@@ -853,46 +828,90 @@ namespace Ship_Game
 					toRemove = null;
 					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
 					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
+						if (slotdata.Position != SlotPos) continue;
 						toRemove = slotdata;
 						break;
 					}
-					if (toRemove == null)
-					{
-						return;
-					}
+					if (toRemove == null) return;
 					toRemove.Restrictions = Restrictions.O;
 					this.ChangeHull(this.ActiveHull);
 					return;
 				}
-				case ShipDesignScreen.SlotModOperation.Add:
-				{
-					return;
-				}
-				case ShipDesignScreen.SlotModOperation.E:
-				{
-					toRemove = null;
-					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
-					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
-						toRemove = slotdata;
-						break;
-					}
-					if (toRemove == null)
-					{
-						return;
-					}
-					toRemove.Restrictions = Restrictions.E;
-					this.ChangeHull(this.ActiveHull);
-					return;
-				}
-				default:
+                case ShipDesignScreen.SlotModOperation.E:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.E;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.IO:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.IO;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.IE:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.IE;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.OE:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.OE;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.IOE:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.IOE;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.Normal:
+                {
+                    return;
+                }
+                default:
 				{
 					return;
 				}
@@ -5383,7 +5402,7 @@ namespace Ship_Game
                     }
                     if (input.Right)
                         ++this.operation;
-                    if (this.operation > (ShipDesignScreen.SlotModOperation)6)
+                    if (this.operation > ShipDesignScreen.SlotModOperation.Normal)
                         this.operation = ShipDesignScreen.SlotModOperation.Delete;
                 }
                 this.HoveredModule = (ShipModule)null;
@@ -5654,7 +5673,14 @@ namespace Ship_Game
                         if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
                         {
                             AudioManager.GetCue("sub_bass_mouseover").Play();
-                            this.InstallModule(slot);
+
+                            if (slot.pq.X != this.lastDesignActionPos.X || slot.pq.Y != this.lastDesignActionPos.Y || ActiveModule.UID != this.lastActiveUID)
+                            {
+                                this.InstallModule(slot);                       //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
+                                this.lastDesignActionPos.X = slot.pq.X;
+                                this.lastDesignActionPos.Y = slot.pq.Y;
+                                this.lastActiveUID = ActiveModule.UID;
+                            }
                         }
                     }
                 }
@@ -7561,10 +7587,14 @@ namespace Ship_Game
 		{
 			Delete,
 			I,
-			IO,
 			O,
-			Add,
-			E
+			E,
+			IO,
+			IE,
+            OE,
+            IOE,
+            Normal
+
 		}
 	}
 }
