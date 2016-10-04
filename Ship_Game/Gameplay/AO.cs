@@ -88,7 +88,7 @@ namespace Ship_Game.Gameplay
 				this.Flip = !this.Flip;
 				return;
 			}
-			if (this.CoreFleet.Task == null && ship.fleet == null)
+			if (this.CoreFleet.Task == null && ship.fleet == null && this.CoreFleet.speed <4000)
 			{
               
                 ship.GetAI().OrderQueue.Clear();
@@ -183,7 +183,8 @@ namespace Ship_Game.Gameplay
                 this.OffensiveForcePool.QueuePendingRemoval(ship);
 			}
 			this.OffensiveForcePool.ApplyPendingRemovals();
-
+            if (this.CoreFleet.speed > 4000)
+                return;
             if (this.ShipsWaitingForCoreFleet.Count > 0 && this.CoreFleet.GetStrength() < this.ThreatLevel  
                 && (this.CoreFleet.Ships.Count == 0 || this.CoreFleet.Task == null))
 			{
