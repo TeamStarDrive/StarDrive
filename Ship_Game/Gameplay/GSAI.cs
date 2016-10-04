@@ -4628,7 +4628,19 @@ namespace Ship_Game.Gameplay
 
         private void FightDefaultWar(KeyValuePair<Empire, Relationship> r)
         {
+            float warWeight = this.empire.getResStrat().ExpansionPriority + this.empire.getResStrat().MilitaryPriority;
+            foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
+            {
+                if (item_0.type == MilitaryTask.TaskType.AssaultPlanet)
+                {
+                    warWeight--;
+                    
+                }
+                if (warWeight < 0)
+                    return;
+            }
             List<SolarSystem> s;
+            
             switch (r.Value.ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
@@ -9397,7 +9409,8 @@ namespace Ship_Game.Gameplay
         private void RunWarPlanner()
         {
 
-            //float empirestrength = this.empire.currentMilitaryStrength;
+            float warWeight = this.empire.getResStrat().ExpansionPriority + this.empire.getResStrat().MilitaryPriority;
+            
             foreach (KeyValuePair<Empire, Relationship> r in this.empire.GetRelations().OrderByDescending( anger =>
             {
                 float angerMod = Vector2.Distance(anger.Key.GetWeightedCenter(),this.empire.GetWeightedCenter());
@@ -9407,21 +9420,19 @@ namespace Ship_Game.Gameplay
                 return anger.Value.TotalAnger * angerMod;
                 }
                 ) )
-            //Parallel.ForEach(this.empire.GetRelations(), r =>
             {
-                
+                if(warWeight>0 )
+
                 if (r.Key.isFaction)
                 {
                     r.Value.AtWar = false;
                 }
                 else
                 {
-                    //if (empirestrength <= 0)
-                    //    continue;
-                    //empirestrength -= r.Key.currentMilitaryStrength;
+                        warWeight--;
                     if (r.Value.PreparingForWar)
                     {
-                        List<SolarSystem> s;
+                        List<SolarSystem> s;                        
                         switch (r.Value.PreparingForWarType)
                         {
                             case WarType.BorderConflict:
@@ -9430,13 +9441,15 @@ namespace Ship_Game.Gameplay
                                 IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet)));
                                 for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1); ++index)
                                 {
+
+                                      
                                     Planet p = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable1, index);
+                                        if (s.Count > warWeight)
+                                            break;
 
-
-                                    if (!s.Contains(p.ParentSystem))
+                                        if (!s.Contains(p.ParentSystem))
                                     { s.Add(p.ParentSystem); }
-                                    if (s.Count > 2)
-                                        break;
+                                 
                                     list1.Add(p);
 
                                     //list1.Add(Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable1, index));
@@ -9508,12 +9521,13 @@ namespace Ship_Game.Gameplay
                                 for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable2); ++index)
                                 {
                                     Planet p = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable2, index);
+                                        if (s.Count > warWeight)
+                                            break;
 
-
-                                    if (!s.Contains(p.ParentSystem))
+                                        if (!s.Contains(p.ParentSystem))
                                     { s.Add(p.ParentSystem); }
-                                    if (s.Count > 2)
-                                        break;
+                                    //if (s.Count > 2)
+                                    //    break;
                                     list2.Add(p);
 
                                 }
@@ -9579,7 +9593,7 @@ namespace Ship_Game.Gameplay
                     }
                     if (r.Value.AtWar)
                     {
-                        int num = (int)this.empire.data.difficulty;
+                       // int num = (int)this.empire.data.difficulty;
                         this.FightDefaultWar(r);
                     }
                 }

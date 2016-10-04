@@ -1505,7 +1505,7 @@ namespace Ship_Game.Gameplay
                             }
                             this.Ships.thisLock.ExitReadLock();
                             float num9 = num7 + num8;
-                            if (num7 >= 0.5f * num9 && num5 <= 0.1f * num6)
+                            if (num6 >0 && num7 >= 0.5f * num9 && num5 <= 0.1f * num6)
                             {
                                 this.TaskStep = 5;
                                 break;
@@ -1637,7 +1637,7 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                             float num15 = num13 + num14;
-                            if (num13 >= 0.5f * num15 && num11 <= 0.1f * num12)
+                            if (num12 >0 && num13 >= 0.5f * num15 && num11 <= 0.1f * num12)
                             {
                                 this.TaskStep = 5;
                                 break;
@@ -1752,7 +1752,7 @@ namespace Ship_Game.Gameplay
                                 num17 += ship.Ordinance;
                                 num18 += ship.OrdinanceMax;
                             }
-                            if (num17 < num18 * 0.89f)
+                            if (num18 >0 && num17 < num18 * 0.89f)
                                 break;
                             this.TaskStep = 0;
                             break;
