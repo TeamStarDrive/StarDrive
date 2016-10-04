@@ -202,9 +202,13 @@ namespace Ship_Game
 
         private float HoldTimer = .50f;
         private HashSet<string> techs = new HashSet<string>();
-        
 
-		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
+#if GRETMAN
+        short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0;        //For Gretman's debug shipyard
+#endif
+
+
+        public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
 			this.EmpireUI = EmpireUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(2);
@@ -218,8 +222,10 @@ namespace Ship_Game
                 this.techs.Add(tech);
         }
 
-		public void ChangeHull(ShipData hull)
+		public void ChangeHull(ShipData hull)       //Mer
 		{
+            TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
+
 			this.Reset = true;
             this.DesignStack.Clear();
             lastDesignActionPos = Vector2.Zero;
@@ -263,7 +269,16 @@ namespace Ship_Game
 					InstalledModuleUID = slot.InstalledModuleUID
 				};
 				this.ActiveHull.ModuleSlotList.Add(slot);
-			}
+#if GRETMAN
+                if (data.Restrictions == Restrictions.I) TotalI++;
+                if (data.Restrictions == Restrictions.O) TotalO++;
+                if (data.Restrictions == Restrictions.E) TotalE++;
+                if (data.Restrictions == Restrictions.IO) TotalIO++;
+                if (data.Restrictions == Restrictions.IE) TotalIE++;
+                if (data.Restrictions == Restrictions.OE) TotalOE++;
+                if (data.Restrictions == Restrictions.IOE) TotalIOE++;
+#endif
+            }
 			this.CombatState = hull.CombatState;
 			if (!hull.Animated)
 			{
@@ -1570,8 +1585,12 @@ namespace Ship_Game
 				HelperFunctions.DrawDropShadowText(base.ScreenManager, "Debug", Pos, Fonts.Arial20Bold);
 				Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(this.operation.ToString()).X, 140f);
 				HelperFunctions.DrawDropShadowText(base.ScreenManager, this.operation.ToString(), Pos, Fonts.Arial20Bold);
-			}
-			this.close.Draw(base.ScreenManager);
+#if GRETMAN
+                Pos.Y += 120;
+                string Ratios = "I: " + TotalI + "   O: " + TotalO + "   E: " + TotalE + "   IO: " + TotalIO + "   IE: " + TotalIE + "   OE: " + TotalOE + "   IOE: " + TotalIOE;
+                HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, Pos, Fonts.Arial20Bold);
+#endif
+            }			this.close.Draw(base.ScreenManager);
 			base.ScreenManager.SpriteBatch.End();
 			lock (GlobalStats.ObjectManagerLocker)
 			{
