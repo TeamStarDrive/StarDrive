@@ -1,29 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Animated>false</Animated>
-  <ShipStyle>Misc</ShipStyle>
-  <experience>0</experience>
-  <Level>0</Level>
-  <SelectionGraphic />
   <Name>Station</Name>
-  <HasFixedCost>false</HasFixedCost>
-  <FixedCost>0</FixedCost>
-  <HasFixedUpkeep>false</HasFixedUpkeep>
-  <FixedUpkeep>0</FixedUpkeep>
-  <IsShipyard>false</IsShipyard>
-  <IsOrbitalDefense>false</IsOrbitalDefense>
-  <IconPath>ShipIcons/station_blue</IconPath>
   <CombatState>AttackRuns</CombatState>
   <MechanicalBoardingDefense>0</MechanicalBoardingDefense>
-  <Hull>Misc/Station</Hull>
+  <Hull>Station</Hull>
+  <IconPath>ShipIcons/station_blue</IconPath>
   <Role>station</Role>
   <ThrusterList />
+  <Animated>false</Animated>
+  <IsShipyard>false</IsShipyard>
+  <experience>0</experience>
+  <Level>0</Level>
   <ModelPath>Model/Stations/spacestation01_outer</ModelPath>
-  <DefaultAIState>DoNothing</DefaultAIState>
-  <ShipCategory>Unclassified</ShipCategory>
-  <CarrierShip>false</CarrierShip>
-  <BaseStrength>0</BaseStrength>
-  <BaseCanWarp>false</BaseCanWarp>
+  <DefaultAIState>AwaitingOrders</DefaultAIState>
   <ModuleSlotList>
     <ModuleSlotData>
       <Position>
