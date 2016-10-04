@@ -1754,7 +1754,7 @@
     <Content Include="Content\Hulls\Misc\HaulerSmall.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Hulls\Misc\Station.xml">
+    <Content Include="Content\Hulls\Misc\Shipyard.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Hulls\Opteris\Chitin.xml">
