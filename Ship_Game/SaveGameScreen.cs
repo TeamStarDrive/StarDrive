@@ -59,12 +59,6 @@ namespace Ship_Game
 
                     data.SetFileInfo(new FileInfo(string.Concat(this.Path, data.SaveName, ".xml.gz")));
 
-                    if ((!string.IsNullOrEmpty(data.ModPath) && data.Version > 0) || (data.Version == 0 && !string.IsNullOrEmpty(data.ModName)))
-                    {
-                        file.Dispose();
-                        continue;
-                    }
-
                     string info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
                     string extraInfo = data.RealDate;
                     saves.Add(new FileData(data.GetFileInfo(), data, data.SaveName, info, extraInfo));
