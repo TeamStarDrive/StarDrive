@@ -8309,7 +8309,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             this.UtilityModuleCheckTimer -= elapsedTime;
-            if (this.UtilityModuleCheckTimer <= 0f)
+            if (this.Owner.engineState != Ship.MoveState.Warp && this.UtilityModuleCheckTimer <= 0f)
             {
                 this.UtilityModuleCheckTimer = 1f;
                 //Added by McShooterz: logic for transporter modules
