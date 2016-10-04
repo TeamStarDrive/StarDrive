@@ -9414,7 +9414,7 @@ namespace Ship_Game.Gameplay
                             //    radius2 = 10000;
                             //}
 
-                            for (int x = 0; x < 360; x += 60)
+                            for (int x = 0; x < 360; x += 30)
                             {
                                 float angle = x;
                                 newpoint = new Empire.InfluenceNode();
