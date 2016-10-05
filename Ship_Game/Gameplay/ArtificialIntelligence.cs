@@ -916,12 +916,12 @@ namespace Ship_Game.Gameplay
                 this.Target = this.PotentialTargets.Where(t => t.Active && t.engineState != Ship.MoveState.Warp && Vector2.Distance(t.Center, this.Owner.Center) <= this.Owner.SensorRange).FirstOrDefault() as GameplayObject;
                 if (Target ==null )
                 {
+                    this.OrderQueue.RemoveFirst();
+                   // this.ClearOrdersNext = true;
+                    //this.HadPO = true;
                     
-                    this.ClearOrdersNext = true;
-                    this.HadPO = true;
-                    //this.AwaitOrders(elapsedTime);
                     //this.State = this.DefaultAIState;
-                    //this.OrderQueue.Clear();
+                    
                     return;                
                 }
                 
@@ -933,19 +933,19 @@ namespace Ship_Game.Gameplay
                 this.Intercepting = false;
                 if (this.Target == null)
                 {
+                    this.OrderQueue.RemoveFirst();
+                   // this.ClearOrdersNext = true;
+                    //this.HadPO = true;
                     
-                    this.ClearOrdersNext = true;
-                    this.HadPO = true;
-                    //this.OrderQueue.Clear();
                     //this.State = this.DefaultAIState;
                     return;
                 }
                 if(!this.Target.Active)
                 {
-                    
-                    this.ClearOrdersNext = true;
-                    this.HadPO = true;
-                    //this.OrderQueue.Clear();
+                    this.OrderQueue.RemoveFirst();
+                   // this.ClearOrdersNext = true;
+                    //this.HadPO = true;
+               
                     //this.State = this.DefaultAIState;
                     return; 
                 }
@@ -9061,7 +9061,7 @@ namespace Ship_Game.Gameplay
             TriggerDelay -= elapsedTime;
             if ( this.BadGuysNear)// || this.Owner.InCombat )
             {
-              
+                this.OrderQueue.thisLock.EnterWriteLock();
                     bool docombat = false;
                     LinkedListNode<ArtificialIntelligence.ShipGoal> tempShipGoal = this.OrderQueue.First;
                     ShipGoal firstgoal = tempShipGoal != null ? tempShipGoal.Value : null;  //.FirstOrDefault<ArtificialIntelligence.ShipGoal>();
@@ -9071,15 +9071,22 @@ namespace Ship_Game.Gameplay
 #endif
                     {
 
-                        if(this.Target !=null || this.PotentialTargets.Count >0 )
+                        if(this.Target !=null) // || this.PotentialTargets.Count >0 )
 
                         docombat = !this.HasPriorityOrder && !this.IgnoreCombat && this.State != AIState.Resupply && (this.OrderQueue.Count == 0 || firstgoal != null && firstgoal.Plan != ArtificialIntelligence.Plan.DoCombat && firstgoal.Plan != Plan.Bombard && firstgoal.Plan != Plan.BoardShip);
 
 
-                        if (docombat)//|| this.OrderQueue.Count == 0))
-                        {
-                            this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
-                        }
+                    if (docombat)//|| this.OrderQueue.Count == 0))
+                    {
+                        this.OrderQueue.AddFirst(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DoCombat, Vector2.Zero, 0f));
+                    }
+                    //else if (firstgoal != null && firstgoal.Plan == ArtificialIntelligence.Plan.DoCombat)
+                    //{
+
+                    //    this.OrderQueue.Remove(firstgoal);
+
+
+                    //}
                         //else
                         //{
                         //    this.OrderQueue.thisLock.EnterWriteLock();
@@ -9108,10 +9115,23 @@ namespace Ship_Game.Gameplay
                         }
                 
 #endif
-                
+                this.OrderQueue.thisLock.ExitWriteLock();
             }
             else
             {
+                //if (OrderQueue.Count > 0 && Target == null)
+
+                //{
+                //    this.OrderQueue.thisLock.EnterWriteLock();
+
+                //    ShipGoal firstgoal = OrderQueue.FirstOrDefault();
+                //    if (firstgoal != null && firstgoal.Plan == ArtificialIntelligence.Plan.DoCombat)
+                //    {
+                //        this.OrderQueue.Remove(firstgoal);
+                //    }
+                //    this.OrderQueue.thisLock.ExitWriteLock();
+                //}
+                
                 foreach (Weapon purge in this.Owner.Weapons)
                 {
                     if (purge.fireTarget != null)
