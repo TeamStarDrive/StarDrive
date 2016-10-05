@@ -262,54 +262,54 @@ namespace Ship_Game
                 rebelsFromEmpireData.AddShip(s);
             }
             //clear out empires ships from ship dictionary
-            List<string> shipkill = new List<string>();
-            HashSet<string> model =  new HashSet<string>();
-            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
-            {
-                if (ship.Value.shipData.ShipStyle == this.data.Traits.ShipType)
-                {
-                    bool killSwitch = true;
-                    foreach (Empire ebuild in EmpireManager.EmpireList)
-                    {
-                        if (ebuild == this)
-                            continue;
-                        if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
-                        {    
-                            killSwitch = false;
-                            model.Add(ship.Value.shipData.Hull);
-                            break;
-                        }
+            //List<string> shipkill = new List<string>();
+            //HashSet<string> model =  new HashSet<string>();
+            //foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+            //{
+            //    if (ship.Value.shipData.ShipStyle == this.data.Traits.ShipType)
+            //    {
+            //        bool killSwitch = true;
+            //        foreach (Empire ebuild in EmpireManager.EmpireList)
+            //        {
+            //            if (ebuild == this)
+            //                continue;
+            //            if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+            //            {    
+            //                killSwitch = false;
+            //                model.Add(ship.Value.shipData.Hull);
+            //                break;
+            //            }
 
-                    }
+            //        }
 
 
-                    if (killSwitch)
-                        foreach (Ship mship in universeScreen.MasterShipList)
-                        {
-                            if (ship.Key == mship.Name)
-                            {
-                                killSwitch = false;
-                                model.Add(ship.Value.shipData.Hull);
-                                break;
-                            }
-                        }
-                    if (killSwitch)
-                        shipkill.Add(ship.Key);
-                }
-            }
-            foreach (string shiptoclear in shipkill)
-            {
-                ResourceManager.ShipsDict.Remove(shiptoclear);
-            }
+            //        if (killSwitch)
+            //            foreach (Ship mship in universeScreen.MasterShipList)
+            //            {
+            //                if (ship.Key == mship.Name)
+            //                {
+            //                    killSwitch = false;
+            //                    model.Add(ship.Value.shipData.Hull);
+            //                    break;
+            //                }
+            //            }
+            //        if (killSwitch)
+            //            shipkill.Add(ship.Key);
+            //    }
+            //}
+            //foreach (string shiptoclear in shipkill)
+            //{
+            //    ResourceManager.ShipsDict.Remove(shiptoclear);
+            //}
             //clear out hull models too.
-            foreach(string hull in this.GetHDict().Keys)
-            {
-                if (model.Contains(hull))
-                    continue;
-                ResourceManager.ModelDict.Remove(ResourceManager.HullsDict[hull].ModelPath);
+            //foreach(string hull in this.GetHDict().Keys)
+            //{
+            //    if (model.Contains(hull))
+            //        continue;
+            //    ResourceManager.ModelDict.Remove(ResourceManager.HullsDict[hull].ModelPath);
                 
 
-            }
+            //}
             this.OwnedShips.Clear();
             this.data.AgentList.Clear();
         }
@@ -3541,7 +3541,7 @@ namespace Ship_Game
                 if (ship.GetAI().State != AIState.AwaitingOrders && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader)
                     continue;
                     
-                if ( ship.GetAI().start ==null || ship.GetAI().end == null ) //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
+                if ((ship.GetAI().start == null || ship.GetAI().end == null) ||  ship.GetAI().OrderQueue.Count ==0) // && //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
                 {
                     // if ()  //fbedard: dont scrap loaded ship
                     if (ship.TradeTimer != 0 && ship.TradeTimer < 1)
@@ -3583,6 +3583,7 @@ namespace Ship_Game
                 else skipped++;
             }
             unusedFreighters.AddRange(assignedShips);
+            assignedShips.Clear();
             int freighters = unusedFreighters.Count;
             //get number of freighters being built
 
@@ -3618,7 +3619,8 @@ namespace Ship_Game
                     }
                     if (type > 2)
                         type = 1;
-
+                    if (ship.GetAI().start == null && ship.GetAI().end == null)
+                        assignedShips.Add(ship);
 
 
 
@@ -3626,6 +3628,7 @@ namespace Ship_Game
 
 
             }
+            unusedFreighters.AddRange(assignedShips);
             freighters = 0;// unusedFreighters.Count;
             int goalLimt = 1  + this.getResStrat().IndustryPriority;
             foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
