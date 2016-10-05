@@ -224,7 +224,9 @@ namespace Ship_Game
 
 		public void ChangeHull(ShipData hull)       //Mer
 		{
+#if GRETMAN
             TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
+#endif
 
 			this.Reset = true;
             this.DesignStack.Clear();
@@ -3818,7 +3820,7 @@ namespace Ship_Game
 			//this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
 			//Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 
-            #region HardcoreRule info
+#region HardcoreRule info
             if (GlobalStats.HardcoreRuleset)
 			{
 				string massstring = "";
@@ -3870,7 +3872,7 @@ namespace Ship_Game
 					Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
             }
-            #endregion
+#endregion
             else if (WarpSpeed <= 0f)
 			{
 				this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(2170), ":"), 0, 135);
