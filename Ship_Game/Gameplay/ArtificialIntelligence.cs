@@ -909,51 +909,68 @@ namespace Ship_Game.Gameplay
 
 
             Ship ctarget = this.Target as Ship;
-            if (this.Target != null && (!this.Target.Active || ctarget.engineState == Ship.MoveState.Warp))
+            if(Target == null || !this.Target.Active || ctarget != null && ctarget.engineState == Ship.MoveState.Warp)
             {
                 this.Intercepting = false;
                 this.Target = null;
                 this.Target = this.PotentialTargets.Where(t => t.Active && t.engineState != Ship.MoveState.Warp && Vector2.Distance(t.Center, this.Owner.Center) <= this.Owner.SensorRange).FirstOrDefault() as GameplayObject;
-                if (Target ==null )
+                if (Target == null)
                 {
                     this.OrderQueue.RemoveFirst();
-                   // this.ClearOrdersNext = true;
+                    // this.ClearOrdersNext = true;
                     //this.HadPO = true;
-                    
-                    //this.State = this.DefaultAIState;
-                    
-                    return;                
-                }
-                
-            }
-            //Ship ship = null;
-            if (this.Target == null) 
-            {
-                this.Target = this.PotentialTargets.Where(t => t.Active && t.engineState != Ship.MoveState.Warp && Vector2.Distance(t.Center, this.Owner.Center) <= this.Owner.SensorRange).FirstOrDefault() as GameplayObject;
-                this.Intercepting = false;
-                if (this.Target == null)
-                {
-                    this.OrderQueue.RemoveFirst();
-                   // this.ClearOrdersNext = true;
-                    //this.HadPO = true;
-                    
-                    //this.State = this.DefaultAIState;
+
+                    this.State = this.DefaultAIState;
+
                     return;
                 }
-                if(!this.Target.Active)
-                {
-                    this.OrderQueue.RemoveFirst();
-                   // this.ClearOrdersNext = true;
-                    //this.HadPO = true;
+
+            }
+            //if (this.Target != null && (!this.Target.Active || ctarget.engineState == Ship.MoveState.Warp))
+            //{
+            //    this.Intercepting = false;
+            //    this.Target = null;
+            //    this.Target = this.PotentialTargets.Where(t => t.Active && t.engineState != Ship.MoveState.Warp && Vector2.Distance(t.Center, this.Owner.Center) <= this.Owner.SensorRange).FirstOrDefault() as GameplayObject;
+            //    if (Target ==null )
+            //    {
+            //        this.OrderQueue.RemoveFirst();
+            //       // this.ClearOrdersNext = true;
+            //        //this.HadPO = true;
+                    
+            //        //this.State = this.DefaultAIState;
+                    
+            //        return;                
+            //    }
+                
+            //}
+            ////Ship ship = null;
+            //if (this.Target == null) 
+            //{
+            //    this.Target = this.PotentialTargets.Where(t => t.Active && t.engineState != Ship.MoveState.Warp && Vector2.Distance(t.Center, this.Owner.Center) <= this.Owner.SensorRange).FirstOrDefault() as GameplayObject;
+            //    this.Intercepting = false;
+            //    if (this.Target == null)
+            //    {
+            //        this.OrderQueue.RemoveFirst();
+            //       // this.ClearOrdersNext = true;
+            //        //this.HadPO = true;
+                    
+            //        //this.State = this.DefaultAIState;
+            //        return;
+            //    }
+            //    if(!this.Target.Active)
+            //    {
+            //        this.OrderQueue.RemoveFirst();
+            //       // this.ClearOrdersNext = true;
+            //        //this.HadPO = true;
                
-                    //this.State = this.DefaultAIState;
-                    return; 
-                }
+            //        //this.State = this.DefaultAIState;
+            //        return; 
+            //    }
                 
                 
                 //this.ScanForThreatTimer = 0;
                 //return;               
-            }
+            
             this.awaitClosest = null;
             this.State = AIState.Combat;
             this.Owner.InCombat = true;
@@ -5099,26 +5116,37 @@ namespace Ship_Game.Gameplay
             //try
             {
                 //if system all systems in combat... OMG no trade.
-                if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer <= 0).Count() == 0)
+                //if (this.Owner.loyalty.GetOwnedSystems().Where(combat => combat.combatTimer <= 0).Count() == 0)
+                //{
+                //    this.Owner.TradeTimer = 5f;
+                //    return;
+                //}
+                bool allincombat = true;
+                bool noimport = true;
+                this.Owner.loyalty.GetPlanets().ForEach(p=>
+                {
+                    if(p.ParentSystem.combatTimer <=0 )
+                    {
+                        allincombat = false;
+                    }
+                    if (p.ps == Planet.GoodState.IMPORT || p.fs == Planet.GoodState.IMPORT)
+                        noimport = false;                    
+                }                
+                ,false,false,false);
+
+                if (allincombat || (noimport && this.Owner.CargoSpace_Used >0 ))
                 {
                     this.Owner.TradeTimer = 5f;
                     return;
                 }
-
                 if (this.Owner.loyalty.data.Traits.Cybernetic >0)
                     this.Owner.TradingFood = false;
 
                 bool FoodFirst = true;
                 if ((this.Owner.GetCargo()["Production"] > 0f || !this.Owner.TradingFood || RandomMath.RandomBetween(0f, 1f) < 0.5f) && this.Owner.TradingProd && this.Owner.GetCargo()["Food"] == 0f)
                     FoodFirst = false;
-                //float GoodMult = RandomMath.RandomBetween(0f, 25f);
+                
 
-                //if already loaded, give any start planet: <-- this doesnt look good but doesnt appear to be a problem
-                //if (this.start == null && (this.Owner.GetCargo()["Food"] > 0f || this.Owner.GetCargo()["Production"] > 0f))
-                //{
-                //    this.start = this.Owner.loyalty.GetPlanets().FirstOrDefault();
-                //}
-                //FoodFirst
                 #region Deliver Food FIRST (return if already loaded)
                 if (this.end == null && FoodFirst  && ( this.Owner.GetCargo()["Food"] > 0f))
                 {
@@ -5150,7 +5178,7 @@ namespace Ship_Game.Gameplay
                                 }
 
                             }
-                            else if (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere > 0)
+                            else if (this.Owner.CargoSpace_Used >0 && PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere > 0)
                             {
                                 secondaryPlanets.Add(PlanetCheck);
                             }
@@ -5291,7 +5319,7 @@ namespace Ship_Game.Gameplay
 
                         }                    
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
-                    if (planets.Count == 0)
+                    if (this.Owner.CargoSpace_Used > 0 &&  planets.Count == 0 )
                         planets.AddRange(secondaryPlanets);
                     if (planets.Count > 0)
                     {
@@ -5490,7 +5518,8 @@ namespace Ship_Game.Gameplay
                 #endregion
                 
                 #region Get Food
-                if (this.start == null && this.end != null) // && this.FoodOrProd == "Food")
+                if (this.start == null && this.end != null && this.FoodOrProd == "Food"
+                    && (this.Owner.CargoSpace_Used == 0 || this.Owner.CargoSpace_Used / this.Owner.CargoSpace_Max < .2f))
                 {
                     planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
@@ -5595,7 +5624,8 @@ namespace Ship_Game.Gameplay
                 #endregion
 
                 #region Get Production
-                if (this.start == null && this.end != null) // && this.FoodOrProd == "Prod")
+                if (this.start == null && this.end != null && this.FoodOrProd == "Prod" 
+                    && (this.Owner.CargoSpace_Used ==0 || this.Owner.CargoSpace_Used / this.Owner.CargoSpace_Max <.2f  ))
                 {
                     planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
@@ -8410,100 +8440,100 @@ namespace Ship_Game.Gameplay
             try
             {
 #endif
-                if (this.OrderQueue.Count == 0)
+            if (this.OrderQueue.Count == 0)
+            {
+                if (this.Owner.fleet == null)
                 {
-                    if (this.Owner.fleet == null)
+                    lock (this.wayPointLocker)
                     {
-                        lock (this.wayPointLocker)
+                        this.ActiveWayPoints.Clear();
+                    }
+                    AIState state = this.State;
+                    if (state <= AIState.MoveTo)
+                    {
+                        if (state <= AIState.SystemTrader)
                         {
-                            this.ActiveWayPoints.Clear();
-                        }
-                        AIState state = this.State;
-                        if (state <= AIState.MoveTo)
-                        {
-                            if (state <= AIState.SystemTrader)
+                            if (state == AIState.DoNothing)
                             {
-                                if (state == AIState.DoNothing)
+                                this.AwaitOrders(elapsedTime);
+                            }
+                            else
+                            {
+                                switch (state)
                                 {
-                                    this.AwaitOrders(elapsedTime);
-                                }
-                                else
-                                {
-                                    switch (state)
-                                    {
-                                        case AIState.AwaitingOrders:
+                                    case AIState.AwaitingOrders:
+                                        {
+                                            if (this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
                                             {
-                                                if (this.Owner.loyalty != ArtificialIntelligence.universeScreen.player)
-                                                {
-                                                    this.AwaitOrders(elapsedTime);
-                                                }
-                                                else
-                                                {
-                                                    this.AwaitOrdersPlayer(elapsedTime);
-                                                }
-                                                if (this.Owner.loyalty.isFaction)
-                                                    break;
-                                                //fbedard: resume trading
-                                                //if (this.FoodOrProd == "Pass")
-                                                //    this.State = AIState.PassengerTransport;
-                                                //else if (this.FoodOrProd == "Food" || this.FoodOrProd == "Prod")
-                                                //    this.State = AIState.SystemTrader;
-                                                if (this.Owner.OrdinanceMax <1 ||  this.Owner.Ordinance / this.Owner.OrdinanceMax >= 0.2f) 
-                                                    
-                                                {
-                                                    break;
-                                                }
-                                                if (FriendliesNearby.Where(supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() > 0)
-                                                {
-                                                    break;
-                                                }
-                                                List<Planet> shipyards = new List<Planet>();
-                                                for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count; i++)
-                                                {
-                                                    Planet item = this.Owner.loyalty.GetPlanets()[i];
-                                                    if (item.HasShipyard)
-                                                    {
-                                                        shipyards.Add(item);
-                                                    }
-                                                }
-                                                IOrderedEnumerable<Planet> sortedList =
-                                                    from p in shipyards
-                                                    orderby Vector2.Distance(this.Owner.Center, p.Position)
-                                                    select p;
-                                                if (sortedList.Count<Planet>() <= 0)
-                                                {
-                                                    break;
-                                                }
-                                                this.OrderResupply(sortedList.First<Planet>(), true);
+                                                this.AwaitOrders(elapsedTime);
+                                            }
+                                            else
+                                            {
+                                                this.AwaitOrdersPlayer(elapsedTime);
+                                            }
+                                            if (this.Owner.loyalty.isFaction)
+                                                break;
+                                            //fbedard: resume trading
+                                            //if (this.FoodOrProd == "Pass")
+                                            //    this.State = AIState.PassengerTransport;
+                                            //else if (this.FoodOrProd == "Food" || this.FoodOrProd == "Prod")
+                                            //    this.State = AIState.SystemTrader;
+                                            if (this.Owner.OrdinanceMax < 1 || this.Owner.Ordinance / this.Owner.OrdinanceMax >= 0.2f)
+
+                                            {
                                                 break;
                                             }
-                                        case AIState.Escort:
+                                            if (FriendliesNearby.Where(supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() > 0)
                                             {
-                                                if (this.EscortTarget == null || !this.EscortTarget.Active)
-                                                    {
-                                                        this.EscortTarget = null;    
-                                                        this.OrderQueue.Clear();
-                                                        this.ClearOrdersNext = false;
-                                                        if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
-                                                        {
-                                                            this.OrderReturnToHangar();
-                                                            break;
-                                                        }
-                                                        this.State = AIState.AwaitingOrders;   //fbedard
-                                                        break;
-                                                }
-                                                if (this.Owner.BaseStrength ==0 || ( this.Owner.Mothership == null && Vector2.Distance(this.EscortTarget.Center,this.Owner.Center) > this.Owner.SensorRange) || this.Owner.Mothership == null || ( !this.Owner.Mothership.GetAI().BadGuysNear ||this.EscortTarget != this.Owner.Mothership))
+                                                break;
+                                            }
+                                            List<Planet> shipyards = new List<Planet>();
+                                            for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count; i++)
+                                            {
+                                                Planet item = this.Owner.loyalty.GetPlanets()[i];
+                                                if (item.HasShipyard)
                                                 {
-                                                    this.OrbitShip(this.EscortTarget, elapsedTime);
+                                                    shipyards.Add(item);
+                                                }
+                                            }
+                                            IOrderedEnumerable<Planet> sortedList =
+                                                from p in shipyards
+                                                orderby Vector2.Distance(this.Owner.Center, p.Position)
+                                                select p;
+                                            if (sortedList.Count<Planet>() <= 0)
+                                            {
+                                                break;
+                                            }
+                                            this.OrderResupply(sortedList.First<Planet>(), true);
+                                            break;
+                                        }
+                                    case AIState.Escort:
+                                        {
+                                            if (this.EscortTarget == null || !this.EscortTarget.Active)
+                                            {
+                                                this.EscortTarget = null;
+                                                this.OrderQueue.Clear();
+                                                this.ClearOrdersNext = false;
+                                                if (this.Owner.Mothership != null && this.Owner.Mothership.Active)
+                                                {
+                                                    this.OrderReturnToHangar();
                                                     break;
                                                 }
-                                                // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
-                                                // and a standard 30k around it instead of their own. This hopefully will prevent them flying off too much, as well as keeping them
-                                                // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
-                                                //gremlin Moved to setcombat status as target scan is expensive and did some of this already. this also shortcuts the UseSensorforTargets switch. Im not sure abuot the using the mothership target. 
-                                                // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own. 
-                                                else
-                                                {
+                                                this.State = AIState.AwaitingOrders;   //fbedard
+                                                break;
+                                            }
+                                            if (this.Owner.BaseStrength == 0 || (this.Owner.Mothership == null && Vector2.Distance(this.EscortTarget.Center, this.Owner.Center) > this.Owner.SensorRange) || this.Owner.Mothership == null || (!this.Owner.Mothership.GetAI().BadGuysNear || this.EscortTarget != this.Owner.Mothership))
+                                            {
+                                                this.OrbitShip(this.EscortTarget, elapsedTime);
+                                                break;
+                                            }
+                                            // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
+                                            // and a standard 30k around it instead of their own. This hopefully will prevent them flying off too much, as well as keeping them
+                                            // in a carrier-based role while allowing them to pick appropriate target types depending on the fighter type.
+                                            //gremlin Moved to setcombat status as target scan is expensive and did some of this already. this also shortcuts the UseSensorforTargets switch. Im not sure abuot the using the mothership target. 
+                                            // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own. 
+                                            else
+                                            {
                                                 //if (this.Owner.Mothership != null && this.Target == null)
                                                 //{
                                                 //    this.ScanForCombatTargets(this.Owner.Mothership.Center, 30000f);
@@ -8513,160 +8543,160 @@ namespace Ship_Game.Gameplay
                                                 //    }
                                                 //}
                                                 this.DoCombat(elapsedTime);
-                                                    break;
-                                                }
-                                            }
-                                        case AIState.SystemTrader:
-                                            {
-                                                this.OrderTrade(elapsedTime);
-                                            if (this.start == null || this.end == null)
-                                            {
-                                                
-                                                this.AwaitOrders(elapsedTime);
-                                            }
                                                 break;
                                             }
-                                    }
+                                        }
+                                    case AIState.SystemTrader:
+                                        {
+                                            this.OrderTrade(elapsedTime);
+                                            if (this.start == null || this.end == null)
+                                            {
+
+                                                this.AwaitOrders(elapsedTime);
+                                            }
+                                            break;
+                                        }
                                 }
                             }
-                            else if (state == AIState.PassengerTransport)
-                            {
-                                this.OrderTransportPassengers(elapsedTime);
-                                if (this.start == null || this.end == null)
-                                    this.AwaitOrders(elapsedTime);
-                            }
                         }
-                        else if (state <= AIState.ReturnToHangar)
+                        else if (state == AIState.PassengerTransport)
                         {
-                            switch (state)
-                            {
-                                case AIState.SystemDefender:
-                                    {
-                                        this.AwaitOrders(elapsedTime);
-                                        break;
-                                    }
-                                case AIState.AwaitingOffenseOrders:
-                                    {
-                                        break;
-                                    }
-                                case AIState.Resupply:
+                            this.OrderTransportPassengers(elapsedTime);
+                            if (this.start == null || this.end == null)
+                                this.AwaitOrders(elapsedTime);
+                        }
+                    }
+                    else if (state <= AIState.ReturnToHangar)
+                    {
+                        switch (state)
+                        {
+                            case AIState.SystemDefender:
                                 {
                                     this.AwaitOrders(elapsedTime);
                                     break;
                                 }
-                                default:
+                            case AIState.AwaitingOffenseOrders:
+                                {
+                                    break;
+                                }
+                            case AIState.Resupply:
+                                {
+                                    this.AwaitOrders(elapsedTime);
+                                    break;
+                                }
+                            default:
+                                {
+                                    if (state == AIState.ReturnToHangar)
                                     {
-                                        if (state == AIState.ReturnToHangar)
-                                        {
-                                            this.DoReturnToHangar(elapsedTime);
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
+                                        this.DoReturnToHangar(elapsedTime);
+                                        break;
                                     }
-                            }
-                        }
-                        else if (state != AIState.Intercept)
-                        {
-                            if (state == AIState.Exterminate)
-                            {
-                                this.OrderFindExterminationTarget(true);
-                            }
-                        }
-                        else if (this.Target != null)
-                        {
-                            this.OrbitShip(this.Target as Ship, elapsedTime);
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
                         }
                     }
-                    else
+                    else if (state != AIState.Intercept)
                     {
-                        float DistanceToFleetOffset = Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset);
-                        //Vector2 toAdd = (this.Owner.Velocity != Vector2.Zero ? Vector2.Normalize(this.Owner.Velocity) : Vector2.Zero) * 100f;
-                        //Vector2.Distance(this.Owner.Center, (this.Owner.fleet.Position + this.Owner.FleetOffset) + toAdd);
-                        //Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Owner.fleet.Position + this.Owner.FleetOffset, this.Owner.fleet.facing, 1f);
-                        //Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
-                        if (DistanceToFleetOffset <= 75f || this.HasPriorityOrder)
+                        if (state == AIState.Exterminate)
                         {
-                            this.Owner.Velocity = Vector2.Zero;
-                            Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, this.Owner.fleet.facing, 1f);
-                            Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
-                            Vector2 wantedForward = Vector2.Normalize(fvec);
-                            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-                            Vector2 right = new Vector2(-forward.Y, forward.X);
-                            float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                            float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
-                            if (angleDiff > 0.02f)
-                            {
-                                this.RotateToFacing(elapsedTime, angleDiff, facing);
-                            }                            
-                            if (DistanceToFleetOffset <= 75f || (this.State != AIState.Resupply || !this.HasPriorityOrder))  //fbedard: dont override high priority resupply
-                            {
-								this.State = AIState.AwaitingOrders;
-                                this.HasPriorityOrder = false;
-                            }
+                            this.OrderFindExterminationTarget(true);
                         }
-                        else if (this.State != AIState.HoldPosition && (DistanceToFleetOffset <= 2000f || this.Owner.loyalty.isPlayer == false)) //modified by Gretman
-                        {
-                            this.ThrustTowardsPosition(this.Owner.fleet.Position + this.Owner.FleetOffset, elapsedTime, this.Owner.fleet.speed);
-                            lock (this.wayPointLocker)
-                            {
-                                this.ActiveWayPoints.Clear();
-                                this.ActiveWayPoints.Enqueue(this.Owner.fleet.Position + this.Owner.FleetOffset);
-                                if (this.State != AIState.AwaitingOrders)  //fbedard: set new order for ship returning to fleet
-                                    this.State = AIState.AwaitingOrders;
-                                if (this.Owner.fleet.GetStack().Count > 0)
-                                {
-                                    this.ActiveWayPoints.Enqueue(this.Owner.fleet.GetStack().Peek().MovePosition + this.Owner.FleetOffset);
-                                }
-                            }
-                        }
-                        //else 
-                        //{
-                        //this.Stop(elapsedTime);     //Gretman - Patch for ships drifting away after combat.
-                        //}
+                    }
+                    else if (this.Target != null)
+                    {
+                        this.OrbitShip(this.Target as Ship, elapsedTime);
                     }
                 }
-                else if (this.OrderQueue.Count > 0)
+                else
                 {
-#if DEBUG
-                    try
-#endif
+                    float DistanceToFleetOffset = Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset);
+                    //Vector2 toAdd = (this.Owner.Velocity != Vector2.Zero ? Vector2.Normalize(this.Owner.Velocity) : Vector2.Zero) * 100f;
+                    //Vector2.Distance(this.Owner.Center, (this.Owner.fleet.Position + this.Owner.FleetOffset) + toAdd);
+                    //Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Owner.fleet.Position + this.Owner.FleetOffset, this.Owner.fleet.facing, 1f);
+                    //Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
+                    if (DistanceToFleetOffset <= 75f || !(this.State == AIState.Resupply && this.HasPriorityOrder)) // || this.HasPriorityOrder)
                     {
-                        toEvaluate = this.OrderQueue.First<ArtificialIntelligence.ShipGoal>();
-                    }
-#if DEBUG                    
-                    catch
+                        this.Owner.Velocity = Vector2.Zero;
+                        Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, this.Owner.fleet.facing, 1f);
+                        Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
+                        Vector2 wantedForward = Vector2.Normalize(fvec);
+                        Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                        Vector2 right = new Vector2(-forward.Y, forward.X);
+                        float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                        float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
+                        if (angleDiff > 0.02f)
+                        {
+                            this.RotateToFacing(elapsedTime, angleDiff, facing);
+                        }
+                        if (DistanceToFleetOffset <= 75f)  //fbedard: dont override high priority resupply
+                        {
+                            this.State = AIState.AwaitingOrders;
+                            this.HasPriorityOrder = false;
+                        }
+                        //add fun idle fleet ship stuff here
 
-                    {
-                        return;
                     }
-#endif
-                    Planet target = toEvaluate.TargetPlanet;
-                    switch (toEvaluate.Plan)
+                    else if (this.State != AIState.HoldPosition && DistanceToFleetOffset > 75f)// || this.Owner.loyalty.isPlayer == false)) //modified by Gretman
                     {
-                        case ArtificialIntelligence.Plan.HoldPosition:
+                        this.ThrustTowardsPosition(this.Owner.fleet.Position + this.Owner.FleetOffset, elapsedTime, this.Owner.fleet.speed);
+                        lock (this.wayPointLocker)
+                        {
+                            this.ActiveWayPoints.Clear();
+                            this.ActiveWayPoints.Enqueue(this.Owner.fleet.Position + this.Owner.FleetOffset);
+                            if (this.State != AIState.AwaitingOrders)  //fbedard: set new order for ship returning to fleet
+                                this.State = AIState.AwaitingOrders;
+                            if (this.Owner.fleet.GetStack().Count > 0)
                             {
-                                this.HoldPosition();
-                                break;
+                                this.ActiveWayPoints.Enqueue(this.Owner.fleet.GetStack().Peek().MovePosition + this.Owner.FleetOffset);
                             }
-                        case ArtificialIntelligence.Plan.Stop:
-                            {
-                                this.Stop(elapsedTime, toEvaluate);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.Scrap:
-                            {
-                                this.ScrapShip(elapsedTime, toEvaluate);
-                                break;
-                            }
+                        }
+                    }
+
+
+                }
+            }
+            else if (this.OrderQueue.Count > 0)
+            {
+#if DEBUG
+                try
+#endif
+                {
+                    toEvaluate = this.OrderQueue.First<ArtificialIntelligence.ShipGoal>();
+                }
+#if DEBUG
+                catch
+
+                {
+                    return;
+                }
+#endif
+                Planet target = toEvaluate.TargetPlanet;
+                switch (toEvaluate.Plan)
+                {
+                    case ArtificialIntelligence.Plan.HoldPosition:
+                        {
+                            this.HoldPosition();
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.Stop:
+                        {
+                            this.Stop(elapsedTime, toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.Scrap:
+                        {
+                            this.ScrapShip(elapsedTime, toEvaluate);
+                            break;
+                        }
                     case ArtificialIntelligence.Plan.Bombard:   //Modified by Gretman
                         target = toEvaluate.TargetPlanet;                                             //Stop Bombing if:
                         if (this.Owner.Ordinance < 0.05 * this.Owner.OrdinanceMax                           //'Aint Got no bombs!
                             || (target.TroopsHere.Count == 0 && target.Population <= 0f)                    //Everyone is dead
                             || (target.GetGroundStrengthOther(this.Owner.loyalty) + 1) * 1.5
-                             <= target.GetGroundStrength(this.Owner.loyalty)  )   //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
+                             <= target.GetGroundStrength(this.Owner.loyalty))   //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
 
                         {   //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrength would both return 0,
                             //meaning that the planet could not be bombed since that part of the if statement would always be true (0 * 1.5 <= 0)
@@ -8679,9 +8709,9 @@ namespace Ship_Game.Gameplay
                             {
                                 TargetPlanet = toEvaluate.TargetPlanet
                             };
-                       
+
                             this.OrderQueue.AddLast(orbit);         //Stay in Orbit
-                      
+
                             this.HasPriorityOrder = false;
                             //System.Diagnostics.Debug.WriteLine("Bombardment info! " + target.GetGroundStrengthOther(this.Owner.loyalty) + " : " + target.GetGroundStrength(this.Owner.loyalty));
 
@@ -8722,275 +8752,275 @@ namespace Ship_Game.Gameplay
                             break;
 
                     case ArtificialIntelligence.Plan.BombTroops:
-                            target = toEvaluate.TargetPlanet;
+                        target = toEvaluate.TargetPlanet;
 
-                            if (target.TroopsHere.Where(unfriendlyTroops => unfriendlyTroops.GetOwner() != this.Owner.loyalty).Count() * 1.5
-                                >= target.TilesList.Sum(space => space.number_allowed_troops))
+                        if (target.TroopsHere.Where(unfriendlyTroops => unfriendlyTroops.GetOwner() != this.Owner.loyalty).Count() * 1.5
+                            >= target.TilesList.Sum(space => space.number_allowed_troops))
+                        {
+                            if (this.Owner.Ordinance < 0.05 * (double)this.Owner.OrdinanceMax)
                             {
-                                if ( this.Owner.Ordinance < 0.05 * (double)this.Owner.OrdinanceMax)
-                                {
-                                    this.OrderQueue.Clear();
-                                    this.State = AIState.AwaitingOrders;
-                                    this.HasPriorityOrder = false;
-                                }
-                                this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
-                                radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1500;
-                                if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty)
+                                this.OrderQueue.Clear();
+                                this.State = AIState.AwaitingOrders;
+                                this.HasPriorityOrder = false;
+                            }
+                            this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                            radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1500;
+                            if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty)
 
+                            {
+                                this.OrderQueue.Clear();
+                                return;
+                            }
+                            else if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
+                            {
+                                using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
                                 {
-                                    this.OrderQueue.Clear();
-                                    return;
-                                }                                    
-                                else if ( Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
-                                {
-                                    using (List<ShipModule>.Enumerator enumerator = this.Owner.BombBays.GetEnumerator())
+                                    while (enumerator.MoveNext())
                                     {
-                                        while (enumerator.MoveNext())
+                                        ShipModule current = enumerator.Current;
+                                        if (current.BombTimer <= 0.0)
                                         {
-                                            ShipModule current = enumerator.Current;
-                                            if ( current.BombTimer <= 0.0)
+                                            Bomb bomb = new Bomb(new Vector3(this.Owner.Center, 0.0f), this.Owner.loyalty);
+                                            bomb.WeaponName = current.BombType;
+                                            if ((double)this.Owner.Ordinance > (double)ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire)
                                             {
-                                                Bomb bomb = new Bomb(new Vector3(this.Owner.Center, 0.0f), this.Owner.loyalty);
-                                                bomb.WeaponName = current.BombType;
-                                                if ((double)this.Owner.Ordinance > (double)ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire)
-                                                {
-                                                    this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire;
-                                                    bomb.SetTarget(toEvaluate.TargetPlanet);
-                                                    //lock (GlobalStats.BombLock)
-                                                        ArtificialIntelligence.universeScreen.BombList.Add(bomb);
-                                                    current.BombTimer = ResourceManager.WeaponsDict[current.BombType].fireDelay;
-                                                }
+                                                this.Owner.Ordinance -= ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire;
+                                                bomb.SetTarget(toEvaluate.TargetPlanet);
+                                                //lock (GlobalStats.BombLock)
+                                                ArtificialIntelligence.universeScreen.BombList.Add(bomb);
+                                                current.BombTimer = ResourceManager.WeaponsDict[current.BombType].fireDelay;
                                             }
                                         }
-                                        break;
                                     }
-                                }
-                                else
                                     break;
-                            }
-                            else if (this.Owner.HasTroopBay || (this.Owner.hasTransporter))
-                            {
-                                this.State = AIState.AssaultPlanet;
-                                this.OrderAssaultPlanet(target);
+                                }
                             }
                             else
+                                break;
+                        }
+                        else if (this.Owner.HasTroopBay || (this.Owner.hasTransporter))
+                        {
+                            this.State = AIState.AssaultPlanet;
+                            this.OrderAssaultPlanet(target);
+                        }
+                        else
+                            this.OrderQueue.Clear();
+                        break;
+
+                    case ArtificialIntelligence.Plan.Exterminate:
+                        {
+                            this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                            radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1500;
+                            if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty || toEvaluate.TargetPlanet.Owner == null)
+                            {
                                 this.OrderQueue.Clear();
-                            break;
-
-                        case ArtificialIntelligence.Plan.Exterminate:
+                                this.OrderFindExterminationTarget(true);
+                                return;
+                            }
+                            else
                             {
-                                this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
-                                radius = toEvaluate.TargetPlanet.ObjectRadius + this.Owner.Radius + 1500;
-                                if (toEvaluate.TargetPlanet.Owner == this.Owner.loyalty || toEvaluate.TargetPlanet.Owner == null)
+                                if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) >= radius)
+                                    break;
+                                List<ShipModule>.Enumerator enumerator1 = this.Owner.BombBays.GetEnumerator();
+                                try
                                 {
-                                    this.OrderQueue.Clear();
-                                    this.OrderFindExterminationTarget(true);
-                                    return;
-                                }
-                                else
-                                {
-                                    if (Vector2.Distance(this.Owner.Center, toEvaluate.TargetPlanet.Position) >= radius)
-                                        break;
-                                    List<ShipModule>.Enumerator enumerator1 = this.Owner.BombBays.GetEnumerator();
-                                    try
+                                    while (enumerator1.MoveNext())
                                     {
-                                        while (enumerator1.MoveNext())
+                                        ShipModule mod = enumerator1.Current;
+                                        if (mod.BombTimer > 0f)
+                                            continue;
+                                        Bomb b = new Bomb(new Vector3(this.Owner.Center, 0f), this.Owner.loyalty)
                                         {
-                                            ShipModule mod = enumerator1.Current;
-                                            if (mod.BombTimer > 0f)
-                                                continue;
-                                            Bomb b = new Bomb(new Vector3(this.Owner.Center, 0f), this.Owner.loyalty)
-                                            {
-                                                WeaponName = mod.BombType
-                                            };
-                                            if (this.Owner.Ordinance <= ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire)
-                                            {
-                                                continue;
-                                            }
-                                            Ship owner1 = this.Owner;
-                                            owner1.Ordinance = owner1.Ordinance - ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire;
-                                            b.SetTarget(toEvaluate.TargetPlanet);
-                                            //lock (GlobalStats.BombLock)
-                                            {
-                                                ArtificialIntelligence.universeScreen.BombList.Add(b);
-                                            }
-                                            mod.BombTimer = ResourceManager.WeaponsDict[mod.BombType].fireDelay;
+                                            WeaponName = mod.BombType
+                                        };
+                                        if (this.Owner.Ordinance <= ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire)
+                                        {
+                                            continue;
                                         }
-                                        break;
+                                        Ship owner1 = this.Owner;
+                                        owner1.Ordinance = owner1.Ordinance - ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire;
+                                        b.SetTarget(toEvaluate.TargetPlanet);
+                                        //lock (GlobalStats.BombLock)
+                                        {
+                                            ArtificialIntelligence.universeScreen.BombList.Add(b);
+                                        }
+                                        mod.BombTimer = ResourceManager.WeaponsDict[mod.BombType].fireDelay;
                                     }
-                                    finally
-                                    {
-                                        ((IDisposable)enumerator1).Dispose();
-                                    }
-                                }
-                            }
-                        case ArtificialIntelligence.Plan.RotateToFaceMovePosition:
-                            {
-                                this.RotateToFaceMovePosition(elapsedTime, toEvaluate);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.RotateToDesiredFacing:
-                            {
-                                this.RotateToDesiredFacing(elapsedTime, toEvaluate);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.MoveToWithin1000:
-                            {
-                                this.MoveToWithin1000(elapsedTime, toEvaluate);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.MakeFinalApproachFleet:
-                            {
-                                if (this.Owner.fleet != null)
-                                {
-                                    this.MakeFinalApproachFleet(elapsedTime, toEvaluate);
                                     break;
                                 }
-                                else
+                                finally
                                 {
-                                    this.State = AIState.AwaitingOrders;
-                                    break;
+                                    ((IDisposable)enumerator1).Dispose();
                                 }
                             }
-                        case ArtificialIntelligence.Plan.MoveToWithin1000Fleet:
+                        }
+                    case ArtificialIntelligence.Plan.RotateToFaceMovePosition:
+                        {
+                            this.RotateToFaceMovePosition(elapsedTime, toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.RotateToDesiredFacing:
+                        {
+                            this.RotateToDesiredFacing(elapsedTime, toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.MoveToWithin1000:
+                        {
+                            this.MoveToWithin1000(elapsedTime, toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.MakeFinalApproachFleet:
+                        {
+                            if (this.Owner.fleet != null)
                             {
-                                if (this.Owner.fleet != null)
-                                {
-                                    this.MoveToWithin1000Fleet(elapsedTime, toEvaluate);
-                                    break;
-                                }
-                                else
-                                {
-                                    this.State = AIState.AwaitingOrders;
-                                    break;
-                                }
-                            }
-                        case ArtificialIntelligence.Plan.MakeFinalApproach:
-                            {
-                                this.MakeFinalApproach(elapsedTime, toEvaluate);
+                                this.MakeFinalApproachFleet(elapsedTime, toEvaluate);
                                 break;
                             }
-                        case ArtificialIntelligence.Plan.RotateInlineWithVelocity:
+                            else
                             {
-                                this.RotateInLineWithVelocity(elapsedTime, toEvaluate);
+                                this.State = AIState.AwaitingOrders;
                                 break;
                             }
-                        case ArtificialIntelligence.Plan.StopWithBackThrust:
+                        }
+                    case ArtificialIntelligence.Plan.MoveToWithin1000Fleet:
+                        {
+                            if (this.Owner.fleet != null)
                             {
-                                this.StopWithBackwardsThrust(elapsedTime, toEvaluate);
+                                this.MoveToWithin1000Fleet(elapsedTime, toEvaluate);
                                 break;
                             }
-                        case ArtificialIntelligence.Plan.Orbit:
+                            else
                             {
-                                this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                                this.State = AIState.AwaitingOrders;
                                 break;
                             }
-                        case ArtificialIntelligence.Plan.Colonize:
-                            {
-                                this.Colonize(toEvaluate.TargetPlanet);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.Explore:
-                            {
-                                this.DoExplore(elapsedTime);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.Rebase:
-                            {
-                                this.DoRebase(toEvaluate);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.DefendSystem:
-                            {
-                                //if (this.Target != null)
-                                //    System.Diagnostics.Debug.WriteLine(this.Target);
-                                this.DoSystemDefense(elapsedTime);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.DoCombat:
-                            {
-                                this.DoCombat(elapsedTime);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.MoveTowards:
-                            {
-                                this.MoveTowardsPosition(this.MovePosition, elapsedTime);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.PickupPassengers:
-                            {
-                                if (this.start != null)
-                                    this.PickupPassengers();
-                                else
-                                    this.State = AIState.AwaitingOrders;
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.DropoffPassengers:
-                            {
+                        }
+                    case ArtificialIntelligence.Plan.MakeFinalApproach:
+                        {
+                            this.MakeFinalApproach(elapsedTime, toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.RotateInlineWithVelocity:
+                        {
+                            this.RotateInLineWithVelocity(elapsedTime, toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.StopWithBackThrust:
+                        {
+                            this.StopWithBackwardsThrust(elapsedTime, toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.Orbit:
+                        {
+                            this.DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.Colonize:
+                        {
+                            this.Colonize(toEvaluate.TargetPlanet);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.Explore:
+                        {
+                            this.DoExplore(elapsedTime);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.Rebase:
+                        {
+                            this.DoRebase(toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.DefendSystem:
+                        {
+                            //if (this.Target != null)
+                            //    System.Diagnostics.Debug.WriteLine(this.Target);
+                            this.DoSystemDefense(elapsedTime);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.DoCombat:
+                        {
+                            this.DoCombat(elapsedTime);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.MoveTowards:
+                        {
+                            this.MoveTowardsPosition(this.MovePosition, elapsedTime);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.PickupPassengers:
+                        {
+                            if (this.start != null)
+                                this.PickupPassengers();
+                            else
+                                this.State = AIState.AwaitingOrders;
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.DropoffPassengers:
+                        {
 
-                                try
-                                {
-                                    this.DropoffPassengers();
-                                }
-                                catch 
-                                {
-                                    System.Diagnostics.Debug.WriteLine("DropoffPassengers failed");
+                            try
+                            {
+                                this.DropoffPassengers();
+                            }
+                            catch
+                            {
+                                System.Diagnostics.Debug.WriteLine("DropoffPassengers failed");
 
-                                }
-                                break;
                             }
-                        case ArtificialIntelligence.Plan.DeployStructure:
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.DeployStructure:
+                        {
+                            this.DoDeploy(toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.PickupGoods:
+                        {
+                            try
                             {
-                                this.DoDeploy(toEvaluate);
-                                break;
+                                this.PickupGoods();
                             }
-                        case ArtificialIntelligence.Plan.PickupGoods:
-                            {
-                                try
-                                {           
-                                    this.PickupGoods();
-                                }
-                                catch
-                                { }
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.DropOffGoods:
-                            {
-                                this.DropoffGoods();
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.ReturnToHangar:
-                            {
-                                this.DoReturnToHangar(elapsedTime);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.TroopToShip:
-                            {
-                                this.DoTroopToShip(elapsedTime);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.BoardShip:
-                            {
-                                this.DoBoardShip(elapsedTime);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.SupplyShip:
-                            {
-                                this.DoSupplyShip(elapsedTime, toEvaluate);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.Refit:
-                            {
-                                this.DoRefit(elapsedTime, toEvaluate);
-                                break;
-                            }
-                        case ArtificialIntelligence.Plan.LandTroop:
-                            {
-                                this.DoLandTroop(elapsedTime, toEvaluate);
-                                break;
-                            }
-                    }
+                            catch
+                            { }
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.DropOffGoods:
+                        {
+                            this.DropoffGoods();
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.ReturnToHangar:
+                        {
+                            this.DoReturnToHangar(elapsedTime);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.TroopToShip:
+                        {
+                            this.DoTroopToShip(elapsedTime);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.BoardShip:
+                        {
+                            this.DoBoardShip(elapsedTime);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.SupplyShip:
+                        {
+                            this.DoSupplyShip(elapsedTime, toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.Refit:
+                        {
+                            this.DoRefit(elapsedTime, toEvaluate);
+                            break;
+                        }
+                    case ArtificialIntelligence.Plan.LandTroop:
+                        {
+                            this.DoLandTroop(elapsedTime, toEvaluate);
+                            break;
+                        }
                 }
+            }
                 goto Label0;
 #if !DEBUG   
         }
