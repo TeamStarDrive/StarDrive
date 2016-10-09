@@ -5347,6 +5347,7 @@ namespace Ship_Game
             {
                 if (this.DesignStack.Count <= 0)
                     return;
+                lastActiveUID = "";
                 ShipModule shipModule = this.ActiveModule;
                 DesignAction designAction = this.DesignStack.Pop();
                 SlotStruct slot1 = new SlotStruct();
