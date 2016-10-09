@@ -203,7 +203,7 @@ namespace Ship_Game
                     //    this.numSystems = this.numOpponents + 2;
                     //}
                 }                
-                UniverseData.UniverseWidth = this.data.Size.X;
+                UniverseData.UniverseWidth = this.data.Size.X * 2;
                 UniverseData universeDatum = this.data;
                 universeDatum.Size = universeDatum.Size * this.scale;
                 this.data.EmpireList.Add(empire);
@@ -273,7 +273,9 @@ namespace Ship_Game
                     float SpaceSaved = GC.GetTotalMemory(true);
                     for (int opponents = 0; opponents < num; ++opponents)
                     {
-                        int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count - 1));
+                        //Intentionally using too high of a value here, because of the truncated decimal. -Gretman
+                        int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count));
+                        if (index2 == removalCollection.Count) index2 = 0;      //Just to be safe
 
                         if (false)
                         {
