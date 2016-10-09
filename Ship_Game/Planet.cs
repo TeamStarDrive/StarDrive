@@ -2382,17 +2382,21 @@ namespace Ship_Game
             }
             if (index.isFaction)
                 return;
+
+            foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
+            {
+                if (keyValuePair.Value.loyalty != index && keyValuePair.Value.TroopList.Where(loyalty => loyalty.GetOwner() != index).Count() > 0)
+                    continue;
+                keyValuePair.Value.loyalty = index;
+                this.Owner.RemoveShip(keyValuePair.Value);      //Transfer to new owner's ship list. Fixes platforms changing loyalty after game load bug      -Gretman
+                index.AddShip(keyValuePair.Value);
+                System.Diagnostics.Debug.WriteLine("Owner of platform tethered to " + this.Name + " changed from " + this.Owner.PortraitName + "  to " + index.PortraitName);
+            }
             this.Owner = index;
             this.TurnsSinceTurnover = 0;
             this.Owner.AddPlanet(this);
             this.ConstructionQueue.Clear();
             this.system.OwnerList.Clear();
-            foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
-            {
-                if (keyValuePair.Value.loyalty != this.Owner && keyValuePair.Value.TroopList.Where(loyalty => loyalty.GetOwner() != this.Owner).Count() > 0)
-                    continue;
-                keyValuePair.Value.loyalty = this.Owner;
-            }
             
             foreach (Planet planet in this.system.PlanetList)
             {
