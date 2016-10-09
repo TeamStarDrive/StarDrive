@@ -583,6 +583,7 @@ namespace Ship_Game
 
         private void DoMarkedColonizeGoal()
         {
+
             switch (this.Step)
             {
                 case 0:
