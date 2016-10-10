@@ -9598,14 +9598,10 @@ namespace Ship_Game.Gameplay
                     {
 
                         var neighborDistance = Vector2.Distance(neighbor.Position, current.Position) ;
+                        if(mode2)
                         if (current.Radius + neighbor.Radius < neighborDistance)
                             neighborDistance += (neighborDistance - current.Radius - neighbor.Radius) * (projectorWeight * ai.data.Traits.InBordersSpeedBonus);
-                        //doublepro = (neighbor.Radius + current.Radius) *1.25f;
-                        //if (neighborDistance > doublepro)
-                        //{
-                        //    float tempd = (neighborDistance - doublepro);
-                        //    neighborDistance += tempd * (1 + ai.data.Traits.InBordersSpeedBonus) - tempd;
-                        //}
+
 
                         var tempCurrentDistance = currentDistance[current] +  neighborDistance;              
                     
@@ -9633,13 +9629,10 @@ namespace Ship_Game.Gameplay
                                 //radius = 0;
                             }
                             float tempendDist = Vector2.Distance(neighbor.Position, end.Position) ;
-                            if (current.Radius + neighbor.Radius < tempendDist)
-                                tempendDist += (tempendDist - current.Radius - neighbor.Radius) * ((1 + projectorWeight) * ai.data.Traits.InBordersSpeedBonus);
-                            //if (tempendDist > doublepro)
-                            //{
-                            //    float tempd = (tempendDist - doublepro);
-                            //    tempendDist += tempd * (1 + ai.data.Traits.InBordersSpeedBonus) - tempd;
-                            //}
+                            if (mode2)
+                                if (current.Radius + neighbor.Radius < tempendDist)
+                                    tempendDist += (tempendDist - current.Radius - neighbor.Radius) * (projectorWeight * ai.data.Traits.InBordersSpeedBonus);
+
                             currentDistance[neighbor] = tempCurrentDistance;
                             
                             predictedDistance[neighbor] =
@@ -9697,11 +9690,10 @@ namespace Ship_Game.Gameplay
                 float distancetoend = Vector2.Distance(end.Position, node.Position);
                 float angletonode = 0;
                 float angletoend = HelperFunctions.findAngleToTarget(node.Position, end.Position);
-                int y = 0;
-                int Ey = y = (int)Math.Floor(angletoend / granularityl);
-                float distancecheck = 0;
-                
+                int y = 0;                
+                float distancecheck = 0;                
                 granularityl = (int)(360 / granularityl);
+                int Ey = (int)Math.Floor(angletoend / granularityl);
                 foreach (Empire.InfluenceNode point in goodpoints)
                 {
                     if (point == node)
@@ -9812,8 +9804,8 @@ namespace Ship_Game.Gameplay
                     angletonode = HelperFunctions.findAngleToTarget(node.Position, point.Position);
                     y = (int)Math.Floor(angletonode / granularityl);
                     distancecheck = Vector2.Distance(node.Position, point.Position);
-                    float max = node.Radius > projectorsize ? node.Radius : projectorsize;
-                    if (distancecheck < max * 2f && distancecheck > distance[y])
+                    float max = node.Radius  > projectorsize ? node.Radius : projectorsize;
+                    if (distancecheck < max *2 && distancecheck > distance[y])
                     {
                         nearest[y] = (point);
                        distance[y] = distancecheck;
