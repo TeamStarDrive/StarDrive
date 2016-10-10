@@ -119,8 +119,8 @@ namespace Ship_Game
         {
 
             #region Figure defensive importance
-            //foreach (Planet p in Ship.universeScreen.PlanetsDict.Values)  //this.us.GetPlanets())
-            Parallel.ForEach(Ship.universeScreen.PlanetsDict.Values, p =>
+            foreach (Planet p in Ship.universeScreen.PlanetsDict.Values)  //this.us.GetPlanets())
+            //Parallel.ForEach(Ship.universeScreen.PlanetsDict.Values, p =>
            {
                if (p.Owner != us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(this.us))
                {
@@ -135,7 +135,7 @@ namespace Ship_Game
                    }
                    p.TroopsHere.ApplyPendingRemovals();
                }
-           });
+           }//);
         
             foreach (Planet p in this.us.GetPlanets())
             {
