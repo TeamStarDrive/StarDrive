@@ -206,17 +206,17 @@ namespace Ship_Game.Gameplay
 			return pos;
 		}
 
-        public void ClearPinsInSensorRange(Vector2 Position, float Radius)
-        {                        
+        public void ClearPinsInSensorRange2(Vector2 Position, float Radius)
+        {
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
-               
+
                 if (pin.Value.InBorders || pin.Value.Position == Vector2.Zero || Vector2.Distance(Position, pin.Value.Position) > Radius)
                     continue;
 
                 //lock (pin.Value)
                 {
-                    if (pin.Value.ship == null)
+                    if (false && pin.Value.ship == null)
                     {
 
                         foreach (Ship ship in Ship.universeScreen.MasterShipList)
@@ -232,16 +232,17 @@ namespace Ship_Game.Gameplay
                             pin.Value.Position = Vector2.Zero;
                             pin.Value.ship = null;
                             pin.Value.Strength = 0;
+                            pin.Value.InBorders = false;
+                            pin.Value.EmpireName = string.Empty;
                             continue;
                         }
                     }
-                 
-                    if (pin.Value.ship != null && Vector2.Distance(Position, pin.Value.ship.Center) <= Radius)
+
+                    if (false & pin.Value.ship != null && Vector2.Distance(Position, pin.Value.ship.Center) <= Radius)
                         continue;
                 }
 
-
-                //lock (pin.Value)
+                if (false)
                 {
                     pin.Value.Position = Vector2.Zero;
                     pin.Value.ship = null;
@@ -251,11 +252,38 @@ namespace Ship_Game.Gameplay
                 }
 
             }
-            
-            
-        }
 
-		public float PingRadarStr(Vector2 Position, float Radius, Empire Us)
+
+        }
+        public void ClearPinsInSensorRange(Vector2 Position, float Radius)
+        {
+
+
+           // List<Guid> removepin = new List<Guid>();
+
+            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
+            {
+
+                if (pin.Value.ship == null || Vector2.Distance(Position, pin.Value.Position) > Radius)
+                    continue;
+                bool insensor = Vector2.Distance(pin.Value.ship.Center, Position) <= Radius;
+                this.UpdatePin(pin.Value.ship, pin.Value.InBorders, insensor);
+                if (insensor)
+                    continue;
+                pin.Value.Velocity = Vector2.Zero;
+                pin.Value.Position = Vector2.Zero;
+                pin.Value.Strength = 0;
+                pin.Value.EmpireName = string.Empty;
+                pin.Value.ship = null;
+            //removepin.Add(pin.Key);
+
+        }
+            //ThreatMatrix.Pin gone;
+            //foreach (Guid g in removepin)
+            //    this.Pins.TryRemove(g,out gone);
+
+        }
+        public float PingRadarStr(Vector2 Position, float Radius, Empire Us)
 		{
 			float str = 0f;
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)            
@@ -325,12 +353,11 @@ namespace Ship_Game.Gameplay
     
         public void UpdatePin(Ship ship, bool ShipinBorders,bool InSensorRadius)
         {
-            if (!InSensorRadius)
-                return;
+            //if (!InSensorRadius)
+            //    return;
             ThreatMatrix.Pin pin = null;
             bool exists = this.Pins.TryGetValue(ship.guid, out pin);
-            
-            if (pin == null)
+            if (pin == null && InSensorRadius)
             {
                 pin = new ThreatMatrix.Pin()
                 {
@@ -345,28 +372,26 @@ namespace Ship_Game.Gameplay
                     this.Pins[ship.guid] = pin;
                     return;
                 }
+                else
+                {
+                    this.Pins.TryAdd(ship.guid, pin);
+                }
 
             }
-            else
+            else if(pin != null )
             {
-                pin = this.Pins[ship.guid];
-                pin.Velocity = ship.Center - this.Pins[ship.guid].Position;
-                pin.Position = ship.Center;
-                pin.Strength = ship.GetStrength();
-                pin.EmpireName = ship.loyalty.data.Traits.Name;
-                this.Pins[ship.guid].InBorders = ShipinBorders;
-                if (this.Pins[ship.guid].ship == null) //ShipinBorders &&
-                    this.Pins[ship.guid].ship = ship;
+                if (InSensorRadius)
+                {
+                    pin.Velocity = ship.Center - pin.Position;
+                    pin.Position = ship.Center;
+                    pin.Strength = ship.GetStrength();
+                    pin.EmpireName = ship.loyalty.data.Traits.Name;
+                }
+                pin.InBorders = ShipinBorders;
+                if (pin.ship != ship)
+                    pin.ship = ship;
                 return;
             }
-
-
-            //lock (this.Pins)            
-                this.Pins.TryAdd(ship.guid, pin);
-
-            
-
-
         }
         public void ClearBorders ()
         {

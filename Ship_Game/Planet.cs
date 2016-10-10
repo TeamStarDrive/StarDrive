@@ -6879,9 +6879,9 @@ output = maxp * take10 = 5
         }
         public int GetGroundLandingSpots()
         {
-            int spotCount =this.TilesList.Sum(spots => spots.number_allowed_troops);
-            int troops = this.TroopsHere.Count;
-            return spotCount -troops ;
+            int spotCount =this.TilesList.Where(spots => spots.building == null).Sum(spots => spots.number_allowed_troops);            
+            int troops = this.TroopsHere.Where(owner=> owner.GetOwner() == this.Owner) .Count();
+            return spotCount -troops;
 
 
         }

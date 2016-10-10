@@ -1660,6 +1660,11 @@ namespace Ship_Game
                             }
                             //empire.KnownShips.thisLock.ExitWriteLock();
                             //this.UnownedShipsInOurBorders.Clear();
+                            foreach (Ship ship in MasterShipList)
+                            {
+                                //added by gremlin reset border stats.
+                                ship.getBorderCheck.Remove(empire);                                
+                            }
                             empire.UpdateKnownShips();
                             empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
                         }
@@ -1719,7 +1724,7 @@ namespace Ship_Game
                         Parallel.ForEach(rangePartitioner, (range, loopState) =>
                                        { //Parallel.ForEach(this.MasterShipList, ship =>
                                            for (int i = range.Item1; i < range.Item2; i++)
-                                           {
+                                           {                                               
                                                Ship ship = this.MasterShipList[i];
                                                ship.isInDeepSpace = false;
                                                ship.SetSystem((SolarSystem)null);
@@ -1727,6 +1732,7 @@ namespace Ship_Game
                                                {
                                                    if (Vector2.Distance(ship.Position, s.Position) < 100000.0)
                                                    {
+                                                                                                       
                                                        s.ExploredDict[ship.loyalty] = true;
                                                        ship.SetSystem(s);
                                                        s.ShipList.Add(ship);
@@ -1734,13 +1740,19 @@ namespace Ship_Game
                                                            s.spatialManager.CollidableObjects.Add((GameplayObject)ship);
                                                        break;       //No need to keep looping through all other systems if one is found -Gretman
                                                    }
+                                                   
                                                }
                                                if (ship.GetSystem() == null)
                                                {
+                                                 
                                                    ship.isInDeepSpace = true;
                                                    if (!UniverseScreen.DeepSpaceManager.CollidableObjects.Contains((GameplayObject)ship))
                                                        UniverseScreen.DeepSpaceManager.CollidableObjects.Add((GameplayObject)ship);
                                                }
+                                     
+
+
+
                                            }//);
                                        });
                     }
@@ -3172,6 +3184,7 @@ namespace Ship_Game
                 this.debugwin = new DebugInfoScreen(this.ScreenManager, this);
                 this.showdebugwindow = !this.showdebugwindow;
             }
+            
             if (this.DefiningAO)
             {
                 if (this.NeedARelease)
@@ -5836,10 +5849,29 @@ namespace Ship_Game
                 catch
                 {
                 }
+            }            
+            if (this.Debug) //input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && 
+            {
+                foreach (Empire e in EmpireManager.EmpireList)
+                {
+                    if (e.isPlayer || e.isFaction)
+                        continue;
+                    foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values)
+                    {
+                        if (pin.Position != Vector2.Zero) // && pin.InBorders)
+                        {
+                            Circle circle = this.DrawSelectionCircles(pin.Position, 50f);
+                            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
+                            if(pin.InBorders)
+                            {
+                                circle = this.DrawSelectionCircles(pin.Position, 50f);
+                                Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, e.EmpireColor);
+                            }
+                        }
+                    }
+                }
             }
 
-
-            
             this.DrawTacticalPlanetIcons();
             if (this.showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !this.LookingAtPlanet)
             {
