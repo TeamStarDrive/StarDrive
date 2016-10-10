@@ -1675,7 +1675,7 @@ namespace Ship_Game
                 Parallel.ForEach(EmpireManager.EmpireList, empire =>
                 {
                    
-                    empire.pathhMap = new ArtificialIntelligence.Grid(empire, 20, 2);
+                    empire.pathhMap = new ArtificialIntelligence.Grid(empire, 36, 5);
                 });
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)    
                 {
