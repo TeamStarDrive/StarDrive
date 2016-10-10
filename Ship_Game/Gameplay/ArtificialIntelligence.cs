@@ -5080,7 +5080,8 @@ namespace Ship_Game.Gameplay
                 this.ActiveWayPoints.Clear();
             
             this.OrderQueue.Clear();
-            
+            if (this.Owner.GetCargo()["Colonists_1000"] > 0.0f)
+                return;
 
             if(this.start != null && this.end != null)  //resume trading
             {
@@ -5312,18 +5313,18 @@ namespace Ship_Game.Gameplay
                             else
                                 planets.Add(PlanetCheck);
                         }
-                            else if (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere > 0)
+                            else if ( PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere > 0)
                             {
                                 secondaryPlanets.Add(PlanetCheck);
                             }
 
                         }                    
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
-                    if (this.Owner.CargoSpace_Used > 0 &&  planets.Count == 0 )
+                    if (this.Owner.CargoSpace_Used > 0.01f &&  planets.Count == 0 )
                         planets.AddRange(secondaryPlanets);
                     if (planets.Count > 0)
                     {
-                        if (this.Owner.GetCargo()["Production"] > 0f)
+                        if (this.Owner.GetCargo()["Production"] > 0.01f)
                             //sortPlanets = planets.OrderBy(PlanetCheck=> (PlanetCheck.MAX_STORAGE - PlanetCheck.ProductionHere) >= this.Owner.CargoSpace_Max)
                             //    .ThenBy(dest => Vector2.Distance(this.Owner.Position, dest.Position));
                             sortPlanets = planets.OrderBy(PlanetCheck =>
@@ -5400,12 +5401,12 @@ namespace Ship_Game.Gameplay
                 #endregion
 
                 #region Deliver Food LAST (return if already loaded)
-                if (this.end == null && (this.Owner.TradingFood || this.Owner.GetCargo()["Food"] > 0f) && this.Owner.GetCargo()["Production"] == 0f)
+                if (this.end == null && (this.Owner.TradingFood || this.Owner.GetCargo()["Food"] > 0.01f) && this.Owner.GetCargo()["Production"] == 0.0f)
                 {
                     planets.Clear();
                     this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
                     for (int i = 0; i < this.Owner.loyalty.GetPlanets().Count(); i++)
-                    if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0)
+                    if (this.Owner.loyalty.GetPlanets()[i].ParentSystem.combatTimer <= 0.0f)
                     {
                         Planet PlanetCheck = this.Owner.loyalty.GetPlanets()[i];
                         if (PlanetCheck != null && PlanetCheck.fs == Planet.GoodState.IMPORT ) //&& (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
@@ -5426,7 +5427,7 @@ namespace Ship_Game.Gameplay
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
                     if (planets.Count > 0)
                     {
-                        if (this.Owner.GetCargo()["Food"] > 0f)
+                        if (this.Owner.GetCargo()["Food"] > 0.01f)
                           //  sortPlanets = planets.OrderBy(PlanetCheck => (PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere) >= this.Owner.CargoSpace_Max)
                         sortPlanets = planets.OrderBy(PlanetCheck =>
                         {
@@ -5452,7 +5453,7 @@ namespace Ship_Game.Gameplay
                                 continue;
                             cargoSpaceMax += p.NetFoodPerTurn * mySpeed;
                             cargoSpaceMax = cargoSpaceMax > p.MAX_STORAGE ? p.MAX_STORAGE : cargoSpaceMax;
-                            cargoSpaceMax = cargoSpaceMax < 0 ? 0 : cargoSpaceMax;
+                            cargoSpaceMax = cargoSpaceMax < 0.0f ? 0.0f : cargoSpaceMax;
                             this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
@@ -5472,14 +5473,14 @@ namespace Ship_Game.Gameplay
                                         {
                                             continue;
                                         }
-                                        if (p.NetFoodPerTurn == 0)
+                                        if (p.NetFoodPerTurn == 0.0f)
                                             efficiency = s.CargoSpace_Max + efficiency * p.NetFoodPerTurn;
                                         else
-                                            if (p.NetFoodPerTurn < 0)
+                                            if (p.NetFoodPerTurn < 0.0f)
                                                 efficiency = s.CargoSpace_Max + efficiency * p.NetFoodPerTurn;
                                             else
                                             efficiency = s.CargoSpace_Max - efficiency * p.NetFoodPerTurn;
-                                        if (efficiency > 0)
+                                        if (efficiency > 0.0f)
                                         {
                                             if (efficiency > s.CargoSpace_Max)
                                                 efficiency = s.CargoSpace_Max;
@@ -5488,7 +5489,7 @@ namespace Ship_Game.Gameplay
                                         //ca
 
                                     }
-                                    if (cargoSpaceMax <= 0f)
+                                    if (cargoSpaceMax <= 0.0f)
                                     {
                                         flag = true;
                                         break;
@@ -5730,7 +5731,7 @@ namespace Ship_Game.Gameplay
                 }
                 #endregion
 
-                if (this.start != null && this.end != null)
+                if (this.start != null && this.end != null && this.start != this.end )
                 {
                     //if (this.Owner.CargoSpace_Used == 00 && this.start.Population / this.start.MaxPopulation < 0.2 && this.end.Population > 2000f && Vector2.Distance(this.Owner.Center, this.end.Position) < 500f)  //fbedard: dont make empty run !
                     //    this.PickupAnyPassengers();
