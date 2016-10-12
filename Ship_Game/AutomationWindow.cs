@@ -208,19 +208,19 @@ namespace Ship_Game
 		public void SetDropDowns()
 		{
             this.resetDropDowns();
-
-			string Current;
+            Ship automation;
+            string Current;
             if (!String.IsNullOrEmpty(this.screen.player.data.CurrentAutoFreighter))
                 Current = this.screen.player.data.CurrentAutoFreighter;
             else
                 Current = this.screen.player.data.DefaultSmallTransport;
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
-			{
-                if (ResourceManager.ShipsDict[ship].isColonyShip || ResourceManager.ShipsDict[ship].CargoSpace_Max <= 0f || ResourceManager.ShipsDict[ship].Thrust <= 0f || ResourceManager.ShipRoles[ResourceManager.ShipsDict[ship].shipData.Role].Protected)
+			{                
+                if (!ResourceManager.ShipsDict.TryGetValue(ship,out automation) || automation.isColonyShip || automation.CargoSpace_Max <= 0f || automation.Thrust <= 0f || ResourceManager.ShipRoles[automation.shipData.Role].Protected)
 				{
 					continue;
 				}
-				this.AutoFreighterDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
+				this.AutoFreighterDropDown.AddOption(automation.Name, 0);
 			}
 			foreach (Entry e in this.AutoFreighterDropDown.Options)
 			{
@@ -239,9 +239,10 @@ namespace Ship_Game
                 CurrentColony = this.screen.player.data.CurrentAutoColony;
             else
                 CurrentColony = this.screen.player.data.DefaultColonyShip;
+            
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
-				if (!ResourceManager.ShipsDict[ship].isColonyShip || ResourceManager.ShipsDict[ship].Thrust <= 0f)
+				if (!ResourceManager.ShipsDict.TryGetValue(ship, out automation) || automation.isColonyShip || automation.Thrust <= 0f)
 				{
 					continue;
 				}
