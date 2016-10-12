@@ -2305,8 +2305,6 @@ namespace Ship_Game
                 //float elapsedTime = this.ztimeSnapShot;
                 float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
                 float realTime = this.zTime;// this.zgameTime.ElapsedGameTime.Seconds;
-                //foreach (SolarSystem system in list)
-                //Parallel.ForEach(list, system =>
                 {
                     system.DangerTimer -= realTime;
                     system.DangerUpdater -= realTime;
@@ -2520,13 +2518,13 @@ namespace Ship_Game
                     predict.Value.update(elapsedTime);
 
                 }
-                if ((double)system.DangerUpdater < 0.0)
+                if (system.DangerUpdater < 0.0f)
                 {
                     system.DangerUpdater = 10f;
                     system.DangerTimer = (double)this.player.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0 ? 0.0f : 120f;
                 }
                 system.combatTimer -= elapsedTime;
-                if ((double)system.combatTimer <= 0.0)
+                if (system.combatTimer <= 0.0f)
                     system.CombatInSystem = false;
                 if ((double)elapsedTime > 0.0)
                     system.spatialManager.Update(elapsedTime, system);
