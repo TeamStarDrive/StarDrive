@@ -610,7 +610,7 @@ namespace Ship_Game
                         {
                             int num2 = 0;
                             foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
-                                num2 += (int)(((double)queueItem.Cost - (double)queueItem.productionTowards) / (double)planet2.NetProductionPerTurn);
+                                num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.NetProductionPerTurn);
                             if (num2 < num1)
                             {
                                 num1 = num2;
@@ -664,11 +664,12 @@ namespace Ship_Game
                     }
                 case 1:
                     bool flag2 = false;
-                    foreach (QueueItem queueItem in (List<QueueItem>)this.PlanetBuildingAt.ConstructionQueue)
-                    {
-                        if (queueItem.isShip && ResourceManager.ShipsDict[queueItem.sData.Name].isColonyShip)
-                            flag2 = true;
-                    }
+                    if (this.PlanetBuildingAt != null)                        
+                        foreach (QueueItem queueItem in (List<QueueItem>)this.PlanetBuildingAt.ConstructionQueue)
+                        {
+                            if (queueItem.isShip && ResourceManager.ShipsDict[queueItem.sData.Name].isColonyShip)
+                                flag2 = true;
+                        }
                     if (!flag2)
                     {
                         this.PlanetBuildingAt = (Planet)null;
