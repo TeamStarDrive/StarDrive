@@ -4634,7 +4634,6 @@ namespace Ship_Game.Gameplay
                 case WarType.BorderConflict:
                     List<Planet> list1 = new List<Planet>();
                     IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet)));
-                        int x = (int)UniverseData.UniverseWidth;
                     s = new List<SolarSystem>();
                         
                     for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1); ++index)
