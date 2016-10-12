@@ -4625,8 +4625,12 @@ namespace Ship_Game.Gameplay
                     this.dieCue.Play();
                 }
             }
-
-
+            ThreatMatrix.Pin pin = null;
+            foreach (Empire empire in EmpireManager.EmpireList)
+            {
+                empire.GetGSAI().ThreatMatrix.Pins.TryRemove(this.guid, out pin);
+            }
+            this.BorderCheck.Clear();
             this.ModuleSlotList.Clear();
             this.ExternalSlots.Clear();
             this.ModulesDictionary.Clear();
