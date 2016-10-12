@@ -3925,18 +3925,6 @@ namespace Ship_Game.Gameplay
                         List<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
                         List<ModuleSlot> Secondhalf = this.ModuleSlotList.Reverse().Skip(this.ModuleSlotList.Count - half).ToList();
 
-                        bool KeepTime = false;
-                        if (this.VanityName == "MerCraft") KeepTime = true;     //Lets attempt some time measurement -Gretman
-                        DateTime Before = DateTime.Now;
-
-
-                        if (KeepTime)
-                        {
-                            long LotsofTicks = DateTime.Now.Ticks - Before.Ticks;
-                            TimeSpan HowLong = new TimeSpan(LotsofTicks);
-                            System.Diagnostics.Debug.WriteLine("1 Full iteration took: " + HowLong);
-                        }
-
                         //foreach (ModuleSlot slots in this.ModuleSlotList)
                         //{
                         //    if (half > 0)
