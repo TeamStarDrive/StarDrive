@@ -1433,8 +1433,8 @@ namespace Ship_Game
                         else
                         {
                             this.GameSpeed--;
-                            if ((double)this.GameSpeed <= 1.0)
-                                this.GameSpeed = 0.5f;
+                            if ((double)this.GameSpeed < 1.0)
+                                this.GameSpeed = 1.0f;
                         } 
 #endif
                     
