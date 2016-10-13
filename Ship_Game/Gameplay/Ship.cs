@@ -191,6 +191,7 @@ namespace Ship_Game.Gameplay
         private bool reallyDie;
         public static UniverseScreen universeScreen;
         public float FTLSpoolTime;
+        public bool FTLSlowTurnBoost;
 
         //public Dictionary<Empire, diplomacticSpace> BorderState = new Dictionary<Empire, diplomacticSpace>();
         public List<ShipModule> Transporters = new List<ShipModule>();
@@ -4211,6 +4212,7 @@ namespace Ship_Game.Gameplay
                 this.HasTroopBay = false;
                 this.WarpThrust = 0f;
                 this.TurnThrust = 0f;
+                this.FTLSlowTurnBoost = false;
                 this.InhibitionRadius = 0f;
                 this.OrdAddedPerSecond = 0f;
                 this.WarpDraw = 0f;
