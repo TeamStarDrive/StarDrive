@@ -7972,125 +7972,97 @@ namespace Ship_Game.Gameplay
             Vector2 right = new Vector2(-forward.Y, forward.X);
             float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
             float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
+
+            #region Warp
             if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
             {
-                if (this.Owner.VanityName == "MerCraftA") System.Diagnostics.Debug.WriteLine("AngleDiff: " + angleDiff);
-
-                if (this.ActiveWayPoints.Count >= 2)
+                if (this.ActiveWayPoints.Count >= 2)        //Still more waypoints to go
                 {
                     float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
                     float DistToNext = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
                     if (DistToNext < 50000f)
                     {
-                        if (angleDiffToNext > 0.65f)
-                        {
-                            this.Owner.HyperspaceReturn();
-                            if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp at 1        angleDiff: " + angleDiff);
-                        }
+                        if (angleDiffToNext > 0.65f) this.Owner.HyperspaceReturn();
                         else if (angleDiffToNext > 0.35f)
                         {
                             speedLimit = speedLimit * 0.75f;
-                            if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Slowed Down [multi-waypoint Close]:        angleDiff: " + angleDiff);
+                            if (!this.Owner.FTLSlowTurnBoost)
+                            {
+                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
+                                this.Owner.FTLSlowTurnBoost = true;
+                            }
                         }
                     }
                     else if (DistToNext > 50000f)
                     {
-                        if (angleDiffToNext > 1.65f)
-                        {
-                            this.Owner.HyperspaceReturn();
-                            if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp at 2        angleDiff: " + angleDiff);
-                        }
+                        if (angleDiffToNext > 1.45f) this.Owner.HyperspaceReturn();
                         else if (angleDiffToNext > 0.85f)
                         {
-                            speedLimit = speedLimit * 0.5f;
-                            if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Slowed Down [multi-waypoint Far]:        angleDiff: " + angleDiff);
+                            speedLimit = speedLimit * 0.75f;
+                            if (!this.Owner.FTLSlowTurnBoost)
+                            {
+                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
+                                this.Owner.FTLSlowTurnBoost = true;
+                            }
                         }
                     }
                 }
-                else if (this.ActiveWayPoints.Count == 1)     //0.35 Tolerance 0.65 0.75 0.85 1.65
+                else if (this.ActiveWayPoints.Count == 1)       //Last part of journey
                 {
-                    if (this.Owner.VanityName == "MerCraftA") System.Diagnostics.Debug.WriteLine("AngleDiff: " + angleDiff + " -- Turn: " + this.Owner.rotationRadiansPerSecond);
-
                     if (Distance < 35000f)
                     {
-                        if (angleDiff > 0.65f)
-                        {
-                            this.Owner.HyperspaceReturn();
-                            if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp at new Close Check        angleDiff: " + angleDiff);
-                        }
+                        if (angleDiff > 0.65f) this.Owner.HyperspaceReturn();
                         else if (angleDiff > 0.35f)
                         {
                             speedLimit = speedLimit * 0.75f;
-                            if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Slowed Down [single waypoint]:        angleDiff: " + angleDiff);
+                            if (!this.Owner.FTLSlowTurnBoost)
+                            {
+                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
+                                this.Owner.FTLSlowTurnBoost = true;
+                            }
                         }
                     }
                     else if (Distance > 35000f)
                     {
-                        if (angleDiff > 1.65f)
-                        {
-                            this.Owner.HyperspaceReturn();
-                            if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp at 2.5        angleDiff: " + angleDiff);
-                        }
+                        if (angleDiff > 1.65f) this.Owner.HyperspaceReturn();
                         else if (angleDiff > 0.85f)
                         {
                             speedLimit = speedLimit * 0.75f;
-                            if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Slowed Down [single waypoint]:        angleDiff: " + angleDiff);
+                            if (!this.Owner.FTLSlowTurnBoost)
+                            {
+                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
+                                this.Owner.FTLSlowTurnBoost = true;
+                            }
                         }
                     }
                 }
                 else if (this.Target != null)
                 {
-                    if (angleDiff > 0.4f)
-                    {
-                        this.Owner.HyperspaceReturn();
-                        if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp at 3        angleDiff: " + angleDiff);
-                    }
-                    else if (Distance > 25000f)
-                    {
-                        this.Owner.HyperspaceReturn();
-                        if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp at 4        angleDiff: " + angleDiff);
-                    }
+                    if (angleDiff > 0.4f) this.Owner.HyperspaceReturn();
+                    else if (Distance > 25000f) this.Owner.HyperspaceReturn();
                 }
-                else if ( (this.State != AIState.Bombard && this.State != AIState.AssaultPlanet && this.State != AIState.BombardTroops && !this.IgnoreCombat) || this.OrderQueue.Count <= 0)
+                else if (  (this.State != AIState.Bombard && this.State != AIState.AssaultPlanet && this.State != AIState.BombardTroops && !this.IgnoreCombat) || this.OrderQueue.Count <= 0)
                 {
                     this.Owner.HyperspaceReturn();
-                    if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp at 5        angleDiff: " + angleDiff);
                 }
                 else if (this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet != null)
                 {
                     float dest = Vector2.Distance(this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet.Position, this.Owner.Center);
-                    if (angleDiff > 0.4f)
-                    {
-                        this.Owner.HyperspaceReturn();
-                        if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp at 6        angleDiff: " + angleDiff);
-                    }
-                    else if (dest > 25000f)     //Is this supposed to be less than?
-                    {
-                        this.Owner.HyperspaceReturn();
-                        if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp at 7        angleDiff: " + angleDiff);
-                    }
+                    if (angleDiff > 0.4f) this.Owner.HyperspaceReturn();
+                    else if (dest > 25000f) this.Owner.HyperspaceReturn();    //Is this supposed to be less than?
                 }
             }
 
+            #endregion
+
             if (this.hasPriorityTarget && Distance < this.Owner.maxWeaponsRange * 0.85f)        //If chasing something, and within weapons range
             {
-                if (this.Owner.engineState == Ship.MoveState.Warp)
-                {
-                    this.Owner.HyperspaceReturn();
-                    if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp becausee target is in range.");
-                }
+                if (this.Owner.engineState == Ship.MoveState.Warp) this.Owner.HyperspaceReturn();
             }
             else if (!this.HasPriorityOrder && !this.hasPriorityTarget && Distance < 1000f && this.ActiveWayPoints.Count <= 1 && this.Owner.engineState == Ship.MoveState.Warp)
             {
                 this.Owner.HyperspaceReturn();
-                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of Warp becaues destination reached.");
             }
-
-
-
-
-
-
 
             if (angleDiff > 0.025f)     //Stuff for the ship visually banking on the Y axis when turning
             {
@@ -8099,21 +8071,27 @@ namespace Ship_Game.Gameplay
                 else if (RotAmount < 0f && this.Owner.yRotation < this.Owner.maxBank) this.Owner.yRotation = this.Owner.yRotation + this.Owner.yBankAmount;
                 this.Owner.isTurning = true;
                 this.Owner.Rotation = this.Owner.Rotation + (RotAmount > angleDiff ? angleDiff : RotAmount);
-                //return;       //I'm not sure about the return statement here. -Gretman
+                return;       //I'm not sure about the return statement here. -Gretman
             }
 
             if (this.State != AIState.FormationWarp || this.Owner.fleet == null)        //not in a fleet
             {
                 if (Distance > 7500f && !this.Owner.InCombat && angleDiff < 0.25f) this.Owner.EngageStarDrive();
                 else if (Distance > 15000f && this.Owner.InCombat && angleDiff < 0.25f) this.Owner.EngageStarDrive();
+
+                this.Owner.Velocity = this.Owner.Velocity + (Vector2.Normalize(forward) * (elapsedTime * speedLimit));
+                if (this.Owner.Velocity.Length() > speedLimit)
+                {
+                    this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * speedLimit;
+                }
             }
             else        //In a fleet
             {
+                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("I think i'm in a fleet.");
                 if (Distance > 7500f)   //Not near destination
                 {
                     bool fleetReady = true;
                     this.Owner.fleet.Ships.thisLock.EnterReadLock();
-
                     foreach (Ship ship in this.Owner.fleet.Ships)
                     {
                         if (ship.GetAI().State != AIState.FormationWarp) continue;
@@ -8130,6 +8108,8 @@ namespace Ship_Game.Gameplay
                     float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove;
                     speedLimit = this.Owner.fleet.speed;
 
+                    #region FleetGrouping
+
                     if (Distance <= distanceFleetCenterToDistance)
                     {
                         float speedreduction = distanceFleetCenterToDistance - Distance;
@@ -8142,10 +8122,7 @@ namespace Ship_Game.Gameplay
                         float speedIncrease = Distance - distanceFleetCenterToDistance;
                         speedLimit = this.Owner.fleet.speed + speedIncrease;
                     }
-
-                    speedLimit = speedLimit * this.Owner.loyalty.data.FTLModifier;
-
-                    //#endregin
+                    #endregion
 
                     if (fleetReady) this.Owner.EngageStarDrive();   //Fleet is ready to Go into warp
                     else if (this.Owner.engineState == Ship.MoveState.Warp) this.Owner.HyperspaceReturn(); //Fleet is not ready for warp
@@ -8160,7 +8137,7 @@ namespace Ship_Game.Gameplay
             if (this.Owner.Velocity.Length() > speedLimit) this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * speedLimit;
         }
 
-        private void ThrustTowardsPositionCurrent(Vector2 Position, float elapsedTime, float speedLimit)
+        private void ThrustTowardsPositionOld(Vector2 Position, float elapsedTime, float speedLimit)
         {
             if (speedLimit == 0f)
                 speedLimit = this.Owner.speed;
@@ -8241,22 +8218,6 @@ namespace Ship_Game.Gameplay
                                 angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
 
                                 if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Rounded Corner:  Did not slow down." + "   angleDiff: " + angleDiff);
-                            }
-                        }
-                    }
-                    else if (this.ActiveWayPoints.Count == 1)
-                    {
-                        if (Distance <= Empire.ProjectorRadius)
-                        {
-                            if (angleDiff > 0.3f)
-                            {
-                                this.Owner.HyperspaceReturn();
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of warp:  huge angle to next waypoint [Last Waypoint]." + "   angleDiff: " + angleDiff);
-                            }
-                            else if (angleDiff > 0.15)
-                            {
-                                speedLimit = speedLimit * 0.75f;
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Slowed down:  angle to next waypoint [Last Waypoint]." + "   angleDiff: " + angleDiff);
                             }
                         }
                     }
