@@ -259,7 +259,7 @@ namespace Ship_Game.Gameplay
         {
 
 
-           // List<Guid> removepin = new List<Guid>();
+            // List<Guid> removepin = new List<Guid>();
 
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
@@ -270,17 +270,13 @@ namespace Ship_Game.Gameplay
                 this.UpdatePin(pin.Value.ship, pin.Value.InBorders, insensor);
                 if (insensor)
                     continue;
-                pin.Value.Velocity = Vector2.Zero;
-                pin.Value.Position = Vector2.Zero;
-                pin.Value.Strength = 0;
-                pin.Value.EmpireName = string.Empty;
-                pin.Value.ship = null;
-            //removepin.Add(pin.Key);
+                //pin.Value.Velocity = Vector2.Zero;
+                //pin.Value.Position = Vector2.Zero;
+                //pin.Value.Strength = 0;
+                //pin.Value.EmpireName = string.Empty;
+                //pin.Value.ship = null;
+            }
 
-        }
-            //ThreatMatrix.Pin gone;
-            //foreach (Guid g in removepin)
-            //    this.Pins.TryRemove(g,out gone);
 
         }
         public float PingRadarStr(Vector2 Position, float Radius, Empire Us)
@@ -356,7 +352,15 @@ namespace Ship_Game.Gameplay
             //if (!InSensorRadius)
             //    return;
             ThreatMatrix.Pin pin = null;
-            bool exists = this.Pins.TryGetValue(ship.guid, out pin);
+            bool exists = false;
+            //try {
+                exists = this.Pins.TryGetValue(ship.guid, out pin);
+            //}
+            //catch
+            //{
+
+            //    return;
+            //}
             if (pin == null && InSensorRadius)
             {
                 pin = new ThreatMatrix.Pin()
