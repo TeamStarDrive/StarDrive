@@ -1614,6 +1614,8 @@ namespace Ship_Game
                     {
                         toadd.Clear();
                         Ship nearby = source[i];
+                        if (nearby == null || !nearby.Active)
+                            continue;
                         nearby.getBorderCheck.Remove(this);                        
                         if (nearby.loyalty != this)
                         {                            
