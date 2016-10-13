@@ -2762,6 +2762,7 @@ namespace Ship_Game
                 this.Shipyards.TryRemove(key,out remove);
             if (!Planet.universeScreen.Paused)
             {
+                
                 if (this.TroopsHere.Count > 0)
                 {
                     //try
