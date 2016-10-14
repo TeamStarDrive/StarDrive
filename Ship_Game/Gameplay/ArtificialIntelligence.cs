@@ -9625,11 +9625,27 @@ namespace Ship_Game.Gameplay
                         {
                             if (cameFrom.Keys.Contains(neighbor))
                             {
-                                cameFrom[neighbor] = current;
+                                bool tooclose = false;
+                                if (current != end)
+                                    foreach (Empire.InfluenceNode point in cameFrom.Keys)
+                                    {
+                                        if (Vector2.Distance(point.Position, neighbor.Position) < point.Radius)
+                                            tooclose = true;
+                                    }
+                                if (!tooclose)
+                                    cameFrom[neighbor] = current;
                                 
                             }
                             else
                             {
+                                bool tooclose = false;
+                                if(current != end)
+                                foreach (Empire.InfluenceNode point in cameFrom.Keys)
+                                {
+                                    if (Vector2.Distance(point.Position, neighbor.Position) < point.Radius )
+                                        tooclose = true;
+                                }
+                                if(!tooclose)
                                 cameFrom.Add(neighbor, current);
                                 //radius = 0;
                             }
@@ -9699,7 +9715,9 @@ namespace Ship_Game.Gameplay
                 float distancecheck = 0;                
                 granularityl = (int)(360 / granularityl);
                 int Ey = (int)Math.Floor(angletoend / granularityl);
-                foreach (Empire.InfluenceNode point in goodpoints)
+                List<Empire.InfluenceNode> good2 = new List<Empire.InfluenceNode>(goodpoints); 
+                good2.Add(end);
+                foreach (Empire.InfluenceNode point in good2)
                 {
                     if (point == node)
                         continue;
@@ -9708,7 +9726,7 @@ namespace Ship_Game.Gameplay
                     y = (int)Math.Floor(angletonode / granularityl);
                     distancecheck = Vector2.Distance(node.Position, point.Position);
 
-                    if (distance[y] == 0 || distance[y] > distancecheck)
+                    if (distance[y] == 0 || distance[y] > distancecheck || (point == end && distancecheck <node.Radius *2))
                     {
                         nearest[y] = (point);
                         distance[y] = distancecheck;
@@ -9716,8 +9734,8 @@ namespace Ship_Game.Gameplay
 
 
                 }
-                if (nearest[Ey] == null || distance[Ey] >= distancetoend)
-                    nearest[Ey] = end;
+                //if (nearest[Ey] == null || distance[Ey] >= distancetoend)
+                //    nearest[Ey] = end;
                 
                 foreach(Empire.InfluenceNode filternodes in nearest)
                 {
@@ -9802,8 +9820,10 @@ namespace Ship_Game.Gameplay
                 float distancecheck = 0;
                 float angletoend = HelperFunctions.findAngleToTarget(node.Position, end.Position);
                 granularityl = (int)(360 / granularityl);
-                int Ey = (int)Math.Floor(angletoend / granularityl);                
-                foreach (Empire.InfluenceNode point in goodpoints)
+                int Ey = (int)Math.Floor(angletoend / granularityl);
+                List<Empire.InfluenceNode> good2 = new List<Empire.InfluenceNode>(goodpoints);
+                good2.Add(end);
+                foreach (Empire.InfluenceNode point in good2)
                 {
                     //if (node == point)
                     //    continue;
@@ -9813,7 +9833,7 @@ namespace Ship_Game.Gameplay
                     Empire.InfluenceNode nodekey = node.KeyedObject as Empire.InfluenceNode;
                     float max = nodekey != null ? nodekey.Radius : node.Radius; // > projectorsize ? node.Radius : projectorsize;
 
-                    if ( distancecheck >max && distancecheck > distance[y]) //distancecheck < max * 2  &&
+                    if (  distancecheck > distance[y] ||point == end ) //distancecheck < max * 2  &&
                     {
 
                         if ( distancecheck < max *2) //y != Ey &&
@@ -9838,10 +9858,10 @@ namespace Ship_Game.Gameplay
                     if (filternodes != null && filternodes != node)
                         nodes.Add(filternodes);
                 }
-                if (Vector2.Distance(end.Position, node.Position) < projectorsize * 2.5f)
-                {
-                    nodes.Add(end);
-                }
+                //if (Vector2.Distance(end.Position, node.Position) < node.Radius * 2.5f)
+                //{
+                //    nodes.Add(end);
+                //}
                 return nodes;
             }
             /// <summary>
