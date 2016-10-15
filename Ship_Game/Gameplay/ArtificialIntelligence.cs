@@ -8805,7 +8805,7 @@ namespace Ship_Game.Gameplay
                     //Vector2.Distance(this.Owner.Center, (this.Owner.fleet.Position + this.Owner.FleetOffset) + toAdd);
                     //Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Owner.fleet.Position + this.Owner.FleetOffset, this.Owner.fleet.facing, 1f);
                     //Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
-                    if (DistanceToFleetOffset <= 75f || !(this.State == AIState.Resupply && this.HasPriorityOrder)) // || this.HasPriorityOrder)
+                    if (DistanceToFleetOffset <= 75f)// || !(this.State == AIState.Resupply && this.HasPriorityOrder)) // || this.HasPriorityOrder)
                     {
                         this.Owner.Velocity = Vector2.Zero;
                         Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, this.Owner.fleet.facing, 1f);
@@ -9622,7 +9622,8 @@ namespace Ship_Game.Gameplay
                             newpoint = new Empire.InfluenceNode();
                             newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, point.Position, radius);
                             newpoint.Radius = radius2;
-                            newpoint.KeyedObject = point.KeyedObject;
+                            newpoint.KeyedObject = point;
+                            newpoint.DrewThisTurn = true;
                             goodpoints.Add(newpoint);
                         }
                     }
@@ -9658,7 +9659,8 @@ namespace Ship_Game.Gameplay
                                 newpoint = new Empire.InfluenceNode();
                                 newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, point.Position, radius);
                                 newpoint.Radius = radius2;
-                                newpoint.KeyedObject = point.KeyedObject;
+                                newpoint.KeyedObject = point;
+                                newpoint.DrewThisTurn = true;
                                 goodpoints.Add(newpoint);
                             }
                         }
@@ -9785,11 +9787,14 @@ namespace Ship_Game.Gameplay
                     {
 
                         var neighborDistance = Vector2.Distance(neighbor.Position, current.Position) ;
-                        if(mode2)
+                        //if (!current.DrewThisTurn)
+                        //    neighborDistance *= 2;
+                        if (mode2)
                         if (current.Radius + neighbor.Radius < neighborDistance)
                             neighborDistance += (neighborDistance - current.Radius - neighbor.Radius) * (projectorWeight * ai.data.Traits.InBordersSpeedBonus);
 
-
+                        //if (!current.DrewThisTurn)
+                        //    currentDistance[current] *= 2;
                         var tempCurrentDistance = currentDistance[current] +  neighborDistance;              
                     
                         // if we already know a faster way to this neighbor, use that route and 
@@ -9807,11 +9812,27 @@ namespace Ship_Game.Gameplay
                         {
                             if (cameFrom.Keys.Contains(neighbor))
                             {
-                                cameFrom[neighbor] = current;
+                                bool tooclose = false;
+                                if (current != end)
+                                    foreach (Empire.InfluenceNode point in cameFrom.Keys)
+                                    {
+                                        if (Vector2.Distance(point.Position, neighbor.Position) < point.Radius)
+                                            tooclose = true;
+                                    }
+                                if (!tooclose)
+                                    cameFrom[neighbor] = current;
                                 
                             }
                             else
                             {
+                                bool tooclose = false;
+                                if(current != end)
+                                foreach (Empire.InfluenceNode point in cameFrom.Keys)
+                                {
+                                    if (Vector2.Distance(point.Position, neighbor.Position) < point.Radius )
+                                        tooclose = true;
+                                }
+                                if(!tooclose)
                                 cameFrom.Add(neighbor, current);
                                 //radius = 0;
                             }
@@ -9881,7 +9902,9 @@ namespace Ship_Game.Gameplay
                 float distancecheck = 0;                
                 granularityl = (int)(360 / granularityl);
                 int Ey = (int)Math.Floor(angletoend / granularityl);
-                foreach (Empire.InfluenceNode point in goodpoints)
+                List<Empire.InfluenceNode> good2 = new List<Empire.InfluenceNode>(goodpoints); 
+                good2.Add(end);
+                foreach (Empire.InfluenceNode point in good2)
                 {
                     if (point == node)
                         continue;
@@ -9890,7 +9913,7 @@ namespace Ship_Game.Gameplay
                     y = (int)Math.Floor(angletonode / granularityl);
                     distancecheck = Vector2.Distance(node.Position, point.Position);
 
-                    if (distance[y] == 0 || distance[y] > distancecheck)
+                    if (distance[y] == 0 || distance[y] > distancecheck || (point == end && distancecheck <node.Radius *2))
                     {
                         nearest[y] = (point);
                         distance[y] = distancecheck;
@@ -9898,8 +9921,8 @@ namespace Ship_Game.Gameplay
 
 
                 }
-                if (nearest[Ey] == null || distance[Ey] >= distancetoend)
-                    nearest[Ey] = end;
+                //if (nearest[Ey] == null || distance[Ey] >= distancetoend)
+                //    nearest[Ey] = end;
                 
                 foreach(Empire.InfluenceNode filternodes in nearest)
                 {
@@ -9982,34 +10005,50 @@ namespace Ship_Game.Gameplay
                 float angletonode = 0;
                 int y = 0;
                 float distancecheck = 0;
-
+                float angletoend = HelperFunctions.findAngleToTarget(node.Position, end.Position);
                 granularityl = (int)(360 / granularityl);
-                foreach (Empire.InfluenceNode point in goodpoints)
+                int Ey = (int)Math.Floor(angletoend / granularityl);
+                List<Empire.InfluenceNode> good2 = new List<Empire.InfluenceNode>(goodpoints);
+                good2.Add(end);
+                foreach (Empire.InfluenceNode point in good2)
                 {
-                    if (node == point)
-                        continue;
+                    //if (node == point)
+                    //    continue;
                     angletonode = HelperFunctions.findAngleToTarget(node.Position, point.Position);
                     y = (int)Math.Floor(angletonode / granularityl);
                     distancecheck = Vector2.Distance(node.Position, point.Position);
-                    float max = node.Radius  > projectorsize ? node.Radius : projectorsize;
-                    if (distancecheck < max *2 && distancecheck > distance[y])
+                    Empire.InfluenceNode nodekey = node.KeyedObject as Empire.InfluenceNode;
+                    float max = nodekey != null ? nodekey.Radius : node.Radius; // > projectorsize ? node.Radius : projectorsize;
+
+                    if (  distancecheck > distance[y] ||point == end ) //distancecheck < max * 2  &&
                     {
-                        nearest[y] = (point);
-                       distance[y] = distancecheck;
+
+                        if ( distancecheck < max *2) //y != Ey &&
+                        {
+                            nearest[y] = (point);
+                            distance[y] = distancecheck;
+                        }
+                        //else if(distancecheck > max)
+                        //{
+                        //    nearest[y] = (point);
+                        //   // distance[y] = distancecheck;
+                        //}
+
                     }
+                    
 
 
                 }
-
+                
                 foreach (Empire.InfluenceNode filternodes in nearest)
                 {
-                    if (filternodes != null)
+                    if (filternodes != null && filternodes != node)
                         nodes.Add(filternodes);
                 }
-                if (Vector2.Distance(end.Position, node.Position) < projectorsize * 2.5f)
-                {
-                    nodes.Add(end);
-                }
+                //if (Vector2.Distance(end.Position, node.Position) < node.Radius * 2.5f)
+                //{
+                //    nodes.Add(end);
+                //}
                 return nodes;
             }
             /// <summary>
