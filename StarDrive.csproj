@@ -219,6 +219,12 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
+    <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
+    <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />
+    <Compile Include="Ship_Game\FGPathing\PathFinder.cs" />
+    <Compile Include="Ship_Game\FGPathing\PathFinderFast.cs" />
+    <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
     <Compile Include="Ship_Game\GenericLoadSaveScreen.cs" />
     <Compile Include="Ship_Game\LoadSetupScreen.cs" />
     <Compile Include="Ship_Game\RaceSave.cs" />
