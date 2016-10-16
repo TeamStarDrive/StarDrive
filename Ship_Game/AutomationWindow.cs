@@ -242,7 +242,7 @@ namespace Ship_Game
             
 			foreach (string ship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).ShipsWeCanBuild)
 			{
-				if (!ResourceManager.ShipsDict.TryGetValue(ship, out automation) || automation.isColonyShip || automation.Thrust <= 0f)
+				if (!ResourceManager.ShipsDict.TryGetValue(ship, out automation) || !automation.isColonyShip || automation.Thrust <= 0f)
 				{
 					continue;
 				}
