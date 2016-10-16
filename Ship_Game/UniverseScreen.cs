@@ -1674,8 +1674,62 @@ namespace Ship_Game
                 if(rebuild)
                 Parallel.ForEach(EmpireManager.EmpireList, empire =>
                 {
-                   
-                    empire.pathhMap = new ArtificialIntelligence.Grid(empire, 36, 5);
+                    int reducer = (int)(Empire.ProjectorRadius /2);
+                    int granularity = (int)(this.Size.X) / reducer;
+                byte[,] grid = new byte[512, 512];//  [granularity*2, granularity*2];     //[1024, 1024];// 
+                    foreach (Empire.InfluenceNode node in empire.BorderNodes)
+                    {
+                        int cx = (int)node.Position.X;
+                        int cy = (int)node.Position.Y;
+                        cx /= reducer;
+                        cy /= reducer;
+                        cx += granularity;
+                        cy += granularity;
+                       // if (Vector2.Distance(point, node.Position) < node.Radius)
+                            grid[cx, cy] = 1;
+                        int rad = (int)(node.Radius / reducer);
+                        int negx = cx - rad;
+                        if (negx < 0)
+                            negx = 0;
+                        int posx = cx + rad;
+                        if (posx > granularity * 2)
+                            posx = granularity * 2;
+                        int negy = cx - rad;
+                        if (negy < 0)
+                            negy = 0;
+                        int posy = cx + rad;
+                        if (posy > granularity * 2)
+                            posy = granularity * 2;
+                        for (int x =negx;x<posx;x++)
+                            for(int y =negy;y<posy;y++)
+                            {
+                                grid[x, y] = 1;
+                                
+                            }
+                    }
+                    for (int x =0; x< grid.GetLength(0); x++)
+                        for(int y =0;y<grid.GetLength(1);y++)
+                        {
+                            //int cx = x - granularity;
+                            //int cy = y - granularity;
+                            //Vector2 point = new Vector2(cx * reducer, cy * reducer);
+                            //foreach (Empire.InfluenceNode node in empire.BorderNodes)
+                            //{
+                            //    if (Vector2.Distance(point, node.Position) < node.Radius)
+                            //        grid[x, y] = 1;
+                            //}
+                            if (x > granularity * 2 || y > granularity * 2)
+                                grid[x, y] = 0;
+
+                            if (grid[x, y] != 1)
+                                grid[x, y] = 80;
+                        }
+                    empire.grid = grid;
+                    empire.granularity = granularity;
+                    
+
+
+                    //empire.pathhMap = new ArtificialIntelligence.Grid(empire, 36, 5);
                 });
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)    
                 {

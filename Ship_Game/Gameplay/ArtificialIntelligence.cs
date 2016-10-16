@@ -5862,7 +5862,9 @@ namespace Ship_Game.Gameplay
             {
                 this.Owner.GetCargo().Add("Colonists_1000", 0f);
             }
+            this.Owner.loyalty.GetPlanets().thisLock.EnterReadLock();
             List<Planet> SafePlanets = new List<Planet>(this.Owner.loyalty.GetPlanets().Where(combat => combat.ParentSystem.combatTimer <= 0));
+            this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
             //SafePlanets = SafePlanets.Where(combat => combat.ParentSystem.combatTimer <= 0).ToList();
 
             List<Planet> Possible = new List<Planet>();
@@ -6469,7 +6471,9 @@ namespace Ship_Game.Gameplay
         //fbedard: new version not recursive        
         private void PlotCourseToNew(Vector2 endPos, Vector2 startPos)
         {
-            if (true)
+            
+
+            if (false)
             {
                 bool pathfound = false;
                 
@@ -6522,47 +6526,103 @@ namespace Ship_Game.Gameplay
                     this.Owner.loyalty.lockPatchCache.ExitWriteLock();
                     return;
                 }
-                List<Vector2> goodpoints = new List<Vector2>();
-                //Grid path = new Grid(this.Owner.loyalty, 36, 10f);
-                if (Empire.universeScreen != null && this.Owner.loyalty.SensorNodes.Count != 0)
-                    goodpoints = this.Owner.loyalty.pathhMap.Pathfind(startPos, endPos, false);
-                if (goodpoints != null && goodpoints.Count > 0)
+
+
+                if (this.Owner.loyalty.grid != null)
                 {
+                    int reducer = (int)(Empire.ProjectorRadius / 2);
+                    int granularity = this.Owner.loyalty.granularity; // (int)Empire.ProjectorRadius / 2;
+                    Algorithms.PathFinderFast path = new Algorithms.PathFinderFast(this.Owner.loyalty.grid);
+                    // path.PunishChangeDirection = true;
+                    path.Diagonals = true;
+                    path.HeavyDiagonals = true;
+                    path.Formula = Algorithms.HeuristicFormula.MaxDXDY;
+                    path.SearchLimit = 999999;
+                    System.Drawing.Point startp = new System.Drawing.Point((int)startPos.X, (int)startPos.Y);
+                    startp.X /= reducer;
+                    startp.Y /= reducer;
+                    startp.X += granularity;
+                    startp.Y += granularity;
+                    System.Drawing.Point endp = new System.Drawing.Point((int)endPos.X, (int)endPos.Y);
+                    endp.X /= reducer;
+                    endp.Y /= reducer;
+                    endp.Y += granularity;
+                    endp.X += granularity;
+                    List<Algorithms.PathFinderNode> pathpoints = path.FindPath(startp, endp);
                     lock (this.wayPointLocker)
                     {
-                        foreach (Vector2 wayp in goodpoints.Skip(1))
+                        if (pathpoints != null)
                         {
-
-                            this.ActiveWayPoints.Enqueue(wayp);
+                            List<Vector2> cacheAdd = new List<Vector2>();
+                            for (int x = pathpoints.Count() - 1; x >= 0; x--)
+                            //foreach (Algorithms.PathFinderNode pnode in pathpoints) // .Reverse(); //.Skip(1))
+                            {                                
+                                Algorithms.PathFinderNode pnode = pathpoints[x];                                
+                                Vector2 translated = new Vector2((pnode.X - granularity) * reducer, (pnode.Y - granularity) * reducer);
+                                cacheAdd.Add(translated);
+                                if (Vector2.Distance(translated, endPos) > Empire.ProjectorRadius && Vector2.Distance(translated, startPos) > Empire.ProjectorRadius)
+                                    this.ActiveWayPoints.Enqueue(translated);
+                            }
                         }
-                        //this.ActiveWayPoints.Enqueue(endPos);
-                    }                    
-                    this.Owner.loyalty.lockPatchCache.EnterWriteLock();
-                    int cache;
-                    if (!this.Owner.loyalty.pathcache.TryGetValue(goodpoints, out cache))
-                    {
-
-                        this.Owner.loyalty.pathcache.Add(goodpoints, 0);
-
-                    }
-                    cache++;
-                    this.Owner.loyalty.lockPatchCache.ExitWriteLock();
-                    
-                }
-                else
-                {
-                    if (startPos != Vector2.Zero && endPos != Vector2.Zero)
-                    {
-                       // this.ActiveWayPoints.Enqueue(startPos);
                         this.ActiveWayPoints.Enqueue(endPos);
                     }
-                    else
-                        this.ActiveWayPoints.Clear();
+
+                    return;
                 }
 
 
 
 
+
+
+
+
+
+
+                if (false)
+                {
+
+                    List<Vector2> goodpoints = new List<Vector2>();
+                    //Grid path = new Grid(this.Owner.loyalty, 36, 10f);
+                    if (Empire.universeScreen != null && this.Owner.loyalty.SensorNodes.Count != 0)
+                        goodpoints = this.Owner.loyalty.pathhMap.Pathfind(startPos, endPos, false);
+                    if (goodpoints != null && goodpoints.Count > 0)
+                    {
+                        lock (this.wayPointLocker)
+                        {
+                            foreach (Vector2 wayp in goodpoints.Skip(1))
+                            {
+
+                                this.ActiveWayPoints.Enqueue(wayp);
+                            }
+                            //this.ActiveWayPoints.Enqueue(endPos);
+                        }
+                        this.Owner.loyalty.lockPatchCache.EnterWriteLock();
+                        int cache;
+                        if (!this.Owner.loyalty.pathcache.TryGetValue(goodpoints, out cache))
+                        {
+
+                            this.Owner.loyalty.pathcache.Add(goodpoints, 0);
+
+                        }
+                        cache++;
+                        this.Owner.loyalty.lockPatchCache.ExitWriteLock();
+
+                    }
+                    else
+                    {
+                        if (startPos != Vector2.Zero && endPos != Vector2.Zero)
+                        {
+                            // this.ActiveWayPoints.Enqueue(startPos);
+                            this.ActiveWayPoints.Enqueue(endPos);
+                        }
+                        else
+                            this.ActiveWayPoints.Clear();
+                    }
+
+
+
+                }
                 return;
             }
            
@@ -9830,13 +9890,13 @@ namespace Ship_Game.Gameplay
                     angletonode = HelperFunctions.findAngleToTarget(node.Position, point.Position);
                     y = (int)Math.Floor(angletonode / granularityl);
                     distancecheck = Vector2.Distance(node.Position, point.Position);
-                    Empire.InfluenceNode nodekey = node.KeyedObject as Empire.InfluenceNode;
-                    float max = nodekey != null ? nodekey.Radius : node.Radius; // > projectorsize ? node.Radius : projectorsize;
+                    //Empire.InfluenceNode nodekey = node.KeyedObject as Empire.InfluenceNode;
+                    //float max =  != null ? nodekey.Radius : node.Radius; // > projectorsize ? node.Radius : projectorsize;
 
                     if (  distancecheck > distance[y] ||point == end ) //distancecheck < max * 2  &&
                     {
 
-                        if ( distancecheck < max *2) //y != Ey &&
+                        if ( distancecheck < node.Radius *2) //y != Ey &&
                         {
                             nearest[y] = (point);
                             distance[y] = distancecheck;
@@ -9853,9 +9913,27 @@ namespace Ship_Game.Gameplay
 
                 }
                 
+
                 foreach (Empire.InfluenceNode filternodes in nearest)
                 {
-                    if (filternodes != null && filternodes != node)
+                    if (filternodes == null || filternodes == node)
+                        continue;
+                        int by = Array.IndexOf(nearest, filternodes);
+                    bool good = false;
+                    foreach(Empire.InfluenceNode goodpoint in good2)
+                    {
+                        if (goodpoint == filternodes)
+                            continue;
+                        angletonode = HelperFunctions.findAngleToTarget(filternodes.Position, goodpoint.Position);
+                        float distance2 = Vector2.Distance(goodpoint.Position, filternodes.Position);
+                        if(distance2 <= filternodes.Radius *2 && (int)Math.Floor(angletonode / granularityl) == by) 
+                        {
+                            good = true;
+                            break;
+                        }
+                    }
+
+                    if(good)
                         nodes.Add(filternodes);
                 }
                 //if (Vector2.Distance(end.Position, node.Position) < node.Radius * 2.5f)

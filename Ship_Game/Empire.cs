@@ -125,7 +125,11 @@ namespace Ship_Game
         public ReaderWriterLockSlim lockPatchCache = new ReaderWriterLockSlim();
         [XmlIgnore]
         public ArtificialIntelligence.Grid pathhMap { get; set; }
-     
+        [XmlIgnore]
+        public byte[,] grid;
+        [XmlIgnore]
+        public int granularity = 0;
+
         static Empire()
         {
             
