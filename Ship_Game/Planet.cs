@@ -3570,7 +3570,7 @@ namespace Ship_Game
                 
                 ) 
                 return true;
-            if (building .Name == "Outpost" || building.WinsGame  )
+            if (building.Name == "Outpost" || building.WinsGame  )
                 return true;
             //dont build +food if you dont need to
             if (this.Owner.data.Traits.Cybernetic <= 0 && building.PlusFlatFoodAmount > 0)// && this.Fertility == 0)
@@ -4307,7 +4307,7 @@ namespace Ship_Game
                 switch (this.colonyType)
                 {
                     case Planet.ColonyType.Core:
-                        #region MyRegion
+                        #region Core
                         {
                             #region Resource control
                             //Determine Food needs first
@@ -4577,7 +4577,7 @@ namespace Ship_Game
                         }
                         #endregion
                     case Planet.ColonyType.Industrial:
-                        #region MyRegion
+                        #region Industrial
                         //this.fs = Planet.GoodState.IMPORT;
 
                         this.FarmerPercentage = 0.0f;
@@ -4820,7 +4820,7 @@ namespace Ship_Game
                         break;
                         #endregion
                     case Planet.ColonyType.Research:
-                        #region MyRegion
+                        #region Research
                         //this.fs = Planet.GoodState.IMPORT;
                         //this.ps = Planet.GoodState.IMPORT;
                         this.FarmerPercentage = 0.0f;
@@ -4992,7 +4992,7 @@ namespace Ship_Game
                         break;
                         #endregion
                     case Planet.ColonyType.Agricultural:
-                        #region MyRegion
+                        #region Agricultural
                         //this.fs = Planet.GoodState.EXPORT;
                         //this.ps = Planet.GoodState.IMPORT;
                         this.FarmerPercentage = 1f;
@@ -5169,7 +5169,7 @@ namespace Ship_Game
                         break;
                         #endregion
                     case Planet.ColonyType.Military:
-                        #region MyRegion                        
+                        #region Military                        
                         this.FarmerPercentage = 0.0f;
                         this.WorkerPercentage = 1f;
                         this.ResearcherPercentage = 0.0f;
@@ -5337,7 +5337,7 @@ namespace Ship_Game
                         #endregion
 
                     case Planet.ColonyType.TradeHub:
-                        #region MyRegion
+                        #region TradeHub
                         {
 
                             //this.fs = Planet.GoodState.IMPORT;
