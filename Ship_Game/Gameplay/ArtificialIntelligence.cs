@@ -6465,7 +6465,39 @@ namespace Ship_Game.Gameplay
         */
 
 
+    private bool pathCacheLookup(System.Drawing.Point startp, System.Drawing.Point endp, Vector2 startv, Vector2 endv)
+        {            
+            var cache = this.Owner.loyalty.pathcache;
+            Dictionary<System.Drawing.Point,Empire.patchCacheValue> pathstart;
+            cache.TryGetValue(startp, out pathstart);
+            if(pathstart != null)
+            {
+                Empire.patchCacheValue pathend;
+                pathstart.TryGetValue(endp, out pathend);
+                if(pathend !=null)
+                {                    
+                    {
+                        lock(this.wayPointLocker)
+                        {
+                            if (pathend.path.Count > 2)
+                            {
+                                for (int x = 1; x < pathend.path.Count - 2; x++)
+                                {
+                                    Vector2 point = pathend.path[x];
+                                    this.ActiveWayPoints.Enqueue(point);
+                                }
 
+                            }
+                            this.ActiveWayPoints.Enqueue(endv);
+                        }
+                        pathend.CacheHits++;
+                        return true;
+                    }
+                }
+            }
+            return false;
+            
+        }
 
 
         //fbedard: new version not recursive        
@@ -6473,71 +6505,18 @@ namespace Ship_Game.Gameplay
         {
             
 
-            if (false)
+            if (true)
             {
-                bool pathfound = false;
+               
                 
-                int check = this.Owner.loyalty.pathcache.Count;
-                List<Vector2> keyfound = null;
-                this.Owner.loyalty.lockPatchCache.EnterReadLock();
-                foreach (KeyValuePair<List<Vector2>, int> cache in this.Owner.loyalty.pathcache)
+                var cache = this.Owner.loyalty.pathcache; //new Dictionary<System.Drawing.Point, Dictionary<System.Drawing.Point, List<Vector2>>>();
+                    
+                    
+                if (this.Owner.loyalty.grid != null && Vector2.Distance(startPos,endPos) > Empire.ProjectorRadius *2)
                 {
-                    List<Vector2> test = cache.Key .ToList();
-                    Vector2 aprox = test[0];
-
-                    float area = Vector2.Distance(aprox, startPos);
-                    if (area < Empire.ProjectorRadius)
-                        if (Vector2.Distance(test[test.Count - 1], endPos) < Empire.ProjectorRadius )
-                        {
-                            test[0] = startPos;
-                            test[test.Count - 1] = endPos;
-                            keyfound = cache.Key;
-                           // this.Owner.loyalty.pathcache[cache.Key]++;
-                            lock (this.wayPointLocker)
-                            {
-                                if (this.ActiveWayPoints.Count == 0)
-                                    this.ActiveWayPoints = new Queue<Vector2>(test.Skip(1));
-                                else
-
-                                {
-                                    foreach (Vector2 wayp in test.Skip(1))
-                                    {
-
-                                        this.ActiveWayPoints.Enqueue(wayp);
-                                    }
-                                }
-
-
-
-                            }
-                            pathfound = true;
-                            break;
-                        }
-
-
-
-
-                }
-                this.Owner.loyalty.lockPatchCache.ExitReadLock();
-                if (pathfound)
-                {
-                    this.Owner.loyalty.lockPatchCache.EnterWriteLock();
-                    this.Owner.loyalty.pathcache[keyfound]++;
-                    this.Owner.loyalty.lockPatchCache.ExitWriteLock();
-                    return;
-                }
-
-
-                if (this.Owner.loyalty.grid != null)
-                {
-                    int reducer = (int)(Empire.ProjectorRadius / 2);
+                    int reducer = (int)(Empire.ProjectorRadius );
                     int granularity = this.Owner.loyalty.granularity; // (int)Empire.ProjectorRadius / 2;
-                    Algorithms.PathFinderFast path = new Algorithms.PathFinderFast(this.Owner.loyalty.grid);
-                    // path.PunishChangeDirection = true;
-                    path.Diagonals = true;
-                    path.HeavyDiagonals = true;
-                    path.Formula = Algorithms.HeuristicFormula.MaxDXDY;
-                    path.SearchLimit = 999999;
+                    
                     System.Drawing.Point startp = new System.Drawing.Point((int)startPos.X, (int)startPos.Y);
                     startp.X /= reducer;
                     startp.Y /= reducer;
@@ -6548,28 +6527,84 @@ namespace Ship_Game.Gameplay
                     endp.Y /= reducer;
                     endp.Y += granularity;
                     endp.X += granularity;
+                    Algorithms.PathFinderFast path = new Algorithms.PathFinderFast(this.Owner.loyalty.grid);
+                    // path.PunishChangeDirection = true;
+                    path.Diagonals = true;
+                    path.HeavyDiagonals = true;
+                    path.Formula = Algorithms.HeuristicFormula.MaxDXDY;
+                    path.HeuristicEstimate = 2;
+                    path.SearchLimit = 999999;
+                    this.Owner.loyalty.lockPatchCache.EnterReadLock();
+                    if (this.pathCacheLookup(startp, endp, startPos, endPos))
+                    {
+                        this.Owner.loyalty.lockPatchCache.ExitReadLock();
+                        return;
+                    }
+                    this.Owner.loyalty.lockPatchCache.ExitReadLock();
+                    
                     List<Algorithms.PathFinderNode> pathpoints = path.FindPath(startp, endp);
                     lock (this.wayPointLocker)
                     {
                         if (pathpoints != null)
                         {
                             List<Vector2> cacheAdd = new List<Vector2>();
-                            for (int x = pathpoints.Count() - 1; x >= 0; x--)
-                            //foreach (Algorithms.PathFinderNode pnode in pathpoints) // .Reverse(); //.Skip(1))
-                            {                                
-                                Algorithms.PathFinderNode pnode = pathpoints[x];                                
+                            for (int x = pathpoints.Count() - 1; x >= 0; x--)                            
+                            {
+
+                                Algorithms.PathFinderNode pnode = pathpoints[x];
+                                byte value = this.Owner.loyalty.grid[pnode.X, pnode.Y];
+                                //if (value == 80)
+                                //    continue;
                                 Vector2 translated = new Vector2((pnode.X - granularity) * reducer, (pnode.Y - granularity) * reducer);
                                 cacheAdd.Add(translated);
-                                if (Vector2.Distance(translated, endPos) > Empire.ProjectorRadius && Vector2.Distance(translated, startPos) > Empire.ProjectorRadius)
+                                if (Vector2.Distance(translated, endPos) > Empire.ProjectorRadius *2 
+                                    && Vector2.Distance(translated, startPos) > Empire.ProjectorRadius *2)
                                     this.ActiveWayPoints.Enqueue(translated);
+                            }
+                            if (!cache.ContainsKey(startp))
+                            {
+                                this.Owner.loyalty.lockPatchCache.EnterWriteLock();
+                                Empire.patchCacheValue endValue = new Empire.patchCacheValue();
+                                endValue.path = cacheAdd;
+                                endValue.CacheHits = 0;
+                                var endkey = new Dictionary<System.Drawing.Point, Empire.patchCacheValue>();
+
+                                endkey.Add(endp, endValue);
+                                cache.Add(startp, endkey);
+                                this.Owner.loyalty.pathcacheMiss++;
+                                this.Owner.loyalty.lockPatchCache.ExitWriteLock();
+
+                            }
+                            else
+                            {
+                                if (!cache[startp].ContainsKey(endp))
+                                {
+                                    this.Owner.loyalty.lockPatchCache.EnterWriteLock();
+                                    Empire.patchCacheValue endValue = new Empire.patchCacheValue();
+                                    endValue.path = cacheAdd;
+                                    endValue.CacheHits = 0;
+                                    cache[startp].Add(endp, endValue);
+                                    this.Owner.loyalty.pathcacheMiss++;
+                                    this.Owner.loyalty.lockPatchCache.ExitWriteLock();
+                                }
+                                else
+                                {
+                                    this.Owner.loyalty.lockPatchCache.EnterReadLock();
+                                    this.pathCacheLookup(startp, endp, startPos, endPos);
+                                    this.Owner.loyalty.lockPatchCache.ExitReadLock();
+                                }
+
+
                             }
                         }
                         this.ActiveWayPoints.Enqueue(endPos);
+                        return;
                     }
-
-                    return;
+                   
+                    
                 }
-
+                this.ActiveWayPoints.Enqueue(endPos);
+                return;
 
 
 
@@ -6597,15 +6632,15 @@ namespace Ship_Game.Gameplay
                             }
                             //this.ActiveWayPoints.Enqueue(endPos);
                         }
-                        this.Owner.loyalty.lockPatchCache.EnterWriteLock();
-                        int cache;
-                        if (!this.Owner.loyalty.pathcache.TryGetValue(goodpoints, out cache))
-                        {
+                        //this.Owner.loyalty.lockPatchCache.EnterWriteLock();
+                        //int cache;
+                        //if (!this.Owner.loyalty.pathcache.TryGetValue(goodpoints, out cache))
+                        //{
 
-                            this.Owner.loyalty.pathcache.Add(goodpoints, 0);
+                        //    this.Owner.loyalty.pathcache.Add(goodpoints, 0);
 
-                        }
-                        cache++;
+                        //}
+                        //cache++;
                         this.Owner.loyalty.lockPatchCache.ExitWriteLock();
 
                     }
