@@ -119,10 +119,14 @@ namespace Ship_Game
         public float exportPTrack = 0;
         public float exportFTrack = 0;
         public float averagePLanetStorage =0;
-        [XmlIgnore]        
-        public Dictionary<List<Vector2>, int> pathcache = new Dictionary<List<Vector2>, int>();
+        [XmlIgnore]
+        public Dictionary<System.Drawing.Point,
+                Dictionary<System.Drawing.Point, patchCacheValue>> pathcache = new Dictionary<System.Drawing.Point, Dictionary<System.Drawing.Point, patchCacheValue>>();
+        //public Dictionary<List<Vector2>, int> pathcache = new Dictionary<List<Vector2>, int>();
         [XmlIgnore]
         public ReaderWriterLockSlim lockPatchCache = new ReaderWriterLockSlim();
+        [XmlIgnore]
+        public int pathcacheMiss = 0;
         [XmlIgnore]
         public ArtificialIntelligence.Grid pathhMap { get; set; }
         [XmlIgnore]
@@ -141,7 +145,11 @@ namespace Ship_Game
             
             
         }
-
+        public class  patchCacheValue
+        {
+            public List<Vector2> path = new List<Vector2>();
+            public int CacheHits = 0;
+        }
         public ConcurrentDictionary<int, Fleet> GetFleetsDict()
         {
             return this.FleetsDict;
