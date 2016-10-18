@@ -176,7 +176,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Gretman%27s Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\stardrive mod\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM ALTERTHREAD GRETMAN</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STEAM ALTERTHREAD SHIPYARD</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
