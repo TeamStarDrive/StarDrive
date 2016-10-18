@@ -191,6 +191,7 @@ namespace Ship_Game.Gameplay
         private bool reallyDie;
         public static UniverseScreen universeScreen;
         public float FTLSpoolTime;
+        public bool FTLSlowTurnBoost;
 
         //public Dictionary<Empire, diplomacticSpace> BorderState = new Dictionary<Empire, diplomacticSpace>();
         public List<ShipModule> Transporters = new List<ShipModule>();
@@ -4024,18 +4025,6 @@ namespace Ship_Game.Gameplay
                         List<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
                         List<ModuleSlot> Secondhalf = this.ModuleSlotList.Reverse().Skip(this.ModuleSlotList.Count - half).ToList();
 
-                        bool KeepTime = false;
-                        if (this.VanityName == "MerCraft") KeepTime = true;     //Lets attempt some time measurement -Gretman
-                        DateTime Before = DateTime.Now;
-
-
-                        if (KeepTime)
-                        {
-                            long LotsofTicks = DateTime.Now.Ticks - Before.Ticks;
-                            TimeSpan HowLong = new TimeSpan(LotsofTicks);
-                            System.Diagnostics.Debug.WriteLine("1 Full iteration took: " + HowLong);
-                        }
-
                         //foreach (ModuleSlot slots in this.ModuleSlotList)
                         //{
                         //    if (half > 0)
@@ -4223,6 +4212,7 @@ namespace Ship_Game.Gameplay
                 this.HasTroopBay = false;
                 this.WarpThrust = 0f;
                 this.TurnThrust = 0f;
+                this.FTLSlowTurnBoost = false;
                 this.InhibitionRadius = 0f;
                 this.OrdAddedPerSecond = 0f;
                 this.WarpDraw = 0f;
