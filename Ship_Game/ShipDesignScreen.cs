@@ -203,7 +203,7 @@ namespace Ship_Game
         private float HoldTimer = .50f;
         private HashSet<string> techs = new HashSet<string>();
 
-#if GRETMAN
+#if SHIPYARD
         short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0;        //For Gretman's debug shipyard
 #endif
 
@@ -212,7 +212,7 @@ namespace Ship_Game
 		{
 			this.EmpireUI = EmpireUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(2);
-#if GRETMAN
+#if SHIPYARD
             Debug = true;
 #endif
         }
@@ -224,7 +224,7 @@ namespace Ship_Game
 
 		public void ChangeHull(ShipData hull)       //Mer
 		{
-#if GRETMAN
+#if SHIPYARD
             TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
 #endif
 
@@ -271,7 +271,7 @@ namespace Ship_Game
 					InstalledModuleUID = slot.InstalledModuleUID
 				};
 				this.ActiveHull.ModuleSlotList.Add(slot);
-#if GRETMAN
+#if SHIPYARD
                 if (data.Restrictions == Restrictions.I) TotalI++;
                 if (data.Restrictions == Restrictions.O) TotalO++;
                 if (data.Restrictions == Restrictions.E) TotalE++;
@@ -1587,9 +1587,9 @@ namespace Ship_Game
 				HelperFunctions.DrawDropShadowText(base.ScreenManager, "Debug", Pos, Fonts.Arial20Bold);
 				Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(this.operation.ToString()).X, 140f);
 				HelperFunctions.DrawDropShadowText(base.ScreenManager, this.operation.ToString(), Pos, Fonts.Arial20Bold);
-#if GRETMAN
-                Pos.Y += 120;
-                string Ratios = "I: " + TotalI + "   O: " + TotalO + "   E: " + TotalE + "   IO: " + TotalIO + "   IE: " + TotalIE + "   OE: " + TotalOE + "   IOE: " + TotalIOE;
+#if SHIPYARD
+                string Ratios = "I: " + TotalI + "      O: " + TotalO + "      E: " + TotalE + "      IO: " + TotalIO + "      IE: " + TotalIE + "      OE: " + TotalOE + "      IOE: " + TotalIOE;
+                Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(Ratios).X, 180f);
                 HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, Pos, Fonts.Arial20Bold);
 #endif
             }			this.close.Draw(base.ScreenManager);
@@ -5347,6 +5347,7 @@ namespace Ship_Game
             {
                 if (this.DesignStack.Count <= 0)
                     return;
+                lastActiveUID = "";
                 ShipModule shipModule = this.ActiveModule;
                 DesignAction designAction = this.DesignStack.Pop();
                 SlotStruct slot1 = new SlotStruct();
