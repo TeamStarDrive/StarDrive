@@ -6515,7 +6515,7 @@ namespace Ship_Game.Gameplay
                     
                 if (this.Owner.loyalty.grid != null && Vector2.Distance(startPos,endPos) > Empire.ProjectorRadius *2)
                 {
-                    int reducer = (int)(Empire.ProjectorRadius );
+                    int reducer = Empire.universeScreen.reducer;//  (int)(Empire.ProjectorRadius );
                     int granularity = this.Owner.loyalty.granularity; // (int)Empire.ProjectorRadius / 2;
                     
                     System.Drawing.Point startp = new System.Drawing.Point((int)startPos.X, (int)startPos.Y);
@@ -6532,8 +6532,8 @@ namespace Ship_Game.Gameplay
                     // path.PunishChangeDirection = true;
                     path.Diagonals = true;
                     path.HeavyDiagonals = false;
-                    path.Formula = Algorithms.HeuristicFormula.MaxDXDY;
-                    path.HeuristicEstimate = 2;
+                    path.Formula = Algorithms.HeuristicFormula.EuclideanNoSQR;
+                    path.HeuristicEstimate = 1;
                     path.SearchLimit = 999999;
                     this.Owner.loyalty.lockPatchCache.EnterReadLock();
                     if (this.pathCacheLookup(startp, endp, startPos, endPos))
