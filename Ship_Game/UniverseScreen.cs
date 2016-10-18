@@ -1480,7 +1480,50 @@ namespace Ship_Game
                 }
             }
         }
+        private void pathGridtranslateBordernode(Empire empire, byte weight, Byte[,] grid)
+        {
+            int reducer = (int)(Empire.ProjectorRadius  );
+            int granularity = (int)(this.Size.X) / reducer;
+            foreach (Empire.InfluenceNode node in empire.BorderNodes)
+            {
+                SolarSystem ss = node.KeyedObject as SolarSystem;
+                Planet p = node.KeyedObject as Planet;
+                if (this.FTLModifier < 1 && ss != null)
+                    weight += 20;
+                if ((this.EnemyFTLModifier <1 ||  !this.FTLInNuetralSystems ) && ss != null && weight > 1)
+                    weight += 20;
+                if (p != null && weight > 1)
+                    weight += 20;
+                int cx = (int)node.Position.X;
+                int cy = (int)node.Position.Y;
+                cx /= reducer;
+                cy /= reducer;
+                cx += granularity;
+                cy += granularity;
+                // if (Vector2.Distance(point, node.Position) < node.Radius)
+                grid[cx, cy] = weight;
+                float test = weight != 1 ? .5f :1.5f;
+                int rad = (int)( Math.Floor((node.Radius / (reducer * test)  )) ) ;
+                int negx = cx - rad;
+                if (negx < 0)
+                    negx = 0;
+                int posx = cx + rad;
+                if (posx > granularity * 2)
+                    posx = granularity * 2;
+                int negy = cy - rad;
+                if (negy < 0)
+                    negy = 0;
+                int posy = cy + rad;
+                if (posy > granularity * 2)
+                    posy = granularity * 2;
+                for (int x = negx; x < posx; x++)
+                    for (int y = negy; y < posy; y++)
+                    {
+                        grid[x, y] = weight;
 
+                    }
+            }
+        }
         private void BreakGame()
         {
             while (true)
@@ -1583,19 +1626,12 @@ namespace Ship_Game
                 );
             }
             this.MasterShipList.ApplyPendingRemovals();
-            #endregion
-            if (this.perfavg3.Count <= incrementTimer)
-                this.perfavg3.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer);
-            else
-                this.perfavg3[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer;
-            if (!this.IsActive)
-                return;
+            
 
 
 
 
-            float elag = (float)this.zgameTime.TotalGameTime.TotalSeconds;
-            #region Empire
+            
 
             if (!this.Paused)
             {
@@ -1674,41 +1710,13 @@ namespace Ship_Game
                 if(rebuild)
                 Parallel.ForEach(EmpireManager.EmpireList, empire =>
                 {
-                    int reducer = (int)(Empire.ProjectorRadius /2);
+                    int reducer = (int)(Empire.ProjectorRadius );
                     int granularity = (int)(this.Size.X) / reducer;
+                    int elegran = granularity * 2;
+                    int elements = elegran < 128 ? 128 : elegran <256 ? 256 : 512;
                 byte[,] grid = new byte[512, 512];//  [granularity*2, granularity*2];     //[1024, 1024];// 
-                    foreach (Empire.InfluenceNode node in empire.BorderNodes)
-                    {
-                        int cx = (int)node.Position.X;
-                        int cy = (int)node.Position.Y;
-                        cx /= reducer;
-                        cy /= reducer;
-                        cx += granularity;
-                        cy += granularity;
-                       // if (Vector2.Distance(point, node.Position) < node.Radius)
-                            grid[cx, cy] = 1;
-                        int rad = (int)(node.Radius / reducer);
-                        int negx = cx - rad;
-                        if (negx < 0)
-                            negx = 0;
-                        int posx = cx + rad;
-                        if (posx > granularity * 2)
-                            posx = granularity * 2;
-                        int negy = cx - rad;
-                        if (negy < 0)
-                            negy = 0;
-                        int posy = cx + rad;
-                        if (posy > granularity * 2)
-                            posy = granularity * 2;
-                        for (int x =negx;x<posx;x++)
-                            for(int y =negy;y<posy;y++)
-                            {
-                                grid[x, y] = 1;
-                                
-                            }
-                    }
-                    for (int x =0; x< grid.GetLength(0); x++)
-                        for(int y =0;y<grid.GetLength(1);y++)
+                    for (int x = 0; x < grid.GetLength(0); x++)
+                        for (int y = 0; y < grid.GetLength(1); y++)
                         {
                             //int cx = x - granularity;
                             //int cy = y - granularity;
@@ -1718,19 +1726,90 @@ namespace Ship_Game
                             //    if (Vector2.Distance(point, node.Position) < node.Radius)
                             //        grid[x, y] = 1;
                             //}
-                            if (x > granularity * 2 || y > granularity * 2)
+                            if (x > elegran || y > elegran)
                                 grid[x, y] = 0;
-
-                            if (grid[x, y] != 1)
+                            else
                                 grid[x, y] = 80;
                         }
+
+                    pathGridtranslateBordernode(empire, 1, grid);
+            
+                    #region Empire
+                    if (true)
+                        foreach (KeyValuePair<Empire, Relationship> rels in empire.GetRelations())
+                        {
+                            if (!rels.Value.Known)
+                                continue;
+                            if (rels.Value.Treaty_Alliance)
+                            {
+                                pathGridtranslateBordernode(rels.Key, 1, grid);
+                            }
+                            if (rels.Value.AtWar)
+                                pathGridtranslateBordernode(rels.Key, 80, grid);
+                            else
+                                if (!rels.Value.Treaty_OpenBorders)
+                                pathGridtranslateBordernode(rels.Key, 0, grid);
+                        }
+                    
                     empire.grid = grid;
                     empire.granularity = granularity;
+                    if (this.Debug && empire.isPlayer && this.debugwin != null)
+                        if (false)
+                        {
+                            try
+                            {
+
+                                FileStream fs = new FileStream("map.astar", FileMode.Create, FileAccess.Write);
+
+                                fs.WriteByte((byte)(0 >> 8));
+                                fs.WriteByte((byte)(0 & 0x000000FF));
+                                fs.WriteByte((byte)(0 >> 8));
+                                fs.WriteByte((byte)(0 & 0x000000FF));
+                                fs.WriteByte((byte)(256 >> 8));
+                                fs.WriteByte((byte)(256 & 0x000000FF));
+                                fs.WriteByte((byte)(256 >> 8));
+                                fs.WriteByte((byte)(256 & 0x000000FF));
+                                fs.WriteByte((byte)(true ? 1 : 0));
+                                fs.WriteByte((byte)(true ? 1 : 0));
+                                fs.WriteByte((byte)(false ? 1 : 0));
+                                fs.WriteByte((byte)(true ? 1 : 0));
+                                fs.WriteByte((byte)2);
+                                fs.WriteByte((byte)2);
+                                fs.WriteByte((byte)(false ? 1 : 0));
+                                fs.WriteByte((byte)(16) >> 24);
+                                fs.WriteByte((byte)(16 >> 16));
+                                fs.WriteByte((byte)(16 >> 8));
+                                fs.WriteByte((byte)(16 & 0x000000FF));
+                                fs.WriteByte((byte)10);
+                                fs.WriteByte((byte)10);
+
+                                for (int y = 0; y < 1000; y++)
+                                    for (int x = 0; x < 1000; x++)
+                                    {
+                                        if (y < elegran && x < elegran)
+                                            fs.WriteByte(grid[x, y]);
+                                        else
+                                            fs.WriteByte(0);
+                                    }
+
+                                fs.Close();
+                            }
+                            catch
+                            { }
+                        }
                     
 
 
                     //empire.pathhMap = new ArtificialIntelligence.Grid(empire, 36, 5);
                 });
+                #endregion
+                if (this.perfavg3.Count <= incrementTimer)
+                    this.perfavg3.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer);
+                else
+                    this.perfavg3[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer;
+                if (!this.IsActive)
+                    return;
+                float elag = (float)this.zgameTime.TotalGameTime.TotalSeconds;
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)    
                 {
                     Empire empire = EmpireManager.EmpireList[index];
@@ -1751,14 +1830,15 @@ namespace Ship_Game
                     this.ShipsToAdd.Clear();
                 }
                 this.shiptimer -= elapsedTime; // 0.01666667f;//
+                if (this.perfavg.Count <= incrementTimer)
+                    this.perfavg.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - elag);
+                else
+                    this.perfavg[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - elag;
             }
 
             #endregion
 
-            if (this.perfavg.Count <= incrementTimer)
-                this.perfavg.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - elag);
-            else
-                this.perfavg[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - elag;
+       
 
             tempTimer = (float)this.zgameTime.TotalGameTime.TotalSeconds;
             #region Mid
@@ -2802,6 +2882,11 @@ namespace Ship_Game
             }
             else
             {
+                if (input.Escaped)      //Easier out from defining an AO. Used to have to left and Right click at the same time.    -Gretman
+                {
+                    this.DefiningAO = false;
+                    return;
+                }
                 Vector3 position = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                 Vector3 direction = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 1f), this.projection, this.view, Matrix.Identity) - position;
                 direction.Normalize();
@@ -2813,11 +2898,6 @@ namespace Ship_Game
                 if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                 {
                     this.AORect = new Rectangle(this.AORect.X, this.AORect.Y, (int)vector3.X - this.AORect.X, (int)vector3.Y - this.AORect.Y);
-                    if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
-                    {
-                        this.DefiningAO = false;
-                        return;
-                    }
                 }
                 if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed)
                 {
