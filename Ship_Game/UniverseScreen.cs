@@ -2882,6 +2882,11 @@ namespace Ship_Game
             }
             else
             {
+                if (input.Escaped)      //Easier out from defining an AO. Used to have to left and Right click at the same time.    -Gretman
+                {
+                    this.DefiningAO = false;
+                    return;
+                }
                 Vector3 position = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                 Vector3 direction = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y, 1f), this.projection, this.view, Matrix.Identity) - position;
                 direction.Normalize();
@@ -2893,11 +2898,6 @@ namespace Ship_Game
                 if (input.CurrentMouseState.LeftButton == ButtonState.Pressed)
                 {
                     this.AORect = new Rectangle(this.AORect.X, this.AORect.Y, (int)vector3.X - this.AORect.X, (int)vector3.Y - this.AORect.Y);
-                    if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Released)
-                    {
-                        this.DefiningAO = false;
-                        return;
-                    }
                 }
                 if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed)
                 {
