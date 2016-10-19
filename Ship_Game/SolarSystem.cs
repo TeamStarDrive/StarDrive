@@ -42,7 +42,7 @@ namespace Ship_Game
 
 		public int RingsCount;
 
-        //public Vector2 Size = new Vector2(200000f, 200000f);          //Not referenced in code, removing to save memory -Gretman
+        //public Vector2 Size = new Vector2(200000f, 200000f);          //Not referenced in code, removing to save memory
 
         public List<Planet> PlanetList = new List<Planet>();
 
