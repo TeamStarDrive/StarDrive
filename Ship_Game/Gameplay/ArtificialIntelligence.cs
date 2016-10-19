@@ -40,7 +40,7 @@ namespace Ship_Game.Gameplay
 		//public List<Ship> PotentialTargets = new List<Ship>();
         public BatchRemovalCollection<Ship> PotentialTargets = new BatchRemovalCollection<Ship>();
 
-        //private Vector2 direction = Vector2.Zero;     //Not referenced in code, removing to save memory -Gretman
+        //private Vector2 direction = Vector2.Zero;     //Not referenced in code, removing to save memory
 
         private int resupplystep;
 
@@ -62,7 +62,7 @@ namespace Ship_Game.Gameplay
 
 		public Guid SystemToDefendGuid;
 
-        //private List<SolarSystem> SystemsToExplore = new List<SolarSystem>();         //Not referenced in code, removing to save memory -Gretman
+        //private List<SolarSystem> SystemsToExplore = new List<SolarSystem>();         //Not referenced in code, removing to save memory
 
         public SolarSystem ExplorationTarget;
 
@@ -70,7 +70,7 @@ namespace Ship_Game.Gameplay
 
 		public Guid EscortTargetGuid;
 
-        //private List<float> Distances = new List<float>();            //Not referenced in code, removing to save memory -Gretman
+        //private List<float> Distances = new List<float>();            //Not referenced in code, removing to save memory
 
         private float findNewPosTimer;
 
@@ -78,7 +78,7 @@ namespace Ship_Game.Gameplay
 
 		private Planet awaitClosest;
 
-        //public bool inOrbit;          //Not referenced in code, removing to save memory -Gretman
+        //public bool inOrbit;          //Not referenced in code, removing to save memory
 
         private Vector2 OrbitPos;
 
@@ -86,7 +86,7 @@ namespace Ship_Game.Gameplay
 
 		public bool HasPriorityOrder;
 
-        //private Vector2 negativeRotation = Vector2.One;          //Not referenced in code, removing to save memory -Gretman
+        //private Vector2 negativeRotation = Vector2.One;          //Not referenced in code, removing to save memory
 
         public int GotoStep;
 
@@ -121,7 +121,7 @@ namespace Ship_Game.Gameplay
 
 		public string FoodOrProd;
 
-		//private float moveTimer;          //Not referenced in code, removing to save memory -Gretman
+		//private float moveTimer;          //Not referenced in code, removing to save memory
 
         public bool hasPriorityTarget;
 
@@ -133,7 +133,7 @@ namespace Ship_Game.Gameplay
 
 		public Guid TargetGuid;
 
-        //public Guid ColonizeTargetGuid;          //Not referenced in code, removing to save memory -Gretman
+        //public Guid ColonizeTargetGuid;          //Not referenced in code, removing to save memory
 
         public Planet ColonizeTarget;
 
@@ -3395,7 +3395,7 @@ namespace Ship_Game.Gameplay
 			this.State = AIState.Rebase;
 			this.OrbitTarget = p;
 			this.findNewPosTimer = 0f;
-            //this.moveTimer = 0f;          //Not referenced in code, removing to save memory -Gretman
+            //this.moveTimer = 0f;          //Not referenced in code, removing to save memory
             this.GotoStep = 0;
 			this.HasPriorityOrder = true;
 			this.MovePosition.X = p.Position.X;
