@@ -24,7 +24,7 @@ namespace Ship_Game
 
 		public int Level;
 
-        //public bool Defender;          //Not referenced in code, removing to save memory -Gretman
+        //public bool Defender;          //Not referenced in code, removing to save memory
 
         public int AttackTimerBase = 10;
 
@@ -44,7 +44,7 @@ namespace Ship_Game
 
 		public string attack_path;
 
-        //public int fps = 10;          //Not referenced in code, removing to save memory -Gretman
+        //public int fps = 10;          //Not referenced in code, removing to save memory
 
         public bool facingRight;
 
@@ -84,9 +84,9 @@ namespace Ship_Game
 
 		public float StrengthMax;
 
-        //public int Movement;          //Not referenced in code, removing to save memory -Gretman
+        //public int Movement;          //Not referenced in code, removing to save memory
 
-        //public int Initiative;          //Not referenced in code, removing to save memory -Gretman
+        //public int Initiative;          //Not referenced in code, removing to save memory
 
         public int HardAttack;
 
@@ -100,13 +100,13 @@ namespace Ship_Game
 
 		public int Experience;
 
-        //public int Entrenchment;          //Not referenced in code, removing to save memory -Gretman
+        //public int Entrenchment;          //Not referenced in code, removing to save memory
 
         public float Cost;
 
 		public string sound_attack;
 
-        //public float MaintenanceCost;          //Not referenced in code, removing to save memory -Gretman
+        //public float MaintenanceCost;          //Not referenced in code, removing to save memory
 
         public float Range;
 
