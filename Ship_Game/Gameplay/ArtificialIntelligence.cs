@@ -5150,7 +5150,7 @@ namespace Ship_Game.Gameplay
                 
 
                 #region Deliver Food FIRST (return if already loaded)
-                if (this.end == null && FoodFirst  && ( this.Owner.GetCargo()["Food"] > 0f))
+                if (this.end == null && this.Owner.CargoSpace_Used <1 ) //  && FoodFirst  && ( this.Owner.GetCargo()["Food"] > 0f))
                 {
                     //planets.Clear();
 
@@ -5180,16 +5180,16 @@ namespace Ship_Game.Gameplay
                                 }
 
                             }
-                            else if (this.Owner.CargoSpace_Used >0 && PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere > 0)
-                            {
-                                secondaryPlanets.Add(PlanetCheck);
-                            }
+                            //else if (this.Owner.CargoSpace_Used >0 && PlanetCheck.MAX_STORAGE - PlanetCheck.FoodHere > 0)
+                            //{
+                            //    secondaryPlanets.Add(PlanetCheck);
+                            //}
 
                         }
-                   if(planets.Count ==0)
-                    {
-                        planets.AddRange(secondaryPlanets);
-                    }
+                   //if(planets.Count ==0)
+                   // {
+                   //     planets.AddRange(secondaryPlanets);
+                   // }
                     this.Owner.loyalty.GetPlanets().thisLock.ExitReadLock();
                     if (planets.Count > 0)
                     {
@@ -6531,7 +6531,7 @@ namespace Ship_Game.Gameplay
                     Algorithms.PathFinderFast path = new Algorithms.PathFinderFast(this.Owner.loyalty.grid);
                     // path.PunishChangeDirection = true;
                     path.Diagonals = true;
-                    path.HeavyDiagonals = true;
+                    path.HeavyDiagonals = false;
                     path.Formula = Algorithms.HeuristicFormula.MaxDXDY;
                     path.HeuristicEstimate = 2;
                     path.SearchLimit = 999999;
