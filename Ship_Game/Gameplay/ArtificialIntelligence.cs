@@ -3681,7 +3681,7 @@ namespace Ship_Game.Gameplay
 
 		private void MoveTowardsPosition(Vector2 Position, float elapsedTime, float speedLimit)
 		{
-			if (speedLimit == 0f)
+			if (speedLimit < 1f)
 			{
 				speedLimit = 200f;
 			}
@@ -4047,7 +4047,7 @@ namespace Ship_Game.Gameplay
 			if (this.ExterminationTarget == null || this.ExterminationTarget.Owner == null)
 			{
 				List<Planet> plist = new List<Planet>();
-				foreach (KeyValuePair<Guid, Planet> planetsDict in ArtificialIntelligence.universeScreen.PlanetsDict)
+				foreach (var planetsDict in universeScreen.PlanetsDict)
 				{
 					if (planetsDict.Value.Owner == null)
 					{
@@ -4059,7 +4059,7 @@ namespace Ship_Game.Gameplay
 					from planet in plist
 					orderby Vector2.Distance(this.Owner.Center, planet.Position)
 					select planet;
-				if (sortedList.Count<Planet>() > 0)
+				if (sortedList.Any())
 				{
 					this.ExterminationTarget = sortedList.First<Planet>();
 					this.OrderExterminatePlanet(this.ExterminationTarget);
@@ -4487,7 +4487,7 @@ namespace Ship_Game.Gameplay
 				from toOrbit in this.Owner.loyalty.GetPlanets()
 				orderby Vector2.Distance(this.Owner.Center, toOrbit.Position)
 				select toOrbit;
-			if (sortedList.Count<Planet>() > 0)
+			if (sortedList.Any())
 			{
 				Planet planet = sortedList.First<Planet>();
 				this.OrbitTarget = planet;
@@ -4537,7 +4537,7 @@ namespace Ship_Game.Gameplay
                 where solarsystem.combatTimer <= 0f && Vector2.Distance(solarsystem.Position, this.Owner.Position) > 200000f
                 orderby Vector2.Distance(this.Owner.Center, solarsystem.Position)
                 select solarsystem;
-            if (systemList.Count<SolarSystem>() > 0)
+            if (systemList.Any())
             {
                 Planet item = systemList.First<SolarSystem>().PlanetList[0];
                 this.OrbitTarget = item;
@@ -4630,10 +4630,9 @@ namespace Ship_Game.Gameplay
             {
                 this.OrderQueue.Clear();
             }
-            int troops = this.Owner.loyalty.GetShips()
-    .Where(troop => troop.TroopList.Count > 0)
-    .Where(troopAI => troopAI.GetAI().OrderQueue
-        .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() > 0).Count();
+            int troops = this.Owner.loyalty
+    .GetShips()
+    .Where(troop => troop.TroopList.Count > 0).Count(troopAI => troopAI.GetAI().OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
 
             if (troops >= p.GetGroundLandingSpots())
             {
@@ -4666,10 +4665,9 @@ namespace Ship_Game.Gameplay
             IOrderedEnumerable<Planet> sortedList = 
 				from planet in this.Owner.loyalty.GetPlanets()
                 //added by gremlin if the planet is full of troops dont rebase there. RERC2 I dont think the about looking at incoming troops works.
-                where this.Owner.loyalty.GetShips()
-    .Where(troop => troop.TroopList.Count > 0 )
-    .Where(troopAI => troopAI.GetAI().OrderQueue
-        .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet).Count() > 0).Count() <= planet.GetGroundLandingSpots()
+                where this.Owner.loyalty
+    .GetShips( )
+    .Where(troop => troop.TroopList.Count > 0).Count(troopAi => troopAi.GetAI().OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet)) <= planet.GetGroundLandingSpots()
 
 
                 /*where planet.TroopsHere.Count + this.Owner.loyalty.GetShips()
@@ -5112,7 +5110,7 @@ namespace Ship_Game.Gameplay
             bool flag;
             List<Planet> secondaryPlanets = new List<Planet>();
             //added by gremlin if fleeing keep fleeing
-            if (this.Owner.CargoSpace_Max == 0 || this.State == AIState.Flee || this.Owner.isConstructor || this.Owner.isColonyShip)
+            if (Math.Abs(this.Owner.CargoSpace_Max) < 1 || this.State == AIState.Flee || this.Owner.isConstructor || this.Owner.isColonyShip)
                 return;
 
             //try
