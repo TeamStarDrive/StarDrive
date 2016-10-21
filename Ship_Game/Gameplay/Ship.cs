@@ -218,7 +218,8 @@ namespace Ship_Game.Gameplay
         public float TradeTimer;
         public bool shipInitialized = false;
         public float maxFTLSpeed;
-        public float maxSTLSpeed;       
+        public float maxSTLSpeed;
+        public float NormalWarpThrust;
         private BatchRemovalCollection<Empire> BorderCheck = new BatchRemovalCollection<Empire>();
         public BatchRemovalCollection<Empire> getBorderCheck
         {
@@ -4212,6 +4213,7 @@ namespace Ship_Game.Gameplay
                 this.HasTroopBay = false;
                 this.WarpThrust = 0f;
                 this.TurnThrust = 0f;
+                this.NormalWarpThrust = 0f;
                 this.FTLSlowTurnBoost = false;
                 this.InhibitionRadius = 0f;
                 this.OrdAddedPerSecond = 0f;
@@ -4318,7 +4320,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-
+            this.NormalWarpThrust = this.WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             this.TrackingPower += FixedTrackingPower;
             
