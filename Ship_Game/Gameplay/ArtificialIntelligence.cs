@@ -6515,7 +6515,7 @@ namespace Ship_Game.Gameplay
                     
                 if (this.Owner.loyalty.grid != null && Vector2.Distance(startPos,endPos) > Empire.ProjectorRadius *2)
                 {
-                    int reducer = (int)(Empire.ProjectorRadius );
+                    int reducer = Empire.universeScreen.reducer;//  (int)(Empire.ProjectorRadius );
                     int granularity = this.Owner.loyalty.granularity; // (int)Empire.ProjectorRadius / 2;
                     
                     System.Drawing.Point startp = new System.Drawing.Point((int)startPos.X, (int)startPos.Y);
@@ -6532,8 +6532,9 @@ namespace Ship_Game.Gameplay
                     // path.PunishChangeDirection = true;
                     path.Diagonals = true;
                     path.HeavyDiagonals = false;
-                    path.Formula = Algorithms.HeuristicFormula.MaxDXDY;
-                    path.HeuristicEstimate = 2;
+                    path.PunishChangeDirection = true;
+                    path.Formula = Algorithms.HeuristicFormula.EuclideanNoSQR;
+                    path.HeuristicEstimate = 1;
                     path.SearchLimit = 999999;
                     this.Owner.loyalty.lockPatchCache.EnterReadLock();
                     if (this.pathCacheLookup(startp, endp, startPos, endPos))
@@ -6549,15 +6550,38 @@ namespace Ship_Game.Gameplay
                         if (pathpoints != null)
                         {
                             List<Vector2> cacheAdd = new List<Vector2>();
+                            byte angle = 254;
                             for (int x = pathpoints.Count() - 1; x >= 0; x--)                            
                             {
 
                                 Algorithms.PathFinderNode pnode = pathpoints[x];
-                                byte value = this.Owner.loyalty.grid[pnode.X, pnode.Y];
-                                //if (value == 80)
-                                //    continue;
+                                
                                 Vector2 translated = new Vector2((pnode.X - granularity) * reducer, (pnode.Y - granularity) * reducer);
+                                if ( x > 1 && cacheAdd.Count > 0)
+                                {
+                                    
+                                    
+                                    byte value = this.Owner.loyalty.grid[pnode.X, pnode.Y];
+                                    float rad = Empire.ProjectorRadius * 1.5f;
+                                    //byte currentangle = (byte)(HelperFunctions.findAngleToTarget(cacheAdd.Last(), translated) / 25);
+                                    //if (currentangle == angle || angle ==254)
+                                    //{
+                                       
+                                    //    if (value == 80) // && lastpointvalue == 80)
+                                    //    {
+                                    //        rad *= 5;
+
+                                    //    }
+                                        
+                                    //}
+                                    if (Vector2.Distance(translated, cacheAdd.Last()) < rad)
+                                        continue;
+                                    //angle = currentangle;
+                                    
+
+                                }
                                 cacheAdd.Add(translated);
+                                
                                 if (Vector2.Distance(translated, endPos) > Empire.ProjectorRadius *2 
                                     && Vector2.Distance(translated, startPos) > Empire.ProjectorRadius *2)
                                     this.ActiveWayPoints.Enqueue(translated);
