@@ -4009,7 +4009,7 @@ namespace Ship_Game.Gameplay
                 }
                
             }
-            else if (this.GetAI().BadGuysNear || (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView )|| this.MoveModulesTimer > 0.0 ||  GlobalStats.ForceFullSim) // || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
+            else if (this.Active && this.GetAI().BadGuysNear || (this.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView )|| this.MoveModulesTimer > 0.0 ||  GlobalStats.ForceFullSim) // || (Ship.universeScreen !=null && Ship.universeScreen.Lag <= .03f)))
             {
                 if (elapsedTime > 0.0)
                 {
@@ -4018,13 +4018,11 @@ namespace Ship_Game.Gameplay
                     if (this.GetAI().BadGuysNear ||  this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null || this.shipData.Role <= ShipData.RoleName.station)
                     {
                         this.UpdatedModulesOnce = false;
-                        float cos = (float)Math.Cos((double)this.Rotation);
-                        float sin = (float)Math.Sin((double)this.Rotation);
-                        float tan = (float)Math.Tan((double)this.yRotation);
-                        int half = this.ModuleSlotList.Count / 2;
+                      
+                        //int half = this.ModuleSlotList.Count / 2;
 
-                        List<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
-                        List<ModuleSlot> Secondhalf = this.ModuleSlotList.Reverse().Skip(this.ModuleSlotList.Count - half).ToList();
+                        //List<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
+                        //List<ModuleSlot> Secondhalf = this.ModuleSlotList.Reverse().Skip(this.ModuleSlotList.Count - half).ToList();
 
                         //foreach (ModuleSlot slots in this.ModuleSlotList)
                         //{
@@ -4060,10 +4058,15 @@ namespace Ship_Game.Gameplay
                         //is processed in its entirety again here. I think this is redundant, and likely a reasonable performance hit.    -Gretman
                         Task modules = new Task(() =>
                         {
+                            float cos = (float)Math.Cos((double)this.Rotation);
+                            float sin = (float)Math.Sin((double)this.Rotation);
+                            float tan = (float)Math.Tan((double)this.yRotation);
                             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                             {
                                 ++GlobalStats.ModuleUpdates;
                                 moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                                if (!this.Active)
+                                    break;
                             }
                         }
                         );
@@ -4071,16 +4074,18 @@ namespace Ship_Game.Gameplay
                     }
                     else if( !this.UpdatedModulesOnce)
                     {
-                        
-                        float cos = (float)Math.Cos((double)this.Rotation);
-                        float sin = (float)Math.Sin((double)this.Rotation);
-                        float tan = (float)Math.Tan((double)this.yRotation);
                         Task modules = new Task(() =>
                         {
+
+                            float cos = (float)Math.Cos((double)this.Rotation);
+                            float sin = (float)Math.Sin((double)this.Rotation);
+                            float tan = (float)Math.Tan((double)this.yRotation);
                             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-                            {
+                            {                                
                                 ++GlobalStats.ModuleUpdates;
                                 moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                                if (!this.Active)
+                                    break;
                             }
                         }); modules.Start();
                         this.UpdatedModulesOnce = true;
@@ -4088,15 +4093,18 @@ namespace Ship_Game.Gameplay
                 }
                 else if (elapsedTime < 0.0 && !this.UpdatedModulesOnce)
                 {
-                    float cos = (float)Math.Cos((double)this.Rotation);
-                    float sin = (float)Math.Sin((double)this.Rotation);
-                    float tan = (float)Math.Tan((double)this.yRotation);
+                   
                     Task modules = new Task(() =>
                     {
+                        float cos = (float)Math.Cos((double)this.Rotation);
+                        float sin = (float)Math.Sin((double)this.Rotation);
+                        float tan = (float)Math.Tan((double)this.yRotation);
                         foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
                         {
                             ++GlobalStats.ModuleUpdates;
                             moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                            if (!this.Active)
+                                break;
                         }
                     }); modules.Start();
                     this.UpdatedModulesOnce = true;
