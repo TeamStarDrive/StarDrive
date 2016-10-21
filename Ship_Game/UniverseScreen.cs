@@ -1480,57 +1480,66 @@ namespace Ship_Game
                 }
             }
         }
-        private void pathGridtranslateBordernode(Empire empire, byte weight, Byte[,] grid)
+
+        private void pathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
         {
             //this.reducer = (int)(Empire.ProjectorRadius *.5f  );
-            int granularity = (int)(this.Size.X) / reducer;
+            int granularity = (int) (this.Size.X)/reducer;
             foreach (Empire.InfluenceNode node in empire.BorderNodes)
             {
                 SolarSystem ss = node.KeyedObject as SolarSystem;
                 Planet p = node.KeyedObject as Planet;
                 if (this.FTLModifier < 1 && ss != null)
                     weight += 20;
-                if ((this.EnemyFTLModifier <1 ||  !this.FTLInNuetralSystems ) && ss != null && weight > 1)
+                if ((this.EnemyFTLModifier < 1 || !this.FTLInNuetralSystems) && ss != null && weight > 1)
                     weight += 20;
                 if (p != null && weight > 1)
                     weight += 20;
-                
-                int ocx = (int)node.Position.X;
-                int ocy = (int)node.Position.Y;
+
+                int ocx = (int) node.Position.X;
+                int ocy = (int) node.Position.Y;
                 ocx /= reducer;
                 ocy /= reducer;
-               int  cx = ocx+granularity;
-                int cy = ocy+granularity;
-                    // if (Vector2.Distance(point, node.Position) < node.Radius)
+                int cx = ocx + granularity;
+                int cy = ocy + granularity;
+                Vector2 upscale = new Vector2((float)(ocx * reducer),
+                                    (float)(ocy * reducer));
+                if (Vector2.Distance(upscale, node.Position) < node.Radius *.5f)
                     grid[cx, cy] = weight;
-               // if (weight > 1 || node.Radius > Empire.ProjectorRadius)
+                if (weight > 1 || weight ==0 || node.Radius > Empire.ProjectorRadius)
                 {
-                    float test = weight != 1 ? .5f :1.5f;
-                int rad = (int)( Math.Ceiling((double)(node.Radius / ((float)reducer ) * test )) ) ;
-                //rad--;
-               
+                    float test = node.Radius > Empire.ProjectorRadius ? 1 : 2;
+                    int rad = (int) (Math.Ceiling((double) (node.Radius/((float) reducer)*test)));
+                    //rad--;
+
                     int negx = cx - rad;
                     if (negx < 0)
                         negx = 0;
                     int posx = cx + rad;
-                    if (posx > granularity * 2)
-                        posx = granularity * 2;
+                    if (posx > granularity*2)
+                        posx = granularity*2;
                     int negy = cy - rad;
                     if (negy < 0)
                         negy = 0;
                     int posy = cy + rad;
-                    if (posy > granularity * 2)
-                        posy = granularity * 2;
+                    if (posy > granularity*2)
+                        posy = granularity*2;
                     for (int x = negx; x < posx; x++)
                         for (int y = negy; y < posy; y++)
                         {
-                        if(grid[x, y] >=60 || grid[x, y] <= weight)
-                            grid[x, y] = weight ;
+                            if (grid[x, y] >= 80 || grid[x, y] <= weight)
+                            {
+                                upscale = new Vector2((float) ((x - granularity)*reducer),
+                                    (float) ((y - granularity)*reducer));
+                                if (Vector2.Distance(upscale, node.Position) < node.Radius *test)
+                                    grid[x, y] = weight;
+                            }
 
                         }
                 }
             }
         }
+
         private void BreakGame()
         {
             while (true)
@@ -1669,33 +1678,7 @@ namespace Ship_Game
                                 rebuild = true;
                                 empire.pathcache.Clear();
                                // empire.lockPatchCache.ExitWriteLock();
-                                //ArtificialIntelligence.Grid repath =new ArtificialIntelligence.Grid(empire,36,10);
-                                //List<Vector2> pathcheck = new List<Vector2>();
-                                //List<List<Vector2>> keylist =  empire.pathcache.Keys.OrderByDescending(hit=> empire.pathcache[hit]).ToList();
-                                //foreach (List<Vector2> path in keylist)
-                                //{
-                                //    int saveuse = --empire.pathcache[path];
-                                //    if(saveuse < -0)
-                                //        empire.pathcache.Remove(path);
-                                //    foreach (List<Vector2> duppath in keylist)
-                                //    {
-                                //        int count = 0;
-                                //        if (duppath.First() == path.First() && duppath.Last() == path.Last())
-                                //        {
-                                //            if (count > 0)
-                                //                empire.pathcache.Remove(path);
-                                //            count++;
-                                //        }
-                                //    }
-                                //    if (empire.pathcache.ContainsKey(path))
-                                //    {
-                                //        pathcheck = repath.Pathfind(path.First(), path.Last(), false);
-                                //        empire.pathcache.Remove(path);
-                                //        empire.pathcache.Add(pathcheck, saveuse);
-                                //    }
-                                    
-
-                                //}
+                           
                             }
                            // empire.KnownShips.thisLock.EnterWriteLock();
                             {
@@ -1716,41 +1699,34 @@ namespace Ship_Game
                 });
                 if (rebuild)
                 {
-                    this.reducer = (int)(Empire.ProjectorRadius * .75f);
-                    int granularity = (int)(this.Size.X) / reducer;
-                    int elegran = granularity * 2;
+                    this.reducer = (int) (Empire.ProjectorRadius*.75f);
+                    int granularity = (int) (this.Size.X)/reducer;
+                    int elegran = granularity*2;
                     int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
-                    byte[,] grid = new byte[elements, elements];//  [granularity*2, granularity*2];     //[1024, 1024];// 
+                    byte[,] grid = new byte[elements, elements];
+                        //  [granularity*2, granularity*2];     //[1024, 1024];// 
                     for (int x = 0; x < grid.GetLength(0); x++)
                         for (int y = 0; y < grid.GetLength(1); y++)
                         {
-                            //int cx = x - granularity;
-                            //int cy = y - granularity;
-                            //Vector2 point = new Vector2(cx * reducer, cy * reducer);
-                            //foreach (Empire.InfluenceNode node in empire.BorderNodes)
-                            //{
-                            //    if (Vector2.Distance(point, node.Position) < node.Radius)
-                            //        grid[x, y] = 1;
-                            //}
                             if (x > elegran || y > elegran)
                                 grid[x, y] = 0;
                             else
-                                grid[x, y] = 60;
+                                grid[x, y] = 80;
                         }
                     foreach (Planet p in this.PlanetsDict.Values)
                     {
                         int x = granularity;
                         int y = granularity;
-                        x += (int)(p.Position.X / reducer);
-                        y += (int)(p.Position.Y / reducer);
-                        grid[x, y] = 80;
+                        x += (int) (p.Position.X/reducer);
+                        y += (int) (p.Position.Y/reducer);
+                        grid[x, y] = 200;
                     }
                     Parallel.ForEach(EmpireManager.EmpireList, empire =>
                     {
-                        byte[,] grid1 = (byte[,])grid.Clone();
+                        byte[,] grid1 = (byte[,]) grid.Clone();
                         pathGridtranslateBordernode(empire, 1, grid1);
 
-                        #region Empire
+
                         if (true)
                             foreach (KeyValuePair<Empire, Relationship> rels in empire.GetRelations())
                             {
@@ -1762,8 +1738,7 @@ namespace Ship_Game
                                 }
                                 if (rels.Value.AtWar)
                                     pathGridtranslateBordernode(rels.Key, 80, grid1);
-                                else
-                                    if (!rels.Value.Treaty_OpenBorders)
+                                else if (!rels.Value.Treaty_OpenBorders)
                                     pathGridtranslateBordernode(rels.Key, 0, grid1);
                             }
 
@@ -1778,27 +1753,27 @@ namespace Ship_Game
 
                                     FileStream fs = new FileStream("map.astar", FileMode.Create, FileAccess.Write);
 
-                                    fs.WriteByte((byte)(0 >> 8));
-                                    fs.WriteByte((byte)(0 & 0x000000FF));
-                                    fs.WriteByte((byte)(0 >> 8));
-                                    fs.WriteByte((byte)(0 & 0x000000FF));
-                                    fs.WriteByte((byte)(256 >> 8));
-                                    fs.WriteByte((byte)(256 & 0x000000FF));
-                                    fs.WriteByte((byte)(256 >> 8));
-                                    fs.WriteByte((byte)(256 & 0x000000FF));
-                                    fs.WriteByte((byte)(true ? 1 : 0));
-                                    fs.WriteByte((byte)(true ? 1 : 0));
-                                    fs.WriteByte((byte)(false ? 1 : 0));
-                                    fs.WriteByte((byte)(true ? 1 : 0));
-                                    fs.WriteByte((byte)2);
-                                    fs.WriteByte((byte)2);
-                                    fs.WriteByte((byte)(false ? 1 : 0));
-                                    fs.WriteByte((byte)(16) >> 24);
-                                    fs.WriteByte((byte)(16 >> 16));
-                                    fs.WriteByte((byte)(16 >> 8));
-                                    fs.WriteByte((byte)(16 & 0x000000FF));
-                                    fs.WriteByte((byte)10);
-                                    fs.WriteByte((byte)10);
+                                    fs.WriteByte((byte) (0 >> 8));
+                                    fs.WriteByte((byte) (0 & 0x000000FF));
+                                    fs.WriteByte((byte) (0 >> 8));
+                                    fs.WriteByte((byte) (0 & 0x000000FF));
+                                    fs.WriteByte((byte) (256 >> 8));
+                                    fs.WriteByte((byte) (256 & 0x000000FF));
+                                    fs.WriteByte((byte) (256 >> 8));
+                                    fs.WriteByte((byte) (256 & 0x000000FF));
+                                    fs.WriteByte((byte) (true ? 1 : 0));
+                                    fs.WriteByte((byte) (true ? 1 : 0));
+                                    fs.WriteByte((byte) (false ? 1 : 0));
+                                    fs.WriteByte((byte) (true ? 1 : 0));
+                                    fs.WriteByte((byte) 2);
+                                    fs.WriteByte((byte) 2);
+                                    fs.WriteByte((byte) (false ? 1 : 0));
+                                    fs.WriteByte((byte) (16) >> 24);
+                                    fs.WriteByte((byte) (16 >> 16));
+                                    fs.WriteByte((byte) (16 >> 8));
+                                    fs.WriteByte((byte) (16 & 0x000000FF));
+                                    fs.WriteByte((byte) 10);
+                                    fs.WriteByte((byte) 10);
 
                                     for (int y = 0; y < 1000; y++)
                                         for (int x = 0; x < 1000; x++)
@@ -1812,14 +1787,15 @@ namespace Ship_Game
                                     fs.Close();
                                 }
                                 catch
-                                { }
+                                {
+                                    //not used during actual game so no catch stuff really needed. this is just a lazy shortcut
+                                }
                             }
 #endif
 
-
-                        //empire.pathhMap = new ArtificialIntelligence.Grid(empire, 36, 5);
                     });
                 }
+
                 #endregion
                 if (this.perfavg3.Count <= incrementTimer)
                     this.perfavg3.Add((float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer);
@@ -1827,6 +1803,7 @@ namespace Ship_Game
                     this.perfavg3[incrementTimer] = (float)this.zgameTime.TotalGameTime.TotalSeconds - tempTimer;
                 if (!this.IsActive)
                     return;
+                #region Empire
                 float elag = (float)this.zgameTime.TotalGameTime.TotalSeconds;
                 for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)    
                 {
