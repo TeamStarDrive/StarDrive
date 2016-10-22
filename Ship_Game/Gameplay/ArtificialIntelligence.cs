@@ -8090,84 +8090,46 @@ namespace Ship_Game.Gameplay
             float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
             float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
 
+            float TurnRate = this.Owner.TurnThrust / this.Owner.Mass / 700f;
+
             #region Warp
-            if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
+
+            if (angleDiff * 1.25f > TurnRate && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)      //Might be a turning issue
             {
-                if (this.ActiveWayPoints.Count >= 2)        //Still more waypoints to go
-                {
-                    float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                    float DistToNext = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                    if (DistToNext < 50000f)
+                if (angleDiff > 1.0f) this.Owner.HyperspaceReturn();      //Too sharp of a turn. Drop out of warp
+                else {
+                    float WarpSpeed = (this.Owner.WarpThrust / this.Owner.Mass + 0.1f) * this.Owner.loyalty.data.FTLModifier;
+                    if (this.Owner.inborders && this.Owner.loyalty.data.Traits.InBordersSpeedBonus > 0) WarpSpeed *= 1 + this.Owner.loyalty.data.Traits.InBordersSpeedBonus;
+
+                    if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("AngleDiff: " + angleDiff + "     TurnRate = " + TurnRate + "     WarpSpeed = " + WarpSpeed + "     Distance = " + Distance);
+                    //AngleDiff: 1.500662     TurnRate = 0.2491764     WarpSpeed = 26286.67     Distance = 138328.4
+
+                    if (this.ActiveWayPoints.Count >= 2 && Distance > Empire.ProjectorRadius / 2 && Vector2.Distance(this.Owner.Center, this.ActiveWayPoints.ElementAt(1)) < Empire.ProjectorRadius * 5)
                     {
-                        if (angleDiffToNext > 0.65f) this.Owner.HyperspaceReturn();
-                        else if (angleDiffToNext > 0.35f)
+                        Vector2 wantedForwardNext = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt(1)));
+                        float angleDiffNext = (float)Math.Acos((double)Vector2.Dot(wantedForwardNext, forward));
+                        if (angleDiff > angleDiffNext || angleDiffNext < TurnRate * 0.5) //Angle to next waypoint is better than angle to this one, just cut the corner.
                         {
-                            speedLimit = speedLimit * 0.75f;
-                            if (!this.Owner.FTLSlowTurnBoost)
-                            {
-                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
-                                this.Owner.FTLSlowTurnBoost = true;
-                            }
+                            lock (this.wayPointLocker)      this.ActiveWayPoints.Dequeue();
+                            if (this.OrderQueue.Count > 0)      this.OrderQueue.RemoveFirst();
+                            return;
                         }
                     }
-                    else if (DistToNext > 50000f)
+                    else if (angleDiff * 1.5f > TurnRate * (Distance / WarpSpeed))  //Can we make the turn in the distance we have remaining?
                     {
-                        if (angleDiffToNext > 1.45f) this.Owner.HyperspaceReturn();
-                        else if (angleDiffToNext > 0.85f)
-                        {
-                            speedLimit = speedLimit * 0.75f;
-                            if (!this.Owner.FTLSlowTurnBoost)
-                            {
-                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
-                                this.Owner.FTLSlowTurnBoost = true;
-                            }
-                        }
+                        this.Owner.WarpThrust -= this.Owner.NormalWarpThrust * 0.02f;   //Reduce warpthrust by 2 percent every frame until this is an acheivable turn
+                    }
+                    else if (this.Owner.WarpThrust < this.Owner.NormalWarpThrust)
+                    {
+                        this.Owner.WarpThrust += this.Owner.NormalWarpThrust * 0.01f;   //Increase warpthrust back to normal 1 percent at a time
+                        if (this.Owner.WarpThrust > this.Owner.NormalWarpThrust) this.Owner.WarpThrust = this.Owner.NormalWarpThrust;    //Make sure we dont accidentally go over
                     }
                 }
-                else if (this.ActiveWayPoints.Count == 1)       //Last part of journey
-                {
-                    if (Distance < 35000f)
-                    {
-                        if (angleDiff > 0.65f) this.Owner.HyperspaceReturn();
-                        else if (angleDiff > 0.35f)
-                        {
-                            speedLimit = speedLimit * 0.75f;
-                            if (!this.Owner.FTLSlowTurnBoost)
-                            {
-                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
-                                this.Owner.FTLSlowTurnBoost = true;
-                            }
-                        }
-                    }
-                    else if (Distance > 35000f)
-                    {
-                        if (angleDiff > 1.65f) this.Owner.HyperspaceReturn();
-                        else if (angleDiff > 0.85f)
-                        {
-                            speedLimit = speedLimit * 0.75f;
-                            if (!this.Owner.FTLSlowTurnBoost)
-                            {
-                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
-                                this.Owner.FTLSlowTurnBoost = true;
-                            }
-                        }
-                    }
-                }
-                else if (this.Target != null)
-                {
-                    if (angleDiff > 0.4f) this.Owner.HyperspaceReturn();
-                    else if (Distance > 25000f) this.Owner.HyperspaceReturn();
-                }
-                else if (  (this.State != AIState.Bombard && this.State != AIState.AssaultPlanet && this.State != AIState.BombardTroops && !this.IgnoreCombat) || this.OrderQueue.Count <= 0)
-                {
-                    this.Owner.HyperspaceReturn();
-                }
-                else if (this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet != null)
-                {
-                    float dest = Vector2.Distance(this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet.Position, this.Owner.Center);
-                    if (angleDiff > 0.4f) this.Owner.HyperspaceReturn();
-                    else if (dest > 25000f) this.Owner.HyperspaceReturn();    //Is this supposed to be less than?
-                }
+            }
+            else if (this.Owner.WarpThrust < this.Owner.NormalWarpThrust && angleDiff < TurnRate) //Intentional allowance of the 25% added to angle diff in main if, so it wont accelerate too soon
+            {
+                this.Owner.WarpThrust += this.Owner.NormalWarpThrust * 0.01f;   //Increase warpthrust back to normal 1 percent at a time
+                if (this.Owner.WarpThrust > this.Owner.NormalWarpThrust) this.Owner.WarpThrust = this.Owner.NormalWarpThrust;    //Make sure we dont accidentally go over
             }
 
             #endregion
@@ -8195,16 +8157,9 @@ namespace Ship_Game.Gameplay
             {
                 if (Distance > 7500f && !this.Owner.InCombat && angleDiff < 0.25f) this.Owner.EngageStarDrive();
                 else if (Distance > 15000f && this.Owner.InCombat && angleDiff < 0.25f) this.Owner.EngageStarDrive();
-
-                this.Owner.Velocity = this.Owner.Velocity + (Vector2.Normalize(forward) * (elapsedTime * speedLimit));
-                if (this.Owner.Velocity.Length() > speedLimit)
-                {
-                    this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * speedLimit;
-                }
             }
             else        //In a fleet
             {
-                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("I think i'm in a fleet.");
                 if (Distance > 7500f)   //Not near destination
                 {
                     bool fleetReady = true;
