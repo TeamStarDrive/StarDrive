@@ -7,11 +7,11 @@ namespace Ship_Game
     {
         public float VultureWeight = 1;
 
-        //public float AssistWeight = 0.1f;          //Not referenced in code, removing to save memory -Gretman
+        //public float AssistWeight = 0.1f;          //Not referenced in code, removing to save memory
 
         public float SelfDefenseWeight = 1f;
 
-        //public float OthersDefenseWeight = 1f;          //Not referenced in code, removing to save memory -Gretman
+        //public float OthersDefenseWeight = 1f;          //Not referenced in code, removing to save memory
 
         public float SmallAttackWeight = 1f;
 
@@ -21,8 +21,8 @@ namespace Ship_Game
 
         public float PreferredEngagementDistance = 1500f;
         public float PirateWeight = 0;
-        //public float minWeaponRange = 0;          //Not referenced in code, removing to save memory -Gretman
-        //public float MaxWeaponRange = 0;          //Not referenced in code, removing to save memory -Gretman
+        //public float minWeaponRange = 0;          //Not referenced in code, removing to save memory
+        //public float MaxWeaponRange = 0;          //Not referenced in code, removing to save memory
         public Ship_Game.Gameplay.Ship owner = null;
 
         public CombatAI()
