@@ -8115,7 +8115,8 @@ namespace Ship_Game.Gameplay
                             return;
                         }
                     }
-                    else if (angleDiff * 1.5f > TurnRate * (Distance / WarpSpeed))  //Can we make the turn in the distance we have remaining?
+                    //                          Turn per tick         ticks left          Speed per tic
+                    else if (angleDiff > (TurnRate / elapsedTime) * (Distance / (WarpSpeed / elapsedTime) ) )       //Can we make the turn in the distance we have remaining?
                     {
                         this.Owner.WarpThrust -= this.Owner.NormalWarpThrust * 0.02f;   //Reduce warpthrust by 2 percent every frame until this is an acheivable turn
                     }
