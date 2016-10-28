@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Algorithms;
 
 
 namespace Ship_Game.Gameplay
@@ -6483,6 +6484,7 @@ namespace Ship_Game.Gameplay
                                 for (int x = 1; x < pathend.path.Count - 2; x++)
                                 {
                                     Vector2 point = pathend.path[x];
+                                    if( point != Vector2.Zero)
                                     this.ActiveWayPoints.Enqueue(point);
                                 }
 
@@ -6526,14 +6528,33 @@ namespace Ship_Game.Gameplay
                     endp.Y /= reducer;
                     endp.Y += granularity;
                     endp.X += granularity;
-                    Algorithms.PathFinderFast path = new Algorithms.PathFinderFast(this.Owner.loyalty.grid);
+                    Algorithms.PathFinderFast path;
                     // path.PunishChangeDirection = true;
-                    path.Diagonals = true;
-                    path.HeavyDiagonals = false;
-                    path.PunishChangeDirection = true;
-                    path.Formula = Algorithms.HeuristicFormula.EuclideanNoSQR;
-                    path.HeuristicEstimate = 1;
-                    path.SearchLimit = 999999;
+                    int estRoadLength = Owner.loyalty.BorderNodes.Count(ssp => ssp.KeyedObject is Ship);
+                    if (Vector2.Distance(endPos, startPos) > estRoadLength * (2 * Empire.ProjectorRadius))
+                    {
+                        path = new Algorithms.PathFinderFast(this.Owner.loyalty.grid)
+                        {
+                            Diagonals = true,
+                            HeavyDiagonals = false,
+                            PunishChangeDirection = true,
+                            Formula = HeuristicFormula.EuclideanNoSQR,
+                            HeuristicEstimate = 1,
+                            SearchLimit = 999999
+                        };                        
+                    }
+                    else
+                    {
+                        path = new Algorithms.PathFinderFast(this.Owner.loyalty.grid)
+                        {
+                            Diagonals = true,
+                            HeavyDiagonals = false,
+                            PunishChangeDirection = true,
+                            Formula = HeuristicFormula.MaxDXDY,
+                            HeuristicEstimate = 2,
+                            SearchLimit = 999999
+                        };
+                    }                    
                     this.Owner.loyalty.lockPatchCache.EnterReadLock();
                     if (this.pathCacheLookup(startp, endp, startPos, endPos))
                     {
@@ -6555,6 +6576,8 @@ namespace Ship_Game.Gameplay
                                 Algorithms.PathFinderNode pnode = pathpoints[x];
                                 
                                 Vector2 translated = new Vector2((pnode.X - granularity) * reducer, (pnode.Y - granularity) * reducer);
+                                if (translated == Vector2.Zero)
+                                    continue;
                                 if ( x > 1 && cacheAdd.Count > 0)
                                 {
                                     
