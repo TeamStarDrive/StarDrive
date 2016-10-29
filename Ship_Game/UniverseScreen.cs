@@ -1481,11 +1481,11 @@ namespace Ship_Game
             }
         }
 
-        private void pathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
+        private void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
         {
             //this.reducer = (int)(Empire.ProjectorRadius *.5f  );
-            int granularity = (int) (this.Size.X)/reducer;
-            foreach (Empire.InfluenceNode node in empire.BorderNodes)
+            int granularity = (int) (this.Size.X/this.reducer);
+            foreach (var node in empire.BorderNodes)
             {
                 SolarSystem ss = node.KeyedObject as SolarSystem;
                 Planet p = node.KeyedObject as Planet;
@@ -1495,16 +1495,15 @@ namespace Ship_Game
                     weight += 20;
                 if (p != null && weight > 1)
                     weight += 20;
-
-                int ocx = (int) node.Position.X;
-                int ocy = (int) node.Position.Y;
-                ocx /= reducer;
-                ocy /= reducer;
+                float xround = node.Position.X > 0 ? .5f : -.5f;
+                float yround = node.Position.Y > 0 ? .5f : -.5f;
+                int ocx = (int)((node.Position.X / this.reducer)+ xround);
+                int ocy = (int)((node.Position.Y / this.reducer)+ yround);                
                 int cx = ocx + granularity;
                 int cy = ocy + granularity;
-                Vector2 upscale = new Vector2((float)(ocx * reducer),
-                                    (float)(ocy * reducer));
-                if (Vector2.Distance(upscale, node.Position) < node.Radius *.5f)
+                Vector2 upscale = new Vector2((float)(ocx * this.reducer),
+                                    (float)(ocy * this.reducer));
+                if (Vector2.Distance(upscale, node.Position) < node.Radius )
                     grid[cx, cy] = weight;
                 if (weight > 1 || weight ==0 || node.Radius > Empire.ProjectorRadius)
                 {
@@ -1527,11 +1526,11 @@ namespace Ship_Game
                     for (int x = negx; x < posx; x++)
                         for (int y = negy; y < posy; y++)
                         {
-                            if (grid[x, y] >= 80 || grid[x, y] <= weight)
+                            //if (grid[x, y] >= 80 || grid[x, y] <= weight)
                             {
                                 upscale = new Vector2((float) ((x - granularity)*reducer),
                                     (float) ((y - granularity)*reducer));
-                                if (Vector2.Distance(upscale, node.Position) < node.Radius *test)
+                                if (Vector2.Distance(upscale, node.Position) <= node.Radius *test)
                                     grid[x, y] = weight;
                             }
 
@@ -1700,9 +1699,10 @@ namespace Ship_Game
                 if (rebuild)
                 {
                     this.reducer = (int) (Empire.ProjectorRadius*.75f);
-                    int granularity = (int) (this.Size.X)/reducer;
+                    int granularity = (int) (this.Size.X/this.reducer);
                     int elegran = granularity*2;
                     int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
+                   // this.reducer =(int)this.Size.X/elements;
                     byte[,] grid = new byte[elements, elements];
                         //  [granularity*2, granularity*2];     //[1024, 1024];// 
                     for (int x = 0; x < grid.GetLength(0); x++)
@@ -1717,29 +1717,31 @@ namespace Ship_Game
                     {
                         int x = granularity;
                         int y = granularity;
-                        x += (int) (p.Position.X/reducer);
-                        y += (int) (p.Position.Y/reducer);
+                        float xround = p.Position.X > 0 ? .5f : -.5f;
+                        float yround = p.Position.Y > 0 ? .5f : -.5f;
+                        x += (int) (p.Position.X/this.reducer+ xround);
+                        y += (int) (p.Position.Y/this.reducer+ yround);
                         grid[x, y] = 200;
                     }
                     Parallel.ForEach(EmpireManager.EmpireList, empire =>
                     {
                         byte[,] grid1 = (byte[,]) grid.Clone();
-                        pathGridtranslateBordernode(empire, 1, grid1);
+                        PathGridtranslateBordernode(empire, 1, grid1);
 
 
-                        if (true)
+                        if (false)
                             foreach (KeyValuePair<Empire, Relationship> rels in empire.GetRelations())
                             {
                                 if (!rels.Value.Known)
                                     continue;
                                 if (rels.Value.Treaty_Alliance)
                                 {
-                                    pathGridtranslateBordernode(rels.Key, 1, grid1);
+                                    PathGridtranslateBordernode(rels.Key, 1, grid1);
                                 }
                                 if (rels.Value.AtWar)
-                                    pathGridtranslateBordernode(rels.Key, 80, grid1);
+                                    PathGridtranslateBordernode(rels.Key, 80, grid1);
                                 else if (!rels.Value.Treaty_OpenBorders)
-                                    pathGridtranslateBordernode(rels.Key, 0, grid1);
+                                    PathGridtranslateBordernode(rels.Key, 0, grid1);
                             }
 
                         empire.grid = grid1;
@@ -2466,7 +2468,7 @@ namespace Ship_Game
                     }
                     if (system.ExploredDict[this.player] && viewing)
                     {
-                        system.isVisible = (double)this.camHeight < 250000.0;
+                        system.isVisible = this.camHeight < 250000.0;
                     }
                     if (system.isVisible && this.camHeight < 150000.0)
                     {
@@ -3884,7 +3886,7 @@ namespace Ship_Game
                         ship.fleet = this.player.GetFleetsDict()[index];
                     }
                     this.RecomputeFleetButtons(true);
-                    this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);  //fbedard:display new fleet in UI
+                    this.shipListInfoUI.SetShipList(this.SelectedShipList, true);  //fbedard:display new fleet in UI
                 }
             }
             //added by gremlin add ships to exiting fleet
@@ -4630,9 +4632,9 @@ namespace Ship_Game
         {
             if (ship.isConstructor)
             {
-                if(audio)
-                    AudioManager.PlayCue("UI_Misc20");
-                return;
+                if (!audio)
+                    return;
+                AudioManager.PlayCue("UI_Misc20");
             }
             else
             {
@@ -5981,21 +5983,30 @@ namespace Ship_Game
             {
                 foreach (Empire e in EmpireManager.EmpireList)
                 {
-                    if (e.isPlayer || e.isFaction)
-                        continue;
-                    foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values)
-                    {
-                        if (pin.Position != Vector2.Zero) // && pin.InBorders)
+                    //if (e.isPlayer || e.isFaction)
+                    //    continue;
+                    //foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values)
+                    //{
+                    //    if (pin.Position != Vector2.Zero) // && pin.InBorders)
+                    //    {
+                    //        Circle circle = this.DrawSelectionCircles(pin.Position, 50f);
+                    //        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
+                    //        if(pin.InBorders)
+                    //        {
+                    //            circle = this.DrawSelectionCircles(pin.Position, 50f);
+                    //            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, e.EmpireColor);
+                    //        }
+                    //    }
+                    //}
+                    for(int x=0;x < e.grid.GetLength(0);x++)
+                        for (int y = 0; y < e.grid.GetLength(1); y++)
                         {
-                            Circle circle = this.DrawSelectionCircles(pin.Position, 50f);
-                            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
-                            if(pin.InBorders)
-                            {
-                                circle = this.DrawSelectionCircles(pin.Position, 50f);
-                                Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, e.EmpireColor);
-                            }
+                            if (e.grid[x, y] != 1)
+                                continue;
+                            Vector2 translated = new Vector2((x - e.granularity) * reducer, (y - e.granularity) * reducer);
+                            Circle circle = this.DrawSelectionCircles(translated, reducer *.5f);
+                            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 4, e.EmpireColor);
                         }
-                    }
                 }
             }
 
