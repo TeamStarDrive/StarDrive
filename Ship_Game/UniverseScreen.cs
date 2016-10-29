@@ -1729,7 +1729,7 @@ namespace Ship_Game
                         PathGridtranslateBordernode(empire, 1, grid1);
 
 
-                        if (false)
+                        if (true)
                             foreach (KeyValuePair<Empire, Relationship> rels in empire.GetRelations())
                             {
                                 if (!rels.Value.Known)

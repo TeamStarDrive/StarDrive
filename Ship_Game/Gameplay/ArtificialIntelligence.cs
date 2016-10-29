@@ -6571,16 +6571,16 @@ namespace Ship_Game.Gameplay
                             List<Vector2> cacheAdd = new List<Vector2>();
                             byte lastValue =0;
                             int y = pathpoints.Count() - 1;                                                        
-                            for (int x =y; x >= 0; x-=4)                            
+                            for (int x =y; x >= 0; x-=2)                            
                             {
                                 Algorithms.PathFinderNode pnode = pathpoints[x];
                                 var value = this.Owner.loyalty.grid[pnode.X, pnode.Y];
-                                if (value != 1 && lastValue >1)
-                                {
-                                    lastValue--;
-                                    continue;
-                                }
-                                lastValue = value ==1 ?(byte)1 : (byte)2;
+                                //if (value != 1 && lastValue >1)
+                                //{
+                                //    lastValue--;
+                                //    continue;
+                                //}
+                                //lastValue = value ==1 ?(byte)1 : (byte)2;
                                 Vector2 translated = new Vector2((pnode.X - granularity) * reducer, (pnode.Y - granularity) * reducer);
                                 if (translated == Vector2.Zero)
                                     continue;
