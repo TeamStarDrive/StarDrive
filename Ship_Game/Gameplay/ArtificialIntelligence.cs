@@ -1038,9 +1038,9 @@ namespace Ship_Game.Gameplay
             {
                 this.CombatState = CombatState.Evade;
             } //
-            if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Where(troops => troops.IsTroopBay).Count() > 0 || this.Owner.hasTransporter)
+            if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Any(troops => troops.IsTroopBay) || this.Owner.hasTransporter)
             {
-                if (this.Owner.TroopList.Where(troop => troop.GetOwner() == this.Owner.loyalty).Count() > 0 && this.Owner.TroopList.Where(troop => troop.GetOwner() != this.Owner.loyalty).Count() == 0)
+                if ( this.Owner.TroopList.All(troop => troop.GetOwner() == this.Owner.loyalty)) // this.Owner.TroopList.Where(troop => troop.GetOwner() == this.Owner.loyalty).Count() > 0 &&
                 {
                     Planet invadeThis = null;
                     foreach (Planet invade in this.Owner.GetSystem().PlanetList.Where(owner => owner.Owner != null && owner.Owner != this.Owner.loyalty).OrderBy(troops => troops.TroopsHere.Count))
@@ -1061,14 +1061,14 @@ namespace Ship_Game.Gameplay
                                 troop.GetAI().OrderAssaultPlanet(invadeThis);
                             }
                         }
-                        else if (this.Target != null && this.Target is Ship && (this.Target as Ship).shipData.Role >= ShipData.RoleName.drone)
+                        else if (Target is Ship && (this.Target as Ship).shipData.Role >= ShipData.RoleName.drone)
                         {
-                            if (this.Owner.GetHangars().Where(troop => troop.IsTroopBay).Count() * 60 >= (this.Target as Ship).MechanicalBoardingDefense)
+                            if (this.Owner.GetHangars().Count(troop => troop.IsTroopBay) * 60 >= (this.Target as Ship).MechanicalBoardingDefense)
                             {
                                 this.TroopsOut = true;
                                 foreach (ShipModule hangar in this.Owner.GetHangars())
                                 {
-                                    if (hangar.GetHangarShip() == null || this.Target == null || !(hangar.GetHangarShip().shipData.Role == ShipData.RoleName.troop) || ((this.Target as Ship).shipData.Role < ShipData.RoleName.drone))
+                                    if (hangar.GetHangarShip() == null || this.Target == null || hangar.GetHangarShip().shipData.Role != ShipData.RoleName.troop || ((this.Target as Ship).shipData.Role < ShipData.RoleName.drone))
                                     {
                                         continue;
                                     }
@@ -1221,12 +1221,12 @@ namespace Ship_Game.Gameplay
                     this.troopsout = true;
                     return true;
                 }
-                if (this.Owner.GetHangars().Where(troopbay => troopbay.IsTroopBay).Count() == 0)
+                if (!this.Owner.GetHangars().Any(troopbay => troopbay.IsTroopBay))
                 {
                     this.troopsout = true;
                     return true;
                 }
-                if (this.Owner.TroopList.Where(loyalty => loyalty.GetOwner() != this.Owner.loyalty).Count() > 0)
+                if (this.Owner.TroopList.Any(loyalty => loyalty.GetOwner() != this.Owner.loyalty))
                 {
                     this.troopsout = true;
                     return true;
@@ -1467,7 +1467,8 @@ namespace Ship_Game.Gameplay
 			{
 				foreach (Planet p in this.SystemToPatrol.PlanetList)
 				{
-					this.PatrolRoute.Add(p);
+				    var patrolRoute = this.PatrolRoute;
+				    patrolRoute?.Add(p);
 				}
 				if (this.SystemToPatrol.PlanetList.Count == 0)
 				{
@@ -1608,7 +1609,7 @@ namespace Ship_Game.Gameplay
 			}
             else if (this.Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0 || this.Owner.TroopList.Count <= 0 || (this.Owner.shipData.Role != ShipData.RoleName.troop && (this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count() == 0 && !this.Owner.hasTransporter)))//|| goal.TargetPlanet.GetGroundStrength(this.Owner.loyalty)+3 > goal.TargetPlanet.GetGroundStrength(goal.TargetPlanet.Owner)*1.5)
 			{                
-				if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+				if (this.Owner.loyalty == EmpireManager.GetEmpireByName(universeScreen.PlayerLoyalty))
 				{
 					this.HadPO = true;
 				}
@@ -2599,7 +2600,7 @@ namespace Ship_Game.Gameplay
                 vector2.X = position.X;
                 vector2.Y = position.Y + num2;
             }
-            if ((double)num1 == 270.0)
+            if (num1 == 270.0)
             {
                 vector2.X = position.X - num2;
                 vector2.Y = position.Y;
@@ -2970,9 +2971,7 @@ namespace Ship_Game.Gameplay
                                                    //if weapon target is null reset primary target and decrement target change timer.
                                                    if (weapon.fireTarget == null && !this.Owner.isPlayerShip())
                                                    {
-                                                       
-                                                       if (weapon.PrimaryTarget != false)
-                                                           weapon.PrimaryTarget = false;
+                                                       weapon.PrimaryTarget = false;
                                                    }
                                                    //Reasons for this weapon not to fire                    
                                                    if (weapon.fireTarget == null && weapon.TargetChangeTimer >0 ) // ||!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
@@ -6569,12 +6568,12 @@ namespace Ship_Game.Gameplay
                         if (pathpoints != null)
                         {
                             List<Vector2> cacheAdd = new List<Vector2>();
-                            byte lastValue =0;
+                            //byte lastValue =0;
                             int y = pathpoints.Count() - 1;                                                        
                             for (int x =y; x >= 0; x-=2)                            
                             {
                                 Algorithms.PathFinderNode pnode = pathpoints[x];
-                                var value = this.Owner.loyalty.grid[pnode.X, pnode.Y];
+                                //var value = this.Owner.loyalty.grid[pnode.X, pnode.Y];
                                 //if (value != 1 && lastValue >1)
                                 //{
                                 //    lastValue--;
@@ -7713,11 +7712,7 @@ namespace Ship_Game.Gameplay
 
                 if (this.Owner.Mothership != null)
                 {
-                    this.Target = this.ScanForCombatTargets(senseCenter, radius);
-                    if (this.Target == null)
-                    {
-                        this.Target = this.Owner.Mothership.GetAI().Target;
-                    }
+                    this.Target = this.ScanForCombatTargets(senseCenter, radius) ?? this.Owner.Mothership.GetAI().Target;
                 }
                 else
                     this.ScanForCombatTargets(senseCenter, radius);
@@ -7732,11 +7727,7 @@ namespace Ship_Game.Gameplay
             }
             if (this.Owner.fleet != null && this.State == AIState.FormationWarp)
             {
-                bool doreturn = true;
-                if (this.Owner.fleet != null && this.State == AIState.FormationWarp && Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset) < 15000f)
-                {
-                    doreturn = false;
-                }
+                bool doreturn = !(this.Owner.fleet != null && this.State == AIState.FormationWarp && Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset) < 15000f);
                 if (doreturn)
                 {
                     //if (this.Owner.engineState == Ship.MoveState.Sublight && this.NearbyShips.Count > 0)
@@ -8618,7 +8609,7 @@ namespace Ship_Game.Gameplay
                         {
                             if (this.FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && this.Owner.Ordinance > 0)
                                 this.DoOrdinanceTransporterLogic(module);
-                            if (module.TransporterTroopAssault > 0 && this.Owner.TroopList.Count() > 0)
+                            if (module.TransporterTroopAssault > 0 && this.Owner.TroopList.Any())
                                 this.DoAssaultTransporterLogic(module);
                         }
                     }
