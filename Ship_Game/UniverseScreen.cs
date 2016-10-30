@@ -260,12 +260,12 @@ namespace Ship_Game
         //private int cursorFrame;
         private float radlast;
         private int SelectorFrame;
-        //private float garbageCollector;          //Not referenced in code, removing to save memory -Gretman
-        //private float garbargeCollectorBase = 10;          //Not referenced in code, removing to save memory -Gretman
+        //private float garbageCollector;          //Not referenced in code, removing to save memory
+        //private float garbargeCollectorBase = 10;          //Not referenced in code, removing to save memory
         public static bool debug;
         public int globalshipCount;
         public int empireShipCountReserve;
-        //private float ztimeSnapShot;          //Not referenced in code, removing to save memory -Gretman
+        //private float ztimeSnapShot;          //Not referenced in code, removing to save memory
         private int incrementTimer=0;
         public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
         //public ConcurrentBag<Ship> ShipPool = new ConcurrentBag<Ship>();
@@ -781,7 +781,7 @@ namespace Ship_Game
             this.transitionElapsedTime = 0.0f;
         }
 
-        //public void GenerateArm(int numOfStars, float rotation)       //Not referenced in code, commenting out so I can code search without this coming up. -Gretman
+        //public void GenerateArm(int numOfStars, float rotation)       //Not referenced in code, commenting out so I can code search without this coming up.
         //{
         //    Random random = new Random();
         //    Vector2 vector2 = new Vector2(this.Size.X / 2f, this.Size.Y / 2f);
@@ -5978,7 +5978,7 @@ namespace Ship_Game
                 catch
                 {
                 }
-            }            
+            }   //MARK:DrawCustomStuffForDebug         
             if (this.Debug) //input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && 
             {
                 foreach (Empire e in EmpireManager.EmpireList)
@@ -5998,15 +5998,15 @@ namespace Ship_Game
                     //        }
                     //    }
                     //}
-                    for(int x=0;x < e.grid.GetLength(0);x++)
-                        for (int y = 0; y < e.grid.GetLength(1); y++)
-                        {
-                            if (e.grid[x, y] != 1)
-                                continue;
-                            Vector2 translated = new Vector2((x - e.granularity) * reducer, (y - e.granularity) * reducer);
-                            Circle circle = this.DrawSelectionCircles(translated, reducer *.5f);
-                            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 4, e.EmpireColor);
-                        }
+                    //for(int x=0;x < e.grid.GetLength(0);x++)
+                    //    for (int y = 0; y < e.grid.GetLength(1); y++)
+                    //    {
+                    //        if (e.grid[x, y] != 1)
+                    //            continue;
+                    //        Vector2 translated = new Vector2((x - e.granularity) * reducer, (y - e.granularity) * reducer);
+                    //        Circle circle = this.DrawSelectionCircles(translated, reducer *.5f);
+                    //        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 4, e.EmpireColor);
+                    //    }
                 }
             }
 
