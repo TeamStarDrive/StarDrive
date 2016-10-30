@@ -238,7 +238,7 @@ namespace Ship_Game.Gameplay
 
         public float OffPowerMod = 1f;
 
-        //public bool ExplosionFlash;          //Not referenced in code, removing to save memory -Gretman
+        //public bool ExplosionFlash;          //Not referenced in code, removing to save memory
 
         public bool RangeVariance;
 

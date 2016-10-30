@@ -41,7 +41,7 @@ namespace Ship_Game.Gameplay
 		//public List<Ship> PotentialTargets = new List<Ship>();
         public BatchRemovalCollection<Ship> PotentialTargets = new BatchRemovalCollection<Ship>();
 
-        //private Vector2 direction = Vector2.Zero;     //Not referenced in code, removing to save memory -Gretman
+        //private Vector2 direction = Vector2.Zero;     //Not referenced in code, removing to save memory
 
         private int resupplystep;
 
@@ -63,7 +63,7 @@ namespace Ship_Game.Gameplay
 
 		public Guid SystemToDefendGuid;
 
-        //private List<SolarSystem> SystemsToExplore = new List<SolarSystem>();         //Not referenced in code, removing to save memory -Gretman
+        //private List<SolarSystem> SystemsToExplore = new List<SolarSystem>();         //Not referenced in code, removing to save memory
 
         public SolarSystem ExplorationTarget;
 
@@ -71,7 +71,7 @@ namespace Ship_Game.Gameplay
 
 		public Guid EscortTargetGuid;
 
-        //private List<float> Distances = new List<float>();            //Not referenced in code, removing to save memory -Gretman
+        //private List<float> Distances = new List<float>();            //Not referenced in code, removing to save memory
 
         private float findNewPosTimer;
 
@@ -79,7 +79,7 @@ namespace Ship_Game.Gameplay
 
 		private Planet awaitClosest;
 
-        //public bool inOrbit;          //Not referenced in code, removing to save memory -Gretman
+        //public bool inOrbit;          //Not referenced in code, removing to save memory
 
         private Vector2 OrbitPos;
 
@@ -87,7 +87,7 @@ namespace Ship_Game.Gameplay
 
 		public bool HasPriorityOrder;
 
-        //private Vector2 negativeRotation = Vector2.One;          //Not referenced in code, removing to save memory -Gretman
+        //private Vector2 negativeRotation = Vector2.One;          //Not referenced in code, removing to save memory
 
         public int GotoStep;
 
@@ -122,7 +122,7 @@ namespace Ship_Game.Gameplay
 
 		public string FoodOrProd;
 
-		//private float moveTimer;          //Not referenced in code, removing to save memory -Gretman
+		//private float moveTimer;          //Not referenced in code, removing to save memory
 
         public bool hasPriorityTarget;
 
@@ -134,7 +134,7 @@ namespace Ship_Game.Gameplay
 
 		public Guid TargetGuid;
 
-        //public Guid ColonizeTargetGuid;          //Not referenced in code, removing to save memory -Gretman
+        //public Guid ColonizeTargetGuid;          //Not referenced in code, removing to save memory
 
         public Planet ColonizeTarget;
 
@@ -1038,9 +1038,9 @@ namespace Ship_Game.Gameplay
             {
                 this.CombatState = CombatState.Evade;
             } //
-            if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Where(troops => troops.IsTroopBay).Count() > 0 || this.Owner.hasTransporter)
+            if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Any(troops => troops.IsTroopBay) || this.Owner.hasTransporter)
             {
-                if (this.Owner.TroopList.Where(troop => troop.GetOwner() == this.Owner.loyalty).Count() > 0 && this.Owner.TroopList.Where(troop => troop.GetOwner() != this.Owner.loyalty).Count() == 0)
+                if ( this.Owner.TroopList.All(troop => troop.GetOwner() == this.Owner.loyalty)) // this.Owner.TroopList.Where(troop => troop.GetOwner() == this.Owner.loyalty).Count() > 0 &&
                 {
                     Planet invadeThis = null;
                     foreach (Planet invade in this.Owner.GetSystem().PlanetList.Where(owner => owner.Owner != null && owner.Owner != this.Owner.loyalty).OrderBy(troops => troops.TroopsHere.Count))
@@ -1061,14 +1061,14 @@ namespace Ship_Game.Gameplay
                                 troop.GetAI().OrderAssaultPlanet(invadeThis);
                             }
                         }
-                        else if (this.Target != null && this.Target is Ship && (this.Target as Ship).shipData.Role >= ShipData.RoleName.drone)
+                        else if (Target is Ship && (this.Target as Ship).shipData.Role >= ShipData.RoleName.drone)
                         {
-                            if (this.Owner.GetHangars().Where(troop => troop.IsTroopBay).Count() * 60 >= (this.Target as Ship).MechanicalBoardingDefense)
+                            if (this.Owner.GetHangars().Count(troop => troop.IsTroopBay) * 60 >= (this.Target as Ship).MechanicalBoardingDefense)
                             {
                                 this.TroopsOut = true;
                                 foreach (ShipModule hangar in this.Owner.GetHangars())
                                 {
-                                    if (hangar.GetHangarShip() == null || this.Target == null || !(hangar.GetHangarShip().shipData.Role == ShipData.RoleName.troop) || ((this.Target as Ship).shipData.Role < ShipData.RoleName.drone))
+                                    if (hangar.GetHangarShip() == null || this.Target == null || hangar.GetHangarShip().shipData.Role != ShipData.RoleName.troop || ((this.Target as Ship).shipData.Role < ShipData.RoleName.drone))
                                     {
                                         continue;
                                     }
@@ -1221,12 +1221,12 @@ namespace Ship_Game.Gameplay
                     this.troopsout = true;
                     return true;
                 }
-                if (this.Owner.GetHangars().Where(troopbay => troopbay.IsTroopBay).Count() == 0)
+                if (!this.Owner.GetHangars().Any(troopbay => troopbay.IsTroopBay))
                 {
                     this.troopsout = true;
                     return true;
                 }
-                if (this.Owner.TroopList.Where(loyalty => loyalty.GetOwner() != this.Owner.loyalty).Count() > 0)
+                if (this.Owner.TroopList.Any(loyalty => loyalty.GetOwner() != this.Owner.loyalty))
                 {
                     this.troopsout = true;
                     return true;
@@ -1467,7 +1467,8 @@ namespace Ship_Game.Gameplay
 			{
 				foreach (Planet p in this.SystemToPatrol.PlanetList)
 				{
-					this.PatrolRoute.Add(p);
+				    var patrolRoute = this.PatrolRoute;
+				    patrolRoute?.Add(p);
 				}
 				if (this.SystemToPatrol.PlanetList.Count == 0)
 				{
@@ -1608,7 +1609,7 @@ namespace Ship_Game.Gameplay
 			}
             else if (this.Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0 || this.Owner.TroopList.Count <= 0 || (this.Owner.shipData.Role != ShipData.RoleName.troop && (this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count() == 0 && !this.Owner.hasTransporter)))//|| goal.TargetPlanet.GetGroundStrength(this.Owner.loyalty)+3 > goal.TargetPlanet.GetGroundStrength(goal.TargetPlanet.Owner)*1.5)
 			{                
-				if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+				if (this.Owner.loyalty == EmpireManager.GetEmpireByName(universeScreen.PlayerLoyalty))
 				{
 					this.HadPO = true;
 				}
@@ -2599,7 +2600,7 @@ namespace Ship_Game.Gameplay
                 vector2.X = position.X;
                 vector2.Y = position.Y + num2;
             }
-            if ((double)num1 == 270.0)
+            if (num1 == 270.0)
             {
                 vector2.X = position.X - num2;
                 vector2.Y = position.Y;
@@ -2970,9 +2971,7 @@ namespace Ship_Game.Gameplay
                                                    //if weapon target is null reset primary target and decrement target change timer.
                                                    if (weapon.fireTarget == null && !this.Owner.isPlayerShip())
                                                    {
-                                                       
-                                                       if (weapon.PrimaryTarget != false)
-                                                           weapon.PrimaryTarget = false;
+                                                       weapon.PrimaryTarget = false;
                                                    }
                                                    //Reasons for this weapon not to fire                    
                                                    if (weapon.fireTarget == null && weapon.TargetChangeTimer >0 ) // ||!weapon.moduleAttachedTo.Active || weapon.timeToNextFire > 0f || !weapon.moduleAttachedTo.Powered || weapon.IsRepairDrone || weapon.isRepairBeam)
@@ -3396,7 +3395,7 @@ namespace Ship_Game.Gameplay
 			this.State = AIState.Rebase;
 			this.OrbitTarget = p;
 			this.findNewPosTimer = 0f;
-            //this.moveTimer = 0f;          //Not referenced in code, removing to save memory -Gretman
+            //this.moveTimer = 0f;          //Not referenced in code, removing to save memory
             this.GotoStep = 0;
 			this.HasPriorityOrder = true;
 			this.MovePosition.X = p.Position.X;
@@ -6569,12 +6568,12 @@ namespace Ship_Game.Gameplay
                         if (pathpoints != null)
                         {
                             List<Vector2> cacheAdd = new List<Vector2>();
-                            byte lastValue =0;
+                            //byte lastValue =0;
                             int y = pathpoints.Count() - 1;                                                        
                             for (int x =y; x >= 0; x-=2)                            
                             {
                                 Algorithms.PathFinderNode pnode = pathpoints[x];
-                                var value = this.Owner.loyalty.grid[pnode.X, pnode.Y];
+                                //var value = this.Owner.loyalty.grid[pnode.X, pnode.Y];
                                 //if (value != 1 && lastValue >1)
                                 //{
                                 //    lastValue--;
@@ -7713,11 +7712,7 @@ namespace Ship_Game.Gameplay
 
                 if (this.Owner.Mothership != null)
                 {
-                    this.Target = this.ScanForCombatTargets(senseCenter, radius);
-                    if (this.Target == null)
-                    {
-                        this.Target = this.Owner.Mothership.GetAI().Target;
-                    }
+                    this.Target = this.ScanForCombatTargets(senseCenter, radius) ?? this.Owner.Mothership.GetAI().Target;
                 }
                 else
                     this.ScanForCombatTargets(senseCenter, radius);
@@ -7732,11 +7727,7 @@ namespace Ship_Game.Gameplay
             }
             if (this.Owner.fleet != null && this.State == AIState.FormationWarp)
             {
-                bool doreturn = true;
-                if (this.Owner.fleet != null && this.State == AIState.FormationWarp && Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset) < 15000f)
-                {
-                    doreturn = false;
-                }
+                bool doreturn = !(this.Owner.fleet != null && this.State == AIState.FormationWarp && Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset) < 15000f);
                 if (doreturn)
                 {
                     //if (this.Owner.engineState == Ship.MoveState.Sublight && this.NearbyShips.Count > 0)
@@ -8096,84 +8087,47 @@ namespace Ship_Game.Gameplay
             float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
             float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
 
+            float TurnRate = this.Owner.TurnThrust / this.Owner.Mass / 700f;
+
             #region Warp
-            if (angleDiff > 0.25f && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)
+
+            if (angleDiff * 1.25f > TurnRate && Distance > 2500f && this.Owner.engineState == Ship.MoveState.Warp)      //Might be a turning issue
             {
-                if (this.ActiveWayPoints.Count >= 2)        //Still more waypoints to go
-                {
-                    float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
-                    float DistToNext = Vector2.Distance(this.Owner.Position, this.ActiveWayPoints.ElementAt<Vector2>(1));
-                    if (DistToNext < 50000f)
+                if (angleDiff > 1.0f) this.Owner.HyperspaceReturn();      //Too sharp of a turn. Drop out of warp
+                else {
+                    float WarpSpeed = (this.Owner.WarpThrust / this.Owner.Mass + 0.1f) * this.Owner.loyalty.data.FTLModifier;
+                    if (this.Owner.inborders && this.Owner.loyalty.data.Traits.InBordersSpeedBonus > 0) WarpSpeed *= 1 + this.Owner.loyalty.data.Traits.InBordersSpeedBonus;
+
+                    if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("AngleDiff: " + angleDiff + "     TurnRate = " + TurnRate + "     WarpSpeed = " + WarpSpeed + "     Distance = " + Distance);
+                    //AngleDiff: 1.500662     TurnRate = 0.2491764     WarpSpeed = 26286.67     Distance = 138328.4
+
+                    if (this.ActiveWayPoints.Count >= 2 && Distance > Empire.ProjectorRadius / 2 && Vector2.Distance(this.Owner.Center, this.ActiveWayPoints.ElementAt(1)) < Empire.ProjectorRadius * 5)
                     {
-                        if (angleDiffToNext > 0.65f) this.Owner.HyperspaceReturn();
-                        else if (angleDiffToNext > 0.35f)
+                        Vector2 wantedForwardNext = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt(1)));
+                        float angleDiffNext = (float)Math.Acos((double)Vector2.Dot(wantedForwardNext, forward));
+                        if (angleDiff > angleDiffNext || angleDiffNext < TurnRate * 0.5) //Angle to next waypoint is better than angle to this one, just cut the corner.
                         {
-                            speedLimit = speedLimit * 0.75f;
-                            if (!this.Owner.FTLSlowTurnBoost)
-                            {
-                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
-                                this.Owner.FTLSlowTurnBoost = true;
-                            }
+                            lock (this.wayPointLocker)      this.ActiveWayPoints.Dequeue();
+                            if (this.OrderQueue.Count > 0)      this.OrderQueue.RemoveFirst();
+                            return;
                         }
                     }
-                    else if (DistToNext > 50000f)
+                    //                          Turn per tick         ticks left          Speed per tic
+                    else if (angleDiff > (TurnRate / elapsedTime) * (Distance / (WarpSpeed / elapsedTime) ) )       //Can we make the turn in the distance we have remaining?
                     {
-                        if (angleDiffToNext > 1.45f) this.Owner.HyperspaceReturn();
-                        else if (angleDiffToNext > 0.85f)
-                        {
-                            speedLimit = speedLimit * 0.75f;
-                            if (!this.Owner.FTLSlowTurnBoost)
-                            {
-                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
-                                this.Owner.FTLSlowTurnBoost = true;
-                            }
-                        }
+                        this.Owner.WarpThrust -= this.Owner.NormalWarpThrust * 0.02f;   //Reduce warpthrust by 2 percent every frame until this is an acheivable turn
+                    }
+                    else if (this.Owner.WarpThrust < this.Owner.NormalWarpThrust)
+                    {
+                        this.Owner.WarpThrust += this.Owner.NormalWarpThrust * 0.01f;   //Increase warpthrust back to normal 1 percent at a time
+                        if (this.Owner.WarpThrust > this.Owner.NormalWarpThrust) this.Owner.WarpThrust = this.Owner.NormalWarpThrust;    //Make sure we dont accidentally go over
                     }
                 }
-                else if (this.ActiveWayPoints.Count == 1)       //Last part of journey
-                {
-                    if (Distance < 35000f)
-                    {
-                        if (angleDiff > 0.65f) this.Owner.HyperspaceReturn();
-                        else if (angleDiff > 0.35f)
-                        {
-                            speedLimit = speedLimit * 0.75f;
-                            if (!this.Owner.FTLSlowTurnBoost)
-                            {
-                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
-                                this.Owner.FTLSlowTurnBoost = true;
-                            }
-                        }
-                    }
-                    else if (Distance > 35000f)
-                    {
-                        if (angleDiff > 1.65f) this.Owner.HyperspaceReturn();
-                        else if (angleDiff > 0.85f)
-                        {
-                            speedLimit = speedLimit * 0.75f;
-                            if (!this.Owner.FTLSlowTurnBoost)
-                            {
-                                this.Owner.TurnThrust = this.Owner.TurnThrust * 1.33f;      //This will be reset back to normal with the 1s ship updates
-                                this.Owner.FTLSlowTurnBoost = true;
-                            }
-                        }
-                    }
-                }
-                else if (this.Target != null)
-                {
-                    if (angleDiff > 0.4f) this.Owner.HyperspaceReturn();
-                    else if (Distance > 25000f) this.Owner.HyperspaceReturn();
-                }
-                else if (  (this.State != AIState.Bombard && this.State != AIState.AssaultPlanet && this.State != AIState.BombardTroops && !this.IgnoreCombat) || this.OrderQueue.Count <= 0)
-                {
-                    this.Owner.HyperspaceReturn();
-                }
-                else if (this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet != null)
-                {
-                    float dest = Vector2.Distance(this.OrderQueue.Last<ArtificialIntelligence.ShipGoal>().TargetPlanet.Position, this.Owner.Center);
-                    if (angleDiff > 0.4f) this.Owner.HyperspaceReturn();
-                    else if (dest > 25000f) this.Owner.HyperspaceReturn();    //Is this supposed to be less than?
-                }
+            }
+            else if (this.Owner.WarpThrust < this.Owner.NormalWarpThrust && angleDiff < TurnRate) //Intentional allowance of the 25% added to angle diff in main if, so it wont accelerate too soon
+            {
+                this.Owner.WarpThrust += this.Owner.NormalWarpThrust * 0.01f;   //Increase warpthrust back to normal 1 percent at a time
+                if (this.Owner.WarpThrust > this.Owner.NormalWarpThrust) this.Owner.WarpThrust = this.Owner.NormalWarpThrust;    //Make sure we dont accidentally go over
             }
 
             #endregion
@@ -8201,16 +8155,9 @@ namespace Ship_Game.Gameplay
             {
                 if (Distance > 7500f && !this.Owner.InCombat && angleDiff < 0.25f) this.Owner.EngageStarDrive();
                 else if (Distance > 15000f && this.Owner.InCombat && angleDiff < 0.25f) this.Owner.EngageStarDrive();
-
-                this.Owner.Velocity = this.Owner.Velocity + (Vector2.Normalize(forward) * (elapsedTime * speedLimit));
-                if (this.Owner.Velocity.Length() > speedLimit)
-                {
-                    this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * speedLimit;
-                }
             }
             else        //In a fleet
             {
-                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("I think i'm in a fleet.");
                 if (Distance > 7500f)   //Not near destination
                 {
                     bool fleetReady = true;
@@ -8662,7 +8609,7 @@ namespace Ship_Game.Gameplay
                         {
                             if (this.FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && this.Owner.Ordinance > 0)
                                 this.DoOrdinanceTransporterLogic(module);
-                            if (module.TransporterTroopAssault > 0 && this.Owner.TroopList.Count() > 0)
+                            if (module.TransporterTroopAssault > 0 && this.Owner.TroopList.Any())
                                 this.DoAssaultTransporterLogic(module);
                         }
                     }

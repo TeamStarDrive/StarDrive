@@ -44,9 +44,9 @@ namespace Ship_Game
         private float FleetUpdateTimer = 5f;
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private int numberForAverage = 1;
-        //public int ColonizationGoalCount = 2;          //Not referenced in code, removing to save memory -Gretman
+        //public int ColonizationGoalCount = 2;          //Not referenced in code, removing to save memory
         public string ResearchTopic = "";
-        //private List<War> Wars = new List<War>();          //Not referenced in code, removing to save memory -Gretman
+        //private List<War> Wars = new List<War>();          //Not referenced in code, removing to save memory
         private Fleet DefensiveFleet = new Fleet();
         private BatchRemovalCollection<Ship> ForcePool = new BatchRemovalCollection<Ship>();
         public EmpireData data;
@@ -57,7 +57,7 @@ namespace Ship_Game
         public float Research;
         public Color EmpireColor;
         public static UniverseScreen universeScreen;
-        //public Vector4 VColor;          //Not referenced in code, removing to save memory -Gretman
+        //public Vector4 VColor;          //Not referenced in code, removing to save memory
         private GSAI GSAI;
         //private MilitaryResearchStrategy militaryResearchStrategy;
         private EconomicResearchStrategy economicResearchStrategy;
@@ -71,8 +71,8 @@ namespace Ship_Game
         public float totalMaint;
         public float GrossTaxes;
         public float OtherIncome;
-        //public float DisplayIncome;          //Not referenced in code, removing to save memory -Gretman
-        //public float ActualNetLastTurn;          //Not referenced in code, removing to save memory -Gretman
+        //public float DisplayIncome;          //Not referenced in code, removing to save memory
+        //public float ActualNetLastTurn;          //Not referenced in code, removing to save memory
         public float TradeMoneyAddedThisTurn;
         public float MoneyLastTurn;
         public int totalTradeIncome;
@@ -86,8 +86,8 @@ namespace Ship_Game
         public float ExpansionScore;
         public float MilitaryScore;
         public float IndustrialScore;
-        //public float SensorRange;          //Not referenced in code, removing to save memory -Gretman
-        //public bool IsSensor;          //Not referenced in code, removing to save memory -Gretman
+        //public float SensorRange;          //Not referenced in code, removing to save memory
+        //public bool IsSensor;          //Not referenced in code, removing to save memory
         //private float desiredForceStrength;
         public Planet Capital;
         public int EmpireShipCountReserve;
@@ -516,9 +516,9 @@ namespace Ship_Game
                 fleet.Name = str + " fleet";
                 this.FleetsDict.TryAdd(key, fleet);
             }
-            //bool excluded = false;          //Not referenced in code, removing to save memory -Gretman
+            //bool excluded = false;          //Not referenced in code, removing to save memory
             List<string> shipkill = new List<string>();
-            //int shipsPurged = 0;          //Not referenced in code, removing to save memory -Gretman
+            //int shipsPurged = 0;          //Not referenced in code, removing to save memory
             float SpaceSaved = GC.GetTotalMemory(true);
 
             if (string.IsNullOrEmpty(this.data.DefaultTroopShip))
@@ -784,9 +784,9 @@ namespace Ship_Game
                 fleet.Name = str + " fleet";
                 this.FleetsDict.TryAdd(key, fleet);
             }
-            //bool excluded = false;          //Not referenced in code, removing to save memory -Gretman
+            //bool excluded = false;          //Not referenced in code, removing to save memory
             List<string> shipkill = new List<string>();
-            //int shipsPurged = 0;          //Not referenced in code, removing to save memory -Gretman
+            //int shipsPurged = 0;          //Not referenced in code, removing to save memory
             float SpaceSaved = GC.GetTotalMemory(true);
 
             if (string.IsNullOrEmpty(this.data.DefaultTroopShip))
