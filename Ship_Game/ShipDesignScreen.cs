@@ -1583,13 +1583,13 @@ namespace Ship_Game
 			this.ArcsButton.DrawWithShadowCaps(base.ScreenManager);
 			if (this.Debug)
 			{
-				Vector2 Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString("Debug").X, 120f);
+				Vector2 Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
 				HelperFunctions.DrawDropShadowText(base.ScreenManager, "Debug", Pos, Fonts.Arial20Bold);
-				Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(this.operation.ToString()).X, 140f);
+				Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(this.operation.ToString()).X / 2, 140f);
 				HelperFunctions.DrawDropShadowText(base.ScreenManager, this.operation.ToString(), Pos, Fonts.Arial20Bold);
 #if SHIPYARD
                 string Ratios = "I: " + TotalI + "      O: " + TotalO + "      E: " + TotalE + "      IO: " + TotalIO + "      IE: " + TotalIE + "      OE: " + TotalOE + "      IOE: " + TotalIOE;
-                Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(Ratios).X, 180f);
+                Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(Ratios).X / 2, 180f);
                 HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, Pos, Fonts.Arial20Bold);
 #endif
             }			this.close.Draw(base.ScreenManager);

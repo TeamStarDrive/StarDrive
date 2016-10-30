@@ -361,7 +361,7 @@ namespace Ship_Game
 			troop.Range = t.Range;
 			troop.Description = t.Description;
 			troop.HardAttack = t.HardAttack;
-            //troop.Initiative = t.Initiative;          //Not referenced in code, removing to save memory -Gretman
+            //troop.Initiative = t.Initiative;          //Not referenced in code, removing to save memory
             troop.SoftAttack = t.SoftAttack;
 			troop.Strength = t.Strength;
 			troop.StrengthMax = t.StrengthMax;
@@ -1005,7 +1005,7 @@ namespace Ship_Game
 				Name = t.Name,
 				Description = t.Description,
 				HardAttack = t.HardAttack,
-                //Initiative = t.Initiative,          //Not referenced in code, removing to save memory -Gretman
+                //Initiative = t.Initiative,          //Not referenced in code, removing to save memory
                 SoftAttack = t.SoftAttack,
 				Strength = t.Strength,
                 StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength,
@@ -1501,7 +1501,7 @@ namespace Ship_Game
 				//shield_recharge_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_rate,
 				//TechLevel = Ship_Game.ResourceManager.ShipModulesDict[uid].TechLevel,
 				//thrust = Ship_Game.ResourceManager.ShipModulesDict[uid].thrust,
-                //TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,    //Not referenced in code, removing to save memory -Gretman
+                //TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,    //Not referenced in code, removing to save memory
                 //TroopCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopCapacity,
 				//TroopsSupplied = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopsSupplied,
 				UID = Ship_Game.ResourceManager.ShipModulesDict[uid].UID,
@@ -1526,16 +1526,16 @@ namespace Ship_Game
 				PermittedHangarRoles = Ship_Game.ResourceManager.ShipModulesDict[uid].PermittedHangarRoles,
 				//MaximumHangarShipSize = Ship_Game.ResourceManager.ShipModulesDict[uid].MaximumHangarShipSize,
 				//IsRepairModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsRepairModule,
-                //MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,    //Not referenced in code, removing to save memory -Gretman
-                //MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,    //Not referenced in code, removing to save memory -Gretman
-                //MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,    //Not referenced in code, removing to save memory -Gretman
+                //MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,    //Not referenced in code, removing to save memory
+                //MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,    //Not referenced in code, removing to save memory
+                //MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,    //Not referenced in code, removing to save memory
                 //WarpMassCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpMassCapacity,
 				//PowerDrawAtWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDrawAtWarp,
 				//FTLSpeed = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpeed,
 				//ResourceStored = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStored,
-                //ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,    //Not referenced in code, removing to save memory -Gretman
-                //ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,    //Not referenced in code, removing to save memory -Gretman
-                //ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,    //Not referenced in code, removing to save memory -Gretman
+                //ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,    //Not referenced in code, removing to save memory
+                //ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,    //Not referenced in code, removing to save memory
+                //ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,    //Not referenced in code, removing to save memory
                 //ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
 				//IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
 				//shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
@@ -1864,7 +1864,7 @@ namespace Ship_Game
                 TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
                 ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen,
                 RangeVariance = Ship_Game.ResourceManager.WeaponsDict[uid].RangeVariance,
-                //ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,          //Not referenced in code, removing to save memory -Gretman
+                //ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,          //Not referenced in code, removing to save memory
                 AltFireMode = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireMode,
                 AltFireTriggerFighter = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireTriggerFighter,
                 SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire,
@@ -3176,8 +3176,8 @@ namespace Ship_Game
 
 
 
-            //bool fighters = false;          //Not referenced in code, removing to save memory -Gretman
-            //bool weapons = false;          //Not referenced in code, removing to save memory -Gretman
+            //bool fighters = false;          //Not referenced in code, removing to save memory
+            //bool weapons = false;          //Not referenced in code, removing to save memory
             //ModuleSlot slot = moduleslot;
             //foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
             {

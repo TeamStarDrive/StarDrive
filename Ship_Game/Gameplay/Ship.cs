@@ -31,7 +31,7 @@ namespace Ship_Game.Gameplay
         public List<Rectangle> AreaOfOperation = new List<Rectangle>();
         public bool RecallFightersBeforeFTL = true;
         private Dictionary<Vector2, ModuleSlot> ModulesDictionary = new Dictionary<Vector2, ModuleSlot>();
-        //public float DefaultFTLSpeed = 1000f;    //Not referenced in code, removing to save memory -Gretman
+        //public float DefaultFTLSpeed = 1000f;    //Not referenced in code, removing to save memory
         public float RepairRate = 1f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
@@ -44,15 +44,15 @@ namespace Ship_Game.Gameplay
         public bool TradingFood = true;
         public bool TradingProd = true;
         public bool ShieldsUp = true;
-        //public float AfterBurnerAmount = 20.5f;    //Not referenced in code, removing to save memory -Gretman
-        //protected Color CloakColor = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);    //Not referenced in code, removing to save memory -Gretman
-        //public float CloakTime = 5f;    //Not referenced in code, removing to save memory -Gretman
-        //public Vector2 Origin = new Vector2(256f, 256f);        //Not referenced in code, removing to save memory -Gretman
+        //public float AfterBurnerAmount = 20.5f;    //Not referenced in code, removing to save memory
+        //protected Color CloakColor = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);    //Not referenced in code, removing to save memory
+        //public float CloakTime = 5f;    //Not referenced in code, removing to save memory
+        //public Vector2 Origin = new Vector2(256f, 256f);        //Not referenced in code, removing to save memory
         public LinkedList<ModuleSlot> ModuleSlotList = new LinkedList<ModuleSlot>();
         private BatchRemovalCollection<Projectile> projectiles = new BatchRemovalCollection<Projectile>();
         private BatchRemovalCollection<Beam> beams = new BatchRemovalCollection<Beam>();
         public List<Weapon> Weapons = new List<Weapon>();
-        //public float fireThresholdSquared = 0.25f;    //Not referenced in code, removing to save memory -Gretman
+        //public float fireThresholdSquared = 0.25f;    //Not referenced in code, removing to save memory
         public List<ModuleSlot> ExternalSlots = new List<ModuleSlot>();
         protected float JumpTimer = 3f;
         public BatchRemovalCollection<ProjectileTracker> ProjectilesFired = new BatchRemovalCollection<ProjectileTracker>();
@@ -91,10 +91,10 @@ namespace Ship_Game.Gameplay
         public int kills;
         public float experience;
         public bool EnginesKnockedOut;
-        //protected float ThrustLast;    //Not referenced in code, removing to save memory -Gretman
+        //protected float ThrustLast;    //Not referenced in code, removing to save memory
         public float InCombatTimer;
         public bool isTurning;
-        //public bool PauseUpdate;      //Not used in code, removing to save memory -Gretman
+        //public bool PauseUpdate;      //Not used in code, removing to save memory
         public float InhibitionRadius;
         private KeyboardState lastKBState;
         private KeyboardState currentKeyBoardState;
@@ -111,17 +111,17 @@ namespace Ship_Game.Gameplay
         public float DamageModifier;
         public Empire loyalty;
         public int Size;
-        //public int CrewRequired;    //Not referenced in code, removing to save memory -Gretman
-        //public int CrewSupplied;    //Not referenced in code, removing to save memory -Gretman
+        //public int CrewRequired;    //Not referenced in code, removing to save memory
+        //public int CrewSupplied;    //Not referenced in code, removing to save memory
         public float Ordinance;
         public float OrdinanceMax;
-        //public float scale;    //Not referenced in code, removing to save memory -Gretman
+        //public float scale;    //Not referenced in code, removing to save memory
         public ShipModuleNode FirstNode;
         protected ArtificialIntelligence AI;
         public float speed;
         public float Thrust;
         public float velocityMaximum;
-        //public double armor_percent;    //Not referenced in code, removing to save memory -Gretman
+        //public double armor_percent;    //Not referenced in code, removing to save memory
         public double shield_percent;
         public float armor_max;
         public float shield_max;
@@ -139,9 +139,9 @@ namespace Ship_Game.Gameplay
         public bool HasRepairModule;
         private Cue Afterburner;
         public bool isSpooling;
-        //protected SolarSystem JumpTarget;   //Not referenced in code, removing to save memory -Gretman
+        //protected SolarSystem JumpTarget;   //Not referenced in code, removing to save memory
         //protected Cue hyperspace;           //Removed to save space, because this is set to null in ship initilizer, and never reassigned. -Gretman
-        //protected Cue hyperspace_return;    //Not referenced in code, removing to save memory -Gretman
+        //protected Cue hyperspace_return;    //Not referenced in code, removing to save memory
         private Cue Jump;
         public float InhibitedTimer;
         public int Level;
@@ -152,7 +152,7 @@ namespace Ship_Game.Gameplay
         public float OrdAddedPerSecond;
         public bool HasTroopBay;
         public bool ModulesInitialized;
-        //public bool WeaponCentered;    //Not referenced in code, removing to save memory -Gretman
+        //public bool WeaponCentered;    //Not referenced in code, removing to save memory
         protected Cue drone;
         public float ShieldRechargeTimer;
         public bool InCombat;
@@ -161,11 +161,11 @@ namespace Ship_Game.Gameplay
         public float xRotation;
         public Ship.MoveState engineState;
         public float ScreenRadius;
-        //public float ScreenSensorRadius;    //Not referenced in code, removing to save memory -Gretman
+        //public float ScreenSensorRadius;    //Not referenced in code, removing to save memory
         public bool InFrustum;
         public bool NeedRecalculate;
         public bool Deleted;
-        //public float CargoMass;    //Not referenced in code, removing to save memory -Gretman
+        //public float CargoMass;    //Not referenced in code, removing to save memory
         public bool inborders;
         private bool fightersOut;
         private bool troopsOut;
@@ -205,20 +205,21 @@ namespace Ship_Game.Gameplay
 
         public float RangeForOverlay;
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
-        //Random shiprandom = new Random();    //Not referenced in code, removing to save memory -Gretman
+        //Random shiprandom = new Random();    //Not referenced in code, removing to save memory
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         List<ModuleSlot> AttackerTargetting = new List<ModuleSlot>();
         public sbyte TrackingPower = 0;
         public sbyte FixedTrackingPower = 0;
 
-        //public ushort purgeCount =0;    //Not referenced in code, removing to save memory -Gretman
+        //public ushort purgeCount =0;    //Not referenced in code, removing to save memory
         public Ship lastAttacker = null;
         private bool LowHealth = false; //fbedard: recalculate strength after repair
         public float TradeTimer;
         public bool shipInitialized = false;
         public float maxFTLSpeed;
-        public float maxSTLSpeed;       
+        public float maxSTLSpeed;
+        public float NormalWarpThrust;
         private BatchRemovalCollection<Empire> BorderCheck = new BatchRemovalCollection<Empire>();
         public BatchRemovalCollection<Empire> getBorderCheck
         {
@@ -2328,8 +2329,8 @@ namespace Ship_Game.Gameplay
             this.shield_max = 0f;
             this.shield_power = 0f;
             this.armor_max = 0f;
-            //this.CrewRequired = 0;    //Not referenced in code, removing to save memory -Gretman
-            //this.CrewSupplied = 0;    //Not referenced in code, removing to save memory -Gretman
+            //this.CrewRequired = 0;    //Not referenced in code, removing to save memory
+            //this.CrewSupplied = 0;    //Not referenced in code, removing to save memory
             this.Size = 0;
             this.velocityMaximum = 0f;
             this.speed = 0f;
@@ -2661,8 +2662,8 @@ namespace Ship_Game.Gameplay
             this.shield_max = 0.0f;
             this.shield_power = 0.0f;
             this.armor_max = 0.0f;
-            //this.CrewRequired = 0;    //Not referenced in code, removing to save memory -Gretman
-            //this.CrewSupplied = 0;    //Not referenced in code, removing to save memory -Gretman
+            //this.CrewRequired = 0;    //Not referenced in code, removing to save memory
+            //this.CrewSupplied = 0;    //Not referenced in code, removing to save memory
             this.Size = 0;
             this.velocityMaximum = 0.0f;
             this.speed = 0.0f;
@@ -3628,7 +3629,7 @@ namespace Ship_Game.Gameplay
                 else
                     this.disabled = false;
             }
-            //this.CargoMass = 0.0f;    //Not referenced in code, removing to save memory -Gretman
+            //this.CargoMass = 0.0f;    //Not referenced in code, removing to save memory
             if (this.rotation > 2.0 * Math.PI)
             {
                 //Ship ship = this;
@@ -4220,6 +4221,7 @@ namespace Ship_Game.Gameplay
                 this.HasTroopBay = false;
                 this.WarpThrust = 0f;
                 this.TurnThrust = 0f;
+                this.NormalWarpThrust = 0f;
                 this.FTLSlowTurnBoost = false;
                 this.InhibitionRadius = 0f;
                 this.OrdAddedPerSecond = 0f;
@@ -4326,7 +4328,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-
+            this.NormalWarpThrust = this.WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             this.TrackingPower += FixedTrackingPower;
             
@@ -4637,7 +4639,7 @@ namespace Ship_Game.Gameplay
             this.AttackerTargetting.Clear();
             this.Velocity = Vector2.Zero;
             this.velocityMaximum = 0.0f;
-            //this.AfterBurnerAmount = 0.0f;    //Not referenced in code, removing to save memory -Gretman
+            //this.AfterBurnerAmount = 0.0f;    //Not referenced in code, removing to save memory
 
             float explosionboost =1;
             if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi != null)
