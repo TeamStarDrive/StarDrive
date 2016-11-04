@@ -21,9 +21,6 @@ Here are the current links.
 * paypal donation link for crunchy gremlins contribution to BlackBox
 * * https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VAJQU42QYJY82&lc=US&item_name=Crunchy%20Gremlin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted 
 
-* Patreon Link for McShooterz Contribution to BlackBox and StarTtrek:Shattered Alliance
-* * http://www.patreon.com/McShooterz 
-
 # Feature list #
 
 * **General Game Things**
@@ -157,4 +154,3 @@ This is a blackbox download that includes these mods reformatted to work with bl
 
 * Crunchy gremlin is the current owner of the repositor. General Azure has admin access.
 * Any other user or make a post on the SD forums.
-
