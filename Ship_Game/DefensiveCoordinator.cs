@@ -574,7 +574,7 @@ namespace Ship_Game
                     }
                     if (troopAI.State == AIState.Rebase
                         && troopAI.OrderQueue.Count > 0
-                        && troopAI.OrderQueue.Where(goal => goal.TargetPlanet != null && entry.Key == goal.TargetPlanet.system).Count() > 0)
+                        && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && entry.Key == goal.TargetPlanet.system))
                     {
                         currentTroops++;
                         entry.Value.TroopStrengthNeeded--;
@@ -673,10 +673,8 @@ namespace Ship_Game
                             && p.GetDefendingTroopCount() > defenseSystem.Value.IdealTroopStr * devratio)// + (int)Ship.universeScreen.GameDifficulty)
                         {
                            
-                            Troop l = p.TroopsHere.Where(loyalty => loyalty.GetOwner() == this.us).FirstOrDefault();
-                            if (l != null)
-                                l.Launch();
-                            
+                            Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.GetOwner() == this.us);
+                            l?.Launch();
                         }
                     }
                 }
@@ -698,12 +696,7 @@ namespace Ship_Game
 
   
             List<Ship> incomingShips = new List<Ship>();
-            if (Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard)
-                incomingShips = Empire.universeScreen.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != this.us && (bases.loyalty.isFaction || this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList();
-            else
-            {
-                incomingShips = us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
-            }
+            incomingShips = Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard ? Empire.universeScreen.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != this.us && (bases.loyalty.isFaction || this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList() : this.us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
             
 
 
