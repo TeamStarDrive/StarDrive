@@ -1183,21 +1183,21 @@ namespace Ship_Game.Gameplay
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, GameplayObject target)
         {
-            if (!CheckRangeToTarget(w, target))
+            if (!this.CheckRangeToTarget(w, target))
                 return false;
-            Ship TargetShip = target as Ship;
+            Ship targetShip = target as Ship;
             if (w.MassDamage >0 || w.RepulsionDamage >0)
             {                
-                if (TargetShip != null && (TargetShip.EnginesKnockedOut || TargetShip.IsTethered() )) 
+                if (targetShip != null && (targetShip.EnginesKnockedOut || targetShip.IsTethered() )) 
                 {
                     return false;
                 }
             }
             Relationship enemy;
             if
-            (target != null && TargetShip != null && (this.loyalty == TargetShip.loyalty ||
+            (target != null && targetShip != null && (this.loyalty == targetShip.loyalty ||
              !this.loyalty.isFaction && 
-           this.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
+           this.loyalty.GetRelations().TryGetValue(targetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
                 return false;
             
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;            
@@ -1590,8 +1590,7 @@ namespace Ship_Game.Gameplay
             float maintModReduction = 1;
 
             //Ships without upkeep
-            if (this.shipData.ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null
-                || (this.Mothership != null && (this.shipData.Role >= ShipData.RoleName.fighter && this.shipData.Role <= ShipData.RoleName.frigate)))
+            if (this.shipData.ShipStyle == "Remnant" || this.loyalty?.data == null || (this.Mothership != null && (this.shipData.Role >= ShipData.RoleName.fighter && this.shipData.Role <= ShipData.RoleName.frigate)))
             {
                 return 0f;
             }
@@ -1618,7 +1617,7 @@ namespace Ship_Game.Gameplay
             //Modify Maintanence by freighter size
             if(this.shipData.Role == ShipData.RoleName.freighter)
             {
-                switch ((int)this.Size / 50)
+                switch (this.Size / 50)
                 {
                     case 0:
                         {
@@ -1640,7 +1639,7 @@ namespace Ship_Game.Gameplay
                         }
                     default:
                         {
-                            maint *= (int)this.Size / 50;
+                            maint *= this.Size / 50;
                             break;
                         }
                 }
@@ -1669,8 +1668,8 @@ namespace Ship_Game.Gameplay
             {
                 if (this.shipData.Role == ShipData.RoleName.platform)
                     return maint *= 0.5f;
-                if (this.shipData.IsShipyard && this.GetTether().Shipyards.Where(shipyard => shipyard.Value.shipData.IsShipyard).Count() > 3)
-                    maint *= this.GetTether().Shipyards.Where(shipyard => shipyard.Value.shipData.IsShipyard).Count() - 3;
+                if (this.shipData.IsShipyard && this.GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) > 3)
+                    maint *= this.GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) - 3;
             }
 
             //Maintenance fluctuator
@@ -2511,7 +2510,7 @@ namespace Ship_Game.Gameplay
             this.ShipMass = this.mass;
             this.shield_power = this.shield_max;
             this.SensorRange += sensorBonus;
-            if (this.FTLSpoolTime == 0)
+            if (this.FTLSpoolTime <= 0f)
                 this.FTLSpoolTime = 3f;
         }
         public void RenderOverlay(SpriteBatch spriteBatch, Rectangle where, bool ShowModules)
@@ -3468,9 +3467,11 @@ namespace Ship_Game.Gameplay
             List<ModuleSlotData> list = new List<ModuleSlotData>();
             foreach (ModuleSlot moduleSlot in slotList)
             {
-                ModuleSlotData moduleSlotData = new ModuleSlotData();
-                moduleSlotData.Position = moduleSlot.Position;
-                moduleSlotData.InstalledModuleUID = moduleSlot.InstalledModuleUID;
+                ModuleSlotData moduleSlotData = new ModuleSlotData
+                {
+                    Position = moduleSlot.Position,
+                    InstalledModuleUID = moduleSlot.InstalledModuleUID
+                };
                 if (moduleSlot.HangarshipGuid != Guid.Empty)
                     moduleSlotData.HangarshipGuid = moduleSlot.HangarshipGuid;
                 moduleSlotData.Restrictions = moduleSlot.Restrictions;
@@ -4120,7 +4121,7 @@ namespace Ship_Game.Gameplay
                 this.Mass = (this.Size / 2);
             this.PowerCurrent -= this.PowerDraw * elapsedTime;
             if (this.PowerCurrent < this.PowerStoreMax)
-                this.PowerCurrent += (this.PowerFlowMax + (this.loyalty != null ? this.PowerFlowMax * this.loyalty.data.PowerFlowMod : 0)) * elapsedTime;
+                this.PowerCurrent += (this.PowerFlowMax + (this.PowerFlowMax *this.loyalty?.data.PowerFlowMod ?? 0)) * elapsedTime;
             //if (this.ResourceDrawDict.Count > 0)
             //{
 
@@ -4180,7 +4181,7 @@ namespace Ship_Game.Gameplay
                     //this.velocityMaximum *= this.FTLmodifier;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
             }
-            if ((this.Thrust == 0.0 || this.mass == 0.0 )&& !this.IsTethered())
+            if ((this.Thrust <= 0.0f || this.mass <= 0.0f )&& !this.IsTethered())
             {
                 this.EnginesKnockedOut = true;
                 this.velocityMaximum = this.Velocity.Length();
@@ -4188,7 +4189,7 @@ namespace Ship_Game.Gameplay
                 Vector2 vector2 = ship.velocity - this.velocity * (elapsedTime * 0.1f);
                 ship.velocity = vector2;
                 if (this.engineState == MoveState.Warp)
-                    HyperspaceReturn();
+                    this.HyperspaceReturn();
             }
             else
                 this.EnginesKnockedOut = false;
@@ -4318,9 +4319,9 @@ namespace Ship_Game.Gameplay
                             this.Transporters.Add(moduleSlot.module);
                         if (moduleSlot.module.InstalledWeapon != null && moduleSlot.module.InstalledWeapon.isRepairBeam)
                             this.RepairBeams.Add(moduleSlot.module);
-                        if (moduleSlot.module.PowerStoreMax != 0)
+                        if (moduleSlot.module.PowerStoreMax > 0)
                             this.PowerStoreMax += moduleSlot.module.PowerStoreMax;
-                        if (moduleSlot.module.PowerFlowMax != 0)
+                        if (moduleSlot.module.PowerFlowMax >  0)
                             this.PowerFlowMax += moduleSlot.module.PowerFlowMax;
                         this.WarpDraw += moduleSlot.module.PowerDrawAtWarp;
                         if (moduleSlot.module.FTLSpoolTime > this.FTLSpoolTime)
@@ -4347,7 +4348,7 @@ namespace Ship_Game.Gameplay
                     this.PowerStoreMax += this.PowerStoreMax * this.loyalty.data.FuelCellModifier;
                     this.SensorRange *= this.loyalty.data.SensorModifier;
                 }
-                if (this.FTLSpoolTime == 0)
+                if (this.FTLSpoolTime <= 0)
                     this.FTLSpoolTime = 3f;
                 //Hull bonuses
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
@@ -4392,7 +4393,7 @@ namespace Ship_Game.Gameplay
                 else
                     num1 += weapon.DamageAmount * (1f / weapon.fireDelay);
             }
-            if (num1 == 0.0)
+            if (num1 <= 0.0f)
                 return 0.0f;
             float num2 = (num1 + this.shield_power / 20f + this.Health) / (float)this.Size;
             if (this.shipData.Role == ShipData.RoleName.platform || this.shipData.Role == ShipData.RoleName.station)
@@ -4581,7 +4582,7 @@ namespace Ship_Game.Gameplay
             //if (!cleanupOnly && source is Projectile && (source as Projectile).owner != null)
             if (!cleanupOnly && Psource != null && Psource.owner != null)
                 Psource.owner.AddKill(this);
-            if ((this.system != null ? this.system.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) > 65.0 && !this.IsPlatform && this.InFrustum)
+            if ((system?.RNG.RandomBetween(0.0f, 100f) ?? Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) > 65.0 && !this.IsPlatform && this.InFrustum)
             {
                 this.dying = true;
                 this.xdie = (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(-1f, 1f) * 40f / (float)this.Size;
@@ -4856,17 +4857,11 @@ namespace Ship_Game.Gameplay
             {
                 if (disposing)
                 {
-                    if (this.projectiles != null)
-                        this.projectiles.Dispose();
-                    if (this.beams != null)
-                        this.beams.Dispose();
-                    if (this.supplyLock != null)
-                        this.supplyLock.Dispose();
-                    if (this.AI != null)
-                        this.AI.Dispose();
-                    if (this.ProjectilesFired != null)
-                        this.ProjectilesFired.Dispose();
-
+                    this.projectiles?.Dispose();
+                    this.beams?.Dispose();
+                    this.supplyLock?.Dispose();
+                    this.AI?.Dispose();
+                    this.ProjectilesFired?.Dispose();
                 }
                 this.projectiles = null;
                 this.beams = null;
@@ -4932,37 +4927,32 @@ namespace Ship_Game.Gameplay
                 if (source.AttackerTargetting == null || !source.AttackerTargetting.Contains(ClosestES))
                     if (level > 1)
                     {
-                        float Damageradius = Vector2.Distance(ClosestES.module.Center, this.Center); //16 * (7 - level);// 
+                        float Damageradius = Vector2.Distance(ClosestES.module.Center, this.Center);
+                            //16 * (7 - level);// 
 
-                        source.AttackerTargetting =this.ModuleSlotList.Where(slot =>
-                        {
-                            if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
-                                                       && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
-                                                       && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
-                            return true;
-                            else
-                                return false;
-                        } ).OrderByDescending(slot => slot.module.TargetValue + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
+                        source.AttackerTargetting = this.ModuleSlotList.Where(slot => slot != null && slot.module.ModuleType != ShipModuleType.Dummy
+                                                                                      && slot.module.Active && slot.module.Health > 0.0 &&
+                                                                                      (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+                                                                                      && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+                            .OrderByDescending(
+                                slot => slot.module.TargetValue + (slot.module.Health < slot.module.HealthMax ? 1 : 0))
 
-                               .ToList();
+                            .ToList();
 
-         
+
                     }
                     else
                     {
                         float Damageradius = Vector2.Distance(ClosestES.module.Center, this.Center);
-                        source.AttackerTargetting = this.ModuleSlotList.Where(slot =>
-                            {
-                                if (slot != null && slot.module.ModuleType != ShipModuleType.Dummy
-                                                                                     && slot.module.Active && slot.module.Health > 0.0 && (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
-                                                                                     && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
-                                {
-                                    return true;
-                                }
-                                return false;
-                            }).ToList();
-                        
-             
+                        source.AttackerTargetting = this.ModuleSlotList
+                            .Where(slot => slot != null 
+                                && slot.module.ModuleType != ShipModuleType.Dummy
+                                && slot.module.Active && slot.module.Health > 0.0 &&
+                                (!slot.module.isExternal || slot.module.quadrant == ClosestES.module.quadrant)
+                                && Vector2.Distance(slot.module.Center, ClosestES.module.Center) < Damageradius)
+                            .ToList();
+
+
                     }
             }
             if (source.AttackerTargetting.Count == 0)
@@ -5227,8 +5217,7 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot Mod in this.ModuleSlotList)
             {
                 if (Mod.module.isDummy) continue;
-                bool IsFullyHealed = false;
-                if (Mod.module.Health >= Mod.module.HealthMax) IsFullyHealed = true;
+                bool IsFullyHealed = Mod.module.Health >= Mod.module.HealthMax;
                 Mod.module.HealthMax = ResourceManager.ShipModulesDict[Mod.module.UID].HealthMax;
                 Mod.module.HealthMax = Mod.module.HealthMax + Mod.module.HealthMax * this.loyalty.data.Traits.ModHpModifier;
                 if (IsFullyHealed)
