@@ -1713,6 +1713,7 @@
     <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="blackbox drop.ico" />
