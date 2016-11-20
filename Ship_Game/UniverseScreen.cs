@@ -1729,7 +1729,7 @@ namespace Ship_Game
                         PathGridtranslateBordernode(empire, 1, grid1);
 
 
-                        if (false)
+                        if (true)
                             foreach (KeyValuePair<Empire, Relationship> rels in empire.GetRelations())
                             {
                                 if (!rels.Value.Known)
@@ -5978,7 +5978,7 @@ namespace Ship_Game
                 catch
                 {
                 }
-            }            
+            }   //MARK:DrawCustomStuffForDebug         
             if (this.Debug) //input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && 
             {
                 foreach (Empire e in EmpireManager.EmpireList)
@@ -5998,15 +5998,15 @@ namespace Ship_Game
                     //        }
                     //    }
                     //}
-                    for(int x=0;x < e.grid.GetLength(0);x++)
-                        for (int y = 0; y < e.grid.GetLength(1); y++)
-                        {
-                            if (e.grid[x, y] != 1)
-                                continue;
-                            Vector2 translated = new Vector2((x - e.granularity) * reducer, (y - e.granularity) * reducer);
-                            Circle circle = this.DrawSelectionCircles(translated, reducer *.5f);
-                            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 4, e.EmpireColor);
-                        }
+                    //for(int x=0;x < e.grid.GetLength(0);x++)
+                    //    for (int y = 0; y < e.grid.GetLength(1); y++)
+                    //    {
+                    //        if (e.grid[x, y] != 1)
+                    //            continue;
+                    //        Vector2 translated = new Vector2((x - e.granularity) * reducer, (y - e.granularity) * reducer);
+                    //        Circle circle = this.DrawSelectionCircles(translated, reducer *.5f);
+                    //        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 4, e.EmpireColor);
+                    //    }
                 }
             }
 
