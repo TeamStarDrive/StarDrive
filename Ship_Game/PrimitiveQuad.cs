@@ -115,7 +115,7 @@ namespace Ship_Game
 
         ~PrimitiveQuad() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
