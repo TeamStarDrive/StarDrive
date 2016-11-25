@@ -265,7 +265,7 @@ namespace Ship_Game
 			Trace.WriteLine(string.Join(", ", screenNames.ToArray()));
 		}
 
-		protected void UnloadContent()
+        private void UnloadContent()
 		{
 			this.content.Unload();
 			foreach (GameScreen screen in this.screens)
@@ -317,7 +317,7 @@ namespace Ship_Game
 
         ~ScreenManager() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

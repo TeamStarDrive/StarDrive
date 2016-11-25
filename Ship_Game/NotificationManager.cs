@@ -797,7 +797,7 @@ namespace Ship_Game
 
         ~NotificationManager() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

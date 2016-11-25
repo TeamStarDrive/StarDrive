@@ -82,7 +82,7 @@ namespace Ship_Game
 
         ~InGameWiki() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

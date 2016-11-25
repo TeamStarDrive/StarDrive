@@ -1207,7 +1207,7 @@ namespace Ship_Game
 
         ~SolarSystem() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
