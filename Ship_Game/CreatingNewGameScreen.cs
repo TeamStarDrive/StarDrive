@@ -1113,7 +1113,7 @@ namespace Ship_Game
             GC.SuppressFinalize((object)this);
         }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposing)
                 return;

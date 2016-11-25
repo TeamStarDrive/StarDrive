@@ -944,7 +944,7 @@ namespace Ship_Game
 
         ~ShipDesignScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

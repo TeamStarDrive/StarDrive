@@ -115,7 +115,7 @@ namespace Ship_Game
 
         ~BackgroundItem() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
