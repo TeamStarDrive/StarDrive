@@ -1196,7 +1196,7 @@ namespace Ship_Game.Gameplay
             Relationship enemy;
             if
             (target != null && targetShip != null && (this.loyalty == targetShip.loyalty ||
-             !this.loyalty.isFaction && 
+             !this.loyalty.isFaction &&
            this.loyalty.GetRelations().TryGetValue(targetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
                 return false;
             
@@ -2897,9 +2897,11 @@ namespace Ship_Game.Gameplay
             //if (!GlobalStats.WarpInSystem && this.system != null)
             //    this.InhibitedTimer = 1f;
             //else 
-            if (this.FTLmodifier < 1.0 && this.system != null 
-                    && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed()))
-                this.HyperspaceReturn();
+            //if (this.FTLmodifier < 1.0 && this.system != null && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed() - 1 ))
+            //{
+            //    if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Break Hyperspace because of FTL Mod.  " + this.velocityMaximum + "  :  " + this.GetSTLSpeed());
+            //    this.HyperspaceReturn();      //This section commented out because it was causing ships ot not be able ot warp at all if the FTL modifier was anything less than 1.0 -Gretman
+            //}
             if (this.ScuttleTimer > -1.0 || this.ScuttleTimer <-1.0)
             {
                 this.ScuttleTimer -= elapsedTime;
