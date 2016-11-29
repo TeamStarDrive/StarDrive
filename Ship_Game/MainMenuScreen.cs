@@ -824,7 +824,7 @@ namespace Ship_Game
                         modelpath = test.ModelPath;
                         break;
                     }
-                    model = Ship_Game.ResourceManager.GetModel(modelpath, true);
+                    model = ResourceManager.GetModel(modelpath);
                 }
                 //this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel("Model/Ships/speeder/ship07").Meshes)[0]);
                 this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)model.Meshes)[0]);
@@ -890,8 +890,10 @@ namespace Ship_Game
 			try
 			{
 				this.waveOut.Init(this.mp3FileReader);
-				this.waveOut.Volume = GlobalStats.Config.MusicVolume;
-				this.waveOut.Play();
+#pragma warning disable CS0618 // Type or member is obsolete
+                this.waveOut.Volume = GlobalStats.Config.MusicVolume;
+#pragma warning restore CS0618 // Type or member is obsolete
+                this.waveOut.Play();
 				this.waveOut.PlaybackStopped += new EventHandler<StoppedEventArgs>(this.OnPlaybackStopped);
 			}
 			catch

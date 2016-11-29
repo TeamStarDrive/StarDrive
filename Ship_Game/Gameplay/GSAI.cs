@@ -3295,7 +3295,6 @@ namespace Ship_Game.Gameplay
                     continue;
                 }
                 AgentMission am = PotentialMissions.Skip(HelperFunctions.GetRandomIndex(PotentialMissions.Count)).FirstOrDefault();
-                if(am !=null)
                 agent.AssignMission(am, this.empire, Target.data.Traits.Name);
                 Offense++;
 
@@ -6077,30 +6076,22 @@ namespace Ship_Game.Gameplay
                     ran = sortedList.Count();
                 ship = sortedList.Skip(ran).First();
                 name = ship.Name;
-#if DEBUG
-                if (false)
-                {
-                    System.Diagnostics.Debug.WriteLine("Choosen Role: " + ship.GetShipData().Role.ToString() + "  Chosen Hull: " + ship.GetShipData().Hull
-                                + "  Strength: " + ship.BaseStrength); 
-                }
-                
-#endif
+            #if DEBUG
+                System.Diagnostics.Debug.WriteLine("Choosen Role: {0}  Chosen Hull: {1}  Strength: {2}", 
+                    ship.GetShipData().Role, ship.GetShipData().Hull, ship.BaseStrength); 
+            #endif
             }
             else
             {
-                if (false)
+            #if false
+                string ships = "Ships empire has: ";
+                foreach (string known in this.empire.ShipsWeCanBuild)
                 {
-                    string ships = "Ships empire has: ";
-                    foreach (string known in this.empire.ShipsWeCanBuild)
-                    {
-                        ships += known + " : ";
-                    }
-                    System.Diagnostics.Debug.WriteLine(ships);
-                    System.Diagnostics.Debug.WriteLine(""); 
+                    ships += known + " : ";
                 }
-
-                    
-
+                System.Diagnostics.Debug.WriteLine(ships);
+                System.Diagnostics.Debug.WriteLine(""); 
+            #endif
             }
             PotentialShips.Clear();
             return name;
@@ -7610,7 +7601,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin deveksmod military planner
         private void RunMilitaryPlanner()
         {
-            #region ShipBuilding
+#region ShipBuilding
             this.nobuild = false;
             float SizeLimiter = GlobalStats.MemoryLimiter;
             int ShipCountLimit = GlobalStats.ShipCountLimit;
@@ -7675,26 +7666,22 @@ namespace Ship_Game.Gameplay
             //this.GetAShip(0);
             //float offensiveStrength = offenseUnderConstruction + this.empire.GetForcePoolStrength();
 
-            int numWars = 0;
+            //int numWars = 0;
             float offenseNeeded = 0;
-            float FearTrust = 0;
-
-            offenseNeeded += this.ThreatMatrix.StrengthOfAllThreats(this.empire);
-
-            offenseNeeded /= this.empire.currentMilitaryStrength;
+            //float FearTrust = 0;
+            offenseNeeded += ThreatMatrix.StrengthOfAllThreats(empire);
+            offenseNeeded /= empire.currentMilitaryStrength;
 
             if (offenseNeeded <= 0)
             {
                 offenseNeeded = 0;
-
             }
 
-
             //offenseNeeded += FearTrust;
-
             if (offenseNeeded > 20)
                 offenseNeeded = 20;
-            this.numberOfShipGoals += (int)offenseNeeded;
+            numberOfShipGoals += (int)offenseNeeded;
+
             //float Capacity = this.empire.EstimateIncomeAtTaxRate(tax) + this.empire.Money * -.1f -UnderConstruction + this.empire.GetAverageNetIncome();
             float AtWarBonus = 0.05f;
             if (this.empire.Money > 500f)
@@ -7982,7 +7969,7 @@ namespace Ship_Game.Gameplay
             }
             this.Goals.ApplyPendingRemovals();
             
-            #endregion
+#endregion
             //this where the global AI attack stuff happenes.
             this.TaskList.thisLock.EnterReadLock();// lock (GlobalStats.TaskLocker)
             {
@@ -7998,7 +7985,7 @@ namespace Ship_Game.Gameplay
 
                 //               select tasks
                 //               ;
-                float distance = 0;
+                //float distance = 0;
 
                 foreach (MilitaryTask task in this.TaskList //.OrderBy(target => Vector2.Distance(target.AO, this.empire.GetWeightedCenter()) / 1500000)
                     .OrderByDescending(empire =>
@@ -8778,7 +8765,7 @@ namespace Ship_Game.Gameplay
             string researchtopic = "";
             TechnologyType techtype;
 
-            #region hull checking.
+#region hull checking.
             this.empire.UpdateShipsWeCanBuild();
 
 
@@ -9051,7 +9038,7 @@ namespace Ship_Game.Gameplay
             
             AvailableTechs = AvailableTechs.Except(remove).ToList();
             List<Technology> workingSetoftechs = AvailableTechs;
-            #endregion
+#endregion
             float CostNormalizer = .01f;
             switch (command2)
             {
