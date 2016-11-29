@@ -331,10 +331,7 @@ namespace Ship_Game
             this.Size.Y = size;
         }
 
-        ~UniverseScreen()
-        {
-            this.Dispose(false);
-        }
+        ~UniverseScreen() { Destroy(); }
 
         public void SetLighting(bool Real)
         {
