@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Ship_Game
@@ -95,37 +96,28 @@ namespace Ship_Game
             //for (int i = 0; i< LocalizerDict.Count; i++ )
             if (ResourceManager.OffSet == 0)
                 return;
-            List<int> keys = new List<int>(Localizer.LocalizerDict.Keys);
+            List<int> keys = new List<int>(LocalizerDict.Keys);
             foreach(int i in keys)
             {
-                
                 if (i < ResourceManager.OffSet || (i >= ResourceManager.OffSet&& used[i] ==true))
                     continue;
 
                 string replace = null;
-
                 int clear = i - ResourceManager.OffSet;
                 try
                 {
-
-                    //if (LocalizerDict.TryGetValue(clear, out replace) && replace != "" && replace != null)
                     if (LocalizerDict.TryGetValue(clear, out replace) && !string.IsNullOrEmpty(replace))
                     {
-                        System.Diagnostics.Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
+                        //Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
                         LocalizerDict[clear] = LocalizerDict[i];
-                        continue;
-
                     }
-                    //else if (LocalizerDict.TryGetValue(i, out replace) && replace != "" && replace != null)
                     else if (LocalizerDict.TryGetValue(i, out replace) && !string.IsNullOrEmpty(replace))
                     {
                         if (!LocalizerDict.ContainsKey(clear))
                         {
-                            System.Diagnostics.Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
+                            //Debug.WriteLine(string.Concat("vkey=", clear, " ", LocalizerDict[clear], "\nnewKey=", i, " ", LocalizerDict[i]));
                             LocalizerDict.Add(clear, LocalizerDict[i]);
                         }
-
-
                     }
                 }
                 catch (Exception e)
@@ -135,13 +127,6 @@ namespace Ship_Game
                     e.Data.Add("UnSafeIndex", clear);
                         
                 }
-                //foreach (KeyValuePair<int, bool> inuse in used)
-                //{
-                //    if (inuse.Value == true)
-                //        continue;
-
-
-                //}
             }
         }
     }
