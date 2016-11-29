@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml.Serialization;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -179,6 +180,8 @@ namespace Ship_Game
         private Vector2 classifCursor;
 
 		public Stack<DesignAction> DesignStack = new Stack<DesignAction>();
+        private string lastActiveUID = "";                                      //Gretman - To Make the Ctrl-Z much more responsive
+        private Vector2 lastDesignActionPos = Vector2.Zero;
 
         private Vector2 COBoxCursor;
 
@@ -199,25 +202,38 @@ namespace Ship_Game
 
         private float HoldTimer = .50f;
         private HashSet<string> techs = new HashSet<string>();
-        
 
-		public ShipDesignScreen(EmpireUIOverlay EmpireUI)
+#if SHIPYARD
+        short TotalI, TotalO, TotalE, TotalIO, TotalIE, TotalOE, TotalIOE = 0;        //For Gretman's debug shipyard
+#endif
+
+
+        public ShipDesignScreen(EmpireUIOverlay EmpireUI)
 		{
 			this.EmpireUI = EmpireUI;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-            
-		}
+			base.TransitionOnTime = TimeSpan.FromSeconds(2);
+#if SHIPYARD
+            Debug = true;
+#endif
+        }
         private void AddToTechList(HashSet<string> techlist)
         {
             foreach (string tech in techlist)
                 this.techs.Add(tech);
         }
 
-		public void ChangeHull(ShipData hull)
+		public void ChangeHull(ShipData hull)       //Mer
 		{
+#if SHIPYARD
+            TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
+#endif
+
 			this.Reset = true;
             this.DesignStack.Clear();
-			lock (GlobalStats.ObjectManagerLocker)
+            lastDesignActionPos = Vector2.Zero;
+            lastActiveUID = "";
+
+            lock (GlobalStats.ObjectManagerLocker)
 			{
 				if (this.shipSO != null)
 				{
@@ -255,7 +271,16 @@ namespace Ship_Game
 					InstalledModuleUID = slot.InstalledModuleUID
 				};
 				this.ActiveHull.ModuleSlotList.Add(slot);
-			}
+#if SHIPYARD
+                if (data.Restrictions == Restrictions.I) TotalI++;
+                if (data.Restrictions == Restrictions.O) TotalO++;
+                if (data.Restrictions == Restrictions.E) TotalE++;
+                if (data.Restrictions == Restrictions.IO) TotalIO++;
+                if (data.Restrictions == Restrictions.IE) TotalIE++;
+                if (data.Restrictions == Restrictions.OE) TotalOE++;
+                if (data.Restrictions == Restrictions.IOE) TotalIOE++;
+#endif
+            }
 			this.CombatState = hull.CombatState;
 			if (!hull.Animated)
 			{
@@ -792,17 +817,11 @@ namespace Ship_Game
 					toRemove = null;
 					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
 					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
+						if (slotdata.Position != SlotPos) continue;
 						toRemove = slotdata;
 						break;
 					}
-					if (toRemove == null)
-					{
-						return;
-					}
+					if (toRemove == null) return;
 					this.ActiveHull.ModuleSlotList.Remove(toRemove);
 					this.ChangeHull(this.ActiveHull);
 					return;
@@ -812,38 +831,12 @@ namespace Ship_Game
 					toRemove = null;
 					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
 					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
+						if (slotdata.Position != SlotPos) continue;
 						toRemove = slotdata;
 						break;
 					}
-					if (toRemove == null)
-					{
-						return;
-					}
+					if (toRemove == null) return;
 					toRemove.Restrictions = Restrictions.I;
-					this.ChangeHull(this.ActiveHull);
-					return;
-				}
-				case ShipDesignScreen.SlotModOperation.IO:
-				{
-					toRemove = null;
-					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
-					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
-						toRemove = slotdata;
-						break;
-					}
-					if (toRemove == null)
-					{
-						return;
-					}
-					toRemove.Restrictions = Restrictions.IO;
 					this.ChangeHull(this.ActiveHull);
 					return;
 				}
@@ -852,46 +845,90 @@ namespace Ship_Game
 					toRemove = null;
 					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
 					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
+						if (slotdata.Position != SlotPos) continue;
 						toRemove = slotdata;
 						break;
 					}
-					if (toRemove == null)
-					{
-						return;
-					}
+					if (toRemove == null) return;
 					toRemove.Restrictions = Restrictions.O;
 					this.ChangeHull(this.ActiveHull);
 					return;
 				}
-				case ShipDesignScreen.SlotModOperation.Add:
-				{
-					return;
-				}
-				case ShipDesignScreen.SlotModOperation.E:
-				{
-					toRemove = null;
-					foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
-					{
-						if (slotdata.Position != SlotPos)
-						{
-							continue;
-						}
-						toRemove = slotdata;
-						break;
-					}
-					if (toRemove == null)
-					{
-						return;
-					}
-					toRemove.Restrictions = Restrictions.E;
-					this.ChangeHull(this.ActiveHull);
-					return;
-				}
-				default:
+                case ShipDesignScreen.SlotModOperation.E:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.E;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.IO:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.IO;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.IE:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.IE;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.OE:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.OE;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.IOE:
+                {
+                    toRemove = null;
+                    foreach (ModuleSlotData slotdata in this.ActiveHull.ModuleSlotList)
+                    {
+                        if (slotdata.Position != SlotPos) continue;
+                        toRemove = slotdata;
+                        break;
+                    }
+                    if (toRemove == null) return;
+                    toRemove.Restrictions = Restrictions.IOE;
+                    this.ChangeHull(this.ActiveHull);
+                    return;
+                }
+                case ShipDesignScreen.SlotModOperation.Normal:
+                {
+                    return;
+                }
+                default:
 				{
 					return;
 				}
@@ -907,7 +944,7 @@ namespace Ship_Game
 
         ~ShipDesignScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -1546,12 +1583,16 @@ namespace Ship_Game
 			this.ArcsButton.DrawWithShadowCaps(base.ScreenManager);
 			if (this.Debug)
 			{
-				Vector2 Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString("Debug").X, 120f);
+				Vector2 Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
 				HelperFunctions.DrawDropShadowText(base.ScreenManager, "Debug", Pos, Fonts.Arial20Bold);
-				Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(this.operation.ToString()).X, 140f);
+				Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(this.operation.ToString()).X / 2, 140f);
 				HelperFunctions.DrawDropShadowText(base.ScreenManager, this.operation.ToString(), Pos, Fonts.Arial20Bold);
-			}
-			this.close.Draw(base.ScreenManager);
+#if SHIPYARD
+                string Ratios = "I: " + TotalI + "      O: " + TotalO + "      E: " + TotalE + "      IO: " + TotalIO + "      IE: " + TotalIE + "      OE: " + TotalOE + "      IOE: " + TotalIOE;
+                Pos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Arial20Bold.MeasureString(Ratios).X / 2, 180f);
+                HelperFunctions.DrawDropShadowText(base.ScreenManager, Ratios, Pos, Fonts.Arial20Bold);
+#endif
+            }			this.close.Draw(base.ScreenManager);
 			base.ScreenManager.SpriteBatch.End();
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -1604,32 +1645,32 @@ namespace Ship_Game
                 }
 				string rest = "";
 				if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.IO)
-				{
-					rest = "I or O or IO";
-				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.I)
-				{
-					rest = "I or IO only";
-				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.O)
-				{
-					rest = "O or IO only";
-				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.E)
-				{
-					rest = "E only";
-				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.IOE)
-				{
-					rest = "I, O, or E";
-				}
+                {
+                    rest = "Any Slot except E";
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.I)
+                {
+                    rest = "I, IO, IE or IOE";
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.O)
+                {
+                    rest = "O, IO, OE, or IOE";
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.E)
+                {
+                    rest = "E, IE, OE, or IOE";
+                }
+                else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.IOE)
+                {
+                    rest = "Any Slot";
+                }
                 else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.IE)
                 {
-                    rest = "I or E only";
+                    rest = "Any Slot except O";
                 }
                 else if (Ship_Game.ResourceManager.ShipModulesDict[mod.UID].Restrictions == Restrictions.OE)
                 {
-                    rest = "O or E only";
+                    rest = "Any Slot except I";
                 }
 
                 // Concat ship class restrictions
@@ -2306,12 +2347,17 @@ namespace Ship_Game
                         this.DrawStat(ref modTitlePos, Localizer.Token(6174), (float)mod.EMP_Protection, 219);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
-                      if (mod.TargetTracking >0 || mod.IsCommandModule)
+                    if (mod.FixedTracking > 0)
                     {
-                        this.DrawStat(ref modTitlePos, Localizer.Token(6186), (float)mod.TargetTracking, 226);
+                        this.DrawStat(ref modTitlePos, Localizer.Token(6187), (float)mod.FixedTracking, 231);
                         modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
                     }
-                
+                    if (mod.TargetTracking > 0)
+                    {
+                        this.DrawStatBonus(ref modTitlePos, Localizer.Token(6186), (float)mod.TargetTracking, 226);
+                        modTitlePos.Y = modTitlePos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    }
+
 
                     if (mod.PermittedHangarRoles.Count != 0)
                     {
@@ -3467,6 +3513,8 @@ namespace Ship_Game
             float Def = 0;
             float strength = 0;
             float targets = 0;
+            sbyte fixedtargets = 0;
+            float TotalECM = 0f;
 			foreach (SlotStruct slot in this.Slots)
 			{
 				Size = Size + 1f;
@@ -3503,6 +3551,8 @@ namespace Ship_Game
 					WarpableMass = WarpableMass + slot.module.WarpMassCapacity;
                     PowerDraw = PowerDraw + slot.module.PowerDraw;
 					WarpDraw = WarpDraw + slot.module.PowerDrawAtWarp;
+                    if (slot.module.ECM > TotalECM)
+                        TotalECM = slot.module.ECM;
                     if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.PowerRequiredToFire > 0)
                         bEnergyWeapons = true;
                     if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.BeamPowerCostPerSecond > 0)
@@ -3546,13 +3596,21 @@ namespace Ship_Game
                         
                     }
                     //end
-				}
-				Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
+                    if (slot.module.FixedTracking > fixedtargets)
+                        fixedtargets = slot.module.FixedTracking;
+
+                    targets += slot.module.TargetTracking;
+
+                }
+                Cost = Cost + slot.module.Cost * UniverseScreen.GamePaceStatic;
 				CargoSpace = CargoSpace + slot.module.Cargo_Capacity;
 
-                targets += slot.module.TargetTracking;
+                
 
+                
             }
+
+            targets += fixedtargets;
             
 			Mass = Mass + (float)(this.ActiveHull.ModuleSlotList.Count / 2);
 			Mass = Mass * EmpireManager.GetEmpireByName(ShipDesignScreen.screen.PlayerLoyalty).data.MassModifier;
@@ -3737,7 +3795,7 @@ namespace Ship_Game
             if (RepairRate > 0)
             {
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-                this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(6013), ":"), (int)RepairRate, 103);                
+                this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(6013), ":"), (int)RepairRate, 236);                
             }
 			if (ShieldPower > 0)
             {
@@ -3749,6 +3807,11 @@ namespace Ship_Game
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 this.DrawStatDefence(ref Cursor, string.Concat(Localizer.Token(6177), ":"), (int)EMPResist, 220);
             }
+            if (TotalECM > 0)
+            {
+                Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                this.DrawStatPercentDefence(ref Cursor, string.Concat(Localizer.Token(6189), ":"), TotalECM, 234);
+            }
 
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 10);
             
@@ -3757,7 +3820,7 @@ namespace Ship_Game
 			//this.DrawStat(ref Cursor, string.Concat(Localizer.Token(115), ":"), (int)Mass, 79);
 			//Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 
-            #region HardcoreRule info
+#region HardcoreRule info
             if (GlobalStats.HardcoreRuleset)
 			{
 				string massstring = "";
@@ -3809,7 +3872,7 @@ namespace Ship_Game
 					Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
             }
-            #endregion
+#endregion
             else if (WarpSpeed <= 0f)
 			{
 				this.DrawStatPropulsion(ref Cursor, string.Concat(Localizer.Token(2170), ":"), 0, 135);
@@ -3878,15 +3941,16 @@ namespace Ship_Game
             }
             if (sensorRange != 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 159);
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6130), ":"), (int)((sensorRange + sensorBonus) + (GlobalStats.ActiveMod != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? (sensorRange + sensorBonus) * Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].SensorBonus : 0)), 235);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
             if (targets > 0)
             {
-                this.DrawStat(ref Cursor, string.Concat(" Add. Targets", ":"), (int)((targets)), 226);
+                this.DrawStat(ref Cursor, string.Concat(Localizer.Token(6188), ":"), (int)((targets + 1f)), 232);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
-			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);
+
+            Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing);
 			bool hasBridge = false;
 			bool EmptySlots = true;
 			foreach (SlotStruct slot in this.Slots)
@@ -3912,7 +3976,7 @@ namespace Ship_Game
             strength = (Def > Off ? Off * 2 : Def + Off);
             if (strength > 0)
             {
-                this.DrawStat(ref Cursor, string.Concat("Total Off", ":"), strength, 227);
+                this.DrawStatSummaryFloat(ref Cursor, string.Concat(Localizer.Token(6190), ":"), strength, 227);
                 Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
             }
             Vector2 CursorReq = new Vector2((float)(this.statsSub.Menu.X - 180), (float)(this.ShipStats.Menu.Y + (Fonts.Arial12Bold.LineSpacing * 2) + 45));
@@ -4132,6 +4196,82 @@ namespace Ship_Game
 				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
 			}
 		}
+        private void DrawStatSummaryFloat(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+		{
+			float amount = 165f;  //fbedard: was 105f
+			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			{
+				amount = amount + 20f;
+			}
+			float x = (float)Mouse.GetState().X;
+			MouseState state = Mouse.GetState();
+			Vector2 MousePos = new Vector2(x, (float)state.Y);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = stat.ToString("0.0");
+			if (stat == 0f)
+			{
+				numbers = "0";
+			}
+			Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+			Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+			if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+			{
+				ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+			}
+		}
+
+        private void DrawStatNeutral(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 120f;  //fbedard: was 105f
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = stat.ToString("0.0");
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, Color.White);
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+
+        private void DrawStatBonus(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 120f;  //fbedard: was 105f
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.White);
+            string numbers = stat.ToString("0.0");
+            numbers = string.Concat("+", numbers);
+            if (stat == 0f)
+            {
+                numbers = "0";
+            }
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
 
         private void DrawStatPC(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
@@ -4277,7 +4417,30 @@ namespace Ship_Game
             }
         }
 
-		private void DrawStat(ref Vector2 Cursor, string words, int stat, string tip)
+        private void DrawStatPercentDefence(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
+        {
+            float amount = 165f;
+            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            {
+                amount = amount + 20f;
+            }
+            float x = (float)Mouse.GetState().X;
+            MouseState state = Mouse.GetState();
+            Vector2 MousePos = new Vector2(x, (float)state.Y);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, Cursor, Color.Goldenrod);
+            string numbers = "";
+            float statPC = stat * 100;
+            numbers = string.Concat(statPC.ToString("#"), "%");
+            Cursor.X = Cursor.X + (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, numbers, Cursor, (stat > 0f ? Color.LightGreen : Color.LightPink));
+            Cursor.X = Cursor.X - (amount - Fonts.Arial12Bold.MeasureString(numbers).X);
+            if (HelperFunctions.CheckIntersection(new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(words).X + (int)Fonts.Arial12Bold.MeasureString(numbers).X, Fonts.Arial12Bold.LineSpacing), MousePos))
+            {
+                ToolTip.CreateTooltip(Tooltip_ID, base.ScreenManager);
+            }
+        }
+
+        private void DrawStat(ref Vector2 Cursor, string words, int stat, string tip)
 		{
 			float amount = 165f;
 			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
@@ -5142,11 +5305,13 @@ namespace Ship_Game
                             break;
                         }
                     case 4:
+                    case 5:
+                    case 6:
                         {
                             ToolTip.CreateTooltip("Repair when damaged at 55%", this.ScreenManager);
                             break;
                         }
-                    case 5:
+                    case 7:
                         {
                             ToolTip.CreateTooltip("Never Repair!", this.ScreenManager);
                             break;
@@ -5182,6 +5347,7 @@ namespace Ship_Game
             {
                 if (this.DesignStack.Count <= 0)
                     return;
+                lastActiveUID = "";
                 ShipModule shipModule = this.ActiveModule;
                 DesignAction designAction = this.DesignStack.Pop();
                 SlotStruct slot1 = new SlotStruct();
@@ -5258,7 +5424,7 @@ namespace Ship_Game
                     }
                     if (input.Right)
                         ++this.operation;
-                    if (this.operation > (ShipDesignScreen.SlotModOperation)6)
+                    if (this.operation > ShipDesignScreen.SlotModOperation.Normal)
                         this.operation = ShipDesignScreen.SlotModOperation.Delete;
                 }
                 this.HoveredModule = (ShipModule)null;
@@ -5529,7 +5695,14 @@ namespace Ship_Game
                         if (HelperFunctions.CheckIntersection(new Rectangle((int)spaceFromWorldSpace.X, (int)spaceFromWorldSpace.Y, (int)(16.0 * (double)this.camera.Zoom), (int)(16.0 * (double)this.camera.Zoom)), vector2))
                         {
                             AudioManager.GetCue("sub_bass_mouseover").Play();
-                            this.InstallModule(slot);
+
+                            if (slot.pq.X != this.lastDesignActionPos.X || slot.pq.Y != this.lastDesignActionPos.Y || ActiveModule.UID != this.lastActiveUID)
+                            {
+                                this.InstallModule(slot);                       //This will make the Ctrl+Z functionality in the shipyard a lot more responsive -Gretman
+                                this.lastDesignActionPos.X = slot.pq.X;
+                                this.lastDesignActionPos.Y = slot.pq.Y;
+                                this.lastActiveUID = ActiveModule.UID;
+                            }
                         }
                     }
                 }
@@ -6202,7 +6375,7 @@ namespace Ship_Game
 			};
 			this.SelectedCatTextPos = new Vector2(20f, (float)(w.Y - 25 - Fonts.Arial20Bold.LineSpacing / 2));
 			this.SearchBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 585, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 47, 210, 25);            
-            this.classifCursor = new Vector2(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height );
+            this.classifCursor = new Vector2(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .5f, Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"].Height + 10 );
             Cursor = new Vector2((float)(this.classifCursor.X), (float)(this.classifCursor.Y));
             Vector2 OrdersBarPos = new Vector2(Cursor.X, (float)((int)Cursor.Y+20 ));
             OrdersBarPos.X = OrdersBarPos.X - 15;
@@ -6340,16 +6513,21 @@ namespace Ship_Game
 
             
             //base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth
-            dropdownRect = new Rectangle((int)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f), (int) OrdersBarPos.Y, 100, 18);            
+            dropdownRect = new Rectangle((int)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * .25f), (int) OrdersBarPos.Y, 100, 18);
             //dropdownRect = new Rectangle((int)ShipStatsPanel.X, (int)ShipStatsPanel.Y + ShipStatsPanel.Height + 118, 100, 18);
-
+                        
             this.CategoryList = new DropOptions(dropdownRect);
-            this.CategoryList.AddOption("Unclassified", 1);
-            this.CategoryList.AddOption("Civilian", 2);
-            this.CategoryList.AddOption("Recon", 3);
-            this.CategoryList.AddOption("Combat", 4);
-            this.CategoryList.AddOption("Kamikaze", 5);
-            
+            //this.CategoryList.AddOption("Unclassified", 1);
+            //this.CategoryList.AddOption("Civilian", 2);
+            //this.CategoryList.AddOption("Recon", 3);
+            //this.CategoryList.AddOption("Combat", 4);
+            //this.CategoryList.AddOption("Kamikaze", 5);
+            foreach(Ship_Game.ShipData.Category item in Enum.GetValues(typeof(Ship_Game.ShipData.Category)).Cast<Ship_Game.ShipData.Category>())
+            {
+                this.CategoryList.AddOption(item.ToString(),(int)item +1);
+
+            }
+
             this.CarrierOnly = this.ActiveHull.CarrierShip;
             Ref<bool> CORef = new Ref<bool>(() => this.CarrierOnly, (bool x) => {
 				this.CarrierOnly = x;              
@@ -6552,39 +6730,66 @@ namespace Ship_Game
 			toSave.Name = name;
 
             //Cases correspond to the 5 options in the drop-down menu; default exists for... Propriety, mainly. The option selected when saving will always be the Category saved, pretty straightforward.
-            switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
+            foreach (Ship_Game.ShipData.Category item in Enum.GetValues(typeof(Ship_Game.ShipData.Category)).Cast<Ship_Game.ShipData.Category>())
             {
-                case 1:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
-                        break;
-                    }
-                case 2:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Civilian;
-                        break;
-                    }
-                case 3:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Recon;
-                        break;
-                    }
-                case 4:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Combat;
-                        break;
-                    }
-                case 5:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Kamikaze;
-                        break;
-                    }
-                default:
-                    {
-                        this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
-                        break;
-                    }
+                if(this.CategoryList.Options[this.CategoryList.ActiveIndex].Name == Enum.GetName(typeof(Ship_Game.ShipData.Category), item))
+                {
+                    this.ActiveHull.ShipCategory = item;
+                    break;
+                }
+
             }
+           
+
+            //    switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
+            //{
+            //    case 1:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
+            //            break;
+            //        }
+            //    case 2:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Civilian;
+            //            break;
+            //        }
+            //    case 3:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Recon;
+            //            break;
+            //        }
+            //    case 4:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Combat;
+            //            break;
+            //        }
+            //    case 5:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Fighter;
+            //            break;
+            //        }
+            //    case 6:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Bomber;
+            //            break;
+            //        }
+            //    case 7:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Kamikaze;
+            //            break;
+            //        }
+            //    default:
+            //        {
+            //            this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
+            //            break;
+            //        }
+            //}
+
+            //this.CategoryList.AddOption("Unclassified", 1);
+            //this.CategoryList.AddOption("Civilian", 2);
+            //this.CategoryList.AddOption("Recon", 3);
+            //this.CategoryList.AddOption("Fighter", 4);
+            //this.CategoryList.AddOption("Bomber", 5);
 
             //Adds the category determined by the case from the dropdown to the 'toSave' ShipData.
             toSave.ShipCategory = this.ActiveHull.ShipCategory;
@@ -6777,39 +6982,17 @@ namespace Ship_Game
 			{
 				s.ShowInvalid = false;
 				s.ShowValid = false;
-				if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.I && (s.Restrictions == Restrictions.I || s.Restrictions == Restrictions.IO))
-				{
-					s.ShowValid = true;
-				}
-				else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.IO && (s.Restrictions == Restrictions.I || s.Restrictions == Restrictions.IO || s.Restrictions == Restrictions.O))
-				{
-					s.ShowValid = true;
-				}
-                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.IE && (s.Restrictions == Restrictions.I || s.Restrictions == Restrictions.E))
-                {
-                    s.ShowValid = true;
-                }
-                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.OE && (s.Restrictions == Restrictions.O || s.Restrictions == Restrictions.E))
-                {
-                    s.ShowValid = true;
-                }
-                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.O && (s.Restrictions == Restrictions.O || s.Restrictions == Restrictions.IO))
-                {
-                    s.ShowValid = true;
-                }
-                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions == Restrictions.E && s.Restrictions == Restrictions.E)
-                {
-                    s.ShowValid = true;
-                }
-                else if (Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions != Restrictions.IOE || s.Restrictions != Restrictions.I && s.Restrictions != Restrictions.IO && s.Restrictions != Restrictions.O && s.Restrictions != Restrictions.E)
-                {
-                    s.ShowInvalid = true;
-                }
+                Restrictions ModRes = Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].Restrictions;  //Making this section a little easier to read -Gretman
+                Restrictions SlotRes = s.Restrictions;
 
-                else
-                {
-                    s.ShowValid = true;
-                }
+                if (ModRes == Restrictions.I && (SlotRes != Restrictions.E && SlotRes != Restrictions.O && SlotRes != Restrictions.OE)) s.ShowValid = true;
+                else if (ModRes == Restrictions.O && (SlotRes != Restrictions.E && SlotRes != Restrictions.I && SlotRes != Restrictions.IE)) s.ShowValid = true;
+                else if (ModRes == Restrictions.E && (SlotRes != Restrictions.I && SlotRes != Restrictions.O && SlotRes != Restrictions.IO)) s.ShowValid = true;
+                else if (ModRes == Restrictions.IO && SlotRes != Restrictions.E) s.ShowValid = true;
+                else if (ModRes == Restrictions.IE && SlotRes != Restrictions.O) s.ShowValid = true;
+                else if (ModRes == Restrictions.OE && SlotRes != Restrictions.I) s.ShowValid = true;
+                else if (ModRes == Restrictions.IOE) s.ShowValid = true;
+                else s.ShowInvalid = true;
 			}
 			if (this.ActiveHangarModule != this.ActiveModule && this.ActiveModule.ModuleType == ShipModuleType.Hangar)
 			{
@@ -7426,10 +7609,14 @@ namespace Ship_Game
 		{
 			Delete,
 			I,
-			IO,
 			O,
-			Add,
-			E
+			E,
+			IO,
+			IE,
+            OE,
+            IOE,
+            Normal
+
 		}
 	}
 }

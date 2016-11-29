@@ -23,11 +23,15 @@ namespace Ship_Game.Gameplay
 		{
 			this.Origin = Origin;
 			this.Destination = Destination;
-			float Distance = Vector2.Distance(Origin.Position, Destination.Position);
+           
+            float Distance = Vector2.Distance(Origin.Position, Destination.Position) ;
 
-            //int galaxySizeMod = (int)((Empire.universeScreen.Size.X ) / 250);
+            
             float offset = (Empire.ProjectorRadius * 1.75f);//fbedard: increased from 1.5f
+            offset = offset == 0 ? 1 : offset;
             this.NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
+            offset = Distance / NumberOfProjectors;
+            offset *= .5f;
             if (SSPBudget - nodeMaintenance * this.NumberOfProjectors <= 0)
             {
                 this.NumberOfProjectors = 0;
@@ -37,21 +41,24 @@ namespace Ship_Game.Gameplay
 			{
 				RoadNode node = new RoadNode();
 				float angle = HelperFunctions.findAngleToTarget(Origin.Position, Destination.Position);
-                node.Position = HelperFunctions.GeneratePointOnCircle(angle, Origin.Position,  (float)i * (Distance / this.NumberOfProjectors));
+                node.Position = HelperFunctions.GeneratePointOnCircle(angle, Origin.Position, offset + (i * (float)( Distance / this.NumberOfProjectors) ));
 				bool reallyAdd = true;
                 empire.BorderNodeLocker.EnterReadLock();
-				{
-					foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
-					{
-						if (Vector2.Distance(node.Position, bordernode.Position) >= bordernode.Radius)
-						{
-							continue;
-						}
-						reallyAdd = false;
-					}
-				}
+                {
+                    float extrad = Empire.ProjectorRadius;
+                    foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
+                    {
+                        extrad = !(bordernode.KeyedObject is Ship) ? Empire.ProjectorRadius : 0;
+                  
+                        if (Vector2.Distance(node.Position, bordernode.Position) + extrad >= bordernode.Radius)
+                        {
+                            continue;
+                        }
+                        reallyAdd = false;
+                    }
+                }
                 empire.BorderNodeLocker.ExitReadLock();
-				if (reallyAdd)
+                if (reallyAdd)
 				{
 					this.RoadNodesList.Add(node);
 				}
@@ -64,7 +71,8 @@ namespace Ship_Game.Gameplay
 			return this.Destination;
 		}
 
-		public SolarSystem GetOrigin()
+		public SolarSystem GetOrigin
+            ()
 		{
 			return this.Origin;
 		}

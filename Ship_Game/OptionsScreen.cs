@@ -27,7 +27,7 @@ namespace Ship_Game
 
 		private DropOptions ResolutionDropDown;
 
-        //private DropOptions AntiAliasingDD;          //Not referenced in code, removing to save memory -Gretman
+        //private DropOptions AntiAliasingDD;          //Not referenced in code, removing to save memory
 
         private List<UIButton> Buttons = new List<UIButton>();
 
@@ -115,7 +115,7 @@ namespace Ship_Game
 			{
 				this.startingx = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
 				this.startingy = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-				Game1.Instance.graphics.SynchronizeWithVerticalRetrace = false;
+				Game1.Instance.graphics.SynchronizeWithVerticalRetrace = true;
 				Game1.Instance.SetWindowMode(this.ModeToSet, (this.ResolutionDropDown.Active.ReferencedObject as OptionsScreen.Option).x, (this.ResolutionDropDown.Active.ReferencedObject as OptionsScreen.Option).y);
 				base.Setup();
 				if (this.FromGame)
@@ -609,7 +609,7 @@ namespace Ship_Game
                     }
                 }
             }
-            //int qualityLevels = 0;          //Not referenced in code, removing to save memory -Gretman
+            //int qualityLevels = 0;          //Not referenced in code, removing to save memory
             //this.AntiAliasingDD = new DropOptions(new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width / 2 + 10, (int)this.Resolution.NamePosition.Y + 26, 105, 18));
             //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
             //    this.AntiAliasingDD.AddOption("8x AA", 8);

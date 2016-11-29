@@ -74,7 +74,7 @@ namespace Ship_Game
 
        ~DeepSpaceBuildingWindow() { Dispose(false); }
 
-       protected void Dispose(bool disposing)
+       private void Dispose(bool disposing)
        {
            if (!disposed)
            {

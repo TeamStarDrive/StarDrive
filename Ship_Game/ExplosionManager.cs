@@ -202,7 +202,7 @@ namespace Ship_Game
 			}
 			Explosion newExp = new Explosion()
 			{
-                //hasShockwave = Shockwave,          //Not referenced in code, removing to save memory -Gretman
+                //hasShockwave = Shockwave,          //Not referenced in code, removing to save memory
                 pos = Position,
 				duration = duration
 			};
