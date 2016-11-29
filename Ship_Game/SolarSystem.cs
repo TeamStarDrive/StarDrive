@@ -54,7 +54,7 @@ namespace Ship_Game
 
 		public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
 
-		public List<SolarSystem.Ring> RingList = new List<SolarSystem.Ring>();
+		public List<Ring> RingList = new List<Ring>();
 
 		private int numberOfRings;
 
@@ -64,7 +64,7 @@ namespace Ship_Game
 
 		public List<string> ShipsToSpawn = new List<string>();
 
-		public List<SolarSystem.FleetAndPos> FleetsToSpawn = new List<SolarSystem.FleetAndPos>();
+		public List<FleetAndPos> FleetsToSpawn = new List<FleetAndPos>();
 
 		public List<Anomaly> AnomaliesList = new List<Anomaly>();
 
@@ -76,7 +76,6 @@ namespace Ship_Game
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
-        private int myVar;
 
         //public int MyProperty(Empire empire)
         //{

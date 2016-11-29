@@ -537,7 +537,7 @@ namespace Ship_Game.Gameplay
             {
                 if (!s.InCombat)
                 {
-                    lock (s.GetAI().wayPointLocker)
+                    lock (s.GetAI().WayPointLocker)
                         s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
                 }
                 FleetDataNode fleetDataNode = new FleetDataNode();
@@ -2291,11 +2291,9 @@ namespace Ship_Game.Gameplay
                     break;
                 case 3:                    
                     this.EnemyClumpsDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarClusters(this.Task.GetTargetPlanet().Position, 150000,10000,this.Owner);
-                    if(false)
-                    {
+                    #if false
                         this.EnemyClumpsDict.Clear();
                         List<Ship> list2 = new List<Ship>();
-
 
                         List<Ship> nearby1; // = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
                         nearby1 = this.Owner.GetGSAI().ThreatMatrix.PingRadarShip(this.Task.GetTargetPlanet().Position, 150000f);
@@ -2330,7 +2328,7 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
-                    }
+                    #endif
                     if (this.EnemyClumpsDict.Count == 0)
                     {
                         using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())

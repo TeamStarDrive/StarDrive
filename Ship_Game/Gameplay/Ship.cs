@@ -4731,7 +4731,7 @@ namespace Ship_Game.Gameplay
         {
             //lock (GlobalStats.AddShipLocker)
             //if (Ship.universeScreen.SelectedShip == this)
-            //    lock (this.GetAI().wayPointLocker)
+            //    lock (this.GetAI().WayPointLocker)
             //    {
 
 

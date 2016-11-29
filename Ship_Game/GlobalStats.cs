@@ -53,8 +53,6 @@ namespace Ship_Game
 
 		public static object ClickableItemLocker;
 
-		public static object NotificationLocker;
-
 		public static object TaskLocker;
 
 		public static object FleetButtonLocker;
@@ -167,7 +165,6 @@ namespace Ship_Game
 			GlobalStats.DeepSpaceLock = new object();
 			GlobalStats.WayPointLock = new object();
 			GlobalStats.ClickableItemLocker = new object();
-			GlobalStats.NotificationLocker = new object();
 			GlobalStats.TaskLocker = new object();
 			GlobalStats.FleetButtonLocker = new object();
 			GlobalStats.BeamEffectLocker = new object();

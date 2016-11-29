@@ -907,8 +907,6 @@ namespace Ship_Game.Gameplay
                                     return;
                                 }
                             }
-                            else if (false)
-                                return;
                             else if (gameplayObject1 is Ship && (gameplayObject as Projectile).loyalty != (gameplayObject1 as Ship).loyalty && Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) < gameplayObject1.Radius + gameplayObject.Radius + (gameplayObject as Projectile).speed / 60.0)
                             {
                                 (gameplayObject1 as Ship).MoveModulesTimer = 2f;
