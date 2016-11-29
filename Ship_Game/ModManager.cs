@@ -75,7 +75,7 @@ namespace Ship_Game
 
         ~ModManager() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

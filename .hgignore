@@ -4,7 +4,6 @@ obj/
 *.vsp
 Ship_Game\Gameplay\GremlinAI.cs
 bin/
-StarDrive.csproj.orig
 *.orig
 StarDrive.v12.suo
 UpgradeLog2.htm
@@ -13,3 +12,5 @@ Deploy/Upload/
 Deploy/
 StarDrive/
 Backup\Backup\StarDrive.sln
+Deploy/
+*.suo

@@ -57,9 +57,9 @@ namespace Ship_Game
 
 		private Rectangle AbsoluteDestination = new Rectangle(0, 0, 600, 600);
 
-		protected float TimerDelay = 0.25f;
+        private float TimerDelay = 0.25f;
 
-		protected float ClickTimer;
+        private float ClickTimer;
 
 		//private float transitionElapsedTime;
 
@@ -91,7 +91,7 @@ namespace Ship_Game
 
         ~ResearchScreenNew() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -510,7 +510,15 @@ namespace Ship_Game
 			string resTop = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic;
 			if (!string.IsNullOrEmpty(resTop))
 			{
-				this.qcomponent.LoadQueue(this.CompleteSubNodeTree[resTop] as TreeNode);
+                Node resTopNode = null;
+                this.CompleteSubNodeTree.TryGetValue(resTop, out resTopNode);
+                if(resTopNode != null)
+                this.qcomponent.LoadQueue(resTopNode as TreeNode);
+                else
+                {
+                    resTop = string.Empty;
+                    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic = string.Empty;
+                }
 			}
 			foreach (string uid in EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.ResearchQueue)
 			{

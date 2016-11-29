@@ -53,7 +53,7 @@ namespace Ship_Game
 
 		public Vector3 dir_to_camera;
 
-        //public float allscale = 1f;          //Not referenced in code, removing to save memory -Gretman
+        //public float allscale = 1f;          //Not referenced in code, removing to save memory
 
         private float distanceToParentCenter;
 

@@ -1,3 +1,9 @@
+Notice: we have the stardrive devs publicly and privately stated approval for modifying the game for educational purposes but this software is still under the steam license restrictions. Do not use this for immoral or personal financial gain, donations requests are ok but can not be demanded or required. Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam. 
+please read the steam EULA and understand that game modding is a common concept. 
+http://steamcommunity.com/app/252450/discussions/0/385428458177062745/#c365163686048069513
+http://store.steampowered.com/eula/eula_39190
+
+
 # Stardrive BlackBox#
 So what is black box? its a decompiled recompiled version of stardrive. 
 It contains fixes and enhancements to the basic game while trying to keep the game as close to vanilla as possible. 
@@ -14,9 +20,6 @@ Here are the current links.
 
 * paypal donation link for crunchy gremlins contribution to BlackBox
 * * https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VAJQU42QYJY82&lc=US&item_name=Crunchy%20Gremlin&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted 
-
-* Patreon Link for McShooterz Contribution to BlackBox and StarTtrek:Shattered Alliance
-* * http://www.patreon.com/McShooterz 
 
 # Feature list #
 

@@ -3283,7 +3283,7 @@ namespace Ship_Game
 
         ~ColonyScreen() { Dispose(false);  }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

@@ -21,7 +21,7 @@ namespace Ship_Game
 
 		public Rectangle BaseRect = new Rectangle(0, 0, 92, 98);
 
-        //public bool researching;          //Not referenced in code, removing to save memory -Gretman
+        //public bool researching;          //Not referenced in code, removing to save memory
 
         public bool complete;
 
