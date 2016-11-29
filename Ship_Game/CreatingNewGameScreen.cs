@@ -221,12 +221,15 @@ namespace Ship_Game
 
         private void SaveRace(Empire empire)
         {
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(EmpireData));
-            EmpireData empireData = new EmpireData();
-            empireData.Traits = empire.data.Traits;
-            TextWriter textWriter = (TextWriter)new StreamWriter("Content/Races/test.xml");
-            xmlSerializer.Serialize(textWriter, (object)empireData);
-            textWriter.Close();
+            EmpireData empireData = new EmpireData()
+            {
+                Traits = empire.data.Traits
+            };
+            using (TextWriter textWriter = new StreamWriter("Content/Races/test.xml"))
+            {
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(EmpireData));
+                xmlSerializer.Serialize(textWriter, empireData);
+            }
         }
 
         public override void LoadContent()
@@ -247,9 +250,9 @@ namespace Ship_Game
             this.whichAdvice = (int)RandomMath.RandomBetween(0.0f, (float)this.AdviceList.Count);
             this.whichTexture = (int)RandomMath.RandomBetween(0.0f, (float)this.TextureList.Count);
             this.text = HelperFunctions.parseText(Fonts.Arial12Bold, this.AdviceList[this.whichAdvice], 500f);
-            this.ScreenCenter = new Vector2((float)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-            this.WorkerThread = new Thread(new ThreadStart(this.Worker));
-            this.WorkerThread.IsBackground = true;
+            this.ScreenCenter = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f, 
+                                            ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f);
+            this.WorkerThread = new Thread(new ThreadStart(this.Worker)) { IsBackground = true };
             this.WorkerThread.Start();
             base.LoadContent();
         }
@@ -277,46 +280,43 @@ namespace Ship_Game
                         int index2 = (int)RandomMath.RandomBetween(0.0f, (float)(removalCollection.Count));
                         if (index2 == removalCollection.Count) index2 = 0;      //Just to be safe
 
-                        if (false)
+                    #if false // disabled functionality
+                        List<string> shipkill = new List<string>();
+                        foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
                         {
-                            List<string> shipkill = new List<string>();
-
-                            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+                            if (ship.Value.shipData.ShipStyle == removalCollection[index2].Traits.ShipType)
                             {
-                                if (ship.Value.shipData.ShipStyle == removalCollection[index2].Traits.ShipType)
+                                bool killSwitch = true;
+                                foreach (Empire ebuild in EmpireManager.EmpireList)
                                 {
-                                    bool killSwitch = true;
-                                    foreach (Empire ebuild in EmpireManager.EmpireList)
+                                    if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+                                        killSwitch = false;
+                                    break;
+                                }
+
+                                if (killSwitch)
+                                    foreach (Ship mship in this.data.MasterShipList)
                                     {
-                                        if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
-                                            killSwitch = false;
-                                        break;
-                                    }
-
-
-                                    if (killSwitch)
-                                        foreach (Ship mship in this.data.MasterShipList)
+                                        if (ship.Key == mship.Name)
                                         {
-                                            if (ship.Key == mship.Name)
-                                            {
-                                                killSwitch = false;
-                                                break;
-                                            }
+                                            killSwitch = false;
+                                            break;
                                         }
-                                    if (killSwitch)
-                                    {
-                                        shipsPurged++;
-
-                                        // System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
-                                        shipkill.Add(ship.Key);
                                     }
+                                if (killSwitch)
+                                {
+                                    shipsPurged++;
+
+                                    // System.Diagnostics.Debug.WriteLine("Removed "+ship.Value.shipData.Role.ToString()+" : " + ship.Key + " from: " + ship.Value.shipData.ShipStyle);
+                                    shipkill.Add(ship.Key);
                                 }
                             }
-                            foreach (string shiptoclear in shipkill)
-                            {
-                                ResourceManager.ShipsDict.Remove(shiptoclear);
-                            } 
                         }
+                        foreach (string shiptoclear in shipkill)
+                        {
+                            ResourceManager.ShipsDict.Remove(shiptoclear);
+                        } 
+                    #endif
 
                         System.Diagnostics.Debug.WriteLine("Race excluded from game: " + removalCollection[index2].PortraitName + "  (Index " + index2 + " of " + (removalCollection.Count - 1) + ")");
                         removalCollection.RemoveAt(index2);
@@ -635,8 +635,7 @@ namespace Ship_Game
                                 }
                                 if (planet1.HasShipyard)
                                 {
-                                    SpaceStation spaceStation = new SpaceStation();
-                                    spaceStation.planet = planet1;
+                                    SpaceStation spaceStation = new SpaceStation() { planet = planet1 };
                                     planet1.Station = spaceStation;
                                     spaceStation.ParentSystem = planet1.system;
                                     spaceStation.LoadContent(this.ScreenManager);
@@ -883,14 +882,16 @@ namespace Ship_Game
 
         public static EmpireData CopyEmpireData(EmpireData data)
         {
-            EmpireData empireData = new EmpireData();
-            empireData.ArmorPiercingBonus = data.ArmorPiercingBonus;
-            empireData.BaseReproductiveRate = data.BaseReproductiveRate;
-            empireData.BonusFighterLevels = data.BonusFighterLevels;
-            empireData.CounterIntelligenceBudget = 0.0f;
-            empireData.DefaultColonyShip = data.DefaultColonyShip;
-            empireData.DefaultSmallTransport = data.DefaultSmallTransport;
-            empireData.DefaultTroopShip = data.DefaultTroopShip;
+            EmpireData empireData = new EmpireData()
+            {
+                ArmorPiercingBonus = data.ArmorPiercingBonus,
+                BaseReproductiveRate = data.BaseReproductiveRate,
+                BonusFighterLevels = data.BonusFighterLevels,
+                CounterIntelligenceBudget = 0.0f,
+                DefaultColonyShip = data.DefaultColonyShip,
+                DefaultSmallTransport = data.DefaultSmallTransport,
+                DefaultTroopShip = data.DefaultTroopShip
+            };
             if (string.IsNullOrEmpty(empireData.DefaultTroopShip))
             {
                 empireData.DefaultTroopShip = empireData.PortraitName + " " + "Troop";
@@ -931,52 +932,56 @@ namespace Ship_Game
             //Doctor: Civilian Maint Mod
             empireData.CivMaintMod = data.CivMaintMod;
 
-            empireData.Traits = new RacialTrait();
-            empireData.Traits.Aquatic = data.Traits.Aquatic;
-            empireData.Traits.Assimilators = data.Traits.Assimilators;
-            empireData.Traits.B = 128f;
-            empireData.Traits.Blind = data.Traits.Blind;
-            empireData.Traits.BonusExplored = data.Traits.BonusExplored;
-            empireData.Traits.Burrowers = data.Traits.Burrowers;
-            empireData.Traits.ConsumptionModifier = data.Traits.ConsumptionModifier;
-            empireData.Traits.Cybernetic = data.Traits.Cybernetic;
-            empireData.Traits.DiplomacyMod = data.Traits.DiplomacyMod;
-            empireData.Traits.DodgeMod = data.Traits.DodgeMod;
-            empireData.Traits.EnergyDamageMod = data.Traits.EnergyDamageMod;
-            empireData.Traits.FlagIndex = data.Traits.FlagIndex;
-            empireData.Traits.G = 128f;
-            empireData.Traits.GenericMaxPopMod = data.Traits.GenericMaxPopMod;
-            empireData.Traits.GroundCombatModifier = data.Traits.GroundCombatModifier;
-            empireData.Traits.InBordersSpeedBonus = data.Traits.InBordersSpeedBonus;
-            empireData.Traits.MaintMod = data.Traits.MaintMod;
-            empireData.Traits.Mercantile = data.Traits.Mercantile;
-            empireData.Traits.Militaristic = data.Traits.Militaristic;
-            empireData.Traits.Miners = data.Traits.Miners;
-            empireData.Traits.ModHpModifier = data.Traits.ModHpModifier;
-            empireData.Traits.PassengerModifier = data.Traits.PassengerModifier;
-            empireData.Traits.ProductionMod = data.Traits.ProductionMod;
-            empireData.Traits.R = 128f;
-            empireData.Traits.RepairMod = data.Traits.RepairMod;
-            empireData.Traits.ReproductionMod = data.Traits.ReproductionMod;
-            empireData.Traits.PopGrowthMax = data.Traits.PopGrowthMax;
-            empireData.Traits.PopGrowthMin = data.Traits.PopGrowthMin;
-            empireData.Traits.ResearchMod = data.Traits.ResearchMod;
-            empireData.Traits.ShipCostMod = data.Traits.ShipCostMod;
-            empireData.Traits.ShipType = data.Traits.ShipType;
-            empireData.Traits.Singular = data.RebelSing;
-            empireData.Traits.Plural = data.RebelPlur;
-            empireData.Traits.Spiritual = data.Traits.Spiritual;
-            empireData.Traits.SpyMultiplier = data.Traits.SpyMultiplier;
-            empireData.Traits.TaxMod = data.Traits.TaxMod;
+            empireData.Traits = new RacialTrait()
+            {
+                Aquatic = data.Traits.Aquatic,
+                Assimilators = data.Traits.Assimilators,
+                B = 128f,
+                Blind = data.Traits.Blind,
+                BonusExplored = data.Traits.BonusExplored,
+                Burrowers = data.Traits.Burrowers,
+                ConsumptionModifier = data.Traits.ConsumptionModifier,
+                Cybernetic = data.Traits.Cybernetic,
+                DiplomacyMod = data.Traits.DiplomacyMod,
+                DodgeMod = data.Traits.DodgeMod,
+                EnergyDamageMod = data.Traits.EnergyDamageMod,
+                FlagIndex = data.Traits.FlagIndex,
+                G = 128f,
+                GenericMaxPopMod = data.Traits.GenericMaxPopMod,
+                GroundCombatModifier = data.Traits.GroundCombatModifier,
+                InBordersSpeedBonus = data.Traits.InBordersSpeedBonus,
+                MaintMod = data.Traits.MaintMod,
+                Mercantile = data.Traits.Mercantile,
+                Militaristic = data.Traits.Militaristic,
+                Miners = data.Traits.Miners,
+                ModHpModifier = data.Traits.ModHpModifier,
+                PassengerModifier = data.Traits.PassengerModifier,
+                ProductionMod = data.Traits.ProductionMod,
+                R = 128f,
+                RepairMod = data.Traits.RepairMod,
+                ReproductionMod = data.Traits.ReproductionMod,
+                PopGrowthMax = data.Traits.PopGrowthMax,
+                PopGrowthMin = data.Traits.PopGrowthMin,
+                ResearchMod = data.Traits.ResearchMod,
+                ShipCostMod = data.Traits.ShipCostMod,
+                ShipType = data.Traits.ShipType,
+                Singular = data.RebelSing,
+                Plural = data.RebelPlur,
+                Spiritual = data.Traits.Spiritual,
+                SpyMultiplier = data.Traits.SpyMultiplier,
+                TaxMod = data.Traits.TaxMod
+            };
             empireData.TurnsBelowZero = 0;
             return empireData;
         }
 
         public static Empire CreateRebelsFromEmpireData(EmpireData data, Empire parent)
         {
-            Empire empire = new Empire();
-            empire.isFaction = true;
-            empire.data = CreatingNewGameScreen.CopyEmpireData(data);
+            Empire empire = new Empire()
+            {
+                isFaction = true,
+                data = CopyEmpireData(data)
+            };
             //Added by McShooterz: mod folder support
             DiplomaticTraits diplomaticTraits = (DiplomaticTraits)new XmlSerializer(typeof(DiplomaticTraits)).Deserialize((Stream)new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Diplomacy/DiplomaticTraits.xml") : "Content/Diplomacy/DiplomaticTraits.xml").OpenRead());
             int index1 = (int)RandomMath.RandomBetween(0.0f, (float)diplomaticTraits.DiplomaticTraitsList.Count);
@@ -1059,16 +1064,18 @@ namespace Ship_Game
         public void Go()
         {
             this.ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
-            this.us = new UniverseScreen(this.data);
-            this.us.player = this.playerEmpire;
-            this.us.ScreenManager = this.ScreenManager;
-            this.us.camPos = new Vector3(-this.playerShip.Center.X, this.playerShip.Center.Y, 5000f);
-            this.us.GameDifficulty = this.difficulty;
-            this.us.GameScale = this.scale;
+            this.us = new UniverseScreen(this.data)
+            {
+                player = this.playerEmpire,
+                ScreenManager = this.ScreenManager,
+                camPos = new Vector3(-this.playerShip.Center.X, this.playerShip.Center.Y, 5000f),
+                GameDifficulty = this.difficulty,
+                GameScale = this.scale
+            };
             UniverseScreen.GameScaleStatic = this.scale;
             this.WorkerThread.Abort();
-            this.WorkerThread = (Thread)null;
-            this.ScreenManager.AddScreen((GameScreen)this.us);
+            this.WorkerThread = null;
+            this.ScreenManager.AddScreen(this.us);
             this.us.UpdateAllSystems(0.01f);
             this.mmscreen.OnPlaybackStopped((object)null, (EventArgs)null);
             this.ScreenManager.RemoveScreen((GameScreen)this.mmscreen);
