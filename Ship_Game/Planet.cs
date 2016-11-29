@@ -138,7 +138,7 @@ namespace Ship_Game
         private bool disposed;
         private ReaderWriterLockSlim planetLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private bool PSexport = false;
-        private bool FSexport = false;
+        //private bool FSexport = false;
         public bool UniqueHab = false;
         public int uniqueHabPercent;
         public float ExportPSWeight =0;
@@ -2952,13 +2952,13 @@ namespace Ship_Game
                     //Modified by McShooterz: Repair based on repair pool, if no combat in system                 
                     if (!ship.InCombat && RepairPool > 0 && (ship.Health < ship.HealthMax || ship.shield_percent <90))
                     {
-                        bool repairing = false;
+                        //bool repairing = false;
                         ship.shipStatusChanged = true;
                         foreach (ModuleSlot slot in ship.ModuleSlotList) // .Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health != slot.module.HealthMax))
                         {
                             if (slot.module.ModuleType == ShipModuleType.Dummy)
                                 continue;
-                            repairing = true;
+                            //repairing = true;
                             if(ship.loyalty.data.Traits.ModHpModifier >0 )
                             {
                                 float test = ResourceManager.ShipModulesDict[slot.module.UID].HealthMax;
@@ -3142,38 +3142,26 @@ namespace Ship_Game
                 if ( this.Fertility > 1.0)
                     this.Fertility = 1f;
             }
-            if (this.GovernorOn)
-                this.DoGoverning();
-            this.UpdateIncomes(false);
-            // ADDED BY SHAHMATT (notification about empty queue)
-            if (GlobalStats.ExtraNotiofications && this.Owner != null && this.Owner.isPlayer && this.ConstructionQueue.Count <= 0 && !this.queueEmptySent)
+            if (GovernorOn)
+                DoGoverning();
+            UpdateIncomes(false);
+
+            // notification about empty queue
+            if (GlobalStats.ExtraNotiofications && Owner != null && Owner.isPlayer)
             {
-                if (this.colonyType == Planet.ColonyType.Colony || this.colonyType == Planet.ColonyType.Core || this.colonyType == Planet.ColonyType.Industrial || !this.GovernorOn)
+                if (ConstructionQueue.Count == 0 && !queueEmptySent)
                 {
-                    this.queueEmptySent = true;
-                    Notification cNote = new Notification()
+                    if (colonyType == ColonyType.Colony || colonyType == ColonyType.Core || colonyType == ColonyType.Industrial || !GovernorOn)
                     {
-                        Pause = false,
-                        RelevantEmpire = this.Owner,
-                        Message = string.Concat(this.Name, " is not producing anything."),
-                        ReferencedItem1 = this, //this.system,
-                        IconPath = string.Concat("Planets/", this.planetType),//"UI/icon_warning_money",
-                        Action = "SnapToPlanet", //"SnapToSystem",
-                        ClickRect = new Rectangle(Planet.universeScreen.NotificationManager.NotificationArea.X, Planet.universeScreen.NotificationManager.NotificationArea.Y, 64, 64),
-                        DestinationRect = new Rectangle(Planet.universeScreen.NotificationManager.NotificationArea.X, Planet.universeScreen.NotificationManager.NotificationArea.Y + Planet.universeScreen.NotificationManager.NotificationArea.Height - (Planet.universeScreen.NotificationManager.NotificationList.Count + 1) * 70, 64, 64)
-                    };
-                    AudioManager.PlayCue("sd_ui_notification_warning");
-                    lock (GlobalStats.NotificationLocker)
-                    {
-                        Planet.universeScreen.NotificationManager.NotificationList.Add(cNote);
+                        queueEmptySent = true;
+                        universeScreen.NotificationManager.AddEmptyQueueNotification(this);
                     }
                 }
+                else if (ConstructionQueue.Count > 0)
+                {
+                    queueEmptySent = false;
+                }
             }
-            else if (GlobalStats.ExtraNotiofications && this.Owner !=null && this.Owner.isPlayer && this.ConstructionQueue.Count > 0)
-            {
-               this.queueEmptySent = false;
-            }
-            // END OF ADDED BY SHAHMATT
             //if ((double)this.ShieldStrengthCurrent < (double)this.ShieldStrengthMax)
             //{
             //    ++this.ShieldStrengthCurrent;
@@ -3183,14 +3171,14 @@ namespace Ship_Game
             //if ((double)this.ShieldStrengthCurrent > (double)this.ShieldStrengthMax)
             //    this.ShieldStrengthCurrent = this.ShieldStrengthMax;
             //added by gremlin Planetary Shield Change
-            if (this.ShieldStrengthCurrent < this.ShieldStrengthMax)
+            if (ShieldStrengthCurrent < this.ShieldStrengthMax)
             {
                 Planet shieldStrengthCurrent = this;
 
-                if (!this.RecentCombat)
+                if (!RecentCombat)
                 {
 
-                    if (this.ShieldStrengthCurrent > this.ShieldStrengthMax / 10)
+                    if (ShieldStrengthCurrent > ShieldStrengthMax / 10)
                     {
                         shieldStrengthCurrent.ShieldStrengthCurrent += shieldStrengthCurrent.ShieldStrengthMax / 10;
                     }
@@ -3199,21 +3187,19 @@ namespace Ship_Game
                         shieldStrengthCurrent.ShieldStrengthCurrent++;
                     }
                 }
-                if ((double)this.ShieldStrengthCurrent > (double)this.ShieldStrengthMax)
-                    this.ShieldStrengthCurrent = this.ShieldStrengthMax;
+                if (ShieldStrengthCurrent > ShieldStrengthMax)
+                    ShieldStrengthCurrent = ShieldStrengthMax;
             }
 
             //this.UpdateTimer = 10f;
-            this.HarvestResources();
-            this.ApplyProductionTowardsConstruction();
-            this.GrowPopulation();
-            //Added by McShooterz         
-            this.HealTroops();
-            if ((double)this.FoodHere > (double)this.MAX_STORAGE)
-                this.FoodHere = this.MAX_STORAGE;
-            if ((double)this.ProductionHere <= (double)this.MAX_STORAGE)
-                return;
-            this.ProductionHere = this.MAX_STORAGE;
+            HarvestResources();
+            ApplyProductionTowardsConstruction();
+            GrowPopulation();
+            HealTroops();
+            if (FoodHere > MAX_STORAGE)
+                FoodHere = MAX_STORAGE;
+            if (ProductionHere > MAX_STORAGE)
+                ProductionHere = MAX_STORAGE;
         }
 
         private float CalculateCyberneticPercentForSurplus(float desiredSurplus)
@@ -4047,12 +4033,13 @@ namespace Ship_Game
             {
                 this.PSexport = false;
             }
-            if(!FSexport)
-                this.FSexport = true;
-            else
-            {
-                this.FSexport = false ;
-            }
+
+            //if(!FSexport)
+            //    this.FSexport = true;
+            //else
+            //{
+            //    this.FSexport = false;
+            //}
             //if(this.developmentLevel>1 && this.ps == GoodState.EXPORT && !PSexport)
             //{
                 
@@ -5056,23 +5043,23 @@ namespace Ship_Game
                         }
 
                         float num9 = 0.0f;
-                        bool flag11 = false;
+                        //bool flag11 = false;
                         foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
                         {
                             if (queueItem.isBuilding)
                                 ++num9;
                             if (queueItem.isBuilding && queueItem.Building.Name == "Biospheres")
                                 ++num9;
-                            if (queueItem.isBuilding && queueItem.Building.Name == "Terraformer")
-                                flag11 = true;
+                            //if (queueItem.isBuilding && queueItem.Building.Name == "Terraformer")
+                            //    flag11 = true;
                         }
                         bool flag12 = true;
                         foreach (Building building in this.BuildingList)
                         {
                             if (building.Name == "Outpost" || building.Name == "Capital City")
                                 flag12 = false;
-                            if (building.Name == "Terraformer" && this.Fertility >= 1.0)
-                                flag11 = true;
+                            //if (building.Name == "Terraformer" && this.Fertility >= 1.0)
+                            //    flag11 = true;
                         }
                         if (flag12)
                         {
@@ -5120,7 +5107,6 @@ namespace Ship_Game
                             this.GetBuildingsWeCanBuildHere();
                             Building b = (Building)null;
                             float num1 = 99999f;
-                            bool highPri = false;
                             foreach (Building building in this.BuildingsCanBuild.OrderBy(cost => cost.Cost))
                             {
                                 if (!WeCanAffordThis(building, this.colonyType))
@@ -5745,24 +5731,24 @@ output = maxp * take10 = 5
                 this.ApplyProductiontoQueue(normalAmount, 0);                
             }
 
-            return;
-            if (this.ProductionHere > this.MAX_STORAGE * 0.6f && this.GovernorOn)
-            {
-                float amount = this.ProductionHere - (this.MAX_STORAGE * 0.6f);
-                this.ProductionHere = this.MAX_STORAGE * 0.6f;
-                this.ApplyProductiontoQueue(normalAmount + amount, 0);
-            }
-            else
-            {
-                //Only store 25% if exporting
-                if (this.ps == GoodState.EXPORT)
-                {
-                    this.ApplyProductiontoQueue(normalAmount * 0.75f, 0);
-                    this.ProductionHere += 0.25f * normalAmount;
-                }
-                else
-                    this.ApplyProductiontoQueue(normalAmount, 0);
-            }
+            //return;
+            //if (this.ProductionHere > this.MAX_STORAGE * 0.6f && this.GovernorOn)
+            //{
+            //    float amount = this.ProductionHere - (this.MAX_STORAGE * 0.6f);
+            //    this.ProductionHere = this.MAX_STORAGE * 0.6f;
+            //    this.ApplyProductiontoQueue(normalAmount + amount, 0);
+            //}
+            //else
+            //{
+            //    //Only store 25% if exporting
+            //    if (this.ps == GoodState.EXPORT)
+            //    {
+            //        this.ApplyProductiontoQueue(normalAmount * 0.75f, 0);
+            //        this.ProductionHere += 0.25f * normalAmount;
+            //    }
+            //    else
+            //        this.ApplyProductiontoQueue(normalAmount, 0);
+            //}
             //Lost production converted into 50% money
             //The Doctor: disabling until this can be more smoothly integrated into the economic predictions, UI and AI
             /*
@@ -6809,47 +6795,41 @@ output = maxp * take10 = 5
                 EnemyTroopStrength += b.Strength + b.CombatStrength;
             }
           
-
             return EnemyTroopStrength;
-            foreach (PlanetGridSquare pgs in this.TilesList)
-            {
-                pgs.TroopsHere.thisLock.EnterReadLock();
-                Troop troop = null;
-                while (pgs.TroopsHere.Count > 0)
-                {
-                    if (pgs.TroopsHere.Count > 0)
-                        troop = pgs.TroopsHere[0];
+            //foreach (PlanetGridSquare pgs in this.TilesList)
+            //{
+            //    pgs.TroopsHere.thisLock.EnterReadLock();
+            //    Troop troop = null;
+            //    while (pgs.TroopsHere.Count > 0)
+            //    {
+            //        if (pgs.TroopsHere.Count > 0)
+            //            troop = pgs.TroopsHere[0];
 
-                    if (troop == null && this.Owner != AllButThisEmpire)
-                    {
-                        if (pgs.building == null || pgs.building.CombatStrength <= 0)
-                        {
+            //        if (troop == null && this.Owner != AllButThisEmpire)
+            //        {
+            //            if (pgs.building == null || pgs.building.CombatStrength <= 0)
+            //            {
 
-                            break;
-                        }
-                        EnemyTroopStrength = EnemyTroopStrength + (pgs.building.CombatStrength + (pgs.building.Strength)); //+ (pgs.building.isWeapon ? pgs.building.theWeapon.DamageAmount:0));
-                        break;
-                    }
-                    else if (troop != null && troop.GetOwner() != AllButThisEmpire)
-                    {
-                        EnemyTroopStrength = EnemyTroopStrength + troop.Strength;
-                    }
-                    if (this.Owner == AllButThisEmpire || pgs.building == null || pgs.building.CombatStrength <= 0)
-                    {
+            //                break;
+            //            }
+            //            EnemyTroopStrength = EnemyTroopStrength + (pgs.building.CombatStrength + (pgs.building.Strength)); //+ (pgs.building.isWeapon ? pgs.building.theWeapon.DamageAmount:0));
+            //            break;
+            //        }
+            //        else if (troop != null && troop.GetOwner() != AllButThisEmpire)
+            //        {
+            //            EnemyTroopStrength = EnemyTroopStrength + troop.Strength;
+            //        }
+            //        if (this.Owner == AllButThisEmpire || pgs.building == null || pgs.building.CombatStrength <= 0)
+            //        {
 
-                        break;
-                    }
-                    EnemyTroopStrength = EnemyTroopStrength + pgs.building.CombatStrength + pgs.building.Strength;
-                    break;
-                }
-                pgs.TroopsHere.thisLock.ExitReadLock();
-                
-
-            }
-
-            return EnemyTroopStrength ;
-
-
+            //            break;
+            //        }
+            //        EnemyTroopStrength = EnemyTroopStrength + pgs.building.CombatStrength + pgs.building.Strength;
+            //        break;
+            //    }
+            //    pgs.TroopsHere.thisLock.ExitReadLock();
+            //}
+            //return EnemyTroopStrength ;
         }
         public bool TroopsHereAreEnemies(Empire empire)
         {
