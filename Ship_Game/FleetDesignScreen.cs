@@ -252,7 +252,7 @@ namespace Ship_Game
 
         ~FleetDesignScreen() { Dispose(false);  }
 
-		protected void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (disposing)
 			{
@@ -1448,7 +1448,7 @@ namespace Ship_Game
 			this.previous = this.current;
 		}
 
-		protected void HandleSelectionBox(InputState input)
+        private void HandleSelectionBox(InputState input)
 		{
 			if (HelperFunctions.CheckIntersection(this.LeftMenu.Menu, input.CursorPosition) || HelperFunctions.CheckIntersection(this.RightMenu.Menu, input.CursorPosition))
 			{

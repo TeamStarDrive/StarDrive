@@ -14,11 +14,7 @@ namespace Ship_Game
     {
         protected Vector2 Cursor = Vector2.Zero;
 
-        //private UniverseScreen screen;
-
         protected List<UIButton> Buttons = new List<UIButton>();
-
-        //private Submenu subSave;
 
         protected Rectangle Window;
 
@@ -48,6 +44,10 @@ namespace Ship_Game
 
         protected string OverWriteText = "";
 
+        protected string Path = "";
+
+        protected string TabText = "";
+
         protected CloseButton close;
 
         protected MouseState currentMouse;
@@ -61,16 +61,36 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         protected bool disposed;
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string OverWriteText)
+        protected FileInfo fileToDel;
+
+        protected FileData selectedFile;
+
+        protected int eHeight = 55;      // element height
+
+        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText)
         {
-            //this.screen = screen;
             this.mode = mode;
             this.InitText = InitText;
             this.TitleText = TitleText;
-            this.OverWriteText = OverWriteText;
+            this.TabText = TabText;
             base.IsPopup = true;
             base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
+        }
+
+        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText) : this(mode, InitText, TitleText, TabText)
+        {
+            this.OverWriteText = OverWriteText;
+        }
+
+        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, int eHeight) : this(mode, InitText, TitleText, TabText)
+        {
+            this.eHeight = eHeight;
+        }
+
+        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText, int eHeight) : this(mode, InitText, TitleText, TabText, OverWriteText)
+        {
+            this.eHeight = eHeight;
         }
 
         public void Dispose()
@@ -81,7 +101,7 @@ namespace Ship_Game
 
         ~GenericLoadSaveScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -102,11 +122,20 @@ namespace Ship_Game
             //this.ExitScreen();
         }
 
-        protected virtual FileHeader GetFileHeader(ScrollList.Entry e)  // Overriddem in subclasses to display information
+        protected virtual void DeleteFile(object sender, EventArgs e)
         {
-            FileHeader data = new FileHeader();
+            AudioManager.PlayCue("echo_affirm");
+            
+            try
+            {
+                this.fileToDel.Delete();        // delete the file
+            } catch { }
 
-            return data;
+            int iAT = this.SavesSL.indexAtTop;
+            this.Buttons.Clear();
+            this.LoadContent();
+            this.SavesSL.indexAtTop = iAT;
+
         }
 
         public override void Draw(GameTime gameTime)
@@ -120,8 +149,7 @@ namespace Ship_Game
             for (int i = this.SavesSL.indexAtTop; i < this.SavesSL.Entries.Count && i < this.SavesSL.indexAtTop + this.SavesSL.entriesToDisplay; i++)
             {
                 ScrollList.Entry e = this.SavesSL.Entries[i];
-                //HeaderData data = e.item as HeaderData;
-                FileHeader data = this.GetFileHeader(e);
+                FileData data = e.item as FileData;
                 bCursor.Y = (float)e.clickRect.Y - 7;
                 base.ScreenManager.SpriteBatch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
@@ -130,6 +158,19 @@ namespace Ship_Game
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
                 tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                 base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
+                if (e.clickRectHover != 1)
+                {
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete"], e.cancel, Color.White);
+                }
+                else
+                {
+                    base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], e.cancel, Color.White);
+                    if (HelperFunctions.CheckIntersection(e.cancel, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)))
+                    {
+                        base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], e.cancel, Color.White);
+                        ToolTip.CreateTooltip("Delete File", base.ScreenManager);
+                    }
+                }
             }
             this.SavesSL.Draw(base.ScreenManager.SpriteBatch);
             this.EnterNameArea.Draw(Fonts.Arial12Bold, base.ScreenManager.SpriteBatch, this.EnternamePos, gameTime, (this.EnterNameArea.Hover ? Color.White : Color.Orange));
@@ -142,6 +183,7 @@ namespace Ship_Game
                 this.selector.Draw();
             }
             this.close.Draw(base.ScreenManager);
+            ToolTip.Draw(base.ScreenManager);
             base.ScreenManager.SpriteBatch.End();
         }
 
@@ -157,9 +199,13 @@ namespace Ship_Game
         }
 
 
-        protected virtual void SwitchFile(ScrollList.Entry e)
+        protected void SwitchFile(ScrollList.Entry e)
         {
+            if( SLMode.Load == this.mode )
+                this.selectedFile = (e.item as FileData);
 
+            AudioManager.PlayCue("sd_ui_accept_alt3");
+            this.EnterNameArea.Text = (e.item as FileData).FileName;
         }
 
 
@@ -184,7 +230,13 @@ namespace Ship_Game
                     }
                     e.clickRectHover = 1;
                     this.selector = new Selector(base.ScreenManager, e.clickRect);
-                    if (input.InGameSelect)
+                    if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && input.InGameSelect)        // handle file delete
+                    {
+                        this.fileToDel = (e.item as FileData).FileLink;
+                        MessageBoxScreen messageBox = new MessageBoxScreen("Confirm Delete:");
+                        messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteFile);
+                        base.ScreenManager.AddScreen(messageBox);
+                    } else if (input.InGameSelect)
                     {
                         this.SwitchFile(e);
                     }
@@ -226,7 +278,7 @@ namespace Ship_Game
                     }
                 }
             }
-            if (SLMode.Save == this.mode)       // Only check when saving
+            if (SLMode.Save == this.mode)       // Only check name field change when saving
             {
                 if (!HelperFunctions.CheckIntersection(this.EnterNameArea.ClickableArea, MousePos))
                 {
@@ -271,8 +323,8 @@ namespace Ship_Game
             this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
             Rectangle scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, this.Window.Height - sub.Height - 50);
             this.AllSaves = new Submenu(base.ScreenManager, scrollList);
-            this.AllSaves.AddTab("All Saves");
-            this.SavesSL = new ScrollList(this.AllSaves, 55);
+            this.AllSaves.AddTab(this.TabText);
+            this.SavesSL = new ScrollList(this.AllSaves, this.eHeight, true, false, false, false);
 
             this.SetSavesSL();
 
@@ -303,23 +355,19 @@ namespace Ship_Game
             this.DoSave();
         }
 
-        protected virtual bool CheckOverWrite()
-        {
-            /*foreach (ScrollList.Entry entry in this.SavesSL.Entries)
-            {
-                if (this.EnterNameArea.Text == (entry.item as string))
-                {
-                    return false;
-                }
-            }*/
-
-            return true;
-        }
-
         private void TrySave()
         {
-            bool SaveOK = this.CheckOverWrite();
-            
+            bool SaveOK = true;
+
+            foreach (ScrollList.Entry entry in this.SavesSL.Entries)
+            {
+                if (this.EnterNameArea.Text == (entry.item as FileData).FileName)       // check if item already exists
+                {
+                    SaveOK = false;
+                    break;
+                }
+            }
+
             if (SaveOK)
             {
                 this.DoSave();
@@ -337,19 +385,57 @@ namespace Ship_Game
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
-        protected class FileHeader
+        protected class FileData
         {
             public string FileName;
             public string Info;
             public string ExtraInfo;
             public Texture2D icon;
+            public FileInfo FileLink;
+            public object Data;
 
-            public FileHeader()
+            public FileData()
+            {
+            }
+
+            /*public FileData(FileInfo fileLink, object data)
             {
                 this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
                 this.FileName = "";
                 this.Info = "";
                 this.ExtraInfo = "";
+                this.FileLink = fileLink;
+                this.Data = data;
+            }*/
+
+            public FileData(FileInfo fileLink, object data, string fileName)
+            {
+                this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
+                this.FileName = fileName;
+                this.Info = "";
+                this.ExtraInfo = "";
+                this.FileLink = fileLink;
+                this.Data = data;
+            }
+
+            public FileData(FileInfo fileLink, object data, string fileName, string info, string extraInfo)
+            {
+                this.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
+                this.FileName = fileName;
+                this.Info = info;
+                this.ExtraInfo = extraInfo;
+                this.FileLink = fileLink;
+                this.Data = data;
+            }
+
+            public FileData(FileInfo fileLink, object data, string fileName, string info, string extraInfo, Texture2D icon)
+            {
+                this.icon = icon;
+                this.FileName = fileName;
+                this.Info = info;
+                this.ExtraInfo = extraInfo;
+                this.FileLink = fileLink;
+                this.Data = data;
             }
         }
     }

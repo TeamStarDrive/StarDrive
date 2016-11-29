@@ -109,7 +109,7 @@ namespace Ship_Game
 
         ~Starfield3D() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

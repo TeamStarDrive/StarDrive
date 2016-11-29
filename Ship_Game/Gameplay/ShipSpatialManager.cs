@@ -149,7 +149,7 @@ namespace Ship_Game.Gameplay
 
         ~ShipSpatialManager() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

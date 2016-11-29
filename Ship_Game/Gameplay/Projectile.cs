@@ -48,11 +48,11 @@ namespace Ship_Game.Gameplay
 
 		public bool explodes;
 
-        //protected Color[] explosionColors;          //Not referenced in code, removing to save memory -Gretman
+        //protected Color[] explosionColors;          //Not referenced in code, removing to save memory
 
         public ShipModule moduleAttachedTo;
 
-        //protected string weaponEffect;          //Not referenced in code, removing to save memory -Gretman
+        //protected string weaponEffect;          //Not referenced in code, removing to save memory
 
         public string WeaponEffectType;
 
@@ -122,7 +122,7 @@ namespace Ship_Game.Gameplay
 
 		public string dieCueName = "";
 
-        //public ShipModule HitModule;          //Not referenced in code, removing to save memory -Gretman
+        //public ShipModule HitModule;          //Not referenced in code, removing to save memory
 
         private bool wasAddedToSceneGraph;
 

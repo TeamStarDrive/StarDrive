@@ -135,7 +135,7 @@ namespace Ship_Game
 
                ~EmpireScreen() { Dispose(false); }
 
-               protected void Dispose(bool disposing)
+               private void Dispose(bool disposing)
                {
                    if (!disposed)
                    {

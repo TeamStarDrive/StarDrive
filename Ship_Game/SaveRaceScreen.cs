@@ -13,52 +13,30 @@ namespace Ship_Game
     public sealed class SaveRaceScreen : GenericLoadSaveScreen, IDisposable
     {
         private RaceDesignScreen screen;
-
         private RaceSave RS;
 
-        public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) : base(SLMode.Save, data.Name, "Save Race", "Saved Race already exists.  Overwrite?")
+        public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) : base(SLMode.Save, data.Name, "Save Race", "Saved Races", "Saved Race already exists.  Overwrite?")
         {
             this.screen = screen;
-            this.RS = new RaceSave(data);            // save some extra info for filtering purposes
+            //this.selectedFile = new FileData(null, new RaceSave(data), this.TitleText);            // save some extra info for filtering purposes
+            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Races/");
+            this.RS = new RaceSave(data);
         }
 
         public override void DoSave()
         {
             this.RS.Name = this.EnterNameArea.Text;
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             XmlSerializer Serializer = new XmlSerializer(typeof(RaceSave));
-            TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Saved Races/", this.RS.Name, ".xml"));
+            TextWriter WriteFileStream = new StreamWriter(string.Concat(this.Path, this.EnterNameArea.Text, ".xml"));
             Serializer.Serialize(WriteFileStream, this.RS);
             WriteFileStream.Dispose();
-            //WriteFileStream.Close();
             this.ExitScreen();
-        }
-
-        protected override FileHeader GetFileHeader(ScrollList.Entry e)
-        {
-            FileHeader fh = new FileHeader();
-            RaceSave data = e.item as RaceSave;
-
-            fh.FileName = data.Name;
-            if (data.Version < 308)
-            {
-                fh.Info = "Invalid Race File";
-            }
-            else
-            {
-                fh.Info = String.Concat("Original Race: ", data.Traits.ShipType);
-                fh.ExtraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
-            }
-            fh.icon = ResourceManager.TextureDict["ShipIcons/Wisp"];
-
-            return fh;
         }
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            List<RaceSave> saves = new List<RaceSave>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Races/"));
+            List<FileData> saves = new List<FileData>();
+            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(this.Path);
             for (int i = 0; i < (int)filesFromDirectory.Length; i++)
             {
                 Stream file = filesFromDirectory[i].OpenRead();
@@ -69,48 +47,36 @@ namespace Ship_Game
 
                     if (string.IsNullOrEmpty(data.Name))
                     {
-                        data.Name = filesFromDirectory[i].Name;
-                        data.Name = data.Name.Substring(0, data.Name.LastIndexOf('.'));
+                        data.Name = System.IO.Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
                         data.Version = 0;
                     }
 
-                    saves.Add(data);
+                    string info;
+                    string extraInfo;
+                    if (data.Version < 308)     // Version checking
+                    {
+                        info = "Invalid Race File";
+                        extraInfo = "";
+                    } else {
+                        info = String.Concat("Race Name: ", data.Traits.Name);
+                        extraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
+                    }
+                    saves.Add(new FileData(filesFromDirectory[i], data, data.Name, info, extraInfo));
                     file.Dispose();
                 }
                 catch
                 {
                     file.Dispose();
                 }
-                //Label0:
-                //  continue;
             }
-            IOrderedEnumerable<RaceSave> sortedList =
+            IOrderedEnumerable<FileData> sortedList =
                 from data in saves
-                orderby data.Name ascending
+                orderby data.FileName ascending
                 select data;
-            foreach (RaceSave data in sortedList)
+            foreach (FileData data in sortedList)
             {
-                this.SavesSL.AddItem(data);
+                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
             }
-        }
-
-        protected override void SwitchFile(ScrollList.Entry e)
-        {
-            AudioManager.PlayCue("sd_ui_accept_alt3");
-            this.EnterNameArea.Text = (e.item as RaceSave).Name;
-        }
-
-        protected override bool CheckOverWrite()
-        {
-            foreach (ScrollList.Entry entry in this.SavesSL.Entries)
-            {
-                if (this.EnterNameArea.Text == (entry.item as RaceSave).Name)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }

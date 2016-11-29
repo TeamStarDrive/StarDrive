@@ -119,8 +119,8 @@ namespace Ship_Game
         {
 
             #region Figure defensive importance
-            //foreach (Planet p in Ship.universeScreen.PlanetsDict.Values)  //this.us.GetPlanets())
-            Parallel.ForEach(Ship.universeScreen.PlanetsDict.Values, p =>
+            foreach (Planet p in Ship.universeScreen.PlanetsDict.Values)  //this.us.GetPlanets())
+            //Parallel.ForEach(Ship.universeScreen.PlanetsDict.Values, p =>
            {
                if (p.Owner != us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(this.us))
                {
@@ -135,7 +135,7 @@ namespace Ship_Game
                    }
                    p.TroopsHere.ApplyPendingRemovals();
                }
-           });
+           }//);
         
             foreach (Planet p in this.us.GetPlanets())
             {
@@ -525,7 +525,7 @@ namespace Ship_Game
             List<Planet> planets = new List<Planet>();
             int planetCount = 0;
             int developmentlevel = 0;
-            //float maxValue = 0;          //Not referenced in code, removing to save memory -Gretman
+            //float maxValue = 0;          //Not referenced in code, removing to save memory
             int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
             int totalTroopWanted = 0;
             int totalCurrentTroops = 0;
@@ -574,7 +574,7 @@ namespace Ship_Game
                     }
                     if (troopAI.State == AIState.Rebase
                         && troopAI.OrderQueue.Count > 0
-                        && troopAI.OrderQueue.Where(goal => goal.TargetPlanet != null && entry.Key == goal.TargetPlanet.system).Count() > 0)
+                        && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && entry.Key == goal.TargetPlanet.system))
                     {
                         currentTroops++;
                         entry.Value.TroopStrengthNeeded--;
@@ -589,8 +589,8 @@ namespace Ship_Game
                 TroopShips.ApplyPendingRemovals();
             }
             this.UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
-            //Planet tempPlanet = null;          //Not referenced in code, removing to save memory -Gretman
-            //int TroopsSent = 0;          //Not referenced in code, removing to save memory -Gretman
+            //Planet tempPlanet = null;          //Not referenced in code, removing to save memory
+            //int TroopsSent = 0;          //Not referenced in code, removing to save memory
             foreach (Ship ship4 in TroopShips)
             {
 
@@ -656,8 +656,8 @@ namespace Ship_Game
             // so for now i am disabling the launch code when there are too many troops.
             // Troops will still rebase after they sit idle from fleet activity. 
 
-            //float want = 0;          //Not referenced in code, removing to save memory -Gretman
-            //float ideal = 0;          //Not referenced in code, removing to save memory -Gretman
+            //float want = 0;          //Not referenced in code, removing to save memory
+            //float ideal = 0;          //Not referenced in code, removing to save memory
             this.EmpireTroopRatio = UniverseWants;
             if (UniverseWants < .8f)
             {
@@ -673,10 +673,8 @@ namespace Ship_Game
                             && p.GetDefendingTroopCount() > defenseSystem.Value.IdealTroopStr * devratio)// + (int)Ship.universeScreen.GameDifficulty)
                         {
                            
-                            Troop l = p.TroopsHere.Where(loyalty => loyalty.GetOwner() == this.us).FirstOrDefault();
-                            if (l != null)
-                                l.Launch();
-                            
+                            Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.GetOwner() == this.us);
+                            l?.Launch();
                         }
                     }
                 }
@@ -698,12 +696,7 @@ namespace Ship_Game
 
   
             List<Ship> incomingShips = new List<Ship>();
-            if (Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard)
-                incomingShips = Empire.universeScreen.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != this.us && (bases.loyalty.isFaction || this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList();
-            else
-            {
-                incomingShips = us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
-            }
+            incomingShips = Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard ? Empire.universeScreen.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != this.us && (bases.loyalty.isFaction || this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList() : this.us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
             
 
 
@@ -785,7 +778,7 @@ namespace Ship_Game
 
         ~DefensiveCoordinator() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

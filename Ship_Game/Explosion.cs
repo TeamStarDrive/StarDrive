@@ -16,13 +16,13 @@ namespace Ship_Game
 
 		public float duration;
 
-        //public float StartDuration = 0.8f;          //Not referenced in code, removing to save memory -Gretman
+        //public float StartDuration = 0.8f;          //Not referenced in code, removing to save memory
 
         public Color color;
 
 		public Rectangle ExplosionRect;
 
-        //public bool Flickers;          //Not referenced in code, removing to save memory -Gretman
+        //public bool Flickers;          //Not referenced in code, removing to save memory
 
         public float Radius;
 
@@ -32,15 +32,15 @@ namespace Ship_Game
 
 		public ShipModule module;
 
-        //public float Alpha = 255f;          //Not referenced in code, removing to save memory -Gretman
+        //public float Alpha = 255f;          //Not referenced in code, removing to save memory
 
         public float Rotation;
 
 		public float shockWaveTimer;
 
-        //public bool hasShockwave;          //Not referenced in code, removing to save memory -Gretman
+        //public bool hasShockwave;          //Not referenced in code, removing to save memory
 
-        //public Texture2D shockwaveTexture;          //Not referenced in code, removing to save memory -Gretman
+        //public Texture2D shockwaveTexture;          //Not referenced in code, removing to save memory
 
         public int Animation = 1;
 

@@ -49,7 +49,7 @@ namespace Ship_Game
 
 #endif
 
-#if UNSAFE
+#if UNSAFE && DEBUG
 
 
             MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("Update2"), typeof(SplashScreen).GetMethod("Update"));

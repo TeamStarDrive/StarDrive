@@ -864,7 +864,7 @@ namespace Ship_Game
             //this.IsLoaded = true;
             
         }
-		protected void OnAdventure()
+		private void OnAdventure()
 		{
 		}
 
@@ -877,7 +877,7 @@ namespace Ship_Game
 			}
 		}
 
-		protected void OnPlayGame()
+        private void OnPlayGame()
 		{
 			RaceDesignScreen rds = new RaceDesignScreen(base.ScreenManager.GraphicsDevice, this);
 			base.ScreenManager.AddScreen(rds);
@@ -1022,7 +1022,7 @@ namespace Ship_Game
 
         ~MainMenuScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
