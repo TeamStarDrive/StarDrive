@@ -21,8 +21,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|x86.ActiveCfg = BlackBox_RadicalElements_RC_16_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|x86.Build.0 = BlackBox_RadicalElements_RC_16_|x86
-		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_UNSTABLE_|x86.ActiveCfg = BlackBox_UNSTABLE_|x86
-		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_UNSTABLE_|x86.Build.0 = BlackBox_UNSTABLE_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_UNSTABLE_|x86.ActiveCfg = BlackBox_UNSTABLE_Test_RC_16_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_UNSTABLE_|x86.Build.0 = BlackBox_UNSTABLE_Test_RC_16_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-Debug|x86.ActiveCfg = Crunchies-Debug|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-Debug|x86.Build.0 = Crunchies-Debug|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-LocalRelease|x86.ActiveCfg = Crunchies-LocalRelease|x86
