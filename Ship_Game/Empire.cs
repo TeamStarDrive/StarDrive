@@ -7,14 +7,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
-using System.Runtime;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -145,7 +145,7 @@ namespace Ship_Game
             
             
         }
-        public class  patchCacheValue
+        public class patchCacheValue
         {
             public List<Vector2> path = new List<Vector2>();
             public int CacheHits = 0;
@@ -685,11 +685,7 @@ namespace Ship_Game
                 throw e;
             }
 
-
-
-
-            if (false) //purge designs that dont advance the ships
-            {
+            #if false // purge designs that dont advance the ships
                 System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
                 if (!this.isFaction)
                 {
@@ -737,8 +733,7 @@ namespace Ship_Game
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
                 System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
-
-            }
+            #endif
         }
         public void InitializeFromSave()
         {
@@ -873,8 +868,7 @@ namespace Ship_Game
             }
 
 
-            if (false) //purge designs that dont advance the ships
-            {
+            #if false // purge designs that dont advance the ships
                 System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
                 if (!this.isFaction)
                 {
@@ -918,8 +912,7 @@ namespace Ship_Game
                 }
                 GC.Collect();
                 System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
-
-            }
+            #endif
         }
         private bool WeCanUseThisLater(TechEntry tech)
         {
@@ -2191,7 +2184,7 @@ namespace Ship_Game
 
                 if (this.WeCanBuildThis(keyValuePair.Key))
                 {
-#if!DEBUG
+#if !DEBUG
                     try
 #endif
                     {
@@ -2200,7 +2193,7 @@ namespace Ship_Game
                         if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.shipData.Role].Protected)
                             this.ShipsWeCanBuild.Add(keyValuePair.Key);
                     }
-#if!DEBUG
+#if !DEBUG
                     catch
                     {
                         keyValuePair.Value.Deleted = true;  //This should prevent this Key from being evaluated again
@@ -2317,63 +2310,59 @@ namespace Ship_Game
 
         public bool WeCanBuildThis(string ship)
         {
-            bool InDictionary = true;
-            bool goodHull = false;
-            bool goodRole = true;
-            bool goodModules = true;
-            Ship ship1 = null;
-            string badmodule = "";
-            Ship_Game.ShipRole test;
-            ShipData shipData = null;
-            if (!ResourceManager.ShipsDict.TryGetValue(ship, out ship1)) // ContainsKey(ship))
-                InDictionary = false;
-                
-            else
-            {
-                 shipData = ship1.shipData;
-                 
-                 if (shipData == null || (!this.UnlockedHullsDict.TryGetValue(shipData.Hull, out goodHull) || !goodHull))
-                 { }
-                 //If the ship role is not defined don't try to use it
-                 //trying to fix issue #348
-                 // Added bt Allium Sativum
-                 else
-                 {
+            if (!ResourceManager.ShipsDict.TryGetValue(ship, out Ship ship1)) // ContainsKey(ship))
+                return false;
 
-                     if (!ResourceManager.ShipRoles.TryGetValue(shipData.HullRole, out test))
-                         goodRole = false;
-                     if (goodRole)
-                         foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlotList)
-                         {
-                             if (!string.IsNullOrEmpty(moduleSlotData.InstalledModuleUID)
-                                 && moduleSlotData.InstalledModuleUID != "Dummy"
-                                 && !this.UnlockedModulesDict[moduleSlotData.InstalledModuleUID]) //&& moduleSlotData.InstalledModuleUID != null
-                             {
-                                 goodModules = false;
-                                 badmodule = moduleSlotData.InstalledModuleUID;
-                                 break;
-                             }
-                         }
-                 }
-                if (false)
-                {
-                    if (shipData.HullRole >= ShipData.RoleName.fighter)
-                        if ((!goodHull && goodRole) && shipData.ShipStyle == this.data.Traits.ShipType)
-                            System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " : Bad hull  : " + ship + " : " + shipData.Hull + " : " + shipData.Role.ToString() + " :hull unlockable: " + shipData.hullUnlockable + " :Modules Unlockable: " + shipData.allModulesUnlocakable + " : " + shipData.techsNeeded.Count);
-                    if ((goodHull && !goodRole) && shipData.ShipStyle == this.data.Traits.ShipType)
-                        System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " : Bad  role : " + ship + " : " + shipData.Hull + " : " + shipData.Role.ToString() + " :hull unlockable: " + shipData.hullUnlockable + " :Modules Unlockable: " + shipData.allModulesUnlocakable);
-                    else if (!goodModules)
-                        System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " : Bad Modules : " + ship + " : " + shipData.Hull + " : " + shipData.Role.ToString() + " : " + badmodule + " :hull unlockable: " + shipData.hullUnlockable + " :Modules Unlockable: " + shipData.allModulesUnlocakable);
-                    
-                }
-            }
-            if (!goodModules || !goodHull || !goodRole || !InDictionary)
-            return false;
-            else
+            ShipData shipData = ship1.shipData;
+            if (shipData == null)
             {
-                //System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " : good ship : " + ship + " : " + shipData !=null ?( shipData.Hull + " : " + shipData.Role.ToString()) :"" + " : " + badmodule);
-                return true;
+                #if TRACE
+                    Debug.WriteLine("{0} : shipData is null : {1}", data.PortraitName, ship);
+                #endif
+                return false;
             }
+
+            // If the ship role is not defined don't try to use it
+            if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
+            {
+            #if TRACE
+                if (shipData.HullRole >= ShipData.RoleName.fighter && shipData.ShipStyle == data.Traits.ShipType)
+                    Debug.WriteLine("{0} : Bad hull  : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5} : {6}",
+                            data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable, shipData.techsNeeded.Count);
+            #endif
+                return false;
+            }
+
+            if (!ResourceManager.ShipRoles.ContainsKey(shipData.HullRole))
+            {
+            #if TRACE
+                if (shipData.ShipStyle == data.Traits.ShipType)
+                    Debug.WriteLine("{0} : Bad  role : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5}",
+                            data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable);
+            #endif
+                return false;
+            }
+
+            // check if all modules in the ship are unlocked
+            foreach (ModuleSlotData moduleSlotData in shipData.ModuleSlotList)
+            {
+                if (string.IsNullOrEmpty(moduleSlotData.InstalledModuleUID) ||
+                    moduleSlotData.InstalledModuleUID == "Dummy" ||
+                    UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
+                    continue;
+
+            #if TRACE
+                Debug.WriteLine("{0} : Bad Modules : {1} : {2} : {3} : {4} :hull unlockable: {5} :Modules Unlockable: {6}",
+                        data.PortraitName, ship, shipData.Hull, shipData.Role, moduleSlotData.InstalledModuleUID, shipData.hullUnlockable, shipData.allModulesUnlocakable);
+            #endif
+                return false; // can't build this ship because it contains a locked Module
+            }
+
+            #if TRACE
+                Debug.WriteLine("{0} : good ship : {1} : {2} : {3}",
+                    data.PortraitName, ship, shipData.Hull, shipData.Role);
+            #endif
+            return true;
         }
 
         public bool WeCanUseThis(Technology tech)
