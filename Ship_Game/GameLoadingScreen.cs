@@ -229,7 +229,7 @@ namespace Ship_Game
         }
 
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

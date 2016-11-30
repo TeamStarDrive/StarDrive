@@ -249,7 +249,6 @@ namespace Ship_Game
 
 
 
-                bool flag = false;
                 if (shipData.hullUnlockable)
                 {
                     shipData.allModulesUnlocakable = true;
@@ -1371,86 +1370,28 @@ namespace Ship_Game
 			}
 			return files;
 		}
-        public static Model GetModel(string path)
-        {
-            return GetModel(path, false);
-        }
-        public static Model GetModel(string path, bool NoException)
-		{
-			Model item =null;
-//#if !DEBUG			
-//            try
-//#endif
-            {
-                Exception t = null;
-                string loaderror = string.Empty;
-                bool loaded = false;
-                lock (Ship_Game.ResourceManager.ModelDict)
-                    if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
-                    {
-                        if (GlobalStats.ActiveMod != null ) //&& GlobalStats.ActiveModInfo != null)
-                        {
-                            try
-                            {
-                                item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path));
-                                loaded = true;
-                            }
-                            catch(Microsoft.Xna.Framework.Content.ContentLoadException ex)
-                            {
-                                
-                            }
-                            catch(OutOfMemoryException ex)
-                            {
-                                throw (ex);
-                            }
-                        }
-                        if (!loaded)
-                        {
-                            try
-                            {
-                                item = GetContentManager().Load<Model>(path);
-                            }
-                            catch
-                            {
-                                if (!NoException)
-                                    throw;
-                            }
-                        }
-                        Ship_Game.ResourceManager.ModelDict.Add(path, item);
-                    }
-                   
-                return item;
-                if (!Ship_Game.ResourceManager.ModelDict.TryGetValue(path, out item))
-				{
-                    
-                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                    GC.Collect();
-                   
-                        item = GetContentManager().Load<Model>(path);
-                        Ship_Game.ResourceManager.ModelDict.Add(path, item);
-                    
-				}
-                
-                else
-                {
-                    item = Ship_Game.ResourceManager.ModelDict[path];
-                }
-			}
-//#if !DEBUG
-//            catch
-//#endif
-            {
-                if (item == null)
-                {
-                    item = GetContentManager().Load<Model>(string.Concat("Mod Models/", path)) as Model;
-                    //item = GetContentManager().Load<SkinnedModel>(string.Concat("Mod Models/", path)) ;
-                    Ship_Game.ResourceManager.ModelDict.Add(path, item);
-                    //item = model;
-                }
-            }
 
+        private static Model LoadModel(string path, bool throwOnFailure)
+        {
+            try { return GetContentManager().Load<Model>(path); }
+            catch (ContentLoadException e) { if (throwOnFailure) throw e; }
+            return null;
+        }
+        public static Model GetModel(string path, bool throwOnFailure = false)
+		{
+			Model item = null;
+
+            // try to get cached value
+            lock (ModelDict) if (ModelDict.TryGetValue(path, out item)) return item;
+
+            if (GlobalStats.ActiveMod != null)
+                item = LoadModel("Mod Models/" + path, false);
+
+            if (item == null)
+                item = LoadModel(path, throwOnFailure);
+
+            // stick it into Model cache
+            lock (ModelDict) ModelDict.Add(path, item);
             return item;
 		}
 

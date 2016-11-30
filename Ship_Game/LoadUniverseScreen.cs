@@ -152,22 +152,26 @@ namespace Ship_Game
 			return e;
 		}
 
-		private Planet CreatePlanetFromPlanetSaveData(SavedGame.PlanetSaveData data)
+		private Planet CreatePlanetFromPlanetSaveData(SolarSystem forSystem, SavedGame.PlanetSaveData data)
 		{
 			Building building;
-			Planet p = new Planet();
-			if (!string.IsNullOrEmpty(data.Owner))
+		    Planet p = new Planet
+		    {
+		        system = forSystem,
+		        ParentSystem = forSystem,
+                guid = data.guid,
+                Name = data.Name
+            };
+		    if (!string.IsNullOrEmpty(data.Owner))
 			{
 				p.Owner = EmpireManager.GetEmpireByName(data.Owner);
 				p.Owner.AddPlanet(p);
 			}
-			p.guid = data.guid;
-			p.Name = data.Name;
             if(!string.IsNullOrEmpty(data.SpecialDescription))
             {
                 p.SpecialDescription = data.SpecialDescription;
             }
-            if (data.Scale != 0)
+            if (data.Scale != 0f)
             {
                 p.scale = data.Scale;
             }
@@ -313,9 +317,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					Planet p = this.CreatePlanetFromPlanetSaveData(ring.Planet);
-					p.system = system;
-					p.ParentSystem = system;
+					Planet p = this.CreatePlanetFromPlanetSaveData(system, ring.Planet);
 					p.Position = HelperFunctions.GeneratePointOnCircle(p.OrbitalAngle, system.Position, p.OrbitalRadius);
                     
 					foreach (Building b in p.BuildingList)
@@ -428,7 +430,7 @@ namespace Ship_Game
 
         ~LoadUniverseScreen() { Dispose(false); }
 
-		protected void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
             if (disposing)
             {
@@ -1071,20 +1073,17 @@ namespace Ship_Game
 			{
 				foreach (SavedGame.RingSave rsave in sdata.RingList)
 				{
-					Planet p = new Planet();
-					foreach (SolarSystem s in this.data.SolarSystemsList)
+					Planet p = null;
+					foreach (SolarSystem s in data.SolarSystemsList)
 					{
 						foreach (Planet p1 in s.PlanetList)
 						{
-							if (p1.guid != rsave.Planet.guid)
-							{
-								continue;
-							}
-							p = p1;
-							break;
+						    if (p1.guid != rsave.Planet.guid) continue;
+						    p = p1;
+						    break;
 						}
 					}
-					if (p.Owner == null)
+					if (p?.Owner == null)
 					{
 						continue;
 					}

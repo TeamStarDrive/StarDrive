@@ -57,9 +57,9 @@ namespace Ship_Game
 
 		private Rectangle AbsoluteDestination = new Rectangle(0, 0, 600, 600);
 
-		protected float TimerDelay = 0.25f;
+        //private float TimerDelay = 0.25f;
 
-		protected float ClickTimer;
+        private float ClickTimer;
 
 		//private float transitionElapsedTime;
 
@@ -91,7 +91,7 @@ namespace Ship_Game
 
         ~ResearchScreenNew() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

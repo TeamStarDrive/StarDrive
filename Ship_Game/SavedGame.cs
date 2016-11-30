@@ -156,8 +156,7 @@ namespace Ship_Game
 								{
 									qi.pgsVector = new Vector2((float)item.pgs.x, (float)item.pgs.y);
 								}
-                                if (item.IsPlayerAdded != null)
-                                    qi.isPlayerAdded = item.IsPlayerAdded;
+                                qi.isPlayerAdded = item.IsPlayerAdded;
 								pdata.QISaveList.Add(qi);
 							}
 						}

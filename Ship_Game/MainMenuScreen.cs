@@ -16,7 +16,6 @@ using System.Configuration;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
-
 namespace Ship_Game
 {
 	public sealed class MainMenuScreen : GameScreen,IDisposable
@@ -811,8 +810,8 @@ namespace Ship_Game
                 base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
             }
             else
-            {                                
-                Model model =null;
+            {
+                Model model = null;
                 while (model == null)
                 {
                     string modelpath = string.Empty;
@@ -825,7 +824,7 @@ namespace Ship_Game
                         modelpath = test.ModelPath;
                         break;
                     }
-                    model = Ship_Game.ResourceManager.GetModel(modelpath,true);
+                    model = ResourceManager.GetModel(modelpath);
                 }
                 //this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel("Model/Ships/speeder/ship07").Meshes)[0]);
                 this.shipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)model.Meshes)[0]);
@@ -834,7 +833,7 @@ namespace Ship_Game
                 this.shipSO.Visibility = ObjectVisibility.Rendered;
                 base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
             }
-            LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");// ("example/MM_light_rig");
+            LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
 			base.ScreenManager.inter.LightManager.Submit(rig);
 			base.ScreenManager.environment = base.ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
 			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
@@ -850,8 +849,6 @@ namespace Ship_Game
 		}
         public void ReloadContent()
         {
-            GC.WaitForPendingFinalizers();
-            this.LogoAnimation.Clear();
             this.Buttons.Clear();
             this.LoadContent();
 
@@ -867,7 +864,7 @@ namespace Ship_Game
             //this.IsLoaded = true;
             
         }
-		protected void OnAdventure()
+		private void OnAdventure()
 		{
 		}
 
@@ -880,7 +877,7 @@ namespace Ship_Game
 			}
 		}
 
-		protected void OnPlayGame()
+        private void OnPlayGame()
 		{
 			RaceDesignScreen rds = new RaceDesignScreen(base.ScreenManager.GraphicsDevice, this);
 			base.ScreenManager.AddScreen(rds);
@@ -893,8 +890,10 @@ namespace Ship_Game
 			try
 			{
 				this.waveOut.Init(this.mp3FileReader);
-				this.waveOut.Volume = GlobalStats.Config.MusicVolume;
-				this.waveOut.Play();
+#pragma warning disable CS0618 // Type or member is obsolete
+                this.waveOut.Volume = GlobalStats.Config.MusicVolume;
+#pragma warning restore CS0618 // Type or member is obsolete
+                this.waveOut.Play();
 				this.waveOut.PlaybackStopped += new EventHandler<StoppedEventArgs>(this.OnPlaybackStopped);
 			}
 			catch
@@ -1025,7 +1024,7 @@ namespace Ship_Game
 
         ~MainMenuScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

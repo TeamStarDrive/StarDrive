@@ -163,7 +163,7 @@ namespace Ship_Game
 
         ~ShipListScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

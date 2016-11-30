@@ -774,8 +774,7 @@ namespace Ship_Game
                     else
                     {
                         List<Planet> list1 = new List<Planet>();
-                        this.empire.GetPlanets().thisLock.EnterReadLock();
-                        foreach (Planet planet in this.empire.GetPlanets())
+                        foreach (Planet planet in new List<Planet>(empire.GetPlanets()))
                         {
                             if (planet.HasShipyard && planet.ParentSystem.combatTimer <=0
                                 && planet.developmentLevel >2
@@ -808,7 +807,6 @@ namespace Ship_Game
                         }
                         if (planet1 == null)
                         {
-                            this.empire.GetPlanets().thisLock.ExitReadLock();
                             break;
                         }
                         if (this.empire.isPlayer && this.empire.AutoFreighters && ResourceManager.ShipsDict.ContainsKey(this.empire.data.CurrentAutoFreighter))
@@ -823,7 +821,6 @@ namespace Ship_Game
                                 NotifyOnEmpty =false
                             });
                             ++this.Step;
-                            this.empire.GetPlanets().thisLock.ExitReadLock();
                             break;
                         }
                         else
@@ -847,7 +844,6 @@ namespace Ship_Game
 
                             if(toBuild == null)
                             {
-                                this.empire.GetPlanets().thisLock.ExitReadLock();
                                 break;
                             }
                             planet1.ConstructionQueue.Add(new QueueItem()
@@ -861,7 +857,6 @@ namespace Ship_Game
                                 Cost = toBuild.GetCost(this.empire)
                             });
                             ++this.Step;
-                            this.empire.GetPlanets().thisLock.ExitReadLock();
                             break;
                         }                        
                     }
