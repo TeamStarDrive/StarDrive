@@ -38,7 +38,7 @@ namespace Ship_Game
 			}
 			if (Potentials.Count == 0)
 			{
-				Potentials = Target.GetPlanets();
+				Potentials = new List<Planet>(Target.GetPlanets());
 			}
 			Mole mole = null;
 			if (Potentials.Count > 0)

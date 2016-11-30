@@ -115,7 +115,7 @@ namespace Ship_Game
 			{
 				this.startingx = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
 				this.startingy = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-				Game1.Instance.graphics.SynchronizeWithVerticalRetrace = false;
+				Game1.Instance.graphics.SynchronizeWithVerticalRetrace = true;
 				Game1.Instance.SetWindowMode(this.ModeToSet, (this.ResolutionDropDown.Active.ReferencedObject as OptionsScreen.Option).x, (this.ResolutionDropDown.Active.ReferencedObject as OptionsScreen.Option).y);
 				base.Setup();
 				if (this.FromGame)

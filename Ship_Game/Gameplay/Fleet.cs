@@ -102,6 +102,17 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public void SetNameByFleetIndex(int index)
+        {
+            string suffix = "th";
+            switch (index % 10) {
+                case 1: suffix = "st"; break;
+                case 2: suffix = "nd"; break;
+                case 3: suffix = "rd"; break;
+            }
+            Name = index + suffix + " fleet";
+        }
+
         public void PushToStack(Fleet.FleetGoal g)
         {
             this.GoalStack.Push(g);
@@ -537,7 +548,7 @@ namespace Ship_Game.Gameplay
             {
                 if (!s.InCombat)
                 {
-                    lock (s.GetAI().wayPointLocker)
+                    lock (s.GetAI().WayPointLocker)
                         s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
                 }
                 FleetDataNode fleetDataNode = new FleetDataNode();
@@ -1371,7 +1382,6 @@ namespace Ship_Game.Gameplay
                         case -1:
                         case 0:
                             List<Planet> list1 = new List<Planet>();
-                            this.Owner.GetPlanets().thisLock.EnterReadLock();
                             //foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat => combat.ParentSystem.DangerTimer))
                             foreach (Planet planet in this.Owner.GetPlanets()
                                 .OrderBy(combat => combat.ParentSystem.combatTimer < 30)
@@ -1398,7 +1408,6 @@ namespace Ship_Game.Gameplay
                                 if(!flag)
                                 list1.Add(planet);
                             }
-                            this.Owner.GetPlanets().thisLock.ExitReadLock();
                             
                             if ( list1.Count>0          )
                             {
@@ -1722,13 +1731,11 @@ namespace Ship_Game.Gameplay
                             }
                         case 5:
                             List<Planet> list5 = new List<Planet>();
-                            this.Owner.GetPlanets().thisLock.EnterReadLock();
                             foreach (Planet planet in this.Owner.GetPlanets())
                             {
                                 if (planet.HasShipyard)
                                     list5.Add(planet);
                             }
-                            this.Owner.GetPlanets().thisLock.ExitReadLock();
                             IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list5, (Func<Planet, float>)(p => Vector2.Distance(this.Position, p.Position)));
                             if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable3) > 0)
                             {
@@ -2291,11 +2298,9 @@ namespace Ship_Game.Gameplay
                     break;
                 case 3:                    
                     this.EnemyClumpsDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarClusters(this.Task.GetTargetPlanet().Position, 150000,10000,this.Owner);
-                    if(false)
-                    {
+                    #if false
                         this.EnemyClumpsDict.Clear();
                         List<Ship> list2 = new List<Ship>();
-
 
                         List<Ship> nearby1; // = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
                         nearby1 = this.Owner.GetGSAI().ThreatMatrix.PingRadarShip(this.Task.GetTargetPlanet().Position, 150000f);
@@ -2330,7 +2335,7 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
-                    }
+                    #endif
                     if (this.EnemyClumpsDict.Count == 0)
                     {
                         using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
@@ -3113,7 +3118,7 @@ namespace Ship_Game.Gameplay
             }
 
             ~Squad() { Dispose(false); }
-            protected void Dispose(bool disposing)
+            private void Dispose(bool disposing)
             {
                 if (!disposed)
                 {
