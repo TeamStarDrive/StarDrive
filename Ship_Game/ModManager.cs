@@ -9,7 +9,6 @@ using System.Xml.Serialization;
 using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SynapseGaming.LightingSystem.Rendering;
 namespace Ship_Game
@@ -75,7 +74,7 @@ namespace Ship_Game
 
         ~ModManager() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

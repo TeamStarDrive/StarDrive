@@ -65,10 +65,10 @@ namespace Ship_Game
 
 		private VertexDeclaration quadVertexDecl;
 
-		private BasicEffect quadEffect;
+		//private BasicEffect quadEffect;
 
 		private float displacement = 1f;
-        private bool recycled = false;
+        //private bool recycled = false;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
@@ -372,10 +372,10 @@ namespace Ship_Game
 			return this.Target;
 		}
 
-		public bool LoadContent(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection)
+		public bool LoadContent(ScreenManager ScreenManager, Matrix view, Matrix projection)
 		{
 			//lock (GlobalStats.BeamEffectLocker)
-			{
+			//{
                 
                     //Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
                    // Beam beam=null;
@@ -384,66 +384,66 @@ namespace Ship_Game
                     this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
                     //Beam.BeamEffect.Parameters["tex"].SetValue(texture);
                     return true;
-               // if (beam != null) // || beam.quadEffect == null)
-                    {
-                        try
-                        {
-                            this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
-                                {
-                                    World = Matrix.Identity,
-                                    View = view,
-                                    Projection = projection,
-                                    TextureEnabled = true,
-                                   // Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
-                                };
-                            this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                            //Beam.BeamEffect.Parameters["tex"].SetValue(texture);
-                        }
-                        catch
-                        {
-                            GlobalStats.BeamOOM++;
-                            if (GlobalStats.BeamOOM > 10)
-                            {
-                                GC.WaitForPendingFinalizers(); GC.Collect();
+   //            // if (beam != null) // || beam.quadEffect == null)
+   //                 {
+   //                     try
+   //                     {
+   //                         this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
+   //                             {
+   //                                 World = Matrix.Identity,
+   //                                 View = view,
+   //                                 Projection = projection,
+   //                                 TextureEnabled = true,
+   //                                // Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
+   //                             };
+   //                         this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+   //                         //Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+   //                     }
+   //                     catch
+   //                     {
+   //                         GlobalStats.BeamOOM++;
+   //                         if (GlobalStats.BeamOOM > 10)
+   //                         {
+   //                             GC.WaitForPendingFinalizers(); GC.Collect();
 
-                                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                                GC.Collect();
-                                GlobalStats.BeamOOM = 0;
-                            }
+   //                             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+   //                             GC.Collect();
+   //                             GlobalStats.BeamOOM = 0;
+   //                         }
                             
-                            System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
+   //                         System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
 
 
-                            this.Active = false;
-                            return false;
-                        }
-                    }
-                  //  else
-                    {
-                        //this.quadEffect = beam.quadEffect;
+   //                         this.Active = false;
+   //                         return false;
+   //                     }
+   //                 }
+   //               //  else
+   //                 {
+   //                     //this.quadEffect = beam.quadEffect;
                         
-                        //if(this.quadEffect.World != Matrix.Identity)
-                        //this.quadEffect.World = Matrix.Identity;
-                        //if(this.quadEffect.View!=view)
-                        //this.quadEffect.View = view;
-                        //if(this.quadEffect.Projection != projection)
-                        //this.quadEffect.Projection = projection;
-                        //this.quadEffect.TextureEnabled = true;
+   //                     //if(this.quadEffect.World != Matrix.Identity)
+   //                     //this.quadEffect.World = Matrix.Identity;
+   //                     //if(this.quadEffect.View!=view)
+   //                     //this.quadEffect.View = view;
+   //                     //if(this.quadEffect.Projection != projection)
+   //                     //this.quadEffect.Projection = projection;
+   //                     //this.quadEffect.TextureEnabled = true;
                         
 
-                        //    this.quadEffect.Texture = texture;
-                     //       Beam.BeamEffect.Parameters["tex"].SetValue(texture);
+   //                     //    this.quadEffect.Texture = texture;
+   //                  //       Beam.BeamEffect.Parameters["tex"].SetValue(texture);
                       
                     
                         
-                    }
+   //                 }
                     
                     
-                       //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+   //                    //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
      
               
-			}
-            return true;
+			//}
+   //         return true;
 		}
 
 		public override bool Touch(GameplayObject target)
@@ -543,11 +543,11 @@ namespace Ship_Game
                 this.Destination = this.Target.Center;
             }// Done messing with stuff - Gretman
 
-            if (this.quadEffect != null)
-            {
-                this.quadEffect.View = view;
-                this.quadEffect.Projection = projection;
-            }
+            //if (this.quadEffect != null)
+            //{
+            //    this.quadEffect.View = view;
+            //    this.quadEffect.Projection = projection;
+            //}
             Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.ActualHitDestination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
             this.UpperLeft = points[0];
             this.UpperRight = points[1];
@@ -578,12 +578,12 @@ namespace Ship_Game
 			}
             this.Duration -= elapsedTime;
 			this.Source = srcCenter;
-            if (this.quadEffect != null)
-            //this.Die(null, true);
-            {
-                this.quadEffect.View = view;
-                this.quadEffect.Projection = projection;
-            }
+            //if (this.quadEffect != null)
+            ////this.Die(null, true);
+            //{
+            //    this.quadEffect.View = view;
+            //    this.quadEffect.Projection = projection;
+            //}
 			this.Destination = dstCenter;
 			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.Destination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
 			this.UpperLeft = points[0];
@@ -609,8 +609,8 @@ namespace Ship_Game
                     
                     if (this.quadVertexDecl != null)
                         this.quadVertexDecl.Dispose();
-                    if (this.quadEffect != null)
-                        this.quadEffect.Dispose();
+                    //if (this.quadEffect != null)
+                    //    this.quadEffect.Dispose();
                     
 
                 }

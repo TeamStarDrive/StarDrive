@@ -2074,20 +2074,17 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(Localizer.Token(2280), this.ScreenManager);
             }
-            if ((input.Right || this.RightColony.HandleInput(input)) && (PlanetScreen.screen.Debug || this.p.Owner == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty)))
+            if ((input.Right || this.RightColony.HandleInput(input)) && (screen.Debug || this.p.Owner == EmpireManager.GetEmpireByName(screen.PlayerLoyalty)))
             {
-
                 try
                 {
-                    this.p.Owner.GetPlanets().thisLock.EnterReadLock();
-                    int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);
-                    thisindex = (thisindex >= this.p.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
-                    if (this.p.Owner.GetPlanets()[thisindex] != this.p)
+                    int thisindex = p.Owner.GetPlanets().IndexOf(p);
+                    thisindex = (thisindex >= p.Owner.GetPlanets().Count - 1 ? 0 : thisindex + 1);
+                    if (p.Owner.GetPlanets()[thisindex] != p)
                     {
-                        this.p = this.p.Owner.GetPlanets()[thisindex];
-                        PlanetScreen.screen.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
+                        p = p.Owner.GetPlanets()[thisindex];
+                        screen.workersPanel = new ColonyScreen(p, ScreenManager, eui);
                     }
-                    this.p.Owner.GetPlanets().thisLock.ExitReadLock();
                 }
                 catch
                 {
@@ -2183,11 +2180,9 @@ namespace Ship_Game
                             && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
                             && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.p.Position)));
                     this.eui.empire.GetShips().thisLock.ExitReadLock();
-                    this.eui.empire.GetPlanets().thisLock.EnterReadLock();
                     List<Planet> planetTroops = new List<Planet>(this.eui.empire.GetPlanets()
                         .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, this.p.Position))
                         .Where(Name => Name.Name != this.p.Name));
-                    this.eui.empire.GetPlanets().thisLock.ExitReadLock();
                     if (troopShips.Count > 0)
                     {
                         AudioManager.PlayCue("echo_affirm");
@@ -3283,7 +3278,7 @@ namespace Ship_Game
 
         ~ColonyScreen() { Dispose(false);  }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

@@ -509,7 +509,7 @@ namespace Ship_Game
 
         ~AgentComponent() { Dispose(false);  }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
