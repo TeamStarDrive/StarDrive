@@ -419,7 +419,7 @@ namespace Ship_Game.Gameplay
 				}
 				foreach (Planet p in toRemove)
 				{
-					us.GetPlanets().Remove(p);
+                    us.RemovePlanet(p);
 				}
 				foreach (Ship ship in TroopShips)
 				{
@@ -480,7 +480,7 @@ namespace Ship_Game.Gameplay
 				}
 				foreach (Planet p in toRemove)
 				{
-					Them.GetPlanets().Remove(p);
+                    Them.RemovePlanet(p);
 				}
 				foreach (Ship ship in TroopShips)
 				{
@@ -784,7 +784,7 @@ namespace Ship_Game.Gameplay
 				}
 				foreach (Planet p in toRemove)
 				{
-					us.GetPlanets().Remove(p);
+					us.RemovePlanet(p);
 				}
 				foreach (Ship ship in TroopShips)
 				{
@@ -839,7 +839,7 @@ namespace Ship_Game.Gameplay
 				}
 				foreach (Planet p in toRemove)
 				{
-					Them.GetPlanets().Remove(p);
+					Them.RemovePlanet(p);
 				}
 				foreach (Ship ship in TroopShips)
 				{
@@ -6742,9 +6742,10 @@ namespace Ship_Game.Gameplay
                     continue;
                 }
                 //added by Gremlin: Colony expansion changes
-                if (g.GetMarkedPlanet() != null)
+                Planet markedPlanet = g.GetMarkedPlanet();
+                if (markedPlanet != null && markedPlanet.ParentSystem != null)
                 {
-                    if (g.GetMarkedPlanet().ParentSystem.ShipList.Where(ship => ship.loyalty != null && ship.loyalty.isFaction).Count() > 0)
+                    if (markedPlanet.ParentSystem.ShipList.Where(ship => ship.loyalty != null && ship.loyalty.isFaction).Count() > 0)
                     {
                         numColonyGoals--;
                     }

@@ -349,13 +349,13 @@ namespace Ship_Game
                     List<Ship> troopShips = new List<Ship>(this.screen.empUI.empire.GetShips()
                         .Where(troop => troop.TroopList.Count > 0
                             && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
-                            && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.planet.Position)));
+                            && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Position)));
                     this.screen.empUI.empire.GetShips().thisLock.ExitReadLock();
-                    this.screen.empUI.empire.GetPlanets().thisLock.EnterReadLock();
-                    List<Planet> planetTroops = new List<Planet>(this.screen.empUI.empire.GetPlanets()
-                        .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, this.planet.Position))
-                        .Where(Name => Name.Name != this.planet.Name));
-                    this.screen.empUI.empire.GetPlanets().thisLock.ExitReadLock();
+                    var planetTroops = new List<Planet>(screen.empUI.empire.GetPlanets()
+                        .Where(troops => troops.TroopsHere.Count > 1)
+                        .OrderBy(distance => Vector2.Distance(distance.Position, planet.Position))
+                        .Where(p => p.Name != planet.Name));
+
                     if (troopShips.Count > 0)
                     {
                         AudioManager.PlayCue("echo_affirm");
