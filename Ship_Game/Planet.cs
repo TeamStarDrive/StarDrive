@@ -298,7 +298,7 @@ namespace Ship_Game
                     this.Population = 0.0f;
                     if (this.Owner != null)
                     {
-                        this.Owner.GetPlanets().Remove(this);
+                        this.Owner.RemovePlanet(this);
                         if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
                         {
                             Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty));
@@ -506,7 +506,7 @@ namespace Ship_Game
                     this.Population = 0f;
                     if (this.Owner != null)
                     {
-                        this.Owner.GetPlanets().Remove(this);
+                        this.Owner.RemovePlanet(this);
                         if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
                         {
                             Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty));
@@ -2312,7 +2312,7 @@ namespace Ship_Game
             this.ConstructionQueue.Clear();
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                 planetGridSquare.QItem = (QueueItem)null;
-            this.Owner.GetPlanets().Remove(this);
+            this.Owner.RemovePlanet(this);
             if (index == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.Owner == EmpireManager.GetEmpireByName("Cordrazine Collective"))
                 GlobalStats.IncrementCordrazineCapture();
             if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)] && !flag)
@@ -2326,7 +2326,6 @@ namespace Ship_Game
                     
                     if (this.Owner != null)
                     {
-                        this.Owner.GetPlanets().thisLock.EnterReadLock();
                         foreach (Planet item_3 in this.system.PlanetList)
                         {
                             if (item_3.Owner == this.Owner && item_3 != this)
@@ -2334,7 +2333,6 @@ namespace Ship_Game
                         }
                         if (local_7)
                             this.system.OwnerList.Remove(this.Owner);
-                        this.Owner.GetPlanets().thisLock.ExitReadLock();
                     }
                     this.Owner = (Empire)null;
                 }

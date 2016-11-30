@@ -35,6 +35,16 @@ namespace Ship_Game
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         }
+
+        public void EnterReadLock()
+        {
+            thisLock.EnterReadLock();
+        }
+        public void ExitReadLock()
+        {
+            thisLock.ExitReadLock();
+        }
+
         public void ApplyPendingRemovals()
         {
             while (!pendingRemovals.IsEmpty)

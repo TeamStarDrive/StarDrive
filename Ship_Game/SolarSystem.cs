@@ -337,6 +337,7 @@ namespace Ship_Game
 						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
 						OrbitalAngle = RandomAngle,
 						ParentSystem = this,
+                        system = this,
 						planetType = 22
 					};
 					newOrbital.SetPlanetAttributes();
@@ -498,6 +499,7 @@ namespace Ship_Game
 						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
 						OrbitalAngle = RandomAngle,
 						ParentSystem = this,
+                        system = this,
 						planetType = (int)RandomMath.RandomBetween(1f, 24f)
 					};
 					if ((newOrbital.planetType == 22 || newOrbital.planetType == 13) && RandomMath.RandomBetween(0f, 100f) > 50f)
@@ -812,6 +814,7 @@ namespace Ship_Game
 						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
 						OrbitalAngle = RandomAngle,
 						ParentSystem = this,
+                        system = this,
 						planetType = (int)RandomMath.RandomBetween(1f, 24f)
 					};
                     float scale = RandomMath.RandomBetween(0.9f, 1.8f);
@@ -881,7 +884,8 @@ namespace Ship_Game
 					{
 						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
 						OrbitalAngle = RandomAngle,
-						ParentSystem = this
+						ParentSystem = this,
+                        system = this,
 					};
 					int random = (int)RandomMath.RandomBetween(1f, 3f);
 					if (random == 1)
@@ -985,6 +989,7 @@ namespace Ship_Game
 						Name = data.RingList[i - 1].Planet,
 						OrbitalAngle = RandomAngle,
 						ParentSystem = newSys,
+                        system = newSys,
 						SpecialDescription = data.RingList[i - 1].SpecialDescription,
 						planetType = WhichPlanet,
 						Position = planetCenter,

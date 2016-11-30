@@ -11,5 +11,17 @@ namespace Ship_Game
             dict[key] = default(TValue);
             return value;
         }
+
+        public static int IndexOf<T>(this IReadOnlyList<T> list, T item) where T : class
+        {
+            var arrayList = list as List<T>;
+            if (arrayList != null)
+                return arrayList.IndexOf(item);
+
+            for (int i = 0, n = list.Count; i < n; ++i)
+                if (item == list[i])
+                    return i;
+            return -1;
+        }
     }
 }
