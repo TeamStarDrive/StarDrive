@@ -970,6 +970,7 @@ namespace Ship_Game.Gameplay
 
         public void AddGood(string UID, int Amount)
         {
+            //System.Diagnostics.Debug.WriteLine("AddGood {0}: {1}", UID, Amount);
             if (this.CargoDict.ContainsKey(UID))
             {
                 Dictionary<string, float> dictionary;

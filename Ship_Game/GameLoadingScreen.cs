@@ -165,7 +165,6 @@ namespace Ship_Game
 			};
 			this.SplashPlayer = new VideoPlayer();
             this.SplashPlayer.Volume = GlobalStats.Config.MusicVolume;
-			ResourceManager.Start();
 			ResourceManager.Initialize(base.ScreenManager.Content);
 			base.LoadContent();
 		}

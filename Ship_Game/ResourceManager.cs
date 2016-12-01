@@ -19,85 +19,48 @@ namespace Ship_Game
 	public sealed class ResourceManager
 	{
 		public static Dictionary<string, Texture2D> TextureDict;
-
 		public static XmlSerializer weapon_serializer;
-
 		public static XmlSerializer serializer_shipdata;
-
 		public static Dictionary<string, Ship> ShipsDict;
-
 		public static Dictionary<int, Model> RoidsModels;
-
 		public static Dictionary<int, Model> JunkModels;
-
 		public static Dictionary<string, Technology> TechTree;
-
 		public static List<Encounter> Encounters;
-
 		public static Dictionary<string, Building> BuildingsDict;
-
 		public static Dictionary<string, Good> GoodsDict;
-
 		public static Dictionary<string, Weapon> WeaponsDict;
-
 		public static Dictionary<string, ShipModule> ShipModulesDict;
-
 		public static Dictionary<int, ToolTip> ToolTips;
-
 		public static Dictionary<string, Texture2D> ProjTextDict;
-
 		public static Dictionary<string, ModelMesh> ProjectileMeshDict;
-
 		public static Dictionary<string, Model> ProjectileModelDict;
-
 		public static bool Initialized;
-
 		public static string WhichModPath;
 
 		public static List<RandomItem> RandomItemsList;
-
 		public static Dictionary<string, Troop> TroopsDict;
-
 		public static Dictionary<string, DiplomacyDialog> DDDict;
-
 		public static Dictionary<string, LocalizationFile> LanguageDict;
 
 		public static LocalizationFile LanguageFile;
-
 		public static Dictionary<string, Artifact> ArtifactsDict;
-
 		public static Dictionary<string, ExplorationEvent> EventsDict;
-
 		public static List<Texture2D> BigNebulas;
-
 		public static List<Texture2D> MedNebulas;
-
 		public static List<Texture2D> SmallNebulas;
-
 		public static List<Texture2D> SmallStars;
-
 		public static List<Texture2D> MediumStars;
-
 		public static List<Texture2D> LargeStars;
-
 		private static RacialTraits rt;
-
 		public static List<EmpireData> Empires;
-
 		public static XmlSerializer HeaderSerializer;
-
 		public static XmlSerializer ModSerializer;
-
 		public static Dictionary<string, Model> ModelDict;
-
 		public static XmlSerializer EconSerializer;
 
 		public static Dictionary<string, ShipData> HullsDict;
-
 		public static UniverseScreen universeScreen;
-
 		public static List<KeyValuePair<string, Texture2D>> FlagTextures;
-
         public static Dictionary<string, SoundEffect> SoundEffectDict;
         public static int OffSet;
 
@@ -109,103 +72,86 @@ namespace Ship_Game
         public static Dictionary<ShipData.RoleName, ShipRole> ShipRoles;
         public static Dictionary<string, HullBonus> HullBonuses;
         public static Dictionary<string, PlanetEdict> PlanetaryEdicts;
-        //public static Dictionary<string, string> DefaultStrings;
-        
-        //private static void AddDefaultString(string addme)
-        //{
-        //    if(!DefaultStrings.ContainsKey(addme))
-        //    {
-        //        DefaultStrings.Add()
-        //    }
-        //}
+
 		static ResourceManager()
 		{
-			Ship_Game.ResourceManager.TextureDict = new Dictionary<string, Texture2D>();
-			Ship_Game.ResourceManager.weapon_serializer = new XmlSerializer(typeof(Weapon));
-			Ship_Game.ResourceManager.serializer_shipdata = new XmlSerializer(typeof(ShipData));
-            Ship_Game.ResourceManager.ShipsDict = new Dictionary<string, Ship>();
-			Ship_Game.ResourceManager.RoidsModels = new Dictionary<int, Model>();
-			Ship_Game.ResourceManager.JunkModels = new Dictionary<int, Model>();
-            Ship_Game.ResourceManager.TechTree = new Dictionary<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
-			Ship_Game.ResourceManager.Encounters = new List<Encounter>();
-			Ship_Game.ResourceManager.BuildingsDict = new Dictionary<string, Building>();
-			Ship_Game.ResourceManager.GoodsDict = new Dictionary<string, Good>();
-			Ship_Game.ResourceManager.WeaponsDict = new Dictionary<string, Weapon>();
-			Ship_Game.ResourceManager.ShipModulesDict = new Dictionary<string, ShipModule>();
-			Ship_Game.ResourceManager.ToolTips = new Dictionary<int, ToolTip>();
-			Ship_Game.ResourceManager.ProjTextDict = new Dictionary<string, Texture2D>();
-			Ship_Game.ResourceManager.ProjectileMeshDict = new Dictionary<string, ModelMesh>();
-			Ship_Game.ResourceManager.ProjectileModelDict = new Dictionary<string, Model>();
-			Ship_Game.ResourceManager.Initialized = false;
-			Ship_Game.ResourceManager.WhichModPath = "";
-			Ship_Game.ResourceManager.RandomItemsList = new List<RandomItem>();
-			Ship_Game.ResourceManager.TroopsDict = new Dictionary<string, Troop>();
-			Ship_Game.ResourceManager.DDDict = new Dictionary<string, DiplomacyDialog>();
-			Ship_Game.ResourceManager.LanguageDict = new Dictionary<string, LocalizationFile>();
-			Ship_Game.ResourceManager.LanguageFile = new LocalizationFile();
-			Ship_Game.ResourceManager.ArtifactsDict = new Dictionary<string, Artifact>();
-			Ship_Game.ResourceManager.EventsDict = new Dictionary<string, ExplorationEvent>();
-			Ship_Game.ResourceManager.BigNebulas = new List<Texture2D>();
-			Ship_Game.ResourceManager.MedNebulas = new List<Texture2D>();
-			Ship_Game.ResourceManager.SmallNebulas = new List<Texture2D>();
-			Ship_Game.ResourceManager.SmallStars = new List<Texture2D>();
-			Ship_Game.ResourceManager.MediumStars = new List<Texture2D>();
-			Ship_Game.ResourceManager.LargeStars = new List<Texture2D>();
-			Ship_Game.ResourceManager.rt = new RacialTraits();
-			Ship_Game.ResourceManager.Empires = new List<EmpireData>();
-			Ship_Game.ResourceManager.HeaderSerializer = new XmlSerializer(typeof(HeaderData));
-			Ship_Game.ResourceManager.ModSerializer = new XmlSerializer(typeof(ModInformation));
-			Ship_Game.ResourceManager.ModelDict = new Dictionary<string, Model>();
-			Ship_Game.ResourceManager.EconSerializer = new XmlSerializer(typeof(EconomicResearchStrategy));
-            Ship_Game.ResourceManager.HullsDict = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
-			Ship_Game.ResourceManager.FlagTextures = new List<KeyValuePair<string, Texture2D>>();
+			weapon_serializer   = new XmlSerializer(typeof(Weapon));
+			serializer_shipdata = new XmlSerializer(typeof(ShipData));
+            TextureDict         = new Dictionary<string, Texture2D>();
+            ShipsDict           = new Dictionary<string, Ship>();
+            RoidsModels         = new Dictionary<int, Model>();
+            JunkModels          = new Dictionary<int, Model>();
+            TechTree            = new Dictionary<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
+            Encounters          = new List<Encounter>();
+            BuildingsDict       = new Dictionary<string, Building>();
+            GoodsDict           = new Dictionary<string, Good>();
+            WeaponsDict         = new Dictionary<string, Weapon>();
+            ShipModulesDict     = new Dictionary<string, ShipModule>();
+            ToolTips            = new Dictionary<int, ToolTip>();
+            ProjTextDict        = new Dictionary<string, Texture2D>();
+            ProjectileMeshDict  = new Dictionary<string, ModelMesh>();
+            ProjectileModelDict = new Dictionary<string, Model>();
+            Initialized         = false;
+            WhichModPath        = "";
+            RandomItemsList     = new List<RandomItem>();
+            TroopsDict          = new Dictionary<string, Troop>();
+            DDDict              = new Dictionary<string, DiplomacyDialog>();
+            LanguageDict        = new Dictionary<string, LocalizationFile>();
+            LanguageFile        = new LocalizationFile();
+            ArtifactsDict       = new Dictionary<string, Artifact>();
+            EventsDict          = new Dictionary<string, ExplorationEvent>();
+            BigNebulas          = new List<Texture2D>();
+            MedNebulas          = new List<Texture2D>();
+            SmallNebulas        = new List<Texture2D>();
+            SmallStars          = new List<Texture2D>();
+            MediumStars         = new List<Texture2D>();
+            LargeStars          = new List<Texture2D>();
+            rt                  = new RacialTraits();
+            Empires             = new List<EmpireData>();
+            HeaderSerializer    = new XmlSerializer(typeof(HeaderData));
+            ModSerializer       = new XmlSerializer(typeof(ModInformation));
+            ModelDict           = new Dictionary<string, Model>();
+            EconSerializer      = new XmlSerializer(typeof(EconomicResearchStrategy));
+            HullsDict           = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
+            FlagTextures        = new List<KeyValuePair<string, Texture2D>>();
             //Added by McShooterz
-            Ship_Game.ResourceManager.HostileFleets = new HostileFleets();
-            Ship_Game.ResourceManager.ShipNames = new ShipNames();
-            Ship_Game.ResourceManager.SoundEffectDict = new Dictionary<string, SoundEffect>();
-            Ship_Game.ResourceManager.AgentMissionData = new AgentMissionData();
-            Ship_Game.ResourceManager.MainMenuShipList = new MainMenuShipList();
-            Ship_Game.ResourceManager.ShipRoles = new Dictionary<ShipData.RoleName, ShipRole>();
-            Ship_Game.ResourceManager.HullBonuses = new Dictionary<string, HullBonus>();
-            Ship_Game.ResourceManager.PlanetaryEdicts = new Dictionary<string, PlanetEdict>();
-            Ship_Game.ResourceManager.OffSet = 0;
-            
-		}
+            HostileFleets       = new HostileFleets();
+            ShipNames           = new ShipNames();
+            SoundEffectDict     = new Dictionary<string, SoundEffect>();
+            AgentMissionData    = new AgentMissionData();
+            MainMenuShipList    = new MainMenuShipList();
+            ShipRoles           = new Dictionary<ShipData.RoleName, ShipRole>();
+            HullBonuses         = new Dictionary<string, HullBonus>();
+            PlanetaryEdicts     = new Dictionary<string, PlanetEdict>();
+            OffSet              = 0;
 
-		public ResourceManager()
-		{
-		}
+        }
+
         public static void MarkShipDesignsUnlockable()
         {
-            int x = 0;
-
-            Dictionary<Technology, List<string>> ShipTechs = new Dictionary<Technology, List<string>>();
-            //foreach (KeyValuePair<string, TechEntry> TechTreeItem in this.TechnologyDict)
-            foreach (KeyValuePair<string, Technology> TechTreeItem in ResourceManager.TechTree)
+            var shipTechs = new Dictionary<Technology, List<string>>();
+            foreach (var techTreeItem in TechTree)
             {
-                if (TechTreeItem.Value.ModulesUnlocked.Count <= 0 && TechTreeItem.Value.HullsUnlocked.Count <= 0)
+                Technology tech = techTreeItem.Value;
+                if (tech.ModulesUnlocked.Count <= 0 && tech.HullsUnlocked.Count <= 0)
                     continue;
-                ShipTechs.Add(TechTreeItem.Value, ResourceManager.FindPreviousTechs( TechTreeItem.Value, new List<string>()));
+                shipTechs.Add(tech, FindPreviousTechs(tech, new List<string>()));
             }
 
 
-
-            ShipData shipData;
-            HashSet<string> purge = new HashSet<string>();
-            //if(shipData.EmpiresThatCanUseThis.ContainsKey(this.data.Traits.ShipType))
-            foreach (ShipData hull in ResourceManager.HullsDict.Values)
+            foreach (ShipData hull in HullsDict.Values)
             {
                 if (hull.Role == ShipData.RoleName.disabled)
                     continue;
                 if (hull.Role < ShipData.RoleName.gunboat)
                     hull.unLockable = true;
-                foreach (Technology hulltech2 in ShipTechs.Keys)
+                foreach (Technology hulltech2 in shipTechs.Keys)
                 {
                     foreach (Technology.UnlockedHull hulls in hulltech2.HullsUnlocked)
                     {
                         if (hulls.Name == hull.Hull)
                         {
-                            foreach (string tree in ShipTechs[hulltech2])
+                            foreach (string tree in shipTechs[hulltech2])
                             {
                                 hull.techsNeeded.Add(tree);
                                 hull.unLockable = true;
@@ -216,12 +162,14 @@ namespace Ship_Game
                     if (hull.unLockable)
                         break;
                 }
-
             }
-            foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+
+            int x = 0;
+            var purge = new HashSet<string>();
+            foreach (var kv in ShipsDict)
             {
 
-                shipData = ship.Value.shipData;
+                ShipData shipData = kv.Value.shipData;
                 if (shipData == null)
                     continue;
                 if (shipData.HullRole == ShipData.RoleName.disabled)
@@ -244,7 +192,7 @@ namespace Ship_Game
                     shipData.allModulesUnlocakable = false;
                     shipData.hullUnlockable = false;
                     //shipData.techsNeeded.Clear();
-                    purge.Add(ship.Key);
+                    purge.Add(kv.Key);
                 }
 
 
@@ -252,7 +200,7 @@ namespace Ship_Game
                 if (shipData.hullUnlockable)
                 {
                     shipData.allModulesUnlocakable = true;
-                    foreach (ModuleSlotData module in ship.Value.shipData.ModuleSlotList)
+                    foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlotList)
                     {
 
 
@@ -260,7 +208,7 @@ namespace Ship_Game
                             continue;
                         bool modUnlockable = false;
                         //if (!modUnlockable)
-                        foreach (Technology technology in ShipTechs.Keys)
+                        foreach (Technology technology in shipTechs.Keys)
                         {
 
                             foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
@@ -270,7 +218,7 @@ namespace Ship_Game
                                     modUnlockable = true;
 
                                     shipData.techsNeeded.Add(technology.UID);
-                                    foreach (string tree in ShipTechs[technology])
+                                    foreach (string tree in shipTechs[technology])
                                         shipData.techsNeeded.Add(tree);
 
                                     break;
@@ -294,11 +242,11 @@ namespace Ship_Game
                 if (shipData.allModulesUnlocakable)
                     foreach (string techname in shipData.techsNeeded)
                     {
-                        shipData.TechScore += (int)ResourceManager.TechTree[techname].Cost;
+                        shipData.TechScore += (int)TechTree[techname].Cost;
                         x++;
-                        if (shipData.BaseStrength == 0)
+                        if (shipData.BaseStrength == 0.0f)
                         {
-                            ResourceManager.CalculateBaseStrength(ship.Value);
+                            CalculateBaseStrength(kv.Value);
                         }
                     }
                 else
@@ -321,34 +269,27 @@ namespace Ship_Game
             
 
         }
-		public static Microsoft.Xna.Framework.Content.ContentManager localContentManager;
-		public static bool ignoreLoadingErrors = false;
+		public static ContentManager LocalContentManager;
+		public static bool IgnoreLoadingErrors = false;
 		/// <summary>
 		/// This one used for reporting resource loading errors.
 		/// </summary>
-		/// <param name="FI"></param>
+		/// <param name="info"></param>
 		/// <param name="where"></param>
-		public static void ReportLoadingError(FileInfo FI, string where, Exception e)
+		public static void ReportLoadingError(FileInfo info, string where, Exception e)
 		{
-			if (!ignoreLoadingErrors)
-			{
-				e.Data.Add("Failing File: ", FI.FullName);
-				e.Data.Add("Fail Info: ", e.InnerException.Message);
-				throw (e);
-			}
+		    if (IgnoreLoadingErrors) return;
+		    e.Data.Add("Failing File: ", info.FullName);
+		    e.Data.Add("Fail Info: ", e.InnerException?.Message);
+		    throw e;
 		}
-		/// <summary>
-		///  All references to Game1.Instance.Content were replaced by this function
-		/// </summary>
-		/// <returns></returns>
-		public static Microsoft.Xna.Framework.Content.ContentManager GetContentManager()
-		{
-			if (Game1.Instance != null)
-				return Game1.Instance.Content;
-			return localContentManager;
-		}
+        /// <summary>
+        ///  All references to Game1.Instance.Content were replaced by this function
+        /// </summary>
+        /// <returns></returns>
+        public static ContentManager ContentManager => Game1.Instance != null ? Game1.Instance.Content : LocalContentManager;
 
-		public static Troop CopyTroop(Troop t)
+	    public static Troop CopyTroop(Troop t)
 		{
 			Troop troop = new Troop()
 			{
@@ -402,9 +343,9 @@ namespace Ship_Game
             //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
             //}
             //else 
-            if (!Ship_Game.ResourceManager.ShipsDict.TryGetValue(key, out newShip))
+            if (!ShipsDict.TryGetValue(key, out newShip))
             {
-                Ship_Game.ResourceManager.ShipsDict.TryGetValue(Owner.data.StartingScout, out newShip);
+                ShipsDict.TryGetValue(Owner.data.StartingScout, out newShip);
                 newShip = new Ship()
                 {
                     shipData = newShip.shipData,
@@ -426,11 +367,11 @@ namespace Ship_Game
 
                     };
             }
-			newShip.LoadContent(GetContentManager());
+			newShip.LoadContent(ContentManager);
 			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+			if (!ShipsDict[key].GetShipData().Animated)
 			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+				newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
@@ -438,13 +379,13 @@ namespace Ship_Game
 			}
 			else
 			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+				SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
 			newSO.ObjectType = ObjectType.Dynamic;
 			newShip.SetSO(newSO);
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+			foreach (Thruster t in ShipsDict[key].GetTList())
 			{
 				Thruster thr = new Thruster()
 				{
@@ -454,7 +395,7 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+			foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
 			{
 				ModuleSlot newSlot = new ModuleSlot();
 				newSlot.SetParent(newShip);
@@ -471,16 +412,16 @@ namespace Ship_Game
             
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
+            if (GlobalStats.ActiveMod != null && ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
-				Ship_Game.ResourceManager.universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
+				universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
 			}
 			foreach (Thruster t in newShip.GetTList())
 			{
-				t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
+				t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
 				t.InitializeForViewing();
 			}
             if (newShip.shipData.Role == ShipData.RoleName.fighter)
@@ -513,17 +454,17 @@ namespace Ship_Game
             //else
             newShip = new Ship()
             {
-                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
-                Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
-                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
-                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+                shipData = ShipsDict[key].shipData,
+                Name = ShipsDict[key].Name,
+                BaseStrength = ShipsDict[key].BaseStrength,
+                BaseCanWarp = ShipsDict[key].BaseCanWarp
 
             };
-            newShip.LoadContent(GetContentManager());
+            newShip.LoadContent(ContentManager);
             SceneObject newSO = new SceneObject();
-            if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+            if (!ShipsDict[key].GetShipData().Animated)
             {
-                newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+                newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
                 {
                     ObjectType = ObjectType.Dynamic
                 };
@@ -531,13 +472,13 @@ namespace Ship_Game
             }
             else
             {
-                SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+                SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
                 newSO = new SceneObject(model.Model);
                 newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
             }
             newSO.ObjectType = ObjectType.Dynamic;
             newShip.SetSO(newSO);
-            foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+            foreach (Thruster t in ShipsDict[key].GetTList())
             {
                 Thruster thr = new Thruster()
                 {
@@ -547,7 +488,7 @@ namespace Ship_Game
                 };
                 newShip.GetTList().Add(thr);
             }
-            foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+            foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
             {
                 ModuleSlot newSlot = new ModuleSlot();
                 newSlot.SetParent(newShip);
@@ -569,11 +510,11 @@ namespace Ship_Game
             newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
             lock (GlobalStats.ObjectManagerLocker)
             {
-                Ship_Game.ResourceManager.universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
+                universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
             }
             foreach (Thruster t in newShip.GetTList())
             {
-                t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
+                t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
                 t.InitializeForViewing();
             }
             if (newShip.shipData.Role == ShipData.RoleName.fighter)
@@ -591,9 +532,9 @@ namespace Ship_Game
         {
             Ship newShip = new Ship()
             {
-                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
-                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
-                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+                shipData = ShipsDict[key].shipData,
+                BaseStrength = ShipsDict[key].BaseStrength,
+                BaseCanWarp = ShipsDict[key].BaseCanWarp
             };
             //newShip.shipData.Role = role;
             if (role == ShipData.RoleName.troop)
@@ -607,25 +548,25 @@ namespace Ship_Game
                     newShip.VanityName = Troops[0].Name;
                 }
             }
-            newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-            newShip.LoadContent(GetContentManager());
-            SceneObject newSO = new SceneObject();
-            if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+            newShip.Name = ShipsDict[key].Name;
+            newShip.LoadContent(ContentManager);
+            SceneObject newSO;
+            if (!ShipsDict[key].GetShipData().Animated)
             {
-                newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+                newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
                 {
                     ObjectType = ObjectType.Dynamic
                 };
             }
             else
             {
-                SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+                SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
                 newSO = new SceneObject(model.Model);
                 newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
             }
             newShip.SetSO(newSO);
             newShip.Position = p.Position;
-            foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+            foreach (Thruster t in ShipsDict[key].GetTList())
             {
                 Thruster thr = new Thruster()
                 {
@@ -635,7 +576,7 @@ namespace Ship_Game
                 };
                 newShip.GetTList().Add(thr);
             }
-            foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+            foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
             {
                 ModuleSlot newSlot = new ModuleSlot();
                 newSlot.SetParent(newShip);
@@ -655,16 +596,16 @@ namespace Ship_Game
             newShip.loyalty = Owner;
             newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
+            if (GlobalStats.ActiveModInfo != null && ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
             newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
             lock (GlobalStats.ObjectManagerLocker)
             {
-                Ship_Game.ResourceManager.universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
+                universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
             }
             foreach (Thruster t in newShip.GetTList())
             {
-                t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
+                t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
                 t.InitializeForViewing();
             }
             if (DoOrbit)
@@ -673,35 +614,35 @@ namespace Ship_Game
             }
             foreach (Troop t in Troops)
             {
-                newShip.TroopList.Add(Ship_Game.ResourceManager.CopyTroop(t));
+                newShip.TroopList.Add(CopyTroop(t));
             }
             Owner.AddShip(newShip);
             return newShip;
         }
 
-        public static Ship CreateShipAtPoint(string key, Empire Owner, Vector2 p)       //Debug, Hanger Ship, and Platform creation
+        public static Ship CreateShipAtPoint(string key, Empire owner, Vector2 p)       //Debug, Hanger Ship, and Platform creation
 		{
-            if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(key))
+            if (!ShipsDict.ContainsKey(key))
             {
                 return null;
             }
-            Ship newShip;
+            ;
             //if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
             //{
             //    newShip.ShipRecreate();
             //}
             //else
-            newShip = new Ship();
+            Ship newShip = new Ship();
 
-            newShip.shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData;
-			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-            newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
-            newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-			newShip.LoadContent(GetContentManager());
+            newShip.shipData = ShipsDict[key].shipData;
+			newShip.Name = ShipsDict[key].Name;
+            newShip.BaseStrength = ShipsDict[key].BaseStrength;
+            newShip.BaseCanWarp = ShipsDict[key].BaseCanWarp;
+			newShip.LoadContent(ContentManager);
 			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+			if (!ShipsDict[key].GetShipData().Animated)
 			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+				newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
@@ -709,18 +650,18 @@ namespace Ship_Game
 			}
 			else
 			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+				SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
 			newSO.ObjectType = ObjectType.Dynamic;
 			newShip.SetSO(newSO);
-            if (newShip.shipData.Role == ShipData.RoleName.fighter && Owner.data != null)
+            if (newShip.shipData.Role == ShipData.RoleName.fighter && owner.data != null)
 			{
 				Ship level = newShip;
-				level.Level = level.Level + Owner.data.BonusFighterLevels;
+				level.Level = level.Level + owner.data.BonusFighterLevels;
 			}
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+			foreach (Thruster t in ShipsDict[key].GetTList())
 			{
 				Thruster thr = new Thruster()
 				{
@@ -730,7 +671,7 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+			foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
 			{
 				ModuleSlot newSlot = new ModuleSlot();
 				newSlot.SetParent(newShip);
@@ -743,29 +684,28 @@ namespace Ship_Game
 				newShip.ModuleSlotList.AddLast(newSlot);
 			}
 			newShip.Position = p;
-			newShip.loyalty = Owner;
+			newShip.loyalty = owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
+            if (GlobalStats.ActiveMod != null && ShipNames.CheckForName(owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = ShipNames.GetName(owner.data.Traits.ShipType, newShip.shipData.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
-				Ship_Game.ResourceManager.universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
+				universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
 			}
 			newShip.isInDeepSpace = true;
 			foreach (Thruster t in newShip.GetTList())
 			{
-				t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
+				t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
 				t.InitializeForViewing();
 			}
-			Owner.AddShip(newShip);
+			owner.AddShip(newShip);
 			return newShip;
 		}
 
-		public static Ship CreateShipAtPoint(string key, Empire Owner, Vector2 p, float facing)     //unused   -- Called in fleet creation function, which is in turn not used
+		public static Ship CreateShipAtPoint(string key, Empire owner, Vector2 p, float facing)     //unused   -- Called in fleet creation function, which is in turn not used
 		{
-						Ship newShip;
             //if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
             //{
             //    newShip.ShipRecreate();
@@ -776,25 +716,25 @@ namespace Ship_Game
             //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
             //}
             //else
-            newShip = new Ship()
+            Ship newShip = new Ship()
 			{
 				Rotation = facing,
-                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
-                Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
-                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
-                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+                shipData = ShipsDict[key].shipData,
+                Name = ShipsDict[key].Name,
+                BaseStrength = ShipsDict[key].BaseStrength,
+                BaseCanWarp = ShipsDict[key].BaseCanWarp
                 
 			};
-			newShip.LoadContent(GetContentManager());
+			newShip.LoadContent(ContentManager);
             if (newShip.shipData.Role == ShipData.RoleName.fighter)
 			{
 				Ship level = newShip;
-				level.Level = level.Level + Owner.data.BonusFighterLevels;
+				level.Level = level.Level + owner.data.BonusFighterLevels;
 			}
-			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+			SceneObject newSO;
+			if (!ShipsDict[key].GetShipData().Animated)
 			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+				newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
@@ -802,12 +742,12 @@ namespace Ship_Game
 			}
 			else
 			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+				SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
 			newShip.SetSO(newSO);
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+			foreach (Thruster t in ShipsDict[key].GetTList())
 			{
 				Thruster thr = new Thruster()
 				{
@@ -817,7 +757,7 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+			foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
 			{
 				ModuleSlot newSlot = new ModuleSlot();
 				newSlot.SetParent(newShip);
@@ -830,42 +770,42 @@ namespace Ship_Game
 				newShip.ModuleSlotList.AddLast(newSlot);
 			}
 			newShip.Position = p;
-			newShip.loyalty = Owner;
+			newShip.loyalty = owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
+            if (GlobalStats.ActiveMod != null && ShipNames.CheckForName(owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = ShipNames.GetName(owner.data.Traits.ShipType, newShip.shipData.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
-				Ship_Game.ResourceManager.universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
+				universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
 			}
 			newShip.isInDeepSpace = true;
 			foreach (Thruster t in newShip.GetTList())
 			{
-				t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
+				t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
 				t.InitializeForViewing();
 			}
-			Owner.AddShip(newShip);
+			owner.AddShip(newShip);
 			return newShip;
 		}
 
-		public static Ship CreateShipAtPointNow(string key, Empire Owner, Vector2 p)        //Unused
+		public static Ship CreateShipAtPointNow(string key, Empire owner, Vector2 p)        //Unused
 		{
 			Ship newShip = new Ship();
-			if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(key))
+			if (!ShipsDict.ContainsKey(key))
 			{
 				return null;
 			}
-            newShip.shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData;
-			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-            newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
-            newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-			newShip.LoadContent(GetContentManager());
-			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+            newShip.shipData = ShipsDict[key].shipData;
+			newShip.Name = ShipsDict[key].Name;
+            newShip.BaseStrength = ShipsDict[key].BaseStrength;
+            newShip.BaseCanWarp = ShipsDict[key].BaseCanWarp;
+			newShip.LoadContent(ContentManager);
+			SceneObject newSO;
+			if (!ShipsDict[key].GetShipData().Animated)
 			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+				newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
@@ -873,18 +813,18 @@ namespace Ship_Game
 			}
 			else
 			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+				SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
 			newSO.ObjectType = ObjectType.Dynamic;
 			newShip.SetSO(newSO);
-            if (newShip.shipData.Role == ShipData.RoleName.fighter && Owner.data != null)
+            if (newShip.shipData.Role == ShipData.RoleName.fighter && owner.data != null)
 			{
 				Ship level = newShip;
-				level.Level = level.Level + Owner.data.BonusFighterLevels;
+				level.Level = level.Level + owner.data.BonusFighterLevels;
 			}
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+			foreach (Thruster t in ShipsDict[key].GetTList())
 			{
 				Thruster thr = new Thruster()
 				{
@@ -894,7 +834,7 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+			foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
 			{
 				ModuleSlot newSlot = new ModuleSlot();
 				newSlot.SetParent(newShip);
@@ -907,40 +847,41 @@ namespace Ship_Game
 				newShip.ModuleSlotList.AddLast(newSlot);
 			}
 			newShip.Position = p;
-			newShip.loyalty = Owner;
+			newShip.loyalty = owner;
 			newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
+            if (GlobalStats.ActiveMod != null && ShipNames.CheckForName(owner.data.Traits.ShipType, newShip.shipData.Role))
+                newShip.VanityName = ShipNames.GetName(owner.data.Traits.ShipType, newShip.shipData.Role);
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			lock (GlobalStats.ObjectManagerLocker)
 			{
-				Ship_Game.ResourceManager.universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
+				universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
 			}
 			newShip.isInDeepSpace = true;
 			foreach (Thruster t in newShip.GetTList())
 			{
-				t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
+				t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
 				t.InitializeForViewing();
 			}
-			Owner.AddShip(newShip);
+			owner.AddShip(newShip);
 			return newShip;
 		}
 
-		public static Ship CreateShipForBattleMode(string key, Empire Owner, Vector2 p)     //Unused... Battle mode, eh?
+		public static Ship CreateShipForBattleMode(string key, Empire owner, Vector2 p)     //Unused... Battle mode, eh?
 		{
-			Ship newShip = new Ship()
+		    Ship template = ShipsDict[key];
+            Ship newShip = new Ship()
 			{
-                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
-                Name = Ship_Game.ResourceManager.ShipsDict[key].Name,
-                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
-                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+                shipData = template.shipData,
+                Name = template.Name,
+                BaseStrength = template.BaseStrength,
+                BaseCanWarp = template.BaseCanWarp
 			};
-			newShip.LoadContent(GetContentManager());
-			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+			newShip.LoadContent(ContentManager);
+			SceneObject newSO;
+			if (!template.GetShipData().Animated)
 			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+				newSO = new SceneObject(GetModel(template.ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
@@ -948,11 +889,11 @@ namespace Ship_Game
 			}
 			else
 			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+				SkinnedModel model = GetSkinnedModel(template.ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+			foreach (Thruster t in template.GetTList())
 			{
 				Thruster thr = new Thruster()
 				{
@@ -962,7 +903,7 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+			foreach (ModuleSlot slot in template.ModuleSlotList)
 			{
 				ModuleSlot newSlot = new ModuleSlot();
 				newSlot.SetParent(newShip);
@@ -975,27 +916,25 @@ namespace Ship_Game
 				newShip.ModuleSlotList.AddLast(newSlot);
 			}
 			newShip.Position = p;
-			newShip.loyalty = Owner;
+			newShip.loyalty = owner;
 			newShip.Initialize();
 			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
 			newShip.isInDeepSpace = true;
-			Owner.AddShip(newShip);
+			owner.AddShip(newShip);
 			return newShip;
 		}
 
-		public static Ship CreateShipFromHangar(string key, Empire Owner, Vector2 p, Ship Parent)       //Hanger Ship Creation (Actually just calls the one above)
+		public static Ship CreateShipFromHangar(string key, Empire owner, Vector2 p, Ship parent)       //Hanger Ship Creation (Actually just calls the one above)
 		{
-			Ship s = Ship_Game.ResourceManager.CreateShipAtPoint(key, Owner, p);
-			if (s != null)
-			{
-				s.Mothership = Parent;
-				s.Velocity = Parent.Velocity;                
-			}
-			return s;
+			Ship s = CreateShipAtPoint(key, owner, p);
+		    if (s == null) return null;
+		    s.Mothership = parent;
+		    s.Velocity = parent.Velocity;
+		    return s;
 		}
 
 
-		public static Troop CreateTroop(Troop t, Empire Owner)
+		public static Troop CreateTroop(Troop t, Empire owner)
 		{
 			Troop troop = new Troop()
 			{
@@ -1012,16 +951,16 @@ namespace Ship_Game
                 BoardingStrength = t.BoardingStrength
 			};
 
-			if (Owner != null)
+			if (owner != null)
 			{
 				Troop strength = troop;
-				strength.Strength = strength.Strength + (int)(Owner.data.Traits.GroundCombatModifier * (float)troop.Strength);
+				strength.Strength = strength.Strength + (int)(owner.data.Traits.GroundCombatModifier * (float)troop.Strength);
 			}
 			troop.TargetType = t.TargetType;
 			troop.TexturePath = t.TexturePath;
 			troop.Range = t.Range;
 			troop.Experience = t.Experience;
-			troop.SetOwner(Owner);
+			troop.SetOwner(owner);
 			troop.animated = t.animated;
 			troop.idle_path = t.idle_path;
 			troop.idle_x_offset = t.idle_x_offset;
@@ -1043,30 +982,30 @@ namespace Ship_Game
 
 		public static Ship CreateTroopShipAtPoint(string key, Empire Owner, Vector2 point, Troop troop)
 		{
-			Ship Ship =null;
-            if(!Ship_Game.ResourceManager.ShipsDict.TryGetValue(key, out Ship) ) //|| Ship.Size > Ship_Game.ResourceManager.ShipsDict[Owner.data.DefaultSmallTransport].Size)
+			Ship Ship = null;
+            if(!ShipsDict.TryGetValue(key, out Ship)) //|| Ship.Size > Ship_Game.ResourceManager.ShipsDict[Owner.data.DefaultSmallTransport].Size)
             {
-                Ship_Game.ResourceManager.ShipsDict.TryGetValue("Default Troop", out Ship);
+                ShipsDict.TryGetValue("Default Troop", out Ship);
                 //key = "Default Troop";
             }
-            Ship newShip = new Ship()
+            Ship newShip = new Ship
 			{
                 shipData = Ship.shipData,
                 Name = Ship.Name,
 				VanityName = troop.Name
 			};
-            newShip.LoadContent(GetContentManager());
-			SceneObject newSO = new SceneObject();
+            newShip.LoadContent(ContentManager);
+			SceneObject newSO;
             if (!Ship.GetShipData().Animated)
 			{
-                newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship.ModelPath).Meshes[0])
+                newSO = new SceneObject(GetModel(Ship.ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
 			}
 			else
 			{
-                SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship.ModelPath);
+                SkinnedModel model = GetSkinnedModel(Ship.ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
@@ -1100,189 +1039,91 @@ namespace Ship_Game
 			newShip.VanityName = troop.Name;
 			lock (GlobalStats.ObjectManagerLocker)
 			{
-				Ship_Game.ResourceManager.universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
+				universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
 			}
 			foreach (Thruster t in newShip.GetTList())
 			{
-				t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
+				t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
 				t.InitializeForViewing();
 			}
-			newShip.TroopList.Add(Ship_Game.ResourceManager.CopyTroop(troop));
+			newShip.TroopList.Add(CopyTroop(troop));
             if (newShip.shipData.Role == ShipData.RoleName.troop) // && newShip.shipData.ShipCategory == ShipData.Category.Civilian)
                 newShip.shipData.ShipCategory = ShipData.Category.Combat;  //fbedard
             Owner.AddShip(newShip);
 			return newShip;
 		}
 
-		public static void DeleteShip(string Name)
-		{
-			FileInfo toDelete = null;
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/StarterShips");
-			XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
-			FileInfo[] fileInfoArray = textList;
-			int num = 0;
-			while (num < (int)fileInfoArray.Length)
-			{
-				FileInfo FI = fileInfoArray[num];
-				FileStream stream = FI.OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-				if (newShipData.Name != Name)
-				{
-					num++;
-				}
-				else
-				{
-					toDelete = FI;
-					break;
-				}
-			}
-			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/SavedDesigns");
-			int num1 = 0;
-			while (num1 < (int)filesFromDirectory.Length)
-			{
-				FileInfo FI = filesFromDirectory[num1];
-				FileStream stream = FI.OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-				if (newShipData.Name != Name)
-				{
-					num1++;
-				}
-				else
-				{
-					toDelete = FI;
-					break;
-				}
-			}
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			FileInfo[] filesFromDirectory1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Designs"));
-			int num2 = 0;
-			while (num2 < (int)filesFromDirectory1.Length)
-			{
-				FileInfo FI = filesFromDirectory1[num2];
-				FileStream stream = FI.OpenRead();
-                if (FI.Extension != "XML")
-                {
-                    num2++;
-                    continue;
-                }
-                ShipData newShipData  =null;
-                try
-                {
-                    newShipData = (ShipData)serializer0.Deserialize(stream);
-                }
-                catch
-                {
-                    num2++;
-                    continue;
-                    
-                }
-				//stream.Close();
-				stream.Dispose();
-				if (newShipData.Name != Name)
-				{
-					num2++;
-				}
-				else
-				{
-					toDelete = FI;
-					break;
-				}
-			}
-			FileInfo[] fileInfoArray1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(path, "/StarDrive/WIP"));
-			int num3 = 0;
-			while (num3 < (int)fileInfoArray1.Length)
-			{
-				FileInfo FI = fileInfoArray1[num3];
-				FileStream stream = FI.OpenRead();
-				ShipData newShipData = (ShipData)serializer0.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-				if (newShipData.Name != Name)
-				{
-					num3++;
-				}
-				else
-				{
-					toDelete = FI;
-					break;
-				}
-			}
-			textList = new FileInfo[0];
-			if (toDelete != null)
-			{
-				toDelete.Delete();
-			}
-			foreach (Empire e in EmpireManager.EmpireList)
-			{
-				e.UpdateShipsWeCanBuild();
-			}
-		}
+        // Added by RedFox
+        // Don't worry, yield syntax means only one file is opened at a time
+        public static IEnumerable<KeyValuePair<FileInfo,T>> EnumerateEntitiesInDir<T>(string dir) where T : class
+	    {
+	        var serializer = new XmlSerializer(typeof(ShipData));
+            foreach (FileInfo info in Dir.GetFiles(dir))
+	        {
+	            T item;
+	            try {
+	                using (FileStream stream = info.OpenRead())
+	                    item = (T) serializer.Deserialize(stream);
+	            } catch { continue; }
+                yield return new KeyValuePair<FileInfo, T>(info, item);
+            }
+        }
+	    public static FileInfo FindEntityFromDir<T>(string dir, out T entity, Func<T, bool> predicate) where T : class
+	    {
+	        foreach (var kv in EnumerateEntitiesInDir<T>(dir))
+	            if (predicate(kv.Value)) {
+	                entity = kv.Value;
+	                return kv.Key;
+	            }
+            entity = null;
+            return null;
+	    }
 
-		private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
-		{
-			DirectoryInfo dir = new DirectoryInfo(sourceDirName);
-			DirectoryInfo[] dirs = dir.GetDirectories();
-			if (!dir.Exists)
-			{
-				throw new DirectoryNotFoundException(string.Concat("Source directory does not exist or could not be found: ", sourceDirName));
-			}
-			if (!Directory.Exists(destDirName))
-			{
-				Directory.CreateDirectory(destDirName);
-			}
-			FileInfo[] files = dir.GetFiles();
-			for (int i = 0; i < (int)files.Length; i++)
-			{
-				FileInfo file = files[i];
-				string temppath = Path.Combine(destDirName, file.Name);
-				file.CopyTo(temppath, true);
-			}
-			if (copySubDirs)
-			{
-				DirectoryInfo[] directoryInfoArray = dirs;
-				for (int j = 0; j < (int)directoryInfoArray.Length; j++)
-				{
-					DirectoryInfo subdir = directoryInfoArray[j];
-					string temppath = Path.Combine(destDirName, subdir.Name);
-					Ship_Game.ResourceManager.DirectoryCopy(subdir.FullName, temppath, copySubDirs);
-				}
-			}
+        // Refactored by RedFox
+        public static void DeleteShip(string shipName)
+	    {
+	        ShipData ship;
+            FindEntityFromDir("Content/StarterShips", out ship, s => s.Name == shipName)?.Delete();
+	        FindEntityFromDir("Content/SavedDesigns", out ship, s => s.Name == shipName)?.Delete();
+
+	        string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            FindEntityFromDir(appData + "/StarDrive/Saved Designs", out ship, s => s.Name == shipName)?.Delete();
+            FindEntityFromDir(appData + "/StarDrive/WIP",           out ship, s => s.Name == shipName)?.Delete();
+
+			foreach (Empire e in EmpireManager.EmpireList)
+				e.UpdateShipsWeCanBuild();
 		}
 
 		public static Building GetBuilding(string whichBuilding)
 		{
 			Building newB = new Building()
 			{
-				PlanetaryShieldStrengthAdded = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlanetaryShieldStrengthAdded,
-				MinusFertilityOnBuild = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].MinusFertilityOnBuild,
-				CombatStrength = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CombatStrength,
-				PlusProdPerRichness = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusProdPerRichness,
-				Name = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Name,
-                IsSensor = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].IsSensor,
-                IsProjector = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].IsProjector,
-				PlusResearchPerColonist = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusResearchPerColonist,
-				StorageAdded = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].StorageAdded,
-				Unique = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Unique,
-				Icon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Icon,
-				PlusTaxPercentage = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusTaxPercentage,
-				Strength = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Strength,
-				HardAttack = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].HardAttack,
-				SoftAttack = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].SoftAttack,
-				Defense = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Defense,
-				Maintenance = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Maintenance,
-				AllowInfantry = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].AllowInfantry,
-				CanBuildAnywhere = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CanBuildAnywhere,
-				PlusFlatPopulation = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusFlatPopulation,
-				Weapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Weapon,
-				isWeapon = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].isWeapon,
-				PlusTerraformPoints = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusTerraformPoints,
-                SensorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].SensorRange,
-                ProjectorRange = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ProjectorRange,
-                Category = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Category
+				PlanetaryShieldStrengthAdded = BuildingsDict[whichBuilding].PlanetaryShieldStrengthAdded,
+				MinusFertilityOnBuild = BuildingsDict[whichBuilding].MinusFertilityOnBuild,
+				CombatStrength = BuildingsDict[whichBuilding].CombatStrength,
+				PlusProdPerRichness = BuildingsDict[whichBuilding].PlusProdPerRichness,
+				Name = BuildingsDict[whichBuilding].Name,
+                IsSensor = BuildingsDict[whichBuilding].IsSensor,
+                IsProjector = BuildingsDict[whichBuilding].IsProjector,
+				PlusResearchPerColonist = BuildingsDict[whichBuilding].PlusResearchPerColonist,
+				StorageAdded = BuildingsDict[whichBuilding].StorageAdded,
+				Unique = BuildingsDict[whichBuilding].Unique,
+				Icon = BuildingsDict[whichBuilding].Icon,
+				PlusTaxPercentage = BuildingsDict[whichBuilding].PlusTaxPercentage,
+				Strength = BuildingsDict[whichBuilding].Strength,
+				HardAttack = BuildingsDict[whichBuilding].HardAttack,
+				SoftAttack = BuildingsDict[whichBuilding].SoftAttack,
+				Defense = BuildingsDict[whichBuilding].Defense,
+				Maintenance = BuildingsDict[whichBuilding].Maintenance,
+				AllowInfantry = BuildingsDict[whichBuilding].AllowInfantry,
+				CanBuildAnywhere = BuildingsDict[whichBuilding].CanBuildAnywhere,
+				PlusFlatPopulation = BuildingsDict[whichBuilding].PlusFlatPopulation,
+				Weapon = BuildingsDict[whichBuilding].Weapon,
+				isWeapon = BuildingsDict[whichBuilding].isWeapon,
+				PlusTerraformPoints = BuildingsDict[whichBuilding].PlusTerraformPoints,
+                SensorRange = BuildingsDict[whichBuilding].SensorRange,
+                ProjectorRange = BuildingsDict[whichBuilding].ProjectorRange,
+                Category = BuildingsDict[whichBuilding].Category
 			};
             //comp fix to ensure functionality of vanilla buildings
             if ((newB.Name == "Outpost" || newB.Name =="Capital City") && newB.IsProjector==false && newB.ProjectorRange==0.0f)
@@ -1297,86 +1138,56 @@ namespace Ship_Game
             }
 			if (newB.isWeapon)
 			{
-				newB.theWeapon = Ship_Game.ResourceManager.GetWeapon(newB.Weapon);
+				newB.theWeapon = GetWeapon(newB.Weapon);
 			}
-			newB.PlusFlatFoodAmount = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusFlatFoodAmount;
-			newB.PlusFlatProductionAmount = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusFlatProductionAmount;
-			newB.PlusFlatResearchAmount = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusFlatResearchAmount;
-			newB.EventTriggerUID = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].EventTriggerUID;
+			newB.PlusFlatFoodAmount = BuildingsDict[whichBuilding].PlusFlatFoodAmount;
+			newB.PlusFlatProductionAmount = BuildingsDict[whichBuilding].PlusFlatProductionAmount;
+			newB.PlusFlatResearchAmount = BuildingsDict[whichBuilding].PlusFlatResearchAmount;
+			newB.EventTriggerUID = BuildingsDict[whichBuilding].EventTriggerUID;
 			newB.EventWasTriggered = false;
-			newB.NameTranslationIndex = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].NameTranslationIndex;
-			newB.DescriptionIndex = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].DescriptionIndex;
-			newB.ShortDescriptionIndex = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ShortDescriptionIndex;
-			newB.Unique = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Unique;
-			newB.CreditsPerColonist = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CreditsPerColonist;
-			newB.PlusProdPerColonist = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusProdPerColonist;
-			newB.Scrappable = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Scrappable;
-			newB.PlusFoodPerColonist = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].PlusFoodPerColonist;
-			newB.WinsGame = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].WinsGame;
-			newB.EventOnBuild = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].EventOnBuild;
-			newB.NoRandomSpawn = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].NoRandomSpawn;
-			newB.Cost = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].Cost * UniverseScreen.GamePaceStatic;
-			newB.MaxPopIncrease = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].MaxPopIncrease;
-			newB.AllowShipBuilding = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].AllowShipBuilding;
-			newB.BuildOnlyOnce = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].BuildOnlyOnce;
-			newB.IsCommodity = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].IsCommodity;
-			newB.CommodityBonusType = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CommodityBonusType;
-			newB.CommodityBonusAmount = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CommodityBonusAmount;
-			newB.ResourceCreated = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ResourceCreated;
-			newB.ResourceConsumed = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ResourceConsumed;
-			newB.ConsumptionPerTurn = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ConsumptionPerTurn;
-			newB.OutputPerTurn = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].OutputPerTurn;
-			newB.CommodityRequired = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].CommodityRequired;
-            newB.ShipRepair = Ship_Game.ResourceManager.BuildingsDict[whichBuilding].ShipRepair;
+			newB.NameTranslationIndex = BuildingsDict[whichBuilding].NameTranslationIndex;
+			newB.DescriptionIndex = BuildingsDict[whichBuilding].DescriptionIndex;
+			newB.ShortDescriptionIndex = BuildingsDict[whichBuilding].ShortDescriptionIndex;
+			newB.Unique = BuildingsDict[whichBuilding].Unique;
+			newB.CreditsPerColonist = BuildingsDict[whichBuilding].CreditsPerColonist;
+			newB.PlusProdPerColonist = BuildingsDict[whichBuilding].PlusProdPerColonist;
+			newB.Scrappable = BuildingsDict[whichBuilding].Scrappable;
+			newB.PlusFoodPerColonist = BuildingsDict[whichBuilding].PlusFoodPerColonist;
+			newB.WinsGame = BuildingsDict[whichBuilding].WinsGame;
+			newB.EventOnBuild = BuildingsDict[whichBuilding].EventOnBuild;
+			newB.NoRandomSpawn = BuildingsDict[whichBuilding].NoRandomSpawn;
+			newB.Cost = BuildingsDict[whichBuilding].Cost * UniverseScreen.GamePaceStatic;
+			newB.MaxPopIncrease = BuildingsDict[whichBuilding].MaxPopIncrease;
+			newB.AllowShipBuilding = BuildingsDict[whichBuilding].AllowShipBuilding;
+			newB.BuildOnlyOnce = BuildingsDict[whichBuilding].BuildOnlyOnce;
+			newB.IsCommodity = BuildingsDict[whichBuilding].IsCommodity;
+			newB.CommodityBonusType = BuildingsDict[whichBuilding].CommodityBonusType;
+			newB.CommodityBonusAmount = BuildingsDict[whichBuilding].CommodityBonusAmount;
+			newB.ResourceCreated = BuildingsDict[whichBuilding].ResourceCreated;
+			newB.ResourceConsumed = BuildingsDict[whichBuilding].ResourceConsumed;
+			newB.ConsumptionPerTurn = BuildingsDict[whichBuilding].ConsumptionPerTurn;
+			newB.OutputPerTurn = BuildingsDict[whichBuilding].OutputPerTurn;
+			newB.CommodityRequired = BuildingsDict[whichBuilding].CommodityRequired;
+            newB.ShipRepair = BuildingsDict[whichBuilding].ShipRepair;
 			return newB;
 		}
 
         public static EmpireData GetEmpireByName(string name)
         {
-            foreach (EmpireData empireData in ResourceManager.Empires)
-            {
+            foreach (EmpireData empireData in Empires)
                 if (empireData.Traits.Name == name)
                     return empireData;
-            }
-            return (EmpireData)null;
+            return null;
         }
-
-		private static FileInfo[] GetFilesFromDirectory(string DirPath)
-		{
-			FileInfo[] files;
-			DirectoryInfo Dir = new DirectoryInfo(DirPath);
-			try
-			{
-				files = Dir.GetFiles("*.*", SearchOption.AllDirectories);
-			}
-			catch
-			{
-				files = new FileInfo[0];
-			}
-			return files;
-		}
-
-		public static FileInfo[] GetFilesFromDirectoryNoSub(string DirPath)
-		{
-			FileInfo[] files;
-			DirectoryInfo Dir = new DirectoryInfo(DirPath);
-			try
-			{
-				files = Dir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
-			}
-			catch
-			{
-				files = new FileInfo[0];
-			}
-			return files;
-		}
 
         private static Model LoadModel(string path, bool throwOnFailure)
         {
-            try { return GetContentManager().Load<Model>(path); }
+            try { return ContentManager.Load<Model>(path); }
             catch (ContentLoadException e) { if (throwOnFailure) throw e; }
             return null;
         }
+
+        // Refactored by RedFox
         public static Model GetModel(string path, bool throwOnFailure = false)
 		{
 			Model item = null;
@@ -1401,41 +1212,41 @@ namespace Ship_Game
             ShipModule module = new ShipModule()
 			{
                 //All of the commented out properties here have been replaced by this single reference to 'ShipModule_Advanced' which now contains them all - Gretman
-                Advanced = Ship_Game.ResourceManager.ShipModulesDict[uid].Advanced,
+                Advanced = ShipModulesDict[uid].Advanced,
 
                 //BombType = Ship_Game.ResourceManager.ShipModulesDict[uid].BombType,
                 //HealPerTurn = Ship_Game.ResourceManager.ShipModulesDict[uid].HealPerTurn,
                 //BonusRepairRate = Ship_Game.ResourceManager.ShipModulesDict[uid].BonusRepairRate,
                 //Cargo_Capacity = Ship_Game.ResourceManager.ShipModulesDict[uid].Cargo_Capacity,
                 //Cost = Ship_Game.ResourceManager.ShipModulesDict[uid].Cost,
-                DescriptionIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].DescriptionIndex,
+                DescriptionIndex = ShipModulesDict[uid].DescriptionIndex,
                 //ECM = Ship_Game.ResourceManager.ShipModulesDict[uid].ECM,
 				//EMP_Protection = Ship_Game.ResourceManager.ShipModulesDict[uid].EMP_Protection,
 				//explodes = Ship_Game.ResourceManager.ShipModulesDict[uid].explodes,
-				FieldOfFire = Ship_Game.ResourceManager.ShipModulesDict[uid].FieldOfFire,
-				hangarShipUID = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarShipUID,
-				hangarTimer = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarTimer,
+				FieldOfFire = ShipModulesDict[uid].FieldOfFire,
+				hangarShipUID = ShipModulesDict[uid].hangarShipUID,
+				hangarTimer = ShipModulesDict[uid].hangarTimer,
 				//hangarTimerConstant = Ship_Game.ResourceManager.ShipModulesDict[uid].hangarTimerConstant,
-				Health = Ship_Game.ResourceManager.ShipModulesDict[uid].HealthMax,
+				Health = ShipModulesDict[uid].HealthMax,
 				//IsSupplyBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsSupplyBay,
-				HealthMax = Ship_Game.ResourceManager.ShipModulesDict[uid].HealthMax,
-				isWeapon = Ship_Game.ResourceManager.ShipModulesDict[uid].isWeapon,
+				HealthMax = ShipModulesDict[uid].HealthMax,
+				isWeapon = ShipModulesDict[uid].isWeapon,
 				//IsTroopBay = Ship_Game.ResourceManager.ShipModulesDict[uid].IsTroopBay,
-				Mass = Ship_Game.ResourceManager.ShipModulesDict[uid].Mass,
+				Mass = ShipModulesDict[uid].Mass,
 				//MechanicalBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].MechanicalBoardingDefense,
-				ModuleType = Ship_Game.ResourceManager.ShipModulesDict[uid].ModuleType,
-				NameIndex = Ship_Game.ResourceManager.ShipModulesDict[uid].NameIndex,
+				ModuleType = ShipModulesDict[uid].ModuleType,
+				NameIndex = ShipModulesDict[uid].NameIndex,
 				//numberOfColonists = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfColonists,
 				//numberOfEquipment = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfEquipment,
 				//numberOfFood = Ship_Game.ResourceManager.ShipModulesDict[uid].numberOfFood,
-				OrdinanceCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].OrdinanceCapacity,
+				OrdinanceCapacity = ShipModulesDict[uid].OrdinanceCapacity,
 				//OrdnanceAddedPerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].OrdnanceAddedPerSecond,
 				//PowerDraw = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDraw,
 				//PowerFlowMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerFlowMax,
 				//PowerRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerRadius,
 				//PowerStoreMax = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerStoreMax,
 				//SensorRange = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorRange,
-				shield_power = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,    //Hmmm... This one is strange -Gretman
+				shield_power = ShipModulesDict[uid].shield_power_max,    //Hmmm... This one is strange -Gretman
 				//shield_power_max = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_power_max,
 				//shield_radius = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_radius,
 				//shield_recharge_delay = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_delay,
@@ -1445,10 +1256,10 @@ namespace Ship_Game
                 //TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,    //Not referenced in code, removing to save memory
                 //TroopCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopCapacity,
 				//TroopsSupplied = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopsSupplied,
-				UID = Ship_Game.ResourceManager.ShipModulesDict[uid].UID,
+				UID = ShipModulesDict[uid].UID,
 				//WarpThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpThrust,
-				XSIZE = Ship_Game.ResourceManager.ShipModulesDict[uid].XSIZE,
-				YSIZE = Ship_Game.ResourceManager.ShipModulesDict[uid].YSIZE,
+				XSIZE = ShipModulesDict[uid].XSIZE,
+				YSIZE = ShipModulesDict[uid].YSIZE,
 				//InhibitionRadius = Ship_Game.ResourceManager.ShipModulesDict[uid].InhibitionRadius,
 				//FightersOnly = Ship_Game.ResourceManager.ShipModulesDict[uid].FightersOnly,
                 //DroneModule = Ship_Game.ResourceManager.ShipModulesDict[uid].DroneModule,
@@ -1464,7 +1275,7 @@ namespace Ship_Game
                 //StationModule = Ship_Game.ResourceManager.ShipModulesDict[uid].StationModule,
 				//TurnThrust = Ship_Game.ResourceManager.ShipModulesDict[uid].TurnThrust,
 				//DeployBuildingOnColonize = Ship_Game.ResourceManager.ShipModulesDict[uid].DeployBuildingOnColonize,
-				PermittedHangarRoles = Ship_Game.ResourceManager.ShipModulesDict[uid].PermittedHangarRoles,
+				PermittedHangarRoles = ShipModulesDict[uid].PermittedHangarRoles,
 				//MaximumHangarShipSize = Ship_Game.ResourceManager.ShipModulesDict[uid].MaximumHangarShipSize,
 				//IsRepairModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsRepairModule,
                 //MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,    //Not referenced in code, removing to save memory
@@ -1481,7 +1292,7 @@ namespace Ship_Game
 				//IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
 				//shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
                 //FTLSpoolTime = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpoolTime,
-                shieldsOff = Ship_Game.ResourceManager.ShipModulesDict[uid].shieldsOff,
+                shieldsOff = ShipModulesDict[uid].shieldsOff,
                 //SensorBonus = Ship_Game.ResourceManager.ShipModulesDict[uid].SensorBonus,
                 //TransporterOrdnance = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterOrdnance,
                 //TransporterPower = Ship_Game.ResourceManager.ShipModulesDict[uid].TransporterPower,
@@ -1556,17 +1367,18 @@ namespace Ship_Game
 
 		public static Ship GetPlayerShip(string key)
 		{
-			Ship newShip = new Ship()
+		    Ship template = ShipsDict[key];
+		    Ship newShip = new Ship
+		    {
+		        PlayerShip = true,
+		        shipData = template.shipData
+		        //Role = Ship_Game.ResourceManager.ShipsDict[key].Role
+		    };
+		    newShip.LoadContent(ContentManager);
+			SceneObject newSO;
+			if (!template.GetShipData().Animated)
 			{
-				PlayerShip = true
-				//Role = Ship_Game.ResourceManager.ShipsDict[key].Role
-			};
-            newShip.shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData;
-			newShip.LoadContent(GetContentManager());
-			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
-			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+				newSO = new SceneObject(GetModel(template.ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
@@ -1574,13 +1386,13 @@ namespace Ship_Game
 			}
 			else
 			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+				SkinnedModel model = GetSkinnedModel(template.ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
 			newSO.ObjectType = ObjectType.Dynamic;
 			newShip.SetSO(newSO);
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+			foreach (Thruster t in template.GetTList())
 			{
 				Thruster thr = new Thruster()
 				{
@@ -1594,7 +1406,7 @@ namespace Ship_Game
 			{
 				(new ShipModuleNode()).Next = new ShipModuleNode();
 			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+			foreach (ModuleSlot slot in template.ModuleSlotList)
 			{
 				ModuleSlot newSlot = new ModuleSlot()
 				{
@@ -1608,30 +1420,18 @@ namespace Ship_Game
 			return newShip;
 		}
 
+        // Refactored by RedFox
 		public static RacialTraits GetRaceTraits()
 		{
-            //Added by McShooterz: mod folder support for RacialTraits folder
-            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RacialTraits")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RacialTraits") : "Content/RacialTraits");
-			XmlSerializer serializer1 = new XmlSerializer(typeof(RacialTraits));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-                RacialTraits data = null;
-                try
-                {
-                     data = (RacialTraits)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "GetRaceTraits", e);
-                }
-				//stream.Close();
-				stream.Dispose();
-				if (data == null)
-					continue;
-                
-				foreach(RacialTrait trait in data.TraitList)
+            // Added by McShooterz: mod folder support for RacialTraits folder
+            string modTraits = WhichModPath + "/RacialTraits";
+		    string traitsDir = Directory.Exists(modTraits) ? modTraits : "Content/RacialTraits";
+
+			var s = new XmlSerializer(typeof(RacialTraits));
+
+		    foreach (var traits in LoadEntities<RacialTraits>(traitsDir, "GetRaceTraits"))
+		    {
+                foreach (RacialTrait trait in traits.TraitList)
                 {
                     if (Localizer.LocalizerDict.ContainsKey(trait.TraitName + OffSet))
                     {
@@ -1644,26 +1444,26 @@ namespace Ship_Game
                         Localizer.used[trait.Description] = true;
                     }
                 }
-                Ship_Game.ResourceManager.rt = data;
-			}
-			textList = null;
-			return Ship_Game.ResourceManager.rt;
+                rt = traits;
+            }
+			return rt;
 		}
 
 		public static Ship GetShip(string key)
 		{
+		    Ship ship2 = ShipsDict[key];
             Ship newShip = new Ship()
             {
-                shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
-                BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
-                BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
+                shipData = ship2.shipData,
+                BaseStrength = ship2.BaseStrength,
+                BaseCanWarp = ship2.BaseCanWarp
             };
-			newShip.LoadContent(GetContentManager());
-			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+			newShip.LoadContent(ContentManager);
+			newShip.Name = ship2.Name;
+			SceneObject newSO;
+			if (!ship2.GetShipData().Animated)
 			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+				newSO = new SceneObject(GetModel(ship2.ModelPath).Meshes[0])
 				{
 					ObjectType = ObjectType.Dynamic
 				};
@@ -1671,13 +1471,13 @@ namespace Ship_Game
 			}
 			else
 			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+				SkinnedModel model = GetSkinnedModel(ship2.ModelPath);
 				newSO = new SceneObject(model.Model);
 				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
 			}
 			newSO.ObjectType = ObjectType.Dynamic;
 			newShip.SetSO(newSO);
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+			foreach (Thruster t in ship2.GetTList())
 			{
 				Thruster thr = new Thruster()
 				{
@@ -1687,7 +1487,7 @@ namespace Ship_Game
 				};
 				newShip.GetTList().Add(thr);
 			}
-            foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+            foreach (ModuleSlot slot in ship2.ModuleSlotList)
             {
                 ModuleSlot newSlot = new ModuleSlot();
                 newSlot.SetParent(newShip);
@@ -1705,189 +1505,181 @@ namespace Ship_Game
 
 		public static SkinnedModel GetSkinnedModel(string path)
 		{
-			return GetContentManager().Load<SkinnedModel>(path);
+			return ContentManager.Load<SkinnedModel>(path);
 		}
 
+        // ?? Is this supposed to be Weapon.Clone() ?
 		public static Weapon GetWeapon(string uid)
 		{
-			Weapon w = new Weapon()
+		    Weapon w2 = WeaponsDict[uid];
+            Weapon w = new Weapon
 			{
-				FakeExplode = Ship_Game.ResourceManager.WeaponsDict[uid].FakeExplode,
-				Animated = Ship_Game.ResourceManager.WeaponsDict[uid].Animated,
-				AnimationPath = Ship_Game.ResourceManager.WeaponsDict[uid].AnimationPath,
-				BeamPowerCostPerSecond = Ship_Game.ResourceManager.WeaponsDict[uid].BeamPowerCostPerSecond,
-				BeamThickness = Ship_Game.ResourceManager.WeaponsDict[uid].BeamThickness,
-                BeamDuration = Ship_Game.ResourceManager.WeaponsDict[uid].BeamDuration,
-				BombPopulationKillPerHit = Ship_Game.ResourceManager.WeaponsDict[uid].BombPopulationKillPerHit,
-				BombTroopDamage_Max = Ship_Game.ResourceManager.WeaponsDict[uid].BombTroopDamage_Max,
-				BombTroopDamage_Min = Ship_Game.ResourceManager.WeaponsDict[uid].BombTroopDamage_Min,
-				DamageAmount = Ship_Game.ResourceManager.WeaponsDict[uid].DamageAmount,
-				DamageRadius = Ship_Game.ResourceManager.WeaponsDict[uid].DamageRadius,
-				EMPDamage = Ship_Game.ResourceManager.WeaponsDict[uid].EMPDamage,
-				ExpColor = Ship_Game.ResourceManager.WeaponsDict[uid].ExpColor,
-				explodes = Ship_Game.ResourceManager.WeaponsDict[uid].explodes,
-				FireArc = Ship_Game.ResourceManager.WeaponsDict[uid].FireArc,
-				FireCone = Ship_Game.ResourceManager.WeaponsDict[uid].FireCone,
-				fireCueName = Ship_Game.ResourceManager.WeaponsDict[uid].fireCueName,
-				fireDelay = Ship_Game.ResourceManager.WeaponsDict[uid].fireDelay,
-				Frames = Ship_Game.ResourceManager.WeaponsDict[uid].Frames,
-				HitPoints = Ship_Game.ResourceManager.WeaponsDict[uid].HitPoints,
-				InFlightCue = Ship_Game.ResourceManager.WeaponsDict[uid].InFlightCue,
-				isBeam = Ship_Game.ResourceManager.WeaponsDict[uid].isBeam,
-				isMainGun = Ship_Game.ResourceManager.WeaponsDict[uid].isMainGun,
-				isTurret = Ship_Game.ResourceManager.WeaponsDict[uid].isTurret,
-				Light = Ship_Game.ResourceManager.WeaponsDict[uid].Light,
-				LoopAnimation = Ship_Game.ResourceManager.WeaponsDict[uid].LoopAnimation,
-				MassDamage = Ship_Game.ResourceManager.WeaponsDict[uid].MassDamage,
-				ModelPath = Ship_Game.ResourceManager.WeaponsDict[uid].ModelPath,
-				MuzzleFlash = Ship_Game.ResourceManager.WeaponsDict[uid].MuzzleFlash,
-				Name = Ship_Game.ResourceManager.WeaponsDict[uid].Name,
-				OrdinanceRequiredToFire = Ship_Game.ResourceManager.WeaponsDict[uid].OrdinanceRequiredToFire,
-				particleDelay = Ship_Game.ResourceManager.WeaponsDict[uid].particleDelay,
-				PowerDamage = Ship_Game.ResourceManager.WeaponsDict[uid].PowerDamage,
-				PowerRequiredToFire = Ship_Game.ResourceManager.WeaponsDict[uid].PowerRequiredToFire,
-				ProjectileCount = Ship_Game.ResourceManager.WeaponsDict[uid].ProjectileCount,
-				ProjectileRadius = Ship_Game.ResourceManager.WeaponsDict[uid].ProjectileRadius,
-				ProjectileSpeed = Ship_Game.ResourceManager.WeaponsDict[uid].ProjectileSpeed,
-				ProjectileTexturePath = Ship_Game.ResourceManager.WeaponsDict[uid].ProjectileTexturePath,
-				Range = Ship_Game.ResourceManager.WeaponsDict[uid].Range,
-				RepulsionDamage = Ship_Game.ResourceManager.WeaponsDict[uid].RepulsionDamage,
-				Scale = Ship_Game.ResourceManager.WeaponsDict[uid].Scale,
-				ShieldPenChance = Ship_Game.ResourceManager.WeaponsDict[uid].ShieldPenChance,
-				SiphonDamage = Ship_Game.ResourceManager.WeaponsDict[uid].SiphonDamage,
-				ToggleSoundName = Ship_Game.ResourceManager.WeaponsDict[uid].ToggleSoundName,
-				TroopDamageChance = Ship_Game.ResourceManager.WeaponsDict[uid].TroopDamageChance,
-				UID = Ship_Game.ResourceManager.WeaponsDict[uid].UID,
-				WeaponEffectType = Ship_Game.ResourceManager.WeaponsDict[uid].WeaponEffectType,
-				WeaponType = Ship_Game.ResourceManager.WeaponsDict[uid].WeaponType,
-				IsRepairDrone = Ship_Game.ResourceManager.WeaponsDict[uid].IsRepairDrone,
-				HitsFriendlies = Ship_Game.ResourceManager.WeaponsDict[uid].HitsFriendlies,
-				BombHardDamageMax = Ship_Game.ResourceManager.WeaponsDict[uid].BombHardDamageMax,
-				BombHardDamageMin = Ship_Game.ResourceManager.WeaponsDict[uid].BombHardDamageMin,
-				HardCodedAction = Ship_Game.ResourceManager.WeaponsDict[uid].HardCodedAction,
-				TruePD = Ship_Game.ResourceManager.WeaponsDict[uid].TruePD,
-				SalvoCount = Ship_Game.ResourceManager.WeaponsDict[uid].SalvoCount,
-				SalvoTimer = Ship_Game.ResourceManager.WeaponsDict[uid].SalvoTimer,
-				PlaySoundOncePerSalvo = Ship_Game.ResourceManager.WeaponsDict[uid].PlaySoundOncePerSalvo,
-				EffectVsArmor = Ship_Game.ResourceManager.WeaponsDict[uid].EffectVsArmor,
-				EffectVSShields = Ship_Game.ResourceManager.WeaponsDict[uid].EffectVSShields,
-				RotationRadsPerSecond = Ship_Game.ResourceManager.WeaponsDict[uid].RotationRadsPerSecond,
-				Tag_Beam = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Beam,
-				Tag_Energy = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Energy,
-				Tag_Explosive = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Explosive,
-				Tag_Guided = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Guided,
-				Tag_Hybrid = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Hybrid,
-				Tag_Intercept = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Intercept,
-				Tag_Kinetic = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Kinetic,
-				Tag_Missile = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Missile,
-				Tag_Railgun = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Railgun,
-				Tag_Warp = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Warp,
-				Tag_Torpedo = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Torpedo,
-				Tag_Subspace = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Subspace,
-				Tag_Cannon = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Cannon,
-				Tag_Bomb = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Bomb,
-				Tag_Drone = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Drone,
-				Tag_BioWeapon = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_BioWeapon,
-				Tag_PD = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_PD,
-                Tag_Array = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Array,
-                Tag_Flak = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Flak,
-                Tag_Tractor = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_Tractor,
-                Tag_SpaceBomb = Ship_Game.ResourceManager.WeaponsDict[uid].Tag_SpaceBomb,
-                ECMResist = Ship_Game.ResourceManager.WeaponsDict[uid].ECMResist,
-                Excludes_Fighters = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Fighters,
-                Excludes_Corvettes = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Corvettes,
-                Excludes_Capitals = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Capitals,
-                Excludes_Stations = Ship_Game.ResourceManager.WeaponsDict[uid].Excludes_Stations,
-                isRepairBeam = Ship_Game.ResourceManager.WeaponsDict[uid].isRepairBeam,
-                ExplosionRadiusVisual = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionRadiusVisual,
-                TerminalPhaseAttack = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseAttack,
-                TerminalPhaseDistance = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseDistance,
-                TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
-                ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen,
-                RangeVariance = Ship_Game.ResourceManager.WeaponsDict[uid].RangeVariance,
-                //ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,          //Not referenced in code, removing to save memory
-                AltFireMode = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireMode,
-                AltFireTriggerFighter = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireTriggerFighter,
-                SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire,
-                OffPowerMod = Ship_Game.ResourceManager.WeaponsDict[uid].OffPowerMod
+				FakeExplode = w2.FakeExplode,
+				Animated = w2.Animated,
+				AnimationPath = w2.AnimationPath,
+				BeamPowerCostPerSecond = w2.BeamPowerCostPerSecond,
+				BeamThickness = w2.BeamThickness,
+                BeamDuration = w2.BeamDuration,
+				BombPopulationKillPerHit = w2.BombPopulationKillPerHit,
+				BombTroopDamage_Max = w2.BombTroopDamage_Max,
+				BombTroopDamage_Min = w2.BombTroopDamage_Min,
+				DamageAmount = w2.DamageAmount,
+				DamageRadius = w2.DamageRadius,
+				EMPDamage = w2.EMPDamage,
+				ExpColor = w2.ExpColor,
+				explodes = w2.explodes,
+				FireArc = w2.FireArc,
+				FireCone = w2.FireCone,
+				fireCueName = w2.fireCueName,
+				fireDelay = w2.fireDelay,
+				Frames = w2.Frames,
+				HitPoints = w2.HitPoints,
+				InFlightCue = w2.InFlightCue,
+				isBeam = w2.isBeam,
+				isMainGun = w2.isMainGun,
+				isTurret = w2.isTurret,
+				Light = w2.Light,
+				LoopAnimation = w2.LoopAnimation,
+				MassDamage = w2.MassDamage,
+				ModelPath = w2.ModelPath,
+				MuzzleFlash = w2.MuzzleFlash,
+				Name = w2.Name,
+				OrdinanceRequiredToFire = w2.OrdinanceRequiredToFire,
+				particleDelay = w2.particleDelay,
+				PowerDamage = w2.PowerDamage,
+				PowerRequiredToFire = w2.PowerRequiredToFire,
+				ProjectileCount = w2.ProjectileCount,
+				ProjectileRadius = w2.ProjectileRadius,
+				ProjectileSpeed = w2.ProjectileSpeed,
+				ProjectileTexturePath = w2.ProjectileTexturePath,
+				Range = w2.Range,
+				RepulsionDamage = w2.RepulsionDamage,
+				Scale = w2.Scale,
+				ShieldPenChance = w2.ShieldPenChance,
+				SiphonDamage = w2.SiphonDamage,
+				ToggleSoundName = w2.ToggleSoundName,
+				TroopDamageChance = w2.TroopDamageChance,
+				UID = w2.UID,
+				WeaponEffectType = w2.WeaponEffectType,
+				WeaponType = w2.WeaponType,
+				IsRepairDrone = w2.IsRepairDrone,
+				HitsFriendlies = w2.HitsFriendlies,
+				BombHardDamageMax = w2.BombHardDamageMax,
+				BombHardDamageMin = w2.BombHardDamageMin,
+				HardCodedAction = w2.HardCodedAction,
+				TruePD = w2.TruePD,
+				SalvoCount = w2.SalvoCount,
+				SalvoTimer = w2.SalvoTimer,
+				PlaySoundOncePerSalvo = w2.PlaySoundOncePerSalvo,
+				EffectVsArmor = w2.EffectVsArmor,
+				EffectVSShields = w2.EffectVSShields,
+				RotationRadsPerSecond = w2.RotationRadsPerSecond,
+				Tag_Beam = w2.Tag_Beam,
+				Tag_Energy = w2.Tag_Energy,
+				Tag_Explosive = w2.Tag_Explosive,
+				Tag_Guided = w2.Tag_Guided,
+				Tag_Hybrid = w2.Tag_Hybrid,
+				Tag_Intercept = w2.Tag_Intercept,
+				Tag_Kinetic = w2.Tag_Kinetic,
+				Tag_Missile = w2.Tag_Missile,
+				Tag_Railgun = w2.Tag_Railgun,
+				Tag_Warp = w2.Tag_Warp,
+				Tag_Torpedo = w2.Tag_Torpedo,
+				Tag_Subspace = w2.Tag_Subspace,
+				Tag_Cannon = w2.Tag_Cannon,
+				Tag_Bomb = w2.Tag_Bomb,
+				Tag_Drone = w2.Tag_Drone,
+				Tag_BioWeapon = w2.Tag_BioWeapon,
+				Tag_PD = w2.Tag_PD,
+                Tag_Array = w2.Tag_Array,
+                Tag_Flak = w2.Tag_Flak,
+                Tag_Tractor = w2.Tag_Tractor,
+                Tag_SpaceBomb = w2.Tag_SpaceBomb,
+                ECMResist = w2.ECMResist,
+                Excludes_Fighters = w2.Excludes_Fighters,
+                Excludes_Corvettes = w2.Excludes_Corvettes,
+                Excludes_Capitals = w2.Excludes_Capitals,
+                Excludes_Stations = w2.Excludes_Stations,
+                isRepairBeam = w2.isRepairBeam,
+                ExplosionRadiusVisual = w2.ExplosionRadiusVisual,
+                TerminalPhaseAttack = w2.TerminalPhaseAttack,
+                TerminalPhaseDistance = w2.TerminalPhaseDistance,
+                TerminalPhaseSpeedMod = w2.TerminalPhaseSpeedMod,
+                ArmourPen = w2.ArmourPen,
+                RangeVariance = w2.RangeVariance,
+                //ExplosionFlash = Ship_Game.ResourceManager.w2.ExplosionFlash,          //Not referenced in code, removing to save memory
+                AltFireMode = w2.AltFireMode,
+                AltFireTriggerFighter = w2.AltFireTriggerFighter,
+                SecondaryFire = w2.SecondaryFire,
+                OffPowerMod = w2.OffPowerMod
 			};
 			return w;
 		}
 
 		public static void Initialize(ContentManager c)
 		{
-        
-            Ship_Game.ResourceManager.WhichModPath = "Content";
-			Ship_Game.ResourceManager.LoadItAll();
+            WhichModPath = "Content";
+			LoadItAll();
 		}
 
-		private static void LoadArtifacts()
-		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Artifacts"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(List<Artifact>));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-                List<Artifact> data = null;
-                try
-                {
-                    data = (List<Artifact>)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "LoadArtifacts", e);
-                }
-				//stream.Close();
-				stream.Dispose();
-				if (data == null)
-					continue;
 
-				foreach (Artifact art in data)
-				{
+        // Added by RedFox - Generic entity loading, less typing == more fun
+        private static bool LoadEntity<T>(XmlSerializer s, FileInfo info, string id, out T entity) where T : class
+	    {
+	        try
+	        {
+                using (FileStream stream = info.OpenRead())
+                    entity = (T)s.Deserialize(stream);
+	            return true;
+	        }
+            catch (Exception e)
+            {
+                ReportLoadingError(info, id, e);
+                entity = null;
+                return false;
+            }
+        }
+        private static IEnumerable<T> LoadEntities<T>(string dir, string id) where T : class
+        {
+            var s = new XmlSerializer(typeof(T));
+            foreach (FileInfo info in Dir.GetFiles(WhichModPath + dir)) {
+                if (LoadEntity(s, info, id, out T entity))
+                    yield return entity;
+            }
+        }
+	    private static IEnumerable<KeyValuePair<FileInfo, T>> LoadEntitiesWithInfo<T>(string dir, string id) where T : class
+	    {
+            var s = new XmlSerializer(typeof(T));
+            foreach (FileInfo info in Dir.GetFiles(WhichModPath + dir)) {
+                if (LoadEntity(s, info, id, out T entity))
+                    yield return new KeyValuePair<FileInfo, T>(info, entity);
+            }
+        }
+
+        private static void LoadArtifacts() // Refactored by RedFox
+        {
+		    foreach (var arts in LoadEntities<List<Artifact>>("/Artifacts", "LoadArtifacts"))
+		    {
+                foreach (Artifact art in arts)
+                {
                     art.DescriptionIndex += OffSet;
                     art.NameIndex += OffSet;
-                    string name = String.Intern(art.Name);
-                    if (Ship_Game.ResourceManager.ArtifactsDict.ContainsKey(name))
-					{
-						Ship_Game.ResourceManager.ArtifactsDict[art.Name] = art;
-					}
-					else
-					{
-                        Ship_Game.ResourceManager.ArtifactsDict.Add(name, art);
-					}
-				}
-			}
+                    ArtifactsDict[string.Intern(art.Name)] = art;
+                }
+            }
 		}
 
-		private static void LoadBuildings()
-		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Buildings"));
-			XmlSerializer serializer0 = new XmlSerializer(typeof(Building));
-			FileInfo[] fileInfoArray = textList;
-			
-            for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-                Building newB = null;
-                try
-                {
-                    newB = (Building)serializer0.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "LoadBuildings", e);
-                }
-				//stream.Close();
-				stream.Dispose();
-				if (newB == null)
-					continue;
+		private static void LoadBuildings() // Refactored by RedFox
+        {
+		    foreach (var kv in LoadEntitiesWithInfo<Building>("/Buildings", "LoadBuildings"))
+		    {
+                Building newB = kv.Value;
                 try
                 {
                     if (Localizer.LocalizerDict.ContainsKey(newB.DescriptionIndex + OffSet))
                     {
                         newB.DescriptionIndex += OffSet;
-                        Localizer.used[newB.DescriptionIndex] =true;
+                        Localizer.used[newB.DescriptionIndex] = true;
                     }
                     if (Localizer.LocalizerDict.ContainsKey(newB.NameTranslationIndex + OffSet))
                     {
@@ -1899,628 +1691,342 @@ namespace Ship_Game
                         newB.ShortDescriptionIndex += OffSet;
                         Localizer.used[newB.ShortDescriptionIndex] = true;
                     }
-                    
-                    if (Ship_Game.ResourceManager.BuildingsDict.ContainsKey(newB.Name))
-                    {
-                        Ship_Game.ResourceManager.BuildingsDict[String.Intern(newB.Name)] = newB;
-                    }
-                    else
-                    {
-                        Ship_Game.ResourceManager.BuildingsDict.Add(String.Intern(newB.Name), newB);
-                    }
+
+                    BuildingsDict[string.Intern(newB.Name)] = newB;
                 }
-                catch(NullReferenceException ex)
+                catch (NullReferenceException ex)
                 {
                     ex.Data["Building Lookup"] = newB.Name;
-					ReportLoadingError(fileInfoArray[i], "LoadBuildings", ex);
+                    ReportLoadingError(kv.Key, "LoadBuildings", ex);
                 }
-			}
-			textList = null;
+            }
 		}
 
-		private static void LoadDialogs()
-		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/DiplomacyDialogs/", GlobalStats.Config.Language, "/"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(DiplomacyDialog));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileInfo FI = fileInfoArray[i];
-				FileStream stream = FI.OpenRead();
-				DiplomacyDialog data = null;
-                try
-                {
-                    data = (DiplomacyDialog)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "LoadDialogs", e);
-                }
-				//stream.Close();
-				stream.Dispose();
-				if (data == null)
-					continue;
-
-                if (Ship_Game.ResourceManager.DDDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
-				{
-					Ship_Game.ResourceManager.DDDict[string.Intern(Path.GetFileNameWithoutExtension(FI.Name))] = data;
-				}
-				else
-				{
-                    Ship_Game.ResourceManager.DDDict.Add(string.Intern(Path.GetFileNameWithoutExtension(FI.Name)), data);
-				}
-			}
+		private static void LoadDialogs() // Refactored by RedFox
+        {
+		    string dir = "/DiplomacyDialogs/" + GlobalStats.Config.Language + "/";
+            foreach (var kv in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
+		    {
+                string nameNoExt = Path.GetFileNameWithoutExtension(kv.Key.Name);
+                DDDict[string.Intern(nameNoExt)] = kv.Value;
+            }
 		}
 
-		public static void LoadEmpires()
-		{
-			Ship_Game.ResourceManager.Empires.Clear();
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Races"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(EmpireData));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-                EmpireData data = null;
-                try
-                {
-                    data = (EmpireData)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "LoadEmpires", e);
-                }
-                data.TroopDescriptionIndex = +OffSet;
-                data.TroopNameIndex += OffSet;
-                //stream.Close();
-				stream.Dispose();
-				Ship_Game.ResourceManager.Empires.Add(data);
-			}
-			textList = null;
+		public static void LoadEmpires() // Refactored by RedFox
+        {
+            Empires.Clear();
+		    foreach (var empireData in LoadEntities<EmpireData>("/Races", "LoadEmpires"))
+		    {
+                empireData.TroopDescriptionIndex += OffSet; // @todo Is += correct here? Old version had =+
+                empireData.TroopNameIndex += OffSet;
+                Empires.Add(empireData);
+            }
 		}
 
-		public static void LoadEncounters()
-		{
-			Ship_Game.ResourceManager.Encounters.Clear();
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Encounter Dialogs"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(Encounter));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+		public static void LoadEncounters() // Refactored by RedFox
+        {
+            Encounters.Clear();
+		    foreach (var encounter in LoadEntities<Encounter>("/Encounter Dialogs", "LoadEncounters"))
+		    {
+                Encounters.Add(encounter);
+            }
+		}
+
+		private static void LoadExpEvents() // Refactored by RedFox
+        {
+			foreach (var kv in LoadEntitiesWithInfo<ExplorationEvent>("/Exploration Events", "LoadExpEvents"))
 			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-                Encounter data = null;
-                try
-                {
-                     data = (Encounter)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "LoadEncounters", e);
-                }				
-                //stream.Close();
-				stream.Dispose();
-				Ship_Game.ResourceManager.Encounters.Add(data);
+			    string nameNoExt = Path.GetFileNameWithoutExtension(kv.Key.Name);
+                EventsDict[nameNoExt] = kv.Value;
 			}
 		}
 
-		private static void LoadExpEvents()
-		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Exploration Events"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(ExplorationEvent));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+		private static void LoadFlagTextures() // Refactored by RedFox
+        {
+			foreach (FileInfo info in Dir.GetFiles(WhichModPath + "/Flags"))
 			{
-				FileInfo FI = fileInfoArray[i];
-				FileStream stream = FI.OpenRead();
-                ExplorationEvent data = null;
-                try
-                {
-                     data = (ExplorationEvent)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "LoadExpEvents", e);
-                }
-				//stream.Close();
-				stream.Dispose();				
-                if (Ship_Game.ResourceManager.EventsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
-				{
-					Ship_Game.ResourceManager.EventsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
-				}
-				else
-				{
-					Ship_Game.ResourceManager.EventsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
-				}
+			    string nameNoExt = Path.GetFileNameWithoutExtension(info.Name);
+			    if (nameNoExt == "Thumbs")
+			        continue;
+
+			    string path = WhichModPath == "Content"
+			        ? ("Flags/" + nameNoExt) : ("../" + WhichModPath + "/Flags/" + nameNoExt);
+
+                Texture2D tex = ContentManager.Load<Texture2D>(path);
+			    FlagTextures.Add(new KeyValuePair<string, Texture2D>(nameNoExt, tex));
 			}
 		}
 
-		private static void LoadFlagTextures()
-		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Flags"));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+        private static void LoadGoods() // Refactored by RedFox
+        {
+            foreach (var kv in LoadEntitiesWithInfo<Good>("/Goods", "LoadGoods"))
+            {
+                Good good = kv.Value;
+                good.UID = string.Intern(Path.GetFileNameWithoutExtension(kv.Key.Name));
+                GoodsDict[good.UID] = good;
+            }
+        }
+
+        public static void LoadHardcoreTechTree() // Refactored by RedFox
+        {
+			TechTree.Clear();
+			foreach (var kv in LoadEntitiesWithInfo<Technology>("/Technology_HardCore", "LoadTechnologyHardcore"))
 			{
-				FileInfo FI = fileInfoArray[i];
-				if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
-				{
-					Texture2D tex = GetContentManager().Load<Texture2D>((Ship_Game.ResourceManager.WhichModPath == "Content" ? string.Concat("Flags/", Path.GetFileNameWithoutExtension(FI.Name)) : string.Concat(".../", Ship_Game.ResourceManager.WhichModPath, "/Flags/", Path.GetFileNameWithoutExtension(FI.Name))));
-					KeyValuePair<string, Texture2D> Flag = new KeyValuePair<string, Texture2D>(Path.GetFileNameWithoutExtension(FI.Name), tex);
-					Ship_Game.ResourceManager.FlagTextures.Add(Flag);
-				}
+			    string nameNoExt = Path.GetFileNameWithoutExtension(kv.Key.Name);
+                TechTree[nameNoExt] = kv.Value;
 			}
 		}
 
-		private static void LoadGoods()
-		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/Goods");
-			XmlSerializer serializer1 = new XmlSerializer(typeof(Good));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileInfo FI = fileInfoArray[i];
-				FileStream stream = FI.OpenRead();
-                Good data = null;
-                try
-                {
-                     data = (Good)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-                    ReportLoadingError(fileInfoArray[i], "LoadGoods", e);
-                }
-				data.UID = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
-				//stream.Close();
-				stream.Dispose();
-                //noLocalization
-				if (Ship_Game.ResourceManager.GoodsDict.ContainsKey(data.UID))
-				{
-					Ship_Game.ResourceManager.GoodsDict[data.UID] = data;
-				}
-				else
-				{
-					Ship_Game.ResourceManager.GoodsDict.Add(data.UID, data);
-				}
-			}
-			textList = null;
-		}
+		public static List<ShipData> LoadHullData() // Refactored by RedFox
+        {
+            var retList = new List<ShipData>();
 
-		public static void LoadHardcoreTechTree()
-		{
-			Ship_Game.ResourceManager.TechTree.Clear();
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology_HardCore"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+            foreach (var kv in LoadEntitiesWithInfo<ShipData>("/Hulls", "LoadHullData"))
 			{
-				FileInfo FI = fileInfoArray[i];
-				FileStream stream = FI.OpenRead();
-				Technology data = (Technology)serializer1.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-                string.Intern(data.UID);
-				if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
-				{
-					Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
-				}
-				else
-				{
-					//Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
-                    Ship_Game.ResourceManager.TechTree.Add(data.UID, data);
-				}
-			}
-			textList = null;
-		}
+			    string dirName = kv.Key.Directory?.Name ?? "";
+                ShipData shipData = kv.Value;
+                shipData.Hull = string.Intern(dirName + "/" + shipData.Hull);
 
-		public static List<ShipData> LoadHullData()
-		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Hulls"));
-			List<ShipData> retList = new List<ShipData>();
-			XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileInfo FI = fileInfoArray[i];
-				FileStream stream = FI.OpenRead();
-                ShipData newShipData = null;
-                try
-                {
-                    newShipData = (ShipData)serializer0.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "LoadHullData", e);
-                }
-				if (newShipData == null)
-					continue;
-				
-                //stream.Close();
-				stream.Dispose();
-				newShipData.Hull = String.Intern(string.Concat(FI.Directory.Name, "/", newShipData.Hull));
-                if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
-                    string.Intern(newShipData.EventOnDeath);
-                if (!string.IsNullOrEmpty(newShipData.ModelPath) && string.IsNullOrEmpty(string.IsInterned(newShipData.ModelPath)))
-                    string.Intern(newShipData.ModelPath);
-                if (!string.IsNullOrEmpty(newShipData.ShipStyle) && string.IsNullOrEmpty(string.IsInterned(newShipData.ShipStyle)))
-                    string.Intern(newShipData.ShipStyle);
-                if (!string.IsNullOrEmpty(newShipData.Name) && string.IsNullOrEmpty(string.IsInterned(newShipData.Name)))
-                    string.Intern(newShipData.Name);
-                if (!string.IsNullOrEmpty(newShipData.IconPath))
-                    string.Intern(newShipData.IconPath);
-                if (!string.IsNullOrEmpty(newShipData.Hull))
-                    string.Intern(newShipData.Hull);
-                if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
-                    string.Intern(newShipData.SelectionGraphic);
-				newShipData.ShipStyle = String.Intern(FI.Directory.Name);
-				if (Ship_Game.ResourceManager.HullsDict.ContainsKey(newShipData.Hull))
-				{
-					Ship_Game.ResourceManager.HullsDict[newShipData.Hull] = newShipData;
-				}
-				else
-				{
-					Ship_Game.ResourceManager.HullsDict.Add(newShipData.Hull, newShipData);
-				}
-				retList.Add(newShipData);
+			    if (!string.IsNullOrEmpty(shipData.EventOnDeath)) string.Intern(shipData.EventOnDeath);
+			    if (!string.IsNullOrEmpty(shipData.ModelPath))    string.Intern(shipData.ModelPath);
+			    if (!string.IsNullOrEmpty(shipData.ShipStyle))    string.Intern(shipData.ShipStyle);
+			    if (!string.IsNullOrEmpty(shipData.Name))         string.Intern(shipData.Name);
+			    if (!string.IsNullOrEmpty(shipData.IconPath))     string.Intern(shipData.IconPath);
+			    if (!string.IsNullOrEmpty(shipData.Hull))         string.Intern(shipData.Hull);
+			    if (!string.IsNullOrEmpty(shipData.SelectionGraphic)) string.Intern(shipData.SelectionGraphic);
+                shipData.ShipStyle = string.Intern(dirName);
+
+			    HullsDict[shipData.Hull] = shipData;
+			    retList.Add(shipData);
 			}
 			return retList;
 		}
 
 		private static void LoadItAll()
 		{
-            ResourceManager.OffSet = 0;
-            Ship_Game.ResourceManager.LoadLanguage();
-            Ship_Game.ResourceManager.LoadTroops();
-			Ship_Game.ResourceManager.LoadTextures();
-			Ship_Game.ResourceManager.LoadToolTips();
-			Ship_Game.ResourceManager.LoadHullData();
-			Ship_Game.ResourceManager.LoadWeapons();
-			Ship_Game.ResourceManager.LoadShipModules();
-			Ship_Game.ResourceManager.LoadGoods();
-			Ship_Game.ResourceManager.LoadShips();
-			Ship_Game.ResourceManager.LoadJunk();
-			Ship_Game.ResourceManager.LoadProjTexts();
-			Ship_Game.ResourceManager.LoadBuildings();
-			Ship_Game.ResourceManager.LoadProjectileMeshes();
-			Ship_Game.ResourceManager.LoadTechTree();
-			Ship_Game.ResourceManager.LoadRandomItems();
-			Ship_Game.ResourceManager.LoadFlagTextures();
-			Ship_Game.ResourceManager.LoadNebulas();
-			Ship_Game.ResourceManager.LoadSmallStars();
-			Ship_Game.ResourceManager.LoadMediumStars();
-			Ship_Game.ResourceManager.LoadLargeStars();
-			Ship_Game.ResourceManager.LoadEmpires();
-			Ship_Game.ResourceManager.LoadDialogs();
-			Ship_Game.ResourceManager.LoadEncounters();
-			Ship_Game.ResourceManager.LoadExpEvents();
-            Ship_Game.ResourceManager.LoadArtifacts();			
-            Ship_Game.ResourceManager.LoadShipRoles();
-            Ship_Game.ResourceManager.LoadPlanetEdicts();
+            OffSet = 0;
+            LoadLanguage();
+            LoadTroops();
+			LoadTextures();
+			LoadToolTips();
+			LoadHullData();
+			LoadWeapons();
+			LoadShipModules();
+			LoadGoods();
+			LoadShips();
+			LoadJunk();
+			LoadProjTexts();
+			LoadBuildings();
+			LoadProjectileMeshes();
+			LoadTechTree();
+			LoadRandomItems();
+			LoadFlagTextures();
+			LoadNebulas();
+			LoadSmallStars();
+			LoadMediumStars();
+			LoadLargeStars();
+			LoadEmpires();
+			LoadDialogs();
+			LoadEncounters();
+			LoadExpEvents();
+            LoadArtifacts();			
+            LoadShipRoles();
+            LoadPlanetEdicts();
             //Ship_Game.ResourceManager.MarkShipDesignsUnlockable();
             
 		}
 
-		private static void LoadJunk()
-		{
-			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/Model/SpaceJunk");
-			for (int num = 0; num < (int)filesFromDirectory.Length; num++)
-			{
-				FileInfo FI = filesFromDirectory[num];
-				for (int i = 1; i < 15; i++)
-				{
-					try
-					{
-						if (Path.GetFileNameWithoutExtension(FI.Name) == string.Concat("spacejunk", i))
-						{
-							Model junk = GetContentManager().Load<Model>(string.Concat("Model/SpaceJunk/", Path.GetFileNameWithoutExtension(FI.Name)));
-							Ship_Game.ResourceManager.JunkModels[i] = junk;
-						}
-					}
-					catch (Exception e) 
-					{  
-						ReportLoadingError(FI, "LoadJunk", e);
-					} 
-				}
-			}
+		private static void LoadJunk() // Refactored by RedFox
+        {
+		    foreach (FileInfo info in Dir.GetFiles("Content/Model/SpaceJunk"))
+		    {
+                string nameNoExt = Path.GetFileNameWithoutExtension(info.Name);
+		        if (!nameNoExt.StartsWith("spacejunk") || !int.TryParse(nameNoExt.Substring(9), out int idx))
+                    continue;
+		        try
+		        {
+		            Model junk = ContentManager.Load<Model>("Model/SpaceJunk/" + nameNoExt);
+		            JunkModels[idx] = junk;
+		        }
+		        catch (Exception e)
+		        {
+		            ReportLoadingError(info, "LoadJunk", e);
+		        }
+		    }
 		}
 
-		private static void LoadLanguage()
-		{
+		private static void LoadLanguage() // Refactored by RedFox
+        {
+		    foreach (var localization in LoadEntities<LocalizationFile>("/Localization/English/", "LoadLanguage"))
+		    {
+			    LanguageFile = localization;
+            }
+            Localizer.FillLocalizer();
 
-
-
-            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Localization/English/"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(LocalizationFile));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-				LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();				
-                Ship_Game.ResourceManager.LanguageFile = data;
-			}
-			Localizer.FillLocalizer();
 			if (GlobalStats.Config.Language != "English")
 			{
-				textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Localization/", GlobalStats.Config.Language, "/"));
-				FileInfo[] fileInfoArray1 = textList;
-				for (int j = 0; j < (int)fileInfoArray1.Length; j++)
-				{
-					FileStream stream = fileInfoArray1[j].OpenRead();
-					LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-					//stream.Close();
-					stream.Dispose();
-					Ship_Game.ResourceManager.LanguageFile = data;
-				}
+                foreach (var localization in LoadEntities<LocalizationFile>("/Localization/" + GlobalStats.Config.Language + "/", "LoadLanguage"))
+                {
+                    LanguageFile = localization;
+                }
 			}
 			Localizer.FillLocalizer();
 		}
-        private static void LoadLanguageMods()
+
+		private static void LoadLargeStars() // Refactored by RedFox
         {
-            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Localization/English/"));
-            XmlSerializer serializer1 = new XmlSerializer(typeof(LocalizationFile));
-            FileInfo[] fileInfoArray = textList;
-            for (int i = 0; i < (int)fileInfoArray.Length; i++)
-            {
-                FileStream stream = fileInfoArray[i].OpenRead();
-                LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-                //stream.Close();
-                stream.Dispose();
-                
-                Ship_Game.ResourceManager.LanguageFile = data;
+		    foreach (FileInfo info in Dir.GetFiles("Content/LargeStars"))
+		    {
+		        try
+		        {
+		            string nameNoExt = Path.GetFileNameWithoutExtension(info.Name);
+		            if (nameNoExt == "Thumbs") continue;
+
+		            LargeStars.Add(ContentManager.Load<Texture2D>("LargeStars/" + nameNoExt));
+		        }
+		        catch (Exception e)
+		        {
+		            ReportLoadingError(info, "LoadLargeStars", e);
+		        }
+		    }
+		}
+
+		private static void LoadMediumStars() // Refactored by RedFox
+        {
+		    foreach (FileInfo info in Dir.GetFiles("Content/MediumStars"))
+		    {
+		        try
+		        {
+                    string nameNoExt = Path.GetFileNameWithoutExtension(info.Name);
+                    if (nameNoExt == "Thumbs") continue;
+
+		            MediumStars.Add(ContentManager.Load<Texture2D>("MediumStars/" + nameNoExt));
+		        }
+		        catch (Exception e)
+		        {
+		            ReportLoadingError(info, "LoadMediumStars", e);
+		        }
+		    }
+		}
+
+        public static void LoadModdedEmpires() // Refactored by RedFox
+        {
+		    foreach (var empireData in LoadEntities<EmpireData>("/Races", "LoadModdedEmpires"))
+		    {
+                if (Localizer.LocalizerDict.ContainsKey(empireData.TroopDescriptionIndex + OffSet))
+                {
+                    empireData.TroopDescriptionIndex += OffSet;
+                    Localizer.used[empireData.TroopDescriptionIndex] = true;
+                }
+                if (Localizer.LocalizerDict.ContainsKey(empireData.TroopNameIndex + OffSet))
+                {
+                    empireData.TroopNameIndex += OffSet;
+                    Localizer.used[empireData.TroopNameIndex] = true;
+                }
+
+		        int index = Empires.FindIndex(x => x.PortraitName == empireData.PortraitName);
+		        if (index == -1) Empires.Add(empireData);
+		        else             Empires[index] = empireData;
             }
-            Localizer.FillLocalizer();
-            if (GlobalStats.Config.Language != "English")
-            {
-                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Localization/", GlobalStats.Config.Language, "/"));
-                FileInfo[] fileInfoArray1 = textList;
-                for (int j = 0; j < (int)fileInfoArray1.Length; j++)
-                {
-                    FileStream stream = fileInfoArray1[j].OpenRead();
-                    LocalizationFile data = (LocalizationFile)serializer1.Deserialize(stream);
-                    //stream.Close();
-                    stream.Dispose();
-                    Ship_Game.ResourceManager.LanguageFile = data;
-                }
-            }
-            Localizer.FillLocalizer();
-        }
-
-		private static void LoadLargeStars()
-		{
-			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/LargeStars");
-			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
-			{
-				FileInfo FI = filesFromDirectory[i];
-				try
-				{
-					if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
-					{
-						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("LargeStars/", Path.GetFileNameWithoutExtension(FI.Name)));
-						Ship_Game.ResourceManager.LargeStars.Add(tex);
-					}
-				}
-				catch (Exception e)
-				{
-					ReportLoadingError(FI, "LoadLargeStars", e);
-				}
-			}
 		}
 
-		private static void LoadMediumStars()
-		{
-			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/MediumStars");
-			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
-			{
-				FileInfo FI = filesFromDirectory[i];
-				try
-				{
-					if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
-					{
-						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("MediumStars/", Path.GetFileNameWithoutExtension(FI.Name)));
-						Ship_Game.ResourceManager.MediumStars.Add(tex);
-					}
-				}
-				catch (Exception e)
-				{
-					ReportLoadingError(FI, "LoadMediumStars", e);
-				}
-			}
-		}
-
-		public static void LoadModdedEmpires()
-		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Races"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(EmpireData));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
-			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-                EmpireData data = null;
-                try
-                {
-                     data = (EmpireData)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "LoadModdedEmpires", e);
-                }
-				//stream.Close();
-				stream.Dispose();
-				if (data == null)
-					continue;
-                if (Localizer.LocalizerDict.ContainsKey(data.TroopDescriptionIndex + OffSet))
-                {
-                    data.TroopDescriptionIndex += ResourceManager.OffSet;
-                    Localizer.used[data.TroopDescriptionIndex] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(data.TroopNameIndex + OffSet))
-                {
-                    data.TroopNameIndex += ResourceManager.OffSet;
-                    Localizer.used[data.TroopNameIndex] = true;
-                }
-                
-                
-                //ResourceManager.Empires.RemoveAll(x => x.PortraitName == data.PortraitName);
-                EmpireData remove = ResourceManager.Empires.Find(x => x.PortraitName == data.PortraitName);
-                if(remove != null)
-                ResourceManager.Empires.Remove(remove);
-                
-                    
-                Ship_Game.ResourceManager.Empires.Add(data);
-			}
-			textList = null;
-		}
-
-		public static void LoadMods(string ModPath)
+		public static void LoadMods(string modPath)
 		{		
-            Ship_Game.ResourceManager.WhichModPath = ModPath;
-            if (ModPath == "Mods/SD_Extended")
-                ResourceManager.OffSet = 0;
-            else
-                ResourceManager.OffSet = 32000;
-            Ship_Game.ResourceManager.LoadLanguage();
-			Ship_Game.ResourceManager.LoadTroops();
-			Ship_Game.ResourceManager.LoadTextures();
-			Ship_Game.ResourceManager.LoadToolTips();
-			Ship_Game.ResourceManager.LoadHullData();
-			Ship_Game.ResourceManager.LoadWeapons();
-			Ship_Game.ResourceManager.LoadShipModules();
-			Ship_Game.ResourceManager.LoadGoods();
-			Ship_Game.ResourceManager.LoadBuildings();
-			Ship_Game.ResourceManager.LoadTechTree();
-			Ship_Game.ResourceManager.LoadFlagTextures();
-			Ship_Game.ResourceManager.LoadModdedEmpires();
-			Ship_Game.ResourceManager.LoadDialogs();
-			Ship_Game.ResourceManager.LoadEncounters();
-			Ship_Game.ResourceManager.LoadExpEvents();
-			Ship_Game.ResourceManager.LoadArtifacts();		
-			Ship_Game.ResourceManager.LoadShips();
-            Ship_Game.ResourceManager.LoadRandomItems();
-            Ship_Game.ResourceManager.LoadProjTexts();
-            Ship_Game.ResourceManager.LoadModsProjectileMeshes();
+            WhichModPath = modPath;
+            OffSet = modPath == "Mods/SD_Extended" ? 0 : 32000;
+            LoadLanguage();
+			LoadTroops();
+			LoadTextures();
+			LoadToolTips();
+			LoadHullData();
+			LoadWeapons();
+			LoadShipModules();
+			LoadGoods();
+			LoadBuildings();
+			LoadTechTree();
+			LoadFlagTextures();
+			LoadModdedEmpires();
+			LoadDialogs();
+			LoadEncounters();
+			LoadExpEvents();
+			LoadArtifacts();		
+			LoadShips();
+            LoadRandomItems();
+            LoadProjTexts();
+            LoadModsProjectileMeshes();
             
-			if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
+			if (Directory.Exists(WhichModPath + "/Mod Models"))
 			{
-				Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);
+				Dir.CopyDir(WhichModPath + "/Mod Models", "Content/Mod Models", true);
 			}
-			if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video")))
+			if (Directory.Exists(WhichModPath + "/Video"))
 			{
-				Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video"), "Content/ModVideo", true);
+                Dir.CopyDir(WhichModPath + "/Video", "Content/ModVideo", true);
 			}
-            //Added by McShooterz
-            Ship_Game.ResourceManager.LoadHostileFleets();
-            Ship_Game.ResourceManager.LoadShipNames();
-            Ship_Game.ResourceManager.LoadAgentMissions();
-            Ship_Game.ResourceManager.LoadMainMenuShipList();
-            Ship_Game.ResourceManager.LoadSoundEffects();
-            Ship_Game.ResourceManager.LoadShipRoles();
-            Ship_Game.ResourceManager.LoadHullBonuses();
-            Ship_Game.ResourceManager.LoadPlanetEdicts();
+            // Added by McShooterz
+            LoadBlackboxSpecific();
+            LoadShipRoles();
             Localizer.cleanLocalizer();
-            ResourceManager.OffSet = 0;
+            OffSet = 0;
 		}
 
-		private static void LoadNebulas()
+
+	    // Refactored by RedFox
+        private static void LoadNebulas()
 		{
-			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/Nebulas");
-			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
-			{
-				FileInfo FI = filesFromDirectory[i];
-				if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
-				{
-					Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Nebulas/", Path.GetFileNameWithoutExtension(FI.Name)));
-					if (tex.Width == 2048)
-					{
-						Ship_Game.ResourceManager.BigNebulas.Add(tex);
-					}
-					else if (tex.Width != 1024)
-					{
-						Ship_Game.ResourceManager.SmallNebulas.Add(tex);
-					}
-					else
-					{
-						Ship_Game.ResourceManager.MedNebulas.Add(tex);
-					}
-				}
-			}
+		    foreach (FileInfo info in Dir.GetFiles("Content/Nebulas"))
+		    {
+		        string nameNoExt = Path.GetFileNameWithoutExtension(info.Name);
+                if (nameNoExt == "Thumbs") continue;
+		        Texture2D tex = ContentManager.Load<Texture2D>("Nebulas/" + nameNoExt);
+		        if      (tex.Width == 2048) BigNebulas.Add(tex);
+                else if (tex.Width == 1024) MedNebulas.Add(tex);
+		        else                        SmallNebulas.Add(tex);
+		    }
 		}
 
+        // Refactored by RedFox
 		private static void LoadProjectileMeshes()
 		{
-			var Content = GetContentManager();
+			var content = ContentManager;
 			try
 			{
-			Model projLong = GetContentManager().Load<Model>("Model/Projectiles/projLong");
-			ModelMesh projMesh = GetContentManager().Load<Model>("Model/Projectiles/projLong").Meshes[0];
-			Ship_Game.ResourceManager.ProjectileMeshDict["projLong"] = projMesh;
-			Ship_Game.ResourceManager.ProjectileModelDict["projLong"] = projLong;
-			Model projTear = GetContentManager().Load<Model>("Model/Projectiles/projTear");
-			projMesh = projTear.Meshes[0];
-			Ship_Game.ResourceManager.ProjectileMeshDict["projTear"] = projMesh;
-			Ship_Game.ResourceManager.ProjectileModelDict["projTear"] = projTear;
-			Model projBall = GetContentManager().Load<Model>("Model/Projectiles/projBall");
-			projMesh = projBall.Meshes[0];
-			Ship_Game.ResourceManager.ProjectileMeshDict["projBall"] = projMesh;
-			Ship_Game.ResourceManager.ProjectileModelDict["projBall"] = projBall;
-			Model torpedo = GetContentManager().Load<Model>("Model/Projectiles/torpedo");
-			projMesh = torpedo.Meshes[0];
-			Ship_Game.ResourceManager.ProjectileMeshDict["torpedo"] = projMesh;
-			Ship_Game.ResourceManager.ProjectileModelDict["torpedo"] = torpedo;
-			Model missile = GetContentManager().Load<Model>("Model/Projectiles/missile");
-			projMesh = missile.Meshes[0];
-			Ship_Game.ResourceManager.ProjectileMeshDict["missile"] = projMesh;
-			Ship_Game.ResourceManager.ProjectileModelDict["missile"] = missile;
-			Model drone = GetContentManager().Load<Model>("Model/Projectiles/spacemine");
-			projMesh = drone.Meshes[0];
-			Ship_Game.ResourceManager.ProjectileMeshDict["spacemine"] = projMesh;
-			Ship_Game.ResourceManager.ProjectileModelDict["spacemine"] = missile;
+                Model projLong = content.Load<Model>("Model/Projectiles/projLong");
+                Model projTear = content.Load<Model>("Model/Projectiles/projTear");
+                Model projBall = content.Load<Model>("Model/Projectiles/projBall");
+                Model torpedo = content.Load<Model>("Model/Projectiles/torpedo");
+                Model missile = content.Load<Model>("Model/Projectiles/missile");
+                Model drone = content.Load<Model>("Model/Projectiles/spacemine");
+
+                ProjectileMeshDict["projLong"] = projLong.Meshes[0];
+                ProjectileMeshDict["projTear"] = projTear.Meshes[0];
+                ProjectileMeshDict["projBall"] = projBall.Meshes[0];
+                ProjectileMeshDict["torpedo"] = torpedo.Meshes[0];
+                ProjectileMeshDict["missile"] = missile.Meshes[0];
+                ProjectileMeshDict["spacemine"] = drone.Meshes[0];
+
+                ProjectileModelDict["projLong"] = projLong;
+			    ProjectileModelDict["projTear"] = projTear;
+			    ProjectileModelDict["projBall"] = projBall;
+			    ProjectileModelDict["torpedo"] = torpedo;
+			    ProjectileModelDict["missile"] = missile;
+			    ProjectileModelDict["spacemine"] = missile;
 			}
 			catch (Exception) { }
-
-             
-            //Added by McShooterz: failed attempt at loading projectile models
-            //modified by gremlin
-            /*
-            if (Ship_Game.ResourceManager.WhichModPath != "Content")
-            {
-                FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles"));
-                for (int i = 0; i < (int)filesFromDirectory.Length; i++)
-                {
-                    string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
-                    if (name != "Thumbs")
-                    {
-                        Model projModel = GetContentManager().Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
-                        //try
-                        //{
-                        //    Model projModel = GetContentManager().Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
-                        //}
-                        
-                        //catch
-                        //{
-
-                        //}
-                        ModelMesh projMesh2 = projModel.Meshes[0];
-                        Ship_Game.ResourceManager.ProjectileMeshDict[name] = projMesh2;
-                        Ship_Game.ResourceManager.ProjectileModelDict[name] = projModel;
-                    }
-                }
-            }*/
 		}
 
-        //Added by McShooterz: Load projectile models for mods
-        private static void LoadModsProjectileMeshes()
+        
+        private static void LoadModsProjectileMeshes() // Added by McShooterz: Load projectile models for mods
         {
-            FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectoryNoSub(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles"));
-            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            var content = ContentManager;
+            foreach (FileInfo info in Dir.GetFilesNoSub(WhichModPath + "/Model/Projectiles"))
             {
-                string name = Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
-                if (name != "Thumbs" && (filesFromDirectory[i].GetType() ==  typeof(Model)))
-                {
-                    Model projModel = GetContentManager().Load<Model>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/", name));
-                    ModelMesh projMesh2 = projModel.Meshes[0];
-                    Ship_Game.ResourceManager.ProjectileMeshDict[name] = projMesh2;
-                    Ship_Game.ResourceManager.ProjectileModelDict[name] = projModel;
-                }
+                string nameNoExt = Path.GetFileNameWithoutExtension(info.Name);
+                if (nameNoExt == "Thumbs")
+                    continue;
+                Model projModel = content.Load<Model>("../" + WhichModPath + "/Model/Projectiles/" + nameNoExt);
+                ProjectileMeshDict[nameNoExt] = projModel.Meshes[0];
+                ProjectileModelDict[nameNoExt] = projModel;
             }
         }
 
@@ -2544,14 +2050,14 @@ namespace Ship_Game
             //Added by McShooterz: mod folder support /Model/Projectiles/textures
             
             {
-                FileInfo[] filesFrommodDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/textures"));
+                FileInfo[] filesFrommodDirectory = Dir.GetFiles(string.Concat(WhichModPath, "/Model/Projectiles/textures"));
                 for (int i = 0; i < (int)filesFrommodDirectory.Length; i++)
                 {
                     string name = Path.GetFileNameWithoutExtension(filesFrommodDirectory[i].Name);
                     if (name != "Thumbs")
                     {
-                        Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("../",Ship_Game.ResourceManager.WhichModPath, "/Model/Projectiles/textures/", name));
-                        Ship_Game.ResourceManager.ProjTextDict[name] = tex;
+                        Texture2D tex = ContentManager.Load<Texture2D>(string.Concat("../",WhichModPath, "/Model/Projectiles/textures/", name));
+                        ProjTextDict[name] = tex;
                     }
                 }
             }
@@ -2561,9 +2067,9 @@ namespace Ship_Game
 
 		private static void LoadRandomItems()
 		{
-			Ship_Game.ResourceManager.RandomItemsList.Clear();
+			RandomItemsList.Clear();
             //Added by McShooterz: mod folder support RandomStuff
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RandomStuff")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/RandomStuff") : "Content/RandomStuff");
+			FileInfo[] textList = Dir.GetFiles(Directory.Exists(string.Concat(WhichModPath, "/RandomStuff")) ? string.Concat(WhichModPath, "/RandomStuff") : "Content/RandomStuff");
 			XmlSerializer serializer1 = new XmlSerializer(typeof(RandomItem));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
@@ -2582,26 +2088,26 @@ namespace Ship_Game
 					continue;
                 //stream.Close();
 				stream.Dispose();
-				Ship_Game.ResourceManager.RandomItemsList.Add(data);
+				RandomItemsList.Add(data);
 			}
 		}
 
 		private static void LoadRoids()
 		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/Model/Asteroids");
+			FileInfo[] textList = Dir.GetFiles("Content/Model/Asteroids");
 			int i = 1;
 			FileInfo[] fileInfoArray = textList;
 			for (int num = 0; num < (int)fileInfoArray.Length; num++)
 			{
 				FileInfo FI = fileInfoArray[num];
-				Ship_Game.ResourceManager.RoidsModels[i] = GetContentManager().Load<Model>(string.Concat("Model/Asteroids/", Path.GetFileNameWithoutExtension(FI.Name)));
+				RoidsModels[i] = ContentManager.Load<Model>(string.Concat("Model/Asteroids/", Path.GetFileNameWithoutExtension(FI.Name)));
 				i++;
 			}
 		}
 
 		private static void LoadShipModules()
 		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipModules"));
+			FileInfo[] textList = Dir.GetFiles(string.Concat(WhichModPath, "/ShipModules"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(ShipModule_Deserialize));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
@@ -2647,18 +2153,18 @@ namespace Ship_Game
                 {
                     data.TargetTracking = Convert.ToSByte((data.XSIZE * data.YSIZE) / 3);
                 }
-                if (Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(data.UID))
+                if (ShipModulesDict.ContainsKey(data.UID))
 				{
-                    Ship_Game.ResourceManager.ShipModulesDict[data.UID] = data.ConvertToShipModule();
+                    ShipModulesDict[data.UID] = data.ConvertToShipModule();
                     System.Diagnostics.Debug.WriteLine("ShipModule UID already found. Conflicting name:  " + data.UID);
                 }
 				else
 				{
-                    Ship_Game.ResourceManager.ShipModulesDict.Add(data.UID, data.ConvertToShipModule());
+                    ShipModulesDict.Add(data.UID, data.ConvertToShipModule());
                 }
                 
 			}
-			foreach (KeyValuePair<string, ShipModule> entry in Ship_Game.ResourceManager.ShipModulesDict)
+			foreach (KeyValuePair<string, ShipModule> entry in ShipModulesDict)
 			{
 				entry.Value.SetAttributesNoParent();
 			}
@@ -2667,19 +2173,19 @@ namespace Ship_Game
 
 		public static void LoadShips()
 		{
-            Ship_Game.ResourceManager.ShipsDict.Clear();// = new Dictionary<string, Ship>();
+            ShipsDict.Clear();// = new Dictionary<string, Ship>();
             //Added by McShooterz: Changed how StarterShips loads from mod if folder exists
             XmlSerializer serializer0 = new XmlSerializer(typeof(ShipData));
             FileInfo[] textList; //"Mods/", 
             
-            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips")))
+            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(WhichModPath, "/StarterShips")))
             {
-                Ship_Game.ResourceManager.ShipsDict.Clear();
-                textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/StarterShips/"));
+                ShipsDict.Clear();
+                textList = Dir.GetFiles(string.Concat(WhichModPath, "/StarterShips/"));
             }
             else
             {
-                textList = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/StarterShips");           
+                textList = Dir.GetFiles("Content/StarterShips");           
             }
 
             FileInfo[] fileInfoArray = textList;
@@ -2715,11 +2221,11 @@ namespace Ship_Game
                             string.Intern(newShipData.Hull);
                         if (!string.IsNullOrEmpty(newShipData.SelectionGraphic))
                             string.Intern(newShipData.SelectionGraphic);
-                        Ship_Game.ResourceManager.ShipsDict[newShipData.Name] = newShip;
+                        ShipsDict[newShipData.Name] = newShip;
                     }
                 }
             }
-			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/SavedDesigns");
+			FileInfo[] filesFromDirectory = Dir.GetFiles("Content/SavedDesigns");
 			for (int j = 0; j < (int)filesFromDirectory.Length; j++)
 			{
 				FileStream stream = filesFromDirectory[j].OpenRead();
@@ -2742,7 +2248,7 @@ namespace Ship_Game
                     if (newShip.InitForLoad())
                     {
                         newShip.InitializeStatus();
-                        Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
+                        ShipsDict[String.Intern(newShipData.Name)] = newShip;
                     }
                     if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
                         string.Intern(newShipData.EventOnDeath);
@@ -2762,7 +2268,7 @@ namespace Ship_Game
                 }
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            FileInfo[] filesFromDirectory1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(path, "/StarDrive/Saved Designs"));
+            FileInfo[] filesFromDirectory1 = Dir.GetFiles(string.Concat(path, "/StarDrive/Saved Designs"));
 			for (int k = 0; k < (int)filesFromDirectory1.Length; k++)
 			{
 				FileInfo FI = filesFromDirectory1[k];
@@ -2795,7 +2301,7 @@ namespace Ship_Game
                         if (newShip.InitForLoad())
                         {
                             newShip.InitializeStatus();
-                            Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
+                            ShipsDict[String.Intern(newShipData.Name)] = newShip;
                         }
                         if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
                             string.Intern(newShipData.EventOnDeath);
@@ -2823,7 +2329,7 @@ namespace Ship_Game
 			}
 			if (GlobalStats.ActiveMod != null)
 			{
-				textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/ShipDesigns/"));
+				textList = Dir.GetFiles(string.Concat("Mods/", GlobalStats.ActiveMod.ModPath, "/ShipDesigns/"));
 				FileInfo[] fileInfoArray1 = textList;
 				for (int l = 0; l < (int)fileInfoArray1.Length; l++)
 				{
@@ -2845,7 +2351,7 @@ namespace Ship_Game
                             if (newShip.InitForLoad())
                             {
                                 newShip.InitializeStatus();
-                                Ship_Game.ResourceManager.ShipsDict[String.Intern(newShipData.Name)] = newShip;
+                                ShipsDict[String.Intern(newShipData.Name)] = newShip;
                             }
                             if (!string.IsNullOrEmpty(newShipData.EventOnDeath) && string.IsNullOrEmpty(string.IsInterned(newShipData.EventOnDeath)))
                                 string.Intern(newShipData.EventOnDeath);
@@ -2924,7 +2430,7 @@ namespace Ship_Game
             #endregion
 
             //added by gremlin : Base strength Calculator
-            foreach (KeyValuePair<string, Ship> entry in ResourceManager.ShipsDict)
+            foreach (KeyValuePair<string, Ship> entry in ShipsDict)
             {
                 //if (entry.Value.BaseStrength != 0)
                 //    continue;
@@ -2941,7 +2447,7 @@ namespace Ship_Game
                 foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
                 {
 
-                    ShipModule module = ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
+                    ShipModule module = ShipModulesDict[slot.InstalledModuleUID];
                     float offRate = 0;
                     if (module.InstalledWeapon != null)
                     {
@@ -2975,7 +2481,7 @@ namespace Ship_Game
 
                         fighters = true;
                         Ship hangarship;// = new Ship();
-                        ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
+                        ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
 
                         if (hangarship != null)
                         {
@@ -3000,7 +2506,7 @@ namespace Ship_Game
                     //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
                     def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
 
-                    if (ResourceManager.ShipModulesDict[module.UID].WarpThrust > 0)
+                    if (ShipModulesDict[module.UID].WarpThrust > 0)
                     {
                         entry.Value.BaseCanWarp = true;
                     }
@@ -3016,7 +2522,7 @@ namespace Ship_Game
         public static float CalculateBaseStrength(Ship ship)
         {
             
-            foreach (KeyValuePair<string, Ship> entry in ResourceManager.ShipsDict)
+            foreach (KeyValuePair<string, Ship> entry in ShipsDict)
             {
                 if (entry.Key != ship.Name )
                     continue;
@@ -3041,7 +2547,7 @@ namespace Ship_Game
                 foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
                 {
 
-                    ShipModule module = ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
+                    ShipModule module = ShipModulesDict[slot.InstalledModuleUID];
                     float offRate = 0;
                     if (module.InstalledWeapon != null)
                     {
@@ -3075,7 +2581,7 @@ namespace Ship_Game
 
                         fighters = true;
                         Ship hangarship;// = new Ship();
-                        ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
+                        ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
 
                         if (hangarship != null)
                         {
@@ -3086,7 +2592,7 @@ namespace Ship_Game
                     //(module.shield_power_max+  module.shield_radius +module.shield_recharge_rate) / slotCount ;
                     def += module.HealthMax * ((module.ModuleType == ShipModuleType.Armor ? (module.XSIZE) : 1f) / (slotCount * 4));
 
-                    if (ResourceManager.ShipModulesDict[module.UID].WarpThrust > 0)
+                    if (ShipModulesDict[module.UID].WarpThrust > 0)
                     {
                         entry.Value.BaseCanWarp = true;
                         ship.BaseCanWarp = entry.Value.BaseCanWarp;
@@ -3219,7 +2725,7 @@ namespace Ship_Game
 
                         //fighters = true;
                         Ship hangarship;// = new Ship();
-                        ResourceManager.ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
+                        ShipsDict.TryGetValue(module.hangarShipUID, out hangarship);
 
                         if (hangarship != null)
                         {
@@ -3249,14 +2755,14 @@ namespace Ship_Game
 
 		private static void LoadSmallStars()
 		{
-			FileInfo[] filesFromDirectory = Ship_Game.ResourceManager.GetFilesFromDirectory("Content/SmallStars");
+			FileInfo[] filesFromDirectory = Dir.GetFiles("Content/SmallStars");
 			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
 			{
 				FileInfo FI = filesFromDirectory[i];
 				if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
 				{
-					Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("SmallStars/", Path.GetFileNameWithoutExtension(FI.Name)));
-					Ship_Game.ResourceManager.SmallStars.Add(tex);
+					Texture2D tex = ContentManager.Load<Texture2D>(string.Concat("SmallStars/", Path.GetFileNameWithoutExtension(FI.Name)));
+					SmallStars.Add(tex);
 				}
 			}
 		}
@@ -3264,7 +2770,7 @@ namespace Ship_Game
 		public static void LoadSubsetEmpires()
 		{
 			//Ship_Game.ResourceManager.Empires.Clear();
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Races"));
+			FileInfo[] textList = Dir.GetFiles(string.Concat(WhichModPath, "/Races"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(EmpireData));
 			FileInfo[] fileInfoArray = textList;
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
@@ -3283,7 +2789,7 @@ namespace Ship_Game
 				stream.Dispose();
 				if (data.Faction == 1)
 				{
-					Ship_Game.ResourceManager.Empires.Add(data);
+					Empires.Add(data);
 				}
 			}
 			textList = null;
@@ -3292,8 +2798,8 @@ namespace Ship_Game
 		private static void LoadTechTree()
 		{
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.clearVanillaTechs)
-                Ship_Game.ResourceManager.TechTree.Clear();
-            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Technology"));
+                TechTree.Clear();
+            FileInfo[] textList = Dir.GetFiles(string.Concat(WhichModPath, "/Technology"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
 			FileInfo[] fileInfoArray = textList;
             for (int i = 0; i < (int)fileInfoArray.Length; i++)
@@ -3342,17 +2848,17 @@ namespace Ship_Game
                 }
 
 
-                if (Ship_Game.ResourceManager.TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
+                if (TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
                 {
 
-                    Ship_Game.ResourceManager.TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
+                    TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
 
                 }
                 else
                 {
 
-                    //Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
-                    Ship_Game.ResourceManager.TechTree.Add(data.UID, data);
+                    //Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(info.Name), data);
+                    TechTree.Add(data.UID, data);
                 }
                 //catagorize uncatagoried techs
                 {
@@ -3363,7 +2869,7 @@ namespace Ship_Game
                             foreach (Technology.UnlockedBuilding buildingU in data.BuildingsUnlocked)
                             {
                                 Building building;
-                                if (ResourceManager.BuildingsDict.TryGetValue(buildingU.Name, out building))
+                                if (BuildingsDict.TryGetValue(buildingU.Name, out building))
                                 {
                                     if (building.AllowInfantry || building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0
                                         || building.isWeapon || building.Strength > 0 || building.IsSensor)
@@ -3409,7 +2915,7 @@ namespace Ship_Game
                             foreach (Technology.UnlockedMod moduleU in data.ModulesUnlocked)
                             {
                                 ShipModule module;
-                                if (ResourceManager.ShipModulesDict.TryGetValue(moduleU.ModuleUID, out module))
+                                if (ShipModulesDict.TryGetValue(moduleU.ModuleUID, out module))
                                 {
                                     if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
                                         || module.ModuleType == ShipModuleType.Hangar
@@ -3437,7 +2943,7 @@ namespace Ship_Game
                             data.TechnologyType = TechnologyType.ShipHull;
                             foreach (Technology.UnlockedHull hull in data.HullsUnlocked)
                             {
-                                ShipData.RoleName role = ResourceManager.HullsDict[hull.Name].Role;
+                                ShipData.RoleName role = HullsDict[hull.Name].Role;
                                 if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform
                                     || role == ShipData.RoleName.construction || role == ShipData.RoleName.station)
                                     data.TechnologyType = TechnologyType.Industry;
@@ -3455,508 +2961,152 @@ namespace Ship_Game
 
 		private static void LoadTextures()
 		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Textures"));
-			if (Ship_Game.ResourceManager.WhichModPath != "Content")
-			{
-				FileInfo[] fileInfoArray = textList;
-				for (int i = 0; i < (int)fileInfoArray.Length; i++)
-				{
-					FileInfo FI = fileInfoArray[i];
-					if (FI.Directory.Name != "Textures")
-					{
-						string name = Path.GetFileNameWithoutExtension(FI.Name);
-                        if(string.IsInterned(name) == null)
-                        {
-                            string.Intern(name);
-                        }
-                        if (string.IsInterned(name) == null)
-                        {
-                            string.Intern(name);
-                        }
+            ContentManager content = ContentManager;
 
-						if (name != "Thumbs")
-						{
-							ContentManager content = GetContentManager();
-							string[] whichModPath = new string[] { "../", Ship_Game.ResourceManager.WhichModPath, "/Textures/", FI.Directory.Name, "/", name };
-							Texture2D tex = content.Load<Texture2D>(string.Concat(whichModPath));
-							Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", name))] = tex;
-						}
-					}
-					else if (Path.GetFileNameWithoutExtension(FI.Name) != "Thumbs")
-					{
-						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
-						Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name)))] = tex;
-					}
+            FileInfo[] textList = Dir.GetFiles(WhichModPath + "/Textures");
+			if (WhichModPath != "Content")
+			{
+				foreach (FileInfo info in textList)
+				{
+                    string nameNoExt = Path.GetFileNameWithoutExtension(info.Name);
+                    if (nameNoExt == "Thumbs") continue;
+
+                    string directory = info.Directory?.Name ?? "";
+				    string texPath;
+				    if (directory == "Textures")
+                        texPath = "../" + WhichModPath + "/Textures/" + nameNoExt;
+                    else
+                        texPath = "../" + WhichModPath + "/Textures/" + directory + "/" + nameNoExt;
+
+				    Texture2D tex = content.Load<Texture2D>(texPath);
+				    TextureDict[directory + "/" + nameNoExt] = tex;
 				}
 				return;
 			}
-			FileInfo[] fileInfoArray1 = textList;
-			for (int j = 0; j < (int)fileInfoArray1.Length; j++)
+			foreach (FileInfo FI in textList)
 			{
-				FileInfo FI = fileInfoArray1[j];
-				if (FI.Directory.Name == "Textures")
-				{
-					string name = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
-					if (name != "Thumbs")
-					{
-						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
-						if (!Ship_Game.ResourceManager.TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
-						{
-							Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name)))] = tex;
-						}
-					}
-				}
-				else
-				{
-					string name = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
-					if (name != "Thumbs")
-					{
-						Texture2D tex = GetContentManager().Load<Texture2D>(string.Concat("Textures/", FI.Directory.Name, "/", name));
-						if (!Ship_Game.ResourceManager.TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
-						{
-							Ship_Game.ResourceManager.TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", name))] = tex;
-						}
-					}
-				}
+			    if (FI.Directory.Name == "Textures")
+			    {
+			        string name = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
+			        if (name != "Thumbs")
+			        {
+			            Texture2D tex = content.Load<Texture2D>(string.Concat("Textures/", Path.GetFileNameWithoutExtension(FI.Name)));
+			            if (!TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
+			            {
+			                TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", Path.GetFileNameWithoutExtension(FI.Name)))] = tex;
+			            }
+			        }
+			    }
+			    else
+			    {
+			        string name = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
+			        if (name != "Thumbs")
+			        {
+			            Texture2D tex = ContentManager.Load<Texture2D>(string.Concat("Textures/", FI.Directory.Name, "/", name));
+			            if (!TextureDict.ContainsKey(string.Concat(FI.Directory.Name, "/", name)))
+			            {
+			                TextureDict[string.Intern(string.Concat(FI.Directory.Name, "/", name))] = tex;
+			            }
+			        }
+			    }
 			}
 		}
 
 		private static void LoadToolTips()
 		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Tooltips"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(Tooltips));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			foreach (var tooltips in LoadEntities<Tooltips>("/Tooltips", "LoadToolTips"))
 			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-                Tooltips data = null;
-                try
-                {
-                    data = (Tooltips)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(fileInfoArray[i], "LoadToolTips", e);
-                }
-				//stream.Close();
-				stream.Dispose();
-				foreach (ToolTip tip in data.ToolTipsList)
-				{
-					
-                    if (Ship_Game.ResourceManager.ToolTips.ContainsKey(tip.TIP_ID))
-					{
-						
-                        Ship_Game.ResourceManager.ToolTips[tip.TIP_ID] = tip;
-					}
-					else
-					{
-						Ship_Game.ResourceManager.ToolTips.Add(tip.TIP_ID, tip);
-					}
-				}
+			    foreach (ToolTip tip in tooltips.ToolTipsList)
+			        ToolTips[tip.TIP_ID] = tip;
 			}
 		}
 
 		private static void LoadTroops()
 		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Troops"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(Troop));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			foreach (var kv in LoadEntitiesWithInfo<Troop>("/Troops", "LoadTroops"))
 			{
-				FileInfo FI = fileInfoArray[i];
-				FileStream stream = FI.OpenRead();
-                Troop data = null;
-                try
-                {
-                    data = (Troop)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(FI, "LoadTroops", e);
-                }
-				//stream.Close();
-				stream.Dispose();
-				//no localization
-                data.Name = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
-                if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
-				{
-					Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
-				}
-				else
-				{
-					Ship_Game.ResourceManager.TroopsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
-				}
-                
-                Troop troop = Ship_Game.ResourceManager.TroopsDict[Path.GetFileNameWithoutExtension(FI.Name)];
-                if(troop.StrengthMax <= 0)
-                {
+			    Troop troop = kv.Value;
+                troop.Name = string.Intern((Path.GetFileNameWithoutExtension(kv.Key.Name)));
+                TroopsDict[troop.Name] = troop;
+
+			    if (troop.StrengthMax <= 0)
                     troop.StrengthMax = troop.Strength;
-                }
-                //if (troop.attack_path !=null)
-                //string.Intern(troop.attack_path);
-                //if (!string.IsNullOrEmpty(troop.Class))
-                //string.Intern(troop.Class);
-                //if (!string.IsNullOrEmpty(troop.Description))
-                //string.Intern(troop.Description);
-                //if (!string.IsNullOrEmpty(troop.Icon))
-                //string.Intern(troop.Icon);
-                //if (!string.IsNullOrEmpty(troop.idle_path))
-                //string.Intern(troop.idle_path);
-                //if (!string.IsNullOrEmpty(troop.MovementCue))
-                //string.Intern(troop.MovementCue);
-                //if (troop.OwnerString !=null)
-                //string.Intern(troop.OwnerString);
-                //if (!string.IsNullOrEmpty(troop.RaceType))
-                //string.Intern(troop.RaceType);
-                //if (!string.IsNullOrEmpty(troop.sound_attack))
-                //string.Intern(troop.sound_attack);
-                //if (string.IsNullOrEmpty(troop.TexturePath))
-                //string.Intern(troop.TexturePath);
-                //if (string.IsNullOrEmpty(troop.TargetType))
-                //string.Intern(troop.TargetType);                
 			}
 		}
 
-		private static void LoadWeapons()
-		{
-			FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Weapons"));
-			XmlSerializer serializer1 = new XmlSerializer(typeof(Weapon));
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+        
+		private static void LoadWeapons() // Refactored by RedFox
+        {
+			foreach (var kv in LoadEntitiesWithInfo<Weapon>("/Weapons", "LoadWeapons"))
 			{
-				FileInfo FI = fileInfoArray[i];
-				FileStream stream = FI.OpenRead();
-                Weapon data = null;
-                try
-                {
-                    data = (Weapon)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-					ReportLoadingError(FI, "LoadWeapons", e);
-                }
-				//stream.Close();
-				stream.Dispose();
-                //no localization
-                data.UID = String.Intern(Path.GetFileNameWithoutExtension(FI.Name));
-                //if (data.AnimationPath != null)
-                //String.Intern(data.AnimationPath);
-                //if (data.BeamTexture !=null)
-                //String.Intern(data.BeamTexture);
-                //if (data.dieCue !=null)
-                //String.Intern(data.dieCue);
-                //if (data.SecondaryFire != null)
-                //String.Intern(data.SecondaryFire);
-				if (Ship_Game.ResourceManager.WeaponsDict.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
-				{
-					Ship_Game.ResourceManager.WeaponsDict[Path.GetFileNameWithoutExtension(FI.Name)] = data;
-				}
-				else
-				{
-					Ship_Game.ResourceManager.WeaponsDict.Add(Path.GetFileNameWithoutExtension(FI.Name), data);
-				}
-                
-                
+			    Weapon wep = kv.Value;
+			    wep.UID = string.Intern(Path.GetFileNameWithoutExtension(kv.Key.Name));
+			    WeaponsDict[wep.UID] = wep;
 			}
-			textList = null;
 		}
 
         //Added by McShooterz: Load ship roles
         private static void LoadShipRoles()
         {
-            FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipRoles"));
-            XmlSerializer serializer1 = new XmlSerializer(typeof(ShipRole));
-            FileInfo[] fileInfoArray = textList;
-            ShipData.RoleName key = new ShipData.RoleName();
-
-            for (int i = 0; i < (int)fileInfoArray.Length; i++)
+            foreach (var shipRole in LoadEntities<ShipRole>("/ShipRoles", "LoadShipRoles"))
             {
-                FileInfo FI = fileInfoArray[i];
-                FileStream stream = FI.OpenRead();
-                ShipRole data = null;
-                try
+                if (Localizer.LocalizerDict.ContainsKey(shipRole.Localization + OffSet))
                 {
-                    data = (ShipRole)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-                    ReportLoadingError(FI, "LoadShipRoles", e);
-                }
-                //stream.Close();
-                stream.Dispose();
-                if (Localizer.LocalizerDict.ContainsKey(data.Localization + ResourceManager.OffSet))
-                {
-                    data.Localization += ResourceManager.OffSet;
-                    Localizer.used[data.Localization] = true;
-                }
-                switch (data.Name)  //fbedard: translate string into enum
-                {
-                    case "platform":
-				    {
-					    key = ShipData.RoleName.platform;
-					    break;
-				    }
-                    case "station":
-                    {
-                        key = ShipData.RoleName.station;
-                        break;
-                    }
-                    case "construction":
-                    {
-                        key = ShipData.RoleName.construction;
-                        break;
-                    }
-                    case "supply":
-                    {
-                        key = ShipData.RoleName.supply;
-                        break;
-                    }
-                    case "freighter":
-                    {
-                        key = ShipData.RoleName.freighter;
-                        break;
-                    }
-                    case "troop":
-                    {
-                        key = ShipData.RoleName.troop;
-                        break;
-                    }
-                    case "fighter":
-                    {
-                        key = ShipData.RoleName.fighter;
-                        break;
-                    }
-                    case "scout":
-                    {
-                        key = ShipData.RoleName.scout;
-                        break;
-                    }
-                    case "gunboat":
-                    {
-                        key = ShipData.RoleName.gunboat;
-                        break;
-                    }
-                    case "drone":
-                    {
-                        key = ShipData.RoleName.drone;
-                        break;
-                    }
-                    case "corvette":
-                    {
-                        key = ShipData.RoleName.corvette;
-                        break;
-                    }
-                    case "frigate":
-                    {
-                        key = ShipData.RoleName.frigate;
-                        break;
-                    }
-                    case "destroyer":
-                    {
-                        key = ShipData.RoleName.destroyer;
-                        break;
-                    }
-                    case "cruiser":
-                    {
-                        key = ShipData.RoleName.cruiser;
-                        break;
-                    }
-                    case "carrier":
-                    {
-                        key = ShipData.RoleName.carrier;
-                        break;
-                    }
-                    case "capital":
-                    {
-                        key = ShipData.RoleName.capital;
-                        break;
-                    }
-                    case "prototype":
-                    {
-                        key = ShipData.RoleName.prototype;
-                        break;
-                    }
-                    default:
-                    {
-                        key = ShipData.RoleName.disabled;
-                        break;
-                    }
-                }
-                for (int j = 0; j < data.RaceList.Count(); j++)
-                {
-                    if (Localizer.LocalizerDict.ContainsKey(data.RaceList[j].Localization + ResourceManager.OffSet))
-                    {
-                        data.RaceList[j].Localization += ResourceManager.OffSet;
-                        Localizer.used[data.RaceList[j].Localization] = true;
-                    }
-                }
-                if (Ship_Game.ResourceManager.ShipRoles.ContainsKey(key))
-                {
-                    Ship_Game.ResourceManager.ShipRoles[key] = data;
-                }
-                else
-                {
-                    Ship_Game.ResourceManager.ShipRoles.Add(key, data);
+                    shipRole.Localization += OffSet;
+                    Localizer.used[shipRole.Localization] = true;
                 }
 
-            }
-            textList = null;
-        }
-
-        //Added by McShooterz: Load hull bonuses
-        private static void LoadHullBonuses()
-        {
-            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses")) && GlobalStats.ActiveModInfo.useHullBonuses)
-            {
-                FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HullBonuses"));
-                XmlSerializer serializer1 = new XmlSerializer(typeof(HullBonus));
-                FileInfo[] fileInfoArray = textList;
-                for (int i = 0; i < (int)fileInfoArray.Length; i++)
+                foreach (var race in shipRole.RaceList)
                 {
-                    FileInfo FI = fileInfoArray[i];
-                    FileStream stream = FI.OpenRead();
-                    HullBonus data = null;
-                    try
-                    {
-                         data = (HullBonus)serializer1.Deserialize(stream);
-                    }
-                    catch (Exception e)
-                    {
-						ReportLoadingError(FI, "LoadHullBonuses", e);
-                    }
-                    //stream.Close();
-                    stream.Dispose();
-                    String.Intern(data.Hull);
-                    if (Ship_Game.ResourceManager.HullBonuses.ContainsKey(data.Hull))
-                    {
-                        Ship_Game.ResourceManager.HullBonuses[data.Hull] = data;
-                    }
-                    else
-                    {
-                        Ship_Game.ResourceManager.HullBonuses.Add(data.Hull, data);
-                    }
-                    
+                    if (!Localizer.LocalizerDict.ContainsKey(race.Localization + OffSet))
+                        continue;
+                    race.Localization += OffSet;
+                    Localizer.used[race.Localization] = true;
                 }
-                textList = null;
-            }
-            if (Ship_Game.ResourceManager.HullBonuses.Count == 0)
-                GlobalStats.ActiveModInfo.useHullBonuses = false;
-        }
 
-        //Added by McShooterz: Load planetary edicts
-        private static void LoadPlanetEdicts()
-        {
-            if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/PlanetEdicts")))
-            {
-                FileInfo[] textList = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/PlanetEdicts"));
-                XmlSerializer serializer1 = new XmlSerializer(typeof(PlanetEdict));
-                FileInfo[] fileInfoArray = textList;
-                for (int i = 0; i < (int)fileInfoArray.Length; i++)
-                {
-                    FileInfo FI = fileInfoArray[i];
-                    FileStream stream = FI.OpenRead();
-                    PlanetEdict data = null;
-                    try
-                    {
-                         data = (PlanetEdict)serializer1.Deserialize(stream);
-                    }
-                    catch (Exception e)
-                    {
-                        ReportLoadingError(FI, "LoadPlanetEdicts", e);
-                    }
-                    //stream.Close();
-                    stream.Dispose();
-                    if (Ship_Game.ResourceManager.PlanetaryEdicts.ContainsKey(data.Name))
-                    {
-                        Ship_Game.ResourceManager.PlanetaryEdicts[data.Name] = data;
-                    }
-                    else
-                    {
-                        Ship_Game.ResourceManager.PlanetaryEdicts.Add(data.Name, data);
-                    }
-                }
-                textList = null;
+                Enum.TryParse(shipRole.Name, out ShipData.RoleName key);
+                ShipRoles[key] = shipRole;
             }
         }
 
-        //Added by McShooterz: Load hostileFleets.xml
-        private static void LoadHostileFleets()
-        {
-            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")))
-            {
-                Ship_Game.ResourceManager.HostileFleets = (HostileFleets)new XmlSerializer(typeof(HostileFleets)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/HostileFleets/HostileFleets.xml")).OpenRead());
-            }
-            else
-            {
-                return;
-            }
+        // Added by RedFox: only deseralize to ref entity IF the file exists
+	    private static void DeserializeIfExists<T>(string dir, ref T entity) where T : class
+	    {
+            string path = WhichModPath + dir;
+	        if (!File.Exists(path))
+	            return;
+            using (Stream stream = new FileInfo(path).OpenRead())
+                entity = (T)new XmlSerializer(typeof(T)).Deserialize(stream);
+	    }
+
+	    private static void LoadPlanetEdicts()
+	    {
+            foreach (var planetEdict in LoadEntities<PlanetEdict>("/PlanetEdicts", "LoadPlanetEdicts"))
+                PlanetaryEdicts[planetEdict.Name] = planetEdict;
         }
 
-        //Added by McShooterz: Load ShipNames.xml
-        private static void LoadShipNames()
+        // Added by RedFox
+        private static void LoadBlackboxSpecific()
         {
-            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipNames/ShipNames.xml")))
+            if (GlobalStats.ActiveModInfo.useHullBonuses)
             {
-                Ship_Game.ResourceManager.ShipNames = (ShipNames)new XmlSerializer(typeof(ShipNames)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/ShipNames/ShipNames.xml")).OpenRead());
+                foreach (var hullBonus in LoadEntities<HullBonus>("/HullBonuses", "LoadHullBonuses"))
+                    HullBonuses[hullBonus.Hull] = hullBonus;
+                GlobalStats.ActiveModInfo.useHullBonuses = HullBonuses.Count != 0;
             }
-            else
-            {
-                return;
-            }
-            
 
-        }
+            DeserializeIfExists("/HostileFleets/HostileFleets.xml", ref HostileFleets);
+            DeserializeIfExists("/ShipNames/ShipNames.xml", ref ShipNames);
+            DeserializeIfExists("/AgentMissions/AgentMissionData.xml", ref AgentMissionData);
+            DeserializeIfExists("/MainMenu/MainMenuShipList.xml", ref MainMenuShipList);
 
-        //Added by McShooterz: Load AgentMissionData.xml
-        private static void LoadAgentMissions()
-        {
-            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")))
+            foreach (FileInfo info in Dir.GetFiles(WhichModPath + "/SoundEffects"))
             {
-                Ship_Game.ResourceManager.AgentMissionData = (AgentMissionData)new XmlSerializer(typeof(AgentMissionData)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/AgentMissions/AgentMissionData.xml")).OpenRead());
+                string nameNoExt = Path.GetFileNameWithoutExtension(info.Name);
+                if (nameNoExt == "Thumbs") continue;
 
-            
-            }
-            else
-            {
-                return;
-            }
-            
-        }
-
-        //Added by McShooterz: Load AgentMissionData.xml
-        private static void LoadMainMenuShipList()
-        {
-            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/MainMenu/MainMenuShipList.xml")))
-            {
-                Ship_Game.ResourceManager.MainMenuShipList = (MainMenuShipList)new XmlSerializer(typeof(MainMenuShipList)).Deserialize((Stream)new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/MainMenu/MainMenuShipList.xml")).OpenRead());
-            }
-            else
-            {
-                return;
-            }
-            foreach(string name in Ship_Game.ResourceManager.MainMenuShipList .ModelPaths )
-            {
-                String.Intern(name);
-            }
-        }
-
-        //Added by McShooterz: load sound effects
-        private static void LoadSoundEffects()
-        {
-            FileInfo[] fileInfoArray1 = Ship_Game.ResourceManager.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/SoundEffects"));
-            for (int j = 0; j < (int)fileInfoArray1.Length; j++)
-            {
-                FileInfo FI = fileInfoArray1[j];
-                string name = Path.GetFileNameWithoutExtension(FI.Name);
-                String.Intern(name);
-                if (name != "Thumbs")
-                {
-                    SoundEffect se = GetContentManager().Load<SoundEffect>(string.Concat("..\\", Ship_Game.ResourceManager.WhichModPath, "\\SoundEffects\\", name));
-                    if (!Ship_Game.ResourceManager.SoundEffectDict.ContainsKey(name))
-                    {
-                        Ship_Game.ResourceManager.SoundEffectDict[name] = se;
-                    }
-                }
+                SoundEffect se = ContentManager.Load<SoundEffect>("..\\" + WhichModPath + "\\SoundEffects\\" + nameNoExt);
+                SoundEffectDict[nameNoExt] = se;
             }
         }
 
@@ -3973,74 +3123,51 @@ namespace Ship_Game
             }
             catch
             {
- 
             }
-			Ship_Game.ResourceManager.HullsDict.Clear();
-			Ship_Game.ResourceManager.WeaponsDict.Clear();
-			Ship_Game.ResourceManager.TroopsDict.Clear();
-			Ship_Game.ResourceManager.BuildingsDict.Clear();
-			Ship_Game.ResourceManager.ShipModulesDict.Clear();
-			Ship_Game.ResourceManager.FlagTextures.Clear();
-			Ship_Game.ResourceManager.TechTree.Clear();
-			Ship_Game.ResourceManager.ArtifactsDict.Clear();
-			Ship_Game.ResourceManager.ShipsDict.Clear();
-            Ship_Game.ResourceManager.HostileFleets = new HostileFleets(); ;
-            Ship_Game.ResourceManager.ShipNames = new ShipNames(); ;
-            Ship_Game.ResourceManager.SoundEffectDict.Clear();
+			HullsDict.Clear();
+			WeaponsDict.Clear();
+			TroopsDict.Clear();
+			BuildingsDict.Clear();
+			ShipModulesDict.Clear();
+			FlagTextures.Clear();
+			TechTree.Clear();
+			ArtifactsDict.Clear();
+			ShipsDict.Clear();
+            HostileFleets = new HostileFleets(); ;
+            ShipNames = new ShipNames(); ;
+            SoundEffectDict.Clear();
 
 
-            Ship_Game.ResourceManager.TextureDict.Clear();
-            Ship_Game.ResourceManager.ToolTips.Clear();
-            Ship_Game.ResourceManager.GoodsDict.Clear();         
+            TextureDict.Clear();
+            ToolTips.Clear();
+            GoodsDict.Clear();         
             //Ship_Game.ResourceManager.LoadDialogs();
-            Ship_Game.ResourceManager.Encounters.Clear();
-            Ship_Game.ResourceManager.EventsDict.Clear();
+            Encounters.Clear();
+            EventsDict.Clear();
             
             //Ship_Game.ResourceManager.LoadLanguage();
 
-            Ship_Game.ResourceManager.RandomItemsList.Clear();
-            Ship_Game.ResourceManager.ProjectileMeshDict.Clear();
-            Ship_Game.ResourceManager.ProjTextDict.Clear();
-            
-            //Game1.Instance.screenManager.AddScreen(new GameLoadingScreen());
-            //Game1.Instance.IsLoaded = true;
-            //if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models")))
-            //{
-            //    Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Mod Models"), "Content/Mod Models", true);
-            //}
-            //if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video")))
-            //{
-            //    Ship_Game.ResourceManager.DirectoryCopy(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Video"), "Content/ModVideo", true);
-            //}
-          
-
+            RandomItemsList.Clear();
+            ProjectileMeshDict.Clear();
+            ProjTextDict.Clear();
 		}
-        public static List<string> FindPreviousTechs( Technology target, List<string> alreadyFound)
+        public static List<string> FindPreviousTechs(Technology target, List<string> alreadyFound)
         {
-            bool found = false;
             //this is supposed to reverse walk through the tech tree.
-            foreach (KeyValuePair<string, Technology> TechTreeItem in ResourceManager.TechTree)
+            foreach (var techTreeItem in TechTree)
             {
-                
-                foreach (Technology.LeadsToTech leadsto in TechTreeItem.Value.LeadsTo)
+                Technology tech = techTreeItem.Value;
+                foreach (Technology.LeadsToTech leadsto in tech.LeadsTo)
                 {
                     //if if it finds a tech that leads to the target tech then find the tech that leads to it. 
                     if (leadsto.UID == target.UID)
                     {
                         alreadyFound.Add(target.UID);
-                        alreadyFound= FindPreviousTechs( TechTreeItem.Value, alreadyFound);
-                        //alreadyFound.AddRange(FindPreviousTechs(empire, TechTreeItem.Value.GetTech(), alreadyFound));
-                        found = true;
-                        break;
+                        return FindPreviousTechs(tech, alreadyFound);
                     }
                 }
-                if (found)
-                    break;
             }
             return alreadyFound;
         }
-		public static void Start()
-		{
-		}
 	}
 }
