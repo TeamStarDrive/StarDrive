@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-    public static class ExtensionMethods
+    public static class CollectionExtensions
     {
         public static TValue ConsumeValue<TKey,TValue>(this Dictionary<TKey, TValue> dict, TKey key)
         {
