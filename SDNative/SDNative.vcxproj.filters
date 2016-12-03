@@ -45,10 +45,16 @@
     <ClInclude Include="util\strview.h">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="node_parser.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="util\strview.natvis">
       <Filter>util</Filter>
+    </Natvis>
+    <Natvis Include="SDNative.natvis">
+      <Filter>src</Filter>
     </Natvis>
   </ItemGroup>
 </Project>

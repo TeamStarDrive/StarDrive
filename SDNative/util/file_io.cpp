@@ -238,8 +238,10 @@ namespace rpp /* ReCpp */
         int fileSize = size();
         if (!fileSize) return load_buffer(0, 0);
 
-        char* buffer = (char*)malloc(fileSize);
+        // allocate +1 bytes for null terminator; this is for legacy API-s
+        char* buffer = (char*)malloc(fileSize + 1);
         int bytesRead = read(buffer, fileSize);
+        buffer[bytesRead] = '\0';
         return load_buffer(buffer, bytesRead);
     }
     load_buffer file::read_all(const char* filename) noexcept
@@ -272,26 +274,26 @@ namespace rpp /* ReCpp */
             return (int)fwrite(buffer, bytesToWrite, 1, (FILE*)Handle) * bytesToWrite;
         #endif
     }
-    int file::writef(const char* format, ...) noexcept
-    {
-        va_list ap; va_start(ap, format);
-        #if USE_WINAPI_IO // @note This is heavily optimized
-            char buf[4096];
-            int n = vsnprintf(buf, sizeof(buf), format, ap);
-            if (n >= sizeof(buf))
-            {
-                const int n2 = n + 1;
-                const bool heap = (n2 > 64 * 1024);
-                char* b2 = (char*)(heap ? malloc(n2) : _alloca(n2));
-                n = write(b2, vsnprintf(b2, n2, format, ap));
-                if (heap) free(b2);
-                return n;
-            }
-            return write(buf, n);
-        #else
-            return vfprintf((FILE*)Handle, format, ap);
-        #endif
-    }
+    //int file::writef(const char* format, ...) noexcept
+    //{
+    //    va_list ap; va_start(ap, format);
+    //    #if USE_WINAPI_IO // @note This is heavily optimized
+    //        char buf[4096];
+    //        int n = vsnprintf(buf, sizeof(buf), format, ap);
+    //        if (n >= sizeof(buf))
+    //        {
+    //            const int n2 = n + 1;
+    //            const bool heap = (n2 > 64 * 1024);
+    //            char* b2 = (char*)(heap ? malloc(n2) : _alloca(n2));
+    //            n = write(b2, vsnprintf(b2, n2, format, ap));
+    //            if (heap) free(b2);
+    //            return n;
+    //        }
+    //        return write(buf, n);
+    //    #else
+    //        return vfprintf((FILE*)Handle, format, ap);
+    //    #endif
+    //}
     void file::flush() noexcept
     {
         #if USE_WINAPI_IO

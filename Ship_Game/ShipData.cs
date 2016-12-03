@@ -1,10 +1,8 @@
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
 using System.IO;
-using System.Xml;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -28,7 +26,7 @@ namespace Ship_Game
         public float MechanicalBoardingDefense;
         public string Hull;
         public RoleName Role = RoleName.fighter;
-        public List<ShipToolScreen.ThrusterZone> ThrusterList;
+        public List<SDNative.ThrusterZone> ThrusterList;
         public string ModelPath;
         public AIState DefaultAIState;
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
@@ -57,190 +55,72 @@ namespace Ship_Game
         {
         }
 
-        private static void Parse(XmlReader r, out string value)
-        {
-            r.Read();
-            value = r.Value;
-        }
-        private static void Parse(XmlReader r, out bool value)
-        {
-            r.Read();
-            bool.TryParse(r.Value, out value);
-        }
-        private static void Parse(XmlReader r, out byte value)
-        {
-            r.Read();
-            byte.TryParse(r.Value, out value);
-        }
-        private static void Parse(XmlReader r, out short value)
-        {
-            r.Read();
-            short.TryParse(r.Value, out value);
-        }
-        private static void Parse(XmlReader r, out int value)
-        {
-            r.Read();
-            int.TryParse(r.Value, out value);
-        }
-        private static void Parse(XmlReader r, out float value)
-        {
-            r.Read();
-            float.TryParse(r.Value, out value);
-        }
-        private static void ParseEnum<T>(XmlReader r, out T value) where T : struct
-        {
-            r.Read();
-            Enum.TryParse(r.Value, out value);
-        }
-
         // Added by RedFox - manual parsing of ShipData, because this is the slowest part in loading
         public static ShipData Parse(FileInfo info)
         {
-            var serializer = new SDNative.ShipDataSerializer();
-            if (serializer.LoadFromFile(info.FullName))
+            var s = new SDNative.ShipDataSerializer();
+            if (s.LoadFromFile(info.FullName))
             {
-                
-            }
-            return null;
-
-            using (XmlReader r = new XmlTextReader(info.OpenRead()))
-            {
-                if (!r.ReadToFollowing("ShipData"))
-                    throw new SyntaxErrorException("Invalid ShipData XML");
-
-                ShipData s = new ShipData();
-                while (r.Read())
+                ShipData ship = new ShipData()
                 {
-                    if (r.NodeType == XmlNodeType.Element)
+                    Animated       = s.Animated,
+                    ShipStyle      = s.ShipStyle,
+                    EventOnDeath   = s.EventOnDeath,
+                    experience     = s.Experience,
+                    Level          = s.Level,
+                    Name           = s.Name,
+                    HasFixedCost   = s.HasFixedCost,
+                    FixedCost      = s.FixedCost,
+                    HasFixedUpkeep = s.HasFixedUpkeep,
+                    FixedUpkeep    = s.FixedUpkeep,
+                    IsShipyard     = s.IsShipyard,
+                    IconPath       = s.IconPath,
+                    Hull           = s.Hull,
+                    ModelPath      = s.ModelPath,
+                    CarrierShip    = s.CarrierShip,
+                    BaseStrength   = s.BaseStrength,
+                    BaseCanWarp    = s.BaseCanWarp,
+                    hullUnlockable = s.HullUnlockable,
+                    unLockable     = s.UnLockable,
+                    TechScore      = s.TechScore,
+                    IsOrbitalDefense = s.IsOrbitalDefense,
+                    SelectionGraphic = s.SelectionGraphic,
+                    allModulesUnlocakable = s.AllModulesUnlocakable,
+                    MechanicalBoardingDefense = s.MechanicalBoardingDefense
+                };
+                Enum.TryParse(s.Role,           out ship.Role);
+                Enum.TryParse(s.CombatState,    out ship.CombatState);
+                Enum.TryParse(s.ShipCategory,   out ship.ShipCategory);
+                Enum.TryParse(s.DefaultAIState, out ship.DefaultAIState);
+
+                // @todo Remove conversion to List
+                // @todo Remove SDNative.ModuleSlotData conversion
+                var moduleSlots = s.GetModuleSlotList();
+                ship.ModuleSlotList = new List<ModuleSlotData>(moduleSlots.Length);
+                foreach (SDNative.ModuleSlotData msd in moduleSlots)
+                {
+                    ModuleSlotData slot = new ModuleSlotData
                     {
-                        // ModuleSlotList is by far the most intensive part of parsing, so give it special treatment
-                        if (r.Name == "ModuleSlotList")
-                            s.ParseModuleSlotList(r);
-                        else switch (r.Name)
-                        {
-                            case "Animated": Parse(r, out s.Animated); break;
-                            case "ShipStyle": Parse(r, out s.ShipStyle); break;
-                            case "EventOnDeath": Parse(r, out s.EventOnDeath); break;
-                            case "experience": Parse(r, out s.experience); break;
-                            case "Level": Parse(r, out s.Level); break;
-                            case "SelectionGraphic": s.SelectionGraphic = r.Value; break;
-                            case "Name": Parse(r, out s.Name); break;
-                            case "HasFixedCost": Parse(r, out s.HasFixedCost); break;
-                            case "FixedCost": Parse(r, out s.FixedCost); break;
-                            case "HasFixedUpkeep": Parse(r, out s.HasFixedUpkeep); break;
-                            case "FixedUpkeep": Parse(r, out s.FixedUpkeep); break;
-                            case "IsShipyard": Parse(r, out s.IsShipyard); break;
-                            case "IsOrbitalDefense": Parse(r, out s.IsOrbitalDefense); break;
-                            case "IconPath": Parse(r, out s.IconPath); break;
-                            case "CombatState": ParseEnum(r, out s.CombatState); break;
-                            case "MechanicalBoardingDefense": float.TryParse(r.Value, out s.MechanicalBoardingDefense); break;
-                            case "Hull": Parse(r, out s.Hull); break;
-                            case "Role": ParseEnum(r, out s.Role); break;
-                            case "ModelPath": Parse(r, out s.ModelPath); break;
-                            case "DefaultAIState": ParseEnum(r, out s.DefaultAIState); break;
-                            case "ShipCategory": ParseEnum(r, out s.ShipCategory); break;
-                            case "CarrierShip": Parse(r, out s.CarrierShip); break;
-                            case "BaseStrength": Parse(r, out s.BaseStrength); break;
-                            case "BaseCanWarp": Parse(r, out s.BaseCanWarp); break;
-                            case "hullUnlockable": Parse(r, out s.hullUnlockable); break;
-                            case "allModulesUnlocakable": Parse(r, out s.allModulesUnlocakable); break;
-                            case "unLockable": Parse(r, out s.unLockable); break;
-                            case "TechScore": Parse(r, out s.TechScore); break;
-                            case "techsNeeded": s.ParseTechsNeeded(r); break;
-                            case "ThrusterList": s.ParseThrusterList(r); break;
-                        }
-                    }
-                    else if (r.NodeType == XmlNodeType.EndElement && r.Name == "ShipData")
-                        break;
-
+                        Position = new Vector2(msd.PositionX, msd.PositionY),
+                        InstalledModuleUID = msd.InstalledModuleUID,
+                        HangarshipGuid = msd.HangarshipGuid,
+                        Health         = msd.Health,
+                        Shield_Power   = msd.ShieldPower,
+                        facing         = msd.Facing,
+                        SlotOptions    = msd.SlotOptions
+                    };
+                    Enum.TryParse(msd.State, out slot.state);
+                    Enum.TryParse(msd.Restrictions, out slot.Restrictions);
+                    ship.ModuleSlotList.Add(slot);
                 }
-                return s;
-            }
-        }
 
-        private void ParseTechsNeeded(XmlReader r)
-        {
-            while (r.Read())
-            {
-                if (r.NodeType == XmlNodeType.Whitespace)
-                    break;
-                if (r.NodeType == XmlNodeType.EndElement)
-                    break;
-                if (r.NodeType == XmlNodeType.Element)
-                {
-                    throw new NotImplementedException();
-                }
-            }
-        }
+                // @todo Remove conversion to List
+                ship.ThrusterList = new List<SDNative.ThrusterZone>(s.GetThrusterZones());
+                ship.techsNeeded = new HashSet<string>(s.GetTechsNeeded());
 
-        private void ParseThrusterList(XmlReader r)
-        {
-            if (ThrusterList == null) ThrusterList = new List<ShipToolScreen.ThrusterZone>();
-            while (r.Read())
-            {
-                if (r.NodeType == XmlNodeType.Whitespace)
-                    break;
-                if (r.NodeType == XmlNodeType.EndElement)
-                    break;
-                if (r.NodeType == XmlNodeType.Element && r.Name == "ThrusterZone")
-                {
-                    var thruster = new ShipToolScreen.ThrusterZone();
-                    while (r.Read())
-                    {
-                        if (r.NodeType == XmlNodeType.Element)
-                        {
-                            switch (r.Name)
-                            {
-                                case "X": Parse(r, out thruster.Position.X); break;
-                                case "Y": Parse(r, out thruster.Position.Y); break;
-                                case "scale": Parse(r, out thruster.scale); break;
-                            }
-                        }
-                        if (r.NodeType == XmlNodeType.EndElement && r.Name == "ThrusterZone")
-                            break;
-                    }
-                    ThrusterList.Add(thruster);
-                }
+                return ship;
             }
-        }
-
-        private void ParseModuleSlotList(XmlReader r)
-        {
-            while (r.Read())
-            {
-                if (r.NodeType == XmlNodeType.Element && r.Name == "ModuleSlotData")
-                {
-                    ModuleSlotData slot = new ModuleSlotData();
-                    // Note: this is optimized heavily to support strict ordering
-                    r.Read(); r.Read(); r.Read(); r.Read(); // skip <Position>
-                    Parse(r, out slot.Position.X); r.Read(); r.Read(); r.Read();
-                    Parse(r, out slot.Position.Y); r.Read(); r.Read(); r.Read();
-                    r.Read(); r.Read();
-                    Parse(r, out slot.InstalledModuleUID); r.Read(); r.Read(); r.Read();
-                    r.Read(); slot.HangarshipGuid = new Guid(r.Value); r.Read(); r.Read(); r.Read();
-                    Parse(r, out slot.Health); r.Read(); r.Read(); r.Read();
-                    Parse(r, out slot.Shield_Power); r.Read(); r.Read(); r.Read();
-                    Parse(r, out slot.facing); r.Read(); r.Read(); r.Read();
-                    ParseEnum(r, out slot.state); r.Read(); r.Read(); r.Read();
-                    ParseEnum(r, out slot.Restrictions); r.Read(); r.Read(); r.Read();
-                    r.Read();
-                            //switch (r.Name) {
-                            //    case "X": Parse(r, out slot.Position.X); break;
-                            //    case "Y": Parse(r, out slot.Position.Y); break;
-                            //    case "InstalledModuleUID": Parse(r, out slot.InstalledModuleUID); break;
-                            //    case "HangarshipGuid": r.Read(); slot.HangarshipGuid = new Guid(r.Value); break;
-                            //    case "Health":       Parse(r, out slot.Health); break;
-                            //    case "Shield_Power": Parse(r, out slot.Shield_Power); break;
-                            //    case "facing": Parse(r, out slot.facing);break;
-                            //    case "state": ParseEnum(r, out slot.state);break;
-                            //    case "Restrictions": ParseEnum(r, out slot.Restrictions); break;
-                            //    //case "SlotOptions": Parse(r, out slot.SlotOptions); break;
-                            //}
-                    ModuleSlotList.Add(slot);
-                }
-                else if (r.NodeType == XmlNodeType.EndElement && r.Name == "ModuleSlotList")
-                    break;
-            }
+            throw new InvalidDataException(s.ErrorMessage);
         }
 
         public ShipData GetClone()
