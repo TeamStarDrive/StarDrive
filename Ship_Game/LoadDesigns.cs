@@ -346,7 +346,7 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
+				ShipData newShipData = (ShipData)ResourceManager.ShipDataSerializer.Deserialize(stream);
 				//stream.Close();
 				stream.Dispose();
 				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
@@ -466,7 +466,7 @@ namespace Ship_Game
 			for (int i = 0; i < (int)fileInfoArray.Length; i++)
 			{
 				FileStream stream = fileInfoArray[i].OpenRead();
-				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
+				ShipData newShipData = (ShipData)ResourceManager.ShipDataSerializer.Deserialize(stream);
 				//stream.Close();
 				stream.Dispose();
 				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])

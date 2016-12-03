@@ -2869,21 +2869,18 @@ namespace Ship_Game.Gameplay
         {
             this.ModulesInitialized = true;
             this.Weapons.Clear();
-            List<ModuleSlot> list = new List<ModuleSlot>();
-            if (this.Name == "Left Right Test")
-                this.Weapons.Clear();
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 moduleSlot.SetParent(this);
-                if (!Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
+                if (!ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
                     return false;
                 moduleSlot.InitializeForLoad();
                 moduleSlot.module.Health = moduleSlot.ModuleHealth;
                 moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                if (moduleSlot.module.Health == 0.0)
+                if (moduleSlot.module.Health == 0f)
                     moduleSlot.module.Active = false;
             }
-            this.RecalculatePower();
+            RecalculatePower();
             return true;
         }
 
