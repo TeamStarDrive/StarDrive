@@ -684,9 +684,7 @@ namespace Ship_Game
 						ship.IsPlayerDesign = false;
 						ship.FromSave = true;
 					}
-                    float oldbasestr = ship.BaseStrength;
-                    float newbasestr = ResourceManager.CalculateBaseStrength(ship);
-                    ship.BaseStrength = newbasestr;
+                    ship.BaseStrength = ResourceManager.CalculateBaseStrength(ship);
 
                     foreach(ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
                     {

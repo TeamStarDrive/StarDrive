@@ -18,6 +18,19 @@ namespace Ship_Game
             catch { return NoFiles; }
         }
 
+        public static FileInfo[] GetFiles(string dir, string ext)
+        {
+            try { return new DirectoryInfo(dir).GetFiles($"*.{ext}", SearchOption.AllDirectories); }
+            catch { return NoFiles; }
+        }
+
+        public static IEnumerable<FileInfo> GetFilesNoThumbs(string dir)
+        {
+            foreach (FileInfo info in GetFiles(dir))
+                if (info.Name != "Thumbs.db")
+                    yield return info;
+        }
+
         public static FileInfo[] GetFilesNoSub(string dir)
         {
             try { return new DirectoryInfo(dir).GetFiles("*.*", SearchOption.TopDirectoryOnly); }
@@ -50,10 +63,22 @@ namespace Ship_Game
     {
         public static T Deserialize<T>(this FileInfo info)
         {
+            return Deserialize<T>(new XmlSerializer(typeof(T)), info);
+        }
+
+        public static T Deserialize<T>(this XmlSerializer serializer, FileInfo info)
+        {
             if (!info.Exists)
                 return default(T);
             using (Stream stream = info.OpenRead())
-                return (T)new XmlSerializer(typeof(T)).Deserialize(stream);
+                return (T)serializer.Deserialize(stream);
+        }
+
+        public static string NameNoExt(this FileInfo info)
+        {
+            string fileName = info.Name;
+            int i = fileName.LastIndexOf('.');
+            return i == -1 ? fileName : fileName.Substring(0, i);
         }
     }
 }

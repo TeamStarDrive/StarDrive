@@ -1991,7 +1991,7 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
 				modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
 				float starty = modTitlePos.Y;
-                float strength = ResourceManager.CalculateModuleStrength(mod,"both",this.ActiveHull.ModuleSlotList.Count);                
+                float strength = ResourceManager.CalculateModuleOffenseDefense(mod, ActiveHull.ModuleSlotList.Count);                
                 if (strength > 0)
                 {
                     this.DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
@@ -3961,8 +3961,8 @@ namespace Ship_Game
 				}
                 if (slot.module != null && !slot.isDummy)
                 {
-                    Off += ResourceManager.CalculateModuleStrength(slot.module, "Off", (int)Size);
-                    Def += ResourceManager.CalculateModuleStrength(slot.module, "Def", (int)Size);
+                    Off += ResourceManager.CalculateModuleOffense(slot.module);
+                    Def += ResourceManager.CalculateModuleDefense(slot.module, (int)Size);
                 }
 
             
