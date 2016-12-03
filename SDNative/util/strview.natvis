@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  
+    <Type Name="rpp::strview_vishelper">
+        <DisplayString>{str,[len]}</DisplayString>
+        <StringView>str,len</StringView>
+    </Type>
+  
+    <Type Name="rpp::strview">
+        <DisplayString>{v,na}</DisplayString>
+        <StringView>str,[len]</StringView>
+        <Expand>
+            <Item Name="[length]">len</Item>
+            <Item Name="[pointer]">str</Item>
+            <ArrayItems>
+                <Size>len</Size>
+                <ValuePointer>str</ValuePointer>
+            </ArrayItems>
+        </Expand>
+    </Type>
+  
+    <Type Name="rpp::strview_">
+    <DisplayString>{v,na}</DisplayString>
+    <StringView>str,[len]</StringView>
+    <Expand>
+      <Item Name="[length]">len</Item>
+      <Item Name="[pointer]">str</Item>
+      <ArrayItems>
+        <Size>len</Size>
+        <ValuePointer>str</ValuePointer>
+      </ArrayItems>
+    </Expand>
+    </Type>
+
+</AutoVisualizer>
