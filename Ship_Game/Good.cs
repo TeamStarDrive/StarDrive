@@ -7,7 +7,8 @@ namespace Ship_Game
     public enum Goods
     {
         Production,
-
+        Food,
+        Colonists,
     }
 
 	public sealed class Good

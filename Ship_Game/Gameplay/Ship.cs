@@ -2747,11 +2747,11 @@ namespace Ship_Game.Gameplay
             parent.shipData = data;
             parent.ModelPath = data.ModelPath;
             parent.ModuleSlotList = Ship.LoadSlotDataListToSlotList(data.ModuleSlotList, parent);
-            foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
+            foreach (var thrusterZone in data.ThrusterList)
                 parent.ThrusterList.Add(new Thruster()
                 {
-                    tscale = thrusterZone.scale,
-                    XMLPos = thrusterZone.Position,
+                    tscale = thrusterZone.Scale,
+                    XMLPos = new Vector2(thrusterZone.X, thrusterZone.Y),
                     Parent = parent
                 });
             return parent;
@@ -2789,11 +2789,11 @@ namespace Ship_Game.Gameplay
             parent.ModelPath = data.ModelPath;
             parent.ModuleSlotList = Ship.SlotDataListToSlotList(data.ModuleSlotList, parent);
             
-            foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
+            foreach (var thrusterZone in data.ThrusterList)
                 parent.ThrusterList.Add(new Thruster()
                 {
-                    tscale = thrusterZone.scale,
-                    XMLPos = thrusterZone.Position,
+                    tscale = thrusterZone.Scale,
+                    XMLPos = new Vector2(thrusterZone.X, thrusterZone.Y),
                     Parent = parent
                 });
             return parent;
@@ -3451,13 +3451,14 @@ namespace Ship_Game.Gameplay
             shipData.CombatState = this.GetAI().CombatState;
             shipData.ModelPath = this.GetShipData().ModelPath;
             shipData.ModuleSlotList = this.ConvertToData(this.ModuleSlotList);
-            shipData.ThrusterList = new List<ShipToolScreen.ThrusterZone>();
+            shipData.ThrusterList = new List<SDNative.ThrusterZone>();
             shipData.MechanicalBoardingDefense = this.MechanicalBoardingDefense;
             foreach (Thruster thruster in this.ThrusterList)
-                shipData.ThrusterList.Add(new ShipToolScreen.ThrusterZone()
+                shipData.ThrusterList.Add(new SDNative.ThrusterZone()
                 {
-                    scale = thruster.tscale,
-                    Position = thruster.XMLPos
+                    Scale = thruster.tscale,
+                    X = thruster.XMLPos.X,
+                    Y = thruster.XMLPos.Y
                 });
             return shipData;
         }
