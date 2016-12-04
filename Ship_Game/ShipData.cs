@@ -67,17 +67,7 @@ namespace Ship_Game
         {
             readonly sbyte* Str;
             readonly int Len;
-
-            public string AsString
-            {
-                get
-                {
-                    if (Str == null)
-                        return "";
-                    return Len != 0 ? new string(Str, 0, Len) : string.Empty;
-                }
-            }
-            //public string AsString => Len != 0 ? new string(Str, 0, Len) : string.Empty;
+            public string AsString => Len != 0 ? new string(Str, 0, Len) : string.Empty;
             public bool Empty => Len == 0;
             public override string ToString() { return AsString; }
         }
