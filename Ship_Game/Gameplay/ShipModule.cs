@@ -14,9 +14,9 @@ namespace Ship_Game.Gameplay
 {
     public sealed class ShipModule : GameplayObject
 	{
-        public ShipModule_Advanced Advanced = null; //This is where all the other member variables went. Having this as a member object
-                                                    //allows me to instance the variables inside it, so they are not duplicated. This
-                                                    //can offer much better memory usage since ShipModules are so numerous.     -Gretman
+        public ShipModule_Advanced Advanced; //This is where all the other member variables went. Having this as a member object
+                                             //allows me to instance the variables inside it, so they are not duplicated. This
+                                             //can offer much better memory usage since ShipModules are so numerous.     -Gretman
         private ParticleEmitter trailEmitter;
         private ParticleEmitter firetrailEmitter;
         private ParticleEmitter flameEmitter;
@@ -38,7 +38,7 @@ namespace Ship_Game.Gameplay
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
-        public Ship_Game.Gameplay.Restrictions Restrictions;
+        public Restrictions Restrictions;
         public float shield_power;
         public bool shieldsOff=false;
 		private Shield shield;
@@ -50,7 +50,7 @@ namespace Ship_Game.Gameplay
         public short OrdinanceCapacity;
         private bool onFire;
         private bool reallyFuckedUp;
-        private Vector3 Center3D = new Vector3();
+        private Vector3 Center3D;
         public float BombTimer;
 		public ShipModuleType ModuleType;
         public Vector2 moduleCenter = new Vector2(0f, 0f);

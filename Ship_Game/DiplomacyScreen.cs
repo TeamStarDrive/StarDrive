@@ -1535,28 +1535,15 @@ namespace Ship_Game
 			this.OurItemsSL = new ScrollList(ussub, Fonts.Consolas18.LineSpacing + 5, true);
 			Submenu sub = new Submenu(base.ScreenManager, blerdybloo);
 			this.StatementsSL = new ScrollList(sub, Fonts.Consolas18.LineSpacing + 2, true);
-			if (!string.IsNullOrEmpty(this.them.data.Traits.VideoPath))
+			if (!string.IsNullOrEmpty(them.data.Traits.VideoPath))
 			{
-				try
+                video = ResourceManager.LoadVideo(ScreenManager.Content, them.data.Traits.VideoPath);
+				player = new VideoPlayer()
 				{
-					this.video = base.ScreenManager.Content.Load<Video>(string.Concat("Video/", this.them.data.Traits.VideoPath));
-					this.player = new VideoPlayer()
-					{
-                        Volume = GlobalStats.Config.MusicVolume,
-						IsLooped = true
-					};
-					this.player.Play(this.video);
-				}
-				catch
-				{
-					this.video = base.ScreenManager.Content.Load<Video>(string.Concat("ModVideo/", this.them.data.Traits.VideoPath));
-					this.player = new VideoPlayer()
-					{
-						Volume = GlobalStats.Config.MusicVolume,
-						IsLooped = true
-					};
-					this.player.Play(this.video);
-				}
+                    Volume = GlobalStats.Config.MusicVolume,
+					IsLooped = true
+				};
+				player.Play(video);
 			}
 			base.ScreenManager.musicCategory.Pause();
 			if (!this.them.data.ModRace)

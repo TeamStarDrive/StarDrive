@@ -1109,7 +1109,7 @@ namespace Ship_Game
 						if (qisave.isTroop)
 						{
 							qi.isTroop = true;
-							qi.troop = Ship_Game.ResourceManager.TroopsDict[qisave.UID];
+							qi.troop = ResourceManager.TroopsDict[qisave.UID];
                             qi.Cost = qi.troop.GetCost();
                             qi.NotifyOnEmpty = false;
 						}
@@ -1117,28 +1117,31 @@ namespace Ship_Game
 						{
 							qi.isShip = true;
 							if (!ResourceManager.ShipsDict.ContainsKey(qisave.UID))
-							{
 								continue;
-							}
-						    var ship = ResourceManager.GetShip(qisave.UID);
-                            qi.sData = ship.GetShipData();
+
+                            Ship shipTemplate = ResourceManager.GetShipTemplate(qisave.UID);
+                            qi.sData = shipTemplate.GetShipData();
 							qi.DisplayName = qisave.DisplayName;
 							qi.Cost = 0f;
-							foreach (ModuleSlot slot in ship.ModuleSlotList)
+							foreach (ModuleSlot slot in shipTemplate.ModuleSlotList)
 							{
 								if (slot.InstalledModuleUID == null)
-								{
 									continue;
-								}
-								QueueItem cost = qi;
-								cost.Cost = cost.Cost + ResourceManager.GetModule(slot.InstalledModuleUID).Cost * savedData.GamePacing;
+								qi.Cost += ResourceManager.GetModuleCost(slot.InstalledModuleUID) * savedData.GamePacing;
 							}
 							QueueItem queueItem = qi;
                             queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;
-							queueItem.Cost *= (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().Hull) ? 1f - ResourceManager.HullBonuses[Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().Hull].CostBonus : 1);
+
+                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
+                            {
+                                string hull = ResourceManager.GetShipHull(qisave.UID);
+                                if (ResourceManager.HullBonuses.TryGetValue(hull, out HullBonus bonus))
+                                    queueItem.Cost *= 1f - bonus.CostBonus;
+                            }
+
 							if (qi.sData.HasFixedCost)
 							{
-								qi.Cost = (float)qi.sData.FixedCost;
+								qi.Cost = qi.sData.FixedCost;
 							}
 							if (qisave.IsRefit)
 							{
@@ -1157,7 +1160,7 @@ namespace Ship_Game
 						}
 						if (qisave.isShip && qi.Goal != null)
 						{
-							qi.Goal.beingBuilt = Ship_Game.ResourceManager.GetShip(qisave.UID);
+							qi.Goal.beingBuilt = ResourceManager.GetShipTemplate(qisave.UID);
 						}
 						qi.productionTowards = qisave.ProgressTowards;
 						p.ConstructionQueue.Add(qi);

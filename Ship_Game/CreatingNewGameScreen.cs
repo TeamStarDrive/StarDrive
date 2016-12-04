@@ -613,164 +613,107 @@ namespace Ship_Game
                                 }
                             }
                         }
-                        foreach (CreatingNewGameScreen.SysDisPair sysDisPair in list)
+                        foreach (SysDisPair sysDisPair in list)
                             solarSystem1.FiveClosestSystems.Add(sysDisPair.System);
                     }
-                    foreach (Empire index in this.data.EmpireList)
+                    foreach (Empire empire in data.EmpireList)
                     {
-                        if (!index.isFaction && !index.MinorRace)
+                        if (empire.isFaction || empire.MinorRace)
+                            continue;
+
+                        foreach (Planet planet in empire.GetPlanets())
                         {
-                            foreach (Planet planet1 in index.GetPlanets())
+                            planet.MineralRichness += GlobalStats.StartingPlanetRichness;
+                            planet.system.ExploredDict[empire] = true;
+                            planet.ExploredDict[empire] = true;
+
+                            foreach (Planet p in planet.system.PlanetList)
+                                p.ExploredDict[empire] = true;
+
+                            if (planet.system.OwnerList.Count == 0)
                             {
-                                planet1.MineralRichness += GlobalStats.StartingPlanetRichness;
-                                planet1.system.ExploredDict[index] = true;
-                                planet1.ExploredDict[index] = true;
-                                foreach (Planet planet2 in planet1.system.PlanetList)
-                                    planet2.ExploredDict[index] = true;
-                                if (planet1.system.OwnerList.Count == 0)
-                                {
-                                    planet1.system.OwnerList.Add(index);
-                                    foreach (Planet planet2 in planet1.system.PlanetList)
-                                        planet2.ExploredDict[index] = true;
-                                }
-                                if (planet1.HasShipyard)
-                                {
-                                    SpaceStation spaceStation = new SpaceStation() { planet = planet1 };
-                                    planet1.Station = spaceStation;
-                                    spaceStation.ParentSystem = planet1.system;
-                                    spaceStation.LoadContent(this.ScreenManager);
-                                }
-                                string key1 = index.data.DefaultColonyShip;
-                                if (GlobalStats.HardcoreRuleset)
-                                    key1 = key1 + " STL";
-                                Ship ship1 = ResourceManager.GetShip(key1);
-                                ship1.Position = planet1.Position + new Vector2(-2000f, -2000f);
-                                ship1.loyalty = index;
-                                ship1.Initialize();
-                                //Added by McShooterz: Starting ship support for automatic naming
-                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship1.loyalty.data.Traits.ShipType, ship1.shipData.Role))
-                                    ship1.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship1.loyalty.data.Traits.ShipType, ship1.shipData.Role);
-                                ship1.DoOrbit(planet1);
-                                ship1.GetSO().World = Matrix.CreateTranslation(new Vector3(ship1.Position, 0.0f));
-                                ship1.isInDeepSpace = false;
-                                ship1.SetSystem(planet1.system);
-                                planet1.system.ShipList.Add(ship1);
-                                planet1.system.spatialManager.CollidableObjects.Add((GameplayObject)ship1);
-                                this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)ship1.GetSO());
-                                this.data.MasterShipList.Add(ship1);
-                                index.AddShip(ship1);
-                                foreach (Thruster thruster in ship1.GetTList())
-                                {
-                                    thruster.load_and_assign_effects(this.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
-                                    thruster.InitializeForViewing();
-                                }
-                                string key2 = index.data.StartingScout;
-                                if (GlobalStats.HardcoreRuleset)
-                                    key2 = key2 + " STL";
-                                Ship ship2 = ResourceManager.GetShip(key2);
-                                ship2.Position = planet1.Position + new Vector2(-2500f, -2000f);
-                                ship2.loyalty = index;
-                                ship2.Initialize();
-                                //Added by McShooterz: Starting ship support for automatic naming
-                                if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship2.loyalty.data.Traits.ShipType, ship2.shipData.Role))
-                                    ship2.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship2.loyalty.data.Traits.ShipType, ship2.shipData.Role);
-                                ship2.DoOrbit(planet1);
-                                ship2.GetSO().World = Matrix.CreateTranslation(new Vector3(ship2.Position, 0.0f));
-                                ship2.isInDeepSpace = false;
-                                ship2.SetSystem(planet1.system);
-                                this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)ship2.GetSO());
-                                this.data.MasterShipList.Add(ship2);
-                                planet1.system.spatialManager.CollidableObjects.Add((GameplayObject)ship2);
-                                planet1.system.ShipList.Add(ship2);
-                                index.AddShip(ship2);
-                                foreach (Thruster thruster in ship2.GetTList())
-                                {
-                                    thruster.load_and_assign_effects(this.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
-                                    thruster.InitializeForViewing();
-                                }
-                                if (index == this.playerEmpire)
-                                {
-                                    this.playerShip = ResourceManager.GetShip(this.playerEmpire.data.Traits.Prototype == 0 ? this.playerEmpire.data.StartingShip : this.playerEmpire.data.PrototypeShip);
-                                    this.playerShip.Position = planet1.Position + new Vector2(350f, 0.0f);
-                                    this.playerShip.Rotation = 0.0f;
-                                    this.playerShip.SensorRange = 100000f;
-                                    this.playerShip.loyalty = this.playerEmpire;
-                                    this.playerShip.loyalty.AddShip(this.playerShip);
-                                    this.playerShip.Initialize();
-                                    //this.playerShip.GetAI().State = AIState.ManualControl;
-                                    this.playerShip.DoOrbit(planet1);
-                                    //Added by McShooterz: Starting ship support for automatic naming
-                                    if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.shipData.Role))
-                                        this.playerShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(this.playerShip.loyalty.data.Traits.ShipType, this.playerShip.shipData.Role);
-                                    else
-                                        this.playerShip.VanityName = "Perseverance";
-                                    this.playerShip.GetSO().World = Matrix.CreateRotationY(this.playerShip.yBankAmount) * Matrix.CreateRotationZ(this.playerShip.Rotation) * Matrix.CreateTranslation(new Vector3(this.playerShip.Center, 0.0f));
-                                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)this.playerShip.GetSO());
-                                    planet1.system.spatialManager.CollidableObjects.Add((GameplayObject)this.playerShip);
-                                    this.playerShip.isInDeepSpace = false;
-                                    this.playerShip.SetSystem(planet1.system);
-                                    planet1.system.ShipList.Add(this.playerShip);
-                                    this.data.MasterShipList.Add(this.playerShip);
-                                    foreach (Thruster thruster in this.playerShip.GetTList())
-                                    {
-                                        thruster.load_and_assign_effects(this.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
-                                        thruster.InitializeForViewing();
-                                    }
-                                    // Doctor: I think commenting this should completely stop all the recognition of the starter ship being the 'controlled' ship for the pie menu.
-                                    this.data.playerShip = this.playerShip;
-                                    //this.playerShip.PlayerShip = true;
-                                    planet1.GovernorOn = false;
-                                    planet1.colonyType = Planet.ColonyType.Colony;
-                                }
-                                else
-                                {
-                                    string str = index.data.StartingShip;
-                                    if (GlobalStats.HardcoreRuleset)
-                                        str = str + " STL";
-                                    Ship ship3 = ResourceManager.GetShip(index.data.Traits.Prototype == 0 ? str : index.data.PrototypeShip);
-                                    ship3.Position = planet1.Position + new Vector2(-2500f, -2000f);
-                                    ship3.loyalty = index;
-                                    ship3.Initialize();
-                                    //Added by McShooterz: Starting ship support for automatic naming
-                                    if (GlobalStats.ActiveMod != null && Ship_Game.ResourceManager.ShipNames.CheckForName(ship3.loyalty.data.Traits.ShipType, ship3.shipData.Role))
-                                        ship3.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(ship3.loyalty.data.Traits.ShipType, ship3.shipData.Role);
-                                    ship3.DoOrbit(planet1);
-                                    ship3.GetSO().World = Matrix.CreateTranslation(new Vector3(ship3.Position, 0.0f));
-                                    this.ScreenManager.inter.ObjectManager.Submit((ISceneObject)ship3.GetSO());
-                                    this.data.MasterShipList.Add(ship3);
-                                    index.AddShip(ship3);
-                                    index.GetForcePool().Add(ship3);
-                                    planet1.system.spatialManager.CollidableObjects.Add((GameplayObject)ship3);
-                                    ship3.isInDeepSpace = false;
-                                    ship3.SetSystem(planet1.system);
-                                    planet1.system.ShipList.Add(ship3);
-                                    foreach (Thruster thruster in ship3.GetTList())
-                                    {
-                                        thruster.load_and_assign_effects(this.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
-                                        thruster.InitializeForViewing();
-                                    }
-                                }
+                                planet.system.OwnerList.Add(empire);
+                                foreach (Planet planet2 in planet.system.PlanetList)
+                                    planet2.ExploredDict[empire] = true;
+                            }
+                            if (planet.HasShipyard)
+                            {
+                                SpaceStation spaceStation = new SpaceStation { planet = planet };
+                                planet.Station = spaceStation;
+                                spaceStation.ParentSystem = planet.system;
+                                spaceStation.LoadContent(ScreenManager);
+                            }
+
+                            string colonyShip = empire.data.DefaultColonyShip;
+                            if (GlobalStats.HardcoreRuleset) colonyShip += " STL";
+
+                            Ship ship1 = ResourceManager.CreateShipAt(colonyShip, empire, planet, new Vector2(-2000, -2000), true);
+
+                            ScreenManager.inter.ObjectManager.Submit(ship1.GetSO());
+                            data.MasterShipList.Add(ship1);
+
+                            string startingScout = empire.data.StartingScout;
+                            if (GlobalStats.HardcoreRuleset) startingScout += " STL";
+
+                            Ship ship2 = ResourceManager.CreateShipAt(startingScout, empire, planet, new Vector2(-2500, -2000), true);
+
+                            ScreenManager.inter.ObjectManager.Submit(ship2.GetSO());
+                            data.MasterShipList.Add(ship2);
+
+
+                            if (empire == playerEmpire)
+                            {
+                                string starterShip = empire.data.Traits.Prototype == 0 ? empire.data.StartingShip : empire.data.PrototypeShip;
+
+                                playerShip = ResourceManager.CreateShipAt(starterShip, empire, planet, new Vector2(350f, 0.0f), true);
+                                playerShip.SensorRange = 100000f; // @todo What is this range hack?
+
+                                if (GlobalStats.ActiveModInfo == null || playerShip.VanityName == "")
+                                    playerShip.VanityName = "Perseverance";
+
+                                //playerShip.GetSO().World = Matrix.CreateRotationY(playerShip.yBankAmount) * Matrix.CreateRotationZ(playerShip.Rotation) * Matrix.CreateTranslation(new Vector3(playerShip.Center, 0.0f));
+                                ScreenManager.inter.ObjectManager.Submit(playerShip.GetSO());
+                                data.MasterShipList.Add(playerShip);
+
+                                // Doctor: I think commenting this should completely stop all the recognition of the starter ship being the 'controlled' ship for the pie menu.
+                                data.playerShip = playerShip;
+
+                                planet.GovernorOn = false;
+                                planet.colonyType = Planet.ColonyType.Colony;
+                            }
+                            else
+                            {
+                                string starterShip = empire.data.StartingShip;
+                                if (GlobalStats.HardcoreRuleset) starterShip += " STL";
+                                starterShip = empire.data.Traits.Prototype == 0 ? starterShip : empire.data.PrototypeShip;
+
+                                Ship ship3 = ResourceManager.CreateShipAt(starterShip, empire, planet, new Vector2(-2500, -2000), true);
+                                ScreenManager.inter.ObjectManager.Submit(ship3.GetSO());
+                                data.MasterShipList.Add(ship3);
+
+                                empire.AddShip(ship3);
+                                empire.GetForcePool().Add(ship3);
                             }
                         }
                     }
-                    using (List<Empire>.Enumerator enumerator = this.data.EmpireList.GetEnumerator())
+                    foreach (Empire empire in data.EmpireList)
                     {
-                        while (enumerator.MoveNext())
+                        if (empire.isFaction || empire.data.Traits.BonusExplored <= 0)
+                            continue;
+
+                        var planet0 = empire.GetPlanets()[0];
+                        var solarSystems = data.SolarSystemsList;
+                        var orderedEnumerable  = solarSystems.OrderBy(system => Vector2.Distance(planet0.Position, system.Position));
+                        int numSystemsExplored = solarSystems.Count >= 20 ? empire.data.Traits.BonusExplored : solarSystems.Count;
+                        for (int i = 0; i < numSystemsExplored; ++i)
                         {
-                            Empire empire = enumerator.Current;
-                            if (!empire.isFaction && empire.data.Traits.BonusExplored > 0)
-                            {
-                                IOrderedEnumerable<SolarSystem> orderedEnumerable = Enumerable.OrderBy<SolarSystem, float>((IEnumerable<SolarSystem>)this.data.SolarSystemsList, (Func<SolarSystem, float>)(system => Vector2.Distance(empire.GetPlanets()[0].Position, system.Position)));
-                                for (int index = 0; index < (this.data.SolarSystemsList.Count >= 20 ? empire.data.Traits.BonusExplored : this.data.SolarSystemsList.Count); ++index)
-                                {
-                                    Enumerable.ElementAt<SolarSystem>((IEnumerable<SolarSystem>)orderedEnumerable, index).ExploredDict[empire] = true;
-                                    foreach (Planet planet in Enumerable.ElementAt<SolarSystem>((IEnumerable<SolarSystem>)orderedEnumerable, index).PlanetList)
-                                        planet.ExploredDict[empire] = true;
-                                }
-                            }
+                            var system = orderedEnumerable.ElementAt(i);
+                            system.ExploredDict[empire] = true;
+                            foreach (Planet planet in system.PlanetList)
+                                planet.ExploredDict[empire] = true;
                         }
                     }
-                    this.ready = true;
+                    ready = true;
                 }
             }
         }

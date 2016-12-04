@@ -260,10 +260,10 @@ namespace Ship_Game
 
 		public void SetOwner(Empire e)
 		{
-			this.Owner = e;
+			Owner = e;
 			if (e != null)
 			{
-				this.OwnerString = e.data.Traits.Name;
+				OwnerString = e.data.Traits.Name;
 			}
 		}
 

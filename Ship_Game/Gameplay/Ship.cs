@@ -116,7 +116,6 @@ namespace Ship_Game.Gameplay
         public float Ordinance;
         public float OrdinanceMax;
         //public float scale;    //Not referenced in code, removing to save memory
-        public ShipModuleNode FirstNode;
         protected ArtificialIntelligence AI;
         public float speed;
         public float Thrust;
@@ -1420,19 +1419,24 @@ namespace Ship_Game.Gameplay
 
         public void SetSO(SceneObject so)
         {
-            this.ShipSO = so;
-            this.ShipSO.Visibility = ObjectVisibility.Rendered;
-            this.radius = this.ShipSO.WorldBoundingSphere.Radius * 2f;
+            ShipSO = so;
+            ShipSO.Visibility = ObjectVisibility.Rendered;
+            radius = ShipSO.WorldBoundingSphere.Radius * 2f;
         }
 
         public SceneObject GetSO()
         {
-            return this.ShipSO;
+            return ShipSO;
+        }
+
+        public void UpdateInitialWorldTransform()
+        {
+            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0.0f));
         }
 
         public ArtificialIntelligence GetAI()
         {
-            return this.AI;
+            return AI;
         }
 
         public void ReturnToHangar()
