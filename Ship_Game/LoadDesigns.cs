@@ -340,19 +340,15 @@ namespace Ship_Game
 			{
 				Active = this.ShowAllDesigns
 			};
-			FileInfo[] textList = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/WIP"));
 			List<ShipData> WIPs = new List<ShipData>();
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
 			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-				ShipData newShipData = (ShipData)ResourceManager.ShipDataSerializer.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
-				{
-					WIPs.Add(newShipData);
-				}
+			    ShipData newShipData = ShipData.Parse(info);
+			    var empire = EmpireManager.GetEmpireByName(screen.EmpireUI.screen.PlayerLoyalty);
+                if (empire.IsHullUnlocked(newShipData.Hull))
+			    {
+			        WIPs.Add(newShipData);
+			    }
 			}
 			List<string> ShipRoles = new List<string>();
 			if (this.screen != null)
@@ -460,19 +456,15 @@ namespace Ship_Game
 			this.ShipDesigns.Entries.Clear();
 			this.ShipDesigns.Copied.Clear();
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			FileInfo[] textList = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/WIP"));
 			List<ShipData> WIPs = new List<ShipData>();
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
 			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-				ShipData newShipData = (ShipData)ResourceManager.ShipDataSerializer.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
-				{
-					WIPs.Add(newShipData);
-				}
+			    ShipData newShipData = ShipData.Parse(info);
+			    var empire = EmpireManager.GetEmpireByName(screen.EmpireUI.screen.PlayerLoyalty);
+                if (empire.IsHullUnlocked(newShipData.Hull))
+			    {
+			        WIPs.Add(newShipData);
+			    }
 			}
 			List<string> ShipRoles = new List<string>();
 			if (this.screen != null)

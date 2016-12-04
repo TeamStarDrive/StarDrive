@@ -389,6 +389,11 @@ namespace Ship_Game
             return this.UnlockedHullsDict;
         }
 
+        public bool IsHullUnlocked(string hullName)
+        {
+            return UnlockedHullsDict.TryGetValue(hullName, out bool unlocked) && unlocked;
+        }
+
         public Dictionary<string, bool> GetTrDict()
         {
             return this.UnlockedTroopDict;

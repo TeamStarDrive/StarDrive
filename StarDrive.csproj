@@ -188,7 +188,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'RedFox-Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>StarDrive\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM ALTERTHREAD DEBUG TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STEAM ALTERTHREAD</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
@@ -196,6 +196,19 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'RedFox-Release|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>StarDrive\</OutputPath>
+    <DefineConstants>DEBUG;STEAM ALTERTHREAD</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fasterflect">
