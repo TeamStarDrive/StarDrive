@@ -760,11 +760,7 @@ namespace Ship_Game
                         privateName = hull.Name,
                         HullUnlocked = ResourceManager.HullsDict[hull.Name].Name
                     };
-                    int size = 0;
-                    foreach (ModuleSlotData moduleSlotList in ResourceManager.HullsDict[hull.Name].ModuleSlotList)
-                    {
-                        size++;
-                    }
+                    int size = ResourceManager.HullsDict[hull.Name].ModuleSlotList.Count;
                     unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty)));
                     this.UnlockSL.AddItem(unlock);
                 }

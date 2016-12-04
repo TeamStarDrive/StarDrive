@@ -53,6 +53,8 @@ namespace Ship_Game
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         private static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
 
+        public override string ToString() { return Name; }
+
         public ShipData()
         {
         }
@@ -180,17 +182,15 @@ namespace Ship_Game
                 for (int i = 0; i < s->ModuleSlotsLen; ++i)
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
-                    ModuleSlotData slot = new ModuleSlotData
-                    {
-                        Position = new Vector2(msd->PosX, msd->PosY),
-                        InstalledModuleUID = msd->InstalledModuleUID.AsString,
-                        HangarshipGuid = msd->HangarshipGuid.Empty 
-                                       ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString),
-                        Health = msd->Health,
-                        Shield_Power = msd->ShieldPower,
-                        facing = msd->Facing,
-                        SlotOptions = msd->SlotOptions.AsString
-                    };
+                    ModuleSlotData slot = new ModuleSlotData();
+                    slot.Position = new Vector2(msd->PosX, msd->PosY);
+                    slot.InstalledModuleUID = msd->InstalledModuleUID.AsString;
+                    slot.HangarshipGuid = msd->HangarshipGuid.Empty 
+                                       ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
+                    slot.Health = msd->Health;
+                    slot.Shield_Power = msd->ShieldPower;
+                    slot.facing = msd->Facing;
+                    slot.SlotOptions = msd->SlotOptions.AsString;
                     Enum.TryParse(msd->State.AsString, out slot.state);
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
                     ship.ModuleSlotList.Add(slot);
