@@ -1116,21 +1116,22 @@ namespace Ship_Game
 						if (qisave.isShip)
 						{
 							qi.isShip = true;
-							if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(qisave.UID))
+							if (!ResourceManager.ShipsDict.ContainsKey(qisave.UID))
 							{
 								continue;
 							}
-							qi.sData = Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData();
+						    var ship = ResourceManager.GetShip(qisave.UID);
+                            qi.sData = ship.GetShipData();
 							qi.DisplayName = qisave.DisplayName;
 							qi.Cost = 0f;
-							foreach (ModuleSlot slot in Ship_Game.ResourceManager.GetShip(qisave.UID).ModuleSlotList)
+							foreach (ModuleSlot slot in ship.ModuleSlotList)
 							{
 								if (slot.InstalledModuleUID == null)
 								{
 									continue;
 								}
 								QueueItem cost = qi;
-								cost.Cost = cost.Cost + Ship_Game.ResourceManager.GetModule(slot.InstalledModuleUID).Cost * this.savedData.GamePacing;
+								cost.Cost = cost.Cost + ResourceManager.GetModule(slot.InstalledModuleUID).Cost * savedData.GamePacing;
 							}
 							QueueItem queueItem = qi;
                             queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;

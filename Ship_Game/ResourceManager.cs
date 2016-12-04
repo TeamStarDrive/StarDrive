@@ -14,6 +14,8 @@ using System.Xml.Serialization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+
 namespace Ship_Game
 {
     public sealed class ResourceManager
@@ -269,600 +271,128 @@ namespace Ship_Game
             return troop;
         }
 
-        public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit)   //Normal Shipyard ship creation
+        // Added by RedFox
+        // Debug, Hangar Ship, and Platform creation
+        public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
-            Ship newShip;
-            //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
-            //{
-            //    newShip.ShipRecreate();
-            //    newShip.shipData.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
-            //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-            //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
-            //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-            //}
-            //else 
-            if (!ShipsDict.TryGetValue(key, out newShip))
+            if (!ShipsDict.TryGetValue(shipName, out Ship template))
             {
-                ShipsDict.TryGetValue(Owner.data.StartingScout, out newShip);
-                newShip = new Ship()
-                {
-                    shipData = newShip.shipData,
-                    Name = newShip.Name,
-                    BaseStrength = newShip.BaseStrength,
-                    BaseCanWarp = newShip.BaseCanWarp,
-                    VanityName = "I am a bug"
-
-                };
-            }
-            else
-            {
-                newShip = new Ship()
-                    {
-                        shipData = newShip.shipData,
-                        Name = newShip.Name,
-                        BaseStrength = newShip.BaseStrength,
-                        BaseCanWarp = newShip.BaseCanWarp
-
-                    };
-            }
-            newShip.LoadContent(ContentManager);
-            SceneObject newSO = new SceneObject();
-            if (!ShipsDict[key].GetShipData().Animated)
-            {
-                newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
-                {
-                    ObjectType = ObjectType.Dynamic
-                };
-                newShip.SetSO(newSO);
-            }
-            else
-            {
-                SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
-                newSO = new SceneObject(model.Model);
-                newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
-            }
-            newSO.ObjectType = ObjectType.Dynamic;
-            newShip.SetSO(newSO);
-            foreach (Thruster t in ShipsDict[key].GetTList())
-            {
-                Thruster thr = new Thruster()
-                {
-                    Parent = newShip,
-                    tscale = t.tscale,
-                    XMLPos = t.XMLPos
-                };
-                newShip.GetTList().Add(thr);
-            }
-            foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
-            {
-                ModuleSlot newSlot = new ModuleSlot();
-                newSlot.SetParent(newShip);
-                newSlot.SlotOptions = slot.SlotOptions;
-                newSlot.Restrictions = slot.Restrictions;
-                newSlot.Position = slot.Position;
-                newSlot.facing = slot.facing;
-                newSlot.state = slot.state;
-                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                newShip.ModuleSlotList.AddLast(newSlot);
-            }
-            newShip.Position = p.Position;
-            newShip.loyalty = Owner;
-            
-            newShip.Initialize();
-            //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
-            newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
-            }
-            foreach (Thruster t in newShip.GetTList())
-            {
-                t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
-                t.InitializeForViewing();
-            }
-            if (newShip.shipData.Role == ShipData.RoleName.fighter)
-            {
-                Ship level = newShip;
-                level.Level = level.Level + Owner.data.BonusFighterLevels;
-            }
-            if(universeScreen.GameDifficulty > UniverseData.GameDifficulty.Normal)
-            {
-                newShip.Level += (int)universeScreen.GameDifficulty;
-            }
-            Owner.AddShip(newShip);
-            newShip.GetAI().State = AIState.AwaitingOrders;
-            
-            return newShip;
-        }
-
-        //Added by McShooterz: for refit to keep name
-        public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, string RefitName, byte RefitLevel)    //Refit Ship Creation
-        {
-            Ship newShip;
-            //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
-            //{
-            //    newShip.ShipRecreate();
-            //    newShip.shipData.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
-            //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-            //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
-            //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-            //}
-            //else
-            newShip = new Ship()
-            {
-                shipData = ShipsDict[key].shipData,
-                Name = ShipsDict[key].Name,
-                BaseStrength = ShipsDict[key].BaseStrength,
-                BaseCanWarp = ShipsDict[key].BaseCanWarp
-
-            };
-            newShip.LoadContent(ContentManager);
-            SceneObject newSO = new SceneObject();
-            if (!ShipsDict[key].GetShipData().Animated)
-            {
-                newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
-                {
-                    ObjectType = ObjectType.Dynamic
-                };
-                newShip.SetSO(newSO);
-            }
-            else
-            {
-                SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
-                newSO = new SceneObject(model.Model);
-                newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
-            }
-            newSO.ObjectType = ObjectType.Dynamic;
-            newShip.SetSO(newSO);
-            foreach (Thruster t in ShipsDict[key].GetTList())
-            {
-                Thruster thr = new Thruster()
-                {
-                    Parent = newShip,
-                    tscale = t.tscale,
-                    XMLPos = t.XMLPos
-                };
-                newShip.GetTList().Add(thr);
-            }
-            foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
-            {
-                ModuleSlot newSlot = new ModuleSlot();
-                newSlot.SetParent(newShip);
-                newSlot.SlotOptions = slot.SlotOptions;
-                newSlot.Restrictions = slot.Restrictions;
-                newSlot.Position = slot.Position;
-                newSlot.facing = slot.facing;
-                newSlot.state = slot.state;
-                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                newShip.ModuleSlotList.AddLast(newSlot);
-            }
-            newShip.Position = p.Position;
-            newShip.loyalty = Owner;
-
-            newShip.Initialize();
-            //Added by McShooterz: add automatic ship naming
-            newShip.VanityName = RefitName;
-            newShip.Level = RefitLevel;
-            newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
-            }
-            foreach (Thruster t in newShip.GetTList())
-            {
-                t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
-                t.InitializeForViewing();
-            }
-            if (newShip.shipData.Role == ShipData.RoleName.fighter)
-            {
-                Ship level = newShip;
-                level.Level += Owner.data.BonusFighterLevels;
-            }
-            Owner.AddShip(newShip);
-            newShip.GetAI().State = AIState.AwaitingOrders;
-            return newShip;
-        }
-
-        //fbedard: do not use, cannot change role of shipdata !
-        public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, ShipData.RoleName role, List<Troop> Troops) //Unused
-        {
-            Ship newShip = new Ship()
-            {
-                shipData = ShipsDict[key].shipData,
-                BaseStrength = ShipsDict[key].BaseStrength,
-                BaseCanWarp = ShipsDict[key].BaseCanWarp
-            };
-            //newShip.shipData.Role = role;
-            if (role == ShipData.RoleName.troop)
-            {
-                if (Troops.Count <= 0)
-                {
-                    newShip.VanityName = "Troop Shuttle";
-                }
-                else
-                {
-                    newShip.VanityName = Troops[0].Name;
-                }
-            }
-            newShip.Name = ShipsDict[key].Name;
-            newShip.LoadContent(ContentManager);
-            SceneObject newSO;
-            if (!ShipsDict[key].GetShipData().Animated)
-            {
-                newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
-                {
-                    ObjectType = ObjectType.Dynamic
-                };
-            }
-            else
-            {
-                SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
-                newSO = new SceneObject(model.Model);
-                newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
-            }
-            newShip.SetSO(newSO);
-            newShip.Position = p.Position;
-            foreach (Thruster t in ShipsDict[key].GetTList())
-            {
-                Thruster thr = new Thruster()
-                {
-                    Parent = newShip,
-                    tscale = t.tscale,
-                    XMLPos = t.XMLPos
-                };
-                newShip.GetTList().Add(thr);
-            }
-            foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
-            {
-                ModuleSlot newSlot = new ModuleSlot();
-                newSlot.SetParent(newShip);
-                newSlot.SlotOptions = slot.SlotOptions;
-                newSlot.Restrictions = slot.Restrictions;
-                newSlot.Position = slot.Position;
-                newSlot.facing = slot.facing;
-                newSlot.state = slot.state;
-                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                newShip.ModuleSlotList.AddLast(newSlot);
-            }
-            if (newShip.shipData.Role == ShipData.RoleName.fighter)
-            {
-                Ship level = newShip;
-                level.Level = level.Level + Owner.data.BonusFighterLevels;
-            }
-            newShip.loyalty = Owner;
-            newShip.Initialize();
-            //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveModInfo != null && ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
-            newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
-            }
-            foreach (Thruster t in newShip.GetTList())
-            {
-                t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
-                t.InitializeForViewing();
-            }
-            if (DoOrbit)
-            {
-                newShip.DoOrbit(p);
-            }
-            foreach (Troop t in Troops)
-            {
-                newShip.TroopList.Add(CopyTroop(t));
-            }
-            Owner.AddShip(newShip);
-            return newShip;
-        }
-
-        public static Ship CreateShipAtPoint(string key, Empire owner, Vector2 p)       //Debug, Hanger Ship, and Platform creation
-        {
-            if (!ShipsDict.ContainsKey(key))
-            {
+                MessageBox.Show("Failed to create new ship '"+shipName+
+                    "'. This is bug caused by mismatched or missing ship designs", 
+                    "Ship spawn failed!", MessageBoxButtons.OK);
                 return null;
             }
-            ;
-            //if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
-            //{
-            //    newShip.ShipRecreate();
-            //}
-            //else
-            Ship newShip = new Ship();
 
-            newShip.shipData = ShipsDict[key].shipData;
-            newShip.Name = ShipsDict[key].Name;
-            newShip.BaseStrength = ShipsDict[key].BaseStrength;
-            newShip.BaseCanWarp = ShipsDict[key].BaseCanWarp;
-            newShip.LoadContent(ContentManager);
-            SceneObject newSO = new SceneObject();
-            if (!ShipsDict[key].GetShipData().Animated)
+            Ship ship = new Ship
             {
-                newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
-                {
-                    ObjectType = ObjectType.Dynamic
-                };
-                newShip.SetSO(newSO);
-            }
-            else
-            {
-                SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
-                newSO = new SceneObject(model.Model);
-                newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
-            }
-            newSO.ObjectType = ObjectType.Dynamic;
-            newShip.SetSO(newSO);
-            if (newShip.shipData.Role == ShipData.RoleName.fighter && owner.data != null)
-            {
-                Ship level = newShip;
-                level.Level = level.Level + owner.data.BonusFighterLevels;
-            }
-            foreach (Thruster t in ShipsDict[key].GetTList())
-            {
-                Thruster thr = new Thruster()
-                {
-                    Parent = newShip,
-                    tscale = t.tscale,
-                    XMLPos = t.XMLPos
-                };
-                newShip.GetTList().Add(thr);
-            }
-            foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
-            {
-                ModuleSlot newSlot = new ModuleSlot();
-                newSlot.SetParent(newShip);
-                newSlot.SlotOptions = slot.SlotOptions;
-                newSlot.Restrictions = slot.Restrictions;
-                newSlot.Position = slot.Position;
-                newSlot.facing = slot.facing;
-                newSlot.state = slot.state;
-                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                newShip.ModuleSlotList.AddLast(newSlot);
-            }
-            newShip.Position = p;
-            newShip.loyalty = owner;
-            newShip.Initialize();
-            //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && ShipNames.CheckForName(owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = ShipNames.GetName(owner.data.Traits.ShipType, newShip.shipData.Role);
-            newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
-            }
-            newShip.isInDeepSpace = true;
-            foreach (Thruster t in newShip.GetTList())
-            {
-                t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
-                t.InitializeForViewing();
-            }
-            owner.AddShip(newShip);
-            return newShip;
-        }
-
-        public static Ship CreateShipAtPoint(string key, Empire owner, Vector2 p, float facing)     //unused   -- Called in fleet creation function, which is in turn not used
-        {
-            //if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
-            //{
-            //    newShip.ShipRecreate();
-            //    newShip.Rotation = facing;
-            //    newShip.shipData.Role = Ship_Game.ResourceManager.ShipsDict[key].Role;
-            //    newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-            //    newShip.BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength;
-            //    newShip.BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp;
-            //}
-            //else
-            Ship newShip = new Ship()
-            {
-                Rotation = facing,
-                shipData = ShipsDict[key].shipData,
-                Name = ShipsDict[key].Name,
-                BaseStrength = ShipsDict[key].BaseStrength,
-                BaseCanWarp = ShipsDict[key].BaseCanWarp
-                
-            };
-            newShip.LoadContent(ContentManager);
-            if (newShip.shipData.Role == ShipData.RoleName.fighter)
-            {
-                Ship level = newShip;
-                level.Level = level.Level + owner.data.BonusFighterLevels;
-            }
-            SceneObject newSO;
-            if (!ShipsDict[key].GetShipData().Animated)
-            {
-                newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
-                {
-                    ObjectType = ObjectType.Dynamic
-                };
-                newShip.SetSO(newSO);
-            }
-            else
-            {
-                SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
-                newSO = new SceneObject(model.Model);
-                newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
-            }
-            newShip.SetSO(newSO);
-            foreach (Thruster t in ShipsDict[key].GetTList())
-            {
-                Thruster thr = new Thruster()
-                {
-                    Parent = newShip,
-                    tscale = t.tscale,
-                    XMLPos = t.XMLPos
-                };
-                newShip.GetTList().Add(thr);
-            }
-            foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
-            {
-                ModuleSlot newSlot = new ModuleSlot();
-                newSlot.SetParent(newShip);
-                newSlot.SlotOptions = slot.SlotOptions;
-                newSlot.Restrictions = slot.Restrictions;
-                newSlot.Position = slot.Position;
-                newSlot.facing = slot.facing;
-                newSlot.state = slot.state;
-                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                newShip.ModuleSlotList.AddLast(newSlot);
-            }
-            newShip.Position = p;
-            newShip.loyalty = owner;
-            newShip.Initialize();
-            //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && ShipNames.CheckForName(owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = ShipNames.GetName(owner.data.Traits.ShipType, newShip.shipData.Role);
-            newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
-            }
-            newShip.isInDeepSpace = true;
-            foreach (Thruster t in newShip.GetTList())
-            {
-                t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
-                t.InitializeForViewing();
-            }
-            owner.AddShip(newShip);
-            return newShip;
-        }
-
-        public static Ship CreateShipAtPointNow(string key, Empire owner, Vector2 p)        //Unused
-        {
-            Ship newShip = new Ship();
-            if (!ShipsDict.ContainsKey(key))
-            {
-                return null;
-            }
-            newShip.shipData = ShipsDict[key].shipData;
-            newShip.Name = ShipsDict[key].Name;
-            newShip.BaseStrength = ShipsDict[key].BaseStrength;
-            newShip.BaseCanWarp = ShipsDict[key].BaseCanWarp;
-            newShip.LoadContent(ContentManager);
-            SceneObject newSO;
-            if (!ShipsDict[key].GetShipData().Animated)
-            {
-                newSO = new SceneObject(GetModel(ShipsDict[key].ModelPath).Meshes[0])
-                {
-                    ObjectType = ObjectType.Dynamic
-                };
-                newShip.SetSO(newSO);
-            }
-            else
-            {
-                SkinnedModel model = GetSkinnedModel(ShipsDict[key].ModelPath);
-                newSO = new SceneObject(model.Model);
-                newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
-            }
-            newSO.ObjectType = ObjectType.Dynamic;
-            newShip.SetSO(newSO);
-            if (newShip.shipData.Role == ShipData.RoleName.fighter && owner.data != null)
-            {
-                Ship level = newShip;
-                level.Level = level.Level + owner.data.BonusFighterLevels;
-            }
-            foreach (Thruster t in ShipsDict[key].GetTList())
-            {
-                Thruster thr = new Thruster()
-                {
-                    Parent = newShip,
-                    tscale = t.tscale,
-                    XMLPos = t.XMLPos
-                };
-                newShip.GetTList().Add(thr);
-            }
-            foreach (ModuleSlot slot in ShipsDict[key].ModuleSlotList)
-            {
-                ModuleSlot newSlot = new ModuleSlot();
-                newSlot.SetParent(newShip);
-                newSlot.SlotOptions = slot.SlotOptions;
-                newSlot.Restrictions = slot.Restrictions;
-                newSlot.Position = slot.Position;
-                newSlot.facing = slot.facing;
-                newSlot.state = slot.state;
-                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                newShip.ModuleSlotList.AddLast(newSlot);
-            }
-            newShip.Position = p;
-            newShip.loyalty = owner;
-            newShip.Initialize();
-            //Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null && ShipNames.CheckForName(owner.data.Traits.ShipType, newShip.shipData.Role))
-                newShip.VanityName = ShipNames.GetName(owner.data.Traits.ShipType, newShip.shipData.Role);
-            newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
-            lock (GlobalStats.ObjectManagerLocker)
-            {
-                universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
-            }
-            newShip.isInDeepSpace = true;
-            foreach (Thruster t in newShip.GetTList())
-            {
-                t.load_and_assign_effects(universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", universeScreen.ThrusterEffect);
-                t.InitializeForViewing();
-            }
-            owner.AddShip(newShip);
-            return newShip;
-        }
-
-        public static Ship CreateShipForBattleMode(string key, Empire owner, Vector2 p)     //Unused... Battle mode, eh?
-        {
-            Ship template = ShipsDict[key];
-            Ship newShip = new Ship()
-            {
-                shipData = template.shipData,
-                Name = template.Name,
+                shipData     = template.shipData,
+                Name         = template.Name,
                 BaseStrength = template.BaseStrength,
-                BaseCanWarp = template.BaseCanWarp
+                BaseCanWarp  = template.BaseCanWarp,
+                loyalty      = owner,
+                Position     = position
             };
-            newShip.LoadContent(ContentManager);
-            SceneObject newSO;
-            if (!template.GetShipData().Animated)
+
+            if (!template.shipData.Animated)
             {
-                newSO = new SceneObject(GetModel(template.ModelPath).Meshes[0])
-                {
-                    ObjectType = ObjectType.Dynamic
-                };
-                newShip.SetSO(newSO);
+                ship.SetSO(new SceneObject(GetModel(template.ModelPath).Meshes[0])
+                { ObjectType = ObjectType.Dynamic });
             }
             else
             {
                 SkinnedModel model = GetSkinnedModel(template.ModelPath);
-                newSO = new SceneObject(model.Model);
-                newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
+                ship.SetSO(new SceneObject(model.Model) { ObjectType = ObjectType.Dynamic });
+                ship.SetAnimationController(new AnimationController(model.SkeletonBones), model);
             }
+
+            ship.GetTList().Capacity = template.GetTList().Count;
             foreach (Thruster t in template.GetTList())
-            {
-                Thruster thr = new Thruster()
-                {
-                    Parent = newShip,
-                    tscale = t.tscale,
-                    XMLPos = t.XMLPos
-                };
-                newShip.GetTList().Add(thr);
-            }
+                ship.AddThruster(t);
+
+            ship.ModuleSlotList.Capacity = template.ModuleSlotList.Count;
             foreach (ModuleSlot slot in template.ModuleSlotList)
             {
                 ModuleSlot newSlot = new ModuleSlot();
-                newSlot.SetParent(newShip);
-                newSlot.SlotOptions = slot.SlotOptions;
+                newSlot.SetParent(ship);
+                newSlot.SlotOptions  = slot.SlotOptions;
                 newSlot.Restrictions = slot.Restrictions;
-                newSlot.Position = slot.Position;
-                newSlot.facing = slot.facing;
-                newSlot.state = slot.state;
+                newSlot.Position     = slot.Position;
+                newSlot.facing       = slot.facing;
+                newSlot.state        = slot.state;
                 newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                newShip.ModuleSlotList.AddLast(newSlot);
+                ship.ModuleSlotList.Add(newSlot);
             }
-            newShip.Position = p;
-            newShip.loyalty = owner;
-            newShip.Initialize();
-            newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
-            newShip.isInDeepSpace = true;
-            owner.AddShip(newShip);
-            return newShip;
+
+            // Added by McShooterz: add automatic ship naming
+            if (GlobalStats.ActiveMod != null)
+                ship.VanityName = ShipNames.GetName(owner.data.Traits.ShipType, ship.shipData.Role);
+
+            if (ship.shipData.Role == ShipData.RoleName.fighter)
+                ship.Level += owner.data.BonusFighterLevels;
+
+            if (universeScreen.GameDifficulty > UniverseData.GameDifficulty.Normal)
+                ship.Level += (int)universeScreen.GameDifficulty;
+
+            ship.Initialize();
+
+            var so = ship.GetSO();
+            so.World = Matrix.CreateTranslation(new Vector3(ship.Center, 0f));
+            lock (GlobalStats.ObjectManagerLocker)
+            {
+                universeScreen.ScreenManager.inter.ObjectManager.Submit(so);
+            }
+
+            var content = universeScreen.ScreenManager.Content;
+            var thrustCylinder = content.Load<Model>("Effects/ThrustCylinderB");
+            var noiseVolume    = content.Load<Texture3D>("Effects/NoiseVolume");
+            foreach (Thruster t in ship.GetTList())
+            {
+                t.load_and_assign_effects(content, thrustCylinder, noiseVolume, universeScreen.ThrusterEffect);
+                t.InitializeForViewing();
+            }
+
+            owner.AddShip(ship);
+            return ship;
         }
 
-        public static Ship CreateShipFromHangar(string key, Empire owner, Vector2 p, Ship parent)       //Hanger Ship Creation (Actually just calls the one above)
+        // Refactored by RedFox
+        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit)   //Normal Shipyard ship creation
+        {
+            Ship ship = CreateShipAtPoint(shipName, owner, p.Position);
+            if (doOrbit)
+                ship.DoOrbit(p);
+            return ship;
+        }
+
+        // Added by McShooterz: for refit to keep name
+        // Refactored by RedFox
+        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit, string refitName, byte refitLevel)
+        {
+            Ship ship = CreateShipAt(shipName, owner, p, doOrbit);
+
+            // Added by McShooterz: add automatic ship naming
+            ship.VanityName = refitName;
+            ship.Level      = refitLevel;
+            return ship;
+        }
+
+        // unused   -- Called in fleet creation function, which is in turn not used
+        public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 p, float facing)
+        {
+            Ship ship = CreateShipAtPoint(shipName, owner, p);
+            ship.Rotation = facing;
+            return ship;
+        }
+
+        public static Ship CreateShipForBattleMode(string shipName, Empire owner, Vector2 p) //Unused... Battle mode, eh?
+        {
+            Ship ship = CreateShipAtPoint(shipName, owner, p);
+            ship.isInDeepSpace = true;
+            return ship;
+        }
+
+        // Hangar Ship Creation
+        public static Ship CreateShipFromHangar(string key, Empire owner, Vector2 p, Ship parent)
         {
             Ship s = CreateShipAtPoint(key, owner, p);
             if (s == null) return null;
@@ -932,7 +462,6 @@ namespace Ship_Game
                 Name = Ship.Name,
                 VanityName = troop.Name
             };
-            newShip.LoadContent(ContentManager);
             SceneObject newSO;
             if (!Ship.GetShipData().Animated)
             {
@@ -969,7 +498,7 @@ namespace Ship_Game
                 newSlot.Position = slot.Position;
                 newSlot.facing = slot.facing;
                 newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                newShip.ModuleSlotList.AddLast(newSlot);
+                newShip.ModuleSlotList.Add(newSlot);
             }
             newShip.loyalty = Owner;
             newShip.Initialize();
@@ -1313,7 +842,6 @@ namespace Ship_Game
                 shipData = template.shipData
                 //Role = Ship_Game.ResourceManager.ShipsDict[key].Role
             };
-            newShip.LoadContent(ContentManager);
             SceneObject newSO;
             if (!template.GetShipData().Animated)
             {
@@ -1354,7 +882,7 @@ namespace Ship_Game
                     facing = slot.facing,
                     InstalledModuleUID = slot.InstalledModuleUID
                 };
-                newShip.ModuleSlotList.AddLast(newSlot);
+                newShip.ModuleSlotList.Add(newSlot);
             }
             return newShip;
         }
@@ -1397,7 +925,6 @@ namespace Ship_Game
                 BaseStrength = ship2.BaseStrength,
                 BaseCanWarp = ship2.BaseCanWarp
             };
-            newShip.LoadContent(ContentManager);
             newShip.Name = ship2.Name;
             SceneObject newSO;
             if (!ship2.GetShipData().Animated)
@@ -1436,7 +963,7 @@ namespace Ship_Game
                 newSlot.facing = slot.facing;
                 newSlot.state = slot.state;
                 newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                newShip.ModuleSlotList.AddLast(newSlot);
+                newShip.ModuleSlotList.Add(newSlot);
             }
          
             return newShip;
@@ -1582,15 +1109,6 @@ namespace Ship_Game
         {
             var s = new XmlSerializer(typeof(T));
             foreach (FileInfo info in Dir.GetFiles(WhichModPath + dir)) {
-                if (LoadEntity(s, info, id, out T entity))
-                    yield return entity;
-            }
-        }
-        private static IEnumerable<T> LoadEntities<T>(string dir, string ext, string id) where T : class
-        {
-            var s = new XmlSerializer(typeof(T));
-            foreach (FileInfo info in Dir.GetFiles(WhichModPath + dir, ext))
-            {
                 if (LoadEntity(s, info, id, out T entity))
                     yield return entity;
             }

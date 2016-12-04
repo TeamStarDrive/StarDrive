@@ -109,8 +109,9 @@ Global
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Debug|x64.Build.0 = Debug|x64
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Debug|x86.ActiveCfg = Debug|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Debug|x86.Build.0 = Debug|Win32
-		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x64.ActiveCfg = RedFox-Release|x64
-		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x64.Build.0 = RedFox-Release|x64
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x64.ActiveCfg = Release|x64
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x64.Build.0 = Release|x64
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x64.Deploy.0 = Release|x64
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x86.ActiveCfg = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x86.Build.0 = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release|x64.ActiveCfg = Release|x64
@@ -120,5 +121,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
