@@ -372,16 +372,10 @@ namespace Ship_Game
 
         public bool IsPointInBorders(Vector2 point)
         {
-            this.BorderNodeLocker.EnterReadLock();
-            {
-                foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.BorderNodes)
-                {
-                    if ((double)Vector2.Distance(item_0.Position, point) <= (double)item_0.Radius)
-                        return true;
-                }
-            }
-            this.BorderNodeLocker.EnterReadLock();
-            return false;
+            BorderNodeLocker.EnterReadLock();
+            bool inside = BorderNodes.Any(node => Vector2.Distance(node.Position, point) <= node.Radius);
+            BorderNodeLocker.ExitReadLock();
+            return inside;
         }
 
         public Dictionary<string, bool> GetHDict()
