@@ -2751,7 +2751,7 @@ namespace Ship_Game.Gameplay
                 parent.ThrusterList.Add(new Thruster()
                 {
                     tscale = thrusterZone.Scale,
-                    XMLPos = new Vector2(thrusterZone.X, thrusterZone.Y),
+                    XMLPos = thrusterZone.Position,
                     Parent = parent
                 });
             return parent;
@@ -2793,7 +2793,7 @@ namespace Ship_Game.Gameplay
                 parent.ThrusterList.Add(new Thruster()
                 {
                     tscale = thrusterZone.Scale,
-                    XMLPos = new Vector2(thrusterZone.X, thrusterZone.Y),
+                    XMLPos = thrusterZone.Position,
                     Parent = parent
                 });
             return parent;
@@ -3451,14 +3451,13 @@ namespace Ship_Game.Gameplay
             shipData.CombatState = this.GetAI().CombatState;
             shipData.ModelPath = this.GetShipData().ModelPath;
             shipData.ModuleSlotList = this.ConvertToData(this.ModuleSlotList);
-            shipData.ThrusterList = new List<SDNative.ThrusterZone>();
+            shipData.ThrusterList = new List<ShipToolScreen.ThrusterZone>();
             shipData.MechanicalBoardingDefense = this.MechanicalBoardingDefense;
             foreach (Thruster thruster in this.ThrusterList)
-                shipData.ThrusterList.Add(new SDNative.ThrusterZone()
+                shipData.ThrusterList.Add(new ShipToolScreen.ThrusterZone()
                 {
                     Scale = thruster.tscale,
-                    X = thruster.XMLPos.X,
-                    Y = thruster.XMLPos.Y
+                    Position = thruster.XMLPos
                 });
             return shipData;
         }

@@ -5,11 +5,14 @@
 
 namespace SDNative
 {
+    using namespace rpp;
+    using namespace rapidxml;
+
     struct node_parser
     {
-        rapidxml::xml_node<>* node;
-        rpp::strview name, value;
-        FINLINE node_parser(rapidxml::xml_node<>* parentNode)
+        xml_node<>* node;
+        strview name, value;
+        FINLINE node_parser(xml_node<>* parentNode)
         {
             if (parentNode && (node = parentNode->m_first_node)) {
                 name  = { node->m_name,  node->m_name_size };
@@ -19,8 +22,7 @@ namespace SDNative
         FINLINE node_parser(const node_parser& parser) : node_parser(parser.node) { }
         FINLINE void next()
         {
-            if (!node) return;
-            if (node = node->m_next_sibling) {
+            if (node && (node = node->m_next_sibling)) {
                 name  = { node->m_name,  node->m_name_size };
                 value = { node->m_value, node->m_value_size };
                 return;
@@ -61,11 +63,13 @@ namespace SDNative
             }
         }
         FINLINE void parseValue(bool& out)     { out = value.to_bool();       }
-        FINLINE void parseValue(rpp::byte& out){ out = (rpp::byte)value.to_int();}
+        FINLINE void parseValue(byte& out)     { out = (byte)value.to_int();  }
         FINLINE void parseValue(short& out)    { out = (short)value.to_int(); }
         FINLINE void parseValue(int& out)      { out = value.to_int();        }
         FINLINE void parseValue(float& out)    { out = value.to_float();      }
-        FINLINE void parseValue(rpp::strview& out) { out = value; }
+        FINLINE void parseValue(strview& out)  { 
+            if (value.str && value.len) out = value;
+        }
     };
 }
 #pragma managed(pop)
