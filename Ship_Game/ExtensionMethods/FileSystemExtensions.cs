@@ -12,18 +12,33 @@ namespace Ship_Game
     {
         private static readonly FileInfo[] NoFiles = new FileInfo[0];
 
+        // Added by RedFox - this is a safe wrapper to DirectoryInfo.GetFiles which assumes 
+        //                   dir is optional and if it doesn't exist, returns empty file list
+        public static FileInfo[] GetFiles(string dir, string pattern, SearchOption option)
+        {
+            try
+            {
+                var info = new DirectoryInfo(dir);
+                return info.Exists ? info.GetFiles(pattern, option) : NoFiles;
+            }
+            catch { return NoFiles; }
+        }
         public static FileInfo[] GetFiles(string dir)
         {
-            try { return new DirectoryInfo(dir).GetFiles("*.*", SearchOption.AllDirectories); }
-            catch { return NoFiles; }
+            return GetFiles(dir, "*.*", SearchOption.AllDirectories);
         }
-
         public static FileInfo[] GetFiles(string dir, string ext)
         {
-            try { return new DirectoryInfo(dir).GetFiles($"*.{ext}", SearchOption.AllDirectories); }
-            catch { return NoFiles; }
+            return GetFiles(dir, "*."+ext, SearchOption.AllDirectories);
         }
-
+        public static FileInfo[] GetFilesNoSub(string dir)
+        {
+            return GetFiles(dir, "*.*", SearchOption.TopDirectoryOnly);
+        }
+        public static FileInfo[] GetFilesNoSub(string dir, string ext)
+        {
+            return GetFiles(dir, "*."+ext, SearchOption.TopDirectoryOnly);
+        }
         public static IEnumerable<FileInfo> GetFilesNoThumbs(string dir)
         {
             foreach (FileInfo info in GetFiles(dir))
@@ -31,17 +46,11 @@ namespace Ship_Game
                     yield return info;
         }
 
-        public static FileInfo[] GetFilesNoSub(string dir)
-        {
-            try { return new DirectoryInfo(dir).GetFiles("*.*", SearchOption.TopDirectoryOnly); }
-            catch { return NoFiles; }
-        }
-
         public static void CopyDir(string sourceDirName, string destDirName, bool copySubDirs)
         {
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
             if (!dir.Exists)
-                throw new DirectoryNotFoundException("Source directory does not exist or could not be found: " + sourceDirName);
+                throw new DirectoryNotFoundException($"Source directory does not exist or could not be found: {sourceDirName}");
 
             var dirs = dir.GetDirectories();
 
