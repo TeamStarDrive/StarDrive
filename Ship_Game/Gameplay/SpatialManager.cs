@@ -317,23 +317,16 @@ namespace Ship_Game.Gameplay
                         return;
 
                     }
-                    using (LinkedList<ModuleSlot>.Enumerator enumerator = ship2.ModuleSlotList.GetEnumerator())
+                    foreach (ModuleSlot current in ship2.ModuleSlotList)
                     {
-                        while (enumerator.MoveNext())
-                        {
-                            ModuleSlot current = enumerator.Current;
-                            if (current.module.Health < current.module.HealthMax)
-                            {
-                                ShipModule module = current.module;
-                                float num2 = module.Health - beam.damageAmount;
-                                module.Health = num2;
-                                if (current.module.Health < current.module.HealthMax)
-                                    break;
-                                current.module.Health = current.module.HealthMax;
-                                break;
-                            }
-                        }
-                        return;
+                        ShipModule module = current.module;
+                        if (module.Health >= module.HealthMax)
+                            continue;
+                        module.Health = module.Health - beam.damageAmount;
+                        if (module.Health < module.HealthMax)
+                            break;
+                        module.Health = module.HealthMax;
+                        break;
                     }
 
                 }

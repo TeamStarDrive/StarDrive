@@ -48,7 +48,7 @@ namespace Ship_Game.Gameplay
         //protected Color CloakColor = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);    //Not referenced in code, removing to save memory
         //public float CloakTime = 5f;    //Not referenced in code, removing to save memory
         //public Vector2 Origin = new Vector2(256f, 256f);        //Not referenced in code, removing to save memory
-        public LinkedList<ModuleSlot> ModuleSlotList = new LinkedList<ModuleSlot>();
+        public List<ModuleSlot> ModuleSlotList = new List<ModuleSlot>();
         private BatchRemovalCollection<Projectile> projectiles = new BatchRemovalCollection<Projectile>();
         private BatchRemovalCollection<Beam> beams = new BatchRemovalCollection<Beam>();
         public List<Weapon> Weapons = new List<Weapon>();
@@ -926,8 +926,7 @@ namespace Ship_Game.Gameplay
 
         public ShipData GetShipData()
         {
-            Ship sd = null;
-            if (Ship_Game.ResourceManager.ShipsDict.TryGetValue(this.Name, out sd))
+            if (ResourceManager.ShipsDict.TryGetValue(this.Name, out Ship sd))
                 return sd.shipData;            
             else
                 return (ShipData)null;
@@ -1393,6 +1392,16 @@ namespace Ship_Game.Gameplay
         public List<Thruster> GetTList()
         {
             return this.ThrusterList;
+        }
+
+        public void AddThruster(Thruster t)
+        {
+            ThrusterList.Add(new Thruster
+            {
+                Parent = this,
+                tscale = t.tscale,
+                XMLPos = t.XMLPos
+            });
         }
 
         public void SetTList(List<Thruster> list)
@@ -2027,56 +2036,54 @@ namespace Ship_Game.Gameplay
 
         public override void Initialize()
         {
-            if (this.shipData.Role == ShipData.RoleName.platform)
-                this.IsPlatform = true;
-            this.SetShipData(this.GetShipData());
-            if (string.IsNullOrEmpty(this.VanityName))
+            if (shipData.Role == ShipData.RoleName.platform)
+                IsPlatform = true;
+            SetShipData(GetShipData());
+            if (string.IsNullOrEmpty(VanityName))
             {
-                this.VanityName = this.Name;
+                VanityName = Name;
             }
-            this.Weapons.Clear();
-            this.Center = new Vector2(this.Position.X + this.Dimensions.X / 2f, this.Position.Y + this.Dimensions.Y / 2f);
+            Weapons.Clear();
+            Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
             lock (GlobalStats.AddShipLocker)
             {
-                if (Ship.universeScreen == null)
-                    UniverseScreen.ShipSpatialManager.CollidableObjects.Add((GameplayObject)this);
+                if (universeScreen == null)
+                    UniverseScreen.ShipSpatialManager.CollidableObjects.Add(this);
                 else
-                    Ship.universeScreen.ShipsToAdd.Add(this);
+                    universeScreen.ShipsToAdd.Add(this);
             }
-            this.InitializeModules();
-            if (Ship_Game.ResourceManager.ShipsDict.ContainsKey(this.Name) && Ship_Game.ResourceManager.ShipsDict[this.Name].IsPlayerDesign)
-                this.IsPlayerDesign = true;
+            InitializeModules();
 
-            this.InitializeStatus();
-            if (this.AI == null)
-                this.InitializeAI();
-            this.AI.CombatState = Ship_Game.ResourceManager.ShipsDict[this.Name].shipData.CombatState;
-            this.FillExternalSlots();
+            Ship template = ResourceManager.ShipsDict[Name];
+            IsPlayerDesign = template.IsPlayerDesign;
+
+            InitializeStatus();
+            if (AI == null)
+                InitializeAI();
+            AI.CombatState = template.shipData.CombatState;
+            FillExternalSlots();
             //this.hyperspace = (Cue)null;   //Removed to save space, because this is set to null in ship initilizers, and never reassigned. -Gretman
             base.Initialize();
-            foreach (ModuleSlot ss in this.ModuleSlotList)
+            foreach (ModuleSlot ss in ModuleSlotList)
             {
                 if (ss.InstalledModuleUID == "Dummy") continue;
                 if (ss.module.ModuleType == ShipModuleType.PowerConduit)
-                    ss.module.IconTexturePath = this.GetConduitGraphic(ss, this);
-                if (ss.module.IsRepairModule)
-                    this.HasRepairModule = true;
-                if (ss.module.ModuleType == ShipModuleType.Colony)
-                    this.isColonyShip = true;
+                    ss.module.IconTexturePath = GetConduitGraphic(ss, this);
+
+                HasRepairModule |= ss.module.IsRepairModule;
+                isColonyShip    |= ss.module.ModuleType == ShipModuleType.Colony;
+
                 if (ss.module.ModuleType == ShipModuleType.Transporter)
                 {
-                    this.hasTransporter = true;
-                    if (ss.module.TransporterOrdnance > 0)
-                        this.hasOrdnanceTransporter = true;
-                    if (ss.module.TransporterTroopAssault > 0)
-                        this.hasAssaultTransporter = true;
+                    hasTransporter = true;
+                    hasOrdnanceTransporter |= ss.module.TransporterOrdnance > 0;
+                    hasAssaultTransporter  |= ss.module.TransporterTroopAssault > 0;
                 }
-                if (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam)
-                    this.hasRepairBeam = true;
+                hasRepairBeam |= ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam;
             }
-            this.RecalculatePower();        
-            this.ShipStatusChange();
-            this.shipInitialized = true;
+            RecalculatePower();        
+            ShipStatusChange();
+            shipInitialized = true;
         }
 
         private void FillExternalSlots()
@@ -2746,7 +2753,7 @@ namespace Ship_Game.Gameplay
             parent.Level = (int)data.Level;
             parent.shipData = data;
             parent.ModelPath = data.ModelPath;
-            parent.ModuleSlotList = Ship.LoadSlotDataListToSlotList(data.ModuleSlotList, parent);
+            parent.ModuleSlotList = LoadSlotDataListToSlotList(data.ModuleSlotList, parent);
             foreach (var thrusterZone in data.ThrusterList)
                 parent.ThrusterList.Add(new Thruster()
                 {
@@ -2757,25 +2764,24 @@ namespace Ship_Game.Gameplay
             return parent;
         }
 
-        public static LinkedList<ModuleSlot> LoadSlotDataListToSlotList(List<ModuleSlotData> dataList, Ship parent)
+        public static List<ModuleSlot> LoadSlotDataListToSlotList(List<ModuleSlotData> dataList, Ship parent)
         {
-            LinkedList<ModuleSlot> linkedList = new LinkedList<ModuleSlot>();
-            foreach (ModuleSlotData moduleSlotData in dataList)
+            var list = new List<ModuleSlot>(dataList.Count);
+            foreach (ModuleSlotData slotData in dataList)
             {
                 ModuleSlot moduleSlot = new ModuleSlot();
-                moduleSlot.ModuleHealth = moduleSlotData.Health;
-                moduleSlot.Shield_Power = moduleSlotData.Shield_Power;
-                moduleSlot.Position = moduleSlotData.Position;
-                moduleSlot.facing = moduleSlotData.facing;
-                moduleSlot.state = moduleSlotData.state;
-                moduleSlot.Restrictions = moduleSlotData.Restrictions;
-                moduleSlot.InstalledModuleUID = moduleSlotData.InstalledModuleUID;
-                moduleSlot.HangarshipGuid = moduleSlotData.HangarshipGuid;
-                if (moduleSlotData.SlotOptions != null)
-                    moduleSlot.SlotOptions = moduleSlotData.SlotOptions;
-                linkedList.AddLast(moduleSlot);
+                moduleSlot.ModuleHealth = slotData.Health;
+                moduleSlot.Shield_Power = slotData.Shield_Power;
+                moduleSlot.Position     = slotData.Position;
+                moduleSlot.facing       = slotData.facing;
+                moduleSlot.state        = slotData.state;
+                moduleSlot.Restrictions = slotData.Restrictions;
+                moduleSlot.InstalledModuleUID = slotData.InstalledModuleUID;
+                moduleSlot.HangarshipGuid     = slotData.HangarshipGuid;
+                moduleSlot.SlotOptions        = slotData.SlotOptions;
+                list.Add(moduleSlot);
             }
-            return linkedList;
+            return list;
         }
 
         public static Ship CreateShipFromShipData(ShipData data)
@@ -2783,11 +2789,11 @@ namespace Ship_Game.Gameplay
             Ship parent = new Ship();
             parent.Position = new Vector2(200f, 200f);
             parent.Name = data.Name;
-            parent.Level = (int)data.Level;
-            parent.experience = (int)data.experience;
-            parent.shipData = data;
-            parent.ModelPath = data.ModelPath;
-            parent.ModuleSlotList = Ship.SlotDataListToSlotList(data.ModuleSlotList, parent);
+            parent.Level = data.Level;
+            parent.experience = data.experience;
+            parent.shipData   = data;
+            parent.ModelPath  = data.ModelPath;
+            parent.ModuleSlotList = SlotDataListToSlotList(data.ModuleSlotList, parent);
             
             foreach (var thrusterZone in data.ThrusterList)
                 parent.ThrusterList.Add(new Thruster()
@@ -2799,21 +2805,21 @@ namespace Ship_Game.Gameplay
             return parent;
         }
 
-        public static LinkedList<ModuleSlot> SlotDataListToSlotList(List<ModuleSlotData> dataList, Ship parent)
+        public static List<ModuleSlot> SlotDataListToSlotList(List<ModuleSlotData> dataList, Ship parent)
         {
-            LinkedList<ModuleSlot> linkedList = new LinkedList<ModuleSlot>();
+            var list = new List<ModuleSlot>();
             foreach (ModuleSlotData moduleSlotData in dataList)
-                linkedList.AddLast(new ModuleSlot()
+                list.Add(new ModuleSlot
                 {
-                    Position = moduleSlotData.Position,
-                    state = moduleSlotData.state,
-                    facing = moduleSlotData.facing,
-                    Restrictions = moduleSlotData.Restrictions,
+                    Position       = moduleSlotData.Position,
+                    state          = moduleSlotData.state,
+                    facing         = moduleSlotData.facing,
+                    Restrictions   = moduleSlotData.Restrictions,
                     HangarshipGuid = moduleSlotData.HangarshipGuid,
                     InstalledModuleUID = moduleSlotData.InstalledModuleUID,
-                    SlotOptions = moduleSlotData.SlotOptions
+                    SlotOptions    = moduleSlotData.SlotOptions
                 });
-            return linkedList;
+            return list;
         }
 
         public virtual void InitializeModules()
@@ -2884,9 +2890,9 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        public virtual void LoadContent(ContentManager contentManager)
-        {
-        }
+        //public virtual void LoadContent(ContentManager contentManager)
+        //{
+        //}
 
         public override void Update(float elapsedTime)
         {
@@ -3450,7 +3456,7 @@ namespace Ship_Game.Gameplay
             shipData.Animated = this.GetShipData().Animated;
             shipData.CombatState = this.GetAI().CombatState;
             shipData.ModelPath = this.GetShipData().ModelPath;
-            shipData.ModuleSlotList = this.ConvertToData(this.ModuleSlotList);
+            shipData.ModuleSlotList = this.ConvertToData(ModuleSlotList);
             shipData.ThrusterList = new List<ShipToolScreen.ThrusterZone>();
             shipData.MechanicalBoardingDefense = this.MechanicalBoardingDefense;
             foreach (Thruster thruster in this.ThrusterList)
@@ -3462,7 +3468,7 @@ namespace Ship_Game.Gameplay
             return shipData;
         }
 
-        private List<ModuleSlotData> ConvertToData(LinkedList<ModuleSlot> slotList)
+        private List<ModuleSlotData> ConvertToData(List<ModuleSlot> slotList)
         {
             List<ModuleSlotData> list = new List<ModuleSlotData>();
             foreach (ModuleSlot moduleSlot in slotList)
