@@ -125,7 +125,7 @@ namespace Ship_Game
 
 		private float heat = 1f;
 
-		private List<SDNative.ThrusterZone> TList = new List<SDNative.ThrusterZone>();
+		private List<ThrusterZone> TList = new List<ThrusterZone>();
 
 		private string HullName = "Hull Name";
 
@@ -655,10 +655,9 @@ namespace Ship_Game
 
 		private void MarkThruster()
 		{
-			SDNative.ThrusterZone z = new SDNative.ThrusterZone();
+            ThrusterZone z = new ThrusterZone();
 			Vector2 thrPos = (this.tPos + new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2))) - new Vector2((float)this.border.X, (float)this.border.Y);
-            z.X = thrPos.X;
-            z.Y = thrPos.Y;
+            z.Position = thrPos;
 			z.Scale = this.tscale;
 			this.TList.Add(z);
 		}
@@ -784,5 +783,11 @@ namespace Ship_Game
 			this.thruster.update(new Vector3(this.tPos.X, this.tPos.Y, 30f), new Vector3(0f, -1f, 0f), new Vector3(this.tscale, this.tscale, this.tscale), this.heat, 0.002f, Color.OrangeRed, Color.Blue, camPos);
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
+
+        public struct ThrusterZone
+        {
+            public Vector2 Position;
+            public float Scale;
+        }
 	}
 }

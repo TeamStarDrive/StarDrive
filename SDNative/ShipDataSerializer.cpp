@@ -5,7 +5,6 @@ namespace SDNative
 {
     ////////////////////////////////////////////////////////////////////////////////////
 
-#pragma managed(push, off)
     static FINLINE void parse_position(node_parser& elem, float& posX, float& posY)
     {
         elem.parseChildren("Position", [&](node_parser subdefs)
@@ -20,18 +19,17 @@ namespace SDNative
     bool ShipData::LoadFromFile(const wchar_t* filename)
     {
         using namespace rpp;
-        data = file::read_all(filename);
-        if (!data) return Error("Failed to open ShipData xml");
+        Data = file::read_all(filename);
+        if (!Data) return Error("Failed to open ShipData xml");
         try
         {
-            using namespace rapidxml;
-            xml_document<> doc; doc.parse<parse_fastest>(data.str);
+            xml_document<> doc; doc.parse<parse_fastest>(Data.str);
             xml_node<>* root = doc.first_node("ShipData");
             if (!root) return Error("Invalid ShipData xml: no <ShipData> node found");
 
             // get a rough estimate of how many ModuleSlotLists we might parse to reduce reallocations
             constexpr int NumCharsPerSlotData = 300;
-            const int estimatedSlots = data.len / NumCharsPerSlotData;
+            const int estimatedSlots = Data.len / NumCharsPerSlotData;
             ModuleSlotList.reserve(estimatedSlots);
 
             for (node_parser elem(root); elem.node; elem.next())
@@ -84,24 +82,28 @@ namespace SDNative
                         slotData.parse("HangarshipGuid", sd.HangarshipGuid);
                         slotData.parse("Health", sd.Health);
                         slotData.parse("Shield_Power", sd.ShieldPower);
-                        slotData.parse("facing", sd.InstalledModuleUID);
+                        slotData.parse("facing", sd.Facing);
                         slotData.parse("state", sd.State);
                         slotData.parse("Restrictions", sd.Restrictions);
                         slotData.parse("SlotOptions", sd.SlotOptions);
                     }
                 });
                 elem.parse("hullUnlockable", HullUnlockable);
-                elem.parse("allModulesUnlocakable", AllModulesUnlocakable);
+                elem.parse("allModulesUnlocakable", AllModulesUnlockable);
                 elem.parse("unLockable", UnLockable);
                 elem.parseList("techsNeeded", [this](node_parser subdefs)
                 {
                     for (; subdefs.node; subdefs.next())
-                    {
                         TechsNeeded.push_back(subdefs.value);
-                    }
                 });
                 elem.parse("TechScore", TechScore);
             }
+            Thrusters      = ThrusterList.data();
+            ThrustersLen   = ThrusterList.size();
+            ModuleSlots    = ModuleSlotList.data();
+            ModuleSlotsLen = ModuleSlotList.size();
+            Techs    = TechsNeeded.data();
+            TechsLen = TechsNeeded.size();
             return true;
         }
         catch (exception e)
@@ -110,73 +112,25 @@ namespace SDNative
         }
     }
 
-    bool ShipData::Error(const rpp::strview& err)
+    bool ShipData::Error(const string & err)
     {
-        ErrorMessage = err;
+        ErrorMessage = ErrorStr = err;
         return false;
     }
-#pragma managed(pop)
 
     ////////////////////////////////////////////////////////////////////////////////////
-
-    ShipDataSerializer::ShipDataSerializer()
+    
+    extern "C" ShipData* __stdcall CreateShipDataParser(const wchar_t * filename)
     {
+        ShipData* data = new ShipData();
+        data->LoadFromFile(filename);
+        return data;
     }
 
-    ShipDataSerializer::~ShipDataSerializer()
+    extern "C" void __stdcall DisposeShipDataParser(ShipData* data)
     {
         delete data;
     }
-
-    using namespace System::Runtime::InteropServices;
-
-    bool ShipDataSerializer::LoadFromFile(String^ filename)
-    {
-        IntPtr uFilePtr = Marshal::StringToHGlobalUni(filename);
-        bool ok = data->LoadFromFile((wchar_t*)uFilePtr.ToPointer());
-
-        Marshal::FreeHGlobal(uFilePtr);
-        return ok;
-    }
-
-    static ThrusterZone ToManaged(const _ThrusterZone& native)
-    {
-        auto m = ThrusterZone();
-        m.X = native.X;
-        m.Y = native.Y;
-        m.Scale = native.Scale;
-        return m;
-    }
-    static ModuleSlotData^ ToManaged(const _ModuleSlotData& native)
-    {
-        auto m = gcnew ModuleSlotData();
-        m->PositionX   = native.PositionX;
-        m->PositionY   = native.PositionY;
-        m->Health      = native.Health;
-        m->ShieldPower = native.ShieldPower;
-        m->Facing      = native.Facing;
-        m->InstalledModuleUID = ToStr(native.InstalledModuleUID);
-        m->HangarshipGuid = native.HangarshipGuid ? Guid(ToStr(native.HangarshipGuid)) : Guid::Empty;
-        m->State          = ToStr(native.State);
-        m->Restrictions   = ToStr(native.Restrictions);
-        m->SlotOptions    = ToStr(native.SlotOptions);
-        return m;
-    }
-    static String^ ToManaged(const rpp::strview& native)
-    {
-        return ToStr(native);
-    }
-
-    template<class T, class U> static array<T>^ VectorToArray(const std::vector<U>& v) {
-        int i = 0;
-        auto arr = gcnew array<T>(v.size());
-        for (auto& native : v)
-            arr[i++] = ToManaged(native);
-        return arr;
-    }
-    array<ThrusterZone>^   ShipDataSerializer::GetThrusterZones()   { return VectorToArray<ThrusterZone>(data->ThrusterList); }
-    array<ModuleSlotData^>^ ShipDataSerializer::GetModuleSlotList() { return VectorToArray<ModuleSlotData^>(data->ModuleSlotList); }
-    array<String^>^         ShipDataSerializer::GetTechsNeeded()    { return VectorToArray<String^>(data->TechsNeeded); }
 
     ////////////////////////////////////////////////////////////////////////////////////
 }

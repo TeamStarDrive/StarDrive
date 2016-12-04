@@ -2140,7 +2140,7 @@ namespace Ship_Game
 
                 try
                 {
-                    ShipData shipData = ShipData.Parse(info);
+                    //ShipData shipData = ShipData.Parse(info);
                     ShipData shipData = ShipDataSerializer.Deserialize<ShipData>(info);
                     if (shipData.Role == ShipData.RoleName.disabled)
                         continue;
