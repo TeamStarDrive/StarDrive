@@ -911,7 +911,8 @@ namespace Ship_Game.Gameplay
                 this.Target = this.PotentialTargets.Where(t => t.Active && t.engineState != Ship.MoveState.Warp && Vector2.Distance(t.Center, this.Owner.Center) <= this.Owner.SensorRange).FirstOrDefault() as GameplayObject;
                 if (Target == null)
                 {
-                    this.OrderQueue.RemoveFirst();
+                    if (this.OrderQueue.Count > 0) this.OrderQueue.RemoveFirst();
+                    //else System.Diagnostics.Debug.WriteLine("Attempted to 'OrderQueue.RemoveFirst()' from empty SafeQueue.");
                     // this.ClearOrdersNext = true;
                     //this.HadPO = true;
 
