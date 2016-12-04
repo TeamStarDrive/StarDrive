@@ -9,18 +9,17 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
-using System.Runtime;
+using System.Threading;
+using System.Threading.Tasks;
 namespace Ship_Game
 {
     public sealed class ResourceManager
     {
         public static Dictionary<string, Texture2D> TextureDict          = new Dictionary<string, Texture2D>();
         public static XmlSerializer WeaponSerializer                     = new XmlSerializer(typeof(Weapon));
-        public static XmlSerializer ShipDataSerializer                   = new XmlSerializer(typeof(ShipData));
         public static Dictionary<string, Ship> ShipsDict                 = new Dictionary<string, Ship>();
         public static Dictionary<int, Model> RoidsModels                 = new Dictionary<int, Model>();
         public static Dictionary<int, Model> JunkModels                  = new Dictionary<int, Model>();
@@ -1738,25 +1737,34 @@ namespace Ship_Game
         public static List<ShipData> LoadHullData() // Refactored by RedFox
         {
             var retList = new List<ShipData>();
-
-            foreach (var kv in LoadEntitiesWithInfo<ShipData>("/Hulls", "LoadHullData"))
+            Parallel.ForEach(Dir.GetFiles(WhichModPath + "/Hulls", "xml"), info =>
             {
-                string dirName = kv.Key.Directory?.Name ?? "";
-                ShipData shipData = kv.Value;
-                shipData.Hull = string.Intern(dirName + "/" + shipData.Hull);
+                try
+                {
+                    string dirName = info.Directory?.Name ?? "";
+                    ShipData shipData = ShipData.Parse(info);
+                    shipData.Hull      = string.Intern(dirName + "/" + shipData.Hull);
+                    shipData.ShipStyle = string.Intern(dirName);
 
-                if (!string.IsNullOrEmpty(shipData.EventOnDeath)) string.Intern(shipData.EventOnDeath);
-                if (!string.IsNullOrEmpty(shipData.ModelPath))    string.Intern(shipData.ModelPath);
-                if (!string.IsNullOrEmpty(shipData.ShipStyle))    string.Intern(shipData.ShipStyle);
-                if (!string.IsNullOrEmpty(shipData.Name))         string.Intern(shipData.Name);
-                if (!string.IsNullOrEmpty(shipData.IconPath))     string.Intern(shipData.IconPath);
-                if (!string.IsNullOrEmpty(shipData.Hull))         string.Intern(shipData.Hull);
-                if (!string.IsNullOrEmpty(shipData.SelectionGraphic)) string.Intern(shipData.SelectionGraphic);
-                shipData.ShipStyle = string.Intern(dirName);
+                    if (!string.IsNullOrEmpty(shipData.EventOnDeath)) string.Intern(shipData.EventOnDeath);
+                    if (!string.IsNullOrEmpty(shipData.ModelPath))    string.Intern(shipData.ModelPath);
+                    if (!string.IsNullOrEmpty(shipData.ShipStyle))    string.Intern(shipData.ShipStyle);
+                    if (!string.IsNullOrEmpty(shipData.Name))         string.Intern(shipData.Name);
+                    if (!string.IsNullOrEmpty(shipData.IconPath))     string.Intern(shipData.IconPath);
+                    if (!string.IsNullOrEmpty(shipData.Hull))         string.Intern(shipData.Hull);
+                    if (!string.IsNullOrEmpty(shipData.SelectionGraphic)) string.Intern(shipData.SelectionGraphic);
 
-                HullsDict[shipData.Hull] = shipData;
-                retList.Add(shipData);
-            }
+                    lock (retList)
+                    {
+                        HullsDict[shipData.Hull] = shipData;
+                        retList.Add(shipData);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ReportLoadingError(info, "LoadHullData", e);
+                }
+            });
             return retList;
         }
 
@@ -2132,33 +2140,38 @@ namespace Ship_Game
         private static List<Ship> LoadShipsFromDirectory(string dir)
         {
             var ships = new List<Ship>();
-            foreach (FileInfo info in Dir.GetFiles(dir, "xml"))
+            Parallel.ForEach(Dir.GetFiles(dir, "xml"), info =>
             {
                 //added by gremlin support techlevel disabled folder.
                 if (info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
-                    continue;
+                    return; // continue PFor
 
                 try
                 {
                     ShipData shipData = ShipData.Parse(info);
                     //ShipData shipData = ShipDataSerializer.Deserialize<ShipData>(info);
                     if (shipData.Role == ShipData.RoleName.disabled)
-                        continue;
+                        return; // continue PFor
 
                     Ship newShip = Ship.CreateShipFromShipData(shipData);
                     newShip.SetShipData(shipData);
                     if (!newShip.InitForLoad())
-                        continue;
+                        return; // continue PFor
 
                     newShip.InitializeStatus();
-                    ShipsDict[shipData.Name] = newShip;
-                    ships.Add(newShip);
+
+                    lock (ships)
+                    {
+                        ShipsDict[shipData.Name] = newShip;
+                        ships.Add(newShip);
+                    }
                 }
                 catch (Exception e)
                 {
                     ReportLoadingError(info, "LoadShips", e);
                 }
-            }
+            });
+
             return ships;
         }
 
@@ -2522,16 +2535,20 @@ namespace Ship_Game
             ContentManager content = ContentManager;
 
             string rootDir = WhichModPath != "Content" ? "../"+WhichModPath+"/Textures/" : "Textures/";
-            foreach (FileInfo info in Dir.GetFilesNoThumbs(WhichModPath + "/Textures"))
+            Parallel.ForEach(Dir.GetFilesNoThumbs(WhichModPath + "/Textures"), info =>
             {
                 string nameNoExt = info.NameNoExt();
                 string directory = info.Directory?.Name ?? "";
                 string loadPath = $"{rootDir}{(directory == "Textures" ? "" : directory + '/')}{nameNoExt}";
 
-                // 90% of this methods time is spent in content::Load
+                // 90% of this methods time is spent inside content::Load
                 Texture2D tex = content.Load<Texture2D>(loadPath);
-                TextureDict[directory + "/" + nameNoExt] = tex;
-            }
+
+                lock (TextureDict)
+                {
+                    TextureDict[directory + "/" + nameNoExt] = tex;
+                }
+            });
         }
 
         private static void LoadToolTips()

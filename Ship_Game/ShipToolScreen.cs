@@ -715,7 +715,7 @@ namespace Ship_Game
 					continue;
 				}
 				Vector2 Position = new Vector2((float)(slot.pq.X + slot.pq.W / 2 - this.border.X), (float)(slot.pq.Y + slot.pq.H / 2 - this.border.Y));
-				ModuleSlotData newData = new ModuleSlotData()
+                ModuleSlotData newData = new ModuleSlotData()
 				{
 					Position = Position,
 					InstalledModuleUID = slot.ModuleUID,
