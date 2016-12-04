@@ -1122,7 +1122,7 @@ namespace Ship_Game.Gameplay
             //300000;
             //this.empire.GetGSAI().GetDistanceFromOurAO(this.TargetPlanet);
             SystemCommander scom = null;
-            this.TargetPlanet.Owner.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(this.TargetPlanet.ParentSystem, out scom);
+            this.TargetPlanet.Owner?.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(this.TargetPlanet.ParentSystem, out scom);
             float importance = 1;
             if (scom != null)
             {
