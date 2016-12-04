@@ -147,18 +147,24 @@ namespace Ship_Game
 
 		public void load_and_assign_effects(ContentManager content, string filename, string noisefilename, Effect effect)
 		{
-			this.model = content.Load<Model>(filename);
-			this.Noise = content.Load<Texture3D>(noisefilename);
-			this.model.Meshes[0].MeshParts[0].Effect = effect;
-			this.technique = effect.Techniques["thrust_technique"];
-			this.shader_matrices = effect.Parameters["world_matrices"];
-			this.thrust_color = effect.Parameters["thrust_color"];
-			this.effect_tick = effect.Parameters["ticks"];
-			this.effect_noise = effect.Parameters["noise_texture"];
-			this.world_matrix = Matrix.Identity;
+		    load_and_assign_effects(content, content.Load<Model>(filename), content.Load<Texture3D>(noisefilename), effect);
 		}
 
-		public void prepare_effect(ref Matrix view, ref Matrix project, Effect effect)
+	    public void load_and_assign_effects(ContentManager content, Model model, Texture3D noiseTexture, Effect effect)
+	    {
+            this.model = model;
+            this.Noise = noiseTexture;
+            this.model.Meshes[0].MeshParts[0].Effect = effect;
+            this.technique = effect.Techniques["thrust_technique"];
+            this.shader_matrices = effect.Parameters["world_matrices"];
+            this.thrust_color = effect.Parameters["thrust_color"];
+            this.effect_tick = effect.Parameters["ticks"];
+            this.effect_noise = effect.Parameters["noise_texture"];
+            this.world_matrix = Matrix.Identity;
+        }
+
+
+        public void prepare_effect(ref Matrix view, ref Matrix project, Effect effect)
 		{
 			this.matrices_combined[0] = this.world_matrix;
 			this.matrices_combined[1] = (this.world_matrix * view) * project;

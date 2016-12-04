@@ -20,8 +20,7 @@ namespace Ship_Game
                 if (Game1.Instance.graphics.IsFullScreen)
                     Game1.Instance.graphics.ToggleFullScreen();
             }
-            catch
-            { }
+            catch { }
             try
             {
                 
@@ -78,7 +77,7 @@ namespace Ship_Game
 				catch (Exception exception)
 				{
 					Exception e = exception;
-					MessageBox.Show(string.Concat("Whoops! Please post a screenshot of this to the StarDrive forums (", MainMenuScreen.Version, "):\n\n", e.ToString()));
+					MessageBox.Show($"Whoops! Please post a screenshot of this to the StarDrive forums ({MainMenuScreen.Version}):\n\n{e.ToString()}");
 				}
 			}
 		}
