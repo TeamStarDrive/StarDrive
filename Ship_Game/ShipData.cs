@@ -69,7 +69,8 @@ namespace Ship_Game
         {
             readonly sbyte* Str;
             readonly int Len;
-            public string AsString => Len != 0 ? new string(Str, 0, Len) : string.Empty;
+            public string AsString   => Len != 0 ? new string(Str, 0, Len) : string.Empty;
+            public string AsInterned => Len != 0 ? string.Intern(new string(Str, 0, Len)) : string.Empty;
             public bool Empty => Len == 0;
             public override string ToString() { return AsString; }
         }
@@ -127,39 +128,38 @@ namespace Ship_Game
         }
 
         [DllImport("SDNative.dll")]
-        private static extern IntPtr CreateShipDataParser(
+        private static extern unsafe CShipDataParser* CreateShipDataParser(
             [MarshalAs(UnmanagedType.LPWStr)] string filename);
 
         [DllImport("SDNative.dll")]
-        private static extern void DisposeShipDataParser(IntPtr parser);
+        private static extern unsafe void DisposeShipDataParser(CShipDataParser* parser);
 
         // Added by RedFox - manual parsing of ShipData, because this is the slowest part 
         // in loading, the brunt work is offloaded to C++ and then copied back into C#
         public static unsafe ShipData Parse(FileInfo info)
         {
-            IntPtr pParser = CreateShipDataParser(info.FullName);
+            CShipDataParser* s = CreateShipDataParser(info.FullName); // @note This will never throw
             try
             {
-                CShipDataParser* s = (CShipDataParser*)pParser;
                 if (!s->ErrorMessage.Empty)
                     throw new InvalidDataException(s->ErrorMessage.AsString);
 
                 ShipData ship = new ShipData()
                 {
                     Animated       = s->Animated != 0,
-                    ShipStyle      = s->ShipStyle.AsString,
-                    EventOnDeath   = s->EventOnDeath.AsString,
+                    ShipStyle      = s->ShipStyle.AsInterned,
+                    EventOnDeath   = s->EventOnDeath.AsInterned,
                     experience     = s->Experience,
                     Level          = s->Level,
-                    Name           = s->Name.AsString,
+                    Name           = s->Name.AsInterned,
                     HasFixedCost   = s->HasFixedCost != 0,
                     FixedCost      = s->FixedCost,
                     HasFixedUpkeep = s->HasFixedUpkeep != 0,
                     FixedUpkeep    = s->FixedUpkeep,
                     IsShipyard     = s->IsShipyard != 0,
-                    IconPath       = s->IconPath.AsString,
-                    Hull           = s->Hull.AsString,
-                    ModelPath      = s->ModelPath.AsString,
+                    IconPath       = s->IconPath.AsInterned,
+                    Hull           = s->Hull.AsInterned,
+                    ModelPath      = s->ModelPath.AsInterned,
                     CarrierShip    = s->CarrierShip != 0,
                     BaseStrength   = s->BaseStrength,
                     BaseCanWarp    = s->BaseCanWarp != 0,
@@ -167,7 +167,7 @@ namespace Ship_Game
                     unLockable     = s->UnLockable != 0,
                     TechScore      = s->TechScore,
                     IsOrbitalDefense = s->IsOrbitalDefense != 0,
-                    SelectionGraphic = s->SelectionGraphic.AsString,
+                    SelectionGraphic = s->SelectionGraphic.AsInterned,
                     allModulesUnlocakable = s->AllModulesUnlockable != 0,
                     MechanicalBoardingDefense = s->MechanicalBoardingDefense
                 };
@@ -183,14 +183,13 @@ namespace Ship_Game
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     ModuleSlotData slot = new ModuleSlotData();
-                    slot.Position = new Vector2(msd->PosX, msd->PosY);
-                    slot.InstalledModuleUID = msd->InstalledModuleUID.AsString;
-                    slot.HangarshipGuid = msd->HangarshipGuid.Empty 
-                                       ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
-                    slot.Health = msd->Health;
-                    slot.Shield_Power = msd->ShieldPower;
-                    slot.facing = msd->Facing;
-                    slot.SlotOptions = msd->SlotOptions.AsString;
+                    slot.Position           = new Vector2(msd->PosX, msd->PosY);
+                    slot.InstalledModuleUID = msd->InstalledModuleUID.AsInterned;
+                    slot.HangarshipGuid     = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
+                    slot.Health             = msd->Health;
+                    slot.Shield_Power       = msd->ShieldPower;
+                    slot.facing             = msd->Facing;
+                    slot.SlotOptions        = msd->SlotOptions.AsInterned;
                     Enum.TryParse(msd->State.AsString, out slot.state);
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
                     ship.ModuleSlotList.Add(slot);
@@ -211,12 +210,12 @@ namespace Ship_Game
                 // @todo Remove conversion to HashSet
                 ship.techsNeeded = new HashSet<string>();
                 for (int i = 0; i < s->TechsLen; ++i)
-                    ship.techsNeeded.Add(s->Techs[i].AsString);
+                    ship.techsNeeded.Add(s->Techs[i].AsInterned);
                 return ship;
             }
             finally
             {
-                DisposeShipDataParser(pParser);
+                DisposeShipDataParser(s);
             }
         }
 

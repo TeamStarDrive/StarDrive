@@ -901,14 +901,6 @@ namespace Ship_Game
 			}
 		}
 
-		private void RedoShipDesigns()
-		{
-			XmlSerializer Serializer2 = new XmlSerializer(typeof(test));
-			TextWriter wf2 = new StreamWriter("test.xml");
-			Serializer2.Serialize(wf2, new test());
-			wf2.Close();
-		}
-
 		public void ResetMusic()
 		{
 			if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))

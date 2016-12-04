@@ -330,44 +330,45 @@ namespace Ship_Game
         {
             if (this.data.Defeated)
                 return;
-            this.data.Defeated = true;
+            data.Defeated = true;
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                 solarSystem.OwnerList.Remove(this);
-            this.BorderNodeLocker.EnterWriteLock();
-                this.BorderNodes.Clear();
-                this.BorderNodeLocker.ExitWriteLock();
-            this.SensorNodeLocker.EnterWriteLock();
-                this.SensorNodes.Clear();
-                this.SensorNodeLocker.ExitWriteLock();
-            if (this.isFaction)
+            BorderNodeLocker.EnterWriteLock();
+                BorderNodes.Clear();
+            BorderNodeLocker.ExitWriteLock();
+            SensorNodeLocker.EnterWriteLock();
+                SensorNodes.Clear();
+            SensorNodeLocker.ExitWriteLock();
+            if (isFaction)
                 return;
-            foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
+            foreach (KeyValuePair<Empire, Relationship> relationWithEmpire in Relationships)
             {
-                keyValuePair.Value.AtWar = false;
-                keyValuePair.Value.Treaty_Alliance = false;
-                keyValuePair.Value.Treaty_NAPact = false;
-                keyValuePair.Value.Treaty_OpenBorders = false;
-                keyValuePair.Value.Treaty_Peace = false;
-                keyValuePair.Value.Treaty_Trade = false;
-                keyValuePair.Key.GetRelations()[this].AtWar = false;
-                keyValuePair.Key.GetRelations()[this].Treaty_Alliance = false;
-                keyValuePair.Key.GetRelations()[this].Treaty_NAPact = false;
-                keyValuePair.Key.GetRelations()[this].Treaty_OpenBorders = false;
-                keyValuePair.Key.GetRelations()[this].Treaty_Peace = false;
-                keyValuePair.Key.GetRelations()[this].Treaty_Trade = false;
+                relationWithEmpire.Value.AtWar              = false;
+                relationWithEmpire.Value.Treaty_Alliance    = false;
+                relationWithEmpire.Value.Treaty_NAPact      = false;
+                relationWithEmpire.Value.Treaty_OpenBorders = false;
+                relationWithEmpire.Value.Treaty_Peace       = false;
+                relationWithEmpire.Value.Treaty_Trade       = false;
+
+                var relationWithUs = relationWithEmpire.Key.GetRelations()[this];
+                relationWithUs.AtWar              = false;
+                relationWithUs.Treaty_Alliance    = false;
+                relationWithUs.Treaty_NAPact      = false;
+                relationWithUs.Treaty_OpenBorders = false;
+                relationWithUs.Treaty_Peace       = false;
+                relationWithUs.Treaty_Trade       = false;
             }
-            foreach (Ship ship in (List<Ship>)this.OwnedShips)
+            foreach (Ship ship in OwnedShips)
             {
                 ship.GetAI().OrderQueue.Clear();
                 ship.GetAI().State = AIState.AwaitingOrders;
             }
-            this.GSAI.Goals.Clear();
-           // lock (GlobalStats.TaskLocker)
-                this.GSAI.TaskList.Clear();
-            foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
+            GSAI.Goals.Clear();
+            GSAI.TaskList.Clear();
+            foreach (KeyValuePair<int, Fleet> keyValuePair in FleetsDict)
                 keyValuePair.Value.Reset();
-            this.OwnedShips.Clear();
-            this.data.AgentList.Clear();
+            OwnedShips.Clear();
+            data.AgentList.Clear();
         }
 
         public bool IsPointInBorders(Vector2 point)
@@ -2117,16 +2118,16 @@ namespace Ship_Game
                 if (keyValuePair.Value.Deleted)
                     continue;
 
-                if (this.WeCanBuildThis(keyValuePair.Key))
+                if (WeCanBuildThis(keyValuePair.Key))
                 {
 #if !DEBUG
                     try
 #endif
                     {
-                        if (!this.structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.shipData.Role <= ShipData.RoleName.station && !keyValuePair.Value.shipData.IsShipyard)
-                            this.structuresWeCanBuild.Add(keyValuePair.Key);
-                        if (!this.ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.shipData.Role].Protected)
-                            this.ShipsWeCanBuild.Add(keyValuePair.Key);
+                        if (!structuresWeCanBuild.Contains(keyValuePair.Key) && keyValuePair.Value.shipData.Role <= ShipData.RoleName.station && !keyValuePair.Value.shipData.IsShipyard)
+                            structuresWeCanBuild.Add(keyValuePair.Key);
+                        if (!ShipsWeCanBuild.Contains(keyValuePair.Key) && !ResourceManager.ShipRoles[keyValuePair.Value.shipData.Role].Protected)
+                            ShipsWeCanBuild.Add(keyValuePair.Key);
                     }
 #if !DEBUG
                     catch
@@ -3076,9 +3077,10 @@ namespace Ship_Game
                         this.Money -= this.data.CounterIntelligenceBudget;
                         foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
                         {
-                            keyValuePair.Key.GetRelations()[this].IntelligencePenetration -= this.data.CounterIntelligenceBudget / 10f;
-                            if ((double)keyValuePair.Key.GetRelations()[this].IntelligencePenetration < 0.0)
-                                keyValuePair.Key.GetRelations()[this].IntelligencePenetration = 0.0f;
+                            var relationWithUs = keyValuePair.Key.GetRelations()[this];
+                            relationWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
+                            if (relationWithUs.IntelligencePenetration < 0.0f)
+                            relationWithUs.IntelligencePenetration = 0.0f;
                         }
                     } 
                 }//);
