@@ -578,13 +578,13 @@ namespace Ship_Game.Gameplay
 						Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
 						shieldcue.Apply3D(ShipModule.universeScreen.listener, this.Parent.emitter);
 						shieldcue.Play();
-						this.shield.Radius = this.radius;
+						this.shield.Radius = this.Radius;
 						this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
 						this.shield.texscale = 2.8f;
 						this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
                         this.shield.pointLight.World = psource.GetWorld();
 						this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-						this.shield.pointLight.Radius = this.radius;
+						this.shield.pointLight.Radius = this.Radius;
 						this.shield.pointLight.Intensity = 8f;
 						this.shield.pointLight.Enabled = true;
                         Vector2 vel = Vector2.Normalize(psource.Center - this.Center);
@@ -599,11 +599,11 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power > 0f && !shieldsOff)
 			{
-				this.radius = this.shield_radius;
+				this.Radius = this.shield_radius;
 			}
 			else
 			{
-				this.radius = 8f;
+				this.Radius = 8f;
 			}
 			return true;
 		}
@@ -1073,7 +1073,7 @@ namespace Ship_Game.Gameplay
                         this.shield.pointLight.Radius = this.shield_radius * 2f;
                         this.shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
                         this.shield.displacement = 0f;
-                        this.shield.Radius = this.radius;
+                        this.shield.Radius = this.Radius;
                         this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         this.shield.texscale = 2.8f;
                         this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
@@ -1105,13 +1105,13 @@ namespace Ship_Game.Gameplay
                         Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
                         shieldcue.Apply3D(ShipModule.universeScreen.listener, this.Parent.emitter);
                         shieldcue.Play();
-                        this.shield.Radius = this.radius;
+                        this.shield.Radius = this.Radius;
                         this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         this.shield.texscale = 2.8f;
                         this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
                         this.shield.pointLight.World = (source as Projectile).GetWorld();
                         this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                        this.shield.pointLight.Radius = this.radius;
+                        this.shield.pointLight.Radius = this.Radius;
                         this.shield.pointLight.Intensity = 8f;
                         this.shield.pointLight.Enabled = true;
                         Vector2 vel = Vector2.Normalize((source as Projectile).Center - this.Center);
@@ -1126,11 +1126,11 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power > 0f && !shieldsOff)
             {
-                this.radius = this.shield_radius;
+                this.Radius = this.shield_radius;
             }
             else
             {
-                this.radius = 8f;
+                this.Radius = 8f;
             }
             return true;
         }
@@ -1552,7 +1552,7 @@ namespace Ship_Game.Gameplay
 						this.shield.pointLight.Radius = this.shield_radius * 2f;
 						this.shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
 						this.shield.displacement = 0f;
-						this.shield.Radius = this.radius;
+						this.shield.Radius = this.Radius;
 						this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
 						this.shield.texscale = 2.8f;
 						this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
@@ -1587,13 +1587,13 @@ namespace Ship_Game.Gameplay
 						Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
 						shieldcue.Apply3D(ShipModule.universeScreen.listener, this.Parent.emitter);
 						shieldcue.Play();
-						this.shield.Radius = this.radius;
+						this.shield.Radius = this.Radius;
 						this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
 						this.shield.texscale = 2.8f;
 						this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
 						this.shield.pointLight.World = (source as Projectile).GetWorld();
 						this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-						this.shield.pointLight.Radius = this.radius;
+						this.shield.pointLight.Radius = this.Radius;
 						this.shield.pointLight.Intensity = 8f;
 						this.shield.pointLight.Enabled = true;
 						Vector2 vel = Vector2.Normalize((source as Projectile).Center - this.Center);
@@ -1608,11 +1608,11 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power > 0f && !shieldsOff)
 			{
-				this.radius = this.shield_radius;
+				this.Radius = this.shield_radius;
 			}
 			else
 			{
-				this.radius = 8f;
+				this.Radius = 8f;
 			}
 			if (base.Health <= 0f)
 			{
@@ -1719,7 +1719,7 @@ namespace Ship_Game.Gameplay
 		{
             DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
 			this.XMLPosition = pos;
-			this.radius = 8f;
+			this.Radius = 8f;
 			base.Position = pos;
 			base.Dimensions = new Vector2(16f, 16f);
 			Vector2 RelativeShipCenter = new Vector2(512f, 512f);
@@ -1851,7 +1851,7 @@ namespace Ship_Game.Gameplay
         {
             DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
             this.XMLPosition = pos;
-            this.radius = 8f;
+            this.Radius = 8f;
             base.Position = pos;
             base.Dimensions = new Vector2(16f, 16f);
             Vector2 RelativeShipCenter = new Vector2(512f, 512f);
@@ -1978,7 +1978,7 @@ namespace Ship_Game.Gameplay
 		public void InitializeLite(Vector2 pos)
 		{
 			this.XMLPosition = pos;
-			this.radius = 8f;
+			this.Radius = 8f;
 			base.Position = pos;
 			base.Dimensions = new Vector2(16f, 16f);
 			Vector2 RelativeShipCenter = new Vector2(512f, 512f);
@@ -2535,10 +2535,10 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz: shields keep charge when manually turned off
                 if (this.shield_power <= 0f || shieldsOff)
                 {
-                    this.radius = 8f;
+                    this.Radius = 8f;
                 }
                 else
-                    this.radius = this.shield_radius;
+                    this.Radius = this.shield_radius;
                 if (this.ModuleType == ShipModuleType.Hangar && this.Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
                     this.hangarTimer -= elapsedTime;
                 //Shield Recharge

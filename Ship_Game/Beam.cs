@@ -491,7 +491,7 @@ namespace Ship_Game
 
 		public void Update(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
         {
-            if (!this.collidedThisFrame && this.DamageToggleOn)
+            if (!this.CollidedThisFrame && this.DamageToggleOn)
             {
                 this.DamageToggleOn = false;
                 if (this.DamageToggleSound != null && this.DamageToggleSound.IsPlaying)
@@ -566,7 +566,7 @@ namespace Ship_Game
 		public void UpdateDroneBeam(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
 		{
         
-            if (!this.collidedThisFrame && this.DamageToggleOn)
+            if (!this.CollidedThisFrame && this.DamageToggleOn)
 			{
 				this.DamageToggleOn = false;
 				if (this.DamageToggleSound != null && this.DamageToggleSound.IsPlaying)
