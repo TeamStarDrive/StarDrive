@@ -175,7 +175,8 @@ namespace Ship_Game
             this.LeftMenu = new Menu1(ScreenManager, theMenu2);
             Rectangle theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 3 - 15, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - theMenu1.Y - 2);
             this.RightMenu = new Menu1(ScreenManager, theMenu3);
-            this.MoneyRect = new Rectangle(theMenu2.X + theMenu2.Width - 75, theMenu2.Y + 20, ResourceManager.TextureDict["NewUI/icon_money"].Width, ResourceManager.TextureDict["NewUI/icon_money"].Height);
+            var iconMoney = ResourceManager.TextureDict["NewUI/icon_money"];
+            this.MoneyRect = new Rectangle(theMenu2.X + theMenu2.Width - 75, theMenu2.Y + 20, iconMoney.Width, iconMoney.Height);
             this.close = new CloseButton(new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
             Rectangle theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
             this.PlanetInfo = new Submenu(ScreenManager, theMenu4);
@@ -193,7 +194,8 @@ namespace Ship_Game
             this.SliderFood.sRect = rectangle1;
             this.SliderFood.amount = p.FarmerPercentage;
             this.FoodLock = new ColonyScreen.Lock();
-            this.FoodLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 50, this.SliderFood.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
+            var foodLockTex = ResourceManager.TextureDict[this.FoodLock.Path];
+            this.FoodLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 50, this.SliderFood.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
             if (p.Owner != null && p.Owner.data.Traits.Cybernetic > 0)
                 p.FoodLocked = true;
             this.FoodLock.Locked = p.FoodLocked;
@@ -202,14 +204,14 @@ namespace Ship_Game
             this.SliderProd.sRect = rectangle2;
             this.SliderProd.amount = p.WorkerPercentage;
             this.ProdLock = new ColonyScreen.Lock();
-            this.ProdLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 50, this.SliderProd.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
+            this.ProdLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 50, this.SliderProd.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
             this.ProdLock.Locked = p.ProdLocked;
             Rectangle rectangle3 = new Rectangle(theMenu6.X + 60, theMenu6.Y + 25 + (int)(0.75 * (double)(theMenu6.Height - 25)), (int)num1, 6);
             this.SliderRes = new ColonyScreen.Slider();
             this.SliderRes.sRect = rectangle3;
             this.SliderRes.amount = p.ResearcherPercentage;
             this.ResLock = new ColonyScreen.Lock();
-            this.ResLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 50, this.SliderRes.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict[this.FoodLock.Path].Height / 2, ResourceManager.TextureDict[this.FoodLock.Path].Width, ResourceManager.TextureDict[this.FoodLock.Path].Height);
+            this.ResLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 50, this.SliderRes.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
             this.ResLock.Locked = p.ResLocked;
             Rectangle theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + theMenu6.Height + 40, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
             this.pStorage = new Submenu(ScreenManager, theMenu7);
@@ -236,11 +238,13 @@ namespace Ship_Game
                 this.foodDropDown.AddOption(Localizer.Token(330));
                 this.foodDropDown.AddOption(Localizer.Token(331));
                 this.foodDropDown.ActiveIndex = (int)p.fs;
-                this.foodStorageIcon = new Rectangle(theMenu7.X + 20, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - ResourceManager.TextureDict["NewUI/icon_storage_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_storage_food"].Width, ResourceManager.TextureDict["NewUI/icon_storage_food"].Height);
+                var iconStorageFood = ResourceManager.TextureDict["NewUI/icon_storage_food"];
+                this.foodStorageIcon = new Rectangle(theMenu7.X + 20, this.FoodStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
                 this.ProdStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.660000026226044 * (double)(theMenu7.Height - 25)), (int)(0.400000005960464 * (double)theMenu7.Width), 18));
                 this.ProdStorage.Max = p.MAX_STORAGE;
                 this.ProdStorage.Progress = p.ProductionHere;
-                this.profStorageIcon = new Rectangle(theMenu7.X + 20, this.ProdStorage.pBar.Y + this.ProdStorage.pBar.Height / 2 - ResourceManager.TextureDict["NewUI/icon_storage_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_storage_production"].Width, ResourceManager.TextureDict["NewUI/icon_storage_food"].Height);
+                var iconStorageProd = ResourceManager.TextureDict["NewUI/icon_storage_production"];
+                this.profStorageIcon = new Rectangle(theMenu7.X + 20, this.ProdStorage.pBar.Y + this.ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
                 this.prodDropDown = this.LowRes ? new DropDownMenu(new Rectangle(theMenu7.X + 90 + (int)(0.400000005960464 * (double)theMenu7.Width) + 20, this.ProdStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * (double)theMenu7.Width), 18)) : new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * (double)theMenu7.Width) + 20, this.ProdStorage.pBar.Y + this.FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * (double)theMenu7.Width), 18));
                 this.prodDropDown.AddOption(Localizer.Token(329));
                 this.prodDropDown.AddOption(Localizer.Token(330));
@@ -254,8 +258,9 @@ namespace Ship_Game
             this.pFacilities = new Submenu(ScreenManager, theMenu9);
             this.pFacilities.AddTab(Localizer.Token(333));
             this.launchTroops = new UIButton();
-            this.launchTroops.Rect = new Rectangle(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-            this.launchTroops.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+            var empireTopBarBtn = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+            this.launchTroops.Rect = new Rectangle(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, empireTopBarBtn.Width, empireTopBarBtn.Height);
+            this.launchTroops.NormalTexture = empireTopBarBtn;
             this.launchTroops.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
             this.launchTroops.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
             this.launchTroops.Text = "Launch Troops";
@@ -263,8 +268,8 @@ namespace Ship_Game
 
             //fbedard: Add Send Troops button
             this.SendTroops = new UIButton();
-            this.SendTroops.Rect = new Rectangle(theMenu9.X + theMenu9.Width - this.launchTroops.Rect.Width - 185, theMenu9.Y - 5, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-            this.SendTroops.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+            this.SendTroops.Rect = new Rectangle(theMenu9.X + theMenu9.Width - this.launchTroops.Rect.Width - 185, theMenu9.Y - 5, empireTopBarBtn.Width, empireTopBarBtn.Height);
+            this.SendTroops.NormalTexture = empireTopBarBtn;
             this.SendTroops.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
             this.SendTroops.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
             this.SendTroops.Text = "Send Troops";
@@ -504,8 +509,9 @@ namespace Ship_Game
                                 position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.parseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
                                 position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                                Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                                var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
+                                Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                                this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
 
                                 // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
 
@@ -534,8 +540,9 @@ namespace Ship_Game
                                 position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.parseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, Color.Orange);
                                 position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
-                                Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                                var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
+                                Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                                this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
 
                                 // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
 
@@ -639,14 +646,16 @@ namespace Ship_Game
                                     (entry.item as ModuleHeader).Draw(this.ScreenManager, vector2_1);
                                 else if (entry.clickRectHover == 0)
                                 {
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                                    var iconPath = ResourceManager.HullsDict[(entry.item as Ship).GetShipData().Hull].IconPath;
+                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[iconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                                     Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y + 3f);
                                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as Ship).shipData.Role == ShipData.RoleName.station || (entry.item as Ship).shipData.Role == ShipData.RoleName.platform ? (entry.item as Ship).Name + " " + Localizer.Token(2041) : (entry.item as Ship).Name, position, Color.White);
                                     position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.GetRole((entry.item as Ship).shipData.Role, this.p.Owner), position, Color.Orange);
                                     position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 120);
-                                    Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2 - 5, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], destinationRectangle2, Color.White);
+                                    var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
+                                    Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
+                                    this.ScreenManager.SpriteBatch.Draw(iconProd, destinationRectangle2, Color.White);
 
                                     // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
 
