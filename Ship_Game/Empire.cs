@@ -1576,7 +1576,7 @@ namespace Ship_Game
         //    }
         //}
 
-        public void UpdateKnownShips()
+        public void UpdateKnownShips()  //Mer
         {
            // this.GetGSAI().ThreatMatrix.ScrubMatrix(true);
             if (this.data.Defeated)
