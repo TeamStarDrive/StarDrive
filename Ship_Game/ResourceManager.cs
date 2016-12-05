@@ -423,35 +423,9 @@ namespace Ship_Game
         public static Building GetBuilding(string whichBuilding)
         {
             Building template = BuildingsDict[whichBuilding];
-            Building newB = new Building
-            {
-                PlanetaryShieldStrengthAdded = template.PlanetaryShieldStrengthAdded,
-                MinusFertilityOnBuild        = template.MinusFertilityOnBuild,
-                CombatStrength               = template.CombatStrength,
-                PlusProdPerRichness          = template.PlusProdPerRichness,
-                Name                         = template.Name,
-                IsSensor                     = template.IsSensor,
-                IsProjector                  = template.IsProjector,
-                PlusResearchPerColonist      = template.PlusResearchPerColonist,
-                StorageAdded                 = template.StorageAdded,
-                Unique                       = template.Unique,
-                Icon                         = template.Icon,
-                PlusTaxPercentage            = template.PlusTaxPercentage,
-                Strength                     = template.Strength,
-                HardAttack                   = template.HardAttack,
-                SoftAttack                   = template.SoftAttack,
-                Defense                      = template.Defense,
-                Maintenance                  = template.Maintenance,
-                AllowInfantry                = template.AllowInfantry,
-                CanBuildAnywhere             = template.CanBuildAnywhere,
-                PlusFlatPopulation           = template.PlusFlatPopulation,
-                Weapon                       = template.Weapon,
-                isWeapon                     = template.isWeapon,
-                PlusTerraformPoints          = template.PlusTerraformPoints,
-                SensorRange                  = template.SensorRange,
-                ProjectorRange               = template.ProjectorRange,
-                Category                     = template.Category
-            };
+            Building newB = template.Clone();
+            newB.Cost *= UniverseScreen.GamePaceStatic;
+
             // comp fix to ensure functionality of vanilla buildings
             if (newB.Name == "Outpost" || newB.Name =="Capital City")
             {
@@ -467,39 +441,10 @@ namespace Ship_Game
                     newB.IsSensor = true;
                 }
             }
-            if (newB.isWeapon)
+            if (template.isWeapon)
             {
-                newB.theWeapon = GetWeapon(newB.Weapon);
+                newB.theWeapon = GetWeapon(template.Weapon);
             }
-            newB.PlusFlatFoodAmount       = template.PlusFlatFoodAmount;
-            newB.PlusFlatProductionAmount = template.PlusFlatProductionAmount;
-            newB.PlusFlatResearchAmount   = template.PlusFlatResearchAmount;
-            newB.EventTriggerUID          = template.EventTriggerUID;
-            newB.EventWasTriggered        = false;
-            newB.NameTranslationIndex     = template.NameTranslationIndex;
-            newB.DescriptionIndex         = template.DescriptionIndex;
-            newB.ShortDescriptionIndex    = template.ShortDescriptionIndex;
-            newB.Unique                   = template.Unique;
-            newB.CreditsPerColonist       = template.CreditsPerColonist;
-            newB.PlusProdPerColonist      = template.PlusProdPerColonist;
-            newB.Scrappable               = template.Scrappable;
-            newB.PlusFoodPerColonist      = template.PlusFoodPerColonist;
-            newB.WinsGame                 = template.WinsGame;
-            newB.EventOnBuild             = template.EventOnBuild;
-            newB.NoRandomSpawn            = template.NoRandomSpawn;
-            newB.Cost                     = template.Cost * UniverseScreen.GamePaceStatic;
-            newB.MaxPopIncrease           = template.MaxPopIncrease;
-            newB.AllowShipBuilding        = template.AllowShipBuilding;
-            newB.BuildOnlyOnce            = template.BuildOnlyOnce;
-            newB.IsCommodity              = template.IsCommodity;
-            newB.CommodityBonusType       = template.CommodityBonusType;
-            newB.CommodityBonusAmount     = template.CommodityBonusAmount;
-            newB.ResourceCreated          = template.ResourceCreated;
-            newB.ResourceConsumed         = template.ResourceConsumed;
-            newB.ConsumptionPerTurn       = template.ConsumptionPerTurn;
-            newB.OutputPerTurn            = template.OutputPerTurn;
-            newB.CommodityRequired        = template.CommodityRequired;
-            newB.ShipRepair               = template.ShipRepair;
             return newB;
         }
 
@@ -725,7 +670,7 @@ namespace Ship_Game
             string dir = "/DiplomacyDialogs/" + GlobalStats.Config.Language + "/";
             foreach (var kv in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
             {
-                string nameNoExt = Path.GetFileNameWithoutExtension(kv.Key.Name);
+                string nameNoExt = kv.Key.NameNoExt();
                 DDDict[nameNoExt] = kv.Value;
             }
         }
@@ -754,19 +699,16 @@ namespace Ship_Game
         {
             foreach (var kv in LoadEntitiesWithInfo<ExplorationEvent>("/Exploration Events", "LoadExpEvents"))
             {
-                string nameNoExt = Path.GetFileNameWithoutExtension(kv.Key.Name);
+                string nameNoExt = kv.Key.NameNoExt();
                 EventsDict[nameNoExt] = kv.Value;
             }
         }
 
         private static void LoadFlagTextures() // Refactored by RedFox
         {
-            foreach (FileInfo info in Dir.GetFiles(WhichModPath + "/Flags"))
+            foreach (FileInfo info in Dir.GetFiles(WhichModPath + "/Flags", "xnb"))
             {
-                string nameNoExt = Path.GetFileNameWithoutExtension(info.Name);
-                if (nameNoExt == "Thumbs")
-                    continue;
-
+                string nameNoExt = info.NameNoExt();
                 string path = WhichModPath == "Content"
                     ? ("Flags/" + nameNoExt) : ("../" + WhichModPath + "/Flags/" + nameNoExt);
 
@@ -780,7 +722,7 @@ namespace Ship_Game
             foreach (var kv in LoadEntitiesWithInfo<Good>("/Goods", "LoadGoods"))
             {
                 Good good = kv.Value;
-                good.UID = string.Intern(Path.GetFileNameWithoutExtension(kv.Key.Name));
+                good.UID = string.Intern(kv.Key.NameNoExt());
                 GoodsDict[good.UID] = good;
             }
         }
@@ -790,7 +732,7 @@ namespace Ship_Game
             TechTree.Clear();
             foreach (var kv in LoadEntitiesWithInfo<Technology>("/Technology_HardCore", "LoadTechnologyHardcore"))
             {
-                string nameNoExt = Path.GetFileNameWithoutExtension(kv.Key.Name);
+                string nameNoExt = kv.Key.NameNoExt();
                 TechTree[nameNoExt] = kv.Value;
             }
         }
@@ -834,6 +776,7 @@ namespace Ship_Game
             LoadGoods();
             LoadShips();
             LoadJunk();
+            LoadRoids();
             LoadProjTexts();
             LoadBuildings();
             LoadProjectileMeshes();
@@ -1044,70 +987,52 @@ namespace Ship_Game
 
         private static void LoadRandomItems()
         {
+            string dir = WhichModPath + "/RandomStuff";
+            if (!Directory.Exists(dir))
+                return;
+
             RandomItemsList.Clear();
-            //Added by McShooterz: mod folder support RandomStuff
-            FileInfo[] textList = Dir.GetFiles(Directory.Exists(string.Concat(WhichModPath, "/RandomStuff")) ? string.Concat(WhichModPath, "/RandomStuff") : "Content/RandomStuff");
-            XmlSerializer serializer1 = new XmlSerializer(typeof(RandomItem));
-            FileInfo[] fileInfoArray = textList;
-            for (int i = 0; i < (int)fileInfoArray.Length; i++)
-            {
-                FileStream stream = fileInfoArray[i].OpenRead();
-                RandomItem data = null;
-                try
-                {
-                     data = (RandomItem)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-                    ReportLoadingError(fileInfoArray[i], "LoadRandomItems", e);
-                }
-                if (data == null)
-                    continue;
-                //stream.Close();
-                stream.Dispose();
-                RandomItemsList.Add(data);
-            }
+            foreach (var kv in LoadEntitiesWithInfo<RandomItem>(dir, "LoadRandomItems"))
+                RandomItemsList.Add(kv.Value);
         }
 
+        public static int AsteroidModels => RoidsModels.Count;
+        public static Model GetAsteroidModel(int roidId)
+        {
+            return RoidsModels[roidId];
+        }
         private static void LoadRoids()
         {
-            foreach (FileInfo info in Dir.GetFiles("Content/Model/Asteroids"))
+            string dir = WhichModPath + "/Model/Asteroids";
+            if (!Directory.Exists(dir))
+                return;
+
+            string asteroids = "../"+WhichModPath+"/Model/Asteroids/";
+            RoidsModels.Clear();
+            foreach (FileInfo info in Dir.GetFilesNoSub(dir, "xnb"))
             {
-                var model = ContentManager.Load<Model>("Model/Asteroids/" + info.NameNoExt());
+                string nameNoExt = info.NameNoExt();
+                // only accept "asteroidNN" format, because there are a bunch of textures in the asteroids folder
+                if (!nameNoExt.StartsWith("asteroid") || !int.TryParse(nameNoExt.Substring(8), out int _))
+                    continue;
+                var model = ContentManager.Load<Model>(asteroids + info.NameNoExt());
                 RoidsModels.Add(model);
             }
         }
 
         private static void LoadShipModules()
         {
-            FileInfo[] textList = Dir.GetFiles(string.Concat(WhichModPath, "/ShipModules"));
-            XmlSerializer serializer1 = new XmlSerializer(typeof(ShipModule_Deserialize));
-            FileInfo[] fileInfoArray = textList;
-            for (int i = 0; i < (int)fileInfoArray.Length; i++)
+            foreach (var kv in LoadEntitiesWithInfo<ShipModule_Deserialize>("/ShipModules", "LoadShipModules"))
             {
-                
-                FileInfo FI = fileInfoArray[i];
-                //added by gremlin support techlevel disabled folder.
-                if(FI.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase)  >0)
+                // Added by gremlin support techlevel disabled folder.
+                if (kv.Key.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
                     continue;
-                FileStream stream = FI.OpenRead();
-                ShipModule_Deserialize data = null;
-                try
-                {
-                     data = (ShipModule_Deserialize)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-                    ReportLoadingError(fileInfoArray[i], "LoadShipModules", e); 
-                }
-                //stream.Close();
-                stream.Dispose();
-                if (data == null)
-                    continue;
+                ShipModule_Deserialize data = kv.Value;
+
                 if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
                 {
                     data.DescriptionIndex += (ushort)OffSet;
-                    Localizer.used[data.DescriptionIndex]=true;
+                    Localizer.used[data.DescriptionIndex] = true;
                 }
                 if (Localizer.LocalizerDict.ContainsKey(data.NameIndex + OffSet))
                 {
@@ -1115,16 +1040,14 @@ namespace Ship_Game
                     Localizer.used[data.NameIndex] = true;
                 }
                 
-                //if ( data.hangerTimerConstant >0 )
-                //    data.hangarTimerConstant = data.hangerTimerConstant;                                    
-                data.UID = String.Intern( Path.GetFileNameWithoutExtension(FI.Name));
-                if (data.IconTexturePath != null && String.IsInterned(data.IconTexturePath) != null)
-                    string.Intern(data.IconTexturePath);
-                if (!string.IsNullOrEmpty(data.WeaponType) && string.IsNullOrEmpty(String.IsInterned(data.WeaponType)))
-                    string.Intern(data.WeaponType);
-                if (data.IsCommandModule  && data.TargetTracking ==0 && data.FixedTracking == 0)
+                data.UID = string.Intern(kv.Key.NameNoExt());
+                data.IconTexturePath = string.Intern(data.IconTexturePath);
+                if (data.WeaponType != null)
+                    data.WeaponType = string.Intern(data.WeaponType);
+
+                if (data.IsCommandModule  && data.TargetTracking == 0 && data.FixedTracking == 0)
                 {
-                    data.TargetTracking = Convert.ToSByte((data.XSIZE * data.YSIZE) / 3);
+                    data.TargetTracking = Convert.ToSByte((data.XSIZE*data.YSIZE) / 3);
                 }
 
             #if DEBUG
@@ -1133,18 +1056,16 @@ namespace Ship_Game
             #endif
                 ShipModulesDict[data.UID] = data.ConvertToShipModule();
             }
-            foreach (KeyValuePair<string, ShipModule> entry in ShipModulesDict)
-            {
+
+            foreach (var entry in ShipModulesDict)
                 entry.Value.SetAttributesNoParent();
-            }
-            textList = null;
         }
 
         private static List<Ship> LoadShipsFromDirectory(string dir)
         {
             var ships = new List<Ship>();
-            Parallel.ForEach(Dir.GetFiles(dir, "xml"), info =>
-            {
+            Parallel.ForEach(Dir.GetFiles(dir, "xml"), info => {
+            //foreach (var info in Dir.GetFiles(dir, "xml")) { 
                 //added by gremlin support techlevel disabled folder.
                 if (info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
                     return; // continue PFor
@@ -1342,65 +1263,32 @@ namespace Ship_Game
 
         public static void LoadSubsetEmpires()
         {
-            //Ship_Game.ResourceManager.Empires.Clear();
-            FileInfo[] textList = Dir.GetFiles(string.Concat(WhichModPath, "/Races"));
-            XmlSerializer serializer1 = new XmlSerializer(typeof(EmpireData));
-            FileInfo[] fileInfoArray = textList;
-            for (int i = 0; i < (int)fileInfoArray.Length; i++)
+            foreach (var data in LoadEntities<EmpireData>("/Races", "LoadSubsetEmpires"))
             {
-                FileStream stream = fileInfoArray[i].OpenRead();
-                EmpireData data = null;
-                try
-                {
-                     data = (EmpireData)serializer1.Deserialize(stream);
-                }
-                catch (Exception e)
-                {
-                    ReportLoadingError(fileInfoArray[i], "LoadSubsetEmpires", e);
-                }
-                //stream.Close();
-                stream.Dispose();
                 if (data.Faction == 1)
-                {
                     Empires.Add(data);
-                }
             }
-            textList = null;
         }
 
         private static void LoadTechTree()
         {
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.clearVanillaTechs)
                 TechTree.Clear();
-            FileInfo[] textList = Dir.GetFiles(string.Concat(WhichModPath, "/Technology"));
-            XmlSerializer serializer1 = new XmlSerializer(typeof(Technology));
-            FileInfo[] fileInfoArray = textList;
-            for (int i = 0; i < (int)fileInfoArray.Length; i++)
+
+            foreach (var kv in LoadEntitiesWithInfo<Technology>("/Technology", "LoadTechTree"))
             {
-                FileInfo FI = fileInfoArray[i];
-                FileStream stream = FI.OpenRead();
-                Technology data = null;
-                try
+                var tech = kv.Value;
+                if (Localizer.LocalizerDict.ContainsKey(tech.DescriptionIndex + OffSet))
                 {
-                    data = (Technology)serializer1.Deserialize(stream);
+                    tech.DescriptionIndex += OffSet;
+                    Localizer.used[tech.DescriptionIndex] = true;
                 }
-                catch (Exception e)
+                if (Localizer.LocalizerDict.ContainsKey(tech.NameIndex + OffSet))
                 {
-                    ReportLoadingError(FI, "LoadTechTree", e);
+                    tech.NameIndex += OffSet;
+                    Localizer.used[tech.NameIndex] = true;
                 }
-                //stream.Close();
-                stream.Dispose();
-                if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
-                {
-                    data.DescriptionIndex += OffSet;
-                    Localizer.used[data.DescriptionIndex] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(data.NameIndex + OffSet))
-                {
-                    data.NameIndex += OffSet;
-                    Localizer.used[data.NameIndex] = true;
-                }
-                foreach (Technology.UnlockedBonus bonus in data.BonusUnlocked)
+                foreach (Technology.UnlockedBonus bonus in tech.BonusUnlocked)
                 {
                     if (Localizer.LocalizerDict.ContainsKey(bonus.BonusIndex + OffSet))
                     {
@@ -1413,123 +1301,92 @@ namespace Ship_Game
                         Localizer.used[bonus.BonusNameIndex] = true;
                     }
                 }
-                data.UID = Path.GetFileNameWithoutExtension(FI.Name);
-                data.UID = string.IsInterned(data.UID);
-                if (data.UID == null)
+
+                tech.UID = string.Intern(kv.Key.NameNoExt());
+                TechTree[tech.UID] = tech;
+
+                // categorize uncategorized techs
+                if (tech.TechnologyType != TechnologyType.General)
+                    continue;
+
+                if (tech.BuildingsUnlocked.Count > 0)
                 {
-                    data.UID = string.Intern(Path.GetFileNameWithoutExtension(FI.Name));
-                }
-
-
-                if (TechTree.ContainsKey(Path.GetFileNameWithoutExtension(FI.Name)))
-                {
-
-                    TechTree[Path.GetFileNameWithoutExtension(FI.Name)] = data;
-
-                }
-                else
-                {
-
-                    //Ship_Game.ResourceManager.TechTree.Add(Path.GetFileNameWithoutExtension(info.Name), data);
-                    TechTree.Add(data.UID, data);
-                }
-                //catagorize uncatagoried techs
-                {
-                    if (data.TechnologyType == TechnologyType.General)
+                    foreach (Technology.UnlockedBuilding buildingU in tech.BuildingsUnlocked)
                     {
-                        if (data.BuildingsUnlocked.Count > 0)
-                        {
-                            foreach (Technology.UnlockedBuilding buildingU in data.BuildingsUnlocked)
-                            {
-                                Building building;
-                                if (BuildingsDict.TryGetValue(buildingU.Name, out building))
-                                {
-                                    if (building.AllowInfantry || building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0
-                                        || building.isWeapon || building.Strength > 0 || building.IsSensor)
-                                        data.TechnologyType = TechnologyType.GroundCombat;
-                                    else if (building.AllowShipBuilding || building.PlusFlatProductionAmount > 0 || building.PlusProdPerRichness > 0
-                                        || building.StorageAdded > 0 || building.PlusFlatProductionAmount > 0)
-                                        data.TechnologyType = TechnologyType.Industry;
-                                    else if (building.PlusTaxPercentage > 0 || building.CreditsPerColonist > 0)
-                                        data.TechnologyType = TechnologyType.Economic;
-                                    else if (building.PlusFlatResearchAmount > 0 || building.PlusResearchPerColonist > 0)
-                                        data.TechnologyType = TechnologyType.Research;
-                                    else if (building.PlusFoodPerColonist > 0 || building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0
-                                        || building.MaxPopIncrease > 0 || building.PlusFlatPopulation > 0 || building.Name == "Biosspheres"
-                                        || building.PlusTerraformPoints > 0
-                                        )
-                                        data.TechnologyType = TechnologyType.Colonization;
-                                }
-
-                            }
-
-
-                        }
-                        else if (data.TroopsUnlocked.Count > 0)
-                        {
-                            data.TechnologyType = TechnologyType.GroundCombat;
-                        }
-                        else if (data.TechnologyType == TechnologyType.General && data.BonusUnlocked.Count > 0)
-                        {
-                            foreach (Technology.UnlockedBonus bonus in data.BonusUnlocked)
-                            {
-                                if (bonus.Type == "SHIPMODULE" || bonus.Type == "HULL")
-                                    data.TechnologyType = TechnologyType.ShipGeneral;
-                                else if (bonus.Type == "TROOP")
-                                    data.TechnologyType = TechnologyType.GroundCombat;
-                                else if (bonus.Type == "BUILDING")
-                                    data.TechnologyType = TechnologyType.Colonization;
-                                else if (bonus.Type == "ADVANCE")
-                                    data.TechnologyType = TechnologyType.ShipGeneral;
-                            }
-                        }
-                        else if (data.ModulesUnlocked.Count > 0)
-                        {
-                            foreach (Technology.UnlockedMod moduleU in data.ModulesUnlocked)
-                            {
-                                ShipModule module;
-                                if (ShipModulesDict.TryGetValue(moduleU.ModuleUID, out module))
-                                {
-                                    if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
-                                        || module.ModuleType == ShipModuleType.Hangar
-                                        )
-                                        data.TechnologyType = TechnologyType.ShipWeapons;
-                                    else if (module.shield_power > 0 || module.ModuleType == ShipModuleType.Armor
-                                        || module.ModuleType == ShipModuleType.Countermeasure
-                                        || module.ModuleType == ShipModuleType.Shield
-
-                                        )
-                                        data.TechnologyType = TechnologyType.ShipDefense;
-
-
-                                    else
-                                        data.TechnologyType = TechnologyType.ShipGeneral;
-                                    
-                                }
-                            }
-                        }
-
-                        else data.TechnologyType = TechnologyType.General;
-
-                        if (data.HullsUnlocked.Count > 0)
-                        {
-                            data.TechnologyType = TechnologyType.ShipHull;
-                            foreach (Technology.UnlockedHull hull in data.HullsUnlocked)
-                            {
-                                ShipData.RoleName role = HullsDict[hull.Name].Role;
-                                if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform
-                                    || role == ShipData.RoleName.construction || role == ShipData.RoleName.station)
-                                    data.TechnologyType = TechnologyType.Industry;
-                            }
-
-                        }
-
-
+                        if (!BuildingsDict.TryGetValue(buildingU.Name, out Building building))
+                            continue;
+                        if (building.AllowInfantry || building.PlanetaryShieldStrengthAdded > 0 
+                                 || building.CombatStrength > 0 || building.isWeapon 
+                                 || building.Strength > 0  || building.IsSensor)
+                            tech.TechnologyType = TechnologyType.GroundCombat;
+                        else if (building.AllowShipBuilding || building.PlusFlatProductionAmount > 0 
+                                 || building.PlusProdPerRichness > 0 || building.StorageAdded > 0 
+                                 || building.PlusFlatProductionAmount > 0)
+                            tech.TechnologyType = TechnologyType.Industry;
+                        else if (building.PlusTaxPercentage > 0 || building.CreditsPerColonist > 0)
+                            tech.TechnologyType = TechnologyType.Economic;
+                        else if (building.PlusFlatResearchAmount > 0 || building.PlusResearchPerColonist > 0)
+                            tech.TechnologyType = TechnologyType.Research;
+                        else if (building.PlusFoodPerColonist > 0 || building.PlusFlatFoodAmount > 0 
+                                 || building.PlusFoodPerColonist > 0 || building.MaxPopIncrease > 0 
+                                 || building.PlusFlatPopulation > 0  || building.Name == "Biosspheres" || building.PlusTerraformPoints > 0)
+                            tech.TechnologyType = TechnologyType.Colonization;
                     }
                 }
+                else if (tech.TroopsUnlocked.Count > 0)
+                {
+                    tech.TechnologyType = TechnologyType.GroundCombat;
+                }
+                else if (tech.TechnologyType == TechnologyType.General && tech.BonusUnlocked.Count > 0)
+                {
+                    foreach (Technology.UnlockedBonus bonus in tech.BonusUnlocked)
+                    {
+                        if (bonus.Type == "SHIPMODULE" || bonus.Type == "HULL")
+                            tech.TechnologyType = TechnologyType.ShipGeneral;
+                        else if (bonus.Type == "TROOP")
+                            tech.TechnologyType = TechnologyType.GroundCombat;
+                        else if (bonus.Type == "BUILDING")
+                            tech.TechnologyType = TechnologyType.Colonization;
+                        else if (bonus.Type == "ADVANCE")
+                            tech.TechnologyType = TechnologyType.ShipGeneral;
+                    }
+                }
+                else if (tech.ModulesUnlocked.Count > 0)
+                {
+                    foreach (Technology.UnlockedMod moduleU in tech.ModulesUnlocked)
+                    {
+                        if (!ShipModulesDict.TryGetValue(moduleU.ModuleUID, out ShipModule module))
+                            continue;
 
+                        if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
+                            || module.ModuleType == ShipModuleType.Hangar)
+                            tech.TechnologyType = TechnologyType.ShipWeapons;
+                        else if (module.shield_power > 0 
+                                 || module.ModuleType == ShipModuleType.Armor
+                                 || module.ModuleType == ShipModuleType.Countermeasure
+                                 || module.ModuleType == ShipModuleType.Shield)
+                            tech.TechnologyType = TechnologyType.ShipDefense;
+                        else
+                            tech.TechnologyType = TechnologyType.ShipGeneral;
+                    }
+                }
+                else tech.TechnologyType = TechnologyType.General;
+
+                if (tech.HullsUnlocked.Count > 0)
+                {
+                    tech.TechnologyType = TechnologyType.ShipHull;
+                    foreach (Technology.UnlockedHull hull in tech.HullsUnlocked)
+                    {
+                        ShipData.RoleName role = HullsDict[hull.Name].Role;
+                        if (role == ShipData.RoleName.freighter 
+                            || role == ShipData.RoleName.platform
+                            || role == ShipData.RoleName.construction 
+                            || role == ShipData.RoleName.station)
+                            tech.TechnologyType = TechnologyType.Industry;
+                    }
+
+                }
             }
-            textList = null;
         }
 
         // This method is a hot path during Loading and accounts for ~25% of time spent

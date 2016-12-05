@@ -811,7 +811,7 @@ namespace Ship_Game.Gameplay
         public Ship(Vector2 pos, Vector2 dim, float rot)
         {
             this.Position = pos;
-            this.rotation = rot;
+            this.Rotation = rot;
             this.Dimensions = dim;
         }
 
@@ -1288,7 +1288,7 @@ namespace Ship_Game.Gameplay
         public bool CheckIfInsideFireArc(Weapon w, Ship ship)
         {           
             Vector2 PickedPos = ship.Center;
-            float radius = ship.radius;
+            float radius = ship.Radius;
             GlobalStats.WeaponArcChecks = GlobalStats.WeaponArcChecks + 1;
             float modifyRangeAR = 50f;
             float distance =Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) ;
@@ -1421,7 +1421,7 @@ namespace Ship_Game.Gameplay
         {
             ShipSO = so;
             ShipSO.Visibility = ObjectVisibility.Rendered;
-            radius = ShipSO.WorldBoundingSphere.Radius * 2f;
+            Radius = ShipSO.WorldBoundingSphere.Radius * 2f;
         }
 
         public SceneObject GetSO()
@@ -2030,7 +2030,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             this.ShipSO.Visibility = ObjectVisibility.Rendered;
-            this.radius = this.ShipSO.WorldBoundingSphere.Radius * 2f;
+            this.Radius = this.ShipSO.WorldBoundingSphere.Radius * 2f;
             this.ShipStatusChange();
             this.shipInitialized = true;
             this.RecalculateMaxHP();            //Fix for Ship Max health being greater than all modules combined (those damned haphazard engineers). -Gretman
@@ -2468,10 +2468,10 @@ namespace Ship_Game.Gameplay
                 if (moduleSlotList.module.ModuleType == ShipModuleType.Armor && this.loyalty != null)
                 {
                     float modifiedMass = moduleSlotList.module.Mass * this.loyalty.data.ArmourMassModifier;
-                    this.mass += modifiedMass;
+                    this.Mass += modifiedMass;
                 }
                 else
-                    this.mass += moduleSlotList.module.Mass;
+                    this.Mass += moduleSlotList.module.Mass;
                 this.Thrust += moduleSlotList.module.thrust;
                 this.WarpThrust += moduleSlotList.module.WarpThrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
@@ -2516,10 +2516,10 @@ namespace Ship_Game.Gameplay
             #endregion
             this.HealthMax = base.Health;
             this.number_Alive_Internal_slots = this.number_Internal_slots;
-            this.velocityMaximum = this.Thrust / this.mass;
+            this.velocityMaximum = this.Thrust / this.Mass;
             this.speed = this.velocityMaximum;
             this.rotationRadiansPerSecond = this.speed / (float)this.Size;
-            this.ShipMass = this.mass;
+            this.ShipMass = this.Mass;
             this.shield_power = this.shield_max;
             this.SensorRange += sensorBonus;
             if (this.FTLSpoolTime <= 0f)
@@ -2665,7 +2665,7 @@ namespace Ship_Game.Gameplay
 
         public void LoadInitializeStatus()
         {
-            this.mass = 0.0f;
+            this.Mass = 0.0f;
             this.Thrust = 0.0f;
             this.PowerStoreMax = 0.0f;
             this.PowerFlowMax = 0.0f;
@@ -2702,14 +2702,14 @@ namespace Ship_Game.Gameplay
                 }
                 Ship ship1 = this;
 
-                double num1 = ship1.mass + moduleSlot.module.Mass;
+                double num1 = ship1.Mass + moduleSlot.module.Mass;
 
                 if (moduleSlot.module.ModuleType == ShipModuleType.Armor && this.loyalty != null)
                 {
                     float modifiedMass = moduleSlot.module.Mass * this.loyalty.data.ArmourMassModifier;
-                    num1 = (double)ship1.mass + (double)modifiedMass;
+                    num1 = (double)ship1.Mass + (double)modifiedMass;
                 }
-                ship1.mass = (float)num1;
+                ship1.Mass = (float)num1;
                 this.Thrust += moduleSlot.module.thrust;
                 this.WarpThrust += moduleSlot.module.WarpThrust;
                 this.MechanicalBoardingDefense += moduleSlot.module.MechanicalBoardingDefense;
@@ -2738,11 +2738,11 @@ namespace Ship_Game.Gameplay
             if ((double)this.MechanicalBoardingDefense < 1.0)
                 this.MechanicalBoardingDefense = 1f;
             this.HealthMax = this.Health;
-            this.velocityMaximum = this.Thrust / this.mass;
+            this.velocityMaximum = this.Thrust / this.Mass;
             this.speed = this.velocityMaximum;
             this.rotationRadiansPerSecond = this.speed / 700f;
             this.number_Alive_Internal_slots = this.number_Internal_slots;
-            this.ShipMass = this.mass;
+            this.ShipMass = this.Mass;
             if (this.FTLSpoolTime == 0)
                 this.FTLSpoolTime = 3f;
         }
@@ -2883,11 +2883,16 @@ namespace Ship_Game.Gameplay
             {
                 moduleSlot.SetParent(this);
                 if (!ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
+                {
+                    System.Diagnostics.Debug.WriteLine("Ship {0} init failed, module {1} doesn't exist",
+                                                        Name, moduleSlot.InstalledModuleUID);
                     return false;
+                }
+
                 moduleSlot.InitializeForLoad();
                 moduleSlot.module.Health = moduleSlot.ModuleHealth;
                 moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                if (moduleSlot.module.Health == 0f)
+                if (!(moduleSlot.module.Health > 0f))
                     moduleSlot.module.Active = false;
             }
             RecalculatePower();
@@ -3096,7 +3101,7 @@ namespace Ship_Game.Gameplay
                 {
                     for (int index = 0; index < 5; ++index)
                     {
-                        Vector3 vector3 = new Vector3((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween((float)(-(double)this.radius / 3.0), this.radius / 3f), (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween((float)(-(double)this.radius / 3.0), this.radius / 3f), 0.0f);
+                        Vector3 vector3 = new Vector3((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween((float)(-(double)this.Radius / 3.0), this.Radius / 3f), (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween((float)(-(double)this.Radius / 3.0), this.Radius / 3f), 0.0f);
                         Ship.universeScreen.lightning.AddParticleThreadA(new Vector3(this.Center, 0.0f) + vector3, Vector3.Zero);
                     }
                 }
@@ -3624,7 +3629,7 @@ namespace Ship_Game.Gameplay
             
             if (this.velocityMaximum == 0 && this.shipData.Role <= ShipData.RoleName.station)
             {
-                this.rotation += 0.003f;
+                this.Rotation += 0.003f;
             }
             this.MoveModulesTimer -= elapsedTime;
             this.updateTimer -= elapsedTime;
@@ -3641,17 +3646,17 @@ namespace Ship_Game.Gameplay
                     this.disabled = false;
             }
             //this.CargoMass = 0.0f;    //Not referenced in code, removing to save memory
-            if (this.rotation > 2.0 * Math.PI)
+            if (this.Rotation > 2.0 * Math.PI)
             {
                 //Ship ship = this;
                 //float num = ship.rotation - 6.28318548202515f;
-                this.rotation -= 6.28318548202515f;
+                this.Rotation -= 6.28318548202515f;
             }
-            if (this.rotation < 0.0)
+            if (this.Rotation < 0.0)
             {
                 //Ship ship = this;
                 //float num = ship.rotation + 6.28318548202515f;
-                this.rotation += 6.28318548202515f;
+                this.Rotation += 6.28318548202515f;
             }
             if (this.InCombat && !this.disabled && this.hasCommand || this.PlayerShip)
             {
@@ -4191,13 +4196,13 @@ namespace Ship_Game.Gameplay
                     //this.velocityMaximum *= this.FTLmodifier;
                 this.Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)this.Rotation), -(float)Math.Cos((double)this.Rotation))) * this.velocityMaximum;
             }
-            if ((this.Thrust <= 0.0f || this.mass <= 0.0f )&& !this.IsTethered())
+            if ((this.Thrust <= 0.0f || this.Mass <= 0.0f )&& !this.IsTethered())
             {
                 this.EnginesKnockedOut = true;
                 this.velocityMaximum = this.Velocity.Length();
                 Ship ship = this;
-                Vector2 vector2 = ship.velocity - this.velocity * (elapsedTime * 0.1f);
-                ship.velocity = vector2;
+                Vector2 vector2 = ship.Velocity - this.Velocity * (elapsedTime * 0.1f);
+                ship.Velocity = vector2;
                 if (this.engineState == MoveState.Warp)
                     this.HyperspaceReturn();
             }
@@ -4270,11 +4275,11 @@ namespace Ship_Game.Gameplay
                         {
                             float ArmourMassModifier = this.loyalty.data.ArmourMassModifier;
                             float ArmourMass = moduleSlot.module.Mass * ArmourMassModifier;
-                            this.mass += ArmourMass;
+                            this.Mass += ArmourMass;
                         }
                         else
                         {
-                            this.mass += moduleSlot.module.Mass;
+                            this.Mass += moduleSlot.module.Mass;
                         }
                         //ship3.Mass = num3;
                     }
@@ -4691,7 +4696,7 @@ namespace Ship_Game.Gameplay
                             break;
                     }
                     if (this.system != null)
-                        this.system.spatialManager.ShipExplode((GameplayObject)this, (float)(this.Size * 50), this.Center, this.radius);
+                        this.system.spatialManager.ShipExplode((GameplayObject)this, (float)(this.Size * 50), this.Center, this.Radius);
                 }
                 else
                 {
@@ -4727,7 +4732,7 @@ namespace Ship_Game.Gameplay
                             break;
                     }
                     if (this.system != null)
-                        this.system.spatialManager.ShipExplode((GameplayObject)this, (float)(this.Size * 50), this.Center, this.radius);
+                        this.system.spatialManager.ShipExplode((GameplayObject)this, (float)(this.Size * 50), this.Center, this.Radius);
                 }
             }
             if (Ship_Game.ResourceManager.ShipsDict[this.Name].GetShipData().EventOnDeath != null)

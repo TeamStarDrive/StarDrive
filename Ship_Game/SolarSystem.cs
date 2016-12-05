@@ -310,13 +310,6 @@ namespace Ship_Game
 							scale = RandomMath.RandomBetween(0.75f, 1.6f),
 							Position3D = asteroidCenter
 						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
 						this.AsteroidsList.Add(newRoid);
 					}
 					SolarSystem.Ring ring = new SolarSystem.Ring()
@@ -473,13 +466,6 @@ namespace Ship_Game
 							scale = RandomMath.RandomBetween(0.75f, 1.6f),
 							Position3D = asteroidCenter
 						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
 						this.AsteroidsList.Add(newRoid);
 					}
 					SolarSystem.Ring ring = new SolarSystem.Ring()
@@ -859,13 +845,7 @@ namespace Ship_Game
 							scale = RandomMath.RandomBetween(0.75f, 1.6f),
 							Position3D = asteroidCenter
 						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
+                        AsteroidsList.Add(newRoid);
 					}
 					SolarSystem.Ring ring = new SolarSystem.Ring()
 					{
@@ -1114,13 +1094,6 @@ namespace Ship_Game
 							scale = RandomMath.RandomBetween(1.2f, 4.6f),
 							Position3D = asteroidCenter
 						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
 						newSys.AsteroidsList.Add(newRoid);
 					}
 					SolarSystem.Ring ring = new SolarSystem.Ring()
@@ -1136,16 +1109,14 @@ namespace Ship_Game
 
 		public float GetActualStrengthPresent(Empire e)
 		{
-			float StrHere = 0f;
-			foreach (Ship ship in this.ShipList)
+			float strength = 0f;
+			foreach (Ship ship in ShipList)
 			{
 				if (ship.loyalty != e)
-				{
 					continue;
-				}
-				StrHere = StrHere + ship.GetStrength();
+				strength += ship.GetStrength();
 			}
-			return StrHere;
+			return strength;
 		}
 
         public float GetPredictedEnemyPresence(float time, Empire us)

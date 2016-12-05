@@ -9,126 +9,24 @@ namespace Ship_Game
 	public abstract class GameplayObject
 	{
 		public bool Active = true;
-
 		protected SolarSystem system;
-
 		public static GraphicsDevice device;
-
 		public Vector2 Center;
+	    protected Cue dieCue;
+	    public bool isInDeepSpace = true;
 
-		protected Vector2 velocity = Vector2.Zero;
+		public static AudioListener audioListener { get; set; }
+		public bool CollidedThisFrame { get; set; }
+	    public Vector2 Dimensions { get; set; }
+		public float Health { get; set; }
+		public GameplayObject LastDamagedBy { get; set; }
+	    public float Mass { get; set; } = 1f;
+	    public Vector2 Position { get; set; }
+		public float Radius { get; set; } = 1f;
+	    public float Rotation { get; set; }
+	    public Vector2 Velocity { get; set; } = Vector2.Zero;
 
-		protected float rotation;
-
-		protected float radius = 1f;
-
-		protected float mass = 1f;
-
-		protected bool collidedThisFrame;
-
-		protected Cue dieCue;
-
-		private GameplayObject lastDamagedBy;
-
-		public bool isInDeepSpace = true;
-
-		public static AudioListener audioListener
-		{
-			get;
-			set;
-		}
-
-		public bool CollidedThisFrame
-		{
-			get
-			{
-				return this.collidedThisFrame;
-			}
-			set
-			{
-				this.collidedThisFrame = value;
-			}
-		}
-
-		public Vector2 Dimensions
-		{
-			get;
-			set;
-		}
-
-		public float Health
-		{
-			get;
-			set;
-		}
-
-		public GameplayObject LastDamagedBy
-		{
-			get
-			{
-				return this.lastDamagedBy;
-			}
-			set
-			{
-				this.lastDamagedBy = value;
-			}
-		}
-
-		public float Mass
-		{
-			get
-			{
-				return this.mass;
-			}
-			set
-			{
-				this.mass = value;
-			}
-		}
-
-		public Vector2 Position
-		{
-			get;
-			set;
-		}
-
-		public float Radius
-		{
-			get
-			{
-				return this.radius;
-			}
-			set
-			{
-				this.radius = value;
-			}
-		}
-
-		public float Rotation
-		{
-			get
-			{
-				return this.rotation;
-			}
-			set
-			{
-				this.rotation = value;
-			}
-		}
-
-		public Vector2 Velocity
-		{
-			get
-			{
-				return this.velocity;
-			}
-			set
-			{
-				this.velocity = value;
-			}
-		}
-
-		protected GameplayObject()
+	    protected GameplayObject()
 		{
 		}
 
@@ -146,7 +44,7 @@ namespace Ship_Game
 		{
 			if (spriteBatch != null && sprite != null)
 			{
-				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), 2f * this.radius / MathHelper.Min((float)sprite.Width, (float)sprite.Height), SpriteEffects.None, 0f);
+				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.Rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), 2f * this.Radius / MathHelper.Min((float)sprite.Width, (float)sprite.Height), SpriteEffects.None, 0f);
 			}
 		}
 
@@ -154,7 +52,7 @@ namespace Ship_Game
 		{
 			if (spriteBatch != null && sprite != null)
 			{
-				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), scaleFactor, SpriteEffects.None, 0f);
+				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.Rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), scaleFactor, SpriteEffects.None, 0f);
 			}
 		}
 
@@ -162,7 +60,7 @@ namespace Ship_Game
 		{
 			if (spriteBatch != null && sprite != null)
 			{
-				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), scaleFactor + this.radius / 10000f, SpriteEffects.None, 0f);
+				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.Rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), scaleFactor + this.Radius / 10000f, SpriteEffects.None, 0f);
 			}
 		}
 
@@ -247,7 +145,7 @@ namespace Ship_Game
 
 		public virtual void Update(float elapsedTime)
 		{
-			this.collidedThisFrame = false;
+			this.CollidedThisFrame = false;
 		}
 
 		public void UpdateSystem(float elapsedTime)
