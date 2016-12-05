@@ -307,7 +307,9 @@ namespace Ship_Game
 				ScreenManager.GraphicsDevice.VertexDeclaration = this.quadVertexDecl;
 				Beam.BeamEffect.CurrentTechnique = Beam.BeamEffect.Techniques["Technique1"];
 				Beam.BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
-				Beam.BeamEffect.Parameters["tex"].SetValue(ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
+                string beamTexPath = "Beams/" + ResourceManager.WeaponsDict[weapon.UID].BeamTexture;
+                var beamTex = ResourceManager.GetTexture(beamTexPath);
+				Beam.BeamEffect.Parameters["tex"].SetValue(beamTex);
 				Beam beam = this;
 				beam.displacement = beam.displacement - 0.05f;
 				if (this.displacement < 0f)

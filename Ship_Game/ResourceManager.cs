@@ -65,7 +65,7 @@ namespace Ship_Game
         public static List<KeyValuePair<string, Texture2D>> FlagTextures = new List<KeyValuePair<string, Texture2D>>();
         public static Dictionary<string, SoundEffect> SoundEffectDict    = new Dictionary<string, SoundEffect>();
 
-        //Added by McShooterz
+        // Added by McShooterz
         public static HostileFleets HostileFleets                        = new HostileFleets();
         public static ShipNames ShipNames                                = new ShipNames();
         public static AgentMissionData AgentMissionData                  = new AgentMissionData();
@@ -86,7 +86,6 @@ namespace Ship_Game
                     continue;
                 shipTechs.Add(tech, FindPreviousTechs(tech, new List<string>()));
             }
-
 
             foreach (ShipData hull in HullsDict.Values)
             {
@@ -122,11 +121,7 @@ namespace Ship_Game
                     continue;
                 if (shipData.HullRole == ShipData.RoleName.disabled)
                     continue;
-                //bool empirehulldict;
-                //if (shipData.ShipStyle != this.data.Traits.ShipType && (!this.GetHDict().TryGetValue(shipData.Hull, out empirehulldict) || !empirehulldict))
-                //    continue;
-                //if (shipData.HullRole < ShipData.RoleName.gunboat || shipData.Role == ShipData.RoleName.prototype)
-                //    shipData.hullUnlockable = true;
+
                 if (shipData.HullData != null && shipData.HullData.unLockable)
                 {
                     foreach (string str in shipData.HullData.techsNeeded)
@@ -135,14 +130,10 @@ namespace Ship_Game
                 }
                 else
                 {
-                    //System.Diagnostics.Debug.WriteLine(" no hull tech");
                     shipData.allModulesUnlocakable = false;
                     shipData.hullUnlockable = false;
-                    //shipData.techsNeeded.Clear();
                     purge.Add(kv.Key);
                 }
-
-
 
                 if (shipData.hullUnlockable)
                 {
@@ -152,20 +143,16 @@ namespace Ship_Game
                         if (module.InstalledModuleUID == "Dummy")
                             continue;
                         bool modUnlockable = false;
-                        //if (!modUnlockable)
                         foreach (Technology technology in shipTechs.Keys)
                         {
-
                             foreach (Technology.UnlockedMod mods in technology.ModulesUnlocked)
                             {
                                 if (mods.ModuleUID == module.InstalledModuleUID)
                                 {
                                     modUnlockable = true;
-
                                     shipData.techsNeeded.Add(technology.UID);
                                     foreach (string tree in shipTechs[technology])
                                         shipData.techsNeeded.Add(tree);
-
                                     break;
                                 }
                             }
@@ -175,9 +162,6 @@ namespace Ship_Game
                         if (!modUnlockable)
                         {
                             shipData.allModulesUnlocakable = false;
-                            //shipData.hullUnlockable = false;
-                            //shipData.techsNeeded.Clear();
-                           // purge.Add(ship.Key);
                             break;
                         }
 
@@ -190,27 +174,21 @@ namespace Ship_Game
                         shipData.TechScore += (int)TechTree[techname].Cost;
                         x++;
                         if (!(shipData.BaseStrength > 0f))
-                        {
                             CalculateBaseStrength(kv.Value);
-                        }
                     }
                 else
                 {                    
-                    //shipData.allModulesUnlocakable = false;
                     shipData.unLockable = false;
                     shipData.techsNeeded.Clear();
                     purge.Add(shipData.Name);
                     shipData.BaseStrength = 0;
-                    //System.Diagnostics.Debug.WriteLine(shipData.Name);
                 }
 
             }
             
             System.Diagnostics.Debug.WriteLine("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
             foreach (string purger in purge)
-            {
                 System.Diagnostics.Debug.WriteLine("These are Designs" + purger);
-            }
         }
         public static bool IgnoreLoadingErrors = false;
         // Used for reporting resource loading errors.
@@ -234,39 +212,9 @@ namespace Ship_Game
 
         public static Troop CopyTroop(Troop t)
         {
-            Troop troop = new Troop
-            {
-                Class             = t.Class,
-                Cost              = t.Cost,
-                Name              = t.Name,
-                Range             = t.Range,
-                Description       = t.Description,
-                HardAttack        = t.HardAttack,
-                SoftAttack        = t.SoftAttack,
-                Strength          = t.Strength,
-                StrengthMax       = t.StrengthMax > 0 ? t.StrengthMax : t.Strength,
-                TargetType        = t.TargetType,
-                TexturePath       = t.TexturePath,
-                Experience        = t.Experience,
-                Icon              = t.Icon,
-                animated          = t.animated,
-                idle_path         = t.idle_path,
-                idle_x_offset     = t.idle_x_offset,
-                idle_y_offset     = t.idle_y_offset,
-                num_attack_frames = t.num_attack_frames,
-                num_idle_frames   = t.num_idle_frames,
-                attack_width      = t.attack_width,
-                attack_path       = t.attack_path,
-                WhichFrame        = (int)RandomMath.RandomBetween(1, t.num_idle_frames - 1),
-                first_frame       = t.first_frame,
-                MovementCue       = t.MovementCue,
-                sound_attack      = t.sound_attack,
-                MoveTimerBase     = t.MoveTimerBase,
-                AttackTimerBase   = t.AttackTimerBase,
-                Level             = t.Level,
-                Kills             = t.Kills,
-                BoardingStrength  = t.BoardingStrength
-            };
+            Troop troop = t.Clone();
+            troop.StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength;
+            troop.WhichFrame  = (int)RandomMath.RandomBetween(1, t.num_idle_frames - 1);
             troop.SetOwner(t.GetOwner());
             return troop;
         }
@@ -1604,6 +1552,12 @@ namespace Ship_Game
                     TextureDict[directory + "/" + nameNoExt] = tex;
                 }
             });
+        }
+
+        // Gets a loaded texture using the given abstract texture path
+        public static Texture2D GetTexture(string texturePath)
+        {
+            return TextureDict[texturePath];
         }
 
         private static void LoadToolTips()
