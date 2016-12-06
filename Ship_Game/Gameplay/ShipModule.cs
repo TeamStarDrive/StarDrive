@@ -1687,7 +1687,8 @@ namespace Ship_Game.Gameplay
 			}
 			if (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < 10f)
 			{
-				List<SpaceJunk> junk = SpaceJunk.MakeJunk(1, this.Center, this.Parent.GetSystem());
+                int randInt = (int)RandomMath.RandomBetween(3, 7);
+				List<SpaceJunk> junk = SpaceJunk.MakeJunk(randInt, Center, Parent.GetSystem());
 				lock (GlobalStats.ObjectManagerLocker)
 				{
 					foreach (SpaceJunk j in junk)

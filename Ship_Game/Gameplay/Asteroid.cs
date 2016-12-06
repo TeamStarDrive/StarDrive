@@ -28,7 +28,7 @@ namespace Ship_Game.Gameplay
 			Xrotate = RandomMath.RandomBetween(0.01f, 1.02f);
 			Yrotate = RandomMath.RandomBetween(0.01f, 1.02f);
 			Zrotate = RandomMath.RandomBetween(0.01f, 1.02f);
-            whichRoid = (int)RandomMath.RandomBetween(0, ResourceManager.AsteroidModels);
+            whichRoid = (int)RandomMath.RandomBetween(0, ResourceManager.NumAsteroidModels);
 			Radius = RandomMath.RandomBetween(30f, 90f);
 		}
 
