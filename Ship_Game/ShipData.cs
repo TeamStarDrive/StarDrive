@@ -75,6 +75,7 @@ namespace Ship_Game
             readonly int Len;
             public string AsString   => Len != 0 ? new string(Str, 0, Len) : string.Empty;
             public string AsInterned => Len != 0 ? string.Intern(new string(Str, 0, Len)) : string.Empty;
+            public string AsInternedOrNull => Len != 0 ? string.Intern(new string(Str, 0, Len)) : null;
             public bool Empty => Len == 0;
             public override string ToString() { return AsString; }
         }
@@ -188,7 +189,7 @@ namespace Ship_Game
                     CModuleSlot* msd = &s->ModuleSlots[i];
                     ModuleSlotData slot = new ModuleSlotData();
                     slot.Position           = new Vector2(msd->PosX, msd->PosY);
-                    slot.InstalledModuleUID = msd->InstalledModuleUID.AsInterned;
+                    slot.InstalledModuleUID = msd->InstalledModuleUID.AsInternedOrNull;
                     slot.HangarshipGuid     = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health             = msd->Health;
                     slot.Shield_Power       = msd->ShieldPower;
