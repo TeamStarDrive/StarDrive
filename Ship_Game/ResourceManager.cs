@@ -783,7 +783,7 @@ namespace Ship_Game
             LoadGoods();
             LoadShips();
             LoadJunk();
-            LoadRoids();
+            LoadAsteroids();
             LoadProjTexts();
             LoadBuildings();
             LoadProjectileMeshes();
@@ -808,26 +808,50 @@ namespace Ship_Game
 
         public static Model GetJunkModel(int idx)
         {
-            return JunkModels[idx-1];
+            return JunkModels[idx];
         }
-        private static void LoadJunk() // Refactored by RedFox
+        public static int NumJunkModels => JunkModels.Count;
+
+        public static int NumAsteroidModels => RoidsModels.Count;
+        public static Model GetAsteroidModel(int roidId)
         {
-            foreach (FileInfo info in Dir.GetFiles("Content/Model/SpaceJunk", "xnb"))
+            return RoidsModels[roidId];
+        }
+
+        // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
+        private static void LoadNumberedModels(List<Model> models, string modelFolder, string modelPrefix, string id)
+        {
+            var files = Dir.GetFiles(WhichModPath + modelFolder, "xnb");
+            if (files.Length == 0)
+                return;
+
+            string loaddir = "../"+WhichModPath+modelFolder;
+            models.Clear();
+            foreach (FileInfo info in files)
             {
                 string nameNoExt = info.NameNoExt();
-                if (!nameNoExt.StartsWith("spacejunk") || !int.TryParse(nameNoExt.Substring(9), out int idx))
-                    continue;
                 try
                 {
-                    Model junk = ContentManager.Load<Model>("Model/SpaceJunk/" + nameNoExt);
-                    while (JunkModels.Count < idx) JunkModels.Add(null);
-                    JunkModels[idx-1] = junk;
+                    // only accept "prefixNN" format, because there are a bunch of textures in the asteroids folder
+                    if (!nameNoExt.StartsWith(modelPrefix) || !int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
+                        continue;
+                    models.Add(ContentManager.Load<Model>(loaddir + nameNoExt));
                 }
                 catch (Exception e)
                 {
-                    ReportLoadingError(info, "LoadJunk", e);
+                    ReportLoadingError(info, id, e);
                 }
             }
+        }
+
+        private static void LoadJunk() // Refactored by RedFox
+        {
+            LoadNumberedModels(JunkModels, "/Model/SpaceJunk/", "spacejunk", "LoadJunk");
+        }
+        private static void LoadAsteroids()
+        {
+            LoadNumberedModels(RoidsModels, "/Model/Asteroids/", "asteroid", "LoadAsteroids");
+            //LoadNumberedModels(RoidsModels, "/Model/SpaceJunk/", "spacejunk", "LoadJunk");
         }
 
         private static void LoadLanguage() // Refactored by RedFox
@@ -1004,30 +1028,6 @@ namespace Ship_Game
             RandomItemsList.Clear();
             foreach (var kv in LoadEntitiesWithInfo<RandomItem>(dir, "LoadRandomItems"))
                 RandomItemsList.Add(kv.Value);
-        }
-
-        public static int AsteroidModels => RoidsModels.Count;
-        public static Model GetAsteroidModel(int roidId)
-        {
-            return RoidsModels[roidId];
-        }
-        private static void LoadRoids()
-        {
-            string dir = WhichModPath + "/Model/Asteroids";
-            if (!Directory.Exists(dir))
-                return;
-
-            string asteroids = "../"+WhichModPath+"/Model/Asteroids/";
-            RoidsModels.Clear();
-            foreach (FileInfo info in Dir.GetFilesNoSub(dir, "xnb"))
-            {
-                string nameNoExt = info.NameNoExt();
-                // only accept "asteroidNN" format, because there are a bunch of textures in the asteroids folder
-                if (!nameNoExt.StartsWith("asteroid") || !int.TryParse(nameNoExt.Substring(8), out int _))
-                    continue;
-                var model = ContentManager.Load<Model>(asteroids + info.NameNoExt());
-                RoidsModels.Add(model);
-            }
         }
 
         private static void LoadShipModules()
