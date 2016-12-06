@@ -51,7 +51,7 @@ namespace Ship_Game
         public bool allModulesUnlocakable = true;
         public bool unLockable;
         //public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
-        public HashSet<string> techsNeeded;
+        public HashSet<string> techsNeeded = new HashSet<string>();
         public int TechScore;
         //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
@@ -71,8 +71,8 @@ namespace Ship_Game
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         private unsafe struct CStrView
         {
-            readonly sbyte* Str;
-            readonly int Len;
+            private readonly sbyte* Str;
+            private readonly int Len;
             public string AsString   => Len != 0 ? new string(Str, 0, Len) : string.Empty;
             public string AsInterned => Len != 0 ? string.Intern(new string(Str, 0, Len)) : string.Empty;
             public string AsInternedOrNull => Len != 0 ? string.Intern(new string(Str, 0, Len)) : null;
