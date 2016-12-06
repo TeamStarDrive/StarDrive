@@ -57,7 +57,6 @@ namespace Ship_Game
 
         private void SetSpaceJunk(int random)
         {
-			Scale *= 0.5f;
 			ModelMesh mesh = ResourceManager.GetJunkModel(random).Meshes[0];
 			JunkSO = new SceneObject(mesh)
 			{
@@ -101,7 +100,7 @@ namespace Ship_Game
             RandomRotate(0.01f, 1.02f);
             RandomValues(-2f, 2f, 0.01f, 1.02f, 0.5f, 1f);
 
-			int random = (int)RandomMath2.RandomBetween(1f, 13f);
+			int random = (int)RandomMath2.RandomBetween(0, ResourceManager.NumJunkModels);
 			switch (random)
 			{
 				case 6:
@@ -123,18 +122,20 @@ namespace Ship_Game
 					break;
 				case 12:
                     RandomValues(-3f, 3f, 0.01f, 0.5f, 0.3f, 0.8f);
-					trailEmitter = new ParticleEmitter(universeScreen.projectileTrailParticles, 200f, Position);
 					break;
 				case 13:
                     RandomValues(-2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
 					break;
+                default:
+            	    trailEmitter = new ParticleEmitter(universeScreen.fireTrailParticles, 200f, Position);
+                    break;
 			}
 			SetSpaceJunk(random);
 		}
 
         private static readonly List<SpaceJunk> EmptyList = new List<SpaceJunk>();
 
-		public static List<SpaceJunk> MakeJunk(int howMuchJunk, Vector2 position, SolarSystem s)
+		public static List<SpaceJunk> MakeJunk(int howMuchJunk, Vector2 position, SolarSystem s, float scaleMod = 1.0f)
 		{
 			if (UniverseScreen.JunkList.Count > 200)
 				return EmptyList;
@@ -147,6 +148,7 @@ namespace Ship_Game
 					system = s
 				};
 				newJunk.LoadContent();
+                newJunk.Scale *= scaleMod;
 				junkList.Add(newJunk);
 			}
 			return junkList;
@@ -182,7 +184,12 @@ namespace Ship_Game
 				Xrotate += Spinx * elapsedTime;
 				Zrotate += Spiny * elapsedTime;
 				Yrotate += Spinz * elapsedTime;
-				JunkSO.World = ((((Matrix.Identity * Matrix.CreateScale(Scale)) * Matrix.CreateRotationZ(Zrotate)) * Matrix.CreateRotationX(Xrotate)) * Matrix.CreateRotationY(Yrotate)) * Matrix.CreateTranslation(Position);
+				JunkSO.World = ((((Matrix.Identity 
+                    * Matrix.CreateScale(Scale)) 
+                    * Matrix.CreateRotationZ(Zrotate)) 
+                    * Matrix.CreateRotationX(Xrotate)) 
+                    * Matrix.CreateRotationY(Yrotate)) 
+                    * Matrix.CreateTranslation(Position);
 			}
 			else if (wasAddedToScene)
 			{

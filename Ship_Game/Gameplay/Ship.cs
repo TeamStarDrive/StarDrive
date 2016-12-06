@@ -4733,6 +4733,20 @@ namespace Ship_Game.Gameplay
                     }
                     system?.spatialManager.ShipExplode(this, Size * 50, Center, Radius);
                 }
+
+                // Added by RedFox - spawn flaming spacejunk when a ship dies
+                int randExplosionJunk = (int)RandomMath.RandomBetween(20, 40);
+                int moreJunk = (int)(explosionboost * randExplosionJunk);
+                List<SpaceJunk> junk = SpaceJunk.MakeJunk(moreJunk, Center, system, explosionboost);
+				lock (GlobalStats.ObjectManagerLocker)
+				{
+					foreach (SpaceJunk j in junk)
+					{
+						j.wasAddedToScene = true;
+						ShipModule.universeScreen.ScreenManager.inter.ObjectManager.Submit(j.JunkSO);
+						UniverseScreen.JunkList.Add(j);
+					}
+				}
             }
             var ship = ResourceManager.ShipsDict[Name];
             var hullData = ship.GetShipData();
