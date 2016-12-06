@@ -26,17 +26,16 @@ namespace Ship_Game
 {
     public class UniverseScreen : GameScreen, IDisposable
     {
+        private List<float> perfavg  = new List<float>();
+        public  List<float> perfavg2 = new List<float>();
+        private List<float> perfavg3 = new List<float>();
+        private List<float> perfavg4 = new List<float>();
+        public  List<float> perfavg5 = new List<float>();
 
-        List<float> perfavg=new List<float>();
-        public List<float> perfavg2=new List<float>();
-        List<float> perfavg3=new List<float>();
-        List<float> perfavg4=new List<float>();
-        public List<float> perfavg5=new List<float>();
-
-        public static float GamePaceStatic = 1f;
-        public static float GameScaleStatic = 1f;
-        public static bool ShipWindowOpen = false;
-        public static bool ColonizeWindowOpen = false;
+        public static float GamePaceStatic      = 1f;
+        public static float GameScaleStatic     = 1f;
+        public static bool ShipWindowOpen       = false;
+        public static bool ColonizeWindowOpen   = false;
         public static bool PlanetViewWindowOpen = false;
         public static SpatialManager DeepSpaceManager = new SpatialManager();
         public static SpatialManager ShipSpatialManager = new SpatialManager();
@@ -55,11 +54,11 @@ namespace Ship_Game
         public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
         public bool MultiThread = true;
-        public List<UniverseScreen.ClickablePlanets> ClickPlanetList = new List<UniverseScreen.ClickablePlanets>();
-        public BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction>();
-        protected List<UniverseScreen.ClickableSystem> ClickableSystems = new List<UniverseScreen.ClickableSystem>();
+        public List<ClickablePlanets> ClickPlanetList = new List<ClickablePlanets>();
+        public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction>();
+        protected List<ClickableSystem> ClickableSystems = new List<ClickableSystem>();
         public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
-        protected List<UniverseScreen.ClickableShip> ClickableShipsList = new List<UniverseScreen.ClickableShip>();
+        protected List<ClickableShip> ClickableShipsList = new List<ClickableShip>();
         protected float PieMenuDelay = 1f;
         protected Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
@@ -107,20 +106,20 @@ namespace Ship_Game
         protected float SectorMiniMapHeight = 20000f;
         public Vector2 mouseWorldPos = new Vector2();
         public float SelectedSomethingTimer = 3f;
-        private List<UniverseScreen.FleetButton> FleetButtons = new List<UniverseScreen.FleetButton>();
+        private List<FleetButton> FleetButtons = new List<FleetButton>();
         protected Vector2 startDrag = new Vector2();
         private Vector2 ProjectedPosition = new Vector2();
         protected float desiredSectorZ = 20000f;
-        public List<UniverseScreen.FogOfWarNode> FogNodes = new List<UniverseScreen.FogOfWarNode>();
+        public List<FogOfWarNode> FogNodes = new List<FogOfWarNode>();
         private bool FogOn = true;
         private bool drawBloom = true;
-        private List<UniverseScreen.ClickableFleet> ClickableFleetsList = new List<UniverseScreen.ClickableFleet>();
+        private List<ClickableFleet> ClickableFleetsList = new List<ClickableFleet>();
         private bool ShowTacticalCloseup;
         public bool Debug;
         public bool GridOn;
         public Planet SelectedPlanet;
         public Ship SelectedShip;
-        public UniverseScreen.ClickableItemUnderConstruction SelectedItem;
+        public ClickableItemUnderConstruction SelectedItem;
         protected PieMenu pieMenu;
         protected PieMenuNode planetMenu;
         protected PieMenuNode shipMenu;
@@ -145,6 +144,7 @@ namespace Ship_Game
         public Starfield starfield;
         public Background3D bg3d;
         public bool GravityWells;
+        public Empire PlayerEmpire;
         public string PlayerLoyalty;
         public string loadFogPath;
         protected Model SunModel;
@@ -153,7 +153,7 @@ namespace Ship_Game
         public Texture2D RingTexture;
         public AudioListener listener;
         public Effect ThrusterEffect;
-        public UniverseScreen.UnivScreenState viewState;
+        public UnivScreenState viewState;
         public bool LookingAtPlanet;
         public bool snappingToShip;
         public bool returnToShip;
@@ -191,7 +191,6 @@ namespace Ship_Game
         public SystemInfoUIElement sInfoUI;
         public ShipListInfoUIElement shipListInfoUI;
         public VariableUIElement vuiElement;
-        //private float CamHeightAtScreenWidth;
         private float ArmageddonTimer;
         public Empire player;
         private MiniMap minimap;
@@ -202,8 +201,8 @@ namespace Ship_Game
         public float transitionElapsedTime;
         protected float Zrotate;
         public BoundingFrustum Frustum;
-        protected UniverseScreen.ClickablePlanets tippedPlanet;
-        protected UniverseScreen.ClickableSystem tippedSystem;
+        protected ClickablePlanets tippedPlanet;
+        protected ClickableSystem tippedSystem;
         protected bool ShowingSysTooltip;
         protected bool ShowingPlanetToolTip;
         protected float ClickTimer;
@@ -212,7 +211,6 @@ namespace Ship_Game
         private float MusicCheckTimer;
         private int ArmageddonCounter;
         private float shiptimer;
-        //private Thread ShipUpdateThread;
         public Ship ShipToView;
         public float HeightOnSnap;
         public float AdjustCamTimer;
@@ -227,7 +225,6 @@ namespace Ship_Game
 
         public DeepSpaceBuildingWindow dsbw;
         private DebugInfoScreen debugwin;
-        //private bool doubleTime;
         private bool ShowShipNames;
         public InputState input;
         private float Memory;
@@ -236,7 +233,6 @@ namespace Ship_Game
         private bool UseRealLights = true;
         private bool showdebugwindow;
         private bool NeedARelease;
-        //private int counter;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
         private List<Fleet.Squad> SelectedFlank;
@@ -246,44 +242,29 @@ namespace Ship_Game
         private Vector2 endDragWorld;
         private ShipGroup projectedGroup;
         private bool ProjectingPosition;
-        //private bool draggingCam;
-        //private Vector2 StartCamDragPos;
         private bool SelectingWithBox;
-        //private bool computeCircle;
         private Effect AtmoEffect;
         private Model atmoModel;
         public PlanetScreen workersPanel;
         private ResolveTexture2D sceneMap;
-        //private float scaleTimer;
-        //private float FleetPosUpdateTimer;
-        protected UniverseScreen.CursorState cState;
-        //private int cursorFrame;
+        protected CursorState cState;
         private float radlast;
         private int SelectorFrame;
-        //private float garbageCollector;          //Not referenced in code, removing to save memory
-        //private float garbargeCollectorBase = 10;          //Not referenced in code, removing to save memory
         public static bool debug;
         public int globalshipCount;
         public int empireShipCountReserve;
         //private float ztimeSnapShot;          //Not referenced in code, removing to save memory
         private int incrementTimer=0;
         public ConcurrentBag<Ship> ShipsToRemove = new  ConcurrentBag<Ship>();
-        //public ConcurrentBag<Ship> ShipPool = new ConcurrentBag<Ship>();
         public float Lag = 0;
         public Ship previousSelection;
 
-        //fbedard
         public UIButton ShipsInCombat;    
         public UIButton PlanetsInCombat;
         public int lastshipcombat = 0;
         public int lastplanetcombat = 0;
         public int reducer = 1;
         public float screenDelay = 0f;
-        static UniverseScreen()
-        {
-        }
-
-        
 
         public UniverseScreen()
         {
@@ -291,44 +272,41 @@ namespace Ship_Game
 
         public UniverseScreen(UniverseData data)
         {
-            this.Size = data.Size;
-            this.FTLModifier = data.FTLSpeedModifier;
-            this.EnemyFTLModifier = data.EnemyFTLSpeedModifier;
-            this.GravityWells = data.GravityWells;
-            UniverseScreen.SolarSystemList = data.SolarSystemsList;
-            this.MasterShipList = data.MasterShipList;
-            this.playerShip = data.playerShip;
-            this.PlayerLoyalty = this.playerShip.loyalty.data.Traits.Name;
-            this.playerShip.loyalty.isPlayer = true;
-            this.ShipToView = this.playerShip;
+            Size                        = data.Size;
+            FTLModifier                 = data.FTLSpeedModifier;
+            EnemyFTLModifier            = data.EnemyFTLSpeedModifier;
+            GravityWells                = data.GravityWells;
+            SolarSystemList             = data.SolarSystemsList;
+            MasterShipList              = data.MasterShipList;
+            playerShip                  = data.playerShip;
+            PlayerEmpire                = playerShip.loyalty;
+            PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
+            playerShip.loyalty.isPlayer = true;
+            ShipToView                  = playerShip;
 
         }
         
         public UniverseScreen(UniverseData data, string loyalty)
         {
-            //this.perfavg2   = new List<float>();
-            //this.perfavg3 = new List<float>();
-            //this.perfavg4 = new List<float>();
-            //this.perfavg5 = new List<float>();
-            //this.perfavg = new List<float>();
-            this.Size = data.Size;
-            this.FTLModifier = data.FTLSpeedModifier;
-            this.EnemyFTLModifier = data.EnemyFTLSpeedModifier;
-            this.GravityWells = data.GravityWells;
-            UniverseScreen.SolarSystemList = data.SolarSystemsList;
-            this.MasterShipList = data.MasterShipList;
-            this.loadFogPath = data.loadFogPath;
-            this.PlayerLoyalty = loyalty;
-            this.playerShip = data.playerShip;
-            EmpireManager.GetEmpireByName(loyalty).isPlayer = true;
-            this.ShipToView = this.playerShip;
-            this.loading = true;
+            Size                  = data.Size;
+            FTLModifier           = data.FTLSpeedModifier;
+            EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
+            GravityWells          = data.GravityWells;
+            SolarSystemList       = data.SolarSystemsList;
+            MasterShipList        = data.MasterShipList;
+            loadFogPath           = data.loadFogPath;
+            playerShip            = data.playerShip;
+            PlayerLoyalty         = loyalty;
+            PlayerEmpire          = EmpireManager.GetEmpireByName(loyalty);
+            PlayerEmpire.isPlayer = true;
+            ShipToView            = playerShip;
+            loading               = true;
         }
 
         public UniverseScreen(int numsys, float size)
         {
-            this.Size.X = size;
-            this.Size.Y = size;
+            Size.X = size;
+            Size.Y = size;
         }
 
         ~UniverseScreen() { Destroy(); }
@@ -336,52 +314,52 @@ namespace Ship_Game
         public void SetLighting(bool Real)
         {
             lock (GlobalStats.ObjectManagerLocker)
-                this.ScreenManager.inter.LightManager.Clear();
+                ScreenManager.inter.LightManager.Clear();
             if (!Real)
             {
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    LightRig local_0 = this.ScreenManager.Content.Load<LightRig>("example/NewGamelight_rig");
-                    this.ScreenManager.inter.LightManager.Clear();
-                    this.ScreenManager.inter.LightManager.Submit((ILightRig)local_0);
+                    LightRig local_0 = ScreenManager.Content.Load<LightRig>("example/NewGamelight_rig");
+                    ScreenManager.inter.LightManager.Clear();
+                    ScreenManager.inter.LightManager.Submit((ILightRig)local_0);
                 }
             }
             else
             {
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    foreach (SolarSystem item_0 in UniverseScreen.SolarSystemList)
+                    foreach (SolarSystem item_0 in SolarSystemList)
                     {
-                        PointLight local_2 = new PointLight();
+                        PointLight local_2   = new PointLight();
                         local_2.DiffuseColor = new Vector3(1f, 1f, 0.85f);
-                        local_2.Intensity = 2.5f;
-                        local_2.ObjectType = ObjectType.Dynamic;
-                        local_2.FillLight = true;
-                        local_2.Radius = 150000f;
-                        local_2.Position = new Vector3(item_0.Position, 2500f);
-                        local_2.World = Matrix.Identity * Matrix.CreateTranslation(local_2.Position);
-                        local_2.Enabled = true;
-                        this.ScreenManager.inter.LightManager.Submit((ILight)local_2);
-                        PointLight local_3 = new PointLight();
+                        local_2.Intensity    = 2.5f;
+                        local_2.ObjectType   = ObjectType.Dynamic;
+                        local_2.FillLight    = true;
+                        local_2.Radius       = 150000f;
+                        local_2.Position     = new Vector3(item_0.Position, 2500f);
+                        local_2.World        = Matrix.Identity * Matrix.CreateTranslation(local_2.Position);
+                        local_2.Enabled      = true;
+                        ScreenManager.inter.LightManager.Submit(local_2);
+                        PointLight local_3   = new PointLight();
                         local_3.DiffuseColor = new Vector3(1f, 1f, 0.85f);
-                        local_3.Intensity = 2.5f;
-                        local_3.ObjectType = ObjectType.Dynamic;
-                        local_3.FillLight = false;
-                        local_3.Radius = 5000f;
-                        local_3.Position = new Vector3(item_0.Position, -2500f);
-                        local_3.World = Matrix.Identity * Matrix.CreateTranslation(local_3.Position);
-                        local_3.Enabled = true;
-                        this.ScreenManager.inter.LightManager.Submit((ILight)local_3);
-                        PointLight local_4 = new PointLight();
+                        local_3.Intensity    = 2.5f;
+                        local_3.ObjectType   = ObjectType.Dynamic;
+                        local_3.FillLight    = false;
+                        local_3.Radius       = 5000f;
+                        local_3.Position     = new Vector3(item_0.Position, -2500f);
+                        local_3.World        = Matrix.Identity * Matrix.CreateTranslation(local_3.Position);
+                        local_3.Enabled      = true;
+                        ScreenManager.inter.LightManager.Submit(local_3);
+                        PointLight local_4   = new PointLight();
                         local_4.DiffuseColor = new Vector3(1f, 1f, 0.85f);
-                        local_4.Intensity = 1f;
-                        local_4.ObjectType = ObjectType.Dynamic;
-                        local_4.FillLight = false;
-                        local_4.Radius = 100000f;
-                        local_4.Position = new Vector3(item_0.Position, -6500f);
-                        local_4.World = Matrix.Identity * Matrix.CreateTranslation(local_4.Position);
-                        local_4.Enabled = true;
-                        this.ScreenManager.inter.LightManager.Submit((ILight)local_4);
+                        local_4.Intensity    = 1f;
+                        local_4.ObjectType   = ObjectType.Dynamic;
+                        local_4.FillLight    = false;
+                        local_4.Radius       = 100000f;
+                        local_4.Position     = new Vector3(item_0.Position, -6500f);
+                        local_4.World        = Matrix.Identity * Matrix.CreateTranslation(local_4.Position);
+                        local_4.Enabled      = true;
+                        ScreenManager.inter.LightManager.Submit(local_4);
                     }
                 }
             }
@@ -389,12 +367,13 @@ namespace Ship_Game
 
         protected virtual void LoadMenu()
         {
-            this.pieMenu = new PieMenu();
-            this.planetMenu = new PieMenuNode();
-            this.planetMenu.Add(new PieMenuNode("View Planet", ResourceManager.TextureDict["UI/viewPlanetIcon"], new SimpleDelegate(this.ViewPlanet)));
-            this.planetMenu.Add(new PieMenuNode("Mark for Colonization", ResourceManager.TextureDict["UI/viewPlanetIcon"], new SimpleDelegate(this.MarkForColonization)));
-            this.shipMenu = new PieMenuNode();
-            this.shipMenu.Add(new PieMenuNode("Commandeer Ship", ResourceManager.TextureDict["UI/viewPlanetIcon"], new SimpleDelegate(this.ViewShip)));
+            var viewPlanetIcon = ResourceManager.TextureDict["UI/viewPlanetIcon"];
+            pieMenu    = new PieMenu();
+            planetMenu = new PieMenuNode();
+            shipMenu   = new PieMenuNode();
+            planetMenu.Add(new PieMenuNode("View Planet", viewPlanetIcon, ViewPlanet));
+            planetMenu.Add(new PieMenuNode("Mark for Colonization", viewPlanetIcon, MarkForColonization));
+            shipMenu.Add(new PieMenuNode("Commandeer Ship", viewPlanetIcon, ViewShip));
         }
 
         protected Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, float DesiredCamHeight)
