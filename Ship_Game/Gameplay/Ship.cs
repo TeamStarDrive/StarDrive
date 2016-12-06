@@ -4731,13 +4731,17 @@ namespace Ship_Game.Gameplay
                             ExplosionManager.AddWarpExplosion(Position, 1200f, 12f, 0.2f);
                             break;
                     }
-                    if (this.system != null)
-                        this.system.spatialManager.ShipExplode((GameplayObject)this, (float)(this.Size * 50), this.Center, this.Radius);
+                    system?.spatialManager.ShipExplode(this, Size * 50, Center, Radius);
                 }
             }
-            if (Ship_Game.ResourceManager.ShipsDict[this.Name].GetShipData().EventOnDeath != null)
-                Ship.universeScreen.ScreenManager.AddScreen((GameScreen)new EventPopup(Ship.universeScreen, EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty), Ship_Game.ResourceManager.EventsDict[Ship_Game.ResourceManager.ShipsDict[this.Name].GetShipData().EventOnDeath], Ship_Game.ResourceManager.EventsDict[Ship_Game.ResourceManager.ShipsDict[this.Name].GetShipData().EventOnDeath].PotentialOutcomes[0], true));
-            this.QueueTotalRemoval();
+            var ship = ResourceManager.ShipsDict[Name];
+            var hullData = ship.GetShipData();
+            if (hullData.EventOnDeath != null)
+            {
+                var evt = ResourceManager.EventsDict[hullData.EventOnDeath];
+                universeScreen.ScreenManager.AddScreen(new EventPopup(universeScreen, universeScreen.PlayerEmpire, evt, evt.PotentialOutcomes[0], true));
+            }
+            QueueTotalRemoval();
         }
 
         public void QueueTotalRemoval()

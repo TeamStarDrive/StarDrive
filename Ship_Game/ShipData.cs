@@ -152,8 +152,8 @@ namespace Ship_Game
                 ShipData ship = new ShipData()
                 {
                     Animated       = s->Animated != 0,
-                    ShipStyle      = s->ShipStyle.AsInterned,
-                    EventOnDeath   = s->EventOnDeath.AsInterned,
+                    ShipStyle      = s->ShipStyle.AsInternedOrNull,
+                    EventOnDeath   = s->EventOnDeath.AsInternedOrNull,
                     experience     = s->Experience,
                     Level          = s->Level,
                     Name           = s->Name.AsInterned,
