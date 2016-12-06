@@ -302,15 +302,16 @@ namespace Ship_Game.Gameplay
             Vector2 vector2_2 = Vector2.Zero;
             GameplayObject gameplayObject1 = (GameplayObject)null;
             //How repair beams repair modules
-            if (beam.GetTarget() != null)
+            var beamTarget = beam.GetTarget();
+            if (beamTarget != null)
             {
-                Ship ship2 = beam.GetTarget() as Ship;
+                Ship ship2 = beamTarget as Ship;
                 if (ship2 != null)
                 {
 
                     ship2.MoveModulesTimer = 2f;
-                    Vector2 vector2_3 = beam.GetTarget().Center;
-                    beam.ActualHitDestination = beam.GetTarget().Center;
+                    Vector2 vector2_3 = beamTarget.Center;
+                    beam.ActualHitDestination = beamTarget.Center;
                     if (beam.damageAmount >= 0f)
                     {
                         //beam.owner.Beams.QueuePendingRemoval(beam);
@@ -322,28 +323,31 @@ namespace Ship_Game.Gameplay
                         ShipModule module = current.module;
                         if (module.Health >= module.HealthMax)
                             continue;
-                        module.Health = module.Health - beam.damageAmount;
+                        module.Health -= beam.damageAmount;
                         if (module.Health < module.HealthMax)
                             break;
                         module.Health = module.HealthMax;
                         break;
                     }
-
                 }
-                else if (beam.GetTarget() is ShipModule)
+                else if (beamTarget is ShipModule)
                 {
-                    gameplayObject1 = (GameplayObject)(beam.GetTarget() as ShipModule).GetParent();
+                    gameplayObject1 = (beamTarget as ShipModule).GetParent();
 
                 }
-                else if (beam.GetTarget() is Asteroid)
+                else if (beamTarget is Asteroid)
                     gameplayObject1 = beam.GetTarget();
                 else
-
                     System.Diagnostics.Debug.WriteLine("beam null");
-
             }
             else if (beam.Owner != null)
-                gameplayObject1 = (GameplayObject)beam.owner;
+                gameplayObject1 = beam.owner;
+
+            if (gameplayObject1 == null)
+            {
+                System.Diagnostics.Debug.WriteLine("CollideBeam gameplayObject1 null");
+            }
+
             List<GameplayObject> nearby = new List<GameplayObject>(this.GetNearby(gameplayObject1).OrderBy(distance => Vector2.Distance(beam.Source, distance.Center)));
             List<GameplayObject> AlliedShips = new List<GameplayObject>();
             object locker = new object();
