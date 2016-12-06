@@ -6732,7 +6732,6 @@ namespace Ship_Game
             //Cases correspond to the 5 options in the drop-down menu; default exists for... Propriety, mainly. The option selected when saving will always be the Category saved, pretty straightforward.
             foreach (var item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
             {
-                var str = item.ToString();
                 if (CategoryList.Options[CategoryList.ActiveIndex].Name == item.ToString())
                 {
                     ActiveHull.ShipCategory = item;
