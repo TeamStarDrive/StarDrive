@@ -7,7 +7,7 @@ namespace Ship_Game
 	{
 		public string Name;
 
-		public List<EconomicResearchStrategy.Tech> TechPath = new List<EconomicResearchStrategy.Tech>();
+		public List<Tech> TechPath = new List<Tech>();
 
         public byte MilitaryPriority = 5;
         public byte ExpansionPriority = 5;
