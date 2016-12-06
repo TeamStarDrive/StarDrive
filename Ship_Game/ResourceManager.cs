@@ -58,7 +58,6 @@ namespace Ship_Game
         public static XmlSerializer HeaderSerializer                     = new XmlSerializer(typeof(HeaderData));
         public static XmlSerializer ModSerializer                        = new XmlSerializer(typeof(ModInformation));
         public static Dictionary<string, Model> ModelDict                = new Dictionary<string, Model>();
-        public static XmlSerializer EconSerializer                       = new XmlSerializer(typeof(EconomicResearchStrategy));
 
         public static Dictionary<string, ShipData> HullsDict             = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
         public static UniverseScreen universeScreen;
@@ -73,6 +72,9 @@ namespace Ship_Game
         public static Dictionary<ShipData.RoleName, ShipRole> ShipRoles  = new Dictionary<ShipData.RoleName, ShipRole>();
         public static Dictionary<string, HullBonus> HullBonuses          = new Dictionary<string, HullBonus>();
         public static Dictionary<string, PlanetEdict> PlanetaryEdicts    = new Dictionary<string, PlanetEdict>();
+        public static XmlSerializer EconSerializer                       = new XmlSerializer(typeof(EconomicResearchStrategy));
+        public static Dictionary<string, EconomicResearchStrategy> EconStrats = new Dictionary<string, EconomicResearchStrategy>();
+
         public static int OffSet;
 
 
@@ -737,6 +739,11 @@ namespace Ship_Game
             }
         }
 
+        public static bool TryGetHull(string shipHull, out ShipData hullData)
+        {
+            return HullsDict.TryGetValue(shipHull, out hullData);
+        }
+
         public static List<ShipData> LoadHullData() // Refactored by RedFox
         {
             var retList = new List<ShipData>();
@@ -794,6 +801,7 @@ namespace Ship_Game
             LoadArtifacts();			
             LoadShipRoles();
             LoadPlanetEdicts();
+            LoadEconomicResearchStrats();
             //Ship_Game.ResourceManager.MarkShipDesignsUnlockable();
             
         }
@@ -917,9 +925,11 @@ namespace Ship_Game
             LoadRandomItems();
             LoadProjTexts();
             LoadModsProjectileMeshes();
-            // Added by McShooterz
             LoadBlackboxSpecific();
             LoadShipRoles();
+            LoadPlanetEdicts();
+            LoadEconomicResearchStrats();
+
             Localizer.cleanLocalizer();
             OffSet = 0;
         }
@@ -1499,6 +1509,12 @@ namespace Ship_Game
                 PlanetaryEdicts[planetEdict.Name] = planetEdict;
         }
 
+        private static void LoadEconomicResearchStrats()
+        {
+            foreach (var strat in LoadEntities<EconomicResearchStrategy>("/EconomicResearchStrategy", "LoadEconResearchStrats"))
+                EconStrats[strat.Name] = strat;
+        }
+
         // Added by RedFox
         private static void LoadBlackboxSpecific()
         {
@@ -1517,7 +1533,6 @@ namespace Ship_Game
             foreach (FileInfo info in Dir.GetFilesNoThumbs(WhichModPath + "/SoundEffects"))
             {
                 string nameNoExt = info.NameNoExt();
-
                 SoundEffect se = ContentManager.Load<SoundEffect>("..\\" + WhichModPath + "\\SoundEffects\\" + nameNoExt);
                 SoundEffectDict[nameNoExt] = se;
             }
