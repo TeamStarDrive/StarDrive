@@ -48,10 +48,7 @@ namespace Ship_Game
         private int numOpponents;
         private MainMenuScreen mmscreen;
         private DiplomaticTraits dtraits;
-        private int whichAdvice;
-        private int whichTexture;
-        private FileInfo[] textList;
-        private List<string> AdviceList;
+        private Texture2D LoadingScreenTexture;
         private SolarSystem PlayerSystem;
         private string text;
         private Effect ThrusterEffect;
@@ -234,26 +231,18 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            //Added by McShooterz: Enable LoadingScreen folder for mods
-            this.textList = HelperFunctions.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen") : "Content/LoadingScreen");
-            //Added by McShooterz: mod support for Advice folder
-            this.AdviceList = (List<string>)new XmlSerializer(typeof(List<string>)).Deserialize((Stream)new FileInfo(File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/" + GlobalStats.Config.Language + "/Advice.xml")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/" + GlobalStats.Config.Language + "/Advice.xml") : "Content/Advice/" + GlobalStats.Config.Language + "/Advice.xml").OpenRead());
-            this.ScreenManager.inter.ObjectManager.Clear();
-            this.ScreenManager.inter.LightManager.Clear();
-            for (int index = 0; index < this.textList.Length; ++index)
-            {
-                if(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")))
-                    this.TextureList.Add(this.ScreenManager.Content.Load<Texture2D>(string.Concat("../", Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[index].Name))));
-                else
-                    this.TextureList.Add(this.ScreenManager.Content.Load<Texture2D>("LoadingScreen/" + Path.GetFileNameWithoutExtension(this.textList[index].Name)));
-            }
-            this.whichAdvice = (int)RandomMath.RandomBetween(0.0f, (float)this.AdviceList.Count);
-            this.whichTexture = (int)RandomMath.RandomBetween(0.0f, (float)this.TextureList.Count);
-            this.text = HelperFunctions.parseText(Fonts.Arial12Bold, this.AdviceList[this.whichAdvice], 500f);
-            this.ScreenCenter = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f, 
-                                            ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f);
-            this.WorkerThread = new Thread(new ThreadStart(this.Worker)) { IsBackground = true };
-            this.WorkerThread.Start();
+            // Refactored by RedFox
+            ScreenManager.inter.ObjectManager.Clear();
+            ScreenManager.inter.LightManager.Clear();
+
+            LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(ScreenManager.Content);
+            string adviceString = ResourceManager.LoadRandomAdvice();
+            text = HelperFunctions.parseText(Fonts.Arial12Bold, adviceString, 500f);
+
+            var present = ScreenManager.GraphicsDevice.PresentationParameters;
+            ScreenCenter = 0.5f * new Vector2(present.BackBufferWidth, present.BackBufferHeight);
+            WorkerThread = new Thread(Worker) { IsBackground = true };
+            WorkerThread.Start();
             base.LoadContent();
         }
 
@@ -1036,7 +1025,7 @@ namespace Ship_Game
         {
             this.ScreenManager.GraphicsDevice.Clear(Color.Black);
             this.ScreenManager.SpriteBatch.Begin();
-            this.ScreenManager.SpriteBatch.Draw(this.TextureList[this.whichTexture], new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080), Color.White);
+            this.ScreenManager.SpriteBatch.Draw(LoadingScreenTexture, new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080), Color.White);
             Rectangle r = new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 150, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 25, 300, 25);
             new ProgressBar(r)
             {
@@ -1068,16 +1057,14 @@ namespace Ship_Game
             if (!disposing)
                 return;
             lock (this) {
-                if (this.WorkerBeginEvent != null)
-                    this.WorkerBeginEvent.Dispose();
-                if (this.WorkerCompletedEvent != null)
-                    this.WorkerCompletedEvent.Dispose();
-                if (this.us != null)
-                    this.us.Dispose();
+                WorkerBeginEvent?.Dispose();
+                WorkerCompletedEvent?.Dispose();
+                LoadingScreenTexture?.Dispose();;
+                us?.Dispose();
 
-                this.WorkerBeginEvent = null;
-                this.WorkerCompletedEvent = null;
-                this.us = null;
+                WorkerBeginEvent = null;
+                WorkerCompletedEvent = null;
+                us = null;
             }
 
                 

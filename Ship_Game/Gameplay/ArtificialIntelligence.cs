@@ -210,7 +210,7 @@ namespace Ship_Game.Gameplay
 			if (startInBorders && endInBorders)
 			{
 				bool AllTravelIsInBorders = true;
-				float angle = HelperFunctions.findAngleToTarget(startPos, endPos);
+				float angle = HelperFunctions.FindAngleToTarget(startPos, endPos);
 				int numChecks = (int)Distance / 2500;
 				for (int i = 0; i < numChecks; i++)
 				{
@@ -9411,7 +9411,7 @@ namespace Ship_Game.Gameplay
                 //int max = NumberOfProjectors < 2 ? 1 : NumberOfProjectors;
                 //for (int i = 1; i < max; i++)
                 //{                    
-                //    float angle = HelperFunctions.findAngleToTarget(Origin, Destination);
+                //    float angle = HelperFunctions.FindAngleToTarget(Origin, Destination);
                 //    Position.Add(HelperFunctions.GeneratePointOnCircle(angle, Origin, (float)i * (Distance / NumberOfProjectors)));
            
                 //}

@@ -64,7 +64,7 @@ namespace Ship_Game
 			}
 		}
 
-		public float findAngleToTarget(Vector2 origin, Vector2 target)
+		public float FindAngleToTarget(Vector2 origin, Vector2 target)
 		{
 			float theta;
 			float tX = target.X;

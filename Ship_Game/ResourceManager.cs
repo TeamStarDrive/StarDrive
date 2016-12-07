@@ -19,7 +19,7 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Ship_Game
 {
-    public sealed class ResourceManager
+    public sealed class ResourceManager // Refactored by RedFox
     {
         public static Dictionary<string, Texture2D> TextureDict          = new Dictionary<string, Texture2D>();
         public static XmlSerializer WeaponSerializer                     = new XmlSerializer(typeof(Weapon));
@@ -392,9 +392,9 @@ namespace Ship_Game
         }
 
         // Added by RedFox
-        public static void DeleteFirstShipFromDir(string dir, string shipName)
+        public static void DeleteShipFromDir(string dir, string shipName)
         {
-            foreach (FileInfo info in Dir.GetFiles(dir))
+            foreach (FileInfo info in Dir.GetFiles(dir, shipName+".xml", SearchOption.TopDirectoryOnly))
             {
                 // @note ship.Name is always the same as fileNameNoExt 
                 //       part of "shipName.xml", so we can skip parsing the XML's
@@ -411,12 +411,12 @@ namespace Ship_Game
         // Refactored by RedFox
         public static void DeleteShip(string shipName)
         {
-            DeleteFirstShipFromDir("Content/StarterShips", shipName);
-            DeleteFirstShipFromDir("Content/SavedDesigns", shipName);
+            DeleteShipFromDir("Content/StarterShips", shipName);
+            DeleteShipFromDir("Content/SavedDesigns", shipName);
 
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            DeleteFirstShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
-            DeleteFirstShipFromDir(appData + "/StarDrive/WIP", shipName);
+            DeleteShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
+            DeleteShipFromDir(appData + "/StarDrive/WIP", shipName);
 
             foreach (Empire e in EmpireManager.EmpireList)
                 e.UpdateShipsWeCanBuild();
@@ -587,7 +587,6 @@ namespace Ship_Game
             LoadItAll();
         }
 
-
         // Added by RedFox - Generic entity loading, less typing == more fun
         private static bool LoadEntity<T>(XmlSerializer s, FileInfo info, string id, out T entity) where T : class
         {
@@ -621,6 +620,30 @@ namespace Ship_Game
             }
         }
 
+        public static Texture2D LoadRandomLoadingScreen(ContentManager content)
+        {
+            var files = Dir.GetFiles(WhichModPath + "/LoadingScreen", "xnb");
+            if (files.Length == 0)
+                files = Dir.GetFiles("Content/LoadingScreen", "xnb");
+
+            FileInfo file = files[RandomMath.InRange(0, files.Length)];
+            return content.Load<Texture2D>(file.PathNoExt());
+        }
+
+        // advice is temporary and only sticks around while loading
+        public static string LoadRandomAdvice()
+        {
+            string adviceFile = "/Advice/"+GlobalStats.Config.Language+"/Advice.xml";
+
+            List<string> adviceList = null;
+            if (DeserializeIfExists(WhichModPath+adviceFile, ref adviceList)
+                || DeserializeIfExists("Content"+adviceFile, ref adviceList))
+            {
+                return adviceList[RandomMath.InRange(adviceList.Count)];
+            }
+            return "Advice.xml missing";
+        }
+
         private static void LoadArtifacts() // Refactored by RedFox
         {
             foreach (var arts in LoadEntities<List<Artifact>>("/Artifacts", "LoadArtifacts"))
@@ -629,7 +652,8 @@ namespace Ship_Game
                 {
                     art.DescriptionIndex += OffSet;
                     art.NameIndex += OffSet;
-                    ArtifactsDict[string.Intern(art.Name)] = art;
+                    art.Name = string.Intern(art.Name);
+                    ArtifactsDict[art.Name] = art;
                 }
             }
         }
@@ -752,7 +776,7 @@ namespace Ship_Game
                 try
                 {
                     string dirName = info.Directory?.Name ?? "";
-                    ShipData shipData = ShipData.Parse(info);
+                    ShipData shipData  = ShipData.Parse(info);
                     shipData.Hull      = string.Intern(dirName + "/" + shipData.Hull);
                     shipData.ShipStyle = string.Intern(dirName);
 
@@ -962,7 +986,7 @@ namespace Ship_Game
         // Refactored by RedFox
         private static void LoadNebulas()
         {
-            foreach (FileInfo info in Dir.GetFilesNoThumbs("Content/Nebulas"))
+            foreach (FileInfo info in Dir.GetFiles("Content/Nebulas", "xnb"))
             {
                 string nameNoExt = info.NameNoExt();
                 Texture2D tex = ContentManager.Load<Texture2D>("Nebulas/" + nameNoExt);
@@ -1405,7 +1429,7 @@ namespace Ship_Game
             ContentManager content = ContentManager;
 
             string rootDir = WhichModPath != "Content" ? "../"+WhichModPath+"/Textures/" : "Textures/";
-            Parallel.ForEach(Dir.GetFilesNoThumbs(WhichModPath + "/Textures"), info =>
+            Parallel.ForEach(Dir.GetFiles(WhichModPath + "/Textures", "xnb"), info =>
             {
                 string nameNoExt = info.NameNoExt();
                 string directory = info.Directory?.Name ?? "";
@@ -1450,7 +1474,7 @@ namespace Ship_Game
             foreach (var kv in LoadEntitiesWithInfo<Troop>("/Troops", "LoadTroops"))
             {
                 Troop troop = kv.Value;
-                troop.Name = string.Intern((Path.GetFileNameWithoutExtension(kv.Key.Name)));
+                troop.Name = string.Intern(kv.Key.NameNoExt());
                 TroopsDict[troop.Name] = troop;
 
                 if (troop.StrengthMax <= 0)
@@ -1494,13 +1518,14 @@ namespace Ship_Game
         }
 
         // Added by RedFox: only deseralize to ref entity IF the file exists
-        private static void DeserializeIfExists<T>(string dir, ref T entity) where T : class
+        private static bool DeserializeIfExists<T>(string file, ref T entity) where T : class
         {
-            string path = WhichModPath + dir;
-            if (!File.Exists(path))
-                return;
-            using (Stream stream = new FileInfo(path).OpenRead())
+            FileInfo info = new FileInfo(WhichModPath + file);
+            if (!info.Exists)
+                return false;
+            using (Stream stream = info.OpenRead())
                 entity = (T)new XmlSerializer(typeof(T)).Deserialize(stream);
+            return true;
         }
 
         private static void LoadPlanetEdicts()

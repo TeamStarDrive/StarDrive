@@ -1311,7 +1311,7 @@ namespace Ship_Game
                 }
                 this.MusicCheckTimer = 2f;
             }
-            AudioManager.getAudioEngine().Update();
+            AudioManager.AudioEngine.Update();
             this.listener.Position = new Vector3(this.camPos.X, this.camPos.Y, 0.0f);
             lock (GlobalStats.ObjectManagerLocker)
                 this.ScreenManager.inter.Update(gameTime);
@@ -7962,9 +7962,9 @@ namespace Ship_Game
                             if (!planetFullCheck)
                             {
                                 planetFullCheck = true;
-                                int spots = 0;// this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
-                                if (Vector2.Distance(this.SelectedShip.GetAI().OrbitTarget.Position, this.SelectedShip.Center) <= this.SelectedShip.SensorRange)
-                                    spots = this.SelectedShip.GetAI().OrbitTarget.GetGroundLandingSpots();
+                                int spots = 0;// ship.GetAI().OrbitTarget.GetGroundLandingSpots();
+                                if (Vector2.Distance(ship.GetAI().OrbitTarget.Position, ship.Center) <= ship.SensorRange)
+                                    spots = ship.GetAI().OrbitTarget.GetGroundLandingSpots();
                                 else spots = -1;
 
                                 if (spots < 0 || (spots > 10 && spots < ships))
