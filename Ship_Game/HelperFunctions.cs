@@ -601,7 +601,7 @@ namespace Ship_Game
 			{
 				angle = angle - 360f;
 			}
-			return HelperFunctions.findPointFromAngleAndDistance(center, angle, radius);
+			return findPointFromAngleAndDistance(center, angle, radius);
 		}
 
 		public static FileInfo[] GetFilesFromDirectory(string DirPath)
@@ -614,16 +614,14 @@ namespace Ship_Game
 			return (new DirectoryInfo(DirPath)).GetFiles("*.*", SearchOption.AllDirectories);
 		}
 
-		public static int GetRandomIndex(int Count)
+		public static int GetRandomIndex(int count)
 		{
-            if (Count < 2)
+            if (count < 2)
                 return 0;
-			int Random = (int)RandomMath.RandomBetween(0f, (float)Count + 0.95f);
-			if (Random > Count - 1)
-			{
-				Random = Count - 1;
-			}
-			return Random;
+			int random = (int)RandomMath.RandomBetween(0f, (float)count + 0.95f);
+			if (random > count - 1)
+				random = count - 1;
+			return random;
 		}
 
 		public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)

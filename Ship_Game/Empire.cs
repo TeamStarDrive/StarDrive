@@ -1959,7 +1959,7 @@ namespace Ship_Game
             if (shipData == null)
             {
                 #if TRACE
-                    Debug.WriteLine("{0} : shipData is null : {1}", data.PortraitName, ship);
+                    //Debug.WriteLine("{0} : shipData is null : {1}", data.PortraitName, ship);
                 #endif
                 return false;
             }
@@ -1967,21 +1967,21 @@ namespace Ship_Game
             // If the ship role is not defined don't try to use it
             if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
             {
-            #if TRACE
-                if (shipData.HullRole >= ShipData.RoleName.fighter && shipData.ShipStyle == data.Traits.ShipType)
-                    Debug.WriteLine("{0} : Bad hull  : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5} : {6}",
-                            data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable, shipData.techsNeeded.Count);
-            #endif
+            //#if TRACE
+            //    if (shipData.HullRole >= ShipData.RoleName.fighter && shipData.ShipStyle == data.Traits.ShipType)
+            //        Debug.WriteLine("{0} : Bad hull  : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5} : {6}",
+            //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable, shipData.techsNeeded.Count);
+            //#endif
                 return false;
             }
 
             if (!ResourceManager.ShipRoles.ContainsKey(shipData.HullRole))
             {
-            #if TRACE
-                if (shipData.ShipStyle == data.Traits.ShipType)
-                    Debug.WriteLine("{0} : Bad  role : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5}",
-                            data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable);
-            #endif
+            //#if TRACE
+            //    if (shipData.ShipStyle == data.Traits.ShipType)
+            //        Debug.WriteLine("{0} : Bad  role : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5}",
+            //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable);
+            //#endif
                 return false;
             }
 
@@ -1993,17 +1993,16 @@ namespace Ship_Game
                     UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
                     continue;
 
-            #if TRACE
-                Debug.WriteLine("{0} : Bad Modules : {1} : {2} : {3} : {4} :hull unlockable: {5} :Modules Unlockable: {6}",
-                        data.PortraitName, ship, shipData.Hull, shipData.Role, moduleSlotData.InstalledModuleUID, shipData.hullUnlockable, shipData.allModulesUnlocakable);
-            #endif
+            //#if TRACE
+            //    Debug.WriteLine("{0} : Bad Modules : {1} : {2} : {3} : {4} :hull unlockable: {5} :Modules Unlockable: {6}",
+            //            data.PortraitName, ship, shipData.Hull, shipData.Role, moduleSlotData.InstalledModuleUID, shipData.hullUnlockable, shipData.allModulesUnlocakable);
+            //#endif
                 return false; // can't build this ship because it contains a locked Module
             }
 
-            #if TRACE
-                Debug.WriteLine("{0} : good ship : {1} : {2} : {3}",
-                    data.PortraitName, ship, shipData.Hull, shipData.Role);
-            #endif
+            //#if TRACE
+            //    Debug.WriteLine("{0} : good ship : {1} : {2} : {3}", data.PortraitName, ship, shipData.Hull, shipData.Role);
+            //#endif
             return true;
         }
 

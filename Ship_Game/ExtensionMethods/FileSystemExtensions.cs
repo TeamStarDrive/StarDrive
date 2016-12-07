@@ -89,5 +89,10 @@ namespace Ship_Game
             int i = fileName.LastIndexOf('.');
             return i == -1 ? fileName : fileName.Substring(0, i);
         }
+
+        public static string PathNoExt(this FileInfo info)
+        {
+            return (info.DirectoryName??"") + "/" + info.NameNoExt();
+        }
     }
 }
