@@ -11,35 +11,20 @@ namespace Ship_Game
 	public sealed class LoadModelScreen : GameScreen, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
-
 		private ShipToolScreen screen;
-
 		private List<UIButton> Buttons = new List<UIButton>();
-
 		//private MainMenuScreen mmscreen;
-
 		//private Submenu subSave;
-
 		private Rectangle Window;
-
 		private Menu1 SaveMenu;
-
 		private Submenu AllSaves;
-
-		private Vector2 TitlePosition;
-
 		private Vector2 EnternamePos;
-
+		private Vector2 TitlePosition;
 		private ScrollList SavesSL;
-
 		private ContentManager LocalContent;
-
 		private Selector selector;
-
 		private FileInfo activeFile;
-
 		private MouseState currentMouse;
-
 		private MouseState previousMouse;
 
 		//private float transitionElapsedTime;
@@ -60,18 +45,14 @@ namespace Ship_Game
 
 		private void Dispose(bool disposing)
 		{
-			if (disposing)
-			{
-				lock (this)
-				{
-                    if (this.LocalContent != null)
-                        this.LocalContent.Dispose();
-                    if (this.SavesSL != null)
-                        this.SavesSL.Dispose();
-				}
-                this.LocalContent = null;
-                this.SavesSL = null;
-			}
+		    if (!disposing) return;
+		    lock (this)
+		    {
+		        LocalContent?.Dispose();
+		        SavesSL?.Dispose();
+		    }
+		    LocalContent = null;
+		    SavesSL = null;
 		}
          
 		public override void Draw(GameTime gameTime)
@@ -101,19 +82,9 @@ namespace Ship_Game
 			{
 				b.Draw(base.ScreenManager.SpriteBatch);
 			}
-			if (this.selector != null)
-			{
-				this.selector.Draw();
-			}
-			base.ScreenManager.SpriteBatch.End();
+		    selector?.Draw();
+		    base.ScreenManager.SpriteBatch.End();
 		}
-
-		public override void ExitScreen()
-		{
-			base.ExitScreen();
-		}
-
-	
 
 		public override void HandleInput(InputState input)
 		{
@@ -208,109 +179,84 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			this.LocalContent = new ContentManager(Game1.Instance.Services, "");
-			this.Window = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 400, 600);
-			this.SaveMenu = new Menu1(base.ScreenManager, this.Window);
-			Rectangle sub = new Rectangle(this.Window.X + 20, this.Window.Y + 20, this.Window.Width - 40, 80);
-			Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.TitlePosition = new Vector2((float)(sub.X + 20), (float)(sub.Y + 45));
-			Rectangle scrollList = new Rectangle(sub.X, sub.Y, sub.Width, this.Window.Height - 45);
-			this.AllSaves = new Submenu(base.ScreenManager, scrollList);
-			this.AllSaves.AddTab("Load Model");
-			this.SavesSL = new ScrollList(this.AllSaves, 55);
+			LocalContent         = new ContentManager(Game1.Instance.Services, "");
+			Window               = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 400, 600);
+			SaveMenu             = new Menu1(ScreenManager, Window);
+			Rectangle sub        = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
+			TitlePosition        = new Vector2(sub.X + 20, sub.Y + 45);
+			Rectangle scrollList = new Rectangle(sub.X, sub.Y, sub.Width, Window.Height - 45);
+			AllSaves             = new Submenu(ScreenManager, scrollList);
+			AllSaves.AddTab("Load Model");
+			SavesSL              = new ScrollList(AllSaves, 55);
 			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			List<ModelData> modelDatas = new List<ModelData>();
 			ModuleHeader original = new ModuleHeader("Vanilla StarDrive");
-			this.SavesSL.AddItem(original);
-			FileInfo[] filesFromDirectoryAndSubs = HelperFunctions.GetFilesFromDirectoryAndSubs("Content/Model/Ships");
-			for (int i = 0; i < (int)filesFromDirectoryAndSubs.Length; i++)
-			{
-				FileInfo FI = filesFromDirectoryAndSubs[i];
-				Stream file = FI.OpenRead();
-				ModelData data = new ModelData();
-				try
-				{
-					string fullDirectory = (new DirectoryInfo(Environment.CurrentDirectory)).FullName;
-					string fullFile = FI.FullName;
-					int fileExtPos = fullFile.LastIndexOf(".");
-					if (fileExtPos >= 0)
-					{
-						fullFile = fullFile.Substring(0, fileExtPos);
-					}
-					if (fullFile.StartsWith(fullDirectory))
-					{
-						Console.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
-					}
-					else
-					{
-						Console.WriteLine("Unable to make relative path");
-					}
-					data.Name = Path.GetFileNameWithoutExtension(FI.FullName);
-					data.model = this.LocalContent.Load<Model>(fullFile.Substring(fullDirectory.Length + 1));
-					data.FileInfo = FI;
-					this.SavesSL.Entries[0].AddItem(data);
-				}
-				catch
-				{
-                    continue;
-				}
-				//file.Close();
-				file.Dispose();
-			//Label0:
-              //  continue;
-			}
-			ModuleHeader Mods = new ModuleHeader("StarDrive/Ship Tool/Models");
-			this.SavesSL.AddItem(Mods);
-			FileInfo[] fileInfoArray = HelperFunctions.GetFilesFromDirectoryAndSubs("Ship Tool/Models");
-			for (int j = 0; j < (int)fileInfoArray.Length; j++)
-			{
-				FileInfo FI = fileInfoArray[j];
-				Stream file = FI.OpenRead();
-				ModelData data = new ModelData();
-				try
-				{
-					string fullDirectory = (new DirectoryInfo(Environment.CurrentDirectory)).FullName;
-					string fullFile = FI.FullName;
-					int fileExtPos = fullFile.LastIndexOf(".");
-					if (fileExtPos >= 0)
-					{
-						fullFile = fullFile.Substring(0, fileExtPos);
-					}
-					if (fullFile.StartsWith(fullDirectory))
-					{
-						Console.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
-					}
-					else
-					{
-						Console.WriteLine("Unable to make relative path");
-					}
-					data.Name = Path.GetFileNameWithoutExtension(FI.FullName);
-					data.model = this.LocalContent.Load<Model>(fullFile.Substring(fullDirectory.Length + 1));
-					data.FileInfo = FI;
-					this.SavesSL.Entries[1].AddItem(data);
-				}
-				catch
-				{
-					continue;
-				}
-				//file.Close();
-				file.Dispose();
-            //Label1:
-              //  continue;
-			}
-			this.EnternamePos = this.TitlePosition;
-            //Added by McShooterz: Temp fix for ship tool
-			//this.EnterNameArea = new UITextEntry()
-			//{
-				//Text = "",
-				//ClickableArea = new Rectangle((int)this.EnternamePos.X, (int)this.EnternamePos.Y - 2, 20, Fonts.Arial20Bold.LineSpacing)
-			//};
-			base.LoadContent();
-		}
+			SavesSL.AddItem(original);
 
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-		{
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+			foreach (FileInfo info in Dir.GetFiles("Content/Model/Ships", "xnb"))
+			{
+			    try
+			    {
+			        string fullDirectory = new DirectoryInfo(Environment.CurrentDirectory).FullName;
+			        string fullFile = info.FullName;
+			        int fileExtPos = fullFile.LastIndexOf(".", StringComparison.InvariantCulture);
+			        if (fileExtPos >= 0)
+			        {
+			            fullFile = fullFile.Substring(0, fileExtPos);
+			        }
+			        if (fullFile.StartsWith(fullDirectory))
+			        {
+			            Console.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
+			        }
+			        else
+			        {
+			            Console.WriteLine("Unable to make relative path");
+			        }
+
+			        ModelData data = new ModelData();
+			        data.Name     = Path.GetFileNameWithoutExtension(info.FullName);
+			        data.model    = LocalContent.Load<Model>(fullFile.Substring(fullDirectory.Length + 1));
+			        data.FileInfo = info;
+			        SavesSL.Entries[0].AddItem(data);
+			    }
+			    catch (Exception)
+			    {
+			    }
+			}
+
+			ModuleHeader mods = new ModuleHeader("StarDrive/Ship Tool/Models");
+			SavesSL.AddItem(mods);
+
+			foreach (FileInfo info in Dir.GetFiles("Ship Tool/Models", "xnb"))
+			{
+			    try
+			    {
+			        string fullDirectory = (new DirectoryInfo(Environment.CurrentDirectory)).FullName;
+			        string fullFile = info.FullName;
+			        int fileExtPos = fullFile.LastIndexOf(".", StringComparison.InvariantCulture);
+			        if (fileExtPos >= 0)
+			        {
+			            fullFile = fullFile.Substring(0, fileExtPos);
+			        }
+			        if (fullFile.StartsWith(fullDirectory))
+			        {
+			            Console.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
+			        }
+			        else
+			        {
+			            Console.WriteLine("Unable to make relative path");
+			        }
+			        ModelData data = new ModelData();
+			        data.Name     = Path.GetFileNameWithoutExtension(info.FullName);
+			        data.model    = LocalContent.Load<Model>(fullFile.Substring(fullDirectory.Length + 1));
+			        data.FileInfo = info;
+			        SavesSL.Entries[1].AddItem(data);
+			    }
+			    catch (Exception)
+			    {
+			    }
+			}
+			EnternamePos = TitlePosition;
+			base.LoadContent();
 		}
 	}
 }
