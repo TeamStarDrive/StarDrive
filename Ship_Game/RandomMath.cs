@@ -13,6 +13,12 @@ namespace Ship_Game
 			return minimum + (float)Random.NextDouble() * (maximum - minimum);
 		}
 
+        /// Generate random, inclusive [minimum, maximum]
+        public static int IntBetween(int minimum, int maximum)
+        {
+            return Random.Next(minimum, maximum+1);
+        }
+
         /// Generate random index, upper bound excluded: [startIndex, arrayLength)
         public static int InRange(int startIndex, int arrayLength)
         {

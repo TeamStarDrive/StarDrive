@@ -3315,12 +3315,12 @@ namespace Ship_Game.Gameplay
                                         : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
                                     Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
                                     float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Center);
-                                    Vector2 angleAndDistance = HelperFunctions.findPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees(shipModule.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+                                    Vector2 angleAndDistance = HelperFunctions.FindPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees(shipModule.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
                                     float num2 = (float)((int)shipModule.XSIZE * 16 / 2);
                                     float num3 = (float)((int)shipModule.YSIZE * 16 / 2);
                                     float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
                                     float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
-                                    origin = HelperFunctions.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
+                                    origin = HelperFunctions.FindPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
                                     int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
                                     //lock (locker)
 
@@ -4689,7 +4689,7 @@ namespace Ship_Game.Gameplay
                     float junkScale   = radSqrt * 0.05f; // trial and error, depends on junk model sizes
                     if (junkScale > 1.4f) junkScale = 1.4f; // bigger doesn't look good
 
-                    System.Diagnostics.Debug.WriteLine("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
+                    //System.Diagnostics.Debug.WriteLine("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
                     List<SpaceJunk> junk = SpaceJunk.MakeJunk(explosionJunk, Center, system, this, Radius/4, junkScale);
 				    lock (GlobalStats.ObjectManagerLocker)
 				    {

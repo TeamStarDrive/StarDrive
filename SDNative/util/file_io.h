@@ -1,5 +1,5 @@
 #pragma once
-#include <time.h> // time_t
+#include <ctime> // time_t
 #include "strview.h"
 
 namespace rpp /* ReCpp */
