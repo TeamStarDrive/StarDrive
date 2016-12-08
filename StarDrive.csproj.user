@@ -13,6 +13,7 @@
     <ErrorReportUrlHistory />
     <FallbackCulture>en-US</FallbackCulture>
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
+    <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'RedFox-Release|x86'">
     <StartWorkingDirectory>C:\Projects\BlackBox\StarDrive\</StartWorkingDirectory>
