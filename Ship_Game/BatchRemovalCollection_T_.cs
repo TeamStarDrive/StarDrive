@@ -101,13 +101,13 @@ namespace Ship_Game
             return list;// this as List<T>;
         }
         
-        public new Enumerator GetEnumerator()
-        {
-            thisLock.EnterReadLock();
-            var result = base.GetEnumerator();
-            thisLock.ExitReadLock();
-            return result;
-        }
+        //public new Enumerator GetEnumerator()
+        //{
+        //    //thisLock.EnterReadLock(); // Removed by RedFox, this doesn't
+        //    var result = base.GetEnumerator();
+        //    //thisLock.ExitReadLock();
+        //    return result;
+        //}
         public new void Clear()
         {
             thisLock.EnterWriteLock();

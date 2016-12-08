@@ -124,11 +124,12 @@ namespace Ship_Game
             }
         }
 
-        public static void PlayCue(string cueName, AudioListener listener, AudioEmitter emitter)
+        public static Cue PlayCue(string cueName, AudioListener listener, AudioEmitter emitter)
         {
             Cue cue = GetCue(cueName);
             cue.Apply3D(listener, emitter);
             cue.Play();
+            return cue;
         }
 
 		public override void Update(GameTime gameTime)

@@ -2056,36 +2056,6 @@ namespace Ship_Game.Gameplay
 		{
 		}
 
-		public void Move(float elapsedTime, float cos, float sin, float tan)
-		{
-			GlobalStats.ModulesMoved += 1;
-			Vector2 actualVector = this.XMLPosition;
-			actualVector.X -= 256f;
-			actualVector.Y -= 256f;
-			this.Center.X = actualVector.X * cos - actualVector.Y * sin;
-			this.Center.Y = actualVector.X * sin + actualVector.Y * cos;
-			//ShipModule center = this;
-			this.Center += this.Parent.Center;
-            //float num = 256f - this.XMLPosition.X;
-            this.Center3D.X = this.Center.X;
-			this.Center3D.Y = this.Center.Y;
-			this.Center3D.Z = tan * (256f - this.XMLPosition.X);
-            if (this.Parent.dying && this.Parent.InFrustum)
-			{
-				if (this.trailEmitter == null && this.firetrailEmitter == null && this.reallyFuckedUp)
-				{
-					this.trailEmitter = new ParticleEmitter(ShipModule.universeScreen.projectileTrailParticles, 50f, this.Center3D);
-					this.firetrailEmitter = new ParticleEmitter(ShipModule.universeScreen.fireTrailParticles, 60f, this.Center3D);
-					this.flameEmitter = new ParticleEmitter(ShipModule.universeScreen.flameParticles, 80f, this.Center3D);
-				}
-				if (this.trailEmitter != null && this.Active && this.reallyFuckedUp)
-				{
-					this.trailEmitter.Update(elapsedTime, this.Center3D);
-					this.flameEmitter.Update(elapsedTime, this.Center3D);
-				}
-			}
-		}
-
 		public void ScrambleFightersORIG()
 		{
 			if (!this.IsTroopBay && this.Powered && !this.IsSupplyBay)
@@ -2314,117 +2284,36 @@ namespace Ship_Game.Gameplay
                 //    this.TargetTracking =  //   Convert.ToSByte((this.XSIZE * this.YSIZE) / 3);
                 //    break;
             }
-            this.Health = this.HealthMax;
+            Health = HealthMax;
         }
 
 		public void SetHangarShip(Ship ship)
 		{
-			this.hangarShip = ship;
+			hangarShip = ship;
             if(ship != null)
-                this.installedSlot.HangarshipGuid = ship.guid;  //fbedard: save mothership
+                installedSlot.HangarshipGuid = ship.guid;  //fbedard: save mothership
 		}
 
 		public void SetInitialPosition()
 		{
-			float theta;
-			float parentFacing = this.Parent.Rotation;
-			if (parentFacing != 0f)
-			{
-				parentFacing = parentFacing * 180f / 3.14159274f;
-			}
-			float gamma = this.offsetAngle + parentFacing;
-			float D = this.distanceToParentCenter;
-			int gammaQuadrant = 0;
-			float oppY = 0f;
-			float adjX = 0f;
-			if (gamma > 360f)
-			{
-				gamma = gamma - 360f;
-			}
-			if (gamma < 90f)
-			{
-				theta = 90f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 1;
-			}
-			else if (gamma > 90f && gamma < 180f)
-			{
-				theta = gamma - 90f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 2;
-			}
-			else if (gamma > 180f && gamma < 270f)
-			{
-				theta = 270f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 3;
-			}
-			else if (gamma > 270f && gamma < 360f)
-			{
-				theta = gamma - 270f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 4;
-			}
-			this.ModuleCenter = new Vector2(0f, 0f);
-			if (gamma == 0f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X;
-				this.ModuleCenter.Y = this.Parent.Center.Y - D;
-			}
-			if (gamma == 90f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X + D;
-				this.ModuleCenter.Y = this.Parent.Center.Y;
-			}
-			if (gamma == 180f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X;
-				this.ModuleCenter.Y = this.Parent.Center.Y + D;
-			}
-			if (gamma == 270f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X - D;
-				this.ModuleCenter.Y = this.Parent.Center.Y;
-			}
-			if (gammaQuadrant == 1)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X + adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y - oppY;
-			}
-			else if (gammaQuadrant == 2)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X + adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y + oppY;
-			}
-			else if (gammaQuadrant == 3)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X - adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y + oppY;
-			}
-			else if (gammaQuadrant == 4)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X - adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y - oppY;
-			}
-			base.Position = new Vector2(this.ModuleCenter.X - 8f, this.ModuleCenter.Y - 8f);
-			this.Center = this.ModuleCenter;
+			float parentFacing = Parent.Rotation * 180f / 3.14159274f;
+
+            Vector2 position = Parent.Center;
+            float angle = offsetAngle + parentFacing;
+            float distance = distanceToParentCenter;
+            ModuleCenter = HelperFunctions.FindPointFromAngleAndDistance(position, angle, distance);
+
+			Position = new Vector2(ModuleCenter.X - 8f, ModuleCenter.Y - 8f);
+			Center = ModuleCenter;
 		}
 
 		public void SetModuleToCenter()
 		{
-			base.Position = this.Parent.Position;
-			this.Center = this.Parent.Center;
-			if (this.isWeapon)
+			Position = Parent.Position;
+			Center = Parent.Center;
+			if (isWeapon)
 			{
-				this.InstalledWeapon.Center = this.Center;
+				InstalledWeapon.Center = Center;
 			}
 		}
 
@@ -2546,89 +2435,88 @@ namespace Ship_Game.Gameplay
 			base.Update(elapsedTime);
         }
 
+        // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
 		public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
 		{
-			this.Move(elapsedTime, cos, sin, tan);
-			if (this.Parent.percent >= 0.5 || base.Health >= 0.25 * this.HealthMax)
-			{
-				this.reallyFuckedUp = false;
-			}
-			else
-			{
-				this.reallyFuckedUp = true;
-			}
-            if (this.Parent.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-            {
-                if (this.Active && this.onFire && this.trailEmitter == null && this.firetrailEmitter == null)
-                {
-                    this.trailEmitter = new ParticleEmitter(ShipModule.universeScreen.projectileTrailParticles, 50f, this.Center3D);
-                    this.firetrailEmitter = new ParticleEmitter(ShipModule.universeScreen.fireTrailParticles, 60f, this.Center3D);
-                    this.flameEmitter = new ParticleEmitter(ShipModule.universeScreen.flameParticles, 50f, this.Center3D);
-                }
-                if (this.trailEmitter != null && this.reallyFuckedUp && this.Active)
-                {
-                    this.trailEmitter.Update(elapsedTime, this.Center3D);
-                    this.flameEmitter.Update(elapsedTime, this.Center3D);
-                }
-                else if (this.trailEmitter != null && this.onFire && this.Active)
-                {
-                    this.trailEmitter.Update(elapsedTime, this.Center3D);
-                    this.firetrailEmitter.Update(elapsedTime, this.Center3D);
-                }
-                else if (!this.Active && this.trailEmitter != null)
-                {
-                    this.trailEmitter = null;
-                    this.firetrailEmitter = null;
-                } 
-            }
-			base.Rotation = this.Parent.Rotation;
+            // Move the module, this part is optimized according to profiler data
+            GlobalStats.ModulesMoved += 1;
+			Vector2 actualVector = XMLPosition; // huge cache miss here
+			actualVector.X -= 256f;
+			actualVector.Y -= 256f;
+            float cx = actualVector.X * cos - actualVector.Y * sin;
+            float cy = actualVector.X * sin + actualVector.Y * cos;
+            Vector2 parentCenter = Parent.Center;
+            cx += parentCenter.X;
+            cy += parentCenter.Y;
+            Center.X = cx;
+            Center.Y = cy;
+            Center3D.X = cx;
+			Center3D.Y = cy;
+			Center3D.Z = tan * (256f - XMLPosition.X);
+
+            // this can only happen if onFire is already true
+		    reallyFuckedUp = Parent.percent < 0.5f && Health / HealthMax < 0.25f;
+
+		    HandleDamageFireTrail(elapsedTime);
+			Rotation = Parent.Rotation;
 		}
+
+        private void HandleDamageFireTrail(float elapsedTime)
+        {
+		    if (Parent.InFrustum && Active && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            {
+                if (reallyFuckedUp)
+		        {
+                    if (trailEmitter == null) trailEmitter = new ParticleEmitter(universeScreen.projectileTrailParticles, 50f, Center3D);
+                    if (flameEmitter == null) flameEmitter = new ParticleEmitter(universeScreen.flameParticles, 80f, Center3D);
+		            trailEmitter.Update(elapsedTime, Center3D);
+		            flameEmitter.Update(elapsedTime, Center3D);
+		        }
+		        else if (onFire)
+		        {
+                    if (trailEmitter == null)     trailEmitter     = new ParticleEmitter(universeScreen.projectileTrailParticles, 50f, Center3D);
+                    if (firetrailEmitter == null) firetrailEmitter = new ParticleEmitter(universeScreen.fireTrailParticles, 60f, Center3D);
+		            trailEmitter.Update(elapsedTime, Center3D);
+		            firetrailEmitter.Update(elapsedTime, Center3D);
+		        }
+            }
+            else if (trailEmitter != null) // destroy immediately when out of vision range
+            {
+                trailEmitter     = null; // tried Disposing these, but got a crash... so just null them
+                firetrailEmitter = null;
+                flameEmitter     = null;
+            }
+        }
 
 		public void UpdateWhileDying(float elapsedTime)
 		{
-			this.Center3D = new Vector3(this.Parent.Center.X, this.Parent.Center.Y, ((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-25f, 25f));
-			if (this.trailEmitter != null && this.reallyFuckedUp && this.Active)
-			{
-				this.trailEmitter.Update(elapsedTime, this.Center3D);
-				this.flameEmitter.Update(elapsedTime, this.Center3D);
-				return;
-			}
-			if (this.trailEmitter != null && this.onFire && this.Active)
-			{
-				this.trailEmitter.Update(elapsedTime, this.Center3D);
-				this.firetrailEmitter.Update(elapsedTime, this.Center3D);
-			}
+            var rng = Parent.GetSystem()?.RNG ?? Ship.universeScreen.DeepSpaceRNG;
+			Center3D = new Vector3(Parent.Center.X, Parent.Center.Y, rng.RandomBetween(-25f, 25f));
+            HandleDamageFireTrail(elapsedTime);
 		}
 
         public void Repair(float repairAmount)
         {
-            this.Health += repairAmount;
-            if (this.Health >= this.HealthMax)
-            {
-                this.Health = this.HealthMax;
-                foreach (ShipModule dummy in this.LinkedModulesList)
-                {
-                    dummy.Health = dummy.HealthMax;
-                }
-            }
+            Health += repairAmount;
+            if (Health < HealthMax) return;
+
+            Health = HealthMax;
+            foreach (ShipModule dummy in LinkedModulesList)
+                dummy.Health = dummy.HealthMax;
         }
 
         public float GetShieldsMax()
         {
-			if (GlobalStats.ActiveModInfo != null)
-            {
-                float value = this.shield_power_max;
-                value += (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
-                if (GlobalStats.ActiveModInfo.useHullBonuses)
-                {
-                    HullBonus mod;
-                    if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))
-                        value += this.shield_power_max * mod.ShieldBonus;
-                }
+            if (GlobalStats.ActiveModInfo == null)
+                return shield_power_max;
+
+            float value = shield_power_max + shield_power_max * Parent.loyalty?.data.ShieldPowerMod ?? 0;
+            if (!GlobalStats.ActiveModInfo.useHullBonuses)
                 return value;
-            }
-            else
-                return this.shield_power_max;
+
+            if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out HullBonus mod))
+                value += shield_power_max * mod.ShieldBonus;
+            return value;
         }
 	}
 }
