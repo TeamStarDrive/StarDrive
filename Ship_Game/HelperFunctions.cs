@@ -414,7 +414,7 @@ namespace Ship_Game
 			return Math.Abs(angle_to_target);
 		}
 
-		public static Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
+		public static Vector2 FindPointFromAngleAndDistance(Vector2 position, float angle, float distance)
 		{
 			float theta;
 			Vector2 TargetPosition = new Vector2(0f, 0f);
@@ -601,7 +601,7 @@ namespace Ship_Game
 			{
 				angle = angle - 360f;
 			}
-			return findPointFromAngleAndDistance(center, angle, radius);
+			return FindPointFromAngleAndDistance(center, angle, radius);
 		}
 
 		public static FileInfo[] GetFilesFromDirectory(string DirPath)

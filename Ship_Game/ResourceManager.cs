@@ -9,6 +9,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
@@ -24,15 +25,15 @@ namespace Ship_Game
         public static Dictionary<string, Texture2D> TextureDict          = new Dictionary<string, Texture2D>();
         public static XmlSerializer WeaponSerializer                     = new XmlSerializer(typeof(Weapon));
         public static Dictionary<string, Ship> ShipsDict                 = new Dictionary<string, Ship>();
+        public static Dictionary<string, Technology> TechTree            = new Dictionary<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
         private static readonly List<Model> RoidsModels                  = new List<Model>();
         private static readonly List<Model> JunkModels                   = new List<Model>();
-        public static Dictionary<string, Technology> TechTree            = new Dictionary<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
+        private static readonly List<ToolTip> ToolTips                   = new List<ToolTip>();
         public static List<Encounter> Encounters                         = new List<Encounter>();
         public static Dictionary<string, Building> BuildingsDict         = new Dictionary<string, Building>();
         public static Dictionary<string, Good> GoodsDict                 = new Dictionary<string, Good>();
         public static Dictionary<string, Weapon> WeaponsDict             = new Dictionary<string, Weapon>();
         public static Dictionary<string, ShipModule> ShipModulesDict     = new Dictionary<string, ShipModule>();
-        private static readonly List<ToolTip> ToolTips                   = new List<ToolTip>();
         public static Dictionary<string, Texture2D> ProjTextDict         = new Dictionary<string, Texture2D>();
         public static Dictionary<string, ModelMesh> ProjectileMeshDict   = new Dictionary<string, ModelMesh>();
         public static Dictionary<string, Model> ProjectileModelDict      = new Dictionary<string, Model>();
@@ -53,14 +54,12 @@ namespace Ship_Game
         public static List<Texture2D> SmallStars                         = new List<Texture2D>();
         public static List<Texture2D> MediumStars                        = new List<Texture2D>();
         public static List<Texture2D> LargeStars                         = new List<Texture2D>();
-        private static RacialTraits rt                                   = new RacialTraits();
         public static List<EmpireData> Empires                           = new List<EmpireData>();
         public static XmlSerializer HeaderSerializer                     = new XmlSerializer(typeof(HeaderData));
         public static XmlSerializer ModSerializer                        = new XmlSerializer(typeof(ModInformation));
         public static Dictionary<string, Model> ModelDict                = new Dictionary<string, Model>();
-
         public static Dictionary<string, ShipData> HullsDict             = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
-        public static UniverseScreen universeScreen;
+
         public static List<KeyValuePair<string, Texture2D>> FlagTextures = new List<KeyValuePair<string, Texture2D>>();
         public static Dictionary<string, SoundEffect> SoundEffectDict    = new Dictionary<string, SoundEffect>();
 
@@ -73,10 +72,19 @@ namespace Ship_Game
         public static Dictionary<string, HullBonus> HullBonuses          = new Dictionary<string, HullBonus>();
         public static Dictionary<string, PlanetEdict> PlanetaryEdicts    = new Dictionary<string, PlanetEdict>();
         public static XmlSerializer EconSerializer                       = new XmlSerializer(typeof(EconomicResearchStrategy));
+
         public static Dictionary<string, EconomicResearchStrategy> EconStrats = new Dictionary<string, EconomicResearchStrategy>();
 
         public static int OffSet;
+        private static RacialTraits RacialTraits;
+        private static DiplomaticTraits DiplomacyTraits;
 
+        // @todo These are all hacks caused by bad design and tight coupling
+        public static UniverseScreen UniverseScreen;
+        public static ScreenManager ScreenManager;
+
+        // All references to Game1.Instance.Content were replaced by this property
+        public static ContentManager ContentManager => Game1.Instance.Content;
 
         public static void MarkShipDesignsUnlockable()
         {
@@ -173,13 +181,13 @@ namespace Ship_Game
                 if (shipData.allModulesUnlocakable)
                     foreach (string techname in shipData.techsNeeded)
                     {
-                        shipData.TechScore += (int)TechTree[techname].Cost;
+                        shipData.TechScore += (int) TechTree[techname].Cost;
                         x++;
                         if (!(shipData.BaseStrength > 0f))
                             CalculateBaseStrength(kv.Value);
                     }
                 else
-                {                    
+                {
                     shipData.unLockable = false;
                     shipData.techsNeeded.Clear();
                     purge.Add(shipData.Name);
@@ -187,36 +195,135 @@ namespace Ship_Game
                 }
 
             }
-            
+
             System.Diagnostics.Debug.WriteLine("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
             foreach (string purger in purge)
                 System.Diagnostics.Debug.WriteLine("These are Designs" + purger);
         }
+
+
+
         public static bool IgnoreLoadingErrors = false;
+
         // Used for reporting resource loading errors.
+        public static void ReportLoadingError(string fileName, string where)
+        {
+        #if DEBUG // for easier debugging with a Debugger attached
+            if (Debugger.IsAttached) Debugger.Break();
+        #endif
+            if (IgnoreLoadingErrors) return;
+            throw new FileNotFoundException($"ResourceManager ${where} failed to load {fileName}");
+        }
         public static void ReportLoadingError(FileInfo info, string where, Exception e)
         {
-            if (IgnoreLoadingErrors) return;
+        #if DEBUG // for easier debugging with a Debugger attached
+            if (Debugger.IsAttached) Debugger.Break();
+        #endif
+            if (IgnoreLoadingErrors || e == null) return;
             e.Data.Add("Failing File: ", info.FullName);
             e.Data.Add("Fail Info: ", e.InnerException?.Message);
             throw e;
         }
         public static void ReportLoadingError(string fileName, string where, Exception e)
         {
-            if (IgnoreLoadingErrors) return;
+        #if DEBUG // for easier debugging with a Debugger attached
+            if (Debugger.IsAttached) Debugger.Break();
+        #endif
+            if (IgnoreLoadingErrors || e == null) return;
             e.Data.Add("Failing File: ", fileName);
             e.Data.Add("Fail Info: ", e.InnerException?.Message);
             throw e;
         }
 
-        // All references to Game1.Instance.Content were replaced by this property
-        public static ContentManager ContentManager => Game1.Instance.Content;
+        
+
+        public static void Initialize(ContentManager c)
+        {
+            WhichModPath = "Content";
+            LoadItAll();
+        }
+        
+        // Added by RedFox: only deseralize to ref entity IF the file exists
+        private static bool DeserializeIfExists<T>(string contentFolder, string file, ref T entity) where T : class
+        {
+            FileInfo info = new FileInfo(contentFolder + file);
+            if (!info.Exists)
+                return false;
+            using (Stream stream = info.OpenRead())
+                entity = (T)new XmlSerializer(typeof(T)).Deserialize(stream);
+            return true;
+        }
+
+        // This first tries to deserialize from Mod folder and then from Content folder
+        // If it fails, a Resource
+        private static T DeserializeModOrContent<T>(string file, string where, out T entity, bool reportError=true) where T : class
+        {
+            entity = null;
+            if (DeserializeIfExists(WhichModPath, file, ref entity) || 
+                DeserializeIfExists("Content", file, ref entity))
+                return entity;
+            if (reportError) ReportLoadingError(file, @where); // this throws only if !IgnoreLoadingErrors
+            return null;
+        }
+
+        private static List<T> LoadEntitiesModOrContent<T>(string dir, string where) where T : class
+        {
+            var result = new List<T>();
+            string path;
+            var f = Dir.GetFiles(path = WhichModPath + dir, "xml");
+            if (f.Length == 0)
+                f = Dir.GetFiles(path = "Content" + dir, "xml");
+            if (f.Length != 0)
+            {
+                var s = new XmlSerializer(typeof(T));
+                foreach (var info in f)
+                    if (LoadEntity(s, info, where, out T entity))
+                        result.Add(entity);
+            }
+            else ReportLoadingError(path, where);
+            return result;
+        }
+
+        // Added by RedFox - Generic entity loading, less typing == more fun
+        private static bool LoadEntity<T>(XmlSerializer s, FileInfo info, string id, out T entity) where T : class
+        {
+            try
+            {
+                using (FileStream stream = info.OpenRead())
+                    entity = (T)s.Deserialize(stream);
+                return true;
+            }
+            catch (Exception e)
+            {
+                ReportLoadingError(info, id, e);
+                entity = null;
+                return false;
+            }
+        }
+        private static IEnumerable<T> LoadEntities<T>(string dir, string id) where T : class
+        {
+            var s = new XmlSerializer(typeof(T));
+            foreach (FileInfo info in Dir.GetFiles(WhichModPath + dir, "xml")) {
+                if (LoadEntity(s, info, id, out T entity))
+                    yield return entity;
+            }
+        }
+        private static IEnumerable<KeyValuePair<FileInfo, T>> LoadEntitiesWithInfo<T>(string dir, string id) where T : class
+        {
+            var s = new XmlSerializer(typeof(T));
+            foreach (FileInfo info in Dir.GetFiles(WhichModPath + dir)) {
+                if (LoadEntity(s, info, id, out T entity))
+                    yield return new KeyValuePair<FileInfo, T>(info, entity);
+            }
+        }
+
+
 
         public static Troop CopyTroop(Troop t)
         {
             Troop troop = t.Clone();
             troop.StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength;
-            troop.WhichFrame  = (int)RandomMath.RandomBetween(1, t.num_idle_frames - 1);
+            troop.WhichFrame = (int) RandomMath.RandomBetween(1, t.num_idle_frames - 1);
             troop.SetOwner(t.GetOwner());
             return troop;
         }
@@ -225,43 +332,43 @@ namespace Ship_Game
         {
             return ShipsDict[shipName];
         }
+
         public static string GetShipHull(string shipName)
         {
             return ShipsDict[shipName].GetShipData().Hull;
         }
 
-        // Added by RedFox
-        // Debug, Hangar Ship, and Platform creation
+        // Added by RedFox - Debug, Hangar Ship, and Platform creation
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 position)
         {
             if (!ShipsDict.TryGetValue(shipName, out Ship template))
             {
                 Exception stackTrace = new Exception();
-                MessageBox.Show($"Failed to create new ship '{shipName}'. "+
-                    $"This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}", 
+                MessageBox.Show($"Failed to create new ship '{shipName}'. " +
+                                $"This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
                     "Ship spawn failed!", MessageBoxButtons.OK);
                 return null;
             }
 
             Ship ship = new Ship
             {
-                shipData     = template.shipData,
-                Name         = template.Name,
+                shipData = template.shipData,
+                Name = template.Name,
                 BaseStrength = template.BaseStrength,
-                BaseCanWarp  = template.BaseCanWarp,
-                loyalty      = owner,
-                Position     = position
+                BaseCanWarp = template.BaseCanWarp,
+                loyalty = owner,
+                Position = position
             };
 
             if (!template.shipData.Animated)
             {
                 ship.SetSO(new SceneObject(GetModel(template.ModelPath).Meshes[0])
-                { ObjectType = ObjectType.Dynamic });
+                    {ObjectType = ObjectType.Dynamic});
             }
             else
             {
                 SkinnedModel model = GetSkinnedModel(template.ModelPath);
-                ship.SetSO(new SceneObject(model.Model) { ObjectType = ObjectType.Dynamic });
+                ship.SetSO(new SceneObject(model.Model) {ObjectType = ObjectType.Dynamic});
                 ship.SetAnimationController(new AnimationController(model.SkeletonBones), model);
             }
 
@@ -274,11 +381,11 @@ namespace Ship_Game
             {
                 ModuleSlot newSlot = new ModuleSlot();
                 newSlot.SetParent(ship);
-                newSlot.SlotOptions  = slot.SlotOptions;
+                newSlot.SlotOptions = slot.SlotOptions;
                 newSlot.Restrictions = slot.Restrictions;
-                newSlot.Position     = slot.Position;
-                newSlot.facing       = slot.facing;
-                newSlot.state        = slot.state;
+                newSlot.Position = slot.Position;
+                newSlot.facing = slot.facing;
+                newSlot.state = slot.state;
                 newSlot.InstalledModuleUID = slot.InstalledModuleUID;
                 ship.ModuleSlotList.Add(newSlot);
             }
@@ -290,24 +397,28 @@ namespace Ship_Game
             if (ship.shipData.Role == ShipData.RoleName.fighter)
                 ship.Level += owner.data.BonusFighterLevels;
 
-            if (universeScreen.GameDifficulty > UniverseData.GameDifficulty.Normal)
-                ship.Level += (int)universeScreen.GameDifficulty;
+            // during new game creation, universeScreen can still be null
+            if (UniverseScreen != null && UniverseScreen.GameDifficulty > UniverseData.GameDifficulty.Normal)
+                ship.Level += (int) UniverseScreen.GameDifficulty;
 
             ship.Initialize();
 
             var so = ship.GetSO();
             so.World = Matrix.CreateTranslation(new Vector3(ship.Center, 0f));
+
+            var screenManager = UniverseScreen?.ScreenManager ?? ScreenManager;
             lock (GlobalStats.ObjectManagerLocker)
             {
-                universeScreen.ScreenManager.inter.ObjectManager.Submit(so);
+                screenManager.inter.ObjectManager.Submit(so);
             }
 
-            var content = universeScreen.ScreenManager.Content;
+            var content = screenManager.Content;
             var thrustCylinder = content.Load<Model>("Effects/ThrustCylinderB");
-            var noiseVolume    = content.Load<Texture3D>("Effects/NoiseVolume");
+            var noiseVolume = content.Load<Texture3D>("Effects/NoiseVolume");
+            var thrusterEffect = content.Load<Effect>("Effects/Thrust");
             foreach (Thruster t in ship.GetTList())
             {
-                t.load_and_assign_effects(content, thrustCylinder, noiseVolume, universeScreen.ThrusterEffect);
+                t.load_and_assign_effects(content, thrustCylinder, noiseVolume, thrusterEffect);
                 t.InitializeForViewing();
             }
 
@@ -328,25 +439,25 @@ namespace Ship_Game
             return ship;
         }
 
-        // Refactored by RedFox
-        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit)   //Normal Shipyard ship creation
+        // Refactored by RedFox - Normal Shipyard ship creation
+        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit)
         {
             return CreateShipAt(shipName, owner, p, Vector2.Zero, doOrbit);
         }
 
         // Added by McShooterz: for refit to keep name
         // Refactored by RedFox
-        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit, string refitName, byte refitLevel)
+        public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit, string refitName, int refitLevel)
         {
             Ship ship = CreateShipAt(shipName, owner, p, doOrbit);
 
             // Added by McShooterz: add automatic ship naming
             ship.VanityName = refitName;
-            ship.Level      = refitLevel;
+            ship.Level = refitLevel;
             return ship;
         }
 
-        // unused   -- Called in fleet creation function, which is in turn not used
+        // unused -- Called in fleet creation function, which is in turn not used
         public static Ship CreateShipAtPoint(string shipName, Empire owner, Vector2 p, float facing)
         {
             Ship ship = CreateShipAtPoint(shipName, owner, p);
@@ -354,7 +465,8 @@ namespace Ship_Game
             return ship;
         }
 
-        public static Ship CreateShipForBattleMode(string shipName, Empire owner, Vector2 p) //Unused... Battle mode, eh?
+        // Unused... Battle mode, eh?
+        public static Ship CreateShipForBattleMode(string shipName, Empire owner, Vector2 p)
         {
             Ship ship = CreateShipAtPoint(shipName, owner, p);
             ship.isInDeepSpace = true;
@@ -371,12 +483,11 @@ namespace Ship_Game
             return s;
         }
 
-
         public static Troop CreateTroop(Troop template, Empire forOwner)
         {
             Troop troop = CopyTroop(template);
             if (forOwner != null)
-                troop.Strength += (int)(forOwner.data.Traits.GroundCombatModifier * troop.Strength);
+                troop.Strength += (int) (forOwner.data.Traits.GroundCombatModifier * troop.Strength);
             troop.SetOwner(forOwner);
             return troop;
         }
@@ -392,9 +503,9 @@ namespace Ship_Game
         }
 
         // Added by RedFox
-        public static void DeleteShipFromDir(string dir, string shipName)
+        private static void DeleteShipFromDir(string dir, string shipName)
         {
-            foreach (FileInfo info in Dir.GetFiles(dir, shipName+".xml", SearchOption.TopDirectoryOnly))
+            foreach (FileInfo info in Dir.GetFiles(dir, shipName + ".xml", SearchOption.TopDirectoryOnly))
             {
                 // @note ship.Name is always the same as fileNameNoExt 
                 //       part of "shipName.xml", so we can skip parsing the XML's
@@ -429,13 +540,13 @@ namespace Ship_Game
             newB.Cost *= UniverseScreen.GamePaceStatic;
 
             // comp fix to ensure functionality of vanilla buildings
-            if (newB.Name == "Outpost" || newB.Name =="Capital City")
+            if (newB.Name == "Outpost" || newB.Name == "Capital City")
             {
                 // @todo What is going on here? Is this correct?
                 if (!newB.IsProjector && !(newB.ProjectorRange > 0f))
                 {
                     newB.ProjectorRange = Empire.ProjectorRadius;
-                    newB.IsProjector    = true;
+                    newB.IsProjector = true;
                 }
                 if (!newB.IsSensor && !(newB.SensorRange > 0.0f))
                 {
@@ -493,6 +604,7 @@ namespace Ship_Game
             ShipModule template = ShipModulesDict[uid];
             return template.Cost;
         }
+
         public static ShipModule GetModule(string uid)
         {
             ShipModule template = ShipModulesDict[uid];
@@ -511,7 +623,7 @@ namespace Ship_Game
                 ModuleType           = template.ModuleType,
                 NameIndex            = template.NameIndex,
                 OrdinanceCapacity    = template.OrdinanceCapacity,
-                shield_power         = template.shield_power_max,    //Hmmm... This one is strange -Gretman
+                shield_power         = template.shield_power_max, //Hmmm... This one is strange -Gretman
                 UID                  = template.UID,
                 XSIZE                = template.XSIZE,
                 YSIZE                = template.YSIZE,
@@ -541,31 +653,46 @@ namespace Ship_Game
             return module;
         }
 
-        // Refactored by RedFox
-        public static RacialTraits GetRaceTraits()
-        {
-            // Added by McShooterz: mod folder support for RacialTraits folder
-            string modTraits = WhichModPath + "/RacialTraits";
-            string traitsDir = Directory.Exists(modTraits) ? modTraits : "Content/RacialTraits";
 
-            foreach (var traits in LoadEntities<RacialTraits>(traitsDir, "GetRaceTraits"))
+        // Refactored by RedFox
+        public static RacialTraits RaceTraits => RacialTraits ?? LoadRaceTraits();
+        private static RacialTraits LoadRaceTraits()
+        {
+            if (null == DeserializeModOrContent("/RacialTraits/RacialTraits.xml", "GetRaceTraits", out RacialTraits))
+                return null;
+            foreach (RacialTrait trait in RacialTraits.TraitList)
             {
-                foreach (RacialTrait trait in traits.TraitList)
+                if (Localizer.LocalizerDict.ContainsKey(trait.TraitName + OffSet))
                 {
-                    if (Localizer.LocalizerDict.ContainsKey(trait.TraitName + OffSet))
-                    {
-                        trait.TraitName += OffSet;
-                        Localizer.used[trait.TraitName] = true;
-                    }
-                    if (Localizer.LocalizerDict.ContainsKey(trait.Description + OffSet))
-                    {
-                        trait.Description += OffSet;
-                        Localizer.used[trait.Description] = true;
-                    }
+                    trait.TraitName += OffSet;
+                    Localizer.used[trait.TraitName] = true;
                 }
-                rt = traits;
+                if (Localizer.LocalizerDict.ContainsKey(trait.Description + OffSet))
+                {
+                    trait.Description += OffSet;
+                    Localizer.used[trait.Description] = true;
+                }
             }
-            return rt;
+            return RacialTraits;
+        }
+
+
+        // Added/Refactored by RedFox
+        public static DiplomaticTraits DiplomaticTraits => DiplomacyTraits ?? LoadDiplomaticTraits();
+        private static DiplomaticTraits LoadDiplomaticTraits()
+        {
+            return DeserializeModOrContent("/Diplomacy/DiplomaticTraits.xml", "LoadDiplomaticTraits", out DiplomacyTraits);
+        }
+
+        // Added by RedFox
+        public static SolarSystemData LoadSolarSystemData(string homeSystemName)
+        {
+            return DeserializeModOrContent("/SolarSystems/" + homeSystemName + ".xml", 
+                                           "LoadSolarSystemData", out SolarSystemData data, reportError:false);
+        }
+        public static List<SolarSystemData> LoadRandomSolarSystems()
+        {
+            return LoadEntitiesModOrContent<SolarSystemData>("/SolarSystems/Random", "LoadSolarSystems");
         }
 
         public static SkinnedModel GetSkinnedModel(string path)
@@ -579,45 +706,6 @@ namespace Ship_Game
             Weapon template = WeaponsDict[uid];
             Weapon wep = template.Clone();
             return wep;
-        }
-
-        public static void Initialize(ContentManager c)
-        {
-            WhichModPath = "Content";
-            LoadItAll();
-        }
-
-        // Added by RedFox - Generic entity loading, less typing == more fun
-        private static bool LoadEntity<T>(XmlSerializer s, FileInfo info, string id, out T entity) where T : class
-        {
-            try
-            {
-                using (FileStream stream = info.OpenRead())
-                    entity = (T)s.Deserialize(stream);
-                return true;
-            }
-            catch (Exception e)
-            {
-                ReportLoadingError(info, id, e);
-                entity = null;
-                return false;
-            }
-        }
-        private static IEnumerable<T> LoadEntities<T>(string dir, string id) where T : class
-        {
-            var s = new XmlSerializer(typeof(T));
-            foreach (FileInfo info in Dir.GetFiles(WhichModPath + dir, "xml")) {
-                if (LoadEntity(s, info, id, out T entity))
-                    yield return entity;
-            }
-        }
-        private static IEnumerable<KeyValuePair<FileInfo, T>> LoadEntitiesWithInfo<T>(string dir, string id) where T : class
-        {
-            var s = new XmlSerializer(typeof(T));
-            foreach (FileInfo info in Dir.GetFiles(WhichModPath + dir)) {
-                if (LoadEntity(s, info, id, out T entity))
-                    yield return new KeyValuePair<FileInfo, T>(info, entity);
-            }
         }
 
         public static Texture2D LoadRandomLoadingScreen(ContentManager content)
@@ -636,8 +724,8 @@ namespace Ship_Game
             string adviceFile = "/Advice/"+GlobalStats.Config.Language+"/Advice.xml";
 
             List<string> adviceList = null;
-            if (DeserializeIfExists(WhichModPath+adviceFile, ref adviceList)
-                || DeserializeIfExists("Content"+adviceFile, ref adviceList))
+            if (DeserializeIfExists(WhichModPath, adviceFile, ref adviceList)
+                || DeserializeIfExists("Content", adviceFile, ref adviceList))
             {
                 return adviceList[RandomMath.InRange(adviceList.Count)];
             }
@@ -1517,17 +1605,6 @@ namespace Ship_Game
             }
         }
 
-        // Added by RedFox: only deseralize to ref entity IF the file exists
-        private static bool DeserializeIfExists<T>(string file, ref T entity) where T : class
-        {
-            FileInfo info = new FileInfo(WhichModPath + file);
-            if (!info.Exists)
-                return false;
-            using (Stream stream = info.OpenRead())
-                entity = (T)new XmlSerializer(typeof(T)).Deserialize(stream);
-            return true;
-        }
-
         private static void LoadPlanetEdicts()
         {
             foreach (var planetEdict in LoadEntities<PlanetEdict>("/PlanetEdicts", "LoadPlanetEdicts"))
@@ -1550,10 +1627,10 @@ namespace Ship_Game
                 GlobalStats.ActiveModInfo.useHullBonuses = HullBonuses.Count != 0;
             }
 
-            DeserializeIfExists("/HostileFleets/HostileFleets.xml", ref HostileFleets);
-            DeserializeIfExists("/ShipNames/ShipNames.xml", ref ShipNames);
-            DeserializeIfExists("/AgentMissions/AgentMissionData.xml", ref AgentMissionData);
-            DeserializeIfExists("/MainMenu/MainMenuShipList.xml", ref MainMenuShipList);
+            DeserializeIfExists(WhichModPath, "/HostileFleets/HostileFleets.xml",    ref HostileFleets);
+            DeserializeIfExists(WhichModPath, "/ShipNames/ShipNames.xml",            ref ShipNames);
+            DeserializeIfExists(WhichModPath, "/AgentMissions/AgentMissionData.xml", ref AgentMissionData);
+            DeserializeIfExists(WhichModPath, "/MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
 
             foreach (FileInfo info in Dir.GetFilesNoThumbs(WhichModPath + "/SoundEffects"))
             {

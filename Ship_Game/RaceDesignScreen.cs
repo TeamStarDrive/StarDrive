@@ -186,7 +186,7 @@ namespace Ship_Game
 		{
 			this.mmscreen = mmscreen;
 			base.IsPopup = true;
-			this.rt = ResourceManager.GetRaceTraits();
+			this.rt = ResourceManager.RaceTraits;
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			foreach (RacialTrait t in this.rt.TraitList)
@@ -2400,8 +2400,8 @@ namespace Ship_Game
             //    GlobalStats.HardcoreRuleset = true;
             //}
             //else 
-            if (this.mode == RaceDesignScreen.GameMode.Elimination) GlobalStats.EliminationMode = true;
-            if (this.mode == RaceDesignScreen.GameMode.Corners) GlobalStats.CornersGame = true; //Added by Gretman
+            if (this.mode == GameMode.Elimination) GlobalStats.EliminationMode = true;
+            if (this.mode == GameMode.Corners) GlobalStats.CornersGame = true; //Added by Gretman
 
 
             GlobalStats.ExtraRemnantGS = (int)ExtraRemnant;  //Added by Gretman
