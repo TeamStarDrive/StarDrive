@@ -91,12 +91,12 @@ namespace Ship_Game
         public List<ShipModule> ModulesNeedingReset = new List<ShipModule>();
         private bool flip = true;
         private int Auto = 1;
-        private AutoResetEvent ShipGateKeeper = new AutoResetEvent(false);
+        private AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
         private ManualResetEvent SystemThreadGateKeeper = new ManualResetEvent(false);
-        private AutoResetEvent DeepSpaceGateKeeper = new AutoResetEvent(false);
-        private ManualResetEvent DeepSpaceDone = new ManualResetEvent(false);
-        private AutoResetEvent EmpireGateKeeper = new AutoResetEvent(false);
-        private ManualResetEvent EmpireDone = new ManualResetEvent(false);
+        private AutoResetEvent   DeepSpaceGateKeeper    = new AutoResetEvent(false);
+        private ManualResetEvent DeepSpaceDone          = new ManualResetEvent(false);
+        private AutoResetEvent   EmpireGateKeeper       = new AutoResetEvent(false);
+        private ManualResetEvent EmpireDone             = new ManualResetEvent(false);
         //public List<Ship> ShipsToRemove = new List<Ship>();
         public List<Projectile> DSProjectilesToAdd = new List<Projectile>();
         private List<Ship> DeepSpaceShips = new List<Ship>();
@@ -843,7 +843,7 @@ namespace Ship_Game
                 this.Stars.Add(nebulousOverlay);
             }
             this.LoadGraphics();
-            UniverseScreen.DeepSpaceManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));       //Mer Investigate me
+            DeepSpaceManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));       //Mer Investigate me
             UniverseScreen.ShipSpatialManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));
             this.DoParticleLoad();
             this.bg3d = new Background3D(this);
@@ -1230,7 +1230,7 @@ namespace Ship_Game
             Asteroid.universeScreen = this;
             Empire.universeScreen = this;
             SpaceJunk.universeScreen = this;
-            ResourceManager.universeScreen = this;
+            ResourceManager.UniverseScreen = this;
             Planet.universeScreen = this;
             Weapon.universeScreen = this;
             Ship.universeScreen = this;
@@ -1610,7 +1610,7 @@ namespace Ship_Game
                     ,
                     () =>
                     {
-                        UniverseScreen.DeepSpaceManager.CollidableObjects.ApplyPendingRemovals();
+                        DeepSpaceManager.CollidableObjects.ApplyPendingRemovals();
                     }
                 );
             }
@@ -1673,7 +1673,7 @@ namespace Ship_Game
                 if (rebuild)
                 {
                     this.reducer = (int) (Empire.ProjectorRadius*.75f);
-                    int granularity = (int) (this.Size.X/this.reducer);
+                    int granularity = (int)(Size.X / reducer);
                     int elegran = granularity*2;
                     int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
                    // this.reducer =(int)this.Size.X/elements;
@@ -1687,14 +1687,15 @@ namespace Ship_Game
                             else
                                 grid[x, y] = 80;
                         }
-                    foreach (Planet p in this.PlanetsDict.Values)
+                    foreach (Planet p in PlanetsDict.Values)
                     {
                         int x = granularity;
                         int y = granularity;
                         float xround = p.Position.X > 0 ? .5f : -.5f;
                         float yround = p.Position.Y > 0 ? .5f : -.5f;
-                        x += (int) (p.Position.X/this.reducer+ xround);
-                        y += (int) (p.Position.Y/this.reducer+ yround);
+                        x += (int) (p.Position.X / reducer + xround);
+                        y += (int) (p.Position.Y / reducer + yround);
+                        if (y < 0) y = 0;
                         grid[x, y] = 200;
                     }
                     Parallel.ForEach(EmpireManager.EmpireList, empire =>
@@ -1851,8 +1852,8 @@ namespace Ship_Game
                                                {
                                                  
                                                    ship.isInDeepSpace = true;
-                                                   if (!UniverseScreen.DeepSpaceManager.CollidableObjects.Contains((GameplayObject)ship))
-                                                       UniverseScreen.DeepSpaceManager.CollidableObjects.Add((GameplayObject)ship);
+                                                   if (!DeepSpaceManager.CollidableObjects.Contains((GameplayObject)ship))
+                                                       DeepSpaceManager.CollidableObjects.Add((GameplayObject)ship);
                                                }
                                      
 
@@ -2510,10 +2511,10 @@ namespace Ship_Game
            // lock (GlobalStats.DeepSpaceLock)
             {
                 foreach (Projectile item_0 in this.DSProjectilesToAdd)
-                    UniverseScreen.DeepSpaceManager.CollidableObjects.Add((GameplayObject)item_0);
+                    DeepSpaceManager.CollidableObjects.Add((GameplayObject)item_0);
             }
             this.DSProjectilesToAdd.Clear();
-            UniverseScreen.DeepSpaceManager.Update(elapsedTime, (SolarSystem)null);
+            DeepSpaceManager.Update(elapsedTime, (SolarSystem)null);
         }
 
         private void DeepSpaceThread()
@@ -2530,9 +2531,9 @@ namespace Ship_Game
 
                 lock (GlobalStats.DeepSpaceLock)
                 {
-                    for (int i = 0; i < UniverseScreen.DeepSpaceManager.CollidableObjects.Count; i++)
+                    for (int i = 0; i < DeepSpaceManager.CollidableObjects.Count; i++)
                     {
-                        GameplayObject item = UniverseScreen.DeepSpaceManager.CollidableObjects[i];
+                        GameplayObject item = DeepSpaceManager.CollidableObjects[i];
                         if (item is Ship)
                         {
                             Ship ship = item as Ship;
@@ -5298,34 +5299,34 @@ namespace Ship_Game
             if (this.MultiThread)
             {
             //    this.ShipUpdateThread.Abort();
-                this.WorkerThread.Abort();
-                foreach (Thread thread in this.SystemUpdateThreadList)
+                WorkerThread.Abort();
+                foreach (Thread thread in SystemUpdateThreadList)
                     thread.Abort();                
 
             }
-            this.EmpireUI.empire = (Empire)null;
-            this.EmpireUI = (EmpireUIOverlay)null;
-            UniverseScreen.DeepSpaceManager.CollidableObjects.Clear();
-            UniverseScreen.DeepSpaceManager.CollidableProjectiles.Clear();
-            UniverseScreen.ShipSpatialManager.CollidableObjects.Clear();
-            this.ScreenManager.Music.Stop(AudioStopOptions.Immediate);
-            this.NebulousShit.Clear();
-            this.bloomComponent = (BloomComponent)null;
-            this.bg3d.BGItems.Clear();
-            this.bg3d = (Background3D)null;
-            this.playerShip = (Ship)null;
-            this.ShipToView = (Ship)null;
-            foreach (Ship ship in (List<Ship>)this.MasterShipList)
+            EmpireUI.empire = null;
+            EmpireUI = null;
+            DeepSpaceManager.CollidableObjects.Clear();
+            DeepSpaceManager.CollidableProjectiles.Clear();
+            ShipSpatialManager.CollidableObjects.Clear();
+            ScreenManager.Music.Stop(AudioStopOptions.Immediate);
+            NebulousShit.Clear();
+            bloomComponent = null;
+            bg3d.BGItems.Clear();
+            bg3d = null;
+            playerShip = null;
+            ShipToView = null;
+            foreach (Ship ship in MasterShipList)
                 ship.TotallyRemove();
-            this.MasterShipList.ApplyPendingRemovals();
-            this.MasterShipList.Clear();
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            MasterShipList.ApplyPendingRemovals();
+            MasterShipList.Clear();
+            foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 solarSystem.spatialManager.CollidableProjectiles.Clear();
                 solarSystem.spatialManager.CollidableObjects.Clear();
                 solarSystem.spatialManager.ClearBuckets();
                 solarSystem.spatialManager.Destroy();
-                solarSystem.spatialManager = (SpatialManager)null;
+                solarSystem.spatialManager = null;
                 solarSystem.FiveClosestSystems.Clear();
                 foreach (Planet planet in solarSystem.PlanetList)
                 {
@@ -5334,7 +5335,7 @@ namespace Ship_Game
                     {
                         planet.SO.Clear();
                         this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)planet.SO);
-                        planet.SO = (SceneObject)null;
+                        planet.SO = null;
                     }
                 }
                 foreach (Asteroid asteroid in (List<Asteroid>)solarSystem.AsteroidsList)
@@ -5342,7 +5343,7 @@ namespace Ship_Game
                     if (asteroid.GetSO() != null)
                     {
                         asteroid.GetSO().Clear();
-                        this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)asteroid.GetSO());
+                        ScreenManager.inter.ObjectManager.Remove((ISceneObject)asteroid.GetSO());
                     }
                 }
                 solarSystem.AsteroidsList.Clear();
@@ -5351,126 +5352,126 @@ namespace Ship_Game
                     if (moon.GetSO() != null)
                     {
                         moon.GetSO().Clear();
-                        this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)moon.GetSO());
+                        ScreenManager.inter.ObjectManager.Remove((ISceneObject)moon.GetSO());
                     }
                 }
                 solarSystem.MoonList.Clear();
             }
             foreach (Empire empire in EmpireManager.EmpireList)
                 empire.CleanOut();
-            foreach (SpaceJunk spaceJunk in (List<SpaceJunk>)UniverseScreen.JunkList)
+            foreach (SpaceJunk spaceJunk in JunkList)
             {
-                spaceJunk.trailEmitter = (ParticleEmitter)null;
+                spaceJunk.trailEmitter = null;
                 spaceJunk.JunkSO.Clear();
-                this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)spaceJunk.JunkSO);
-                spaceJunk.JunkSO = (SceneObject)null;
+                ScreenManager.inter.ObjectManager.Remove((ISceneObject)spaceJunk.JunkSO);
+                spaceJunk.JunkSO = null;
             }
             ResourceManager.ModelDict.Clear();            
-            UniverseScreen.JunkList.Clear();
-            this.SelectedShip = (Ship)null;
-            this.SelectedFleet = (Fleet)null;
-            this.SelectedPlanet = (Planet)null;
-            this.SelectedSystem = (SolarSystem)null;
+            JunkList.Clear();
+            SelectedShip   = null;
+            SelectedFleet  = null;
+            SelectedPlanet = null;
+            SelectedSystem = null;
             ShieldManager.shieldList.Clear();
             ShieldManager.PlanetaryShieldList.Clear();
-            this.PlanetsDict.Clear();
-            this.ClickableFleetsList.Clear();
-            this.ClickableShipsList.Clear();
-            this.ClickPlanetList.Clear();
-            this.ClickableSystems.Clear();
-            UniverseScreen.DeepSpaceManager.ClearBuckets();
-            UniverseScreen.DeepSpaceManager.CollidableObjects.Clear();
-            UniverseScreen.DeepSpaceManager.CollidableObjects.Clear();
-            UniverseScreen.DeepSpaceManager.CollidableProjectiles.Clear();
-            UniverseScreen.DeepSpaceManager.ClearBuckets();
-            UniverseScreen.DeepSpaceManager.Destroy();
-            UniverseScreen.DeepSpaceManager = (SpatialManager)null;
-            UniverseScreen.SolarSystemList.Clear();
-            this.starfield.UnloadContent();
-            this.starfield.Dispose();
-            UniverseScreen.SolarSystemList.Clear();
-            this.beamflashes.UnloadContent();
-            this.explosionParticles.UnloadContent();
-            this.photonExplosionParticles.UnloadContent();
-            this.explosionSmokeParticles.UnloadContent();
-            this.projectileTrailParticles.UnloadContent();
-            this.fireTrailParticles.UnloadContent();
-            this.smokePlumeParticles.UnloadContent();
-            this.fireParticles.UnloadContent();
-            this.engineTrailParticles.UnloadContent();
-            this.flameParticles.UnloadContent();
-            this.sparks.UnloadContent();
-            this.lightning.UnloadContent();
-            this.flash.UnloadContent();
-            this.star_particles.UnloadContent();
-            this.neb_particles.UnloadContent();
-            this.SolarSystemDict.Clear();
-            ShipDesignScreen.screen = (UniverseScreen)null;
-            Fleet.screen = (UniverseScreen)null;
-            Bomb.screen = (UniverseScreen)null;
-            Anomaly.screen = (UniverseScreen)null;
-            PlanetScreen.screen = (UniverseScreen)null;
-            MinimapButtons.screen = (UniverseScreen)null;
-            Projectile.contentManager = this.ScreenManager.Content;
-            Projectile.universeScreen = (UniverseScreen)null;
-            ShipModule.universeScreen = (UniverseScreen)null;
-            Asteroid.universeScreen = (UniverseScreen)null;
-            Empire.universeScreen = (UniverseScreen)null;
-            SpaceJunk.universeScreen = (UniverseScreen)null;
-            ResourceManager.universeScreen = (UniverseScreen)null;
-            Planet.universeScreen = (UniverseScreen)null;
-            Weapon.universeScreen = (UniverseScreen)null;
-            Ship.universeScreen = (UniverseScreen)null;
-            ArtificialIntelligence.universeScreen = (UniverseScreen)null;
-            MissileAI.universeScreen = (UniverseScreen)null;
-            Moon.universeScreen = (UniverseScreen)null;
-            CombatScreen.universeScreen = (UniverseScreen)null;
-            MuzzleFlashManager.universeScreen = (UniverseScreen)null;
-            FleetDesignScreen.screen = (UniverseScreen)null;
-            ExplosionManager.universeScreen = (UniverseScreen)null;
-            FTLManager.universeScreen = (UniverseScreen)null;
-            DroneAI.universeScreen = (UniverseScreen)null;
+            PlanetsDict.Clear();
+            ClickableFleetsList.Clear();
+            ClickableShipsList.Clear();
+            ClickPlanetList.Clear();
+            ClickableSystems.Clear();
+            DeepSpaceManager.ClearBuckets();
+            DeepSpaceManager.CollidableObjects.Clear();
+            DeepSpaceManager.CollidableObjects.Clear();
+            DeepSpaceManager.CollidableProjectiles.Clear();
+            DeepSpaceManager.ClearBuckets();
+            DeepSpaceManager.Destroy();
+            DeepSpaceManager = null;
+            SolarSystemList.Clear();
+            starfield.UnloadContent();
+            starfield.Dispose();
+            SolarSystemList.Clear();
+            beamflashes.UnloadContent();
+            explosionParticles.UnloadContent();
+            photonExplosionParticles.UnloadContent();
+            explosionSmokeParticles.UnloadContent();
+            projectileTrailParticles.UnloadContent();
+            fireTrailParticles.UnloadContent();
+            smokePlumeParticles.UnloadContent();
+            fireParticles.UnloadContent();
+            engineTrailParticles.UnloadContent();
+            flameParticles.UnloadContent();
+            sparks.UnloadContent();
+            lightning.UnloadContent();
+            flash.UnloadContent();
+            star_particles.UnloadContent();
+            neb_particles.UnloadContent();
+            SolarSystemDict.Clear();
+            ShipDesignScreen.screen               = null;
+            Fleet.screen                          = null;
+            Bomb.screen                           = null;
+            Anomaly.screen                        = null;
+            PlanetScreen.screen                   = null;
+            MinimapButtons.screen                 = null;
+            Projectile.contentManager             = ScreenManager.Content;
+            Projectile.universeScreen             = null;
+            ShipModule.universeScreen             = null;
+            Asteroid.universeScreen               = null;
+            Empire.universeScreen                 = null;
+            SpaceJunk.universeScreen              = null;
+            ResourceManager.UniverseScreen        = null;
+            Planet.universeScreen                 = null;
+            Weapon.universeScreen                 = null;
+            Ship.universeScreen                   = null;
+            ArtificialIntelligence.universeScreen = null;
+            MissileAI.universeScreen              = null;
+            Moon.universeScreen                   = null;
+            CombatScreen.universeScreen           = null;
+            MuzzleFlashManager.universeScreen     = null;
+            FleetDesignScreen.screen              = null;
+            ExplosionManager.universeScreen       = null;
+            FTLManager.universeScreen             = null;
+            DroneAI.universeScreen                = null;
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
-            this.ScreenManager.inter.Unload();
+            ScreenManager.inter.Unload();
             GC.Collect();            
             GC.WaitForPendingFinalizers();
             GC.Collect();
-            this.Dispose();
+            Dispose();
             base.ExitScreen();
         }
 
         private void ClearParticles()
         {
-            this.beamflashes.UnloadContent();
-            this.explosionParticles.UnloadContent();
-            this.photonExplosionParticles.UnloadContent();
-            this.explosionSmokeParticles.UnloadContent();
-            this.projectileTrailParticles.UnloadContent();
-            this.fireTrailParticles.UnloadContent();
-            this.smokePlumeParticles.UnloadContent();
-            this.fireParticles.UnloadContent();
-            this.engineTrailParticles.UnloadContent();
-            this.flameParticles.UnloadContent();
-            this.sparks.UnloadContent();
-            this.lightning.UnloadContent();
-            this.flash.UnloadContent();
-            this.star_particles.UnloadContent();
-            this.neb_particles.UnloadContent();
+            beamflashes.UnloadContent();
+            explosionParticles.UnloadContent();
+            photonExplosionParticles.UnloadContent();
+            explosionSmokeParticles.UnloadContent();
+            projectileTrailParticles.UnloadContent();
+            fireTrailParticles.UnloadContent();
+            smokePlumeParticles.UnloadContent();
+            fireParticles.UnloadContent();
+            engineTrailParticles.UnloadContent();
+            flameParticles.UnloadContent();
+            sparks.UnloadContent();
+            lightning.UnloadContent();
+            flash.UnloadContent();
+            star_particles.UnloadContent();
+            neb_particles.UnloadContent();
            // GC.Collect(1, GCCollectionMode.Optimized);
         }
 
         protected void DrawRings(Matrix world, Matrix view, Matrix projection, float scale)
         {
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
-            foreach (BasicEffect basicEffect in ((ReadOnlyCollection<ModelMesh>)this.xnaPlanetModel.Meshes)[1].Effects)
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
+            ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
+            ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
+            ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
+            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
+            ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
+            foreach (BasicEffect basicEffect in xnaPlanetModel.Meshes[1].Effects)
             {
                 basicEffect.World = Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * world;
                 basicEffect.View = view;
@@ -5479,33 +5480,33 @@ namespace Ship_Game
                 basicEffect.TextureEnabled = true;
                 basicEffect.Projection = projection;
             }
-            ((ReadOnlyCollection<ModelMesh>)this.xnaPlanetModel.Meshes)[1].Draw();
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            xnaPlanetModel.Meshes[1].Draw();
+            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
         }
 
-        protected UniverseScreen.MultiShipData ComputeMultiShipCircle()
+        protected MultiShipData ComputeMultiShipCircle()
         {
             float num1 = 0.0f;
             float num2 = 0.0f;
             float num3 = 0.0f;
             float num4 = 0.0f;
-            foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+            foreach (Ship ship in SelectedShipList)
             {
                 num1 += ship.Position.X;
                 num2 += ship.Position.Y;
                 num3 += ship.Health;
                 num4 += ship.HealthMax;
             }
-            float x = num1 / (float)this.SelectedShipList.Count;
-            float y = num2 / (float)this.SelectedShipList.Count;
-            UniverseScreen.MultiShipData multiShipData = new UniverseScreen.MultiShipData();
+            float x = num1 / SelectedShipList.Count;
+            float y = num2 / SelectedShipList.Count;
+            MultiShipData multiShipData = new MultiShipData();
             multiShipData.status = num3 / num4;
             multiShipData.weightedCenter = new Vector2(x, y);
             multiShipData.Radius = 0.0f;
-            foreach (GameplayObject gameplayObject in (List<Ship>)this.SelectedShipList)
+            foreach (GameplayObject gameplayObject in SelectedShipList)
             {
                 float num5 = Vector2.Distance(gameplayObject.Position, multiShipData.weightedCenter);
-                if ((double)num5 > (double)multiShipData.Radius)
+                if (num5 > multiShipData.Radius)
                     multiShipData.Radius = num5;
             }
             //this.computeCircle = false;

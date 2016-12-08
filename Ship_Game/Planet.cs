@@ -642,80 +642,46 @@ namespace Ship_Game
 
         public string GetTile()
         {
-            if (!(this.Type == "Terran"))
-                return this.Type;
-            switch (this.planetType)
+            if (Type != "Terran")
+                return Type;
+            switch (planetType)
             {
-                case 1:
-                    return "Terran";
-                case 13:
-                    return "Terran_2";
-                case 22:
-                    return "Terran_3";
-                default:
-                    return "Terran";
+                case 1:  return "Terran";
+                case 13: return "Terran_2";
+                case 22: return "Terran_3";
+                default: return "Terran";
             }
         }
 
         public string GetTypeTranslation()
         {
-            switch (this.Type)
+            switch (Type)
             {
-                case "Terran":
-                    return Localizer.Token(1447);
-                case "Barren":
-                    return Localizer.Token(1448);
-                case "Gas Giant":
-                    return Localizer.Token(1449);
-                case "Volcanic":
-                    return Localizer.Token(1450);
-                case "Tundra":
-                    return Localizer.Token(1451);
-                case "Desert":
-                    return Localizer.Token(1452);
-                case "Steppe":
-                    return Localizer.Token(1453);
-                case "Swamp":
-                    return Localizer.Token(1454);
-                case "Ice":
-                    return Localizer.Token(1455);
-                case "Oceanic":
-                    return Localizer.Token(1456);
-                default:
-                    return "";
+                case "Terran":    return Localizer.Token(1447);
+                case "Barren":    return Localizer.Token(1448);
+                case "Gas Giant": return Localizer.Token(1449);
+                case "Volcanic":  return Localizer.Token(1450);
+                case "Tundra":    return Localizer.Token(1451);
+                case "Desert":    return Localizer.Token(1452);
+                case "Steppe":    return Localizer.Token(1453);
+                case "Swamp":     return Localizer.Token(1454);
+                case "Ice":       return Localizer.Token(1455);
+                case "Oceanic":   return Localizer.Token(1456);
+                default:          return "";
             }
         }
 
         public void SetPlanetAttributes()
         {
-            this.hasEarthLikeClouds = false;
-            float num1 = RandomMath.RandomBetween(0.0f, 100f);
-            if ((double)num1 >= 92.5)
-            {
-                //this.richness = Planet.Richness.UltraRich;
-                this.MineralRichness = RandomMath.RandomBetween(2f, 2.5f);
-            }
-            else if ((double)num1 >= 85.0)
-            {
-                //this.richness = Planet.Richness.Rich;
-                this.MineralRichness = RandomMath.RandomBetween(1.5f, 2f);
-            }
-            else if ((double)num1 >= 25.0)
-            {
-                //this.richness = Planet.Richness.Average;
-                this.MineralRichness = RandomMath.RandomBetween(0.75f, 1.5f);
-            }
-            else if ((double)num1 >= 12.5)
-            {
-                this.MineralRichness = RandomMath.RandomBetween(0.25f, 0.75f);
-                //this.richness = Planet.Richness.Poor;
-            }
-            else if ((double)num1 < 12.5)
-            {
-                this.MineralRichness = RandomMath.RandomBetween(0.1f, 0.25f);
-                //this.richness = Planet.Richness.UltraPoor;
-            }
-            switch (this.planetType)
+            hasEarthLikeClouds = false;
+            float richness = RandomMath.RandomBetween(0.0f, 100f);
+            if (richness >= 92.5f)      MineralRichness = RandomMath.RandomBetween(2.00f, 2.50f);
+            else if (richness >= 85.0f) MineralRichness = RandomMath.RandomBetween(1.50f, 2.00f);
+            else if (richness >= 25.0f) MineralRichness = RandomMath.RandomBetween(0.75f, 1.50f);
+            else if (richness >= 12.5f) MineralRichness = RandomMath.RandomBetween(0.25f, 0.75f);
+            else if (richness  < 12.5f) MineralRichness = RandomMath.RandomBetween(0.10f, 0.25f);
+
+            switch (planetType)
             {
                 case 1:
                     this.Type = "Terran";
@@ -900,17 +866,17 @@ namespace Ship_Game
                     this.Fertility = RandomMath.RandomBetween(1f, 3f);
                     break;
             }
-            if (!this.habitable)
-                this.MineralRichness = 0.0f;
+            if (!habitable)
+                MineralRichness = 0.0f;
 
-            if (this.UniqueHab)
+            if (UniqueHab)
             {
                 for (int x = 0; x < 7; ++x)
                 {
                     for (int y = 0; y < 5; ++y)
                     {
                         int num3 = (int)RandomMath.RandomBetween(0.0f, 100f);
-                        this.TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, (Building)null, num3 < this.uniqueHabPercent));
+                        TilesList.Add(new PlanetGridSquare(x, y, 0, 0, 0, null, num3 < uniqueHabPercent));
                     }
                 }
             }

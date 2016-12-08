@@ -4,7 +4,7 @@
 /**
  * String Tokenizer/View, Copyright (c) 2014 - Jorma Rebane
  */
-#include <string.h>   // C string utilities
+#include <cstring>    // C string utilities
 #include <string>     // compatibility with std::string
 #include <vector>     // std::vector for split
 #include <iostream>   // std::ostream for << compatibility
