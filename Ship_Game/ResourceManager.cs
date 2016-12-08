@@ -1094,6 +1094,10 @@ namespace Ship_Game
                 ProjectileMeshDict[nameNoExt]  = projModel.Meshes[0];
                 ProjectileModelDict[nameNoExt] = projModel;
             }
+            catch (Exception e) when (e.HResult == -2146233088)
+            {
+                return;
+            }
             catch (Exception e)
             {
                 ReportLoadingError(fullPath, "LoadProjectile", e);
