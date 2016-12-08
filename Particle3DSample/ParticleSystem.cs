@@ -316,20 +316,15 @@ namespace Particle3DSample
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    if (this.vertexBuffer != null)
-                        this.vertexBuffer.Dispose();
-                    if (this.vertexDeclaration != null)
-                        this.vertexDeclaration.Dispose();
-
-                }
-                this.vertexDeclaration = null;
-                this.vertexBuffer = null;
-                this.disposed = true;
+                vertexBuffer?.Dispose();
+                vertexDeclaration?.Dispose();
             }
+            vertexDeclaration = null;
+            vertexBuffer = null;
+            disposed = true;
         }
 	}
 }

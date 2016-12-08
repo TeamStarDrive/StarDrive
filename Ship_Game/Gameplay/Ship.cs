@@ -2906,7 +2906,7 @@ namespace Ship_Game.Gameplay
 
         public override void Update(float elapsedTime)
         {
-            if (!this.Active)
+            if (!Active)
                 return;
             //if (!GlobalStats.WarpInSystem && this.system != null)
             //    this.InhibitedTimer = 1f;
@@ -2916,226 +2916,211 @@ namespace Ship_Game.Gameplay
             //    if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Break Hyperspace because of FTL Mod.  " + this.velocityMaximum + "  :  " + this.GetSTLSpeed());
             //    this.HyperspaceReturn();      //This section commented out because it was causing ships ot not be able ot warp at all if the FTL modifier was anything less than 1.0 -Gretman
             //}
-            if (this.ScuttleTimer > -1.0 || this.ScuttleTimer <-1.0)
+            if (ScuttleTimer > -1.0 || ScuttleTimer <-1.0)
             {
-                this.ScuttleTimer -= elapsedTime;
-                if (this.ScuttleTimer <= 0.0)
-                    this.Die((GameplayObject)null, true);
+                ScuttleTimer -= elapsedTime;
+                if (ScuttleTimer <= 0.0)
+                    Die(null, true);
             }
-            if ((this.system != null && this.system.isVisible) || this.system == null)
+            if (system == null || system.isVisible)
             {
                 BoundingSphere sphere = new BoundingSphere(new Vector3(this.Position, 0.0f), 2000f);
-                if (Ship.universeScreen.Frustum.Contains(sphere) != ContainmentType.Disjoint && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (universeScreen.Frustum.Contains(sphere) != ContainmentType.Disjoint && universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    this.InFrustum = true;
-                    this.ShipSO.Visibility = ObjectVisibility.Rendered;
+                    InFrustum = true;
+                    ShipSO.Visibility = ObjectVisibility.Rendered;
                 }
                 else
                 {
-                    this.InFrustum = false;
-                    this.ShipSO.Visibility = ObjectVisibility.None;
+                    InFrustum = false;
+                    ShipSO.Visibility = ObjectVisibility.None;
                 }
-  
             }
             else
             {
-                this.InFrustum = false;
-                this.ShipSO.Visibility = ObjectVisibility.None;
+                InFrustum = false;
+                ShipSO.Visibility = ObjectVisibility.None;
             }
-            foreach (ProjectileTracker projectileTracker in (List<ProjectileTracker>)this.ProjectilesFired)
+            foreach (ProjectileTracker projectileTracker in ProjectilesFired)
             {
                 projectileTracker.Timer -= elapsedTime;
                 if (projectileTracker.Timer <= 0.0)
-                    this.ProjectilesFired.QueuePendingRemoval(projectileTracker);
+                    ProjectilesFired.QueuePendingRemoval(projectileTracker);
             }
-            this.ProjectilesFired.ApplyPendingRemovals();
-            this.ShieldRechargeTimer += elapsedTime;
-            this.InhibitedTimer -= elapsedTime;
-            this.Inhibited = this.InhibitedTimer > 0.0f;//|| this.maxFTLSpeed < 2500f;
-            if ((this.Inhibited || this.maxFTLSpeed < 2500f) && this.engineState == Ship.MoveState.Warp)
+            ProjectilesFired.ApplyPendingRemovals();
+            ShieldRechargeTimer += elapsedTime;
+            InhibitedTimer -= elapsedTime;
+            Inhibited = InhibitedTimer > 0.0f;//|| this.maxFTLSpeed < 2500f;
+            if ((Inhibited || maxFTLSpeed < 2500f) && engineState == MoveState.Warp)
             {
-                this.HyperspaceReturn();
+                HyperspaceReturn();
             }
-            if (this.TetheredTo != null)
+            if (TetheredTo != null)
             {
-                this.Position = this.TetheredTo.Position + this.TetherOffset;
-                this.Center = this.TetheredTo.Position + this.TetherOffset;
-                this.velocityMaximum = 0;
+                Position = TetheredTo.Position + TetherOffset;
+                Center   = TetheredTo.Position + TetherOffset;
+                velocityMaximum = 0;
             }
-            if (this.Mothership != null && !this.Mothership.Active)
-                this.Mothership = (Ship)null;
-            if (this.dying)
+            if (Mothership != null && !Mothership.Active)
+                Mothership = null;
+
+            if (dying)
             {
-                this.ThrusterList.Clear();
-                this.dietimer -= elapsedTime;
-                if (this.dietimer <= 1.89999997615814 && this.dieCue == null && this.InFrustum)
+                ThrusterList.Clear();
+                dietimer -= elapsedTime;
+                if (dietimer <= 1.89999997615814 && dieCue == null && InFrustum)
                 {
-                    if (this.Size < 80)
-                    {
-                        this.dieCue = AudioManager.GetCue("sd_explosion_ship_warpdet_small");
-                        this.dieCue.Apply3D(Ship.universeScreen.listener, this.emitter);
-                        this.dieCue.Play();
-                    }
-                    else if (this.Size >= 80 && this.Size < 250)
-                    {
-                        this.dieCue = AudioManager.GetCue("sd_explosion_ship_warpdet_medium");
-                        this.dieCue.Apply3D(Ship.universeScreen.listener, this.emitter);
-                        this.dieCue.Play();
-                    }
-                    else
-                    {
-                        this.dieCue = AudioManager.GetCue("sd_explosion_ship_warpdet_large");
-                        this.dieCue.Apply3D(Ship.universeScreen.listener, this.emitter);
-                        this.dieCue.Play();
-                    }
+                    string cueName;
+                    if      (Size < 80)  cueName = "sd_explosion_ship_warpdet_small";
+                    else if (Size < 250) cueName = "sd_explosion_ship_warpdet_medium";
+                    else                 cueName = "sd_explosion_ship_warpdet_large";
+                    dieCue = AudioManager.PlayCue(cueName, universeScreen.listener, emitter);
                 }
-                if (this.dietimer <= 0.0)
+                if (dietimer <= 0.0)
                 {
-                    this.reallyDie = true;
-                    this.Die(this.LastDamagedBy, true);
+                    reallyDie = true;
+                    Die(LastDamagedBy, true);
                     return;
                 }
-                else
+
+                if (Velocity.LengthSquared() > velocityMaximum*velocityMaximum) // RedFox: use SqLen instead of Len
+                    Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
+
+                Vector2 deltaMove = Velocity * elapsedTime;
+                Position += deltaMove;
+                Center   += deltaMove;
+
+                var rng = system?.RNG ?? universeScreen.DeepSpaceRNG;
+                int num1 = rng.IntBetween(0, 60);
+                if (num1 >= 57 && InFrustum)
                 {
-                    if (this.Velocity.Length() > this.velocityMaximum)
-                        this.Velocity = Vector2.Normalize(this.Velocity) * this.velocityMaximum;
-                    //Ship ship1 = this;
-                    //Vector2 vector2_1 = ship1.Position + this.Velocity * elapsedTime;
-                    this.Position += this.Velocity * elapsedTime;
-                    //Ship ship2 = this;
-                    //Vector2 vector2_2 = ship2.Center + this.Velocity * elapsedTime;
-                    this.Center += this.Velocity * elapsedTime;
-                    int num1 = (int)(this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(0.0f, 60f);
-                    if (num1 >= 57 && this.InFrustum)
+                    float radius = ShipSO.WorldBoundingSphere.Radius;
+                    Vector3 vector3 = new Vector3(rng.RandomBetween(0.0f, Radius), rng.RandomBetween(0.0f, Radius), rng.RandomBetween(0.0f, Radius));
+                    ExplosionManager.AddExplosion(vector3, radius, 2.5f, 0.2f);
+                    universeScreen.flash.AddParticleThreadA(vector3, Vector3.Zero);
+                }
+                if (num1 >= 40)
+                {
+                    Vector3 position = new Vector3(rng.RandomBetween(0.0f, Radius), rng.RandomBetween(0.0f, Radius), rng.RandomBetween(0.0f, Radius));
+                    Ship.universeScreen.sparks.AddParticleThreadA(position, Vector3.Zero);
+                }
+                yRotation += xdie * elapsedTime;
+                xRotation += ydie * elapsedTime;
+
+                //Ship ship3 = this;
+                //double num2 = (double)this.Rotation + (double)this.zdie * (double)elapsedTime;
+                Rotation += zdie * elapsedTime;
+                if (ShipSO == null)
+                    return;
+                if (universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && inSensorRange)
+                {
+                    ShipSO.World = Matrix.Identity * Matrix.CreateRotationY(yRotation) 
+                                                   * Matrix.CreateRotationX(xRotation) 
+                                                   * Matrix.CreateRotationZ(Rotation) 
+                                                   * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+                    if (shipData.Animated)
                     {
-                        float radius = this.ShipSO.WorldBoundingSphere.Radius;
-                        Vector3 vector3 = new Vector3((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(0.0f, this.Radius), (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(0.0f, this.Radius), (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(0.0f, this.Radius));
-                        ExplosionManager.AddExplosion(vector3, radius, 2.5f, 0.2f);
-                        Ship.universeScreen.flash.AddParticleThreadA(vector3, Vector3.Zero);
+                        ShipSO.SkinBones = animationController.SkinnedBoneTransforms;
+                        animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                     }
-                    if (num1 >= 40)
-                    {
-                        Vector3 position = new Vector3((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(0.0f, this.Radius), (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(0.0f, this.Radius), (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween(0.0f, this.Radius));
-                        Ship.universeScreen.sparks.AddParticleThreadA(position, Vector3.Zero);
-                    }
-                    this.yRotation += this.xdie * elapsedTime;
-                    this.xRotation += this.ydie * elapsedTime;
-                    //Ship ship3 = this;
-                    //double num2 = (double)this.Rotation + (double)this.zdie * (double)elapsedTime;
-                    this.Rotation += this.zdie * elapsedTime;
-                    if (this.ShipSO == null)
-                        return;
-                    if (Ship.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.inSensorRange)
-                    {
-                        this.ShipSO.World = Matrix.Identity * Matrix.CreateRotationY(this.yRotation) * Matrix.CreateRotationX(this.xRotation) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(new Vector3(this.Center, 0.0f));
-                        if (this.shipData.Animated)
-                        {
-                            this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
-                            this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
-                        }
-                    }
-                    for (int index = 0; index < this.Projectiles.Count; ++index)
-                    {
-                        Projectile projectile = this.Projectiles[index];
-                        if (projectile != null)
-                        {
-                            if (projectile.Active)
-                                projectile.Update(elapsedTime);
-                            else
-                                this.Projectiles.QueuePendingRemoval(projectile);
-                        }
-                    }
-                    this.projectiles.ApplyPendingRemovals();
-                    this.beams.ApplyPendingRemovals();
-                    this.emitter.Position = new Vector3( this.Center, 0);//GlobalStats.Config.EffectsVolume * -5000);
-                    foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-                    //Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
-                    {
-                        moduleSlot.module.UpdateWhileDying(elapsedTime);
-                    }//);
+                }
+                for (int i = 0; i < Projectiles.Count; ++i)
+                {
+                    Projectile projectile = Projectiles[i];
+                    if (projectile == null)
+                        continue;
+                    if (projectile.Active)
+                        projectile.Update(elapsedTime);
+                    else
+                        Projectiles.QueuePendingRemoval(projectile);
+                }
+                projectiles.ApplyPendingRemovals();
+                beams.ApplyPendingRemovals();
+                emitter.Position = new Vector3(Center, 0);
+                foreach (ModuleSlot moduleSlot in ModuleSlotList)
+                {
+                    moduleSlot.module.UpdateWhileDying(elapsedTime);
                 }
             }
-            else if (!this.dying)
+            else if (!dying)
             {
-                if (this.system != null && elapsedTime > 0.0)
+                if (system != null && elapsedTime > 0.0)
                 {
-                    foreach (Planet p in this.system.PlanetList)
+                    foreach (Planet p in system.PlanetList)
                     {
-                        if (Vector2.Distance(p.Position, this.Center) < 3000.0)
+                        if (p.Position.SqDist(Center) >= 3000f * 3000f)
+                            continue;
+                        if (p.ExploredDict[loyalty]) // already explored
+                            continue;
+
+                        if (loyalty == universeScreen.player)
                         {
-                            if (this.loyalty == Ship.universeScreen.player && !p.ExploredDict[this.loyalty])
+                            foreach (Building building in p.BuildingList)
+                                if (!string.IsNullOrEmpty(building.EventTriggerUID))
+                                    universeScreen.NotificationManager.AddFoundSomethingInteresting(p);
+                        }
+                        p.ExploredDict[loyalty] = true;
+                        foreach (Building building in p.BuildingList)
+                        {
+                            if (string.IsNullOrEmpty(building.EventTriggerUID) || 
+                                loyalty == universeScreen.player || p.Owner != null) continue;
+
+                            MilitaryTask militaryTask = new MilitaryTask
                             {
-                                foreach (Building building in p.BuildingList)
-                                {
-                                    if (!string.IsNullOrEmpty(building.EventTriggerUID))
-                                        Ship.universeScreen.NotificationManager.AddFoundSomethingInteresting(p);
-                                }
-                            }
-                            if (!p.ExploredDict[this.loyalty])
-                            {
-                                p.ExploredDict[this.loyalty] = true;
-                                foreach (Building building in p.BuildingList)
-                                {
-                                    if (!string.IsNullOrEmpty(building.EventTriggerUID) && this.loyalty != Ship.universeScreen.player && p.Owner == null)
-                                    {
-                                        MilitaryTask militaryTask = new MilitaryTask();
-                                        militaryTask.AO = p.Position;
-                                        militaryTask.AORadius = 50000f;
-                                        militaryTask.SetTargetPlanet(p);
-                                        militaryTask.type = MilitaryTask.TaskType.Exploration;
-                                        militaryTask.SetEmpire(this.loyalty);
-                                     //   lock (GlobalStats.TaskLocker)
-                                            this.loyalty.GetGSAI().TaskList.Add(militaryTask);
-                                    }
-                                }
-                                //added by gremlin put shahmatts exploration notifications here
-                            }
+                                AO       = p.Position,
+                                AORadius = 50000f,
+                                type     = MilitaryTask.TaskType.Exploration
+                            };
+                            militaryTask.SetTargetPlanet(p);
+                            militaryTask.SetEmpire(loyalty);
+                            loyalty.GetGSAI().TaskList.Add(militaryTask);
                         }
                     }
-                    if (this.GetAI().BadGuysNear && this.InCombat && this.system != null)
+                    if (AI.BadGuysNear && InCombat && system != null)
                     {
-                        this.system.CombatInSystem = true;
-                        this.system.combatTimer = 15f;
+                        system.CombatInSystem = true;
+                        system.combatTimer = 15f;
                     }
                 }
-                if (this.disabled)
+                if (disabled)
                 {
-                    for (int index = 0; index < 5; ++index)
+                    float third = Radius / 3f;
+                    var rng = system?.RNG ?? universeScreen.DeepSpaceRNG;
+                    for (int i = 0; i < 5; ++i)
                     {
-                        Vector3 vector3 = new Vector3((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween((float)(-(double)this.Radius / 3.0), this.Radius / 3f), (this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG).RandomBetween((float)(-(double)this.Radius / 3.0), this.Radius / 3f), 0.0f);
-                        Ship.universeScreen.lightning.AddParticleThreadA(new Vector3(this.Center, 0.0f) + vector3, Vector3.Zero);
+                        Vector3 vector3 = new Vector3(rng.RandomBetween(-third, third), rng.RandomBetween(-third, third), 0.0f);
+                        universeScreen.lightning.AddParticleThreadA(new Vector3(Center, 0.0f) + vector3, Vector3.Zero);
                     }
                 }
                 //Ship ship1 = this;
                 //float num1 = this.Rotation + this.RotationalVelocity * elapsedTime;
-                this.Rotation += this.RotationalVelocity * elapsedTime;
-                if (Math.Abs(this.RotationalVelocity) > 0.0)
-                    this.isTurning = true;
-                if (!this.isSpooling && this.Afterburner != null && this.Afterburner.IsPlaying)
-                    this.Afterburner.Stop(AudioStopOptions.Immediate);
-                this.ClickTimer -= elapsedTime;
-                if (this.ClickTimer < 0.0)
-                    this.ClickTimer = 10f;
-                if (this.Active)
+                Rotation += RotationalVelocity * elapsedTime;
+                if (Math.Abs(RotationalVelocity) > 0.0)
+                    isTurning = true;
+
+                if (!isSpooling && Afterburner != null && Afterburner.IsPlaying)
+                    Afterburner.Stop(AudioStopOptions.Immediate);
+
+                ClickTimer -= elapsedTime;
+                if (ClickTimer < 0.0)
+                    ClickTimer = 10f;
+                if (Active)
                 {
-                    this.InCombatTimer -= elapsedTime;
-                    if (this.InCombatTimer > 0.0)
+                    InCombatTimer -= elapsedTime;
+                    if (InCombatTimer > 0.0)
                     {
-                        this.InCombat = true;
+                        InCombat = true;
                     }
                     else
                     {
-                        if (this.InCombat)
-                            this.InCombat = false;
+                        if (InCombat)
+                            InCombat = false;
                         try
                         {
-                            if (this.AI.State == AIState.Combat)
+                            if (AI.State == AIState.Combat && loyalty != universeScreen.player)
                             {
-                                if (this.loyalty != Ship.universeScreen.player)
-                                {
-                                    this.AI.State = AIState.AwaitingOrders;
-                                    this.GetAI().OrderQueue.Clear();
-                                }
+                                AI.State = AIState.AwaitingOrders;
+                                AI.OrderQueue.Clear();
                             }
                         }
                         catch
@@ -3624,11 +3609,11 @@ namespace Ship_Game.Gameplay
 
         public virtual void UpdateShipStatus(float elapsedTime)
         {
-            if (elapsedTime == 0.0)
+            if (elapsedTime == 0.0f)
                 return;
             
             
-            if (this.velocityMaximum == 0 && this.shipData.Role <= ShipData.RoleName.station)
+            if (this.velocityMaximum == 0f && this.shipData.Role <= ShipData.RoleName.station)
             {
                 this.Rotation += 0.003f;
             }
