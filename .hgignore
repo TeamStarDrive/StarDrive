@@ -16,3 +16,4 @@ Deploy/
 *.suo
 StarDrive.VC.db
 StarDrive.csproj.DotSettings
+SDNative\SDNative.vcxproj.user
