@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Algorithms;
-using DrawPoint = System.Drawing.Point;
 
 namespace Ship_Game.Gameplay
 {
@@ -28,14 +27,14 @@ namespace Ship_Game.Gameplay
 
 		public AIState State = AIState.AwaitingOrders;
 
-		public Ship_Game.Gameplay.CombatState CombatState = Ship_Game.Gameplay.CombatState.AttackRuns;
+		public CombatState CombatState = CombatState.AttackRuns;
 
 		public Guid OrbitTargetGuid;
 
-		public Ship_Game.CombatAI CombatAI = new Ship_Game.CombatAI();
+		public CombatAI CombatAI = new CombatAI();
         //public Ship_Game.CombatAI CombatAI = new Ship_Game.CombatAI(This);
 
-		public BatchRemovalCollection<ArtificialIntelligence.ShipWeight> NearbyShips = new BatchRemovalCollection<ArtificialIntelligence.ShipWeight>();
+		public BatchRemovalCollection<ShipWeight> NearbyShips = new BatchRemovalCollection<ShipWeight>();
 
 		//public List<Ship> PotentialTargets = new List<Ship>();
         public BatchRemovalCollection<Ship> PotentialTargets = new BatchRemovalCollection<Ship>();
@@ -114,7 +113,7 @@ namespace Ship_Game.Gameplay
 
 		//public LinkedList<ArtificialIntelligence.ShipGoal> OrderQueue = new LinkedList<ArtificialIntelligence.ShipGoal>();
 
-        public SafeQueue<ArtificialIntelligence.ShipGoal> OrderQueue = new SafeQueue<ArtificialIntelligence.ShipGoal>();
+        public SafeQueue<ShipGoal> OrderQueue = new SafeQueue<ShipGoal>();
 		public Queue<Vector2> ActiveWayPoints = new Queue<Vector2>();
 
 		public Planet ExterminationTarget;
@@ -157,7 +156,7 @@ namespace Ship_Game.Gameplay
         //public ReaderWriterLockSlim orderqueue = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         //public  List<Task> TaskList = new List<Task>();
         //public Dictionary<Weapon, GameplayObject> visible = new Dictionary<Weapon, GameplayObject>();
-       // private GameplayObject secondarytarget = null;
+        //private GameplayObject secondarytarget = null;
         //private GameplayObject pdtarget = null;
         //private float targetChangeTimer =0;
 
@@ -166,16 +165,11 @@ namespace Ship_Game.Gameplay
         public List<Projectile> TrackProjectiles = new List<Projectile>();
         private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
                 
-		public ArtificialIntelligence()
-		{
-		}
-
 		public ArtificialIntelligence(Ship owner)
 		{
-			this.Owner = owner;
-			this.State = AIState.AwaitingOrders;
-            
-            this.WayPointLocker = new Object();
+			Owner = owner;
+			State = AIState.AwaitingOrders;
+            WayPointLocker = new object();
 		}
         /*
 		private void aPlotCourseToNew(Vector2 endPos, Vector2 startPos)
@@ -573,16 +567,18 @@ namespace Ship_Game.Gameplay
 			Planet colonizeTarget = this.ColonizeTarget;
 			colonizeTarget.TerraformPoints = colonizeTarget.TerraformPoints + this.Owner.loyalty.data.EmpireFertilityBonus;
 			this.ColonizeTarget.Crippled_Turns = 0;
-			if (StatTracker.SnapshotsDict.ContainsKey(ArtificialIntelligence.universeScreen.StarDate.ToString("#.0")))
+            string starDate = universeScreen.StarDate.ToString("#.0");
+			if (StatTracker.SnapshotsDict.ContainsKey(starDate))
 			{
-				StatTracker.SnapshotsDict[ArtificialIntelligence.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this.Owner.loyalty)].Events.Add(string.Concat(this.Owner.loyalty.data.Traits.Name, " colonized ", this.ColonizeTarget.Name));
+				StatTracker.SnapshotsDict[starDate][EmpireManager.EmpireList.IndexOf(Owner.loyalty)].Events.Add(
+                    string.Concat(Owner.loyalty.data.Traits.Name, " colonized ", this.ColonizeTarget.Name));
 				NRO nro = new NRO()
 				{
 					Node = this.ColonizeTarget.Position,
 					Radius = 300000f,
 					StarDateMade = ArtificialIntelligence.universeScreen.StarDate
 				};
-				StatTracker.SnapshotsDict[ArtificialIntelligence.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this.Owner.loyalty)].EmpireNodes.Add(nro);
+				StatTracker.SnapshotsDict[starDate][EmpireManager.EmpireList.IndexOf(this.Owner.loyalty)].EmpireNodes.Add(nro);
 			}
 			foreach (Goal g in this.Owner.loyalty.GetGSAI().Goals)
 			{
@@ -600,7 +596,7 @@ namespace Ship_Game.Gameplay
 				{
 					if (p.Owner == this.ColonizeTarget.Owner || p.Owner == null)
 						continue;
-					if (p.Owner.GetRelations().ContainsKey(this.Owner.loyalty) && !p.Owner.GetRelations()[this.Owner.loyalty].Treaty_OpenBorders)
+					if (p.Owner.TryGetRelations(this.Owner.loyalty, out Relationship rel) && !rel.Treaty_OpenBorders)
 					{
 						p.Owner.DamageRelationship(this.Owner.loyalty, "Colonized Owned System", 20f, p);
 					}
@@ -626,7 +622,9 @@ namespace Ship_Game.Gameplay
 			List<Troop> toLaunch = new List<Troop>();
             foreach (Troop t in TargetPlanet.TroopsHere)
 			{
-                if (t != null && t.GetOwner() != null && !t.GetOwner().isFaction && t.GetOwner().data.DefaultTroopShip != null && t.GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(t.GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[t.GetOwner()].AtWar)
+                Empire owner = t?.GetOwner();
+                if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != ColonizeTarget.Owner && 
+                    ColonizeTarget.Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
 				    toLaunch.Add(t);
 			}
 			foreach (Troop t in toLaunch)
@@ -641,7 +639,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < this.ColonizeTarget.TroopsHere.Count; i++)
             {
                 Troop troop = this.ColonizeTarget.TroopsHere[i];
-                if (troop != null && troop.GetOwner() != null && !troop.GetOwner().isFaction && troop.GetOwner().data.DefaultTroopShip != null && troop.GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.GetRelations().ContainsKey(troop.GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[troop.GetOwner()].AtWar)
+                if (troop != null && troop.GetOwner() != null && !troop.GetOwner().isFaction && troop.GetOwner().data.DefaultTroopShip != null && troop.GetOwner() != this.ColonizeTarget.Owner && this.ColonizeTarget.Owner.TryGetRelations(troop.GetOwner()) && !this.ColonizeTarget.Owner.GetRelations()[troop.GetOwner()].AtWar)
                 {
                     troop.Launch();
                     TroopsRemoved = true;
@@ -1039,7 +1037,7 @@ namespace Ship_Game.Gameplay
                     Planet invadeThis = null;
                     foreach (Planet invade in this.Owner.GetSystem().PlanetList.Where(owner => owner.Owner != null && owner.Owner != this.Owner.loyalty).OrderBy(troops => troops.TroopsHere.Count))
                     {
-                        if (this.Owner.loyalty.GetRelations()[invade.Owner].AtWar)
+                        if (this.Owner.loyalty.GetRelations(invade.Owner).AtWar)
                         {
                             invadeThis = invade;
                             break;
@@ -1297,6 +1295,7 @@ namespace Ship_Game.Gameplay
 			{
 				return;
 			}
+            string starDate = universeScreen.StarDate.ToString("#.0");
 			foreach (SpaceRoad road in this.Owner.loyalty.SpaceRoadsList)
 			{
 				foreach (RoadNode node in road.RoadNodesList)
@@ -1306,7 +1305,7 @@ namespace Ship_Game.Gameplay
 						continue;
 					}
 					node.Platform = platform;
-					if (!StatTracker.SnapshotsDict.ContainsKey(ArtificialIntelligence.universeScreen.StarDate.ToString("#.0")))
+					if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
 					{
 						continue;
 					}
@@ -1314,14 +1313,14 @@ namespace Ship_Game.Gameplay
 					{
 						Node = node.Position,
 						Radius = 300000f,
-						StarDateMade = ArtificialIntelligence.universeScreen.StarDate
+						StarDateMade = universeScreen.StarDate
 					};
-					StatTracker.SnapshotsDict[ArtificialIntelligence.universeScreen.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this.Owner.loyalty)].EmpireNodes.Add(nro);
+					StatTracker.SnapshotsDict[starDate][EmpireManager.EmpireList.IndexOf(this.Owner.loyalty)].EmpireNodes.Add(nro);
 				}
 			}
 			if (shipgoal.goal.TetherTarget != Guid.Empty)
 			{
-				platform.TetherToPlanet(ArtificialIntelligence.universeScreen.PlanetsDict[shipgoal.goal.TetherTarget]);
+				platform.TetherToPlanet(universeScreen.PlanetsDict[shipgoal.goal.TetherTarget]);
 				platform.TetherOffset = shipgoal.goal.TetherOffset;
 			}
 			this.Owner.loyalty.GetGSAI().Goals.Remove(shipgoal.goal);
@@ -1335,7 +1334,7 @@ namespace Ship_Game.Gameplay
             int count = 0;
             foreach (ArtificialIntelligence.ShipWeight ship in this.NearbyShips)
             {
-                if (ship.ship.loyalty == this.Owner.loyalty || !ship.ship.loyalty.isFaction && !this.Owner.loyalty.GetRelations()[ship.ship.loyalty].AtWar)
+                if (ship.ship.loyalty == this.Owner.loyalty || !ship.ship.loyalty.isFaction && !this.Owner.loyalty.GetRelations(ship.ship.loyalty).AtWar)
                 {
                     continue;
                 }
@@ -2799,7 +2798,7 @@ namespace Ship_Game.Gameplay
                 //base reasons not to fire. 
                 if (!this.Owner.hasCommand ||this.Owner.engineState == Ship.MoveState.Warp || this.Owner.disabled || this.Owner .Weapons.Count==0 
                     //||
-                    //((TargetShip != null && !this.Owner.loyalty.isFaction) && (this.Owner.loyalty.GetRelations().TryGetValue(TargetShip.loyalty, out enemy)
+                    //((TargetShip != null && !this.Owner.loyalty.isFaction) && (this.Owner.loyalty.TryGetRelations(TargetShip.loyalty, out enemy)
                     //&& enemy != null && (enemy.Treaty_Peace || enemy.Treaty_Alliance || enemy.Treaty_NAPact))))
                 )
                 {
@@ -3875,9 +3874,9 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 
-			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
+			if (this.Owner.loyalty.TryGetRelations(toAttack.loyalty, out Relationship relations))
 			{
-				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
+				if (!relations.Treaty_Peace)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
@@ -4557,9 +4556,9 @@ namespace Ship_Game.Gameplay
 				return;
 			}
             //targetting relation
-			if (this.Owner.loyalty.GetRelations().ContainsKey(toAttack.loyalty))
+			if (this.Owner.loyalty.TryGetRelations(toAttack.loyalty, out Relationship relations))
 			{
-				if (!this.Owner.loyalty.GetRelations()[toAttack.loyalty].Treaty_Peace)
+				if (!relations.Treaty_Peace)
 				{
 					if (this.State == AIState.AttackTarget && this.Target == toAttack)
 					{
@@ -5878,20 +5877,20 @@ namespace Ship_Game.Gameplay
         }
 
         // movement cachelookup
-        private bool PathCacheLookup(DrawPoint startp, DrawPoint endp, Vector2 startv, Vector2 endv)
+        private bool PathCacheLookup(Point startp, Point endp, Vector2 startv, Vector2 endv)
         {            
-            if (!Owner.loyalty.pathcache.TryGetValue(startp, out Dictionary<DrawPoint, Empire.patchCacheValue> pathstart)
-                || !pathstart.TryGetValue(endp, out Empire.patchCacheValue pathend))
+            if (!Owner.loyalty.PathCache.TryGetValue(startp, out Dictionary<Point, Empire.PatchCacheEntry> pathstart)
+                || !pathstart.TryGetValue(endp, out Empire.PatchCacheEntry pathend))
                 return false;
 
             lock (WayPointLocker)
             {
-                if (pathend.path.Count > 2)
+                if (pathend.Path.Count > 2)
                 {
-                    int n = pathend.path.Count - 2;
+                    int n = pathend.Path.Count - 2;
                     for (int x = 1; x < n; ++x)
                     {
-                        Vector2 point = pathend.path[x];
+                        Vector2 point = pathend.Path[x];
                         if (point != Vector2.Zero)
                             ActiveWayPoints.Enqueue(point);
                     }
@@ -5908,27 +5907,27 @@ namespace Ship_Game.Gameplay
         {
             if (Owner.loyalty.grid != null && Vector2.Distance(startPos,endPos) > Empire.ProjectorRadius *2)
             {
-                int reducer = Empire.universeScreen.reducer;//  (int)(Empire.ProjectorRadius );
+                int reducer = Empire.Universe.reducer;//  (int)(Empire.ProjectorRadius );
                 int granularity = this.Owner.loyalty.granularity; // (int)Empire.ProjectorRadius / 2;
 
-                DrawPoint startp = new DrawPoint((int)startPos.X, (int)startPos.Y);
+                Point startp = new Point((int)startPos.X, (int)startPos.Y);
                 startp.X /= reducer;
                 startp.Y /= reducer;
                 startp.X += granularity;
                 startp.Y += granularity;
-                DrawPoint endp = new DrawPoint((int)endPos.X, (int)endPos.Y);
+                Point endp = new Point((int)endPos.X, (int)endPos.Y);
                 endp.X /= reducer;
                 endp.Y /= reducer;
                 endp.Y += granularity;
                 endp.X += granularity;
                 PathFinderFast path;
-                Owner.loyalty.lockPatchCache.EnterReadLock();
+                Owner.loyalty.LockPatchCache.EnterReadLock();
                 if (PathCacheLookup(startp, endp, startPos, endPos))
                 {
-                    Owner.loyalty.lockPatchCache.ExitReadLock();
+                    Owner.loyalty.LockPatchCache.ExitReadLock();
                     return;
                 }
-                Owner.loyalty.lockPatchCache.ExitReadLock();
+                Owner.loyalty.LockPatchCache.ExitReadLock();
 
                 path = new PathFinderFast(Owner.loyalty.grid)
                 {
@@ -5941,7 +5940,7 @@ namespace Ship_Game.Gameplay
                 };
 
                 List<PathFinderNode> pathpoints = path.FindPath(startp, endp);
-                lock (this.WayPointLocker)
+                lock (WayPointLocker)
                 {
                     if (pathpoints != null)
                     {
@@ -5950,7 +5949,7 @@ namespace Ship_Game.Gameplay
                         int y = pathpoints.Count() - 1;                                                        
                         for (int x =y; x >= 0; x-=2)                            
                         {
-                            Algorithms.PathFinderNode pnode = pathpoints[x];
+                            PathFinderNode pnode = pathpoints[x];
                             //var value = this.Owner.loyalty.grid[pnode.X, pnode.Y];
                             //if (value != 1 && lastValue >1)
                             //{
@@ -5965,44 +5964,36 @@ namespace Ship_Game.Gameplay
                                 
                             if (Vector2.Distance(translated, endPos) > Empire.ProjectorRadius *2 
                                 && Vector2.Distance(translated, startPos) > Empire.ProjectorRadius *2)
-                                this.ActiveWayPoints.Enqueue(translated);
+                                ActiveWayPoints.Enqueue(translated);
                         }
 
-                        var cache = Owner.loyalty.pathcache;
+                        var cache = Owner.loyalty.PathCache;
                         if (!cache.ContainsKey(startp))
                         {
-                            Owner.loyalty.lockPatchCache.EnterWriteLock();
-                            Empire.patchCacheValue endValue = new Empire.patchCacheValue();
-                            endValue.path = cacheAdd;
-                            endValue.CacheHits = 0;
-                            var endkey = new Dictionary<DrawPoint, Empire.patchCacheValue>();
+                            Owner.loyalty.LockPatchCache.EnterWriteLock();
+                            var endValue = new Empire.PatchCacheEntry(cacheAdd);
+                            var endkey   = new Dictionary<Point, Empire.PatchCacheEntry>();
 
                             endkey.Add(endp, endValue);
                             cache.Add(startp, endkey);
                             Owner.loyalty.pathcacheMiss++;
-                            Owner.loyalty.lockPatchCache.ExitWriteLock();
+                            Owner.loyalty.LockPatchCache.ExitWriteLock();
 
+                        }
+                        else if (!cache[startp].ContainsKey(endp))
+                        {
+                            Owner.loyalty.LockPatchCache.EnterWriteLock();
+                                
+                            var endValue = new Empire.PatchCacheEntry(cacheAdd);
+                            cache[startp].Add(endp, endValue);
+                            Owner.loyalty.pathcacheMiss++;
+                            Owner.loyalty.LockPatchCache.ExitWriteLock();
                         }
                         else
                         {
-                            if (!cache[startp].ContainsKey(endp))
-                            {
-                                this.Owner.loyalty.lockPatchCache.EnterWriteLock();
-                                Empire.patchCacheValue endValue = new Empire.patchCacheValue();
-                                endValue.path = cacheAdd;
-                                endValue.CacheHits = 0;
-                                cache[startp].Add(endp, endValue);
-                                this.Owner.loyalty.pathcacheMiss++;
-                                this.Owner.loyalty.lockPatchCache.ExitWriteLock();
-                            }
-                            else
-                            {
-                                this.Owner.loyalty.lockPatchCache.EnterReadLock();
-                                this.PathCacheLookup(startp, endp, startPos, endPos);
-                                this.Owner.loyalty.lockPatchCache.ExitReadLock();
-                            }
-
-
+                            Owner.loyalty.LockPatchCache.EnterReadLock();
+                            PathCacheLookup(startp, endp, startPos, endPos);
+                            Owner.loyalty.LockPatchCache.ExitReadLock();
                         }
                     }
                     this.ActiveWayPoints.Enqueue(endPos);
@@ -6016,7 +6007,7 @@ namespace Ship_Game.Gameplay
             #if false
                 List<Vector2> goodpoints = new List<Vector2>();
                 //Grid path = new Grid(this.Owner.loyalty, 36, 10f);
-                if (Empire.universeScreen != null && this.Owner.loyalty.SensorNodes.Count != 0)
+                if (Empire.Universe != null && this.Owner.loyalty.SensorNodes.Count != 0)
                     goodpoints = this.Owner.loyalty.pathhMap.Pathfind(startPos, endPos, false);
                 if (goodpoints != null && goodpoints.Count > 0)
                 {
@@ -6526,7 +6517,7 @@ namespace Ship_Game.Gameplay
                     if (emp !=null && emp != this.Owner.loyalty)
                     {
                         Relationship test = null;
-                        this.Owner.loyalty.GetRelations().TryGetValue(emp, out test);
+                        this.Owner.loyalty.TryGetRelations(emp, out test);
                         if (!test.Treaty_OpenBorders || !test.Treaty_NAPact || Vector2.Distance(this.Owner.Center, p.Position) >Radius)
                         {
                             //if(p.Projectiles.Count >0) // && Vector2.Distance(p.Position,this.Owner.Center) <10000)
@@ -6573,7 +6564,7 @@ namespace Ship_Game.Gameplay
                             //this.PotentialTargets.Add(item1);
                         }
                         else if (Radius > 0 && (item1.loyalty != this.Owner.loyalty 
-                            && this.Owner.loyalty.GetRelations()[item1.loyalty].AtWar
+                            && this.Owner.loyalty.GetRelations(item1.loyalty).AtWar
                             || this.Owner.loyalty.isFaction || item1.loyalty.isFaction))//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
                         {
                             ArtificialIntelligence.ShipWeight sw = new ArtificialIntelligence.ShipWeight();
@@ -6585,7 +6576,7 @@ namespace Ship_Game.Gameplay
                         }
                         else if (Radius == 0 &&
                             (item1.loyalty != this.Owner.loyalty
-                            && this.Owner.loyalty.GetRelations()[item1.loyalty].AtWar
+                            && this.Owner.loyalty.GetRelations(item1.loyalty).AtWar
                             || this.Owner.loyalty.isFaction || item1.loyalty.isFaction)
                             )
                             this.BadGuysNear = true;
@@ -6857,7 +6848,8 @@ namespace Ship_Game.Gameplay
             }
             else if (this.Target != null && this.Target.Active && this.hasPriorityTarget)
             {
-                if (this.Owner.loyalty.GetRelations()[(this.Target as Ship).loyalty].AtWar || this.Owner.loyalty.isFaction || (this.Target as Ship).loyalty.isFaction)
+                Ship ship = Target as Ship;
+                if (Owner.loyalty.GetRelations(ship.loyalty).AtWar || Owner.loyalty.isFaction || ship.loyalty.isFaction)
                 {
                     //this.PotentialTargets.Add(this.Target as Ship);
                     this.BadGuysNear = true;
@@ -8942,7 +8934,7 @@ namespace Ship_Game.Gameplay
                 Relationship rel;
                 foreach(Empire e in EmpireManager.EmpireList)
                 {
-                    if (empire.GetRelations().TryGetValue(e, out rel) && rel.Treaty_Alliance)
+                    if (empire.TryGetRelations(e, out rel) && rel.Treaty_Alliance)
                     {
                         foreach (Empire.InfluenceNode point in e.BorderNodes)
                         {
@@ -8969,26 +8961,27 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
-                    else
-                    if (false && rel != null && !rel.Treaty_OpenBorders && !rel.AtWar)
-                    {
-                        foreach (Empire.InfluenceNode s in e.BorderNodes)
-                        {
-                            for (int x = 0; x < 360; x += 60)
-                            {
-                                float angle = x;
-                                newpoint = new Empire.InfluenceNode();
-                                newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, s.Position, s.Radius * 1.5f);
-                                newpoint.Radius = 0;
-                                goodpoints.Add(newpoint);
-                                newpoint = new Empire.InfluenceNode();
-                                newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, s.Position, s.Radius);
-                                newpoint.Radius = -1;
-                                goodpoints.Add(newpoint);
-                            }
+                    // @todo This was disabled with false; To be removed if it's not important
+                    //else
+                    //if (false && rel != null && !rel.Treaty_OpenBorders && !rel.AtWar)
+                    //{
+                    //    foreach (Empire.InfluenceNode s in e.BorderNodes)
+                    //    {
+                    //        for (int x = 0; x < 360; x += 60)
+                    //        {
+                    //            float angle = x;
+                    //            newpoint = new Empire.InfluenceNode();
+                    //            newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, s.Position, s.Radius * 1.5f);
+                    //            newpoint.Radius = 0;
+                    //            goodpoints.Add(newpoint);
+                    //            newpoint = new Empire.InfluenceNode();
+                    //            newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, s.Position, s.Radius);
+                    //            newpoint.Radius = -1;
+                    //            goodpoints.Add(newpoint);
+                    //        }
 
-                        }
-                    }
+                    //    }
+                    //}
 
                 }
                 //List<Vector2> extrabad = new List<Vector2>();
@@ -9028,7 +9021,7 @@ namespace Ship_Game.Gameplay
                 if (Pathlength < projectorsize )
                     return new List<Vector2> { startv, endv };
                
-                if (Empire.universeScreen == null)
+                if (Empire.Universe == null)
                     return null;
                 Empire.InfluenceNode end = new Empire.InfluenceNode();
                 Empire.InfluenceNode start = new Empire.InfluenceNode();

@@ -771,7 +771,7 @@ namespace Ship_Game
 			}
 			//this.whichPlanet = 1;
             //Added by McShooterz: Random Main menu planet
-            //int index = HelperFunctions.GetRandomIndex(ResourceManager.HullsDict.Count);
+            //int index = RandomMath.InRange(ResourceManager.HullsDict.Count);
             //string model = "";
             //foreach (ShipData test in ResourceManager.HullsDict.Values)
             //{
@@ -815,7 +815,7 @@ namespace Ship_Game
                 while (model == null)
                 {
                     string modelpath = string.Empty;
-                    int index = HelperFunctions.GetRandomIndex(ResourceManager.HullsDict.Where(role => role.Value.Role == ShipData.RoleName.frigate).Count());
+                    int index = RandomMath.InRange(ResourceManager.HullsDict.Where(role => role.Value.Role == ShipData.RoleName.frigate).Count());
                     foreach (ShipData test in ResourceManager.HullsDict.Values.Where(role => role.Role == ShipData.RoleName.frigate))
                     {
                         index--;
