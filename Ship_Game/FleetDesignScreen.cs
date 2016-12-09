@@ -576,13 +576,13 @@ namespace Ship_Game
 						{
                             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
 						}
-						else if ((e.item as Ship).GetSystem() == null)
+						else if ((e.item as Ship).System== null)
 						{
 							base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
 						}
 						else
 						{
-							base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat((e.item as Ship).GetSystem().Name, " system"), tCursor, Color.Orange);
+							base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat((e.item as Ship).System.Name, " system"), tCursor, Color.Orange);
 						}
 						if (e.Plus != 0)
 						{

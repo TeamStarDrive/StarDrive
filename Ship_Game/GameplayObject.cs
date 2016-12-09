@@ -9,7 +9,7 @@ namespace Ship_Game
 	public abstract class GameplayObject
 	{
 		public bool Active = true;
-		protected SolarSystem system;
+		public SolarSystem System { get; protected set; }
 		public static GraphicsDevice device;
 		public Vector2 Center;
 	    protected Cue dieCue;
@@ -37,31 +37,27 @@ namespace Ship_Game
 
 		public virtual void Die(GameplayObject source, bool cleanupOnly)
 		{
-			this.Active = false;
+			Active = false;
 		}
 
 		public virtual void Draw(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color)
 		{
-			if (spriteBatch != null && sprite != null)
-			{
-				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.Rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), 2f * this.Radius / MathHelper.Min((float)sprite.Width, (float)sprite.Height), SpriteEffects.None, 0f);
-			}
+			if (sprite != null)
+				spriteBatch?.Draw(sprite, Position, sourceRectangle, color, Rotation, 
+                    new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), 2f * Radius / Math.Min(sprite.Width, sprite.Height), SpriteEffects.None, 0f);
 		}
 
 		public virtual void Draw(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color, float scaleFactor)
 		{
-			if (spriteBatch != null && sprite != null)
-			{
-				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.Rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), scaleFactor, SpriteEffects.None, 0f);
-			}
+			if (sprite != null) spriteBatch?.Draw(sprite, Position, sourceRectangle, color, Rotation, 
+                    new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), scaleFactor, SpriteEffects.None, 0f);
 		}
 
 		public virtual void DrawShield(float elapsedTime, SpriteBatch spriteBatch, Texture2D sprite, Rectangle? sourceRectangle, Color color, float scaleFactor)
 		{
-			if (spriteBatch != null && sprite != null)
-			{
-				spriteBatch.Draw(sprite, this.Position, sourceRectangle, color, this.Rotation, new Vector2((float)sprite.Width / 2f, (float)sprite.Height / 2f), scaleFactor + this.Radius / 10000f, SpriteEffects.None, 0f);
-			}
+			if (sprite != null)
+				spriteBatch?.Draw(sprite, Position, sourceRectangle, color, Rotation, 
+                    new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), scaleFactor + Radius / 10000f, SpriteEffects.None, 0f);
 		}
 
 		public float FindAngleToTarget(Vector2 origin, Vector2 target)
@@ -115,18 +111,13 @@ namespace Ship_Game
 			return angle_to_target;
 		}
 
-		public SolarSystem GetSystem()
+        public string GetSystemName()
 		{
-			return this.system;
-		}
-
-		public string GetSystemName()
-		{
-			if (this.system == null)
+			if (this.System == null)
 			{
 				return "Deep Space";
 			}
-			return this.system.Name;
+			return this.System.Name;
 		}
 
 		public virtual void Initialize()
@@ -135,7 +126,7 @@ namespace Ship_Game
 
 		public void SetSystem(SolarSystem s)
 		{
-			this.system = s;
+			this.System = s;
 		}
 
 		public virtual bool Touch(GameplayObject target)

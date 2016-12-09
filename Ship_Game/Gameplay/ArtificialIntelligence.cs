@@ -286,7 +286,7 @@ namespace Ship_Game.Gameplay
                 else
                     this.DoOrbit(this.awaitClosest, elapsedTime);
             }
-            else if (this.Owner.GetSystem() == null)
+            else if (this.Owner.System== null)
             {
                 if (this.SystemToDefend != null)
                 {
@@ -337,7 +337,7 @@ namespace Ship_Game.Gameplay
 
                 float closestD = 999999f;
                 bool closestUS = false;
-                foreach (Planet p in this.Owner.GetSystem().PlanetList)
+                foreach (Planet p in this.Owner.System.PlanetList)
                 {
                     if (awaitClosest == null)
                         awaitClosest = p;
@@ -381,7 +381,7 @@ namespace Ship_Game.Gameplay
 			{
 				this.DoOrbit(this.awaitClosest, elapsedTime);
 			}
-			else if (this.Owner.GetSystem() == null)
+			else if (this.Owner.System== null)
 			{
 				if(this.SystemToDefend != null)
                 {
@@ -416,7 +416,7 @@ namespace Ship_Game.Gameplay
                 
                 float closestD = 999999f;
                 bool closestUS =false;
-				foreach (Planet p in this.Owner.GetSystem().PlanetList)
+				foreach (Planet p in this.Owner.System.PlanetList)
 				{
                     if (awaitClosest == null)
                         awaitClosest = p;
@@ -482,7 +482,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    if(this.Owner.GetSystem() != null && this.Owner.GetSystem().OwnerList.Contains(this.Owner.loyalty))
+                    if(this.Owner.System!= null && this.Owner.System.OwnerList.Contains(this.Owner.loyalty))
                     {
                         this.HadPO = false;
                     return;
@@ -724,10 +724,10 @@ namespace Ship_Game.Gameplay
 
             if (this.Target == null)
             {
-                if (!this.Owner.InCombat && this.Owner.GetSystem() != null && this.Owner.GetSystem().OwnerList.Count > 0)
+                if (!this.Owner.InCombat && this.Owner.System!= null && this.Owner.System.OwnerList.Count > 0)
                 {
                     this.Owner.ScrambleAssaultShips(0);
-                    foreach (Planet p in this.Owner.GetSystem().PlanetList)
+                    foreach (Planet p in this.Owner.System.PlanetList)
                     {
                         if (p.Owner != null)
                         {
@@ -792,9 +792,9 @@ namespace Ship_Game.Gameplay
 				if (distanceToTarget < (this.Owner.Radius + this.Target.Radius) * 3f && !this.AttackRunStarted)
 				{
 					this.AttackRunStarted = true;
-					int ran = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(1f, 100f);
+					int ran = (int)((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(1f, 100f);
 					ran = (ran <= 50 ? 1 : -1);
-					this.AttackRunAngle = (float)ran * ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
+					this.AttackRunAngle = (float)ran * ((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
 					this.AttackVector = this.findPointFromAngleAndDistance(this.Owner.Center, this.AttackRunAngle, 1500f);
 				}
 				this.AttackVector = this.findPointFromAngleAndDistance(this.Owner.Center, this.AttackRunAngle, 1500f);
@@ -841,9 +841,9 @@ namespace Ship_Game.Gameplay
                 if (distanceToTarget < (this.Owner.Radius + this.Target.Radius) * 3f && !this.AttackRunStarted)
                 {
                     this.AttackRunStarted = true;
-                    int ran = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(1f, 100f);
+                    int ran = (int)((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(1f, 100f);
                     ran = (ran <= 50 ? 1 : -1);
-                    this.AttackRunAngle = (float)ran * ((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
+                    this.AttackRunAngle = (float)ran * ((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
                     this.AttackVector = this.findPointFromAngleAndDistance(this.Owner.Center, this.AttackRunAngle, 1500f);
                 }
                 this.AttackVector = this.findPointFromAngleAndDistance(this.Owner.Center, this.AttackRunAngle, 1500f);
@@ -1030,12 +1030,12 @@ namespace Ship_Game.Gameplay
             {
                 this.CombatState = CombatState.Evade;
             } //
-            if (!this.Owner.loyalty.isFaction && this.Owner.GetSystem() != null && this.TroopsOut == false && this.Owner.GetHangars().Any(troops => troops.IsTroopBay) || this.Owner.hasTransporter)
+            if (!this.Owner.loyalty.isFaction && this.Owner.System!= null && this.TroopsOut == false && this.Owner.GetHangars().Any(troops => troops.IsTroopBay) || this.Owner.hasTransporter)
             {
                 if ( this.Owner.TroopList.All(troop => troop.GetOwner() == this.Owner.loyalty)) // this.Owner.TroopList.Where(troop => troop.GetOwner() == this.Owner.loyalty).Count() > 0 &&
                 {
                     Planet invadeThis = null;
-                    foreach (Planet invade in this.Owner.GetSystem().PlanetList.Where(owner => owner.Owner != null && owner.Owner != this.Owner.loyalty).OrderBy(troops => troops.TroopsHere.Count))
+                    foreach (Planet invade in this.Owner.System.PlanetList.Where(owner => owner.Owner != null && owner.Owner != this.Owner.loyalty).OrderBy(troops => troops.TroopsHere.Count))
                     {
                         if (this.Owner.loyalty.GetRelations(invade.Owner).AtWar)
                         {
@@ -2385,7 +2385,7 @@ namespace Ship_Game.Gameplay
             //        return;
       
             if (this.SystemToDefend == null)
-				this.SystemToDefend = this.Owner.GetSystem();               
+				this.SystemToDefend = this.Owner.System;               
            //if(this.Owner.GetSystem() != this.SystemToDefend)               
             if (this.SystemToDefend == null || (this.awaitClosest != null && this.awaitClosest.Owner == this.Owner.loyalty))
                 this.AwaitOrders(elapsedTime);
@@ -2843,9 +2843,9 @@ namespace Ship_Game.Gameplay
                     //update projectile list
                     {
 
-                        if (this.Owner.GetSystem() != null)
+                        if (this.Owner.System!= null)
                         {
-                            foreach (GameplayObject missile in this.Owner.GetSystem().spatialManager.GetNearby(this.Owner))
+                            foreach (GameplayObject missile in this.Owner.System.spatialManager.GetNearby(this.Owner))
                             {
                                 Projectile targettrack = missile as Projectile;
                                 if (targettrack == null || targettrack.loyalty == this.Owner.loyalty || !targettrack.weapon.Tag_Intercept)
@@ -3145,7 +3145,7 @@ namespace Ship_Game.Gameplay
                 //}
                 if (projectedPosition != moduleTarget.Center && moduleTarget.GetParent().Velocity.Length() <= 0)
                 {
-                    System.Diagnostics.Debug.WriteLine(this.Owner.GetSystem().Name + " - calculate and fire error");
+                    System.Diagnostics.Debug.WriteLine(this.Owner.System.Name + " - calculate and fire error");
                     //moved docs target correction here. 
                     Vector2 fireatstationary = Vector2.Zero;
                     fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, moduleTarget.Center));
@@ -4879,7 +4879,7 @@ namespace Ship_Game.Gameplay
 
             ArtificialIntelligence.ShipGoal goal = this.OrderQueue.LastOrDefault();
 
-            if (this.SystemToDefend == null || (this.SystemToDefend != system || this.awaitClosest == null || this.awaitClosest.Owner == null || this.awaitClosest.Owner != this.Owner.loyalty || (this.Owner.GetSystem() != system && goal != null && this.OrderQueue.LastOrDefault().Plan != Plan.DefendSystem)))
+            if (this.SystemToDefend == null || (this.SystemToDefend != system || this.awaitClosest == null || this.awaitClosest.Owner == null || this.awaitClosest.Owner != this.Owner.loyalty || (this.Owner.System!= system && goal != null && this.OrderQueue.LastOrDefault().Plan != Plan.DefendSystem)))
 			{
 
 #if SHOWSCRUB
@@ -4909,7 +4909,7 @@ namespace Ship_Game.Gameplay
 
                     if (Potentials.Count > 0)
                     {
-                        int Ran = (int)((this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)Potentials.Count + 0.85f);
+                        int Ran = (int)((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)Potentials.Count + 0.85f);
                         if (Ran > Potentials.Count - 1)
                         {
                             Ran = Potentials.Count - 1;
@@ -5796,7 +5796,7 @@ namespace Ship_Game.Gameplay
                     start.FoodHere -= 1f;
 				}
                 OrderQueue.RemoveFirst();
-                var rng = ((Owner.GetSystem() != null ? Owner.GetSystem().RNG : universeScreen.DeepSpaceRNG));
+                var rng = ((Owner.System!= null ? Owner.System.RNG : universeScreen.DeepSpaceRNG));
                 OrderMoveTowardsPosition(end.Position + rng.RandomDirection() * 500f, 0f, new Vector2(0f, -1f), true, end);
 				OrderQueue.AddLast(new ShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f));
 				//this.State = AIState.SystemTrader;
@@ -5823,7 +5823,7 @@ namespace Ship_Game.Gameplay
 					productionHere1.ProductionHere = productionHere1.ProductionHere - 1f;
 				}
                 OrderQueue.RemoveFirst();
-                var rng = ((Owner.GetSystem() != null ? Owner.GetSystem().RNG : universeScreen.DeepSpaceRNG));
+                var rng = ((Owner.System!= null ? Owner.System.RNG : universeScreen.DeepSpaceRNG));
                 OrderMoveTowardsPosition(end.Position + rng.RandomDirection() * 500f, 0f, new Vector2(0f, -1f), true, end);
 				OrderQueue.AddLast(new ShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f));
 				//this.State = AIState.SystemTrader;
@@ -6509,7 +6509,7 @@ namespace Ship_Game.Gameplay
             }
             //Doctor: Increased this from 0.66f as seemed slightly on the low side. 
             this.CombatAI.PreferredEngagementDistance = this.Owner.maxWeaponsRange * 0.75f;
-            SolarSystem thisSystem = this.Owner.GetSystem();
+            SolarSystem thisSystem = this.Owner.System;
             if(thisSystem != null)
                 foreach (Planet p in thisSystem.PlanetList)
                 {
@@ -6655,7 +6655,7 @@ namespace Ship_Game.Gameplay
                             //shuttle.shipData.Role = ShipData.RoleName.supply;
                             //shuttle.GetAI().DefaultAIState = AIState.Flee;
                             Ship ship1 = shuttle;
-                            randomThreadMath = (this.Owner.GetSystem() != null ? this.Owner.GetSystem().RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG);
+                            randomThreadMath = (this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG);
                             ship1.Velocity = (randomThreadMath.RandomDirection() * shuttle.speed) + this.Owner.Velocity;
                             if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
                                 shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.speed;

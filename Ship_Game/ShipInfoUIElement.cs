@@ -369,9 +369,9 @@ namespace Ship_Game
 			if (this.ship.Inhibited )
 			{
 				bool Planet = false;
-				if (this.screen.GravityWells && this.ship.GetSystem() != null)
+				if (this.screen.GravityWells && this.ship.System!= null)
 				{
-					foreach (Ship_Game.Planet p in this.ship.GetSystem().PlanetList)
+					foreach (Ship_Game.Planet p in this.ship.System.PlanetList)
 					{
                         if (Vector2.Distance(p.Position, this.ship.Position) >= (GlobalStats.GravityWellRange * (1 + ((Math.Log(p.scale)) / 1.5))))
 						{
