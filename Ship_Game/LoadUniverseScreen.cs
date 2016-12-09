@@ -578,8 +578,8 @@ namespace Ship_Game
             if (this.data.Size.X > 3500000f) 
             Empire.ProjectorRadius = this.data.Size.X / 70f;
 			EmpireManager.Clear();
-            if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
-                Empire.universeScreen.MasterShipList.Clear();
+            if (Empire.Universe!=null && Empire.Universe.MasterShipList != null)
+                Empire.Universe.MasterShipList.Clear();
             
          
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
@@ -617,12 +617,9 @@ namespace Ship_Game
 				Empire e = EmpireManager.GetEmpireByName(d.Name);
 				foreach (Relationship r in d.Relations)
 				{
-					e.GetRelations().Add(EmpireManager.GetEmpireByName(r.Name), r);
-					if (r.ActiveWar == null)
-					{
-						continue;
-					}
-					r.ActiveWar.SetCombatants(e, EmpireManager.GetEmpireByName(r.Name));
+                    var empire = EmpireManager.GetEmpireByName(r.Name);
+					e.AddRelationships(empire, r);
+				    r.ActiveWar?.SetCombatants(e, empire);
 				}
 			}
 			this.data.SolarSystemsList = new List<SolarSystem>();

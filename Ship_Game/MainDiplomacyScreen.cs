@@ -141,7 +141,7 @@ namespace Ship_Game
                 return 2;
             if (this.Traders.Contains(e))
             {
-                if (this.PlayerEmpire.GetRelations()[e].Treaty_Trade_TurnsExisted > 3)
+                if (this.PlayerEmpire.GetRelations(e).Treaty_Trade_TurnsExisted > 3)
                     return 1;
             }
             if (e == this.PlayerEmpire)
@@ -149,7 +149,7 @@ namespace Ship_Game
             foreach(Empire empire in this.Friends)
             {
                 Relationship rel;
-                if (!empire.GetRelations().TryGetValue(e, out rel))
+                if (!empire.TryGetRelations(e, out rel))
                     continue;
                 if(rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted >3)
                 {
@@ -164,7 +164,7 @@ namespace Ship_Game
             foreach (Empire empire in this.Traders)
             {
                 Relationship rel;
-                if (!empire.GetRelations().TryGetValue(e, out rel))
+                if (!empire.TryGetRelations(e, out rel))
                     continue;
                 if (rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted > 6)
                 {
@@ -220,9 +220,9 @@ namespace Ship_Game
 						spriteBatch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
 					}
 				}
-				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e && EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].Known)
+				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e && EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(race.e).Known)
 				{
-					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].AtWar && !race.e.data.Defeated)
+					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(race.e).AtWar && !race.e.data.Defeated)
 					{
 						Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
 						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, war, Color.Red);
@@ -278,7 +278,7 @@ namespace Ship_Game
 					}
 					else if (e != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
 					{
-						if (!EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetRelations()[e].Known)
+						if (!EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetRelations(e).Known)
 						{
 							continue;
 						}
@@ -397,7 +397,7 @@ namespace Ship_Game
 			}
 			else if (!this.SelectedEmpire.data.Defeated)
 			{
-				float intelligencePenetration = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[this.SelectedEmpire].IntelligencePenetration;
+				float intelligencePenetration = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).IntelligencePenetration;
                 if (this.IntelligenceLevel(this.SelectedEmpire) > 0)
                 {
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.SelectedEmpire.data.DiplomaticPersonality.Name, " ", this.SelectedEmpire.data.EconomicPersonality.Name), TextCursor, Color.White);
@@ -408,34 +408,34 @@ namespace Ship_Game
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Unknown", " ", "Unknown"), TextCursor, Color.White);
                     TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[this.SelectedEmpire].AtWar)
+				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).AtWar)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1608), TextCursor, Color.LightPink);
 				}
-				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[this.SelectedEmpire].Treaty_Peace)
+				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_Peace)
 				{
 					SpriteBatch spriteBatch2 = base.ScreenManager.SpriteBatch;
 					SpriteFont arial12Bold = Fonts.Arial12Bold;
-					object[] objArray = new object[] { Localizer.Token(1213), " (", EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[this.SelectedEmpire].PeaceTurnsRemaining, " ", Localizer.Token(2200), ")" };
+					object[] objArray = new object[] { Localizer.Token(1213), " (", EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).PeaceTurnsRemaining, " ", Localizer.Token(2200), ")" };
 					spriteBatch2.DrawString(arial12Bold, string.Concat(objArray), TextCursor, Color.LightGreen);
 					TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[this.SelectedEmpire].Treaty_OpenBorders)
+				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_OpenBorders)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1609), TextCursor, Color.LightGreen);
 					TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[this.SelectedEmpire].Treaty_Trade)
+				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_Trade)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1610), TextCursor, Color.LightGreen);
 					TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[this.SelectedEmpire].Treaty_NAPact)
+				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_NAPact)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1611), TextCursor, Color.LightGreen);
 					TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[this.SelectedEmpire].Treaty_Alliance)
+				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_Alliance)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1612), TextCursor, Color.LightGreen);
 				}
@@ -468,7 +468,7 @@ namespace Ship_Game
 					}
 					else if (e != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
 					{
-						if (!EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetRelations()[e].Known)
+						if (!EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetRelations(e).Known)
 						{
 							continue;
 						}
@@ -594,7 +594,7 @@ namespace Ship_Game
             }
             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6100), this.GetPop(this.SelectedEmpire).ToString("0.0"), Localizer.Token(6101)), TextCursor, Color.White);
             //Diplomatic Relations
-            foreach (KeyValuePair<Empire, Relationship> Relation in this.SelectedEmpire.GetRelations())
+            foreach (KeyValuePair<Empire, Relationship> Relation in this.SelectedEmpire.AllRelations)
             {
                 if (!Relation.Value.Known || Relation.Key.isFaction)
                     continue;
@@ -817,18 +817,18 @@ namespace Ship_Game
                 }
                 foreach(ThreatMatrix.Pin pins in this.PlayerEmpire.GetGSAI().ThreatMatrix.Pins.Values)
                 {
-                    if (pins.ship == null || pins.ship.loyalty != e)
+                    if (pins.Ship == null || pins.Ship.loyalty != e)
                         continue;
-                    knownShips.Add(pins.ship);
+                    knownShips.Add(pins.Ship);
                 }
 
                 foreach(Empire ally in this.Friends)
                 {
                     foreach (ThreatMatrix.Pin pins in ally.GetGSAI().ThreatMatrix.Pins.Values)
                     {
-                        if (pins.ship == null || pins.ship.loyalty != e)
+                        if (pins.Ship == null || pins.Ship.loyalty != e)
                             continue;
-                        knownShips.Add(pins.ship);
+                        knownShips.Add(pins.Ship);
                     }
                 }
                 foreach(Ship ship in knownShips)
@@ -914,18 +914,18 @@ namespace Ship_Game
 
                 foreach (ThreatMatrix.Pin pins in this.PlayerEmpire.GetGSAI().ThreatMatrix.Pins.Values)
                 {
-                    if (pins.ship == null || pins.ship.loyalty != e)
+                    if (pins.Ship == null || pins.Ship.loyalty != e)
                         continue;
-                    knownShips.Add(pins.ship);
+                    knownShips.Add(pins.Ship);
                 }
 
                 foreach (Empire ally in this.Friends)
                 {
                     foreach (ThreatMatrix.Pin pins in ally.GetGSAI().ThreatMatrix.Pins.Values)
                     {
-                        if (pins.ship == null || pins.ship.loyalty != e)
+                        if (pins.Ship == null || pins.Ship.loyalty != e)
                             continue;
-                        knownShips.Add(pins.ship);
+                        knownShips.Add(pins.Ship);
                     }
                 }
                 foreach (Ship ship in knownShips)
@@ -962,18 +962,18 @@ namespace Ship_Game
      
             foreach (ThreatMatrix.Pin pins in this.PlayerEmpire.GetGSAI().ThreatMatrix.Pins.Values)
             {
-                if (pins.ship == null || pins.ship.loyalty != e)
+                if (pins.Ship == null || pins.Ship.loyalty != e)
                     continue;
-                knownShips.Add(pins.ship);
+                knownShips.Add(pins.Ship);
             }
 
             foreach (Empire ally in this.Friends)
             {
                 foreach (ThreatMatrix.Pin pins in ally.GetGSAI().ThreatMatrix.Pins.Values)
                 {
-                    if (pins.ship == null || pins.ship.loyalty != e)
+                    if (pins.Ship == null || pins.Ship.loyalty != e)
                         continue;
-                    knownShips.Add(pins.ship);
+                    knownShips.Add(pins.Ship);
                 }
             }
             HashSet<string> techs = new HashSet<string>();
@@ -1012,7 +1012,7 @@ namespace Ship_Game
 			}
 			foreach (RaceEntry race in this.Races)
 			{
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) == race.e || !EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].Known)
+				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) == race.e || !EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(race.e).Known)
 				{
 					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e || !HelperFunctions.ClickedRect(race.container, input))
 					{

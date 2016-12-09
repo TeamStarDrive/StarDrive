@@ -173,7 +173,7 @@ namespace Ship_Game
             
             if (bomb.owner == this.Owner)
                 return;
-            if (this.Owner != null && !this.Owner.GetRelations()[bomb.owner].AtWar && (this.TurnsSinceTurnover > 10 && EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) == bomb.owner))
+            if (this.Owner != null && !this.Owner.GetRelations(bomb.owner).AtWar && (this.TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.owner))
                 this.Owner.GetGSAI().DeclareWarOn(bomb.owner, WarType.DefensiveWar);
             if ((double)this.ShieldStrengthCurrent > 0.0)
             {
@@ -299,9 +299,9 @@ namespace Ship_Game
                     if (this.Owner != null)
                     {
                         this.Owner.RemovePlanet(this);
-                        if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
+                        if (this.ExploredDict[Empire.Universe.PlayerEmpire])
                         {
-                            Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty));
+                            Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
                             bool flag2 = true;
                             if (this.Owner != null)
                             {
@@ -350,7 +350,7 @@ namespace Ship_Game
             {
                 return;
             }
-            if (this.Owner != null && !this.Owner.GetRelations()[bomb.owner].AtWar && this.TurnsSinceTurnover > 10 && EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) == bomb.owner)
+            if (this.Owner != null && !this.Owner.GetRelations(bomb.owner).AtWar && this.TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.owner)
             {
                 this.Owner.GetGSAI().DeclareWarOn(bomb.owner, WarType.DefensiveWar);
             }
@@ -507,9 +507,9 @@ namespace Ship_Game
                     if (this.Owner != null)
                     {
                         this.Owner.RemovePlanet(this);
-                        if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
+                        if (this.ExploredDict[Empire.Universe.PlayerEmpire])
                         {
-                            Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty));
+                            Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
                         }
                         bool removeowner = true;
                         if (this.Owner != null)
@@ -1724,7 +1724,7 @@ namespace Ship_Game
                         t.SetPlanet(this);
                         if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                             return true;
-                        ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), Planet.universeScreen);
+                        ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe.PlayerEmpire, Planet.universeScreen);
                     }
                 }
             }
@@ -2245,49 +2245,49 @@ namespace Ship_Game
             
             if (num2 > this.numInvadersLast && this.numInvadersLast == 0)
             {
-                if (EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) == this.Owner)
+                if (Empire.Universe.PlayerEmpire == this.Owner)
                     Planet.universeScreen.NotificationManager.AddEnemyTroopsLandedNotification(this, index, this.Owner);
-                else if (index == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && !this.Owner.isFaction && !EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty).GetRelations()[this.Owner].AtWar)
+                else if (index == Empire.Universe.PlayerEmpire && !this.Owner.isFaction && !Empire.Universe.PlayerEmpire.GetRelations(this.Owner).AtWar)
                 {
-                    if (EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty).GetRelations()[this.Owner].Treaty_NAPact)
+                    if (Empire.Universe.PlayerEmpire.GetRelations(this.Owner).Treaty_NAPact)
                     {
-                        Planet.universeScreen.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.Owner, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), "Invaded NA Pact", this.system));
-                        EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty).GetGSAI().DeclareWarOn(this.Owner, WarType.ImperialistWar);
-                        this.Owner.GetRelations()[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)].Trust -= 50f;
-                        this.Owner.GetRelations()[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)].Anger_DiplomaticConflict += 50f;
+                        Planet.universeScreen.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.Owner, Empire.Universe.PlayerEmpire, "Invaded NA Pact", this.system));
+                        Empire.Universe.PlayerEmpire.GetGSAI().DeclareWarOn(this.Owner, WarType.ImperialistWar);
+                        this.Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 50f;
+                        this.Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 50f;
                     }
                     else
                     {
-                        Planet.universeScreen.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.Owner, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), "Invaded Start War", this.system));
-                        EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty).GetGSAI().DeclareWarOn(this.Owner, WarType.ImperialistWar);
-                        this.Owner.GetRelations()[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)].Trust -= 25f;
-                        this.Owner.GetRelations()[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)].Anger_DiplomaticConflict += 25f;
+                        Planet.universeScreen.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.Owner, Empire.Universe.PlayerEmpire, "Invaded Start War", this.system));
+                        Empire.Universe.PlayerEmpire.GetGSAI().DeclareWarOn(this.Owner, WarType.ImperialistWar);
+                        this.Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 25f;
+                        this.Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 25f;
                     }
                 }
             }
             this.numInvadersLast = num2;
             if (num2 <= 0 || num1 != 0 )//|| this.Owner == null)
                 return;
-            if (index.GetRelations().ContainsKey(this.Owner))
+            if (index.TryGetRelations(this.Owner, out Relationship rel))
             {
-                if (index.GetRelations()[this.Owner].AtWar && index.GetRelations()[this.Owner].ActiveWar != null)
-                    ++index.GetRelations()[this.Owner].ActiveWar.ColoniestWon;
+                if (rel.AtWar && rel.ActiveWar != null)
+                    ++rel.ActiveWar.ColoniestWon;
             }
-            else if (this.Owner.GetRelations().ContainsKey(index) && this.Owner.GetRelations()[index].AtWar && this.Owner.GetRelations()[index].ActiveWar != null)
-                ++this.Owner.GetRelations()[index].ActiveWar.ColoniesLost;
+            else if (Owner.TryGetRelations(index, out Relationship relship) && relship.AtWar && relship.ActiveWar != null)
+                ++relship.ActiveWar.ColoniesLost;
             this.ConstructionQueue.Clear();
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                 planetGridSquare.QItem = (QueueItem)null;
             this.Owner.RemovePlanet(this);
-            if (index == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) && this.Owner == EmpireManager.GetEmpireByName("Cordrazine Collective"))
+            if (index == Empire.Universe.PlayerEmpire && this.Owner == EmpireManager.GetEmpireByName("Cordrazine Collective"))
                 GlobalStats.IncrementCordrazineCapture();
-            if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)] && !flag)
+            if (this.ExploredDict[Empire.Universe.PlayerEmpire] && !flag)
                 Planet.universeScreen.NotificationManager.AddConqueredNotification(this, index, this.Owner);
-            else if (this.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
+            else if (this.ExploredDict[Empire.Universe.PlayerEmpire])
             {
                 lock (GlobalStats.OwnedPlanetsLock)
                 {
-                    Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty));
+                    Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
                     bool local_7 = true;
                     
                     if (this.Owner != null)
@@ -2444,7 +2444,7 @@ namespace Ship_Game
                 {
                     if (pgs.TroopsHere[0].AvailableAttackActions > 0)
                     {
-                        if (pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat)
+                        if (pgs.TroopsHere[0].GetOwner() != Empire.Universe.PlayerEmpire || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat)
                         {
                             {
                                 foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -2643,7 +2643,7 @@ namespace Ship_Game
                     catch { }
                 }
                     
-                else if (pgs.building != null && pgs.building.CombatStrength > 0 && (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty) || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat) && pgs.building.AvailableAttackActions > 0)
+                else if (pgs.building != null && pgs.building.CombatStrength > 0 && (this.Owner != Empire.Universe.PlayerEmpire || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat) && pgs.building.AvailableAttackActions > 0)
                 {
                     foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                     {
@@ -2700,7 +2700,7 @@ namespace Ship_Game
                         eventLocation.TroopsHere.thisLock.ExitReadLock();
                         return true;
                     }
-                    ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), Planet.universeScreen);
+                    ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe.PlayerEmpire, Planet.universeScreen);
                     
                 }
             }
@@ -2767,7 +2767,7 @@ namespace Ship_Game
                                 for (int index2 = 0; index2 < this.system.ShipList.Count; ++index2)
                                 {
                                     Ship ship = this.system.ShipList[index2];
-                                    if (ship.loyalty == this.Owner || (!ship.loyalty.isFaction && this.Owner.GetRelations()[ship.loyalty].Treaty_NAPact) )
+                                    if (ship.loyalty == this.Owner || (!ship.loyalty.isFaction && this.Owner.GetRelations(ship.loyalty).Treaty_NAPact) )
                                         continue;
                                     currentD = Vector2.Distance(this.Position, ship.Center);                                   
                                     if (ship.GetShipData().Role == ShipData.RoleName.troop && currentD  < previousT)
@@ -4206,7 +4206,7 @@ namespace Ship_Game
                     }
                     else if (buildingCount < 2.0 && this.Owner.GetBDict()["Biospheres"] && this.MineralRichness >= .5f)
                     {
-                        if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
+                        if (this.Owner == Empire.Universe.PlayerEmpire)
                         {
                             if (this.Population / (this.MaxPopulation + this.MaxPopBonus) > 0.949999f && (this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) -  ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0f || this.Owner.Money > this.Owner.GrossTaxes * 3))
                                 this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
@@ -4318,7 +4318,7 @@ namespace Ship_Game
                             //}
                             //else
                             //    this.ps = GoodState.STORE;
-                            if (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)
+                            if (this.Owner != Empire.Universe.PlayerEmpire
                                 && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
                                 && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard)
 
@@ -4489,7 +4489,7 @@ namespace Ship_Game
                                 }
                                 else if (this.Owner.GetBDict()["Biospheres"] &&  this.MineralRichness >= 1.0f && ((this.Owner.data.Traits.Cybernetic > 0 && this.GrossProductionPerTurn > this.consumption) || this.Owner.data.Traits.Cybernetic <=0 &&  this.Fertility >= 1.0))
                                 {
-                                    if (this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
+                                    if (this.Owner == Empire.Universe.PlayerEmpire)
                                     {
                                         if ( this.Population / ( this.MaxPopulation +  this.MaxPopBonus) > 0.94999f && ( this.Owner.EstimateIncomeAtTaxRate(this.Owner.data.TaxRate) - ResourceManager.BuildingsDict["Biospheres"].Maintenance > 0.0f || this.Owner.Money > this.Owner.GrossTaxes * 3))
                                             this.TryBiosphereBuild(ResourceManager.BuildingsDict["Biospheres"], new QueueItem());
@@ -5832,8 +5832,8 @@ output = maxp * take10 = 5
                     }
                     if (queueItem.Building.AllowShipBuilding)
                         this.HasShipyard = true;
-                    if (building.EventOnBuild != null && this.Owner != null && this.Owner == EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
-                        Planet.universeScreen.ScreenManager.AddScreen((GameScreen)new EventPopup(Planet.universeScreen, EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty), ResourceManager.EventsDict[building.EventOnBuild], ResourceManager.EventsDict[building.EventOnBuild].PotentialOutcomes[0], true));
+                    if (building.EventOnBuild != null && this.Owner != null && this.Owner == Empire.Universe.PlayerEmpire)
+                        Planet.universeScreen.ScreenManager.AddScreen((GameScreen)new EventPopup(Planet.universeScreen, Empire.Universe.PlayerEmpire, ResourceManager.EventsDict[building.EventOnBuild], ResourceManager.EventsDict[building.EventOnBuild].PotentialOutcomes[0], true));
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                 }
                 else if (queueItem.isShip && !ResourceManager.ShipsDict.ContainsKey(queueItem.sData.Name))
@@ -5895,12 +5895,12 @@ output = maxp * take10 = 5
                         }
                         else
                         {
-                            if (this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
+                            if (this.Owner != Empire.Universe.PlayerEmpire)
                                 this.Owner.ForcePoolAdd(shipAt);
                             queueItem.Goal.ReportShipComplete(shipAt);
                         }
                     }
-                    else if ((queueItem.sData.Role != ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform) && this.Owner != EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty))
+                    else if ((queueItem.sData.Role != ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform) && this.Owner != Empire.Universe.PlayerEmpire)
                         this.Owner.ForcePoolAdd(shipAt);
                 }
                 else if (queueItem.isTroop &&  queueItem.productionTowards >= queueItem.Cost)
@@ -6801,8 +6801,7 @@ output = maxp * take10 = 5
             this.TroopsHere.thisLock.EnterReadLock();
             foreach (Troop trooper in this.TroopsHere)
             {
-                Relationship trouble;
-                if (!empire.GetRelations().TryGetValue(trooper.GetOwner(), out trouble) || trouble.AtWar)
+                if (!empire.TryGetRelations(trooper.GetOwner(), out Relationship trouble) || trouble.AtWar)
                 {
                     enemies=true;
                     break;

@@ -12,14 +12,8 @@
 #define DEBUGON
 
 using System;
-using System.Text;
-using System.Drawing;
-using System.Threading;
-using System.Collections;
-using System.Windows.Forms;
-using System.Drawing.Drawing2D;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using Microsoft.Xna.Framework;
 
 namespace Algorithms
 {
