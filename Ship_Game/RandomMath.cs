@@ -28,6 +28,8 @@ namespace Ship_Game
         /// Random index, in range [0, arrayLength)
         public static int InRange(int arrayLength)
         {
+            if (arrayLength < 0)
+                return -Random.Next(0, -arrayLength);
             return Random.Next(0, arrayLength);
         }
 

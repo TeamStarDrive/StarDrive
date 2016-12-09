@@ -235,7 +235,7 @@ namespace Ship_Game.Gameplay
                 foreach (Empire e in BorderCheck)
                 {
                     
-                    Relationship rel = loyalty.GetRelations()[e];
+                    Relationship rel = loyalty.GetRelations(e);
                     if (rel.AtWar || rel.Treaty_Alliance || e == this.loyalty)
                     {
                         return false;
@@ -254,7 +254,7 @@ namespace Ship_Game.Gameplay
                 {
                     if (e == loyalty)
                         return true;
-                    Relationship rel = loyalty.GetRelations()[e];
+                    Relationship rel = loyalty.GetRelations(e);
                     if (rel.Treaty_Alliance )
                     {
                         return true;
@@ -271,7 +271,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach(Empire e in BorderCheck)
                 {
-                    Relationship rel = loyalty.GetRelations()[e];
+                    Relationship rel = loyalty.GetRelations(e);
                     if (rel.AtWar )
                     {
                         return true;
@@ -1197,7 +1197,7 @@ namespace Ship_Game.Gameplay
             if
             (target != null && targetShip != null && (this.loyalty == targetShip.loyalty ||
              !this.loyalty.isFaction &&
-           this.loyalty.GetRelations().TryGetValue(targetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
+           this.loyalty.TryGetRelations(targetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
                 return false;
             
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;            
@@ -3738,7 +3738,7 @@ namespace Ship_Game.Gameplay
                     if(this.InhibitedTimer <2f)
                     foreach (Empire index1 in EmpireManager.EmpireList)
                     {
-                        if (index1 != this.loyalty && !this.loyalty.GetRelations()[index1].Treaty_OpenBorders)
+                        if (index1 != this.loyalty && !this.loyalty.GetRelations(index1).Treaty_OpenBorders)
                         {
                             for (int index2 = 0; index2 < index1.Inhibitors.Count; ++index2)
                             {
@@ -3761,7 +3761,7 @@ namespace Ship_Game.Gameplay
                     System.Diagnostics.Debug.WriteLine("Inhibitor blew up");
                 }
                 this.inSensorRange = false;
-                if (Ship.universeScreen.Debug || this.loyalty == Ship.universeScreen.player || this.loyalty != Ship.universeScreen.player && Ship.universeScreen.player.GetRelations()[this.loyalty].Treaty_Alliance)
+                if (Ship.universeScreen.Debug || this.loyalty == Ship.universeScreen.player || this.loyalty != Ship.universeScreen.player && Ship.universeScreen.player.GetRelations(loyalty).Treaty_Alliance)
                     this.inSensorRange = true;
                 else if (!this.inSensorRange)
                 {
@@ -4565,10 +4565,10 @@ namespace Ship_Game.Gameplay
             }
             if (this.Level > 255)
                 this.Level = 255;
-            if (!this.loyalty.GetRelations().ContainsKey(killed.loyalty) || !this.loyalty.GetRelations()[killed.loyalty].AtWar)
+            if (!loyalty.TryGetRelations(killed.loyalty, out Relationship rel) || !rel.AtWar)
                 return;
-            this.loyalty.GetRelations()[killed.loyalty].ActiveWar.StrengthKilled += killed.BaseStrength;
-            killed.loyalty.GetRelations()[this.loyalty].ActiveWar.StrengthLost += killed.BaseStrength;
+            this.loyalty.GetRelations(killed.loyalty).ActiveWar.StrengthKilled += killed.BaseStrength;
+            killed.loyalty.GetRelations(loyalty).ActiveWar.StrengthLost += killed.BaseStrength;
         }
 
         private void ExplodeShip(float explodeRadius, bool useWarpExplodeEffect)

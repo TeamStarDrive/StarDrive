@@ -219,7 +219,7 @@ namespace Ship_Game
                     isMinorRace = e.MinorRace,
 					Relations = new List<Relationship>()
 				};
-				foreach (KeyValuePair<Empire, Relationship> relation in e.GetRelations())
+				foreach (KeyValuePair<Empire, Relationship> relation in e.AllRelations)
 				{
 					empireToSave.Relations.Add(relation.Value);
 				}

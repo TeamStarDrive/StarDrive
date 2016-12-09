@@ -1,9 +1,6 @@
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using static Ship_Game.ResourceManager;
-using static Ship_Game.GlobalStats;
 
 namespace Ship_Game
 {
@@ -13,54 +10,59 @@ namespace Ship_Game
 
 		public List<Outcome> PotentialOutcomes;
 
-	    public void TriggerOutcome(Empire Triggerer, Outcome triggeredOutcome)
-	    {
-	        
-            if (triggeredOutcome.SecretTechDiscovered != null)
+		public ExplorationEvent()
+		{
+		}
+
+
+
+		public void TriggerOutcome(Empire Triggerer, Outcome triggeredOutcome)
+		{
+			if (triggeredOutcome.SecretTechDiscovered != null)
 			{
-                var techentry = Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered];
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
+				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
                 {
-                    techentry.Discovered = true;
+                    Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
                 }
                 else
                 {
                     Triggerer.GetTDict()["Secret"].Discovered = true;
-                    techentry.Discovered = true;
+                    Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
                 }
 			}
 			if (triggeredOutcome.BeginArmageddon)
 			{
-                RemnantArmageddon = true;
+				GlobalStats.RemnantArmageddon = true;
 			}
 			if (triggeredOutcome.GrantArtifact)
 			{
-				var potentials = new List<Artifact>();
-				foreach (var artifact in ArtifactsDict)
+				List<Ship_Game.Artifact> Potentials = new List<Ship_Game.Artifact>();
+				foreach (KeyValuePair<string, Ship_Game.Artifact> Artifact in ResourceManager.ArtifactsDict)
 				{
-					if (artifact.Value.Discovered)
+					if (Artifact.Value.Discovered)
 					{
 						continue;
 					}
-					potentials.Add(artifact.Value);
+					Potentials.Add(Artifact.Value);
 				}
-				if (potentials.Count <= 0)
+				if (Potentials.Count <= 0)
 				{
 					triggeredOutcome.MoneyGranted = 500;
 				}
 				else
 				{
-					int ranart = (int)RandomMath.RandomBetween(0f, (float)potentials.Count + 0.8f);
-					if (ranart > potentials.Count - 1)
+					int ranart = (int)RandomMath.RandomBetween(0f, (float)Potentials.Count + 0.8f);
+					if (ranart > Potentials.Count - 1)
 					{
-						ranart = potentials.Count - 1;
+						ranart = Potentials.Count - 1;
 					}
-					Triggerer.data.OwnedArtifacts.Add(potentials[ranart]);
-					ArtifactsDict[potentials[ranart].Name].Discovered = true;
-					triggeredOutcome.SetArtifact(potentials[ranart]);
+					Triggerer.data.OwnedArtifacts.Add(Potentials[ranart]);
+					ResourceManager.ArtifactsDict[Potentials[ranart].Name].Discovered = true;
+					triggeredOutcome.SetArtifact(Potentials[ranart]);
 					if (triggeredOutcome.GetArtifact().DiplomacyMod > 0f)
 					{
-                        Triggerer.data.Traits.DiplomacyMod += (triggeredOutcome.GetArtifact().DiplomacyMod + triggeredOutcome.GetArtifact().DiplomacyMod * Triggerer.data.Traits.Spiritual);
+						RacialTrait traits = Triggerer.data.Traits;
+						traits.DiplomacyMod = traits.DiplomacyMod + (triggeredOutcome.GetArtifact().DiplomacyMod + triggeredOutcome.GetArtifact().DiplomacyMod * Triggerer.data.Traits.Spiritual);
 					}
 					if (triggeredOutcome.GetArtifact().FertilityMod > 0f)
 					{
@@ -126,135 +128,179 @@ namespace Ship_Game
 					triggeredOutcome.WeHadIt = true;
 				}
 			}
-
-            Triggerer.Money += triggeredOutcome.MoneyGranted;
-            Triggerer.data.Traits.ResearchMod += triggeredOutcome.ScienceBonus;
-            Triggerer.data.Traits.ProductionMod += triggeredOutcome.IndustryBonus;
+			Empire money = Triggerer;
+			money.Money = money.Money + (float)triggeredOutcome.MoneyGranted;
+			RacialTrait racialTrait = Triggerer.data.Traits;
+			racialTrait.ResearchMod = racialTrait.ResearchMod + triggeredOutcome.ScienceBonus;
+			RacialTrait traits1 = Triggerer.data.Traits;
+			traits1.ProductionMod = traits1.ProductionMod + triggeredOutcome.IndustryBonus;
 			PlanetGridSquare assignedtile = null;
 			if (triggeredOutcome.SelectRandomPlanet)
 			{
-				var potentials = new List<Planet>();
+				List<Planet> Potentials = new List<Planet>();
 				foreach (SolarSystem s in UniverseScreen.SolarSystemList)
 				{
-				    potentials.AddRange(s.PlanetList.Where(p => p.habitable && p.Owner == null));
+					foreach (Planet p in s.PlanetList)
+					{
+						if (!p.habitable || p.Owner != null)
+						{
+							continue;
+						}
+						Potentials.Add(p);
+					}
 				}
-				if (potentials.Count > 0)
+				if (Potentials.Count > 0)
 				{
-					triggeredOutcome.SetPlanet(potentials[HelperFunctions.GetRandomIndex(potentials.Count)]);
+					triggeredOutcome.SetPlanet(Potentials[RandomMath.InRange(Potentials.Count)]);
 				}
 				if (triggeredOutcome.GetPlanet() != null)
 				{
 					assignedtile = triggeredOutcome.GetPlanet().TilesList[17];
 					if (triggeredOutcome.SpawnBuildingOnPlanet != null)
 					{
-						Building b = GetBuilding(triggeredOutcome.SpawnBuildingOnPlanet);
+						Building b = ResourceManager.GetBuilding(triggeredOutcome.SpawnBuildingOnPlanet);
 						triggeredOutcome.GetPlanet().AssignBuildingToSpecificTile(b, assignedtile);
 					}
 				}
 			}
 			if (assignedtile != null && triggeredOutcome.GetPlanet() != null && triggeredOutcome.TroopsToSpawn != null)
 			{
-                SpawnTroops(triggeredOutcome.GetPlanet(), triggeredOutcome.TroopsToSpawn, assignedtile, EmpireManager.GetEmpireByName("The Remnant"));
-            }
+				foreach (string troopname in triggeredOutcome.TroopsToSpawn)
+				{
+					Troop t = ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopname], EmpireManager.GetEmpireByName("Unknown"));
+					t.SetOwner(EmpireManager.GetEmpireByName("The Remnant"));
+					if (triggeredOutcome.GetPlanet().AssignTroopToNearestAvailableTile(t, assignedtile))
+					{
+						continue;
+					}
+					triggeredOutcome.GetPlanet().AssignTroopToTile(t);
+				}
+			}
 		}
 
-		public void TriggerPlanetEvent(Planet p, Empire Triggerer, PlanetGridSquare eventLocation, Empire playerEmpire, UniverseScreen screen)
+		public void TriggerPlanetEvent(Planet p, Empire Triggerer, PlanetGridSquare eventLocation, Empire PlayerEmpire, UniverseScreen screen)
 		{
             int ranMax = 0;
             int ranMin = 0;
             foreach (Outcome outcome in this.PotentialOutcomes)
             {
-                if (!(outcome.onlyTriggerOnce && outcome.alreadyTriggered && Triggerer.isPlayer))
-                {
-                    ranMax += outcome.Chance;
-                }                
-            }
-
-			int random = (int)RandomMath.RandomBetween(ranMin, ranMax);
-
-		    Outcome triggeredOutcome = null;
-			int cursor = 0;
-			foreach (Outcome outcome in this.PotentialOutcomes)
-			{
-			    if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && Triggerer.isPlayer)
-			        continue;
-
-                cursor = cursor + outcome.Chance;
-                if (random > cursor)
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && Triggerer.isPlayer)
                 {
                     continue;
                 }
-                triggeredOutcome = outcome;
-                if (Triggerer.isPlayer)
+                else
                 {
-                    outcome.alreadyTriggered = true;
+                    ranMax += outcome.Chance;
                 }
-                break;
-                
+            }
+
+			int Random = (int)RandomMath.RandomBetween(ranMin, ranMax);
+            
+			Outcome triggeredOutcome = new Outcome();
+			int cursor = 0;
+			foreach (Outcome outcome in this.PotentialOutcomes)
+			{
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && Triggerer.isPlayer)
+                {
+                    continue;
+                }
+                else
+                {
+                    cursor = cursor + outcome.Chance;
+                    if (Random > cursor)
+                    {
+                        continue;
+                    }
+                    triggeredOutcome = outcome;
+                    if (Triggerer.isPlayer)
+                    {
+                        outcome.alreadyTriggered = true;
+                    }
+                    break;
+                }
 			}
 			if (triggeredOutcome != null)
 			{
 				if (triggeredOutcome.GrantArtifact)
 				{
-					List<Artifact> potentials = (from artifact in ArtifactsDict where !artifact.Value.Discovered select artifact.Value).ToList();
-				    if (potentials.Count <= 0)
+					List<Ship_Game.Artifact> Potentials = new List<Ship_Game.Artifact>();
+					foreach (KeyValuePair<string, Ship_Game.Artifact> Artifact in ResourceManager.ArtifactsDict)
+					{
+						if (Artifact.Value.Discovered)
+						{
+							continue;
+						}
+						Potentials.Add(Artifact.Value);
+					}
+					if (Potentials.Count <= 0)
 					{
 						triggeredOutcome.MoneyGranted = 500;
 					}
 					else
 					{
-						int ranart = (int)RandomMath.RandomBetween(0f, potentials.Count + 0.8f);
-						if (ranart > potentials.Count - 1)
+						int ranart = (int)RandomMath.RandomBetween(0f, (float)Potentials.Count + 0.8f);
+						if (ranart > Potentials.Count - 1)
 						{
-							ranart = potentials.Count - 1;
+							ranart = Potentials.Count - 1;
 						}
-						Triggerer.data.OwnedArtifacts.Add(potentials[ranart]);
-						ArtifactsDict[potentials[ranart].Name].Discovered = true;
-						triggeredOutcome.SetArtifact(potentials[ranart]);
+						Triggerer.data.OwnedArtifacts.Add(Potentials[ranart]);
+						ResourceManager.ArtifactsDict[Potentials[ranart].Name].Discovered = true;
+						triggeredOutcome.SetArtifact(Potentials[ranart]);
 						if (triggeredOutcome.GetArtifact().DiplomacyMod > 0f)
 						{
-                            Triggerer.data.Traits.DiplomacyMod += (triggeredOutcome.GetArtifact().DiplomacyMod + triggeredOutcome.GetArtifact().DiplomacyMod * Triggerer.data.Traits.Spiritual);
+							RacialTrait traits = Triggerer.data.Traits;
+							traits.DiplomacyMod = traits.DiplomacyMod + (triggeredOutcome.GetArtifact().DiplomacyMod + triggeredOutcome.GetArtifact().DiplomacyMod * Triggerer.data.Traits.Spiritual);
 						}
 						if (triggeredOutcome.GetArtifact().FertilityMod > 0f)
 						{
-                            Triggerer.data.EmpireFertilityBonus = Triggerer.data.EmpireFertilityBonus + triggeredOutcome.GetArtifact().FertilityMod;
+							EmpireData triggerer = Triggerer.data;
+							triggerer.EmpireFertilityBonus = triggerer.EmpireFertilityBonus + triggeredOutcome.GetArtifact().FertilityMod;
 							foreach (Planet planet in Triggerer.GetPlanets())
 							{
-                                planet.Fertility += (triggeredOutcome.GetArtifact().FertilityMod + triggeredOutcome.GetArtifact().FertilityMod * Triggerer.data.Traits.Spiritual);
+								Planet fertility = planet;
+								fertility.Fertility = fertility.Fertility + (triggeredOutcome.GetArtifact().FertilityMod + triggeredOutcome.GetArtifact().FertilityMod * Triggerer.data.Traits.Spiritual);
 							}
 						}
 						if (triggeredOutcome.GetArtifact().GroundCombatMod > 0f)
 						{
-                            Triggerer.data.Traits.GroundCombatModifier += (triggeredOutcome.GetArtifact().GroundCombatMod + triggeredOutcome.GetArtifact().GroundCombatMod * Triggerer.data.Traits.Spiritual);
+							RacialTrait groundCombatModifier = Triggerer.data.Traits;
+							groundCombatModifier.GroundCombatModifier = groundCombatModifier.GroundCombatModifier + (triggeredOutcome.GetArtifact().GroundCombatMod + triggeredOutcome.GetArtifact().GroundCombatMod * Triggerer.data.Traits.Spiritual);
 						}
 						if (triggeredOutcome.GetArtifact().ModuleHPMod > 0f)
 						{
-                            Triggerer.data.Traits.ModHpModifier += (triggeredOutcome.GetArtifact().ModuleHPMod + triggeredOutcome.GetArtifact().ModuleHPMod * Triggerer.data.Traits.Spiritual);
+							RacialTrait modHpModifier = Triggerer.data.Traits;
+							modHpModifier.ModHpModifier = modHpModifier.ModHpModifier + (triggeredOutcome.GetArtifact().ModuleHPMod + triggeredOutcome.GetArtifact().ModuleHPMod * Triggerer.data.Traits.Spiritual);
                             Triggerer.RecalculateMaxHP = true;       //So existing ships will benefit from changes to ModHpModifier -Gretman
                         }
 						if (triggeredOutcome.GetArtifact().PlusFlatMoney > 0f)
 						{
-                            Triggerer.data.FlatMoneyBonus += (triggeredOutcome.GetArtifact().PlusFlatMoney + triggeredOutcome.GetArtifact().PlusFlatMoney * Triggerer.data.Traits.Spiritual);
+							EmpireData flatMoneyBonus = Triggerer.data;
+							flatMoneyBonus.FlatMoneyBonus = flatMoneyBonus.FlatMoneyBonus + (triggeredOutcome.GetArtifact().PlusFlatMoney + triggeredOutcome.GetArtifact().PlusFlatMoney * Triggerer.data.Traits.Spiritual);
 						}
 						if (triggeredOutcome.GetArtifact().ProductionMod > 0f)
 						{
-                            Triggerer.data.Traits.ProductionMod += (triggeredOutcome.GetArtifact().ProductionMod + triggeredOutcome.GetArtifact().ProductionMod * Triggerer.data.Traits.Spiritual);
+							RacialTrait productionMod = Triggerer.data.Traits;
+							productionMod.ProductionMod = productionMod.ProductionMod + (triggeredOutcome.GetArtifact().ProductionMod + triggeredOutcome.GetArtifact().ProductionMod * Triggerer.data.Traits.Spiritual);
 						}
 						if (triggeredOutcome.GetArtifact().ReproductionMod > 0f)
 						{
-                            Triggerer.data.Traits.ReproductionMod += (triggeredOutcome.GetArtifact().ReproductionMod + triggeredOutcome.GetArtifact().ReproductionMod * Triggerer.data.Traits.Spiritual);
+							RacialTrait reproductionMod = Triggerer.data.Traits;
+							reproductionMod.ReproductionMod = reproductionMod.ReproductionMod + (triggeredOutcome.GetArtifact().ReproductionMod + triggeredOutcome.GetArtifact().ReproductionMod * Triggerer.data.Traits.Spiritual);
 						}
 						if (triggeredOutcome.GetArtifact().ResearchMod > 0f)
 						{
-                            Triggerer.data.Traits.ResearchMod += (triggeredOutcome.GetArtifact().ResearchMod + triggeredOutcome.GetArtifact().ResearchMod * Triggerer.data.Traits.Spiritual);
+							RacialTrait researchMod = Triggerer.data.Traits;
+							researchMod.ResearchMod = researchMod.ResearchMod + (triggeredOutcome.GetArtifact().ResearchMod + triggeredOutcome.GetArtifact().ResearchMod * Triggerer.data.Traits.Spiritual);
 						}
 						if (triggeredOutcome.GetArtifact().SensorMod > 0f)
 						{
-                            Triggerer.data.SensorModifier += (triggeredOutcome.GetArtifact().SensorMod + triggeredOutcome.GetArtifact().SensorMod * Triggerer.data.Traits.Spiritual);
+							EmpireData sensorModifier = Triggerer.data;
+							sensorModifier.SensorModifier = sensorModifier.SensorModifier + (triggeredOutcome.GetArtifact().SensorMod + triggeredOutcome.GetArtifact().SensorMod * Triggerer.data.Traits.Spiritual);
 						}
 						if (triggeredOutcome.GetArtifact().ShieldPenBonus > 0f)
 						{
-                            Triggerer.data.ShieldPenBonusChance += (triggeredOutcome.GetArtifact().ShieldPenBonus + triggeredOutcome.GetArtifact().ShieldPenBonus * Triggerer.data.Traits.Spiritual);
+							EmpireData shieldPenBonusChance = Triggerer.data;
+							shieldPenBonusChance.ShieldPenBonusChance = shieldPenBonusChance.ShieldPenBonusChance + (triggeredOutcome.GetArtifact().ShieldPenBonus + triggeredOutcome.GetArtifact().ShieldPenBonus * Triggerer.data.Traits.Spiritual);
 						}
 					}
 				}
@@ -264,11 +310,11 @@ namespace Ship_Game
 				}
 				foreach (string ship in triggeredOutcome.FriendlyShipsToSpawn)
 				{
-					Triggerer.ForcePoolAdd(CreateShipAt(ship, Triggerer, p, true));
+					Triggerer.ForcePoolAdd(ResourceManager.CreateShipAt(ship, Triggerer, p, true));
 				}
 				foreach (string ship in triggeredOutcome.RemnantShipsToSpawn)
 				{
-					Ship tomake = CreateShipAt(ship, EmpireManager.GetEmpireByName("The Remnant"), p, true);
+					Ship tomake = ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName("The Remnant"), p, true);
 					tomake.GetAI().DefaultAIState = AIState.Exterminate;
 				}
 				if (triggeredOutcome.UnlockTech != null)
@@ -289,40 +335,47 @@ namespace Ship_Game
 				}
 				if (!string.IsNullOrEmpty(triggeredOutcome.ReplaceWith))
 				{
-					eventLocation.building = GetBuilding(triggeredOutcome.ReplaceWith);
+					eventLocation.building = ResourceManager.GetBuilding(triggeredOutcome.ReplaceWith);
 					p.BuildingList.Add(eventLocation.building);
-				}				
-                Triggerer.Money += triggeredOutcome.MoneyGranted;
-                Triggerer.data.Traits.ResearchMod += triggeredOutcome.ScienceBonus;
-                Triggerer.data.Traits.ProductionMod += triggeredOutcome.IndustryBonus;
+				}
+				Empire money = Triggerer;
+				money.Money = money.Money + (float)triggeredOutcome.MoneyGranted;
+				RacialTrait racialTrait = Triggerer.data.Traits;
+				racialTrait.ResearchMod = racialTrait.ResearchMod + triggeredOutcome.ScienceBonus;
+				RacialTrait traits1 = Triggerer.data.Traits;
+				traits1.ProductionMod = traits1.ProductionMod + triggeredOutcome.IndustryBonus;
 				if (triggeredOutcome.TroopsGranted != null)
-				{					
-                    SpawnTroops(p, triggeredOutcome.TroopsGranted, eventLocation,Triggerer);
-                }
+				{
+					foreach (string troopname in triggeredOutcome.TroopsGranted)
+					{
+						Troop t = ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopname], Triggerer);
+						t.SetOwner(Triggerer);
+						if (p.AssignTroopToNearestAvailableTile(t, eventLocation))
+						{
+							continue;
+						}
+						p.AssignTroopToTile(t);
+					}
+				}
 				if (triggeredOutcome.TroopsToSpawn != null)
 				{
-				    SpawnTroops(p,triggeredOutcome.TroopsToSpawn, eventLocation, EmpireManager.GetEmpireByName("Unknown"));
-
+					foreach (string troopname in triggeredOutcome.TroopsToSpawn)
+					{
+						Troop t = ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopname], EmpireManager.GetEmpireByName("Unknown"));
+						t.SetOwner(EmpireManager.GetEmpireByName("Unknown"));
+						if (p.AssignTroopToNearestAvailableTile(t, eventLocation))
+						{
+							continue;
+						}
+						p.AssignTroopToTile(t);
+					}
 				}
 			}
-			if (Triggerer == playerEmpire)
+			if (Triggerer == PlayerEmpire)
 			{
-				screen.ScreenManager.AddScreen(new EventPopup(screen, playerEmpire, this, triggeredOutcome));
+				screen.ScreenManager.AddScreen(new EventPopup(screen, PlayerEmpire, this, triggeredOutcome));
 				AudioManager.PlayCue("sd_notify_alert");
 			}
 		}
-
-	    private void SpawnTroops(Planet p, List<string> troopsToSpawn, PlanetGridSquare tile, Empire empire)
-	    {
-            foreach (string troopname in troopsToSpawn)
-            {
-                Troop t = CreateTroop(TroopsDict[troopname], empire);
-                if (p.AssignTroopToNearestAvailableTile(t, tile))
-                {
-                    continue;
-                }
-                p.AssignTroopToTile(t);
-            }
-        }
 	}
 }

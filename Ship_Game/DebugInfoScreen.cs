@@ -66,7 +66,7 @@ namespace Ship_Game
             {
                 foreach (Empire empire in EmpireManager.EmpireList)
                 {
-                    if (empire == Empire.universeScreen.player || empire.isFaction || empire.MinorRace)
+                    if (empire == Empire.Universe.player || empire.isFaction || empire.MinorRace)
                         continue;
                     bool flag = false;
                     foreach (Ship ship in empire.GetShips())
@@ -252,7 +252,7 @@ namespace Ship_Game
                     },false,false,false);
 				}
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-				foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in e.GetRelations())
+				foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in e.AllRelations)
 				{
 					if (Relationship.Value.Treaty_NAPact)
 					{
