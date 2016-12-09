@@ -382,7 +382,7 @@ namespace Ship_Game.Gameplay
                         Ship shipObject2 = nearby[T] as Ship;
                         if (shipObject2 != null) //if not a ship continue
                         {
-                            if (shipObject2.loyalty != beam.owner.loyalty) //dont hit allied. need to expand this to actual allies.
+                            if (shipObject2.loyalty != beam.owner?.loyalty) //dont hit allied. need to expand this to actual allies.
                             {
                                 if (shipObject2 != beam.owner || beam.weapon.HitsFriendlies) //hits friendlies is in the  wrong place.
                                 {

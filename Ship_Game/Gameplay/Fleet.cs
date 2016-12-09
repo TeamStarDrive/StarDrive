@@ -123,16 +123,6 @@ namespace Ship_Game.Gameplay
             return this.GoalStack;
         }
 
-        public void AddShipORIG(Ship shiptoadd)
-        {
-            this.Ships.Add(shiptoadd);
-            shiptoadd.fleet = this;
-            IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
-            this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable, 0).speed : 200f;
-            Vector2 vector2 = shiptoadd.RelativeFleetOffset;
-            this.AssignPositions(this.facing);
-        }
-
         public void AddShip(Ship shiptoadd)
         {
             if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
@@ -141,83 +131,95 @@ namespace Ship_Game.Gameplay
             }
             this.Ships.Add(shiptoadd);
             shiptoadd.fleet = this;
-            IOrderedEnumerable<Ship> speedSorted =
-                from ship in this.Ships
-                orderby ship.speed
-                select ship;
-            this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
+            this.SetSpeed();
             Vector2 relativeFleetOffset = shiptoadd.RelativeFleetOffset;
             this.AssignPositions(this.facing);
         }
+        #region Unused
+        //public void AddShipORIG(Ship shiptoadd)
+        //{
+        //    this.Ships.Add(shiptoadd);
+        //    shiptoadd.fleet = this;
+        //    IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
+        //    this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable, 0).speed : 200f;
+        //    Vector2 vector2 = shiptoadd.RelativeFleetOffset;
+        //    this.AssignPositions(this.facing);
+        //}
 
-        public void SetSpeedORIG()
-        {
-            IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
-            this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable, 0).speed : 200f;
-            if ((double)this.speed != 0.0)
-                return;
-            this.speed = 200f;
-        }
 
-        //added by gremlin make fleet speed average not include warpless ships.
-        public void SetSpeedstddev()
-        {
-            List<float> distances = new List<float>();
 
-            foreach (Ship distance in (List<Ship>)this.Ships)
-            {
-                if (distance.EnginesKnockedOut || !distance.Active ||  distance.GetAI().State != AIState.FormationWarp)//  distance.engineState != Ship.MoveState.Warp)
-                    continue;
-                distances.Add(distance  .speed);
-            }
+        //public void SetSpeedORIG()
+        //{
+        //    IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
+        //    this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable, 0).speed : 200f;
+        //    if ((double)this.speed != 0.0)
+        //        return;
+        //    this.speed = 200f;
+        //}
 
-            if (distances.Count ==0)
-            {
-                this.speed = 200;
-                return;
-                
-            }
-            if(distances.Count ==1)
-            {
-                this.speed = distances.First();
-                return;
-            }
-            try
-            {
-                float avgdistance = distances.Average();
-                float sum = (float)distances.Sum(distance => Math.Pow(distance - avgdistance, 2));
-                float stddev = (float)Math.Sqrt((sum) / (distances.Count - 1));
-                this.speed = distances.Where(distance => distance >= avgdistance - stddev).Min();
-            }
-            catch { }
-            if (this.speed == 0f)
-            {
-                this.speed = 200f;
-            }
-                
-               
+        ////added by gremlin make fleet speed average not include warpless ships.
+        //public void SetSpeedstddev()
+        //{
+        //    List<float> distances = new List<float>();
 
-        }
+        //    foreach (Ship distance in (List<Ship>)this.Ships)
+        //    {
+        //        if (distance.EnginesKnockedOut || !distance.Active ||  distance.GetAI().State != AIState.FormationWarp)//  distance.engineState != Ship.MoveState.Warp)
+        //            continue;
+        //        distances.Add(distance  .speed);
+        //    }
+
+        //    if (distances.Count ==0)
+        //    {
+        //        this.speed = 200;
+        //        return;
+
+        //    }
+        //    if(distances.Count ==1)
+        //    {
+        //        this.speed = distances.First();
+        //        return;
+        //    }
+        //    try
+        //    {
+        //        float avgdistance = distances.Average();
+        //        float sum = (float)distances.Sum(distance => Math.Pow(distance - avgdistance, 2));
+        //        float stddev = (float)Math.Sqrt((sum) / (distances.Count - 1));
+        //        this.speed = distances.Where(distance => distance >= avgdistance - stddev).Min();
+        //    }
+        //    catch { }
+        //    if (this.speed == 0f)
+        //    {
+        //        this.speed = 200f;
+        //    }
+
+
+
+        //}
+        #endregion
 
         public void SetSpeed()
         {//Vector2.Distance(this.findAveragePosition(),ship.Center) <10000 
 
-
-
-
             this.Ships.thisLock.EnterReadLock();
-            IOrderedEnumerable<Ship> speedSorted =
-                from ship in this.Ships
-                where !ship.EnginesKnockedOut && !ship.InCombat && !ship.Inhibited && ship.Active && ship.GetAI().State == AIState.FormationWarp
-                orderby ship.speed
-                select ship;
+            //IOrderedEnumerable<Ship> speedSorted =
+            //    from ship in this.Ships
+            //    where !ship.EnginesKnockedOut && !ship.InCombat && !ship.Inhibited && ship.Active && ship.GetAI().State == AIState.FormationWarp
+            //    orderby ship.speed
+            //    select ship;
             //this.speed = (speedSorted.Count<Ship>() > 0 ? speedSorted.ElementAt<Ship>(0).speed : 200f);
-            if (speedSorted.Count<Ship>() > 0) this.speed = speedSorted.ElementAt<Ship>(0).speed;       //Gretman - To prevent ships from crawling to their destination
-            this.Ships.thisLock.ExitReadLock();
-            if (this.speed == 0f)
+            //if (speedSorted.Count<Ship>() > 0) this.speed = speedSorted.ElementAt<Ship>(0).speed;
+            if (this.Ships.Count == 0) return;
+            float slowestship = this.Ships[0].speed;
+            for (int loop = 0; loop < this.Ships.Count; loop++)     //Modified this so speed of a fleet is only set in one place -Gretman
             {
-                this.speed = 200f;
+                if (this.Ships[loop].Inhibited || this.Ships[loop].EnginesKnockedOut || !this.Ships[loop].Active) continue;
+                if (this.Ships[loop].speed < slowestship) slowestship = this.Ships[loop].speed;
             }
+            if (slowestship < 200) slowestship = 200;
+            this.speed = slowestship;
+
+            this.Ships.thisLock.ExitReadLock();
         }
 
         public void IncrementFCS()
@@ -386,8 +388,9 @@ namespace Ship_Game.Gameplay
                 }
             }
             removalCollection.ApplyPendingRemovals();
-            IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
-            this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable1) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable1, 0).speed : 200f;
+            //IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
+            //this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable1) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable1, 0).speed : 200f;
+            this.SetSpeed();
             IOrderedEnumerable<Ship> orderedEnumerable2 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)removalCollection, (Func<Ship, float>)(ship => ship.GetStrength() + (float)ship.Size));
             int num1 = 0;
             foreach (Ship ship in (IEnumerable<Ship>)orderedEnumerable2)
@@ -673,6 +676,7 @@ namespace Ship_Game.Gameplay
                 ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, false,null);
             }
         }
+        #region Unused
         private void MoveToQueueLowPri(Vector2 MovePosition, float facing, Vector2 fVec)
         {
             this.Position = MovePosition;
@@ -684,7 +688,7 @@ namespace Ship_Game.Gameplay
                 ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, false, null);
             }
         }
-
+        #endregion
         private void MoveDirectlyNow(Vector2 MovePosition, float facing, Vector2 fVec)
         {
             this.Position = MovePosition;
@@ -841,6 +845,7 @@ namespace Ship_Game.Gameplay
                 }
             }
         }
+        #region Unused
 
         public void MoveFlankToProjectedPos(Vector2 ProjectedPosition, float facing, List<Fleet.Squad> Flank, Vector2 fVec)
         {
@@ -858,6 +863,8 @@ namespace Ship_Game.Gameplay
         public void ProtectedMove()
         {
         }
+
+        #endregion
 
         public override void ProjectPos(Vector2 ProjectedPosition, float facing, Vector2 fVec)
         {
