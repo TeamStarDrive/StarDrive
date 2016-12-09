@@ -151,7 +151,7 @@ namespace Ship_Game
 				}
 				if (Potentials.Count > 0)
 				{
-					triggeredOutcome.SetPlanet(Potentials[HelperFunctions.GetRandomIndex(Potentials.Count)]);
+					triggeredOutcome.SetPlanet(Potentials[RandomMath.InRange(Potentials.Count)]);
 				}
 				if (triggeredOutcome.GetPlanet() != null)
 				{

@@ -503,7 +503,7 @@ namespace Ship_Game
             {
                 foreach (Encounter e in ResourceManager.Encounters)
                 {
-                    if (this.SelectedShip.loyalty.data.Traits.Name == e.Faction && this.player.GetRelations()[this.SelectedShip.loyalty].EncounterStep == e.Step)
+                    if (this.SelectedShip.loyalty.data.Traits.Name == e.Faction && this.player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
                     {
                         this.ScreenManager.AddScreen((GameScreen)new EncounterPopup(this, this.player, this.SelectedShip.loyalty, (SolarSystem)null, e));
                         break;
@@ -921,7 +921,7 @@ namespace Ship_Game
                         {
                             if (p.Guardians.Count > 0)
                             {
-                                int randomFleet = HelperFunctions.GetRandomIndex(ResourceManager.HostileFleets.Fleets.Count);
+                                int randomFleet = RandomMath.InRange(ResourceManager.HostileFleets.Fleets.Count);
                                 foreach (string ship in ResourceManager.HostileFleets.Fleets[randomFleet].Ships)
                                 {
                                     ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName(ResourceManager.HostileFleets.Fleets[randomFleet].Empire), p, true);
@@ -1228,7 +1228,7 @@ namespace Ship_Game
             Projectile.universeScreen = this;
             ShipModule.universeScreen = this;
             Asteroid.universeScreen = this;
-            Empire.universeScreen = this;
+            Empire.Universe = this;
             SpaceJunk.universeScreen = this;
             ResourceManager.UniverseScreen = this;
             Planet.universeScreen = this;
@@ -1637,7 +1637,7 @@ namespace Ship_Game
 
                     empire.ShipsToAdd.Clear();
                     {
-                        int pathcount = empire.pathcache.Count;
+                        int pathcount = empire.PathCache.Count;
                        // if (!empire.isFaction && !empire.MinorRace && !empire.data.Defeated &&   pathcount == 0)
                            
                         empire.updateContactsTimer = empire.updateContactsTimer - 0.01666667f;//elapsedTime;
@@ -1649,7 +1649,7 @@ namespace Ship_Game
                             if (empire.BorderNodes.Count != check )
                             {
                                 rebuild = true;
-                                empire.pathcache.Clear();
+                                empire.PathCache.Clear();
                                // empire.lockPatchCache.ExitWriteLock();
                            
                             }
@@ -1705,7 +1705,7 @@ namespace Ship_Game
 
 
                         if (true)
-                            foreach (KeyValuePair<Empire, Relationship> rels in empire.GetRelations())
+                            foreach (KeyValuePair<Empire, Relationship> rels in empire.AllRelations)
                             {
                                 if (!rels.Value.Known)
                                     continue;
@@ -3143,9 +3143,9 @@ namespace Ship_Game
                         {
                             foreach (Planet p in system.PlanetList)
                             {
-                                if (p.ExploredDict[EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty)] && p.RecentCombat)
+                                if (p.ExploredDict[Empire.Universe.PlayerEmpire] && p.RecentCombat)
                                 {
-                                    if (p.Owner == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                    if (p.Owner == Empire.Universe.PlayerEmpire)
                                     {
                                         if (nbrplanet == lastplanetcombat)
                                             PlanetToView = p;
@@ -3156,7 +3156,7 @@ namespace Ship_Game
                                         flagPlanet = false;
                                         foreach (Troop troop in p.TroopsHere)
                                         {
-                                            if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                            if (troop.GetOwner() != null && troop.GetOwner() == Empire.Universe.PlayerEmpire)
                                             {
                                                 flagPlanet = true;
                                                 break;
@@ -4627,7 +4627,7 @@ namespace Ship_Game
                     }
                     else
                         //add new right click troop and troop ship options on planets
-                        if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated || planet.Owner == null)))
+                        if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated || planet.Owner == null)))
                         {
                             if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                 ship.GetAI().OrderToOrbit(planet, false);
@@ -4651,7 +4651,7 @@ namespace Ship_Game
                     float friendlies = planet.GetGroundStrength(this.player);
                     if (planet.Owner != this.player)
                     {
-                        if (planet.Owner == null || this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)
+                        if (planet.Owner == null || this.player.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)
                         {
                             if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                 ship.GetAI().OrderBombardPlanet(planet);
@@ -5416,7 +5416,7 @@ namespace Ship_Game
             Projectile.universeScreen             = null;
             ShipModule.universeScreen             = null;
             Asteroid.universeScreen               = null;
-            Empire.universeScreen                 = null;
+            Empire.Universe                 = null;
             SpaceJunk.universeScreen              = null;
             ResourceManager.UniverseScreen        = null;
             Planet.universeScreen                 = null;
@@ -5739,7 +5739,7 @@ namespace Ship_Game
             {
                 foreach (Empire index in EmpireManager.EmpireList)
                 {
-                    if (this.Debug || index == this.player || this.player.GetRelations()[index].Known)
+                    if (this.Debug || index == this.player || this.player.GetRelations(index).Known)
                     {
                         List<Circle> list = new List<Circle>();
                         index.BorderNodeLocker.EnterReadLock();
@@ -6725,15 +6725,15 @@ namespace Ship_Game
                         if ((this.SelectedShipList.Contains(ship) || this.SelectedShip == ship) && HelperFunctions.CheckIntersection(this.ScreenRectangle, ship.ScreenPosition))
                         {
                             //Color local_3 = new Color();
-                            if (!this.player.GetRelations().ContainsKey(ship.loyalty))
+                            if (this.player.TryGetRelations(ship.loyalty, out Relationship rel))
                             {
-                                Color local_3_1 = Color.LightGreen;
-                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_1);
+                                Color local_3_2 = rel.AtWar || ship.loyalty.isFaction ? Color.Red : Color.Gray;
+                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_2);
                             }
                             else
                             {
-                                Color local_3_2 = this.player.GetRelations()[ship.loyalty].AtWar || ship.loyalty.isFaction ? Color.Red : Color.Gray;
-                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_2);
+                                Color local_3_1 = Color.LightGreen;
+                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_1);
                             }
                         }
                     }
@@ -7305,7 +7305,7 @@ namespace Ship_Game
                                 ScreenPos = local_7,
                                 shipToClick = local_2
                             });
-                            if (local_2.loyalty == this.player || local_2.loyalty != this.player && this.player.GetRelations()[local_2.loyalty].Treaty_Alliance)
+                            if (local_2.loyalty == this.player || local_2.loyalty != this.player && this.player.GetRelations(local_2.loyalty).Treaty_Alliance)
                             {
                                 local_9 = new Vector3(this.GeneratePointOnCircle(90f, local_2.Position, local_2.SensorRange), 0.0f);
                                 local_10 = this.ScreenManager.GraphicsDevice.Viewport.Project(local_9, this.projection, this.view, Matrix.Identity);

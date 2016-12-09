@@ -47,7 +47,7 @@ namespace Ship_Game
 			}
 			this.screen = screen;
 			this.tech = Tech;
-			this.TechName = string.Concat(Localizer.Token(ResourceManager.TechTree[Tech.UID].NameIndex), ResourceManager.TechTree[Tech.UID].MaxLevel > 1 ? " " + NumberToRomanConvertor.NumberToRoman(Tech.level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[Tech.UID].MaxLevel) : "");
+			this.TechName = string.Concat(Localizer.Token(ResourceManager.TechTree[Tech.UID].NameIndex), ResourceManager.TechTree[Tech.UID].MaxLevel > 1 ? " " + NumberToRomanConvertor.NumberToRoman(Tech.Level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[Tech.UID].MaxLevel) : "");
 			this.BaseRect.X = (int)Position.X;
 			this.BaseRect.Y = (int)Position.Y;
 			this.progressRect = new Rectangle(this.BaseRect.X + 14, this.BaseRect.Y + 21, 1, 34);

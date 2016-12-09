@@ -498,7 +498,7 @@ namespace Ship_Game.Gameplay
                     string remainder = 0.ToString("00000.##");
                     projectile.texturePath = string.Concat(AltFire.AnimationPath, remainder);
                 }
-                //if(HelperFunctions.GetRandomIndex((int)(Ship.universeScreen.Lag *100)) <2)
+                //if(RandomMath.InRange((int)(Ship.universeScreen.Lag *100)) <2)
                 if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
                 {
                     projectile.DieSound = true;
@@ -950,7 +950,7 @@ namespace Ship_Game.Gameplay
 				return;
 			this.owner.InCombatTimer = 15f;
 
-			this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) *.016f + -.008f);
+			this.timeToNextFire = this.fireDelay + ((float)RandomMath.InRange(10) *.016f + -.008f);
 
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -1163,7 +1163,7 @@ namespace Ship_Game.Gameplay
             //    return;
             //}
 			this.owner.InCombatTimer = 15f;
-            this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) * .016f + -.008f);
+            this.timeToNextFire = this.fireDelay + ((float)RandomMath.InRange(10) * .016f + -.008f);
             
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{

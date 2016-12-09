@@ -45,7 +45,7 @@ namespace Ship_Game
 					}
 					if (potentials.Count > 0)
 					{
-						Planet toImprove = potentials[HelperFunctions.GetRandomIndex(potentials.Count)];
+						Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
 						if (toImprove.ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
 						{
 							toImprove.TerraformExternal(0.5f);
@@ -69,7 +69,7 @@ namespace Ship_Game
 					}
 					if (potentials.Count > 0)
 					{
-						Planet toImprove = potentials[HelperFunctions.GetRandomIndex(potentials.Count)];
+						Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
 						if (toImprove.ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
 						{
 							toImprove.TerraformExternal(-0.5f);
@@ -97,7 +97,7 @@ namespace Ship_Game
 
                     if (potentials.Count > 0)
                     {
-                        Planet targetplanet = potentials[HelperFunctions.GetRandomIndex(potentials.Count)];
+                        Planet targetplanet = potentials[RandomMath.InRange(potentials.Count)];
                         if (targetplanet.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
                         {
 

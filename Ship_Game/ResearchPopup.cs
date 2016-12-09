@@ -38,7 +38,9 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
 			this.r = dimensions;
-            this.TitleText = string.Concat(Localizer.Token(ResourceManager.TechTree[uid].NameIndex), ResourceManager.TechTree[uid].MaxLevel > 1 ? " " + NumberToRomanConvertor.NumberToRoman(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).TechnologyDict[uid].level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[uid].MaxLevel) : "");
+            this.TitleText = string.Concat(Localizer.Token(ResourceManager.TechTree[uid].NameIndex), 
+                ResourceManager.TechTree[uid].MaxLevel > 1 ? " " + 
+                NumberToRomanConvertor.NumberToRoman(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).TechnologyDict[uid].Level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[uid].MaxLevel) : "");
 			this.MiddleText = Localizer.Token(ResourceManager.TechTree[uid].DescriptionIndex);
 		}
 

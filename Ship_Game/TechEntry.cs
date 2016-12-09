@@ -6,18 +6,14 @@ namespace Ship_Game
 	public sealed class TechEntry
 	{
 		public string UID;
-
 		public float Progress;
-
 		public bool Discovered;
-
 		public bool Unlocked;
-
-        public byte level = 0;
+        public int  Level;
 
         public float GetTechCost()
         {
-            return this.GetTech().Cost * (float)Math.Max(1, Math.Pow( 2.0, this.level));
+            return GetTech().Cost * (float)Math.Max(1, Math.Pow( 2.0, Level));
         }
 
         public string AcquiredFrom = "";
