@@ -1225,7 +1225,7 @@ namespace Ship_Game.Gameplay
                             if (ship1 != null)
                             {
                                 ship1.GetAI().HasPriorityOrder = false;
-                                if (ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations()[ship1.loyalty].AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                                if (ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
                                 {
                                     this.EnemyClumpsDict.Add(ship1.Center, new List<Ship>());
                                     this.EnemyClumpsDict[ship1.Center].Add(ship1);
@@ -1334,7 +1334,7 @@ namespace Ship_Game.Gameplay
 
         private void DoAssaultPlanet(MilitaryTask Task)
         {
-            if (Task.GetTargetPlanet().Owner == this.Owner || Task.GetTargetPlanet().Owner == null || !this.Owner.GetRelations()[Task.GetTargetPlanet().Owner].AtWar)
+            if (Task.GetTargetPlanet().Owner == this.Owner || Task.GetTargetPlanet().Owner == null || !this.Owner.GetRelations(Task.GetTargetPlanet().Owner).AtWar)
             {
                 if (Task.GetTargetPlanet().Owner == this.Owner)
                 {
@@ -1401,7 +1401,7 @@ namespace Ship_Game.Gameplay
                                     Relationship test =null;
                                     if(notsafe.Owner != null && notsafe.Owner != this.Owner)
                                     {
-                                        this.Owner.GetRelations().TryGetValue(notsafe.Owner,out test);
+                                        this.Owner.TryGetRelations(notsafe.Owner,out test);
                                             if(!test.Treaty_OpenBorders || !test.Treaty_NAPact)
                                             {
                                                 flag =true;
@@ -1531,7 +1531,7 @@ namespace Ship_Game.Gameplay
 
                                 foreach (Ship key in (List<Ship>)Task.GetTargetPlanet().system.ShipList)
                                 {
-                                    if (key.loyalty != this.Owner && (key.loyalty.isFaction || this.Owner.GetRelations()[key.loyalty].AtWar) && (Vector2.Distance(key.Center, Task.GetTargetPlanet().Position) < 15000 && !this.InterceptorDict.ContainsKey(key)))
+                                    if (key.loyalty != this.Owner && (key.loyalty.isFaction || this.Owner.GetRelations(key.loyalty).AtWar) && (Vector2.Distance(key.Center, Task.GetTargetPlanet().Position) < 15000 && !this.InterceptorDict.ContainsKey(key)))
                                         this.InterceptorDict.Add(key, new List<Ship>());
                                 }
                                 List<Ship> list2 = new List<Ship>();
@@ -1889,7 +1889,7 @@ namespace Ship_Game.Gameplay
                         for (int index1 = 0; index1 < nearby1.Count; ++index1)
                         {
                             Ship ship1 = nearby1[index1] as Ship;
-                            if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations()[ship1.loyalty].AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                            if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
                             {
                                 this.EnemyClumpsDict.Add(ship1.Center, new List<Ship>());
                                 this.EnemyClumpsDict[ship1.Center].Add(ship1);
@@ -2113,7 +2113,7 @@ namespace Ship_Game.Gameplay
                     for (int index1 = 0; index1 < nearby1.Count; ++index1)
                     {
                         Ship ship1 = nearby1[index1] as Ship;
-                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations()[ship1.loyalty].AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
                         {
                             this.EnemyClumpsDict.Add(ship1.Center, new List<Ship>());
                             this.EnemyClumpsDict[ship1.Center].Add(ship1);
@@ -2665,7 +2665,7 @@ namespace Ship_Game.Gameplay
         {
             if (Task.GetTargetPlanet().Owner == this.Owner || Task.GetTargetPlanet().Owner == null)
                 Task.EndTask();
-            else if (Task.GetTargetPlanet().Owner != null & Task.GetTargetPlanet().Owner != this.Owner && !Task.GetTargetPlanet().Owner.GetRelations()[this.Owner].AtWar)
+            else if (Task.GetTargetPlanet().Owner != null & Task.GetTargetPlanet().Owner != this.Owner && !Task.GetTargetPlanet().Owner.GetRelations(this.Owner).AtWar)
             {
                 Task.EndTask();
             }
@@ -2885,7 +2885,7 @@ namespace Ship_Game.Gameplay
                     for (int index1 = 0; index1 < nearby1.Count; ++index1)
                     {
                         Ship ship1 = nearby1[index1] as Ship;
-                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations()[ship1.loyalty].AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
                         {
                             this.EnemyClumpsDict.Add(ship1.Center, new List<Ship>());
                             this.EnemyClumpsDict[ship1.Center].Add(ship1);

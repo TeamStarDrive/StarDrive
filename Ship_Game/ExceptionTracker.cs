@@ -38,13 +38,13 @@ namespace Ship_Game
                 }
             }
             
-            if (Empire.universeScreen != null)
+            if (Empire.Universe != null)
             {
-                ex.Data["StarDate"] = Empire.universeScreen.StarDate.ToString("F1");
-                if (Empire.universeScreen.MasterShipList != null)
-                    ex.Data["ShipCount"] = Empire.universeScreen.MasterShipList.Count.ToString();
+                ex.Data["StarDate"] = Empire.Universe.StarDate.ToString("F1");
+                if (Empire.Universe.MasterShipList != null)
+                    ex.Data["ShipCount"] = Empire.Universe.MasterShipList.Count.ToString();
                     
-                ex.Data["Planet Count"] = Empire.universeScreen.PlanetsDict.Count.ToString();
+                ex.Data["Planet Count"] = Empire.Universe.PlanetsDict.Count.ToString();
                     
             }
 

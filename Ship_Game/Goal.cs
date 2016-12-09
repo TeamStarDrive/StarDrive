@@ -636,14 +636,14 @@ namespace Ship_Game
                     }
                     if (this.markedPlanet.Owner == null)
                         break;
-                    foreach (KeyValuePair<Empire, Relationship> Them in this.empire.GetRelations())
+                    foreach (KeyValuePair<Empire, Relationship> Them in this.empire.AllRelations)
                         this.empire.GetGSAI().CheckClaim(Them, this.markedPlanet);
                     this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
                     break;
                 case 2:
                     if (this.markedPlanet.Owner != null)
                     {
-                        foreach (KeyValuePair<Empire, Relationship> Them in this.empire.GetRelations())
+                        foreach (KeyValuePair<Empire, Relationship> Them in this.empire.AllRelations)
                             this.empire.GetGSAI().CheckClaim(Them, this.markedPlanet);
                         this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
                         break;
@@ -697,7 +697,7 @@ namespace Ship_Game
                     {
                         if (this.markedPlanet.Owner == null)
                             break;
-                        foreach (KeyValuePair<Empire, Relationship> Them in this.empire.GetRelations())
+                        foreach (KeyValuePair<Empire, Relationship> Them in this.empire.AllRelations)
                             this.empire.GetGSAI().CheckClaim(Them, this.markedPlanet);
                         this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
                         this.colonyShip.GetAI().State = AIState.AwaitingOrders;
