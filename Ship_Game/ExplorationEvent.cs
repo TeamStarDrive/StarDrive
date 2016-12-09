@@ -14,17 +14,19 @@ namespace Ship_Game
 		public List<Outcome> PotentialOutcomes;
 
 	    public void TriggerOutcome(Empire Triggerer, Outcome triggeredOutcome)
-		{
-			if (triggeredOutcome.SecretTechDiscovered != null)
+	    {
+	        
+            if (triggeredOutcome.SecretTechDiscovered != null)
 			{
-				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
+                var techentry = Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered];
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
                 {
-                    Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
+                    techentry.Discovered = true;
                 }
                 else
                 {
                     Triggerer.GetTDict()["Secret"].Discovered = true;
-                    Triggerer.GetTDict()[triggeredOutcome.SecretTechDiscovered].Discovered = true;
+                    techentry.Discovered = true;
                 }
 			}
 			if (triggeredOutcome.BeginArmageddon)
@@ -58,8 +60,7 @@ namespace Ship_Game
 					triggeredOutcome.SetArtifact(potentials[ranart]);
 					if (triggeredOutcome.GetArtifact().DiplomacyMod > 0f)
 					{
-						RacialTrait traits = Triggerer.data.Traits;
-						traits.DiplomacyMod = traits.DiplomacyMod + (triggeredOutcome.GetArtifact().DiplomacyMod + triggeredOutcome.GetArtifact().DiplomacyMod * Triggerer.data.Traits.Spiritual);
+                        Triggerer.data.Traits.DiplomacyMod += (triggeredOutcome.GetArtifact().DiplomacyMod + triggeredOutcome.GetArtifact().DiplomacyMod * Triggerer.data.Traits.Spiritual);
 					}
 					if (triggeredOutcome.GetArtifact().FertilityMod > 0f)
 					{
