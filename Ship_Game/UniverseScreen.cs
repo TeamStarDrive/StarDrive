@@ -2468,8 +2468,8 @@ namespace Ship_Game
                         planet.Update(elapsedTime);
                         if (planet.HasShipyard && system.isVisible)
                             planet.Station.Update(elapsedTime);
-                    }
-                    system.ShipList.thisLock.EnterReadLock();
+                    }                    
+                    system.ShipList.thisLock.EnterUpgradeableReadLock();
                     foreach (Ship ship in (List<Ship>)system.ShipList)
                     //Parallel.ForEach(system.ShipList, ship =>
                     {
@@ -2497,7 +2497,7 @@ namespace Ship_Game
                                 ship.ProcessInput(elapsedTime);
                         }
                     }//);
-                    system.ShipList.thisLock.ExitReadLock();
+                    system.ShipList.thisLock.ExitUpgradeableReadLock();
                     if (!this.Paused && this.IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();
