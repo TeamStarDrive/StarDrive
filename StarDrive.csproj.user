@@ -18,4 +18,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'RedFox-Release|x86'">
     <StartWorkingDirectory>C:\Projects\BlackBox\StarDrive\</StartWorkingDirectory>
   </PropertyGroup>
+  <PropertyGroup>
+    <ReferencePath>D:\Steam\steamapps\common\StarDrive\</ReferencePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Gretman%27s Debug|x86'">
+    <StartWorkingDirectory>D:\stardrive mod\</StartWorkingDirectory>
+  </PropertyGroup>
 </Project>
