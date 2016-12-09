@@ -840,7 +840,7 @@ namespace Ship_Game.Gameplay
                     {
                         if (this.Parent.TroopList.Count > 0)
                         {
-                            if (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
+                            if (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
                             {
                                 Troop item = this.Parent.TroopList[0];
                                 item.Strength = item.Strength - 1;
@@ -1357,7 +1357,7 @@ namespace Ship_Game.Gameplay
 					{
 						if (this.Parent.TroopList.Count > 0)
 						{
-							if (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
+							if (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
 							{
 								Troop item = this.Parent.TroopList[0];
 								item.Strength = item.Strength - 1;
@@ -1638,7 +1638,7 @@ namespace Ship_Game.Gameplay
 			Health = 0f;
 			Vector3 center = new Vector3(Center.X, Center.Y, -100f);
 
-            SolarSystem inSystem = Parent.GetSystem();
+            SolarSystem inSystem = Parent.System;
             var rng = inSystem?.RNG ?? Ship.universeScreen.DeepSpaceRNG;
 
             if (Active && Parent.InFrustum)
@@ -1800,7 +1800,7 @@ namespace Ship_Game.Gameplay
 				foreach (ShipModule module in this.LinkedModulesList)
 				{
 					module.Parent = this.Parent;
-					module.system = this.Parent.GetSystem();
+					module.System = this.Parent.System;
 					module.Dimensions = base.Dimensions;
 					module.IconTexturePath = this.IconTexturePath;
 					foreach (ModuleSlot slot in this.Parent.ModuleSlotList)
@@ -1933,7 +1933,7 @@ namespace Ship_Game.Gameplay
                 foreach (ShipModule module in this.LinkedModulesList)
                 {
                     module.Parent = this.Parent;
-                    module.system = this.Parent.GetSystem();
+                    module.System = this.Parent.System;
                     module.Dimensions = base.Dimensions;
                     module.IconTexturePath = this.IconTexturePath;
                     foreach (ModuleSlot slot in this.Parent.ModuleSlotList)
@@ -2004,7 +2004,7 @@ namespace Ship_Game.Gameplay
 					this.hangarShip.VanityName = "Assault Shuttle";
 					this.hangarShip.Mothership = this.Parent;
 					this.hangarShip.DoEscort(this.Parent);
-					this.hangarShip.Velocity = (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
+					this.hangarShip.Velocity = (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
 					if (this.hangarShip.Velocity.Length() > this.hangarShip.velocityMaximum)
 					{
 						this.hangarShip.Velocity = Vector2.Normalize(this.hangarShip.Velocity) * this.hangarShip.speed;
@@ -2035,7 +2035,7 @@ namespace Ship_Game.Gameplay
                     this.hangarShip.VanityName = "Assault Shuttle";
                     this.hangarShip.Mothership = this.Parent;
                     this.hangarShip.DoEscort(this.Parent);
-                    this.hangarShip.Velocity = (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
+                    this.hangarShip.Velocity = (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
                     if (this.hangarShip.Velocity.Length() > this.hangarShip.velocityMaximum)
                     {
                         this.hangarShip.Velocity = Vector2.Normalize(this.hangarShip.Velocity) * this.hangarShip.speed;
@@ -2071,7 +2071,7 @@ namespace Ship_Game.Gameplay
 					if (this.hangarShip != null)
 					{
 						this.hangarShip.DoEscort(this.Parent);
-						this.hangarShip.Velocity = (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
+						this.hangarShip.Velocity = (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
 						if (this.hangarShip.Velocity.Length() > this.hangarShip.velocityMaximum)
 						{
 							this.hangarShip.Velocity = Vector2.Normalize(this.hangarShip.Velocity) * this.hangarShip.speed;
@@ -2149,7 +2149,7 @@ namespace Ship_Game.Gameplay
                     {
                         this.GetHangarShip().DoEscort(this.Parent);
                         this.GetHangarShip().Velocity = 
-                            (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.GetHangarShip().speed) + this.Parent.Velocity;
+                            (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.GetHangarShip().speed) + this.Parent.Velocity;
                         if (this.GetHangarShip().Velocity.Length() > this.GetHangarShip().velocityMaximum)
                         {
                             this.GetHangarShip().Velocity = Vector2.Normalize(this.GetHangarShip().Velocity) * this.GetHangarShip().speed;
@@ -2490,7 +2490,7 @@ namespace Ship_Game.Gameplay
 
 		public void UpdateWhileDying(float elapsedTime)
 		{
-            var rng = Parent.GetSystem()?.RNG ?? Ship.universeScreen.DeepSpaceRNG;
+            var rng = Parent.System?.RNG ?? Ship.universeScreen.DeepSpaceRNG;
 			Center3D = new Vector3(Parent.Center.X, Parent.Center.Y, rng.RandomBetween(-25f, 25f));
             HandleDamageFireTrail(elapsedTime);
 		}

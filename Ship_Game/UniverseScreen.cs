@@ -858,16 +858,16 @@ namespace Ship_Game
             {
                 foreach (string FleetUID in solarSystem.DefensiveFleets)
                 {
-                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.PlanetList[0].Position);
+                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, solarSystem.PlanetList[0].Position);
                     MilitaryTask militaryTask = new MilitaryTask();
                     militaryTask.AO = solarSystem.PlanetList[0].Position;
                     militaryTask.AORadius = 120000f;
                     militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
-                    militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
-                    EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                    militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+                    EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
 				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
@@ -876,16 +876,16 @@ namespace Ship_Game
                     {
                         foreach (string FleetUID in p.PlanetFleets)
                         {
-                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.GetEmpireByName("The Remnant"), p.Position);
+                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, p.Position);
                             MilitaryTask militaryTask = new MilitaryTask();
                             militaryTask.AO = solarSystem.PlanetList[0].Position;
                             militaryTask.AORadius = 120000f;
                             militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                             planetFleetAt.Task = militaryTask;
                             planetFleetAt.TaskStep = 3;
-                            militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                            EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, planetFleetAt);
-                            EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                            militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+                            EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, planetFleetAt);
+                            EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                             militaryTask.Step = 2;
                         }
                     }
@@ -893,20 +893,20 @@ namespace Ship_Game
 
                 foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
                 {
-                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetAndPos.fleetname, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.Position + fleetAndPos.Pos);
+                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetAndPos.fleetname, EmpireManager.Remnants, solarSystem.Position + fleetAndPos.Pos);
                     MilitaryTask militaryTask = new MilitaryTask();
                     militaryTask.AO = solarSystem.Position + fleetAndPos.Pos;
                     militaryTask.AORadius = 75000f;
                     militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
-                    militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
-                    EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                    militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+                    EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
                 foreach (string key in solarSystem.ShipsToSpawn)
-                    ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.PlanetList[0], true);
+                    ResourceManager.CreateShipAt(key, EmpireManager.Remnants, solarSystem.PlanetList[0], true);
                 foreach (Planet p in solarSystem.PlanetList)
                 {
                     if (p.Owner != null)
@@ -931,7 +931,7 @@ namespace Ship_Game
                         else
                         {
                             foreach (string key in p.Guardians)
-                                ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), p, true);
+                                ResourceManager.CreateShipAt(key, EmpireManager.Remnants, p, true);
                             if (p.CorsairPresence)
                             {
                                 ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
@@ -1368,7 +1368,7 @@ namespace Ship_Game
 
                     if (this.AutoSaveTimer <= 0.0f)
                     {
-                        this.AutoSaveTimer = EmpireManager.GetPlayerEmpire().data.AutoSaveFreq;
+                        this.AutoSaveTimer = EmpireManager.Player.data.AutoSaveFreq;
                         this.DoAutoSave();
                     }
                     if (this.IsActive)
@@ -1584,7 +1584,7 @@ namespace Ship_Game
                     if (this.ArmageddonCounter > 5)
                         this.ArmageddonCounter = 5;
                     for (int index = 0; index < this.ArmageddonCounter; ++index)
-                        ResourceManager.CreateShipAtPoint("Remnant Exterminator", EmpireManager.GetEmpireByName("The Remnant"), this.player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f), RandomMath.RandomBetween(-500000f, 500000f))).GetAI().DefaultAIState = AIState.Exterminate;
+                        ResourceManager.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants, this.player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f), RandomMath.RandomBetween(-500000f, 500000f))).GetAI().DefaultAIState = AIState.Exterminate;
                 }
             }
 
@@ -1848,7 +1848,7 @@ namespace Ship_Game
                                                    }
                                                    
                                                }
-                                               if (ship.GetSystem() == null)
+                                               if (ship.System== null)
                                                {
                                                  
                                                    ship.isInDeepSpace = true;
@@ -2473,7 +2473,7 @@ namespace Ship_Game
                     foreach (Ship ship in (List<Ship>)system.ShipList)
                     //Parallel.ForEach(system.ShipList, ship =>
                     {
-                        if (ship.GetSystem() == null)
+                        if (ship.System== null)
                             continue;
                         //added by gremlin ghost ship killer
                         if (ship.ModuleSlotList.Count == 0)
@@ -2537,7 +2537,7 @@ namespace Ship_Game
                         if (item is Ship)
                         {
                             Ship ship = item as Ship;
-                            if (ship.Active && ship.isInDeepSpace && ship.GetSystem() == null)
+                            if (ship.Active && ship.isInDeepSpace && ship.System== null)
                             {
                                 this.DeepSpaceShips.Add(ship);
                             }
@@ -3394,7 +3394,7 @@ namespace Ship_Game
                 if (this.Debug)
                 {
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.C) && !input.LastKeyboardState.IsKeyDown(Keys.C))
-                        ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", EmpireManager.Remnants, this.mouseWorldPos);
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.C) && !input.LastKeyboardState.IsKeyDown(Keys.C))
                         ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", this.player, this.mouseWorldPos);
 
@@ -3402,7 +3402,7 @@ namespace Ship_Game
                     {
 
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
-                            HelperFunctions.CreateFleetAt("Fleet 2", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                            HelperFunctions.CreateFleetAt("Fleet 2", EmpireManager.Remnants, this.mouseWorldPos);
                         else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
                             HelperFunctions.CreateFleetAt("Fleet 1", this.player, this.mouseWorldPos);
                     }
@@ -3425,13 +3425,13 @@ namespace Ship_Game
                     else if (this.SelectedPlanet != null && this.Debug && (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X)))
                     {
                         foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
-                            this.SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.GetEmpireByName("The Remnant")));
+                            this.SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.Remnants));
                     }
 
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
-                        ResourceManager.CreateShipAtPoint("Remnant Mothership", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        ResourceManager.CreateShipAtPoint("Remnant Mothership", EmpireManager.Remnants, this.mouseWorldPos);
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
-                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.Remnants, this.mouseWorldPos);
 
                     //This little sections added to stress-test the resource manager, and load lots of models into memory.      -Gretman
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.B) && !input.LastKeyboardState.IsKeyDown(Keys.B))

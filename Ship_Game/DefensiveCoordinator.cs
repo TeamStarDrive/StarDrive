@@ -161,7 +161,7 @@ namespace Ship_Game
             {
                 foreach (KeyValuePair<Guid, Ship> entry in this.DefenseDict[key].ShipsDict)
                 {
-                    if (entry.Value.GetSystem() == entry.Value.GetAI().SystemToDefend)
+                    if (entry.Value.System== entry.Value.GetAI().SystemToDefend)
                         entry.Value.GetAI().SystemToDefend = null;
                 }
                 this.DefenseDict[key].ShipsDict.Clear();
@@ -697,7 +697,7 @@ namespace Ship_Game
   
             List<Ship> incomingShips = new List<Ship>();
             incomingShips = Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Hard 
-                ? Empire.Universe.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != us && (bases.loyalty.isFaction || us.GetRelations(bases.loyalty).AtWar || !us.GetRelations(bases.loyalty).Treaty_OpenBorders)).ToList() : this.us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
+                ? Empire.Universe.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != us && (bases.loyalty.isFaction || us.GetRelations(bases.loyalty).AtWar || !us.GetRelations(bases.loyalty).Treaty_OpenBorders)).ToList() : this.us.FindShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
             
 
 
