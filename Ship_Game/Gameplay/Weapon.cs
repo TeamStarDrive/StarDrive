@@ -15,227 +15,116 @@ namespace Ship_Game.Gameplay
 	public class Weapon : IDisposable
 	{
 		public bool Tag_Kinetic;
-
 		public bool Tag_Energy;
-
 		public bool Tag_Guided;
-
 		public bool Tag_Missile;
-
 		public bool Tag_Hybrid;
-
 		public bool Tag_Beam;
-
 		public bool Tag_Explosive;
-
 		public bool Tag_Intercept;
-
 		public bool Tag_Railgun;
-
 		public bool Tag_Bomb;
-
 		public bool Tag_SpaceBomb;
-
 		public bool Tag_BioWeapon;
-
 		public bool Tag_Drone;
-
 		public bool Tag_Warp;
-
 		public bool Tag_Torpedo;
-
 		public bool Tag_Cannon;
-
 		public bool Tag_Subspace;
-
 		public bool Tag_PD;
-
         // Added by The Doctor: new tags for categorisation for mods who otherwise have large numbers of items in one Shipyard menu node, also new modifiers.
-
         public bool Tag_Flak;
-
         public bool Tag_Array;
-
         public bool Tag_Tractor;
-
         // End
-
 		private Ship owner;
-
 		public GameplayObject drowner;
-
 		public float HitPoints;
-
 		public bool isBeam;
-
 		public float EffectVsArmor = 1f;
-
 		public float EffectVSShields = 1f;
-
 		public bool PlaySoundOncePerSalvo;
-
 		public int SalvoCount = 1;
-
 		public float SalvoTimer;
-
 		public bool TruePD;
-
 		public float TroopDamageChance;
-
 		public float MassDamage;
-
 		public float BombPopulationKillPerHit;
-
 		public int BombTroopDamage_Min;
-
 		public int BombTroopDamage_Max;
-
 		public int BombHardDamageMin;
-
 		public int BombHardDamageMax;
-
 		public string HardCodedAction;
-
 		public float RepulsionDamage;
-
 		public float EMPDamage;
-
 		public float ShieldPenChance;
-
 		public float PowerDamage;
-
 		public float SiphonDamage;
-
 		public int BeamThickness;
-
         public float BeamDuration=2f;
-
 		public int BeamPowerCostPerSecond;
-
 		public string BeamTexture;
-
 		public int Animated;
-
 		public int Frames;
-
 		public string AnimationPath;
-
 		public string ExpColor;
-
 		public string dieCue;
-
 		protected Cue fireCue;
-
 		public string ToggleSoundName = "";
-
 		private bool ToggleSoundOn;
-
 		private Cue ToggleCue;
-
 		public string Light;
-
 		public bool isTurret;
-
 		public bool isMainGun;
-
 		public float OrdinanceRequiredToFire;
-
 		public Vector2 Center;
-
 		public float Range;
-
 		public float DamageAmount;
-
 		public float ProjectileSpeed;
-
 		public int ProjectileCount = 1;
-
 		public int FireArc;
-
 		public int FireCone;
-
 		public string ProjectileTexturePath;
-
 		public string ModelPath;
-
 		public string WeaponType;
-
 		public string WeaponEffectType;
-
 		public string UID;
-
 		public ShipModule moduleAttachedTo;
-
 		public float timeToNextFire;
-
 		public float fireDelay;
-
 		public float PowerRequiredToFire;
-
 		public bool explodes;
-
 		public float DamageRadius;
-
 		public string fireCueName;
-
 		public string MuzzleFlash;
-
 		//private float toggleTimer;
-
 		public bool IsRepairDrone;
-
-		private BatchRemovalCollection<Weapon.Salvo> SalvoList = new BatchRemovalCollection<Weapon.Salvo>();
-
+		private BatchRemovalCollection<Salvo> SalvoList = new BatchRemovalCollection<Salvo>();
 		public bool FakeExplode;
-
 		public float ProjectileRadius = 4f;
-
 		public string Name;
-
 		public byte LoopAnimation;
-
 		public float Scale = 1f;
-
 		private float lastFireSound;
-
 		public static UniverseScreen universeScreen;
-
 		public float RotationRadsPerSecond = 2f;
-
 		private AudioEmitter planetEmitter;
-
 		public bool HitsFriendlies;
-
 		public string InFlightCue = "";
-
 		public float particleDelay;
-
         public float ECMResist;
-
         public bool Excludes_Fighters;
-
         public bool Excludes_Corvettes;
-
         public bool Excludes_Capitals;
-
         public bool Excludes_Stations;
-
         public bool isRepairBeam;
-
         public bool TerminalPhaseAttack;
-
         public float TerminalPhaseDistance;
-
         public float TerminalPhaseSpeedMod;
-
         public float ArmourPen = 0f;
-
         public string SecondaryFire;
-
         public bool AltFireMode;
-
         public bool AltFireTriggerFighter;
-
         public float OffPowerMod = 1f;
 
         //public bool ExplosionFlash;          //Not referenced in code, removing to save memory
@@ -245,19 +134,15 @@ namespace Ship_Game.Gameplay
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-        public GameplayObject SalvoTarget = null;
+        public GameplayObject SalvoTarget;
         public float ExplosionRadiusVisual = 4.5f;
-        public GameplayObject fireTarget = null;
-        public float TargetChangeTimer = 0;
+        public GameplayObject fireTarget;
+        public float TargetChangeTimer;
         public bool PrimaryTarget = false;
         [XmlIgnore]
         public List<ModuleSlot> AttackerTargetting;// = new List<ModuleSlot>();
 
-		public static AudioListener audioListener
-		{
-			get;
-			set;
-		}
+		public static AudioListener audioListener { get; set; }
 
 		public Weapon(Ship owner, ShipModule moduleAttachedTo)
 		{
@@ -267,14 +152,24 @@ namespace Ship_Game.Gameplay
 
 		public Weapon()
 		{
-            if(GlobalStats.ActiveMod != null)
+            if(GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi !=null)
             {
-                if(GlobalStats.ActiveMod.mi !=null)
-                {
-                    this.ExplosionRadiusVisual *= GlobalStats.ActiveMod.mi.GlobalExplosionVisualIncreaser;
-                }
+                this.ExplosionRadiusVisual *= GlobalStats.ActiveMod.mi.GlobalExplosionVisualIncreaser;
             }
 		}
+
+        public Weapon Clone()
+        {
+            Weapon wep = (Weapon)MemberwiseClone();
+            wep.SalvoList = new BatchRemovalCollection<Salvo>();
+            wep.SalvoTarget = null;
+            wep.fireTarget = null;
+            wep.planetEmitter = null;
+            wep.moduleAttachedTo = null;
+            wep.owner = null;
+            wep.drowner = null;
+            return wep;
+        }
 
         private void AddModifiers(string Tag, Projectile projectile)
         {

@@ -1284,7 +1284,6 @@ namespace Ship_Game.Gameplay
                 ourAvailableStrength = ourAvailableStrength + (float)t.Strength;
             }
             float MinimumEscortStrength = 0f;
-            int count = 0;
             float OurPresentStrength = 0f;
             foreach (Ship ship in this.TargetPlanet.system.ShipList)
             {

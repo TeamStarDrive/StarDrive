@@ -1,16 +1,11 @@
-using Microsoft.Xna.Framework;
 using System;
 using System.Windows.Forms;
-using System.Collections;
 namespace Ship_Game
 {
 	internal static class Program
 	{
-		private static bool CatchStuff = false;
-
-		static Program()
-		{
-		}
+        // Refactored by RedFox: should we keep this enabled?
+        private static readonly bool CatchStuff = true;
 
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
@@ -20,8 +15,7 @@ namespace Ship_Game
                 if (Game1.Instance.graphics.IsFullScreen)
                     Game1.Instance.graphics.ToggleFullScreen();
             }
-            catch
-            { }
+            catch { }
             try
             {
                 
@@ -48,39 +42,24 @@ namespace Ship_Game
 		[STAThread]
 		private static void Main(string[] args)
 		{
-			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(Program.CurrentDomain_UnhandledException);
-
-
-
-           //ExceptionTracker.TestStackTrace(0, 10);
-           // var ex = new NullReferenceException("Message");
-           //throw ex;
-
-            if (!Program.CatchStuff)
+			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            if (!CatchStuff)
 			{
 				using (Game1 game = new Game1())
-				{
 					game.Run();
-				}
+			    return;
 			}
-			else
-			{
-				try
-				{
-					using (SingleGlobalInstance singleGlobalInstance = new SingleGlobalInstance(1000))
-					{
-						using (Game1 game = new Game1())
-						{
-							game.Run();
-						}
-					}
-				}
-				catch (Exception exception)
-				{
-					Exception e = exception;
-					MessageBox.Show(string.Concat("Whoops! Please post a screenshot of this to the StarDrive forums (", MainMenuScreen.Version, "):\n\n", e.ToString()));
-				}
-			}
-		}
+
+            try
+            {
+                using (new SingleGlobalInstance())
+                using (Game1 game = new Game1())
+                    game.Run();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Whoops! Please post a screenshot of this to the StarDrive forums ({MainMenuScreen.Version}):\n\n{e.ToString()}");
+            }
+        }
 	}
 }

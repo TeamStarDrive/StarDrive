@@ -189,7 +189,7 @@ namespace Ship_Game
 			universe.ScreenManager.SpriteBatch.Begin();
 			Color c = new Color(255, 255, 255, 160);
 			Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, new Color(12, 17, 24));
-			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/hqstarfield1"], blackRect, new Rectangle?(blackRect), c);
+			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/hqstarfield1"], blackRect, blackRect, c);
 			Vector2 vector21 = new Vector2(camPos.X, camPos.Y);
 			float percentX = camPos.X / 500000f;
 			float percentY = camPos.Y / 500000f;

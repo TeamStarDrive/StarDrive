@@ -15,7 +15,7 @@ namespace Ship_Game.Gameplay
 
 		public Guid HangarshipGuid;
 
-		public Ship_Game.Gameplay.Restrictions Restrictions;
+		public Restrictions Restrictions;
 
 		public bool Powered;
 

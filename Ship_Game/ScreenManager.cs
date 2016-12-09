@@ -211,15 +211,15 @@ namespace Ship_Game
 
 		public void LoadContent()
 		{
-			if (AudioManager.getAudioEngine() != null)
+			if (AudioManager.AudioEngine!= null)
 			{
-				this.musicCategory = AudioManager.getAudioEngine().GetCategory("Music");
-				this.racialMusic = AudioManager.getAudioEngine().GetCategory("RacialMusic");
-				this.combatMusic = AudioManager.getAudioEngine().GetCategory("CombatMusic");
-				this.weaponsCategory = AudioManager.getAudioEngine().GetCategory("Weapons");
+				this.musicCategory = AudioManager.AudioEngine.GetCategory("Music");
+				this.racialMusic = AudioManager.AudioEngine.GetCategory("RacialMusic");
+				this.combatMusic = AudioManager.AudioEngine.GetCategory("CombatMusic");
+				this.weaponsCategory = AudioManager.AudioEngine.GetCategory("Weapons");
 				this.weaponsCategory.SetVolume(0.5f);
-                this.defaultCategory = AudioManager.getAudioEngine().GetCategory("Default");
-                this.GlobalCategory = AudioManager.getAudioEngine().GetCategory("Global");
+                this.defaultCategory = AudioManager.AudioEngine.GetCategory("Default");
+                this.GlobalCategory = AudioManager.AudioEngine.GetCategory("Global");
 			}
 			this.SpriteBatch = new Microsoft.Xna.Framework.Graphics.SpriteBatch(this.GraphicsDevice);
 			this.blankTexture = this.content.Load<Texture2D>("Textures/blank");

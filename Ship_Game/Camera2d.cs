@@ -12,7 +12,7 @@ namespace Ship_Game
 
 		public Vector2 _pos;
 
-		protected float _rotation;
+		private float _rotation;
 
 		public Vector2 Pos
 		{

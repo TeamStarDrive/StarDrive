@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+    <Type Name="SDNative::node_parser">
+        <DisplayString>{name}: {value}</DisplayString>
+        <StringView>value.str,[value.len]</StringView>
+        <Expand>
+            <Item Name="[name]">name</Item>
+            <Item Name="[value]">value</Item>
+            <Item Name="[node]">node</Item>
+        </Expand>
+    </Type>
+
+</AutoVisualizer>

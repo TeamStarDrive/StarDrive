@@ -125,7 +125,7 @@ namespace Ship_Game
 
 		private float heat = 1f;
 
-		private List<ShipToolScreen.ThrusterZone> TList = new List<ShipToolScreen.ThrusterZone>();
+		private List<ThrusterZone> TList = new List<ThrusterZone>();
 
 		private string HullName = "Hull Name";
 
@@ -655,10 +655,10 @@ namespace Ship_Game
 
 		private void MarkThruster()
 		{
-			ShipToolScreen.ThrusterZone z = new ShipToolScreen.ThrusterZone();
+            ThrusterZone z = new ThrusterZone();
 			Vector2 thrPos = (this.tPos + new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2))) - new Vector2((float)this.border.X, (float)this.border.Y);
-			z.Position = thrPos;
-			z.scale = this.tscale;
+            z.Position = thrPos;
+			z.Scale = this.tscale;
 			this.TList.Add(z);
 		}
 
@@ -715,7 +715,7 @@ namespace Ship_Game
 					continue;
 				}
 				Vector2 Position = new Vector2((float)(slot.pq.X + slot.pq.W / 2 - this.border.X), (float)(slot.pq.Y + slot.pq.H / 2 - this.border.Y));
-				ModuleSlotData newData = new ModuleSlotData()
+                ModuleSlotData newData = new ModuleSlotData()
 				{
 					Position = Position,
 					InstalledModuleUID = slot.ModuleUID,
@@ -784,11 +784,10 @@ namespace Ship_Game
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 
-		public struct ThrusterZone
-		{
-			public Vector2 Position;
-
-			public float scale;
-		}
+        public struct ThrusterZone
+        {
+            public Vector2 Position;
+            public float Scale;
+        }
 	}
 }
