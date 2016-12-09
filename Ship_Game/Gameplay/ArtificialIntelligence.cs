@@ -7410,7 +7410,7 @@ namespace Ship_Game.Gameplay
                     speedLimit = this.Owner.fleet.speed;
 
                     #region FleetGrouping
-
+#if false
                     if (Distance <= distanceFleetCenterToDistance)
                     {
                         float speedreduction = distanceFleetCenterToDistance - Distance;
@@ -7423,7 +7423,8 @@ namespace Ship_Game.Gameplay
                         float speedIncrease = Distance - distanceFleetCenterToDistance;
                         speedLimit = this.Owner.fleet.speed + speedIncrease;
                     }
-                    #endregion
+#endif
+#endregion
 
                     if (fleetReady) this.Owner.EngageStarDrive();   //Fleet is ready to Go into warp
                     else if (this.Owner.engineState == Ship.MoveState.Warp) this.Owner.HyperspaceReturn(); //Fleet is not ready for warp
@@ -7431,7 +7432,7 @@ namespace Ship_Game.Gameplay
                 else if (this.Owner.engineState == Ship.MoveState.Warp)  this.Owner.HyperspaceReturn(); //Near Destination
             }
 
-            if (speedLimit > this.Owner.velocityMaximum) speedLimit = (this.Owner.velocityMaximum);
+            if (speedLimit > this.Owner.velocityMaximum) speedLimit = this.Owner.velocityMaximum;
             else if (speedLimit < 0) speedLimit = 0;
 
             this.Owner.Velocity = this.Owner.Velocity + (Vector2.Normalize(forward) * (elapsedTime * speedLimit));
@@ -7465,7 +7466,7 @@ namespace Ship_Game.Gameplay
                 double facing = (Vector2.Dot(wantedForward, right)> 0f ? 1f : -1f);
                 //facing = facing/(mag1*mag2);
 
-                #region warp
+#region warp
                 if (angleDiff > 0.25f && this.Owner.engineState == Ship.MoveState.Warp)
                 {
                     if (this.Owner.VanityName == "MerCraftA") System.Diagnostics.Debug.WriteLine("angleDiff: " + angleDiff);
@@ -7558,7 +7559,7 @@ namespace Ship_Game.Gameplay
                     else if (angleDiff > .25)
                         this.Owner.HyperspaceReturn();
                 }
-                #endregion
+#endregion
 
                 if (this.hasPriorityTarget && Distance < this.Owner.maxWeaponsRange)
                 {
@@ -7682,7 +7683,7 @@ namespace Ship_Game.Gameplay
                             float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove; //
                             speedLimit = (this.Owner.fleet.speed);
 
-                            #region FleetGrouping
+#region FleetGrouping
 
 
                             float fleetPosistionDistance = Distance;// Vector2.Distance(this.Owner.Center, Position);
@@ -7709,7 +7710,7 @@ namespace Ship_Game.Gameplay
 
 
 
-                            #endregion
+#endregion
 
 
 
@@ -7882,7 +7883,7 @@ namespace Ship_Game.Gameplay
             this.Owner.isThrusting = false;
             this.Owner.isTurning = false;
             
-            #region old flee code
+#region old flee code
             //if (!this.HasPriorityOrder 
             //    && (this.BadGuysNear || this.Owner.InCombat) 
             //    && (this.Owner.shipData == null || this.Owner.shipData.ShipCategory == ShipData.Category.Civilian) 
@@ -7909,7 +7910,7 @@ namespace Ship_Game.Gameplay
             //        this.State = this.DefaultAIState;
             //    }
             //} 
-            #endregion
+#endregion
 
             if (this.State == AIState.SystemTrader && this.start != null && this.end != null && (this.start.Owner != this.Owner.loyalty || this.end.Owner != this.Owner.loyalty))
             {
@@ -8511,14 +8512,14 @@ namespace Ship_Game.Gameplay
                 }
             }
                 goto Label0;
-#if !DEBUG   
+#if !DEBUG
         }
             
             catch
 
             {
             }
-            #endif
+#endif
         Label0:
         
         /* fbedard: Disabled to save CPU time

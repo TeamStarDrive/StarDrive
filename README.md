@@ -3,6 +3,10 @@ please read the steam EULA and understand that game modding is a common concept.
 http://steamcommunity.com/app/252450/discussions/0/385428458177062745/#c365163686048069513
 http://store.steampowered.com/eula/eula_39190
 
+Discord chat discussion available here:
+https://discord.gg/nrMKaWr
+feel free to drop in for questions, bug reports, requests and what not. 
+
 
 # Stardrive BlackBox#
 So what is black box? its a decompiled recompiled version of stardrive. 
