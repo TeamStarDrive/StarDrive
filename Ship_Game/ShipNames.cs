@@ -8,7 +8,7 @@ namespace Ship_Game
     //Added by McShooterz: class to store names for ships
     public sealed class ShipNames
     {
-        public List<EmpireEntry> EmpireEntries;
+        public List<EmpireEntry> EmpireEntries = new List<EmpireEntry>();
 
         public struct EmpireEntry
         {
@@ -22,49 +22,32 @@ namespace Ship_Game
             public List<string> Names;
         };
 
-        public ShipNames()
+        // Refactored by RedFox
+        // Check to see if there are names to use
+        public bool CheckForName(string empire, ShipData.RoleName role)
         {
-            this.EmpireEntries = new List<EmpireEntry>();
-        }
-
-        //Check to see if there are names to use
-        public bool CheckForName(string Empire, ShipData.RoleName Role)
-        {
-            for (int i = 0; i < EmpireEntries.Count; i++)
+            foreach (EmpireEntry e in EmpireEntries)
             {
-                if (Empire == EmpireEntries[i].ShipType)
-                {
-                    for (int j = 0; j < EmpireEntries[i].NamesByRoles.Count; j++)
-                    {
-                        if (Role == EmpireEntries[i].NamesByRoles[j].Role && EmpireEntries[i].NamesByRoles[j].Names.Count != 0)
-                        {
-                            return true;
-                        }
-                    }
-                }
+                if (empire != e.ShipType)
+                    continue;
+                if (e.NamesByRoles.Any(roleNames => roleNames.Names.Count != 0 && role == roleNames.Role))
+                    return true;
             }
             return false;
         }
 
-        //Grab random name from list to use
-        public string GetName(string Empire, ShipData.RoleName Role)
+        // Grab random name from list to use
+        public string GetName(string empire, ShipData.RoleName role)
         {
-            for (int i = 0; i < EmpireEntries.Count; i++)
+            foreach (EmpireEntry e in EmpireEntries)
             {
-                if (Empire == EmpireEntries[i].ShipType)
-                {
-                    for (int j = 0; j < EmpireEntries[i].NamesByRoles.Count; j++)
-                    {
-                        if (Role == EmpireEntries[i].NamesByRoles[j].Role)
-                        {
-                            Random r = new Random();
-                            int randint = r.Next(0, EmpireEntries[i].NamesByRoles[j].Names.Count);
-                            return EmpireEntries[i].NamesByRoles[j].Names[randint];
-                        }
-                    }
-                }
+                if (empire != e.ShipType)
+                    continue;
+                foreach (RoleNames roleNames in e.NamesByRoles)
+                    if (role == roleNames.Role)
+                        return roleNames.Names[new Random().Next(0, roleNames.Names.Count)];
             }
-            return "failed to name";
+            return string.Empty;
         }
     }
 }

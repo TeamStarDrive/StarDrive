@@ -14,9 +14,9 @@ namespace Ship_Game.Gameplay
 {
     public sealed class ShipModule : GameplayObject
 	{
-        public ShipModule_Advanced Advanced = null; //This is where all the other member variables went. Having this as a member object
-                                                    //allows me to instance the variables inside it, so they are not duplicated. This
-                                                    //can offer much better memory usage since ShipModules are so numerous.     -Gretman
+        public ShipModule_Advanced Advanced; //This is where all the other member variables went. Having this as a member object
+                                             //allows me to instance the variables inside it, so they are not duplicated. This
+                                             //can offer much better memory usage since ShipModules are so numerous.     -Gretman
         private ParticleEmitter trailEmitter;
         private ParticleEmitter firetrailEmitter;
         private ParticleEmitter flameEmitter;
@@ -38,7 +38,7 @@ namespace Ship_Game.Gameplay
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
-        public Ship_Game.Gameplay.Restrictions Restrictions;
+        public Restrictions Restrictions;
         public float shield_power;
         public bool shieldsOff=false;
 		private Shield shield;
@@ -50,7 +50,7 @@ namespace Ship_Game.Gameplay
         public short OrdinanceCapacity;
         private bool onFire;
         private bool reallyFuckedUp;
-        private Vector3 Center3D = new Vector3();
+        private Vector3 Center3D;
         public float BombTimer;
 		public ShipModuleType ModuleType;
         public Vector2 moduleCenter = new Vector2(0f, 0f);
@@ -61,8 +61,8 @@ namespace Ship_Game.Gameplay
 
         public string UID
         {
-            get { return this.Advanced.UID; }
-            set { this.Advanced.UID = value; }
+            get { return Advanced.UID; }
+            set { Advanced.UID = value; }
         }
         
         public ModuleSlot installedSlot;
@@ -71,124 +71,123 @@ namespace Ship_Game.Gameplay
         public sbyte quadrant = -1;
         public float TransporterTimer = 0f;
 
+        // Used to configure how good of a target this module is
+        public int ModuleTargettingValue => TargetValue 
+                                          + (isExternal ? -5 : 0)         // external modules are less critical
+                                          + (Health < HealthMax ? 1 : 0); // prioritize already damaged modules
 
         //This wall of text is the 'get' functions for all of the variables that got moved to the 'Advanced' object.
         //This will allow us to still use the normal "Module.IsCommandModule" even though 'IsCommandModule' actually
         //lives in "Module.Advanced.IsCommandModule" now.    -Gretman
-        public float FTLSpeed                   { get { return this.Advanced.FTLSpeed; } }
-        public string DeployBuildingOnColonize  { get { return this.Advanced.DeployBuildingOnColonize; } }
-        public string ResourceStored            { get { return this.Advanced.ResourceStored; } }
-        public float ResourceStorageAmount      { get { return this.Advanced.ResourceStorageAmount; } }
-        public bool IsCommandModule             { get { return this.Advanced.IsCommandModule; } }
-        public bool IsRepairModule              { get { return this.Advanced.IsRepairModule; } }
-        public short MaximumHangarShipSize      { get { return this.Advanced.MaximumHangarShipSize; } }
-        public bool FightersOnly                { get { return this.Advanced.FightersOnly; } }
-        public bool DroneModule                 { get { return this.Advanced.DroneModule; } }
-        public bool FighterModule               { get { return this.Advanced.FighterModule; } }
-        public bool CorvetteModule              { get { return this.Advanced.CorvetteModule; } }
-        public bool FrigateModule               { get { return this.Advanced.FrigateModule; } }
-        public bool DestroyerModule             { get { return this.Advanced.DestroyerModule; } }
-        public bool CruiserModule               { get { return this.Advanced.CruiserModule; } }
-        public bool CarrierModule               { get { return this.Advanced.CarrierModule; } }
-        public bool CapitalModule               { get { return this.Advanced.CapitalModule; } }
-        public bool FreighterModule             { get { return this.Advanced.FreighterModule; } }
-        public bool PlatformModule              { get { return this.Advanced.PlatformModule; } }
-        public bool StationModule               { get { return this.Advanced.StationModule; } }
-        public bool explodes                    { get { return this.Advanced.explodes; } }
-        public float SensorRange                { get { return this.Advanced.SensorRange; } }
-        public float MechanicalBoardingDefense  { get { return this.Advanced.MechanicalBoardingDefense; } }
-        public float EMP_Protection             { get { return this.Advanced.EMP_Protection; } }
-        public byte PowerRadius                 { get { return this.Advanced.PowerRadius; } }
-        public byte TechLevel                   { get { return this.Advanced.TechLevel; } }
-        public float OrdnanceAddedPerSecond     { get { return this.Advanced.OrdnanceAddedPerSecond; } }
-        public string BombType                  { get { return this.Advanced.BombType; } }
-        public float WarpMassCapacity           { get { return this.Advanced.WarpMassCapacity; } }
-        public float BonusRepairRate            { get { return this.Advanced.BonusRepairRate; } }
-        public float Cargo_Capacity             { get { return this.Advanced.Cargo_Capacity; } }
-        public float shield_radius              { get { return this.Advanced.shield_radius; } }
-        public float shield_power_max           { get { return this.Advanced.shield_power_max; } }
-        public float shield_recharge_rate       { get { return this.Advanced.shield_recharge_rate; } }
-        public float shield_recharge_combat_rate{ get { return this.Advanced.shield_recharge_combat_rate; } }
-        public float shield_recharge_delay      { get { return this.Advanced.shield_recharge_delay; } }
-        public float shield_threshold           { get { return this.Advanced.shield_threshold; } }
-        public float shield_kinetic_resist      { get { return this.Advanced.shield_kinetic_resist; } }
-        public float shield_energy_resist       { get { return this.Advanced.shield_energy_resist; } }
-        public float shield_explosive_resist    { get { return this.Advanced.shield_explosive_resist; } }
-        public float shield_missile_resist      { get { return this.Advanced.shield_missile_resist; } }
-        public float shield_flak_resist         { get { return this.Advanced.shield_flak_resist; } }
-        public float shield_hybrid_resist       { get { return this.Advanced.shield_hybrid_resist; } }
-        public float shield_railgun_resist      { get { return this.Advanced.shield_railgun_resist; } }
-        public float shield_subspace_resist     { get { return this.Advanced.shield_subspace_resist; } }
-        public float shield_warp_resist         { get { return this.Advanced.shield_warp_resist; } }
-        public float shield_beam_resist         { get { return this.Advanced.shield_beam_resist; } }
-        public float numberOfColonists          { get { return this.Advanced.numberOfColonists; } }
-        public float numberOfEquipment          { get { return this.Advanced.numberOfEquipment; } }
-        public float numberOfFood               { get { return this.Advanced.numberOfFood; } }
-        public bool IsSupplyBay                 { get { return this.Advanced.IsSupplyBay; } }
-        public bool IsTroopBay                  { get { return this.Advanced.IsTroopBay; } }
-        public float hangarTimerConstant        { get { return this.Advanced.hangarTimerConstant; } }
-        public float thrust                     { get { return this.Advanced.thrust; } }
-        public float WarpThrust                 { get { return this.Advanced.WarpThrust; } }
-        public float TurnThrust                 { get { return this.Advanced.TurnThrust; } }
-        public float PowerFlowMax               { get { return this.Advanced.PowerFlowMax; } }
-        public float PowerDraw                  { get { return this.Advanced.PowerDraw; } }
-        public float PowerDrawAtWarp            { get { return this.Advanced.PowerDrawAtWarp; } }
-        public float PowerStoreMax              { get { return this.Advanced.PowerStoreMax; } }
-        public float HealPerTurn                { get { return this.Advanced.HealPerTurn; } }
-        public byte TroopCapacity               { get { return this.Advanced.TroopCapacity; } }
-        public byte TroopsSupplied              { get { return this.Advanced.TroopsSupplied; } }
-        public float Cost                       { get { return this.Advanced.Cost; } }
-        public float InhibitionRadius           { get { return this.Advanced.InhibitionRadius; } }
-        public float FTLSpoolTime               { get { return this.Advanced.FTLSpoolTime; } }
-        public float ECM                        { get { return this.Advanced.ECM; } }
-        public float SensorBonus                { get { return this.Advanced.SensorBonus; } }
-        public float TransporterTimerConstant   { get { return this.Advanced.TransporterTimerConstant; } }
-        public float TransporterRange           { get { return this.Advanced.TransporterRange; } }
-        public float TransporterPower           { get { return this.Advanced.TransporterPower; } }
-        public float TransporterOrdnance        { get { return this.Advanced.TransporterOrdnance; } }
-        public byte TransporterTroopLanding     { get { return this.Advanced.TransporterTroopLanding; } }
-        public byte TransporterTroopAssault     { get { return this.Advanced.TransporterTroopAssault; } }
-        public float KineticResist              { get { return this.Advanced.KineticResist; } }
-        public float EnergyResist               { get { return this.Advanced.EnergyResist; } }
-        public float GuidedResist               { get { return this.Advanced.GuidedResist; } }
-        public float MissileResist              { get { return this.Advanced.MissileResist; } }
-        public float HybridResist               { get { return this.Advanced.HybridResist; } }
-        public float BeamResist                 { get { return this.Advanced.BeamResist; } }
-        public float ExplosiveResist            { get { return this.Advanced.ExplosiveResist; } }
-        public float InterceptResist            { get { return this.Advanced.InterceptResist; } }
-        public float RailgunResist              { get { return this.Advanced.RailgunResist; } }
-        public float SpaceBombResist            { get { return this.Advanced.SpaceBombResist; } }
-        public float BombResist                 { get { return this.Advanced.BombResist; } }
-        public float BioWeaponResist            { get { return this.Advanced.BioWeaponResist; } }
-        public float DroneResist                { get { return this.Advanced.DroneResist; } }
-        public float WarpResist                 { get { return this.Advanced.WarpResist; } }
-        public float TorpedoResist              { get { return this.Advanced.TorpedoResist; } }
-        public float CannonResist               { get { return this.Advanced.CannonResist; } }
-        public float SubspaceResist             { get { return this.Advanced.SubspaceResist; } }
-        public float PDResist                   { get { return this.Advanced.PDResist; } }
-        public float FlakResist                 { get { return this.Advanced.FlakResist; } }
-        public float DamageThreshold            { get { return this.Advanced.DamageThreshold; } }
-        public int APResist                     { get { return this.Advanced.APResist; } }
-        public bool IndirectPower               { get { return this.Advanced.IndirectPower; } }
-        public bool isPowerArmour               { get { return this.Advanced.isPowerArmour; } }
-        public bool isBulkhead                  { get { return this.Advanced.isBulkhead; } }
-        public sbyte TargetTracking             { get { return this.Advanced.TargetTracking; } }
-        public sbyte FixedTracking              { get { return this.Advanced.FixedTracking; } }
-        public bool IsWeapon
-		{
-			get
-			{
-				if (this.ModuleType != ShipModuleType.Spacebomb && this.ModuleType != ShipModuleType.Turret && this.ModuleType != ShipModuleType.MainGun && this.ModuleType != ShipModuleType.MissileLauncher && this.ModuleType != ShipModuleType.Drone && this.ModuleType != ShipModuleType.Bomb)
-				{
-					return false;
-				}
-				return true;
-			}
-		}
+        public float FTLSpeed                   => Advanced.FTLSpeed;
+	    public string DeployBuildingOnColonize  => Advanced.DeployBuildingOnColonize;
+	    public string ResourceStored            => Advanced.ResourceStored;
+	    public float ResourceStorageAmount      => Advanced.ResourceStorageAmount;
+        public bool IsCommandModule             => Advanced.IsCommandModule;
+        public bool IsRepairModule              => Advanced.IsRepairModule;
+        public short MaximumHangarShipSize      => Advanced.MaximumHangarShipSize;
+        public bool FightersOnly                => Advanced.FightersOnly;
+        public bool DroneModule                 => Advanced.DroneModule;
+        public bool FighterModule               => Advanced.FighterModule;
+        public bool CorvetteModule              => Advanced.CorvetteModule;
+        public bool FrigateModule               => Advanced.FrigateModule;
+        public bool DestroyerModule             => Advanced.DestroyerModule;
+        public bool CruiserModule               => Advanced.CruiserModule;
+        public bool CarrierModule               => Advanced.CarrierModule;
+        public bool CapitalModule               => Advanced.CapitalModule;
+        public bool FreighterModule             => Advanced.FreighterModule;
+        public bool PlatformModule              => Advanced.PlatformModule;
+        public bool StationModule               => Advanced.StationModule;
+        public bool explodes                    => Advanced.explodes;
+        public float SensorRange                => Advanced.SensorRange;
+        public float MechanicalBoardingDefense  => Advanced.MechanicalBoardingDefense;
+        public float EMP_Protection             => Advanced.EMP_Protection;
+        public byte PowerRadius                 => Advanced.PowerRadius;
+        public byte TechLevel                   => Advanced.TechLevel;
+        public float OrdnanceAddedPerSecond     => Advanced.OrdnanceAddedPerSecond;
+        public string BombType                  => Advanced.BombType;
+        public float WarpMassCapacity           => Advanced.WarpMassCapacity;
+        public float BonusRepairRate            => Advanced.BonusRepairRate;
+        public float Cargo_Capacity             => Advanced.Cargo_Capacity;
+        public float shield_radius              => Advanced.shield_radius;
+        public float shield_power_max           => Advanced.shield_power_max;
+        public float shield_recharge_rate       => Advanced.shield_recharge_rate;
+        public float shield_recharge_combat_rate=> Advanced.shield_recharge_combat_rate;
+        public float shield_recharge_delay      => Advanced.shield_recharge_delay;
+        public float shield_threshold           => Advanced.shield_threshold;
+        public float shield_kinetic_resist      => Advanced.shield_kinetic_resist;
+        public float shield_energy_resist       => Advanced.shield_energy_resist;
+        public float shield_explosive_resist    => Advanced.shield_explosive_resist;
+        public float shield_missile_resist      => Advanced.shield_missile_resist;
+        public float shield_flak_resist         => Advanced.shield_flak_resist;
+        public float shield_hybrid_resist       => Advanced.shield_hybrid_resist;
+        public float shield_railgun_resist      => Advanced.shield_railgun_resist;
+        public float shield_subspace_resist     => Advanced.shield_subspace_resist;
+        public float shield_warp_resist         => Advanced.shield_warp_resist;
+        public float shield_beam_resist         => Advanced.shield_beam_resist;
+        public float numberOfColonists          => Advanced.numberOfColonists;
+        public float numberOfEquipment          => Advanced.numberOfEquipment;
+        public float numberOfFood               => Advanced.numberOfFood;
+        public bool IsSupplyBay                 => Advanced.IsSupplyBay;
+        public bool IsTroopBay                  => Advanced.IsTroopBay;
+        public float hangarTimerConstant        => Advanced.hangarTimerConstant;
+        public float thrust                     => Advanced.thrust;
+        public float WarpThrust                 => Advanced.WarpThrust;
+        public float TurnThrust                 => Advanced.TurnThrust;
+        public float PowerFlowMax               => Advanced.PowerFlowMax;
+        public float PowerDraw                  => Advanced.PowerDraw;
+        public float PowerDrawAtWarp            => Advanced.PowerDrawAtWarp;
+        public float PowerStoreMax              => Advanced.PowerStoreMax;
+        public float HealPerTurn                => Advanced.HealPerTurn;
+        public byte TroopCapacity               => Advanced.TroopCapacity;
+        public byte TroopsSupplied              => Advanced.TroopsSupplied;
+        public float Cost                       => Advanced.Cost;
+        public float InhibitionRadius           => Advanced.InhibitionRadius;
+        public float FTLSpoolTime               => Advanced.FTLSpoolTime;
+        public float ECM                        => Advanced.ECM;
+        public float SensorBonus                => Advanced.SensorBonus;
+        public float TransporterTimerConstant   => Advanced.TransporterTimerConstant;
+        public float TransporterRange           => Advanced.TransporterRange;
+        public float TransporterPower           => Advanced.TransporterPower;
+        public float TransporterOrdnance        => Advanced.TransporterOrdnance;
+        public byte TransporterTroopLanding     => Advanced.TransporterTroopLanding;
+        public byte TransporterTroopAssault     => Advanced.TransporterTroopAssault;
+        public float KineticResist              => Advanced.KineticResist;
+        public float EnergyResist               => Advanced.EnergyResist;
+        public float GuidedResist               => Advanced.GuidedResist;
+        public float MissileResist              => Advanced.MissileResist;
+        public float HybridResist               => Advanced.HybridResist;
+        public float BeamResist                 => Advanced.BeamResist;
+        public float ExplosiveResist            => Advanced.ExplosiveResist;
+        public float InterceptResist            => Advanced.InterceptResist;
+        public float RailgunResist              => Advanced.RailgunResist;
+        public float SpaceBombResist            => Advanced.SpaceBombResist;
+        public float BombResist                 => Advanced.BombResist;
+        public float BioWeaponResist            => Advanced.BioWeaponResist;
+        public float DroneResist                => Advanced.DroneResist;
+        public float WarpResist                 => Advanced.WarpResist;
+        public float TorpedoResist              => Advanced.TorpedoResist;
+        public float CannonResist               => Advanced.CannonResist;
+        public float SubspaceResist             => Advanced.SubspaceResist;
+        public float PDResist                   => Advanced.PDResist;
+        public float FlakResist                 => Advanced.FlakResist;
+        public float DamageThreshold            => Advanced.DamageThreshold;
+        public int APResist                     => Advanced.APResist;
+        public bool IndirectPower               => Advanced.IndirectPower;
+        public bool isPowerArmour               => Advanced.isPowerArmour;
+        public bool isBulkhead                  => Advanced.isBulkhead;
+        public sbyte TargetTracking             => Advanced.TargetTracking;
+        public sbyte FixedTracking              => Advanced.FixedTracking;
+        public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb 
+                                || ModuleType == ShipModuleType.Turret 
+                                || ModuleType == ShipModuleType.MainGun 
+                                || ModuleType == ShipModuleType.MissileLauncher 
+                                || ModuleType == ShipModuleType.Drone 
+                                || ModuleType == ShipModuleType.Bomb;
 
-		public ShipModule()     //Constructor
+	    public ShipModule()     //Constructor
 		{
-            this.Advanced = ShipModule_Advanced.Empty;
+            Advanced = ShipModule_Advanced.Empty;
         }
 
 		public ShipModule(ShipModuleType type)  //Constructor that is not called anywhere
@@ -564,7 +563,7 @@ namespace Ship_Game.Gameplay
 
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
-					base.findAngleToTarget(this.Parent.Center, source.Center);
+					base.FindAngleToTarget(this.Parent.Center, source.Center);
 					this.shield.Rotation = source.Rotation - 3.14159274f;
 					this.shield.displacement = 0f;
 					this.shield.texscale = 2.8f;
@@ -578,13 +577,13 @@ namespace Ship_Game.Gameplay
 						Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
 						shieldcue.Apply3D(ShipModule.universeScreen.listener, this.Parent.emitter);
 						shieldcue.Play();
-						this.shield.Radius = this.radius;
+						this.shield.Radius = this.Radius;
 						this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
 						this.shield.texscale = 2.8f;
 						this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
                         this.shield.pointLight.World = psource.GetWorld();
 						this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-						this.shield.pointLight.Radius = this.radius;
+						this.shield.pointLight.Radius = this.Radius;
 						this.shield.pointLight.Intensity = 8f;
 						this.shield.pointLight.Enabled = true;
                         Vector2 vel = Vector2.Normalize(psource.Center - this.Center);
@@ -599,11 +598,11 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power > 0f && !shieldsOff)
 			{
-				this.radius = this.shield_radius;
+				this.Radius = this.shield_radius;
 			}
 			else
 			{
-				this.radius = 8f;
+				this.Radius = 8f;
 			}
 			return true;
 		}
@@ -1043,7 +1042,7 @@ namespace Ship_Game.Gameplay
 
                 if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
                 {
-                    base.findAngleToTarget(this.Parent.Center, source.Center);
+                    base.FindAngleToTarget(this.Parent.Center, source.Center);
                     this.shield.Rotation = source.Rotation - 3.14159274f;
                     this.shield.displacement = 0f;
                     this.shield.texscale = 2.8f;
@@ -1073,7 +1072,7 @@ namespace Ship_Game.Gameplay
                         this.shield.pointLight.Radius = this.shield_radius * 2f;
                         this.shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
                         this.shield.displacement = 0f;
-                        this.shield.Radius = this.radius;
+                        this.shield.Radius = this.Radius;
                         this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         this.shield.texscale = 2.8f;
                         this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
@@ -1105,13 +1104,13 @@ namespace Ship_Game.Gameplay
                         Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
                         shieldcue.Apply3D(ShipModule.universeScreen.listener, this.Parent.emitter);
                         shieldcue.Play();
-                        this.shield.Radius = this.radius;
+                        this.shield.Radius = this.Radius;
                         this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
                         this.shield.texscale = 2.8f;
                         this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
                         this.shield.pointLight.World = (source as Projectile).GetWorld();
                         this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                        this.shield.pointLight.Radius = this.radius;
+                        this.shield.pointLight.Radius = this.Radius;
                         this.shield.pointLight.Intensity = 8f;
                         this.shield.pointLight.Enabled = true;
                         Vector2 vel = Vector2.Normalize((source as Projectile).Center - this.Center);
@@ -1126,11 +1125,11 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power > 0f && !shieldsOff)
             {
-                this.radius = this.shield_radius;
+                this.Radius = this.shield_radius;
             }
             else
             {
-                this.radius = 8f;
+                this.Radius = 8f;
             }
             return true;
         }
@@ -1535,7 +1534,7 @@ namespace Ship_Game.Gameplay
 				this.shield_power = this.shield_power - damageAmount;
 				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
-					base.findAngleToTarget(this.Parent.Center, source.Center);
+					base.FindAngleToTarget(this.Parent.Center, source.Center);
 					this.shield.Rotation = source.Rotation - 3.14159274f;
 					this.shield.displacement = 0f;
 					this.shield.texscale = 2.8f;
@@ -1552,7 +1551,7 @@ namespace Ship_Game.Gameplay
 						this.shield.pointLight.Radius = this.shield_radius * 2f;
 						this.shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
 						this.shield.displacement = 0f;
-						this.shield.Radius = this.radius;
+						this.shield.Radius = this.Radius;
 						this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
 						this.shield.texscale = 2.8f;
 						this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
@@ -1587,13 +1586,13 @@ namespace Ship_Game.Gameplay
 						Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
 						shieldcue.Apply3D(ShipModule.universeScreen.listener, this.Parent.emitter);
 						shieldcue.Play();
-						this.shield.Radius = this.radius;
+						this.shield.Radius = this.Radius;
 						this.shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
 						this.shield.texscale = 2.8f;
 						this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
 						this.shield.pointLight.World = (source as Projectile).GetWorld();
 						this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-						this.shield.pointLight.Radius = this.radius;
+						this.shield.pointLight.Radius = this.Radius;
 						this.shield.pointLight.Intensity = 8f;
 						this.shield.pointLight.Enabled = true;
 						Vector2 vel = Vector2.Normalize((source as Projectile).Center - this.Center);
@@ -1608,11 +1607,11 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power > 0f && !shieldsOff)
 			{
-				this.radius = this.shield_radius;
+				this.Radius = this.shield_radius;
 			}
 			else
 			{
-				this.radius = 8f;
+				this.Radius = 8f;
 			}
 			if (base.Health <= 0f)
 			{
@@ -1622,82 +1621,70 @@ namespace Ship_Game.Gameplay
 
 		public override void Die(GameplayObject source, bool cleanupOnly)
 		{
-			DebugInfoScreen.ModulesDied = DebugInfoScreen.ModulesDied + 1;
-			if (!this.isDummy)
+			DebugInfoScreen.ModulesDied += 1;
+			if (!isDummy)
 			{
-				foreach (ShipModule link in this.LinkedModulesList)
+				foreach (ShipModule link in LinkedModulesList)
 				{
 					if (!link.Active)
-					{
 						continue;
-					}
 					link.Die(source, true);
 				}
 			}
-			if (this.shield_power_max > 0f)
-			{
-				base.Health = 0f;
-			}
-			this.SetNewExternals();
-			base.Health = 0f;
-			Vector3 center = new Vector3(this.Center.X, this.Center.Y, -100f);
-			if (this.Active)
-			{
-				((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(5f, 15f);
-				if (!this.Parent.dying && this.Parent.InFrustum)
-				{
-					for (int i = 0; i < 30; i++)
-					{
-						ShipModule.universeScreen.explosionParticles.AddParticleThreadA(center, Vector3.Zero);
-					}
-				}
-				else if (this.Parent.InFrustum)
-				{
-					for (int i = 0; i < 30; i++)
-					{
-						ShipModule.universeScreen.explosionParticles.AddParticleThreadA(new Vector3(this.Parent.Center, ((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-25f, 25f)), Vector3.Zero);
-					}
-				}
-			}
+			if (shield_power_max > 0f)
+				Health = 0f;
+
+			SetNewExternals();
+			Health = 0f;
+			Vector3 center = new Vector3(Center.X, Center.Y, -100f);
+
+            SolarSystem inSystem = Parent.GetSystem();
+            var rng = inSystem?.RNG ?? Ship.universeScreen.DeepSpaceRNG;
+
+            if (Active && Parent.InFrustum)
+            {
+                bool parentAlive = !Parent.dying;
+                for (int i = 0; i < 30; ++i)
+                {
+                    Vector3 pos = parentAlive ? center : new Vector3(Parent.Center, rng.RandomBetween(-25f, 25f));
+                    universeScreen.explosionParticles.AddParticleThreadA(pos, Vector3.Zero);
+                }
+            }
 			base.Die(source, cleanupOnly);
+
+            int size = XSIZE * YSIZE;
 			if (!cleanupOnly)
 			{
-				if (this.Parent.Active && this.Parent.InFrustum && ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView)
+				if (Parent.Active && Parent.InFrustum && universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView)
 				{
-					GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
-					Cue dieCue = AudioManager.GetCue("sd_explosion_module_small");
-					dieCue.Apply3D(GameplayObject.audioListener, this.Parent.emitter);
-					dieCue.Play();
+					audioListener.Position = universeScreen.camPos;
+                    AudioManager.PlayCue("sd_explosion_module_small", audioListener, Parent.emitter);
 				}
-                if (this.explodes)
+                if (explodes)
 				{
-					if (this.Parent.GetSystem() == null)
-					{
-                        UniverseScreen.DeepSpaceManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
-					}
-					else
-					{
-                        this.Parent.GetSystem().spatialManager.ExplodeAtModule(this.Parent.LastDamagedBy, this, (float)(2500 * this.XSIZE * this.YSIZE), (float)(this.XSIZE * this.YSIZE * 64));
-					}
+                    var mgr = inSystem?.spatialManager ?? UniverseScreen.DeepSpaceManager;
+                    mgr.ExplodeAtModule(Parent.LastDamagedBy, this, damageAmount:size*2500, damageRadius:size*64);
 				}
-				if (this.PowerFlowMax > 0 || this.PowerRadius > 0)
-				{
-					this.Parent.NeedRecalculate = true;
-				}
+				if (PowerFlowMax > 0 || PowerRadius > 0)
+					Parent.NeedRecalculate = true;
 			}
-			if (((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < 10f)
-			{
-				List<SpaceJunk> junk = SpaceJunk.MakeJunk(1, this.Center, this.Parent.GetSystem());
-				lock (GlobalStats.ObjectManagerLocker)
-				{
-					foreach (SpaceJunk j in junk)
-					{
-						j.wasAddedToScene = true;
-						ShipModule.universeScreen.ScreenManager.inter.ObjectManager.Submit(j.JunkSO);
-						UniverseScreen.JunkList.Add(j);
-					}
-				}
-			}
+
+            int debriCount = (int)RandomMath.RandomBetween(0, size/2 + 1);
+            if (debriCount != 0)
+            {
+                float debriScale = size * 0.1f;
+			    List<SpaceJunk> junk = SpaceJunk.MakeJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
+			    lock (GlobalStats.ObjectManagerLocker)
+			    {
+				    foreach (SpaceJunk j in junk)
+				    {
+					    j.wasAddedToScene = true;
+					    universeScreen.ScreenManager.inter.ObjectManager.Submit(j.JunkSO);
+					    UniverseScreen.JunkList.Add(j);
+				    }
+			    }
+            }
+
             //this.SetNewExternals();
 		}
 
@@ -1707,56 +1694,53 @@ namespace Ship_Game.Gameplay
 
 		public Ship GetHangarShip()
 		{
-			return this.hangarShip;
+			return hangarShip;
 		}
 
 		public Ship GetParent()
 		{
-			return this.Parent;
+			return Parent;
 		}
 
 		public void Initialize(Vector2 pos)
 		{
             DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
-			this.XMLPosition = pos;
-			this.radius = 8f;
-			base.Position = pos;
-			base.Dimensions = new Vector2(16f, 16f);
-			Vector2 RelativeShipCenter = new Vector2(512f, 512f);
+			XMLPosition = pos;
+			Radius = 8f;
+			Position = pos;
+			Dimensions = new Vector2(16f, 16f);
+			Vector2 relativeShipCenter = new Vector2(512f, 512f);
 			this.moduleCenter.X = base.Position.X + 256f;
 			this.moduleCenter.Y = base.Position.Y + 256f;
-			this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
-			float scaleFactor = 1f;
-			//ShipModule shipModule = this;
-			this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
-			this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
-			//this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
-			this.SetInitialPosition();
-			this.SetAttributesByType();
-			if (this.Parent != null && this.Parent.loyalty != null)
+
+            distanceToParentCenter = Vector2.Distance(relativeShipCenter, moduleCenter);
+			offsetAngle = Math.Abs(FindAngleToTarget(relativeShipCenter, moduleCenter));
+			SetInitialPosition();
+			SetAttributesByType();
+			if (Parent?.loyalty != null)
 			{
-                float test = this.HealthMax;
-                if (this.ModuleType != ShipModuleType.Dummy)
-                 test = ResourceManager.ShipModulesDict[this.UID].HealthMax;
-                else if(this.ParentOfDummy != null && !string.IsNullOrEmpty(this.ParentOfDummy.UID))
-                    test = ResourceManager.ShipModulesDict[this.ParentOfDummy.UID].HealthMax;
-                this.HealthMax = test + test * this.Parent.loyalty.data.Traits.ModHpModifier;
-                base.Health = this.Health = this.HealthMax;     //Gretman (Health bug fix)
+                float test = HealthMax;
+                if (ModuleType != ShipModuleType.Dummy)
+                 test = ResourceManager.ShipModulesDict[UID].HealthMax;
+                else if(!string.IsNullOrEmpty(ParentOfDummy?.UID))
+                    test = ResourceManager.ShipModulesDict[ParentOfDummy.UID].HealthMax;
+                HealthMax = test + test * Parent.loyalty.data.Traits.ModHpModifier;
+                Health = HealthMax;     //Gretman (Health bug fix)
 			}
-			if (!this.isDummy && (this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
+			if (!isDummy && (installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
 			{
-				byte xsize = this.YSIZE;
-				byte ysize = this.XSIZE;
-				this.XSIZE = xsize;
-				this.YSIZE = ysize;
+				byte ysize = YSIZE;
+				byte xsize = XSIZE;
+				XSIZE = ysize;
+				YSIZE = xsize;
 			}
-			if (this.XSIZE > 1)
+			if (XSIZE > 1)
 			{
-				for (int xs = this.XSIZE; xs > 1; xs--)
+				for (int xs = XSIZE; xs > 1; xs--)
 				{
 					ShipModule dummy = new ShipModule()
 					{
-						XMLPosition = this.XMLPosition
+						XMLPosition = XMLPosition
 					};
 					dummy.XMLPosition.X = dummy.XMLPosition.X + (float)(16 * (xs - 1));
 					dummy.isDummy = true;
@@ -1851,7 +1835,7 @@ namespace Ship_Game.Gameplay
         {
             DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
             this.XMLPosition = pos;
-            this.radius = 8f;
+            this.Radius = 8f;
             base.Position = pos;
             base.Dimensions = new Vector2(16f, 16f);
             Vector2 RelativeShipCenter = new Vector2(512f, 512f);
@@ -1861,7 +1845,7 @@ namespace Ship_Game.Gameplay
             float scaleFactor = 1f;
             //ShipModule shipModule = this;
             this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
-            this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
+            this.offsetAngle = (float)Math.Abs(base.FindAngleToTarget(RelativeShipCenter, this.moduleCenter));
             //this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
             this.SetInitialPosition();
             this.SetAttributesByType();
@@ -1978,7 +1962,7 @@ namespace Ship_Game.Gameplay
 		public void InitializeLite(Vector2 pos)
 		{
 			this.XMLPosition = pos;
-			this.radius = 8f;
+			this.Radius = 8f;
 			base.Position = pos;
 			base.Dimensions = new Vector2(16f, 16f);
 			Vector2 RelativeShipCenter = new Vector2(512f, 512f);
@@ -1988,7 +1972,7 @@ namespace Ship_Game.Gameplay
 			float scaleFactor = 1f;
 			//ShipModule shipModule = this;
 			this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
-			this.offsetAngle = (float)Math.Abs(base.findAngleToTarget(RelativeShipCenter, this.moduleCenter));
+			this.offsetAngle = (float)Math.Abs(base.FindAngleToTarget(RelativeShipCenter, this.moduleCenter));
 			//this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
 			this.SetInitialPosition();
 			this.SetAttributesByType();
@@ -2070,36 +2054,6 @@ namespace Ship_Game.Gameplay
 
 		public void LoadContent(ContentManager contentManager)
 		{
-		}
-
-		public void Move(float elapsedTime, float cos, float sin, float tan)
-		{
-			GlobalStats.ModulesMoved += 1;
-			Vector2 actualVector = this.XMLPosition;
-			actualVector.X -= 256f;
-			actualVector.Y -= 256f;
-			this.Center.X = actualVector.X * cos - actualVector.Y * sin;
-			this.Center.Y = actualVector.X * sin + actualVector.Y * cos;
-			//ShipModule center = this;
-			this.Center += this.Parent.Center;
-            //float num = 256f - this.XMLPosition.X;
-            this.Center3D.X = this.Center.X;
-			this.Center3D.Y = this.Center.Y;
-			this.Center3D.Z = tan * (256f - this.XMLPosition.X);
-            if (this.Parent.dying && this.Parent.InFrustum)
-			{
-				if (this.trailEmitter == null && this.firetrailEmitter == null && this.reallyFuckedUp)
-				{
-					this.trailEmitter = new ParticleEmitter(ShipModule.universeScreen.projectileTrailParticles, 50f, this.Center3D);
-					this.firetrailEmitter = new ParticleEmitter(ShipModule.universeScreen.fireTrailParticles, 60f, this.Center3D);
-					this.flameEmitter = new ParticleEmitter(ShipModule.universeScreen.flameParticles, 80f, this.Center3D);
-				}
-				if (this.trailEmitter != null && this.Active && this.reallyFuckedUp)
-				{
-					this.trailEmitter.Update(elapsedTime, this.Center3D);
-					this.flameEmitter.Update(elapsedTime, this.Center3D);
-				}
-			}
 		}
 
 		public void ScrambleFightersORIG()
@@ -2330,117 +2284,36 @@ namespace Ship_Game.Gameplay
                 //    this.TargetTracking =  //   Convert.ToSByte((this.XSIZE * this.YSIZE) / 3);
                 //    break;
             }
-            this.Health = this.HealthMax;
+            Health = HealthMax;
         }
 
 		public void SetHangarShip(Ship ship)
 		{
-			this.hangarShip = ship;
+			hangarShip = ship;
             if(ship != null)
-                this.installedSlot.HangarshipGuid = ship.guid;  //fbedard: save mothership
+                installedSlot.HangarshipGuid = ship.guid;  //fbedard: save mothership
 		}
 
 		public void SetInitialPosition()
 		{
-			float theta;
-			float parentFacing = this.Parent.Rotation;
-			if (parentFacing != 0f)
-			{
-				parentFacing = parentFacing * 180f / 3.14159274f;
-			}
-			float gamma = this.offsetAngle + parentFacing;
-			float D = this.distanceToParentCenter;
-			int gammaQuadrant = 0;
-			float oppY = 0f;
-			float adjX = 0f;
-			if (gamma > 360f)
-			{
-				gamma = gamma - 360f;
-			}
-			if (gamma < 90f)
-			{
-				theta = 90f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 1;
-			}
-			else if (gamma > 90f && gamma < 180f)
-			{
-				theta = gamma - 90f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 2;
-			}
-			else if (gamma > 180f && gamma < 270f)
-			{
-				theta = 270f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 3;
-			}
-			else if (gamma > 270f && gamma < 360f)
-			{
-				theta = gamma - 270f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 4;
-			}
-			this.ModuleCenter = new Vector2(0f, 0f);
-			if (gamma == 0f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X;
-				this.ModuleCenter.Y = this.Parent.Center.Y - D;
-			}
-			if (gamma == 90f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X + D;
-				this.ModuleCenter.Y = this.Parent.Center.Y;
-			}
-			if (gamma == 180f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X;
-				this.ModuleCenter.Y = this.Parent.Center.Y + D;
-			}
-			if (gamma == 270f)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X - D;
-				this.ModuleCenter.Y = this.Parent.Center.Y;
-			}
-			if (gammaQuadrant == 1)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X + adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y - oppY;
-			}
-			else if (gammaQuadrant == 2)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X + adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y + oppY;
-			}
-			else if (gammaQuadrant == 3)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X - adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y + oppY;
-			}
-			else if (gammaQuadrant == 4)
-			{
-				this.ModuleCenter.X = this.Parent.Center.X - adjX;
-				this.ModuleCenter.Y = this.Parent.Center.Y - oppY;
-			}
-			base.Position = new Vector2(this.ModuleCenter.X - 8f, this.ModuleCenter.Y - 8f);
-			this.Center = this.ModuleCenter;
+			float parentFacing = Parent.Rotation * 180f / 3.14159274f;
+
+            Vector2 position = Parent.Center;
+            float angle = offsetAngle + parentFacing;
+            float distance = distanceToParentCenter;
+            ModuleCenter = HelperFunctions.FindPointFromAngleAndDistance(position, angle, distance);
+
+			Position = new Vector2(ModuleCenter.X - 8f, ModuleCenter.Y - 8f);
+			Center = ModuleCenter;
 		}
 
 		public void SetModuleToCenter()
 		{
-			base.Position = this.Parent.Position;
-			this.Center = this.Parent.Center;
-			if (this.isWeapon)
+			Position = Parent.Position;
+			Center = Parent.Center;
+			if (isWeapon)
 			{
-				this.InstalledWeapon.Center = this.Center;
+				InstalledWeapon.Center = Center;
 			}
 		}
 
@@ -2535,10 +2408,10 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz: shields keep charge when manually turned off
                 if (this.shield_power <= 0f || shieldsOff)
                 {
-                    this.radius = 8f;
+                    this.Radius = 8f;
                 }
                 else
-                    this.radius = this.shield_radius;
+                    this.Radius = this.shield_radius;
                 if (this.ModuleType == ShipModuleType.Hangar && this.Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
                     this.hangarTimer -= elapsedTime;
                 //Shield Recharge
@@ -2562,89 +2435,88 @@ namespace Ship_Game.Gameplay
 			base.Update(elapsedTime);
         }
 
+        // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
 		public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
 		{
-			this.Move(elapsedTime, cos, sin, tan);
-			if (this.Parent.percent >= 0.5 || base.Health >= 0.25 * this.HealthMax)
-			{
-				this.reallyFuckedUp = false;
-			}
-			else
-			{
-				this.reallyFuckedUp = true;
-			}
-            if (this.Parent.InFrustum && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
-            {
-                if (this.Active && this.onFire && this.trailEmitter == null && this.firetrailEmitter == null)
-                {
-                    this.trailEmitter = new ParticleEmitter(ShipModule.universeScreen.projectileTrailParticles, 50f, this.Center3D);
-                    this.firetrailEmitter = new ParticleEmitter(ShipModule.universeScreen.fireTrailParticles, 60f, this.Center3D);
-                    this.flameEmitter = new ParticleEmitter(ShipModule.universeScreen.flameParticles, 50f, this.Center3D);
-                }
-                if (this.trailEmitter != null && this.reallyFuckedUp && this.Active)
-                {
-                    this.trailEmitter.Update(elapsedTime, this.Center3D);
-                    this.flameEmitter.Update(elapsedTime, this.Center3D);
-                }
-                else if (this.trailEmitter != null && this.onFire && this.Active)
-                {
-                    this.trailEmitter.Update(elapsedTime, this.Center3D);
-                    this.firetrailEmitter.Update(elapsedTime, this.Center3D);
-                }
-                else if (!this.Active && this.trailEmitter != null)
-                {
-                    this.trailEmitter = null;
-                    this.firetrailEmitter = null;
-                } 
-            }
-			base.Rotation = this.Parent.Rotation;
+            // Move the module, this part is optimized according to profiler data
+            GlobalStats.ModulesMoved += 1;
+			Vector2 actualVector = XMLPosition; // huge cache miss here
+			actualVector.X -= 256f;
+			actualVector.Y -= 256f;
+            float cx = actualVector.X * cos - actualVector.Y * sin;
+            float cy = actualVector.X * sin + actualVector.Y * cos;
+            Vector2 parentCenter = Parent.Center;
+            cx += parentCenter.X;
+            cy += parentCenter.Y;
+            Center.X = cx;
+            Center.Y = cy;
+            Center3D.X = cx;
+			Center3D.Y = cy;
+			Center3D.Z = tan * (256f - XMLPosition.X);
+
+            // this can only happen if onFire is already true
+		    reallyFuckedUp = Parent.percent < 0.5f && Health / HealthMax < 0.25f;
+
+		    HandleDamageFireTrail(elapsedTime);
+			Rotation = Parent.Rotation;
 		}
+
+        private void HandleDamageFireTrail(float elapsedTime)
+        {
+		    if (Parent.InFrustum && Active && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            {
+                if (reallyFuckedUp)
+		        {
+                    if (trailEmitter == null) trailEmitter = new ParticleEmitter(universeScreen.projectileTrailParticles, 50f, Center3D);
+                    if (flameEmitter == null) flameEmitter = new ParticleEmitter(universeScreen.flameParticles, 80f, Center3D);
+		            trailEmitter.Update(elapsedTime, Center3D);
+		            flameEmitter.Update(elapsedTime, Center3D);
+		        }
+		        else if (onFire)
+		        {
+                    if (trailEmitter == null)     trailEmitter     = new ParticleEmitter(universeScreen.projectileTrailParticles, 50f, Center3D);
+                    if (firetrailEmitter == null) firetrailEmitter = new ParticleEmitter(universeScreen.fireTrailParticles, 60f, Center3D);
+		            trailEmitter.Update(elapsedTime, Center3D);
+		            firetrailEmitter.Update(elapsedTime, Center3D);
+		        }
+            }
+            else if (trailEmitter != null) // destroy immediately when out of vision range
+            {
+                trailEmitter     = null; // tried Disposing these, but got a crash... so just null them
+                firetrailEmitter = null;
+                flameEmitter     = null;
+            }
+        }
 
 		public void UpdateWhileDying(float elapsedTime)
 		{
-			this.Center3D = new Vector3(this.Parent.Center.X, this.Parent.Center.Y, ((this.Parent.GetSystem() != null ? this.Parent.GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-25f, 25f));
-			if (this.trailEmitter != null && this.reallyFuckedUp && this.Active)
-			{
-				this.trailEmitter.Update(elapsedTime, this.Center3D);
-				this.flameEmitter.Update(elapsedTime, this.Center3D);
-				return;
-			}
-			if (this.trailEmitter != null && this.onFire && this.Active)
-			{
-				this.trailEmitter.Update(elapsedTime, this.Center3D);
-				this.firetrailEmitter.Update(elapsedTime, this.Center3D);
-			}
+            var rng = Parent.GetSystem()?.RNG ?? Ship.universeScreen.DeepSpaceRNG;
+			Center3D = new Vector3(Parent.Center.X, Parent.Center.Y, rng.RandomBetween(-25f, 25f));
+            HandleDamageFireTrail(elapsedTime);
 		}
 
         public void Repair(float repairAmount)
         {
-            this.Health += repairAmount;
-            if (this.Health >= this.HealthMax)
-            {
-                this.Health = this.HealthMax;
-                foreach (ShipModule dummy in this.LinkedModulesList)
-                {
-                    dummy.Health = dummy.HealthMax;
-                }
-            }
+            Health += repairAmount;
+            if (Health < HealthMax) return;
+
+            Health = HealthMax;
+            foreach (ShipModule dummy in LinkedModulesList)
+                dummy.Health = dummy.HealthMax;
         }
 
         public float GetShieldsMax()
         {
-			if (GlobalStats.ActiveModInfo != null)
-            {
-                float value = this.shield_power_max;
-                value += (this.Parent.loyalty != null ? this.shield_power_max * this.Parent.loyalty.data.ShieldPowerMod : 0);
-                if (GlobalStats.ActiveModInfo.useHullBonuses)
-                {
-                    HullBonus mod;
-                    if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out mod))
-                        value += this.shield_power_max * mod.ShieldBonus;
-                }
+            if (GlobalStats.ActiveModInfo == null)
+                return shield_power_max;
+
+            float value = shield_power_max + shield_power_max * Parent.loyalty?.data.ShieldPowerMod ?? 0;
+            if (!GlobalStats.ActiveModInfo.useHullBonuses)
                 return value;
-            }
-            else
-                return this.shield_power_max;
+
+            if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out HullBonus mod))
+                value += shield_power_max * mod.ShieldBonus;
+            return value;
         }
 	}
 }

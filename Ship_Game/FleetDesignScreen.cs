@@ -150,7 +150,7 @@ namespace Ship_Game
 		private Vector2 starfieldPos = Vector2.Zero;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+        //private bool disposed;
 
 		static FleetDesignScreen()
 		{

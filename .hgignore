@@ -5,8 +5,15 @@ obj/
 Ship_Game\Gameplay\GremlinAI.cs
 bin/
 *.orig
+StarDrive.v12.suo
 UpgradeLog2.htm
 *.vspx
 Deploy/Upload/
 Deploy/
+StarDrive/
+Backup\Backup\StarDrive.sln
+Deploy/
 *.suo
+StarDrive.VC.db
+StarDrive.csproj.DotSettings
+SDNative\SDNative.vcxproj.user

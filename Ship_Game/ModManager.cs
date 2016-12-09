@@ -9,7 +9,6 @@ using System.Xml.Serialization;
 using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SynapseGaming.LightingSystem.Rendering;
 namespace Ship_Game
@@ -335,29 +334,24 @@ namespace Ship_Game
 			this.AllSaves = new Submenu(base.ScreenManager, scrollList);
 			this.AllSaves.AddTab(Localizer.Token(4013));
 			this.ModsSL = new ScrollList(this.AllSaves, 140);
-			FileInfo[] filesFromDirectoryNoSub = ResourceManager.GetFilesFromDirectoryNoSub("Mods");
-			for (int i = 0; i < (int)filesFromDirectoryNoSub.Length; i++)
+
+			foreach (FileInfo info in Dir.GetFilesNoSub("Mods"))
 			{
-				FileInfo FI = filesFromDirectoryNoSub[i];
-				Stream file = FI.OpenRead();
-                ModInformation data;
-                if(FI.Name.Contains(".txt"))
+                if (info.Name.Contains(".txt"))
                     continue;
-                try
-                {
-                     
-                    data = (ModInformation)ResourceManager.ModSerializer.Deserialize(file);
+			    try
+			    {
+			        ModInformation data;
+			        using (Stream file = info.OpenRead())
+			            data = (ModInformation)ResourceManager.ModSerializer.Deserialize(file);
+                    ModEntry me = new ModEntry(ScreenManager, data, Path.GetFileNameWithoutExtension(info.Name));
+                    ModsSL.AddItem(me);
                 }
-                catch (Exception ex)
-                {
-                    ex.Data.Add("Load Error in file", FI.Name);
-                    
-                    throw;
-                }
-				//file.Close();
-				file.Dispose();
-				ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
-				this.ModsSL.AddItem(me);
+			    catch (Exception ex)
+			    {
+			        ex.Data.Add("Load Error in file", info.Name);
+			        throw;
+			    }
 			}
 			this.EnternamePos = this.TitlePosition;
 			this.EnterNameArea = new UITextEntry();
@@ -394,9 +388,7 @@ namespace Ship_Game
 				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
 				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
 				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				
                 Text = Localizer.Token(4044),
-
 				Launches = "shiptool"
 			};
 			this.Buttons.Add(this.shiptool);

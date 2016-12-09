@@ -152,22 +152,26 @@ namespace Ship_Game
 			return e;
 		}
 
-		private Planet CreatePlanetFromPlanetSaveData(SavedGame.PlanetSaveData data)
+		private Planet CreatePlanetFromPlanetSaveData(SolarSystem forSystem, SavedGame.PlanetSaveData data)
 		{
 			Building building;
-			Planet p = new Planet();
-			if (!string.IsNullOrEmpty(data.Owner))
+		    Planet p = new Planet
+		    {
+		        system = forSystem,
+		        ParentSystem = forSystem,
+                guid = data.guid,
+                Name = data.Name
+            };
+		    if (!string.IsNullOrEmpty(data.Owner))
 			{
 				p.Owner = EmpireManager.GetEmpireByName(data.Owner);
 				p.Owner.AddPlanet(p);
 			}
-			p.guid = data.guid;
-			p.Name = data.Name;
             if(!string.IsNullOrEmpty(data.SpecialDescription))
             {
                 p.SpecialDescription = data.SpecialDescription;
             }
-            if (data.Scale != 0)
+            if (data.Scale != 0f)
             {
                 p.scale = data.Scale;
             }
@@ -313,9 +317,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					Planet p = this.CreatePlanetFromPlanetSaveData(ring.Planet);
-					p.system = system;
-					p.ParentSystem = system;
+					Planet p = this.CreatePlanetFromPlanetSaveData(system, ring.Planet);
 					p.Position = HelperFunctions.GeneratePointOnCircle(p.OrbitalAngle, system.Position, p.OrbitalRadius);
                     
 					foreach (Building b in p.BuildingList)
@@ -682,9 +684,7 @@ namespace Ship_Game
 						ship.IsPlayerDesign = false;
 						ship.FromSave = true;
 					}
-                    float oldbasestr = ship.BaseStrength;
-                    float newbasestr = ResourceManager.CalculateBaseStrength(ship);
-                    ship.BaseStrength = newbasestr;
+                    ship.BaseStrength = ResourceManager.CalculateBaseStrength(ship);
 
                     foreach(ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
                     {
@@ -1071,20 +1071,17 @@ namespace Ship_Game
 			{
 				foreach (SavedGame.RingSave rsave in sdata.RingList)
 				{
-					Planet p = new Planet();
-					foreach (SolarSystem s in this.data.SolarSystemsList)
+					Planet p = null;
+					foreach (SolarSystem s in data.SolarSystemsList)
 					{
 						foreach (Planet p1 in s.PlanetList)
 						{
-							if (p1.guid != rsave.Planet.guid)
-							{
-								continue;
-							}
-							p = p1;
-							break;
+						    if (p1.guid != rsave.Planet.guid) continue;
+						    p = p1;
+						    break;
 						}
 					}
-					if (p.Owner == null)
+					if (p?.Owner == null)
 					{
 						continue;
 					}
@@ -1112,35 +1109,39 @@ namespace Ship_Game
 						if (qisave.isTroop)
 						{
 							qi.isTroop = true;
-							qi.troop = Ship_Game.ResourceManager.TroopsDict[qisave.UID];
+							qi.troop = ResourceManager.TroopsDict[qisave.UID];
                             qi.Cost = qi.troop.GetCost();
                             qi.NotifyOnEmpty = false;
 						}
 						if (qisave.isShip)
 						{
 							qi.isShip = true;
-							if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(qisave.UID))
-							{
+							if (!ResourceManager.ShipsDict.ContainsKey(qisave.UID))
 								continue;
-							}
-							qi.sData = Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData();
+
+                            Ship shipTemplate = ResourceManager.GetShipTemplate(qisave.UID);
+                            qi.sData = shipTemplate.GetShipData();
 							qi.DisplayName = qisave.DisplayName;
 							qi.Cost = 0f;
-							foreach (ModuleSlot slot in Ship_Game.ResourceManager.GetShip(qisave.UID).ModuleSlotList)
+							foreach (ModuleSlot slot in shipTemplate.ModuleSlotList)
 							{
 								if (slot.InstalledModuleUID == null)
-								{
 									continue;
-								}
-								QueueItem cost = qi;
-								cost.Cost = cost.Cost + Ship_Game.ResourceManager.GetModule(slot.InstalledModuleUID).Cost * this.savedData.GamePacing;
+								qi.Cost += ResourceManager.GetModuleCost(slot.InstalledModuleUID) * savedData.GamePacing;
 							}
 							QueueItem queueItem = qi;
                             queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;
-							queueItem.Cost *= (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().Hull) ? 1f - ResourceManager.HullBonuses[Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().Hull].CostBonus : 1);
+
+                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
+                            {
+                                string hull = ResourceManager.GetShipHull(qisave.UID);
+                                if (ResourceManager.HullBonuses.TryGetValue(hull, out HullBonus bonus))
+                                    queueItem.Cost *= 1f - bonus.CostBonus;
+                            }
+
 							if (qi.sData.HasFixedCost)
 							{
-								qi.Cost = (float)qi.sData.FixedCost;
+								qi.Cost = qi.sData.FixedCost;
 							}
 							if (qisave.IsRefit)
 							{
@@ -1159,7 +1160,7 @@ namespace Ship_Game
 						}
 						if (qisave.isShip && qi.Goal != null)
 						{
-							qi.Goal.beingBuilt = Ship_Game.ResourceManager.GetShip(qisave.UID);
+							qi.Goal.beingBuilt = ResourceManager.GetShipTemplate(qisave.UID);
 						}
 						qi.productionTowards = qisave.ProgressTowards;
 						p.ConstructionQueue.Add(qi);

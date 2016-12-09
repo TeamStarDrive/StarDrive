@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using NAudio.Wave;
+using Cue = Microsoft.Xna.Framework.Audio.Cue;
 
 namespace Ship_Game
 {
@@ -63,78 +65,78 @@ namespace Ship_Game
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!disposed)
-			{
-				if (disposing)
-				{
-					if (this.soundBank != null)
-						this.soundBank.Dispose();
-					if (this.waveBank != null)
-						this.waveBank.Dispose();
-					if (this.audioEngine != null)
-						this.audioEngine.Dispose();
-                }
-            this.soundBank = null;
-            this.waveBank = null;
-            this.audioEngine = null;
-            base.Dispose(disposing);
-            disposed=true;
-			}
+		    if (disposed) return;
+		    if (disposing)
+		    {
+		        soundBank?.Dispose();
+		        waveBank?.Dispose();
+		        audioEngine?.Dispose();
+		    }
+		    soundBank   = null;
+		    waveBank    = null;
+		    audioEngine = null;
+		    disposed    = true;
+		    base.Dispose(disposing);
 		}
 
-		public static AudioEngine getAudioEngine()
+	    public static AudioManager Manager
+	    {
+	        get
+	        {
+	            if (audioManager?.audioEngine == null
+                    || audioManager.soundBank == null
+                    || audioManager.waveBank == null)
+                    return null;
+                return audioManager;
+	        }
+	    }
+        public static AudioEngine AudioEngine => Manager?.audioEngine;
+
+        public static Cue GetCue(string cueName)
 		{
-			if (AudioManager.audioManager == null || AudioManager.audioManager.audioEngine == null || AudioManager.audioManager.soundBank == null || AudioManager.audioManager.waveBank == null)
-			{
-				return null;
-			}
-			return AudioManager.audioManager.audioEngine;
+			return Manager?.soundBank.GetCue(cueName);
 		}
 
-		public static Cue GetCue(string cueName)
+		public static void Initialize(Game game, string settingsFile, string waveBankFile, string soundBankFile)
 		{
-			if (AudioManager.audioManager == null || AudioManager.audioManager.audioEngine == null || AudioManager.audioManager.soundBank == null || AudioManager.audioManager.waveBank == null)
-			{
-				return null;
-			}
-            
-			return AudioManager.audioManager.soundBank.GetCue(cueName);
-		}
-
-		public static void Initialize(Microsoft.Xna.Framework.Game game, string settingsFile, string waveBankFile, string soundBankFile)
-		{
-			AudioManager.audioManager = new AudioManager(game, settingsFile, waveBankFile, soundBankFile);
-			if (game != null)
-			{
-				game.Components.Add(AudioManager.audioManager);
-			}
+			audioManager = new AudioManager(game, settingsFile, waveBankFile, soundBankFile);
+		    game?.Components.Add(audioManager);
 		}
 
 		public static void PlayCue(string cueName)
 		{
-			if (AudioManager.audioManager != null &&  AudioManager.audioManager.SoundEffectInstances.Count <7 &&   AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
+			if (audioManager?.audioEngine != null 
+                && audioManager.soundBank != null 
+                && audioManager.waveBank != null 
+                && audioManager.SoundEffectInstances.Count < 7 )
 			{
-				
-                AudioManager.audioManager.soundBank.PlayCue(cueName);
+                audioManager.soundBank.PlayCue(cueName);
 			}
 		}
         public static void PlayCue(string cueName, Vector3 listener, Vector3 emitter)
         {
-            if (AudioManager.audioManager != null && AudioManager.audioManager.audioEngine != null && AudioManager.audioManager.soundBank != null && AudioManager.audioManager.waveBank != null)
+            if (audioManager?.audioEngine != null 
+                && audioManager.soundBank != null 
+                && audioManager.waveBank != null)
             {
                 
-                AudioManager.audioManager.soundBank.PlayCue(cueName);
+                audioManager.soundBank.PlayCue(cueName);
             }
+        }
+
+        public static Cue PlayCue(string cueName, AudioListener listener, AudioEmitter emitter)
+        {
+            Cue cue = GetCue(cueName);
+            cue.Apply3D(listener, emitter);
+            cue.Play();
+            return cue;
         }
 
 		public override void Update(GameTime gameTime)
 		{
-            this.DisposeSoundEffectInstances();
-			if (this.audioEngine != null)
-			{
-				this.audioEngine.Update();
-			}
-			base.Update(gameTime);
+            DisposeSoundEffectInstances();
+		    audioEngine?.Update();
+		    base.Update(gameTime);
 		}
 
         //Added by McShooterz: Play a sound

@@ -151,16 +151,16 @@ namespace Ship_Game
         /// <summary>
         /// testing stacktrace
         /// </summary>
-        /// <param name="StartCount">sould be smaller than para2</param>
-        /// <param name="ErrorOn">ErrorOn = on which number make a crash </param>
-        public static void TestStackTrace(int StartCount,int ErrorOn)
+        /// <param name="startCount">sould be smaller than para2</param>
+        /// <param name="errorOn">ErrorOn = on which number make a crash </param>
+        public static void TestStackTrace(int startCount, int errorOn)
         {
-            if (StartCount == ErrorOn)
+            if (startCount == errorOn)
                 throw new StarDriveTestException("test exception");
             else
             {
-                StartCount++;
-                TestStackTrace(StartCount, ErrorOn);
+                startCount++;
+                TestStackTrace(startCount, errorOn);
             }
 
         }
