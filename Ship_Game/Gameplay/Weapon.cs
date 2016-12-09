@@ -402,7 +402,7 @@ namespace Ship_Game.Gameplay
             }
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			this.ToggleSoundOn = false;
-			if ((this.owner.GetSystem() != null && this.owner.GetSystem().isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+			if ((this.owner.System!= null && this.owner.System.isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
                 //Added by McShooterz: Use sounds from new sound dictionary
                 if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
@@ -1307,7 +1307,7 @@ namespace Ship_Game.Gameplay
 			projectile.Initialize(this.ProjectileSpeed, direction, owner.Center);
 			projectile.Radius = this.ProjectileRadius;
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			if (owner.GetSystem() != null && owner.GetSystem().isVisible || owner.isInDeepSpace)
+			if (owner.System!= null && owner.System.isVisible || owner.isInDeepSpace)
 			{
 				int numberSameWeapons = 0;
 				//this.toggleTimer = 0f;

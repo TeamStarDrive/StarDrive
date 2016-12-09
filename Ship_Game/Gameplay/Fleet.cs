@@ -775,7 +775,7 @@ namespace Ship_Game.Gameplay
         public void AssignDataPositions(float facing)
         {
             this.facing = facing;
-            foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.DataNodes)
+            foreach (FleetDataNode fleetDataNode in DataNodes)
             {
                 float angle = MathHelper.ToRadians(Math.Abs(HelperFunctions.findAngleToTarget(Vector2.Zero, fleetDataNode.FleetOffset)) + MathHelper.ToDegrees(facing));
                 float distance = fleetDataNode.FleetOffset.Length();

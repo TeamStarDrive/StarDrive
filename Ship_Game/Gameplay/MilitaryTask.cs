@@ -329,7 +329,7 @@ namespace Ship_Game.Gameplay
                     || ship.Mothership != null
                     || this.empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship)
                     || ship.GetAI().State !=  AIState.AwaitingOrders
-                    || (ship.GetSystem() != null && ship.GetSystem().CombatInSystem) 
+                    || (ship.System!= null && ship.System.CombatInSystem) 
 
                     )//&& ship.fleet.Task == null) //&& ship.fleet != null && ship.fleet.Task == null)
                 {

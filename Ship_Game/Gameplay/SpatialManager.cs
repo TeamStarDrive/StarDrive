@@ -75,7 +75,7 @@ namespace Ship_Game.Gameplay
                     gameplayObject = this.CollidableObjects[index];
                     if (gameplayObject != null)
                     {
-                        if (gameplayObject.GetSystem() != null && system == null)
+                        if (gameplayObject.System!= null && system == null)
                             this.CollidableObjects.QueuePendingRemoval(gameplayObject);
                         else if (gameplayObject != null)
                         {
@@ -89,7 +89,7 @@ namespace Ship_Game.Gameplay
                 for (int index = 0; index < this.CollidableProjectiles.Count; ++index)
                 {
                     Projectile projectile = this.CollidableProjectiles[index];
-                    if (projectile.GetSystem() != null && system == null)
+                    if (projectile.System!= null && system == null)
                         this.CollidableProjectiles.QueuePendingRemoval(projectile);
                     else if (projectile != null && projectile.Active)
                         this.RegisterObject((GameplayObject)projectile);
@@ -103,7 +103,7 @@ namespace Ship_Game.Gameplay
                     GameplayObject gameplayObject = this.CollidableObjects[index];
                     Ship oShip = gameplayObject as Ship;
                     //if (gameplayObject != null &&!(gameplayObject.GetSystem() != null & system == null) &&  (!(gameplayObject is Ship) || system != null || (gameplayObject as Ship).GetAI().BadGuysNear))
-                    if (gameplayObject != null && !(gameplayObject.GetSystem() != null & system == null) && (oShip == null || system != null || oShip.GetAI().BadGuysNear))
+                    if (gameplayObject != null && !(gameplayObject.System!= null & system == null) && (oShip == null || system != null || oShip.GetAI().BadGuysNear))
                         this.MoveAndCollide(gameplayObject);
                 }
             }

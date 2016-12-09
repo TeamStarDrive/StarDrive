@@ -135,7 +135,7 @@ namespace Ship_Game.Gameplay
                              && (ship.loyalty.isFaction || rel.AtWar)
                              || (pin.Value.InBorders && !rel.Treaty_OpenBorders)
                              || (ship.isColonyShip && 
-                             ( ship.GetSystem() != null && rel.WarnedSystemsList.Contains(ship.GetSystem().guid )))
+                             ( ship.System!= null && rel.WarnedSystemsList.Contains(ship.System.guid )))
                     
                              )
                     
@@ -410,25 +410,25 @@ namespace Ship_Game.Gameplay
         }
         public void UpdatePinShip(Ship s, Guid guid)
         {
-            if (s != null && !s.Active)
+            if (!s.Active)
             {
                 Pins.TryRemove(guid, out Pin _);
-                return;
             }
-            
-            if (!Pins.ContainsKey(s.guid))
+            else if (!Pins.TryGetValue(s.guid, out Pin pin))
             {
-                Pin pin = new Pin
+                Pins.TryAdd(s.guid, new Pin
                 {
                     Position   = s.Center,
                     Strength   = s.GetStrength(),
                     EmpireName = s.loyalty.data.Traits.Name
-                };
-                Pins.TryAdd(s.guid, pin);
-                return;
+                });
             }
-            Pins[s.guid].Velocity = s.Center - Pins[s.guid].Position;
-            Pins[s.guid].Position = s.Center;
+            else
+            {
+                pin.Velocity = s.Center - pin.Position;
+                pin.Position = s.Center;
+            }
+
         }
         public void ScrubMatrix()
         {
@@ -444,7 +444,7 @@ namespace Ship_Game.Gameplay
         {
             return Pins.Keys.Contains(s.guid) || Pins[s.guid].InBorders;
         }
-        public List<Ship> GetAllShipsInOurBorders()
+        public List<Ship> FindShipsInOurBorders()
         {
             var temp = new List<Ship>();
             foreach (Pin p in Pins.Values)
