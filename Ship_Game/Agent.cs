@@ -315,11 +315,11 @@ namespace Ship_Game
                     {
                         this.Mission = AgentMission.Defending;
                         this.MissionNameIndex = 2183;
-                        if (Target==null || Target.GetPlanets().Count == 0)
+                        if (Target == null || Target.NumPlanets == 0)
                         {
                             return;
                         }
-                        target = EmpireManager.GetEmpireByName(this.TargetEmpire).GetPlanets()[HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(this.TargetEmpire).GetPlanets().Count)];
+                        target = EmpireManager.GetEmpireByName(this.TargetEmpire).GetPlanets()[HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(this.TargetEmpire).NumPlanets)];
                         this.TargetGUID = target.guid;
                         if (DiceRoll >= ResourceManager.AgentMissionData.SabotageRollPerfect)
                         {

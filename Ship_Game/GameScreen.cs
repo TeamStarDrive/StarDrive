@@ -6,134 +6,37 @@ namespace Ship_Game
 	public abstract class GameScreen
 	{
 		public bool IsLoaded;
+	    public bool AlwaysUpdate;
+	    private bool OtherScreenHasFocus;
 
-		private bool isPopup;
-
-		private TimeSpan transitionOnTime = TimeSpan.Zero;
-
-		private TimeSpan transitionOffTime = TimeSpan.Zero;
-
-		private float transitionPosition = 1f;
-
-		private Ship_Game.ScreenState screenState;
-
-		public bool AlwaysUpdate;
-
-		private bool isExiting;
-
-		private bool otherScreenHasFocus;
-
-		private Ship_Game.ScreenManager screenManager;
-
-		public bool IsActive
+	    public bool IsActive
 		{
 			get
 			{
-				if (this.otherScreenHasFocus)
+				if (OtherScreenHasFocus)
 				{
 					return false;
 				}
-				if (this.screenState == Ship_Game.ScreenState.TransitionOn)
+				if (ScreenState == Ship_Game.ScreenState.TransitionOn)
 				{
 					return true;
 				}
-				return this.screenState == Ship_Game.ScreenState.Active;
+				return ScreenState == Ship_Game.ScreenState.Active;
 			}
 		}
 
-		public bool IsExiting
-		{
-			get
-			{
-				return this.isExiting;
-			}
-			protected set
-			{
-				this.isExiting = value;
-			}
-		}
+		public bool IsExiting { get; protected set; }
+	    public bool IsPopup { get; protected set; }
 
-		public bool IsPopup
-		{
-			get
-			{
-				return this.isPopup;
-			}
-			protected set
-			{
-				this.isPopup = value;
-			}
-		}
+	    public ScreenManager ScreenManager { get; internal set; }
+	    public ScreenState   ScreenState   { get; protected set; }
+	    public TimeSpan TransitionOffTime { get; protected set; } = TimeSpan.Zero;
+	    public TimeSpan TransitionOnTime  { get; protected set; } = TimeSpan.Zero;
+	    public float TransitionPosition   { get; protected set; } = 1f;
 
-		public Ship_Game.ScreenManager ScreenManager
-		{
-			get
-			{
-				return this.screenManager;
-			}
-			internal set
-			{
-				this.screenManager = value;
-			}
-		}
+        public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
-		public Ship_Game.ScreenState ScreenState
-		{
-			get
-			{
-				return this.screenState;
-			}
-			protected set
-			{
-				this.screenState = value;
-			}
-		}
-
-		public byte TransitionAlpha
-		{
-			get
-			{
-				return (byte)(255f - this.TransitionPosition * 255f);
-			}
-		}
-
-		public TimeSpan TransitionOffTime
-		{
-			get
-			{
-				return this.transitionOffTime;
-			}
-			protected set
-			{
-				this.transitionOffTime = value;
-			}
-		}
-
-		public TimeSpan TransitionOnTime
-		{
-			get
-			{
-				return this.transitionOnTime;
-			}
-			protected set
-			{
-				this.transitionOnTime = value;
-			}
-		}
-
-		public float TransitionPosition
-		{
-			get
-			{
-				return this.transitionPosition;
-			}
-			protected set
-			{
-				this.transitionPosition = value;
-			}
-		}
-
-		protected GameScreen()
+        protected GameScreen()
 		{
 		}
 
@@ -141,13 +44,13 @@ namespace Ship_Game
 
 		public virtual void ExitScreen()
 		{
-			this.screenManager.exitScreenTimer =.024f;
-            if (this.TransitionOffTime != TimeSpan.Zero)
+			ScreenManager.exitScreenTimer =.024f;
+            if (TransitionOffTime != TimeSpan.Zero)
 			{
-				this.isExiting = true;
+				IsExiting = true;
 				return;
 			}
-			this.ScreenManager.RemoveScreen(this);
+			ScreenManager.RemoveScreen(this);
 		}
 
 		public virtual void HandleInput(InputState input)
@@ -164,49 +67,37 @@ namespace Ship_Game
 
 		public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
-			this.otherScreenHasFocus = otherScreenHasFocus;
-			if (!this.isExiting)
+			OtherScreenHasFocus = otherScreenHasFocus;
+			if (!IsExiting)
 			{
 				if (coveredByOtherScreen)
 				{
-					if (this.UpdateTransition(gameTime, this.transitionOffTime, 1))
-					{
-						this.screenState = Ship_Game.ScreenState.TransitionOff;
-						return;
-					}
-					this.screenState = Ship_Game.ScreenState.Hidden;
+					ScreenState = UpdateTransition(gameTime, TransitionOffTime, 1)
+                                ? ScreenState.TransitionOff : ScreenState.Hidden;
 					return;
 				}
-				if (this.UpdateTransition(gameTime, this.transitionOnTime, -1))
-				{
-					this.screenState = Ship_Game.ScreenState.TransitionOn;
-					return;
-				}
-				this.screenState = Ship_Game.ScreenState.Active;
+			    ScreenState = UpdateTransition(gameTime, TransitionOnTime, -1)
+			                ? ScreenState.TransitionOn : ScreenState.Active;
 			}
 			else
 			{
-				this.screenState = Ship_Game.ScreenState.TransitionOff;
-				if (!this.UpdateTransition(gameTime, this.transitionOffTime, 1))
-				{
-					this.ScreenManager.RemoveScreen(this);
-					this.isExiting = false;
-					return;
-				}
+				ScreenState = ScreenState.TransitionOff;
+			    if (UpdateTransition(gameTime, TransitionOffTime, 1))
+                    return;
+			    ScreenManager.RemoveScreen(this);
+			    IsExiting = false;
 			}
 		}
 
 		private bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
 		{
-			float transitionDelta;
-			transitionDelta = (time != TimeSpan.Zero ? (float)(gameTime.ElapsedGameTime.TotalMilliseconds / time.TotalMilliseconds) : 1f);
+		    float transitionDelta = (time != TimeSpan.Zero ? (float)(gameTime.ElapsedGameTime.TotalMilliseconds / time.TotalMilliseconds) : 1f);
 			GameScreen gameScreen = this;
-			gameScreen.transitionPosition = gameScreen.transitionPosition + transitionDelta * (float)direction;
-			if (this.transitionPosition > 0f && this.transitionPosition < 1f)
-			{
+			gameScreen.TransitionPosition = gameScreen.TransitionPosition + transitionDelta * direction;
+			if (TransitionPosition > 0f && TransitionPosition < 1f)
 				return true;
-			}
-			this.transitionPosition = MathHelper.Clamp(this.transitionPosition, 0f, 1f);
+
+			TransitionPosition = MathHelper.Clamp(TransitionPosition, 0f, 1f);
 			return false;
 		}
 	}

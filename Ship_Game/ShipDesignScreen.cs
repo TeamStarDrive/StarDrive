@@ -1991,7 +1991,7 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
 				modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
 				float starty = modTitlePos.Y;
-                float strength = ResourceManager.CalculateModuleStrength(mod,"both",this.ActiveHull.ModuleSlotList.Count);                
+                float strength = ResourceManager.CalculateModuleOffenseDefense(mod, ActiveHull.ModuleSlotList.Count);                
                 if (strength > 0)
                 {
                     this.DrawStat(ref modTitlePos, "Offense", (float)strength, 227);
@@ -3961,8 +3961,8 @@ namespace Ship_Game
 				}
                 if (slot.module != null && !slot.isDummy)
                 {
-                    Off += ResourceManager.CalculateModuleStrength(slot.module, "Off", (int)Size);
-                    Def += ResourceManager.CalculateModuleStrength(slot.module, "Def", (int)Size);
+                    Off += ResourceManager.CalculateModuleOffense(slot.module);
+                    Def += ResourceManager.CalculateModuleDefense(slot.module, (int)Size);
                 }
 
             
@@ -6725,106 +6725,45 @@ namespace Ship_Game
 				}
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			Ship_Game.Gameplay.CombatState combatState = toSave.CombatState;
+			CombatState combatState = toSave.CombatState;
 			toSave.CombatState = this.CombatState;
 			toSave.Name = name;
 
             //Cases correspond to the 5 options in the drop-down menu; default exists for... Propriety, mainly. The option selected when saving will always be the Category saved, pretty straightforward.
-            foreach (Ship_Game.ShipData.Category item in Enum.GetValues(typeof(Ship_Game.ShipData.Category)).Cast<Ship_Game.ShipData.Category>())
+            foreach (var item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
             {
-                if(this.CategoryList.Options[this.CategoryList.ActiveIndex].Name == Enum.GetName(typeof(Ship_Game.ShipData.Category), item))
+                if (CategoryList.Options[CategoryList.ActiveIndex].Name == item.ToString())
                 {
-                    this.ActiveHull.ShipCategory = item;
+                    ActiveHull.ShipCategory = item;
                     break;
                 }
 
             }
-           
-
-            //    switch (this.CategoryList.Options[this.CategoryList.ActiveIndex].@value)
-            //{
-            //    case 1:
-            //        {
-            //            this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
-            //            break;
-            //        }
-            //    case 2:
-            //        {
-            //            this.ActiveHull.ShipCategory = ShipData.Category.Civilian;
-            //            break;
-            //        }
-            //    case 3:
-            //        {
-            //            this.ActiveHull.ShipCategory = ShipData.Category.Recon;
-            //            break;
-            //        }
-            //    case 4:
-            //        {
-            //            this.ActiveHull.ShipCategory = ShipData.Category.Combat;
-            //            break;
-            //        }
-            //    case 5:
-            //        {
-            //            this.ActiveHull.ShipCategory = ShipData.Category.Fighter;
-            //            break;
-            //        }
-            //    case 6:
-            //        {
-            //            this.ActiveHull.ShipCategory = ShipData.Category.Bomber;
-            //            break;
-            //        }
-            //    case 7:
-            //        {
-            //            this.ActiveHull.ShipCategory = ShipData.Category.Kamikaze;
-            //            break;
-            //        }
-            //    default:
-            //        {
-            //            this.ActiveHull.ShipCategory = ShipData.Category.Unclassified;
-            //            break;
-            //        }
-            //}
-
-            //this.CategoryList.AddOption("Unclassified", 1);
-            //this.CategoryList.AddOption("Civilian", 2);
-            //this.CategoryList.AddOption("Recon", 3);
-            //this.CategoryList.AddOption("Fighter", 4);
-            //this.CategoryList.AddOption("Bomber", 5);
 
             //Adds the category determined by the case from the dropdown to the 'toSave' ShipData.
-            toSave.ShipCategory = this.ActiveHull.ShipCategory;
+            toSave.ShipCategory = ActiveHull.ShipCategory;
 
             //Adds the boolean derived from the checkbox boolean (CarrierOnly) to the ShipData. Defaults to 'false'.
-            toSave.CarrierShip = this.CarrierOnly;
+            toSave.CarrierShip = CarrierOnly;
 
 			XmlSerializer Serializer = new XmlSerializer(typeof(ShipData));
 			TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/Saved Designs/", name, ".xml"));
 			Serializer.Serialize(WriteFileStream, toSave);
 			WriteFileStream.Close();
-			this.ShipSaved = true;
-			if (Ship_Game.ResourceManager.ShipsDict.ContainsKey(name))
-			{
-				Ship newShip = Ship.CreateShipFromShipData(toSave);
-				newShip.SetShipData(toSave);
-				newShip.InitForLoad();
-				newShip.InitializeStatus();
-				Ship_Game.ResourceManager.ShipsDict[name] = newShip;
-				Ship_Game.ResourceManager.ShipsDict[name].IsPlayerDesign = true;                
-			}
-			else
-			{
-				Ship newShip = Ship.CreateShipFromShipData(toSave);
-				newShip.SetShipData(toSave);
-				newShip.InitForLoad();
-				newShip.InitializeStatus();
-				Ship_Game.ResourceManager.ShipsDict.Add(name, newShip);
-				Ship_Game.ResourceManager.ShipsDict[name].IsPlayerDesign = true;
-			}
-            ResourceManager.ShipsDict[name].BaseStrength = -1;
-            ResourceManager.ShipsDict[name].BaseStrength = ResourceManager.ShipsDict[name].GetStrength();
-			EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
-			this.ActiveHull.CombatState = this.CombatState;
-			this.ChangeHull(this.ActiveHull);
+			ShipSaved = true;
+
+            Ship newShip = Ship.CreateShipFromShipData(toSave);
+            newShip.SetShipData(toSave);
+            newShip.InitForLoad();
+            newShip.InitializeStatus();
+            newShip.IsPlayerDesign = true;
+            ResourceManager.ShipsDict[name] = newShip;
+
+            newShip.BaseStrength = -1;
+            newShip.BaseStrength = newShip.GetStrength();
+			EmpireManager.GetEmpireByName(EmpireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
+			ActiveHull.CombatState = CombatState;
+			ChangeHull(ActiveHull);
 		}
 
 		private void SaveWIP(object sender, EventArgs e)

@@ -199,8 +199,8 @@ namespace Ship_Game.Gameplay
 			this.system = p.system;
 			base.Position = p.Position;
 			this.loyalty = p.Owner;
-			this.velocity = direction;
-			this.rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(p.Position, p.Position + this.velocity));
+			this.Velocity = direction;
+			this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(p.Position, p.Position + this.Velocity));
 			this.Center = p.Position;
 			this.emitter.Position = new Vector3(p.Position, 0f);
 		}
@@ -209,11 +209,11 @@ namespace Ship_Game.Gameplay
 		{
 			this.owner = owner;
 			this.loyalty = owner.loyalty;
-			this.rotation = (float)Math.Acos((double)Vector2.Dot(Vector2.UnitY, direction)) - 3.14159274f;
+			this.Rotation = (float)Math.Acos((double)Vector2.Dot(Vector2.UnitY, direction)) - 3.14159274f;
 			if (direction.X > 0f)
 			{
 				Projectile projectile = this;
-				projectile.rotation = projectile.rotation * -1f;
+				projectile.Rotation = projectile.Rotation * -1f;
 			}
 		}
 
@@ -236,7 +236,7 @@ namespace Ship_Game.Gameplay
 			if (this.Active)
 			{
 				Vector3 vector3 = new Vector3(this.Center.X, this.Center.Y, -100f);
-				Vector3 vector31 = new Vector3(this.velocity.X, base.Velocity.Y, 0f);
+				Vector3 vector31 = new Vector3(this.Velocity.X, base.Velocity.Y, 0f);
 				if (this.light != null)
 				{
 					lock (GlobalStats.ObjectManagerLocker)
@@ -383,20 +383,20 @@ namespace Ship_Game.Gameplay
 		{
 			DebugInfoScreen.ProjCreated = DebugInfoScreen.ProjCreated + 1;
 			this.direction = direction;
-            this.velocity = initialSpeed * direction;
+            this.Velocity = initialSpeed * direction;
 			if (this.moduleAttachedTo == null)
 			{
 				this.Center = pos;
-				this.rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Center, this.Center + this.velocity));
+				this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Center, this.Center + this.Velocity));
 			}
 			else
 			{
 				this.Center = this.moduleAttachedTo.Center;
-				this.rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.velocity));
+				this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.Velocity));
 			}
-			this.radius = 1f;
+			this.Radius = 1f;
             this.velocityMaximum = initialSpeed + (this.Owner != null ? this.Owner.Velocity.Length() : 0f);
-			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
+			this.Velocity = Vector2.Normalize(this.Velocity) * this.velocityMaximum;
             this.duration = this.range / initialSpeed * 1.2f;
 			this.initialDuration = this.duration;
 			if (this.weapon.Animated == 1)
@@ -481,8 +481,8 @@ namespace Ship_Game.Gameplay
 			{
 				this.Center = this.moduleAttachedTo.Center;
 			}
-			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
-			this.radius = 1f;
+			this.Velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
+			this.Radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
 			this.duration = this.range / initialSpeed;
 			Projectile projectile = this;
@@ -528,8 +528,8 @@ namespace Ship_Game.Gameplay
 			{
 				this.Center = this.moduleAttachedTo.Center;
 			}
-			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
-			this.radius = 1f;
+			this.Velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
+			this.Radius = 1f;
             this.velocityMaximum = initialSpeed + (this.Owner != null ? this.Owner.Velocity.Length() : 0f);
             this.duration = this.range / initialSpeed * 2f;
 			this.initialDuration = this.duration;
@@ -538,11 +538,11 @@ namespace Ship_Game.Gameplay
 				this.Center = this.moduleAttachedTo.Center;
 				if (this.moduleAttachedTo.facing == 0f)
 				{
-					this.rotation = this.Owner.Rotation;
+					this.Rotation = this.Owner.Rotation;
 				}
 				else
 				{
-					this.rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.velocity));
+					this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.Velocity));
 				}
 			}
 			if (this.weapon.Animated == 1)
@@ -590,8 +590,8 @@ namespace Ship_Game.Gameplay
 			this.direction = direction;
 			this.Center = p.Position;
 			this.zStart = -2500f;
-			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
-			this.radius = 1f;
+			this.Velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
+			this.Radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
 			this.duration = this.range / initialSpeed * 2f;
 			this.initialDuration = this.duration;
@@ -648,10 +648,10 @@ namespace Ship_Game.Gameplay
 			{
 				this.Center = this.moduleAttachedTo.Center;
 			}
-			this.velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
-			this.radius = 1f;
+			this.Velocity = (initialSpeed * direction) + (this.owner != null ? this.owner.Velocity : Vector2.Zero);
+			this.Radius = 1f;
 			this.velocityMaximum = initialSpeed + (this.owner != null ? this.owner.Velocity.Length() : 0f);
-			this.velocity = Vector2.Normalize(this.velocity) * this.velocityMaximum;
+			this.Velocity = Vector2.Normalize(this.Velocity) * this.velocityMaximum;
 			this.duration = this.range / initialSpeed * 1.25f;
 			this.initialDuration = this.duration;
 			if (this.weapon.Animated == 1)
@@ -870,7 +870,7 @@ namespace Ship_Game.Gameplay
                             this.damageAmount = remainder;
                             bool SlotFound;
                             int depth = 10;
-                            Vector2 UnitVector = this.velocity;
+                            Vector2 UnitVector = this.Velocity;
                             while (this.damageAmount > 0)
                             {
                                 UnitVector.Normalize();
@@ -1113,7 +1113,7 @@ namespace Ship_Game.Gameplay
                             Projectile.universeScreen.ScreenManager.inter.LightManager.Submit((ILight)this.MuzzleFlash);
                         this.flashTimer -= elapsedTime;
                         this.flash = new MuzzleFlash();
-                        this.flash.WorldMatrix = Matrix.Identity * Matrix.CreateRotationZ(this.rotation) * Matrix.CreateTranslation(this.MuzzleFlash.Position);
+                        this.flash.WorldMatrix = Matrix.Identity * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.MuzzleFlash.Position);
                         this.flash.Owner = (GameplayObject)this;
                         lock (GlobalStats.ExplosionLocker)
                             MuzzleFlashManager.FlashList.Add(this.flash);
@@ -1122,7 +1122,7 @@ namespace Ship_Game.Gameplay
                     {
                         this.flashTimer -= elapsedTime;
                         this.MuzzleFlash.Position = new Vector3(this.moduleAttachedTo.Center.X, this.moduleAttachedTo.Center.Y, -45f);
-                        this.flash.WorldMatrix = Matrix.Identity * Matrix.CreateRotationZ(this.rotation) * Matrix.CreateTranslation(this.MuzzleFlash.Position);
+                        this.flash.WorldMatrix = Matrix.Identity * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.MuzzleFlash.Position);
                         this.MuzzleFlash.World = Matrix.Identity * Matrix.CreateTranslation(this.MuzzleFlash.Position);
                     }
                 }

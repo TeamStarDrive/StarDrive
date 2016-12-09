@@ -242,14 +242,13 @@ namespace Ship_Game.Gameplay
                         continue;
                 }
 
-                if (false)
-                {
-                    pin.Value.Position = Vector2.Zero;
-                    pin.Value.ship = null;
-                    pin.Value.Strength = 0;
-                    pin.Value.InBorders = false;
-                    pin.Value.EmpireName = string.Empty;
-                }
+            #if false // disabled for now
+                pin.Value.Position = Vector2.Zero;
+                pin.Value.ship = null;
+                pin.Value.Strength = 0;
+                pin.Value.InBorders = false;
+                pin.Value.EmpireName = string.Empty;
+            #endif
 
             }
 

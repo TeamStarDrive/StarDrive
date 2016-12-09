@@ -74,46 +74,40 @@ namespace Ship_Game
 			Directory.CreateDirectory(string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/Headers"));
 			Directory.CreateDirectory(string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/Fog Maps"));
 			GlobalStats.Config = new Config();
-            string asi = ConfigurationSettings.AppSettings["AutoSaveFreq"];
-            int autosavefreq;
-            if (int.TryParse(asi, out autosavefreq))
+            string asi = ConfigurationManager.AppSettings["AutoSaveFreq"];
+            if (int.TryParse(asi, out int autosavefreq))
             {
                 GlobalStats.AutoSaveFreq = autosavefreq;
             }
-			string vol = ConfigurationSettings.AppSettings["MusicVolume"];
-			int musicVol = 100;
-			if (int.TryParse(vol, out musicVol))
+			string vol = ConfigurationManager.AppSettings["MusicVolume"];
+            if (int.TryParse(vol, out int musicVol))
 			{
 				GlobalStats.Config.MusicVolume = (float)musicVol / 100f;
 			}
-			vol = ConfigurationSettings.AppSettings["EffectsVolume"];
-			int fxVol = 100;
-			if (int.TryParse(vol, out fxVol))
+			vol = ConfigurationManager.AppSettings["EffectsVolume"];
+            if (int.TryParse(vol, out int fxVol))
 			{
-				GlobalStats.Config.EffectsVolume = (float)fxVol / 100f;
+				GlobalStats.Config.EffectsVolume = fxVol / 100f;
 			}
-			GlobalStats.Config.Language = ConfigurationSettings.AppSettings["Language"];
+			GlobalStats.Config.Language = ConfigurationManager.AppSettings["Language"];
 			if (GlobalStats.Config.Language != "English" && GlobalStats.Config.Language != "Spanish" && GlobalStats.Config.Language != "Polish" && GlobalStats.Config.Language != "German" && GlobalStats.Config.Language != "Russian" && GlobalStats.Config.Language != "French")
 			{
 				GlobalStats.Config.Language = "English";
 			}
-			GlobalStats.Config.RanOnce = (ConfigurationSettings.AppSettings["RanOnce"] == "false" ? false : true);
-			GlobalStats.ForceFullSim = (ConfigurationSettings.AppSettings["ForceFullSim"] == "false" ? false : true);
-			int winmode = 0;
-			if (int.TryParse(ConfigurationSettings.AppSettings["WindowMode"], out winmode))
+			GlobalStats.Config.RanOnce = (ConfigurationManager.AppSettings["RanOnce"] == "false" ? false : true);
+			GlobalStats.ForceFullSim = (ConfigurationManager.AppSettings["ForceFullSim"] == "false" ? false : true);
+            if (int.TryParse(ConfigurationManager.AppSettings["WindowMode"], out int winmode))
 			{
 				GlobalStats.Config.WindowMode = winmode;
 			}
 			if (GlobalStats.Config.RanOnce)
 			{
-				int xres = 1280;
-				int yres = 720;
-				if (int.TryParse(ConfigurationSettings.AppSettings["XRES"], out xres))
+                if (int.TryParse(ConfigurationManager.AppSettings["XRES"], out int xres))
 				{
 					this.graphics.PreferredBackBufferWidth = xres;
 					GlobalStats.Config.XRES = xres;
 				}
-				if (int.TryParse(ConfigurationSettings.AppSettings["YRES"], out yres))
+				if (int.TryParse(ConfigurationManager.AppSettings["YRES"], out int yres))
 				{
 					this.graphics.PreferredBackBufferHeight = yres;
 					GlobalStats.Config.YRES = yres;

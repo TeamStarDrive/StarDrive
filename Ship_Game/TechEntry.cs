@@ -31,7 +31,7 @@ namespace Ship_Game
 
 		public Technology GetTech()
 		{
-			return ResourceManager.TechTree[this.UID];
+			return ResourceManager.TechTree[UID];
 		}
 	}
 }
