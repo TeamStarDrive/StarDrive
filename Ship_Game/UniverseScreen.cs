@@ -1848,15 +1848,15 @@ namespace Ship_Game
                         foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                             solarSystem.ShipList.Clear();
                         this.shiptimer = 1f;
-                        //foreach (Ship ship in (List<Ship>)this.MasterShipList)
-                        var source = Enumerable.Range(0, this.MasterShipList.Count).ToArray();
-                        var rangePartitioner = Partitioner.Create(0, source.Length);
+                        foreach (Ship ship in (List<Ship>)this.MasterShipList)
+                        //var source = Enumerable.Range(0, this.MasterShipList.Count).ToArray();
+                        //var rangePartitioner = Partitioner.Create(0, source.Length);
 
-                        Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                       // Parallel.ForEach(rangePartitioner, (range, loopState) =>
                                        { //Parallel.ForEach(this.MasterShipList, ship =>
-                                           for (int i = range.Item1; i < range.Item2; i++)
+                                           //for (int i = range.Item1; i < range.Item2; i++)
                                            {                                               
-                                               Ship ship = this.MasterShipList[i];
+                                               //Ship ship = this.MasterShipList[i];
                                                ship.isInDeepSpace = false;
                                                ship.SetSystem((SolarSystem)null);
                                                foreach (SolarSystem s in UniverseScreen.SolarSystemList)
@@ -1885,13 +1885,13 @@ namespace Ship_Game
 
 
                                            }//);
-                                       });
+                                       }//);
                     }
                 },
             () =>
             {
-                Parallel.ForEach(EmpireManager.EmpireList, empire =>
-                //foreach(Empire empire in EmpireManager.EmpireList)
+                //Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                foreach(Empire empire in EmpireManager.EmpireList)
                 {
                     //try
                     {
@@ -1924,7 +1924,7 @@ namespace Ship_Game
                         }
                     }
                     //catch { };
-                });
+                }//);
             });
 
 

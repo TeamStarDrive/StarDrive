@@ -383,7 +383,7 @@ namespace Ship_Game.Gameplay
                             float? hit = 0;
 
 
-                            if (shipObject2.loyalty != beam.owner.loyalty) //dont hit allied. need to expand this to actual allies.
+                            if (shipObject2.loyalty != beam?.owner.loyalty) //dont hit allied. need to expand this to actual allies.
                             {
                                 if (shipObject2 != beam.owner || beam.weapon.HitsFriendlies) //hits friendlies is in the  wrong place.
                                 {
