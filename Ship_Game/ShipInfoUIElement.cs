@@ -237,9 +237,9 @@ namespace Ship_Game
                 longName += string.Concat(" - ", this.ship.shipData.GetCategory());
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 
-			string text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
+			string text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
 			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
-			text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
+			text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
 			HelperFunctions.ClampVectorToInt(ref ShipStatus);
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
 			ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;

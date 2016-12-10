@@ -200,7 +200,7 @@ namespace Ship_Game.Gameplay
 			base.Position = p.Position;
 			this.loyalty = p.Owner;
 			this.Velocity = direction;
-			this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(p.Position, p.Position + this.Velocity));
+			this.Rotation = p.Position.RadiansToTarget(p.Position + Velocity);
 			this.Center = p.Position;
 			this.emitter.Position = new Vector3(p.Position, 0f);
 		}
@@ -387,15 +387,15 @@ namespace Ship_Game.Gameplay
 			if (this.moduleAttachedTo == null)
 			{
 				this.Center = pos;
-				this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Center, this.Center + this.Velocity));
+				this.Rotation = Center.RadiansToTarget(Center + Velocity);
 			}
 			else
 			{
 				this.Center = this.moduleAttachedTo.Center;
-				this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.Velocity));
+				this.Rotation = moduleAttachedTo.Center.RadiansToTarget(moduleAttachedTo.Center + Velocity);
 			}
 			this.Radius = 1f;
-            this.velocityMaximum = initialSpeed + (this.Owner != null ? this.Owner.Velocity.Length() : 0f);
+            this.velocityMaximum = initialSpeed + (Owner?.Velocity.Length() ?? 0f);
 			this.Velocity = Vector2.Normalize(this.Velocity) * this.velocityMaximum;
             this.duration = this.range / initialSpeed * 1.2f;
 			this.initialDuration = this.duration;
@@ -536,13 +536,13 @@ namespace Ship_Game.Gameplay
 			if (this.moduleAttachedTo != null)
 			{
 				this.Center = this.moduleAttachedTo.Center;
-				if (this.moduleAttachedTo.facing == 0f)
+				if (moduleAttachedTo.facing == 0f)
 				{
-					this.Rotation = this.Owner.Rotation;
+					Rotation = Owner?.Rotation ?? 0f;
 				}
 				else
 				{
-					this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.Velocity));
+					Rotation = moduleAttachedTo.Center.RadiansToTarget(moduleAttachedTo.Center + Velocity);
 				}
 			}
 			if (this.weapon.Animated == 1)
