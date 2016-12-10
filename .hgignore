@@ -15,6 +15,7 @@ Backup\Backup\StarDrive.sln
 Deploy/
 *.suo
 StarDrive.VC.db
+StarDrive.sdf
 StarDrive.csproj.DotSettings
 SDNative\SDNative.vcxproj.user
-SDNative\SDNative.vcxproj
+StarDrive.csproj.user

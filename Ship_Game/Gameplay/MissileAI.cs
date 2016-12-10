@@ -63,7 +63,7 @@ namespace Ship_Game.Gameplay
                 Ship sourceTargetShip = sourceTarget as Ship;
                 if (this.Owner.owner != null && sourceTargetShip!=null)
                 {
-                    this.Owner.loyalty.GetRelations().TryGetValue(sourceTargetShip.loyalty, out relTarget);
+                    this.Owner.loyalty.TryGetRelations(sourceTargetShip.loyalty, out relTarget);
                 }
                 if (sourceTarget != null && sourceTarget.Active
                     && sourceTargetShip.loyalty != this.Owner.loyalty && (relTarget == null || !relTarget.Known || !relTarget.Treaty_NAPact))
@@ -101,7 +101,7 @@ namespace Ship_Game.Gameplay
                     if (!sourceTargetShip.Active || sourceTargetShip.dying )
                         continue;
                     
-                        this.Owner.loyalty.GetRelations().TryGetValue(owner, out relTarget);
+                        this.Owner.loyalty.TryGetRelations(owner, out relTarget);
                     
                     currentd = Vector2.Distance(this.Owner.Center, sourceTargetShip.Center) ;
                     if ((relTarget != null && relTarget.Treaty_NAPact) || currentd > distance)
