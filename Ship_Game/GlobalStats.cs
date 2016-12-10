@@ -9,7 +9,7 @@ namespace Ship_Game
 {
 	public sealed class GlobalStats
 	{
-        public static string branch = "RC";
+        public static string branch = "Refactor";
         //public static string Version = "1013A";
         public static int ComparisonCounter;
 
@@ -119,7 +119,7 @@ namespace Ship_Game
         public static float MemoryLimiter;
 
         public static float StartingPlanetRichness;
-        public static string ExtendedVersion = "Radical_Elements_";
+        public static string ExtendedVersion = "Texas_";
         public static int IconSize;
         public static byte TurnTimer = 5;
 
