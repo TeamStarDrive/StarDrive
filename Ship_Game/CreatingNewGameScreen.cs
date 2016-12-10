@@ -150,7 +150,7 @@ namespace Ship_Game
 
             LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(ScreenManager.Content);
             string adviceString  = ResourceManager.LoadRandomAdvice();
-            text = HelperFunctions.parseText(Fonts.Arial12Bold, adviceString, 500f);
+            text = HelperFunctions.ParseText(Fonts.Arial12Bold, adviceString, 500f);
 
             ResourceManager.ScreenManager = ScreenManager;
             var present = ScreenManager.GraphicsDevice.PresentationParameters;

@@ -96,7 +96,7 @@ namespace Ship_Game
 				this.System.spatialManager.BeamList.Add(this);
 			}
 			this.Source = srcCenter;
-            this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, TargetPosition));
+            this.BeamOffsetAngle = Owner.Rotation - srcCenter.AngleToTarget(TargetPosition).ToRadians();
 			this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
 			this.ActualHitDestination = this.Destination;
 			this.Vertices = new VertexPositionNormalTexture[4];
@@ -218,7 +218,7 @@ namespace Ship_Game
                 this.System.spatialManager.BeamList.Add(this);
             }
             this.Source = srcCenter;
-            this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, TargetPosition));
+            this.BeamOffsetAngle = Owner.Rotation - srcCenter.RadiansToTarget(TargetPosition);
             this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
             this.ActualHitDestination = this.Destination;
             this.Vertices = new VertexPositionNormalTexture[4];
@@ -249,7 +249,7 @@ namespace Ship_Game
 				this.System.spatialManager.BeamList.Add(this);
 			}
 			this.Source = srcCenter;
-			this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, destination));
+			this.BeamOffsetAngle = Owner.Rotation - srcCenter.RadiansToTarget(destination);
 			this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
 			this.ActualHitDestination = this.Destination;
 			this.Vertices = new VertexPositionNormalTexture[4];
