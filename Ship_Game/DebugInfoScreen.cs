@@ -380,7 +380,7 @@ namespace Ship_Game
 
                     
 				}
-				if (ship.GetSystem() == null)
+				if (ship.System== null)
 				{
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", Cursor, Color.White);
@@ -401,8 +401,8 @@ namespace Ship_Game
 				else
 				{
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(ship.GetSystem().Name, " system"), Cursor, Color.White);
-					if (!ship.GetSystem().spatialManager.CollidableObjects.Contains(ship))
+					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(ship.System.Name, " system"), Cursor, Color.White);
+					if (!ship.System.spatialManager.CollidableObjects.Contains(ship))
 					{
 						Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "ERROR -SM CO", Cursor, Color.LightPink);

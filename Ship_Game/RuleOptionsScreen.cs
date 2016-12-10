@@ -58,7 +58,7 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, "Advanced Rule Options", TitlePos, Color.White);
 			TitlePos.Y = TitlePos.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
 			string text = Localizer.Token(2289);
-			text = HelperFunctions.parseText(Fonts.Arial12, text, (float)(this.MainMenu.Menu.Width - 80));
+			text = HelperFunctions.ParseText(Fonts.Arial12, text, (float)(this.MainMenu.Menu.Width - 80));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, TitlePos, Color.White);
 			this.FTLPenaltySlider.DrawDecimal(base.ScreenManager);
             this.EnemyFTLPenaltySlider.DrawDecimal(base.ScreenManager);

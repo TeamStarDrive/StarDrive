@@ -40,7 +40,7 @@ namespace Ship_Game.Gameplay
 			for (int i = 0; i < this.NumberOfProjectors; i++)
 			{
 				RoadNode node = new RoadNode();
-				float angle = HelperFunctions.findAngleToTarget(Origin.Position, Destination.Position);
+				float angle = Origin.Position.AngleToTarget(Destination.Position);
                 node.Position = HelperFunctions.GeneratePointOnCircle(angle, Origin.Position, offset + (i * (float)( Distance / this.NumberOfProjectors) ));
 				bool reallyAdd = true;
                 empire.BorderNodeLocker.EnterReadLock();
