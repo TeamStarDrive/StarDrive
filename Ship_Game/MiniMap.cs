@@ -52,7 +52,7 @@ namespace Ship_Game
 
 		public void Draw(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar"], this.Housing, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
 			float scale = (float)this.ActualMap.Width / (screen.Size.X * 2);        //Updated to play nice with the new negative map values
 			Vector2 MinimapZero = new Vector2((float)this.ActualMap.X + 100, (float)this.ActualMap.Y + 100);
 			foreach (Empire e in EmpireManager.EmpireList)
@@ -124,7 +124,7 @@ namespace Ship_Game
 			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(botMiddleView.X, (float)(this.ActualMap.Y + this.ActualMap.Height)), botMiddleView, Color.White);
 			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2((float)this.ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
 			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2((float)(this.ActualMap.X + this.ActualMap.Width), rightMiddleView.Y), rightMiddleView, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
+			//ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
             if (screen.showingFTLOverlay)
             {
                 this.sList.Active = true;
