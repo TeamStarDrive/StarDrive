@@ -65,7 +65,7 @@ namespace Ship_Game
 		public YouWinScreen(string text)
 		{
 			this.txt = text;
-			this.txt = HelperFunctions.parseText(Fonts.Arial20Bold, this.txt, 500f);
+			this.txt = HelperFunctions.ParseText(Fonts.Arial20Bold, this.txt, 500f);
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(30);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);

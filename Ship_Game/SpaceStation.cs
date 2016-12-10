@@ -67,8 +67,19 @@ namespace Ship_Game
 
 			if (this.InnerSO != null && this.OuterSO != null)
 			{
-				this.InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
-				this.OuterSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
+				this.InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) *
+                    Matrix.CreateRotationZ(1.57079637f)) 
+                    * Matrix.CreateRotationX(20f.ToRadians())) 
+                    * Matrix.CreateRotationY(65f.ToRadians())) 
+                    * Matrix.CreateRotationZ(1.57079637f)) 
+                    * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
+				this.OuterSO.World = (((((Matrix.Identity 
+                    * Matrix.CreateScale(scale)) 
+                    * Matrix.CreateRotationZ(1.57079637f)) 
+                    * Matrix.CreateRotationX(20f.ToRadians())) 
+                    * Matrix.CreateRotationY(65f.ToRadians())) 
+                    * Matrix.CreateRotationZ(1.57079637f)) 
+                    * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
 			}
 			lock (GlobalStats.ObjectManagerLocker)
 			{
@@ -109,8 +120,8 @@ namespace Ship_Game
 
 			if (this.InnerSO != null && this.OuterSO != null && this.planet.SO.Visibility == ObjectVisibility.Rendered)
 			{
-				this.InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f + this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
-				this.OuterSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
+				this.InnerSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f + this.Zrotate)) * Matrix.CreateRotationX(20f.ToRadians())) * Matrix.CreateRotationY(65f.ToRadians())) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
+				this.OuterSO.World = (((((Matrix.Identity * Matrix.CreateScale(scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(20f.ToRadians())) * Matrix.CreateRotationY(65f.ToRadians())) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 600f);
 			}
 		}
 	}

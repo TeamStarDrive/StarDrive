@@ -642,12 +642,12 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void AttackMoveTo(Vector2 MovePosition)
+        public void AttackMoveTo(Vector2 movePosition)
         {
             this.GoalStack.Clear();
-            Vector2 fVec = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.findAveragePosition(), MovePosition));
+            Vector2 fVec = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.findAveragePosition(), movePosition));
             this.Position = this.findAveragePosition() + fVec * 3500f;
-            this.GoalStack.Push(new Fleet.FleetGoal(this, MovePosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), MovePosition)), fVec, Fleet.FleetGoalType.AttackMoveTo));
+            this.GoalStack.Push(new FleetGoal(this, movePosition, findAveragePosition().RadiansToTarget(movePosition), fVec, FleetGoalType.AttackMoveTo));
         }
 
         public void MoveToNow(Vector2 MovePosition, float facing, Vector2 fVec)
@@ -715,7 +715,7 @@ namespace Ship_Game.Gameplay
                 {
                     for (int index = 0; index < squad.Ships.Count; ++index)
                     {
-                        float angle1 = MathHelper.ToRadians(Math.Abs(HelperFunctions.findAngleToTarget(Vector2.Zero, squad.Offset)) + MathHelper.ToDegrees(facing));
+                        float angle1 = squad.Offset.ToRadians() + facing;
                         float distance = squad.Offset.Length();
                         //Vector2 vector2_1 = new Vector2();
                         Vector2 distanceUsingRadians1 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle1, distance);
@@ -724,34 +724,34 @@ namespace Ship_Game.Gameplay
                         {
                             case 0:
                                 vector2_2 = new Vector2();
-                                float angle2 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(0.0f, -500f)) + MathHelper.ToDegrees(facing));
+                                float angle2 = new Vector2(0.0f, -500f).ToRadians() + facing;
                                 vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Position + distanceUsingRadians1, angle2, 500f);
                                 squad.Ships[index].FleetOffset = distanceUsingRadians1 + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle2, 500f);
-                                Vector2 distanceUsingRadians2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(0.0f, -500f))), 500f);
+                                Vector2 distanceUsingRadians2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, new Vector2(0.0f, -500f).ToRadians(), 500f);
                                 squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians2;
                                 break;
                             case 1:
                                 vector2_2 = new Vector2();
-                                float angle3 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(-500f, 0.0f)) + MathHelper.ToDegrees(facing));
+                                float angle3 = new Vector2(-500f, 0.0f).ToRadians() + facing;
                                 vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Position + distanceUsingRadians1, angle3, 500f);
                                 squad.Ships[index].FleetOffset = distanceUsingRadians1 + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle3, 500f);
-                                Vector2 distanceUsingRadians3 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(-500f, 0.0f))), 500f);
+                                Vector2 distanceUsingRadians3 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, new Vector2(-500f, 0.0f).ToRadians(), 500f);
                                 squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians3;
                                 break;
                             case 2:
                                 vector2_2 = new Vector2();
-                                float angle4 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(500f, 0.0f)) + MathHelper.ToDegrees(facing));
+                                float angle4 = new Vector2(500f, 0.0f).ToRadians() + facing;
                                 vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Position + distanceUsingRadians1, angle4, 500f);
                                 squad.Ships[index].FleetOffset = distanceUsingRadians1 + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle4, 500f);
-                                Vector2 distanceUsingRadians4 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(500f, 0.0f))), 500f);
+                                Vector2 distanceUsingRadians4 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, new Vector2(500f, 0.0f).ToRadians(), 500f);
                                 squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians4;
                                 break;
                             case 3:
                                 vector2_2 = new Vector2();
-                                float angle5 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(0.0f, 500f)) + MathHelper.ToDegrees(facing));
+                                float angle5 = new Vector2(0.0f, 500f).ToRadians() + facing;
                                 vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Position + distanceUsingRadians1, angle5, 500f);
                                 squad.Ships[index].FleetOffset = distanceUsingRadians1 + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle5, 500f);
-                                Vector2 distanceUsingRadians5 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(0.0f, 500f))), 500f);
+                                Vector2 distanceUsingRadians5 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, new Vector2(0.0f, 500f).ToRadians(), 500f);
                                 squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians5;
                                 break;
                         }
@@ -764,20 +764,20 @@ namespace Ship_Game.Gameplay
         {
             this.facing = facing;
             //foreach (Ship ship in (List<Ship>)this.Ships)
-            for(int i=0;i<((List<Ship>)this.Ships).Count;i++)
+            foreach (Ship ship in Ships)
             {
-                float angle = MathHelper.ToRadians(Math.Abs(HelperFunctions.findAngleToTarget(Vector2.Zero, ((List<Ship>)this.Ships)[i].RelativeFleetOffset)) + MathHelper.ToDegrees(facing));
-                float distance = ((List<Ship>)this.Ships)[i].RelativeFleetOffset.Length();
-                ((List<Ship>)this.Ships)[i].FleetOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
+                float angle      = ship.RelativeFleetOffset.ToRadians() + facing;
+                float distance   = ship.RelativeFleetOffset.Length();
+                ship.FleetOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
             }
         }
 
         public void AssignDataPositions(float facing)
         {
             this.facing = facing;
-            foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.DataNodes)
+            foreach (FleetDataNode fleetDataNode in DataNodes)
             {
-                float angle = MathHelper.ToRadians(Math.Abs(HelperFunctions.findAngleToTarget(Vector2.Zero, fleetDataNode.FleetOffset)) + MathHelper.ToDegrees(facing));
+                float angle = fleetDataNode.FleetOffset.ToRadians() + facing;
                 float distance = fleetDataNode.FleetOffset.Length();
                 fleetDataNode.OrdersOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
             }
@@ -790,7 +790,7 @@ namespace Ship_Game.Gameplay
             {
                 if (ship.GetAI().State == AIState.AwaitingOrders || this.IsCoreFleet)
                 {
-                    float angle = MathHelper.ToRadians(Math.Abs(HelperFunctions.findAngleToTarget(Vector2.Zero, ship.RelativeFleetOffset)) + MathHelper.ToDegrees(facing));
+                    float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                     float distance = ship.RelativeFleetOffset.Length();
                     ship.FleetOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
                 }
@@ -813,7 +813,7 @@ namespace Ship_Game.Gameplay
                 for (int index = 0; index < squad.Ships.Count; ++index)
                 {
                     Vector2 vector2_2 = new Vector2();
-                    float angle1 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, target) + MathHelper.ToDegrees(facing));
+                    float angle1 = target.ToRadians() + facing;
                     float distance = target.Length();
                     //Vector2 vector2_3 = new Vector2();
                     Vector2 distanceUsingRadians = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle1, distance);
@@ -822,22 +822,22 @@ namespace Ship_Game.Gameplay
                     {
                         case 0:
                            // vector2_4 = new Vector2();
-                            float angle2 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(0.0f, -500f)) + MathHelper.ToDegrees(facing));
+                            float angle2 = new Vector2(0.0f, -500f).ToRadians() + facing;
                             vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(ProjectedPosition + distanceUsingRadians, angle2, 500f);
                             break;
                         case 1:
                           //  vector2_4 = new Vector2();
-                            float angle3 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(-500f, 0.0f)) + MathHelper.ToDegrees(facing));
+                            float angle3 = new Vector2(-500f, 0.0f).ToRadians() + facing;
                             vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(ProjectedPosition + distanceUsingRadians, angle3, 500f);
                             break;
                         case 2:
                            // vector2_4 = new Vector2();
-                            float angle4 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(500f, 0.0f)) + MathHelper.ToDegrees(facing));
+                            float angle4 = new Vector2(500f, 0.0f).ToRadians() + facing;
                             vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(ProjectedPosition + distanceUsingRadians, angle4, 500f);
                             break;
                         case 3:
                            // vector2_4 = new Vector2();
-                            float angle5 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(Vector2.Zero, new Vector2(0.0f, 500f)) + MathHelper.ToDegrees(facing));
+                            float angle5 = new Vector2(0.0f, 500f).ToRadians() + facing;
                             vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(ProjectedPosition + distanceUsingRadians, angle5, 500f);
                             break;
                     }
@@ -869,9 +869,9 @@ namespace Ship_Game.Gameplay
         public override void ProjectPos(Vector2 ProjectedPosition, float facing, Vector2 fVec)
         {
             this.ProjectedFacing = facing;
-            foreach (Ship ship in (List<Ship>)this.Ships)
+            foreach (Ship ship in Ships)
             {
-                float angle = MathHelper.ToRadians(Math.Abs(HelperFunctions.findAngleToTarget(Vector2.Zero, ship.RelativeFleetOffset)) + MathHelper.ToDegrees(facing));
+                float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
                 ship.projectedPosition = ProjectedPosition + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
             }
@@ -1015,7 +1015,7 @@ namespace Ship_Game.Gameplay
                 return;
             if ((double)Vector2.Distance(quadrantscan5.avgPos, this.Position) > 1500.0)
             {
-                float facing = Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Position, quadrantscan5.avgPos)));
+                float facing = quadrantscan5.avgPos.ToRadians();
                 Vector2 fVec = Vector2.Normalize(quadrantscan5.avgPos - this.Position);
                 quadrantscan5.avgPos -= fVec * 5000f;
                 bool flag = true;
@@ -1164,8 +1164,8 @@ namespace Ship_Game.Gameplay
                             break;
                         Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
                         Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
-                        this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
-                        foreach (Ship ship in (List<Ship>)this.Ships)
+                        this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
+                        foreach (Ship ship in Ships)
                             ship.GetAI().HasPriorityOrder = true;
                         this.TaskStep = 1;
                         break;
@@ -1189,7 +1189,7 @@ namespace Ship_Game.Gameplay
                         this.TaskStep = 2;
                         Vector2 MovePosition = Task.GetTargetPlanet().Position + Vector2.Normalize(this.findAveragePosition() - Task.GetTargetPlanet().Position) * 50000f;
                         this.Position = MovePosition;
-                        this.FormationWarpTo(MovePosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), Task.AO)), Vector2.Normalize(Task.AO - this.findAveragePosition()));
+                        this.FormationWarpTo(MovePosition, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
                         break;
                     case 2:
                         bool flag5 = true;
@@ -1422,7 +1422,7 @@ namespace Ship_Game.Gameplay
                                 Vector2 fVec = Vector2.Normalize(Task.AO - goaltarget.Position);
                                 Vector2 vector2 = goaltarget.Position;
  
-                                    this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
+                                    this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
         
                                 this.TaskStep = 1;
                                 break;
@@ -1469,7 +1469,7 @@ namespace Ship_Game.Gameplay
                             this.TaskStep = 2;
                             Vector2 MovePosition = Task.GetTargetPlanet().Position + Vector2.Normalize(this.findAveragePosition() - Task.GetTargetPlanet().Position) * 125000f;
                             this.Position = MovePosition;
-                            this.FormationWarpTo(MovePosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), Task.AO)), Vector2.Normalize(Task.AO - this.findAveragePosition()));
+                            this.FormationWarpTo(MovePosition, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
                             break;
                         case 2:
                             bool flag2 = true;
@@ -1815,7 +1815,7 @@ namespace Ship_Game.Gameplay
                         if (!flag1)
                             break;
                         this.TaskStep = 2;
-                        this.FormationWarpTo(Task.AO, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), Task.AO)), Vector2.Normalize(Task.AO - this.findAveragePosition()));
+                        this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
                         using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
                         {
                             while (enumerator.MoveNext())
@@ -1834,7 +1834,7 @@ namespace Ship_Game.Gameplay
                             break;
                         Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
                         Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
-                        this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
+                        this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
                         this.TaskStep = 1;
                         break;
                     case 1:
@@ -1853,7 +1853,7 @@ namespace Ship_Game.Gameplay
                         if (!flag2)
                             break;
                         this.TaskStep = 2;
-                        this.FormationWarpTo(Task.AO, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), Task.AO)), Vector2.Normalize(Task.AO - this.findAveragePosition()));
+                        this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
                         using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
                         {
                             while (enumerator.MoveNext())
@@ -2039,7 +2039,7 @@ namespace Ship_Game.Gameplay
                     if (!flag1)
                         break;
                     this.TaskStep = 2;
-                    this.FormationWarpTo(Task.AO, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), Task.AO)), Vector2.Normalize(Task.AO - this.findAveragePosition()));
+                    this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
                     using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
@@ -2058,7 +2058,7 @@ namespace Ship_Game.Gameplay
                         break;
                     Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
                     Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
-                    this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
+                    this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
                     this.TaskStep = 1;
                     break;
                 case 1:
@@ -2077,7 +2077,7 @@ namespace Ship_Game.Gameplay
                     if (!flag2)
                         break;
                     this.TaskStep = 2;
-                    this.FormationWarpTo(Task.AO, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), Task.AO)), Vector2.Normalize(Task.AO - this.findAveragePosition()));
+                    this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
                     using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
@@ -2255,7 +2255,7 @@ namespace Ship_Game.Gameplay
                         break;
                     Vector2 fVec = Vector2.Normalize(Task.GetTargetPlanet().Position - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
                     Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
-                    this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.GetTargetPlanet().Position))), fVec);
+                    this.MoveToNow(vector2, vector2.RadiansToTarget(Task.GetTargetPlanet().Position), fVec);
                     this.TaskStep = 1;
                     break;
                 case 1:
@@ -2274,7 +2274,7 @@ namespace Ship_Game.Gameplay
                     if (!flag1)
                         break;
                     this.TaskStep = 2;
-                    this.FormationWarpTo(Task.GetTargetPlanet().Position, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), Task.GetTargetPlanet().Position)), Vector2.Normalize(Task.GetTargetPlanet().Position - this.findAveragePosition()));
+                    this.FormationWarpTo(Task.GetTargetPlanet().Position, findAveragePosition().RadiansToTarget(Task.GetTargetPlanet().Position), Vector2.Normalize(Task.GetTargetPlanet().Position - this.findAveragePosition()));
                     using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
@@ -2513,7 +2513,7 @@ namespace Ship_Game.Gameplay
                     if (this.targetPosition != Vector2.Zero)
                     {
                         Vector2 fvec = Vector2.Normalize(Task.AO - this.targetPosition);
-                        this.FormationWarpTo(this.targetPosition, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.targetPosition, Task.AO))), fvec);
+                        this.FormationWarpTo(this.targetPosition, targetPosition.RadiansToTarget(Task.AO), fvec);
                         this.TaskStep = 2;
                         break;
                     }
@@ -2685,7 +2685,7 @@ namespace Ship_Game.Gameplay
                             break;
                         Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
                         Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
-                        this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
+                        this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
                         this.TaskStep = 1;
                         break;
                     case 1:
@@ -2705,7 +2705,7 @@ namespace Ship_Game.Gameplay
                             break;
                         Vector2 MovePosition = Task.GetTargetPlanet().Position + Vector2.Normalize(this.findAveragePosition() - Task.GetTargetPlanet().Position) * 150000f;
                         this.Position = MovePosition;
-                        this.FormationWarpTo(MovePosition, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), Task.AO)), Vector2.Normalize(Task.AO - this.findAveragePosition()));
+                        this.FormationWarpTo(MovePosition, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
                         foreach (Ship ship in (List<Ship>)this.Ships)
                             ship.GetAI().HasPriorityOrder = true;
                         this.TaskStep = 2;
@@ -2801,7 +2801,7 @@ namespace Ship_Game.Gameplay
                         break;
                     Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
                     Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
-                    this.MoveToNow(vector2, Math.Abs(MathHelper.ToRadians(HelperFunctions.findAngleToTarget(vector2, Task.AO))), fVec);
+                    this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
                     this.TaskStep = 1;
                     break;
                 case 1:
@@ -2824,7 +2824,7 @@ namespace Ship_Game.Gameplay
                     if (!flag1)
                         break;
                     this.TaskStep = 2;
-                    this.FormationWarpTo(Task.AO, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), Task.AO)), Vector2.Normalize(Task.AO - this.findAveragePosition()));
+                    this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
                     using (List<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
@@ -2909,7 +2909,7 @@ namespace Ship_Game.Gameplay
                         }
                         else
                         {
-                            this.MoveDirectlyNow(enemyWithinRadius, MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.findAveragePosition(), enemyWithinRadius)), Vector2.Normalize(enemyWithinRadius - this.Position));
+                            this.MoveDirectlyNow(enemyWithinRadius, findAveragePosition().RadiansToTarget(enemyWithinRadius), Vector2.Normalize(enemyWithinRadius - this.Position));
                             this.TaskStep = 2;
                             break;
                         }

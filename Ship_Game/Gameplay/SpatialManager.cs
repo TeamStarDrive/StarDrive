@@ -75,7 +75,7 @@ namespace Ship_Game.Gameplay
                     gameplayObject = this.CollidableObjects[index];
                     if (gameplayObject != null)
                     {
-                        if (gameplayObject.GetSystem() != null && system == null)
+                        if (gameplayObject.System!= null && system == null)
                             this.CollidableObjects.QueuePendingRemoval(gameplayObject);
                         else if (gameplayObject != null)
                         {
@@ -89,7 +89,7 @@ namespace Ship_Game.Gameplay
                 for (int index = 0; index < this.CollidableProjectiles.Count; ++index)
                 {
                     Projectile projectile = this.CollidableProjectiles[index];
-                    if (projectile.GetSystem() != null && system == null)
+                    if (projectile.System!= null && system == null)
                         this.CollidableProjectiles.QueuePendingRemoval(projectile);
                     else if (projectile != null && projectile.Active)
                         this.RegisterObject((GameplayObject)projectile);
@@ -103,7 +103,7 @@ namespace Ship_Game.Gameplay
                     GameplayObject gameplayObject = this.CollidableObjects[index];
                     Ship oShip = gameplayObject as Ship;
                     //if (gameplayObject != null &&!(gameplayObject.GetSystem() != null & system == null) &&  (!(gameplayObject is Ship) || system != null || (gameplayObject as Ship).GetAI().BadGuysNear))
-                    if (gameplayObject != null && !(gameplayObject.GetSystem() != null & system == null) && (oShip == null || system != null || oShip.GetAI().BadGuysNear))
+                    if (gameplayObject != null && !(gameplayObject.System!= null & system == null) && (oShip == null || system != null || oShip.GetAI().BadGuysNear))
                         this.MoveAndCollide(gameplayObject);
                 }
             }
@@ -996,7 +996,7 @@ namespace Ship_Game.Gameplay
             {
                 explosionCenter = shipModule.XSIZE != 1 || shipModule.YSIZE != 3 ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2)) : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
                 Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
-                float angleToTarget = HelperFunctions.findAngleToTarget(explosionCenter, target);
+                float angleToTarget = explosionCenter.AngleToTarget(target);
                 Vector2 angleAndDistance = HelperFunctions.FindPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees((source as ShipModule).Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
                 float num2 = shipModule.XSIZE * 8;
                 float num3 = shipModule.YSIZE * 8;

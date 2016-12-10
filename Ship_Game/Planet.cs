@@ -185,7 +185,7 @@ namespace Ship_Game
                     cue.Apply3D(Planet.universeScreen.listener, emitter);
                     cue.Play();
                 }
-                this.shield.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Position, new Vector2(bomb.Position.X, bomb.Position.Y)));
+                this.shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
                 this.shield.displacement = 0.0f;
                 this.shield.texscale = 2.8f;
                 this.shield.Radius = this.SO.WorldBoundingSphere.Radius + 100f;
@@ -571,7 +571,7 @@ namespace Ship_Game
                     shieldcue.Apply3D(Planet.universeScreen.listener, emitter);
                     shieldcue.Play();
                 }
-                this.shield.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Position, new Vector2(bomb.Position.X, bomb.Position.Y)));
+                this.shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
                 this.shield.displacement = 0f;
                 this.shield.texscale = 2.8f;
                 this.shield.Radius = this.SO.WorldBoundingSphere.Radius + 100f;
@@ -1518,8 +1518,12 @@ namespace Ship_Game
                 Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
             this.SO = new SceneObject(((ReadOnlyCollection<ModelMesh>)ResourceManager.GetModel("Model/SpaceObjects/planet_" + (object)this.planetType).Meshes)[0]);
             this.SO.ObjectType = ObjectType.Dynamic;
-            this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
-            this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(MathHelper.ToRadians(this.ringTilt)) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+            this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) 
+                * Matrix.CreateScale(this.scale) 
+                * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+            this.RingWorld = Matrix.Identity 
+                * Matrix.CreateRotationX(ringTilt.ToRadians()) 
+                * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
             lock (GlobalStats.ObjectManagerLocker)
                 Planet.universeScreen.ScreenManager.inter.ObjectManager.Submit((ISceneObject)this.SO);
         }
@@ -6291,7 +6295,7 @@ output = maxp * take10 = 5
             this.SO = new SceneObject(((ReadOnlyCollection<ModelMesh>)ResourceManager.GetModel("Model/SpaceObjects/planet_" + (object)this.planetType).Meshes)[0]);
             this.SO.ObjectType = ObjectType.Dynamic;
             this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
-            this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(MathHelper.ToRadians(this.ringTilt)) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+            this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(this.ringTilt.ToRadians()) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
             
             //this.initializing = false;
         }
@@ -6328,15 +6332,15 @@ output = maxp * take10 = 5
                 BoundingSphere boundingSphere = new BoundingSphere(new Vector3(this.Position, 0.0f), 300000f);
                 Parallel.Invoke(() =>
                 {
-                    this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ(-this.Zrotate) * Matrix.CreateRotationX(MathHelper.ToRadians(-45f)) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+                    this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ(-this.Zrotate) * Matrix.CreateRotationX(-45f.ToRadians()) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
                 },
                 () =>
                 {
-                    this.cloudMatrix = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 1.5)) * Matrix.CreateRotationX(MathHelper.ToRadians(-45f)) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+                    this.cloudMatrix = Matrix.Identity * Matrix.CreateScale(3f) * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 1.5)) * Matrix.CreateRotationX(-45f.ToRadians()) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
                 },
                 () =>
                 {
-                    this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(MathHelper.ToRadians(this.ringTilt)) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
+                    this.RingWorld = Matrix.Identity * Matrix.CreateRotationX(this.ringTilt.ToRadians()) * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
                 }
                 );
                 

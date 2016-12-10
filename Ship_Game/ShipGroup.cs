@@ -17,47 +17,6 @@ namespace Ship_Game
 		{
 		}
 
-		private float findAngleToTarget(Vector2 Center, Vector2 target)
-		{
-			float theta;
-			float tX = target.X;
-			float tY = target.Y;
-			float centerX = Center.X;
-			float centerY = Center.Y;
-			float angle_to_target = 0f;
-			if (tX > centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 90f - Math.Abs(theta);
-			}
-			else if (tX > centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 90f + theta * 180f / 3.14159274f;
-			}
-			else if (tX < centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 270f - Math.Abs(theta);
-			}
-			else if (tX < centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 270f + theta * 180f / 3.14159274f;
-			}
-			else if (tX == centerX && tY < centerY)
-			{
-				angle_to_target = 0f;
-			}
-			else if (tX == centerX && tY > centerY)
-			{
-				angle_to_target = 180f;
-			}
-			return angle_to_target;
-		}
-
 		private Vector2 findPointFromAngleAndDistanceUsingRadians(Vector2 position, float angle, float distance)
 		{
 			float theta;
@@ -148,7 +107,7 @@ namespace Ship_Game
 
 		public virtual void MoveTo(Vector2 Position, float facing, Vector2 fVec)
 		{
-			MathHelper.ToRadians(this.findAngleToTarget(this.Ships[0].Center, Position));
+			Ships[0].Center.RadiansToTarget(Position);
 			Vector2 MovePosition = Position;
 			this.Ships[0].GetAI().GoTo(MovePosition, fVec);
 			for (int i = 1; i < this.Ships.Count; i++)
@@ -166,28 +125,18 @@ namespace Ship_Game
 			}
 		}
 
-		public virtual void ProjectPos(Vector2 Position, float facing, List<Fleet.Squad> Flank)
+		public virtual void ProjectPos(Vector2 position, float facing, List<Fleet.Squad> flank)
 		{
 		}
 
-		public virtual void ProjectPos(Vector2 Position, float facing, Vector2 fVec)
+		public virtual void ProjectPos(Vector2 position, float facing, Vector2 fVec)
 		{
-			Vector2 MovePosition;
-			this.ProjectedFacing = facing;
-			MathHelper.ToRadians(this.findAngleToTarget(this.Ships[0].Center, Position));
-			this.Ships[0].projectedPosition = Position;
-			for (int i = 1; i < this.Ships.Count; i++)
+		    ProjectedFacing = facing;
+			Ships[0].projectedPosition = position;
+			for (int i = 1; i < Ships.Count; i++)
 			{
-				if (i % 2 != 1)
-				{
-					MovePosition = this.findPointFromAngleAndDistanceUsingRadians(Position, facing - 1.57079637f, (float)(i * 500));
-					this.Ships[i].projectedPosition = MovePosition;
-				}
-				else
-				{
-					MovePosition = this.findPointFromAngleAndDistanceUsingRadians(Position, facing + 1.57079637f, (float)(i * 500));
-					this.Ships[i].projectedPosition = MovePosition;
-				}
+                float facingRandomizer = (i % 2 == 0) ? -1.57079637f : +1.57079637f;
+				Ships[i].projectedPosition = findPointFromAngleAndDistanceUsingRadians(position, facing + facingRandomizer, i * 500);
 			}
 		}
 

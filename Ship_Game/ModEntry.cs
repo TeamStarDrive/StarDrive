@@ -63,7 +63,7 @@ namespace Ship_Game
            // if (this.mi.Version != null && this.mi.Version != "" && !this.mi.ModDescription.Contains(this.mi.Version))
             if (this.mi.Version != null && !string.IsNullOrEmpty(this.mi.Version))
                 Description = string.Concat(Description, "\n----\nVersion - ", this.Version);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.parseText(Fonts.Arial12Bold, Description, 450f), TitlePos, Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12Bold, Description, 450f), TitlePos, Color.White);
 			ScreenManager.SpriteBatch.Draw(this.PortraitTex, this.Portrait, Color.White);
 			Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, this.Portrait, Color.White);
 		}
