@@ -1,5 +1,4 @@
 using Ship_Game.Gameplay;
-using System;
 using System.Collections.Generic;
 
 namespace Ship_Game
@@ -12,30 +11,23 @@ namespace Ship_Game
 
         public void TriggerOutcome(Empire triggerer, Outcome triggeredOutcome)
         {
-            CheckOutComes(null, triggeredOutcome, null, triggerer);           
+            CheckOutComes(null, triggeredOutcome, null, triggerer);
         }
 
-        public void TriggerPlanetEvent(Planet p, Empire triggerer, PlanetGridSquare eventLocation, Empire playerEmpire, UniverseScreen screen)
+        public void TriggerPlanetEvent(Planet p, Empire triggerer, PlanetGridSquare eventLocation, Empire playerEmpire,
+            UniverseScreen screen)
         {
             int ranMax = 0;
             int ranMin = 0;
-            foreach (Outcome outcome in this.PotentialOutcomes)
+            foreach (Outcome outcome in PotentialOutcomes)
             {
-                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && triggerer.isPlayer)
-                {
-                    continue;
-                }
-                else
-                {
-                    ranMax += outcome.Chance;
-                }
+                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && triggerer.isPlayer) continue;
+                ranMax += outcome.Chance;
             }
-
             int random = (int) RandomMath.RandomBetween(ranMin, ranMax);
-
             Outcome triggeredOutcome = null;
             int cursor = 0;
-            foreach (Outcome outcome in this.PotentialOutcomes)
+            foreach (Outcome outcome in PotentialOutcomes)
             {
                 if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && triggerer.isPlayer) continue;
                 cursor = cursor + outcome.Chance;
@@ -70,7 +62,7 @@ namespace Ship_Game
             }
             else
             {
-                int ranart = (int) RandomMath.RandomBetween(0f, (float) potentials.Count + 0.8f);
+                int ranart = (int) RandomMath.RandomBetween(0f, potentials.Count + 0.8f);
                 if (ranart > potentials.Count - 1)
                 {
                     ranart = potentials.Count - 1;
@@ -156,7 +148,7 @@ namespace Ship_Game
                 return;
             }
             CheckGrantArtifact(triggerer, triggeredOutcome);
-            triggerer.Money += (float)triggeredOutcome.MoneyGranted;
+            triggerer.Money += triggeredOutcome.MoneyGranted;
             triggerer.data.Traits.ResearchMod += triggeredOutcome.ScienceBonus;
             triggerer.data.Traits.ProductionMod += triggeredOutcome.IndustryBonus;
 
@@ -236,7 +228,7 @@ namespace Ship_Game
             if (triggeredOutcome.SelectRandomPlanet)
             {
                 PlanetGridSquare assignedtile = null;
-                List<Planet> Potentials = new List<Planet>();
+                List<Planet> potentials = new List<Planet>();
                 foreach (SolarSystem s in UniverseScreen.SolarSystemList)
                 {
                     foreach (Planet rp in s.PlanetList)
@@ -245,12 +237,12 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        Potentials.Add(rp);
+                        potentials.Add(rp);
                     }
                 }
-                if (Potentials.Count > 0)
+                if (potentials.Count > 0)
                 {
-                    triggeredOutcome.SetPlanet(Potentials[RandomMath.InRange(Potentials.Count)]);
+                    triggeredOutcome.SetPlanet(potentials[RandomMath.InRange(potentials.Count)]);
                 }
                 if (triggeredOutcome.GetPlanet() != null)
                 {
@@ -262,7 +254,8 @@ namespace Ship_Game
                     }
                 }
 
-                if (assignedtile != null && triggeredOutcome.GetPlanet() != null && triggeredOutcome.TroopsToSpawn != null)
+                if (assignedtile != null && triggeredOutcome.GetPlanet() != null &&
+                    triggeredOutcome.TroopsToSpawn != null)
                 {
                     foreach (string troopname in triggeredOutcome.TroopsToSpawn)
                     {
