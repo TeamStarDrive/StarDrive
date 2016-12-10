@@ -66,7 +66,7 @@ namespace Ship_Game
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            this.PlayerEmpire = EmpireManager.GetPlayerEmpire();
+            this.PlayerEmpire = EmpireManager.Player;
             this.Friends = EmpireManager.GetAllies(this.PlayerEmpire);
             this.Traders = EmpireManager.GetTradePartners(this.PlayerEmpire);
             HashSet<Empire> empires = new HashSet<Empire>();            

@@ -136,7 +136,7 @@ namespace Ship_Game
 				dimensionalPrison.timer = dimensionalPrison.timer - elapsedTime;
 				if (this.timer <= 0f)
 				{
-					Ship enemy = ResourceManager.CreateShipAtPoint("Heavy Drone", EmpireManager.GetEmpireByName("The Remnant"), this.Position);
+					Ship enemy = ResourceManager.CreateShipAtPoint("Heavy Drone", EmpireManager.Remnants, this.Position);
 					enemy.Velocity = this.GenerateRandomV2(100f);
 					enemy.GetAI().State = AIState.AwaitingOrders;
 					this.timer = 2f;

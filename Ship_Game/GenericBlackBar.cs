@@ -185,7 +185,10 @@ namespace Ship_Game
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
 			Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
-			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f))) * Matrix.CreateRotationX(MathHelper.ToRadians(0f))) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) 
+                * Matrix.CreateRotationY(180f.ToRadians())) 
+                * Matrix.CreateRotationX(0f.ToRadians())) 
+                * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}

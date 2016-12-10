@@ -151,6 +151,15 @@ namespace Ship_Game
         {
             return FleetsDict;
         }
+        public Fleet FirstFleet
+        {
+            get { return FleetsDict[1]; }
+            set
+            {
+                foreach (Ship s in FleetsDict[1].Ships) s.fleet = null;
+                FleetsDict[1] = value;
+            }
+        }
 
         public int GetUnusedKeyForFleet()
         {
@@ -1149,114 +1158,10 @@ namespace Ship_Game
             }
         }
 
-        public List<Ship> GetShipsInOurBorders()
+        public List<Ship> FindShipsInOurBorders()
         {
-            //return this.UnownedShipsInOurBorders;
-            return GetGSAI().ThreatMatrix.GetAllShipsInOurBorders();
+            return GSAI.ThreatMatrix.FindShipsInOurBorders();
         }
-
-        //public void UpdateKnownShipsold()         //This is not referenced anywhere. Commenting out so I can code-search without this stuff coming up -Gretman
-        //{
-        //    lock (GlobalStats.KnownShipsLock)
-        //    {
-        //        if (this.isPlayer && Empire.Universe.Debug)
-        //        {
-        //            for (int i = 0; i < Empire.Universe.MasterShipList.Count; i++)
-        //            {
-        //                Ship item = Empire.Universe.MasterShipList[i];
-        //                item.inSensorRange = true;
-        //                this.KnownShips.Add(item);
-        //                this.GSAI.ThreatMatrix.UpdatePin(item);
-        //            }
-        //            return;
-        //        }
-        //    }
-        //    for (int j = 0; j < Empire.Universe.MasterShipList.Count; j++)
-        //    {
-        //        Ship ship = Empire.Universe.MasterShipList[j];
-        //        if (ship.loyalty != this)
-        //        {
-        //            List<Ship> ships = new List<Ship>();
-        //            lock (this.SensorNodeLocker)
-        //            {
-        //                foreach (Empire.InfluenceNode sensorNode in this.SensorNodes)
-        //                {
-        //                    if (Vector2.Distance(sensorNode.Position, ship.Center) >= sensorNode.Radius)
-        //                    {
-        //                        continue;
-        //                    }
-        //                    if (!this.Relationships[ship.loyalty].Known)
-        //                    {
-        //                        this.DoFirstContact(ship.loyalty);
-        //                    }
-        //                    ships.Add(ship);
-        //                    this.GSAI.ThreatMatrix.UpdatePin(ship);
-        //                    if (!this.isPlayer)
-        //                    {
-        //                        break;
-        //                    }
-        //                    ship.inSensorRange = true;
-        //                    if (ship.GetSystem() == null || !this.isFaction && !ship.loyalty.isFaction && !this.Relationships[ship.loyalty].AtWar)
-        //                    {
-        //                        break;
-        //                    }
-        //                    ship.GetSystem().DangerTimer = 120f;
-        //                    break;
-        //                }
-        //            }
-        //            lock (GlobalStats.KnownShipsLock)
-        //            {
-        //                foreach (Ship ship1 in ships)
-        //                {
-        //                    this.KnownShips.Add(ship1);
-        //                }
-        //                ships.Clear();
-        //            }
-        //        }
-        //        else
-        //        {
-        //            ship.inborders = false;
-        //            //this.KnownShips.thisLock.EnterWriteLock();
-        //            {
-        //                this.KnownShips.Add(ship);
-        //            }
-        //            //this.KnownShips.thisLock.ExitWriteLock();
-        //            if (this.isPlayer)
-        //            {
-        //                ship.inSensorRange = true;
-        //            }
-        //            this.BorderNodeLocker.EnterReadLock();
-        //            {
-        //                foreach (Empire.InfluenceNode borderNode in this.BorderNodes)
-        //                {
-        //                    if (Vector2.Distance(borderNode.Position, ship.Center) >= borderNode.Radius)
-        //                    {
-        //                        continue;
-        //                    }
-        //                    ship.inborders = true;
-        //                    break;
-        //                }
-        //                foreach (KeyValuePair<Empire, Relationship> relationship in this.Relationships)
-        //                {
-        //                    if (relationship.Key != this || !relationship.Value.Treaty_OpenBorders)
-        //                    {
-        //                        continue;
-        //                    }
-        //                    foreach (Empire.InfluenceNode influenceNode in relationship.Key.BorderNodes)
-        //                    {
-        //                        if (Vector2.Distance(influenceNode.Position, ship.Center) >= influenceNode.Radius)
-        //                        {
-        //                            continue;
-        //                        }
-        //                        ship.inborders = true;
-        //                        break;
-        //                    }
-        //                }
-        //            }
-        //            this.BorderNodeLocker.ExitReadLock();
-        //        }
-        //    }
-        //}
 
         public void UpdateKnownShips()  //Mer
         {
@@ -1281,14 +1186,14 @@ namespace Ship_Game
             //for (int i = 0; i < Empire.Universe.MasterShipList.Count; i++)            
             var source = Universe.MasterShipList.ToArray();
             var rangePartitioner = Partitioner.Create(0, source.Length);
-            ConcurrentBag<Ship> shipbag =new ConcurrentBag<Ship>();
+            ConcurrentBag<Ship> shipbag = new ConcurrentBag<Ship>();
             //Parallel.For(0, Empire.Universe.MasterShipList.Count, i =>  
             
             {
                 SensorNodeLocker.EnterReadLock();
                 var influenceNodes = new List<InfluenceNode>(SensorNodes);
                 SensorNodeLocker.ExitReadLock();
-                Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                Parallel.ForEach(rangePartitioner, (range) =>
                 {
                     var toadd = new List<Ship>();
                     for (int i = range.Item1; i < range.Item2; i++)
@@ -1300,12 +1205,12 @@ namespace Ship_Game
                         nearby.getBorderCheck.Remove(this);                        
                         if (nearby.loyalty != this)
                         {                            
-                             bool insensors = false;
-                             bool border = false;
+                            bool insensors = false;
+                            bool border = false;
 
                             foreach (InfluenceNode node in influenceNodes)
                             {
-                                if (Vector2.Distance(node.Position, nearby.Center) >= node.Radius)
+                                if (node.Position.SqDist(nearby.Center) >= node.Radius*node.Radius)
                                 {
                                     continue;
                                 }
@@ -1317,27 +1222,23 @@ namespace Ship_Game
                                 }
                                 insensors = true;
                                 Ship shipKey = node.KeyedObject as Ship;
-                                if ((node.KeyedObject is SolarSystem) || (node.KeyedObject is Planet) ||
-                                    shipKey != null && (shipKey.inborders
-                                    || shipKey.Name == "Subspace Projector")
-
-                                    )
+                                if (shipKey != null && (shipKey.inborders || shipKey.Name == "Subspace Projector") ||
+                                    node.KeyedObject is SolarSystem || node.KeyedObject is Planet)
                                 {
                                     border = true;
                                     nearby.getBorderCheck.Add(this);
-
                                 }
                                 if (!isPlayer)
                                 {
                                     break;
                                 }
                                 nearby.inSensorRange = true;
-                                if (nearby.GetSystem() == null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
+                                if (nearby.System== null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
                                 {
                                     break;
                                 }
 
-                                nearby.GetSystem().DangerTimer = 120f;
+                                nearby.System.DangerTimer = 120f;
                                 break;
                             }
 

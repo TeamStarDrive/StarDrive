@@ -8,11 +8,18 @@ namespace Ship_Game
 	{
 		public  static readonly List<Empire> EmpireList = new List<Empire>();
         private static readonly Dictionary<string, Empire> EmpireDict = new Dictionary<string, Empire>(); 
+        private static Empire RemnantsEmpire;
+        private static Empire PlayerEmpire;
 
+        /// @todo These should be initialized ONCE during loading, leaving like this for future refactor
+        public static Empire Remnants => RemnantsEmpire ?? (RemnantsEmpire = GetEmpireByName("The Remnant"));
+        public static Empire Player   => PlayerEmpire   ?? (PlayerEmpire   = FindPlayerEmpire());
         public static void Clear()
         {
             EmpireList.Clear();
             EmpireDict.Clear();
+            RemnantsEmpire = null;
+            PlayerEmpire   = null;
         }
         public static Empire GetEmpireByName(string name)
         {
@@ -28,7 +35,7 @@ namespace Ship_Game
             }
             return null;
         }
-        public static Empire GetPlayerEmpire()
+        private static Empire FindPlayerEmpire()
         {
             foreach (Empire empire in EmpireList)
                 if (empire.isPlayer)

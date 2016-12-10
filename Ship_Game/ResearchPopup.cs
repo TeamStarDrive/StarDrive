@@ -89,7 +89,7 @@ namespace Ship_Game
                     }
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[unlockItem.module.UID].IconTexturePath], destinationRectangle, Color.White);
                     Localizer.Token((int)unlockItem.module.NameIndex);
-                    string text = HelperFunctions.parseText(Fonts.Arial12, unlockItem.Description, (float)(entry.clickRect.Width - 100));
+                    string text = HelperFunctions.ParseText(Fonts.Arial12, unlockItem.Description, (float)(entry.clickRect.Width - 100));
                     float num = (float)(Fonts.Arial14Bold.LineSpacing + 5) + Fonts.Arial12.MeasureString(text).Y;
                     Vector2 Pos = new Vector2((float)(entry.clickRect.X + 100), (float)(entry.clickRect.Y + entry.clickRect.Height / 2) - num / 2f);
                     Pos.X = (float)(int)Pos.X;
@@ -102,7 +102,7 @@ namespace Ship_Game
                     Rectangle drawRect = new Rectangle((int)vector2.X + 16, (int)vector2.Y + entry.clickRect.Height / 2 - 32, 64, 64);
                     unlockItem.troop.Draw(this.ScreenManager.SpriteBatch, drawRect);
                     string Text = unlockItem.troop.Name;
-                    string text = HelperFunctions.parseText(Fonts.Arial12, unlockItem.troop.Description, (float)(entry.clickRect.Width - 100));
+                    string text = HelperFunctions.ParseText(Fonts.Arial12, unlockItem.troop.Description, (float)(entry.clickRect.Width - 100));
                     float num = (float)(Fonts.Arial14Bold.LineSpacing + 5) + Fonts.Arial12.MeasureString(text).Y;
                     Vector2 Pos = new Vector2((float)(entry.clickRect.X + 100), (float)(entry.clickRect.Y + entry.clickRect.Height / 2) - num / 2f);
                     Pos.X = (float)(int)Pos.X;
@@ -116,7 +116,7 @@ namespace Ship_Game
                     //picture of building
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + unlockItem.building.Icon + "_64x64"], destinationRectangle, Color.White);
                     string Text = Localizer.Token(unlockItem.building.NameTranslationIndex);
-                    string text = HelperFunctions.parseText(Fonts.Arial12, Localizer.Token(unlockItem.building.DescriptionIndex), (float)(entry.clickRect.Width - 100));
+                    string text = HelperFunctions.ParseText(Fonts.Arial12, Localizer.Token(unlockItem.building.DescriptionIndex), (float)(entry.clickRect.Width - 100));
                     float num = (float)(Fonts.Arial14Bold.LineSpacing + 5) + Fonts.Arial12.MeasureString(text).Y;
                     Vector2 Pos = new Vector2((float)(entry.clickRect.X + 100), (float)(entry.clickRect.Y + entry.clickRect.Height / 2) - num / 2f);
                     Pos.X = (float)(int)Pos.X;
@@ -140,7 +140,7 @@ namespace Ship_Game
                 }
                 if (unlockItem.Type == "ADVANCE")
                 {
-                    string text = HelperFunctions.parseText(Fonts.Arial12, unlockItem.Description, (float)(entry.clickRect.Width - 100));
+                    string text = HelperFunctions.ParseText(Fonts.Arial12, unlockItem.Description, (float)(entry.clickRect.Width - 100));
                     float num = (float)(Fonts.Arial14Bold.LineSpacing + 5) + Fonts.Arial12.MeasureString(text).Y;
                     Vector2 Pos = new Vector2((float)(entry.clickRect.X + 100), (float)(entry.clickRect.Y + entry.clickRect.Height / 2) - num / 2f);
                     Pos.X = (float)(int)Pos.X;
