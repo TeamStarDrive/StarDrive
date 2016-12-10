@@ -3,9 +3,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Xml.Serialization;
+using Fasterflect;
 
 namespace Ship_Game
 {
@@ -23,395 +26,199 @@ namespace Ship_Game
 			outPoints[1] = src + (right * width);
 			outPoints[2] = dst - (right * width);
 			outPoints[3] = dst + (right * width);
-			Vector3[] points = new Vector3[] { new Vector3(outPoints[0], BeamZ), new Vector3(outPoints[1], BeamZ), new Vector3(outPoints[2], BeamZ), new Vector3(outPoints[3], BeamZ) };
-			return points;
+			return new [] { new Vector3(outPoints[0], BeamZ), new Vector3(outPoints[1], BeamZ), new Vector3(outPoints[2], BeamZ), new Vector3(outPoints[3], BeamZ) };
 		}
 
 		public static bool CheckIntersection(Rectangle rect, Vector2 pos)
 		{
-			if (pos.X > (float)rect.X && pos.X < (float)(rect.X + rect.Width) && pos.Y > (float)rect.Y && pos.Y < (float)(rect.Y + rect.Height))
-			{
-				return true;
-			}
-			return false;
+			return pos.X > rect.X && pos.Y > rect.Y && pos.X < rect.X+rect.Width && pos.Y < rect.Y+rect.Height;
 		}
 
-		public static Vector2[] CircleIntersection(Circle A, Circle B)
+		public static Vector2[] CircleIntersection(Circle ca, Circle cb)
 		{
-			float Distance = Vector2.Distance(A.Center, B.Center);
-			if (Distance > A.Radius + B.Radius)
+			float distance = Vector2.Distance(ca.Center, cb.Center);
+			if (distance > ca.Radius + cb.Radius)
 			{
 				return null;
 			}
-			float a = (float)(Math.Pow((double)A.Radius, 2) - Math.Pow((double)B.Radius, 2) + Math.Pow((double)Distance, 2)) / (Distance * 2f);
-			float b = Distance - a;
-			float h = (float)Math.Sqrt(Math.Pow((double)A.Radius, 2) - Math.Pow((double)a, 2));
-			Vector2 P2 = A.Center + ((a * (B.Center - A.Center)) / Distance);
-			Vector2 Intersection1 = new Vector2()
+			float a = (float)(Math.Pow(ca.Radius, 2) - Math.Pow(cb.Radius, 2) + Math.Pow(distance, 2)) / (distance * 2f);
+			float b = distance - a;
+			float h = (float)Math.Sqrt(Math.Pow(ca.Radius, 2) - Math.Pow(a, 2));
+			Vector2 p2 = ca.Center + (a * (cb.Center - ca.Center)) / distance;
+			Vector2 intersection1 = new Vector2()
 			{
-				X = P2.X + h * (B.Center.Y - A.Center.Y) / Distance,
-				Y = P2.Y - h * (B.Center.X - A.Center.X) / Distance
+				X = p2.X + h * (cb.Center.Y - ca.Center.Y) / distance,
+				Y = p2.Y - h * (cb.Center.X - ca.Center.X) / distance
 			};
-			Vector2 Intersection2 = new Vector2()
+			Vector2 intersection2 = new Vector2()
 			{
-				X = P2.X - h * (B.Center.Y - A.Center.Y) / Distance,
-				Y = P2.Y + h * (B.Center.X - A.Center.X) / Distance
+				X = p2.X - h * (cb.Center.Y - ca.Center.Y) / distance,
+				Y = p2.Y + h * (cb.Center.X - ca.Center.X) / distance
 			};
-			if (float.IsNaN(Intersection1.X))
-			{
-				return null;
-			}
-			Vector2[] VecArray = new Vector2[] { Intersection1, Intersection2, new Vector2(a, b), P2 };
-			return VecArray;
+			return float.IsNaN(intersection1.X) ? null : new []{ intersection1, intersection2, new Vector2(a, b), p2 };
 		}
 
 		public static void ClampVectorToInt(ref Vector2 pos)
 		{
-			pos.X = (float)((int)pos.X);
-			pos.Y = (float)((int)pos.Y);
+			pos.X = (int)pos.X;
+			pos.Y = (int)pos.Y;
 		}
 
 		public static bool ClickedRect(Rectangle toClick, InputState input)
 		{
-			if (HelperFunctions.CheckIntersection(toClick, input.CursorPosition) && input.InGameSelect)
+		    return input.InGameSelect && CheckIntersection(toClick, input.CursorPosition);
+		}
+
+        private static FleetDesign LoadFleetDesign(string fleetUid)
+        {
+            string designPath = fleetUid + ".xml";
+            FileInfo info;
+            if (GlobalStats.ActiveMod != null && Directory.Exists(ResourceManager.WhichModPath + "/FleetDesigns") 
+                && File.Exists(ResourceManager.WhichModPath + "/FleetDesigns/" + designPath))
+            {
+                info = new FileInfo(ResourceManager.WhichModPath + "/FleetDesigns/" + designPath);
+            }
+			else if (File.Exists("Content/FleetDesigns/" + designPath))
 			{
-				return true;
+				info = new FileInfo("Content/FleetDesigns/" + designPath);
 			}
-			return false;
+			else
+			{
+				string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+				info = new FileInfo(appData + "/StarDrive/Fleet Designs/" + designPath);
+			}
+			var serializer1 = new XmlSerializer(typeof(FleetDesign));
+			return (FleetDesign)serializer1.Deserialize(info.OpenRead());
+        }
+
+        private static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position)
+        {
+            Fleet fleet = new Fleet
+			{
+				Position  = position,
+				Owner     = owner,
+				DataNodes = new BatchRemovalCollection<FleetDataNode>()
+			};
+			foreach (FleetDataNode node in data.Data)
+				fleet.DataNodes.Add(node);
+			fleet.Name           = data.Name;
+			fleet.FleetIconIndex = data.FleetIconIndex;
+
+            fleet.DataNodes.thisLock.EnterWriteLock();
+			foreach (FleetDataNode node in fleet.DataNodes)
+			{
+				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
+				s.RelativeFleetOffset = node.FleetOffset;
+				node.SetShip(s);
+				fleet.AddShip(s);
+			}
+            fleet.DataNodes.thisLock.ExitWriteLock();
+            return fleet;
+        }
+
+		public static void CreateFleetFromDataAt(FleetDesign data, Empire owner, Vector2 position)
+		{
+			owner.FirstFleet = CreateFleetFromData(data, owner, position);
+		}
+		public static Fleet CreateDefensiveFleetAt(string fleetUid, Empire owner, Vector2 position)
+		{
+			return CreateFleetFromData(LoadFleetDesign(fleetUid), owner, position);
+		}
+		public static void CreateFleetAt(string fleetUid, Empire owner, Vector2 position)
+		{
+			owner.FirstFleet = CreateDefensiveFleetAt(fleetUid, owner, position);
 		}
 
 		public static void Compress(FileInfo fi)
 		{
-			using (FileStream inFile = fi.OpenRead())
-			{
-				if ((File.GetAttributes(fi.FullName) & FileAttributes.Hidden) != FileAttributes.Hidden & (fi.Extension != ".gz"))
-				{
-					using (FileStream outFile = File.Create(string.Concat(fi.FullName, ".gz")))
-					{
-						using (GZipStream Compress = new GZipStream(outFile, CompressionMode.Compress))
-						{
-							byte[] buffer = new byte[4096];
-							while (true)
-							{
-								int num = inFile.Read(buffer, 0, (int)buffer.Length);
-								int numRead = num;
-								if (num == 0)
-								{
-									break;
-								}
-								Compress.Write(buffer, 0, numRead);
-							}
-							string name = fi.Name;
-							string str = fi.Length.ToString();
-							long length = outFile.Length;
-							Console.WriteLine("Compressed {0} from {1} to {2} bytes.", name, str, length.ToString());
-						}
-					}
-				}
-			}
-		}
+            if (fi.Extension == ".gz" || (fi.Attributes & FileAttributes.Hidden) > 0)
+                return;
 
-		public static Fleet CreateDefensiveFleetAt(string FleetUID, Empire Owner, Vector2 Position)
-		{
-			FileInfo theFleetFI;
-            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")) && File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml")))
-            {
-                theFleetFI = new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml"));
-            }
-			else if (File.Exists(string.Concat("Content/FleetDesigns/", FleetUID, ".xml")))
+            var inData = File.ReadAllBytes(fi.FullName);
+			using (FileStream outFile = File.Create(fi.FullName + ".gz"))
+			using (GZipStream compress = new GZipStream(outFile, CompressionMode.Compress))
 			{
-				theFleetFI = new FileInfo(string.Concat("Content/FleetDesigns/", FleetUID, ".xml"));
+				compress.Write(inData, 0, inData.Length);
+				Console.WriteLine("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
 			}
-			else
-			{
-				string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				theFleetFI = new FileInfo(string.Concat(path, "/StarDrive/Fleet Designs/", FleetUID, ".xml"));
-			}
-			XmlSerializer serializer1 = new XmlSerializer(typeof(FleetDesign));
-			FleetDesign data = (FleetDesign)serializer1.Deserialize(theFleetFI.OpenRead());
-			Fleet fleet = new Fleet()
-			{
-				Position = Position,
-				Owner = Owner,
-				DataNodes = new BatchRemovalCollection<FleetDataNode>()
-			};
-			foreach (FleetDataNode node in data.Data)
-			{
-				fleet.DataNodes.Add(node);
-			}
-			fleet.Name = data.Name;
-			fleet.FleetIconIndex = data.FleetIconIndex;
-            fleet.DataNodes.thisLock.EnterWriteLock();
-			foreach (FleetDataNode node in fleet.DataNodes)
-			{
-				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.FleetOffset);
-				s.RelativeFleetOffset = node.FleetOffset;
-				node.SetShip(s);
-				fleet.AddShip(s);
-			}
-            fleet.DataNodes.thisLock.ExitWriteLock();
-			return fleet;
-		}
-
-		public static void CreateFleetAt(string FleetUID, Empire Owner, Vector2 Position)
-		{
-			FileInfo theFleetFI;
-
-            if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")) && File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml")))
-            {
-                theFleetFI = new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns/", FleetUID, ".xml"));
-            }
-			else if (File.Exists(string.Concat("Content/FleetDesigns/", FleetUID, ".xml")))
-			{
-				theFleetFI = new FileInfo(string.Concat("Content/FleetDesigns/", FleetUID, ".xml"));
-			}
-			else
-			{
-				string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-				theFleetFI = new FileInfo(string.Concat(path, "/StarDrive/Fleet Designs/", FleetUID, ".xml"));
-			}
-			XmlSerializer serializer1 = new XmlSerializer(typeof(FleetDesign));
-			FleetDesign data = (FleetDesign)serializer1.Deserialize(theFleetFI.OpenRead());
-			Fleet fleet = new Fleet()
-			{
-				Position = Position,
-				Owner = Owner,
-				DataNodes = new BatchRemovalCollection<FleetDataNode>()
-			};
-			foreach (FleetDataNode node in data.Data)
-			{
-				fleet.DataNodes.Add(node);
-			}
-			fleet.Name = data.Name;
-			fleet.FleetIconIndex = data.FleetIconIndex;
-            fleet.DataNodes.thisLock.EnterWriteLock();
-			foreach (FleetDataNode node in fleet.DataNodes)
-			{
-				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.FleetOffset);
-				s.RelativeFleetOffset = node.FleetOffset;
-				node.SetShip(s);
-				fleet.AddShip(s);
-			}
-            fleet.DataNodes.thisLock.ExitWriteLock();
-			foreach (Ship s in Owner.GetFleetsDict()[1].Ships)
-			{
-				s.fleet = null;
-			}
-			Owner.GetFleetsDict()[1] = fleet;
-		}
-
-		public static void CreateFleetFromDataAt(FleetDesign data, Empire Owner, Vector2 Position)
-		{
-			Fleet fleet = new Fleet()
-			{
-				Position = Position,
-				Owner = Owner,
-				DataNodes = new BatchRemovalCollection<FleetDataNode>()
-			};
-			foreach (FleetDataNode node in data.Data)
-			{
-				fleet.DataNodes.Add(node);
-			}
-			fleet.Name = data.Name;
-			fleet.FleetIconIndex = data.FleetIconIndex;
-			foreach (FleetDataNode node in fleet.DataNodes)
-			{
-				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.FleetOffset);
-				s.RelativeFleetOffset = node.FleetOffset;
-				node.SetShip(s);
-				fleet.AddShip(s);
-			}
-			foreach (Ship s in Owner.GetFleetsDict()[1].Ships)
-			{
-				s.fleet = null;
-			}
-			Owner.GetFleetsDict()[1] = fleet;
-		}
-
-		public static void CreateFleetFromDataAt(FleetDesign data, Empire Owner, Vector2 Position, float facing)
-		{
-			Fleet fleet = new Fleet()
-			{
-				Position = Position,
-				facing = facing,
-				Owner = Owner,
-				DataNodes = new BatchRemovalCollection<FleetDataNode>()
-			};
-			foreach (FleetDataNode node in data.Data)
-			{
-				fleet.DataNodes.Add(node);
-			}
-			fleet.AssignDataPositions(facing);
-			fleet.Name = data.Name;
-			fleet.FleetIconIndex = data.FleetIconIndex;
-            fleet.DataNodes.thisLock.EnterWriteLock();
-            foreach (FleetDataNode node in fleet.DataNodes)
-			{
-				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, Owner, Position + node.OrdersOffset, facing);
-				s.RelativeFleetOffset = node.FleetOffset;
-				node.SetShip(s);
-				fleet.AddShip(s);
-			}
-            fleet.DataNodes.thisLock.ExitWriteLock();
-			foreach (Ship s in Owner.GetFleetsDict()[1].Ships)
-			{
-				s.fleet = null;
-			}
-			Owner.GetFleetsDict()[1] = fleet;
 		}
 
 		public static string Decompress(FileInfo fi)
 		{
-			string str;
+			string curFile  = fi.FullName;
+			string origName = curFile.Remove(curFile.Length - fi.Extension.Length); // remove ".gz"
+
 			using (FileStream inFile = fi.OpenRead())
+			using (GZipStream decompress = new GZipStream(inFile, CompressionMode.Decompress))
+			using (FileStream outFile = File.Create(origName))
 			{
-				string curFile = fi.FullName;
-				string origName = curFile.Remove(curFile.Length - fi.Extension.Length);
-				using (FileStream outFile = File.Create(origName))
-				{
-					using (GZipStream Decompress = new GZipStream(inFile, CompressionMode.Decompress))
-					{
-						byte[] buffer = new byte[4096];
-						while (true)
-						{
-							int num = Decompress.Read(buffer, 0, (int)buffer.Length);
-							int numRead = num;
-							if (num == 0)
-							{
-								break;
-							}
-							outFile.Write(buffer, 0, numRead);
-						}
-						Console.WriteLine("Decompressed: {0}", fi.Name);
-						str = origName;
-					}
-				}
+				var buffer = new byte[4096*1024]; // average savegame is 4MB, so try and get this done in one go
+                int numRead;
+				while ((numRead = decompress.Read(buffer, 0, buffer.Length)) > 0)
+					outFile.Write(buffer, 0, numRead);
+				Console.WriteLine("Decompressed: {0}", fi.Name);
+				return origName;
 			}
-			return str;
 		}
 
-		public static void DrawDropShadowImage(Ship_Game.ScreenManager ScreenManager, Rectangle rect, string Texture, Color TopColor)
+		public static void DrawDropShadowImage(ScreenManager screenManager, Rectangle rect, string texture, Color topColor)
+		{
+            DrawDropShadowImage(screenManager, rect, ResourceManager.TextureDict[texture], topColor);
+		}
+		public static void DrawDropShadowImage(ScreenManager screenManager, Rectangle rect, Texture2D texture, Color topColor)
 		{
 			Rectangle offsetRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width, rect.Height);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[Texture], offsetRect, Color.Black);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[Texture], rect, TopColor);
+			screenManager.SpriteBatch.Draw(texture, offsetRect, Color.Black);
+			screenManager.SpriteBatch.Draw(texture, rect, topColor);
 		}
-
-		public static void DrawDropShadowImage(Ship_Game.ScreenManager ScreenManager, Rectangle rect, Texture2D Texture, Color TopColor)
+		public static void DrawDropShadowText(ScreenManager screenManager, string text, Vector2 pos, SpriteFont font)
 		{
-			Rectangle offsetRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width, rect.Height);
-			ScreenManager.SpriteBatch.Draw(Texture, offsetRect, Color.Black);
-			ScreenManager.SpriteBatch.Draw(Texture, rect, TopColor);
+            DrawDropShadowText(screenManager, text, pos, font, Color.White);
 		}
-
-		public static void DrawDropShadowText(Ship_Game.ScreenManager ScreenManager, string Text, Vector2 Pos, SpriteFont Font)
+        public static void DrawDropShadowText1(ScreenManager screenManager, string text, Vector2 pos, SpriteFont font, Color c)
 		{
-			Pos.X = (float)((int)Pos.X);
-			Pos.Y = (float)((int)Pos.Y);
-			Vector2 offset = new Vector2(2f, 2f);
-			ScreenManager.SpriteBatch.DrawString(Font, Text, Pos + offset, Color.Black);
-			ScreenManager.SpriteBatch.DrawString(Font, Text, Pos, Color.White);
+            DrawDropShadowText(screenManager, text, pos, font, c, 1f);
 		}
-
-		public static void DrawDropShadowText(Ship_Game.ScreenManager ScreenManager, string Text, Vector2 Pos, SpriteFont Font, Color c)
+		public static void DrawDropShadowText(ScreenManager screenManager, string text, Vector2 pos, SpriteFont font, Color c, float offs = 2f)
 		{
-			Pos.X = (float)((int)Pos.X);
-			Pos.Y = (float)((int)Pos.Y);
-			Vector2 offset = new Vector2(2f, 2f);
-			ScreenManager.SpriteBatch.DrawString(Font, Text, Pos + offset, Color.Black);
-			ScreenManager.SpriteBatch.DrawString(Font, Text, Pos, c);
-		}
-
-		public static void DrawDropShadowText1(Ship_Game.ScreenManager ScreenManager, string Text, Vector2 Pos, SpriteFont Font, Color c)
-		{
-			Pos.X = (float)((int)Pos.X);
-			Pos.Y = (float)((int)Pos.Y);
-			Vector2 offset = new Vector2(1f, 1f);
-			ScreenManager.SpriteBatch.DrawString(Font, Text, Pos + offset, Color.Black);
-			ScreenManager.SpriteBatch.DrawString(Font, Text, Pos, c);
+			pos.X = (int)pos.X;
+			pos.Y = (int)pos.Y;
+			screenManager.SpriteBatch.DrawString(font, text, pos + new Vector2(offs), Color.Black);
+			screenManager.SpriteBatch.DrawString(font, text, pos, c);
 		}
 
 		public static void DrawGrid(SpriteBatch spriteBatch, int xpos, int ypos, int xGridSize, int yGridSize, int numberXs, int numberYs)
 		{
 			int xsize = xGridSize / numberXs;
 			int ysize = yGridSize / numberYs;
-			for (int x = 0; x < numberXs; x++)
+            var color  = new Color(211, 211, 211, 70);
+            var origin = new Vector2(xpos + 1, ypos);
+            var end    = new Vector2(xpos, ypos + yGridSize - 1);
+			for (int x = 0; x < numberXs; ++x)
 			{
-				Vector2 origin = new Vector2((float)(xpos + 1 + x * xsize), (float)ypos);
-				Vector2 end = new Vector2((float)(xpos + x * xsize), (float)(ypos + yGridSize - 1));
-				Primitives2D.DrawLine(spriteBatch, origin, end, new Color(211, 211, 211, 70), 2f);
+				Primitives2D.DrawLine(spriteBatch, origin, end, color, 2f);
+                origin.X += xsize;
+                end.X    += xsize;
 			}
-			for (int y = 0; y < numberYs; y++)
+            origin = new Vector2(xpos, ypos);
+            end    = new Vector2(xpos + xGridSize - 3, ypos);
+			for (int y = 0; y < numberYs; ++y)
 			{
-				Vector2 origin = new Vector2((float)xpos, (float)(ypos + y * ysize));
-				Vector2 end = new Vector2((float)(xpos + xGridSize - 3), (float)(ypos + y * ysize));
-				Primitives2D.DrawLine(spriteBatch, origin, end, new Color(211, 211, 211, 70), 2f);
+				Primitives2D.DrawLine(spriteBatch, origin, end, color, 2f);
+                origin.Y += ysize;
+                end.Y    += ysize;
 			}
 		}
 
 		public static void DrawStroke(SpriteFont font, SpriteBatch sb, string text, Color backColor, Color frontColor, float scale, float rotation, Vector2 position)
 		{
-			Vector2 origin = new Vector2(font.MeasureString(text).X / 2f, font.MeasureString(text).Y / 2f);
+            var textSize = font.MeasureString(text);
+			Vector2 origin = new Vector2(textSize.X / 2f, textSize.Y / 2f);
 			sb.DrawString(font, text, position + new Vector2(1f * scale, 1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position + new Vector2(-1f * scale, -1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position + new Vector2(-1f * scale, 1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position + new Vector2(1f * scale, -1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position, frontColor, rotation, origin, scale, SpriteEffects.None, 1f);
-		}
-
-		public static float findAngleToTarget(Vector2 origin, Vector2 target)
-		{
-			float theta;
-			float tX = target.X;
-			float tY = target.Y;
-			float centerX = origin.X;
-			float centerY = origin.Y;
-			float angle_to_target = 0f;
-			if (tX > centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 90f - Math.Abs(theta);
-			}
-			else if (tX > centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 90f + theta * 180f / 3.14159274f;
-			}
-			else if (tX < centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 270f - Math.Abs(theta);
-				angle_to_target = -angle_to_target;
-			}
-			else if (tX < centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 270f + theta * 180f / 3.14159274f;
-				angle_to_target = -angle_to_target;
-			}
-			if (tX == centerX && tY < centerY)
-			{
-				angle_to_target = 0f;
-			}
-			else if (tX > centerX && tY == centerY)
-			{
-				angle_to_target = 90f;
-			}
-			else if (tX == centerX && tY > centerY)
-			{
-				angle_to_target = 180f;
-			}
-			else if (tX < centerX && tY == centerY)
-			{
-				angle_to_target = 270f;
-			}
-			if (float.IsNaN(angle_to_target))
-			{
-				return 0f;
-			}
-			return Math.Abs(angle_to_target);
 		}
 
 		public static Vector2 FindPointFromAngleAndDistance(Vector2 position, float angle, float distance)
@@ -474,8 +281,8 @@ namespace Ship_Game
 			{
 				theta = 90f - gamma;
 				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
+				oppY = D * (float)Math.Sin(theta);
+				adjX = D * (float)Math.Cos(theta);
 				gammaQuadrant = 1;
 			}
 			else if (gamma > 90f && gamma < 180f)
@@ -545,28 +352,26 @@ namespace Ship_Game
 			return TargetPosition;
 		}
 
-		public static Vector2 FindVectorToTarget(Vector2 Origin, Vector2 Target)
+		public static Vector2 FindVectorToTarget(Vector2 origin, Vector2 target)
 		{
-			return Vector2.Normalize(Target - Origin);
+			return Vector2.Normalize(target - origin);
 		}
 
 		public static Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
 		{
 			if (angle >= 360f)
-			{
 				angle = angle - 360f;
-			}
 			return FindPointFromAngleAndDistance(center, angle, radius);
 		}
 
-		public static FileInfo[] GetFilesFromDirectory(string DirPath)
+		public static FileInfo[] GetFilesFromDirectory(string dirPath)
 		{
-			return (new DirectoryInfo(DirPath)).GetFiles("*.*", SearchOption.TopDirectoryOnly);
+			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.TopDirectoryOnly);
 		}
 
-		public static FileInfo[] GetFilesFromDirectoryAndSubs(string DirPath)
+		public static FileInfo[] GetFilesFromDirectoryAndSubs(string dirPath)
 		{
-			return (new DirectoryInfo(DirPath)).GetFiles("*.*", SearchOption.AllDirectories);
+			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.AllDirectories);
 		}
 
 		public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)
@@ -594,39 +399,34 @@ namespace Ship_Game
 			return true;
 		}
 
-		public static bool IsPointInCircle(Vector2 CicleCenter, float Radius, Vector2 Point)
+		public static bool IsPointInCircle(Vector2 circleCenter, float radius, Vector2 point)
 		{
-			float square_dist = (float)Math.Pow((double)(CicleCenter.X - Point.X), 2) + (float)Math.Pow((double)(CicleCenter.Y - Point.Y), 2);
-			return (double)square_dist <= Math.Pow((double)Radius, 2);
+            float dx = circleCenter.X - point.X;
+            float dy = circleCenter.Y - point.Y;
+			return dx*dx + dy*dy <= radius*radius;
 		}
 
-		public static string parseText(SpriteFont Font, string text, float Width)
+		public static string ParseText(SpriteFont font, string text, float maxLineWidth)
 		{
-			string line = string.Empty;
-			string returnString = string.Empty;
-			string[] wordArray = text.Split(new char[] { ' ' });
-			for (int i = 0; i < (int)wordArray.Length; i++)
+            var result = new StringBuilder();
+			var wordArray = text.Split(' ');
+            float length = 0.0f;
+			foreach (string word in wordArray)
 			{
-                if (wordArray[i] == null)
-                    break;
-				string word = wordArray[i];
-				if (Font.MeasureString(string.Concat(line, word)).Length() > Width)
-				{
-					returnString = string.Concat(returnString, line, '\n');
-					line = string.Empty;
-				}
-				else if (word == "\\n" || word == "\n")
-				{
-					word = "";
-					returnString = string.Concat(returnString, line, '\n');
-					line = string.Empty;
-				}
-				if (!string.IsNullOrEmpty(word))
-				{
-					line = string.Concat(line, word, ' ');
-				}
+                if (word != "\\n" && word != "\n")
+                {
+                    length += font.MeasureString(word).Length();
+                    result.Append(word);
+                    if (length < maxLineWidth)
+                    {
+                        result.Append(' ');
+                        continue;
+                    }
+                }
+                result.Append('\n');
+                length = 0f;
 			}
-			return string.Concat(returnString, line);
+            return result.ToString();
 		}
 
 		public static void parseTextToSL(string text, float Width, SpriteFont font, ref ScrollList List)
@@ -680,22 +480,19 @@ namespace Ship_Game
 			return rounded;
 		}
 
-        //Added by McShooterz: module repair priority list
+        // Added by McShooterz: module repair priority list
         public static int ModulePriority(ShipModule ShipModule)
         {
-            if (ShipModule.ModuleType == ShipModuleType.Command)
-                return 0;
-            if (ShipModule.ModuleType == ShipModuleType.PowerPlant)
-                return 1;
-            if (ShipModule.ModuleType == ShipModuleType.PowerConduit)
-                return 2;
-            if (ShipModule.ModuleType == ShipModuleType.Engine)
-                return 3;
-            if (ShipModule.ModuleType == ShipModuleType.Shield)
-                return 4;
-            if (ShipModule.ModuleType == ShipModuleType.Armor)
-                return 6;
-            return 5;
+            switch (ShipModule.ModuleType)
+            {
+                case ShipModuleType.Command:      return 0;
+                case ShipModuleType.PowerPlant:   return 1;
+                case ShipModuleType.PowerConduit: return 2;
+                case ShipModuleType.Engine:       return 3;
+                case ShipModuleType.Shield:       return 4;
+                case ShipModuleType.Armor:        return 6;
+                default:                          return 5;
+            }
         }
 	}
 }

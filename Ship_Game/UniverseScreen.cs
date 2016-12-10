@@ -385,7 +385,7 @@ namespace Ship_Game
             Ray ray = new Ray(position1, direction1);
             float num1 = -ray.Position.Z / ray.Direction.Z;
             Vector3 source = new Vector3(ray.Position.X + num1 * ray.Direction.X, ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
-            Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f)) * Matrix.CreateRotationX(MathHelper.ToRadians(0.0f)) * Matrix.CreateLookAt(new Vector3(this.camPos.X, this.camPos.Y, DesiredCamHeight), new Vector3(this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+            Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) * Matrix.CreateRotationX(0.0f.ToRadians()) * Matrix.CreateLookAt(new Vector3(this.camPos.X, this.camPos.Y, DesiredCamHeight), new Vector3(this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(source, this.projection, view, Matrix.Identity);
             Vector2 vector2_2 = new Vector2((float)(int)vector3.X - vector2_1.X, (float)(int)vector3.Y - vector2_1.Y);
             Vector3 position2 = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 0.0f), this.projection, view, Matrix.Identity);
@@ -858,16 +858,16 @@ namespace Ship_Game
             {
                 foreach (string FleetUID in solarSystem.DefensiveFleets)
                 {
-                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.PlanetList[0].Position);
+                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, solarSystem.PlanetList[0].Position);
                     MilitaryTask militaryTask = new MilitaryTask();
                     militaryTask.AO = solarSystem.PlanetList[0].Position;
                     militaryTask.AORadius = 120000f;
                     militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
-                    militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
-                    EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                    militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+                    EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
 				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
@@ -876,16 +876,16 @@ namespace Ship_Game
                     {
                         foreach (string FleetUID in p.PlanetFleets)
                         {
-                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.GetEmpireByName("The Remnant"), p.Position);
+                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, p.Position);
                             MilitaryTask militaryTask = new MilitaryTask();
                             militaryTask.AO = solarSystem.PlanetList[0].Position;
                             militaryTask.AORadius = 120000f;
                             militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                             planetFleetAt.Task = militaryTask;
                             planetFleetAt.TaskStep = 3;
-                            militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                            EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, planetFleetAt);
-                            EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                            militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+                            EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, planetFleetAt);
+                            EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                             militaryTask.Step = 2;
                         }
                     }
@@ -893,20 +893,20 @@ namespace Ship_Game
 
                 foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
                 {
-                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetAndPos.fleetname, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.Position + fleetAndPos.Pos);
+                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetAndPos.fleetname, EmpireManager.Remnants, solarSystem.Position + fleetAndPos.Pos);
                     MilitaryTask militaryTask = new MilitaryTask();
                     militaryTask.AO = solarSystem.Position + fleetAndPos.Pos;
                     militaryTask.AORadius = 75000f;
                     militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
-                    militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
-                    EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                    militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+                    EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
                 foreach (string key in solarSystem.ShipsToSpawn)
-                    ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.PlanetList[0], true);
+                    ResourceManager.CreateShipAt(key, EmpireManager.Remnants, solarSystem.PlanetList[0], true);
                 foreach (Planet p in solarSystem.PlanetList)
                 {
                     if (p.Owner != null)
@@ -931,7 +931,7 @@ namespace Ship_Game
                         else
                         {
                             foreach (string key in p.Guardians)
-                                ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), p, true);
+                                ResourceManager.CreateShipAt(key, EmpireManager.Remnants, p, true);
                             if (p.CorsairPresence)
                             {
                                 ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
@@ -954,7 +954,7 @@ namespace Ship_Game
             while ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
             {
                 Vector2 vector2_1 = new Vector2(this.Size.X / 2f, this.Size.Y / 2f);
-                Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f)) * Matrix.CreateRotationX(MathHelper.ToRadians(0.0f)) * Matrix.CreateLookAt(new Vector3(-vector2_1.X, vector2_1.Y, this.MaxCamHeight), new Vector3(-vector2_1.X, vector2_1.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+                Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) * Matrix.CreateRotationX(0.0f.ToRadians()) * Matrix.CreateLookAt(new Vector3(-vector2_1.X, vector2_1.Y, this.MaxCamHeight), new Vector3(-vector2_1.X, vector2_1.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
                 Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(Vector3.Zero, this.projection, view, Matrix.Identity);
                 Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y);
                 Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size, 0.0f), this.projection, view, Matrix.Identity);
@@ -1368,7 +1368,7 @@ namespace Ship_Game
 
                     if (this.AutoSaveTimer <= 0.0f)
                     {
-                        this.AutoSaveTimer = EmpireManager.GetPlayerEmpire().data.AutoSaveFreq;
+                        this.AutoSaveTimer = EmpireManager.Player.data.AutoSaveFreq;
                         this.DoAutoSave();
                     }
                     if (this.IsActive)
@@ -1584,7 +1584,7 @@ namespace Ship_Game
                     if (this.ArmageddonCounter > 5)
                         this.ArmageddonCounter = 5;
                     for (int index = 0; index < this.ArmageddonCounter; ++index)
-                        ResourceManager.CreateShipAtPoint("Remnant Exterminator", EmpireManager.GetEmpireByName("The Remnant"), this.player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f), RandomMath.RandomBetween(-500000f, 500000f))).GetAI().DefaultAIState = AIState.Exterminate;
+                        ResourceManager.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants, this.player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f), RandomMath.RandomBetween(-500000f, 500000f))).GetAI().DefaultAIState = AIState.Exterminate;
                 }
             }
 
@@ -1848,7 +1848,7 @@ namespace Ship_Game
                                                    }
                                                    
                                                }
-                                               if (ship.GetSystem() == null)
+                                               if (ship.System== null)
                                                {
                                                  
                                                    ship.isInDeepSpace = true;
@@ -2473,7 +2473,7 @@ namespace Ship_Game
                     foreach (Ship ship in (List<Ship>)system.ShipList)
                     //Parallel.ForEach(system.ShipList, ship =>
                     {
-                        if (ship.GetSystem() == null)
+                        if (ship.System== null)
                             continue;
                         //added by gremlin ghost ship killer
                         if (ship.ModuleSlotList.Count == 0)
@@ -2537,7 +2537,7 @@ namespace Ship_Game
                         if (item is Ship)
                         {
                             Ship ship = item as Ship;
-                            if (ship.Active && ship.isInDeepSpace && ship.GetSystem() == null)
+                            if (ship.Active && ship.isInDeepSpace && ship.System== null)
                             {
                                 this.DeepSpaceShips.Add(ship);
                             }
@@ -3394,7 +3394,7 @@ namespace Ship_Game
                 if (this.Debug)
                 {
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.C) && !input.LastKeyboardState.IsKeyDown(Keys.C))
-                        ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", EmpireManager.Remnants, this.mouseWorldPos);
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.C) && !input.LastKeyboardState.IsKeyDown(Keys.C))
                         ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", this.player, this.mouseWorldPos);
 
@@ -3402,7 +3402,7 @@ namespace Ship_Game
                     {
 
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
-                            HelperFunctions.CreateFleetAt("Fleet 2", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                            HelperFunctions.CreateFleetAt("Fleet 2", EmpireManager.Remnants, this.mouseWorldPos);
                         else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
                             HelperFunctions.CreateFleetAt("Fleet 1", this.player, this.mouseWorldPos);
                     }
@@ -3425,13 +3425,13 @@ namespace Ship_Game
                     else if (this.SelectedPlanet != null && this.Debug && (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X)))
                     {
                         foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
-                            this.SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.GetEmpireByName("The Remnant")));
+                            this.SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.Remnants));
                     }
 
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
-                        ResourceManager.CreateShipAtPoint("Remnant Mothership", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        ResourceManager.CreateShipAtPoint("Remnant Mothership", EmpireManager.Remnants, this.mouseWorldPos);
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
-                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.Remnants, this.mouseWorldPos);
 
                     //This little sections added to stress-test the resource manager, and load lots of models into memory.      -Gretman
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.B) && !input.LastKeyboardState.IsKeyDown(Keys.B))
@@ -4096,7 +4096,7 @@ namespace Ship_Game
                     Vector3 vector3 = new Vector3(ray.Position.X + num1 * ray.Direction.X, ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
                     Vector2 vector2_1 = new Vector2(vector3.X, vector3.Y);
                     Vector2 target = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
-                    float num2 = Math.Abs(MathHelper.ToRadians(this.findAngleToTarget(this.startDrag, target)));
+                    float num2 = startDrag.RadiansToTarget(target);
                     Vector2 vector2_2 = Vector2.Normalize(target - this.startDrag);
                     if ((double)input.RightMouseTimer > 0.0)
                     {
@@ -4104,7 +4104,7 @@ namespace Ship_Game
                         {
                             AudioManager.PlayCue("echo_affirm1");
                             this.SelectedSomethingTimer = 3f;
-                            float num3 = Math.Abs(MathHelper.ToRadians(this.findAngleToTarget(this.SelectedFleet.Position, vector2_1)));
+                            float num3 = SelectedFleet.Position.RadiansToTarget(vector2_1);
                             Vector2 vectorToTarget = HelperFunctions.FindVectorToTarget(Vector2.Zero, HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.SelectedFleet.Position, num3, 1f));
                             foreach (Ship ship in (List<Ship>)this.SelectedFleet.Ships)
                                 this.player.GetGSAI().DefensiveCoordinator.remove(ship);
@@ -4501,7 +4501,7 @@ namespace Ship_Game
                 if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Pressed)
                 {
                     Vector2 target = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
-                    float facing = Math.Abs(MathHelper.ToRadians(this.findAngleToTarget(this.startDrag, target)));
+                    float facing = startDrag.RadiansToTarget(target);
                     Vector2 fVec1 = Vector2.Normalize(target - this.startDrag);
                     if ((double)input.RightMouseTimer > 0.0)
                         return;
@@ -5664,8 +5664,9 @@ namespace Ship_Game
                 {
                     Vector2 origin1 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2));
                     Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);
-                    float angleToTarget = this.findAngleToTarget(origin1, target);
-                    Vector2 angleAndDistance = this.findPointFromAngleAndDistance(moduleSlot.module.Center, MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+                    float angleToTarget = origin1.AngleToTarget(target);
+                    Vector2 angleAndDistance = this.findPointFromAngleAndDistance(moduleSlot.module.Center, 
+                        MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
                     float num1 = (float)((int)moduleSlot.module.XSIZE * 16 / 2);
                     float num2 = (float)((int)moduleSlot.module.YSIZE * 16 / 2);
                     float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num1, 2.0) + (float)Math.Pow((double)num2, 2.0)));
@@ -5768,7 +5769,7 @@ namespace Ship_Game
                                             Vector2 local_13_1 = local_3;
                                             local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                                             local_3 = new Vector2(local_2.X, local_2.Y);
-                                            float local_14 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(local_13_1, local_3));
+                                            float local_14 = local_13_1.RadiansToTarget(local_3);
                                             local_8 = new Rectangle((int)local_13_1.X, (int)local_13_1.Y, (int)local_7, (int)Vector2.Distance(local_13_1, local_3));
                                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/nodeconnect"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
                                             //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
@@ -5877,7 +5878,10 @@ namespace Ship_Game
             }
             this.AdjustCamera((float)gameTime.ElapsedGameTime.TotalSeconds);
             this.camPos.Z = this.camHeight;
-            this.view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f)) * Matrix.CreateRotationX(MathHelper.ToRadians(0.0f)) * Matrix.CreateLookAt(new Vector3(-this.camPos.X, this.camPos.Y, this.camHeight), new Vector3(-this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+            this.view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) 
+                * Matrix.CreateRotationY(180f.ToRadians()) 
+                * Matrix.CreateRotationX(0.0f.ToRadians()) 
+                * Matrix.CreateLookAt(new Vector3(-this.camPos.X, this.camPos.Y, this.camHeight), new Vector3(-this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Matrix matrix = this.view;
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, this.MainTarget);
             this.DrawMain(gameTime);
@@ -6434,7 +6438,7 @@ namespace Ship_Game
                 }
                 foreach (UniverseScreen.Intersection intersection in list2)
                 {
-                    float num2 = Math.Abs(HelperFunctions.findAngleToTarget(circle.Center, intersection.inter)) - 90f;
+                    float num2 = Math.Abs(circle.Center.AngleToTarget(intersection.inter)) - 90f;
                     if ((double)num2 < 0.0)
                         num2 += 360f;
                     intersection.Angle = num2;
@@ -6500,10 +6504,10 @@ namespace Ship_Game
                         float num1 = Vector2.Distance(vector2_1, vector2_2);
                         float num2 = MathHelper.ToDegrees((float)Math.Asin((double)num1 / 2.0 / (double)A.Radius) * 2f);
                         float degrees1 = (double)Vector2.Distance(B.Center, A.Center) >= (double)vector2Array[2].Y ? 360f - num2 : num2;
-                        float startingAngle1 = Math.Abs(HelperFunctions.findAngleToTarget(A.Center, vector2_2)) - 90f;
+                        float startingAngle1 = Math.Abs(A.Center.AngleToTarget(vector2_2)) - 90f;
                         Primitives2D.DrawMyArc(this.ScreenManager.SpriteBatch, A.Center, A.Radius, 50, startingAngle1, degrees1, vector2_1, vector2_2, Color.Red, 3f, Circles);
                         float num3 = MathHelper.ToDegrees((float)Math.Asin((double)num1 / 2.0 / (double)B.Radius) * 2f);
-                        float startingAngle2 = Math.Abs(HelperFunctions.findAngleToTarget(B.Center, vector2_1)) - 90f;
+                        float startingAngle2 = Math.Abs(B.Center.AngleToTarget(vector2_1)) - 90f;
                         float degrees2 = (double)Vector2.Distance(B.Center, A.Center) >= (double)vector2Array[2].X ? 360f - num3 : num3;
                         Primitives2D.DrawMyArc(this.ScreenManager.SpriteBatch, B.Center, B.Radius, 50, startingAngle2, degrees2, vector2_2, vector2_1, Color.Red, 3f, Circles);
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, "C0", vector2_1, Color.White);
@@ -6876,19 +6880,19 @@ namespace Ship_Game
                         {
                             Color color2 = new Color(byte.MaxValue, byte.MaxValue, (byte)0, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num3 * 2, (int)num3 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "Laser" || moduleSlot.module.InstalledWeapon.WeaponType == "HeavyLaser")
                         {
                             Color color2 = new Color(byte.MaxValue, (byte)0, (byte)0, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num3 * 2, (int)num3 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "PhotonCannon")
                         {
                             Color color2 = new Color((byte)0, (byte)0, byte.MaxValue, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num3 * 2, (int)num3 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else
                         {
@@ -6922,8 +6926,11 @@ namespace Ship_Game
                         num3 = 3.141593f;
                     Vector2 vector2_2 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)num1 / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)num2 / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)num1 / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)num2 / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)num1 / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)num2 / 2));
                     Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);
-                    float angleToTarget = this.findAngleToTarget(vector2_2, target);
-                    Vector2 angleAndDistance1 = this.findPointFromAngleAndDistance(moduleSlot.module.Center, MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+
+                    float angleToTarget = vector2_2.AngleToTargetSigned(target);
+                    Vector2 angleAndDistance1 = findPointFromAngleAndDistance(moduleSlot.module.Center, 
+                        MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+
                     float num4 = (float)((int)num1 * 16 / 2);
                     float num5 = (float)((int)num2 * 16 / 2);
                     float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num4, 2.0) + (float)Math.Pow((double)num5, 2.0)));
@@ -6991,19 +6998,19 @@ namespace Ship_Game
                         {
                             Color color2 = new Color(byte.MaxValue, byte.MaxValue, (byte)0, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num8 * 2, (int)num8 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "Laser" || moduleSlot.module.InstalledWeapon.WeaponType == "HeavyLaser")
                         {
                             Color color2 = new Color(byte.MaxValue, (byte)0, (byte)0, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num8 * 2, (int)num8 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "PhotonCannon")
                         {
                             Color color2 = new Color((byte)0, (byte)0, byte.MaxValue, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num8 * 2, (int)num8 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else
                         {
@@ -8494,31 +8501,6 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        public float findAngleToTarget(Vector2 origin, Vector2 target)
-        {
-            float num1 = target.X;
-            float num2 = target.Y;
-            float num3 = origin.X;
-            float num4 = origin.Y;
-            float num5 = 0.0f;
-            if ((double)num1 > (double)num3 && (double)num2 < (double)num4)
-                num5 = 90f - Math.Abs((float)(Math.Atan(((double)num2 - (double)num4) / ((double)num1 - (double)num3)) * 180.0 / 3.14159274101257));
-            else if ((double)num1 > (double)num3 && (double)num2 > (double)num4)
-                num5 = 90f + (float)(Math.Atan(((double)num2 - (double)num4) / ((double)num1 - (double)num3)) * 180.0 / 3.14159274101257);
-            else if ((double)num1 < (double)num3 && (double)num2 > (double)num4)
-                num5 = -(270f - Math.Abs((float)(Math.Atan(((double)num2 - (double)num4) / ((double)num1 - (double)num3)) * 180.0 / 3.14159274101257)));
-            else if ((double)num1 < (double)num3 && (double)num2 < (double)num4)
-                num5 = -(270f + (float)(Math.Atan(((double)num2 - (double)num4) / ((double)num1 - (double)num3)) * 180.0 / 3.14159274101257));
-            if ((double)num1 == (double)num3 && (double)num2 < (double)num4)
-                num5 = 0.0f;
-            else if ((double)num1 > (double)num3 && (double)num2 == (double)num4)
-                num5 = 90f;
-            else if ((double)num1 == (double)num3 && (double)num2 > (double)num4)
-                num5 = 180f;
-            else if ((double)num1 < (double)num3 && (double)num2 == (double)num4)
-                num5 = 270f;
-            return num5;
-        }
         protected virtual void Destroy()
         {
             starfield?.Dispose();
