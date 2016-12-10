@@ -4392,9 +4392,9 @@ namespace Ship_Game.Gameplay
                                     {
 
                                         Planet target = null;
-                                        if (assimilate.GetSystem() != null)
+                                        if (assimilate.System!= null)
                                         {
-                                            target = assimilate.GetSystem().PlanetList.Where(owner => owner.Owner != this.empire && owner.Owner != null).FirstOrDefault();
+                                            target = assimilate.System.PlanetList.Where(owner => owner.Owner != this.empire && owner.Owner != null).FirstOrDefault();
 
                                         }
                                         if (target != null)
@@ -4472,9 +4472,9 @@ namespace Ship_Game.Gameplay
                             else
                             {
                                 Planet target = null;
-                                if (assimilate.GetSystem() != null && assimilate.GetAI().State == AIState.AwaitingOrders)
+                                if (assimilate.System!= null && assimilate.GetAI().State == AIState.AwaitingOrders)
                                 {
-                                    target = assimilate.GetSystem().PlanetList.Where(owner => owner.Owner != this.empire && owner.Owner != null).FirstOrDefault();
+                                    target = assimilate.System.PlanetList.Where(owner => owner.Owner != this.empire && owner.Owner != null).FirstOrDefault();
                                     if (target !=null && (assimilate.HasTroopBay || assimilate.hasAssaultTransporter))
                                         if (assimilate.TroopList.Count > assimilate.GetHangars().Count)
                                             assimilate.GetAI().OrderAssaultPlanet(target);

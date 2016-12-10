@@ -576,13 +576,13 @@ namespace Ship_Game
 						{
                             base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (e.item as Ship).shipData.GetRole(), tCursor, Color.Orange);
 						}
-						else if ((e.item as Ship).GetSystem() == null)
+						else if ((e.item as Ship).System== null)
 						{
 							base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
 						}
 						else
 						{
-							base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat((e.item as Ship).GetSystem().Name, " system"), tCursor, Color.Orange);
+							base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat((e.item as Ship).System.Name, " system"), tCursor, Color.Orange);
 						}
 						if (e.Plus != 0)
 						{
@@ -854,7 +854,7 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", Cursor, new Color(255, 239, 208));
 				Cursor.Y = Cursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 2);
 				string txt = "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet. \n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.";
-				txt = HelperFunctions.parseText(Fonts.Arial12Bold, txt, (float)(this.SelectedStuffRect.Width - 40));
+				txt = HelperFunctions.ParseText(Fonts.Arial12Bold, txt, (float)(this.SelectedStuffRect.Width - 40));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, txt, Cursor, new Color(255, 239, 208));
 				return;
 			}
@@ -879,7 +879,7 @@ namespace Ship_Game
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", Cursor1, new Color(255, 239, 208));
 			Cursor1.Y = Cursor1.Y + (float)(Fonts.Pirulen12.LineSpacing + 2);
 			string txt0 = Localizer.Token(4043);
-			txt0 = HelperFunctions.parseText(Fonts.Arial12Bold, txt0, (float)(this.PrioritiesRect.Width - 40));
+			txt0 = HelperFunctions.ParseText(Fonts.Arial12Bold, txt0, (float)(this.PrioritiesRect.Width - 40));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, txt0, Cursor1, new Color(255, 239, 208));
 		}
 
@@ -2035,7 +2035,7 @@ namespace Ship_Game
 			this.AdjustCamera();
 			this.CamPos.X = this.CamPos.X + this.CamVelocity.X;
 			this.CamPos.Y = this.CamPos.Y + this.CamVelocity.Y;
-			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f))) * Matrix.CreateRotationX(MathHelper.ToRadians(0f))) * Matrix.CreateLookAt(new Vector3(-this.CamPos.X, this.CamPos.Y, this.CamPos.Z), new Vector3(-this.CamPos.X, this.CamPos.Y, 0f), new Vector3(0f, -1f, 0f));
+			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(new Vector3(-this.CamPos.X, this.CamPos.Y, this.CamPos.Z), new Vector3(-this.CamPos.X, this.CamPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			this.ClickableSquads.Clear();
 			foreach (List<Fleet.Squad> flank in this.fleet.AllFlanks)
 			{

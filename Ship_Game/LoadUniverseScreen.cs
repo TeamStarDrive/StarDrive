@@ -551,7 +551,7 @@ namespace Ship_Game
 			}
 			this.whichAdvice = (int)RandomMath.RandomBetween(0f, (float)this.AdviceList.Count);
 			this.whichTexture = (int)RandomMath.RandomBetween(0f, (float)this.TextureList.Count);
-			this.text = HelperFunctions.parseText(Fonts.Arial12Bold, this.AdviceList[this.whichAdvice], 500f);
+			this.text = HelperFunctions.ParseText(Fonts.Arial12Bold, this.AdviceList[this.whichAdvice], 500f);
 			base.LoadContent();
 		}
 

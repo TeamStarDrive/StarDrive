@@ -217,13 +217,13 @@ namespace Ship_Game
 				spriteBatch.DrawString(arial12Bold, string.Concat("Radius: ", radius.ToString()), TitlePos, Color.White);
 				TitlePos.Y = TitlePos.Y + 20f;
 				string text = "If you can't see your model then your radius is likely too big or too small. A radius of 512 will fit snugly inside the box. Change the scale when you compile the model. If it is rotated oddly change the X, Y, and Z axis. If the model is off-center then you will need to re-export the 3D model from Blender, making sure to Set Origin to the desired pivot point of your model";
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.parseText(Fonts.Arial12, text, 600f), TitlePos, Color.White);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12, text, 600f), TitlePos, Color.White);
 			}
 			Vector2 WhichSelectionPos = new Vector2((float)this.what.X, (float)(this.what.Y - Fonts.Arial20Bold.LineSpacing));
 			this.spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat(this.DesignState, " - ", this.GetDesignStateText()), WhichSelectionPos, Color.Orange);
 			WhichSelectionPos.X = WhichSelectionPos.X + 150f;
 			WhichSelectionPos.Y = WhichSelectionPos.Y + (float)Fonts.Arial20Bold.LineSpacing;
-			WhichSelectionPos.Y = WhichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.parseText(Fonts.Arial12Bold, this.DescriptionOfState, 512f)).Y;
+			WhichSelectionPos.Y = WhichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(HelperFunctions.ParseText(Fonts.Arial12Bold, this.DescriptionOfState, 512f)).Y;
 			Primitives2D.DrawRectangle(base.ScreenManager.SpriteBatch, this.what, Color.White);
 			foreach (SlotStruct slot in this.SlotList)
 			{
@@ -321,7 +321,7 @@ namespace Ship_Game
 			{
 				if (this.SelectionBox.Height - aCounter >= 0)
 				{
-					this.spriteBatch.Draw(this.DottedLine, new Rectangle(thePositionX, this.SelectionBox.Y + aCounter, 10, 5), new Rectangle?(new Rectangle(0, 0, this.DottedLine.Width, this.DottedLine.Height)), Color.White, MathHelper.ToRadians(90f), new Vector2(0f, 0f), SpriteEffects.None, 0f);
+					this.spriteBatch.Draw(this.DottedLine, new Rectangle(thePositionX, this.SelectionBox.Y + aCounter, 10, 5), new Rectangle?(new Rectangle(0, 0, this.DottedLine.Width, this.DottedLine.Height)), Color.White, 90f.ToRadians(), new Vector2(0f, 0f), SpriteEffects.None, 0f);
 				}
 			}
 		}
@@ -611,7 +611,7 @@ namespace Ship_Game
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
 			float aspectRatio = width / (float)viewport.Height;
 			Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
-			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f))) * Matrix.CreateRotationX(MathHelper.ToRadians(0f))) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 10000f);
 			this.moduleSlot = base.ScreenManager.Content.Load<Texture2D>("Textures/Ships/singlebox");
 			this.DottedLine = base.ScreenManager.Content.Load<Texture2D>("Textures/UI/DottedLine");
@@ -777,7 +777,7 @@ namespace Ship_Game
 			base.ScreenManager.editor.Update(gameTime);
 			double totalSeconds = gameTime.ElapsedGameTime.TotalSeconds;
 			Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
-			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f))) * Matrix.CreateRotationX(MathHelper.ToRadians(0f))) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			this.designInputState.Update(gameTime);
 			this.HandleInput();
 			this.thruster.update(new Vector3(this.tPos.X, this.tPos.Y, 30f), new Vector3(0f, -1f, 0f), new Vector3(this.tscale, this.tscale, this.tscale), this.heat, 0.002f, Color.OrangeRed, Color.Blue, camPos);
