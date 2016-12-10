@@ -141,16 +141,16 @@ namespace Ship_Game
 			mainMenuScreen.rotate = mainMenuScreen.rotate + elapsedTime / 350f;
 			if ((double)RandomMath.RandomBetween(0f, 100f) > 99.75)
 			{
-				MainMenuScreen.Comet c = new MainMenuScreen.Comet()
+				Comet c = new Comet()
 				{
 					Position = new Vector2(RandomMath.RandomBetween(-100f, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 100)), 0f),
 					Velocity = new Vector2(RandomMath.RandomBetween(-1f, 1f), 1f)
 				};
 				c.Velocity = Vector2.Normalize(c.Velocity);
-				c.Rotation = (float)MathHelper.ToRadians(HelperFunctions.findAngleToTarget(c.Position, c.Position + c.Velocity));
+				c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
 				this.CometList.Add(c);
 			}
-			Vector2 CometOrigin = new Vector2((float)(Ship_Game.ResourceManager.TextureDict["GameScreens/comet"].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict["GameScreens/comet"].Height / 2));
+			Vector2 CometOrigin = new Vector2((float)(ResourceManager.TextureDict["GameScreens/comet"].Width / 2), (float)(Ship_Game.ResourceManager.TextureDict["GameScreens/comet"].Height / 2));
 			if (SplashScreen.DisplayComplete )
 			{
 				base.ScreenManager.splashScreenGameComponent.Visible = false;
@@ -599,7 +599,7 @@ namespace Ship_Game
 					c.Velocity = HelperFunctions.FindVectorToTarget(c.Position, input.CursorPosition);
 				//};
 				c.Velocity = Vector2.Normalize(c.Velocity);
-				c.Rotation = (float)MathHelper.ToRadians(HelperFunctions.findAngleToTarget(c.Position, c.Position + c.Velocity));
+				c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
 				this.CometList.Add(c);
 			}
 			this.previousMouse = input.LastMouseState;
@@ -793,7 +793,12 @@ namespace Ship_Game
 			this.planetSO = new SceneObject(mesh)
 			{
 				ObjectType = ObjectType.Dynamic,
-				World = (((((Matrix.Identity * Matrix.CreateScale(25f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 30000f, this.ShipPosition.Y - 500f, 80000f)
+				World = (((((Matrix.Identity * Matrix.CreateScale(25f)) 
+                * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) 
+                * Matrix.CreateRotationX(20f.ToRadians())) 
+                * Matrix.CreateRotationY(65f.ToRadians())) 
+                * Matrix.CreateRotationZ(1.57079637f)) 
+                * Matrix.CreateTranslation(this.ShipPosition.X - 30000f, this.ShipPosition.Y - 500f, 80000f)
 			};
 
 			base.ScreenManager.inter.ObjectManager.Submit(this.planetSO);
@@ -840,12 +845,12 @@ namespace Ship_Game
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
 			float height = width / (float)viewport.Height;
 			Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
-			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f))) * Matrix.CreateRotationX(MathHelper.ToRadians(0f))) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			this.projection = Matrix.CreateOrthographic((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight, 1f, 80000f);
 			base.LoadContent();
 			this.LogoRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 600, 128, 512, 128);
 			this.MoonPosition = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300), (float)(this.LogoRect.Y + 70 - base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-			this.planetSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(new Vector3(this.MoonPosition, this.zshift));
+			this.planetSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(20f.ToRadians())) * Matrix.CreateRotationY(65f.ToRadians())) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(new Vector3(this.MoonPosition, this.zshift));
 		}
         public void ReloadContent()
         {
@@ -965,13 +970,13 @@ namespace Ship_Game
 			float x = this.MoonPosition.X;
 			TimeSpan timeSpan = gameTime.ElapsedGameTime;
 			this.MoonPosition.X = x + (float)timeSpan.Milliseconds / 400f;
-			this.planetSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(new Vector3(this.MoonPosition, this.zshift));
+			this.planetSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(20f.ToRadians())) * Matrix.CreateRotationY(65f.ToRadians())) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(new Vector3(this.MoonPosition, this.zshift));
             //Added by McShooterz: slow moves the ship across the screen
             if (this.shipSO != null)
             {
                 this.ShipPosition.X += (float)timeSpan.Milliseconds / 800f;
                 this.ShipPosition.Y += (float)timeSpan.Milliseconds / 1200f;
-                this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale * 1.75f)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(MathHelper.ToRadians(-15f))) * Matrix.CreateRotationY(MathHelper.ToRadians(60f))) * Matrix.CreateRotationZ(1f)) * Matrix.CreateTranslation(new Vector3(this.ShipPosition, this.zshift));
+                this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(this.scale * 1.75f)) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateRotationX(-15f.ToRadians())) * Matrix.CreateRotationY(60f.ToRadians())) * Matrix.CreateRotationZ(1f)) * Matrix.CreateTranslation(new Vector3(this.ShipPosition, this.zshift));
             }
 			base.ScreenManager.inter.Update(gameTime);
 			if (base.IsExiting && base.TransitionPosition >= 0.99f && base.ScreenManager.Music != null)
@@ -998,9 +1003,7 @@ namespace Ship_Game
 		public class Comet
 		{
 			public Vector2 Position;
-
 			public Vector2 Velocity;
-
 			public float Rotation;
 
 			public Comet()

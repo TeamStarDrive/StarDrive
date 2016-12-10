@@ -160,9 +160,9 @@ namespace Ship_Game
 		public static List<Vector2> CreateMyArc(SpriteBatch spriteBatch, Vector2 Center, float radius, int sides, float startingAngle, float degrees, Vector2 C0, Vector2 C1, Color c, float Thickness, List<Circle> Circles)
 		{
 			BatchRemovalCollection<Vector2> points = new BatchRemovalCollection<Vector2>();
-			double curAngle = (double)MathHelper.ToRadians(startingAngle);
-			double step = (double)(MathHelper.ToRadians(degrees) / (float)sides);
-			for (double theta = curAngle + step; theta < curAngle + (double)MathHelper.ToRadians(degrees); theta = theta + step)
+			double curAngle = (double)startingAngle.ToRadians();
+			double step = (double)(degrees.ToRadians() / (float)sides);
+			for (double theta = curAngle + step; theta < curAngle + (double)degrees.ToRadians(); theta = theta + step)
 			{
 				Vector2 r = new Vector2((float)((double)radius * Math.Cos(theta)), (float)((double)radius * Math.Sin(theta)));
 				r = r + Center;
@@ -316,9 +316,9 @@ namespace Ship_Game
 		public static void DrawMyArc(SpriteBatch spriteBatch, Vector2 Center, float radius, int sides, float startingAngle, float degrees, Vector2 C0, Vector2 C1, Color c, float Thickness)
 		{
 			BatchRemovalCollection<Vector2> points = new BatchRemovalCollection<Vector2>();
-			double curAngle = (double)MathHelper.ToRadians(startingAngle);
-			double step = (double)(MathHelper.ToRadians(degrees) / (float)sides);
-			for (double theta = curAngle; theta < curAngle + (double)MathHelper.ToRadians(degrees); theta = theta + step)
+			double curAngle = (double)startingAngle.ToRadians();
+			double step = (double)(degrees.ToRadians() / (float)sides);
+			for (double theta = curAngle; theta < curAngle + (double)degrees.ToRadians(); theta = theta + step)
 			{
 				Vector2 r = new Vector2((float)((double)radius * Math.Cos(theta)), (float)((double)radius * Math.Sin(theta)));
 				r = r + Center;
@@ -335,9 +335,9 @@ namespace Ship_Game
 		public static void DrawMyArc(SpriteBatch spriteBatch, Vector2 Center, float radius, int sides, float startingAngle, float degrees, Vector2 C0, Vector2 C1, Color c, float Thickness, List<Circle> Circles)
 		{
 			BatchRemovalCollection<Vector2> points = new BatchRemovalCollection<Vector2>();
-			double curAngle = (double)MathHelper.ToRadians(startingAngle);
-			double step = (double)(MathHelper.ToRadians(degrees) / (float)sides);
-			for (double theta = curAngle + step; theta < curAngle + (double)MathHelper.ToRadians(degrees); theta = theta + step)
+			double curAngle = (double)startingAngle.ToRadians();
+			double step = (double)(degrees.ToRadians() / (float)sides);
+			for (double theta = curAngle + step; theta < curAngle + (double)degrees.ToRadians(); theta = theta + step)
 			{
 				Vector2 r = new Vector2((float)((double)radius * Math.Cos(theta)), (float)((double)radius * Math.Sin(theta)));
 				r = r + Center;

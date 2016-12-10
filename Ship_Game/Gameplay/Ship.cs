@@ -1206,7 +1206,7 @@ namespace Ship_Game.Gameplay
             
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
-            float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.FindAngleToTarget(w.Center, target.Center);//
+            float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.AngleToTarget(w.Center, target.Center);//
             float facing = w.moduleAttachedTo.facing + MathHelper.ToDegrees(base.Rotation);
 
             
@@ -3299,7 +3299,7 @@ namespace Ship_Game.Gameplay
                                         ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))
                                         : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
                                     Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
-                                    float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Center);
+                                    float angleToTarget = origin.AngleToTarget(shipModule.Center);
                                     Vector2 angleAndDistance = HelperFunctions.FindPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees(shipModule.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
                                     float num2 = (float)((int)shipModule.XSIZE * 16 / 2);
                                     float num3 = (float)((int)shipModule.YSIZE * 16 / 2);

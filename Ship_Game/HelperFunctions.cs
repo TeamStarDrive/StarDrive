@@ -3,9 +3,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Xml.Serialization;
+using Fasterflect;
 
 namespace Ship_Game
 {
@@ -188,84 +191,34 @@ namespace Ship_Game
 		{
 			int xsize = xGridSize / numberXs;
 			int ysize = yGridSize / numberYs;
-            var color = new Color(211, 211, 211, 70);
-			for (int x = 0; x < numberXs; x++)
+            var color  = new Color(211, 211, 211, 70);
+            var origin = new Vector2(xpos + 1, ypos);
+            var end    = new Vector2(xpos, ypos + yGridSize - 1);
+			for (int x = 0; x < numberXs; ++x)
 			{
-				Vector2 origin = new Vector2(xpos + 1 + x * xsize, ypos);
-				Vector2 end    = new Vector2(xpos + x * xsize, ypos + yGridSize - 1);
 				Primitives2D.DrawLine(spriteBatch, origin, end, color, 2f);
+                origin.X += xsize;
+                end.X    += xsize;
 			}
-			for (int y = 0; y < numberYs; y++)
+            origin = new Vector2(xpos, ypos);
+            end    = new Vector2(xpos + xGridSize - 3, ypos);
+			for (int y = 0; y < numberYs; ++y)
 			{
-				Vector2 origin = new Vector2(xpos, ypos + y * ysize);
-				Vector2 end    = new Vector2(xpos + xGridSize - 3, ypos + y * ysize);
 				Primitives2D.DrawLine(spriteBatch, origin, end, color, 2f);
+                origin.Y += ysize;
+                end.Y    += ysize;
 			}
 		}
 
 		public static void DrawStroke(SpriteFont font, SpriteBatch sb, string text, Color backColor, Color frontColor, float scale, float rotation, Vector2 position)
 		{
-			Vector2 origin = new Vector2(font.MeasureString(text).X / 2f, font.MeasureString(text).Y / 2f);
+            var textSize = font.MeasureString(text);
+			Vector2 origin = new Vector2(textSize.X / 2f, textSize.Y / 2f);
 			sb.DrawString(font, text, position + new Vector2(1f * scale, 1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position + new Vector2(-1f * scale, -1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position + new Vector2(-1f * scale, 1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position + new Vector2(1f * scale, -1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position, frontColor, rotation, origin, scale, SpriteEffects.None, 1f);
-		}
-
-		public static float findAngleToTarget(Vector2 origin, Vector2 target)
-		{
-			float theta;
-			float tX = target.X;
-			float tY = target.Y;
-			float centerX = origin.X;
-			float centerY = origin.Y;
-			float angle_to_target = 0f;
-			if (tX > centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 90f - Math.Abs(theta);
-			}
-			else if (tX > centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 90f + theta * 180f / 3.14159274f;
-			}
-			else if (tX < centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 270f - Math.Abs(theta);
-				angle_to_target = -angle_to_target;
-			}
-			else if (tX < centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 270f + theta * 180f / 3.14159274f;
-				angle_to_target = -angle_to_target;
-			}
-			if (tX == centerX && tY < centerY)
-			{
-				angle_to_target = 0f;
-			}
-			else if (tX > centerX && tY == centerY)
-			{
-				angle_to_target = 90f;
-			}
-			else if (tX == centerX && tY > centerY)
-			{
-				angle_to_target = 180f;
-			}
-			else if (tX < centerX && tY == centerY)
-			{
-				angle_to_target = 270f;
-			}
-			if (float.IsNaN(angle_to_target))
-			{
-				return 0f;
-			}
-			return Math.Abs(angle_to_target);
 		}
 
 		public static Vector2 FindPointFromAngleAndDistance(Vector2 position, float angle, float distance)
@@ -399,28 +352,26 @@ namespace Ship_Game
 			return TargetPosition;
 		}
 
-		public static Vector2 FindVectorToTarget(Vector2 Origin, Vector2 Target)
+		public static Vector2 FindVectorToTarget(Vector2 origin, Vector2 target)
 		{
-			return Vector2.Normalize(Target - Origin);
+			return Vector2.Normalize(target - origin);
 		}
 
 		public static Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
 		{
 			if (angle >= 360f)
-			{
 				angle = angle - 360f;
-			}
 			return FindPointFromAngleAndDistance(center, angle, radius);
 		}
 
-		public static FileInfo[] GetFilesFromDirectory(string DirPath)
+		public static FileInfo[] GetFilesFromDirectory(string dirPath)
 		{
-			return (new DirectoryInfo(DirPath)).GetFiles("*.*", SearchOption.TopDirectoryOnly);
+			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.TopDirectoryOnly);
 		}
 
-		public static FileInfo[] GetFilesFromDirectoryAndSubs(string DirPath)
+		public static FileInfo[] GetFilesFromDirectoryAndSubs(string dirPath)
 		{
-			return (new DirectoryInfo(DirPath)).GetFiles("*.*", SearchOption.AllDirectories);
+			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.AllDirectories);
 		}
 
 		public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)
@@ -448,39 +399,34 @@ namespace Ship_Game
 			return true;
 		}
 
-		public static bool IsPointInCircle(Vector2 CicleCenter, float Radius, Vector2 Point)
+		public static bool IsPointInCircle(Vector2 circleCenter, float radius, Vector2 point)
 		{
-			float square_dist = (float)Math.Pow((double)(CicleCenter.X - Point.X), 2) + (float)Math.Pow((double)(CicleCenter.Y - Point.Y), 2);
-			return (double)square_dist <= Math.Pow((double)Radius, 2);
+            float dx = circleCenter.X - point.X;
+            float dy = circleCenter.Y - point.Y;
+			return dx*dx + dy*dy <= radius*radius;
 		}
 
-		public static string parseText(SpriteFont Font, string text, float Width)
+		public static string ParseText(SpriteFont font, string text, float maxLineWidth)
 		{
-			string line = string.Empty;
-			string returnString = string.Empty;
-			string[] wordArray = text.Split(new char[] { ' ' });
-			for (int i = 0; i < (int)wordArray.Length; i++)
+            var result = new StringBuilder();
+			var wordArray = text.Split(' ');
+            float length = 0.0f;
+			foreach (string word in wordArray)
 			{
-                if (wordArray[i] == null)
-                    break;
-				string word = wordArray[i];
-				if (Font.MeasureString(string.Concat(line, word)).Length() > Width)
-				{
-					returnString = string.Concat(returnString, line, '\n');
-					line = string.Empty;
-				}
-				else if (word == "\\n" || word == "\n")
-				{
-					word = "";
-					returnString = string.Concat(returnString, line, '\n');
-					line = string.Empty;
-				}
-				if (!string.IsNullOrEmpty(word))
-				{
-					line = string.Concat(line, word, ' ');
-				}
+                if (word != "\\n" && word != "\n")
+                {
+                    length += font.MeasureString(word).Length();
+                    result.Append(word);
+                    if (length < maxLineWidth)
+                    {
+                        result.Append(' ');
+                        continue;
+                    }
+                }
+                result.Append('\n');
+                length = 0f;
 			}
-			return string.Concat(returnString, line);
+            return result.ToString();
 		}
 
 		public static void parseTextToSL(string text, float Width, SpriteFont font, ref ScrollList List)
@@ -534,22 +480,19 @@ namespace Ship_Game
 			return rounded;
 		}
 
-        //Added by McShooterz: module repair priority list
+        // Added by McShooterz: module repair priority list
         public static int ModulePriority(ShipModule ShipModule)
         {
-            if (ShipModule.ModuleType == ShipModuleType.Command)
-                return 0;
-            if (ShipModule.ModuleType == ShipModuleType.PowerPlant)
-                return 1;
-            if (ShipModule.ModuleType == ShipModuleType.PowerConduit)
-                return 2;
-            if (ShipModule.ModuleType == ShipModuleType.Engine)
-                return 3;
-            if (ShipModule.ModuleType == ShipModuleType.Shield)
-                return 4;
-            if (ShipModule.ModuleType == ShipModuleType.Armor)
-                return 6;
-            return 5;
+            switch (ShipModule.ModuleType)
+            {
+                case ShipModuleType.Command:      return 0;
+                case ShipModuleType.PowerPlant:   return 1;
+                case ShipModuleType.PowerConduit: return 2;
+                case ShipModuleType.Engine:       return 3;
+                case ShipModuleType.Shield:       return 4;
+                case ShipModuleType.Armor:        return 6;
+                default:                          return 5;
+            }
         }
 	}
 }

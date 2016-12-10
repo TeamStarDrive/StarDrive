@@ -996,7 +996,7 @@ namespace Ship_Game.Gameplay
             {
                 explosionCenter = shipModule.XSIZE != 1 || shipModule.YSIZE != 3 ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2)) : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
                 Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
-                float angleToTarget = HelperFunctions.findAngleToTarget(explosionCenter, target);
+                float angleToTarget = explosionCenter.AngleToTarget(target);
                 Vector2 angleAndDistance = HelperFunctions.FindPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees((source as ShipModule).Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
                 float num2 = shipModule.XSIZE * 8;
                 float num3 = shipModule.YSIZE * 8;

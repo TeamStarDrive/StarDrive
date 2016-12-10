@@ -3,14 +3,17 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
 	public abstract class GameplayObject
 	{
 		public bool Active = true;
-		public SolarSystem System { get; protected set; }
-		public static GraphicsDevice device;
+		protected SolarSystem system; // @todo This has to be lowercase due to serialization... sigh. Can we change it??
+        [XmlIgnore]
+        public SolarSystem System { get { return system; } protected set { system = value; } }
+        public static GraphicsDevice device;
 		public Vector2 Center;
 	    protected Cue dieCue;
 	    public bool isInDeepSpace = true;
@@ -60,67 +63,9 @@ namespace Ship_Game
                     new Vector2(sprite.Width * 0.5f, sprite.Height * 0.5f), scaleFactor + Radius / 10000f, SpriteEffects.None, 0f);
 		}
 
-		public float FindAngleToTarget(Vector2 origin, Vector2 target)
-		{
-			float theta;
-			float tX = target.X;
-			float tY = target.Y;
-			float centerX = origin.X;
-			float centerY = origin.Y;
-			float angle_to_target = 0f;
-			if (tX > centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 90f - Math.Abs(theta);
-			}
-			else if (tX > centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 90f + theta * 180f / 3.14159274f;
-			}
-			else if (tX < centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 270f - Math.Abs(theta);
-				angle_to_target = -angle_to_target;
-			}
-			else if (tX < centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 270f + theta * 180f / 3.14159274f;
-				angle_to_target = -angle_to_target;
-			}
-			if (tX == centerX && tY < centerY)
-			{
-				angle_to_target = 0f;
-			}
-			else if (tX > centerX && tY == centerY)
-			{
-				angle_to_target = 90f;
-			}
-			else if (tX == centerX && tY > centerY)
-			{
-				angle_to_target = 180f;
-			}
-			else if (tX < centerX && tY == centerY)
-			{
-				angle_to_target = 270f;
-			}
-			return angle_to_target;
-		}
+        public string SystemName => System?.Name ?? "Deep Space";
 
-        public string GetSystemName()
-		{
-			if (this.System == null)
-			{
-				return "Deep Space";
-			}
-			return this.System.Name;
-		}
-
-		public virtual void Initialize()
+        public virtual void Initialize()
 		{
 		}
 

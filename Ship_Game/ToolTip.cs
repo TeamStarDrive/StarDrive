@@ -34,7 +34,7 @@ namespace Ship_Game
 		{
 			Hotkey = "";
 			MouseState state = Mouse.GetState();
-			Text = HelperFunctions.parseText(Fonts.Arial12Bold, intext, 200f);
+			Text = HelperFunctions.ParseText(Fonts.Arial12Bold, intext, 200f);
 
 			Vector2 pos  = new Vector2(state.X, state.Y);
             Vector2 size = Fonts.Arial12Bold.MeasureString(Text);
@@ -59,7 +59,7 @@ namespace Ship_Game
 		{
 			Hotkey = hotKey;
 			MouseState state = Mouse.GetState();
-			Text = HelperFunctions.parseText(Fonts.Arial12Bold, intext, 200f);
+			Text = HelperFunctions.ParseText(Fonts.Arial12Bold, intext, 200f);
 
 			Vector2 pos = new Vector2(state.X, state.Y);
             Vector2 size = Fonts.Arial12Bold.MeasureString(Text);
@@ -92,7 +92,7 @@ namespace Ship_Game
 			}
 
 			string txt = Localizer.Token(ResourceManager.GetToolTip(which).Data);
-			txt = HelperFunctions.parseText(Fonts.Arial12Bold, txt, 200f);
+			txt = HelperFunctions.ParseText(Fonts.Arial12Bold, txt, 200f);
 
             MouseState state = Mouse.GetState();
 			Vector2 pos  = new Vector2(state.X, state.Y);
@@ -120,7 +120,7 @@ namespace Ship_Game
 				LastWhich = which;
 			}
 			string txt = Localizer.Token(ResourceManager.GetToolTip(which).Data);
-			txt = HelperFunctions.parseText(Fonts.Arial12Bold, txt, 200f);
+			txt = HelperFunctions.ParseText(Fonts.Arial12Bold, txt, 200f);
 
             
 			MouseState state = Mouse.GetState();
