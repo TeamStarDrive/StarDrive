@@ -15,6 +15,11 @@ namespace Ship_Game
             return dista*dista + distb*distb;
         }
 
+        public static bool WithinRadius(this Vector2 position, Vector2 center, float radius)
+        {
+            return position.SqDist(center) <= radius*radius;
+        }
+
         // Added by RedFox
         // result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
