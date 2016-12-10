@@ -61,7 +61,7 @@ namespace Ship_Game
             for (int i = 0; i < this.system.ShipList.Count; i++)
             {
                 Ship ship = this.system.ShipList[i];
-                if (ship != null && ship.loyalty != this.us && (ship.loyalty.isFaction || this.us.GetRelations()[ship.loyalty].AtWar) && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
+                if (ship != null && ship.loyalty != this.us && (ship.loyalty.isFaction || this.us.GetRelations(ship.loyalty).AtWar) && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
                 {
                     this.EnemyClumpsDict.Add(ship, new List<Ship>());
                     this.EnemyClumpsDict[ship].Add(ship);

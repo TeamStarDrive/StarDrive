@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.25920.0
+VisualStudioVersion = 15.0.25928.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarDrive", "StarDrive.csproj", "{8071E07A-300E-485D-B139-066E15E82178}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -11,9 +11,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDNative", "SDNative\SDNative.vcxproj", "{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		BlackBox_RadicalElements_RC_16_|x64 = BlackBox_RadicalElements_RC_16_|x64
 		BlackBox_RadicalElements_RC_16_|x86 = BlackBox_RadicalElements_RC_16_|x86
@@ -53,8 +50,8 @@ Global
 		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-LocalRelease|x86.ActiveCfg = Crunchies-LocalRelease|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-LocalRelease|x86.Build.0 = Crunchies-LocalRelease|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Debug|x64.ActiveCfg = Debug|x86
-		{8071E07A-300E-485D-B139-066E15E82178}.Debug|x86.ActiveCfg = Debug|x86
-		{8071E07A-300E-485D-B139-066E15E82178}.Debug|x86.Build.0 = Debug|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Debug|x86.ActiveCfg = Gretman's Debug|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Debug|x86.Build.0 = Gretman's Debug|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Deploy|x64.ActiveCfg = Deploy|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Deploy|x86.ActiveCfg = Deploy|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Deploy|x86.Build.0 = Deploy|x86
@@ -121,6 +118,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

@@ -430,7 +430,7 @@ namespace Ship_Game
 				plusMoney = plusMoney + (p.GrossMoneyPT + this.empire.data.Traits.TaxMod * p.GrossMoneyPT);
 			}
 			float TotalTradeIncome = 0f;
-			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations())
+			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).AllRelations)
 			{
 				if (!Relationship.Value.Treaty_Trade)
 				{
@@ -446,7 +446,7 @@ namespace Ship_Game
 			plusMoney = plusMoney + TotalTradeIncome;
 			plusMoney = plusMoney + this.empire.data.FlatMoneyBonus;
 			float EspionageBudget = 0f;
-			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> r in this.empire.GetRelations())
+			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> r in this.empire.AllRelations)
 			{
 				EspionageBudget = EspionageBudget + r.Value.IntelligenceBudget;
 			}

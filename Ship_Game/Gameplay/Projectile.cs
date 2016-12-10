@@ -697,7 +697,7 @@ namespace Ship_Game.Gameplay
 			this.texturePath = texturePath;
 			this.modelPath = modelPath;
             //if(this.owner.Projectiles.Count <20)
-            //if (Ship.universeScreen !=null && HelperFunctions.GetRandomIndex((int)(Ship.universeScreen.Lag *100)) >3 )
+            //if (Ship.universeScreen !=null && RandomMath.InRange((int)(Ship.universeScreen.Lag *100)) >3 )
             //    return;
             this.ProjSO = new SceneObject(Ship_Game.ResourceManager.ProjectileMeshDict[modelPath])
             {
