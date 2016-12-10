@@ -57,7 +57,7 @@ namespace Ship_Game
 			Vector2 MinimapZero = new Vector2((float)this.ActualMap.X + 100, (float)this.ActualMap.Y + 100);
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
-				if (e != EmpireManager.GetEmpireByName(screen.PlayerLoyalty) && !EmpireManager.GetEmpireByName(screen.PlayerLoyalty).GetRelations()[e].Known)
+				if (e != EmpireManager.GetEmpireByName(screen.PlayerLoyalty) && !EmpireManager.GetEmpireByName(screen.PlayerLoyalty).GetRelations(e).Known)
 				{
 					continue;
 				}

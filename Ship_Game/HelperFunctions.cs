@@ -569,16 +569,6 @@ namespace Ship_Game
 			return (new DirectoryInfo(DirPath)).GetFiles("*.*", SearchOption.AllDirectories);
 		}
 
-		public static int GetRandomIndex(int count)
-		{
-            if (count < 2)
-                return 0;
-			int random = (int)RandomMath.RandomBetween(0f, (float)count + 0.95f);
-			if (random > count - 1)
-				random = count - 1;
-			return random;
-		}
-
 		public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)
 		{
 			float x0 = c.X;

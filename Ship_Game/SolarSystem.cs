@@ -778,11 +778,10 @@ namespace Ship_Game
 
         public float GetPredictedEnemyPresence(float time, Empire us)
         {
-            var relations = us.GetRelations();
             float prediction = 0f;
             foreach (Ship ship in ShipList)
             {
-                if (ship == null || ship.loyalty == us || relations.TryGetValue(ship.loyalty, out Relationship war) && war.Treaty_Alliance)
+                if (ship == null || ship.loyalty == us || us.TryGetRelations(ship.loyalty, out Relationship war) && war.Treaty_Alliance)
                     continue;
 
                 float trustPrediction = war.Trust > 25f ? (125f - war.Trust) / 100f : 0f;
@@ -792,7 +791,7 @@ namespace Ship_Game
             foreach (Ship ship in nearbyShips)
             {
                 if (ship.loyalty != us && !ShipList.Contains(ship) 
-                    && (ship.loyalty.isFaction || relations[ship.loyalty].AtWar) 
+                    && (ship.loyalty.isFaction || us.GetRelations(ship.loyalty).AtWar) 
                     && HelperFunctions.IntersectCircleSegment(Position, 100000f * UniverseScreen.GameScaleStatic, 
                                                               ship.Center, ship.Center + ship.Velocity*time))
                 {
