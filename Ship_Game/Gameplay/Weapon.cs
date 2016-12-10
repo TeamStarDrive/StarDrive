@@ -402,7 +402,7 @@ namespace Ship_Game.Gameplay
             }
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			this.ToggleSoundOn = false;
-			if ((this.owner.GetSystem() != null && this.owner.GetSystem().isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+			if ((this.owner.System!= null && this.owner.System.isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
                 //Added by McShooterz: Use sounds from new sound dictionary
                 if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
@@ -804,47 +804,6 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		private float findAngleToTarget(Vector2 target)
-		{
-			float theta;
-			float tX = target.X;
-			float tY = target.Y;
-			float centerX = 0f;
-			float centerY = 0f;
-			float angle_to_target = 0f;
-			if (tX > centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 90f - Math.Abs(theta);
-			}
-			else if (tX > centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 90f + theta * 180f / 3.14159274f;
-			}
-			else if (tX < centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 270f - Math.Abs(theta);
-			}
-			else if (tX < centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 270f + theta * 180f / 3.14159274f;
-			}
-			else if (tX == centerX && tY < centerY)
-			{
-				angle_to_target = 0f;
-			}
-			else if (tX == centerX && tY > centerY)
-			{
-				angle_to_target = 180f;
-			}
-			return angle_to_target;
-		}
-
 		private Vector2 findTargetFromAngleAndDistance(Vector2 position, float angle, float distance)
 		{
 			float theta;
@@ -963,7 +922,7 @@ namespace Ship_Game.Gameplay
 					if (this.FireArc != 0)
 					{
 						float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 						for (int i = 0; i < this.ProjectileCount; i++)
 						{
 							Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -983,7 +942,7 @@ namespace Ship_Game.Gameplay
 					}
 					float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
                     //renamed angletotarget,newtarget,firedirection
-                    float angleToTarget2 = this.findAngleToTarget(direction);
+                    float angleToTarget2 = Vector2.Zero.AngleToTarget(direction);
 					Vector2 newTarget2 = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget2 + spread, this.Range);
 					Vector2 fireDirection2 = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget2);
 					fireDirection2.Y = fireDirection2.Y * -1f;
@@ -1006,7 +965,7 @@ namespace Ship_Game.Gameplay
 					if (this.FireArc != 0)
 					{
 						float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 						for (int i = 0; i < this.ProjectileCount; i++)
 						{
 							Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1019,7 +978,7 @@ namespace Ship_Game.Gameplay
 					if (this.FireCone > 0)
 					{
 						float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 						Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
 						Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
 						fireDirection.Y = fireDirection.Y * -1f;
@@ -1073,7 +1032,7 @@ namespace Ship_Game.Gameplay
             if (this.FireArc != 0)
             {
                 float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                float angleToTarget = this.findAngleToTarget(direction);
+                float angleToTarget = Vector2.Zero.AngleToTarget(direction);
                 for (int i = 0; i < this.ProjectileCount; i++)
                 {
                     Vector2 newTarget = this.findTargetFromAngleAndDistance(StartPos, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1102,7 +1061,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
             float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-            float angleToTarget2 = this.findAngleToTarget(direction);
+            float angleToTarget2 = Vector2.Zero.AngleToTarget(direction);
             Vector2 newTarget2 = this.findTargetFromAngleAndDistance(StartPos, angleToTarget2 + spread, this.Range);
             Vector2 fireDirection2 = this.findVectorToTarget(StartPos, newTarget2);
             fireDirection2.Y = fireDirection2.Y * -1f;
@@ -1123,7 +1082,7 @@ namespace Ship_Game.Gameplay
 				if (this.FireArc != 0)
 				{
 					float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                    float angleToTarget = this.findAngleToTarget(direction);
+                    float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 					for (int i = 0; i < this.ProjectileCount; i++)
 					{
 						Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1136,7 +1095,7 @@ namespace Ship_Game.Gameplay
 				if (this.FireCone > 0)
 				{
 					float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                    float angleToTarget = this.findAngleToTarget(direction);
+                    float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 					Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
 					Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
 					fireDirection.Y = fireDirection.Y * -1f;
@@ -1213,7 +1172,7 @@ namespace Ship_Game.Gameplay
                     if (this.FireArc != 0)
                     {
                         float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
                         for (int i = 0; i < this.ProjectileCount; i++)
                         {
                             Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1233,7 +1192,7 @@ namespace Ship_Game.Gameplay
                     }
                     float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
                     //renamed angletotarget,newtarget,firedirection
-                    float angleToTarget2 = this.findAngleToTarget(direction);
+                    float angleToTarget2 = Vector2.Zero.AngleToTarget(direction);
                     Vector2 newTarget2 = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget2 + spread, this.Range);
                     Vector2 fireDirection2 = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget2);
                     fireDirection2.Y = fireDirection2.Y * -1f;
@@ -1255,7 +1214,7 @@ namespace Ship_Game.Gameplay
                     if (this.FireArc != 0)
                     {
                         float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
                         for (int i = 0; i < this.ProjectileCount; i++)
                         {
                             Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1268,7 +1227,7 @@ namespace Ship_Game.Gameplay
                     if (this.FireCone > 0)
                     {
                         float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
                         Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
                         Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
                         fireDirection.Y = fireDirection.Y * -1f;
@@ -1307,7 +1266,7 @@ namespace Ship_Game.Gameplay
 			projectile.Initialize(this.ProjectileSpeed, direction, owner.Center);
 			projectile.Radius = this.ProjectileRadius;
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			if (owner.GetSystem() != null && owner.GetSystem().isVisible || owner.isInDeepSpace)
+			if (owner.System!= null && owner.System.isVisible || owner.isInDeepSpace)
 			{
 				int numberSameWeapons = 0;
 				//this.toggleTimer = 0f;

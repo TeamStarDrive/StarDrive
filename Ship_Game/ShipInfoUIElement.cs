@@ -237,9 +237,9 @@ namespace Ship_Game
                 longName += string.Concat(" - ", this.ship.shipData.GetCategory());
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
 
-			string text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
+			string text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
 			Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
-			text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
+			text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.ship), 155f);
 			HelperFunctions.ClampVectorToInt(ref ShipStatus);
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
 			ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
@@ -369,9 +369,9 @@ namespace Ship_Game
 			if (this.ship.Inhibited )
 			{
 				bool Planet = false;
-				if (this.screen.GravityWells && this.ship.GetSystem() != null)
+				if (this.screen.GravityWells && this.ship.System!= null)
 				{
-					foreach (Ship_Game.Planet p in this.ship.GetSystem().PlanetList)
+					foreach (Ship_Game.Planet p in this.ship.System.PlanetList)
 					{
                         if (Vector2.Distance(p.Position, this.ship.Position) >= (GlobalStats.GravityWellRange * (1 + ((Math.Log(p.scale)) / 1.5))))
 						{

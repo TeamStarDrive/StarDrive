@@ -169,7 +169,7 @@ namespace Ship_Game
 				if (this.numThatFit <= 0)
 				{
 					text = "There are no ships in your empire that are not already assigned to a fleet that can fit any of the roles required by this fleet's design.";
-					text = HelperFunctions.parseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
+					text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, this.Cursor, c);
 					this.AssignNow.ToggleOn = false;
 				}
@@ -177,7 +177,7 @@ namespace Ship_Game
 				{
 					string[] str = new string[] { "Of the ", numships.ToString(), " ships in your empire that are not assigned to fleets, ", this.numThatFit.ToString(), " of them can be assigned to fill in this fleet" };
 					text = string.Concat(str);
-					text = HelperFunctions.parseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
+					text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, this.Cursor, c);
 					this.AssignNow.Draw(base.ScreenManager);
 				}
@@ -187,7 +187,7 @@ namespace Ship_Game
 				if (tofill > 0)
 				{
 					text = string.Concat("Order ", tofill.ToString(), " new ships to be built at your best available shipyards");
-					text = HelperFunctions.parseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
+					text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, this.Cursor, c);
 				}
 				this.BuildNow.Draw(base.ScreenManager);
@@ -197,7 +197,7 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "No Requisition Needed", this.Cursor, c);
 				this.Cursor.Y = this.Cursor.Y + (float)(Fonts.Pirulen16.LineSpacing + 8);
 				text = "This fleet is at full strength, or has build orders in place to bring it to full strength, and does not require further requisitions";
-				text = HelperFunctions.parseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
+				text = HelperFunctions.ParseText(Fonts.Arial12Bold, text, (float)(this.FleetStatsRect.Width - 40));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, this.Cursor, c);
 			}
 			base.ScreenManager.SpriteBatch.End();
