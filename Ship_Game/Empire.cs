@@ -1316,6 +1316,10 @@ namespace Ship_Game
             Relationships.Add(e, i);
         }
 
+        public bool ExistsRelation(Empire withEmpire)
+        {
+            return Relationships.ContainsKey(withEmpire);
+        }
         public void DamageRelationship(Empire e, string why, float amount, Planet p)
         {
             if (!Relationships.TryGetValue(e, out Relationship relationship))
