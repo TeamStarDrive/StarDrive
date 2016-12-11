@@ -40,7 +40,7 @@ namespace Ship_Game
 		{
 		}
 
-        private static bool TrySetArtifactEffect(ref float outModifier, ref float inModifier, RacialTrait traits)
+        private static bool TrySetArtifactEffect(ref float outModifier, float inModifier, RacialTrait traits)
         {
             if (inModifier <= 0f)
                 return false;
@@ -48,10 +48,8 @@ namespace Ship_Game
             return true;
         }
 
-
         public void CheckGrantArtifact(Empire triggerer, Outcome triggeredOutcome)
-        {
-            
+        {           
             List<Artifact> potentials = new List<Artifact>();
             foreach (KeyValuePair<string, Artifact> artifact in ResourceManager.ArtifactsDict)
             {
@@ -67,59 +65,54 @@ namespace Ship_Game
             }
             else
             {
-                
-
-
                 //apply artifact bonus.
                 float bonus = 0;
-                if (TrySetArtifactEffect(ref bonus, ref triggeredOutcome.GetArtifact().FertilityMod,
-                            triggerer.data.Traits))
+                if (TrySetArtifactEffect(ref bonus, FertilityMod,
+                    triggerer.data.Traits))
                 {
                     triggerer.data.EmpireFertilityBonus += triggeredOutcome.GetArtifact().FertilityMod;
                     foreach (Planet planet in triggerer.GetPlanets())
                     {
-                        planet.Fertility += bonus;                        
+                        planet.Fertility += bonus;
                     }
                 }
                 TrySetArtifactEffect(ref triggerer.data.Traits.DiplomacyMod,
-                    ref triggeredOutcome.GetArtifact().DiplomacyMod,
+                    DiplomacyMod,
                     triggerer.data.Traits);
 
                 TrySetArtifactEffect(ref triggerer.data.Traits.GroundCombatModifier,
-                    ref triggeredOutcome.GetArtifact().GroundCombatMod,
+                    GroundCombatMod,
                     triggerer.data.Traits);
 
                 if (TrySetArtifactEffect(ref triggerer.data.Traits.ModHpModifier,
-                    ref triggeredOutcome.GetArtifact().ModuleHPMod,
+                    ModuleHPMod,
                     triggerer.data.Traits))
                     triggerer.RecalculateMaxHP = true;
                 //So existing ships will benefit from changes to ModHpModifier -Gretman
 
                 TrySetArtifactEffect(ref triggerer.data.FlatMoneyBonus,
-                    ref triggeredOutcome.GetArtifact().PlusFlatMoney,
+                    PlusFlatMoney,
                     triggerer.data.Traits);
 
                 TrySetArtifactEffect(ref triggerer.data.Traits.ProductionMod,
-                    ref triggeredOutcome.GetArtifact().ProductionMod,
+                    ProductionMod,
                     triggerer.data.Traits);
 
                 TrySetArtifactEffect(ref triggerer.data.Traits.ReproductionMod,
-                    ref triggeredOutcome.GetArtifact().ReproductionMod,
+                    ReproductionMod,
                     triggerer.data.Traits);
 
                 TrySetArtifactEffect(ref triggerer.data.Traits.ResearchMod,
-                    ref triggeredOutcome.GetArtifact().ResearchMod,
+                    ResearchMod,
                     triggerer.data.Traits);
 
                 TrySetArtifactEffect(ref triggerer.data.SensorModifier,
-                    ref triggeredOutcome.GetArtifact().SensorMod,
+                    SensorMod,
                     triggerer.data.Traits);
 
                 TrySetArtifactEffect(ref triggerer.data.ShieldPenBonusChance,
-                    ref triggeredOutcome.GetArtifact().ShieldPenBonus,
+                    ShieldPenBonus,
                     triggerer.data.Traits);
-
-
             }
         }
     }
