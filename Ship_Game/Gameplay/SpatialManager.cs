@@ -997,12 +997,12 @@ namespace Ship_Game.Gameplay
                 explosionCenter = shipModule.XSIZE != 1 || shipModule.YSIZE != 3 ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2)) : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
                 Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
                 float angleToTarget = explosionCenter.AngleToTarget(target);
-                Vector2 angleAndDistance = HelperFunctions.FindPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees((source as ShipModule).Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+                Vector2 angleAndDistance = shipModule.Center.PointFromAngle(MathHelper.ToDegrees((source as ShipModule).Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
                 float num2 = shipModule.XSIZE * 8;
                 float num3 = shipModule.YSIZE * 8;
                 float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
                 float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + (source as ShipModule).GetParent().Rotation;
-                explosionCenter = HelperFunctions.FindPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
+                explosionCenter = angleAndDistance.PointFromAngle(MathHelper.ToDegrees(radians), distance);
             }
             BatchRemovalCollection<ExplosionRay> removalCollection = new BatchRemovalCollection<ExplosionRay>();
             int num4 = 15;
@@ -1010,7 +1010,7 @@ namespace Ship_Game.Gameplay
             for (int index = 0; index < num4; ++index)
                 removalCollection.Add(new ExplosionRay()
                 {
-                    Direction = HelperFunctions.FindPointFromAngleAndDistance(Vector2.Zero, num5 * (float)index, 1f),
+                    Direction = MathExt.PointOnCircle(num5 * (float)index, 1f),
                     Damage = damageAmount / (float)num4
                 });
             List<ShipModule> list; //= new List<ShipModule>();
@@ -1244,7 +1244,7 @@ namespace Ship_Game.Gameplay
             for (int index = 0; index < num1; ++index)
                 removalCollection.Add(new ExplosionRay()
                 {
-                    Direction = HelperFunctions.FindPointFromAngleAndDistance(Vector2.Zero, num2 * (float)index, 1f),
+                    Direction = MathExt.PointOnCircle(num2 * (float)index, 1f),
                     Damage = damageAmount / (float)num1
                 });
             List<ShipModule> list = new List<ShipModule>();
@@ -1291,7 +1291,7 @@ namespace Ship_Game.Gameplay
             {
                 removalCollection.Add(new ExplosionRay()
                 {
-                    Direction = HelperFunctions.FindPointFromAngleAndDistance(Vector2.Zero, angle * i, 1f),
+                    Direction = MathExt.PointOnCircle(angle * i, 1f),
                     Damage = damageAmount / 15
                 });
             }

@@ -718,40 +718,40 @@ namespace Ship_Game.Gameplay
                         float angle1 = squad.Offset.ToRadians() + facing;
                         float distance = squad.Offset.Length();
                         //Vector2 vector2_1 = new Vector2();
-                        Vector2 distanceUsingRadians1 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle1, distance);
+                        Vector2 distanceUsingRadians1 = MathExt.PointFromRadians(Vector2.Zero, angle1, distance);
                         Vector2 vector2_2;
                         switch (index)
                         {
                             case 0:
                                 vector2_2 = new Vector2();
                                 float angle2 = new Vector2(0.0f, -500f).ToRadians() + facing;
-                                vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Position + distanceUsingRadians1, angle2, 500f);
-                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle2, 500f);
-                                Vector2 distanceUsingRadians2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, new Vector2(0.0f, -500f).ToRadians(), 500f);
+                                vector2_2 = MathExt.PointFromRadians(this.Position + distanceUsingRadians1, angle2, 500f);
+                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + MathExt.PointFromRadians(Vector2.Zero, angle2, 500f);
+                                Vector2 distanceUsingRadians2 = MathExt.PointFromRadians(Vector2.Zero, new Vector2(0.0f, -500f).ToRadians(), 500f);
                                 squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians2;
                                 break;
                             case 1:
                                 vector2_2 = new Vector2();
                                 float angle3 = new Vector2(-500f, 0.0f).ToRadians() + facing;
-                                vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Position + distanceUsingRadians1, angle3, 500f);
-                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle3, 500f);
-                                Vector2 distanceUsingRadians3 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, new Vector2(-500f, 0.0f).ToRadians(), 500f);
+                                vector2_2 = MathExt.PointFromRadians(this.Position + distanceUsingRadians1, angle3, 500f);
+                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + MathExt.PointFromRadians(Vector2.Zero, angle3, 500f);
+                                Vector2 distanceUsingRadians3 = MathExt.PointFromRadians(Vector2.Zero, new Vector2(-500f, 0.0f).ToRadians(), 500f);
                                 squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians3;
                                 break;
                             case 2:
                                 vector2_2 = new Vector2();
                                 float angle4 = new Vector2(500f, 0.0f).ToRadians() + facing;
-                                vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Position + distanceUsingRadians1, angle4, 500f);
-                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle4, 500f);
-                                Vector2 distanceUsingRadians4 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, new Vector2(500f, 0.0f).ToRadians(), 500f);
+                                vector2_2 = MathExt.PointFromRadians(this.Position + distanceUsingRadians1, angle4, 500f);
+                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + MathExt.PointFromRadians(Vector2.Zero, angle4, 500f);
+                                Vector2 distanceUsingRadians4 = MathExt.PointFromRadians(Vector2.Zero, new Vector2(500f, 0.0f).ToRadians(), 500f);
                                 squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians4;
                                 break;
                             case 3:
                                 vector2_2 = new Vector2();
                                 float angle5 = new Vector2(0.0f, 500f).ToRadians() + facing;
-                                vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Position + distanceUsingRadians1, angle5, 500f);
-                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle5, 500f);
-                                Vector2 distanceUsingRadians5 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, new Vector2(0.0f, 500f).ToRadians(), 500f);
+                                vector2_2 = MathExt.PointFromRadians(this.Position + distanceUsingRadians1, angle5, 500f);
+                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + MathExt.PointFromRadians(Vector2.Zero, angle5, 500f);
+                                Vector2 distanceUsingRadians5 = MathExt.PointFromRadians(Vector2.Zero, new Vector2(0.0f, 500f).ToRadians(), 500f);
                                 squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians5;
                                 break;
                         }
@@ -768,7 +768,7 @@ namespace Ship_Game.Gameplay
             {
                 float angle      = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance   = ship.RelativeFleetOffset.Length();
-                ship.FleetOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
+                ship.FleetOffset = MathExt.PointFromRadians(Vector2.Zero, angle, distance);
             }
         }
 
@@ -779,7 +779,7 @@ namespace Ship_Game.Gameplay
             {
                 float angle = fleetDataNode.FleetOffset.ToRadians() + facing;
                 float distance = fleetDataNode.FleetOffset.Length();
-                fleetDataNode.OrdersOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
+                fleetDataNode.OrdersOffset = MathExt.PointFromRadians(Vector2.Zero, angle, distance);
             }
         }
 
@@ -792,7 +792,7 @@ namespace Ship_Game.Gameplay
                 {
                     float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                     float distance = ship.RelativeFleetOffset.Length();
-                    ship.FleetOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
+                    ship.FleetOffset = MathExt.PointFromRadians(Vector2.Zero, angle, distance);
                 }
             }
         }
@@ -816,29 +816,29 @@ namespace Ship_Game.Gameplay
                     float angle1 = target.ToRadians() + facing;
                     float distance = target.Length();
                     //Vector2 vector2_3 = new Vector2();
-                    Vector2 distanceUsingRadians = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle1, distance);
+                    Vector2 distanceUsingRadians = MathExt.PointFromRadians(Vector2.Zero, angle1, distance);
                    // Vector2 vector2_4;
                     switch (index)
                     {
                         case 0:
                            // vector2_4 = new Vector2();
                             float angle2 = new Vector2(0.0f, -500f).ToRadians() + facing;
-                            vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(ProjectedPosition + distanceUsingRadians, angle2, 500f);
+                            vector2_2 = MathExt.PointFromRadians(ProjectedPosition + distanceUsingRadians, angle2, 500f);
                             break;
                         case 1:
                           //  vector2_4 = new Vector2();
                             float angle3 = new Vector2(-500f, 0.0f).ToRadians() + facing;
-                            vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(ProjectedPosition + distanceUsingRadians, angle3, 500f);
+                            vector2_2 = MathExt.PointFromRadians(ProjectedPosition + distanceUsingRadians, angle3, 500f);
                             break;
                         case 2:
                            // vector2_4 = new Vector2();
                             float angle4 = new Vector2(500f, 0.0f).ToRadians() + facing;
-                            vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(ProjectedPosition + distanceUsingRadians, angle4, 500f);
+                            vector2_2 = MathExt.PointFromRadians(ProjectedPosition + distanceUsingRadians, angle4, 500f);
                             break;
                         case 3:
                            // vector2_4 = new Vector2();
                             float angle5 = new Vector2(0.0f, 500f).ToRadians() + facing;
-                            vector2_2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(ProjectedPosition + distanceUsingRadians, angle5, 500f);
+                            vector2_2 = MathExt.PointFromRadians(ProjectedPosition + distanceUsingRadians, angle5, 500f);
                             break;
                     }
                     squad.Ships[index].projectedPosition = vector2_2;
@@ -873,7 +873,7 @@ namespace Ship_Game.Gameplay
             {
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
-                ship.projectedPosition = ProjectedPosition + HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
+                ship.projectedPosition = ProjectedPosition + MathExt.PointFromRadians(Vector2.Zero, angle, distance);
             }
         }
 

@@ -97,7 +97,7 @@ namespace Ship_Game
 			}
 			this.Source = srcCenter;
             this.BeamOffsetAngle = Owner.Rotation - srcCenter.AngleToTarget(TargetPosition).ToRadians();
-			this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
+			this.Destination = MathExt.PointFromRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
 			this.ActualHitDestination = this.Destination;
 			this.Vertices = new VertexPositionNormalTexture[4];
 			this.Indexes = new int[6];
@@ -219,7 +219,7 @@ namespace Ship_Game
             }
             this.Source = srcCenter;
             this.BeamOffsetAngle = Owner.Rotation - srcCenter.RadiansToTarget(TargetPosition);
-            this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
+            this.Destination = MathExt.PointFromRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
             this.ActualHitDestination = this.Destination;
             this.Vertices = new VertexPositionNormalTexture[4];
             this.Indexes = new int[6];
@@ -250,7 +250,7 @@ namespace Ship_Game
 			}
 			this.Source = srcCenter;
 			this.BeamOffsetAngle = Owner.Rotation - srcCenter.RadiansToTarget(destination);
-			this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
+			this.Destination = MathExt.PointFromRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
 			this.ActualHitDestination = this.Destination;
 			this.Vertices = new VertexPositionNormalTexture[4];
 			this.Indexes = new int[6];
@@ -526,7 +526,7 @@ namespace Ship_Game
             if (this.Target == null)// If current target sucks, use "destination" instead
             {
                 global::System.Diagnostics.Debug.WriteLine("Beam assigned alternate destination at update");
-                this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
+                this.Destination = MathExt.PointFromRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
             }
             else if (!this.owner.isPlayerShip() && Vector2.Distance(this.Destination, this.Source) > this.range + this.owner.Radius) //So beams at the back of a ship can hit too!
             {

@@ -356,7 +356,7 @@ namespace Ship_Game
 					float scale = RandomMath.RandomBetween(1f, 2f);
                     float planetRadius = 1000f * scale;// (float)(1 + ((Math.Log(scale)) / 1.5));
 					float randomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = HelperFunctions.FindPointFromAngleAndDistance(Vector2.Zero, randomAngle, ringRadius);
+					Vector2 planetCenter = Vector2.Zero.PointFromAngle(randomAngle, ringRadius);
 					Planet newOrbital = new Planet
 					{
 						Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
@@ -396,7 +396,7 @@ namespace Ship_Game
 		private static Vector2 GenerateRandomPointOnCircle(float radius, Vector2 center)
 		{
 			float randomAngle = RandomMath.RandomBetween(0f, 360f);
-			return HelperFunctions.FindPointFromAngleAndDistance(center, randomAngle, radius);
+			return center.PointFromAngle(randomAngle, radius);
 		}
 
 		public void GenerateRandomSystem(string name, UniverseData data, float systemScale)
@@ -440,7 +440,7 @@ namespace Ship_Game
 				else
 				{
 					float randomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = HelperFunctions.FindPointFromAngleAndDistance(Vector2.Zero, randomAngle, ringRadius);
+					Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
 					Planet newOrbital = new Planet
 					{
 						Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
@@ -506,7 +506,7 @@ namespace Ship_Game
 				if (i == 1 || i > 3)
 				{
 					float randomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = HelperFunctions.FindPointFromAngleAndDistance(Vector2.Zero, randomAngle, ringRadius);
+					Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
 					Planet newOrbital = new Planet
 					{
 						Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
@@ -551,7 +551,7 @@ namespace Ship_Game
 					float scale = RandomMath.RandomBetween(1f, 2f);
                     float planetRadius   = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
 					float randomAngle    = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = HelperFunctions.FindPointFromAngleAndDistance(Vector2.Zero, randomAngle, ringRadius);
+					Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
 					Planet newOrbital = new Planet
 					{
 						Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
@@ -639,7 +639,7 @@ namespace Ship_Game
 
                     float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
 					float randomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = HelperFunctions.FindPointFromAngleAndDistance(Vector2.Zero, randomAngle, ringRadius);
+					Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
                     
                     Planet newOrbital = new Planet
 					{
