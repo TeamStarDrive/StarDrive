@@ -52,31 +52,57 @@ namespace Ship_Game
             return (float)((PI - n) * s);
         }
 
-        private const float DegsToRads = 180.0f / (float)PI;
-        private const float RadsToDegs = (float)PI / 180.0f;
-
         // Converts a radian float to degrees
         public static float ToDegrees(this float radians)
         {
-            return radians * DegsToRads;
+            return radians * (180.0f / (float)PI);
         }
 
         // Converts a degree float to radians
         public static float ToRadians(this float degrees)
         {
-            return degrees * RadsToDegs;
+            return degrees * ((float)PI / 180.0f);
         }
 
         // Converts a direction vector to radians
         public static float ToRadians(this Vector2 direction)
         {
-            return Vector2.Zero.RadiansToTarget(direction);
+            return (float)(PI - Atan2(direction.X, direction.Y));
         }
 
         // Converts a direction vector to degrees
         public static float ToDegrees(this Vector2 direction)
         {
-            return Vector2.Zero.AngleToTarget(direction);
+            return (float)(180 - Atan2(direction.X, direction.Y) * 180.0 / PI);
+        }
+
+        // Generates a new point on a circular radius from position
+        // Input angle is given in degrees
+		public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)
+		{
+            double rads = degrees * (PI / 180.0);
+            return center + new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
+		}
+
+        // Generates a new point on a circular radius from position
+        // Input angle is given in radians
+		public static Vector2 PointFromRadians(this Vector2 center, float radians, float circleRadius)
+		{
+            return center + new Vector2((float)Sin(radians), (float)-Cos(radians)) * circleRadius;
+		}
+
+        // @todo This is just an alias for PointFromAngle... which one to keep?
+		public static Vector2 PointOnCircle(this Vector2 center, float degrees, float circleRadius)
+		{
+            // @note manual inlining instead of calling PointFromAngle
+            double rads = degrees * (PI / 180.0);
+            return center + new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
+		}
+
+        public static Vector2 PointOnCircle(float degrees, float circleRadius)
+        {
+            double rads = degrees * (PI / 180.0);
+            return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
         }
     }
 }
