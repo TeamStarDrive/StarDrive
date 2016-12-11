@@ -23,7 +23,7 @@ namespace Ship_Game
 				float angle = Math.Abs(Vector2.Zero.AngleToTarget(node.FleetOffset)) + MathHelper.ToDegrees(facing);
 				angle = angle.ToRadians();
 				float distance = node.FleetOffset.Length();
-				node.FleetOffset = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, angle, distance);
+				node.FleetOffset = MathExt.PointFromRadians(Vector2.Zero, angle, distance);
 			}
 		}
 	}
