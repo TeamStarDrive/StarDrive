@@ -11,7 +11,7 @@ namespace Ship_Game
 
         public void TriggerOutcome(Empire triggerer, Outcome triggeredOutcome)
         {
-            triggeredOutcome.CheckOutComes(null, triggeredOutcome, null, triggerer);
+            triggeredOutcome.CheckOutComes(null , null, triggerer);
         }
 
         public void TriggerPlanetEvent(Planet p, Empire triggerer, PlanetGridSquare eventLocation, Empire playerEmpire,
@@ -35,7 +35,7 @@ namespace Ship_Game
                 if (triggerer.isPlayer) outcome.alreadyTriggered = true;
                 break;
             }
-            triggeredOutcome?.CheckOutComes(p, triggeredOutcome, eventLocation, triggerer);
+            triggeredOutcome?.CheckOutComes(p, eventLocation, triggerer);
             if (triggerer == playerEmpire)
             {
                 screen.ScreenManager.AddScreen(new EventPopup(screen, playerEmpire, this, triggeredOutcome));
