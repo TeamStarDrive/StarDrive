@@ -1163,10 +1163,12 @@ namespace Ship_Game
 
         public void LoadGraphics()
         {
+            //@minimap position
+            int minimapOffSet = 14;
             this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, (float)this.ScreenManager.GraphicsDevice.Viewport.Width / (float)this.ScreenManager.GraphicsDevice.Viewport.Height, 1000f, 3E+07f);
             this.Frustum = new BoundingFrustum(this.view * this.projection);
-            this.mmHousing = new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 276, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 256, 276, 256);
-            this.MinimapDisplayRect = new Rectangle(this.mmHousing.X + 61, this.mmHousing.Y + 43, 200, 200);
+            this.mmHousing = new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - (276+ minimapOffSet), this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 256, 276+ minimapOffSet, 256);
+            this.MinimapDisplayRect = new Rectangle(this.mmHousing.X + 61+ minimapOffSet, this.mmHousing.Y + 43, 200, 200);
             this.minimap = new MiniMap(this.mmHousing);
             this.mmButtons = new MinimapButtons(this.mmHousing, this.EmpireUI);
             this.mmShowBorders = new Rectangle(this.MinimapDisplayRect.X, this.MinimapDisplayRect.Y - 25, 32, 32);
