@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using static Ship_Game.EmpireData;
 
 namespace Ship_Game
 {
@@ -38,6 +39,15 @@ namespace Ship_Game
 		public Artifact()
 		{
 		}
+
+        private static bool TrySetArtifactEffect(ref float outModifier, ref float inModifier, RacialTrait traits)
+        {
+            if (inModifier <= 0f)
+                return false;
+            outModifier += inModifier + inModifier * traits.Spiritual;
+            return true;
+        }
+
         public static void CheckGrantArtifact(Empire triggerer, Outcome triggeredOutcome)
         {
             
@@ -72,6 +82,7 @@ namespace Ship_Game
                 }
                 if (triggeredOutcome.GetArtifact().FertilityMod > 0f)
                 {
+                    if(TrySetArtifactEffect())
                     triggerer.data.EmpireFertilityBonus += triggeredOutcome.GetArtifact().FertilityMod;
                     foreach (Planet planet in triggerer.GetPlanets())
                     {
