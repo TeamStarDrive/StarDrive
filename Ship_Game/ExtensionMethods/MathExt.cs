@@ -23,9 +23,9 @@ namespace Ship_Game
         // Added by RedFox
         // result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
-		{
+        {
             return (float)(180 - Atan2(target.X - origin.X, target.Y - origin.Y) * 180.0 / PI);
-		}
+        }
 
         // Added by RedFox
         // result from [0, +180, -181, -359]  it's kind of weird, but this is the essential logic from SD source code 
@@ -78,26 +78,26 @@ namespace Ship_Game
 
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
-		public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)
-		{
+        public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)
+        {
             double rads = degrees * (PI / 180.0);
             return center + new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
-		}
+        }
 
         // Generates a new point on a circular radius from position
         // Input angle is given in radians
-		public static Vector2 PointFromRadians(this Vector2 center, float radians, float circleRadius)
-		{
+        public static Vector2 PointFromRadians(this Vector2 center, float radians, float circleRadius)
+        {
             return center + new Vector2((float)Sin(radians), (float)-Cos(radians)) * circleRadius;
-		}
+        }
 
         // @todo This is just an alias for PointFromAngle... which one to keep?
-		public static Vector2 PointOnCircle(this Vector2 center, float degrees, float circleRadius)
-		{
+        public static Vector2 PointOnCircle(this Vector2 center, float degrees, float circleRadius)
+        {
             // @note manual inlining instead of calling PointFromAngle
             double rads = degrees * (PI / 180.0);
             return center + new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
-		}
+        }
 
         public static Vector2 PointOnCircle(float degrees, float circleRadius)
         {
