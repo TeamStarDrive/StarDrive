@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -59,11 +57,7 @@ namespace Ship_Game
 
         public bool alreadyTriggered;
 
-		public Outcome()
-		{
-		}
-
-		public Artifact GetArtifact()
+	    public Artifact GetArtifact()
 		{
 			return this.grantedArtifact;
 		}
@@ -202,12 +196,11 @@ namespace Ship_Game
 	        return onlyTriggerOnce && alreadyTriggered && triggerer.isPlayer;
 
 	    }
-	    public void CheckOutComes(Planet p, Outcome triggeredOutcome, PlanetGridSquare eventLocation, Empire triggerer)
+	    public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer)
 	    {
-	        if (triggeredOutcome == null) return;
-	        
+
             //artifact setup
-	        if (triggeredOutcome.GrantArtifact)
+	        if (GrantArtifact)
 	        {
                 //Find all available artifacts
                 List<Artifact> potentials = new List<Artifact>();
@@ -222,7 +215,7 @@ namespace Ship_Game
                 //if no artifact is available just give them money 
                 if (potentials.Count <= 0)
                 {
-                    triggeredOutcome.MoneyGranted = 500;
+                    MoneyGranted = 500;
                 }
                 else
                 {
@@ -230,15 +223,15 @@ namespace Ship_Game
                     Artifact chosenArtifact = potentials[RandomMath.InRange(potentials.Count)];
                     triggerer.data.OwnedArtifacts.Add(chosenArtifact);
                     ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
-                    triggeredOutcome.SetArtifact(chosenArtifact);
-                    chosenArtifact.CheckGrantArtifact(triggerer, triggeredOutcome);
+                    SetArtifact(chosenArtifact);
+                    chosenArtifact.CheckGrantArtifact(triggerer, this);
                 }                
 	        }
             //Generic grants
 	        FlatGrants(triggerer);
             TechGrants(triggerer);
 	        ShipGrants(triggerer, p);
-	        if (triggeredOutcome.BeginArmageddon)
+	        if (BeginArmageddon)
 	        {
 	            GlobalStats.RemnantArmageddon = true;
 	        }
@@ -252,7 +245,7 @@ namespace Ship_Game
 
 	        //events that trigger on other planets
 	        if(!SetRandomPlanet()) return;
-	        p = triggeredOutcome.SelectedPlanet;
+	        p = SelectedPlanet;
                         
             if (eventLocation == null)
 	        {
