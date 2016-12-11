@@ -17,19 +17,18 @@ namespace Ship_Game
         public void TriggerPlanetEvent(Planet p, Empire triggerer, PlanetGridSquare eventLocation, Empire playerEmpire,
             UniverseScreen screen)
         {
-            int ranMax = 0;
-            int ranMin = 0;
+            int random = 0;
             foreach (Outcome outcome in PotentialOutcomes)
             {
-                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && triggerer.isPlayer) continue;
-                ranMax += outcome.Chance;
-            }
-            int random = (int) RandomMath.RandomBetween(ranMin, ranMax);
+                if (outcome.InValidOutcome(triggerer)) continue;
+                random += outcome.Chance;
+            }            
+            random = RandomMath.InRange(random);
             Outcome triggeredOutcome = null;
             int cursor = 0;
             foreach (Outcome outcome in PotentialOutcomes)
             {
-                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered && triggerer.isPlayer) continue;
+                if (outcome.InValidOutcome(triggerer)) continue;
                 cursor = cursor + outcome.Chance;
                 if (random > cursor) continue;
                 triggeredOutcome = outcome;
