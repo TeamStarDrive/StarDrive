@@ -20,6 +20,8 @@ namespace Ship_Game
 
 		private Rectangle BlackRect;
 
+         
+
 		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome)
 		{
 			this.screen = s;
@@ -216,5 +218,16 @@ namespace Ship_Game
 			Rectangle FitRect = new Rectangle(this.TitleRect.X - 4, this.TitleRect.Y + this.TitleRect.Height + this.MidContainer.Height + 10, this.TitleRect.Width, 600 - (this.TitleRect.Height + this.MidContainer.Height));
 			this.BlackRect = new Rectangle(FitRect.X, FitRect.Y, FitRect.Width, 450);
 		}
+
+        public class DrawPackage
+        {
+            public Vector2 TextPos;
+            public string Text;
+            public SpriteFont Font;
+            public int mod = 0;
+            public Texture2D Icon;
+
+
+        }
 	}
 }
