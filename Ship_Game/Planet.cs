@@ -5879,7 +5879,7 @@ output = maxp * take10 = 5
                     if (queueItem.sData.Role == ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform)
                     {
                         int num = this.Shipyards.Count / 9;
-                        shipAt.Position = this.Position + HelperFunctions.GeneratePointOnCircle((float)(this.Shipyards.Count * 40), Vector2.Zero, (float)(2000 + 2000 * num * this.scale));
+                        shipAt.Position = this.Position + MathExt.PointOnCircle((float)(this.Shipyards.Count * 40), (float)(2000 + 2000 * num * this.scale));
                         shipAt.Center = shipAt.Position;
                         shipAt.TetherToPlanet(this);
                         this.Shipyards.TryAdd(shipAt.guid, shipAt);
@@ -6324,8 +6324,8 @@ output = maxp * take10 = 5
             this.PosUpdateTimer -= elapsedTime;
             if ( this.PosUpdateTimer <= 0.0f || this.system.isVisible)
             {
-                this.PosUpdateTimer = 5f;
-                this.Position = this.GeneratePointOnCircle(this.OrbitalAngle, this.ParentSystem.Position, this.OrbitalRadius);
+                PosUpdateTimer = 5f;
+                Position = ParentSystem.Position.PointOnCircle(OrbitalAngle, OrbitalRadius);
             }
             if (this.system.isVisible)
             {
@@ -6850,92 +6850,6 @@ output = maxp * take10 = 5
                 troop.Strength = troop.GetStrengthMax();
             }
             this.TroopsHere.thisLock.ExitReadLock();
-        }
-
-        private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
-        {
-            return this.findPointFromAngleAndDistance(center, angle, radius);
-        }
-
-        private Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
-        {
-            Vector2 vector2 = new Vector2(0.0f, 0.0f);
-            float num1 = angle;
-            float num2 = distance;
-            int num3 = 0;
-            float num4 = 0.0f;
-            float num5 = 0.0f;
-            if ((double)num1 > 360.0)
-                num1 -= 360f;
-            if ((double)num1 < 90.0)
-            {
-                float num6 = (float)((double)(90f - num1) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 1;
-            }
-            else if ((double)num1 > 90.0 && (double)num1 < 180.0)
-            {
-                float num6 = (float)((double)(num1 - 90f) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 2;
-            }
-            else if ((double)num1 > 180.0 && (double)num1 < 270.0)
-            {
-                float num6 = (float)((double)(270f - num1) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 3;
-            }
-            else if ((double)num1 > 270.0 && (double)num1 < 360.0)
-            {
-                float num6 = (float)((double)(num1 - 270f) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 4;
-            }
-            if ((double)num1 == 0.0)
-            {
-                vector2.X = position.X;
-                vector2.Y = position.Y - num2;
-            }
-            if ((double)num1 == 90.0)
-            {
-                vector2.X = position.X + num2;
-                vector2.Y = position.Y;
-            }
-            if ((double)num1 == 180.0)
-            {
-                vector2.X = position.X;
-                vector2.Y = position.Y + num2;
-            }
-            if ((double)num1 == 270.0)
-            {
-                vector2.X = position.X - num2;
-                vector2.Y = position.Y;
-            }
-            if (num3 == 1)
-            {
-                vector2.X = position.X + num5;
-                vector2.Y = position.Y - num4;
-            }
-            else if (num3 == 2)
-            {
-                vector2.X = position.X + num5;
-                vector2.Y = position.Y + num4;
-            }
-            else if (num3 == 3)
-            {
-                vector2.X = position.X - num5;
-                vector2.Y = position.Y + num4;
-            }
-            else if (num3 == 4)
-            {
-                vector2.X = position.X - num5;
-                vector2.Y = position.Y - num4;
-            }
-            return vector2;
         }
 
         public enum ColonyType

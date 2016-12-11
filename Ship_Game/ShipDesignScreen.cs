@@ -1480,10 +1480,8 @@ namespace Ship_Game
 						}
 						float halfArc = slot.module.FieldOfFire / 2f;
 						Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
-						Vector2 leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
-						Vector2 rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
-						leftArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + -halfArc, 300f);
-						rightArc = this.findPointFromAngleAndDistance(Center, slot.module.facing + halfArc, 300f);
+						Vector2 leftArc  = Center.PointFromAngle(slot.module.facing + -halfArc, 300f);
+						Vector2 rightArc = Center.PointFromAngle(slot.module.facing + halfArc, 300f);
 						Color arc = new Color(255, 165, 0, 100);
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, leftArc, arc, 3f);
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, Center, rightArc, arc, 3f);
@@ -4979,99 +4977,6 @@ namespace Ship_Game
 			base.ScreenManager.AddScreen(message);
 		}
 
-		private Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
-		{
-			float theta;
-			Vector2 TargetPosition = new Vector2(0f, 0f);
-			float gamma = angle;
-			float D = distance;
-			int gammaQuadrant = 0;
-			float oppY = 0f;
-			float adjX = 0f;
-			if (gamma > 360f)
-			{
-				gamma = gamma - 360f;
-			}
-			if (gamma < 90f)
-			{
-				theta = 90f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 1;
-			}
-			else if (gamma > 90f && gamma < 180f)
-			{
-				theta = gamma - 90f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 2;
-			}
-			else if (gamma > 180f && gamma < 270f)
-			{
-				theta = 270f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 3;
-			}
-			else if (gamma > 270f && gamma < 360f)
-			{
-				theta = gamma - 270f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 4;
-			}
-			if (gamma == 0f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y - D;
-			}
-			if (gamma == 90f)
-			{
-				TargetPosition.X = position.X + D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gamma == 180f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y + D;
-			}
-			if (gamma == 270f)
-			{
-				TargetPosition.X = position.X - D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gammaQuadrant == 1)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			else if (gammaQuadrant == 2)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 3)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 4)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			return TargetPosition;
-		}
-
-		private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
-		{
-			return this.findPointFromAngleAndDistance(center, angle, radius);
-		}
-
 		private string GetConduitGraphic(SlotStruct ss)
 		{
 			bool right = false;
@@ -6258,7 +6163,7 @@ namespace Ship_Game
 			Viewport viewport5 = base.ScreenManager.GraphicsDevice.Viewport;
 			Vector3 pScreenSpace = viewport5.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
 			Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-			Vector2 radialPos = this.GeneratePointOnCircle(90f, Vector2.Zero, xDistance);
+			Vector2 radialPos = MathExt.PointOnCircle(90f, xDistance);
 			Viewport viewport6 = base.ScreenManager.GraphicsDevice.Viewport;
 			Vector3 insetRadialPos = viewport6.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
 			Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -6273,7 +6178,7 @@ namespace Ship_Game
 					Viewport viewport7 = base.ScreenManager.GraphicsDevice.Viewport;
 					pScreenSpace = viewport7.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
 					pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-					radialPos = this.GeneratePointOnCircle(90f, Vector2.Zero, xDistance);
+					radialPos = MathExt.PointOnCircle(90f, xDistance);
 					Viewport viewport8 = base.ScreenManager.GraphicsDevice.Viewport;
 					insetRadialPos = viewport8.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
 					insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -6291,7 +6196,7 @@ namespace Ship_Game
 					Viewport viewport9 = base.ScreenManager.GraphicsDevice.Viewport;
 					pScreenSpace = viewport9.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
 					pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-					radialPos = this.GeneratePointOnCircle(90f, Vector2.Zero, xDistance);
+					radialPos = MathExt.PointOnCircle(90f, xDistance);
 					Viewport viewport10 = base.ScreenManager.GraphicsDevice.Viewport;
 					insetRadialPos = viewport10.Project(new Vector3(radialPos, 0f), this.projection, this.view, Matrix.Identity);
 					insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);

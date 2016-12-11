@@ -17,94 +17,6 @@ namespace Ship_Game
 		{
 		}
 
-		private Vector2 findPointFromAngleAndDistanceUsingRadians(Vector2 position, float angle, float distance)
-		{
-			float theta;
-			Vector2 TargetPosition = new Vector2(0f, 0f);
-			float gamma = MathHelper.ToDegrees(angle);
-			float D = distance;
-			int gammaQuadrant = 0;
-			float oppY = 0f;
-			float adjX = 0f;
-			if (gamma > 360f)
-			{
-				gamma = gamma - 360f;
-			}
-			if (gamma < 90f)
-			{
-				theta = 90f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 1;
-			}
-			else if (gamma > 90f && gamma < 180f)
-			{
-				theta = gamma - 90f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 2;
-			}
-			else if (gamma > 180f && gamma < 270f)
-			{
-				theta = 270f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 3;
-			}
-			else if (gamma > 270f && gamma < 360f)
-			{
-				theta = gamma - 270f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 4;
-			}
-			if (gamma == 0f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y - D;
-			}
-			if (gamma == 90f)
-			{
-				TargetPosition.X = position.X + D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gamma == 180f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y + D;
-			}
-			if (gamma == 270f)
-			{
-				TargetPosition.X = position.X - D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gammaQuadrant == 1)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			else if (gammaQuadrant == 2)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 3)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 4)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			return TargetPosition;
-		}
-
 		public virtual void MoveTo(Vector2 Position, float facing, Vector2 fVec)
 		{
 			Ships[0].Center.RadiansToTarget(Position);
@@ -114,12 +26,12 @@ namespace Ship_Game
 			{
 				if (i % 2 != 1)
 				{
-					MovePosition = this.findPointFromAngleAndDistanceUsingRadians(Position, facing - 1.57079637f, (float)(i * 500));
+					MovePosition = MathExt.PointFromRadians(Position, facing - 1.57079637f, (float)(i * 500));
 					this.Ships[i].GetAI().GoTo(MovePosition, fVec);
 				}
 				else
 				{
-					MovePosition = this.findPointFromAngleAndDistanceUsingRadians(Position, facing + 1.57079637f, (float)(i * 500));
+					MovePosition = MathExt.PointFromRadians(Position, facing + 1.57079637f, (float)(i * 500));
 					this.Ships[i].GetAI().GoTo(MovePosition, fVec);
 				}
 			}
@@ -136,7 +48,7 @@ namespace Ship_Game
 			for (int i = 1; i < Ships.Count; i++)
 			{
                 float facingRandomizer = (i % 2 == 0) ? -1.57079637f : +1.57079637f;
-				Ships[i].projectedPosition = findPointFromAngleAndDistanceUsingRadians(position, facing + facingRandomizer, i * 500);
+				Ships[i].projectedPosition = MathExt.PointFromRadians(position, facing + facingRandomizer, i * 500);
 			}
 		}
 
