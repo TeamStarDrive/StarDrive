@@ -209,7 +209,7 @@ namespace Ship_Game.Gameplay
 				for (int i = 0; i < numChecks; i++)
 				{
 					bool goodPoint = false;
-					Vector2 pointToCheck = HelperFunctions.findPointFromAngleAndDistance(startPos, angle, (float)(2500 * i));
+					Vector2 pointToCheck = MathExt.PointFromAngle(startPos, angle, (float)(2500 * i));
                     this.Owner.loyalty.BorderNodeLocker.EnterReadLock();
 					{
 						foreach (Empire.InfluenceNode node in this.Owner.loyalty.BorderNodes)
@@ -795,9 +795,9 @@ namespace Ship_Game.Gameplay
 					int ran = (int)((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(1f, 100f);
 					ran = (ran <= 50 ? 1 : -1);
 					this.AttackRunAngle = (float)ran * ((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
-					this.AttackVector = this.findPointFromAngleAndDistance(this.Owner.Center, this.AttackRunAngle, 1500f);
+					this.AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
 				}
-				this.AttackVector = this.findPointFromAngleAndDistance(this.Owner.Center, this.AttackRunAngle, 1500f);
+				this.AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
 				this.MoveInDirection(this.AttackVector, elapsedTime);
 			}
 		}
@@ -841,12 +841,12 @@ namespace Ship_Game.Gameplay
                 if (distanceToTarget < (this.Owner.Radius + this.Target.Radius) * 3f && !this.AttackRunStarted)
                 {
                     this.AttackRunStarted = true;
-                    int ran = (int)((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(1f, 100f);
+                    int ran = (int)((this.Owner.System!= null ? this.Owner.System.RNG : universeScreen.DeepSpaceRNG)).RandomBetween(1f, 100f);
                     ran = (ran <= 50 ? 1 : -1);
-                    this.AttackRunAngle = (float)ran * ((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
-                    this.AttackVector = this.findPointFromAngleAndDistance(this.Owner.Center, this.AttackRunAngle, 1500f);
+                    this.AttackRunAngle = (float)ran * ((this.Owner.System!= null ? this.Owner.System.RNG : universeScreen.DeepSpaceRNG)).RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
+                    this.AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
                 }
-                this.AttackVector = this.findPointFromAngleAndDistance(this.Owner.Center, this.AttackRunAngle, 1500f);
+                this.AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
                 this.MoveInDirection(this.AttackVector, elapsedTime);
                 if (this.runTimer > 2)
                 {
@@ -1876,7 +1876,7 @@ namespace Ship_Game.Gameplay
                         this.OrbitalAngle -= 360f;
                 }
                 this.findNewPosTimer =  elapsedTime * 10f;
-                this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, OrbitTarget.Position, radius);
+                this.OrbitPos = OrbitTarget.Position.PointOnCircle(this.OrbitalAngle, radius);
             }
             else
                 this.findNewPosTimer -= elapsedTime;
@@ -2511,264 +2511,6 @@ namespace Ship_Game.Gameplay
 			}
 			return false;
 		}
-        //helper
-        private Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
-        {
-            Vector2 vector2 = new Vector2(0.0f, 0.0f);
-            float num1 = angle;
-            float num2 = distance;
-            int num3 = 0;
-            float num4 = 0.0f;
-            float num5 = 0.0f;
-            if ((double)num1 > 360.0)
-                num1 -= 360f;
-            if ((double)num1 < 90.0)
-            {
-                float num6 = (float)((double)(90f - num1) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 1;
-            }
-            else if ((double)num1 > 90.0 && (double)num1 < 180.0)
-            {
-                float num6 = (float)((double)(num1 - 90f) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 2;
-            }
-            else if ((double)num1 > 180.0 && (double)num1 < 270.0)
-            {
-                float num6 = (float)((double)(270f - num1) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 3;
-            }
-            else if ((double)num1 > 270.0 && (double)num1 < 360.0)
-            {
-                float num6 = (float)((double)(num1 - 270f) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 4;
-            }
-            if ((double)num1 == 0.0)
-            {
-                vector2.X = position.X;
-                vector2.Y = position.Y - num2;
-            }
-            if ((double)num1 == 90.0)
-            {
-                vector2.X = position.X + num2;
-                vector2.Y = position.Y;
-            }
-            if ((double)num1 == 180.0)
-            {
-                vector2.X = position.X;
-                vector2.Y = position.Y + num2;
-            }
-            if (num1 == 270.0)
-            {
-                vector2.X = position.X - num2;
-                vector2.Y = position.Y;
-            }
-            if (num3 == 1)
-            {
-                vector2.X = position.X + num5;
-                vector2.Y = position.Y - num4;
-            }
-            else if (num3 == 2)
-            {
-                vector2.X = position.X + num5;
-                vector2.Y = position.Y + num4;
-            }
-            else if (num3 == 3)
-            {
-                vector2.X = position.X - num5;
-                vector2.Y = position.Y + num4;
-            }
-            else if (num3 == 4)
-            {
-                vector2.X = position.X - num5;
-                vector2.Y = position.Y - num4;
-            }
-            return vector2;
-        }
-
-		private Vector2 findPointFromAngleAndDistanceorg(Vector2 position, float angle, float distance)
-		{
-
-            double theta;
-			Vector2 TargetPosition = new Vector2(0f, 0f);
-			float gamma = angle;
-			double D = distance;
-			int gammaQuadrant = 0;
-			double oppY = 0f;
-			double adjX = 0f;
-			if (gamma > 360f)
-			{
-				gamma = gamma - 360f;
-			}
-			if (gamma < 90f)
-			{
-				theta = 90f - gamma;
-                theta = theta * Math.PI / 180.0;  //3.14159274f / 180f;
-				oppY = D * Math.Sin(theta);
-				adjX = D * Math.Cos(theta);
-				gammaQuadrant = 1;
-			}
-			else if (gamma > 90f && gamma < 180f)
-			{
-				theta = gamma - 90f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * Math.Sin(theta);
-				adjX = D * Math.Cos(theta);
-				gammaQuadrant = 2;
-			}
-			else if (gamma > 180f && gamma < 270f)
-			{
-				theta = 270f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * Math.Sin(theta);
-				adjX = D * Math.Cos(theta);
-				gammaQuadrant = 3;
-			}
-			else if (gamma > 270f && gamma < 360f)
-			{
-				theta = gamma - 270f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * Math.Sin(theta);
-				adjX = D * Math.Cos(theta);
-				gammaQuadrant = 4;
-			}
-			if (gamma == 0f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y - (float)D;
-			}
-			if (gamma == 90f)
-			{
-                TargetPosition.X = position.X + (float)D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gamma == 180f)
-			{
-				TargetPosition.X = position.X;
-                TargetPosition.Y = position.Y + (float)D;
-			}
-			if (gamma == 270f)
-			{
-                TargetPosition.X = position.X - (float)D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gammaQuadrant == 1)
-			{
-                TargetPosition.X = position.X + (float)adjX;
-                TargetPosition.Y = position.Y - (float)oppY;
-			}
-			else if (gammaQuadrant == 2)
-			{
-                TargetPosition.X = position.X + (float)adjX;
-                TargetPosition.Y = position.Y + (float)oppY;
-			}
-			else if (gammaQuadrant == 3)
-			{
-                TargetPosition.X = position.X - (float)adjX;
-                TargetPosition.Y = position.Y + (float)oppY;
-			}
-			else if (gammaQuadrant == 4)
-			{
-                TargetPosition.X = position.X - (float)adjX;
-                TargetPosition.Y = position.Y - (float)oppY;
-			}
-			return TargetPosition;
-		}
-        //helper
-		private Vector2 findPointFromAngleAndDistanceUsingRadians(Vector2 position, float angle, float distance)
-		{
-			float theta;
-			Vector2 TargetPosition = new Vector2(0f, 0f);
-			float gamma = MathHelper.ToDegrees(angle);
-			float D = distance;
-			int gammaQuadrant = 0;
-			float oppY = 0f;
-			float adjX = 0f;
-			if (gamma > 360f)
-			{
-				gamma = gamma - 360f;
-			}
-			if (gamma < 90f)
-			{
-				theta = 90f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 1;
-			}
-			else if (gamma > 90f && gamma < 180f)
-			{
-				theta = gamma - 90f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 2;
-			}
-			else if (gamma > 180f && gamma < 270f)
-			{
-				theta = 270f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 3;
-			}
-			else if (gamma > 270f && gamma < 360f)
-			{
-				theta = gamma - 270f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 4;
-			}
-			if (gamma == 0f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y - D;
-			}
-			if (gamma == 90f)
-			{
-				TargetPosition.X = position.X + D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gamma == 180f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y + D;
-			}
-			if (gamma == 270f)
-			{
-				TargetPosition.X = position.X - D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gammaQuadrant == 1)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			else if (gammaQuadrant == 2)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 3)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 4)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			return TargetPosition;
-		}
 
 		private Vector2 findVectorBehindTarget(GameplayObject ship, float distance)
 		{
@@ -3328,11 +3070,6 @@ namespace Ship_Game.Gameplay
                 }
             }
         }
-        //helper
-		private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
-		{
-			return this.findPointFromAngleAndDistance(center, angle, radius);
-		}
         //go colonize
 		public void GoColonize(Planet p)
 		{
@@ -3818,7 +3555,7 @@ namespace Ship_Game.Gameplay
         //order orbit ship
         private void OrbitShip(Ship ship, float elapsedTime)
 		{
-			this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, ship.Center, 1500f);
+			this.OrbitPos = ship.Center.PointOnCircle(this.OrbitalAngle, 1500f);
 			if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500f)
 			{
 				ArtificialIntelligence orbitalAngle = this;
@@ -3828,14 +3565,14 @@ namespace Ship_Game.Gameplay
 					ArtificialIntelligence artificialIntelligence = this;
 					artificialIntelligence.OrbitalAngle = artificialIntelligence.OrbitalAngle - 360f;
 				}
-				this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, ship.Position, 2500f);
+				this.OrbitPos = ship.Position.PointOnCircle(this.OrbitalAngle, 2500f);
 			}
 			this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
 		}
         //order orbit ship
 		private void OrbitShipLeft(Ship ship, float elapsedTime)
 		{
-			this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, ship.Center, 1500f);
+			this.OrbitPos = ship.Center.PointOnCircle(this.OrbitalAngle, 1500f);
 			if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500f)
 			{
 				ArtificialIntelligence orbitalAngle = this;
@@ -3845,7 +3582,7 @@ namespace Ship_Game.Gameplay
 					ArtificialIntelligence artificialIntelligence = this;
 					artificialIntelligence.OrbitalAngle = artificialIntelligence.OrbitalAngle - 360f;
 				}
-				this.OrbitPos = this.GeneratePointOnCircle(this.OrbitalAngle, ship.Position, 2500f);
+				this.OrbitPos = ship.Position.PointOnCircle(this.OrbitalAngle, 2500f);
 			}
 			this.ThrustTowardsPosition(this.OrbitPos, elapsedTime, this.Owner.speed);
 		}
@@ -6386,7 +6123,7 @@ namespace Ship_Game.Gameplay
 
 		private void RotateToDesiredFacing(float elapsedTime, ArtificialIntelligence.ShipGoal goal)
 		{
-			Vector2 p = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, goal.DesiredFacing, 1f);
+			Vector2 p = MathExt.PointFromRadians(Vector2.Zero, goal.DesiredFacing, 1f);
 			Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, p);
 			Vector2 wantedForward = Vector2.Normalize(fvec);
 			Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
@@ -8102,12 +7839,12 @@ namespace Ship_Game.Gameplay
                     float DistanceToFleetOffset = Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset);
                     //Vector2 toAdd = (this.Owner.Velocity != Vector2.Zero ? Vector2.Normalize(this.Owner.Velocity) : Vector2.Zero) * 100f;
                     //Vector2.Distance(this.Owner.Center, (this.Owner.fleet.Position + this.Owner.FleetOffset) + toAdd);
-                    //Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Owner.fleet.Position + this.Owner.FleetOffset, this.Owner.fleet.facing, 1f);
+                    //Vector2 vector2 = MathExt.PointFromRadians(this.Owner.fleet.Position + this.Owner.FleetOffset, this.Owner.fleet.facing, 1f);
                     //Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
                     if (DistanceToFleetOffset <= 75f)// || !(this.State == AIState.Resupply && this.HasPriorityOrder)) // || this.HasPriorityOrder)
                     {
                         this.Owner.Velocity = Vector2.Zero;
-                        Vector2 vector2 = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(Vector2.Zero, this.Owner.fleet.facing, 1f);
+                        Vector2 vector2 = MathExt.PointFromRadians(Vector2.Zero, this.Owner.fleet.facing, 1f);
                         Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
                         Vector2 wantedForward = Vector2.Normalize(fvec);
                         Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
@@ -8914,7 +8651,7 @@ namespace Ship_Game.Gameplay
                         {
                             float angle = x;
                             newpoint = new Empire.InfluenceNode();
-                            newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, point.Position, radius);
+                            newpoint.Position = point.Position.PointOnCircle(angle, radius);
                             newpoint.Radius = radius2;
                             newpoint.KeyedObject = point;
                             newpoint.DrewThisTurn = true;
@@ -8951,7 +8688,7 @@ namespace Ship_Game.Gameplay
                             {
                                 float angle = x;
                                 newpoint = new Empire.InfluenceNode();
-                                newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, point.Position, radius);
+                                newpoint.Position = point.Position.PointOnCircle(angle, radius);
                                 newpoint.Radius = radius2;
                                 newpoint.KeyedObject = point;
                                 newpoint.DrewThisTurn = true;
@@ -8969,11 +8706,11 @@ namespace Ship_Game.Gameplay
                     //        {
                     //            float angle = x;
                     //            newpoint = new Empire.InfluenceNode();
-                    //            newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, s.Position, s.Radius * 1.5f);
+                    //            newpoint.Position = MathExt.GeneratePointOnCircle(angle, s.Position, s.Radius * 1.5f);
                     //            newpoint.Radius = 0;
                     //            goodpoints.Add(newpoint);
                     //            newpoint = new Empire.InfluenceNode();
-                    //            newpoint.Position = HelperFunctions.GeneratePointOnCircle(angle, s.Position, s.Radius);
+                    //            newpoint.Position = MathExt.GeneratePointOnCircle(angle, s.Position, s.Radius);
                     //            newpoint.Radius = -1;
                     //            goodpoints.Add(newpoint);
                     //        }
@@ -8988,9 +8725,9 @@ namespace Ship_Game.Gameplay
                 //{                   
                 //    for (int rad = 0; rad < 360; rad += 60)
                 //    {
-                //        extragood.Add(HelperFunctions.GeneratePointOnCircle(rad, bp, projectorsize * 2.6f));
+                //        extragood.Add(MathExt.GeneratePointOnCircle(rad, bp, projectorsize * 2.6f));
 
-                //        extrabad.Add(HelperFunctions.GeneratePointOnCircle(rad, bp, projectorsize*2.5f ));
+                //        extrabad.Add(MathExt.GeneratePointOnCircle(rad, bp, projectorsize*2.5f ));
                 //    }
                 //}
                 //List<Vector2> removep = new List<Vector2>();
@@ -9397,13 +9134,13 @@ namespace Ship_Game.Gameplay
                 float offset = projectorad *2f;
                 int NumberOfProjectors = (int)(Math.Ceiling(Distance / offset));
                 float angle = Origin.AngleToTarget(Destination);
-                Position.Add(HelperFunctions.GeneratePointOnCircle(angle, Origin, (float)1 * (Distance / NumberOfProjectors)));
+                Position.Add(Origin.PointOnCircle(angle, (float)1 * (Distance / NumberOfProjectors)));
                 return Position;
                 //int max = NumberOfProjectors < 2 ? 1 : NumberOfProjectors;
                 //for (int i = 1; i < max; i++)
                 //{                    
                 //    float angle = HelperFunctions.AngleToTarget(Origin, Destination);
-                //    Position.Add(HelperFunctions.GeneratePointOnCircle(angle, Origin, (float)i * (Distance / NumberOfProjectors)));
+                //    Position.Add(MathExt.GeneratePointOnCircle(angle, Origin, (float)i * (Distance / NumberOfProjectors)));
            
                 //}
                 //return Position;
