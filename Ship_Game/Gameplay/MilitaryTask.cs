@@ -846,7 +846,7 @@ namespace Ship_Game.Gameplay
                                 {
                                     if (this.TargetPlanet.Owner != null)
                                     {
-                                    this.empire.GetRelations().TryGetValue(TargetPlanet.Owner, out rel);
+                                        empire.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
 
                                         if (rel != null && (!rel.AtWar && !rel.PreparingForWar))
                                             this.EndTask();
@@ -866,10 +866,9 @@ namespace Ship_Game.Gameplay
                                             return;
                                         }
 
-                                        Relationship rel = null;
                                         if (this.TargetPlanet.Owner != null) // &&(this.empire.GetFleetsDict().ContainsKey(this.WhichFleet)))
                                         {
-                                        this.empire.TryGetRelations(TargetPlanet.Owner, out rel);
+                                        this.empire.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
                                             if (rel != null && (rel.AtWar || rel.PreparingForWar))
                                             {
                                                 if (Vector2.Distance(this.empire.GetFleetsDict()[this.WhichFleet].findAveragePosition(), this.TargetPlanet.Position) < this.AORadius)
@@ -911,7 +910,7 @@ namespace Ship_Game.Gameplay
                                         return;
                                     }
 
-                                this.empire.GetRelations().TryGetValue(TargetPlanet.Owner, out rel);
+                                    empire.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
                                     if (rel != null && !(rel.AtWar || rel.PreparingForWar))
                                         this.EndTask();
 
@@ -1126,7 +1125,7 @@ namespace Ship_Game.Gameplay
 
             Ship_Game.Gameplay.AO ClosestAO = sorted.First<Ship_Game.Gameplay.AO>();
 
-            if (this.TargetPlanet.Owner == null || !this.empire.GetRelations().ContainsKey(this.TargetPlanet.Owner))
+            if (this.TargetPlanet.Owner == null || !this.empire.ExistsRelation(TargetPlanet.Owner))
             {
                 this.EndTask();
                 return;
@@ -1369,7 +1368,7 @@ namespace Ship_Game.Gameplay
                         break;
                 }
 
-                if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.GetRelations().ContainsKey(this.TargetPlanet.Owner))
+                if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.ExistsRelation(TargetPlanet.Owner))
                 {
                     this.EndTask();
                     return;
@@ -1605,7 +1604,7 @@ namespace Ship_Game.Gameplay
             if (this.MinimumTaskForceStrength == 0f)
                 this.MinimumTaskForceStrength = ClosestAO.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) *.2f;
 
-            foreach (var entry in this.empire.GetRelations())
+            foreach (var entry in this.empire.AllRelations)
             {
                 if (!entry.Value.AtWar || entry.Key.isFaction || this.MinimumTaskForceStrength <= ClosestAO.GetOffensiveForcePool().Sum(strength => strength.GetStrength())* .5f)
                     continue;
