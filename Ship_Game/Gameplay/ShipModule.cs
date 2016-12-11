@@ -2298,7 +2298,7 @@ namespace Ship_Game.Gameplay
             Vector2 position = Parent.Center;
             float angle = offsetAngle + parentFacing;
             float distance = distanceToParentCenter;
-            ModuleCenter = HelperFunctions.FindPointFromAngleAndDistance(position, angle, distance);
+            ModuleCenter = position.PointFromAngle(angle, distance);
 
 			Position = new Vector2(ModuleCenter.X - 8f, ModuleCenter.Y - 8f);
 			Center = ModuleCenter;

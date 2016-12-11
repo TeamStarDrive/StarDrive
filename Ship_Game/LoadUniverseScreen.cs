@@ -318,7 +318,7 @@ namespace Ship_Game
 				else
 				{
 					Planet p = this.CreatePlanetFromPlanetSaveData(system, ring.Planet);
-					p.Position = HelperFunctions.GeneratePointOnCircle(p.OrbitalAngle, system.Position, p.OrbitalRadius);
+					p.Position = system.Position.PointOnCircle(p.OrbitalAngle, p.OrbitalRadius);
                     
 					foreach (Building b in p.BuildingList)
 					{
