@@ -20,3 +20,5 @@ StarDrive.csproj.DotSettings
 SDNative\SDNative.vcxproj.user
 StarDrive.csproj.user
 StarDrive.sln.DotSettings.user
+packages/MSTest.TestAdapter.1.1.4-preview/
+packages/MSTest.TestFramework.1.0.5-preview/
