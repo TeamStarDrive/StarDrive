@@ -196,11 +196,10 @@ namespace Ship_Game
 	        return onlyTriggerOnce && alreadyTriggered && triggerer.isPlayer;
 
 	    }
-	    public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer)
+	    public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer, EventPopup popup)
 	    {
-
             //artifact setup
-	        if (GrantArtifact)
+            if (GrantArtifact)
 	        {
                 //Find all available artifacts
                 List<Artifact> potentials = new List<Artifact>();
@@ -224,7 +223,7 @@ namespace Ship_Game
                     triggerer.data.OwnedArtifacts.Add(chosenArtifact);
                     ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
                     SetArtifact(chosenArtifact);
-                    chosenArtifact.CheckGrantArtifact(triggerer, this);
+                    chosenArtifact.CheckGrantArtifact(triggerer, this, popup);
                 }                
 	        }
             //Generic grants
