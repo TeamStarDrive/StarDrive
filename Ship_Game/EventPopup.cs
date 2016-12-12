@@ -166,31 +166,36 @@ namespace Ship_Game
             Planet
 
 	    }
-        public class DrawPackage
-        {  
-            public string Text;
-            public SpriteFont Font;
-            public int Value = 0;
-            public Texture2D Icon;
-            public Color Color;
-            public DrawPackage()
-            { }
-            public DrawPackage(string text, SpriteFont font, int value, 
-                Color color)
-            {
-                Text = text;
-                Font = font;
-                Value = value; 
-                Color = color;
-            }
-            public DrawPackage(string text, SpriteFont font, float value, 
-    Color color, string postFix)
-            {
-                Text = string.Concat(text, Value.ToString(), postFix);
-                Font = font;
-                Value = (int)(value * 100f); 
-                Color = color;
-            }
-        }
+
+	    public class DrawPackage
+	    {
+	        public string Text;
+	        public SpriteFont Font;
+	        public int Value = 0;
+	        public Texture2D Icon;
+	        public Color Color;
+
+	        public DrawPackage()
+	        {
+	        }
+
+	        public DrawPackage(string text, SpriteFont font, int value,
+	            Color color)
+	        {
+	            Text = text;
+	            Font = font;
+	            Value = value;
+	            Color = color;
+	        }
+
+	        public DrawPackage(string text, SpriteFont font, float value,
+	            Color color, string postFix)
+	        {
+	            Text = string.Concat(text, Value.ToString(), postFix);
+	            Font = font;
+	            Value = (int) (value * 100f);
+	            Color = color;
+	        }
+	    }
 	}
 }
