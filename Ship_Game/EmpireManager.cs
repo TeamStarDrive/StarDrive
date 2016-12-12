@@ -1,88 +1,67 @@
 using System;
 using System.Collections.Generic;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
 	public class EmpireManager
 	{
-		public static List<Empire> EmpireList;
+		public  static readonly List<Empire> EmpireList = new List<Empire>();
+        private static readonly Dictionary<string, Empire> EmpireDict = new Dictionary<string, Empire>(); 
+        private static Empire RemnantsEmpire;
+        private static Empire PlayerEmpire;
 
-        private static Dictionary<string, Empire> EmpireDict; 
-
-		static EmpireManager()
-		{
-			EmpireManager.EmpireList = new List<Empire>();
-            EmpireManager.EmpireDict = new Dictionary<string, Empire>();
-        }
-
-		public EmpireManager()
-		{
-		}
+        /// @todo These should be initialized ONCE during loading, leaving like this for future refactor
+        public static Empire Remnants => RemnantsEmpire ?? (RemnantsEmpire = GetEmpireByName("The Remnant"));
+        public static Empire Player   => PlayerEmpire   ?? (PlayerEmpire   = FindPlayerEmpire());
         public static void Clear()
         {
             EmpireList.Clear();
             EmpireDict.Clear();
+            RemnantsEmpire = null;
+            PlayerEmpire   = null;
         }
         public static Empire GetEmpireByName(string name)
         {
-            Empire e = null;
-            if (name != null && EmpireDict.TryGetValue(name, out e))
-            {
+            if (name == null)
+                return null;
+            if (EmpireDict.TryGetValue(name, out Empire e))
                 return e;
-            }
-            else
-            foreach (Empire empire in EmpireManager.EmpireList)
+            foreach (Empire empire in EmpireList)
             {
-                    if (string.Equals(empire.data.Traits.Name, name))
-                    {
-                        EmpireDict.Add(name, empire);
-                        return empire;
-                    }
+                if (empire.data.Traits.Name != name) continue;
+                EmpireDict.Add(name, empire);
+                return empire;
             }
-            return (Empire)null;
+            return null;
         }
-
-        public static Empire GetPlayerEmpire()
+        private static Empire FindPlayerEmpire()
         {
-            foreach (Empire empire in EmpireManager.EmpireList)
-            {
+            foreach (Empire empire in EmpireList)
                 if (empire.isPlayer)
                     return empire;
-            }
-            return (Empire)null;
+            return null;
         }
         public static List<Empire> GetAllies(Empire e)
         {
-            Ship_Game.Gameplay.Relationship rel;
-            List<Empire> allies = new List<Empire>();
-            foreach (Empire empire in EmpireManager.EmpireList)
-            {
+            var allies = new List<Empire>();
+            if (e.isFaction || e.MinorRace)
+                return allies;
 
-                if (empire.isPlayer || e.isFaction || e.MinorRace )
-                    continue;
-                e.GetRelations().TryGetValue(empire, out rel);
-                if (rel == null || !rel.Known || !rel.Treaty_Alliance)
-                    continue;
-
-                allies.Add(empire);
-            }
+            foreach (Empire empire in EmpireList)
+                if (!empire.isPlayer && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Alliance)
+                    allies.Add(empire);
             return allies;
         }
         public static List<Empire> GetTradePartners(Empire e)
         {
-            Ship_Game.Gameplay.Relationship rel;
-            List<Empire> allies = new List<Empire>();
-            foreach (Empire empire in EmpireManager.EmpireList)
-            {
+            var allies = new List<Empire>();
+            if (e.isFaction || e.MinorRace)
+                return allies;
 
-                if (empire.isPlayer || e.isFaction || e.MinorRace)
-                    continue;
-                e.GetRelations().TryGetValue(empire, out rel);
-                if (rel == null || !rel.Known || !rel.Treaty_Trade)
-                    continue;
-
-                allies.Add(empire);
-            }
+            foreach (Empire empire in EmpireList)
+                if (!empire.isPlayer && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Trade)
+                    allies.Add(empire);
             return allies;
         }
 	}

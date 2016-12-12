@@ -184,7 +184,7 @@ namespace Ship_Game
 			}
 			if (this.MiddleText != null)
 			{
-				this.MiddleText = HelperFunctions.parseText(Fonts.Arial12Bold, this.MiddleText, (float)(this.MidContainer.Width - 50));
+				this.MiddleText = HelperFunctions.ParseText(Fonts.Arial12Bold, this.MiddleText, (float)(this.MidContainer.Width - 50));
                 this.MiddleTextPos = new Vector2((float)(this.MidContainer.X + this.MidContainer.Width / 2) - Fonts.Arial12Bold.MeasureString(this.MiddleText).X / 2f, (float)(this.MidContainer.Y + this.MidContainer.Height / 2) - Fonts.Arial12Bold.MeasureString(this.MiddleText).Y / 2f);
 				
 					this.MiddleTextPos.X = (float)((int)this.MiddleTextPos.X);

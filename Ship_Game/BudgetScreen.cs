@@ -144,7 +144,7 @@ namespace Ship_Game
 			Cursor.Y = Cursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			Cursor.X = Cursor.X + 5f;
 			float TotalTradeIncome = 0f;
-			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations())
+			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).AllRelations)
 			{
 				if (!Relationship.Value.Treaty_Trade)
 				{

@@ -9,16 +9,13 @@
 //
 //  Copyright (C) 2006 Franco, Gustavo 
 //
-using System;
 using System.Collections.Generic;
-using System.Text;
-using Algorithms;
-using System.Drawing;
+using Microsoft.Xna.Framework;
 
 namespace Algorithms
 {
     [Author("Franco, Gustavo")]
-    interface IPathFinder
+    internal interface IPathFinder
     {
         #region Events
         event PathFinderDebugHandler PathFinderDebug;

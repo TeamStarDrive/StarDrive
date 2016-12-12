@@ -318,7 +318,7 @@ namespace Ship_Game
 				else
 				{
 					Planet p = this.CreatePlanetFromPlanetSaveData(system, ring.Planet);
-					p.Position = HelperFunctions.GeneratePointOnCircle(p.OrbitalAngle, system.Position, p.OrbitalRadius);
+					p.Position = system.Position.PointOnCircle(p.OrbitalAngle, p.OrbitalRadius);
                     
 					foreach (Building b in p.BuildingList)
 					{
@@ -551,7 +551,7 @@ namespace Ship_Game
 			}
 			this.whichAdvice = (int)RandomMath.RandomBetween(0f, (float)this.AdviceList.Count);
 			this.whichTexture = (int)RandomMath.RandomBetween(0f, (float)this.TextureList.Count);
-			this.text = HelperFunctions.parseText(Fonts.Arial12Bold, this.AdviceList[this.whichAdvice], 500f);
+			this.text = HelperFunctions.ParseText(Fonts.Arial12Bold, this.AdviceList[this.whichAdvice], 500f);
 			base.LoadContent();
 		}
 
@@ -578,8 +578,8 @@ namespace Ship_Game
             if (this.data.Size.X > 3500000f) 
             Empire.ProjectorRadius = this.data.Size.X / 70f;
 			EmpireManager.Clear();
-            if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
-                Empire.universeScreen.MasterShipList.Clear();
+            if (Empire.Universe!=null && Empire.Universe.MasterShipList != null)
+                Empire.Universe.MasterShipList.Clear();
             
          
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
@@ -617,12 +617,9 @@ namespace Ship_Game
 				Empire e = EmpireManager.GetEmpireByName(d.Name);
 				foreach (Relationship r in d.Relations)
 				{
-					e.GetRelations().Add(EmpireManager.GetEmpireByName(r.Name), r);
-					if (r.ActiveWar == null)
-					{
-						continue;
-					}
-					r.ActiveWar.SetCombatants(e, EmpireManager.GetEmpireByName(r.Name));
+                    var empire = EmpireManager.GetEmpireByName(r.Name);
+					e.AddRelationships(empire, r);
+				    r.ActiveWar?.SetCombatants(e, empire);
 				}
 			}
 			this.data.SolarSystemsList = new List<SolarSystem>();

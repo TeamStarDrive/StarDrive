@@ -66,11 +66,11 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 		    {
-		        RelevantEmpire = invader,
-		        Message = invader.data.Traits.Singular + Localizer.Token(1500) + '\n' + Localizer.Token(1501) + beingInvaded.Name + Localizer.Token(1502),
+		        RelevantEmpire  = invader,
+		        Message         = invader.data.Traits.Singular + Localizer.Token(1500) + '\n' + Localizer.Token(1501) + beingInvaded.Name + Localizer.Token(1502),
 		        ReferencedItem1 = beingInvaded,
-		        IconPath = "NewUI/icon_planet_terran_01_mid",
-		        Action = "SnapToSystem"
+		        IconPath        = "NewUI/icon_planet_terran_01_mid",
+		        Action          = "SnapToSystem"
             }, "sd_notify_alert");
 		}
 
@@ -78,11 +78,11 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-				RelevantEmpire = emp,
-				Message = wasColonized.Name + Localizer.Token(1513),
+				RelevantEmpire  = emp,
+				Message         = wasColonized.Name + Localizer.Token(1513),
 				ReferencedItem1 = wasColonized,
-				IconPath = "Planets/" + wasColonized.planetType,
-				Action = "SnapToPlanet"
+				IconPath        = "Planets/" + wasColonized.planetType,
+				Action          = "SnapToPlanet"
             }, "sd_ui_notification_colonized_01");
 		}
 
@@ -90,11 +90,11 @@ namespace Ship_Game
 		{
 		    AddNotification(new Notification
 		    {
-		        RelevantEmpire = conquerer,
-		        Message = conquerer.data.Traits.Name + Localizer.Token(1503) + wasConquered.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
+		        RelevantEmpire  = conquerer,
+		        Message         = conquerer.data.Traits.Name + Localizer.Token(1503) + wasConquered.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
 		        ReferencedItem1 = wasConquered.system,
-		        IconPath = "Planets/" + wasConquered.planetType,
-		        Action = "SnapToSystem"
+		        IconPath        = "Planets/" + wasConquered.planetType,
+		        Action          = "SnapToSystem"
 		    }, "sd_troop_march_01");
 		}
 
@@ -102,10 +102,10 @@ namespace Ship_Game
 		{
 		    AddNotification(new Notification
 		    {
-		        RelevantEmpire = thatDied,
-		        Message = thatDied.data.Traits.Name + " has been defeated",
-		        IconPath = "NewUI/icon_planet_terran_01_mid",
-		        ClickRect = DefaultClickRect,
+		        RelevantEmpire  = thatDied,
+		        Message         = thatDied.data.Traits.Name + " has been defeated",
+		        IconPath        = "NewUI/icon_planet_terran_01_mid",
+		        ClickRect       = DefaultClickRect,
 		        DestinationRect = DefaultNotificationRect
 		    }, "sd_troop_march_01");
 		}
@@ -114,11 +114,11 @@ namespace Ship_Game
 		{
 		    AddNotification(new Notification
 		    {
-		        RelevantEmpire = invader,
-		        Message = invader.data.Traits.Singular + Localizer.Token(1507) + where.Name + "!",
+		        RelevantEmpire  = invader,
+		        Message         = invader.data.Traits.Singular + Localizer.Token(1507) + where.Name + "!",
 		        ReferencedItem1 = where,
-		        IconPath = "Planets/" + where.planetType,
-		        Action = "CombatScreen"
+		        IconPath        = "Planets/" + where.planetType,
+		        Action          = "CombatScreen"
 		    }, "sd_notify_alert", "sd_troop_march_01");
 		}
 
@@ -126,10 +126,10 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message = "Foreign troops evacuated from " + where.Name,
+                Message         = "Foreign troops evacuated from " + where.Name,
                 ReferencedItem1 = where,
-                IconPath = "Planets/" + where.planetType,
-                Action = "SnapToPlanet"
+                IconPath        = "Planets/" + where.planetType,
+                Action          = "SnapToPlanet"
             }, "sd_notify_alert");
         }
 
@@ -137,47 +137,56 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message = "Your troops stationed on " + where.Name + " had to evacuate when " + where.Owner.data.Traits.Name + " colonized the planet",
+                Message         = "Your troops stationed on " + where.Name + " had to evacuate when " + where.Owner.data.Traits.Name + " colonized the planet",
                 ReferencedItem1 = where,
-                IconPath = "Planets/" + where.planetType,
-                Action = "SnapToPlanet"
+                IconPath        = "Planets/" + where.planetType,
+                Action          = "SnapToPlanet"
             }, "sd_notify_alert");
         }
 
-		public void AddEventNotification(ExplorationEvent expEvent)
+		public void AddNotify(ExplorationEvent expEvent)
 		{
             AddNotification(new Notification
 			{
-                Pause = false,
-                Message = Localizer.Token(2295),
+                Pause           = false,
+                Message         = Localizer.Token(2295),
 				ReferencedItem1 = expEvent,
-				IconPath = "ResearchMenu/icon_event_science",
-				Action = "LoadEvent"
+				IconPath        = "ResearchMenu/icon_event_science",
+				Action          = "LoadEvent"
 			}, "sd_ui_notification_encounter");
 		}
 
-        public void AddEventNotification(ExplorationEvent expEvent, string cMessage)
+        public void AddNotify(ExplorationEvent expEvent, string cMessage)
         {
             AddNotification(new Notification
             {
-                Pause = false,
-                Message = cMessage,
+                Pause           = false,
+                Message         = cMessage,
                 ReferencedItem1 = expEvent,
-                IconPath = "ResearchMenu/icon_event_science",
-                Action = "LoadEvent"
+                IconPath        = "ResearchMenu/icon_event_science",
+                Action          = "LoadEvent"
             }, "sd_ui_notification_encounter");
+        }
+
+        public void AddNotify(Technology.TriggeredEvent techEvent, string message)
+        {
+            AddNotify(ResourceManager.EventsDict[techEvent.EventUID], message);
+        }
+        public void AddNotify(Technology.TriggeredEvent techEvent)
+        {
+            AddNotify(ResourceManager.EventsDict[techEvent.EventUID]);
         }
 
 		public void AddFoundSomethingInteresting(Planet p)
 		{
             AddNotification(new Notification
 			{
-                Pause = false,
-                Message = Localizer.Token(1505) + p.Name + Localizer.Token(1506),
+                Pause           = false,
+                Message         = Localizer.Token(1505) + p.Name + Localizer.Token(1506),
 				ReferencedItem1 = p.system,
-                ReferencedItem2=p,
-				IconPath = "Planets/" + p.planetType,
-                Action = "SnapToExpandSystem"
+                ReferencedItem2 = p,
+				IconPath        = "Planets/" + p.planetType,
+                Action          = "SnapToExpandSystem"
 			}, "sd_ui_notification_encounter");
 		}
 
@@ -185,12 +194,12 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-                Pause = false,
-                RelevantEmpire = us,
-				Message = Localizer.Token(1510) + wasConquered.Name,
+                Pause           = false,
+                RelevantEmpire  = us,
+				Message         = Localizer.Token(1510) + wasConquered.Name,
 				ReferencedItem1 = wasConquered,
-				IconPath = "Planets/" + wasConquered.planetType,
-				Action = "SnapToPlanet"
+				IconPath        = "Planets/" + wasConquered.planetType,
+				Action          = "SnapToPlanet"
 			}, "sd_troop_march_01");
 		}
 
@@ -198,12 +207,12 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-                Pause = false,
-                RelevantEmpire = us,
-				Message = "Removed " + them.data.Traits.Singular + " agent from " + wasConquered.Name,
+                Pause           = false,
+                RelevantEmpire  = us,
+				Message         = "Removed " + them.data.Traits.Singular + " agent from " + wasConquered.Name,
 				ReferencedItem1 = wasConquered,
-				IconPath = "Planets/" + wasConquered.planetType,
-				Action = "SnapToPlanet"
+				IconPath        = "Planets/" + wasConquered.planetType,
+				Action          = "SnapToPlanet"
 			}, "sd_troop_march_01");
 		}
 
@@ -211,8 +220,8 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-                Pause = false,
-                Message = Localizer.Token(2296),
+                Pause    = false,
+                Message  = Localizer.Token(2296),
 				IconPath = "UI/icon_warning_money"
 			}, "sd_ui_notification_warning", "sd_trade_01");
 		}
@@ -221,10 +230,10 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-                Pause = false,
+                Pause          = false,
                 RelevantEmpire = us,
-				Message = Localizer.Token(1508) + them.data.Traits.Singular + Localizer.Token(1509),
-				IconPath = "NewUI/icon_planet_terran_01_mid"
+				Message        = Localizer.Token(1508) + them.data.Traits.Singular + Localizer.Token(1509),
+				IconPath       = "NewUI/icon_planet_terran_01_mid"
 			}, "sd_troop_march_01");
 		}
 
@@ -233,8 +242,8 @@ namespace Ship_Game
             AddNotification(new Notification
 			{
 				RelevantEmpire = absorber,
-				Message = absorber.data.Traits.Name + " " + Localizer.Token(2258) + target.data.Traits.Name,
-				IconPath = "NewUI/icon_planet_terran_01_mid"
+				Message        = absorber.data.Traits.Name + " " + Localizer.Token(2258) + target.data.Traits.Name,
+				IconPath       = "NewUI/icon_planet_terran_01_mid"
 			}, "sd_troop_march_01");
 		}
 
@@ -242,8 +251,8 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-                Pause = false,
-                Message = first.data.Traits.Name + " and " + second.data.Traits.Name + "\nare now at peace",
+                Pause    = false,
+                Message  = first.data.Traits.Name + " and " + second.data.Traits.Name + "\nare now at peace",
 				IconPath = "UI/icon_peace"
 			}, "sd_ui_notification_conquer_01");
 		}
@@ -252,8 +261,8 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-                Pause = false,
-                Message = "Peace Treaty expired with \n" + otherEmpire.data.Traits.Name,
+                Pause    = false,
+                Message  = "Peace Treaty expired with \n" + otherEmpire.data.Traits.Name,
 				IconPath = "UI/icon_peace_cancel"
 			}, "sd_ui_notification_warning");
 		}
@@ -262,10 +271,10 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-				Message = Localizer.Token(1511) + died.Name + Localizer.Token(1512),
+				Message         = Localizer.Token(1511) + died.Name + Localizer.Token(1512),
 				ReferencedItem1 = died.system,
-				IconPath = "Planets/" + died.planetType,
-				Action = "SnapToSystem"
+				IconPath        = "Planets/" + died.planetType,
+				Action          = "SnapToSystem"
 			}, "sd_ui_notification_warning");
 		}
 
@@ -273,10 +282,10 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-				Message = message,
-                Action = action,
+				Message         = message,
+                Action          = action,
                 ReferencedItem1 = p,
-                IconPath = iconPath ?? "ResearchMenu/icon_event_science_bad",
+                IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
             }, "sd_ui_notification_encounter");
 		}
 
@@ -284,10 +293,10 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-				Message = "Rebellion on " + beingInvaded.Name + "!",
+				Message         = "Rebellion on " + beingInvaded.Name + "!",
 				ReferencedItem1 = beingInvaded.system,
-				IconPath = "UI/icon_rebellion",
-				Action = "SnapToSystem"
+				IconPath        = "UI/icon_rebellion",
+				Action          = "SnapToSystem"
 			}, "sd_troop_march_01", "sd_notify_alert");
 		}
 
@@ -299,11 +308,11 @@ namespace Ship_Game
 
             AddNotification(new Notification
 			{
-				Tech = true,
-				Message = Localizer.Token(ResourceManager.TechTree[unlocked].NameIndex) + Localizer.Token(1514),
+				Tech            = true,
+				Message         = Localizer.Token(ResourceManager.TechTree[unlocked].NameIndex) + Localizer.Token(1514),
 				ReferencedItem1 = unlocked,
-                IconPath = hasTechIcon ? techIcon : "TechIcons/" + unlocked,
-				Action = "ResearchScreen"
+                IconPath        = hasTechIcon ? techIcon : "TechIcons/" + unlocked,
+				Action          = "ResearchScreen"
 			}, "sd_ui_notification_research_01");
 		}
 
@@ -312,8 +321,8 @@ namespace Ship_Game
             AddNotification(new Notification
 			{
 				RelevantEmpire = absorber,
-				Message = target.data.Traits.Name + " " + Localizer.Token(2259) + absorber.data.Traits.Name,
-				IconPath = "NewUI/icon_planet_terran_01_mid"
+				Message        = target.data.Traits.Name + " " + Localizer.Token(2259) + absorber.data.Traits.Name,
+				IconPath       = "NewUI/icon_planet_terran_01_mid"
 			}, "sd_troop_march_01");
 		}
 
@@ -321,9 +330,9 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-                Message = declarant.data.Traits.Name + " and " + other.data.Traits.Name + "\nare now at war",
+                Message  = declarant.data.Traits.Name + " and " + other.data.Traits.Name + "\nare now at war",
 				IconPath = "ResearchMenu/icons_techroot_infantry_hover",
-                Pause = declarant.isPlayer || other.isPlayer
+                Pause    = declarant.isPlayer || other.isPlayer
             }, "sd_troop_march_01", "sd_notify_alert");
 		}
 
@@ -331,9 +340,9 @@ namespace Ship_Game
 		{
             AddNotification(new Notification
 			{
-				Message = first.data.Traits.Name + " and " + second.data.Traits.Name + "\nare now at War",
+				Message  = first.data.Traits.Name + " and " + second.data.Traits.Name + "\nare now at War",
 				IconPath = "UI/icon_warning_money",
-                Pause = first.isPlayer || second.isPlayer
+                Pause    = first.isPlayer || second.isPlayer
 			}, "sd_ui_notification_startgame");
 		}
 
@@ -341,12 +350,12 @@ namespace Ship_Game
 	    {
             AddNotification(new Notification
             {
-                Pause = false,
-                RelevantEmpire = planet.Owner,
-                Message = planet.Name + " is not producing anything.",
+                Pause           = false,
+                RelevantEmpire  = planet.Owner,
+                Message         = planet.Name + " is not producing anything.",
                 ReferencedItem1 = this, //this.system,
-                IconPath = "Planets/" + planet.planetType, //"UI/icon_warning_money",
-                Action = "SnapToPlanet" //"SnapToSystem",
+                IconPath        = "Planets/" + planet.planetType, //"UI/icon_warning_money",
+                Action          = "SnapToPlanet" //"SnapToSystem",
             }, "sd_ui_notification_warning");
         }
 
