@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using System.Xml.Serialization;
 using static Ship_Game.EventPopup;
 namespace Ship_Game
 {
@@ -58,13 +56,13 @@ namespace Ship_Game
         public void CheckGrantArtifact(Empire triggerer, Outcome triggeredOutcome, EventPopup popup)
         {           
             List<Artifact> potentials = new List<Artifact>();
-            foreach (KeyValuePair<string, Artifact> artifact in ResourceManager.ArtifactsDict)
+            foreach (var kv in ResourceManager.ArtifactsDict)
             {
-                if (artifact.Value.Discovered)
+                if (kv.Value.Discovered)
                 {
                     continue;
                 }
-                potentials.Add(artifact.Value);
+                potentials.Add(kv.Value);
             }
             if (potentials.Count <= 0)
             {
