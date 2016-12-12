@@ -72,7 +72,7 @@ namespace Ship_Game
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
 			float aspectRatio = width / (float)viewport.Height;
 			Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
-			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f))) * Matrix.CreateRotationX(MathHelper.ToRadians(0f))) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
+			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 6000000f);
 			base.LoadContent();
 		}
@@ -83,7 +83,12 @@ namespace Ship_Game
 			float zrotate = milliseconds.Zrotate;
 			TimeSpan elapsedGameTime = gameTime.ElapsedGameTime;
 			milliseconds.Zrotate = zrotate + (float)elapsedGameTime.Milliseconds / 20000f;
-			this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) * Matrix.CreateRotationX(MathHelper.ToRadians(20f))) * Matrix.CreateRotationY(MathHelper.ToRadians(65f))) * Matrix.CreateRotationZ(1.57079637f)) * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 800f);
+			this.shipSO.World = (((((Matrix.Identity * Matrix.CreateScale(2f)) 
+                * Matrix.CreateRotationZ(1.57079637f - this.Zrotate)) 
+                * Matrix.CreateRotationX(20f.ToRadians())) 
+                * Matrix.CreateRotationY(65f.ToRadians())) 
+                * Matrix.CreateRotationZ(1.57079637f)) 
+                * Matrix.CreateTranslation(this.ShipPosition.X - 300f, this.ShipPosition.Y - 500f, 800f);
 			base.ScreenManager.inter.Update(gameTime);
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}

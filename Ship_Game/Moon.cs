@@ -55,92 +55,6 @@ namespace Ship_Game.Gameplay
             return this.SO;
         }
 
-        private Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
-        {
-            return this.findPointFromAngleAndDistance(center, angle, radius);
-        }
-
-        private Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
-        {
-            Vector2 vector2 = new Vector2(0.0f, 0.0f);
-            float num1 = angle;
-            float num2 = distance;
-            int num3 = 0;
-            float num4 = 0.0f;
-            float num5 = 0.0f;
-            if ((double)num1 > 360.0)
-                num1 -= 360f;
-            if ((double)num1 < 90.0)
-            {
-                float num6 = (float)((double)(90f - num1) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 1;
-            }
-            else if ((double)num1 > 90.0 && (double)num1 < 180.0)
-            {
-                float num6 = (float)((double)(num1 - 90f) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 2;
-            }
-            else if ((double)num1 > 180.0 && (double)num1 < 270.0)
-            {
-                float num6 = (float)((double)(270f - num1) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 3;
-            }
-            else if ((double)num1 > 270.0 && (double)num1 < 360.0)
-            {
-                float num6 = (float)((double)(num1 - 270f) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 4;
-            }
-            if ((double)num1 == 0.0)
-            {
-                vector2.X = position.X;
-                vector2.Y = position.Y - num2;
-            }
-            if ((double)num1 == 90.0)
-            {
-                vector2.X = position.X + num2;
-                vector2.Y = position.Y;
-            }
-            if ((double)num1 == 180.0)
-            {
-                vector2.X = position.X;
-                vector2.Y = position.Y + num2;
-            }
-            if ((double)num1 == 270.0)
-            {
-                vector2.X = position.X - num2;
-                vector2.Y = position.Y;
-            }
-            if (num3 == 1)
-            {
-                vector2.X = position.X + num5;
-                vector2.Y = position.Y - num4;
-            }
-            else if (num3 == 2)
-            {
-                vector2.X = position.X + num5;
-                vector2.Y = position.Y + num4;
-            }
-            else if (num3 == 3)
-            {
-                vector2.X = position.X - num5;
-                vector2.Y = position.Y + num4;
-            }
-            else if (num3 == 4)
-            {
-                vector2.X = position.X - num5;
-                vector2.Y = position.Y - num4;
-            }
-            return vector2;
-        }
-
 		public void UpdatePosition(float elapsedTime)
 		{
             this.Zrotate += this.ZrotateAmount * elapsedTime;
@@ -150,7 +64,7 @@ namespace Ship_Game.Gameplay
                 if ((double)this.OrbitalAngle >= 360.0)
                     this.OrbitalAngle -= 360f;
             }
-            this.Position = this.GeneratePointOnCircle(this.OrbitalAngle, universeScreen.PlanetsDict[orbitTarget].Position, this.OrbitRadius);
+            this.Position = universeScreen.PlanetsDict[orbitTarget].Position.PointOnCircle(OrbitalAngle, OrbitRadius);
             this.WorldMatrix = ((Matrix.Identity * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ(-this.Zrotate)) * Matrix.CreateTranslation(new Vector3(this.Position, 3200f)));
 			if (this.SO != null)
 			{

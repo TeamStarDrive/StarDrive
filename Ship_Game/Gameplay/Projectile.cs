@@ -165,7 +165,7 @@ namespace Ship_Game.Gameplay
 			this.owner = owner;
 			if (!owner.isInDeepSpace)
 			{
-				this.system = owner.GetSystem();
+				this.System = owner.System;
 			}
 			else
 			{
@@ -182,7 +182,7 @@ namespace Ship_Game.Gameplay
             this.owner = owner;
             if (!owner.isInDeepSpace)
             {
-                this.system = owner.GetSystem();
+                this.System = owner.System;
             }
             else
             {
@@ -196,11 +196,11 @@ namespace Ship_Game.Gameplay
 
 		public Projectile(Ship_Game.Planet p, Vector2 direction)
 		{
-			this.system = p.system;
+			this.System = p.system;
 			base.Position = p.Position;
 			this.loyalty = p.Owner;
 			this.Velocity = direction;
-			this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(p.Position, p.Position + this.Velocity));
+			this.Rotation = p.Position.RadiansToTarget(p.Position + Velocity);
 			this.Center = p.Position;
 			this.emitter.Position = new Vector3(p.Position, 0f);
 		}
@@ -271,13 +271,13 @@ namespace Ship_Game.Gameplay
 							ExplosionManager.AddProjectileExplosion(new Vector3(base.Position, -50f), this.damageRadius * 4.5f, 2.5f, 0.2f, this.weapon.ExpColor);
 							Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
 						}
-						if (this.system == null)
+						if (this.System == null)
 						{
                             UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 						else
 						{
-                            this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
+                            this.System.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 					}
 					else if (!string.IsNullOrEmpty(this.dieCueName))
@@ -299,22 +299,22 @@ namespace Ship_Game.Gameplay
                                 Projectile.universeScreen.flash.AddParticleThreadB(new Vector3(base.Position, -50f), Vector3.Zero);
                             }
 						}
-						if (this.system == null)
+						if (this.System == null)
 						{
                             UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 						else
 						{
-                            this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
+                            this.System.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 						}
 					}
-					else if (this.system == null)
+					else if (this.System == null)
 					{
                         UniverseScreen.DeepSpaceManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 					}
 					else
 					{
-                        this.system.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
+                        this.System.spatialManager.ProjectileExplode(this, this.damageAmount, this.damageRadius);
 					}
 				}
 				else if (this.weapon.FakeExplode && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
@@ -349,13 +349,13 @@ namespace Ship_Game.Gameplay
 					Projectile.universeScreen.ScreenManager.inter.LightManager.Remove(this.MuzzleFlash);
 				}
 			}
-			if (this.system == null)
+			if (this.System == null)
 			{
 				UniverseScreen.DeepSpaceManager.CollidableProjectiles.QueuePendingRemoval(this);
 			}
 			else
 			{
-				this.system.spatialManager.CollidableProjectiles.QueuePendingRemoval(this);
+				this.System.spatialManager.CollidableProjectiles.QueuePendingRemoval(this);
 			}
 			base.Die(source, cleanupOnly);
 		}
@@ -387,15 +387,15 @@ namespace Ship_Game.Gameplay
 			if (this.moduleAttachedTo == null)
 			{
 				this.Center = pos;
-				this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.Center, this.Center + this.Velocity));
+				this.Rotation = Center.RadiansToTarget(Center + Velocity);
 			}
 			else
 			{
 				this.Center = this.moduleAttachedTo.Center;
-				this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.Velocity));
+				this.Rotation = moduleAttachedTo.Center.RadiansToTarget(moduleAttachedTo.Center + Velocity);
 			}
 			this.Radius = 1f;
-            this.velocityMaximum = initialSpeed + (this.Owner != null ? this.Owner.Velocity.Length() : 0f);
+            this.velocityMaximum = initialSpeed + (Owner?.Velocity.Length() ?? 0f);
 			this.Velocity = Vector2.Normalize(this.Velocity) * this.velocityMaximum;
             this.duration = this.range / initialSpeed * 1.2f;
 			this.initialDuration = this.duration;
@@ -406,7 +406,7 @@ namespace Ship_Game.Gameplay
 				{
 					if (Ship.universeScreen != null)
 					{
-						this.AnimationFrame = (int)((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
+						this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
 					}
 					else
 					{
@@ -424,12 +424,12 @@ namespace Ship_Game.Gameplay
 			{
 				this.missileAI = new MissileAI(this);
 			}
-			if (this.WeaponType != "Missile" && this.WeaponType != "Drone" && this.WeaponType != "Rocket" || (this.system == null || !this.system.isVisible) && !this.isInDeepSpace)
+			if (this.WeaponType != "Missile" && this.WeaponType != "Drone" && this.WeaponType != "Rocket" || (this.System == null || !this.System.isVisible) && !this.isInDeepSpace)
 			{
 				if (this.owner != null && this.owner.loyalty.data.Traits.Blind > 0)
 				{
 					int Random = 0;
-					Random = (Ship.universeScreen != null ? (int)((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 10f) : (int)RandomMath.RandomBetween(0f, 10f));
+					Random = (Ship.universeScreen != null ? (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 10f) : (int)RandomMath.RandomBetween(0f, 10f));
 					if (Random <= 1)
 					{
 						this.Miss = true;
@@ -447,7 +447,7 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
-			if (this.system == null)
+			if (this.System == null)
 			{
 				UniverseScreen.DeepSpaceManager.CollidableProjectiles.Add(this);
 				if (this.weapon.Tag_Intercept && Projectile.universeScreen != null)
@@ -459,14 +459,14 @@ namespace Ship_Game.Gameplay
 			{
 				//lock (GlobalStats.BucketLock)
 				{
-					this.system.spatialManager.CollidableProjectiles.Add(this);
-					if (this.system.spatialManager.CellSize > 0)
+					this.System.spatialManager.CollidableProjectiles.Add(this);
+					if (this.System.spatialManager.CellSize > 0)
 					{
-						this.system.spatialManager.RegisterObject(this);
+						this.System.spatialManager.RegisterObject(this);
 					}
 					if (this.weapon.Tag_Intercept)
 					{
-						this.system.spatialManager.CollidableObjects.Add(this);
+						this.System.spatialManager.CollidableObjects.Add(this);
 					}
 				}
 			}
@@ -493,7 +493,7 @@ namespace Ship_Game.Gameplay
 				this.switchFrames = this.initialDuration / (float)this.weapon.Frames;
 				if (this.weapon.LoopAnimation == 1)
 				{
-					this.AnimationFrame = (int)((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
+					this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
 				}
 			}
 			Projectile projectile1 = this;
@@ -502,7 +502,7 @@ namespace Ship_Game.Gameplay
 			{
 				this.droneAI = new DroneAI(this);
 			}
-			if (this.system == null)
+			if (this.System == null)
 			{
 				Projectile.universeScreen.DSProjectilesToAdd.Add(this);
 				UniverseScreen.DeepSpaceManager.CollidableProjectiles.Add(this);
@@ -513,9 +513,9 @@ namespace Ship_Game.Gameplay
                 //this.system.spatialManager.CollidableObjects.Add(this);
                 //lock (GlobalStats.BucketLock)
                 {
-                    this.system.spatialManager.CollidableProjectiles.Add(this);
-                    this.system.spatialManager.RegisterObject(this);
-                    this.system.spatialManager.CollidableObjects.Add(this);
+                    this.System.spatialManager.CollidableProjectiles.Add(this);
+                    this.System.spatialManager.RegisterObject(this);
+                    this.System.spatialManager.CollidableObjects.Add(this);
                 }
 			}
 			base.Initialize();
@@ -536,13 +536,13 @@ namespace Ship_Game.Gameplay
 			if (this.moduleAttachedTo != null)
 			{
 				this.Center = this.moduleAttachedTo.Center;
-				if (this.moduleAttachedTo.facing == 0f)
+				if (moduleAttachedTo.facing == 0f)
 				{
-					this.Rotation = this.Owner.Rotation;
+					Rotation = Owner?.Rotation ?? 0f;
 				}
 				else
 				{
-					this.Rotation = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(this.moduleAttachedTo.Center, this.moduleAttachedTo.Center + this.Velocity));
+					Rotation = moduleAttachedTo.Center.RadiansToTarget(moduleAttachedTo.Center + Velocity);
 				}
 			}
 			if (this.weapon.Animated == 1)
@@ -550,7 +550,7 @@ namespace Ship_Game.Gameplay
 				this.switchFrames = this.initialDuration / (float)this.weapon.Frames;
 				if (this.weapon.LoopAnimation == 1)
 				{
-					this.AnimationFrame = (int)((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
+					this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
 				}
 			}
 			Projectile projectile1 = this;
@@ -560,7 +560,7 @@ namespace Ship_Game.Gameplay
 				this.missileAI = new MissileAI(this);
 				this.missileAI.SetTarget(Target);
 			}
-            if (this.ProjSO != null && (this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
+            if (this.ProjSO != null && (this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.System != null && this.System.isVisible || this.isInDeepSpace))
 			{
 				this.wasAddedToSceneGraph = true;
 				lock (GlobalStats.ObjectManagerLocker)
@@ -568,7 +568,7 @@ namespace Ship_Game.Gameplay
 					Projectile.universeScreen.ScreenManager.inter.ObjectManager.Submit(this.ProjSO);
 				}
 			}
-			if (this.system == null)
+			if (this.System == null)
 			{
 				Projectile.universeScreen.DSProjectilesToAdd.Add(this);
 				UniverseScreen.DeepSpaceManager.CollidableProjectiles.Add(this);
@@ -577,9 +577,9 @@ namespace Ship_Game.Gameplay
 			{
 				//lock (GlobalStats.BucketLock)
 				{
-					this.system.spatialManager.CollidableProjectiles.Add(this);
-					this.system.spatialManager.RegisterObject(this);
-					this.system.spatialManager.CollidableObjects.Add(this);
+					this.System.spatialManager.CollidableProjectiles.Add(this);
+					this.System.spatialManager.RegisterObject(this);
+					this.System.spatialManager.CollidableObjects.Add(this);
 				}
 			}
 			base.Initialize();
@@ -601,7 +601,7 @@ namespace Ship_Game.Gameplay
 				this.switchFrames = this.initialDuration / (float)this.weapon.Frames;
 				if (this.weapon.LoopAnimation == 1)
 				{
-					this.AnimationFrame = (int)((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
+					this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
 				}
 			}
 			Projectile projectile1 = this;
@@ -611,7 +611,7 @@ namespace Ship_Game.Gameplay
 				this.missileAI = new MissileAI(this);
 				this.missileAI.SetTarget(Target);
 			}
-            if (this.ProjSO != null && (this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace))
+            if (this.ProjSO != null && (this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.System != null && this.System.isVisible || this.isInDeepSpace))
 			{
 				this.wasAddedToSceneGraph = true;
 				lock (GlobalStats.ObjectManagerLocker)
@@ -619,7 +619,7 @@ namespace Ship_Game.Gameplay
 					Projectile.universeScreen.ScreenManager.inter.ObjectManager.Submit(this.ProjSO);
 				}
 			}
-			if (this.system == null)
+			if (this.System == null)
 			{
 				Projectile.universeScreen.DSProjectilesToAdd.Add(this);
 				UniverseScreen.DeepSpaceManager.CollidableProjectiles.Add(this);
@@ -628,9 +628,9 @@ namespace Ship_Game.Gameplay
 			{
 				//lock (GlobalStats.BucketLock)
 				{
-					this.system.spatialManager.CollidableProjectiles.Add(this);
-					this.system.spatialManager.RegisterObject(this);
-					this.system.spatialManager.CollidableObjects.Add(this);
+					this.System.spatialManager.CollidableProjectiles.Add(this);
+					this.System.spatialManager.RegisterObject(this);
+					this.System.spatialManager.CollidableObjects.Add(this);
 				}
 			}
 			base.Initialize();
@@ -659,7 +659,7 @@ namespace Ship_Game.Gameplay
 				this.switchFrames = this.initialDuration / (float)this.weapon.Frames;
 				if (this.weapon.LoopAnimation == 1)
 				{
-					this.AnimationFrame = (int)((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
+					this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
 				}
 			}
 			Projectile projectile1 = this;
@@ -668,7 +668,7 @@ namespace Ship_Game.Gameplay
 			{
 				this.missileAI = new MissileAI(this);
 			}
-            if ((this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.system != null && this.system.isVisible || this.isInDeepSpace) && this.ProjSO != null)
+            if ((this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.System != null && this.System.isVisible || this.isInDeepSpace) && this.ProjSO != null)
 			{
 				this.wasAddedToSceneGraph = true;
 				lock (GlobalStats.ObjectManagerLocker)
@@ -676,7 +676,7 @@ namespace Ship_Game.Gameplay
 					Projectile.universeScreen.ScreenManager.inter.ObjectManager.Submit(this.ProjSO);
 				}
 			}
-			if (this.system == null)
+			if (this.System == null)
 			{
 				Projectile.universeScreen.DSProjectilesToAdd.Add(this);
 				UniverseScreen.DeepSpaceManager.CollidableProjectiles.Add(this);
@@ -685,8 +685,8 @@ namespace Ship_Game.Gameplay
 			{
 				//lock (GlobalStats.BucketLock)
 				{
-					this.system.spatialManager.CollidableProjectiles.Add(this);
-					this.system.spatialManager.CollidableObjects.Add(this);
+					this.System.spatialManager.CollidableProjectiles.Add(this);
+					this.System.spatialManager.CollidableObjects.Add(this);
 				}
 			}
 			base.Initialize();
@@ -697,7 +697,7 @@ namespace Ship_Game.Gameplay
 			this.texturePath = texturePath;
 			this.modelPath = modelPath;
             //if(this.owner.Projectiles.Count <20)
-            //if (Ship.universeScreen !=null && HelperFunctions.GetRandomIndex((int)(Ship.universeScreen.Lag *100)) >3 )
+            //if (Ship.universeScreen !=null && RandomMath.InRange((int)(Ship.universeScreen.Lag *100)) >3 )
             //    return;
             this.ProjSO = new SceneObject(Ship_Game.ResourceManager.ProjectileMeshDict[modelPath])
             {
@@ -763,7 +763,7 @@ namespace Ship_Game.Gameplay
 					}
 					if (projectile.WeaponType == "Missile")
 					{
-						float ran = ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 1f);
+						float ran = ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 1f);
 						if (projectile.loyalty != null && ran >= projectile.loyalty.data.MissileDodgeChance)
 						{
 							projectile.DamageMissile(this, this.damageAmount);
@@ -799,7 +799,7 @@ namespace Ship_Game.Gameplay
 					}
                     if (module.GetParent().shipData.Role == ShipData.RoleName.fighter && module.GetParent().loyalty.data.Traits.DodgeMod > 0f)
                     {
-                        if (((module.GetParent().GetSystem() != null ? module.GetParent().GetSystem().RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < module.GetParent().loyalty.data.Traits.DodgeMod * 100f)
+                        if (((module.GetParent().System!= null ? module.GetParent().System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < module.GetParent().loyalty.data.Traits.DodgeMod * 100f)
                         {
                             this.Miss = true;
                         }
@@ -919,9 +919,9 @@ namespace Ship_Game.Gameplay
 					right = Vector2.Normalize(right);
 					for (int i = 0; i < 20; i++)
 					{
-						Vector3 random = new Vector3(right.X * ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f), right.Y * ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f), ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f));
+						Vector3 random = new Vector3(right.X * ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f), right.Y * ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f), ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f));
 						Projectile.universeScreen.flameParticles.AddParticleThreadA(center, random);
-						random = new Vector3(-forward.X + ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f), -forward.Y + ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f), ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f));
+						random = new Vector3(-forward.X + ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f), -forward.Y + ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f), ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f));
 						Projectile.universeScreen.flameParticles.AddParticleThreadA(center, random);
 					}
 				}
@@ -933,9 +933,9 @@ namespace Ship_Game.Gameplay
                     right = Vector2.Normalize(right);
                     for (int i = 0; i < 20; i++)
                     {
-                        Vector3 random = new Vector3(right.X * ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), right.Y * ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f));
+                        Vector3 random = new Vector3(right.X * ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), right.Y * ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f));
                         Projectile.universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
-                        random = new Vector3(-forward.X + ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), -forward.Y + ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.system != null ? this.system.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f));
+                        random = new Vector3(-forward.X + ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), -forward.Y + ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f));
                         Projectile.universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
                     }
                 }
@@ -1008,7 +1008,7 @@ namespace Ship_Game.Gameplay
                     this.missileAI.Think(elapsedTime);
                 if (this.droneAI != null)
                     this.droneAI.Think(elapsedTime);
-                if (this.ProjSO != null && (this.WeaponType == "Rocket" || this.WeaponType == "Drone" || this.WeaponType == "Missile") && (this.system != null && this.system.isVisible && (!this.wasAddedToSceneGraph && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)))
+                if (this.ProjSO != null && (this.WeaponType == "Rocket" || this.WeaponType == "Drone" || this.WeaponType == "Missile") && (this.System != null && this.System.isVisible && (!this.wasAddedToSceneGraph && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)))
                 {
                     this.wasAddedToSceneGraph = true;
                     lock (GlobalStats.ObjectManagerLocker)
@@ -1023,7 +1023,7 @@ namespace Ship_Game.Gameplay
                 else
                     this.Center = new Vector2(this.Position.X, this.Position.Y);
                 this.emitter.Position = new Vector3(this.Center, 0.0f);
-                if (this.ProjSO !=null && (this.isInDeepSpace || this.system != null && this.system.isVisible) && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (this.ProjSO !=null && (this.isInDeepSpace || this.System != null && this.System.isVisible) && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
                     if (this.zStart < -25.0)
                         this.zStart += this.velocityMaximum * elapsedTime;
@@ -1066,7 +1066,7 @@ namespace Ship_Game.Gameplay
                 if (this.trailEmitter != null && this.WeaponEffectType != "MuzzleSmokeFire" && this.WeaponEffectType != "FullSmokeMuzzleFire")
                     this.trailEmitter.Update(elapsedTime, newPosition);
 
-                if (this.system != null && this.system.isVisible && (this.light == null && this.weapon.Light != null) && (Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.LightWasAddedToSceneGraph))
+                if (this.System != null && this.System.isVisible && (this.light == null && this.weapon.Light != null) && (Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.LightWasAddedToSceneGraph))
                 {
                     this.LightWasAddedToSceneGraph = true;
                     this.light = new PointLight();
@@ -1097,7 +1097,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (this.moduleAttachedTo != null)
                 {
-                    if (this.owner.ProjectilesFired.Count < 30 && this.system != null && (this.system.isVisible && this.MuzzleFlash == null) && (this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.muzzleFlashAdded))
+                    if (this.owner.ProjectilesFired.Count < 30 && this.System != null && (this.System.isVisible && this.MuzzleFlash == null) && (this.moduleAttachedTo.InstalledWeapon.MuzzleFlash != null && Projectile.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView && !this.muzzleFlashAdded))
                     {
                         this.muzzleFlashAdded = true;
                         this.MuzzleFlash = new PointLight();

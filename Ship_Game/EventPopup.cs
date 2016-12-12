@@ -20,6 +20,8 @@ namespace Ship_Game
 
 		private Rectangle BlackRect;
 
+         
+
 		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome)
 		{
 			this.screen = s;
@@ -59,7 +61,7 @@ namespace Ship_Game
 			base.DrawBase(gameTime);
 			base.ScreenManager.SpriteBatch.Begin();
 			Vector2 TheirTextPos = new Vector2((float)(this.BlackRect.X + 10), (float)(this.BlackRect.Y + 10));
-			string Description = HelperFunctions.parseText(Fonts.Verdana10, this.outcome.DescriptionText, (float)(this.BlackRect.Width - 40));
+			string Description = HelperFunctions.ParseText(Fonts.Verdana10, this.outcome.DescriptionText, (float)(this.BlackRect.Width - 40));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Verdana10, Description, TheirTextPos, Color.White);
 			TheirTextPos.Y = TheirTextPos.Y + (float)((int)Fonts.Verdana10.MeasureString(Description).Y + 10);
 			if (this.outcome.SelectRandomPlanet && this.outcome.GetPlanet() != null)
@@ -75,7 +77,7 @@ namespace Ship_Game
 				Rectangle Icon = new Rectangle((int)TheirTextPos.X, (int)TheirTextPos.Y, 32, 32);
 				base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Artifact Icons/", this.outcome.GetArtifact().Name)], Icon, Color.White);
 				TheirTextPos.Y = TheirTextPos.Y + 36f;
-				theirText = HelperFunctions.parseText(Fonts.Arial12, this.outcome.GetArtifact().Description, (float)(this.BlackRect.Width - 40));
+				theirText = HelperFunctions.ParseText(Fonts.Arial12, this.outcome.GetArtifact().Description, (float)(this.BlackRect.Width - 40));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, TheirTextPos, Color.White);
 				TheirTextPos.Y = TheirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
 				if (this.outcome.GetArtifact().DiplomacyMod > 0f)
@@ -173,7 +175,7 @@ namespace Ship_Game
 						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[unlockedMod.UID].IconTexturePath], IconRect, Color.White);
 						string moduleName = Localizer.Token(unlockedMod.NameIndex);
 						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, moduleName, new Vector2(TheirTextPos.X + 100f, TheirTextPos.Y), Color.Orange);
-						string desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(unlockedMod.DescriptionIndex), (float)(this.BlackRect.Width - 120));
+						string desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(unlockedMod.DescriptionIndex), (float)(this.BlackRect.Width - 120));
 						base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, new Vector2(TheirTextPos.X + 100f, TheirTextPos.Y + 22f), Color.White);
 					}
 				}
@@ -216,5 +218,16 @@ namespace Ship_Game
 			Rectangle FitRect = new Rectangle(this.TitleRect.X - 4, this.TitleRect.Y + this.TitleRect.Height + this.MidContainer.Height + 10, this.TitleRect.Width, 600 - (this.TitleRect.Height + this.MidContainer.Height));
 			this.BlackRect = new Rectangle(FitRect.X, FitRect.Y, FitRect.Width, 450);
 		}
+
+        public class DrawPackage
+        {
+            public Vector2 TextPos;
+            public string Text;
+            public SpriteFont Font;
+            public int mod = 0;
+            public Texture2D Icon;
+
+
+        }
 	}
 }

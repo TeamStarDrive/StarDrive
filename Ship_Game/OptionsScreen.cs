@@ -432,8 +432,8 @@ namespace Ship_Game
             this.FreighterLimiter.HandleInput(input);
             GlobalStats.freighterlimit = (int)this.FreighterLimiter.amountRange;
             this.AutoSaveFreq.HandleInput(input);
-            if(EmpireManager.GetPlayerEmpire() != null) // ? EmpireManager.GetPlayerEmpire().data.AutoSaveFreq : GlobalStats.AutoSaveFreq) = (int)this.AutoSaveFreq.amountRange; 
-            EmpireManager.GetPlayerEmpire().data.AutoSaveFreq = (int)this.AutoSaveFreq.amountRange;                        
+            if(EmpireManager.Player != null) // ? EmpireManager.Player.data.AutoSaveFreq : GlobalStats.AutoSaveFreq) = (int)this.AutoSaveFreq.amountRange; 
+            EmpireManager.Player.data.AutoSaveFreq = (int)this.AutoSaveFreq.amountRange;                        
             GlobalStats.AutoSaveFreq = (int)this.AutoSaveFreq.amountRange;
 
             if (!this.ResolutionDropDown.Open)// && !this.AntiAliasingDD.Open)
@@ -572,12 +572,12 @@ namespace Ship_Game
             int ships =0;
 
             r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 290, 225, 50);    //
-            int ASF = EmpireManager.GetPlayerEmpire() != null ?EmpireManager.GetPlayerEmpire().data.AutoSaveFreq : GlobalStats.AutoSaveFreq;
+            int ASF = EmpireManager.Player != null ?EmpireManager.Player.data.AutoSaveFreq : GlobalStats.AutoSaveFreq;
             this.AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 540, ASF);      //Added by Gretman
             this.AutoSaveFreq.Tip_ID = 4100;                                                                      //
 
-            if (Empire.universeScreen != null )
-             ships= Empire.universeScreen.globalshipCount;
+            if (Empire.Universe != null )
+             ships= Empire.Universe.globalshipCount;
             r = new Rectangle(this.MainOptionsRect.X - 9 + this.MainOptionsRect.Width, (int)this.FullScreen.NamePosition.Y + 235, 225, 50);
             this.ShipLimiter = new FloatSlider(r, string.Concat("All AI Ship Limit. AI Ships: ", ships), 500, 3500, GlobalStats.ShipCountLimit);
             r = new Rectangle(this.MainOptionsRect.X - 9 + this.MainOptionsRect.Width, (int)this.FullScreen.NamePosition.Y + 185, 225, 50);

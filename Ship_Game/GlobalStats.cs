@@ -9,7 +9,7 @@ namespace Ship_Game
 {
 	public sealed class GlobalStats
 	{
-        public static string branch = "RC";
+        public static string branch = "Refactor";
         //public static string Version = "1013A";
         public static int ComparisonCounter;
 
@@ -119,7 +119,7 @@ namespace Ship_Game
         public static float MemoryLimiter;
 
         public static float StartingPlanetRichness;
-        public static string ExtendedVersion = "Radical_Elements_";
+        public static string ExtendedVersion = "Texas_";
         public static int IconSize;
         public static byte TurnTimer = 5;
 
@@ -243,7 +243,7 @@ namespace Ship_Game
 			GlobalStats.CordrazinePlanetsCaptured = GlobalStats.CordrazinePlanetsCaptured + 1;
 			if (GlobalStats.CordrazinePlanetsCaptured == 1)
 			{
-				Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["OwlwokFreedom"]);
+				Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
 			}
 		}
 
@@ -255,7 +255,7 @@ namespace Ship_Game
                 if (GlobalStats.RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && GlobalStats.RemnantActivation < GlobalStats.ActiveModInfo.RemnantTechCount)
                 {
                     GlobalStats.RemnantActivation += 1;
-                    Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
+                    Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
                     GlobalStats.RemnantKills = 0;
                 }
             }
@@ -263,7 +263,7 @@ namespace Ship_Game
             {
                 if (GlobalStats.RemnantKills >= 5 && GlobalStats.RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
                 {
-                    Ship.universeScreen.NotificationManager.AddEventNotification(ResourceManager.EventsDict["RemnantTech1"]);
+                    Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
                     GlobalStats.RemnantActivation = 1;
                 }
             }

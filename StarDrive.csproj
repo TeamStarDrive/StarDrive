@@ -211,6 +211,18 @@
     <Prefer32Bit>true</Prefer32Bit>
     <Optimize>true</Optimize>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Texas_Release_Unstable|x86'">
+    <OutputPath>bin\x86\Texas_Release_Unstable\</OutputPath>
+    <DefineConstants>RELEASE STEAM ALTERTHREAD</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fasterflect">
       <HintPath>packages\fasterflect.2.1.3\lib\net40\Fasterflect.dll</HintPath>
@@ -248,7 +260,7 @@
     </Compile>
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\FileSystemExtensions.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\MathExtensions.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
     <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />
@@ -1194,7 +1206,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\HelperFunctions.cs">
+    <Compile Include="Ship_Game\ExtensionMethods\HelperFunctions.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

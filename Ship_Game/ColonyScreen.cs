@@ -507,7 +507,7 @@ namespace Ship_Game
                                 Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
                                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((entry.item as Building).NameTranslationIndex), position,  wontbuild ? Color.SlateGray : Color.White);
                                 position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.parseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
+                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, wontbuild ? Color.Chocolate : Color.Orange);
                                 position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
                                 var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
                                 Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
@@ -538,7 +538,7 @@ namespace Ship_Game
                                 Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
                                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((entry.item as Building).NameTranslationIndex), position, Color.White);
                                 position.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.parseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, Color.Orange);
+                                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, HelperFunctions.ParseText(Fonts.Arial8Bold, Localizer.Token((entry.item as Building).ShortDescriptionIndex), this.LowRes ? 200f : 280f), position, Color.Orange);
                                 position.X = (float)(entry.clickRect.X + entry.clickRect.Width - 100);
                                 var iconProd = ResourceManager.TextureDict["NewUI/icon_production"];
                                 Rectangle destinationRectangle2 = new Rectangle((int)position.X, entry.clickRect.Y + entry.clickRect.Height / 2 - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
@@ -1299,25 +1299,25 @@ namespace Ship_Game
                 switch (this.p.colonyType)
                 {
                     case Planet.ColonyType.Core:
-                        text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(378), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                        text5 = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(378), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                         break;
                     case Planet.ColonyType.Colony:
-                        text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(382), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                        text5 = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(382), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                         break;
                     case Planet.ColonyType.Industrial:
-                        text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(379), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                        text5 = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(379), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                         break;
                     case Planet.ColonyType.Research:
-                        text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(381), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                        text5 = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(381), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                         break;
                     case Planet.ColonyType.Agricultural:
-                        text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(377), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                        text5 = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(377), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                         break;
                     case Planet.ColonyType.Military:
-                        text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                        text5 = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                         break;
                     case Planet.ColonyType.TradeHub:
-                        text5 = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
+                        text5 = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(this.pDescription.Menu.Width - 50 - rectangle4.Width - 5));
                         break;
                 }
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text5, position5, Color.White);
