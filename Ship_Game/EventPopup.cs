@@ -191,7 +191,7 @@ namespace Ship_Game
 	        public DrawPackage(string text, SpriteFont font, float value,
 	            Color color, string postFix)
 	        {
-	            Text = string.Concat(text, Value.ToString(), postFix);
+	            Text = text + Value + postFix;
 	            Font = font;
 	            Value = (int) (value * 100f);
 	            Color = color;
