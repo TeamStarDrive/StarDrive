@@ -44,7 +44,6 @@ namespace Ship_Game
         public static bool DisableClicks = false;
         //private static string fmt = "00000.##";
         private static string fmt2 = "0.#";
-        public RandomThreadMath DeepSpaceRNG = new RandomThreadMath();
         public float GamePace = 1f;
         public float GameScale = 1f;
         public float GameSpeed = 1f;

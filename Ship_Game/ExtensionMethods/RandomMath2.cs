@@ -3,7 +3,7 @@ using System;
 
 namespace Ship_Game
 {
-	public static class RandomMath
+	public static class RandomMath2
 	{
 		public static readonly Random Random = new Random();
 
@@ -12,7 +12,7 @@ namespace Ship_Game
 		{
 			return minimum + (float)Random.NextDouble() * (maximum - minimum);
 		}
-
+        
         /// Generate random, inclusive [minimum, maximum]
         public static int IntBetween(int minimum, int maximum)
         {
@@ -25,7 +25,7 @@ namespace Ship_Game
             return Random.Next(startIndex, arrayLength);
         }
 
-        /// Random index, in range [0, arrayLength)
+        /// Random index, in range [0, arrayLength), arrayLength can be negative
         public static int InRange(int arrayLength)
         {
             if (arrayLength < 0)
@@ -44,5 +44,31 @@ namespace Ship_Game
 			float angle = RandomBetween(minimumAngle.ToRadians(), maximumAngle.ToRadians()) - 1.57079637f;
 			return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
 		}
+
+        // Generates a Vector2 with X Y in range [-radius, +radius]
+        public static Vector2 Vector2D(float radius)
+        {
+            return new Vector2(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius));
+        }
+
+        // Generates a Vector3 with X Y Z in range [-radius, +radius]
+        public static Vector3 Vector3D(float radius)
+        {
+            return new Vector3(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius), 
+                               RandomBetween(-radius, +radius));
+        }
+
+        // Generates a Vector3 with X Y Z in range [minradius, maxradius]
+        public static Vector3 Vector3D(float minradius, float maxradius)
+        {
+            return new Vector3(RandomBetween(minradius, maxradius), RandomBetween(minradius, maxradius), 
+                               RandomBetween(minradius, maxradius));
+        }
+
+        // Generates a Vector3 with Z set to 0.0f
+        public static Vector3 Vector32D(float radius)
+        {
+            return new Vector3(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius), 0f);
+        }
 	}
 }
