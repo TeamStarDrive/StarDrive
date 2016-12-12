@@ -20,9 +20,8 @@ namespace Ship_Game
 
 		private Rectangle BlackRect;
 
-        public List<DrawPackage> PackagesToDraw = new List<DrawPackage>();
-
-		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome)
+        public Dictionary<Packagetypes, List<DrawPackage>> DrawPaackages = new Dictionary<Packagetypes, List<DrawPackage>>();
+        public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome)
 		{
 			this.screen = s;
 			this.outcome = outcome;
@@ -50,6 +49,10 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
 			this.r = new Rectangle(0, 0, 600, 600);
+		    foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
+		    {
+		        DrawPaackages.Add(packagetype,new List<DrawPackage>());
+		    }
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -80,7 +83,7 @@ namespace Ship_Game
 				theirText = HelperFunctions.ParseText(Fonts.Arial12, this.outcome.GetArtifact().Description, (float)(this.BlackRect.Width - 40));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, TheirTextPos, Color.White);
 				TheirTextPos.Y = TheirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
-			    foreach (DrawPackage artifactDrawPackage in outcome.GetArtifact().ArtifactDrawPackages)
+			    foreach (DrawPackage artifactDrawPackage in DrawPaackages[Packagetypes.Artifact])
 			    {
                     TheirTextPos.Y +=artifactDrawPackage.Font.LineSpacing;			        			        
                     base.ScreenManager.SpriteBatch.DrawString(artifactDrawPackage.Font, artifactDrawPackage.Text, TheirTextPos, artifactDrawPackage.Color);
@@ -155,7 +158,14 @@ namespace Ship_Game
 			Rectangle FitRect = new Rectangle(this.TitleRect.X - 4, this.TitleRect.Y + this.TitleRect.Height + this.MidContainer.Height + 10, this.TitleRect.Width, 600 - (this.TitleRect.Height + this.MidContainer.Height));
 			this.BlackRect = new Rectangle(FitRect.X, FitRect.Y, FitRect.Width, 450);
 		}
-        
+
+	    public enum Packagetypes
+	    {
+	        Artifact,
+            Technology,
+            Planet
+
+	    }
         public class DrawPackage
         {  
             public string Text;
