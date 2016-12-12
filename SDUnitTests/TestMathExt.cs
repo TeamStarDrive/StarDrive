@@ -1,17 +1,17 @@
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
+using NUnit.Framework;
 using Ship_Game;
 using static System.Math;
 
 namespace SDUnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class TestMathExt
     {
         // double vs float math will have a tiny difference in accuracy
         // this is the max deviation we allow
-        private const double MaxErr = 0.0001;
+        private const double MaxErr = 0.0005;
         private const float Radius = 20f;
         private static readonly Vector2 A = RandomMath.Vector2D(Radius);
         private static readonly Vector2 B = RandomMath.Vector2D(Radius);
@@ -20,7 +20,7 @@ namespace SDUnitTests
         private static readonly Vector2 Inside  = Center / 2;
         private static readonly Vector2 Outside = Center + new Vector2(Radius)*3;
 
-        [TestMethod]
+        [Test]
         public void TestDistance()
         {
             // test for consistency; reference implementations from XNA
@@ -33,7 +33,7 @@ namespace SDUnitTests
             Assert.AreEqual(sqdist2, dist2*dist2, MaxErr, "MathExt.Distance or MathExt.SqDist is inconsistent");
         }
 
-        [TestMethod]
+        [Test]
         public void TestWithinRadius()
         {
             Assert.IsTrue(Inside.WithinRadius(Center, Radius),  "WithinRadius failed, inside point should return true");
@@ -50,7 +50,7 @@ namespace SDUnitTests
         private static readonly Vector2 SE = Center + new Vector2(+50f, +50f);
         private static readonly Vector2 SW = Center + new Vector2(-50f, +50f);
 
-        [TestMethod]
+        [Test]
         public void TestAngleToTarget()
         {
             Assert.AreEqual(00f,  Center.AngleToTarget(N),  MaxErr, "Degrees to target is incorrect");
@@ -63,7 +63,7 @@ namespace SDUnitTests
             Assert.AreEqual(315f, Center.AngleToTarget(NW), MaxErr, "Degrees to target is incorrect");
         }
 
-        [TestMethod]
+        [Test]
         public void TestAngleToTargetSigned()
         {
             Assert.AreEqual(+00f,  Center.AngleToTargetSigned(N),  MaxErr, "Degrees to target is incorrect");
@@ -76,7 +76,7 @@ namespace SDUnitTests
             Assert.AreEqual(-315f, Center.AngleToTargetSigned(NW), MaxErr, "Degrees to target is incorrect");
         }
 
-        [TestMethod]
+        [Test]
         public void TestRadiansToTarget()
         {
             Assert.AreEqual(PI*0.00, Center.RadiansToTarget(N),  MaxErr, "Radians to target is incorrect");
@@ -89,7 +89,7 @@ namespace SDUnitTests
             Assert.AreEqual(PI*1.75, Center.RadiansToTarget(NW), MaxErr, "Radians to target is incorrect");
         }
 
-        [TestMethod]
+        [Test]
         public void TestRadiansToTargetSigned()
         {
             Assert.AreEqual(+PI*0.00, Center.RadiansToTargetSigned(N),  MaxErr, "Radians to target is incorrect");
@@ -102,7 +102,7 @@ namespace SDUnitTests
             Assert.AreEqual(-PI*1.75, Center.RadiansToTargetSigned(NW), MaxErr, "Radians to target is incorrect");
         }
 
-        [TestMethod]
+        [Test]
         public void TestDegreesAndRadians()
         {
             Assert.AreEqual(180f, ((float)PI).ToDegrees(), MaxErr, "Radians to Degrees failed");
