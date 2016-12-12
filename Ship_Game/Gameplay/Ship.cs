@@ -235,7 +235,7 @@ namespace Ship_Game.Gameplay
                 foreach (Empire e in BorderCheck)
                 {
                     
-                    Relationship rel = loyalty.GetRelations()[e];
+                    Relationship rel = loyalty.GetRelations(e);
                     if (rel.AtWar || rel.Treaty_Alliance || e == this.loyalty)
                     {
                         return false;
@@ -254,7 +254,7 @@ namespace Ship_Game.Gameplay
                 {
                     if (e == loyalty)
                         return true;
-                    Relationship rel = loyalty.GetRelations()[e];
+                    Relationship rel = loyalty.GetRelations(e);
                     if (rel.Treaty_Alliance )
                     {
                         return true;
@@ -271,7 +271,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach(Empire e in BorderCheck)
                 {
-                    Relationship rel = loyalty.GetRelations()[e];
+                    Relationship rel = loyalty.GetRelations(e);
                     if (rel.AtWar )
                     {
                         return true;
@@ -778,10 +778,10 @@ namespace Ship_Game.Gameplay
             this.AI.FriendliesNearby.Clear();
 
 
-            if (this.system != null)
+            if (this.System != null)
             {
-                this.system.ShipList.QueuePendingRemoval(this);
-                this.system.spatialManager.CollidableObjects.Remove((GameplayObject)this);
+                this.System.ShipList.QueuePendingRemoval(this);
+                this.System.spatialManager.CollidableObjects.Remove((GameplayObject)this);
             }
             if (this.Mothership != null)
             {
@@ -805,7 +805,7 @@ namespace Ship_Game.Gameplay
             this.ShipSO.Clear();
 
             this.loyalty.RemoveShip(this);
-            this.system = (SolarSystem)null;
+            this.System = (SolarSystem)null;
             this.TetheredTo = (Planet)null;
         }
 
@@ -827,11 +827,11 @@ namespace Ship_Game.Gameplay
         {
             //Added by McShooterz: hull bonus speed 
 
-            if (InhibitedTimer < -.25f || this.Inhibited ||  this.system != null && this.engineState == MoveState.Warp)
+            if (InhibitedTimer < -.25f || this.Inhibited ||  this.System != null && this.engineState == MoveState.Warp)
             {
-                if (Ship.universeScreen.GravityWells && this.system != null && !this.IsInFriendlySpace)
+                if (Ship.universeScreen.GravityWells && this.System != null && !this.IsInFriendlySpace)
                 {
-                    foreach (Planet planet in this.system.PlanetList)
+                    foreach (Planet planet in this.System.PlanetList)
                     {
                         if (Vector2.Distance(this.Position, planet.Position) < (GlobalStats.GravityWellRange * (1 + ((Math.Log(planet.scale)) / 1.5))))
                         {
@@ -848,7 +848,7 @@ namespace Ship_Game.Gameplay
 
             //Change FTL modifier for ship based on solar system
             {
-                if (this.system != null) // && ( || ))
+                if (this.System != null) // && ( || ))
                 {
                     if (this.IsInFriendlySpace) // && Ship.universeScreen.FTLModifier < 1)
                         ftlmodtemp = Ship.universeScreen.FTLModifier;
@@ -1197,7 +1197,7 @@ namespace Ship_Game.Gameplay
             if
             (target != null && targetShip != null && (this.loyalty == targetShip.loyalty ||
              !this.loyalty.isFaction &&
-           this.loyalty.GetRelations().TryGetValue(targetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
+           this.loyalty.TryGetRelations(targetShip.loyalty, out enemy) && enemy.Treaty_NAPact))
                 return false;
             
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;            
@@ -1206,7 +1206,7 @@ namespace Ship_Game.Gameplay
             
             Vector2 toTarget = pos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
-            float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.FindAngleToTarget(w.Center, target.Center);//
+            float angleToMouse = 180f - MathHelper.ToDegrees(radians); //HelperFunctions.AngleToTarget(w.Center, target.Center);//
             float facing = w.moduleAttachedTo.facing + MathHelper.ToDegrees(base.Rotation);
 
             
@@ -1989,12 +1989,12 @@ namespace Ship_Game.Gameplay
                 Ship.universeScreen.ShipsToAdd.Add(this);
             else
                 UniverseScreen.ShipSpatialManager.CollidableObjects.Add((GameplayObject)this);
-            if (this.system != null && !this.system.spatialManager.CollidableObjects.Contains((GameplayObject)this))
+            if (this.System != null && !this.System.spatialManager.CollidableObjects.Contains((GameplayObject)this))
             {
                 this.isInDeepSpace = false;
-                this.system.spatialManager.CollidableObjects.Add((GameplayObject)this);
-                if (!this.system.ShipList.Contains(this))
-                    this.system.ShipList.Add(this);
+                this.System.spatialManager.CollidableObjects.Add((GameplayObject)this);
+                if (!this.System.ShipList.Contains(this))
+                    this.System.ShipList.Add(this);
             }
             else if (this.isInDeepSpace)
             {
@@ -2036,7 +2036,7 @@ namespace Ship_Game.Gameplay
             this.shipInitialized = true;
             this.RecalculateMaxHP();            //Fix for Ship Max health being greater than all modules combined (those damned haphazard engineers). -Gretman
 
-            if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health from InitializeFromSave is:  " + this.HealthMax);
+            if (this.VanityName == "MerCraft") global::System.Diagnostics.Debug.WriteLine("Health from InitializeFromSave is:  " + this.HealthMax);
         }
 
         public override void Initialize()
@@ -2885,7 +2885,7 @@ namespace Ship_Game.Gameplay
                 moduleSlot.SetParent(this);
                 if (!ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
                 {
-                    System.Diagnostics.Debug.WriteLine("Ship {0} init failed, module {1} doesn't exist",
+                    global::System.Diagnostics.Debug.WriteLine("Ship {0} init failed, module {1} doesn't exist",
                                                         Name, moduleSlot.InstalledModuleUID);
                     return false;
                 }
@@ -2922,7 +2922,7 @@ namespace Ship_Game.Gameplay
                 if (ScuttleTimer <= 0.0)
                     Die(null, true);
             }
-            if (system == null || system.isVisible)
+            if (System == null || System.isVisible)
             {
                 BoundingSphere sphere = new BoundingSphere(new Vector3(this.Position, 0.0f), 2000f);
                 if (universeScreen.Frustum.Contains(sphere) != ContainmentType.Disjoint && universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
@@ -2990,7 +2990,7 @@ namespace Ship_Game.Gameplay
                 Position += deltaMove;
                 Center   += deltaMove;
 
-                var rng = system?.RNG ?? universeScreen.DeepSpaceRNG;
+                var rng = System?.RNG ?? universeScreen.DeepSpaceRNG;
                 int num1 = rng.IntBetween(0, 60);
                 if (num1 >= 57 && InFrustum)
                 {
@@ -3044,9 +3044,9 @@ namespace Ship_Game.Gameplay
             }
             else if (!dying)
             {
-                if (system != null && elapsedTime > 0.0)
+                if (System != null && elapsedTime > 0.0)
                 {
-                    foreach (Planet p in system.PlanetList)
+                    foreach (Planet p in System.PlanetList)
                     {
                         if (p.Position.SqDist(Center) >= 3000f * 3000f)
                             continue;
@@ -3076,16 +3076,16 @@ namespace Ship_Game.Gameplay
                             loyalty.GetGSAI().TaskList.Add(militaryTask);
                         }
                     }
-                    if (AI.BadGuysNear && InCombat && system != null)
+                    if (AI.BadGuysNear && InCombat && System != null)
                     {
-                        system.CombatInSystem = true;
-                        system.combatTimer = 15f;
+                        System.CombatInSystem = true;
+                        System.combatTimer = 15f;
                     }
                 }
                 if (disabled)
                 {
                     float third = Radius / 3f;
-                    var rng = system?.RNG ?? universeScreen.DeepSpaceRNG;
+                    var rng = System?.RNG ?? universeScreen.DeepSpaceRNG;
                     for (int i = 0; i < 5; ++i)
                     {
                         Vector3 vector3 = new Vector3(rng.RandomBetween(-third, third), rng.RandomBetween(-third, third), 0.0f);
@@ -3299,14 +3299,14 @@ namespace Ship_Game.Gameplay
                                         ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))
                                         : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
                                     Vector2 target = new Vector2(shipModule.Center.X - 8f, shipModule.Center.Y - 8f);
-                                    float angleToTarget = HelperFunctions.findAngleToTarget(origin, shipModule.Center);
-                                    Vector2 angleAndDistance = HelperFunctions.FindPointFromAngleAndDistance(shipModule.Center, MathHelper.ToDegrees(shipModule.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+                                    float angleToTarget = origin.AngleToTarget(shipModule.Center);
+                                    Vector2 angleAndDistance = shipModule.Center.PointFromAngle(MathHelper.ToDegrees(shipModule.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
                                     float num2 = (float)((int)shipModule.XSIZE * 16 / 2);
                                     float num3 = (float)((int)shipModule.YSIZE * 16 / 2);
                                     float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
                                     float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
-                                    origin = HelperFunctions.FindPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
-                                    int Thickness = this.system != null ? (int)this.system.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
+                                    origin = angleAndDistance.PointFromAngle(MathHelper.ToDegrees(radians), distance);
+                                    int Thickness = this.System != null ? (int)this.System.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
                                     //lock (locker)
 
                                     beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center,                 beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination,            Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
@@ -3738,7 +3738,7 @@ namespace Ship_Game.Gameplay
                     if(this.InhibitedTimer <2f)
                     foreach (Empire index1 in EmpireManager.EmpireList)
                     {
-                        if (index1 != this.loyalty && !this.loyalty.GetRelations()[index1].Treaty_OpenBorders)
+                        if (index1 != this.loyalty && !this.loyalty.GetRelations(index1).Treaty_OpenBorders)
                         {
                             for (int index2 = 0; index2 < index1.Inhibitors.Count; ++index2)
                             {
@@ -3758,10 +3758,10 @@ namespace Ship_Game.Gameplay
                 catch 
                 {
 
-                    System.Diagnostics.Debug.WriteLine("Inhibitor blew up");
+                    global::System.Diagnostics.Debug.WriteLine("Inhibitor blew up");
                 }
                 this.inSensorRange = false;
-                if (Ship.universeScreen.Debug || this.loyalty == Ship.universeScreen.player || this.loyalty != Ship.universeScreen.player && Ship.universeScreen.player.GetRelations()[this.loyalty].Treaty_Alliance)
+                if (Ship.universeScreen.Debug || this.loyalty == Ship.universeScreen.player || this.loyalty != Ship.universeScreen.player && Ship.universeScreen.player.GetRelations(loyalty).Treaty_Alliance)
                     this.inSensorRange = true;
                 else if (!this.inSensorRange)
                 {
@@ -3875,7 +3875,7 @@ namespace Ship_Game.Gameplay
                     float num1 = 0;
                     for (int index = 0; index < this.MechanicalBoardingDefense; ++index)
                     {
-                        if ((this.system != null ? this.system.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) <= 60.0)
+                        if ((this.System != null ? this.System.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) <= 60.0)
                             ++num1;
                     }
                     foreach (Troop troop in EnemyTroops)
@@ -3909,7 +3909,7 @@ namespace Ship_Game.Gameplay
                         {
                             for (int index = 0; index < troop.Strength; ++index)
                             {
-                                if ((this.system != null ? this.system.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) >= troop.BoardingStrength)
+                                if ((this.System != null ? this.System.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) >= troop.BoardingStrength)
                                     ++num1;
                             }
                         }
@@ -3948,7 +3948,7 @@ namespace Ship_Game.Gameplay
                         {
                             for (int index = 0; index < troop.Strength; ++index)
                             {
-                                if ((this.system != null ? this.system.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) >= troop.BoardingStrength)
+                                if ((this.System != null ? this.System.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) >= troop.BoardingStrength)
                                     ++num2;
                             }
                         }
@@ -4536,7 +4536,7 @@ namespace Ship_Game.Gameplay
             ExpFound = false;
             //Added by McShooterz: a way to prevent remnant story in mods
 
-            Empire remnant = EmpireManager.GetEmpireByName("The Remnant");  //Changed by Gretman, because this was preventing any "RemnantKills" from getting counted, thus no remnant event.
+            Empire remnant = EmpireManager.Remnants;  //Changed by Gretman, because this was preventing any "RemnantKills" from getting counted, thus no remnant event.
             //if (this.loyalty == Ship.universeScreen.player && killed.loyalty == remnant && this.shipData.ShipStyle == remnant.data.Traits.ShipType &&  (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.removeRemnantStory)))
             if (this.loyalty == Ship.universeScreen.player && killed.loyalty == remnant &&  (GlobalStats.ActiveModInfo == null || (GlobalStats.ActiveModInfo != null && !GlobalStats.ActiveModInfo.removeRemnantStory)))
                 //GlobalStats.IncrementRemnantKills((int)Exp);
@@ -4565,10 +4565,10 @@ namespace Ship_Game.Gameplay
             }
             if (this.Level > 255)
                 this.Level = 255;
-            if (!this.loyalty.GetRelations().ContainsKey(killed.loyalty) || !this.loyalty.GetRelations()[killed.loyalty].AtWar)
+            if (!loyalty.TryGetRelations(killed.loyalty, out Relationship rel) || !rel.AtWar)
                 return;
-            this.loyalty.GetRelations()[killed.loyalty].ActiveWar.StrengthKilled += killed.BaseStrength;
-            killed.loyalty.GetRelations()[this.loyalty].ActiveWar.StrengthLost += killed.BaseStrength;
+            this.loyalty.GetRelations(killed.loyalty).ActiveWar.StrengthKilled += killed.BaseStrength;
+            killed.loyalty.GetRelations(loyalty).ActiveWar.StrengthLost += killed.BaseStrength;
         }
 
         private void ExplodeShip(float explodeRadius, bool useWarpExplodeEffect)
@@ -4600,7 +4600,7 @@ namespace Ship_Game.Gameplay
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
-            var rng = system?.RNG ?? universeScreen.DeepSpaceRNG;
+            var rng = System?.RNG ?? universeScreen.DeepSpaceRNG;
             if (rng.RandomBetween(0.0f, 100f) > 65.0 && !IsPlatform && InFrustum)
             {
                 dying = true;
@@ -4616,7 +4616,7 @@ namespace Ship_Game.Gameplay
             if (dying && !reallyDie)
                 return;
 
-            system?.ShipList.QueuePendingRemoval(this);
+            System?.ShipList.QueuePendingRemoval(this);
             if (psource?.owner != null)
             {
                 float amount = 1f;
@@ -4662,7 +4662,7 @@ namespace Ship_Game.Gameplay
                     case ShipData.RoleName.station:     ExplodeShip(1200f, true);       break;
                     default:                            ExplodeShip(600f, cleanupOnly); break;
                 }
-                system?.spatialManager.ShipExplode(this, Size * 50, Center, Radius);
+                System?.spatialManager.ShipExplode(this, Size * 50, Center, Radius);
 
                 if (!HasExploded)
                 {
@@ -4675,7 +4675,7 @@ namespace Ship_Game.Gameplay
                     if (junkScale > 1.4f) junkScale = 1.4f; // bigger doesn't look good
 
                     //System.Diagnostics.Debug.WriteLine("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
-                    List<SpaceJunk> junk = SpaceJunk.MakeJunk(explosionJunk, Center, system, this, Radius/4, junkScale);
+                    List<SpaceJunk> junk = SpaceJunk.MakeJunk(explosionJunk, Center, System, this, Radius/4, junkScale);
 				    lock (GlobalStats.ObjectManagerLocker)
 				    {
 					    foreach (SpaceJunk j in junk)
@@ -4737,10 +4737,10 @@ namespace Ship_Game.Gameplay
                 Ship.universeScreen.SelectedShip = (Ship)null;
             if (Ship.universeScreen.SelectedShipList.Contains(this))
                 Ship.universeScreen.SelectedShipList.Remove(this);
-            if (this.system != null)
+            if (this.System != null)
             {
-                this.system.ShipList.QueuePendingRemoval(this);
-                this.system.spatialManager.CollidableObjects.Remove((GameplayObject)this);
+                this.System.ShipList.QueuePendingRemoval(this);
+                this.System.spatialManager.CollidableObjects.Remove((GameplayObject)this);
             }
             else if (this.isInDeepSpace)
                 UniverseScreen.DeepSpaceManager.CollidableObjects.Remove((GameplayObject)this);
@@ -4780,7 +4780,7 @@ namespace Ship_Game.Gameplay
                 Ship.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.ShipSO);
 
             this.loyalty.RemoveShip(this);
-            this.system = (SolarSystem)null;
+            this.System = (SolarSystem)null;
             this.TetheredTo = (Planet)null;
             this.Transporters.Clear();
             this.RepairBeams.Clear();
@@ -4986,7 +4986,7 @@ namespace Ship_Game.Gameplay
 
         public void RecalculateMaxHP()          //Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
         {
-            if (VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health was " + Health + " / " + HealthMax + "   (" + loyalty.data.Traits.ModHpModifier + ")");
+            if (VanityName == "MerCraft") global::System.Diagnostics.Debug.WriteLine("Health was " + Health + " / " + HealthMax + "   (" + loyalty.data.Traits.ModHpModifier + ")");
             this.HealthMax = 0;
             foreach (ModuleSlot slot in ModuleSlotList)
             {
@@ -5002,7 +5002,7 @@ namespace Ship_Game.Gameplay
                 HealthMax += slot.module.HealthMax;
             }
             if (Health >= HealthMax) Health = HealthMax;
-            if (VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Health is  " + Health + " / " + HealthMax);
+            if (VanityName == "MerCraft") global::System.Diagnostics.Debug.WriteLine("Health is  " + Health + " / " + HealthMax);
         }
 
     }

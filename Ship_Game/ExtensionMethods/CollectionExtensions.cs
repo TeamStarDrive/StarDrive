@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -22,6 +23,26 @@ namespace Ship_Game
                 if (item == list[i])
                     return i;
             return -1;
+        }
+
+        public static T FindMax<T>(this List<T> list, Func<T, float> selector) where T : class
+        {
+            int n = list.Count;
+            if (n == 0) return null;
+            int  imax = 0;
+            float max = selector(list[0]);
+            for (int i = 1; i < n; ++i)
+            {
+                float value = selector(list[i]);
+                if (value <= max) continue;
+                max = value;
+                imax = i;
+            }
+            return list[imax];
+        }
+        public static bool FindMax<T>(this List<T> list, out T elem, Func<T, float> selector) where T : class
+        {
+            return (elem = FindMax(list, selector)) != null;
         }
     }
 }

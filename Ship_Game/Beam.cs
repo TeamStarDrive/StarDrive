@@ -86,18 +86,18 @@ namespace Ship_Game
 			{
 				this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
 			}
-			if (this.owner.isInDeepSpace || this.owner.GetSystem() == null)
+			if (this.owner.isInDeepSpace || this.owner.System== null)
 			{
 				UniverseScreen.DeepSpaceManager.BeamList.Add(this);
 			}
 			else
 			{
-				this.system = this.owner.GetSystem();
-				this.system.spatialManager.BeamList.Add(this);
+				this.System = this.owner.System;
+				this.System.spatialManager.BeamList.Add(this);
 			}
 			this.Source = srcCenter;
-            this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, TargetPosition));
-			this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
+            this.BeamOffsetAngle = Owner.Rotation - srcCenter.AngleToTarget(TargetPosition).ToRadians();
+			this.Destination = MathExt.PointFromRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
 			this.ActualHitDestination = this.Destination;
 			this.Vertices = new VertexPositionNormalTexture[4];
 			this.Indexes = new int[6];
@@ -114,14 +114,14 @@ namespace Ship_Game
 		{
 			this.Target = target;
 			this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
-            if (Owner.isInDeepSpace || Owner.GetSystem() == null)
+            if (Owner.isInDeepSpace || Owner.System== null)
 			{
 				UniverseScreen.DeepSpaceManager.BeamList.Add(this);
 			}
 			else
 			{
-				this.system = Owner.GetSystem();
-				this.system.spatialManager.BeamList.Add(this);
+				this.System = Owner.System;
+				this.System.spatialManager.BeamList.Add(this);
 			}
 			this.Source = srcCenter;
 			this.BeamOffsetAngle = 0f;
@@ -208,18 +208,18 @@ namespace Ship_Game
             {
                 this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
             }
-            if (this.owner.isInDeepSpace || this.owner.GetSystem() == null)
+            if (this.owner.isInDeepSpace || this.owner.System== null)
             {
                 UniverseScreen.DeepSpaceManager.BeamList.Add(this);
             }
             else
             {
-                this.system = this.owner.GetSystem();
-                this.system.spatialManager.BeamList.Add(this);
+                this.System = this.owner.System;
+                this.System.spatialManager.BeamList.Add(this);
             }
             this.Source = srcCenter;
-            this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, TargetPosition));
-            this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
+            this.BeamOffsetAngle = Owner.Rotation - srcCenter.RadiansToTarget(TargetPosition);
+            this.Destination = MathExt.PointFromRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
             this.ActualHitDestination = this.Destination;
             this.Vertices = new VertexPositionNormalTexture[4];
             this.Indexes = new int[6];
@@ -239,18 +239,18 @@ namespace Ship_Game
 			{
 				this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
 			}
-			if (this.owner.isInDeepSpace || this.owner.GetSystem() == null)
+			if (this.owner.isInDeepSpace || this.owner.System== null)
 			{
 				UniverseScreen.DeepSpaceManager.BeamList.Add(this);
 			}
 			else
 			{
-				this.system = this.owner.GetSystem();
-				this.system.spatialManager.BeamList.Add(this);
+				this.System = this.owner.System;
+				this.System.spatialManager.BeamList.Add(this);
 			}
 			this.Source = srcCenter;
-			this.BeamOffsetAngle = Owner.Rotation - MathHelper.ToRadians(HelperFunctions.findAngleToTarget(srcCenter, destination));
-			this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
+			this.BeamOffsetAngle = Owner.Rotation - srcCenter.RadiansToTarget(destination);
+			this.Destination = MathExt.PointFromRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
 			this.ActualHitDestination = this.Destination;
 			this.Vertices = new VertexPositionNormalTexture[4];
 			this.Indexes = new int[6];
@@ -273,10 +273,10 @@ namespace Ship_Game
             if (this.owner != null)
             {
                 this.owner.Beams.QueuePendingRemoval(this);
-                if (this.owner.GetSystem() != null)
+                if (this.owner.System!= null)
                 {
-                    this.system = this.owner.GetSystem();
-                    this.system.spatialManager.BeamList.QueuePendingRemoval(this);
+                    this.System = this.owner.System;
+                    this.System.spatialManager.BeamList.QueuePendingRemoval(this);
                 }
                 else
                     UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
@@ -284,10 +284,10 @@ namespace Ship_Game
             else if (this.weapon.drowner != null)
             {
                 (this.weapon.drowner as Projectile).GetDroneAI().Beams.QueuePendingRemoval(this);
-                if (this.weapon.drowner.GetSystem() != null)
+                if (this.weapon.drowner.System!= null)
                 {
-                    this.system = this.weapon.drowner.GetSystem();
-                    this.system.spatialManager.BeamList.QueuePendingRemoval(this);
+                    this.System = this.weapon.drowner.System;
+                    this.System.spatialManager.BeamList.QueuePendingRemoval(this);
                 }
                 else
                     UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
@@ -525,18 +525,18 @@ namespace Ship_Game
             //Modified by Gretman
             if (this.Target == null)// If current target sucks, use "destination" instead
             {
-                System.Diagnostics.Debug.WriteLine("Beam assigned alternate destination at update");
-                this.Destination = HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
+                global::System.Diagnostics.Debug.WriteLine("Beam assigned alternate destination at update");
+                this.Destination = MathExt.PointFromRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
             }
             else if (!this.owner.isPlayerShip() && Vector2.Distance(this.Destination, this.Source) > this.range + this.owner.Radius) //So beams at the back of a ship can hit too!
             {
-                System.Diagnostics.Debug.WriteLine("Beam killed because of distance: Dist = " + Vector2.Distance(this.Destination, this.Source).ToString() + "  Beam Range = " + (this.range).ToString());
+                global::System.Diagnostics.Debug.WriteLine("Beam killed because of distance: Dist = " + Vector2.Distance(this.Destination, this.Source).ToString() + "  Beam Range = " + (this.range).ToString());
                 this.Die(null, true);
                 return;
             }
             else if (!this.owner.isPlayerShip() && !this.Owner.CheckIfInsideFireArc(this.weapon, this.Destination, base.Owner.Rotation))
             {
-                System.Diagnostics.Debug.WriteLine("Beam killed because of angle");
+                global::System.Diagnostics.Debug.WriteLine("Beam killed because of angle");
                 this.Die(null, true);
                 return;
             }

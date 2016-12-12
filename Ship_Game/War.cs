@@ -112,7 +112,7 @@ namespace Ship_Game
 				}
                 p.TroopsHere.thisLock.ExitReadLock();
 			}
-			foreach (KeyValuePair<Guid, SolarSystem> system in this.Us.GetUS().SolarSystemDict)
+			foreach (KeyValuePair<Guid, SolarSystem> system in Empire.Universe.SolarSystemDict)
 			{
 				bool WeAreThere = false;
 				bool TheyAreThere = false;
@@ -202,11 +202,11 @@ namespace Ship_Game
 			{
 				bool WeAreThere = false;
 				bool TheyAreThere = false;
-				if (this.Us.GetUS().SolarSystemDict[guid].OwnerList.Contains(this.Us))
+				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(this.Us))
 				{
 					WeAreThere = true;
 				}
-				if (this.Them.GetUS().SolarSystemDict[guid].OwnerList.Contains(this.Them))
+				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(this.Them))
 				{
 					TheyAreThere = true;
 				}
@@ -233,11 +233,11 @@ namespace Ship_Game
 			{
 				bool WeAreThere = false;
 				bool TheyAreThere = false;
-				if (this.Us.GetUS().SolarSystemDict[guid].OwnerList.Contains(this.Us))
+				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(this.Us))
 				{
 					WeAreThere = true;
 				}
-				if (this.Them.GetUS().SolarSystemDict[guid].OwnerList.Contains(this.Them))
+				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(this.Them))
 				{
 					TheyAreThere = true;
 				}
@@ -260,7 +260,7 @@ namespace Ship_Game
 		public WarState GetWarScoreState()
 		{
 			float totalThreatAgainstUs = 0f;
-			foreach (KeyValuePair<Empire, Relationship> r in this.Us.GetRelations())
+			foreach (KeyValuePair<Empire, Relationship> r in this.Us.AllRelations)
 			{
 				if (r.Key.isFaction || r.Key.data.Defeated || !r.Value.AtWar)
 				{

@@ -385,7 +385,7 @@ namespace Ship_Game
             Ray ray = new Ray(position1, direction1);
             float num1 = -ray.Position.Z / ray.Direction.Z;
             Vector3 source = new Vector3(ray.Position.X + num1 * ray.Direction.X, ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
-            Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f)) * Matrix.CreateRotationX(MathHelper.ToRadians(0.0f)) * Matrix.CreateLookAt(new Vector3(this.camPos.X, this.camPos.Y, DesiredCamHeight), new Vector3(this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+            Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) * Matrix.CreateRotationX(0.0f.ToRadians()) * Matrix.CreateLookAt(new Vector3(this.camPos.X, this.camPos.Y, DesiredCamHeight), new Vector3(this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(source, this.projection, view, Matrix.Identity);
             Vector2 vector2_2 = new Vector2((float)(int)vector3.X - vector2_1.X, (float)(int)vector3.Y - vector2_1.Y);
             Vector3 position2 = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 0.0f), this.projection, view, Matrix.Identity);
@@ -503,7 +503,7 @@ namespace Ship_Game
             {
                 foreach (Encounter e in ResourceManager.Encounters)
                 {
-                    if (this.SelectedShip.loyalty.data.Traits.Name == e.Faction && this.player.GetRelations()[this.SelectedShip.loyalty].EncounterStep == e.Step)
+                    if (this.SelectedShip.loyalty.data.Traits.Name == e.Faction && this.player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
                     {
                         this.ScreenManager.AddScreen((GameScreen)new EncounterPopup(this, this.player, this.SelectedShip.loyalty, (SolarSystem)null, e));
                         break;
@@ -858,16 +858,16 @@ namespace Ship_Game
             {
                 foreach (string FleetUID in solarSystem.DefensiveFleets)
                 {
-                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.PlanetList[0].Position);
+                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, solarSystem.PlanetList[0].Position);
                     MilitaryTask militaryTask = new MilitaryTask();
                     militaryTask.AO = solarSystem.PlanetList[0].Position;
                     militaryTask.AORadius = 120000f;
                     militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
-                    militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
-                    EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                    militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+                    EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
 				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
@@ -876,16 +876,16 @@ namespace Ship_Game
                     {
                         foreach (string FleetUID in p.PlanetFleets)
                         {
-                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.GetEmpireByName("The Remnant"), p.Position);
+                            Fleet planetFleetAt = HelperFunctions.CreateDefensiveFleetAt(FleetUID, EmpireManager.Remnants, p.Position);
                             MilitaryTask militaryTask = new MilitaryTask();
                             militaryTask.AO = solarSystem.PlanetList[0].Position;
                             militaryTask.AORadius = 120000f;
                             militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                             planetFleetAt.Task = militaryTask;
                             planetFleetAt.TaskStep = 3;
-                            militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                            EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, planetFleetAt);
-                            EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                            militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+                            EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, planetFleetAt);
+                            EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                             militaryTask.Step = 2;
                         }
                     }
@@ -893,20 +893,20 @@ namespace Ship_Game
 
                 foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
                 {
-                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetAndPos.fleetname, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.Position + fleetAndPos.Pos);
+                    Fleet defensiveFleetAt = HelperFunctions.CreateDefensiveFleetAt(fleetAndPos.fleetname, EmpireManager.Remnants, solarSystem.Position + fleetAndPos.Pos);
                     MilitaryTask militaryTask = new MilitaryTask();
                     militaryTask.AO = solarSystem.Position + fleetAndPos.Pos;
                     militaryTask.AORadius = 75000f;
                     militaryTask.type = MilitaryTask.TaskType.DefendSystem;
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
-                    militaryTask.WhichFleet = EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10;
-                    EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().TryAdd(EmpireManager.GetEmpireByName("The Remnant").GetFleetsDict().Count + 10, defensiveFleetAt);
-                    EmpireManager.GetEmpireByName("The Remnant").GetGSAI().TaskList.Add(militaryTask);
+                    militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
+                    EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
                 foreach (string key in solarSystem.ShipsToSpawn)
-                    ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), solarSystem.PlanetList[0], true);
+                    ResourceManager.CreateShipAt(key, EmpireManager.Remnants, solarSystem.PlanetList[0], true);
                 foreach (Planet p in solarSystem.PlanetList)
                 {
                     if (p.Owner != null)
@@ -921,7 +921,7 @@ namespace Ship_Game
                         {
                             if (p.Guardians.Count > 0)
                             {
-                                int randomFleet = HelperFunctions.GetRandomIndex(ResourceManager.HostileFleets.Fleets.Count);
+                                int randomFleet = RandomMath.InRange(ResourceManager.HostileFleets.Fleets.Count);
                                 foreach (string ship in ResourceManager.HostileFleets.Fleets[randomFleet].Ships)
                                 {
                                     ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName(ResourceManager.HostileFleets.Fleets[randomFleet].Empire), p, true);
@@ -931,7 +931,7 @@ namespace Ship_Game
                         else
                         {
                             foreach (string key in p.Guardians)
-                                ResourceManager.CreateShipAt(key, EmpireManager.GetEmpireByName("The Remnant"), p, true);
+                                ResourceManager.CreateShipAt(key, EmpireManager.Remnants, p, true);
                             if (p.CorsairPresence)
                             {
                                 ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
@@ -954,7 +954,7 @@ namespace Ship_Game
             while ((double)num < (double)(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
             {
                 Vector2 vector2_1 = new Vector2(this.Size.X / 2f, this.Size.Y / 2f);
-                Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f)) * Matrix.CreateRotationX(MathHelper.ToRadians(0.0f)) * Matrix.CreateLookAt(new Vector3(-vector2_1.X, vector2_1.Y, this.MaxCamHeight), new Vector3(-vector2_1.X, vector2_1.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+                Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) * Matrix.CreateRotationX(0.0f.ToRadians()) * Matrix.CreateLookAt(new Vector3(-vector2_1.X, vector2_1.Y, this.MaxCamHeight), new Vector3(-vector2_1.X, vector2_1.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
                 Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(Vector3.Zero, this.projection, view, Matrix.Identity);
                 Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y);
                 Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size, 0.0f), this.projection, view, Matrix.Identity);
@@ -1228,7 +1228,7 @@ namespace Ship_Game
             Projectile.universeScreen = this;
             ShipModule.universeScreen = this;
             Asteroid.universeScreen = this;
-            Empire.universeScreen = this;
+            Empire.Universe = this;
             SpaceJunk.universeScreen = this;
             ResourceManager.UniverseScreen = this;
             Planet.universeScreen = this;
@@ -1368,7 +1368,7 @@ namespace Ship_Game
 
                     if (this.AutoSaveTimer <= 0.0f)
                     {
-                        this.AutoSaveTimer = EmpireManager.GetPlayerEmpire().data.AutoSaveFreq;
+                        this.AutoSaveTimer = EmpireManager.Player.data.AutoSaveFreq;
                         this.DoAutoSave();
                     }
                     if (this.IsActive)
@@ -1441,7 +1441,7 @@ namespace Ship_Game
                     float radius = 100f;
                     Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), this.projection, this.view, Matrix.Identity);
                     Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
-                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, goal.BuildPosition, radius), 0.0f), this.projection, this.view, Matrix.Identity);
+                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
                     float num = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), vector2) + 10f;
                     UniverseScreen.ClickableItemUnderConstruction underConstruction = new UniverseScreen.ClickableItemUnderConstruction();
                     underConstruction.Radius = num;
@@ -1584,7 +1584,7 @@ namespace Ship_Game
                     if (this.ArmageddonCounter > 5)
                         this.ArmageddonCounter = 5;
                     for (int index = 0; index < this.ArmageddonCounter; ++index)
-                        ResourceManager.CreateShipAtPoint("Remnant Exterminator", EmpireManager.GetEmpireByName("The Remnant"), this.player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f), RandomMath.RandomBetween(-500000f, 500000f))).GetAI().DefaultAIState = AIState.Exterminate;
+                        ResourceManager.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants, this.player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f), RandomMath.RandomBetween(-500000f, 500000f))).GetAI().DefaultAIState = AIState.Exterminate;
                 }
             }
 
@@ -1637,7 +1637,7 @@ namespace Ship_Game
 
                     empire.ShipsToAdd.Clear();
                     {
-                        int pathcount = empire.pathcache.Count;
+                        int pathcount = empire.PathCache.Count;
                        // if (!empire.isFaction && !empire.MinorRace && !empire.data.Defeated &&   pathcount == 0)
                            
                         empire.updateContactsTimer = empire.updateContactsTimer - 0.01666667f;//elapsedTime;
@@ -1649,7 +1649,7 @@ namespace Ship_Game
                             if (empire.BorderNodes.Count != check )
                             {
                                 rebuild = true;
-                                empire.pathcache.Clear();
+                                empire.PathCache.Clear();
                                // empire.lockPatchCache.ExitWriteLock();
                            
                             }
@@ -1705,7 +1705,7 @@ namespace Ship_Game
 
 
                         if (true)
-                            foreach (KeyValuePair<Empire, Relationship> rels in empire.GetRelations())
+                            foreach (KeyValuePair<Empire, Relationship> rels in empire.AllRelations)
                             {
                                 if (!rels.Value.Known)
                                     continue;
@@ -1848,7 +1848,7 @@ namespace Ship_Game
                                                    }
                                                    
                                                }
-                                               if (ship.GetSystem() == null)
+                                               if (ship.System== null)
                                                {
                                                  
                                                    ship.isInDeepSpace = true;
@@ -2473,7 +2473,7 @@ namespace Ship_Game
                     foreach (Ship ship in (List<Ship>)system.ShipList)
                     //Parallel.ForEach(system.ShipList, ship =>
                     {
-                        if (ship.GetSystem() == null)
+                        if (ship.System== null)
                             continue;
                         //added by gremlin ghost ship killer
                         if (ship.ModuleSlotList.Count == 0)
@@ -2537,7 +2537,7 @@ namespace Ship_Game
                         if (item is Ship)
                         {
                             Ship ship = item as Ship;
-                            if (ship.Active && ship.isInDeepSpace && ship.GetSystem() == null)
+                            if (ship.Active && ship.isInDeepSpace && ship.System== null)
                             {
                                 this.DeepSpaceShips.Add(ship);
                             }
@@ -3143,9 +3143,9 @@ namespace Ship_Game
                         {
                             foreach (Planet p in system.PlanetList)
                             {
-                                if (p.ExploredDict[EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty)] && p.RecentCombat)
+                                if (p.ExploredDict[Empire.Universe.PlayerEmpire] && p.RecentCombat)
                                 {
-                                    if (p.Owner == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                    if (p.Owner == Empire.Universe.PlayerEmpire)
                                     {
                                         if (nbrplanet == lastplanetcombat)
                                             PlanetToView = p;
@@ -3156,7 +3156,7 @@ namespace Ship_Game
                                         flagPlanet = false;
                                         foreach (Troop troop in p.TroopsHere)
                                         {
-                                            if (troop.GetOwner() != null && troop.GetOwner() == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty))
+                                            if (troop.GetOwner() != null && troop.GetOwner() == Empire.Universe.PlayerEmpire)
                                             {
                                                 flagPlanet = true;
                                                 break;
@@ -3394,7 +3394,7 @@ namespace Ship_Game
                 if (this.Debug)
                 {
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.C) && !input.LastKeyboardState.IsKeyDown(Keys.C))
-                        ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", EmpireManager.Remnants, this.mouseWorldPos);
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.C) && !input.LastKeyboardState.IsKeyDown(Keys.C))
                         ResourceManager.CreateShipAtPoint("Bondage-Class Mk IIIa Cruiser", this.player, this.mouseWorldPos);
 
@@ -3402,7 +3402,7 @@ namespace Ship_Game
                     {
 
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
-                            HelperFunctions.CreateFleetAt("Fleet 2", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                            HelperFunctions.CreateFleetAt("Fleet 2", EmpireManager.Remnants, this.mouseWorldPos);
                         else if (input.CurrentKeyboardState.IsKeyDown(Keys.Z) && !input.LastKeyboardState.IsKeyDown(Keys.Z))
                             HelperFunctions.CreateFleetAt("Fleet 1", this.player, this.mouseWorldPos);
                     }
@@ -3425,13 +3425,13 @@ namespace Ship_Game
                     else if (this.SelectedPlanet != null && this.Debug && (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X)))
                     {
                         foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
-                            this.SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.GetEmpireByName("The Remnant")));
+                            this.SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.Remnants));
                     }
 
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
-                        ResourceManager.CreateShipAtPoint("Remnant Mothership", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        ResourceManager.CreateShipAtPoint("Remnant Mothership", EmpireManager.Remnants, this.mouseWorldPos);
                     else if (input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
-                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.GetEmpireByName("The Remnant"), this.mouseWorldPos);
+                        ResourceManager.CreateShipAtPoint("Target Dummy", EmpireManager.Remnants, this.mouseWorldPos);
 
                     //This little sections added to stress-test the resource manager, and load lots of models into memory.      -Gretman
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.B) && !input.LastKeyboardState.IsKeyDown(Keys.B))
@@ -4096,7 +4096,7 @@ namespace Ship_Game
                     Vector3 vector3 = new Vector3(ray.Position.X + num1 * ray.Direction.X, ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
                     Vector2 vector2_1 = new Vector2(vector3.X, vector3.Y);
                     Vector2 target = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
-                    float num2 = Math.Abs(MathHelper.ToRadians(this.findAngleToTarget(this.startDrag, target)));
+                    float num2 = startDrag.RadiansToTarget(target);
                     Vector2 vector2_2 = Vector2.Normalize(target - this.startDrag);
                     if ((double)input.RightMouseTimer > 0.0)
                     {
@@ -4104,8 +4104,8 @@ namespace Ship_Game
                         {
                             AudioManager.PlayCue("echo_affirm1");
                             this.SelectedSomethingTimer = 3f;
-                            float num3 = Math.Abs(MathHelper.ToRadians(this.findAngleToTarget(this.SelectedFleet.Position, vector2_1)));
-                            Vector2 vectorToTarget = HelperFunctions.FindVectorToTarget(Vector2.Zero, HelperFunctions.findPointFromAngleAndDistanceUsingRadians(this.SelectedFleet.Position, num3, 1f));
+                            float num3 = SelectedFleet.Position.RadiansToTarget(vector2_1);
+                            Vector2 vectorToTarget = HelperFunctions.FindVectorToTarget(Vector2.Zero, MathExt.PointFromRadians(this.SelectedFleet.Position, num3, 1f));
                             foreach (Ship ship in (List<Ship>)this.SelectedFleet.Ships)
                                 this.player.GetGSAI().DefensiveCoordinator.remove(ship);
                             Ship ship1 = this.CheckShipClick(this.startDrag);
@@ -4501,7 +4501,7 @@ namespace Ship_Game
                 if (input.CurrentMouseState.RightButton == ButtonState.Pressed && input.LastMouseState.RightButton == ButtonState.Pressed)
                 {
                     Vector2 target = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
-                    float facing = Math.Abs(MathHelper.ToRadians(this.findAngleToTarget(this.startDrag, target)));
+                    float facing = startDrag.RadiansToTarget(target);
                     Vector2 fVec1 = Vector2.Normalize(target - this.startDrag);
                     if ((double)input.RightMouseTimer > 0.0)
                         return;
@@ -4627,7 +4627,7 @@ namespace Ship_Game
                     }
                     else
                         //add new right click troop and troop ship options on planets
-                        if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated || planet.Owner == null)))
+                        if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated || planet.Owner == null)))
                         {
                             if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                 ship.GetAI().OrderToOrbit(planet, false);
@@ -4651,7 +4651,7 @@ namespace Ship_Game
                     float friendlies = planet.GetGroundStrength(this.player);
                     if (planet.Owner != this.player)
                     {
-                        if (planet.Owner == null || this.player.GetRelations()[planet.Owner].AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)
+                        if (planet.Owner == null || this.player.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)
                         {
                             if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
                                 ship.GetAI().OrderBombardPlanet(planet);
@@ -5416,7 +5416,7 @@ namespace Ship_Game
             Projectile.universeScreen             = null;
             ShipModule.universeScreen             = null;
             Asteroid.universeScreen               = null;
-            Empire.universeScreen                 = null;
+            Empire.Universe                 = null;
             SpaceJunk.universeScreen              = null;
             ResourceManager.UniverseScreen        = null;
             Planet.universeScreen                 = null;
@@ -5642,7 +5642,7 @@ namespace Ship_Game
             float radius = this.SelectedPlanet.SO.WorldBoundingSphere.Radius;
             Vector3 vector3_3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedPlanet.Position, 2500f), this.projection, this.view, Matrix.Identity);
             Vector2 Position1 = new Vector2(vector3_3.X, vector3_3.Y);
-            Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, this.SelectedPlanet.Position, radius), 2500f), this.projection, this.view, Matrix.Identity);
+            Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(SelectedPlanet.Position.PointOnCircle(90f, radius), 2500f), this.projection, this.view, Matrix.Identity);
             float Radius1 = Vector2.Distance(new Vector2(vector3_4.X, vector3_4.Y), Position1);
             if ((double)Radius1 < 8.0)
                 Radius1 = 8f;
@@ -5664,16 +5664,17 @@ namespace Ship_Game
                 {
                     Vector2 origin1 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)moduleSlot.module.XSIZE / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)moduleSlot.module.YSIZE / 2));
                     Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);
-                    float angleToTarget = this.findAngleToTarget(origin1, target);
-                    Vector2 angleAndDistance = this.findPointFromAngleAndDistance(moduleSlot.module.Center, MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+                    float angleToTarget = origin1.AngleToTarget(target);
+                    Vector2 angleAndDistance = moduleSlot.module.Center.PointFromAngle(
+                        MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
                     float num1 = (float)((int)moduleSlot.module.XSIZE * 16 / 2);
                     float num2 = (float)((int)moduleSlot.module.YSIZE * 16 / 2);
                     float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num1, 2.0) + (float)Math.Pow((double)num2, 2.0)));
                     float radians = 3.141593f - (float)Math.Asin((double)num1 / (double)distance) + ship.Rotation;
-                    origin1 = this.findPointFromAngleAndDistance(angleAndDistance, MathHelper.ToDegrees(radians), distance);
+                    origin1 = angleAndDistance.PointFromAngle(MathHelper.ToDegrees(radians), distance);
                     Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(origin1, 0.0f), this.projection, this.view, Matrix.Identity);
                     Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y);
-                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, moduleSlot.module.Center, moduleSlot.module.shield_radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
+                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(moduleSlot.module.Center.PointOnCircle(90f, moduleSlot.module.shield_radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
                     float num3 = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2_2.X);
                     Rectangle destinationRectangle = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)num3 * 2, (int)num3 * 2);
                     Vector2 origin2 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
@@ -5692,7 +5693,7 @@ namespace Ship_Game
                 {
                     Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(fogOfWarNode.Position.X, fogOfWarNode.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                     Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
-                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, fogOfWarNode.Position, fogOfWarNode.Radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
+                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(fogOfWarNode.Position.PointOnCircle(90f, fogOfWarNode.Radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
                     float num = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2.X);
                     Rectangle destinationRectangle = new Rectangle((int)vector2.X, (int)vector2.Y, (int)num * 2, (int)num * 2);
                     Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
@@ -5720,7 +5721,7 @@ namespace Ship_Game
                             continue;
                         Vector3 local_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_2 = new Vector2(local_1.X, local_1.Y);
-                        Vector3 local_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_0.Position, item_0.Radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 local_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.PointOnCircle(90f, item_0.Radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
                         float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - local_2.X);
                         Rectangle local_7 = new Rectangle((int)local_2.X, (int)local_2.Y, (int)((double)local_6 * 2.59999990463257), (int)((double)local_6 * 2.59999990463257));
                         Vector2 local_8 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
@@ -5739,7 +5740,7 @@ namespace Ship_Game
             {
                 foreach (Empire index in EmpireManager.EmpireList)
                 {
-                    if (this.Debug || index == this.player || this.player.GetRelations()[index].Known)
+                    if (this.Debug || index == this.player || this.player.GetRelations(index).Known)
                     {
                         List<Circle> list = new List<Circle>();
                         index.BorderNodeLocker.EnterReadLock();
@@ -5750,7 +5751,7 @@ namespace Ship_Game
                                 {
                                     Vector3 local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.Position.X, item_1.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                                     Vector2 local_3 = new Vector2(local_2.X, local_2.Y);
-                                    Vector3 local_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.Position, item_1.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
+                                    Vector3 local_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.Position.PointOnCircle(90f, item_1.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
                                     float local_7 = Math.Abs(new Vector2(local_5.X, local_5.Y).X - local_3.X);
                                     Rectangle local_8 = new Rectangle((int)local_3.X, (int)local_3.Y, (int)local_7 * 5, (int)local_7 * 5);
                                     Vector2 local_9 = new Vector2((float)(ResourceManager.TextureDict["UI/nodecorrected"].Width / 2), (float)(ResourceManager.TextureDict["UI/nodecorrected"].Height / 2));
@@ -5768,7 +5769,7 @@ namespace Ship_Game
                                             Vector2 local_13_1 = local_3;
                                             local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                                             local_3 = new Vector2(local_2.X, local_2.Y);
-                                            float local_14 = MathHelper.ToRadians(HelperFunctions.findAngleToTarget(local_13_1, local_3));
+                                            float local_14 = local_13_1.RadiansToTarget(local_3);
                                             local_8 = new Rectangle((int)local_13_1.X, (int)local_13_1.Y, (int)local_7, (int)Vector2.Distance(local_13_1, local_3));
                                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/nodeconnect"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
                                             //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
@@ -5799,7 +5800,7 @@ namespace Ship_Game
                     {
                         Vector3 local_1 = item_0.module == null ? this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.pos.X, item_0.pos.Y, 0.0f), this.projection, this.view, Matrix.Identity) : this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.module.Position.X, item_0.module.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_2 = new Vector2(local_1.X, local_1.Y);
-                        Vector3 local_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, new Vector2(item_0.pos.X, item_0.pos.Y), item_0.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 local_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(new Vector2(item_0.pos.X, item_0.pos.Y).PointOnCircle(90f, item_0.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
                         float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - local_2.X);
                         item_0.ExplosionRect = new Rectangle((int)local_2.X, (int)local_2.Y, (int)local_6, (int)local_6);
                         if (item_0.Animation == 1)
@@ -5877,7 +5878,10 @@ namespace Ship_Game
             }
             this.AdjustCamera((float)gameTime.ElapsedGameTime.TotalSeconds);
             this.camPos.Z = this.camHeight;
-            this.view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(MathHelper.ToRadians(180f)) * Matrix.CreateRotationX(MathHelper.ToRadians(0.0f)) * Matrix.CreateLookAt(new Vector3(-this.camPos.X, this.camPos.Y, this.camHeight), new Vector3(-this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
+            this.view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) 
+                * Matrix.CreateRotationY(180f.ToRadians()) 
+                * Matrix.CreateRotationX(0.0f.ToRadians()) 
+                * Matrix.CreateLookAt(new Vector3(-this.camPos.X, this.camPos.Y, this.camHeight), new Vector3(-this.camPos.X, this.camPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Matrix matrix = this.view;
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, this.MainTarget);
             this.DrawMain(gameTime);
@@ -5989,7 +5993,7 @@ namespace Ship_Game
                         float local_14 = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(item_1.planetToClick.scale)) / 1.5)));
                         Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
                         float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
                         Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
                         Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
@@ -6004,7 +6008,7 @@ namespace Ship_Game
                         float local_14 = (float)(ship.shipToClick.InhibitionRadius);
                         Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, ship.shipToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
                         float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
                         Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
                         Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
@@ -6030,7 +6034,7 @@ namespace Ship_Game
                                 float local_14 = (float)(item_0.Radius);
                                 Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                                 Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                                Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_0.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                                Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
                                 float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
                                 Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
                                 Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
@@ -6055,7 +6059,7 @@ namespace Ship_Game
                         float local_14 = (float)(ship.shipToClick.RangeForOverlay);
                         Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, ship.shipToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
                         float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
                         Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
                         Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_shiprange"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_shiprange"].Height / 2));
@@ -6067,7 +6071,7 @@ namespace Ship_Game
                         float local_14 = (float)(ship.shipToClick.RangeForOverlay);
                         Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, ship.shipToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.shipToClick.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
                         float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
                         Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
                         Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_shiprange"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_shiprange"].Height / 2));
@@ -6086,7 +6090,7 @@ namespace Ship_Game
                         float local_14 = 2500f * item_1.planetToClick.scale;
                         Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, item_1.planetToClick.Position, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.planetToClick.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
                         float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
                         Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
                         Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
@@ -6268,7 +6272,7 @@ namespace Ship_Game
         {
             Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(WorldPos.X, WorldPos.Y, 0.0f), this.projection, this.view, Matrix.Identity);
             Vector2 center = new Vector2(vector3_1.X, vector3_1.Y);
-            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, WorldPos, radius), 0.0f), this.projection, this.view, Matrix.Identity);
+            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(WorldPos.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
             float radius1 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), center);
             Rectangle destinationRectangle = new Rectangle((int)center.X, (int)center.Y, (int)radius1 * 2, (int)radius1 * 2);
             Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
@@ -6434,7 +6438,7 @@ namespace Ship_Game
                 }
                 foreach (UniverseScreen.Intersection intersection in list2)
                 {
-                    float num2 = Math.Abs(HelperFunctions.findAngleToTarget(circle.Center, intersection.inter)) - 90f;
+                    float num2 = Math.Abs(circle.Center.AngleToTarget(intersection.inter)) - 90f;
                     if ((double)num2 < 0.0)
                         num2 += 360f;
                     intersection.Angle = num2;
@@ -6500,10 +6504,10 @@ namespace Ship_Game
                         float num1 = Vector2.Distance(vector2_1, vector2_2);
                         float num2 = MathHelper.ToDegrees((float)Math.Asin((double)num1 / 2.0 / (double)A.Radius) * 2f);
                         float degrees1 = (double)Vector2.Distance(B.Center, A.Center) >= (double)vector2Array[2].Y ? 360f - num2 : num2;
-                        float startingAngle1 = Math.Abs(HelperFunctions.findAngleToTarget(A.Center, vector2_2)) - 90f;
+                        float startingAngle1 = Math.Abs(A.Center.AngleToTarget(vector2_2)) - 90f;
                         Primitives2D.DrawMyArc(this.ScreenManager.SpriteBatch, A.Center, A.Radius, 50, startingAngle1, degrees1, vector2_1, vector2_2, Color.Red, 3f, Circles);
                         float num3 = MathHelper.ToDegrees((float)Math.Asin((double)num1 / 2.0 / (double)B.Radius) * 2f);
-                        float startingAngle2 = Math.Abs(HelperFunctions.findAngleToTarget(B.Center, vector2_1)) - 90f;
+                        float startingAngle2 = Math.Abs(B.Center.AngleToTarget(vector2_1)) - 90f;
                         float degrees2 = (double)Vector2.Distance(B.Center, A.Center) >= (double)vector2Array[2].X ? 360f - num3 : num3;
                         Primitives2D.DrawMyArc(this.ScreenManager.SpriteBatch, B.Center, B.Radius, 50, startingAngle2, degrees2, vector2_2, vector2_1, Color.Red, 3f, Circles);
                         this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, "C0", vector2_1, Color.White);
@@ -6725,15 +6729,15 @@ namespace Ship_Game
                         if ((this.SelectedShipList.Contains(ship) || this.SelectedShip == ship) && HelperFunctions.CheckIntersection(this.ScreenRectangle, ship.ScreenPosition))
                         {
                             //Color local_3 = new Color();
-                            if (!this.player.GetRelations().ContainsKey(ship.loyalty))
+                            if (this.player.TryGetRelations(ship.loyalty, out Relationship rel))
                             {
-                                Color local_3_1 = Color.LightGreen;
-                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_1);
+                                Color local_3_2 = rel.AtWar || ship.loyalty.isFaction ? Color.Red : Color.Gray;
+                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_2);
                             }
                             else
                             {
-                                Color local_3_2 = this.player.GetRelations()[ship.loyalty].AtWar || ship.loyalty.isFaction ? Color.Red : Color.Gray;
-                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_2);
+                                Color local_3_1 = Color.LightGreen;
+                                Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_1);
                             }
                         }
                     }
@@ -6860,8 +6864,8 @@ namespace Ship_Game
                     if (ship.isPlayerShip() && (double)moduleSlot.module.FieldOfFire != 0.0 && moduleSlot.module.InstalledWeapon != null)
                     {
                         float num2 = moduleSlot.module.FieldOfFire / 2f;
-                        Vector2 angleAndDistance1 = this.findPointFromAngleAndDistance(moduleSlot.module.Center, (float)((double)MathHelper.ToDegrees(ship.Rotation) + (double)moduleSlot.module.facing + -(double)num2), moduleSlot.module.InstalledWeapon.Range);
-                        Vector2 angleAndDistance2 = this.findPointFromAngleAndDistance(moduleSlot.module.Center, MathHelper.ToDegrees(ship.Rotation) + moduleSlot.module.facing + num2, moduleSlot.module.InstalledWeapon.Range);
+                        Vector2 angleAndDistance1 = moduleSlot.module.Center.PointFromAngle((float)((double)MathHelper.ToDegrees(ship.Rotation) + (double)moduleSlot.module.facing + -(double)num2), moduleSlot.module.InstalledWeapon.Range);
+                        Vector2 angleAndDistance2 = moduleSlot.module.Center.PointFromAngle(MathHelper.ToDegrees(ship.Rotation) + moduleSlot.module.facing + num2, moduleSlot.module.InstalledWeapon.Range);
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
                         Vector3 vector3_2 = viewport.Project(new Vector3(angleAndDistance1, 0.0f), this.projection, this.view, Matrix.Identity);
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
@@ -6876,19 +6880,19 @@ namespace Ship_Game
                         {
                             Color color2 = new Color(byte.MaxValue, byte.MaxValue, (byte)0, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num3 * 2, (int)num3 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "Laser" || moduleSlot.module.InstalledWeapon.WeaponType == "HeavyLaser")
                         {
                             Color color2 = new Color(byte.MaxValue, (byte)0, (byte)0, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num3 * 2, (int)num3 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "PhotonCannon")
                         {
                             Color color2 = new Color((byte)0, (byte)0, byte.MaxValue, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num3 * 2, (int)num3 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else
                         {
@@ -6922,13 +6926,16 @@ namespace Ship_Game
                         num3 = 3.141593f;
                     Vector2 vector2_2 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)num1 / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)num2 / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)num1 / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)num2 / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)num1 / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)num2 / 2));
                     Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);
-                    float angleToTarget = this.findAngleToTarget(vector2_2, target);
-                    Vector2 angleAndDistance1 = this.findPointFromAngleAndDistance(moduleSlot.module.Center, MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+
+                    float angleToTarget = vector2_2.AngleToTargetSigned(target);
+                    Vector2 angleAndDistance1 = moduleSlot.module.Center.PointFromAngle(
+                        MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
+
                     float num4 = (float)((int)num1 * 16 / 2);
                     float num5 = (float)((int)num2 * 16 / 2);
                     float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num4, 2.0) + (float)Math.Pow((double)num5, 2.0)));
                     float radians = 3.141593f - (float)Math.Asin((double)num4 / (double)distance) + ship.Rotation;
-                    vector2_2 = this.findPointFromAngleAndDistance(angleAndDistance1, MathHelper.ToDegrees(radians), distance);
+                    vector2_2 = MathExt.PointFromAngle(angleAndDistance1, MathHelper.ToDegrees(radians), distance);
                     viewport = this.ScreenManager.GraphicsDevice.Viewport;
                     Vector3 vector3_1 = viewport.Project(new Vector3(vector2_2, 0.0f), this.projection, this.view, Matrix.Identity);
                     Vector2 origin1 = new Vector2((float)(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[moduleSlot.module.UID].IconTexturePath].Width / 2), (float)(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[moduleSlot.module.UID].IconTexturePath].Height / 2));
@@ -6975,8 +6982,8 @@ namespace Ship_Game
                     if (ship.isPlayerShip() && (double)moduleSlot.module.FieldOfFire != 0.0 && moduleSlot.module.InstalledWeapon != null)
                     {
                         float num7 = moduleSlot.module.FieldOfFire / 2f;
-                        Vector2 angleAndDistance2 = this.findPointFromAngleAndDistance(vector2_2, (float)((double)MathHelper.ToDegrees(ship.Rotation) + (double)moduleSlot.module.facing + -(double)num7), moduleSlot.module.InstalledWeapon.Range);
-                        Vector2 angleAndDistance3 = this.findPointFromAngleAndDistance(vector2_2, MathHelper.ToDegrees(ship.Rotation) + moduleSlot.module.facing + num7, moduleSlot.module.InstalledWeapon.Range);
+                        Vector2 angleAndDistance2 = vector2_2.PointFromAngle((float)((double)MathHelper.ToDegrees(ship.Rotation) + (double)moduleSlot.module.facing + -(double)num7), moduleSlot.module.InstalledWeapon.Range);
+                        Vector2 angleAndDistance3 = vector2_2.PointFromAngle(MathHelper.ToDegrees(ship.Rotation) + moduleSlot.module.facing + num7, moduleSlot.module.InstalledWeapon.Range);
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
                         Vector3 vector3_2 = viewport.Project(new Vector3(angleAndDistance2, 0.0f), this.projection, this.view, Matrix.Identity);
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
@@ -6991,19 +6998,19 @@ namespace Ship_Game
                         {
                             Color color2 = new Color(byte.MaxValue, byte.MaxValue, (byte)0, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num8 * 2, (int)num8 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "Laser" || moduleSlot.module.InstalledWeapon.WeaponType == "HeavyLaser")
                         {
                             Color color2 = new Color(byte.MaxValue, (byte)0, (byte)0, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num8 * 2, (int)num8 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "PhotonCannon")
                         {
                             Color color2 = new Color((byte)0, (byte)0, byte.MaxValue, byte.MaxValue);
                             Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num8 * 2, (int)num8 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, MathHelper.ToRadians(moduleSlot.module.facing) + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else
                         {
@@ -7230,7 +7237,7 @@ namespace Ship_Game
             float radius = WorldRadius;
             Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(WorldPos, 0.0f), this.projection, this.view, Matrix.Identity);
             Vector2 Center = new Vector2(vector3_1.X, vector3_1.Y);
-            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, WorldPos, radius), 0.0f), this.projection, this.view, Matrix.Identity);
+            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(WorldPos.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
             float Radius = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), Center) + 10f;
             return new Circle(Center, Radius);
         }
@@ -7291,7 +7298,7 @@ namespace Ship_Game
                         Vector2 local_7 = new Vector2(local_6.X, local_6.Y);
                         if (HelperFunctions.CheckIntersection(rect, local_7))
                         {
-                            Vector3 local_9 = new Vector3(this.GeneratePointOnCircle(90f, local_2.Position, local_4), 0.0f);
+                            Vector3 local_9 = new Vector3(local_2.Position.PointOnCircle(90f, local_4), 0.0f);
                             Vector3 local_10 = this.ScreenManager.GraphicsDevice.Viewport.Project(local_9, this.projection, this.view, Matrix.Identity);
                             Vector2 local_11 = new Vector2(local_10.X, local_10.Y);
                             float local_12 = Vector2.Distance(local_11, local_7);
@@ -7305,9 +7312,9 @@ namespace Ship_Game
                                 ScreenPos = local_7,
                                 shipToClick = local_2
                             });
-                            if (local_2.loyalty == this.player || local_2.loyalty != this.player && this.player.GetRelations()[local_2.loyalty].Treaty_Alliance)
+                            if (local_2.loyalty == this.player || local_2.loyalty != this.player && this.player.GetRelations(local_2.loyalty).Treaty_Alliance)
                             {
-                                local_9 = new Vector3(this.GeneratePointOnCircle(90f, local_2.Position, local_2.SensorRange), 0.0f);
+                                local_9 = new Vector3(local_2.Position.PointOnCircle(90f, local_2.SensorRange), 0.0f);
                                 local_10 = this.ScreenManager.GraphicsDevice.Viewport.Project(local_9, this.projection, this.view, Matrix.Identity);
                                 local_11 = new Vector2(local_10.X, local_10.Y);
                                 //local_2.ScreenSensorRadius = Vector2.Distance(local_11, local_7);    //This is assigned here, but is not referenced anywhere, removing to save memory -Gretman
@@ -7333,7 +7340,7 @@ namespace Ship_Game
                 {
                     Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(vector3_1, this.projection, this.view, Matrix.Identity);
                     Vector2 vector2 = new Vector2(vector3_2.X, vector3_2.Y);
-                    Vector3 vector3_3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, solarSystem.Position, 4500f), 0.0f), this.projection, this.view, Matrix.Identity);
+                    Vector3 vector3_3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(solarSystem.Position.PointOnCircle(90f, 4500f), 0.0f), this.projection, this.view, Matrix.Identity);
                     float num1 = Vector2.Distance(new Vector2(vector3_3.X, vector3_3.Y), vector2);
                     lock (GlobalStats.ClickableSystemsLock)
                         this.ClickableSystems.Add(new UniverseScreen.ClickableSystem()
@@ -7351,7 +7358,7 @@ namespace Ship_Game
                                 float radius = planet.SO.WorldBoundingSphere.Radius;
                                 Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), this.projection, this.view, Matrix.Identity);
                                 Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
-                                Vector3 vector3_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, planet.Position, radius), 2500f), this.projection, this.view, Matrix.Identity);
+                                Vector3 vector3_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position.PointOnCircle(90f, radius), 2500f), this.projection, this.view, Matrix.Identity);
                                 float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
                                 float scale = num2 / 115f;
                                 if (planet.planetType == 1 || planet.planetType == 11 || (planet.planetType == 13 || planet.planetType == 21) || (planet.planetType == 22 || planet.planetType == 25 || (planet.planetType == 27 || planet.planetType == 29)))
@@ -7454,7 +7461,7 @@ namespace Ship_Game
                     {
                         Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(vector3_3, this.projection, this.view, Matrix.Identity);
                         Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
-                        Vector3 vector3_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.GeneratePointOnCircle(90f, solarSystem.Position, 25000f), 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 vector3_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(solarSystem.Position.PointOnCircle(90f, 25000f), 0.0f), this.projection, this.view, Matrix.Identity);
                         float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
                         Vector2 vector2 = new Vector2(position.X, position.Y);
                         if ((solarSystem.ExploredDict[this.player] || this.Debug) && this.SelectedSystem != solarSystem)
@@ -8209,7 +8216,7 @@ namespace Ship_Game
                         float radius = planet.SO.WorldBoundingSphere.Radius;
                         Vector3 vector3_1 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), projection, view, Matrix.Identity);
                         Vector2 vector2_1 = new Vector2(vector3_1.X, vector3_1.Y);
-                        Vector3 vector3_2 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(GeneratePointOnCircle(90f, planet.Position, radius), 2500f), projection, view, Matrix.Identity);
+                        Vector3 vector3_2 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position.PointOnCircle(90f, radius), 2500f), projection, view, Matrix.Identity);
                         float num1 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), vector2_1) + 10f;
                         Vector2 vector2_2 = new Vector2(vector3_1.X, vector3_1.Y - num1);
                         if (planet.ExploredDict[player])
@@ -8284,92 +8291,6 @@ namespace Ship_Game
                     }
                 }
             }
-        }
-
-        protected Vector2 GeneratePointOnCircle(float angle, Vector2 center, float radius)
-        {
-            return findPointFromAngleAndDistance(center, angle, radius);
-        }
-
-        protected Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
-        {
-            Vector2 vector2 = new Vector2(0f, 0f);
-            float num1 = angle;
-            float num2 = distance;
-            int num3 = 0;
-            float num4 = 0f;
-            float num5 = 0f;
-            if (num1 > 360.0f)
-                num1 -= 360f;
-            if (num1 < 90.0f)
-            {
-                float num6 = (float)((90f - num1) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 1;
-            }
-            else if ((double)num1 > 90.0 && (double)num1 < 180.0)
-            {
-                float num6 = (float)((double)(num1 - 90f) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin((double)num6);
-                num5 = num2 * (float)Math.Cos((double)num6);
-                num3 = 2;
-            }
-            else if (num1 > 180f && num1 < 270f)
-            {
-                float num6 = (float)((270f - num1) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin(num6);
-                num5 = num2 * (float)Math.Cos(num6);
-                num3 = 3;
-            }
-            else if (num1 > 270f && num1 < 360f)
-            {
-                float num6 = (float)((num1 - 270f) * 3.14159274101257 / 180.0);
-                num4 = num2 * (float)Math.Sin(num6);
-                num5 = num2 * (float)Math.Cos(num6);
-                num3 = 4;
-            }
-            if (num1 == 0f)
-            {
-                vector2.X = position.X;
-                vector2.Y = position.Y - num2;
-            }
-            if (num1 == 90f)
-            {
-                vector2.X = position.X + num2;
-                vector2.Y = position.Y;
-            }
-            if (num1 == 180f)
-            {
-                vector2.X = position.X;
-                vector2.Y = position.Y + num2;
-            }
-            if (num1 == 270f)
-            {
-                vector2.X = position.X - num2;
-                vector2.Y = position.Y;
-            }
-            if (num3 == 1)
-            {
-                vector2.X = position.X + num5;
-                vector2.Y = position.Y - num4;
-            }
-            else if (num3 == 2)
-            {
-                vector2.X = position.X + num5;
-                vector2.Y = position.Y + num4;
-            }
-            else if (num3 == 3)
-            {
-                vector2.X = position.X - num5;
-                vector2.Y = position.Y + num4;
-            }
-            else if (num3 == 4)
-            {
-                vector2.X = position.X - num5;
-                vector2.Y = position.Y - num4;
-            }
-            return vector2;
         }
 
         protected void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex)
@@ -8494,31 +8415,6 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
 
-        public float findAngleToTarget(Vector2 origin, Vector2 target)
-        {
-            float num1 = target.X;
-            float num2 = target.Y;
-            float num3 = origin.X;
-            float num4 = origin.Y;
-            float num5 = 0.0f;
-            if ((double)num1 > (double)num3 && (double)num2 < (double)num4)
-                num5 = 90f - Math.Abs((float)(Math.Atan(((double)num2 - (double)num4) / ((double)num1 - (double)num3)) * 180.0 / 3.14159274101257));
-            else if ((double)num1 > (double)num3 && (double)num2 > (double)num4)
-                num5 = 90f + (float)(Math.Atan(((double)num2 - (double)num4) / ((double)num1 - (double)num3)) * 180.0 / 3.14159274101257);
-            else if ((double)num1 < (double)num3 && (double)num2 > (double)num4)
-                num5 = -(270f - Math.Abs((float)(Math.Atan(((double)num2 - (double)num4) / ((double)num1 - (double)num3)) * 180.0 / 3.14159274101257)));
-            else if ((double)num1 < (double)num3 && (double)num2 < (double)num4)
-                num5 = -(270f + (float)(Math.Atan(((double)num2 - (double)num4) / ((double)num1 - (double)num3)) * 180.0 / 3.14159274101257));
-            if ((double)num1 == (double)num3 && (double)num2 < (double)num4)
-                num5 = 0.0f;
-            else if ((double)num1 > (double)num3 && (double)num2 == (double)num4)
-                num5 = 90f;
-            else if ((double)num1 == (double)num3 && (double)num2 > (double)num4)
-                num5 = 180f;
-            else if ((double)num1 < (double)num3 && (double)num2 == (double)num4)
-                num5 = 270f;
-            return num5;
-        }
         protected virtual void Destroy()
         {
             starfield?.Dispose();

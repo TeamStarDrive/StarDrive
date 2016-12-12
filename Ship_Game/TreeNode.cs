@@ -47,7 +47,7 @@ namespace Ship_Game
 			}
 			this.screen = screen;
 			this.tech = Tech;
-			this.TechName = string.Concat(Localizer.Token(ResourceManager.TechTree[Tech.UID].NameIndex), ResourceManager.TechTree[Tech.UID].MaxLevel > 1 ? " " + NumberToRomanConvertor.NumberToRoman(Tech.level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[Tech.UID].MaxLevel) : "");
+			this.TechName = string.Concat(Localizer.Token(ResourceManager.TechTree[Tech.UID].NameIndex), ResourceManager.TechTree[Tech.UID].MaxLevel > 1 ? " " + NumberToRomanConvertor.NumberToRoman(Tech.Level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[Tech.UID].MaxLevel) : "");
 			this.BaseRect.X = (int)Position.X;
 			this.BaseRect.Y = (int)Position.Y;
 			this.progressRect = new Rectangle(this.BaseRect.X + 14, this.BaseRect.Y + 21, 1, 34);
@@ -213,7 +213,7 @@ namespace Ship_Game
                         }
                     }
                     spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_base_title_complete"] : ResourceManager.TextureDict["ResearchMenu/tech_base_title"], this.TitleRect, Color.White);
-                    string str1 = HelperFunctions.parseText(this.TitleFont, this.TechName, this.TitleWidth);
+                    string str1 = HelperFunctions.ParseText(this.TitleFont, this.TechName, this.TitleWidth);
                     string[] strArray1 = Regex.Split(str1, "\n");
                     Vector2 vector2_1 = new Vector2((float)(this.TitleRect.X + this.TitleRect.Width / 2) - this.TitleFont.MeasureString(str1).X / 2f, (float)(this.TitleRect.Y + 14) - this.TitleFont.MeasureString(str1).Y / 2f);
                     int num1 = 0;
@@ -245,7 +245,7 @@ namespace Ship_Game
                         spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.UID], this.IconRect, Color.White);
                     }
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_title_hover"], this.TitleRect, Color.White);
-                    string str2 = HelperFunctions.parseText(this.TitleFont, this.TechName, this.TitleWidth);
+                    string str2 = HelperFunctions.ParseText(this.TitleFont, this.TechName, this.TitleWidth);
                     string[] strArray2 = Regex.Split(str2, "\n");
                     Vector2 vector2_2 = new Vector2((float)(this.TitleRect.X + this.TitleRect.Width / 2) - this.TitleFont.MeasureString(str2).X / 2f, (float)(this.TitleRect.Y + 14) - this.TitleFont.MeasureString(str2).Y / 2f);
                     int num3 = 0;
@@ -277,7 +277,7 @@ namespace Ship_Game
                         spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.UID], this.IconRect, Color.White);
                     }
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_title_hover"], this.TitleRect, Color.White);
-                    string str3 = HelperFunctions.parseText(this.TitleFont, this.TechName, this.TitleWidth);
+                    string str3 = HelperFunctions.ParseText(this.TitleFont, this.TechName, this.TitleWidth);
                     string[] strArray3 = Regex.Split(str3, "\n");
                     Vector2 vector2_3 = new Vector2((float)(this.TitleRect.X + this.TitleRect.Width / 2) - this.TitleFont.MeasureString(str3).X / 2f, (float)(this.TitleRect.Y + 14) - this.TitleFont.MeasureString(str3).Y / 2f);
                     int num5 = 0;

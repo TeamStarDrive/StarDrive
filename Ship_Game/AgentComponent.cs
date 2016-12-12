@@ -306,8 +306,8 @@ namespace Ship_Game
 					PotentialSecond.Add(t);
 				}
 			}
-			ret = string.Concat(ret, PotentialFirst[HelperFunctions.GetRandomIndex(PotentialFirst.Count)], " ");
-			ret = string.Concat(ret, PotentialSecond[HelperFunctions.GetRandomIndex(PotentialSecond.Count)]);
+			ret = string.Concat(ret, PotentialFirst[RandomMath.InRange(PotentialFirst.Count)], " ");
+			ret = string.Concat(ret, PotentialSecond[RandomMath.InRange(PotentialSecond.Count)]);
 			return ret;
 		}
 
@@ -422,7 +422,7 @@ namespace Ship_Game
                     a.Name = AgentComponent.GetName(Tokens);
                     //Added new agent information
                     a.Age = RandomMath.RandomBetween(20, 30);
-                    int RandomPlanetIndex = HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count);
+                    int RandomPlanetIndex = RandomMath.InRange(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count);
                     a.HomePlanet = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()[RandomPlanetIndex].Name;
                     EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Add(a);
                     this.AgentSL.AddItem(a);
