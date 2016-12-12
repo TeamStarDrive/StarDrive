@@ -839,7 +839,7 @@ namespace Ship_Game.Gameplay
                     {
                         if (this.Parent.TroopList.Count > 0)
                         {
-                            if (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
+                            if (UniverseRandom.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
                             {
                                 Troop item = this.Parent.TroopList[0];
                                 item.Strength = item.Strength - 1;
@@ -1355,7 +1355,7 @@ namespace Ship_Game.Gameplay
 					{
 						if (this.Parent.TroopList.Count > 0)
 						{
-							if (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
+							if (UniverseRandom.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
 							{
 								Troop item = this.Parent.TroopList[0];
 								item.Strength = item.Strength - 1;
@@ -1636,14 +1636,12 @@ namespace Ship_Game.Gameplay
 			Vector3 center = new Vector3(Center.X, Center.Y, -100f);
 
             SolarSystem inSystem = Parent.System;
-            var rng = inSystem?.RNG ?? Ship.universeScreen.DeepSpaceRNG;
-
             if (Active && Parent.InFrustum)
             {
                 bool parentAlive = !Parent.dying;
                 for (int i = 0; i < 30; ++i)
                 {
-                    Vector3 pos = parentAlive ? center : new Vector3(Parent.Center, rng.RandomBetween(-25f, 25f));
+                    Vector3 pos = parentAlive ? center : new Vector3(Parent.Center, UniverseRandom.RandomBetween(-25f, 25f));
                     universeScreen.explosionParticles.AddParticleThreadA(pos, Vector3.Zero);
                 }
             }
@@ -2001,7 +1999,7 @@ namespace Ship_Game.Gameplay
 					this.hangarShip.VanityName = "Assault Shuttle";
 					this.hangarShip.Mothership = this.Parent;
 					this.hangarShip.DoEscort(this.Parent);
-					this.hangarShip.Velocity = (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
+					this.hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.speed + Parent.Velocity;
 					if (this.hangarShip.Velocity.Length() > this.hangarShip.velocityMaximum)
 					{
 						this.hangarShip.Velocity = Vector2.Normalize(this.hangarShip.Velocity) * this.hangarShip.speed;
@@ -2032,7 +2030,7 @@ namespace Ship_Game.Gameplay
                     this.hangarShip.VanityName = "Assault Shuttle";
                     this.hangarShip.Mothership = this.Parent;
                     this.hangarShip.DoEscort(this.Parent);
-                    this.hangarShip.Velocity = (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
+                    this.hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.speed + Parent.Velocity;
                     if (this.hangarShip.Velocity.Length() > this.hangarShip.velocityMaximum)
                     {
                         this.hangarShip.Velocity = Vector2.Normalize(this.hangarShip.Velocity) * this.hangarShip.speed;
@@ -2067,15 +2065,15 @@ namespace Ship_Game.Gameplay
 					this.hangarShip = Ship_Game.ResourceManager.CreateShipFromHangar(this.hangarShipUID, this.Parent.loyalty, this.Center, this.Parent);
 					if (this.hangarShip != null)
 					{
-						this.hangarShip.DoEscort(this.Parent);
-						this.hangarShip.Velocity = (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.hangarShip.speed) + this.Parent.Velocity;
-						if (this.hangarShip.Velocity.Length() > this.hangarShip.velocityMaximum)
+						hangarShip.DoEscort(this.Parent);
+						hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.speed + Parent.Velocity;
+						if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
 						{
-							this.hangarShip.Velocity = Vector2.Normalize(this.hangarShip.Velocity) * this.hangarShip.speed;
+							hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.speed;
 						}
-						this.hangarShip.Mothership = this.Parent;
-						this.installedSlot.HangarshipGuid = this.hangarShip.guid;
-						this.hangarTimer = this.hangarTimerConstant;
+						hangarShip.Mothership = Parent;
+						installedSlot.HangarshipGuid = hangarShip.guid;
+						hangarTimer = hangarTimerConstant;
 					}
 				}
 			}
@@ -2083,81 +2081,78 @@ namespace Ship_Game.Gameplay
         //added by gremlin fighter rearm fix
         public void ScrambleFighters()
         {
-            if (!this.IsTroopBay && !this.IsSupplyBay && this.Powered)
+            if (IsTroopBay || IsSupplyBay || !Powered)
+                return;
+            if (hangarShip != null && hangarShip.Active)
             {
-                if (this.hangarShip != null && this.hangarShip.Active)
-                {
-                    if (this.hangarShip.GetAI().State == AIState.ReturnToHangar 
-                        || this.hangarShip.GetAI().HasPriorityOrder 
-                        || this.hangarShip.GetAI().hasPriorityTarget
-                        || this.hangarShip.GetAI().IgnoreCombat 
-                        || this.hangarShip.GetAI().Target!=null
-                        || Vector2.Distance(this.Parent.Center,this.hangarShip.Center) >this.Parent.SensorRange
-                        )
-                        return;
-                    this.hangarShip.DoEscort(this.Parent);
-                    return;
-                }
-                if (this.hangarTimer <= 0f && (this.hangarShip == null || this.hangarShip != null && !this.GetHangarShip().Active))
-                {
-                    string hangarship = this.hangarShipUID;
-                    string startingscout = this.Parent.loyalty.data.StartingShip;
+                if (hangarShip.GetAI().State == AIState.ReturnToHangar 
+                    || hangarShip.GetAI().HasPriorityOrder 
+                    || hangarShip.GetAI().hasPriorityTarget
+                    || hangarShip.GetAI().IgnoreCombat 
+                    || hangarShip.GetAI().Target != null
+                    || hangarShip.Center.WithinRadius(Parent.Center, Parent.SensorRange)
+                ) return;
+                hangarShip.DoEscort(Parent);
+                return;
+            }
+            if (hangarTimer > 0f || (hangarShip != null && (hangarShip == null || hangarShip.Active)))
+                return;
 
-                    Ship temphangarship=null;
-                    if (!this.Parent.loyalty.isFaction && (this.hangarShipUID == startingscout 
-                        || !this.Parent.loyalty.ShipsWeCanBuild.Contains(this.hangarShipUID)))
+            string hangarship    = hangarShipUID;
+            string startingscout = Parent.loyalty.data.StartingShip;
+
+            Ship temphangarship=null;
+            if (!Parent.loyalty.isFaction && (hangarShipUID == startingscout 
+                                                   || !Parent.loyalty.ShipsWeCanBuild.Contains(hangarShipUID)))
+            {
+                temphangarship = ResourceManager.ShipsDict[startingscout];
+                List<Ship> fighters = new List<Ship>();
+                foreach (string shipsWeCanBuild in this.Parent.loyalty.ShipsWeCanBuild)
+                {
+
+                    if (!this.PermittedHangarRoles.Contains(ResourceManager.ShipsDict[shipsWeCanBuild].shipData.GetRole()) 
+                        || ResourceManager.ShipsDict[shipsWeCanBuild].Size > this.MaximumHangarShipSize)
                     {
-                        temphangarship = ResourceManager.ShipsDict[startingscout];
-                        List<Ship> fighters = new List<Ship>();
-                        foreach (string shipsWeCanBuild in this.Parent.loyalty.ShipsWeCanBuild)
-                        {
-
-                            if (!this.PermittedHangarRoles.Contains(ResourceManager.ShipsDict[shipsWeCanBuild].shipData.GetRole()) 
-                                || ResourceManager.ShipsDict[shipsWeCanBuild].Size > this.MaximumHangarShipSize)
-                            {
-                                continue;
-                            }
-                            Ship tempship =ResourceManager.ShipsDict[shipsWeCanBuild];
-                            //fighters.Add(ResourceManager.ShipsDict[shipsWeCanBuild]);
-
-                            //if (temphangarship == null)
-                            //{
-                            //    temphangarship = tempship;
-                            //    continue;
-                            //}
-                            if(temphangarship.BaseStrength  < tempship.BaseStrength || temphangarship.Size < tempship .Size)
-                                temphangarship = tempship;
-                            }
-                                //temphangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).FirstOrDefault();
-                        this.hangarShipUID = temphangarship.Name;
-                        hangarship = this.hangarShipUID;
+                        continue;
                     }
+                    Ship tempship =ResourceManager.ShipsDict[shipsWeCanBuild];
+                    //fighters.Add(ResourceManager.ShipsDict[shipsWeCanBuild]);
 
-                    if (string.IsNullOrEmpty(hangarship) )
-                        return;
+                    //if (temphangarship == null)
+                    //{
+                    //    temphangarship = tempship;
+                    //    continue;
+                    //}
+                    if(temphangarship.BaseStrength  < tempship.BaseStrength || temphangarship.Size < tempship .Size)
+                        temphangarship = tempship;
+                }
+                //temphangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).FirstOrDefault();
+                this.hangarShipUID = temphangarship.Name;
+                hangarship = this.hangarShipUID;
+            }
+
+            if (string.IsNullOrEmpty(hangarship) )
+                return;
                    
-                        temphangarship = ResourceManager.ShipsDict[hangarship];
+            temphangarship = ResourceManager.ShipsDict[hangarship];
                     
-                    if (temphangarship.Mass / 5f > this.Parent.Ordinance)  //fbedard: New spawning cost
-                        return;
-                    this.SetHangarShip(ResourceManager.CreateShipFromHangar(temphangarship.Name, this.Parent.loyalty, this.Center, this.Parent));
+            if (temphangarship.Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
+                return;
+            SetHangarShip(ResourceManager.CreateShipFromHangar(temphangarship.Name, Parent.loyalty, Center, Parent));
 
-                    if (this.hangarShip != null)
-                    {
-                        this.GetHangarShip().DoEscort(this.Parent);
-                        this.GetHangarShip().Velocity = 
-                            (((this.Parent.System!= null ? this.Parent.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomDirection() * this.GetHangarShip().speed) + this.Parent.Velocity;
-                        if (this.GetHangarShip().Velocity.Length() > this.GetHangarShip().velocityMaximum)
-                        {
-                            this.GetHangarShip().Velocity = Vector2.Normalize(this.GetHangarShip().Velocity) * this.GetHangarShip().speed;
-                        }
-                        this.GetHangarShip().Mothership = this.Parent;
-                        this.installedSlot.HangarshipGuid = this.GetHangarShip().guid;
-
-                        this.hangarTimer = this.hangarTimerConstant;
-                        this.Parent.Ordinance -= this.hangarShip.Mass / 5f;
-                    }
+            if (hangarShip != null)
+            {
+                hangarShip.DoEscort(Parent);
+                hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().speed + Parent.Velocity;
+                if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
+                {
+                    hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.speed;
                 }
+                hangarShip.Mothership = Parent;
+                installedSlot.HangarshipGuid = GetHangarShip().guid;
+
+                hangarTimer = hangarTimerConstant;
+                Parent.Ordinance -= hangarShip.Mass / 5f;
             }
         }
 
@@ -2166,7 +2161,7 @@ namespace Ship_Game.Gameplay
             switch (this.ModuleType)
             {
                 case ShipModuleType.Turret:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
+                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
                     this.InstalledWeapon.SetOwner(this.Parent);
                     this.InstalledWeapon.Center = this.Center;
@@ -2175,7 +2170,7 @@ namespace Ship_Game.Gameplay
                     this.Parent.Weapons.Add(this.InstalledWeapon);
                     break;
                 case ShipModuleType.MainGun:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
+                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
                     this.InstalledWeapon.SetOwner(this.Parent);
                     this.InstalledWeapon.isMainGun = true;
@@ -2184,7 +2179,7 @@ namespace Ship_Game.Gameplay
                     this.Parent.Weapons.Add(this.InstalledWeapon);
                     break;
                 case ShipModuleType.MissileLauncher:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
+                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
                     this.InstalledWeapon.SetOwner(this.Parent);
                     this.InstalledWeapon.Center = this.Center;
@@ -2198,7 +2193,7 @@ namespace Ship_Game.Gameplay
                     this.Parent.BombBays.Add(this);
                     break;
                 case ShipModuleType.Drone:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
+                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
                     this.InstalledWeapon.SetOwner(this.Parent);
                     this.InstalledWeapon.Center = this.Center;
@@ -2206,7 +2201,7 @@ namespace Ship_Game.Gameplay
                     this.Parent.Weapons.Add(this.InstalledWeapon);
                     break;
                 case ShipModuleType.Spacebomb:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
+                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
                     this.InstalledWeapon.SetOwner(this.Parent);
                     this.InstalledWeapon.Center = this.Center;
@@ -2487,8 +2482,7 @@ namespace Ship_Game.Gameplay
 
 		public void UpdateWhileDying(float elapsedTime)
 		{
-            var rng = Parent.System?.RNG ?? Ship.universeScreen.DeepSpaceRNG;
-			Center3D = new Vector3(Parent.Center.X, Parent.Center.Y, rng.RandomBetween(-25f, 25f));
+            Center3D = Parent.Center.ToVec3(UniverseRandom.RandomBetween(-25f, 25f));
             HandleDamageFireTrail(elapsedTime);
 		}
 

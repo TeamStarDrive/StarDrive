@@ -643,24 +643,26 @@ namespace Ship_Game
 
         private bool SystemPosOK(Vector2 sysPos)
         {
-            bool flag = true;
-            foreach (Vector2 vector2 in this.ClaimedSpots)
-            {                                                                   //Updated to make use of the negative map values -Gretman
-                if ((double)Vector2.Distance(vector2, sysPos) < 300000.0 * (double)this.Scale || ((double)sysPos.X > (double)this.Data.Size.X || (double)sysPos.Y > (double)this.Data.Size.Y || ((double)sysPos.X < -this.Data.Size.X || (double)sysPos.Y < -this.Data.Size.Y)))
+            foreach (Vector2 vector2 in ClaimedSpots)
+            {   //Updated to make use of the negative map values -Gretman
+                if (Vector2.Distance(vector2, sysPos) < 300000.0 * Scale 
+                    || sysPos.X >  Data.Size.X || sysPos.Y >  Data.Size.Y 
+                    || sysPos.X < -Data.Size.X || sysPos.Y < -Data.Size.Y)
                     return false;
             }
-            return flag;
+            return true;
         }
 
         private bool SystemPosOK(Vector2 sysPos, float spacing)
         {
-            bool flag = true;
-            foreach (Vector2 vector2 in this.ClaimedSpots)
+            foreach (Vector2 vector2 in ClaimedSpots)
             {
-                if ((double)Vector2.Distance(vector2, sysPos) < (double)spacing || ((double)sysPos.X > (double)this.Data.Size.X || (double)sysPos.Y > (double)this.Data.Size.Y || ((double)sysPos.X < -this.Data.Size.X || (double)sysPos.Y < -this.Data.Size.Y)))
+                if (Vector2.Distance(vector2, sysPos) < spacing 
+                    || sysPos.X >  Data.Size.X || sysPos.Y >  Data.Size.Y 
+                    || sysPos.X < -Data.Size.X || sysPos.Y < -Data.Size.Y)
                     return false;
             }
-            return flag;
+            return true;
         }
 
         public static EmpireData CopyEmpireData(EmpireData data)
@@ -867,11 +869,6 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
         public override void Draw(GameTime gameTime)
         {
             this.ScreenManager.GraphicsDevice.Clear(Color.Black);
@@ -900,7 +897,7 @@ namespace Ship_Game
         public void Dispose()
         {
             this.Dispose(true);
-            GC.SuppressFinalize((object)this);
+            GC.SuppressFinalize(this);
         }
 
         private void Dispose(bool disposing)

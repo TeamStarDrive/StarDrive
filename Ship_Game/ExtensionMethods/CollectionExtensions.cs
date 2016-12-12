@@ -25,6 +25,7 @@ namespace Ship_Game
             return -1;
         }
 
+        // Return the element with the greatest selector value, or null if list empty
         public static T FindMax<T>(this List<T> list, Func<T, float> selector) where T : class
         {
             int n = list.Count;
@@ -35,7 +36,7 @@ namespace Ship_Game
             {
                 float value = selector(list[i]);
                 if (value <= max) continue;
-                max = value;
+                max  = value;
                 imax = i;
             }
             return list[imax];
@@ -43,6 +44,28 @@ namespace Ship_Game
         public static bool FindMax<T>(this List<T> list, out T elem, Func<T, float> selector) where T : class
         {
             return (elem = FindMax(list, selector)) != null;
+        }
+
+
+        // Return the element with the smallest selector value, or null if list empty
+        public static T FindMin<T>(this List<T> list, Func<T, float> selector) where T : class
+        {
+            int n = list.Count;
+            if (n == 0) return null;
+            int  imin = 0;
+            float min = selector(list[0]);
+            for (int i = 1; i < n; ++i)
+            {
+                float value = selector(list[i]);
+                if (value > min) continue;
+                min  = value;
+                imin = i;
+            }
+            return list[imin];
+        }
+        public static bool FindMin<T>(this List<T> list, out T elem, Func<T, float> selector) where T : class
+        {
+            return (elem = FindMin(list, selector)) != null;
         }
     }
 }

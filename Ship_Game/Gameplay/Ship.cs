@@ -2990,18 +2990,16 @@ namespace Ship_Game.Gameplay
                 Position += deltaMove;
                 Center   += deltaMove;
 
-                var rng = System?.RNG ?? universeScreen.DeepSpaceRNG;
-                int num1 = rng.IntBetween(0, 60);
+                int num1 = UniverseRandom.IntBetween(0, 60);
                 if (num1 >= 57 && InFrustum)
                 {
-                    float radius = ShipSO.WorldBoundingSphere.Radius;
-                    Vector3 vector3 = new Vector3(rng.RandomBetween(0.0f, Radius), rng.RandomBetween(0.0f, Radius), rng.RandomBetween(0.0f, Radius));
-                    ExplosionManager.AddExplosion(vector3, radius, 2.5f, 0.2f);
-                    universeScreen.flash.AddParticleThreadA(vector3, Vector3.Zero);
+                    Vector3 position = UniverseRandom.Vector3D(0f, Radius);
+                    ExplosionManager.AddExplosion(position, ShipSO.WorldBoundingSphere.Radius, 2.5f, 0.2f);
+                    universeScreen.flash.AddParticleThreadA(position, Vector3.Zero);
                 }
                 if (num1 >= 40)
                 {
-                    Vector3 position = new Vector3(rng.RandomBetween(0.0f, Radius), rng.RandomBetween(0.0f, Radius), rng.RandomBetween(0.0f, Radius));
+                    Vector3 position = UniverseRandom.Vector3D(0f, Radius);
                     Ship.universeScreen.sparks.AddParticleThreadA(position, Vector3.Zero);
                 }
                 yRotation += xdie * elapsedTime;
@@ -3085,11 +3083,10 @@ namespace Ship_Game.Gameplay
                 if (disabled)
                 {
                     float third = Radius / 3f;
-                    var rng = System?.RNG ?? universeScreen.DeepSpaceRNG;
                     for (int i = 0; i < 5; ++i)
                     {
-                        Vector3 vector3 = new Vector3(rng.RandomBetween(-third, third), rng.RandomBetween(-third, third), 0.0f);
-                        universeScreen.lightning.AddParticleThreadA(new Vector3(Center, 0.0f) + vector3, Vector3.Zero);
+                        Vector3 randPos = UniverseRandom.Vector32D(third);
+                        universeScreen.lightning.AddParticleThreadA(Center.ToVec3() + randPos, Vector3.Zero);
                     }
                 }
                 //Ship ship1 = this;
@@ -3306,13 +3303,12 @@ namespace Ship_Game.Gameplay
                                     float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num2, 2.0) + (float)Math.Pow((double)num3, 2.0)));
                                     float radians = 3.141593f - (float)Math.Asin((double)num2 / (double)distance) + shipModule.GetParent().Rotation;
                                     origin = angleAndDistance.PointFromAngle(MathHelper.ToDegrees(radians), distance);
-                                    int Thickness = this.System != null ? (int)this.System.RNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness) : (int)Ship.universeScreen.DeepSpaceRNG.RandomBetween((float)beam.thickness - 0.25f * (float)beam.thickness, (float)beam.thickness + 0.1f * (float)beam.thickness);
-                                    //lock (locker)
+                                    int thickness = (int)UniverseRandom.RandomBetween(beam.thickness*0.75f, beam.thickness*1.1f);
 
-                                    beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center,                 beam.followMouse ? Ship.universeScreen.mouseWorldPos : beam.Destination,            Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
-                                    //                                  Source: Origin or Center                                                           Mouse pointer or Destination                        
-                                    
-                                    //beam.Update(beam.moduleAttachedTo.Center, beam.Destination, Thickness, Ship.universeScreen.view, Ship.universeScreen.projection, elapsedTime);
+                                    beam.Update(beam.moduleAttachedTo != null ? origin : beam.owner.Center, 
+                                        beam.followMouse ? universeScreen.mouseWorldPos : beam.Destination, 
+                                        thickness, universeScreen.view, universeScreen.projection, elapsedTime);
+
                                     if (beam.duration < 0f && !beam.infinite)
                                     {
                                         beam.Die(null, false);
@@ -3875,7 +3871,7 @@ namespace Ship_Game.Gameplay
                     float num1 = 0;
                     for (int index = 0; index < this.MechanicalBoardingDefense; ++index)
                     {
-                        if ((this.System != null ? this.System.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) <= 60.0)
+                        if (UniverseRandom.RandomBetween(0.0f, 100f) <= 60.0f)
                             ++num1;
                     }
                     foreach (Troop troop in EnemyTroops)
@@ -3909,7 +3905,7 @@ namespace Ship_Game.Gameplay
                         {
                             for (int index = 0; index < troop.Strength; ++index)
                             {
-                                if ((this.System != null ? this.System.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) >= troop.BoardingStrength)
+                                if (UniverseRandom.IntBetween(0, 100) >= troop.BoardingStrength)
                                     ++num1;
                             }
                         }
@@ -3948,7 +3944,7 @@ namespace Ship_Game.Gameplay
                         {
                             for (int index = 0; index < troop.Strength; ++index)
                             {
-                                if ((this.System != null ? this.System.RNG.RandomBetween(0.0f, 100f) : Ship.universeScreen.DeepSpaceRNG.RandomBetween(0.0f, 100f)) >= troop.BoardingStrength)
+                                if (UniverseRandom.IntBetween(0, 100) >= troop.BoardingStrength)
                                     ++num2;
                             }
                         }
@@ -4600,14 +4596,13 @@ namespace Ship_Game.Gameplay
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
-            var rng = System?.RNG ?? universeScreen.DeepSpaceRNG;
-            if (rng.RandomBetween(0.0f, 100f) > 65.0 && !IsPlatform && InFrustum)
+            if (UniverseRandom.IntBetween(0, 100) > 65.0 && !IsPlatform && InFrustum)
             {
                 dying = true;
-                xdie = rng.RandomBetween(-1f, 1f) * 40f / Size;
-                ydie = rng.RandomBetween(-1f, 1f) * 40f / Size;
-                zdie = rng.RandomBetween(-1f, 1f) * 40f / Size;
-                dietimer = rng.RandomBetween(4f, 6f);
+                xdie = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
+                ydie = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
+                zdie = UniverseRandom.RandomBetween(-1f, 1f) * 40f / Size;
+                dietimer = UniverseRandom.RandomBetween(4f, 6f);
                 if (psource != null && psource.explodes && psource.damageAmount > 100.0)
                     reallyDie = true;
             }
