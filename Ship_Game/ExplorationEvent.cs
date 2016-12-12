@@ -11,10 +11,10 @@ namespace Ship_Game
 
         public void TriggerOutcome(Empire triggerer, Outcome triggeredOutcome)
         {
-            triggeredOutcome.CheckOutComes(null , null, triggerer);
+            triggeredOutcome.CheckOutComes(null , null, triggerer,null);
         }
 
-        public void TriggerPlanetEvent(Planet p, Empire triggerer, PlanetGridSquare eventLocation, Empire playerEmpire,
+        public void TriggerPlanetEvent(Planet p, Empire triggerer, PlanetGridSquare eventLocation,
             UniverseScreen screen)
         {
             int random = 0;
@@ -35,11 +35,17 @@ namespace Ship_Game
                 if (triggerer.isPlayer) outcome.alreadyTriggered = true;
                 break;
             }
-            triggeredOutcome?.CheckOutComes(p, eventLocation, triggerer);
-            if (triggerer == playerEmpire)
+            if (triggeredOutcome != null)
             {
-                screen.ScreenManager.AddScreen(new EventPopup(screen, playerEmpire, this, triggeredOutcome));
-                AudioManager.PlayCue("sd_notify_alert");
+                EventPopup popup = null;
+                if (triggerer == EmpireManager.Player)
+                    popup = new EventPopup(screen, triggerer, this, triggeredOutcome);
+                triggeredOutcome.CheckOutComes(p, eventLocation, triggerer,popup);
+                if (popup != null)
+                {
+                    screen.ScreenManager.AddScreen(popup);
+                    AudioManager.PlayCue("sd_notify_alert");
+                }
             }
         }
 
