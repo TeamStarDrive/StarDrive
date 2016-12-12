@@ -19,7 +19,6 @@ namespace Ship_Game
 		//public List<Empire> OwnerList = new List<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
 		public BatchRemovalCollection<Ship> ShipList = new BatchRemovalCollection<Ship>();
-		public RandomThreadMath RNG = new RandomThreadMath();
 		public SpatialManager spatialManager = new SpatialManager();
 		public bool isVisible;
 		public Vector2 Position;
@@ -401,8 +400,8 @@ namespace Ship_Game
 
 		public void GenerateRandomSystem(string name, UniverseData data, float systemScale)
 		{
-            // Changed by RedFox: 10% override to get a binary star
-            SetSunPath(RandomMath.IntBetween(0, 100) < 10 ? (6) : RandomMath.IntBetween(1, 5));
+            // Changed by RedFox: 3% chance to get a tri-sun star
+            SetSunPath(RandomMath.IntBetween(0, 100) < 3 ? (6) : RandomMath.IntBetween(1, 5));
 
 			Name = name;
 			numberOfRings = RandomMath.IntBetween(1, 6);
