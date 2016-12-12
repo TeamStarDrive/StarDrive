@@ -28,7 +28,6 @@ namespace Ship_Game.Gameplay
 		public int NeededTroopStrength;
 		private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
 		public int WhichFleet = -1;
-        
         private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
 
         //This file Refactored by Gretman
@@ -72,228 +71,11 @@ namespace Ship_Game.Gameplay
 			this.empire = Owner;
 		}
 
-		private void DoToughNutRequisitionORIG()
-		{
-			float EnemyTroopStr = this.GetEnemyTroopStr();
-			float EnemyShipStr = this.GetEnemyStrAtTarget();
-			IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = 
-				from ao in this.empire.GetGSAI().AreasOfOperations
-				orderby Vector2.Distance(this.AO, ao.Position)
-				select ao;
-			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
-			{
-				return;
-			}
-			List<Ship> Bombers = new List<Ship>();
-			List<Ship> EverythingElse = new List<Ship>();
-			List<Troop> Troops = new List<Troop>();
-			foreach (Ship_Game.Gameplay.AO area in sorted)
-			{
-				foreach (Ship ship in this.empire.GetShips())
-				{
-					if (ship.GetStrength() == 0f 
-                        || Vector2.Distance(ship.Center, area.Position) >= area.Radius 
-                        || ship.InCombat 
-                        || ship.fleet != null 
-                        || this.empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))// ship.GetAI().SystemToDefend !=null) //&& ship.fleet != null & ship.fleet.Task == null)
-					{
-						continue;
-					}
-					if (ship.BombBays.Count <= 0)
-					{
-						EverythingElse.Add(ship);
-					}
-					else
-					{
-						Bombers.Add(ship);
-					}
-				}
-				foreach (Planet p in area.GetPlanets())
-				{
-					if (p.RecentCombat)
-					{
-						continue;
-					}
-					foreach (Troop t in p.TroopsHere)
-					{
-						if (t.GetOwner() != this.empire)
-						{
-							continue;
-						}
-						Troops.Add(t);
-					}
-				}
-			}
-			List<Ship> TaskForce = new List<Ship>();
-			float strAdded = 0f;
-			List<Ship>.Enumerator enumerator = EverythingElse.GetEnumerator();
-			try
-			{
-				do
-				{
-					if (!enumerator.MoveNext())
-					{
-						break;
-					}
-					Ship ship = enumerator.Current;
-					TaskForce.Add(ship);
-					strAdded = strAdded + ship.GetStrength();
-				}
-				while (strAdded <= EnemyShipStr );//* 1.65f);
-			}
-			finally
-			{
-				((IDisposable)enumerator).Dispose();
-			}
-			List<Ship> BombTaskForce = new List<Ship>();
-			int numBombs = 0;
-			foreach (Ship ship in Bombers)
-			{
-				if (numBombs >= 20)
-				{
-					continue;
-				}
-				BombTaskForce.Add(ship);
-				numBombs = numBombs + ship.BombBays.Count;
-			}
-			List<Troop> PotentialTroops = new List<Troop>();
-			float troopStr = 0f;
-			List<Troop>.Enumerator enumerator1 = Troops.GetEnumerator();
-            int numOfTroops=0;
-			try
-			{
-				do
-				{
-					if (!enumerator1.MoveNext())
-					{
-						break;
-					}
-                    numOfTroops++;
-                    Troop t = enumerator1.Current;
-					PotentialTroops.Add(t);
-					troopStr = troopStr + t.Strength;
-				}
-				while (troopStr <= EnemyTroopStr * 1.25f || numOfTroops <15 );
-			}
-			finally
-			{
-				((IDisposable)enumerator1).Dispose();
-			}
-			if (strAdded > EnemyShipStr * 1.65f)
-			{
-				if (this.TargetPlanet.Owner == null || this.TargetPlanet.Owner != null && !this.empire.TryGetRelations(this.TargetPlanet.Owner, out Relationship rel))
-				{
-					this.EndTask();
-					return;
-				}
-				if (this.empire.GetRelations(this.TargetPlanet.Owner).PreparingForWar)
-				{
-					this.empire.GetGSAI().DeclareWarOn(this.TargetPlanet.Owner, this.empire.GetRelations(this.TargetPlanet.Owner).PreparingForWarType);
-				}
-				Ship_Game.Gameplay.AO ClosestAO = sorted.First<Ship_Game.Gameplay.AO>();
-				MilitaryTask assault = new MilitaryTask(this.empire)
-				{
-					AO = this.TargetPlanet.Position,
-					AORadius = 75000f,
-					type = MilitaryTask.TaskType.AssaultPlanet
-				};
-				ClosestAO.GetCoreFleet().Owner.GetGSAI().TasksToAdd.Add(assault);
-				assault.WhichFleet = ClosestAO.WhichFleet;
-				ClosestAO.GetCoreFleet().Task = assault;
-				assault.IsCoreFleetTask = true;
-				assault.Step = 1;
-				assault.TargetPlanet = this.TargetPlanet;
-				ClosestAO.GetCoreFleet().TaskStep = 0;
-				ClosestAO.GetCoreFleet().Name = "Doom Fleet";
-				foreach (Ship ship in TaskForce)
-				{
-					if (ship.fleet != null)
-					{
-						ship.fleet.Ships.Remove(ship);
-					}
-					ship.GetAI().OrderQueue.Clear();
-                    this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
-                    //foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.empire.GetGSAI().DefensiveCoordinator.DefenseDict)
-                    //{
-						
-                        
-                    //    List<Ship> toRemove = new List<Ship>();
-                    //    foreach (KeyValuePair<Guid, Ship> defender in entry.Value.ShipsDict)
-                    //    {
-                    //        if (defender.Key != ship.guid)
-                    //        {
-                    //            continue;
-                    //        }
-                    //        toRemove.Add(defender.Value);
-                    //    }
-                    //    foreach (Ship s in toRemove)
-                    //    {
-                    //        entry.Value.ShipsDict.Remove(s.guid);
-                            
-                    //    }
-                    //}
-					ship.fleet = null;
-				}
-				foreach (Ship ship in TaskForce)
-				{
-					ClosestAO.GetCoreFleet().AddShip(ship);
-				}
-				foreach (Troop t in PotentialTroops)
-				{
-					if (t.GetPlanet() == null)
-					{
-						continue;
-					}
-					(new List<Troop>()).Add(t);
-					Ship launched = t.Launch();
-					ClosestAO.GetCoreFleet().AddShip(launched);
-				}
-				ClosestAO.GetCoreFleet().AutoArrange();
-				if (Bombers.Count > 0 && numBombs > 6)
-				{
-					MilitaryTask GlassPlanet = new MilitaryTask(this.empire)
-					{
-						AO = this.TargetPlanet.Position,
-						AORadius = 75000f,
-						type = MilitaryTask.TaskType.GlassPlanet,
-						TargetPlanet = this.TargetPlanet,
-						WaitForCommand = true
-					};
-					Fleet bomberFleet = new Fleet()
-					{
-						Owner = this.empire
-					};
-					bomberFleet.Owner.GetGSAI().TasksToAdd.Add(GlassPlanet);
-					GlassPlanet.WhichFleet = this.empire.GetUnusedKeyForFleet();
-					this.empire.GetFleetsDict().TryAdd(GlassPlanet.WhichFleet, bomberFleet);
-					bomberFleet.Task = GlassPlanet;
-					bomberFleet.Name = "Bomber Fleet";
-					foreach (Ship ship in BombTaskForce)
-					{
-						if (ship.fleet != null)
-						{
-							ship.fleet.Ships.Remove(ship);
-						}
-						ship.GetAI().OrderQueue.Clear();
-                        this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
-						
-						ship.fleet = null;
-					}
-					foreach (Ship ship in BombTaskForce)
-					{
-						bomberFleet.AddShip(ship);
-					}
-					bomberFleet.AutoArrange();
-				}
-				this.Step = 1;
-				this.empire.GetGSAI().TaskList.QueuePendingRemoval(this);
-			}
-		}
-
         private void GetAvailableShips(AO area,List<Ship> Bombers,List<Ship> Combat )
         {
             this.GetAvailableShips(area, Bombers, Combat, null, null);
         }
+
         private void GetAvailableShips(AO area, List<Ship> Bombers, List<Ship> Combat, List<Ship> TroopShips, List<Ship> Utility)
         {
             foreach (Ship ship in this.empire.GetShips().OrderBy(str => str.BaseStrength).ThenBy(ship => Vector2.Distance(ship.Center, area.Position) >= area.Radius))
@@ -305,11 +87,8 @@ namespace Ship_Game.Gameplay
                     || ship.Mothership != null
                     || this.empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship)
                     || ship.GetAI().State !=  AIState.AwaitingOrders
-                    || (ship.System!= null && ship.System.CombatInSystem) 
-                    )
-                {
+                    || (ship.System!= null && ship.System.CombatInSystem)   )
                     continue;
-                }
 
                 if(Utility != null && ship.InhibitionRadius > 0 || ship.hasOrdnanceTransporter || ship.hasRepairBeam || ship.HasRepairModule || ship.HasSupplyBays )
                 {
@@ -392,7 +171,7 @@ namespace Ship_Game.Gameplay
                 }
 
                 TaskForce.Add(ship);
-                strAdded = strAdded + ship.GetStrength();
+                strAdded += ship.GetStrength();
             }
 
             List<Ship> BombTaskForce = new List<Ship>();
@@ -528,22 +307,19 @@ namespace Ship_Game.Gameplay
                     {
                         DebugInfoScreen.canceledMtask1Count++;
                         DebugInfoScreen.canceledMTask1Name = TaskType.Exploration.ToString();
-                            
                         break;
                     }
                 case TaskType.AssaultPlanet:
                     {
                         DebugInfoScreen.canceledMtask2Count++;
                         DebugInfoScreen.canceledMTask2Name = TaskType.AssaultPlanet.ToString();
-                            
                         break;
                     }
                 case TaskType.CohesiveClearAreaOfEnemies:
                     {
                         DebugInfoScreen.canceledMtask3Count++;
                         DebugInfoScreen.canceledMTask3Name = TaskType.CohesiveClearAreaOfEnemies.ToString();
-                        
-                    break;
+                        break;
                     }
                     default:
                     {
@@ -551,7 +327,6 @@ namespace Ship_Game.Gameplay
                         DebugInfoScreen.canceledMTask4Name = this.type.ToString();
                         break;
                     }
-
             }
 
             if (this.empire.isFaction)
@@ -683,7 +458,7 @@ namespace Ship_Game.Gameplay
 			{
                 if (  !this.IsCoreFleetTask
                     && this.WhichFleet != -1
-                    && this.empire != Ship.universeScreen.player)
+                    && this.empire != EmpireManager.Player)
                 {
                     foreach (Ship ship in this.empire.GetFleetsDict()[this.WhichFleet].Ships)
                     {
@@ -725,46 +500,24 @@ namespace Ship_Game.Gameplay
             {
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:
                     {
-                        switch (this.Step)
-                        {
-                            case 0:
-                                this.RequisitionForces();
-                                return;
-
-                            case 1:
-                                this.ExecuteAndAssess();
-                                return;
-
-                            default:
-                                return;
-                        }
+                        if      (Step == 0) this.RequisitionForces();
+                        else if (Step == 1) this.ExecuteAndAssess();
+                        break;
                     }
                 case MilitaryTask.TaskType.AssaultPlanet:
                     {
-                        switch (this.Step)
+                        if (Step == 0) this.RequisitionAssaultForces();
+                        else
                         {
-                            case 0:
-                                this.RequisitionAssaultForces();
-                                return;
+                            if (this.empire.GetFleetsDict().TryGetValue(this.WhichFleet, out Fleet fleet))
+                            {
+                                if (fleet.Ships.Count != 0)
+                                    break;
+                            }
 
-                            case 1:
-                                if (this.empire.GetFleetsDict().TryGetValue(this.WhichFleet, out Fleet fleet))
-                                {
-                                    if (fleet.Ships.Count != 0)
-                                        return;
-
-                                    this.EndTask();
-                                    return;
-                                }
-                                else
-                                {
-                                    this.EndTask();
-                                    return;
-                                }
-
-                            default:
-                                return;
+                            this.EndTask();
                         }
+                        break;
                     }
                 case MilitaryTask.TaskType.CorsairRaid:
                     {
@@ -791,52 +544,28 @@ namespace Ship_Game.Gameplay
                     }
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies:
                     {
-                        switch (this.Step)
-                        {
-                            case 0:
-                                this.RequisitionForces();
-                                return;
-
-                            case 1:
-                                this.ExecuteAndAssess();
-                                return;
-
-                            default:
-                                return;
-                        }
+                        if      (Step == 0) this.RequisitionForces();
+                        else if (Step == 1) this.ExecuteAndAssess();
+                        break;
                     }
                 case MilitaryTask.TaskType.Exploration:
                     {
-                        if (this.Step != 0)
-                            break;
-
-                        this.RequisitionExplorationForce();
+                        if (this.Step == 0) this.RequisitionExplorationForce();
                         break;
                     }
                 case MilitaryTask.TaskType.DefendSystem:
                     {
-                        switch (this.Step)
+                        if      (Step == 0) this.RequisitionDefenseForce();
+                        else if (Step == 1)
                         {
-                            case 0:
-                                this.RequisitionDefenseForce();
-                                return;
-
-                            case 1:
-                                if (this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
-                                {
-                                    if (this.empire.GetFleetsDict()[this.WhichFleet].Ships.Count != 0)
-                                        return;
-                                    this.EndTask();
-                                    return;
-                                }
-                                else
-                                {
-                                    this.EndTask();
-                                    return;
-                                }
-                            default:
-                                return;
+                            if (this.empire.GetFleetsDict().ContainsKey(this.WhichFleet))
+                            {
+                                if (this.empire.GetFleetsDict()[this.WhichFleet].Ships.Count != 0)
+                                    break;
+                            }
+                            this.EndTask();
                         }
+                        break;
                     }
                 case MilitaryTask.TaskType.DefendClaim:
                     {
@@ -851,7 +580,6 @@ namespace Ship_Game.Gameplay
                                         if (rel != null && (!rel.AtWar && !rel.PreparingForWar))
                                             this.EndTask();
                                     }
-
                                     this.RequisitionClaimForce();
                                     return;
                                 }
@@ -926,7 +654,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-
         private void ExecuteAndAssess()
 		{
 			if (this.WhichFleet == -1)
@@ -985,7 +712,7 @@ namespace Ship_Game.Gameplay
 				}
 				else
 				{
-					currentStrength = currentStrength + ship.GetStrength();
+					currentStrength += ship.GetStrength();
 				}
 			}
 
