@@ -48,7 +48,7 @@ namespace Ship_Game
             if (popup != null)
             {
                 var drawpackage = new DrawPackage(text, Fonts.Arial12Bold, inModifier, Color.White, "%");
-                popup.DrawPaackages[Packagetypes.Artifact].Add(drawpackage);
+                popup.DrawPackages[Packagetypes.Artifact].Add(drawpackage);
             }
             return true;            
         }
