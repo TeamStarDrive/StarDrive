@@ -20,7 +20,7 @@ namespace Ship_Game
 
 		private Rectangle BlackRect;
 
-        public Dictionary<Packagetypes, List<DrawPackage>> DrawPaackages = new Dictionary<Packagetypes, List<DrawPackage>>();
+        public Dictionary<Packagetypes, List<DrawPackage>> DrawPackages = new Dictionary<Packagetypes, List<DrawPackage>>();
         public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome)
 		{
 			this.screen = s;
@@ -51,7 +51,7 @@ namespace Ship_Game
 			this.r = new Rectangle(0, 0, 600, 600);
 		    foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
 		    {
-		        DrawPaackages.Add(packagetype,new List<DrawPackage>());
+		        DrawPackages.Add(packagetype,new List<DrawPackage>());
 		    }
 		}
 
@@ -83,7 +83,7 @@ namespace Ship_Game
 				theirText = HelperFunctions.ParseText(Fonts.Arial12, this.outcome.GetArtifact().Description, (float)(this.BlackRect.Width - 40));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, TheirTextPos, Color.White);
 				TheirTextPos.Y = TheirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
-			    foreach (DrawPackage artifactDrawPackage in DrawPaackages[Packagetypes.Artifact])
+			    foreach (DrawPackage artifactDrawPackage in DrawPackages[Packagetypes.Artifact])
 			    {
                     TheirTextPos.Y +=artifactDrawPackage.Font.LineSpacing;			        			        
                     base.ScreenManager.SpriteBatch.DrawString(artifactDrawPackage.Font, artifactDrawPackage.Text, TheirTextPos, artifactDrawPackage.Color);
