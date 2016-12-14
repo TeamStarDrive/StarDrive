@@ -44,6 +44,14 @@ namespace Ship_Game
         {
             thisLock.ExitReadLock();
         }
+        public void EnterWriteLock()
+        {
+            thisLock.EnterWriteLock();
+        }
+        public void ExitWriteLock()
+        {
+            thisLock.ExitWriteLock();
+        }
 
         public void ApplyPendingRemovals()
         {
