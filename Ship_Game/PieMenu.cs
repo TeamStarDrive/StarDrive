@@ -258,11 +258,9 @@ namespace Ship_Game
 
 		public void Update(GameTime gameTime)
 		{
-			if (!this.visible)
-			{
+			if (!visible)
 				return;
-			}
-			this.t.Update(gameTime.ElapsedGameTime.TotalSeconds);
+			t.Update(gameTime.ElapsedGameTime.TotalSeconds);
 		}
 	}
 }

@@ -16,7 +16,10 @@ namespace Ship_Game
 
         private static readonly long Frequency;
         private long Time;
-        private int NumSamples;
+        
+        public float AvgTime  { get; private set; }
+        public float MaxTime  { get; private set; }
+        public int NumSamples { get; private set; }
 
         static PerfTimer()
         {
@@ -44,9 +47,6 @@ namespace Ship_Game
 
             ++NumSamples;
         }
-
-        public float AvgTime { get; private set; }
-        public float MaxTime { get; private set; }
 
         public override string ToString()
         {
