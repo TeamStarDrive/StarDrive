@@ -244,24 +244,18 @@ namespace Ship_Game
 				this.screensToUpdate.RemoveAt(this.screensToUpdate.Count - 1);
 				screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 				if (screen.ScreenState != ScreenState.TransitionOn && screen.ScreenState != ScreenState.Active)
-				{
 					continue;
-				}
 				if (!otherScreenHasFocus)
 				{
 					screen.HandleInput(this.input);
 					otherScreenHasFocus = true;
 				}
 				if (screen.IsPopup)
-				{
 					continue;
-				}
 				coveredByOtherScreen = true;
 			}
-			if (this.TraceEnabled)
-			{
-				this.TraceScreens();
-			}
+			if (TraceEnabled)
+				TraceScreens();
 		}
         public void Dispose()
         {

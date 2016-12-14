@@ -78,7 +78,8 @@ namespace Ship_Game
         private AutoResetEvent[] SystemGateKeeper = new AutoResetEvent[4];
         public Dictionary<Guid, SolarSystem> SolarSystemDict = new Dictionary<Guid, SolarSystem>();
         public BatchRemovalCollection<Bomb> BombList = new BatchRemovalCollection<Bomb>();
-        public ManualResetEvent WorkerSemaphore = new ManualResetEvent(true);
+        private ManualResetEvent WorkerSemaphore      = new ManualResetEvent(true);
+        private ManualResetEvent GameLoadedSemaphore  = new ManualResetEvent(false);
         public float camHeight = 2550f;
         public Vector3 camPos = Vector3.Zero;
         public List<Ship> ShipsToAdd = new List<Ship>();
@@ -856,9 +857,9 @@ namespace Ship_Game
                 this.star_particles.AddParticleThreadA(nebulousOverlay.Position, Vector3.Zero);
             if (this.MultiThread)
             {
-                this.WorkerThread = new Thread(new ThreadStart(this.Worker));
-                this.WorkerThread.IsBackground = true;
-                this.WorkerThread.Start();
+                WorkerThread = new Thread(Worker);
+                //WorkerThread.IsBackground = true; // RedFox: lets give this thread more priority
+                WorkerThread.Start();
                 //this.ShipUpdateThread = new Thread(new ThreadStart(this.ShipUpdater));
                 //this.ShipUpdateThread.IsBackground = true;
 #if !ALTERTHREAD
@@ -930,85 +931,21 @@ namespace Ship_Game
                 //thread6.IsBackground = true;
                 
             }
-            this.PlanetsDict.Clear();
-            this.SolarSystemDict.Clear();
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            PlanetsDict.Clear();
+            SolarSystemDict.Clear();
+            foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                this.SolarSystemDict.Add(solarSystem.guid, solarSystem);
+                SolarSystemDict.Add(solarSystem.guid, solarSystem);
                 foreach (Planet planet in solarSystem.PlanetList)
-                    this.PlanetsDict.Add(planet.guid, planet);
+                    PlanetsDict.Add(planet.guid, planet);
             }
-            foreach (Ship ship in (List<Ship>)this.MasterShipList)
+            foreach (Ship ship in MasterShipList)
             {
                 if (ship.TetherGuid != Guid.Empty)
-                    ship.TetherToPlanet(this.PlanetsDict[ship.TetherGuid]);
+                    ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
             }
         }
-        //private void EmpireThread()       //This is not referenced anywhere. Commenting out so I can code-search without this stuff coming up -Gretman
-        //{
 
-            
-        //    while (true)
-        //    {
-        //        //float elapsedTime = this.ztimeSnapShot; 
-                 
-
-        //        this.EmpireGateKeeper.WaitOne();
-        //        //float elapsedTime = this.ztimeSnapShot;
-        //        float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-        //        if (!this.Paused)
-        //        {
-        //            //this.ztimeSnapShot = elapsedTime;
-        //            //elapsedTime += !this.Paused ? 0.01666667f : 0.0f;
-        //            //float elapsedTime = this.ztimeSnapShot;
-        //           // Parallel.ForEach(EmpireManager.EmpireList, empire =>
-        //            foreach (Empire empire in EmpireManager.EmpireList)
-        //            {
-        //                try
-        //                {
-        //                    //var fleetdictClone = new Dictionary<int,Fleet>(empire.GetFleetsDict());
-        //                    foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())//leetdictClone)
-        //                    {
-        //                        if (keyValuePair.Value.Ships.Count > 0)
-        //                        {
-        //                            keyValuePair.Value.Setavgtodestination();
-        //                            keyValuePair.Value.SetSpeed();
-        //                            try
-        //                            {
-        //                                keyValuePair.Value.StoredFleetPosistion = keyValuePair.Value.findAveragePositionset();
-        //                            }
-        //                            catch
-        //                            {
-        //                                System.Diagnostics.Debug.WriteLine("crash at find average posisiton");
-        //                            }
-
-
-
-        //                        }
-        //                    }
-        //                }
-        //                catch { };
-        //                //empire.updateContactsTimer -= elapsedTime;
-        //                //if ((double)empire.updateContactsTimer <= 0.0 && !empire.data.Defeated)
-        //                //{
-        //                //    empire.GetGSAI().ThreatMatrix.ScrubMatrix();
-        //                //    empire.ResetBorders();
-        //                //    lock (GlobalStats.KnownShipsLock)
-        //                //        empire.KnownShips.Clear();
-        //                //    empire.UpdateKnownShips();
-        //                //    empire.updateContactsTimer = RandomMath.RandomBetween(2f, 3.5f);
-        //                //}
-        //                //catch { }
-        //            }//);
-
-        //            //for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)
-        //            //    EmpireManager.EmpireList[index].Update(elapsedTime);
-        //        }
-        //            this.EmpireDone.Set();
-                
-        //    }
-
-        //}
         private void DoParticleLoad()
         {
             var content = ScreenManager.Content;
@@ -1200,6 +1137,7 @@ namespace Ship_Game
 
         protected virtual void Worker()
         {
+            GameLoadedSemaphore.WaitOne(); // wait for loading to finish
             while (true)
             {
                 try
@@ -5764,27 +5702,26 @@ namespace Ship_Game
                 this.workersPanel.Draw(this.ScreenManager.SpriteBatch, gameTime);
             this.DrawShipsInRange();
 
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem solarSystem in SolarSystemList)
             {
+                if (!solarSystem.isVisible)
+                    continue;
                 try
                 {
-                    if (solarSystem.isVisible)
+                    foreach (Planet planet in solarSystem.PlanetList)
                     {
-                        foreach (Planet planet in solarSystem.PlanetList)
+                        foreach (Projectile projectile in planet.Projectiles)
                         {
-                            foreach (Projectile projectile in planet.Projectiles)
-                            {
-                                if (projectile.WeaponType != "Missile" && projectile.WeaponType != "Rocket" && projectile.WeaponType != "Drone")
-                                    this.DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath], projectile.GetWorld(), this.view, this.projection, projectile.weapon.Animated != 0 ? ResourceManager.TextureDict[projectile.texturePath] : ResourceManager.ProjTextDict[projectile.texturePath], projectile.Scale);
-                            }
+                            if (projectile.WeaponType != "Missile" && projectile.WeaponType != "Rocket" && projectile.WeaponType != "Drone")
+                                DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath], projectile.GetWorld(), this.view, this.projection, projectile.weapon.Animated != 0 ? ResourceManager.TextureDict[projectile.texturePath] : ResourceManager.ProjTextDict[projectile.texturePath], projectile.Scale);
                         }
                     }
                 }
                 catch
                 {
                 }
-            }   //MARK:DrawCustomStuffForDebug         
-            if (this.Debug) //input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && 
+            }       
+            if (Debug) //input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && 
             {
                 foreach (Empire e in EmpireManager.EmpireList)
                 {
@@ -5854,32 +5791,29 @@ namespace Ship_Game
                     influenceNodes = new List<Empire.InfluenceNode>(this.player.BorderNodes);
                 }
 
-                //Color col = EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).EmpireColor;
-                this.player.BorderNodeLocker.ExitReadLock();
+                player.BorderNodeLocker.ExitReadLock();
+                try
                 {
-                    try
+                    if (viewState >= UnivScreenState.SectorView)
                     {
-                        if (this.viewState >= UniverseScreen.UnivScreenState.SectorView)
+                        foreach (Empire.InfluenceNode item_0 in influenceNodes)
                         {
-                            foreach (Empire.InfluenceNode item_0 in influenceNodes)
-                            {
-                                float local_14 = (float)(item_0.Radius);
-                                Vector3 local_15 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                                Vector3 local_18 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
-                                float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-                                Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-                                Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color((byte)0, (byte)200, (byte)0, (byte)20), 0.0f, local_22, SpriteEffects.None, 1f);
-                                Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color((byte)30, (byte)30, (byte)150, (byte)150), 1f);
-                            }
+                            Vector3 local_15 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                            Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                            Vector3 local_18 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.PointOnCircle(90f, item_0.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
+                            float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                            Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+
+                            var tex = ResourceManager.TextureDict["UI/node_inhibit"];
+                            Vector2 local_22 = new Vector2(tex.Width / 2, tex.Height / 2);
+                            ScreenManager.SpriteBatch.Draw(tex, local_21, new Rectangle?(), new Color(0, 200, 0, 20), 0.0f, local_22, SpriteEffects.None, 1f);
+                            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(30, 30, 150, 150), 1f);
                         }
                     }
-                    catch
-                    {
-                    }
                 }
-
+                catch
+                {
+                }
             }
 
             if (this.showingRangeOverlay && !this.LookingAtPlanet)
@@ -6056,29 +5990,30 @@ namespace Ship_Game
             if (this.Debug)
             {
                 var lines = new List<string>();
-                lines.Add("Comparisons: " + GlobalStats.Comparisons);
-                lines.Add("Dis Check Avg: " + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter);
-                lines.Add("Modules Moved: " + GlobalStats.ModulesMoved);
-                lines.Add("Modules Updated: " + GlobalStats.ModuleUpdates);
-                lines.Add("Arc Checks: " + GlobalStats.WeaponArcChecks);
-                lines.Add("Beam Tests: " + GlobalStats.BeamTests);
-                lines.Add("Memory: " + Memory);
+                lines.Add("Comparisons:      " + GlobalStats.Comparisons);
+                lines.Add("Dis Check Avg:    " + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter);
+                lines.Add("Modules Moved:    " + GlobalStats.ModulesMoved);
+                lines.Add("Modules Updated:  " + GlobalStats.ModuleUpdates);
+                lines.Add("Arc Checks:       " + GlobalStats.WeaponArcChecks);
+                lines.Add("Beam Tests:       " + GlobalStats.BeamTests);
+                lines.Add("Memory:           " + Memory);
                 lines.Add("");
-                lines.Add("Ship Count: " + MasterShipList.Count);
-                lines.Add("Ship Lag(s): "      + Perfavg2);
-                lines.Add("Empire Lag(s): "    + perfavg);
-                lines.Add("PreEmpire Lag(s): " + perfavg3);
-                lines.Add("Post Empire Lag(s): " + perfavg4);
+                lines.Add("Ship Count:       " + MasterShipList.Count);
+                lines.Add("Ship Time:        " + Perfavg2);
+                lines.Add("Empire Time:      " + perfavg);
+                lines.Add("PreEmpire Time:   " + perfavg3);
+                lines.Add("Post Empire Time: " + perfavg4);
                 lines.Add("");
-                lines.Add("Total Lag(s): " + perfavg5);
+                lines.Add("Total Time:       " + perfavg5);
 
-                Vector2 position = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 250f, 44f);
-                DrawLines(position, lines);
+                Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 250f, 44f);
+                DrawLines(pos, lines);
             }
             if (IsActive)
                 ToolTip.Draw(ScreenManager);
             ScreenManager.SpriteBatch.End();
             WorkerSemaphore.Set();
+            GameLoadedSemaphore.Set();
         }
 
         private void DrawLines(Vector2 position, List<string> lines)
