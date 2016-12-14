@@ -1728,7 +1728,7 @@ namespace Ship_Game
                         t.SetPlanet(this);
                         if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                             return true;
-                        ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe.PlayerEmpire, Planet.universeScreen);
+                        ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Planet.universeScreen);
                     }
                 }
             }
@@ -2704,7 +2704,7 @@ namespace Ship_Game
                         eventLocation.TroopsHere.thisLock.ExitReadLock();
                         return true;
                     }
-                    ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe.PlayerEmpire, Planet.universeScreen);
+                    ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Planet.universeScreen);
                     
                 }
             }
