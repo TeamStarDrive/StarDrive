@@ -54,7 +54,7 @@ namespace Ship_Game
 		public InGameWiki(Rectangle r)
 		{
 			FileInfo[] Help;
-			this.r = r;
+			this.R = r;
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
@@ -110,10 +110,10 @@ namespace Ship_Game
 			base.DrawBase(gameTime);
 			base.ScreenManager.SpriteBatch.Begin();
 			this.CategoriesSL.Draw(base.ScreenManager.SpriteBatch);
-			Vector2 bCursor = new Vector2((float)(this.r.X + 20), (float)(this.r.Y + 20));
+			Vector2 bCursor = new Vector2((float)(this.R.X + 20), (float)(this.R.Y + 20));
 			for (int i = this.CategoriesSL.indexAtTop; i < this.CategoriesSL.Copied.Count && i < this.CategoriesSL.indexAtTop + this.CategoriesSL.entriesToDisplay; i++)
 			{
-				bCursor = new Vector2((float)(this.r.X + 35), (float)(this.r.Y + 20));
+				bCursor = new Vector2((float)(this.R.X + 35), (float)(this.R.Y + 20));
 				ScrollList.Entry e = this.CategoriesSL.Copied[i];
 				bCursor.Y = (float)e.clickRect.Y;
 				if (!(e.item is ModuleHeader))
@@ -281,7 +281,7 @@ namespace Ship_Game
 		{
 			base.Setup();
 			Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.CategoriesRect = new Rectangle(this.r.X + 25, this.r.Y + 130, 330, 430);
+			this.CategoriesRect = new Rectangle(this.R.X + 25, this.R.Y + 130, 330, 430);
 			Submenu blah = new Submenu(base.ScreenManager, this.CategoriesRect);
 			this.CategoriesSL = new ScrollList(blah, 40);
 			this.TextRect = new Rectangle(this.CategoriesRect.X + this.CategoriesRect.Width + 5, this.CategoriesRect.Y + 10, 375, 420);
