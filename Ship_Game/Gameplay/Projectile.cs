@@ -948,7 +948,7 @@ namespace Ship_Game.Gameplay
         {
             if(this.DieNextFrame && this.Active)
             {
-                this.Die((GameplayObject)this, false);
+                this.Die(this, false);
             }
             else
             {
