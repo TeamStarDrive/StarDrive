@@ -402,16 +402,9 @@ namespace Ship_Game.Gameplay
 			if (this.weapon.Animated == 1)
 			{
 				this.switchFrames = this.initialDuration / (float)this.weapon.Frames;
-				if (this.weapon.LoopAnimation == 1)
+				if (weapon.LoopAnimation == 1)
 				{
-					if (Ship.universeScreen != null)
-					{
-						this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
-					}
-					else
-					{
-						this.AnimationFrame = (int)RandomMath.RandomBetween(0f, (float)(this.weapon.Frames - 1));
-					}
+					AnimationFrame = UniverseRandom.InRange(weapon.Frames);
 				}
 			}
 			if (this.owner.loyalty.data.ArmorPiercingBonus > 0 && (this.weapon.WeaponType == "Missile" || this.weapon.WeaponType == "Ballistic Cannon"))
@@ -426,14 +419,10 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.WeaponType != "Missile" && this.WeaponType != "Drone" && this.WeaponType != "Rocket" || (this.System == null || !this.System.isVisible) && !this.isInDeepSpace)
 			{
-				if (this.owner != null && this.owner.loyalty.data.Traits.Blind > 0)
+				if (owner != null && owner.loyalty.data.Traits.Blind > 0)
 				{
-					int Random = 0;
-					Random = (Ship.universeScreen != null ? (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 10f) : (int)RandomMath.RandomBetween(0f, 10f));
-					if (Random <= 1)
-					{
-						this.Miss = true;
-					}
+					if (UniverseRandom.IntBetween(0, 10) <= 1)
+						Miss = true;
 				}
 			}
 			else if (this.ProjSO != null)
@@ -493,7 +482,7 @@ namespace Ship_Game.Gameplay
 				this.switchFrames = this.initialDuration / (float)this.weapon.Frames;
 				if (this.weapon.LoopAnimation == 1)
 				{
-					this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
+					this.AnimationFrame = UniverseRandom.InRange(weapon.Frames);
 				}
 			}
 			Projectile projectile1 = this;
@@ -550,7 +539,7 @@ namespace Ship_Game.Gameplay
 				this.switchFrames = this.initialDuration / (float)this.weapon.Frames;
 				if (this.weapon.LoopAnimation == 1)
 				{
-					this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
+					AnimationFrame = UniverseRandom.InRange(weapon.Frames);
 				}
 			}
 			Projectile projectile1 = this;
@@ -601,7 +590,7 @@ namespace Ship_Game.Gameplay
 				this.switchFrames = this.initialDuration / (float)this.weapon.Frames;
 				if (this.weapon.LoopAnimation == 1)
 				{
-					this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
+					AnimationFrame = UniverseRandom.InRange(weapon.Frames);
 				}
 			}
 			Projectile projectile1 = this;
@@ -659,7 +648,7 @@ namespace Ship_Game.Gameplay
 				this.switchFrames = this.initialDuration / (float)this.weapon.Frames;
 				if (this.weapon.LoopAnimation == 1)
 				{
-					this.AnimationFrame = (int)((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)(this.weapon.Frames - 1));
+					AnimationFrame = UniverseRandom.InRange(weapon.Frames);
 				}
 			}
 			Projectile projectile1 = this;
@@ -763,7 +752,7 @@ namespace Ship_Game.Gameplay
 					}
 					if (projectile.WeaponType == "Missile")
 					{
-						float ran = ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 1f);
+						float ran = UniverseRandom.RandomBetween(0f, 1f);
 						if (projectile.loyalty != null && ran >= projectile.loyalty.data.MissileDodgeChance)
 						{
 							projectile.DamageMissile(this, this.damageAmount);
@@ -799,7 +788,7 @@ namespace Ship_Game.Gameplay
 					}
                     if (module.GetParent().shipData.Role == ShipData.RoleName.fighter && module.GetParent().loyalty.data.Traits.DodgeMod > 0f)
                     {
-                        if (((module.GetParent().System!= null ? module.GetParent().System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(0f, 100f) < module.GetParent().loyalty.data.Traits.DodgeMod * 100f)
+                        if (UniverseRandom.RandomBetween(0f, 100f) < module.GetParent().loyalty.data.Traits.DodgeMod * 100f)
                         {
                             this.Miss = true;
                         }
@@ -919,10 +908,11 @@ namespace Ship_Game.Gameplay
 					right = Vector2.Normalize(right);
 					for (int i = 0; i < 20; i++)
 					{
-						Vector3 random = new Vector3(right.X * ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f), right.Y * ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f), ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f));
-						Projectile.universeScreen.flameParticles.AddParticleThreadA(center, random);
-						random = new Vector3(-forward.X + ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f), -forward.Y + ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f), ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f));
-						Projectile.universeScreen.flameParticles.AddParticleThreadA(center, random);
+                        Vector3 random = UniverseRandom.Vector3D(250f) * new Vector3(right.X, right.Y, 1f);
+						universeScreen.flameParticles.AddParticleThreadA(center, random);
+
+                        random = UniverseRandom.Vector3D(150f) + new Vector3(-forward.X, -forward.Y, 0f);
+						universeScreen.flameParticles.AddParticleThreadA(center, random);
 					}
 				}
                 if (this.WeaponEffectType == "MuzzleBlast") // currently unused
@@ -933,21 +923,21 @@ namespace Ship_Game.Gameplay
                     right = Vector2.Normalize(right);
                     for (int i = 0; i < 20; i++)
                     {
-                        Vector3 random = new Vector3(right.X * ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), right.Y * ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-250f, 250f));
-                        Projectile.universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
-                        random = new Vector3(-forward.X + ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), -forward.Y + ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-500f, 500f), ((this.System != null ? this.System.RNG : Ship.universeScreen.DeepSpaceRNG)).RandomBetween(-150f, 150f));
-                        Projectile.universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
+                        Vector3 random = UniverseRandom.Vector3D(500f) * new Vector3(right.X, right.Y, 1f);
+                        universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
+
+                        random = new Vector3(-forward.X, -forward.Y, 0f) 
+                            + new Vector3(UniverseRandom.RandomBetween(-500f, 500f), 
+                                        UniverseRandom.RandomBetween(-500f, 500f), 
+                                        UniverseRandom.RandomBetween(-150f, 150f));
+                        universeScreen.fireTrailParticles.AddParticleThreadA(center, random);
                     }
                 }
                 else if (this.WeaponType == "Ballistic Cannon")
                 {
-                    ShipModule SMtarget = target as ShipModule;
-                    if (SMtarget != null && SMtarget.ModuleType != ShipModuleType.Shield)
-                    {
-                        Cue impact = AudioManager.GetCue("sd_impact_bullet_small_01");
-                        impact.Apply3D(Projectile.universeScreen.listener, this.emitter);
-                        impact.Play();
-                    }
+                    ShipModule shipModule = target as ShipModule;
+                    if (shipModule != null && shipModule.ModuleType != ShipModuleType.Shield)
+                        AudioManager.PlayCue("sd_impact_bullet_small_01", universeScreen.listener, emitter);
                 }
 			}
 			this.DieNextFrame = true;
