@@ -1145,19 +1145,24 @@ namespace Ship_Game
                     WorkerSemaphore.WaitOne();
                     WorkerSemaphore.Reset();
 
+                    float deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
+
                     if (Paused)
                     {
                         UpdateAllSystems(0.0f);
-                        for (int i = 0; i < MasterShipList.Count; ++i)
+                        foreach (Ship ship in MasterShipList)
                         {
                             try
                             {
-                                Ship ship = MasterShipList[i];
                                 if (Frustum.Contains(new BoundingSphere(new Vector3(ship.Position, 0.0f), 2000f)) != ContainmentType.Disjoint && viewState <= UnivScreenState.SystemView)
                                 {
                                     ship.InFrustum = true;
                                     ship.GetSO().Visibility = ObjectVisibility.Rendered;
-                                    ship.GetSO().World = Matrix.Identity * Matrix.CreateRotationY(ship.yRotation) * Matrix.CreateRotationX(ship.xRotation) * Matrix.CreateRotationZ(ship.Rotation) * Matrix.CreateTranslation(new Vector3(ship.Center, 0.0f));
+                                    ship.GetSO().World = Matrix.Identity 
+                                        * Matrix.CreateRotationY(ship.yRotation) 
+                                        * Matrix.CreateRotationX(ship.xRotation) 
+                                        * Matrix.CreateRotationZ(ship.Rotation) 
+                                        * Matrix.CreateTranslation(new Vector3(ship.Center, 0.0f));
                                 }
                                 else
                                 {
@@ -1169,19 +1174,19 @@ namespace Ship_Game
                             {
                             }
                         }
-                        ClickTimer += (float)zgameTime.ElapsedGameTime.TotalSeconds;
-                        ClickTimer2 += (float)zgameTime.ElapsedGameTime.TotalSeconds;
+                        ClickTimer += deltaTime;
+                        ClickTimer2 += deltaTime;
                         pieMenu.Update(zgameTime);
-                        PieMenuTimer += (float)zgameTime.ElapsedGameTime.TotalSeconds;
+                        PieMenuTimer += deltaTime;
                     }
                     else
                     {
-                        ClickTimer  += (float)zgameTime.ElapsedGameTime.TotalSeconds;
-                        ClickTimer2 += (float)zgameTime.ElapsedGameTime.TotalSeconds;
+                        ClickTimer  += deltaTime;
+                        ClickTimer2 += deltaTime;
                         pieMenu.Update(zgameTime);
-                        PieMenuTimer += (float)zgameTime.ElapsedGameTime.TotalSeconds;
-                        NotificationManager.Update((float)zgameTime.ElapsedGameTime.TotalSeconds);
-                        AutoSaveTimer -= 0.01666667f;
+                        PieMenuTimer += deltaTime;
+                        NotificationManager.Update(deltaTime);
+                        AutoSaveTimer -= deltaTime;
                     
                         if (AutoSaveTimer <= 0.0f)
                         {
@@ -1193,39 +1198,29 @@ namespace Ship_Game
                             if (Paused)
                             {
                                 DoWork(0.0f);
-                            
                             }
                             else if (GameSpeed < 1.0f)
                             {
-                                if (flip)
-                                {
-                                    DoWork((float)zgameTime.ElapsedGameTime.TotalSeconds);
-                                    flip = false;
-                                }
-                                else
-                                    flip = true;
+                                if (flip) DoWork(deltaTime);
+                                flip = !flip;
                             }
                             else
                             {
-                                for (int index = 0; index < GameSpeed; ++index)
+                                for (int index = 0; index < GameSpeed && IsActive; ++index)
                                 {
-                                    if (IsActive)
-                                        DoWork((float)zgameTime.ElapsedGameTime.TotalSeconds);
+                                    DoWork(deltaTime);
                                 }
                             }
-    #if AUTOTIME
-                            if (this.perfavg5.Count >0 && this.perfavg5.Average() *this.GameSpeed < .05f )
+                        #if AUTOTIME
+                            if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f )
                             {
-                                this.GameSpeed++;
-
+                                ++GameSpeed;
                             }
                             else
                             {
-                                this.GameSpeed--;
-                                if ((double)this.GameSpeed < 1.0)
-                                    this.GameSpeed = 1.0f;
+                                if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
                             } 
-    #endif
+                        #endif
                     
                         }
                     }
@@ -7824,23 +7819,25 @@ namespace Ship_Game
             {
                 try
                 {
-                    Ship ship = this.player.KnownShips[index1];
-                    foreach (Projectile projectile in (List<Projectile>)ship.Projectiles)
+                    Ship ship = player.KnownShips[index1];
+                    for (int i = 0; i < ship.Projectiles.Count; ++i) // regular FOR to mitigate multi-threading issues
                     {
+                        Projectile projectile = ship.Projectiles[i];
                         if (projectile.weapon.IsRepairDrone && projectile.GetDroneAI() != null)
                         {
-                            for (int index2 = 0; index2 < projectile.GetDroneAI().Beams.Count; ++index2)
-                                projectile.GetDroneAI().Beams[index2].Draw(this.ScreenManager);
+                            for (int j = 0; j < projectile.GetDroneAI().Beams.Count; ++j)
+                                projectile.GetDroneAI().Beams[j].Draw(this.ScreenManager);
                         }
                     }
-                    if (this.viewState < UniverseScreen.UnivScreenState.SectorView)
+                    if (viewState < UnivScreenState.SectorView)
                     {
-                        foreach (Beam beam in (List<Beam>)ship.Beams)
+                        for (int i = 0; i < ship.Beams.Count; ++i) // regular FOR to mitigate multi-threading issues
                         {
-                            if ( Vector2.Distance(beam.Source, beam.ActualHitDestination) <  beam.range + 10.0f)
-                                beam.Draw(this.ScreenManager);
+                            Beam beam = ship.Beams[i];
+                            if (beam.Source.WithinRadius(beam.ActualHitDestination, beam.range + 10.0f))
+                                beam.Draw(ScreenManager);
                             else
-                                beam.Die((GameplayObject)null, true);
+                                beam.Die(null, true);
                         }
                     }
                 }
