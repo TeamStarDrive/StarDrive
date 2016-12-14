@@ -861,6 +861,8 @@ namespace Ship_Game
             WorkerThread.Abort();
             WorkerThread = null;
             ScreenManager.AddScreen(us);
+
+            System.Diagnostics.Debug.WriteLine("CreatingNewGameScreen.UpdateAllSystems(0.01)");
             us.UpdateAllSystems(0.01f);
             mmscreen.OnPlaybackStopped(null, null);
             ScreenManager.RemoveScreen(mmscreen);

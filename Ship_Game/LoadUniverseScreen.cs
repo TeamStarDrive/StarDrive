@@ -1253,9 +1253,7 @@ namespace Ship_Game
 							foreach (Ship othership in ship.loyalty.GetShips())
 							{
 								if (hangar.installedSlot.HangarshipGuid != othership.guid)
-								{
 									continue;
-								}
 								hangar.SetHangarShip(othership);
 								othership.Mothership = ship;
 							}
@@ -1395,6 +1393,8 @@ namespace Ship_Game
 
 				this.us.player = EmpireManager.GetEmpireByName(this.PlayerLoyalty);
 				this.us.LoadContent();
+
+                System.Diagnostics.Debug.WriteLine("LoadUniverseScreen.UpdateAllSystems(0.01)");
 				this.us.UpdateAllSystems(0.01f);
                 ResourceManager.MarkShipDesignsUnlockable();
                 /*
