@@ -1435,11 +1435,11 @@ namespace Ship_Game.Gameplay
                         case 1:
                             bool flag1 = true;
                             this.Ships.thisLock.EnterReadLock();
-                            foreach (Ship ship in (List<Ship>)this.Ships)
+                            foreach (Ship ship in Ships)
                             {
                                 if (!ship.disabled && ship.hasCommand && ship.Active)
                                 {
-                                    if (Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000 )
+                                    if (Vector2.Distance(ship.Center, Position + ship.FleetOffset) > 5000 )
                                     {
                                         flag1 = false;
                                         //if(ship.isInDeepSpace && ship.engineState != Ship.MoveState.Warp)
@@ -1448,13 +1448,14 @@ namespace Ship_Game.Gameplay
                                         //}
 
                                         this.Ships.thisLock.ExitReadLock();
+                                        break;
                                     }
-                                    else if (ship.GetAI().BadGuysNear)
+                                    if (ship.GetAI().BadGuysNear)
                                     {
                                         this.Ships.thisLock.ExitReadLock();
                                         Task.EndTask();
                                         //this.TaskStep = -1;
-                                        flag1 = false;
+                                        break;
 
                                     }
                                     int num4 = ship.InCombat ? 1 : 0;
@@ -1462,10 +1463,10 @@ namespace Ship_Game.Gameplay
                                         break;
                                 }
                             }
-                            
                             if (!flag1)
                                 break;
                             this.Ships.thisLock.ExitReadLock();
+
                             this.TaskStep = 2;
                             Vector2 MovePosition = Task.GetTargetPlanet().Position + Vector2.Normalize(this.findAveragePosition() - Task.GetTargetPlanet().Position) * 125000f;
                             this.Position = MovePosition;
