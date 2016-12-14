@@ -63,6 +63,7 @@ namespace Particle3DSample
 			this.GraphicsDevice = gd;
 			this.content = content;
 			this.settingsName = settingsName;
+            LoadContent();
 		}
 
 		private void AddNewParticlesToVertexBuffer()
