@@ -2216,14 +2216,7 @@ namespace Ship_Game.Gameplay
             if (this.isDummy) return;
             if (this.shield_power_max > 0.0)
             {
-                this.shield = new Shield();
-                this.shield.World = Matrix.Identity * Matrix.CreateScale(2f) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.Center.X, this.Center.Y, 0.0f);
-                this.shield.Owner = (GameplayObject)this;
-                this.shield.displacement = 0.0f;
-                this.shield.texscale = 2.8f;
-                this.shield.Rotation = this.Rotation;
-                //lock (GlobalStats.ShieldLocker)
-                    ShieldManager.shieldList.Add(this.shield);
+                shield = ShieldManager.AddShield(this, Rotation, Center);
             }
             if (this.IsSupplyBay)
             {

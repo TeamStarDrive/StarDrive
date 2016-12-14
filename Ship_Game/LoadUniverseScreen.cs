@@ -280,9 +280,9 @@ namespace Ship_Game
 		{
 			SolarSystem system = new SolarSystem()
 			{
-				Name = data.Name,
+				Name     = data.Name,
 				Position = data.Position,
-				SunPath = data.SunPath,
+				SunPath  = data.SunPath,
 				AsteroidsList = new BatchRemovalCollection<Asteroid>(),
                 MoonList = new List<Moon>()
 			};
@@ -300,9 +300,9 @@ namespace Ship_Game
 			{
 				system.ExploredDict.Add(e, false);
 			}
-			foreach (string EmpireName in data.EmpiresThatKnowThisSystem)
+			foreach (string empireName in data.EmpiresThatKnowThisSystem)
 			{
-				system.ExploredDict[EmpireManager.GetEmpireByName(EmpireName)] = true;
+				system.ExploredDict[EmpireManager.GetEmpireByName(empireName)] = true;
 			}
 			system.RingList = new List<SolarSystem.Ring>();
 			foreach (SavedGame.RingSave ring in data.RingList)
@@ -323,17 +323,14 @@ namespace Ship_Game
 					foreach (Building b in p.BuildingList)
 					{
 						if (b.Name != "Space Port")
-						{
 							continue;
-						}
-						p.Station = new SpaceStation()
+						p.Station = new SpaceStation
 						{
-							planet = p,
-							Position = p.Position,
+							planet       = p,
+							Position     = p.Position,
 							ParentSystem = p.system
-                            
 						};
-						p.Station.LoadContent(base.ScreenManager);
+						p.Station.LoadContent(ScreenManager);
 						p.HasShipyard = true;
                         
 					}
@@ -366,15 +363,13 @@ namespace Ship_Game
 		private void DecompressFile(object info, DoWorkEventArgs e)
 		{
 			FileInfo activeFile = (FileInfo)e.Argument;
-			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(activeFile));
 
             //XmlAttributes saveCompatibility = new XmlAttributes();
-            XmlSerializer serializer1=null;// = new XmlSerializer();
+            XmlSerializer serializer1;// = new XmlSerializer();
             try
             {
-                //XmlSerializer 
-                    serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+                serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
             }
             catch
             {
@@ -383,41 +378,39 @@ namespace Ship_Game
                 attributeOverrides.Add(typeof(SavedGame.EmpireSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
                 serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData), attributeOverrides);
             }
-			FileStream stream = decompressed.OpenRead();
-			SavedGame.UniverseSaveData savedData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
-			//stream.Close();
-			stream.Dispose();
+
+            SavedGame.UniverseSaveData usData;
+            using (FileStream stream = decompressed.OpenRead())
+                usData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
+
 			decompressed.Delete();
-			GlobalStats.RemnantKills = savedData.RemnantKills;
-            GlobalStats.RemnantActivation = savedData.RemnantActivation;
-            GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
-            
-            GlobalStats.GravityWellRange = savedData.GravityWellRange;            
-            GlobalStats.IconSize = savedData.IconSize;        
-            GlobalStats.MemoryLimiter = savedData.MemoryLimiter;          
-            GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;         
-            GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;            
-            GlobalStats.preventFederations = savedData.preventFederations;
-            GlobalStats.EliminationMode = savedData.EliminationMode;
-            if (savedData.TurnTimer == 0)
-                savedData.TurnTimer = 5;
-            GlobalStats.TurnTimer = savedData.TurnTimer;
+			GlobalStats.RemnantKills                  = usData.RemnantKills;
+            GlobalStats.RemnantActivation             = usData.RemnantActivation;
+            GlobalStats.RemnantArmageddon             = usData.RemnantArmageddon;
+            GlobalStats.GravityWellRange              = usData.GravityWellRange;            
+            GlobalStats.IconSize                      = usData.IconSize;        
+            GlobalStats.MemoryLimiter                 = usData.MemoryLimiter;          
+            GlobalStats.MinimumWarpRange              = usData.MinimumWarpRange;         
+            GlobalStats.OptionIncreaseShipMaintenance = usData.OptionIncreaseShipMaintenance;            
+            GlobalStats.preventFederations            = usData.preventFederations;
+            GlobalStats.EliminationMode               = usData.EliminationMode;
+            if (usData.TurnTimer == 0)
+                usData.TurnTimer = 5;
+            GlobalStats.TurnTimer = usData.TurnTimer;
 
-
-
-			this.savedData = savedData;
-			this.camPos = savedData.campos;
-			this.camHeight = savedData.camheight;
-			this.GamePace = savedData.GamePacing;
+			this.savedData = usData;
+			this.camPos = usData.campos;
+			this.camHeight = usData.camheight;
+			this.GamePace = usData.GamePacing;
 			UniverseScreen.GamePaceStatic = this.GamePace;
-			this.GameScale = savedData.GameScale;
-			this.PlayerLoyalty = savedData.PlayerLoyalty;
+			this.GameScale = usData.GameScale;
+			this.PlayerLoyalty = usData.PlayerLoyalty;
 			UniverseScreen.GamePaceStatic = this.GamePace;
 			UniverseScreen.GameScaleStatic = this.GameScale;
 			RandomEventManager.ActiveEvent = null;
 			StatTracker.SnapshotsDict.Clear();
-			StatTracker.SnapshotsDict = savedData.Snapshots;
-            UniverseData.UniverseWidth = savedData.Size.X;
+			StatTracker.SnapshotsDict = usData.Snapshots;
+            UniverseData.UniverseWidth = usData.Size.X;
 			this.GateKeeper.Set();
             
 		}
@@ -487,41 +480,33 @@ namespace Ship_Game
 			{
                 if (!ship.Active)
                 {
-                    this.us.MasterShipList.QueuePendingRemoval(ship);
+                    us.MasterShipList.QueuePendingRemoval(ship);
                     continue;
                 }
 
                 ship.UpdateSystem(0f);
-				if (ship.loyalty != EmpireManager.GetEmpireByName(this.us.PlayerLoyalty))
+				if (ship.loyalty != EmpireManager.Player)
 				{
-					if (ship.AddedOnLoad)
-					{
-						continue;
-					}
-					ship.loyalty.ForcePoolAdd(ship);
+					if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
 				}
-				else
-				{
-					if (ship.GetAI().State != AIState.SystemDefender)
-					{
-						continue;
-					}
-					ship.loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
+				else if (ship.GetAI().State != AIState.SystemDefender)
+                {
+                    ship.loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
 					ship.AddedOnLoad = true;
 				}
 			}
-            this.us.MasterShipList.ApplyPendingRemovals();
-			base.ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
-			this.us.EmpireUI.empire = this.us.player;
-			base.ScreenManager.AddScreenNoLoad(this.us);
-            this.ExitScreen();
+            us.MasterShipList.ApplyPendingRemovals();
+			ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
+			us.EmpireUI.empire = us.player;
+			ScreenManager.AddScreenNoLoad(us);
+            ExitScreen();
 		}
 
 		public override void HandleInput(InputState input)
 		{
-			if (this.ready && input.InGameSelect)
+			if (ready && input.InGameSelect)
 			{
-				this.Go();
+				Go();
 			}
 		}
 
@@ -565,14 +550,13 @@ namespace Ship_Game
 			RandomEventManager.ActiveEvent = this.savedData.RandomEvent;
 			UniverseScreen.DeepSpaceManager = new SpatialManager();
 			this.ThrusterEffect = base.ScreenManager.Content.Load<Effect>("Effects/Thrust");
-			int count = this.data.SolarSystemsList.Count;
-			this.data.loadFogPath = this.savedData.FogMapName;
-			this.data.difficulty = UniverseData.GameDifficulty.Normal;
-			this.data.difficulty = this.savedData.gameDifficulty;
-			this.data.Size = this.savedData.Size;
-			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
+			this.data.loadFogPath           = this.savedData.FogMapName;
+			this.data.difficulty            = UniverseData.GameDifficulty.Normal;
+			this.data.difficulty            = this.savedData.gameDifficulty;
+			this.data.Size                  = this.savedData.Size;
+			this.data.FTLSpeedModifier      = this.savedData.FTLModifier;
             this.data.EnemyFTLSpeedModifier = this.savedData.EnemyFTLModifier;
-			this.data.GravityWells = this.savedData.GravityWells;
+			this.data.GravityWells          = this.savedData.GravityWells;
             //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
             //this is pretty bad as its not connected to the creating game screen code that sets the map sizes. If someone changes the map size they wont know to change this as well.
             if (this.data.Size.X > 3500000f) 
@@ -1233,29 +1217,21 @@ namespace Ship_Game
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
-			if (!this.GateKeeper.WaitOne(0))
-			{
+			if (!GateKeeper.WaitOne(0) || ready || !Loaded)
 				return;
-			}
-			if (this.ready)
+
+            var system = data.SolarSystemsList[systemToMake];
+			system.spatialManager.Setup((int)(200000f * this.GameScale), (int)(200000f * this.GameScale), (int)(100000f * this.GameScale), system.Position);
+			this.percentloaded = systemToMake / (float)data.SolarSystemsList.Count;
+			foreach (Planet p in system.PlanetList)
 			{
-				return;
-			}
-			if (!this.Loaded)
-			{
-				return;
-			}
-			this.data.SolarSystemsList[this.systemToMake].spatialManager.Setup((int)(200000f * this.GameScale), (int)(200000f * this.GameScale), (int)(100000f * this.GameScale), this.data.SolarSystemsList[this.systemToMake].Position);
-			this.percentloaded = (float)this.systemToMake / (float)this.data.SolarSystemsList.Count;
-			foreach (Planet p in this.data.SolarSystemsList[this.systemToMake].PlanetList)
-			{
-				p.system = this.data.SolarSystemsList[this.systemToMake];
+				p.system = system;
 				p.InitializeUpdate();
 				base.ScreenManager.inter.ObjectManager.Submit(p.SO);
 			}
-            foreach (Asteroid roid in this.data.SolarSystemsList[this.systemToMake].AsteroidsList)
+            foreach (Asteroid roid in system.AsteroidsList)
                 base.ScreenManager.inter.ObjectManager.Submit(roid.GetSO());
-            foreach (Moon moon in this.data.SolarSystemsList[this.systemToMake].MoonList)
+            foreach (Moon moon in system.MoonList)
                 base.ScreenManager.inter.ObjectManager.Submit(moon.GetSO());
 			LoadUniverseScreen loadUniverseScreen = this;
 			loadUniverseScreen.systemToMake = loadUniverseScreen.systemToMake + 1;
@@ -1381,21 +1357,17 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							LoadUniverseScreen.SysDisPair sp = new LoadUniverseScreen.SysDisPair()
+							dysSys[indexOfFarthestSystem] = new SysDisPair
 							{
-								System = toCheck,
-								Distance = Distance
+								System = toCheck, Distance = Distance
 							};
-							dysSys[indexOfFarthestSystem] = sp;
 						}
 						else
 						{
-							LoadUniverseScreen.SysDisPair sp = new LoadUniverseScreen.SysDisPair()
+							dysSys.Add(new SysDisPair
 							{
-								System = toCheck,
-								Distance = Distance
-							};
-							dysSys.Add(sp);
+								System = toCheck, Distance = Distance
+							});
 						}
 					}
 					foreach (LoadUniverseScreen.SysDisPair sp in dysSys)
@@ -1452,7 +1424,6 @@ namespace Ship_Game
 		private struct SysDisPair
 		{
 			public SolarSystem System;
-
 			public float Distance;
 		}
 	}

@@ -26,23 +26,7 @@ namespace Ship_Game
 
 		private Mp3FileReader mp3FileReader;
 
-		public BatchRemovalCollection<MainMenuScreen.Comet> CometList = new BatchRemovalCollection<MainMenuScreen.Comet>();
-
-		//private Model xnaPlanet;
-
-		private Model shieldModel;
-
-		//private Effect AtmoEffect;
-
-		//private Model atmoModel;
-
-		private Effect ShieldEffect;
-
-		private Texture2D shieldTex;
-
-		private Texture2D shieldAlpha;
-
-		//private Texture2D cloudTex;
+		public BatchRemovalCollection<Comet> CometList = new BatchRemovalCollection<MainMenuScreen.Comet>();
 
 		private Rectangle StarFieldRect = new Rectangle(0, 0, 1920, 1080);
 
@@ -742,15 +726,8 @@ namespace Ship_Game
 			Cursor.Y = Cursor.Y + (float)(Ship_Game.ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
 			base.ScreenManager.inter.ObjectManager.Clear();
 			base.ScreenManager.inter.LightManager.Clear();
-			this.shieldModel = base.ScreenManager.Content.Load<Model>("Model/Projectiles/shield");
-			this.shieldTex = base.ScreenManager.Content.Load<Texture2D>("Model/Projectiles/shield_d");
-			this.shieldAlpha = base.ScreenManager.Content.Load<Texture2D>("Model/Projectiles/shieldgradient");
-			this.ShieldEffect = base.ScreenManager.Content.Load<Effect>("Effects/scale");
+            ShieldManager.LoadContent(ScreenManager.Content);
 			Beam.BeamEffect = base.ScreenManager.Content.Load<Effect>("Effects/BeamFX");
-			ShieldManager.shieldModel = this.shieldModel;
-			ShieldManager.shieldTexture = this.shieldTex;
-			ShieldManager.gradientTexture = this.shieldAlpha;
-			ShieldManager.ShieldEffect = this.ShieldEffect;
 			this.Portrait = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
 			while (this.Portrait.Width < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth && this.Portrait.Height < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
 			{
