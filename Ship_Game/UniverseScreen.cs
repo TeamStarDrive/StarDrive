@@ -1935,20 +1935,6 @@ namespace Ship_Game
             if (elapsedTime > 0)
             {
                 ShieldManager.Update();
-                lock (GlobalStats.ShieldLocker)
-                {
-                    for (int local_21 = 0; local_21 < ShieldManager.shieldList.Count; ++local_21)
-                    {
-                        Shield local_22 = ShieldManager.shieldList[local_21];
-                        if (local_22.Owner != null && !local_22.Owner.Active)
-                        {
-                            ShieldManager.shieldList.QueuePendingRemoval(local_22);
-                            lock (GlobalStats.ObjectManagerLocker)
-                                this.ScreenManager.inter.LightManager.Remove((ILight)local_22.pointLight);
-                        }
-                    }
-                    ShieldManager.shieldList.ApplyPendingRemovals();
-                }
                 //lock (FTLManager.FTLLock)
                 {
                     FTLManager.FTLList.thisLock.EnterReadLock();
@@ -1956,8 +1942,8 @@ namespace Ship_Game
                     FTLManager.FTLList.thisLock.ExitReadLock();
                     FTLManager.FTLList.ApplyPendingRemovals();
                 }
-                for (int index = 0; index < UniverseScreen.JunkList.Count; ++index)
-                    UniverseScreen.JunkList[index].Update(elapsedTime);
+                for (int index = 0; index < JunkList.Count; ++index)
+                    JunkList[index].Update(elapsedTime);
             }
             this.SelectedShipList.ApplyPendingRemovals();
             this.MasterShipList.ApplyPendingRemovals();
@@ -5149,8 +5135,7 @@ namespace Ship_Game
             SelectedFleet  = null;
             SelectedPlanet = null;
             SelectedSystem = null;
-            ShieldManager.shieldList.Clear();
-            ShieldManager.PlanetaryShieldList.Clear();
+            ShieldManager.Clear();
             PlanetsDict.Clear();
             ClickableFleetsList.Clear();
             ClickableShipsList.Clear();
