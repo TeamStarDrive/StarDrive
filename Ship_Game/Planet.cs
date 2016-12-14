@@ -171,10 +171,10 @@ namespace Ship_Game
         public void DropBombORIG(Bomb bomb)
         {
             
-            if (bomb.owner == this.Owner)
+            if (bomb.Owner == this.Owner)
                 return;
-            if (this.Owner != null && !this.Owner.GetRelations(bomb.owner).AtWar && (this.TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.owner))
-                this.Owner.GetGSAI().DeclareWarOn(bomb.owner, WarType.DefensiveWar);
+            if (this.Owner != null && !this.Owner.GetRelations(bomb.Owner).AtWar && (this.TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.Owner))
+                this.Owner.GetGSAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
             if ((double)this.ShieldStrengthCurrent > 0.0)
             {
                 AudioEmitter emitter = new AudioEmitter();
@@ -193,7 +193,7 @@ namespace Ship_Game
                 this.shield.texscale = 2.8f;
                 this.shield.texscale = (float)(2.79999995231628 - 0.185000002384186 * (double)RandomMath.RandomBetween(1f, 10f));
                 this.shield.Center = new Vector3(this.Position.X, this.Position.Y, 2500f);
-                this.shield.pointLight.World = bomb.GetWorld();
+                this.shield.pointLight.World = bomb.World;
                 this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
                 this.shield.pointLight.Radius = 50f;
                 this.shield.pointLight.Intensity = 8f;
@@ -334,7 +334,7 @@ namespace Ship_Game
                                 if (SteamManager.SetAchievement("Owlwoks_Freed"))
                                     SteamManager.SaveAllStatAndAchievementChanges();
 #endif
-                                this.TroopsHere[index].SetOwner(bomb.owner);
+                                this.TroopsHere[index].SetOwner(bomb.Owner);
                                 this.TroopsHere[index].Name = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopNameIndex);
                                 this.TroopsHere[index].Description = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopDescriptionIndex);
                             }
@@ -346,13 +346,13 @@ namespace Ship_Game
         //added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb)
         {
-            if (bomb.owner == this.Owner)
+            if (bomb.Owner == this.Owner)
             {
                 return;
             }
-            if (this.Owner != null && !this.Owner.GetRelations(bomb.owner).AtWar && this.TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.owner)
+            if (this.Owner != null && !this.Owner.GetRelations(bomb.Owner).AtWar && this.TurnsSinceTurnover > 10 && Empire.Universe.PlayerEmpire == bomb.Owner)
             {
-                this.Owner.GetGSAI().DeclareWarOn(bomb.owner, WarType.DefensiveWar);
+                this.Owner.GetGSAI().DeclareWarOn(bomb.Owner, WarType.DefensiveWar);
             }
             this.CombatTimer = 10f;
             if (this.ShieldStrengthCurrent <= 0f)
@@ -552,7 +552,7 @@ namespace Ship_Game
                                     {
                                         SteamManager.SaveAllStatAndAchievementChanges();
                                     }
-                                    this.TroopsHere[i].SetOwner(bomb.owner);
+                                    this.TroopsHere[i].SetOwner(bomb.Owner);
                                     this.TroopsHere[i].Name = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopNameIndex);
                                     this.TroopsHere[i].Description = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopDescriptionIndex);
                                 }
@@ -579,7 +579,7 @@ namespace Ship_Game
                 this.shield.texscale = 2.8f;
                 this.shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
                 this.shield.Center = new Vector3(this.Position.X, this.Position.Y, 2500f);
-                this.shield.pointLight.World = bomb.GetWorld();
+                this.shield.pointLight.World = bomb.World;
                 this.shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
                 this.shield.pointLight.Radius = 50f;
                 this.shield.pointLight.Intensity = 8f;

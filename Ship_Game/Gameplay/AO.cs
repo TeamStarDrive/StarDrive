@@ -53,9 +53,9 @@ namespace Ship_Game.Gameplay
 		{
 		}
 
-		public AO(Planet p, float Radius)
+		public AO(Planet p, float radius)
 		{
-			this.Radius = Radius;
+			this.Radius = radius;
 			this.CoreWorld = p;
 			this.CoreWorldGuid = p.guid;
 			this.WhichFleet = p.Owner.GetUnusedKeyForFleet();
@@ -66,7 +66,7 @@ namespace Ship_Game.Gameplay
 			this.CoreFleet.IsCoreFleet = true;
 			foreach (Planet planet in p.Owner.GetPlanets())
 			{
-				if (Vector2.Distance(planet.Position, this.CoreWorld.Position) >= Radius)
+				if (Vector2.Distance(planet.Position, this.CoreWorld.Position) >= radius)
 				{
 					continue;
 				}

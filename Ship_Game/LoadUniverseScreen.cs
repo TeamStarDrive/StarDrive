@@ -366,15 +366,13 @@ namespace Ship_Game
 		private void DecompressFile(object info, DoWorkEventArgs e)
 		{
 			FileInfo activeFile = (FileInfo)e.Argument;
-			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(activeFile));
 
             //XmlAttributes saveCompatibility = new XmlAttributes();
-            XmlSerializer serializer1=null;// = new XmlSerializer();
+            XmlSerializer serializer1;// = new XmlSerializer();
             try
             {
-                //XmlSerializer 
-                    serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
+                serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
             }
             catch
             {
@@ -383,41 +381,41 @@ namespace Ship_Game
                 attributeOverrides.Add(typeof(SavedGame.EmpireSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
                 serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData), attributeOverrides);
             }
-			FileStream stream = decompressed.OpenRead();
-			SavedGame.UniverseSaveData savedData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
-			//stream.Close();
-			stream.Dispose();
+
+            SavedGame.UniverseSaveData usData;
+            using (FileStream stream = decompressed.OpenRead())
+                usData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
+
 			decompressed.Delete();
-			GlobalStats.RemnantKills = savedData.RemnantKills;
-            GlobalStats.RemnantActivation = savedData.RemnantActivation;
-            GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
-            
-            GlobalStats.GravityWellRange = savedData.GravityWellRange;            
-            GlobalStats.IconSize = savedData.IconSize;        
-            GlobalStats.MemoryLimiter = savedData.MemoryLimiter;          
-            GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;         
-            GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;            
-            GlobalStats.preventFederations = savedData.preventFederations;
-            GlobalStats.EliminationMode = savedData.EliminationMode;
-            if (savedData.TurnTimer == 0)
-                savedData.TurnTimer = 5;
-            GlobalStats.TurnTimer = savedData.TurnTimer;
+			GlobalStats.RemnantKills                  = usData.RemnantKills;
+            GlobalStats.RemnantActivation             = usData.RemnantActivation;
+            GlobalStats.RemnantArmageddon             = usData.RemnantArmageddon;
+            GlobalStats.GravityWellRange              = usData.GravityWellRange;            
+            GlobalStats.IconSize                      = usData.IconSize;        
+            GlobalStats.MemoryLimiter                 = usData.MemoryLimiter;          
+            GlobalStats.MinimumWarpRange              = usData.MinimumWarpRange;         
+            GlobalStats.OptionIncreaseShipMaintenance = usData.OptionIncreaseShipMaintenance;            
+            GlobalStats.preventFederations            = usData.preventFederations;
+            GlobalStats.EliminationMode               = usData.EliminationMode;
+            if (usData.TurnTimer == 0)
+                usData.TurnTimer = 5;
+            GlobalStats.TurnTimer = usData.TurnTimer;
 
 
 
-			this.savedData = savedData;
-			this.camPos = savedData.campos;
-			this.camHeight = savedData.camheight;
-			this.GamePace = savedData.GamePacing;
+			this.savedData = usData;
+			this.camPos = usData.campos;
+			this.camHeight = usData.camheight;
+			this.GamePace = usData.GamePacing;
 			UniverseScreen.GamePaceStatic = this.GamePace;
-			this.GameScale = savedData.GameScale;
-			this.PlayerLoyalty = savedData.PlayerLoyalty;
+			this.GameScale = usData.GameScale;
+			this.PlayerLoyalty = usData.PlayerLoyalty;
 			UniverseScreen.GamePaceStatic = this.GamePace;
 			UniverseScreen.GameScaleStatic = this.GameScale;
 			RandomEventManager.ActiveEvent = null;
 			StatTracker.SnapshotsDict.Clear();
-			StatTracker.SnapshotsDict = savedData.Snapshots;
-            UniverseData.UniverseWidth = savedData.Size.X;
+			StatTracker.SnapshotsDict = usData.Snapshots;
+            UniverseData.UniverseWidth = usData.Size.X;
 			this.GateKeeper.Set();
             
 		}
@@ -565,14 +563,13 @@ namespace Ship_Game
 			RandomEventManager.ActiveEvent = this.savedData.RandomEvent;
 			UniverseScreen.DeepSpaceManager = new SpatialManager();
 			this.ThrusterEffect = base.ScreenManager.Content.Load<Effect>("Effects/Thrust");
-			int count = this.data.SolarSystemsList.Count;
-			this.data.loadFogPath = this.savedData.FogMapName;
-			this.data.difficulty = UniverseData.GameDifficulty.Normal;
-			this.data.difficulty = this.savedData.gameDifficulty;
-			this.data.Size = this.savedData.Size;
-			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
+			this.data.loadFogPath           = this.savedData.FogMapName;
+			this.data.difficulty            = UniverseData.GameDifficulty.Normal;
+			this.data.difficulty            = this.savedData.gameDifficulty;
+			this.data.Size                  = this.savedData.Size;
+			this.data.FTLSpeedModifier      = this.savedData.FTLModifier;
             this.data.EnemyFTLSpeedModifier = this.savedData.EnemyFTLModifier;
-			this.data.GravityWells = this.savedData.GravityWells;
+			this.data.GravityWells          = this.savedData.GravityWells;
             //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
             //this is pretty bad as its not connected to the creating game screen code that sets the map sizes. If someone changes the map size they wont know to change this as well.
             if (this.data.Size.X > 3500000f) 

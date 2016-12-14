@@ -19,39 +19,39 @@ namespace Ship_Game
 
 		public SavedGame(UniverseScreen screenToSave, string SaveAs)
 		{
-			Building building;
-			this.data.RemnantKills = GlobalStats.RemnantKills;
-            this.data.RemnantActivation = GlobalStats.RemnantActivation;
-            this.data.RemnantArmageddon = GlobalStats.RemnantArmageddon;
-			this.data.gameDifficulty = screenToSave.GameDifficulty;
-			this.data.AutoColonize = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoColonize;
-			this.data.AutoExplore = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoExplore;
-			this.data.AutoFreighters = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoFreighters;
-			this.data.AutoProjectors = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoBuild;
-			this.data.GamePacing = UniverseScreen.GamePaceStatic;
-			this.data.GameScale = UniverseScreen.GameScaleStatic;
-			this.data.StarDate = screenToSave.StarDate;
-			this.data.SolarSystemDataList = new List<SavedGame.SolarSystemSaveData>();
-			this.data.FTLModifier = screenToSave.FTLModifier;
-            this.data.EnemyFTLModifier = screenToSave.EnemyFTLModifier;
-			this.data.GravityWells = screenToSave.GravityWells;
-			this.data.PlayerLoyalty = screenToSave.PlayerLoyalty;
-			this.data.RandomEvent = RandomEventManager.ActiveEvent;
-			this.data.campos = new Vector2(screenToSave.camPos.X, screenToSave.camPos.Y);
-			this.data.camheight = screenToSave.camHeight;
-            this.data.MemoryLimiter = GlobalStats.MemoryLimiter;
-            this.data.MinimumWarpRange = GlobalStats.MinimumWarpRange;
-            this.data.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
-            this.data.TurnTimer = GlobalStats.TurnTimer;
-            this.data.IconSize=GlobalStats.IconSize;
-            this.data.preventFederations=GlobalStats.preventFederations;
-            this.data.GravityWellRange=GlobalStats.GravityWellRange;
-            this.data.EliminationMode = GlobalStats.EliminationMode;
+		    data.RemnantKills        = GlobalStats.RemnantKills;
+            data.RemnantActivation   = GlobalStats.RemnantActivation;
+            data.RemnantArmageddon   = GlobalStats.RemnantArmageddon;
+			data.gameDifficulty      = screenToSave.GameDifficulty;
+			data.AutoColonize        = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoColonize;
+			data.AutoExplore         = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoExplore;
+			data.AutoFreighters      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoFreighters;
+			data.AutoProjectors      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoBuild;
+			data.GamePacing          = UniverseScreen.GamePaceStatic;
+			data.GameScale           = UniverseScreen.GameScaleStatic;
+			data.StarDate            = screenToSave.StarDate;
+			data.FTLModifier         = screenToSave.FTLModifier;
+            data.EnemyFTLModifier    = screenToSave.EnemyFTLModifier;
+			data.GravityWells        = screenToSave.GravityWells;
+			data.PlayerLoyalty       = screenToSave.PlayerLoyalty;
+			data.RandomEvent         = RandomEventManager.ActiveEvent;
+			data.campos              = new Vector2(screenToSave.camPos.X, screenToSave.camPos.Y);
+			data.camheight           = screenToSave.camHeight;
+            data.MemoryLimiter       = GlobalStats.MemoryLimiter;
+            data.MinimumWarpRange    = GlobalStats.MinimumWarpRange;
+            data.TurnTimer           = GlobalStats.TurnTimer;
+            data.IconSize            = GlobalStats.IconSize;
+            data.preventFederations  = GlobalStats.preventFederations;
+            data.GravityWellRange    = GlobalStats.GravityWellRange;
+            data.EliminationMode     = GlobalStats.EliminationMode;
+			data.EmpireDataList      = new List<EmpireSaveData>();
+			data.SolarSystemDataList = new List<SolarSystemSaveData>();
+            data.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
             
 
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{
-				SavedGame.SolarSystemSaveData sdata = new SavedGame.SolarSystemSaveData()
+				SolarSystemSaveData sdata = new SolarSystemSaveData
 				{
 					Name = system.Name,
 					Position = system.Position,
@@ -66,10 +66,10 @@ namespace Ship_Game
                 foreach (Moon moon in system.MoonList)
                     sdata.Moons.Add(moon);
 				sdata.guid = system.guid;
-				sdata.RingList = new List<SavedGame.RingSave>();
+				sdata.RingList = new List<RingSave>();
 				foreach (SolarSystem.Ring ring in system.RingList)
 				{
-					SavedGame.RingSave rsave = new SavedGame.RingSave()
+					RingSave rsave = new RingSave
 					{
 						Asteroids = ring.Asteroids,
 						OrbitalDistance = ring.Distance
@@ -80,50 +80,49 @@ namespace Ship_Game
 					}
 					else
 					{
-						SavedGame.PlanetSaveData pdata = new SavedGame.PlanetSaveData()
+						PlanetSaveData pdata = new PlanetSaveData
 						{
-							Crippled_Turns = ring.planet.Crippled_Turns,
-							guid = ring.planet.guid,
-							FoodState = ring.planet.fs,
-							ProdState = ring.planet.ps,
-							FoodLock = ring.planet.FoodLocked,
-							ProdLock = ring.planet.ProdLocked,
-							ResLock = ring.planet.ResLocked,
-							Name = ring.planet.Name,
-                            Scale = ring.planet.scale,
-							ShieldStrength = ring.planet.ShieldStrengthCurrent,
-							Population = ring.planet.Population,
-							PopulationMax = ring.planet.MaxPopulation,
-							Fertility = ring.planet.Fertility,
-							Richness = ring.planet.MineralRichness,
-							Owner = (ring.planet.Owner != null ? ring.planet.Owner.data.Traits.Name : ""),
-							WhichPlanet = ring.planet.planetType,
-							OrbitalAngle = ring.planet.OrbitalAngle,
-							OrbitalDistance = ring.planet.OrbitalRadius,
-							HasRings = ring.planet.hasRings,
-							Radius = ring.planet.ObjectRadius,
-							farmerPercentage = ring.planet.FarmerPercentage,
-							workerPercentage = ring.planet.WorkerPercentage,
+							Crippled_Turns       = ring.planet.Crippled_Turns,
+							guid                 = ring.planet.guid,
+							FoodState            = ring.planet.fs,
+							ProdState            = ring.planet.ps,
+							FoodLock             = ring.planet.FoodLocked,
+							ProdLock             = ring.planet.ProdLocked,
+							ResLock              = ring.planet.ResLocked,
+							Name                 = ring.planet.Name,
+                            Scale                = ring.planet.scale,
+							ShieldStrength       = ring.planet.ShieldStrengthCurrent,
+							Population           = ring.planet.Population,
+							PopulationMax        = ring.planet.MaxPopulation,
+							Fertility            = ring.planet.Fertility,
+							Richness             = ring.planet.MineralRichness,
+							Owner                = ring.planet.Owner?.data.Traits.Name ?? "",
+							WhichPlanet          = ring.planet.planetType,
+							OrbitalAngle         = ring.planet.OrbitalAngle,
+							OrbitalDistance      = ring.planet.OrbitalRadius,
+							HasRings             = ring.planet.hasRings,
+							Radius               = ring.planet.ObjectRadius,
+							farmerPercentage     = ring.planet.FarmerPercentage,
+							workerPercentage     = ring.planet.WorkerPercentage,
 							researcherPercentage = ring.planet.ResearcherPercentage,
-							foodHere = ring.planet.FoodHere,
-							TerraformPoints = ring.planet.TerraformPoints,
-							prodHere = ring.planet.ProductionHere,
-							GovernorOn = ring.planet.GovernorOn,
-							ColonyType = ring.planet.colonyType,
-							StationsList = new List<Guid>(),
+							foodHere             = ring.planet.FoodHere,
+							TerraformPoints      = ring.planet.TerraformPoints,
+							prodHere             = ring.planet.ProductionHere,
+							GovernorOn           = ring.planet.GovernorOn,
+							ColonyType           = ring.planet.colonyType,
+							StationsList         = new List<Guid>(),
                             SpecialDescription = ring.planet.SpecialDescription
 						};
-						foreach (KeyValuePair<Guid, Ship> station in ring.planet.Shipyards)
+						foreach (var station in ring.planet.Shipyards)
 						{
-							if(station.Value.Active)
-                            pdata.StationsList.Add(station.Key);
+							if (station.Value.Active) pdata.StationsList.Add(station.Key);
 						}
 						pdata.QISaveList = new List<SavedGame.QueueItemSave>();
 						if (ring.planet.Owner != null)
 						{
 							foreach (QueueItem item in ring.planet.ConstructionQueue)
 							{
-								SavedGame.QueueItemSave qi = new SavedGame.QueueItemSave()
+								QueueItemSave qi = new QueueItemSave()
 								{
 									isBuilding = item.isBuilding,
 									IsRefit = item.isRefit
@@ -154,7 +153,7 @@ namespace Ship_Game
 								}
 								if (item.pgs != null)
 								{
-									qi.pgsVector = new Vector2((float)item.pgs.x, (float)item.pgs.y);
+									qi.pgsVector = new Vector2(item.pgs.x, item.pgs.y);
 								}
                                 qi.isPlayerAdded = item.IsPlayerAdded;
 								pdata.QISaveList.Add(qi);
@@ -163,61 +162,46 @@ namespace Ship_Game
 						pdata.PGSList = new List<SavedGame.PGSData>();
 						foreach (PlanetGridSquare tile in ring.planet.TilesList)
 						{
-							SavedGame.PGSData pgs = new SavedGame.PGSData()
-							{
-								x = tile.x,
-								y = tile.y,
-								resbonus = tile.resbonus,
-								prodbonus = tile.prodbonus,
-								Habitable = tile.Habitable,
-								foodbonus = tile.foodbonus,
-								Biosphere = tile.Biosphere
-							};
-							if (tile.building != null)
-							{
-								building = tile.building;
-							}
-							else
-							{
-								building = null;
-							}
-							pgs.building = building;
-							pgs.TroopsHere = tile.TroopsHere;
-							pdata.PGSList.Add(pgs);
+						    PGSData pgs = new PGSData
+						    {
+						        x          = tile.x,
+						        y          = tile.y,
+						        resbonus   = tile.resbonus,
+						        prodbonus  = tile.prodbonus,
+						        Habitable  = tile.Habitable,
+						        foodbonus  = tile.foodbonus,
+						        Biosphere  = tile.Biosphere,
+						        building   = tile.building,
+						        TroopsHere = tile.TroopsHere
+						    };
+						    pdata.PGSList.Add(pgs);
 						}
 						pdata.EmpiresThatKnowThisPlanet = new List<string>();
-						foreach (KeyValuePair<Empire, bool> ExploreItem in system.ExploredDict)
+						foreach (var explored in system.ExploredDict)
 						{
-							if (!ExploreItem.Value)
-							{
-								continue;
-							}
-							pdata.EmpiresThatKnowThisPlanet.Add(ExploreItem.Key.data.Traits.Name);
+							if (explored.Value)
+							    pdata.EmpiresThatKnowThisPlanet.Add(explored.Key.data.Traits.Name);
 						}
 						rsave.Planet = pdata;
 						sdata.RingList.Add(rsave);
 					}
 					sdata.EmpiresThatKnowThisSystem = new List<string>();
-					foreach (KeyValuePair<Empire, bool> ExploreItem in system.ExploredDict)
+					foreach (var explored in system.ExploredDict)
 					{
-						if (!ExploreItem.Value)
-						{
-							continue;
-						}
-						sdata.EmpiresThatKnowThisSystem.Add(ExploreItem.Key.data.Traits.Name);
+						if (explored.Value)
+						    sdata.EmpiresThatKnowThisSystem.Add(explored.Key.data.Traits.Name); // @todo This is a duplicate??
 					}
 				}
-				this.data.SolarSystemDataList.Add(sdata);
+				data.SolarSystemDataList.Add(sdata);
 			}
-			this.data.EmpireDataList = new List<SavedGame.EmpireSaveData>();
 			
             foreach (Empire e in EmpireManager.EmpireList)
 			{
-				SavedGame.EmpireSaveData empireToSave = new SavedGame.EmpireSaveData()
+				EmpireSaveData empireToSave = new EmpireSaveData
 				{
-					IsFaction = e.isFaction,
+					IsFaction   = e.isFaction,
                     isMinorRace = e.MinorRace,
-					Relations = new List<Relationship>()
+					Relations   = new List<Relationship>()
 				};
 				foreach (KeyValuePair<Empire, Relationship> relation in e.AllRelations)
 				{
@@ -518,7 +502,7 @@ namespace Ship_Game
                     sdata.yRotation = ship.yRotation;
                     sdata.Rotation = ship.Rotation;
                     sdata.InCombatTimer = ship.InCombatTimer;
-                    sdata.AISave = new SavedGame.ShipAISave()
+                    sdata.AISave = new ShipAISave
                     {
                         FoodOrProd = ship.GetAI().FoodOrProd,
                         state = ship.GetAI().State
@@ -527,26 +511,26 @@ namespace Ship_Game
                     sdata.AISave.GoToStep = ship.GetAI().GotoStep;
                     sdata.AISave.MovePosition = ship.GetAI().MovePosition;
                     sdata.AISave.ActiveWayPoints = new List<Vector2>();
-                    sdata.AISave.ShipGoalsList = new List<SavedGame.ShipGoalSave>();
-                    sdata.Projectiles = new List<SavedGame.ProjectileSaveData>();
+                    sdata.AISave.ShipGoalsList = new List<ShipGoalSave>();
+                    sdata.Projectiles = new List<ProjectileSaveData>();
                     empireToSave.OwnedShips.Add(sdata);
                 }
 
-				this.data.EmpireDataList.Add(empireToSave);
+				data.EmpireDataList.Add(empireToSave);
 			}
-			this.data.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
+			data.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
 			foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> Entry in StatTracker.SnapshotsDict)
 			{
-				this.data.Snapshots.Add(Entry.Key, Entry.Value);
+				data.Snapshots.Add(Entry.Key, Entry.Value);
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			this.data.path = path;
-			this.data.SaveAs = SaveAs;
-			this.data.Size = screenToSave.Size;
-			this.data.FogMapName = string.Concat(SaveAs, "fog");
+			data.path = path;
+			data.SaveAs = SaveAs;
+			data.Size = screenToSave.Size;
+			data.FogMapName = string.Concat(SaveAs, "fog");
 			screenToSave.FogMap.Save(string.Concat(path, "/StarDrive/Saved Games/Fog Maps/", SaveAs, "fog.png"), ImageFileFormat.Png);
-			SavedGame.thread = new Thread(new ParameterizedThreadStart(this.DoSave));
-			SavedGame.thread.Start(this.data);
+			thread = new Thread(DoSave);
+			thread.Start(data);
 		}
 
 		private void DoSave(object info)
