@@ -533,87 +533,57 @@ namespace Ship_Game
 			thread.Start(data);
 		}
 
-		private void DoSave(object info)
+		private void DoSave(object universeSaveData)
 		{
-			SavedGame.UniverseSaveData data = (SavedGame.UniverseSaveData)info;
-			XmlSerializer Serializer = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
-			TextWriter WriteFileStream = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/", data.SaveAs, ".xml"));
-			Serializer.Serialize(WriteFileStream, data);
-			//WriteFileStream.Close();
-			WriteFileStream.Dispose();
-			FileInfo fi = new FileInfo(string.Concat(data.path, "/StarDrive/Saved Games/", data.SaveAs, ".xml"));
-			HelperFunctions.Compress(fi);
+			UniverseSaveData data = (UniverseSaveData)universeSaveData;
 			try
 			{
-				fi.Delete();
+                FileInfo info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ".xml");
+                using (FileStream writeStream = info.OpenWrite())
+			        new XmlSerializer(typeof(UniverseSaveData)).Serialize(writeStream, data);
+			    HelperFunctions.Compress(info);
+				info.Delete();
 			}
 			catch
 			{
 			}
-			HeaderData header = new HeaderData()
+
+            DateTime now = DateTime.Now;
+			HeaderData header = new HeaderData
 			{
 				PlayerName = data.PlayerLoyalty,
-				StarDate = data.StarDate.ToString("#.0"),
-				Time = DateTime.Now
+				StarDate   = data.StarDate.ToString("#.0"),
+				Time       = now,
+                SaveName   = data.SaveAs,
+                RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
+                ModPath    = GlobalStats.ActiveMod?.ModPath ?? "",
+                ModName    = GlobalStats.ActiveMod?.mi.ModName ?? "",
+                Version    = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"])
 			};
-			string str = DateTime.Now.ToString("M/d/yyyy");
-			DateTime now = DateTime.Now;
-            //gremlin force time to us standard to prevent game load failure on different clock formats.
-            header.RealDate = string.Concat(str, " ", now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat)); 
-			//header.RealDate = string.Concat(str, " ", now.ToShortTimeString());
-			header.SaveName = data.SaveAs;
-			if (GlobalStats.ActiveMod != null)
-			{
-				header.ModPath = GlobalStats.ActiveMod.ModPath;
-                header.ModName = GlobalStats.ActiveMod.mi.ModName;
-            }
-            header.Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
-            XmlSerializer Serializer1 = new XmlSerializer(typeof(HeaderData));
-			TextWriter wf = new StreamWriter(string.Concat(data.path, "/StarDrive/Saved Games/Headers/", data.SaveAs, ".xml"));
-			Serializer1.Serialize(wf, header);
-			//wf.Close();
-			wf.Dispose();
-			//GC.Collect(1, GCCollectionMode.Optimized);
+            using (var wf = new StreamWriter(data.path + "/StarDrive/Saved Games/Headers/" + data.SaveAs + ".xml"))
+                new XmlSerializer(typeof(HeaderData)).Serialize(wf, header);
 		}
 
 		public struct EmpireSaveData
 		{
 			public string Name;
-
 			public List<Relationship> Relations;
-
-			public List<SavedGame.SpaceRoadSave> SpaceRoadData;
-
+			public List<SpaceRoadSave> SpaceRoadData;
 			public bool IsFaction;
-
             public bool isMinorRace;
-
 			public RacialTrait Traits;
-
 			public EmpireData empireData;
-
-			public List<SavedGame.ShipSaveData> OwnedShips;
-
+			public List<ShipSaveData> OwnedShips;
 			public float Research;
-
 			public float Money;
-
 			public List<TechEntry> TechTree;
-
-			public SavedGame.GSAISAVE GSAIData;
-
+			public GSAISAVE GSAIData;
 			public string ResearchTopic;
-
 			public List<AO> AOs;
-
-			public List<SavedGame.FleetSave> FleetsList;
-
+			public List<FleetSave> FleetsList;
             public string CurrentAutoFreighter;
-
             public string CurrentAutoColony;
-
             public string CurrentAutoScout;
-
             public string CurrentConstructor;
 		}
 

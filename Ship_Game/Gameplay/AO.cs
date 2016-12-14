@@ -41,15 +41,9 @@ namespace Ship_Game.Gameplay
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-		public Vector2 Position
-		{
-			get
-			{
-				return this.CoreWorld.Position;
-			}
-		}
+		public Vector2 Position => this.CoreWorld.Position;
 
-		public AO()
+	    public AO()
 		{
 		}
 
@@ -78,8 +72,6 @@ namespace Ship_Game.Gameplay
 		{
             if (ship.BaseStrength == 0)
                 return;
-
-            
 
             if (this.ThreatLevel <=
                 this.CoreFleet.GetStrength() || ship.BombBays.Count >0 || ship.hasAssaultTransporter || ship.HasTroopBay)
