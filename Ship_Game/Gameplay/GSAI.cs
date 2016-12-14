@@ -2457,12 +2457,12 @@ namespace Ship_Game.Gameplay
                 }
                 Potentials.Add(s);
             }
-            this.MarkedForExploration.thisLock.EnterReadLock();
+            
+            using (MarkedForExploration.AcquireReadLock())
             foreach (SolarSystem s in this.MarkedForExploration)
             {
                 Potentials.Remove(s);
             }
-            this.MarkedForExploration.thisLock.ExitReadLock();
             IOrderedEnumerable<SolarSystem> sortedList =
                 from system in Potentials
                 orderby Vector2.Distance(this.empire.GetWeightedCenter(), system.Position)
@@ -4568,7 +4568,8 @@ namespace Ship_Game.Gameplay
 			{
 				Planet target = InvasionTargets[0];
 				bool OK = true;
-                this.TaskList.thisLock.EnterReadLock();
+
+                using (TaskList.AcquireReadLock())
 				{
 					foreach (MilitaryTask task in this.TaskList)
 					{
@@ -4579,7 +4580,7 @@ namespace Ship_Game.Gameplay
 						OK = false;
 						break;
 					}
-                } this.TaskList.thisLock.ExitReadLock();
+                }
 				if (OK)
 				{
 					MilitaryTask InvadeTask = new MilitaryTask(target, this.empire);
@@ -4672,7 +4673,7 @@ namespace Ship_Game.Gameplay
                             Planet current = enumerator.Current;
                             bool flag = true;
                            
-                            this.TaskList.thisLock.EnterReadLock();
+                            using (TaskList.AcquireReadLock())
                             {
                                 foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
                                 {
@@ -4682,7 +4683,7 @@ namespace Ship_Game.Gameplay
                                         break;
                                     }
                                 }
-                            } this.TaskList.thisLock.ExitReadLock();
+                            }
                             if (flag)
                             {
                                 MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
@@ -4719,7 +4720,7 @@ namespace Ship_Game.Gameplay
                             bool claimPressent = false;
                             if (!s.Contains(current.ParentSystem))
                                 continue;
-                            this.TaskList.thisLock.EnterReadLock();
+                            using (TaskList.AcquireReadLock())
                             {
                                 foreach (MilitaryTask item_1 in (List<MilitaryTask>)this.TaskList)
                                 {
@@ -4736,7 +4737,7 @@ namespace Ship_Game.Gameplay
                                         
                                     }
                                 }
-                            } this.TaskList.thisLock.ExitReadLock();
+                            }
                             if (flag && claimPressent)
                             {
                                 MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
@@ -7345,8 +7346,8 @@ namespace Ship_Game.Gameplay
                                 }
                                 p.ConstructionQueue.ApplyPendingRemovals();
                             }
-                            this.empire.GetShips().thisLock.EnterReadLock();
-                                                            
+
+                            using (empire.GetShips().AcquireReadLock())                               
                             foreach (Ship ship in this.empire.GetShips())
                             {
                                 ship.GetAI().OrderQueue.thisLock.EnterReadLock();
@@ -7365,7 +7366,6 @@ namespace Ship_Game.Gameplay
                                 break;
 
                             }
-                            this.empire.GetShips().thisLock.ExitReadLock();
 
                         }
 						this.Goals.ApplyPendingRemovals();
@@ -7706,7 +7706,8 @@ namespace Ship_Game.Gameplay
                         this.empire.GetGSAI().CheckClaim(Relationship, g.GetMarkedPlanet());
                     }
                     this.Goals.QueuePendingRemoval(g);
-                    this.TaskList.thisLock.EnterReadLock();
+
+                    using (TaskList.AcquireReadLock())
                     {
                         foreach (MilitaryTask task in this.TaskList)
                         {
@@ -7720,7 +7721,7 @@ namespace Ship_Game.Gameplay
                                 break;
                             }
                         }
-                    } this.TaskList.thisLock.ExitReadLock();
+                    }
                 }
                 else
                 {
@@ -7761,7 +7762,8 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     bool OK = true;
-                    this.TaskList.thisLock.EnterReadLock();
+
+                    using (TaskList.AcquireReadLock())
                     {
                         foreach (MilitaryTask mt in this.TaskList)
                         //Parallel.ForEach(this.TaskList, (mt,state) =>
@@ -7776,7 +7778,7 @@ namespace Ship_Game.Gameplay
                             OK = false;
                             break;
                         }
-                    } this.TaskList.thisLock.ExitReadLock();
+                    }
                     if (!OK)
                     {
                         continue;
@@ -7802,7 +7804,7 @@ namespace Ship_Game.Gameplay
             
 #endregion
             //this where the global AI attack stuff happenes.
-            this.TaskList.thisLock.EnterReadLock();// lock (GlobalStats.TaskLocker)
+            using (TaskList.AcquireReadLock())    
             {
                 List<MilitaryTask> ToughNuts = new List<MilitaryTask>();
                 List<MilitaryTask> InOurSystems = new List<MilitaryTask>();
@@ -8012,7 +8014,7 @@ namespace Ship_Game.Gameplay
                     }
                     task.EndTask();
                 }
-            } this.TaskList.thisLock.ExitReadLock();
+            }
             this.TaskList.AddRange(this.TasksToAdd);
             this.TasksToAdd.Clear();
             this.TaskList.ApplyPendingRemovals();
@@ -9595,7 +9597,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (flag2)
                 {
-                    Empire.Universe.MasterShipList.thisLock.EnterReadLock();
+                    using (Empire.Universe.MasterShipList.AcquireReadLock())
                     for (int index = 0; index < Empire.Universe.MasterShipList.Count; ++index)
                     {
                         Ship ship = Empire.Universe.MasterShipList[index];
@@ -9605,7 +9607,6 @@ namespace Ship_Game.Gameplay
                             break;
                         }
                     }
-                    Empire.Universe.MasterShipList.thisLock.ExitReadLock();
                 }
                 else
                     flag1 = false;

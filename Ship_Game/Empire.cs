@@ -172,10 +172,9 @@ namespace Ship_Game
         public float GetPopulation()
         {
             float pop = 0.0f;
-            OwnedPlanets.thisLock.EnterReadLock();
-            foreach (Planet p in OwnedPlanets)
-                pop += p.Population;
-            OwnedPlanets.thisLock.ExitReadLock();
+            using (OwnedPlanets.AcquireReadLock())
+                foreach (Planet p in OwnedPlanets)
+                    pop += p.Population;
             return pop / 1000f;
         }
 
@@ -428,9 +427,8 @@ namespace Ship_Game
 
         public void UpdatePlanetIncomes()
         {
-            OwnedPlanets.EnterReadLock();
-            foreach (Planet planet in OwnedPlanets) planet.UpdateIncomes(false);
-            OwnedPlanets.ExitReadLock();
+            using (OwnedPlanets.AcquireReadLock())
+                foreach (Planet planet in OwnedPlanets) planet.UpdateIncomes(false);
         }
 
         public void RemovePlanet(Planet planet)
@@ -1171,15 +1169,13 @@ namespace Ship_Game
 
             if (isPlayer && Universe.Debug)
             {
-                    
-                Universe.MasterShipList.thisLock.EnterReadLock();
-                foreach (Ship nearby in Universe.MasterShipList)
-                {
-                    nearby.inSensorRange = true;
-                    KnownShips.Add(nearby);
-                    GSAI.ThreatMatrix.UpdatePin(nearby);
-                }
-                Universe.MasterShipList.thisLock.ExitReadLock();
+                using (Universe.MasterShipList.AcquireReadLock())
+                    foreach (Ship nearby in Universe.MasterShipList)
+                    {
+                        nearby.inSensorRange = true;
+                        KnownShips.Add(nearby);
+                        GSAI.ThreatMatrix.UpdatePin(nearby);
+                    }
                 return;
             }
             //added by gremlin ships in border search
@@ -1422,7 +1418,7 @@ namespace Ship_Game
                     {
                         foreach (Empire empire in EmpireManager.EmpireList)
                         {
-                            empire.OwnedPlanets.thisLock.EnterReadLock();
+                            using (empire.OwnedPlanets.AcquireReadLock())
                             foreach (Planet planet in empire.OwnedPlanets)
                             {
                                 if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
@@ -1435,7 +1431,6 @@ namespace Ship_Game
                                     StarDateMade = Universe.StarDate
                                 });
                             }
-                            empire.OwnedPlanets.thisLock.ExitReadLock();
                         }
                     }
                     if (!this.InitialziedHostilesDict)
@@ -1563,7 +1558,7 @@ namespace Ship_Game
             this.GrossTaxes = 0f;
             this.OtherIncome = 0f;
 
-            OwnedPlanets.thisLock.EnterReadLock();
+            using (OwnedPlanets.AcquireReadLock())
             {
                 foreach (Planet planet in this.OwnedPlanets)
                 {
@@ -1572,7 +1567,6 @@ namespace Ship_Game
                     this.OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
                 }
             }
-            this.OwnedPlanets.thisLock.ExitReadLock();
             this.TradeMoneyAddedThisTurn = 0.0f;
             foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
             {
@@ -1587,83 +1581,57 @@ namespace Ship_Game
             {
                 this.totalShipMaintenance = 0.0f;
                 
-                this.OwnedShips.thisLock.EnterReadLock();
-                foreach (Ship ship in (List<Ship>)this.OwnedShips)
+                using (OwnedShips.AcquireReadLock())
+                foreach (Ship ship in OwnedShips)
                 {
-                    //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
-                    //removed because getmaintcost does this now
-                    //if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                    //{
-                    //    this.totalShipMaintenance += ship.GetMaintCostRealism();
-                    //}
-                    //else
+                    if (data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
+                        || (ship.shipData.Role == ShipData.RoleName.station && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                     {
-                        if (this.data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
-                            || (ship.shipData.Role == ShipData.RoleName.station && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
+                        data.DefenseBudget -= ship.GetMaintCost();
+                        continue;
+                    }
+                    totalShipMaintenance += ship.GetMaintCost();
+                }
+
+                using (OwnedProjectors.AcquireReadLock())
+                foreach (Ship ship in OwnedProjectors)
+                {
+                        if (data.SSPBudget > 0)
                         {
-                            this.data.DefenseBudget -= ship.GetMaintCost();
+                            data.SSPBudget -= ship.GetMaintCost();
                             continue;
                         }
-                        this.totalShipMaintenance += ship.GetMaintCost();
-                    }
-                
-                    
-
+                        totalShipMaintenance += ship.GetMaintCost();
                 }
-                this.OwnedShips.thisLock.ExitReadLock();
-
-                this.OwnedProjectors.thisLock.EnterReadLock();
-                foreach (Ship ship in (List<Ship>)this.OwnedProjectors)
-                {
-                    {
-                        if (this.data.SSPBudget > 0)
-                        {
-                            this.data.SSPBudget -= ship.GetMaintCost();
-                            continue;
-                        }
-                        this.totalShipMaintenance += ship.GetMaintCost();
-                    }
-                    ////added by gremlin reset border stats.
-                    //ship.IsInNeutralSpace = false;
-                    //ship.IsIndangerousSpace = false;
-                    //ship.IsInFriendlySpace = false;
-                }
-                this.OwnedProjectors.thisLock.ExitReadLock();
 
             }//,
            // () =>
             {
-                this.OwnedPlanets.thisLock.EnterReadLock();
-                float newBuildM = 0f;
-   
-                int planetcount = this.GetPlanets().Count;
-                this.exportFTrack =0;
-                this.exportPTrack =0;
-                this.averagePLanetStorage =0;
-                foreach (Planet planet in this.OwnedPlanets)
+                using (OwnedPlanets.AcquireReadLock())
                 {
+                    float newBuildM = 0f;
+                    int planetcount = this.GetPlanets().Count;
+                    this.exportFTrack = 0;
+                    this.exportPTrack = 0;
+                    this.averagePLanetStorage =0;
+                    foreach (Planet planet in this.OwnedPlanets)
+                    {
 
-                    this.exportFTrack += planet.ExportFSWeight;
-                    this.exportPTrack += planet.ExportPSWeight;
-                    this.averagePLanetStorage += (int)planet.MAX_STORAGE;
-                }
-                this.averagePLanetStorage /= planetcount;
+                        this.exportFTrack += planet.ExportFSWeight;
+                        this.exportPTrack += planet.ExportPSWeight;
+                        this.averagePLanetStorage += (int)planet.MAX_STORAGE;
+                    }
+                    this.averagePLanetStorage /= planetcount;
                 
-                foreach (Planet planet in this.OwnedPlanets)// .OrderBy(weight => (int)(weight.ExportFSWeight) + (int)(weight.ExportPSWeight)))
-                {
+                    foreach (Planet planet in this.OwnedPlanets)// .OrderBy(weight => (int)(weight.ExportFSWeight) + (int)(weight.ExportPSWeight)))
+                    {
                     
-                    planet.UpdateOwnedPlanet();
+                        planet.UpdateOwnedPlanet();
 
-                    newBuildM += planet.TotalMaintenanceCostsPerTurn;
+                        newBuildM += planet.TotalMaintenanceCostsPerTurn;
+                    }
+                    totalBuildingMaintenance = newBuildM;
                 }
-                //foreach (Planet planet in this.OwnedPlanets)
-                //{
-
-                //    planet.ExportFSWeight = 0;
-                //    planet.ExportPSWeight = 0;
-                //}
-                this.OwnedPlanets.thisLock.ExitReadLock();
-                this.totalBuildingMaintenance = newBuildM;
             }
            // );
             this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
@@ -1878,24 +1846,18 @@ namespace Ship_Game
         public float GetTotalPop()
         {
             float num = 0.0f;
-            this.OwnedPlanets.thisLock.EnterReadLock();
-            {
+            using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet item_0 in this.OwnedPlanets)
                     num += item_0.Population / 1000f;
-            }
-            this.OwnedPlanets.thisLock.ExitReadLock();
             return num;
         }
 
         public float GetGrossFoodPerTurn()
         {
             float num = 0.0f;
-            this.OwnedPlanets.thisLock.EnterReadLock();
-            {
+            using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet item_0 in this.OwnedPlanets)
                     num += item_0.GrossFood;
-            }
-            this.OwnedPlanets.thisLock.ExitReadLock();
             return num;
         }
 
@@ -2011,23 +1973,17 @@ namespace Ship_Game
             int AgriculturalCount = 0;
             int MilitaryCount = 0;
             int ResearchCount = 0;
-            this.OwnedPlanets.thisLock.EnterReadLock();
+            using (OwnedPlanets.AcquireReadLock())
             {
                 foreach (Planet item_0 in this.OwnedPlanets)
                 {
-                    if (item_0.colonyType == Planet.ColonyType.Agricultural)
-                        ++AgriculturalCount;
-                    if (item_0.colonyType == Planet.ColonyType.Core)
-                        ++CoreCount;
-                    if (item_0.colonyType == Planet.ColonyType.Industrial)
-                        ++IndustrialCount;
-                    if (item_0.colonyType == Planet.ColonyType.Research)
-                        ++ResearchCount;
-                    if (item_0.colonyType == Planet.ColonyType.Military)
-                        ++MilitaryCount;
+                    if (item_0.colonyType == Planet.ColonyType.Agricultural) ++AgriculturalCount;
+                    if (item_0.colonyType == Planet.ColonyType.Core)         ++CoreCount;
+                    if (item_0.colonyType == Planet.ColonyType.Industrial)   ++IndustrialCount;
+                    if (item_0.colonyType == Planet.ColonyType.Research)     ++ResearchCount;
+                    if (item_0.colonyType == Planet.ColonyType.Military)     ++MilitaryCount;
                 }
             }
-            this.OwnedPlanets.thisLock.ExitReadLock();
             float AssignedFactor = (float)(CoreCount + IndustrialCount + AgriculturalCount + MilitaryCount + ResearchCount) / ((float)this.OwnedPlanets.Count + 0.01f);
             float CoreDesire = PopSupport + (AssignedFactor - (float)CoreCount) ;
             float IndustrialDesire = MineralWealth + (AssignedFactor - (float)IndustrialCount);
@@ -2471,15 +2427,14 @@ namespace Ship_Game
                         //if(this.data.TurnsBelowZero >10 && this.data.TurnsBelowZero < 20)
                         {
                             Ship pirate = null;
-                            this.GetShips().thisLock.EnterReadLock();
-                            foreach (Ship pirateChoice in this.GetShips())
+                            using (GetShips().AcquireReadLock())
+                            foreach (Ship pirateChoice in GetShips())
                             {
                                 if (pirateChoice == null || !pirateChoice.Active)
                                     continue;
                                 pirate = pirateChoice;
                                 break;
                             }
-                            this.GetShips().thisLock.ExitReadLock();
                             if (pirate != null)
                             {
                                 pirate.loyalty = rebelsFromEmpireData;
@@ -3023,7 +2978,7 @@ namespace Ship_Game
         {
             int num = 0;
             Vector2 vector2 = new Vector2();
-            OwnedPlanets.thisLock.EnterReadLock();
+            using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
             {
                 for (int index = 0; (double)index < (double)planet.Population / 1000.0; ++index)
@@ -3032,7 +2987,6 @@ namespace Ship_Game
                     vector2 += planet.Position;
                 }
             }
-            OwnedPlanets.thisLock.ExitReadLock();
             if (num == 0)
                 num = 1;
             return vector2 / (float)num;

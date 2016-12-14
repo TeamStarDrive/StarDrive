@@ -2183,38 +2183,39 @@ namespace Ship_Game
                 this.SendTroops.State = UIButton.PressState.Hover;
                 if (input.InGameSelect)
                 {
-                    this.eui.empire.GetShips().thisLock.EnterReadLock();
-                    List<Ship> troopShips = new List<Ship>(this.eui.empire.GetShips()
+                    List<Ship> troopShips;
+                    using (eui.empire.GetShips().AcquireReadLock())
+                        troopShips = new List<Ship>(this.eui.empire.GetShips()
                         .Where(troop => troop.TroopList.Count > 0
                             && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
                             && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.p.Position)));
-                    this.eui.empire.GetShips().thisLock.ExitReadLock();
+
                     List<Planet> planetTroops = new List<Planet>(this.eui.empire.GetPlanets()
                         .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, this.p.Position))
                         .Where(Name => Name.Name != this.p.Name));
+
                     if (troopShips.Count > 0)
                     {
                         AudioManager.PlayCue("echo_affirm");
                         troopShips.First().GetAI().OrderRebase(this.p,true);
                     }
-                    else
-                        if (planetTroops.Count > 0)
+                    else if (planetTroops.Count > 0)
+                    {
+                        var troops = planetTroops.First().TroopsHere;
+                        using (troops.AcquireWriteLock())
                         {
+                            Ship troop = troops.First().Launch();
+                            if (troop != null)
                             {
-                                planetTroops.First().TroopsHere.thisLock.EnterWriteLock();
-                                Ship troop = planetTroops.First().TroopsHere.First().Launch();
-                                if (troop != null)
-                                {
-                                    AudioManager.PlayCue("echo_affirm");
-                                    troop.GetAI().OrderRebase(this.p,true);
-                                }
-                                planetTroops.First().TroopsHere.thisLock.ExitWriteLock();
+                                AudioManager.PlayCue("echo_affirm");
+                                troop.GetAI().OrderRebase(this.p,true);
                             }
                         }
-                        else
-                        {
-                            AudioManager.PlayCue("blip_click");
-                        }
+                    }
+                    else
+                    {
+                        AudioManager.PlayCue("blip_click");
+                    }
                 }
             }
             if (!HelperFunctions.CheckIntersection(this.edit_name_button, MousePos))

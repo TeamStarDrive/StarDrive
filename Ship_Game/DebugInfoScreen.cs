@@ -317,24 +317,19 @@ namespace Ship_Game
 				}
                 else
                 {
-                    this.screen.SelectedFleet.Ships.thisLock.EnterReadLock();
-                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "core fleet :"+this.screen.SelectedFleet.IsCoreFleet, Cursor, Color.White);
-                    Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    // @todo DrawLines similar to UniverseScreen.DrawLines. This code should be refactored
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "core fleet :" + this.screen.SelectedFleet.IsCoreFleet, Cursor, Color.White);
+                    Cursor.Y = Cursor.Y + Fonts.Arial12Bold.LineSpacing;
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.screen.SelectedFleet.Name, Cursor, Color.White);
-                    Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    Cursor.Y = Cursor.Y + Fonts.Arial12Bold.LineSpacing;
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Ships: " +this.screen.SelectedFleet.Ships.Count, Cursor, Color.White);
-                    Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+                    Cursor.Y = Cursor.Y + Fonts.Arial12Bold.LineSpacing;
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Strength: " + this.screen.SelectedFleet.GetStrength(), Cursor, Color.White);
-                    Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    string shipAI = "";                    
-                    foreach(Ship ship in this.screen.SelectedFleet.Ships)
-                    {
-                        shipAI = ship.GetAI().State.ToString();
-                    }
+                    Cursor.Y = Cursor.Y + Fonts.Arial12Bold.LineSpacing;
+
+                    string shipAI = screen.SelectedFleet.Ships.FirstOrDefault()?.GetAI().State.ToString() ?? "";                    
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Ship State: " + shipAI, Cursor, Color.White);
                     Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
-                    this.screen.SelectedFleet.Ships.thisLock.ExitReadLock();
-
                 }
 			}
 			if (this.screen.SelectedShip != null)
