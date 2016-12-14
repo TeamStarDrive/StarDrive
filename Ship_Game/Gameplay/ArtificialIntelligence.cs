@@ -792,9 +792,9 @@ namespace Ship_Game.Gameplay
 				if (distanceToTarget < (this.Owner.Radius + this.Target.Radius) * 3f && !this.AttackRunStarted)
 				{
 					this.AttackRunStarted = true;
-					int ran = (int)((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(1f, 100f);
+					int ran = UniverseRandom.IntBetween(1, 100);
 					ran = (ran <= 50 ? 1 : -1);
-					this.AttackRunAngle = (float)ran * ((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
+					this.AttackRunAngle = (float)ran * UniverseRandom.RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
 					this.AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
 				}
 				this.AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
@@ -841,9 +841,9 @@ namespace Ship_Game.Gameplay
                 if (distanceToTarget < (this.Owner.Radius + this.Target.Radius) * 3f && !this.AttackRunStarted)
                 {
                     this.AttackRunStarted = true;
-                    int ran = (int)((this.Owner.System!= null ? this.Owner.System.RNG : universeScreen.DeepSpaceRNG)).RandomBetween(1f, 100f);
+                    int ran = UniverseRandom.IntBetween(1, 100);
                     ran = (ran <= 50 ? 1 : -1);
-                    this.AttackRunAngle = (float)ran * ((this.Owner.System!= null ? this.Owner.System.RNG : universeScreen.DeepSpaceRNG)).RandomBetween(75f, 100f) + MathHelper.ToDegrees(this.Owner.Rotation);
+                    this.AttackRunAngle = (float)ran * UniverseRandom.RandomBetween(75f, 100f) + MathHelper.ToDegrees(Owner.Rotation);
                     this.AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
                 }
                 this.AttackVector = Owner.Center.PointFromAngle(AttackRunAngle, 1500f);
@@ -4643,14 +4643,9 @@ namespace Ship_Game.Gameplay
 
                     if (Potentials.Count > 0)
                     {
-                        int Ran = (int)((this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG)).RandomBetween(0f, (float)Potentials.Count + 0.85f);
-                        if (Ran > Potentials.Count - 1)
-                        {
-                            Ran = Potentials.Count - 1;
-                        }
-                        this.awaitClosest = Potentials[Ran];
-                        this.OrderMoveTowardsPosition(Potentials[Ran].Position, 0f, Vector2.One, true, null);
-                        this.OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.DefendSystem, Vector2.Zero, 0f));
+                        awaitClosest = Potentials[UniverseRandom.InRange(Potentials.Count)];
+                        this.OrderMoveTowardsPosition(awaitClosest.Position, 0f, Vector2.One, true, null);
+                        this.OrderQueue.AddLast(new ShipGoal(Plan.DefendSystem, Vector2.Zero, 0f));
                         this.State = AIState.SystemDefender;                   
                     }
                     else
@@ -5530,8 +5525,7 @@ namespace Ship_Game.Gameplay
                     start.FoodHere -= 1f;
 				}
                 OrderQueue.RemoveFirst();
-                var rng = ((Owner.System!= null ? Owner.System.RNG : universeScreen.DeepSpaceRNG));
-                OrderMoveTowardsPosition(end.Position + rng.RandomDirection() * 500f, 0f, new Vector2(0f, -1f), true, end);
+                OrderMoveTowardsPosition(end.Position + UniverseRandom.RandomDirection() * 500f, 0f, new Vector2(0f, -1f), true, end);
 				OrderQueue.AddLast(new ShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f));
 				//this.State = AIState.SystemTrader;
 			}
@@ -5557,8 +5551,7 @@ namespace Ship_Game.Gameplay
 					productionHere1.ProductionHere = productionHere1.ProductionHere - 1f;
 				}
                 OrderQueue.RemoveFirst();
-                var rng = ((Owner.System!= null ? Owner.System.RNG : universeScreen.DeepSpaceRNG));
-                OrderMoveTowardsPosition(end.Position + rng.RandomDirection() * 500f, 0f, new Vector2(0f, -1f), true, end);
+                OrderMoveTowardsPosition(end.Position + UniverseRandom.RandomDirection() * 500f, 0f, new Vector2(0f, -1f), true, end);
 				OrderQueue.AddLast(new ShipGoal(Plan.DropOffGoods, Vector2.Zero, 0f));
 				//this.State = AIState.SystemTrader;
 			}
@@ -6207,7 +6200,6 @@ namespace Ship_Game.Gameplay
         public GameplayObject ScanForCombatTargets(Vector2 Position, float Radius)
         {
 
-            RandomThreadMath randomThreadMath;
             this.BadGuysNear = false;
             this.FriendliesNearby.Clear();
             this.PotentialTargets.Clear();
@@ -6388,9 +6380,7 @@ namespace Ship_Game.Gameplay
                             shuttle.VanityName = "Supply Shuttle";
                             //shuttle.shipData.Role = ShipData.RoleName.supply;
                             //shuttle.GetAI().DefaultAIState = AIState.Flee;
-                            Ship ship1 = shuttle;
-                            randomThreadMath = (this.Owner.System!= null ? this.Owner.System.RNG : ArtificialIntelligence.universeScreen.DeepSpaceRNG);
-                            ship1.Velocity = (randomThreadMath.RandomDirection() * shuttle.speed) + this.Owner.Velocity;
+                            shuttle.Velocity = (UniverseRandom.RandomDirection() * shuttle.speed) + this.Owner.Velocity;
                             if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
                                 shuttle.Velocity = Vector2.Normalize(shuttle.Velocity) * shuttle.speed;
                             this.Owner.Ordinance -= shuttle.Mass / 5f;
