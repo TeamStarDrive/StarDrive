@@ -271,7 +271,7 @@ namespace Ship_Game
         {
             if (StrengthMax <= 0)
                 StrengthMax = ResourceManager.TroopsDict[Name].Strength;
-            return StrengthMax + Level*0.5f + (int)(StrengthMax * Owner.data.Traits.GroundCombatModifier);
+            return StrengthMax + Level*0.5f + StrengthMax*(Owner?.data.Traits.GroundCombatModifier ?? 0.0f);
         }
 
         public float GetCost()

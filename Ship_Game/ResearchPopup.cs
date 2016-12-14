@@ -37,7 +37,7 @@ namespace Ship_Game
 			this.FromGame = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
-			this.r = dimensions;
+			this.R = dimensions;
             this.TitleText = string.Concat(Localizer.Token(ResourceManager.TechTree[uid].NameIndex), 
                 ResourceManager.TechTree[uid].MaxLevel > 1 ? " " + 
                 NumberToRomanConvertor.NumberToRoman(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).TechnologyDict[uid].Level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[uid].MaxLevel) : "");
@@ -166,7 +166,7 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			base.LoadContent();
-			this.UnlocksRect = new Rectangle(this.MidContainer.X + 20, this.MidContainer.Y + this.MidContainer.Height - 20, this.r.Width - 40, this.r.Height - this.MidContainer.Height - this.TitleRect.Height - 20);
+			this.UnlocksRect = new Rectangle(this.MidContainer.X + 20, this.MidContainer.Y + this.MidContainer.Height - 20, this.R.Width - 40, this.R.Height - this.MidContainer.Height - this.TitleRect.Height - 20);
 			Submenu UnlocksSubMenu = new Submenu(base.ScreenManager, this.UnlocksRect);
 			this.UnlockSL = new ScrollList(UnlocksSubMenu, 100);
 			Technology unlockedTech = ResourceManager.TechTree[this.TechUID];
