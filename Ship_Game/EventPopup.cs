@@ -20,9 +20,8 @@ namespace Ship_Game
 
 		private Rectangle BlackRect;
 
-         
-
-		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome)
+        public Dictionary<Packagetypes, List<DrawPackage>> DrawPackages = new Dictionary<Packagetypes, List<DrawPackage>>();
+        public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome)
 		{
 			this.screen = s;
 			this.outcome = outcome;
@@ -50,6 +49,10 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
 			this.r = new Rectangle(0, 0, 600, 600);
+		    foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
+		    {
+		        DrawPackages.Add(packagetype,new List<DrawPackage>());
+		    }
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -80,75 +83,12 @@ namespace Ship_Game
 				theirText = HelperFunctions.ParseText(Fonts.Arial12, this.outcome.GetArtifact().Description, (float)(this.BlackRect.Width - 40));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, TheirTextPos, Color.White);
 				TheirTextPos.Y = TheirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
-				if (this.outcome.GetArtifact().DiplomacyMod > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					int diplomacyMod = (int)(this.outcome.GetArtifact().DiplomacyMod * 100f);
-					theirText = string.Concat("Diplomacy Bonus: ", diplomacyMod.ToString(), "%");
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-				if (this.outcome.GetArtifact().FertilityMod > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					theirText = string.Concat("Fertility Bonus to all Owned Colonies: ", this.outcome.GetArtifact().FertilityMod.ToString("#.0"));
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-				if (this.outcome.GetArtifact().GroundCombatMod > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					int groundCombatMod = (int)(this.outcome.GetArtifact().GroundCombatMod * 100f);
-					theirText = string.Concat("Empire-wide Ground Combat Bonus: ", groundCombatMod.ToString(), "%");
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-				if (this.outcome.GetArtifact().ModuleHPMod > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					int moduleHPMod = (int)(this.outcome.GetArtifact().ModuleHPMod * 100f);
-					theirText = string.Concat("Empire-wide Ship Module Hitpoint Bonus: ", moduleHPMod.ToString(), "%");
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-				if (this.outcome.GetArtifact().PlusFlatMoney > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					theirText = string.Concat("Credits per Turn Bonus: ", this.outcome.GetArtifact().PlusFlatMoney.ToString());
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-				if (this.outcome.GetArtifact().ProductionMod > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					int productionMod = (int)(this.outcome.GetArtifact().ProductionMod * 100f);
-					theirText = string.Concat("Empire-wide Production Bonus: ", productionMod.ToString(), "%");
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-				if (this.outcome.GetArtifact().ReproductionMod > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					int reproductionMod = (int)(this.outcome.GetArtifact().ReproductionMod * 100f);
-					theirText = string.Concat("Empire-wide Popoulation Growth Bonus: ", reproductionMod.ToString(), "%");
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-				if (this.outcome.GetArtifact().ResearchMod > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					int researchMod = (int)(this.outcome.GetArtifact().ResearchMod * 100f);
-					theirText = string.Concat("Empire-wide Research Bonus: ", researchMod.ToString(), "%");
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-				if (this.outcome.GetArtifact().SensorMod > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					int sensorMod = (int)(this.outcome.GetArtifact().SensorMod * 100f);
-					theirText = string.Concat("Empire-wide Sensor Range Bonus: ", sensorMod.ToString(), "%");
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-				if (this.outcome.GetArtifact().ShieldPenBonus > 0f)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					int shieldPenBonus = (int)(this.outcome.GetArtifact().ShieldPenBonus * 100f);
-					theirText = string.Concat("Empire-wide Bonus Shield Penetration Chance: ", shieldPenBonus.ToString(), "%");
-					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				}
-			}
+			    foreach (DrawPackage artifactDrawPackage in DrawPackages[Packagetypes.Artifact])
+			    {
+                    TheirTextPos.Y +=artifactDrawPackage.Font.LineSpacing;			        			        
+                    base.ScreenManager.SpriteBatch.DrawString(artifactDrawPackage.Font, artifactDrawPackage.Text, TheirTextPos, artifactDrawPackage.Color);
+                }               
+            }
 			if (this.outcome.UnlockTech != null)
 			{
 				if (!this.outcome.WeHadIt)
@@ -219,15 +159,43 @@ namespace Ship_Game
 			this.BlackRect = new Rectangle(FitRect.X, FitRect.Y, FitRect.Width, 450);
 		}
 
-        public class DrawPackage
-        {
-            public Vector2 TextPos;
-            public string Text;
-            public SpriteFont Font;
-            public int mod = 0;
-            public Texture2D Icon;
+	    public enum Packagetypes
+	    {
+	        Artifact,
+            Technology,
+            Planet
 
+	    }
 
-        }
+	    public class DrawPackage
+	    {
+	        public string Text;
+	        public SpriteFont Font;
+	        public int Value = 0;
+	        public Texture2D Icon;
+	        public Color Color;
+
+	        public DrawPackage()
+	        {
+	        }
+
+	        public DrawPackage(string text, SpriteFont font, int value,
+	            Color color)
+	        {
+	            Text = text;
+	            Font = font;
+	            Value = value;
+	            Color = color;
+	        }
+
+	        public DrawPackage(string text, SpriteFont font, float value,
+	            Color color, string postFix)
+	        {
+	            Text = text + Value + postFix;
+	            Font = font;
+	            Value = (int) (value * 100f);
+	            Color = color;
+	        }
+	    }
 	}
 }

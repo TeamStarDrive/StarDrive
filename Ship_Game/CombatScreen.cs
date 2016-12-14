@@ -848,7 +848,7 @@ namespace Ship_Game
                             (this.draggedTroop.item as Ship).TroopList[0].SetPlanet(this.p);
                             if (pgs.building != null && !string.IsNullOrEmpty(pgs.building.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction && !pgs.TroopsHere[0].GetOwner().MinorRace)
                             {
-                                ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs, EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty), CombatScreen.universeScreen);
+                                ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs,  CombatScreen.universeScreen);
                             }
                             this.OrbitSL.Entries.Remove(this.draggedTroop);
                             this.OrbitSL.Copied.Remove(this.draggedTroop);
