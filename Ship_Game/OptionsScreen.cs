@@ -81,7 +81,7 @@ namespace Ship_Game
 
 		public OptionsScreen(MainMenuScreen s, Rectangle dimensions)
 		{
-			this.r = dimensions;
+			this.R = dimensions;
 			this.mmscreen = s;
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
@@ -98,7 +98,7 @@ namespace Ship_Game
 			this.FromGame = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
-			this.r = dimensions;
+			this.R = dimensions;
 			this.ModeToSet = Game1.Instance.CurrentMode;
 		}
 
@@ -130,7 +130,7 @@ namespace Ship_Game
 					this.mmscreen.Buttons.Clear();
 					this.mmscreen.LoadContent();
 				}
-				this.MainOptionsRect = new Rectangle(this.r.X + 20, this.r.Y + 175, 300, 375);
+				this.MainOptionsRect = new Rectangle(this.R.X + 20, this.R.Y + 175, 300, 375);
 				this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width + 20, this.MainOptionsRect.Y, 210, 305);
 				/*this.GamespeedCap = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 300)), Localizer.Token(2206), new Ref<bool>(() => GlobalStats.LimitSpeed, (bool x) => GlobalStats.LimitSpeed = x), Fonts.Arial12Bold)
 				{
@@ -272,7 +272,7 @@ namespace Ship_Game
 				this.mmscreen.Buttons.Clear();
 				this.mmscreen.LoadContent();
 			}
-			this.MainOptionsRect = new Rectangle(this.r.X + 20, this.r.Y + 175, 300, 375);
+			this.MainOptionsRect = new Rectangle(this.R.X + 20, this.R.Y + 175, 300, 375);
 			this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width, this.MainOptionsRect.Y, 210, 305);
 			this.GamespeedCap = new Checkbox(new Vector2((float)(this.MainOptionsRect.X + 20), (float)(this.MainOptionsRect.Y + 300)), Localizer.Token(2206), new Ref<bool>(() => GlobalStats.LimitSpeed, (bool x) => GlobalStats.LimitSpeed = x), Fonts.Arial12Bold)
 			{
@@ -515,7 +515,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             base.LoadContent();
-            this.MainOptionsRect = new Rectangle(this.r.X + 20, this.r.Y + 175, 300, 375);
+            this.MainOptionsRect = new Rectangle(this.R.X + 20, this.R.Y + 175, 300, 375);
 
             this.Resolution = new OptionsScreen.Option();
             this.Resolution.Name = Localizer.Token(9) + ":";
@@ -658,8 +658,8 @@ namespace Ship_Game
 
 		private void LoadGraphics()
 		{
-			this.r = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - this.r.Width / 2, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.r.Height / 2, this.r.Width, this.r.Height);
-			this.MainOptionsRect = new Rectangle(this.r.X + 20, this.r.Y + 175, 300, 375);
+			this.R = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - this.R.Width / 2, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.R.Height / 2, this.R.Width, this.R.Height);
+			this.MainOptionsRect = new Rectangle(this.R.X + 20, this.R.Y + 175, 300, 375);
 			this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width + 20, this.MainOptionsRect.Y, 210, 305);
 			this.Resolution = new OptionsScreen.Option()
 			{
