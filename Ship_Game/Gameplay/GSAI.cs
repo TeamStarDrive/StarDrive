@@ -6384,11 +6384,11 @@ namespace Ship_Game.Gameplay
             foreach (AO areasOfOperation in this.AreasOfOperations)
             {
                 areasOfOperation.ThreatLevel = 0;
-                if (areasOfOperation.GetPlanet().Owner != this.empire)
+                if (areasOfOperation.GetPlanet().Owner != empire)
                 {
                     aOs.Add(areasOfOperation);
                 }
-                areasOfOperation.ThreatLevel = (int)this.ThreatMatrix.PingRadarStr(areasOfOperation.Position ,areasOfOperation.Radius,this.empire);
+                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStr(areasOfOperation.Position, areasOfOperation.Radius, empire);
                 
                 //this.empire.KnownShips.thisLock.EnterReadLock();
 
@@ -6401,7 +6401,7 @@ namespace Ship_Game.Gameplay
                 //}
                 //this.empire.KnownShips.thisLock.ExitReadLock();
 
-                int min = (int)(empireStr * ((this.DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets())+1) * .01f));
+                int min = (int)(empireStr * ((DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets())+1) * .01f));
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
                 //foreach (Empire empireList in EmpireManager.EmpireList)
@@ -6477,9 +6477,7 @@ namespace Ship_Game.Gameplay
                 {
 
                     if (Vector2.Distance(areasOfOperation2.GetPlanet().Position, planet2.Position) >= aoSize)
-                    {
                         continue;
-                    }
                     flag1 = false;
                     break;
                 }
@@ -6488,6 +6486,8 @@ namespace Ship_Game.Gameplay
                     continue;
                 }
 
+                if (planet2 == null)
+                    System.Diagnostics.Debugger.Break();
              
                 AO aO2 = new AO(planet2, aoSize);
                 this.AreasOfOperations.Add(aO2);

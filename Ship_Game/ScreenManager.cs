@@ -25,15 +25,9 @@ namespace Ship_Game
 
 		private IGraphicsDeviceService graphicsDeviceService;
 
-		private ContentManager content;
+	    private Texture2D blankTexture;
 
-		private Texture2D blankTexture;
-
-		private Rectangle titleSafeArea;
-
-		private bool traceEnabled;
-
-		public LightingSystemManager lightingSystemManager;
+	    public LightingSystemManager lightingSystemManager;
 
 		public LightingSystemEditor editor;
 
@@ -75,37 +69,13 @@ namespace Ship_Game
 
         public float exitScreenTimer = 0;
 
-		public ContentManager Content
-		{
-			get
-			{
-				return this.content;
-			}
-		}
+		public ContentManager Content { get; private set; }
+	    public Rectangle TitleSafeArea { get; private set; }
+	    public bool TraceEnabled { get; set; }
 
-		public Rectangle TitleSafeArea
+	    public ScreenManager(Game game, GraphicsDeviceManager graphics)
 		{
-			get
-			{
-				return this.titleSafeArea;
-			}
-		}
-
-		public bool TraceEnabled
-		{
-			get
-			{
-				return this.traceEnabled;
-			}
-			set
-			{
-				this.traceEnabled = value;
-			}
-		}
-
-		public ScreenManager(Game game, GraphicsDeviceManager graphics)
-		{
-			this.content = new ContentManager(game.Services, "Content");
+			this.Content = new ContentManager(game.Services, "Content");
 			this.GraphicsDevice = graphics.GraphicsDevice;
 			this.graphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
 			if (this.graphicsDeviceService == null)
@@ -125,54 +95,40 @@ namespace Ship_Game
 
 		public void AddScreen(GameScreen screen)
 		{
-
-            foreach (GameScreen gs in this.screens)
+            foreach (GameScreen gs in screens)
 			{
-				if (!(gs is DiplomacyScreen))
-				{
-					continue;
-				}
-				return;
+				if (gs is DiplomacyScreen)
+				    return;
 			}
 			screen.ScreenManager = this;
-			if (this.graphicsDeviceService != null && this.graphicsDeviceService.GraphicsDevice != null)
-			{
+			if (graphicsDeviceService?.GraphicsDevice != null)
 				screen.LoadContent();
-			}
-			this.screens.Add(screen);
+			screens.Add(screen);
 
 		}
 
 		public void AddScreenNoLoad(GameScreen screen)
 		{
-			foreach (GameScreen gs in this.screens)
+			foreach (GameScreen gs in screens)
 			{
-				if (!(gs is DiplomacyScreen))
-				{
-					continue;
-				}
-				return;
+				if (gs is DiplomacyScreen)
+			    	return;
 			}
 			screen.ScreenManager = this;
-			this.screens.Add(screen);
+			screens.Add(screen);
 		}
 
 		public void Draw(GameTime gameTime)
 		{
-			this.screensToDraw.Clear();
-			foreach (GameScreen screen in this.screens)
+			screensToDraw.Clear();
+			foreach (GameScreen screen in screens)
+				screensToDraw.Add(screen);
+
+			foreach (GameScreen screen in screensToDraw)
 			{
-				this.screensToDraw.Add(screen);
+			    if (screen.ScreenState != ScreenState.Hidden)
+			        screen.Draw(gameTime);
 			}
-			for (int i = 0; i < this.screensToDraw.Count; i++)
-            //Parallel.For(0, this.screensToDraw.Count, i =>
-            {
-                GameScreen screen = this.screensToDraw[i];
-                if (screen.ScreenState != ScreenState.Hidden)
-                {
-                    screen.Draw(gameTime);
-                }
-            }//);
 		}
 
 		public void DrawRectangle(Rectangle rectangle, Color color)
@@ -184,24 +140,22 @@ namespace Ship_Game
 
 		public void ExitAll()
 		{
-			for (int i = 0; i < this.screens.Count; i++)
-			{
-				this.screens[i].ExitScreen();
-			}
+		    foreach (GameScreen screen in screens)
+		        screen.ExitScreen();
 		}
 
 		public void FadeBackBufferToBlack(int alpha, Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
 		{
-			Viewport viewport = this.GraphicsDevice.Viewport;
-			spriteBatch.Draw(this.blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
+			Viewport viewport = GraphicsDevice.Viewport;
+			spriteBatch.Draw(blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
 		}
 
 		public void FadeBackBufferToBlack(int alpha)
 		{
-			Viewport viewport = this.GraphicsDevice.Viewport;
-			this.SpriteBatch.Begin();
-			this.SpriteBatch.Draw(this.blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
-			this.SpriteBatch.End();
+			Viewport viewport = GraphicsDevice.Viewport;
+			SpriteBatch.Begin();
+			SpriteBatch.Draw(blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
+			SpriteBatch.End();
 		}
 
 		public GameScreen[] GetScreens()
@@ -222,7 +176,7 @@ namespace Ship_Game
                 this.GlobalCategory = AudioManager.AudioEngine.GetCategory("Global");
 			}
 			this.SpriteBatch = new Microsoft.Xna.Framework.Graphics.SpriteBatch(this.GraphicsDevice);
-			this.blankTexture = this.content.Load<Texture2D>("Textures/blank");
+			this.blankTexture = this.Content.Load<Texture2D>("Textures/blank");
 			foreach (GameScreen screen in this.screens)
 			{
 				screen.LoadContent();
@@ -236,7 +190,7 @@ namespace Ship_Game
 			Viewport viewport2 = this.GraphicsDevice.Viewport;
 			int num2 = (int)Math.Floor((double)((float)viewport2.Width * 0.9f));
 			Viewport viewport3 = this.GraphicsDevice.Viewport;
-			this.titleSafeArea = new Rectangle(num, num1, num2, (int)Math.Floor((double)((float)viewport3.Height * 0.9f)));
+			this.TitleSafeArea = new Rectangle(num, num1, num2, (int)Math.Floor((double)((float)viewport3.Height * 0.9f)));
 		}
 
 		public void RemoveScreen(GameScreen screen)
@@ -267,7 +221,7 @@ namespace Ship_Game
 
         private void UnloadContent()
 		{
-			this.content.Unload();
+			this.Content.Unload();
 			foreach (GameScreen screen in this.screens)
 			{
 				screen.UnloadContent();
@@ -304,7 +258,7 @@ namespace Ship_Game
 				}
 				coveredByOtherScreen = true;
 			}
-			if (this.traceEnabled)
+			if (this.TraceEnabled)
 			{
 				this.TraceScreens();
 			}
@@ -323,13 +277,13 @@ namespace Ship_Game
             {
                 if (disposing)
                 {
-                    if (this.content != null)
-                        this.content.Dispose();
+                    if (this.Content != null)
+                        this.Content.Dispose();
                     if (this.SpriteBatch != null)
                         this.SpriteBatch.Dispose();
 
                 }
-                this.content = null;
+                this.Content = null;
                 this.SpriteBatch = null;
                 this.disposed = true;
             }
