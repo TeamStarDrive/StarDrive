@@ -6283,13 +6283,7 @@ output = maxp * take10 = 5
 
         public void InitializeUpdate()
         {
-            this.shield = new Shield();
-            this.shield.World = Matrix.Identity * Matrix.CreateScale(2f) * Matrix.CreateRotationZ(0.0f) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 2500f);
-            this.shield.Center = new Vector3(this.Position.X, this.Position.Y, 2500f);
-            this.shield.displacement = 0.0f;
-            this.shield.texscale = 2.8f;
-            this.shield.Rotation = 0.0f;
-            ShieldManager.PlanetaryShieldList.Add(this.shield);
+            this.shield = ShieldManager.AddPlanetaryShield(Position);
             //this.initializing = true;
             this.UpdateDescription();
             this.SO = new SceneObject(((ReadOnlyCollection<ModelMesh>)ResourceManager.GetModel("Model/SpaceObjects/planet_" + (object)this.planetType).Meshes)[0]);

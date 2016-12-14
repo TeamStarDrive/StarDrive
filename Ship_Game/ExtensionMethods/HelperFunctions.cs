@@ -135,11 +135,18 @@ namespace Ship_Game
             if (fi.Extension == ".gz" || (fi.Attributes & FileAttributes.Hidden) > 0)
                 return;
 
-            var inData = File.ReadAllBytes(fi.FullName);
-			using (FileStream outFile = File.Create(fi.FullName + ".gz"))
+            // unpacked savegames are roughly 100MB O_O, so only read 4MB at a time
+            var buffer = new byte[4096*1024];
+
+            using (FileStream inFile   = fi.OpenRead())
+			using (FileStream outFile  = File.Create(fi.FullName + ".gz"))
 			using (GZipStream compress = new GZipStream(outFile, CompressionMode.Compress))
 			{
-				compress.Write(inData, 0, inData.Length);
+                int bytesRead;
+                do {
+				    compress.Write(buffer, 0, bytesRead = inFile.Read(buffer, 0, buffer.Length));
+                } while (bytesRead == buffer.Length);
+
 				Console.WriteLine("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
 			}
 		}
