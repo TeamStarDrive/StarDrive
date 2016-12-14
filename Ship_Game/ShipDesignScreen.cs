@@ -3560,15 +3560,15 @@ namespace Ship_Game
 						FTLCount = FTLCount + 1f;
 						FTLSpeed = FTLSpeed + slot.module.FTLSpeed;
 					}
-                    if (slot.module.FTLSpoolTime * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SpoolTimeModifier > FTLSpoolTimer)
+                    if (slot.module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > FTLSpoolTimer)
                     {
-                        FTLSpoolTimer = slot.module.FTLSpoolTime * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.SpoolTimeModifier;
+                        FTLSpoolTimer = slot.module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
                     }
-                    ShieldPower += slot.module.shield_power_max + EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.ShieldPowerMod * slot.module.shield_power_max;
+                    ShieldPower += slot.module.shield_power_max + EmpireManager.Player.data.ShieldPowerMod * slot.module.shield_power_max;
 					Thrust = Thrust + slot.module.thrust;
 					WarpThrust = WarpThrust + slot.module.WarpThrust;
 					TurnThrust = TurnThrust + slot.module.TurnThrust;
-                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1));
+                    RepairRate += ((slot.module.BonusRepairRate + slot.module.BonusRepairRate * EmpireManager.Player.data.Traits.RepairMod) * (GlobalStats.ActiveMod != null && ResourceManager.HullBonuses.ContainsKey(this.ActiveHull.Hull) ? 1f + Ship_Game.ResourceManager.HullBonuses[this.ActiveHull.Hull].RepairBonus : 1));
                     OrdnanceRecoverd += slot.module.OrdnanceAddedPerSecond;
                     if (slot.module.SensorRange > sensorRange)
                     {

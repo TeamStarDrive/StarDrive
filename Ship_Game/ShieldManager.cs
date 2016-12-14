@@ -7,65 +7,50 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Linq;
+using Microsoft.Xna.Framework.Content;
 
 namespace Ship_Game
 {
 	public sealed class ShieldManager
 	{
-		public static BatchRemovalCollection<Shield> shieldList;
+		private static readonly BatchRemovalCollection<Shield> ShieldList = new BatchRemovalCollection<Shield>();
+		private static readonly BatchRemovalCollection<Shield> PlanetaryShieldList = new BatchRemovalCollection<Shield>();
 
-		public static BatchRemovalCollection<Shield> PlanetaryShieldList;
+		private static Model     ShieldModel;
+		private static Texture2D ShieldTexture;
+		private static Texture2D GradientTexture;
+		private static Effect    ShieldEffect;
 
-		public static Model shieldModel;
+		private const float Y = 0.0f;
+		private const float Z = 2.8f;
 
-		public static Texture2D shieldTexture;
-
-		public static Texture2D gradientTexture;
-
-		public static Effect ShieldEffect;
-
-		public bool doneRunning;
-
-		private static float y;
-
-		private static float z;
-
-		static ShieldManager()
-		{
-			ShieldManager.shieldList = new BatchRemovalCollection<Shield>();
-			ShieldManager.PlanetaryShieldList = new BatchRemovalCollection<Shield>();
-			ShieldManager.y = 0f;
-			ShieldManager.z = 2.8f;
-		}
-
-		public ShieldManager()
-		{
-		}
+        public static void LoadContent(ContentManager content)
+        {
+            ShieldModel     = content.Load<Model>("Model/Projectiles/shield");
+			ShieldTexture   = content.Load<Texture2D>("Model/Projectiles/shield_d");
+			GradientTexture = content.Load<Texture2D>("Model/Projectiles/shieldgradient");
+			ShieldEffect    = content.Load<Effect>("Effects/scale");
+        }
 
 		public static void Draw(Matrix view, Matrix projection)
 		{
 			lock (GlobalStats.ShieldLocker)
 			{
-				foreach (Shield shield in ShieldManager.shieldList)
+				foreach (Shield shield in ShieldList)
 				{
 					Vector3 shieldcenter = new Vector3(shield.Owner.Center, 0f);
 					if (Ship.universeScreen.Frustum.Contains(shieldcenter) == ContainmentType.Disjoint)
-					{
 						continue;
-					}
 					if (shield.pointLight.Intensity <= 0f)
-					{
 						shield.pointLight.Enabled = false;
-					}
 					if (shield.texscale <= 0f)
-					{
 						continue;
-					}
+
 					Matrix w = ((Matrix.Identity * Matrix.CreateScale(shield.Radius / 100f)) * Matrix.CreateRotationZ(shield.Rotation)) * Matrix.CreateTranslation(shield.Owner.Center.X, shield.Owner.Center.Y, 0f);
 					shield.World = w;
-					ShieldManager.DrawShield(shield, view, projection);
+					DrawShield(shield, view, projection);
 				}
-				foreach (Shield shield in ShieldManager.PlanetaryShieldList)
+				foreach (Shield shield in PlanetaryShieldList)
 				{
 					if (shield.pointLight.Intensity <= 0f)
 					{
@@ -75,92 +60,151 @@ namespace Ship_Game
 					{
 						continue;
 					}
-					ShieldManager.DrawShield(shield, view, projection);
+					DrawShield(shield, view, projection);
 				}
-				ShieldManager.shieldList.ApplyPendingRemovals();
-				ShieldManager.PlanetaryShieldList.ApplyPendingRemovals();
+				ShieldList.ApplyPendingRemovals();
+				PlanetaryShieldList.ApplyPendingRemovals();
 			}
 		}
 
 		private static void DrawShield(Shield shield, Matrix view, Matrix projection)
 		{
-			foreach (ModelMesh mesh in ShieldManager.shieldModel.Meshes)
+            ShieldEffect.Parameters["World"].SetValue(Matrix.CreateScale(50f) * shield.World);
+			ShieldEffect.Parameters["View"].SetValue(view);
+			ShieldEffect.Parameters["Projection"].SetValue(projection);
+			ShieldEffect.Parameters["tex"].SetValue(ShieldTexture);
+			ShieldEffect.Parameters["AlphaMap"].SetValue(GradientTexture);
+			ShieldEffect.Parameters["scale"].SetValue(shield.texscale);
+			ShieldEffect.Parameters["displacement"].SetValue(shield.displacement);
+			ShieldEffect.CurrentTechnique = ShieldEffect.Techniques["Technique1"];
+
+			foreach (ModelMesh mesh in ShieldModel.Meshes)
 			{
-				ShieldManager.ShieldEffect.Parameters["World"].SetValue(Matrix.CreateScale(50f) * shield.World);
-				ShieldManager.ShieldEffect.Parameters["View"].SetValue(view);
-				ShieldManager.ShieldEffect.Parameters["Projection"].SetValue(projection);
-				ShieldManager.ShieldEffect.Parameters["tex"].SetValue(ShieldManager.shieldTexture);
-				ShieldManager.ShieldEffect.Parameters["AlphaMap"].SetValue(ShieldManager.gradientTexture);
-				ShieldManager.ShieldEffect.Parameters["scale"].SetValue((float)shield.texscale);
-				ShieldManager.ShieldEffect.Parameters["displacement"].SetValue((float)shield.displacement);
-				ShieldManager.ShieldEffect.CurrentTechnique = ShieldManager.ShieldEffect.Techniques["Technique1"];
 				foreach (ModelMeshPart part in mesh.MeshParts)
-				{
-					part.Effect = ShieldManager.ShieldEffect;
-				}
+					part.Effect = ShieldEffect;
 				mesh.Draw();
 			}
 		}
 
-		public static void FireShieldAnimation(GameplayObject Obj, float Rotation, float Scale)
+        public static void Clear()
+        {
+            lock (GlobalStats.ShieldLocker)
+            {
+                ShieldList.Clear();
+                PlanetaryShieldList.Clear();
+            }
+        }
+
+        public static Shield AddPlanetaryShield(Vector2 position)
+        {
+            var shield = new Shield
+            {
+                Center = new Vector3(position.X, position.Y, 2500f),
+                displacement = 0.0f,
+                texscale = 2.8f,
+                Rotation = 0.0f,
+                World = Matrix.Identity
+                        * Matrix.CreateScale(2f)
+                        * Matrix.CreateRotationZ(0.0f)
+                        * Matrix.CreateTranslation(position.X, position.Y, 2500f)
+            };
+            lock (GlobalStats.ShieldLocker)
+                PlanetaryShieldList.Add(shield);
+            return shield;
+        }
+
+		public static void FireShieldAnimation(GameplayObject owner, float rotation)
 		{
-			Shield shield = new Shield();
-			Matrix w = ((Matrix.Identity * Matrix.CreateScale(1f)) * Matrix.CreateRotationZ(Rotation)) * Matrix.CreateTranslation(Obj.Center.X, Obj.Center.Y, 0f);
-			shield.World = w;
-			shield.Owner = Obj;
-			shield.displacement = ShieldManager.y;
-			shield.texscale = ShieldManager.z;
-			shield.Rotation = Rotation;
-			ShieldManager.shieldList.Add(shield);
+		    Shield shield = new Shield
+		    {
+		        Owner    = owner,
+		        texscale = Z,
+		        Rotation = rotation,
+		        displacement = Y,
+		        World = Matrix.Identity * Matrix.CreateScale(1f)
+                        * Matrix.CreateRotationZ(rotation)
+                        * Matrix.CreateTranslation(owner.Center.X, owner.Center.Y, 0f)
+		    };
+		    lock (GlobalStats.ShieldLocker)
+			    ShieldList.Add(shield);
 		}
+
+        public static Shield AddShield(GameplayObject owner, float rotation, Vector2 center)
+        {
+            var shield = new Shield
+            {
+                Owner         = owner,
+                displacement  = 0.0f,
+                texscale      = 2.8f,
+                Rotation      = rotation,
+                World = Matrix.Identity * Matrix.CreateScale(2f)
+                        * Matrix.CreateRotationZ(rotation)
+                        * Matrix.CreateTranslation(center.X, center.Y, 0.0f)
+            };
+            lock (GlobalStats.ShieldLocker)
+                ShieldList.Add(shield);
+            return shield;
+        }
 
 		public static void Update()
 		{
-			foreach (Shield shield in ShieldManager.PlanetaryShieldList)
+			foreach (Shield shield in PlanetaryShieldList)
 			{
-				PointLight intensity = shield.pointLight;
-				intensity.Intensity = intensity.Intensity - 2.45f;
+				shield.pointLight.Intensity -= 2.45f;
 				if (shield.pointLight.Intensity <= 0f)
-				{
 					shield.pointLight.Enabled = false;
-				}
 				if (shield.texscale <= 0f)
-				{
 					continue;
-				}
-				Matrix w = ((Matrix.Identity * Matrix.CreateScale(shield.Radius / 100f)) * Matrix.CreateRotationZ(shield.Rotation)) * Matrix.CreateTranslation(shield.Center.X, shield.Center.Y, 2500f);
-				shield.World = w;
-				Shield shield1 = shield;
-				shield1.displacement = shield1.displacement + 0.085f;
-				Shield shield2 = shield;
-				shield2.texscale = shield2.texscale - 0.185f;
+
+				shield.World = ((Matrix.Identity 
+                    * Matrix.CreateScale(shield.Radius / 100f)) 
+                    * Matrix.CreateRotationZ(shield.Rotation)) 
+                    * Matrix.CreateTranslation(shield.Center.X, shield.Center.Y, 2500f);
+
+				shield.displacement += 0.085f;
+				shield.texscale     -= 0.185f;
 			}
-			var source = Enumerable.Range(0, ShieldManager.shieldList.Count).ToArray();
-                            var rangePartitioner = Partitioner.Create(0, source.Length);
-                    //handle each weapon group in parallel
-                Parallel.ForEach(rangePartitioner, (range, loopState) =>
+			var source = Enumerable.Range(0, ShieldList.Count).ToArray();
+            var rangePartitioner = Partitioner.Create(0, source.Length);
+            //handle each weapon group in parallel
+            Parallel.ForEach(rangePartitioner, (range, loopState) =>
+            {
+                //standard for loop through each weapon group.
+                for (int i = range.Item1; i < range.Item2; i++)
                 {
-                    //standard for loop through each weapon group.
-                    for (int T = range.Item1; T < range.Item2; T++)
+                    Shield shield = ShieldList[i];
+                    PointLight pointLight = shield.pointLight;
+                    pointLight.Intensity = pointLight.Intensity - 2.45f;
+                    if (shield.pointLight.Intensity <= 0f)
                     {
-
-
-                        Shield shield = ShieldManager.shieldList[T];
-                        PointLight pointLight = shield.pointLight;
-                        pointLight.Intensity = pointLight.Intensity - 2.45f;
-                        if (shield.pointLight.Intensity <= 0f)
-                        {
-                            shield.pointLight.Enabled = false;
-                        }
-                        if (shield.texscale > 0f)
-                        {
-                            Shield shield3 = shield;
-                            shield3.displacement = shield3.displacement + 0.085f;
-                            Shield shield4 = shield;
-                            shield4.texscale = shield4.texscale - 0.185f;
-                        }
+                        shield.pointLight.Enabled = false;
                     }
-                });
+                    if (shield.texscale > 0f)
+                    {
+                        Shield shield3 = shield;
+                        shield3.displacement = shield3.displacement + 0.085f;
+                        Shield shield4 = shield;
+                        shield4.texscale = shield4.texscale - 0.185f;
+                    }
+                }
+            });
+
+            lock (GlobalStats.ShieldLocker)
+            {
+                for (int i = 0; i < ShieldList.Count; ++i)
+                {
+                    Shield shield = ShieldList[i];
+                    if (shield.Owner == null || shield.Owner.Active)
+                        continue;
+
+                    ShieldList.QueuePendingRemoval(shield);
+                    lock (GlobalStats.ObjectManagerLocker)
+                    {
+                        Empire.Universe.ScreenManager.inter.LightManager.Remove(shield.pointLight);
+                    }
+                }
+                ShieldList.ApplyPendingRemovals();
+            }
         }
 	}
 }

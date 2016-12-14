@@ -12,19 +12,54 @@ namespace Ship_Game
         // This is faster than Vector2.Distance()
         public static float SqDist(this Vector2 a, Vector2 b)
         {
-            float dista = a.X - b.X;
-            float distb = a.Y - b.Y;
-            return dista*dista + distb*distb;
+            float dx = a.X - b.X;
+            float dy = a.Y - b.Y;
+            return dx*dx + dy*dy;
         }
+
+        // Squared distance between two Vector3's
+        public static float SqDist(this Vector3 a, Vector3 b)
+        {
+            float dx = a.X - b.X;
+            float dy = a.Y - b.Y;
+            float dz = a.Z - b.Z;
+            return dx*dx + dy*dy + dz*dz;
+        }
+
 
         // Gets the accurate distance from source point a to destination b
         // This is slower than Vector2.SqDist()
         public static float Distance(this Vector2 a, Vector2 b)
         {
-            float dista = a.X - b.X;
-            float distb = a.Y - b.Y;
-            return (float)Sqrt(dista*dista + distb*distb);
+            float dx = a.X - b.X;
+            float dy = a.Y - b.Y;
+            return (float)Sqrt(dx*dx + dy*dy);
         }
+
+
+        // Gets the accurate distance from source point a to destination b
+        // This is slower than Vector3.SqDist()
+        public static float Distance(this Vector3 a, Vector3 b)
+        {
+            float dx = a.X - b.X;
+            float dy = a.Y - b.Y;
+            float dz = a.Z - b.Z;
+            return (float)Sqrt(dx*dx + dy*dy + dz*dz);
+        }
+
+
+        // True if this given position is within the radius of Circle [center,radius]
+        public static bool WithinRadius(this Vector2 position, Vector2 center, float radius)
+        {
+            return position.SqDist(center) <= radius*radius;
+        }
+
+        // True if this given position is within the radius of Circle [center,radius]
+        public static bool WithinRadius(this Vector3 position, Vector3 center, float radius)
+        {
+            return position.SqDist(center) <= radius*radius;
+        }
+
 
         // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f
         public static Vector3 ToVec3(this Vector2 a) => new Vector3(a.X, a.Y, 0f);
@@ -35,11 +70,6 @@ namespace Ship_Game
         // Negates this Vector2's components
         public static Vector2 Neg(this Vector2 a) => new Vector2(-a.X, -a.Y);
 
-        // True if this given position is within the radius of Circle [center,radius]
-        public static bool WithinRadius(this Vector2 position, Vector2 center, float radius)
-        {
-            return position.SqDist(center) <= radius*radius;
-        }
 
         // result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
