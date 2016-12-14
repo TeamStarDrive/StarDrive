@@ -459,5 +459,33 @@ namespace Ship_Game
 			}
 			ExplosionManager.ExplosionList.ApplyPendingRemovals();
 		}
+
+        public static void DrawExplosions(ScreenManager screen, Matrix view, Matrix projection)
+        {
+            using (ExplosionList.AcquireReadLock())
+            {
+                // @todo Refactor this: name locals, clean up ugly ternaries.. etc.
+                foreach (Explosion item_0 in ExplosionList)
+                {
+                    if (float.IsNaN(item_0.Radius))
+                        continue;
+                    Vector3 local_1 = item_0.module == null 
+                        ? screen.GraphicsDevice.Viewport.Project(
+                            new Vector3(item_0.pos.X, item_0.pos.Y, 0.0f), projection, view, Matrix.Identity) 
+                        : screen.GraphicsDevice.Viewport.Project(
+                            new Vector3(item_0.module.Position.X, item_0.module.Position.Y, 0.0f), projection, view, Matrix.Identity);
+
+                    Vector2 local_2 = new Vector2(local_1.X, local_1.Y);
+                    Vector3 local_4 = screen.GraphicsDevice.Viewport.Project(
+                        new Vector3(new Vector2(item_0.pos.X, item_0.pos.Y).PointOnCircle(90f, item_0.Radius), 0.0f), 
+                        projection, view, Matrix.Identity);
+
+                    float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - local_2.X);
+                    item_0.ExplosionRect = new Rectangle((int)local_2.X, (int)local_2.Y, (int)local_6, (int)local_6);
+                    if (item_0.Animation == 1)
+                        screen.SpriteBatch.Draw(ResourceManager.TextureDict[item_0.AnimationTexture], item_0.ExplosionRect, new Rectangle?(), item_0.color, item_0.Rotation, new Vector2((float)(ResourceManager.TextureDict[item_0.AnimationTexture].Width / 2), (float)(ResourceManager.TextureDict[item_0.AnimationTexture].Height / 2)), SpriteEffects.None, 1f);
+                }
+            }
+        }
 	}
 }

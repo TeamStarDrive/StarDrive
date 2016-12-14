@@ -180,22 +180,22 @@ namespace Ship_Game
 		public void ChangeFleet(int which)
 		{
 			this.SelectedNodeList.Clear();
-			if (this.FleetToEdit != -1)
+			if (FleetToEdit != -1)
 			{
-				
-                foreach (KeyValuePair<int, Ship_Game.Gameplay.Fleet> Fleet in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict())
+                foreach (var kv in EmpireManager.Player.GetFleetsDict())
 				{
-                    Fleet.Value.Ships.thisLock.EnterReadLock();
-					foreach (Ship ship in Fleet.Value.Ships)
-					{
-						ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-					}
-                    Fleet.Value.Ships.thisLock.ExitReadLock();
+                    using (kv.Value.Ships.AcquireReadLock())
+                    {
+                        foreach (Ship ship in kv.Value.Ships)
+                        {
+                            ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
+                        }
+                    }
 				}
 			}
 			this.FleetToEdit = which;
 			List<FleetDataNode> ToRemove = new List<FleetDataNode>();
-			foreach (FleetDataNode node in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[this.FleetToEdit].DataNodes)
+			foreach (FleetDataNode node in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].DataNodes)
 			{
 				if ((Ship_Game.ResourceManager.ShipsDict.ContainsKey(node.ShipName) || node.GetShip() != null) && (node.GetShip() != null || EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(node.ShipName)))
 				{
@@ -207,7 +207,7 @@ namespace Ship_Game
 			foreach (FleetDataNode node in ToRemove)
 			{
 				EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[this.FleetToEdit].DataNodes.Remove(node);
-				foreach (List<Ship_Game.Gameplay.Fleet.Squad> flanks in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[this.FleetToEdit].AllFlanks)
+				foreach (List<Ship_Game.Gameplay.Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
 				{
 					foreach (Ship_Game.Gameplay.Fleet.Squad Squad in flanks)
 					{
@@ -223,25 +223,23 @@ namespace Ship_Game
 					}
 				}
 			}
-			foreach (List<Ship_Game.Gameplay.Fleet.Squad> flanks in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[this.FleetToEdit].AllFlanks)
+			foreach (List<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
 			{
-				foreach (Ship_Game.Gameplay.Fleet.Squad Squad in SquadsToRemove)
+				foreach (Fleet.Squad squad in SquadsToRemove)
 				{
-					if (!flanks.Contains(Squad))
-					{
-						continue;
-					}
-					flanks.Remove(Squad);
+					if (flanks.Contains(squad))
+					    flanks.Remove(squad);
 				}
 			}
-			this.fleet = EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[which];
-            this.fleet.Ships.thisLock.EnterReadLock();
-            foreach (Ship ship in this.fleet.Ships)
-			{
-				ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
-				ship.GetSO().Visibility = ObjectVisibility.Rendered;
-			}
-            this.fleet.Ships.thisLock.ExitReadLock();
+			fleet = EmpireManager.Player.GetFleetsDict()[which];
+            using (fleet.Ships.AcquireReadLock())
+            {
+                foreach (Ship ship in this.fleet.Ships)
+                {
+                    ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
+                    ship.GetSO().Visibility = ObjectVisibility.Rendered;
+                }
+            }
 		}
 
 		public void Dispose()
@@ -1919,12 +1917,11 @@ namespace Ship_Game
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
 			float aspectRatio = width / (float)viewport.Height;
 			this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 100f, 15000f);
-            this.fleet.Ships.thisLock.EnterReadLock();
+            using (fleet.Ships.AcquireReadLock())
             foreach (Ship ship in this.fleet.Ships)
 			{
 				ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
 			}
-            this.fleet.Ships.thisLock.ExitReadLock();
 			base.LoadContent();
 		}
 

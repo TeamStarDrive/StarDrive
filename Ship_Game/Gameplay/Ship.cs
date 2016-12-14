@@ -2302,15 +2302,8 @@ namespace Ship_Game.Gameplay
             }
             if (this.engineState == Ship.MoveState.Warp && Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && Ship.universeScreen.camHeight < 250000)
             {
-                Cue cue = AudioManager.GetCue(this.GetEndWarpCue());
-                cue.Apply3D(Ship.universeScreen.listener, this.emitter);
-                cue.Play();
-                FTL ftl = new FTL();
-                ftl.Center = new Vector2(this.Center.X, this.Center.Y);
-                //lock (FTLManager.FTLLock)
-               // FTLManager.FTLList.thisLock.EnterWriteLock();
-                FTLManager.FTLList.Add(ftl);
-                //FTLManager.FTLList.thisLock.ExitWriteLock();
+                AudioManager.PlayCue(GetEndWarpCue(), universeScreen.listener, emitter);
+                FTLManager.AddFTL(Center);
             }
             this.engineState = Ship.MoveState.Sublight;
             this.ResetJumpTimer();
@@ -3208,12 +3201,7 @@ namespace Ship_Game.Gameplay
                         {
                             if (this.engineState == Ship.MoveState.Sublight )//&& (!this.Inhibited && this.GetmaxFTLSpeed > this.velocityMaximum))
                             {
-                                FTL ftl = new FTL();
-                                ftl.Center = new Vector2(this.Center.X, this.Center.Y);
-                                //lock (FTLManager.FTLLock)
-                                //FTLManager.FTLList.thisLock.EnterWriteLock();
-                                    FTLManager.FTLList.Add(ftl);
-                                   // FTLManager.FTLList.thisLock.ExitWriteLock();
+                                FTLManager.AddFTL(Center);
                                 this.engineState = Ship.MoveState.Warp;
                             }
                             else
@@ -3329,7 +3317,7 @@ namespace Ship_Game.Gameplay
                     this.beams.ApplyPendingRemovals() ; //this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
+                    this.Projectiles.ApplyPendingRemovals(GetAI().BadGuysNear && (InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
 
                     
                 }

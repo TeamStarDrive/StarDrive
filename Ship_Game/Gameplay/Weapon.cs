@@ -438,37 +438,37 @@ namespace Ship_Game.Gameplay
             {
                 Weapon AltFire = ResourceManager.GetWeapon(this.SecondaryFire);
                 Projectile projectile;
-                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
+                if (this.owner.Projectiles.TryReuseItem(out projectile))
                 {
                     projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
-                    projectile.range = AltFire.Range;
-                    projectile.weapon = this;
-                    projectile.explodes = AltFire.explodes;
-                    projectile.damageAmount = AltFire.DamageAmount;
-                    projectile.damageRadius = AltFire.DamageRadius;
-                    projectile.explosionradiusmod = AltFire.ExplosionRadiusVisual;
-                    projectile.Health = AltFire.HitPoints;
-                    projectile.speed = AltFire.ProjectileSpeed;
-                    projectile.WeaponEffectType = AltFire.WeaponEffectType;
-                    projectile.WeaponType = AltFire.WeaponType;
+                    projectile.range                 = AltFire.Range;
+                    projectile.weapon                = this;
+                    projectile.explodes              = AltFire.explodes;
+                    projectile.damageAmount          = AltFire.DamageAmount;
+                    projectile.damageRadius          = AltFire.DamageRadius;
+                    projectile.explosionradiusmod    = AltFire.ExplosionRadiusVisual;
+                    projectile.Health                = AltFire.HitPoints;
+                    projectile.speed                 = AltFire.ProjectileSpeed;
+                    projectile.WeaponEffectType      = AltFire.WeaponEffectType;
+                    projectile.WeaponType            = AltFire.WeaponType;
                     projectile.RotationRadsPerSecond = AltFire.RotationRadsPerSecond;
-                    projectile.ArmorPiercing = (byte)AltFire.ArmourPen;
+                    projectile.ArmorPiercing         = (byte)AltFire.ArmourPen;
                 }
                 else
                     projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
                     {
-                        range = AltFire.Range,
-                        weapon = this,
-                        explodes = AltFire.explodes,
-                        damageAmount = AltFire.DamageAmount,
-                        damageRadius = AltFire.DamageRadius,
-                        explosionradiusmod = AltFire.ExplosionRadiusVisual,
-                        Health = AltFire.HitPoints,
-                        speed = AltFire.ProjectileSpeed,
-                        WeaponEffectType = AltFire.WeaponEffectType,
-                        WeaponType = AltFire.WeaponType,
+                        range                 = AltFire.Range,
+                        weapon                = this,
+                        explodes              = AltFire.explodes,
+                        damageAmount          = AltFire.DamageAmount,
+                        damageRadius          = AltFire.DamageRadius,
+                        explosionradiusmod    = AltFire.ExplosionRadiusVisual,
+                        Health                = AltFire.HitPoints,
+                        speed                 = AltFire.ProjectileSpeed,
+                        WeaponEffectType      = AltFire.WeaponEffectType,
+                        WeaponType            = AltFire.WeaponType,
                         RotationRadsPerSecond = AltFire.RotationRadsPerSecond,
-                        ArmorPiercing = (byte)AltFire.ArmourPen,
+                        ArmorPiercing         = (byte)AltFire.ArmourPen,
                     };
                 //damage increase by level
                 if (this.owner.Level > 0)
@@ -569,7 +569,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 Projectile projectile;
-                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
+                if (this.owner.Projectiles.TryReuseItem(out projectile))
                 {
                     projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
                     projectile.range = this.Range;
