@@ -26,9 +26,9 @@ namespace Ship_Game
 {
     public class UniverseScreen : GameScreen, IDisposable
     {
-        private readonly PerfTimer perfavg  = new PerfTimer();
+        private readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
         private readonly PerfTimer Perfavg2 = new PerfTimer();
-        private readonly PerfTimer perfavg3 = new PerfTimer();
+        private readonly PerfTimer PreEmpirePerf = new PerfTimer();
         private readonly PerfTimer perfavg4 = new PerfTimer();
         private readonly PerfTimer perfavg5 = new PerfTimer();
 
@@ -978,7 +978,6 @@ namespace Ship_Game
             Ship.universeScreen                   = this;
             ArtificialIntelligence.universeScreen = this;
             MissileAI.universeScreen              = this;
-            Moon.universeScreen                   = this;
             CombatScreen.universeScreen           = this;
             FleetDesignScreen.screen              = this;
             ScreenRectangle = new Rectangle(0, 0, width, height);
@@ -1073,26 +1072,20 @@ namespace Ship_Game
                         UpdateAllSystems(0.0f);
                         foreach (Ship ship in MasterShipList)
                         {
-                            try
+                            if (viewState <= UnivScreenState.SystemView && Frustum.Contains(ship.Position, 2000f))
                             {
-                                if (Frustum.Contains(new BoundingSphere(new Vector3(ship.Position, 0.0f), 2000f)) != ContainmentType.Disjoint && viewState <= UnivScreenState.SystemView)
-                                {
-                                    ship.InFrustum = true;
-                                    ship.GetSO().Visibility = ObjectVisibility.Rendered;
-                                    ship.GetSO().World = Matrix.Identity 
-                                        * Matrix.CreateRotationY(ship.yRotation) 
-                                        * Matrix.CreateRotationX(ship.xRotation) 
-                                        * Matrix.CreateRotationZ(ship.Rotation) 
-                                        * Matrix.CreateTranslation(new Vector3(ship.Center, 0.0f));
-                                }
-                                else
-                                {
-                                    ship.InFrustum = false;
-                                    ship.GetSO().Visibility = ObjectVisibility.None;
-                                }
+                                ship.InFrustum = true;
+                                ship.GetSO().Visibility = ObjectVisibility.Rendered;
+                                ship.GetSO().World = Matrix.Identity 
+                                    * Matrix.CreateRotationY(ship.yRotation) 
+                                    * Matrix.CreateRotationX(ship.xRotation) 
+                                    * Matrix.CreateRotationZ(ship.Rotation) 
+                                    * Matrix.CreateTranslation(new Vector3(ship.Center, 0.0f));
                             }
-                            catch
+                            else
                             {
+                                ship.InFrustum = false;
+                                ship.GetSO().Visibility = ObjectVisibility.None;
                             }
                         }
                         ClickTimer += deltaTime;
@@ -1262,7 +1255,7 @@ namespace Ship_Game
         {
             perfavg5.Start(); // total dowork lag
 
-            perfavg3.Start();
+            PreEmpirePerf.Start();
             zTime = elapsedTime;
             #region PreEmpire
 
@@ -1296,43 +1289,19 @@ namespace Ship_Game
             }
 
 
+            while (!ShipsToRemove.IsEmpty)
             {
-                Parallel.Invoke(
-
-                    () =>
-                    {
-                        Ship remove;
-                        while (!ShipsToRemove.IsEmpty)
-                        {
-                            ShipsToRemove.TryTake(out remove);
-                            remove.TotallyRemove();
-                        }
-                    },
-                    () =>
-                    {
-
-                        UniverseScreen.ShipSpatialManager.CollidableObjects.ApplyPendingRemovals();
-                    }
-                    ,
-                    () =>
-                    {
-                        DeepSpaceManager.CollidableObjects.ApplyPendingRemovals();
-                    }
-                );
+                ShipsToRemove.TryTake(out Ship remove);
+                remove.TotallyRemove();
             }
-            this.MasterShipList.ApplyPendingRemovals();
+            ShipSpatialManager.CollidableObjects.ApplyPendingRemovals();
+            DeepSpaceManager.CollidableObjects.ApplyPendingRemovals();
+            MasterShipList.ApplyPendingRemovals();
             
-
-
-
-
-            
-
-            if (!this.Paused)
+            if (!Paused)
             {
                 bool rebuild = false;
                 Parallel.ForEach(EmpireManager.EmpireList, empire =>
-                //foreach(Empire empire in EmpireManager.EmpireList)
                 {
                     foreach (Ship s in empire.ShipsToAdd)
                     {
@@ -1342,37 +1311,32 @@ namespace Ship_Game
                     }
 
                     empire.ShipsToAdd.Clear();
+                    empire.updateContactsTimer = empire.updateContactsTimer - 0.01666667f;//elapsedTime;
+                    if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
                     {
-                        int pathcount = empire.PathCache.Count;
-                       // if (!empire.isFaction && !empire.MinorRace && !empire.data.Defeated &&   pathcount == 0)
-                           
-                        empire.updateContactsTimer = empire.updateContactsTimer - 0.01666667f;//elapsedTime;
-                        if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
-                        {
-                            int check = empire.BorderNodes.Count;                            
-                            empire.ResetBorders();
+                        int check = empire.BorderNodes.Count;                            
+                        empire.ResetBorders();
                           
-                            if (empire.BorderNodes.Count != check )
-                            {
-                                rebuild = true;
-                                empire.PathCache.Clear();
-                               // empire.lockPatchCache.ExitWriteLock();
+                        if (empire.BorderNodes.Count != check )
+                        {
+                            rebuild = true;
+                            empire.PathCache.Clear();
+                            // empire.lockPatchCache.ExitWriteLock();
                            
-                            }
-                           // empire.KnownShips.thisLock.EnterWriteLock();
-                            {
-                                empire.KnownShips.Clear();
-                            }
-                            //empire.KnownShips.thisLock.ExitWriteLock();
-                            //this.UnownedShipsInOurBorders.Clear();
-                            foreach (Ship ship in MasterShipList)
-                            {
-                                //added by gremlin reset border stats.
-                                ship.getBorderCheck.Remove(empire);                                
-                            }
-                            empire.UpdateKnownShips();
-                            empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
                         }
+                        // empire.KnownShips.thisLock.EnterWriteLock();
+                        {
+                            empire.KnownShips.Clear();
+                        }
+                        //empire.KnownShips.thisLock.ExitWriteLock();
+                        //this.UnownedShipsInOurBorders.Clear();
+                        foreach (Ship ship in MasterShipList)
+                        {
+                            //added by gremlin reset border stats.
+                            ship.getBorderCheck.Remove(empire);                                
+                        }
+                        empire.UpdateKnownShips();
+                        empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
                     }
                     
                 });
@@ -1409,106 +1373,86 @@ namespace Ship_Game
                         byte[,] grid1 = (byte[,]) grid.Clone();
                         PathGridtranslateBordernode(empire, 1, grid1);
 
-
-                        if (true)
-                            foreach (KeyValuePair<Empire, Relationship> rels in empire.AllRelations)
+                        foreach (KeyValuePair<Empire, Relationship> rels in empire.AllRelations)
+                        {
+                            if (!rels.Value.Known)
+                                continue;
+                            if (rels.Value.Treaty_Alliance)
                             {
-                                if (!rels.Value.Known)
-                                    continue;
-                                if (rels.Value.Treaty_Alliance)
-                                {
-                                    PathGridtranslateBordernode(rels.Key, 1, grid1);
-                                }
-                                if (rels.Value.AtWar)
-                                    PathGridtranslateBordernode(rels.Key, 80, grid1);
-                                else if (!rels.Value.Treaty_OpenBorders)
-                                    PathGridtranslateBordernode(rels.Key, 0, grid1);
+                                PathGridtranslateBordernode(rels.Key, 1, grid1);
                             }
+                            if (rels.Value.AtWar)
+                                PathGridtranslateBordernode(rels.Key, 80, grid1);
+                            else if (!rels.Value.Treaty_OpenBorders)
+                                PathGridtranslateBordernode(rels.Key, 0, grid1);
+                        }
 
                         empire.grid = grid1;
                         empire.granularity = granularity;
-#if DEBUG
-                        if (this.Debug && empire.isPlayer && this.debugwin != null)
-                            if (true)
+                    #if false
+                        if (this.Debug && empire.isPlayer && this.debugwin != null && false)
+                        {
+                            using (var fs = new FileStream("map.astar", FileMode.Create, FileAccess.Write))
                             {
-                                try
+                                fs.WriteByte((byte)(0 >> 8));
+                                fs.WriteByte((byte) (0 & 0x000000FF));
+                                fs.WriteByte((byte) (0 >> 8));
+                                fs.WriteByte((byte) (0 & 0x000000FF));
+                                fs.WriteByte((byte) (256 >> 8));
+                                fs.WriteByte((byte) (256 & 0x000000FF));
+                                fs.WriteByte((byte) (256 >> 8));
+                                fs.WriteByte((byte) (256 & 0x000000FF));
+                                fs.WriteByte((byte) (true ? 1 : 0));
+                                fs.WriteByte((byte) (true ? 1 : 0));
+                                fs.WriteByte((byte) (false ? 1 : 0));
+                                fs.WriteByte((byte) (true ? 1 : 0));
+                                fs.WriteByte((byte) 2);
+                                fs.WriteByte((byte) 2);
+                                fs.WriteByte((byte) (false ? 1 : 0));
+                                fs.WriteByte((byte) (16) >> 24);
+                                fs.WriteByte((byte) (16 >> 16));
+                                fs.WriteByte((byte) (16 >> 8));
+                                fs.WriteByte((byte) (16 & 0x000000FF));
+                                fs.WriteByte((byte) 10);
+                                fs.WriteByte((byte) 10);
+
+                                for (int y = 0; y < 1000; y++)
+                                for (int x = 0; x < 1000; x++)
                                 {
-
-                                    FileStream fs = new FileStream("map.astar", FileMode.Create, FileAccess.Write);
-
-                                    fs.WriteByte((byte) (0 >> 8));
-                                    fs.WriteByte((byte) (0 & 0x000000FF));
-                                    fs.WriteByte((byte) (0 >> 8));
-                                    fs.WriteByte((byte) (0 & 0x000000FF));
-                                    fs.WriteByte((byte) (256 >> 8));
-                                    fs.WriteByte((byte) (256 & 0x000000FF));
-                                    fs.WriteByte((byte) (256 >> 8));
-                                    fs.WriteByte((byte) (256 & 0x000000FF));
-                                    fs.WriteByte((byte) (true ? 1 : 0));
-                                    fs.WriteByte((byte) (true ? 1 : 0));
-                                    fs.WriteByte((byte) (false ? 1 : 0));
-                                    fs.WriteByte((byte) (true ? 1 : 0));
-                                    fs.WriteByte((byte) 2);
-                                    fs.WriteByte((byte) 2);
-                                    fs.WriteByte((byte) (false ? 1 : 0));
-                                    fs.WriteByte((byte) (16) >> 24);
-                                    fs.WriteByte((byte) (16 >> 16));
-                                    fs.WriteByte((byte) (16 >> 8));
-                                    fs.WriteByte((byte) (16 & 0x000000FF));
-                                    fs.WriteByte((byte) 10);
-                                    fs.WriteByte((byte) 10);
-
-                                    for (int y = 0; y < 1000; y++)
-                                        for (int x = 0; x < 1000; x++)
-                                        {
-                                            if (y < elegran && x < elegran)
-                                                fs.WriteByte(grid1[x, y]);
-                                            else
-                                                fs.WriteByte(0);
-                                        }
-
-                                    fs.Close();
-                                }
-                                catch
-                                {
-                                    //not used during actual game so no catch stuff really needed. this is just a lazy shortcut
+                                    if (y < elegran && x < elegran)
+                                        fs.WriteByte(grid1[x, y]);
+                                    else
+                                        fs.WriteByte(0);
                                 }
                             }
-#endif
-
+                        }
+                    #endif
                     });
                 }
 
                 #endregion
 
-                perfavg3.Stop();
-                if (!this.IsActive)
+                PreEmpirePerf.Stop();
+                if (!IsActive)
                     return;
                 #region Empire
-                float elag = (float)this.zgameTime.TotalGameTime.TotalSeconds;
 
-                perfavg.Start();
-                for (int index = 0; index < EmpireManager.EmpireList.Count; ++index)    
-                {
-                    Empire empire = EmpireManager.EmpireList[index];
-                   // empire.pathhMap = new ArtificialIntelligence.Grid(empire, 20, 10);
+                EmpireUpdatePerf.Start();
+                foreach (Empire empire in EmpireManager.EmpireList)
                     empire.Update(elapsedTime);
-                    
-
-                }
-                this.MasterShipList.ApplyPendingRemovals();
+                MasterShipList.ApplyPendingRemovals();
 
                 lock (GlobalStats.AddShipLocker) //needed to fix Issue #629
                 {
-                    foreach (Ship item_1 in this.ShipsToAdd)
+                    foreach (Ship ship in ShipsToAdd)
                     {
-                        this.MasterShipList.Add(item_1);
-                        UniverseScreen.ShipSpatialManager.CollidableObjects.Add((GameplayObject)item_1);
+                        MasterShipList.Add(ship);
+                        ShipSpatialManager.CollidableObjects.Add(ship);
                     }
-                    this.ShipsToAdd.Clear();
+                    ShipsToAdd.Clear();
                 }
-                this.shiptimer -= elapsedTime; // 0.01666667f;//
-                perfavg.Stop();
+                shiptimer -= elapsedTime; // 0.01666667f;//
+                EmpireUpdatePerf.Stop();
             }
 
             #endregion
@@ -1520,7 +1464,7 @@ namespace Ship_Game
 
             Parallel.Invoke(() =>
                 {
-                    if (elapsedTime > 0.0 && this.shiptimer <= 0.0)
+                    if (elapsedTime > 0.0 && shiptimer <= 0.0)
                     {
                         foreach (SolarSystem solarSystem in SolarSystemList)
                             solarSystem.ShipList.Clear();
@@ -2090,7 +2034,7 @@ namespace Ship_Game
                         }
                         foreach (Moon moon in system.MoonList)
                         {
-                            moon.GetSO().Visibility = ObjectVisibility.Rendered;
+                            moon.So.Visibility = ObjectVisibility.Rendered;
                             moon.UpdatePosition(elapsedTime);
                         }
                     }
@@ -2102,7 +2046,7 @@ namespace Ship_Game
                         }
                         foreach (Moon moon in system.MoonList)
                         {
-                            moon.GetSO().Visibility = ObjectVisibility.None;
+                            moon.So.Visibility = ObjectVisibility.None;
                         }
                     }
                     foreach (Planet planet in system.PlanetList)
@@ -2267,11 +2211,10 @@ namespace Ship_Game
                 if (elapsedTime > 0.0f)
                     system.spatialManager.Update(elapsedTime, system);
 
-                bool flag = false;
-                this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(system.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-                if (this.Frustum.Contains(new BoundingSphere(new Vector3(system.Position, 0.0f), 100000f)) != ContainmentType.Disjoint)
-                    flag = true;
-                else if (this.viewState == UniverseScreen.UnivScreenState.ShipView)
+                bool inFrustrum = false;
+                if (Frustum.Contains(system.Position, 100000f))
+                    inFrustrum = true;
+                else if (viewState == UnivScreenState.ShipView)
                 {
                     Rectangle rect = new Rectangle((int)system.Position.X - 100000, (int)system.Position.Y - 100000, 200000, 200000);
                     Vector3 position = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 0.0f), this.projection, this.view, Matrix.Identity);
@@ -2282,9 +2225,9 @@ namespace Ship_Game
                     Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
                     Vector2 pos = new Vector2(vector3.X, vector3.Y);
                     if (HelperFunctions.CheckIntersection(rect, pos))
-                        flag = true;
+                        inFrustrum = true;
                 }
-                if (system.ExploredDict[this.player] && flag)
+                if (system.ExploredDict[this.player] && inFrustrum)
                 {
                         system.isVisible = (double)this.camHeight < 250000.0; 
                 }
@@ -2297,7 +2240,7 @@ namespace Ship_Game
                     }
                     foreach (Moon moon in system.MoonList)
                     {
-                        moon.GetSO().Visibility = ObjectVisibility.Rendered;
+                        moon.So.Visibility = ObjectVisibility.Rendered;
                         moon.UpdatePosition(elapsedTime);
                     }
                 }
@@ -2309,7 +2252,7 @@ namespace Ship_Game
                     }
                     foreach (Moon moon in system.MoonList)
                     {
-                        moon.GetSO().Visibility = ObjectVisibility.None;
+                        moon.So.Visibility = ObjectVisibility.None;
                     }
                 }
                 foreach (Planet planet in system.PlanetList)
@@ -2318,10 +2261,10 @@ namespace Ship_Game
                     if (planet.HasShipyard && system.isVisible)
                         planet.Station.Update(elapsedTime);
                 }
-                if (system.isVisible && (double)this.camHeight < 150000.0)
+                if (system.isVisible && camHeight < 150000.0f)
                 {
-                    foreach (GameplayObject gameplayObject in system.AsteroidsList)
-                        gameplayObject.Update(elapsedTime);
+                    foreach (Asteroid asteroid in system.AsteroidsList)
+                        asteroid.Update(elapsedTime);
                 }
                 system.AsteroidsList.ApplyPendingRemovals();
                 system.ShipList.ApplyPendingRemovals();
@@ -4962,25 +4905,26 @@ namespace Ship_Game
                     if (planet.SO != null)
                     {
                         planet.SO.Clear();
-                        this.ScreenManager.inter.ObjectManager.Remove((ISceneObject)planet.SO);
+                        ScreenManager.inter.ObjectManager.Remove(planet.SO);
                         planet.SO = null;
                     }
                 }
-                foreach (Asteroid asteroid in (List<Asteroid>)solarSystem.AsteroidsList)
+                foreach (Asteroid asteroid in solarSystem.AsteroidsList)
                 {
                     if (asteroid.So!= null)
                     {
                         asteroid.So.Clear();
-                        ScreenManager.inter.ObjectManager.Remove((ISceneObject)asteroid.So);
+                        ScreenManager.inter.ObjectManager.Remove(asteroid.So);
                     }
                 }
                 solarSystem.AsteroidsList.Clear();
                 foreach (Moon moon in solarSystem.MoonList)
                 {
-                    if (moon.GetSO() != null)
+                    if (moon.So != null)
                     {
-                        moon.GetSO().Clear();
-                        ScreenManager.inter.ObjectManager.Remove((ISceneObject)moon.GetSO());
+                        moon.So.Clear();
+                        ScreenManager.inter.ObjectManager.Remove(moon.So);
+                        moon.So = null;
                     }
                 }
                 solarSystem.MoonList.Clear();
@@ -5047,7 +4991,6 @@ namespace Ship_Game
             Ship.universeScreen                   = null;
             ArtificialIntelligence.universeScreen = null;
             MissileAI.universeScreen              = null;
-            Moon.universeScreen                   = null;
             CombatScreen.universeScreen           = null;
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
@@ -5475,6 +5418,7 @@ namespace Ship_Game
         {
             // Wait for ProcessTurns to finish before we start drawing
             ProcessTurnsCompletedEvt.WaitOne();
+            ProcessTurnsCompletedEvt.Reset();
 
             lock (GlobalStats.BeamEffectLocker)
             {
@@ -5847,8 +5791,8 @@ namespace Ship_Game
                 lines.Add("");
                 lines.Add("Ship Count:       " + MasterShipList.Count);
                 lines.Add("Ship Time:        " + Perfavg2);
-                lines.Add("Empire Time:      " + perfavg);
-                lines.Add("PreEmpire Time:   " + perfavg3);
+                lines.Add("Empire Time:      " + EmpireUpdatePerf);
+                lines.Add("PreEmpire Time:   " + PreEmpirePerf);
                 lines.Add("Post Empire Time: " + perfavg4);
                 lines.Add("");
                 lines.Add("Total Time:       " + perfavg5);

@@ -120,6 +120,7 @@ namespace Ship_Game
         {
             thisLock.EnterWriteLock();
             base.Clear();
+            pendingRemovals.Clear();
             thisLock.ExitWriteLock();
         }
         public void ClearAndRecycle()

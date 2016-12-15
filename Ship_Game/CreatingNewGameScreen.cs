@@ -403,7 +403,7 @@ namespace Ship_Game
                 foreach (Moon moon in Data.SolarSystemsList[systemToMake].MoonList)
                 {
                     moon.Initialize();
-                    ScreenManager.inter.ObjectManager.Submit(moon.GetSO());
+                    ScreenManager.inter.ObjectManager.Submit(moon.So);
                 }
                 foreach (Ship ship in Data.SolarSystemsList[systemToMake].ShipList)
                 {
