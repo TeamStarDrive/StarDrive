@@ -1,42 +1,72 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26009.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarDrive", "StarDrive.csproj", "{8071E07A-300E-485D-B139-066E15E82178}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		BlackBox_Experimental_|Any CPU = BlackBox_Experimental_|Any CPU
 		BlackBox_Experimental_|x86 = BlackBox_Experimental_|x86
-		BlackBox_RadicalElements_RC_16_|x86 = BlackBox_RadicalElements_RC_16_|x86
+		BlackBox_RadicalElements_Release_|Any CPU = BlackBox_RadicalElements_Release_|Any CPU
+		BlackBox_RadicalElements_Release_|x86 = BlackBox_RadicalElements_Release_|x86
+		BlackBox_UNSTABLE_Test_|Any CPU = BlackBox_UNSTABLE_Test_|Any CPU
 		BlackBox_UNSTABLE_Test_|x86 = BlackBox_UNSTABLE_Test_|x86
+		Crunchies-Debug|Any CPU = Crunchies-Debug|Any CPU
 		Crunchies-Debug|x86 = Crunchies-Debug|x86
+		Crunchies-LocalRelease|Any CPU = Crunchies-LocalRelease|Any CPU
 		Crunchies-LocalRelease|x86 = Crunchies-LocalRelease|x86
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
+		Deploy|Any CPU = Deploy|Any CPU
 		Deploy|x86 = Deploy|x86
+		Docs Debug|Any CPU = Docs Debug|Any CPU
 		Docs Debug|x86 = Docs Debug|x86
+		McShooterz|Any CPU = McShooterz|Any CPU
 		McShooterz|x86 = McShooterz|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_Experimental_|Any CPU.ActiveCfg = BlackBox_Experimental_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_Experimental_|Any CPU.Build.0 = BlackBox_Experimental_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_Experimental_|x86.ActiveCfg = BlackBox_Experimental_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_Experimental_|x86.Build.0 = BlackBox_Experimental_|x86
-		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|x86.ActiveCfg = BlackBox_RadicalElements_RC_16_|x86
-		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|x86.Build.0 = BlackBox_RadicalElements_RC_16_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_Release_|Any CPU.ActiveCfg = BlackBox_RadicalElements_Release_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_Release_|Any CPU.Build.0 = BlackBox_RadicalElements_Release_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_Release_|x86.ActiveCfg = BlackBox_RadicalElements_Release_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_Release_|x86.Build.0 = BlackBox_RadicalElements_Release_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_UNSTABLE_Test_|Any CPU.ActiveCfg = BlackBox_UNSTABLE_Test_RC_16_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_UNSTABLE_Test_|Any CPU.Build.0 = BlackBox_UNSTABLE_Test_RC_16_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_UNSTABLE_Test_|x86.ActiveCfg = BlackBox_UNSTABLE_Test_RC_16_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_UNSTABLE_Test_|x86.Build.0 = BlackBox_UNSTABLE_Test_RC_16_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-Debug|Any CPU.ActiveCfg = Crunchies-Debug|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-Debug|Any CPU.Build.0 = Crunchies-Debug|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-Debug|x86.ActiveCfg = Crunchies-Debug|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-Debug|x86.Build.0 = Crunchies-Debug|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-LocalRelease|Any CPU.ActiveCfg = Crunchies-LocalRelease|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-LocalRelease|Any CPU.Build.0 = Crunchies-LocalRelease|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-LocalRelease|x86.ActiveCfg = Crunchies-LocalRelease|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Crunchies-LocalRelease|x86.Build.0 = Crunchies-LocalRelease|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Debug|Any CPU.Build.0 = Debug|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Debug|x86.ActiveCfg = Debug|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Debug|x86.Build.0 = Debug|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Deploy|Any CPU.ActiveCfg = Deploy|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Deploy|Any CPU.Build.0 = Deploy|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Deploy|x86.ActiveCfg = Deploy|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Deploy|x86.Build.0 = Deploy|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Docs Debug|Any CPU.ActiveCfg = Docs Debug|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Docs Debug|Any CPU.Build.0 = Docs Debug|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Docs Debug|x86.ActiveCfg = Docs Debug|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Docs Debug|x86.Build.0 = Docs Debug|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.McShooterz|Any CPU.ActiveCfg = McShooterz|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.McShooterz|Any CPU.Build.0 = McShooterz|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.McShooterz|x86.ActiveCfg = McShooterz|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.McShooterz|x86.Build.0 = McShooterz|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Release|Any CPU.ActiveCfg = Release|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Release|Any CPU.Build.0 = Release|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Release|x86.ActiveCfg = Release|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
