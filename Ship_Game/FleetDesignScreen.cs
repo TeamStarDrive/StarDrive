@@ -194,20 +194,18 @@ namespace Ship_Game
 				}
 			}
 			this.FleetToEdit = which;
-			List<FleetDataNode> ToRemove = new List<FleetDataNode>();
-			foreach (FleetDataNode node in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].DataNodes)
+			List<FleetDataNode> toRemove = new List<FleetDataNode>();
+			foreach (FleetDataNode node in EmpireManager.Player.GetFleetsDict()[FleetToEdit].DataNodes)
 			{
-				if ((Ship_Game.ResourceManager.ShipsDict.ContainsKey(node.ShipName) || node.GetShip() != null) && (node.GetShip() != null || EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(node.ShipName)))
-				{
+				if ((ResourceManager.ShipsDict.ContainsKey(node.ShipName) || node.GetShip() != null) && (node.GetShip() != null || EmpireManager.Player.WeCanBuildThis(node.ShipName)))
 					continue;
-				}
-				ToRemove.Add(node);
+				toRemove.Add(node);
 			}
-			List<Ship_Game.Gameplay.Fleet.Squad> SquadsToRemove = new List<Ship_Game.Gameplay.Fleet.Squad>();
-			foreach (FleetDataNode node in ToRemove)
+			var squadsToRemove = new List<Fleet.Squad>();
+			foreach (FleetDataNode node in toRemove)
 			{
-				EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[this.FleetToEdit].DataNodes.Remove(node);
-				foreach (List<Ship_Game.Gameplay.Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
+				EmpireManager.Player.GetFleetsDict()[FleetToEdit].DataNodes.Remove(node);
+				foreach (List<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
 				{
 					foreach (Ship_Game.Gameplay.Fleet.Squad Squad in flanks)
 					{
@@ -219,13 +217,13 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						SquadsToRemove.Add(Squad);
+						squadsToRemove.Add(Squad);
 					}
 				}
 			}
 			foreach (List<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
 			{
-				foreach (Fleet.Squad squad in SquadsToRemove)
+				foreach (Fleet.Squad squad in squadsToRemove)
 				{
 					if (flanks.Contains(squad))
 					    flanks.Remove(squad);
