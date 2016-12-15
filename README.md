@@ -17,25 +17,21 @@ This is the 15b version of the stardrive.exe decompiled from CIL into a c# proje
 
 # Goals#
 The current goals of the texas version is code clean up and refactoring.
+
 * 5000k ships in game
-*3x speed at 20 fps minimum when zoomed out on galactic map without force full simulation on. 
+* 3x speed at 20 fps minimum when zoomed out on galactic map without force full simulation on. 
 * 1000 planets
-
-
-hat is what this repository is.
-* Ver. SE 0.1
-
 
 ### How do I get set up? ###
 This is a mercurial repository
 
-* it is currently made with [VS 2017 Community](https://www.visualstudio.com/downloads/)
+* It is currently made with [VS 2017 Community](https://www.visualstudio.com/downloads/)
 
-* if you new to coding download sourcetree and clone this repository to your local drive. 
-* install Visual Studio 2017 community. 
-* copy the game installation to the repository root. The code versioning should ignore the folder. 
-* set the output directory to the stardrive directory in the repository.
-* any missing references should be in the stardrive directory.
+* If you're new to coding, download SourceTree and clone this repository to your local drive.
+* Install Visual Studio 2017 community. 
+* Copy the game installation to the repository root. The code versioning should ignore the folder. 
+* Set the output directory to the stardrive directory in the repository.
+* Any missing references should be in the stardrive directory.
 
 
 ### Contribution guidelines ###
