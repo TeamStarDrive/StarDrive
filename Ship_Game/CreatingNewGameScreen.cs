@@ -779,7 +779,7 @@ namespace Ship_Game
             empire.data.EconomicPersonality   = diplomaticTraits.EconomicTraitsList[index4];
             empire.data.SpyModifier = data.Traits.SpyMultiplier;
             empire.PortraitName     = data.PortraitName;
-            empire.EmpireColor      = new Color(128, 128, 128, 256);
+            empire.EmpireColor      = new Color(128, 128, 128, 255);
             empire.Initialize();
             return empire;
         }
@@ -861,6 +861,8 @@ namespace Ship_Game
             WorkerThread.Abort();
             WorkerThread = null;
             ScreenManager.AddScreen(us);
+
+            System.Diagnostics.Debug.WriteLine("CreatingNewGameScreen.UpdateAllSystems(0.01)");
             us.UpdateAllSystems(0.01f);
             mmscreen.OnPlaybackStopped(null, null);
             ScreenManager.RemoveScreen(mmscreen);
