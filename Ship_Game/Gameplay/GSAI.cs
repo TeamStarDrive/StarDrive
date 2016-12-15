@@ -7267,42 +7267,27 @@ namespace Ship_Game.Gameplay
 					foreach (RoadNode node in road.RoadNodesList)
 					{
 						if (node.Platform != null && (node.Platform == null || node.Platform.Active))
-						{
 							continue;
-						}
-						bool AddNew = true;
-						foreach (Goal g in this.Goals)
+
+						bool addNew = true;
+						foreach (Goal g in Goals)
 						{
 							if (g.type != GoalType.DeepSpaceConstruction || !(g.BuildPosition == node.Position))
-							{
 								continue;
-							}
-							AddNew = false;
+							addNew = false;
+                            break;
 						}
-                        this.empire.BorderNodeLocker.EnterReadLock();
+                        using (empire.BorderNodes.AcquireReadLock())
+                        foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
                         {
-                            float sizecheck = 0;
-                            foreach (Empire.InfluenceNode bordernode in this.empire.BorderNodes)
-                            {
-                                 sizecheck = Vector2.Distance(node.Position, bordernode.Position);
-
-                                sizecheck += !(bordernode.KeyedObject is Ship) ? Empire.ProjectorRadius : 0;
-
-                                if (sizecheck >= bordernode.Radius)
-                                {
-                                    continue;
-                                }
-                                
-                                AddNew = false;
-                            }
+                            float sizecheck = Vector2.Distance(node.Position, bordernode.Position);
+                            sizecheck += !(bordernode.KeyedObject is Ship) ? Empire.ProjectorRadius : 0;
+                            if (sizecheck >= bordernode.Radius)
+                                continue;
+                            addNew = false;
+                            break;
                         }
-                        this.empire.BorderNodeLocker.ExitReadLock();
-                        if (!AddNew)
-						{
-							continue;
-						}
-						Goal newRoad = new Goal(node.Position, "Subspace Projector", this.empire);
-						this.Goals.Add(newRoad);
+                        if (addNew) Goals.Add(new Goal(node.Position, "Subspace Projector", empire));
 					}
 				}
 			}
@@ -9574,57 +9559,35 @@ namespace Ship_Game.Gameplay
             this.Goals.ApplyPendingRemovals();
         }
 
+        // @todo Why is this usage commented out? What does it actually do?
         private void UpdateThreatMatrix()
         {
-            List<KeyValuePair<Guid, ThreatMatrix.Pin>> list = new List<KeyValuePair<Guid, ThreatMatrix.Pin>>();
-            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> keyValuePair in this.ThreatMatrix.Pins)
+            foreach (var kv in ThreatMatrix.Pins)
             {
-                bool flag1 = true;
-                bool flag2 = false;
-                List<Empire.InfluenceNode> influenceNodes;
-                this.empire.SensorNodeLocker.EnterReadLock();
-                {
-                    influenceNodes = new List<Empire.InfluenceNode>(this.empire.SensorNodes);
-                }
-                this.empire.SensorNodeLocker.ExitReadLock();
-                {
-                    //foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.empire.SensorNodes)
-                    foreach (Empire.InfluenceNode item_0 in this.empire.SensorNodes)
-                    {
-                        if ((double)Vector2.Distance(item_0.Position, keyValuePair.Value.Position) <= (double)item_0.Radius)
-                            flag2 = true;
-                    }
-                }
-                if (flag2)
+                bool shouldRemove = true;
+                bool insideEmpireSensors = empire.IsPointInSensors(kv.Value.Position);
+                if (insideEmpireSensors)
                 {
                     using (Empire.Universe.MasterShipList.AcquireReadLock())
-                    for (int index = 0; index < Empire.Universe.MasterShipList.Count; ++index)
+                    foreach (Ship ship in Empire.Universe.MasterShipList)
                     {
-                        Ship ship = Empire.Universe.MasterShipList[index];
-                        if (keyValuePair.Key == ship.guid)
-                        {
-                            flag1 = !ship.Active;
-                            break;
-                        }
+                        if (kv.Key != ship.guid)
+                            continue;
+                        shouldRemove = !ship.Active;
+                        break;
                     }
                 }
-                else
-                    flag1 = false;
-                if (flag1)
-                    list.Add(keyValuePair);
+                else shouldRemove = false;
+
+                if (!shouldRemove)
+                    continue;
+                ThreatMatrix.Pins.TryRemove(kv.Key, out ThreatMatrix.Pin pin);
             }
-            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> keyValuePair in list)
-            {
-                ThreatMatrix.Pin remove = null;
-                this.ThreatMatrix.Pins.TryRemove(keyValuePair.Key,out remove);
-            }
-            list.Clear();
         }
 
 		public struct PeaceAnswer
 		{
 			public string answer;
-
 			public bool peace;
 		}
 
