@@ -1119,7 +1119,7 @@ namespace Ship_Game
                             DoAutoSave();
                         }
                         if (!IsActive)
-                            return;
+                            continue;
 
                         if (Paused)
                         {
@@ -5342,15 +5342,10 @@ namespace Ship_Game
 
         protected void DrawInfluenceNodes()
         {
-            List<Empire.InfluenceNode> influenceNodes;
-
-            using (player.SensorNodeLocker.AcquireReadLock())
-                influenceNodes = new List<Empire.InfluenceNode>(player.SensorNodes);
-
             var uiNode = ResourceManager.TextureDict["UI/node"];
             var viewport = ScreenManager.GraphicsDevice.Viewport;
 
-            foreach (Empire.InfluenceNode influ in influenceNodes)
+            foreach (Empire.InfluenceNode influ in player.SensorNodes.AtomicCopy())
             {
                 Vector3 local_1 = viewport.Project(influ.Position.ToVec3(), this.projection, this.view, Matrix.Identity);
                 Vector2 local_2 = local_1.ToVec2();
@@ -5363,11 +5358,21 @@ namespace Ship_Game
             }
         }
 
+        // this does some magic to convert a game position/coordinate to a drawable screen position
+        private Vector2 ProjectToScreenPosition(Vector2 position)
+        {
+            return ScreenManager.GraphicsDevice.Viewport.Project(
+                position.ToVec3(), projection, view, Matrix.Identity).ToVec2();
+        }
+
+        // Refactored by RedFox
         // this draws the colored empire borders
+        // the borders are drawn into a separate framebuffer texture and later blended with final visual
         protected void DrawColoredEmpireBorders()
         {
+            var spriteBatch = ScreenManager.SpriteBatch;
+            var graphics    = ScreenManager.GraphicsDevice;
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-            var graphics = ScreenManager.GraphicsDevice;
             graphics.RenderState.SeparateAlphaBlendEnabled = true;
             graphics.RenderState.AlphaBlendOperation       = BlendFunction.Add;
             graphics.RenderState.AlphaSourceBlend          = Blend.One;
@@ -5382,46 +5387,41 @@ namespace Ship_Game
                 if (!Debug && empire != player && !player.GetRelations(empire).Known)
                     continue;
 
-                using (empire.BorderNodeLocker.AcquireReadLock())
+                var empireColor = empire.EmpireColor; //new Color(empire.EmpireColor, 140);
+                using (empire.BorderNodes.AcquireReadLock())
                 {
-                    foreach (Empire.InfluenceNode item_1 in empire.BorderNodes)
+                    foreach (Empire.InfluenceNode influ in empire.BorderNodes)
                     {
+                        if (!Frustum.Contains(influ.Position, influ.Radius))
+                            continue;
 
-                        if (this.Frustum.Contains(new BoundingSphere(new Vector3(item_1.Position, 0.0f), item_1.Radius)) != ContainmentType.Disjoint)
+                        Vector2 nodeCenter = ProjectToScreenPosition(influ.Position);
+                        int size = (int)Math.Abs(ProjectToScreenPosition(influ.Position.PointOnCircle(90f, influ.Radius)).X - nodeCenter.X);
+
+                        Rectangle rect = new Rectangle((int)nodeCenter.X, (int)nodeCenter.Y, size * 5, size * 5);
+                        spriteBatch.Draw(nodeCorrected, rect, null, empireColor, 0.0f, nodeCorrected.Center(), SpriteEffects.None, 1f);
+
+                        if (false)
+                        foreach (Empire.InfluenceNode influ2 in empire.BorderNodes)
                         {
-                            Vector3 local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.Position.X, item_1.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                            Vector2 local_3 = new Vector2(local_2.X, local_2.Y);
-                            Vector3 local_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.Position.PointOnCircle(90f, item_1.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
-                            float local_7 = Math.Abs(new Vector2(local_5.X, local_5.Y).X - local_3.X);
+                            if (influ.Position == influ2.Position || influ.Radius > influ2.Radius ||
+                                influ.Position.OutsideRadius(influ2.Position, influ.Radius + influ2.Radius + 150000.0f))
+                                continue;
 
-                            Rectangle local_8 = new Rectangle((int)local_3.X, (int)local_3.Y, (int)local_7 * 5, (int)local_7 * 5);
-                            this.ScreenManager.SpriteBatch.Draw(nodeCorrected, local_8, null, empire.EmpireColor, 0.0f, nodeCorrected.Center(), SpriteEffects.None, 1f);
+                            Vector2 halfwayPosToNode2 = influ.Position + (influ2.Position - influ.Position) * 0.5f;
 
-                            //Vector2 local_9 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                            //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, 0.0f, local_9, SpriteEffects.None, 1f);
-                            foreach (Empire.InfluenceNode item_0 in empire.BorderNodes)
-                            {
-                                if (!(item_1.Position == item_0.Position) && item_1.Radius <= item_0.Radius && (double)Vector2.Distance(item_1.Position, item_0.Position) <= (double)item_1.Radius + (double)item_0.Radius + 150000.0)
-                                {
-                                    Vector2 local_12 = item_0.Position - item_1.Position;
-                                    Vector2 local_13 = item_1.Position + local_12 / 2f;
-                                    local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(local_13.X, local_13.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                                    local_3 = new Vector2(local_2.X, local_2.Y);
-                                    Vector2 local_13_1 = local_3;
-                                    local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                                    local_3 = new Vector2(local_2.X, local_2.Y);
-                                    float local_14 = local_13_1.RadiansToTarget(local_3);
+                            Vector2 halfwayCenter = ProjectToScreenPosition(halfwayPosToNode2);
+                            nodeCenter = ProjectToScreenPosition(influ2.Position);
 
-                                    local_8 = new Rectangle((int)local_13_1.X, (int)local_13_1.Y, (int)local_7, (int)Vector2.Distance(local_13_1, local_3));
-                                    this.ScreenManager.SpriteBatch.Draw(nodeConnect, local_8, null, empire.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
-                                    //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
-                                }
-                            }
+                            float rotation = halfwayCenter.RadiansToTarget(nodeCenter);
+
+                            rect = new Rectangle((int)halfwayCenter.X, (int)halfwayCenter.Y, size, (int)Vector2.Distance(halfwayCenter, nodeCenter));
+                            spriteBatch.Draw(nodeConnect, rect, null, empireColor, rotation, new Vector2(2f, 2f), SpriteEffects.None, 1f);
                         }
                     }
                 }
             }
-            ScreenManager.SpriteBatch.End();
+            spriteBatch.End();
         }
 
         protected void DrawMain(GameTime gameTime)
@@ -5512,7 +5512,7 @@ namespace Ship_Game
             graphics.SetRenderTarget(0, null);
             Texture2D texture1 = MainTarget.GetTexture();
             Texture2D texture2 = LightsTarget.GetTexture();
-            Texture2D texture3 = BorderRT.GetTexture();
+            Texture2D borderTexture = BorderRT.GetTexture();
             graphics.SetRenderTarget(0, null);
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue((Texture)texture2);
@@ -5530,7 +5530,10 @@ namespace Ship_Game
             if (num > 75.0) num = 75f;
             if (num < 10.0) num = 0.0f;
             Color color = new Color(255, 255, 255, MathHelper.Lerp(255, num, 0.99f));
-            ScreenManager.SpriteBatch.Draw(texture3, new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth, graphics.PresentationParameters.BackBufferHeight), color);
+            ScreenManager.SpriteBatch.Draw(borderTexture, 
+                new Rectangle(0, 0, 
+                    graphics.PresentationParameters.BackBufferWidth, 
+                    graphics.PresentationParameters.BackBufferHeight), color);
             RenderOverFog(gameTime);
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin();
@@ -5633,13 +5636,9 @@ namespace Ship_Game
                         Primitives2D.DrawCircle(ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(255, 50, 0, 150), 1f);
                     }
                 }
-                List<Empire.InfluenceNode> influenceNodes;
-                using (player.BorderNodeLocker.AcquireReadLock())
-                    influenceNodes = new List<Empire.InfluenceNode>(player.BorderNodes);
-
                 if (viewState >= UnivScreenState.SectorView)
                 {
-                    foreach (Empire.InfluenceNode influ in influenceNodes)
+                    foreach (Empire.InfluenceNode influ in player.BorderNodes.AtomicCopy())
                     {
                         Vector3 local_15 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(influ.Position.X, influ.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 local_16 = local_15.ToVec2();
@@ -5892,56 +5891,39 @@ namespace Ship_Game
 
         private void DrawFleetIcons(GameTime gameTime)
         {
-            double totalSeconds = gameTime.ElapsedGameTime.TotalSeconds;
-            //this.FleetPosUpdateTimer = 1f;
-            this.ClickableFleetsList.Clear();
-            if (this.viewState < UniverseScreen.UnivScreenState.SectorView)
+            ClickableFleetsList.Clear();
+            if (viewState < UnivScreenState.SectorView)
                 return;
+
             foreach (Empire empire in EmpireManager.EmpireList)
             {
-                try
+                foreach (var kv in empire.GetFleetsDict())
                 {
-                    foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
+                    if (kv.Value.Ships.Count <= 0)
+                        continue;
+
+                    Vector2 averagePosition = kv.Value.findAveragePositionset();
+                    bool flag = player.IsPointInSensors(averagePosition);
+
+                    if (flag || Debug || kv.Value.Owner == player)
                     {
-                        if (keyValuePair.Value.Ships.Count > 0)
+                        var icon = ResourceManager.TextureDict["FleetIcons/" + kv.Value.FleetIconIndex];
+                        Vector3 vector3_1 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(averagePosition, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
+                        foreach (Ship ship in kv.Value.Ships)
                         {
-                            bool flag = false;
-                            Vector2 averagePosition = keyValuePair.Value.findAveragePositionset();
-
-
-                            this.player.SensorNodeLocker.EnterReadLock();
-                            {
-                                foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.player.SensorNodes)
-                                {
-                                    if ((double)Vector2.Distance(averagePosition, item_0.Position) <= (double)item_0.Radius)
-                                        flag = true;
-                                }
-                            }
-                            this.player.SensorNodeLocker.ExitReadLock();
-                            if (flag || this.Debug || keyValuePair.Value.Owner == this.player)
-                            {
-                                Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(averagePosition, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
-                                Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["FleetIcons/" + (object)keyValuePair.Value.FleetIconIndex].Width / 2), (float)(ResourceManager.TextureDict["FleetIcons/" + (object)keyValuePair.Value.FleetIconIndex].Width / 2));
-                                foreach (Ship ship in (List<Ship>)keyValuePair.Value.Ships)
-                                {
-                                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center.X, ship.Center.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                                    Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_2.X, vector3_2.Y), vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)20));
-                                }
-                                this.ClickableFleetsList.Add(new UniverseScreen.ClickableFleet()
-                                {
-                                    fleet = keyValuePair.Value,
-                                    ScreenPos = vector2,
-                                    ClickRadius = 15f
-                                });
-                                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["FleetIcons/" + (object)keyValuePair.Value.FleetIconIndex], vector2, new Rectangle?(), empire.EmpireColor, 0.0f, origin, 0.35f, SpriteEffects.None, 1f);
-                                HelperFunctions.DrawDropShadowText(this.ScreenManager, keyValuePair.Value.Name, new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
-                            }
+                            Vector3 vector3_2 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Center.X, ship.Center.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(vector3_2.X, vector3_2.Y), vector2, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)20));
                         }
+                        ClickableFleetsList.Add(new ClickableFleet
+                        {
+                            fleet = kv.Value,
+                            ScreenPos = vector2,
+                            ClickRadius = 15f
+                        });
+                        ScreenManager.SpriteBatch.Draw(icon, vector2, new Rectangle?(), empire.EmpireColor, 0.0f, icon.Center(), 0.35f, SpriteEffects.None, 1f);
+                        HelperFunctions.DrawDropShadowText(ScreenManager, kv.Value.Name, new Vector2(vector2.X + 10f, vector2.Y - 6f), Fonts.Arial8Bold);
                     }
-                }
-                catch
-                {
                 }
             }
         }

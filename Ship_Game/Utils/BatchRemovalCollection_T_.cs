@@ -17,14 +17,12 @@ namespace Ship_Game
             //this.pendingRemovals = new List<T>();
             pendingRemovals = new ConcurrentStack<T>();
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
         }
         public BatchRemovalCollection(bool noQueueForRemoval)
         {
             //this.pendingRemovals = new List<T>();
             //this.pendingRemovals = new ConcurrentStack<T>();
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
         }
         public BatchRemovalCollection(List<T> ListToCopy)
         {
@@ -32,7 +30,6 @@ namespace Ship_Game
             //list = ListToCopy.ToList<T>();
             base.AddRange(ListToCopy);
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
         }
 
         // Acquires a deterministic Read Lock on this Collection
@@ -103,14 +100,14 @@ namespace Ship_Game
             base.Add(item);
             thisLock.ExitWriteLock();
         }
-        public List<T> Get()
-        {
-            var list = new List<T>();
-            thisLock.EnterReadLock();
-            list.AddRange(this);// = base.ToList();
-            thisLock.ExitReadLock();
-            return list;// this as List<T>;
-        }
+        //public List<T> Get()
+        //{
+        //    var list = new List<T>();
+        //    thisLock.EnterReadLock();
+        //    list.AddRange(this);// = base.ToList();
+        //    thisLock.ExitReadLock();
+        //    return list;// this as List<T>;
+        //}
         
         //public new Enumerator GetEnumerator()
         //{
@@ -296,6 +293,16 @@ namespace Ship_Game
             thisLock.ExitReadLock();
             return copy;
         }
+
+        // This is used to reduce the time locks are held. Downside is higher memory usage
+        // ReadLock is acquired and base.ToArray() called
+        public T[] AtomicCopy()
+        {
+            thisLock.EnterReadLock();
+            var arr = ToArray();
+            thisLock.ExitReadLock();
+            return arr;
+        }
         
         public bool TryReuseItem(out T item)
         {
@@ -307,11 +314,11 @@ namespace Ship_Game
 
         public T RecycleObject()
         {            
-            T test;
-            if (!pendingRemovals.TryPop(out test)) return test;
-            if (test is Empire.InfluenceNode)
-                (test as Empire.InfluenceNode).Wipe();
-            return test;
+            T item;
+            if (!pendingRemovals.TryPop(out item))
+                return item;
+            (item as Empire.InfluenceNode)?.Wipe();
+            return item;
         }
 
         public void Dispose()
