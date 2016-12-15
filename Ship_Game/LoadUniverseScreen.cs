@@ -1232,7 +1232,7 @@ namespace Ship_Game
             foreach (Asteroid roid in system.AsteroidsList)
                 base.ScreenManager.inter.ObjectManager.Submit(roid.So);
             foreach (Moon moon in system.MoonList)
-                base.ScreenManager.inter.ObjectManager.Submit(moon.GetSO());
+                base.ScreenManager.inter.ObjectManager.Submit(moon.So);
 			LoadUniverseScreen loadUniverseScreen = this;
 			loadUniverseScreen.systemToMake = loadUniverseScreen.systemToMake + 1;
 			if (this.systemToMake == this.data.SolarSystemsList.Count)

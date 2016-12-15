@@ -39,7 +39,7 @@ namespace Ship_Game.Gameplay
 			So.World = MathExt.AffineTransform(Position3D, RotationRadians, Scale);
 		}
 
-        private static int LogicFlip = 0;
+        //private static int LogicFlip = 0;
 		public override void Update(float elapsedTime)
 		{
             if (!Active 
