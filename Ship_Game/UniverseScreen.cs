@@ -74,6 +74,8 @@ namespace Ship_Game
         public Dictionary<Guid, Planet> PlanetsDict = new Dictionary<Guid, Planet>();
         public Dictionary<Guid, SolarSystem> SolarSystemDict = new Dictionary<Guid, SolarSystem>();
         public BatchRemovalCollection<Bomb> BombList = new BatchRemovalCollection<Bomb>();
+        private AutoResetEvent   DrawCompletedEvt     = new AutoResetEvent(false);
+        private ManualResetEvent ProcessTurnsCompletedEvt = new ManualResetEvent(true);
         public float camHeight = 2550f;
         public Vector3 camPos = Vector3.Zero;
         public List<Ship> ShipsToAdd = new List<Ship>();
@@ -188,7 +190,7 @@ namespace Ship_Game
         public Empire player;
         private MiniMap minimap;
         private bool loading;
-        public Thread WorkerThread;
+        public Thread ProcessTurnsThread;
         public bool WorkerUpdateGameWorld;
         public Ship playerShip;
         public float transitionElapsedTime;
@@ -863,6 +865,11 @@ namespace Ship_Game
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
             }
+
+            ProcessTurnsThread = new Thread(ProcessTurns);
+            ProcessTurnsThread.Name = "Universe.ProcessTurns()";
+            ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
+            ProcessTurnsThread.Start();
         }
 
         private void DoParticleLoad()
@@ -1052,94 +1059,102 @@ namespace Ship_Game
 
             EmpireUI.Update(deltaTime);
 
-            ProcessTurns(); // process one or more turns, depending on GameSpeed
-
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
             zTime += deltaTime;
         }
 
         private void ProcessTurns()
         {
-            try
+            while (true)
             {
-                float deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
-                if (Paused)
+                // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns inbetween
+                DrawCompletedEvt.WaitOne(); 
+                try
                 {
-                    UpdateAllSystems(0.0f);
-                    foreach (Ship ship in MasterShipList)
-                    {
-                        try
-                        {
-                            if (Frustum.Contains(new BoundingSphere(new Vector3(ship.Position, 0.0f), 2000f)) != ContainmentType.Disjoint && viewState <= UnivScreenState.SystemView)
-                            {
-                                ship.InFrustum = true;
-                                ship.GetSO().Visibility = ObjectVisibility.Rendered;
-                                ship.GetSO().World = Matrix.Identity 
-                                    * Matrix.CreateRotationY(ship.yRotation) 
-                                    * Matrix.CreateRotationX(ship.xRotation) 
-                                    * Matrix.CreateRotationZ(ship.Rotation) 
-                                    * Matrix.CreateTranslation(new Vector3(ship.Center, 0.0f));
-                            }
-                            else
-                            {
-                                ship.InFrustum = false;
-                                ship.GetSO().Visibility = ObjectVisibility.None;
-                            }
-                        }
-                        catch
-                        {
-                        }
-                    }
-                    ClickTimer += deltaTime;
-                    ClickTimer2 += deltaTime;
-                    pieMenu.Update(zgameTime);
-                    PieMenuTimer += deltaTime;
-                }
-                else
-                {
-                    ClickTimer  += deltaTime;
-                    ClickTimer2 += deltaTime;
-                    pieMenu.Update(zgameTime);
-                    PieMenuTimer += deltaTime;
-                    NotificationManager.Update(deltaTime);
-                    AutoSaveTimer -= deltaTime;
-                    
-                    if (AutoSaveTimer <= 0.0f)
-                    {
-                        AutoSaveTimer = EmpireManager.Player.data.AutoSaveFreq;
-                        DoAutoSave();
-                    }
-                    if (!IsActive)
-                        return;
-
+                    float deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
                     if (Paused)
                     {
-                        ProcessTurnDelta(0.0f);
-                    }
-                    else if (GameSpeed < 1.0f)
-                    {
-                        if (flip) ProcessTurnDelta(deltaTime);
-                        flip = !flip;
+                        UpdateAllSystems(0.0f);
+                        foreach (Ship ship in MasterShipList)
+                        {
+                            try
+                            {
+                                if (Frustum.Contains(new BoundingSphere(new Vector3(ship.Position, 0.0f), 2000f)) != ContainmentType.Disjoint && viewState <= UnivScreenState.SystemView)
+                                {
+                                    ship.InFrustum = true;
+                                    ship.GetSO().Visibility = ObjectVisibility.Rendered;
+                                    ship.GetSO().World = Matrix.Identity 
+                                        * Matrix.CreateRotationY(ship.yRotation) 
+                                        * Matrix.CreateRotationX(ship.xRotation) 
+                                        * Matrix.CreateRotationZ(ship.Rotation) 
+                                        * Matrix.CreateTranslation(new Vector3(ship.Center, 0.0f));
+                                }
+                                else
+                                {
+                                    ship.InFrustum = false;
+                                    ship.GetSO().Visibility = ObjectVisibility.None;
+                                }
+                            }
+                            catch
+                            {
+                            }
+                        }
+                        ClickTimer += deltaTime;
+                        ClickTimer2 += deltaTime;
+                        pieMenu.Update(zgameTime);
+                        PieMenuTimer += deltaTime;
                     }
                     else
                     {
-                        // With higher GameSpeed, we take more than 1 turn
-                        for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
+                        ClickTimer  += deltaTime;
+                        ClickTimer2 += deltaTime;
+                        pieMenu.Update(zgameTime);
+                        PieMenuTimer += deltaTime;
+                        NotificationManager.Update(deltaTime);
+                        AutoSaveTimer -= deltaTime;
+                    
+                        if (AutoSaveTimer <= 0.0f)
                         {
-                            ProcessTurnDelta(deltaTime);
-                            deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
+                            AutoSaveTimer = EmpireManager.Player.data.AutoSaveFreq;
+                            DoAutoSave();
                         }
+                        if (!IsActive)
+                            return;
+
+                        if (Paused)
+                        {
+                            ProcessTurnDelta(0.0f);
+                        }
+                        else if (GameSpeed < 1.0f)
+                        {
+                            if (flip) ProcessTurnDelta(deltaTime);
+                            flip = !flip;
+                        }
+                        else
+                        {
+                            // With higher GameSpeed, we take more than 1 turn
+                            for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
+                            {
+                                ProcessTurnDelta(deltaTime);
+                                deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
+                            }
+                        }
+                        #if AUTOTIME
+                            if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
+                                ++GameSpeed;
+                            else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
+                        #endif
                     }
-                    #if AUTOTIME
-                        if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
-                            ++GameSpeed;
-                        else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
-                    #endif
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Worker() loop crashed: {0}\n{1}", ex.Message, ex.StackTrace);
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Worker() loop crashed: {0}\n{1}", ex.Message, ex.StackTrace);
+                }
+                finally
+                {
+                    // Notify Draw() that taketurns has finished and another frame can be drawn now
+                    ProcessTurnsCompletedEvt.Set();
+                }
             }
         }
 
@@ -3651,7 +3666,7 @@ namespace Ship_Game
                 int local_1 = 60;
                 int local_2 = 20;
                 this.FleetButtons.Clear();
-                foreach (KeyValuePair<int, Fleet> item_0 in this.player.GetFleetsDict())
+                foreach (KeyValuePair<int, Fleet> item_0 in player.GetFleetsDict())
                 {
                     if (item_0.Value.Ships.Count > 0)
                     {
@@ -3670,9 +3685,9 @@ namespace Ship_Game
 
         private Ship CheckShipClick(Vector2 ClickPos)
         {
-            foreach (UniverseScreen.ClickableShip clickableShip in this.ClickableShipsList)
+            foreach (ClickableShip clickableShip in ClickableShipsList)
             {
-                if ((double)Vector2.Distance(this.input.CursorPosition, clickableShip.ScreenPos) <= (double)clickableShip.Radius)
+                if (Vector2.Distance(this.input.CursorPosition, clickableShip.ScreenPos) <= clickableShip.Radius)
                     return clickableShip.shipToClick;
             }
             return (Ship)null;
@@ -3680,9 +3695,9 @@ namespace Ship_Game
 
         private Planet CheckPlanetClick(Vector2 ClickPos)
         {
-            foreach (UniverseScreen.ClickablePlanets clickablePlanets in this.ClickPlanetList)
+            foreach (ClickablePlanets clickablePlanets in ClickPlanetList)
             {
-                if ((double)Vector2.Distance(this.input.CursorPosition, clickablePlanets.ScreenPos) <= (double)clickablePlanets.Radius + 10.0)
+                if (Vector2.Distance(input.CursorPosition, clickablePlanets.ScreenPos) <= clickablePlanets.Radius + 10.0)
                     return clickablePlanets.planetToClick;
             }
             return (Planet)null;
@@ -3690,11 +3705,11 @@ namespace Ship_Game
 
         protected void HandleRightMouseNew(InputState input)
         {
-            if (this.SkipRightOnce)
+            if (SkipRightOnce)
             {
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || input.LastMouseState.RightButton != ButtonState.Released)
                     return;
-                this.SkipRightOnce = false;
+                SkipRightOnce = false;
             }
             else
             {
@@ -4227,7 +4242,6 @@ namespace Ship_Game
         }
 
         //added by gremlin replace redundant code with method
-
         private void RightClickship(Ship ship, Planet planet, bool audio)
         {
             if (ship.isConstructor)
@@ -4238,7 +4252,7 @@ namespace Ship_Game
             }
             else
             {
-                if(audio)
+                if (audio)
                     AudioManager.PlayCue("echo_affirm1");
                 if (ship.isColonyShip)
                 {
@@ -4256,25 +4270,21 @@ namespace Ship_Game
                         else
                             ship.GetAI().OrderRebase(planet, true);
                     }
-                    else
+                    else if (planet.habitable && (planet.Owner == null || planet.Owner != player && (ship.loyalty.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated)))
+                    {
                         //add new right click troop and troop ship options on planets
-                        if (planet.habitable && (planet.Owner == null || planet.Owner != this.player && (ship.loyalty.GetRelations(planet.Owner).AtWar || planet.Owner.isFaction || planet.Owner.data.Defeated || planet.Owner == null)))
-                        {
-                            if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                ship.GetAI().OrderToOrbit(planet, false);
-                            else
-                            {
-
-                                ship.GetAI().State = AIState.AssaultPlanet;
-                                ship.GetAI().OrderLandAllTroops(planet);
-                            }
-                        }
-
+                        if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
+                            ship.GetAI().OrderToOrbit(planet, false);
                         else
                         {
-
-                            ship.GetAI().OrderOrbitPlanet(planet);// OrderRebase(planet, true);
+                            ship.GetAI().State = AIState.AssaultPlanet;
+                            ship.GetAI().OrderLandAllTroops(planet);
                         }
+                    }
+                    else
+                    {
+                        ship.GetAI().OrderOrbitPlanet(planet);// OrderRebase(planet, true);
+                    }
                 }
                 else if (ship.BombBays.Count > 0)
                 {
@@ -4927,6 +4937,9 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
+            System.Diagnostics.Debug.WriteLine("ExitScreen(): WorkerThread Abort()");
+            ProcessTurnsThread.Abort();
+            ProcessTurnsThread = null;
             EmpireUI.empire = null;
             EmpireUI = null;
             DeepSpaceManager.CollidableObjects.Clear();
@@ -5136,14 +5149,15 @@ namespace Ship_Game
 
         protected void DrawAtmo(Model model, Matrix world, Matrix view, Matrix projection, Planet p)
         {
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.CullClockwiseFace;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            var renderState = ScreenManager.GraphicsDevice.RenderState;
+            renderState.AlphaBlendEnable = true;
+            renderState.AlphaBlendOperation = BlendFunction.Add;
+            renderState.SourceBlend = Blend.SourceAlpha;
+            renderState.DestinationBlend = Blend.InverseSourceAlpha;
+            renderState.DepthBufferWriteEnable = false;
+            renderState.CullMode = CullMode.CullClockwiseFace;
             ModelMesh modelMesh = ((ReadOnlyCollection<ModelMesh>)model.Meshes)[0];
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
@@ -5164,9 +5178,9 @@ namespace Ship_Game
             }
             modelMesh.Draw();
             this.DrawAtmo1(world, view, projection);
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = false;
+            renderState.DepthBufferWriteEnable = true;
+            renderState.CullMode = CullMode.CullCounterClockwiseFace;
+            renderState.AlphaBlendEnable = false;
         }
 
         protected Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
@@ -5203,11 +5217,12 @@ namespace Ship_Game
         {
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
+            var renderState = ScreenManager.GraphicsDevice.RenderState;
+            renderState.AlphaBlendEnable = true;
+            renderState.AlphaBlendOperation = BlendFunction.Add;
+            renderState.SourceBlend = Blend.SourceAlpha;
+            renderState.DestinationBlend = Blend.InverseSourceAlpha;
+            renderState.DepthBufferWriteEnable = false;
             ModelMesh modelMesh = ((ReadOnlyCollection<ModelMesh>)model.Meshes)[0];
             foreach (BasicEffect basicEffect in modelMesh.Effects)
             {
@@ -5230,7 +5245,7 @@ namespace Ship_Game
                     basicEffect.DirectionalLight0.Direction = new Vector3(0.98f, -0.025f, 0.2f);
             }
             modelMesh.Draw();
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            renderState.DepthBufferWriteEnable = true;
         }
 
         private void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect)
@@ -5305,107 +5320,108 @@ namespace Ship_Game
             }
             this.ScreenManager.SpriteBatch.End();
         }
-
+        
         protected void DrawFogNodes()
         {
-            foreach (UniverseScreen.FogOfWarNode fogOfWarNode in this.FogNodes)
+            var uiNode = ResourceManager.TextureDict["UI/node"];
+            var viewport = ScreenManager.GraphicsDevice.Viewport;
+
+            foreach (FogOfWarNode fogOfWarNode in FogNodes)
             {
-                if (fogOfWarNode.Discovered)
-                {
-                    Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(fogOfWarNode.Position.X, fogOfWarNode.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                    Vector2 vector2 = new Vector2(vector3_1.X, vector3_1.Y);
-                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(fogOfWarNode.Position.PointOnCircle(90f, fogOfWarNode.Radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
-                    float num = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2.X);
-                    Rectangle destinationRectangle = new Rectangle((int)vector2.X, (int)vector2.Y, (int)num * 2, (int)num * 2);
-                    Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], destinationRectangle, new Rectangle?(), new Color((byte)70, byte.MaxValue, byte.MaxValue, byte.MaxValue), 0.0f, origin, SpriteEffects.None, 1f);
-                }
+                if (!fogOfWarNode.Discovered)
+                    continue;
+
+                Vector3 vector3_1 = viewport.Project(fogOfWarNode.Position.ToVec3(), this.projection, this.view, Matrix.Identity);
+                Vector2 vector2 = vector3_1.ToVec2();
+                Vector3 vector3_2 = viewport.Project(new Vector3(fogOfWarNode.Position.PointOnCircle(90f, fogOfWarNode.Radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
+                float num = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2.X);
+                Rectangle destinationRectangle = new Rectangle((int)vector2.X, (int)vector2.Y, (int)num * 2, (int)num * 2);
+                ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, null, new Color(70, 255, 255, 255), 0.0f, uiNode.Center(), SpriteEffects.None, 1f);
             }
         }
 
         protected void DrawInfluenceNodes()
         {
             List<Empire.InfluenceNode> influenceNodes;
-            this.player.SensorNodeLocker.EnterReadLock();
+
+            using (player.SensorNodeLocker.AcquireReadLock())
+                influenceNodes = new List<Empire.InfluenceNode>(player.SensorNodes);
+
+            var uiNode = ResourceManager.TextureDict["UI/node"];
+            var viewport = ScreenManager.GraphicsDevice.Viewport;
+
+            foreach (Empire.InfluenceNode influ in influenceNodes)
             {
-                influenceNodes = new List<Empire.InfluenceNode>(this.player.SensorNodes);
-            }
-            this.player.SensorNodeLocker.ExitReadLock();
-            {
-                try
-                {
-                    
-                    //foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.player.SensorNodes)
-                    foreach (Empire.InfluenceNode item_0 in influenceNodes)
-                    {
-                        if (item_0 == null)
-                            continue;
-                        Vector3 local_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 local_2 = new Vector2(local_1.X, local_1.Y);
-                        Vector3 local_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.PointOnCircle(90f, item_0.Radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
-                        float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - local_2.X);
-                        Rectangle local_7 = new Rectangle((int)local_2.X, (int)local_2.Y, (int)((double)local_6 * 2.59999990463257), (int)((double)local_6 * 2.59999990463257));
-                        Vector2 local_8 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_7, new Rectangle?(), Color.White, 0.0f, local_8, SpriteEffects.None, 1f);
-                    }
-                }
-                catch
-                {
-                }
+                Vector3 local_1 = viewport.Project(influ.Position.ToVec3(), this.projection, this.view, Matrix.Identity);
+                Vector2 local_2 = local_1.ToVec2();
+                Vector3 local_4 = viewport.Project(new Vector3(influ.Position.PointOnCircle(90f, influ.Radius * 1.5f), 0.0f), this.projection, this.view, Matrix.Identity);
+
+                float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - local_2.X) * 2.59999990463257f;
+                Rectangle local_7 = new Rectangle((int)local_2.X, (int)local_2.Y, (int)local_6, (int)local_6);
+
+                ScreenManager.SpriteBatch.Draw(uiNode, local_7, null, Color.White, 0.0f, uiNode.Center(), SpriteEffects.None, 1f);
             }
         }
 
-        protected void DrawBorders()
+        // this draws the colored empire borders
+        protected void DrawColoredEmpireBorders()
         {
-            try
+            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+            var graphics = ScreenManager.GraphicsDevice;
+            graphics.RenderState.SeparateAlphaBlendEnabled = true;
+            graphics.RenderState.AlphaBlendOperation       = BlendFunction.Add;
+            graphics.RenderState.AlphaSourceBlend          = Blend.One;
+            graphics.RenderState.AlphaDestinationBlend     = Blend.One;
+            graphics.RenderState.MultiSampleAntiAlias      = true;
+
+            var nodeCorrected = ResourceManager.TextureDict["UI/nodecorrected"];
+            var nodeConnect   = ResourceManager.TextureDict["UI/nodeconnect"];
+
+            foreach (Empire empire in EmpireManager.EmpireList)
             {
-                foreach (Empire index in EmpireManager.EmpireList)
+                if (!Debug && empire != player && !player.GetRelations(empire).Known)
+                    continue;
+
+                using (empire.BorderNodeLocker.AcquireReadLock())
                 {
-                    if (this.Debug || index == this.player || this.player.GetRelations(index).Known)
+                    foreach (Empire.InfluenceNode item_1 in empire.BorderNodes)
                     {
-                        List<Circle> list = new List<Circle>();
-                        index.BorderNodeLocker.EnterReadLock();
+
+                        if (this.Frustum.Contains(new BoundingSphere(new Vector3(item_1.Position, 0.0f), item_1.Radius)) != ContainmentType.Disjoint)
                         {
-                            foreach (Empire.InfluenceNode item_1 in (List<Empire.InfluenceNode>)index.BorderNodes)
+                            Vector3 local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.Position.X, item_1.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                            Vector2 local_3 = new Vector2(local_2.X, local_2.Y);
+                            Vector3 local_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.Position.PointOnCircle(90f, item_1.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
+                            float local_7 = Math.Abs(new Vector2(local_5.X, local_5.Y).X - local_3.X);
+
+                            Rectangle local_8 = new Rectangle((int)local_3.X, (int)local_3.Y, (int)local_7 * 5, (int)local_7 * 5);
+                            this.ScreenManager.SpriteBatch.Draw(nodeCorrected, local_8, null, empire.EmpireColor, 0.0f, nodeCorrected.Center(), SpriteEffects.None, 1f);
+
+                            //Vector2 local_9 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
+                            //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, 0.0f, local_9, SpriteEffects.None, 1f);
+                            foreach (Empire.InfluenceNode item_0 in empire.BorderNodes)
                             {
-                                if (this.Frustum.Contains(new BoundingSphere(new Vector3(item_1.Position, 0.0f), item_1.Radius)) != ContainmentType.Disjoint)
+                                if (!(item_1.Position == item_0.Position) && item_1.Radius <= item_0.Radius && (double)Vector2.Distance(item_1.Position, item_0.Position) <= (double)item_1.Radius + (double)item_0.Radius + 150000.0)
                                 {
-                                    Vector3 local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.Position.X, item_1.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                                    Vector2 local_3 = new Vector2(local_2.X, local_2.Y);
-                                    Vector3 local_5 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_1.Position.PointOnCircle(90f, item_1.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
-                                    float local_7 = Math.Abs(new Vector2(local_5.X, local_5.Y).X - local_3.X);
-                                    Rectangle local_8 = new Rectangle((int)local_3.X, (int)local_3.Y, (int)local_7 * 5, (int)local_7 * 5);
-                                    Vector2 local_9 = new Vector2((float)(ResourceManager.TextureDict["UI/nodecorrected"].Width / 2), (float)(ResourceManager.TextureDict["UI/nodecorrected"].Height / 2));
-                                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/nodecorrected"], local_8, new Rectangle?(), index.EmpireColor, 0.0f, local_9, SpriteEffects.None, 1f);
-                                    //Vector2 local_9 = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                                    //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, 0.0f, local_9, SpriteEffects.None, 1f);
-                                    foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)index.BorderNodes)
-                                    {
-                                        if (!(item_1.Position == item_0.Position) && (double)item_1.Radius <= (double)item_0.Radius && (double)Vector2.Distance(item_1.Position, item_0.Position) <= (double)item_1.Radius + (double)item_0.Radius + 150000.0)
-                                        {
-                                            Vector2 local_12 = item_0.Position - item_1.Position;
-                                            Vector2 local_13 = item_1.Position + local_12 / 2f;
-                                            local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(local_13.X, local_13.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                                            local_3 = new Vector2(local_2.X, local_2.Y);
-                                            Vector2 local_13_1 = local_3;
-                                            local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                                            local_3 = new Vector2(local_2.X, local_2.Y);
-                                            float local_14 = local_13_1.RadiansToTarget(local_3);
-                                            local_8 = new Rectangle((int)local_13_1.X, (int)local_13_1.Y, (int)local_7, (int)Vector2.Distance(local_13_1, local_3));
-                                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/nodeconnect"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
-                                            //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
-                                        }
-                                    }
+                                    Vector2 local_12 = item_0.Position - item_1.Position;
+                                    Vector2 local_13 = item_1.Position + local_12 / 2f;
+                                    local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(local_13.X, local_13.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                                    local_3 = new Vector2(local_2.X, local_2.Y);
+                                    Vector2 local_13_1 = local_3;
+                                    local_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                                    local_3 = new Vector2(local_2.X, local_2.Y);
+                                    float local_14 = local_13_1.RadiansToTarget(local_3);
+
+                                    local_8 = new Rectangle((int)local_13_1.X, (int)local_13_1.Y, (int)local_7, (int)Vector2.Distance(local_13_1, local_3));
+                                    this.ScreenManager.SpriteBatch.Draw(nodeConnect, local_8, null, empire.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
+                                    //this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], local_8, new Rectangle?(), index.EmpireColor, local_14, new Vector2(2f, 2f), SpriteEffects.None, 1f);
                                 }
                             }
                         }
-                        index.BorderNodeLocker.ExitReadLock();
                     }
                 }
             }
-            catch
-            {
-            }
+            ScreenManager.SpriteBatch.End();
         }
 
         protected void DrawMain(GameTime gameTime)
@@ -5426,21 +5442,19 @@ namespace Ship_Game
             this.ScreenManager.GraphicsDevice.Clear(Color.TransparentWhite);
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
             this.ScreenManager.SpriteBatch.Draw(this.FogMap, new Rectangle(0, 0, 512, 512), Color.White);
-            float num = 512f / this.Size.X;
-            try
+            float num = 512f / Size.X;
+            var uiNode = ResourceManager.TextureDict["UI/node"];
+            foreach (Ship ship in player.GetShips())
             {
-                foreach (Ship ship in player.GetShips())
+                if (HelperFunctions.CheckIntersection(ScreenRectangle, ship.ScreenPosition))
                 {
-                    if (HelperFunctions.CheckIntersection(this.ScreenRectangle, ship.ScreenPosition))
-                    {
-                        Rectangle destinationRectangle = new Rectangle((int)((double)ship.Position.X * (double)num), (int)((double)ship.Position.Y * (double)num), (int)((double)ship.SensorRange * (double)num * 2.0), (int)((double)ship.SensorRange * (double)num * 2.0));
-                        Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], destinationRectangle, new Rectangle?(), new Color(byte.MaxValue, (byte)0, (byte)0, byte.MaxValue), 0.0f, origin, SpriteEffects.None, 1f);
-                    }
+                    Rectangle destinationRectangle = new Rectangle(
+                        (int)(ship.Position.X * num), 
+                        (int)(ship.Position.Y * num), 
+                        (int)(ship.SensorRange * num * 2.0), 
+                        (int)(ship.SensorRange * num * 2.0));
+                    ScreenManager.SpriteBatch.Draw(uiNode, destinationRectangle, null, new Color(255, 0, 0, 255), 0.0f, uiNode.Center(), SpriteEffects.None, 1f);
                 }
-            }
-            catch
-            {
             }
             this.ScreenManager.SpriteBatch.End();
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, (RenderTarget2D)null);
@@ -5466,6 +5480,9 @@ namespace Ship_Game
 
         public override void Draw(GameTime gameTime)
         {
+            // Wait for ProcessTurns to finish before we start drawing
+            ProcessTurnsCompletedEvt.WaitOne();
+
             lock (GlobalStats.BeamEffectLocker)
             {
                 Beam.BeamEffect.Parameters["View"].SetValue(view);
@@ -5486,16 +5503,12 @@ namespace Ship_Game
             DrawLights(gameTime);
             graphics.SetRenderTarget(0, BorderRT);
             graphics.Clear(Color.TransparentBlack);
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-            graphics.RenderState.SeparateAlphaBlendEnabled = true;
-            graphics.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            graphics.RenderState.AlphaSourceBlend = Blend.One;
-            graphics.RenderState.AlphaDestinationBlend = Blend.One;
-            graphics.RenderState.MultiSampleAntiAlias = true;
-            if (viewState >= UnivScreenState.SectorView)
-                DrawBorders();
 
-            ScreenManager.SpriteBatch.End();
+            if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
+            {
+                DrawColoredEmpireBorders();
+            }
+
             graphics.SetRenderTarget(0, null);
             Texture2D texture1 = MainTarget.GetTexture();
             Texture2D texture2 = LightsTarget.GetTexture();
@@ -5583,18 +5596,23 @@ namespace Ship_Game
             this.DrawTacticalPlanetIcons();
             if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
             {
+                var inhibit = ResourceManager.TextureDict["UI/node_inhibit"];
                 lock (GlobalStats.ClickableSystemsLock)
                 {
                     foreach (ClickablePlanets item_1 in ClickPlanetList)
                     {
                         float local_14 = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(item_1.planetToClick.scale)) / 1.5)));
                         Vector3 local_15 = graphics.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), projection, view, Matrix.Identity);
-                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector2 local_16 = local_15.ToVec2();
+
+
                         Vector3 local_18 = graphics.Viewport.Project(new Vector3(item_1.planetToClick.Position.PointOnCircle(90f, local_14), 0.0f), projection, view, Matrix.Identity);
                         float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
                         Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-                        Vector2 local_22 = new Vector2(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2f, ResourceManager.TextureDict["UI/node_inhibit"].Height / 2f);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color(200, 0, 0, 50), 0.0f, local_22, SpriteEffects.None, 1f);
+
+                        ScreenManager.SpriteBatch.Draw(inhibit, local_21, null, 
+                            new Color(200, 0, 0, 50), 0.0f, inhibit.Center(), SpriteEffects.None, 1f);
+
                         Primitives2D.DrawCircle(ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(255, 50, 0, 150), 1f);
                     }
                 }
@@ -5602,45 +5620,37 @@ namespace Ship_Game
                 {
                     if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0)
                     {
-                        float local_14 = (float)(ship.shipToClick.InhibitionRadius);
+                        float local_14 = ship.shipToClick.InhibitionRadius;
                         Vector3 local_15 = graphics.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), projection, view, Matrix.Identity);
-                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
+                        Vector2 local_16 = local_15.ToVec2();
                         Vector3 local_18 = graphics.Viewport.Project(new Vector3(ship.shipToClick.Position.PointOnCircle(90f, local_14), 0.0f), projection, view, Matrix.Identity);
                         float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+
                         Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_inhibit"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_inhibit"].Height / 2));
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_inhibit"], local_21, new Rectangle?(), new Color((byte)200, (byte)0, (byte)0, (byte)40), 0.0f, local_22, SpriteEffects.None, 1f);
-                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 1f);
+                        this.ScreenManager.SpriteBatch.Draw(inhibit, local_21, null, 
+                            new Color(200, 0, 0, 40), 0.0f, inhibit.Center(), SpriteEffects.None, 1f);
+
+                        Primitives2D.DrawCircle(ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(255, 50, 0, 150), 1f);
                     }
                 }
                 List<Empire.InfluenceNode> influenceNodes;
-                this.player.BorderNodeLocker.EnterReadLock();
-                {
-                    influenceNodes = new List<Empire.InfluenceNode>(this.player.BorderNodes);
-                }
+                using (player.BorderNodeLocker.AcquireReadLock())
+                    influenceNodes = new List<Empire.InfluenceNode>(player.BorderNodes);
 
-                player.BorderNodeLocker.ExitReadLock();
-                try
+                if (viewState >= UnivScreenState.SectorView)
                 {
-                    if (viewState >= UnivScreenState.SectorView)
+                    foreach (Empire.InfluenceNode influ in influenceNodes)
                     {
-                        foreach (Empire.InfluenceNode item_0 in influenceNodes)
-                        {
-                            Vector3 local_15 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.X, item_0.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                            Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                            Vector3 local_18 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item_0.Position.PointOnCircle(90f, item_0.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
-                            float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-                            Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
+                        Vector3 local_15 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(influ.Position.X, influ.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector2 local_16 = local_15.ToVec2();
+                        Vector3 local_18 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(influ.Position.PointOnCircle(90f, influ.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
+                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
+                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
 
-                            var tex = ResourceManager.TextureDict["UI/node_inhibit"];
-                            Vector2 local_22 = new Vector2(tex.Width / 2, tex.Height / 2);
-                            ScreenManager.SpriteBatch.Draw(tex, local_21, new Rectangle?(), new Color(0, 200, 0, 20), 0.0f, local_22, SpriteEffects.None, 1f);
-                            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(30, 30, 150, 150), 1f);
-                        }
+                        ScreenManager.SpriteBatch.Draw(inhibit, local_21, null, new Color(0, 200, 0, 20), 0.0f, inhibit.Center(), SpriteEffects.None, 1f);
+
+                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(30, 30, 150, 150), 1f);
                     }
-                }
-                catch
-                {
                 }
             }
 
@@ -5851,6 +5861,10 @@ namespace Ship_Game
             if (IsActive)
                 ToolTip.Draw(ScreenManager);
             ScreenManager.SpriteBatch.End();
+
+            // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
+            // the game logic can be updated
+            DrawCompletedEvt.Set();
         }
 
         private void DrawLines(Vector2 position, List<string> lines)
@@ -6072,17 +6086,16 @@ namespace Ship_Game
             foreach (Vector2 center in list3)
                 Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, 2f, 10, color, 2f);
         }
-
-        private Vector2[] Get2Intersections(Circle A, Circle B)
+        private Vector2[] Get2Intersections(Circle a, Circle b)
         {
-            Vector2[] vector2Array = HelperFunctions.CircleIntersection(A, B);
+            Vector2[] vector2Array = HelperFunctions.CircleIntersection(a, b);
             if (vector2Array == null)
-                return (Vector2[])null;
-            return new Vector2[2]
-      {
-        new Vector2(vector2Array[0].X, vector2Array[0].Y),
-        new Vector2(vector2Array[1].X, vector2Array[1].Y)
-      };
+                return null;
+            return new []
+            {
+                new Vector2(vector2Array[0].X, vector2Array[0].Y),
+                new Vector2(vector2Array[1].X, vector2Array[1].Y)
+            };
         }
 
         private void DrawCircleConnections(Circle A, List<Circle> Circles)
@@ -6281,19 +6294,18 @@ namespace Ship_Game
         {
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
+            var renderState = ScreenManager.GraphicsDevice.RenderState;
+            renderState.AlphaBlendEnable = true;
+            renderState.AlphaBlendOperation = BlendFunction.Add;
+            renderState.SourceBlend = Blend.SourceAlpha;
+            renderState.DestinationBlend = Blend.One;
+            renderState.DepthBufferWriteEnable = false;
+            renderState.CullMode = CullMode.None;
             //lock (GlobalStats.KnownShipsLock)
             using (player.KnownShips.AcquireReadLock())
             {
                 foreach (Ship ship in player.KnownShips)
                 {
-                    if (ship == null)
-                        continue;
                     if (!ship.Active)
                         MasterShipList.QueuePendingRemoval(ship);
                     else
@@ -6302,12 +6314,12 @@ namespace Ship_Game
             }
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
+            renderState.AlphaBlendEnable = true;
+            renderState.AlphaBlendOperation = BlendFunction.Add;
+            renderState.SourceBlend = Blend.SourceAlpha;
+            renderState.DestinationBlend = Blend.InverseSourceAlpha;
+            renderState.DepthBufferWriteEnable = false;
+            renderState.CullMode = CullMode.None;
 
             using (player.KnownShips.AcquireReadLock())
             {
@@ -6742,11 +6754,6 @@ namespace Ship_Game
                      scale2 *= (this.camHeight * 3 / this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView));
                 }
 
-                
-                
-                //scale *= .5f;
-                Vector2 vector2_2 = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2));
-
                 if (!ship.Active )
                     return;
                
@@ -6801,18 +6808,25 @@ namespace Ship_Game
 
         protected void DrawInRange(Ship ship)
         {
-            if (this.viewState > UniverseScreen.UnivScreenState.SystemView)
+            if (viewState > UnivScreenState.SystemView)
                 return;
-            try
+            using (ship.Projectiles.AcquireReadLock())
             {
-                foreach (Projectile projectile in (List<Projectile>)ship.Projectiles)
+                foreach (Projectile projectile in ship.Projectiles)
                 {
-                    if (this.Frustum.Contains(new Vector3(projectile.Center, 0.0f)) != ContainmentType.Disjoint && projectile.WeaponType != "Missile" && (projectile.WeaponType != "Rocket" && projectile.WeaponType != "Drone"))
-                        this.DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath], projectile.GetWorld(), this.view, this.projection, projectile.weapon.Animated != 0 ? ResourceManager.TextureDict[projectile.texturePath] : ResourceManager.ProjTextDict[projectile.texturePath], projectile.Scale);
+                    if (Frustum.Contains(projectile.Center.ToVec3()) != ContainmentType.Disjoint 
+                        && projectile.WeaponType != "Missile" 
+                        && projectile.WeaponType != "Rocket" 
+                        && projectile.WeaponType != "Drone")
+
+                    {
+                        DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath], 
+                            projectile.GetWorld(), this.view, this.projection, 
+                            projectile.weapon.Animated != 0 
+                            ? ResourceManager.TextureDict[projectile.texturePath] 
+                            : ResourceManager.ProjTextDict[projectile.texturePath], projectile.Scale);
+                    }
                 }
-            }
-            catch
-            {
             }
         }
 
@@ -6985,13 +6999,14 @@ namespace Ship_Game
             }
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            var renderState = ScreenManager.GraphicsDevice.RenderState;
+            renderState.AlphaBlendEnable       = true;
+            renderState.AlphaBlendOperation    = BlendFunction.Add;
+            renderState.SourceBlend            = Blend.SourceAlpha;
+            renderState.DestinationBlend       = Blend.One;
+            renderState.DepthBufferWriteEnable = false;
+            renderState.CullMode               = CullMode.None;
+            renderState.DepthBufferWriteEnable = true;
             this.ScreenManager.SpriteBatch.End();
         }
 
@@ -7682,35 +7697,38 @@ namespace Ship_Game
                 {
                 }
             }//);
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-            foreach (Anomaly anomaly in (List<Anomaly>)this.anomalyManager.AnomaliesList)
+
+            var renderState = ScreenManager.GraphicsDevice.RenderState;
+
+            renderState.DepthBufferWriteEnable = true;
+            renderState.SourceBlend = Blend.SourceAlpha;
+            renderState.DestinationBlend = Blend.One;
+            foreach (Anomaly anomaly in anomalyManager.AnomaliesList)
                 anomaly.Draw();
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                if (solarSystem.ExploredDict[this.player] && solarSystem.isVisible && (double)this.camHeight < 150000.0)
+                if (solarSystem.ExploredDict[player] && solarSystem.isVisible && camHeight < 150000.0f)
                 {
                     foreach (Planet p in solarSystem.PlanetList)
                     {
-                        if (this.Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
+                        if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
                         {
                             if (p.hasEarthLikeClouds)
                             {
-                                this.DrawClouds(this.xnaPlanetModel, p.cloudMatrix, this.view, this.projection, p);
-                                this.DrawAtmo(this.xnaPlanetModel, p.cloudMatrix, this.view, this.projection, p);
+                                DrawClouds(xnaPlanetModel, p.cloudMatrix, view, projection, p);
+                                DrawAtmo(xnaPlanetModel, p.cloudMatrix, view, projection, p);
                             }
                             if (p.hasRings)
-                                this.DrawRings(p.RingWorld, this.view, this.projection, p.scale);
+                                DrawRings(p.RingWorld, view, projection, p.scale);
                         }
                     }
                 }
             }
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
+            renderState.AlphaBlendEnable = true;
+            renderState.SourceBlend = Blend.SourceAlpha;
+            renderState.DestinationBlend = Blend.One;
+            renderState.DepthBufferWriteEnable = false;
+            renderState.CullMode = CullMode.None;
             this.RenderThrusters();
             this.RenderParticles();
 
@@ -7761,7 +7779,7 @@ namespace Ship_Game
                 this.ScreenManager.sceneState.EndFrameRendering();
             }
             this.DrawShields();
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            renderState.DepthBufferWriteEnable = true;
         }
 
         protected void DrawShields()
@@ -7863,45 +7881,46 @@ namespace Ship_Game
             }
         }
 
-        protected void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex)
+        protected void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
         {
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            var renderState = ScreenManager.GraphicsDevice.RenderState;
+            renderState.AlphaBlendEnable       = true;
+            renderState.AlphaBlendOperation    = BlendFunction.Add;
+            renderState.SourceBlend            = Blend.SourceAlpha;
+            renderState.DestinationBlend       = Blend.InverseSourceAlpha;
+            renderState.CullMode               = CullMode.None;
+            renderState.DepthBufferWriteEnable = false;
             foreach (ModelMesh modelMesh in model.Meshes)
             {
                 foreach (BasicEffect basicEffect in modelMesh.Effects)
                 {
-                    basicEffect.World = Matrix.CreateScale(50f) * world;
-                    basicEffect.View = view;
-                    basicEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
-                    basicEffect.Texture = projTex;
-                    basicEffect.TextureEnabled = true;
-                    basicEffect.Projection = projection;
+                    basicEffect.World           = Matrix.CreateScale(50f) * world;
+                    basicEffect.View            = viewMat;
+                    basicEffect.DiffuseColor    = new Vector3(1f, 1f, 1f);
+                    basicEffect.Texture         = projTex;
+                    basicEffect.TextureEnabled  = true;
+                    basicEffect.Projection      = projMat;
                     basicEffect.LightingEnabled = false;
                 }
                 modelMesh.Draw();
             }
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            renderState.DepthBufferWriteEnable = true;
         }
 
-        protected void DrawTransparentModelAdditiveNoAlphaFade(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale)
+        protected void DrawTransparentModelAdditiveNoAlphaFade(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex, float scale)
         {
             foreach (ModelMesh modelMesh in model.Meshes)
             {
                 foreach (BasicEffect basicEffect in modelMesh.Effects)
                 {
-                    basicEffect.World = world;
-                    basicEffect.View = view;
-                    basicEffect.Texture = projTex;
-                    basicEffect.DiffuseColor = new Vector3(1f, 1f, 1f);
-                    basicEffect.TextureEnabled = true;
-                    basicEffect.Projection = projection;
+                    basicEffect.World           = world;
+                    basicEffect.View            = viewMat;
+                    basicEffect.Texture         = projTex;
+                    basicEffect.DiffuseColor    = new Vector3(1f, 1f, 1f);
+                    basicEffect.TextureEnabled  = true;
+                    basicEffect.Projection      = projMat;
                     basicEffect.LightingEnabled = false;
                 }
                 modelMesh.Draw();
@@ -7944,7 +7963,7 @@ namespace Ship_Game
                 }
                 modelMesh.Draw();
             }
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
         }
 
         public void DrawSunModel(Matrix world, Texture2D texture, float scale)
@@ -7954,14 +7973,15 @@ namespace Ship_Game
 
         protected void DrawTransparentModel(Model model, Matrix world, Matrix view, Matrix projection, Texture2D projTex, float scale, Vector3 Color)
         {
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-            this.ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation = BlendFunction.Add;
-            this.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            this.ScreenManager.GraphicsDevice.RenderState.CullMode = CullMode.None;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            var renderState = ScreenManager.GraphicsDevice.RenderState;
+            renderState.AlphaBlendEnable = true;
+            renderState.AlphaBlendOperation = BlendFunction.Add;
+            renderState.SourceBlend = Blend.SourceAlpha;
+            renderState.DestinationBlend = Blend.InverseSourceAlpha;
+            renderState.DepthBufferWriteEnable = false;
+            renderState.CullMode = CullMode.None;
             foreach (ModelMesh modelMesh in model.Meshes)
             {
                 foreach (BasicEffect basicEffect in modelMesh.Effects)
@@ -7976,7 +7996,7 @@ namespace Ship_Game
                 }
                 modelMesh.Draw();
             }
-            this.ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            renderState.DepthBufferWriteEnable = true;
         }
 
         public static FileInfo[] GetFilesFromDirectory(string DirPath)
