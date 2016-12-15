@@ -4658,16 +4658,7 @@ namespace Ship_Game.Gameplay
                     if (junkScale > 1.4f) junkScale = 1.4f; // bigger doesn't look good
 
                     //System.Diagnostics.Debug.WriteLine("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
-                    List<SpaceJunk> junk = SpaceJunk.MakeJunk(explosionJunk, Center, System, this, Radius/4, junkScale);
-				    lock (GlobalStats.ObjectManagerLocker)
-				    {
-					    foreach (SpaceJunk j in junk)
-					    {
-						    j.wasAddedToScene = true;
-						    ShipModule.universeScreen.ScreenManager.inter.ObjectManager.Submit(j.JunkSO);
-						    UniverseScreen.JunkList.Add(j);
-					    }
-				    }
+                    SpaceJunk.SpawnJunk(explosionJunk, Center, System, this, Radius/4, junkScale);
                 }
             }
             var ship = ResourceManager.ShipsDict[Name];

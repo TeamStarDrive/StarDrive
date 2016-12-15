@@ -115,7 +115,7 @@ namespace Ship_Game
 			{
 				this.startingx = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
 				this.startingy = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-				Game1.Instance.graphics.SynchronizeWithVerticalRetrace = true;
+				Game1.Instance.Graphics.SynchronizeWithVerticalRetrace = true;
 				Game1.Instance.SetWindowMode(this.ModeToSet, (this.ResolutionDropDown.Active.ReferencedObject as OptionsScreen.Option).x, (this.ResolutionDropDown.Active.ReferencedObject as OptionsScreen.Option).y);
 				base.Setup();
 				if (this.FromGame)
@@ -255,9 +255,9 @@ namespace Ship_Game
 
 		private void CancelChanges(object sender, EventArgs e1)
 		{
-			Game1.Instance.graphics.PreferredBackBufferWidth = this.startingx;
-			Game1.Instance.graphics.PreferredBackBufferHeight = this.startingy;
-			Game1.Instance.graphics.SynchronizeWithVerticalRetrace = false;
+			Game1.Instance.Graphics.PreferredBackBufferWidth = this.startingx;
+			Game1.Instance.Graphics.PreferredBackBufferHeight = this.startingy;
+			Game1.Instance.Graphics.SynchronizeWithVerticalRetrace = false;
 			Game1.Instance.SetWindowMode(this.StartingMode, this.startingx, this.startingy);
 			this.ModeToSet = this.StartingMode;
 			base.Setup();
@@ -540,7 +540,7 @@ namespace Ship_Game
             string str2 = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight.ToString();
             this.startingx = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             this.startingy = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-            this.startingfullscreen = Game1.Instance.graphics.IsFullScreen;
+            this.startingfullscreen = Game1.Instance.Graphics.IsFullScreen;
             this.xtoApply = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
             this.ytoApply = this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
             string text = str1 + " x " + str2;
@@ -749,8 +749,8 @@ namespace Ship_Game
 			amt = effectsVolume.ToString("00");
 			config.AppSettings.Settings["EffectsVolume"].Value = amt;
             config.AppSettings.Settings["AutoSaveFreq"].Value = GlobalStats.AutoSaveFreq.ToString();
-			config.AppSettings.Settings["XRES"].Value = Game1.Instance.graphics.PreferredBackBufferWidth.ToString();
-			config.AppSettings.Settings["YRES"].Value = Game1.Instance.graphics.PreferredBackBufferHeight.ToString();
+			config.AppSettings.Settings["XRES"].Value = Game1.Instance.Graphics.PreferredBackBufferWidth.ToString();
+			config.AppSettings.Settings["YRES"].Value = Game1.Instance.Graphics.PreferredBackBufferHeight.ToString();
 			config.AppSettings.Settings["WindowMode"].Value = GlobalStats.Config.WindowMode.ToString();
 			config.AppSettings.Settings["RanOnce"].Value = "true";
 			config.AppSettings.Settings["ForceFullSim"].Value = (GlobalStats.ForceFullSim ? "true" : "false");
