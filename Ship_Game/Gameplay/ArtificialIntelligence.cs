@@ -2088,49 +2088,20 @@ namespace Ship_Game.Gameplay
         //do repair drone
 		private void DoRepairDroneLogic(Weapon w)
 		{
-            try
+            // @todo Refactor this bloody mess
+            using (Owner.loyalty.GetShips().AcquireReadLock())
             {
-                this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
-                if (this.Owner.loyalty.GetShips().Where<Ship>((Ship ship) =>
-                    {
-                        if (ship.Health / ship.HealthMax >= 0.95f || !ship.Active)
-                        {
-                            return false;
-                        }
-                        return Vector2.Distance(this.Owner.Center, ship.Center) < 20000f;
-                    }).Count<Ship>() == 0)
+                if (!Owner.loyalty.GetShips().Where(ship =>
                 {
-                    this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
+                    if (ship.Health / ship.HealthMax >= 0.95f || !ship.Active)
+                        return false;
+                    return Vector2.Distance(this.Owner.Center, ship.Center) < 20000f;
+                }).Any())
+                {
                     return;
                 }
-                this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
             }
-            catch
-            {
-                this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
-                return;
-            }
-            //bool flag = false;
-            //for (int x = 0; x < this.Owner.loyalty.GetShips().Count; x++)
-            //{
-            //    Ship ship;
-            //    try
-            //    {
-            //        ship = this.Owner.loyalty.GetShips()[x];
-            //    }
-            //    catch { continue; }
-            //    if (ship.Health == ship.HealthMax || ship.Health / ship.HealthMax >= 0.95f)
-            //        continue;
-            //    if (Vector2.Distance(this.Owner.Center, ship.Center) < 20000f)
-            //    {
-            //        flag = true;
-            //        break;
-            //    }
 
-            //}
-
-            //if (!flag)
-            //    return;
 			using (IEnumerator<Ship> enumerator = this.Owner.GetAI().FriendliesNearby.Where<Ship>((Ship ship) => {
 				if (Vector2.Distance(this.Owner.Center, ship.Center) >= 20000f || !ship.Active)
 				{
@@ -4872,7 +4843,7 @@ namespace Ship_Game.Gameplay
                         //Planet with negative food production need more food:
                         //cargoSpaceMax = (cargoSpaceMax - (p.NetFoodPerTurn * 5f)) / 2f;  //reduced cargoSpacemax on first try!
 
-                        this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
+                        using (Owner.loyalty.GetShips().AcquireReadLock())
                         for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                         {
                             Ship s = this.Owner.loyalty.GetShips()[k];
@@ -4914,7 +4885,6 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
-                        this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
                         if (!flag )
                         {
                             this.end = p;
@@ -4986,7 +4956,8 @@ namespace Ship_Game.Gameplay
                             float thisTradeStr = this.TradeSort(this.Owner, p, "Production", this.Owner.CargoSpace_Max, true);
                             if (thisTradeStr >= universeScreen.Size.X && p.ProductionHere >= 0)
                                 continue;
-                            this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
+
+                            using (Owner.loyalty.GetShips().AcquireReadLock())
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
                                 Ship s = this.Owner.loyalty.GetShips()[k];
@@ -5013,7 +4984,6 @@ namespace Ship_Game.Gameplay
                                     }
                                 }
                             }
-                            this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
                             if (!flag)
                             {
                                 this.end = p;
@@ -5078,7 +5048,8 @@ namespace Ship_Game.Gameplay
                             cargoSpaceMax += p.NetFoodPerTurn * mySpeed;
                             cargoSpaceMax = cargoSpaceMax > p.MAX_STORAGE ? p.MAX_STORAGE : cargoSpaceMax;
                             cargoSpaceMax = cargoSpaceMax < 0.0f ? 0.0f : cargoSpaceMax;
-                            this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
+
+                            using (Owner.loyalty.GetShips().AcquireReadLock())
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
                                 Ship s = this.Owner.loyalty.GetShips()[k];
@@ -5120,7 +5091,6 @@ namespace Ship_Game.Gameplay
                                     }
                                 }
                             }
-                            this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
                             if (!flag)
                             {
                                 this.end = p;
@@ -5175,7 +5145,7 @@ namespace Ship_Game.Gameplay
                             flag = false;
                             float mySpeed = this.TradeSort(this.Owner, p, "Food", this.Owner.CargoSpace_Max, false);                            
                             //cargoSpaceMax = cargoSpaceMax + p.NetFoodPerTurn * mySpeed;
-                            this.Owner.loyalty.GetShips().thisLock.EnterReadLock();
+                            using (Owner.loyalty.GetShips().AcquireReadLock())
                             for (int k = 0; k < this.Owner.loyalty.GetShips().Count; k++)
                             {
                                 Ship s = this.Owner.loyalty.GetShips()[k];
@@ -5209,7 +5179,6 @@ namespace Ship_Game.Gameplay
                                     }
                                 }
                             }
-                            this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
                             if (!flag)
                             {
                                 this.start = p;
@@ -5258,7 +5227,7 @@ namespace Ship_Game.Gameplay
                             //+ this.TradeSort(this.Owner, this.end, "Production", this.Owner.CargoSpace_Max);
                             
                             ShipGoal plan;
-                            Owner.loyalty.GetShips().thisLock.EnterReadLock();
+                            using (Owner.loyalty.GetShips().AcquireReadLock())
                             for (int k = 0; k < Owner.loyalty.GetShips().Count; k++)
                             {
                                 Ship s = this.Owner.loyalty.GetShips()[k];
@@ -5296,7 +5265,6 @@ namespace Ship_Game.Gameplay
                                     }
                                 }
                             }
-                            this.Owner.loyalty.GetShips().thisLock.ExitReadLock();
                             if (!flag)
                             {
                                 this.start = p;
@@ -7116,7 +7084,8 @@ namespace Ship_Game.Gameplay
                 if (Distance > 7500f)   //Not near destination
                 {
                     bool fleetReady = true;
-                    this.Owner.fleet.Ships.thisLock.EnterReadLock();
+                    
+                    using (Owner.fleet.Ships.AcquireReadLock())
                     foreach (Ship ship in this.Owner.fleet.Ships)
                     {
                         if (ship.GetAI().State != AIState.FormationWarp) continue;
@@ -7128,7 +7097,6 @@ namespace Ship_Game.Gameplay
                         fleetReady = false;
                         break;
                     }
-                    this.Owner.fleet.Ships.thisLock.ExitReadLock();
 
                     float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove;
                     speedLimit = this.Owner.fleet.speed;
@@ -7381,7 +7349,7 @@ namespace Ship_Game.Gameplay
                     //if(Distance > this.Owner.speed -1000)
                     {
                         bool fleetReady = true;
-                        this.Owner.fleet.Ships.thisLock.EnterReadLock();
+                        using (Owner.fleet.Ships.AcquireReadLock())
                         foreach (Ship ship in this.Owner.fleet.Ships)
                         {
                             if(ship.GetAI().State != AIState.FormationWarp)
@@ -7402,7 +7370,6 @@ namespace Ship_Game.Gameplay
                             fleetReady = false;
                             break;
                         }
-                        this.Owner.fleet.Ships.thisLock.ExitReadLock();
      
                             float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove; //
                             speedLimit = (this.Owner.fleet.speed);

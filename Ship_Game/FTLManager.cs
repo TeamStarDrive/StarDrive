@@ -1,66 +1,68 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework.Content;
 
 namespace Ship_Game
 {
-	internal class FTLManager
+	internal static class FTLManager
 	{
-		public const float scalePlus = 1.25f;
+		private static readonly BatchRemovalCollection<FTL> FTLList = new BatchRemovalCollection<FTL>();
+        private static Texture2D FTLTexture;
 
-		public static UniverseScreen universeScreen;
+        public static void LoadContent(ContentManager content)
+        {
+            if (FTLTexture == null)
+                FTLTexture = content.Load<Texture2D>("Textures/Ships/FTL");
+        }
 
-		public static Texture2D FTLTexture;
+        public static void AddFTL(Vector2 center)
+        {
+            FTL ftl = new FTL();
+            ftl.Center = new Vector2(center.X, center.Y);
+            using (FTLList.AcquireWriteLock())
+                FTLList.Add(ftl);
+        }
 
-		public static object FTLLock;
-
-		public static BatchRemovalCollection<FTL> FTLList;
-
-		static FTLManager()
-		{
-			FTLManager.FTLLock = new object();
-			FTLManager.FTLList = new BatchRemovalCollection<FTL>();
-		}
-
-		public FTLManager()
-		{
-		}
+        public static void DrawFTLModels(UniverseScreen us)
+        {
+            using (FTLList.AcquireReadLock())
+            {
+                foreach (FTL item in FTLList)
+                {
+                    us.DrawSunModel(item.WorldMatrix, FTLTexture, item.scale * 1.0f / 50.0f);
+                }
+            }
+        }
 
 		public static void Update(float elapsedTime)
 		{
-			for (int i = 0; i < FTLManager.FTLList.Count; i++)
-			{
-				if (FTLManager.FTLList[i] != null)
-				{
-					FTL item = FTLManager.FTLList[i];
-					item.timer = item.timer - elapsedTime;
-					if (FTLManager.FTLList[i].timer < 0.6f)
-					{
-						FTL fTL = FTLManager.FTLList[i];
-						fTL.scale = fTL.scale / 2.5f;
-					}
-					else
-					{
-						FTL item1 = FTLManager.FTLList[i];
-						item1.scale = item1.scale * 1.5625f;
-						if (FTLManager.FTLList[i].scale > 60f)
-						{
-							FTLManager.FTLList[i].scale = 60f;
-						}
-					}
-					if (elapsedTime > 0f)
-					{
-						FTL fTL1 = FTLManager.FTLList[i];
-						fTL1.rotation = fTL1.rotation + 0.09817477f;
-					}
-					FTLManager.FTLList[i].WorldMatrix = Matrix.CreateRotationZ(FTLManager.FTLList[i].rotation) * Matrix.CreateTranslation(new Vector3(FTLManager.FTLList[i].Center, 0f));
-					if (FTLManager.FTLList[i].timer <= 0f)
-					{
-						FTLManager.FTLList.QueuePendingRemoval(FTLManager.FTLList[i]);
-					}
-				}
-			}
+            using (FTLList.AcquireReadLock())
+            {
+                foreach (FTL item in FTLList)
+			    {
+			        item.timer -= elapsedTime;
+			        if (item.timer < 0.6f)
+			        {
+			            item.scale /= 2.5f;
+			        }
+			        else
+			        {
+			            item.scale *= 1.5625f;
+			            if (item.scale > 60f)
+			                item.scale = 60f;
+			        }
+			        if (elapsedTime > 0f)
+			        {
+			            item.rotation += 0.09817477f;
+			        }
+			        item.WorldMatrix = Matrix.CreateRotationZ(item.rotation) * Matrix.CreateTranslation(new Vector3(item.Center, 0f));
+			        if (item.timer <= 0f)
+			        {
+			            FTLList.QueuePendingRemoval(item);
+			        }
+			    }
+            }
+            FTLList.ApplyPendingRemovals();
 		}
 	}
 }

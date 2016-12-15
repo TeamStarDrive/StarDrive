@@ -9,23 +9,20 @@ namespace Ship_Game
 {
     public sealed class BatchRemovalCollection<T> : List<T>,IDisposable //where T : new()
     {
-        //public List<T> pendingRemovals;
-        public ConcurrentStack<T> pendingRemovals;
-        public ReaderWriterLockSlim thisLock;
+        private ConcurrentStack<T> pendingRemovals;
+        private ReaderWriterLockSlim thisLock;
 
         public BatchRemovalCollection()
         {
             //this.pendingRemovals = new List<T>();
             pendingRemovals = new ConcurrentStack<T>();
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
         }
         public BatchRemovalCollection(bool noQueueForRemoval)
         {
             //this.pendingRemovals = new List<T>();
             //this.pendingRemovals = new ConcurrentStack<T>();
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
         }
         public BatchRemovalCollection(List<T> ListToCopy)
         {
@@ -33,58 +30,55 @@ namespace Ship_Game
             //list = ListToCopy.ToList<T>();
             base.AddRange(ListToCopy);
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
         }
 
-        public void EnterReadLock()
+        // Acquires a deterministic Read Lock on this Collection
+        // You must use the C# using block to ensure deterministic release of the lock
+        // using (list.AcquireReadLock())
+        //     item = list.First();
+        public ScopedReadLock AcquireReadLock()
         {
-            thisLock.EnterReadLock();
+            return new ScopedReadLock(thisLock);
         }
-        public void ExitReadLock()
+
+        // Acquires a deterministic Write Lock on this Collection
+        // You must use the C# using block to ensure deterministic release of the lock
+        // using (list.AcquireWriteLock())
+        //     list.Add(item);
+        public ScopedWriteLock AcquireWriteLock()
         {
-            thisLock.ExitReadLock();
-        }
-        public void EnterWriteLock()
-        {
-            thisLock.EnterWriteLock();
-        }
-        public void ExitWriteLock()
-        {
-            thisLock.ExitWriteLock();
+            return new ScopedWriteLock(thisLock);
         }
 
         public void ApplyPendingRemovals()
         {
-            while (!pendingRemovals.IsEmpty)
+            using (AcquireWriteLock())
             {
-                pendingRemovals.TryPop(out var result); //out T result);
-                Remove(result);
+                while (!pendingRemovals.IsEmpty)
+                {
+                    pendingRemovals.TryPop(out var result);
+                    Remove(result);
+                }
             }
         }
         public void ApplyPendingRemovals(bool saveForPooling)
         {
-            if (saveForPooling)
+            using (AcquireWriteLock())
             {
-                foreach (T item in pendingRemovals.ToArray())
+                if (saveForPooling)
                 {
-                    Remove(item);
+                    foreach (T item in pendingRemovals.ToArray())
+                    {
+                        Remove(item);
+                    }
+                    return;
                 }
-                return;
+                while (!pendingRemovals.IsEmpty)
+                {
+                    pendingRemovals.TryPop(out var result);
+                    Remove(result);
+                }
             }
-            var removes = new List<T>();
-            while (!pendingRemovals.IsEmpty)
-            {
-                pendingRemovals.TryPop(out var result); //out T result);
-                //removes.Add(result);
-                Remove(result);
-                
-            }
-            //this.thisLock.EnterWriteLock();
-            //removes = (this as List<T>).Except(removes).ToList();
-
-            //(this as List<T>).Clear();
-            //(this as List<T>).AddRange(removes);
-            //this.thisLock.ExitWriteLock();
         }
         public void QueuePendingRemoval(T item)
         {
@@ -94,20 +88,26 @@ namespace Ship_Game
         {
             pendingRemovals.Clear();
         }
+
+        public bool IsPendingRemoval(T item)
+        {
+            return pendingRemovals.Contains(item);
+        }
+
         public new void Add(T item)
         {
             thisLock.EnterWriteLock();
             base.Add(item);
             thisLock.ExitWriteLock();
         }
-        public List<T> Get()
-        {
-            var list = new List<T>();
-            thisLock.EnterReadLock();
-            list.AddRange(this);// = base.ToList();
-            thisLock.ExitReadLock();
-            return list;// this as List<T>;
-        }
+        //public List<T> Get()
+        //{
+        //    var list = new List<T>();
+        //    thisLock.EnterReadLock();
+        //    list.AddRange(this);// = base.ToList();
+        //    thisLock.ExitReadLock();
+        //    return list;// this as List<T>;
+        //}
         
         //public new Enumerator GetEnumerator()
         //{
@@ -293,16 +293,32 @@ namespace Ship_Game
             thisLock.ExitReadLock();
             return copy;
         }
- 
+
+        // This is used to reduce the time locks are held. Downside is higher memory usage
+        // ReadLock is acquired and base.ToArray() called
+        public T[] AtomicCopy()
+        {
+            thisLock.EnterReadLock();
+            var arr = ToArray();
+            thisLock.ExitReadLock();
+            return arr;
+        }
+        
+        public bool TryReuseItem(out T item)
+        {
+            if (!pendingRemovals.TryPop(out item))
+                return false;
+            (item as Empire.InfluenceNode)?.Wipe();
+            return true;
+        }
 
         public T RecycleObject()
         {            
-            T test;
-
-            if (!pendingRemovals.TryPop(out test)) return test;
-            if (test is Empire.InfluenceNode)
-                (test as Empire.InfluenceNode).Wipe();
-            return test;
+            T item;
+            if (!pendingRemovals.TryPop(out item))
+                return item;
+            (item as Empire.InfluenceNode)?.Wipe();
+            return item;
         }
 
         public void Dispose()

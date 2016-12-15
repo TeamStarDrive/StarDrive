@@ -2457,12 +2457,12 @@ namespace Ship_Game.Gameplay
                 }
                 Potentials.Add(s);
             }
-            this.MarkedForExploration.thisLock.EnterReadLock();
+            
+            using (MarkedForExploration.AcquireReadLock())
             foreach (SolarSystem s in this.MarkedForExploration)
             {
                 Potentials.Remove(s);
             }
-            this.MarkedForExploration.thisLock.ExitReadLock();
             IOrderedEnumerable<SolarSystem> sortedList =
                 from system in Potentials
                 orderby Vector2.Distance(this.empire.GetWeightedCenter(), system.Position)
@@ -4568,7 +4568,8 @@ namespace Ship_Game.Gameplay
 			{
 				Planet target = InvasionTargets[0];
 				bool OK = true;
-                this.TaskList.thisLock.EnterReadLock();
+
+                using (TaskList.AcquireReadLock())
 				{
 					foreach (MilitaryTask task in this.TaskList)
 					{
@@ -4579,7 +4580,7 @@ namespace Ship_Game.Gameplay
 						OK = false;
 						break;
 					}
-                } this.TaskList.thisLock.ExitReadLock();
+                }
 				if (OK)
 				{
 					MilitaryTask InvadeTask = new MilitaryTask(target, this.empire);
@@ -4672,7 +4673,7 @@ namespace Ship_Game.Gameplay
                             Planet current = enumerator.Current;
                             bool flag = true;
                            
-                            this.TaskList.thisLock.EnterReadLock();
+                            using (TaskList.AcquireReadLock())
                             {
                                 foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
                                 {
@@ -4682,7 +4683,7 @@ namespace Ship_Game.Gameplay
                                         break;
                                     }
                                 }
-                            } this.TaskList.thisLock.ExitReadLock();
+                            }
                             if (flag)
                             {
                                 MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
@@ -4719,7 +4720,7 @@ namespace Ship_Game.Gameplay
                             bool claimPressent = false;
                             if (!s.Contains(current.ParentSystem))
                                 continue;
-                            this.TaskList.thisLock.EnterReadLock();
+                            using (TaskList.AcquireReadLock())
                             {
                                 foreach (MilitaryTask item_1 in (List<MilitaryTask>)this.TaskList)
                                 {
@@ -4736,7 +4737,7 @@ namespace Ship_Game.Gameplay
                                         
                                     }
                                 }
-                            } this.TaskList.thisLock.ExitReadLock();
+                            }
                             if (flag && claimPressent)
                             {
                                 MilitaryTask militaryTask = new MilitaryTask(current, this.empire);
@@ -7266,42 +7267,27 @@ namespace Ship_Game.Gameplay
 					foreach (RoadNode node in road.RoadNodesList)
 					{
 						if (node.Platform != null && (node.Platform == null || node.Platform.Active))
-						{
 							continue;
-						}
-						bool AddNew = true;
-						foreach (Goal g in this.Goals)
+
+						bool addNew = true;
+						foreach (Goal g in Goals)
 						{
 							if (g.type != GoalType.DeepSpaceConstruction || !(g.BuildPosition == node.Position))
-							{
 								continue;
-							}
-							AddNew = false;
+							addNew = false;
+                            break;
 						}
-                        this.empire.BorderNodeLocker.EnterReadLock();
+                        using (empire.BorderNodes.AcquireReadLock())
+                        foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
                         {
-                            float sizecheck = 0;
-                            foreach (Empire.InfluenceNode bordernode in this.empire.BorderNodes)
-                            {
-                                 sizecheck = Vector2.Distance(node.Position, bordernode.Position);
-
-                                sizecheck += !(bordernode.KeyedObject is Ship) ? Empire.ProjectorRadius : 0;
-
-                                if (sizecheck >= bordernode.Radius)
-                                {
-                                    continue;
-                                }
-                                
-                                AddNew = false;
-                            }
+                            float sizecheck = Vector2.Distance(node.Position, bordernode.Position);
+                            sizecheck += !(bordernode.KeyedObject is Ship) ? Empire.ProjectorRadius : 0;
+                            if (sizecheck >= bordernode.Radius)
+                                continue;
+                            addNew = false;
+                            break;
                         }
-                        this.empire.BorderNodeLocker.ExitReadLock();
-                        if (!AddNew)
-						{
-							continue;
-						}
-						Goal newRoad = new Goal(node.Position, "Subspace Projector", this.empire);
-						this.Goals.Add(newRoad);
+                        if (addNew) Goals.Add(new Goal(node.Position, "Subspace Projector", empire));
 					}
 				}
 			}
@@ -7345,8 +7331,8 @@ namespace Ship_Game.Gameplay
                                 }
                                 p.ConstructionQueue.ApplyPendingRemovals();
                             }
-                            this.empire.GetShips().thisLock.EnterReadLock();
-                                                            
+
+                            using (empire.GetShips().AcquireReadLock())                               
                             foreach (Ship ship in this.empire.GetShips())
                             {
                                 ship.GetAI().OrderQueue.thisLock.EnterReadLock();
@@ -7365,7 +7351,6 @@ namespace Ship_Game.Gameplay
                                 break;
 
                             }
-                            this.empire.GetShips().thisLock.ExitReadLock();
 
                         }
 						this.Goals.ApplyPendingRemovals();
@@ -7706,7 +7691,8 @@ namespace Ship_Game.Gameplay
                         this.empire.GetGSAI().CheckClaim(Relationship, g.GetMarkedPlanet());
                     }
                     this.Goals.QueuePendingRemoval(g);
-                    this.TaskList.thisLock.EnterReadLock();
+
+                    using (TaskList.AcquireReadLock())
                     {
                         foreach (MilitaryTask task in this.TaskList)
                         {
@@ -7720,7 +7706,7 @@ namespace Ship_Game.Gameplay
                                 break;
                             }
                         }
-                    } this.TaskList.thisLock.ExitReadLock();
+                    }
                 }
                 else
                 {
@@ -7761,7 +7747,8 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     bool OK = true;
-                    this.TaskList.thisLock.EnterReadLock();
+
+                    using (TaskList.AcquireReadLock())
                     {
                         foreach (MilitaryTask mt in this.TaskList)
                         //Parallel.ForEach(this.TaskList, (mt,state) =>
@@ -7776,7 +7763,7 @@ namespace Ship_Game.Gameplay
                             OK = false;
                             break;
                         }
-                    } this.TaskList.thisLock.ExitReadLock();
+                    }
                     if (!OK)
                     {
                         continue;
@@ -7802,7 +7789,7 @@ namespace Ship_Game.Gameplay
             
 #endregion
             //this where the global AI attack stuff happenes.
-            this.TaskList.thisLock.EnterReadLock();// lock (GlobalStats.TaskLocker)
+            using (TaskList.AcquireReadLock())    
             {
                 List<MilitaryTask> ToughNuts = new List<MilitaryTask>();
                 List<MilitaryTask> InOurSystems = new List<MilitaryTask>();
@@ -8012,7 +7999,7 @@ namespace Ship_Game.Gameplay
                     }
                     task.EndTask();
                 }
-            } this.TaskList.thisLock.ExitReadLock();
+            }
             this.TaskList.AddRange(this.TasksToAdd);
             this.TasksToAdd.Clear();
             this.TaskList.ApplyPendingRemovals();
@@ -9572,58 +9559,35 @@ namespace Ship_Game.Gameplay
             this.Goals.ApplyPendingRemovals();
         }
 
+        // @todo Why is this usage commented out? What does it actually do?
         private void UpdateThreatMatrix()
         {
-            List<KeyValuePair<Guid, ThreatMatrix.Pin>> list = new List<KeyValuePair<Guid, ThreatMatrix.Pin>>();
-            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> keyValuePair in this.ThreatMatrix.Pins)
+            foreach (var kv in ThreatMatrix.Pins)
             {
-                bool flag1 = true;
-                bool flag2 = false;
-                List<Empire.InfluenceNode> influenceNodes;
-                this.empire.SensorNodeLocker.EnterReadLock();
+                bool shouldRemove = true;
+                bool insideEmpireSensors = empire.IsPointInSensors(kv.Value.Position);
+                if (insideEmpireSensors)
                 {
-                    influenceNodes = new List<Empire.InfluenceNode>(this.empire.SensorNodes);
-                }
-                this.empire.SensorNodeLocker.ExitReadLock();
-                {
-                    //foreach (Empire.InfluenceNode item_0 in (List<Empire.InfluenceNode>)this.empire.SensorNodes)
-                    foreach (Empire.InfluenceNode item_0 in this.empire.SensorNodes)
+                    using (Empire.Universe.MasterShipList.AcquireReadLock())
+                    foreach (Ship ship in Empire.Universe.MasterShipList)
                     {
-                        if ((double)Vector2.Distance(item_0.Position, keyValuePair.Value.Position) <= (double)item_0.Radius)
-                            flag2 = true;
+                        if (kv.Key != ship.guid)
+                            continue;
+                        shouldRemove = !ship.Active;
+                        break;
                     }
                 }
-                if (flag2)
-                {
-                    Empire.Universe.MasterShipList.thisLock.EnterReadLock();
-                    for (int index = 0; index < Empire.Universe.MasterShipList.Count; ++index)
-                    {
-                        Ship ship = Empire.Universe.MasterShipList[index];
-                        if (keyValuePair.Key == ship.guid)
-                        {
-                            flag1 = !ship.Active;
-                            break;
-                        }
-                    }
-                    Empire.Universe.MasterShipList.thisLock.ExitReadLock();
-                }
-                else
-                    flag1 = false;
-                if (flag1)
-                    list.Add(keyValuePair);
+                else shouldRemove = false;
+
+                if (!shouldRemove)
+                    continue;
+                ThreatMatrix.Pins.TryRemove(kv.Key, out ThreatMatrix.Pin pin);
             }
-            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> keyValuePair in list)
-            {
-                ThreatMatrix.Pin remove = null;
-                this.ThreatMatrix.Pins.TryRemove(keyValuePair.Key,out remove);
-            }
-            list.Clear();
         }
 
 		public struct PeaceAnswer
 		{
 			public string answer;
-
 			public bool peace;
 		}
 
