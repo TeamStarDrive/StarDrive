@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using static System.Math;
 
 namespace Ship_Game
@@ -72,6 +73,10 @@ namespace Ship_Game
 
         // Negates this Vector2's components
         public static Vector2 Neg(this Vector2 a) => new Vector2(-a.X, -a.Y);
+
+        // Center of a Texture2D. Not rounded! So 121x121 --> {60.5;60.5}
+        public static Vector2 Center(this Texture2D texture)   => new Vector2(texture.Width / 2f, texture.Height / 2f);
+        public static Vector2 Position(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
 
 
         // result between [0, 360)
