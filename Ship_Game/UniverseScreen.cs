@@ -106,7 +106,6 @@ namespace Ship_Game
         private Vector2 ProjectedPosition;
         protected float desiredSectorZ = 20000f;
         public List<FogOfWarNode> FogNodes = new List<FogOfWarNode>();
-        private bool FogOn = true;
         private bool drawBloom = true;
         private List<ClickableFleet> ClickableFleetsList = new List<ClickableFleet>();
         private bool ShowTacticalCloseup;
@@ -972,9 +971,7 @@ namespace Ship_Game
             MinimapButtons.screen                 = this;
             Projectile.universeScreen             = this;
             ShipModule.universeScreen             = this;
-            Asteroid.universeScreen               = this;
             Empire.Universe                       = this;
-            SpaceJunk.universeScreen              = this;
             ResourceManager.UniverseScreen        = this;
             Planet.universeScreen                 = this;
             Weapon.universeScreen                 = this;
@@ -1028,8 +1025,6 @@ namespace Ship_Game
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (Debug)
-                FogOn = false;
             if (viewState > UnivScreenState.ShipView)
             {
                 foreach (NebulousOverlay nebulousOverlay in NebulousShit)
@@ -1067,10 +1062,11 @@ namespace Ship_Game
         {
             while (true)
             {
-                // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns inbetween
-                DrawCompletedEvt.WaitOne(); 
                 try
                 {
+                    // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns inbetween
+                    DrawCompletedEvt.WaitOne();
+
                     float deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
                     if (Paused)
                     {
@@ -1145,6 +1141,10 @@ namespace Ship_Game
                             else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
                         #endif
                     }
+                }
+                catch (ThreadAbortException)
+                {
+                    throw; // Game over, Make sure to Quit the loop!
                 }
                 catch (Exception ex)
                 {
@@ -1578,14 +1578,7 @@ namespace Ship_Game
                         {
                             fleet.Setavgtodestination();
                             fleet.SetSpeed();
-                            try
-                            {
-                                fleet.StoredFleetPosistion = fleet.findAveragePositionset();
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine("crash at find average position: {0}\n{1}", ex.Message, ex.StackTrace);
-                            }
+                            fleet.StoredFleetPosition = fleet.findAveragePositionset();
                         }
                     }
                 });
@@ -2092,7 +2085,7 @@ namespace Ship_Game
                     {
                         foreach (Asteroid asteroid in system.AsteroidsList)
                         {
-                            asteroid.GetSO().Visibility = ObjectVisibility.Rendered;
+                            asteroid.So.Visibility = ObjectVisibility.Rendered;
                             asteroid.Update(elapsedTime);
                         }
                         foreach (Moon moon in system.MoonList)
@@ -2105,7 +2098,7 @@ namespace Ship_Game
                     {
                         foreach (Asteroid asteroid in system.AsteroidsList)
                         {
-                            asteroid.GetSO().Visibility = ObjectVisibility.None;
+                            asteroid.So.Visibility = ObjectVisibility.None;
                         }
                         foreach (Moon moon in system.MoonList)
                         {
@@ -2299,7 +2292,7 @@ namespace Ship_Game
                 {
                     foreach (Asteroid asteroid in system.AsteroidsList)
                     {
-                        asteroid.GetSO().Visibility = ObjectVisibility.Rendered;
+                        asteroid.So.Visibility = ObjectVisibility.Rendered;
                         asteroid.Update(elapsedTime);
                     }
                     foreach (Moon moon in system.MoonList)
@@ -2312,7 +2305,7 @@ namespace Ship_Game
                 {
                     foreach (Asteroid asteroid in system.AsteroidsList)
                     {
-                        asteroid.GetSO().Visibility = ObjectVisibility.None;
+                        asteroid.So.Visibility = ObjectVisibility.None;
                     }
                     foreach (Moon moon in system.MoonList)
                     {
@@ -2632,7 +2625,7 @@ namespace Ship_Game
                 if (switchedmode)
                 {
                     switchedmode = false;
-                    Game1.Instance.graphics.ToggleFullScreen();
+                    Game1.Instance.Graphics.ToggleFullScreen();
                 }
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.F7) && input.LastKeyboardState.IsKeyUp(Keys.F7) && !ExceptionTracker.active)
@@ -2668,7 +2661,7 @@ namespace Ship_Game
                 if (switchedmode)
                 {
                     switchedmode = false;
-                    Game1.Instance.graphics.ToggleFullScreen();
+                    Game1.Instance.Graphics.ToggleFullScreen();
                 }
             }
             if ((input.CurrentKeyboardState.IsKeyDown(Keys.OemTilde) && input.LastKeyboardState.IsKeyUp(Keys.OemTilde) && (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift)))                
@@ -4937,7 +4930,6 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            System.Diagnostics.Debug.WriteLine("ExitScreen(): WorkerThread Abort()");
             ProcessTurnsThread.Abort();
             ProcessTurnsThread = null;
             EmpireUI.empire = null;
@@ -4976,10 +4968,10 @@ namespace Ship_Game
                 }
                 foreach (Asteroid asteroid in (List<Asteroid>)solarSystem.AsteroidsList)
                 {
-                    if (asteroid.GetSO() != null)
+                    if (asteroid.So!= null)
                     {
-                        asteroid.GetSO().Clear();
-                        ScreenManager.inter.ObjectManager.Remove((ISceneObject)asteroid.GetSO());
+                        asteroid.So.Clear();
+                        ScreenManager.inter.ObjectManager.Remove((ISceneObject)asteroid.So);
                     }
                 }
                 solarSystem.AsteroidsList.Clear();
@@ -4995,15 +4987,13 @@ namespace Ship_Game
             }
             foreach (Empire empire in EmpireManager.EmpireList)
                 empire.CleanOut();
+
+            JunkList.ApplyPendingRemovals();
             foreach (SpaceJunk spaceJunk in JunkList)
-            {
-                spaceJunk.trailEmitter = null;
-                spaceJunk.JunkSO.Clear();
-                ScreenManager.inter.ObjectManager.Remove((ISceneObject)spaceJunk.JunkSO);
-                spaceJunk.JunkSO = null;
-            }
-            ResourceManager.ModelDict.Clear();            
+                spaceJunk.DestroySceneObject();
             JunkList.Clear();
+
+            ResourceManager.ModelDict.Clear();            
             SelectedShip   = null;
             SelectedFleet  = null;
             SelectedPlanet = null;
@@ -5050,9 +5040,7 @@ namespace Ship_Game
             Projectile.contentManager             = ScreenManager.Content;
             Projectile.universeScreen             = null;
             ShipModule.universeScreen             = null;
-            Asteroid.universeScreen               = null;
             Empire.Universe                       = null;
-            SpaceJunk.universeScreen              = null;
             ResourceManager.UniverseScreen        = null;
             Planet.universeScreen                 = null;
             Weapon.universeScreen                 = null;
@@ -5387,7 +5375,7 @@ namespace Ship_Game
                 if (!Debug && empire != player && !player.GetRelations(empire).Known)
                     continue;
 
-                var empireColor = empire.EmpireColor; //new Color(empire.EmpireColor, 140);
+                var empireColor = empire.EmpireColor;
                 using (empire.BorderNodes.AcquireReadLock())
                 {
                     foreach (Empire.InfluenceNode influ in empire.BorderNodes)
@@ -5395,28 +5383,30 @@ namespace Ship_Game
                         if (!Frustum.Contains(influ.Position, influ.Radius))
                             continue;
 
-                        Vector2 nodeCenter = ProjectToScreenPosition(influ.Position);
-                        int size = (int)Math.Abs(ProjectToScreenPosition(influ.Position.PointOnCircle(90f, influ.Radius)).X - nodeCenter.X);
+                        Vector2 nodePos = ProjectToScreenPosition(influ.Position);
+                        int size = (int)Math.Abs(ProjectToScreenPosition(influ.Position.PointOnCircle(90f, influ.Radius)).X - nodePos.X);
 
-                        Rectangle rect = new Rectangle((int)nodeCenter.X, (int)nodeCenter.Y, size * 5, size * 5);
+                        Rectangle rect = new Rectangle((int)nodePos.X, (int)nodePos.Y, size * 5, size * 5);
                         spriteBatch.Draw(nodeCorrected, rect, null, empireColor, 0.0f, nodeCorrected.Center(), SpriteEffects.None, 1f);
 
-                        if (false)
                         foreach (Empire.InfluenceNode influ2 in empire.BorderNodes)
                         {
                             if (influ.Position == influ2.Position || influ.Radius > influ2.Radius ||
                                 influ.Position.OutsideRadius(influ2.Position, influ.Radius + influ2.Radius + 150000.0f))
                                 continue;
 
-                            Vector2 halfwayPosToNode2 = influ.Position + (influ2.Position - influ.Position) * 0.5f;
+                            Vector2 endPos = ProjectToScreenPosition(influ2.Position);
 
-                            Vector2 halfwayCenter = ProjectToScreenPosition(halfwayPosToNode2);
-                            nodeCenter = ProjectToScreenPosition(influ2.Position);
+                            //Vector2 halfwayPosToNode2 = influ.Position + (influ2.Position - influ.Position) * 0.5f;
+                            //Vector2 halfwayCenter     = ProjectToScreenPosition(halfwayPosToNode2);
 
-                            float rotation = halfwayCenter.RadiansToTarget(nodeCenter);
+                            // Debugging
+                            //Primitives2D.DrawLine(spriteBatch, nodePos, endPos, Color.Brown);
+                            //Primitives2D.DrawCircle(spriteBatch, halfwayCenter, 10.0f, 16, Color.Yellow);
 
-                            rect = new Rectangle((int)halfwayCenter.X, (int)halfwayCenter.Y, size, (int)Vector2.Distance(halfwayCenter, nodeCenter));
-                            spriteBatch.Draw(nodeConnect, rect, null, empireColor, rotation, new Vector2(2f, 2f), SpriteEffects.None, 1f);
+                            float rotation = nodePos.RadiansToTarget(endPos);
+                            rect = new Rectangle((int)endPos.X, (int)endPos.Y, size*3/2, (int)Vector2.Distance(nodePos, endPos));
+                            spriteBatch.Draw(nodeConnect, rect, null, empireColor, rotation, new Vector2(2f,2f), SpriteEffects.None, 1f);
                         }
                     }
                 }
@@ -5457,25 +5447,28 @@ namespace Ship_Game
                 }
             }
             this.ScreenManager.SpriteBatch.End();
-            this.ScreenManager.GraphicsDevice.SetRenderTarget(0, (RenderTarget2D)null);
+            this.ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
             this.FogMap = this.FogMapTarget.GetTexture();
+
             this.ScreenManager.GraphicsDevice.SetRenderTarget(0, this.LightsTarget);
             this.ScreenManager.GraphicsDevice.Clear(Color.White);
-            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
-            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size.X, this.Size.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+
             this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size.X / 2f, this.Size.Y / 2f, 0.0f), this.projection, this.view, Matrix.Identity);
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
-            Rectangle destinationRectangle1 = new Rectangle((int)vector3_1.X - 40, (int)vector3_1.Y - 40, (int)vector3_2.X - (int)vector3_1.X + 80, (int)vector3_2.Y - (int)vector3_1.Y + 80);
-            destinationRectangle1 = new Rectangle((int)vector3_1.X, (int)vector3_1.Y, (int)vector3_2.X - (int)vector3_1.X, (int)vector3_2.Y - (int)vector3_1.Y);
-            if (this.FogOn)
+            if (!Debug) // don't draw dark fog in debug
             {
+                Vector3 vector3_1 = ScreenManager.GraphicsDevice.Viewport.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
+                Vector3 vector3_2 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size.X, this.Size.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+
+
+                Rectangle fogRect = new Rectangle((int)vector3_1.X, (int)vector3_1.Y, (int)vector3_2.X - (int)vector3_1.X, (int)vector3_2.Y - (int)vector3_1.Y);
                 Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, new Rectangle(0, 0, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight), new Color((byte)0, (byte)0, (byte)0, (byte)170));
-                this.ScreenManager.SpriteBatch.Draw(this.FogMap, destinationRectangle1, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)55));
+                this.ScreenManager.SpriteBatch.Draw(this.FogMap, fogRect, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)55));
             }
             this.DrawFogNodes();
             this.DrawInfluenceNodes();
             this.ScreenManager.SpriteBatch.End();
-            this.ScreenManager.GraphicsDevice.SetRenderTarget(0, (RenderTarget2D)null);
+            this.ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
         }
 
         public override void Draw(GameTime gameTime)
@@ -5501,18 +5494,17 @@ namespace Ship_Game
             DrawMain(gameTime);
             graphics.SetRenderTarget(0, null);
             DrawLights(gameTime);
-            graphics.SetRenderTarget(0, BorderRT);
-            graphics.Clear(Color.TransparentBlack);
 
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
             {
+                graphics.SetRenderTarget(0, BorderRT);
+                graphics.Clear(Color.TransparentBlack);
                 DrawColoredEmpireBorders();
             }
 
             graphics.SetRenderTarget(0, null);
             Texture2D texture1 = MainTarget.GetTexture();
             Texture2D texture2 = LightsTarget.GetTexture();
-            Texture2D borderTexture = BorderRT.GetTexture();
             graphics.SetRenderTarget(0, null);
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue((Texture)texture2);
@@ -5526,14 +5518,21 @@ namespace Ship_Game
             view = matrix;
             if (drawBloom) bloomComponent.Draw(gameTime);
             ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
-            float num = (float)(75.0 * camHeight / 1800000.0);
-            if (num > 75.0) num = 75f;
-            if (num < 10.0) num = 0.0f;
-            Color color = new Color(255, 255, 255, MathHelper.Lerp(255, num, 0.99f));
-            ScreenManager.SpriteBatch.Draw(borderTexture, 
-                new Rectangle(0, 0, 
-                    graphics.PresentationParameters.BackBufferWidth, 
-                    graphics.PresentationParameters.BackBufferHeight), color);
+
+            if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
+            {
+                // set the alpha value depending on camera height
+                int alpha = (int)(90.0f*camHeight / 1800000.0f);
+                if (alpha > 90)      alpha = 90;
+                else if (alpha < 10) alpha = 0;
+                var color = new Color(255, 255, 255, (byte)alpha);
+
+                ScreenManager.SpriteBatch.Draw(BorderRT.GetTexture(), 
+                    new Rectangle(0, 0, 
+                        graphics.PresentationParameters.BackBufferWidth, 
+                        graphics.PresentationParameters.BackBufferHeight), color);
+            }
+
             RenderOverFog(gameTime);
             ScreenManager.SpriteBatch.End();
             ScreenManager.SpriteBatch.Begin();
@@ -6489,7 +6488,7 @@ namespace Ship_Game
                 }
                 else if (this.Debug)
                 {
-                    if (this.Debug && moduleSlot.module.isExternal && moduleSlot.module.Active)
+                    if (moduleSlot.module.isExternal && moduleSlot.module.Active)
                     {
                         string index = "TacticalIcons/symbol_fighter";
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
@@ -7648,37 +7647,31 @@ namespace Ship_Game
             this.DrawBombs();
             lock (GlobalStats.ObjectManagerLocker)
                 this.ScreenManager.inter.RenderManager.Render();
-            for (int index1 = 0; index1 < this.player.KnownShips.Count; ++index1)
-            //Parallel.For(0, this.player.KnownShips.Count, index1 =>
+
+            using (player.KnownShips.AcquireReadLock())
+            foreach (Ship ship in player.KnownShips)
             {
-                try
+                using (ship.Projectiles.AcquireReadLock())
+                foreach (Projectile projectile in ship.Projectiles)
                 {
-                    Ship ship = player.KnownShips[index1];
-                    for (int i = 0; i < ship.Projectiles.Count; ++i) // regular FOR to mitigate multi-threading issues
+                    if (projectile.weapon.IsRepairDrone && projectile.GetDroneAI() != null)
                     {
-                        Projectile projectile = ship.Projectiles[i];
-                        if (projectile.weapon.IsRepairDrone && projectile.GetDroneAI() != null)
-                        {
-                            for (int j = 0; j < projectile.GetDroneAI().Beams.Count; ++j)
-                                projectile.GetDroneAI().Beams[j].Draw(this.ScreenManager);
-                        }
-                    }
-                    if (viewState < UnivScreenState.SectorView)
-                    {
-                        for (int i = 0; i < ship.Beams.Count; ++i) // regular FOR to mitigate multi-threading issues
-                        {
-                            Beam beam = ship.Beams[i];
-                            if (beam.Source.WithinRadius(beam.ActualHitDestination, beam.range + 10.0f))
-                                beam.Draw(ScreenManager);
-                            else
-                                beam.Die(null, true);
-                        }
+                        for (int j = 0; j < projectile.GetDroneAI().Beams.Count; ++j)
+                            projectile.GetDroneAI().Beams[j].Draw(this.ScreenManager);
                     }
                 }
-                catch
+                if (viewState < UnivScreenState.SectorView)
                 {
+                    for (int i = 0; i < ship.Beams.Count; ++i) // regular FOR to mitigate multi-threading issues
+                    {
+                        Beam beam = ship.Beams[i];
+                        if (beam.Source.InRadius(beam.ActualHitDestination, beam.range + 10.0f))
+                            beam.Draw(ScreenManager);
+                        else
+                            beam.Die(null, true);
+                    }
                 }
-            }//);
+            }
 
             var renderState = ScreenManager.GraphicsDevice.RenderState;
 
