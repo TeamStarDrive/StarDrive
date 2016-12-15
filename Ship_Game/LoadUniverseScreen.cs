@@ -1230,7 +1230,7 @@ namespace Ship_Game
 				base.ScreenManager.inter.ObjectManager.Submit(p.SO);
 			}
             foreach (Asteroid roid in system.AsteroidsList)
-                base.ScreenManager.inter.ObjectManager.Submit(roid.GetSO());
+                base.ScreenManager.inter.ObjectManager.Submit(roid.So);
             foreach (Moon moon in system.MoonList)
                 base.ScreenManager.inter.ObjectManager.Submit(moon.GetSO());
 			LoadUniverseScreen loadUniverseScreen = this;

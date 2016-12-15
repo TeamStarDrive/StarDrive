@@ -53,7 +53,7 @@ namespace Ship_Game.Gameplay
         public int TaskStep;
         public bool IsCoreFleet;
         [XmlIgnore]
-        public Vector2 StoredFleetPosistion;
+        public Vector2 StoredFleetPosition;
         [XmlIgnore]
         public float StoredFleetDistancetoMove;
         //adding for thread safe Dispose because class uses unmanaged resources 
@@ -871,80 +871,25 @@ namespace Ship_Game.Gameplay
 
         public Vector2 findAveragePosition()
         {
-
-            if (StoredFleetPosistion == Vector2.Zero)
-                this.findAveragePositionset();
-            if (StoredFleetPosistion == Vector2.Zero)
-                return this.Ships.Any() ? this.Ships.First().Center : Vector2.Zero;
-            return StoredFleetPosistion;
+            if (StoredFleetPosition == Vector2.Zero)
+                StoredFleetPosition = findAveragePositionset();
+            else if (Ships.Count != 0)
+                StoredFleetPosition = Ships[0].Center;
+            return StoredFleetPosition;
         }
         
         public Vector2 findAveragePositionset()
         {
-            List<float> distancesx = new List<float>();
-            List<float> distancesy = new List<float>();
-            float sumx = 0;
-            float sumy = 0f;
-            foreach (Ship distance in Ships)
-            {
-
-                distancesx.Add(distance.Center.X);
-                sumx+=distance.Center.X;
-                distancesy.Add(distance.Center.Y);
-                sumy+=distance.Center.Y;
-
-            }
-            if(this.Ships.Count ==0)
+            if (Ships.Count == 0)
                 return Vector2.Zero;
-            Vector2 center = new Vector2(sumx, sumy);
-            if (this.Ships.Count == 1)
-                return center;
-            float avgdistancex = sumx / distancesx.Count ;
-            float avgdistancey = sumy / distancesy.Count;
-            sumx = (float)distancesx.Sum(distance => Math.Pow(distance - avgdistancex , 2));
-            sumy = (float)distancesy.Sum(distance => Math.Pow(distance - avgdistancey , 2));            
 
-            float stddevx = (float)Math.Sqrt((sumx) / (distancesx.Count -1))+1000;
-            float stddevy = (float)Math.Sqrt((sumy) / (distancesy.Count -1 ))+1000;
-
-            //try
+            Vector2 center = Vector2.Zero;
+            using (Ships.AcquireReadLock())
             {
-                center = new Vector2(distancesx.Where(distance => distance <= avgdistancex + stddevx && distance >= avgdistancex - stddevx).Average()
-                    , distancesy.Where(distance => distance <= avgdistancey + stddevy && distance >= avgdistancey - stddevy).Average());
-
-                return center;
+                foreach (var ship in Ships) center += ship.Position;
             }
-            //catch
-            //{
-            //    return Vector2.Zero;
-            //}
-
-        }
-        //added by gremlin. make fleet center not count warpless ships.
-        public Vector2 findAveragePositioncg()
-        {
-            Vector2 pos = Vector2.Zero;
-            Vector2 pos2 = Vector2.Zero;
-            float shipcount = 0;
-            foreach (Ship ship in (List<Ship>)this.Ships)
-            //Parallel.ForEach(this.Ships, ship =>
-            {
-                pos2 = pos2 + ship.Position;
-                if (!ship.EnginesKnockedOut && ship.Active )//&& (!ship.Inhibited || ship.Inhibited && Vector2.Distance(this.Position,ship.Position)<300000)  )
-                {
-                    pos = pos + ship.Position;
-                    shipcount++;
-                }
-            }
-            //if (pos == Vector2.Zero && this.Ships.Count>0) 
-            //    pos = this.Ships[0].Position;
-            //float count = (float)this.Ships.Where(ship => !ship.EnginesKnockedOut && ship.IsWarpCapable && !ship.Inhibited && ship.Active).Count();
-            if (shipcount > 0)
-                return pos / shipcount;
-            else if (this.Ships.Count > 0)
-                return pos2 / this.Ships.Count;
-            else
-                return Vector2.Zero;
+            center /= Ships.Count;
+            return center;
         }
         public void Setavgtodestination()
         {
@@ -954,25 +899,19 @@ namespace Ship_Game.Gameplay
             {
                 if (distance.EnginesKnockedOut || !distance.Active || distance.InCombat)
                     continue;
-                distances.Add(Vector2.Distance(distance.Center, this.Position + distance.FleetOffset) -100);
+                distances.Add(Vector2.Distance(distance.Center, this.Position + distance.FleetOffset) - 100);
             }
-
             if (distances.Count <= 2)
             {
-                //return Vector2.Distance(this.findAveragePosition(), this.Position); 
-                this.StoredFleetDistancetoMove = Vector2.Distance(this.StoredFleetPosistion, this.Position);
+                this.StoredFleetDistancetoMove = Vector2.Distance(this.StoredFleetPosition, this.Position);
                 return;
             }
             float avgdistance = distances.Average();
             float sum = (float)distances.Sum(distance => Math.Pow(distance -avgdistance, 2));
             float stddev = (float)Math.Sqrt((sum) / (distances.Count  - 1));
-            //return
-                //distances.Where(distance => distance <avgdistance+stddev && distance> avgdistance-stddev).Average();
             this.StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average(); //&& && distance > avgdistance - stddev
-                
-
-            
         }
+
         #region unused
         public void TrackEnemies()
         {
