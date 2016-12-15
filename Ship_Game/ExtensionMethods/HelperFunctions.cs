@@ -105,15 +105,14 @@ namespace Ship_Game
 			fleet.Name           = data.Name;
 			fleet.FleetIconIndex = data.FleetIconIndex;
 
-            fleet.DataNodes.thisLock.EnterWriteLock();
-			foreach (FleetDataNode node in fleet.DataNodes)
-			{
-				Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
-				s.RelativeFleetOffset = node.FleetOffset;
-				node.SetShip(s);
-				fleet.AddShip(s);
-			}
-            fleet.DataNodes.thisLock.ExitWriteLock();
+            using (fleet.DataNodes.AcquireWriteLock())
+                foreach (FleetDataNode node in fleet.DataNodes)
+                {
+                    Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
+                    s.RelativeFleetOffset = node.FleetOffset;
+                    node.SetShip(s);
+                    fleet.AddShip(s);
+                }
             return fleet;
         }
 

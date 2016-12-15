@@ -217,8 +217,8 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex), ScreenManager);
                 //break;
             }
-            this.planet.TroopsHere.thisLock.EnterReadLock();
             int troops = 0;
+            using (planet.TroopsHere.AcquireReadLock())
             foreach (Troop troop in this.planet.TroopsHere)
             {
                 if (troop.GetOwner().isPlayer)
@@ -227,7 +227,6 @@ namespace Ship_Game
 
                 }
             }
-            this.planet.TroopsHere.thisLock.ExitReadLock();
             if (troops > 0)
             {
                 //TimeSpan totalGameTime = gameTime.TotalGameTime;
@@ -344,13 +343,15 @@ namespace Ship_Game
                 this.SendTroops.State = UIButton.PressState.Hover;
                 if (input.InGameSelect)
                 {
-                    //this.SendTroops.Text = "Send Troops";   
-                    this.screen.empUI.empire.GetShips().thisLock.EnterReadLock();
-                    List<Ship> troopShips = new List<Ship>(this.screen.empUI.empire.GetShips()
-                        .Where(troop => troop.TroopList.Count > 0
-                            && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
-                            && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Position)));
-                    this.screen.empUI.empire.GetShips().thisLock.ExitReadLock();
+                    List<Ship> troopShips;
+                    using (screen.empUI.empire.GetShips().AcquireReadLock())
+                    {
+                        troopShips = new List<Ship>(this.screen.empUI.empire.GetShips()
+                            .Where(troop => troop.TroopList.Count > 0
+                                && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
+                                && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Position)));
+                    }
+
                     var planetTroops = new List<Planet>(screen.empUI.empire.GetPlanets()
                         .Where(troops => troops.TroopsHere.Count > 1)
                         .OrderBy(distance => Vector2.Distance(distance.Position, planet.Position))

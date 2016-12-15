@@ -126,8 +126,8 @@ namespace Ship_Game
                 Launches = "LaunchAll",
                 Text = "Launch All"
             };
-            CombatScreen.universeScreen.MasterShipList.thisLock.EnterReadLock();
-            foreach (Ship ship in CombatScreen.universeScreen.MasterShipList)			                        
+            using (universeScreen.MasterShipList.AcquireReadLock())
+            foreach (Ship ship in universeScreen.MasterShipList)			                        
             {
                 
                 if (ship == null)
@@ -158,7 +158,6 @@ namespace Ship_Game
                     this.OrbitSL.AddItem(ship);
                 }
             }
-            CombatScreen.universeScreen.MasterShipList.thisLock.ExitReadLock();
 			this.gridPos = new Rectangle(ColonyGrid.X + 20, ColonyGrid.Y + 20, ColonyGrid.Width - 40, ColonyGrid.Height - 40);
 			int xsize = this.gridPos.Width / 7;
 			int ysize = this.gridPos.Height / 5;
@@ -1042,7 +1041,7 @@ namespace Ship_Game
                 Ship ship = this.p.ParentSystem.ShipList[i];
 				if (Vector2.Distance(this.p.Position, ship.Center) < 15000f && ship.loyalty == EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
 				{
-                    if (ship.shipData.Role == ShipData.RoleName.troop && !CombatScreen.universeScreen.MasterShipList.pendingRemovals.Contains(ship))
+                    if (ship.shipData.Role == ShipData.RoleName.troop && !universeScreen.MasterShipList.IsPendingRemoval(ship))
 					{
 						this.OrbitSL.AddItem(ship);
 					}
