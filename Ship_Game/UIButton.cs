@@ -1,198 +1,84 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game
 {
-	public sealed class UIButton
+    // Refactored by RedFox
+    public sealed class UIButton
 	{
-		public Rectangle Rect;
-
-		public UIButton.PressState State;
-
+        public enum PressState
+        {
+            Default, Hover, Pressed
+        }
+        public Rectangle Rect;
+		public PressState State;
 		public Texture2D NormalTexture;
-
 		public Texture2D HoverTexture;
-
 		public Texture2D PressedTexture;
-
-		public string Text = "";
-
+		public string Text     = "";
 		public string Launches = "";
-
-		public Color HoverColor = new Color(255, 240, 189);
-
-		public Color PressColor = new Color(255, 240, 189);
-
+        public readonly Color DefaultColor = new Color(255, 240, 189);
+        public readonly Color HoverColor   = new Color(255, 240, 189);
+		public readonly Color PressColor   = new Color(255, 240, 189);
 		public int ToolTip;
-
         public bool Active = true;
 
 		public UIButton()
 		{
 		}
 
+        private Texture2D ButtonTexture()
+        {
+            switch (State)
+            {
+                default:                 return NormalTexture;
+                case PressState.Hover:   return HoverTexture;
+                case PressState.Pressed: return PressedTexture;
+            }
+        }
+
+        private Color TextColor()
+        {
+            switch (State)
+            {
+                default:                 return DefaultColor;
+                case PressState.Hover:   return HoverColor;
+                case PressState.Pressed: return PressColor;
+            }
+        }
+
+        private void DrawButtonText(SpriteBatch spriteBatch, Rectangle r, bool enabled, bool bold = true)
+        {
+            SpriteFont font = bold ? Fonts.Arial12Bold : Fonts.Arial12;
+
+            Vector2 textCursor;
+            textCursor.X = r.X + r.Width  / 2 - font.MeasureString(Text).X / 2f;
+            textCursor.Y = r.Y + r.Height / 2 - font.LineSpacing / 2;
+            if (State == PressState.Pressed)
+                textCursor.Y += 1f; // pressed down effect
+
+            spriteBatch.DrawString(font, Text, textCursor, enabled ? TextColor() : Color.Gray);
+        }
+
 		public void Draw(SpriteBatch spriteBatch, Rectangle r)
 		{
             if (!Active) return;
-
-			Vector2 textCursor = new Vector2();
-			if (!string.IsNullOrEmpty(this.Text))
-			{
-				textCursor.X = (float)(r.X + this.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Text).X / 2f;
-				textCursor.Y = (float)(r.Y + this.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-			}
-			if (this.State == UIButton.PressState.Normal)
-			{
-				spriteBatch.Draw(this.NormalTexture, r, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, new Color(255, 240, 189));
-					return;
-				}
-			}
-			else if (this.State == UIButton.PressState.Hover)
-			{
-				spriteBatch.Draw(this.HoverTexture, r, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, this.HoverColor);
-					return;
-				}
-			}
-			else if (this.State == UIButton.PressState.Pressed)
-			{
-				spriteBatch.Draw(this.PressedTexture, r, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					textCursor.Y = textCursor.Y + 1f;
-					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, this.PressColor);
-				}
-			}
+            spriteBatch.Draw(ButtonTexture(), r, Color.White);
+            DrawButtonText(spriteBatch, r, enabled:true);
 		}
 
-		public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, bool enabled = true)
+        {
+            if (!Active) return;
+            spriteBatch.Draw(ButtonTexture(), Rect, Color.White);
+            DrawButtonText(spriteBatch, Rect, enabled);
+        }
+
+		public void DrawLight(SpriteBatch spriteBatch)
 		{
             if (!Active) return;
-
-			Vector2 textCursor = new Vector2();
-			if (!string.IsNullOrEmpty(this.Text))
-			{
-				textCursor.X = (float)(this.Rect.X + this.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Text).X / 2f;
-				textCursor.Y = (float)(this.Rect.Y + this.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-			}
-			if (this.State == UIButton.PressState.Normal)
-			{
-				spriteBatch.Draw(this.NormalTexture, this.Rect, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, new Color(255, 240, 189));
-					return;
-				}
-			}
-			else if (this.State == UIButton.PressState.Hover)
-			{
-				spriteBatch.Draw(this.HoverTexture, this.Rect, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, this.HoverColor);
-					return;
-				}
-			}
-			else if (this.State == UIButton.PressState.Pressed)
-			{
-				spriteBatch.Draw(this.PressedTexture, this.Rect, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					textCursor.Y = textCursor.Y + 1f;
-					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, this.PressColor);
-				}
-			}
-		}
-
-		public void DrawInActive(SpriteBatch spriteBatch)
-		{
-            if (!Active) return;
-
-			Vector2 textCursor = new Vector2();
-			if (!string.IsNullOrEmpty(this.Text))
-			{
-				textCursor.X = (float)(this.Rect.X + this.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Text).X / 2f;
-				textCursor.Y = (float)(this.Rect.Y + this.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-			}
-			if (this.State == UIButton.PressState.Normal)
-			{
-				spriteBatch.Draw(this.NormalTexture, this.Rect, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, Color.Gray);
-					return;
-				}
-			}
-			else if (this.State == UIButton.PressState.Hover)
-			{
-				spriteBatch.Draw(this.HoverTexture, this.Rect, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, Color.Gray);
-					return;
-				}
-			}
-			else if (this.State == UIButton.PressState.Pressed)
-			{
-				spriteBatch.Draw(this.PressedTexture, this.Rect, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					textCursor.Y = textCursor.Y + 1f;
-					spriteBatch.DrawString(Fonts.Arial12Bold, this.Text, textCursor, Color.Gray);
-				}
-			}
-		}
-
-		public void DrawLowRes(SpriteBatch spriteBatch)
-		{
-            if (!Active) return;
-
-			Vector2 textCursor = new Vector2();
-			if (!string.IsNullOrEmpty(this.Text))
-			{
-				textCursor.X = (float)(this.Rect.X + this.Rect.Width / 2) - Fonts.Arial12Bold.MeasureString(this.Text).X / 2f;
-				textCursor.Y = (float)(this.Rect.Y + this.Rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2 - 1);
-			}
-			if (this.State == UIButton.PressState.Normal)
-			{
-				spriteBatch.Draw(this.NormalTexture, this.Rect, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					spriteBatch.DrawString(Fonts.Arial12, this.Text, textCursor, new Color(255, 240, 189));
-					return;
-				}
-			}
-			else if (this.State == UIButton.PressState.Hover)
-			{
-				spriteBatch.Draw(this.HoverTexture, this.Rect, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					spriteBatch.DrawString(Fonts.Arial12, this.Text, textCursor, this.HoverColor);
-					return;
-				}
-			}
-			else if (this.State == UIButton.PressState.Pressed)
-			{
-				spriteBatch.Draw(this.PressedTexture, this.Rect, Color.White);
-				if (!string.IsNullOrEmpty(this.Text))
-				{
-					textCursor.Y = textCursor.Y + 1f;
-					spriteBatch.DrawString(Fonts.Arial12, this.Text, textCursor, this.PressColor);
-				}
-			}
-		}
-
-		public enum PressState
-		{
-			Normal,
-			Hover,
-			Pressed
+            spriteBatch.Draw(ButtonTexture(), Rect, Color.White);
+            DrawButtonText(spriteBatch, Rect, enabled:true, bold:false);
 		}
 	}
 }

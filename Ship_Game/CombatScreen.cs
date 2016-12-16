@@ -701,7 +701,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(this.LandAll.Rect, input.CursorPosition))
 				{
-					this.LandAll.State = UIButton.PressState.Normal;
+					this.LandAll.State = UIButton.PressState.Default;
 				}
 				else
 				{
@@ -727,11 +727,11 @@ namespace Ship_Game
                     
 				}
 			}
-            if (p.TroopsHere.Where(mytroops => mytroops.GetOwner() == universeScreen.player).Count() > 0)
+            if (p.TroopsHere.Any(mytroops => mytroops.GetOwner() == universeScreen.player))
             {
                 if (!HelperFunctions.CheckIntersection(this.LaunchAll.Rect, input.CursorPosition))
                 {
-                    this.LaunchAll.State = UIButton.PressState.Normal;
+                    this.LaunchAll.State = UIButton.PressState.Default;
                 }
                 else
                 {

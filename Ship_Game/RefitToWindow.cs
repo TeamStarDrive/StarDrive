@@ -15,8 +15,6 @@ namespace Ship_Game
 
 		private Ship shiptorefit;
 
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		//private UIButton Exit;
 
 		private Submenu sub_ships;

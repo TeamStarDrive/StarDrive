@@ -30,8 +30,6 @@ namespace Ship_Game
 
 		public List<SlotStruct> Slots = new List<SlotStruct>();
 
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		private Rectangle SearchBar;
 
 		private Rectangle bottom_sep;
@@ -122,11 +120,6 @@ namespace Ship_Game
 			this.Shipyard.Draw(base.ScreenManager, r);
 		}
 
-		public override void ExitScreen()
-		{
-			base.ExitScreen();
-		}
-
 		public override void HandleInput(InputState input)
 		{
 			if (input.Escaped)
@@ -137,7 +130,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(b.Rect, input.CursorPosition))
 				{
-					b.State = UIButton.PressState.Normal;
+					b.State = UIButton.PressState.Default;
 				}
 				else
 				{
