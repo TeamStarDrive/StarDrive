@@ -2060,7 +2060,7 @@ namespace Ship_Game.Gameplay
             if (this.Owner.fleet != null)
             {
 
-                FleetDataNode node = this.Owner.fleet.DataNodes.Where(thenode => thenode.GetShip() == this.Owner).First();
+                FleetDataNode node = this.Owner.fleet.DataNodes.Where(thenode => thenode.Ship== this.Owner).First();
 
                 Goal refitgoal = new Goal
                 {
@@ -6663,7 +6663,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach (FleetDataNode datanode in this.Owner.fleet.DataNodes)
                 {
-                    if (datanode.GetShip() != this.Owner)
+                    if (datanode.Ship!= this.Owner)
                     {
                         continue;
                     }
@@ -6762,7 +6762,7 @@ namespace Ship_Game.Gameplay
 			{
 				foreach (FleetDataNode datanode in this.Owner.fleet.DataNodes)
 				{
-					if (datanode.GetShip() != this.Owner)
+					if (datanode.Ship!= this.Owner)
 					{
 						continue;
 					}

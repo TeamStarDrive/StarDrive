@@ -1,34 +1,23 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Particle3DSample;
-using Ship_Game;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Web.Script.Serialization;
 using System.Xml.Serialization;
+using MsgPack.Serialization;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class Moon : GameplayObject
 	{
-		public float scale;
-        public int moonType;
-        public Guid orbitTarget;
-        public float OrbitRadius;
-        public float Zrotate;
-	    public float OrbitalAngle;
+        [MessagePackMember(9)]  public float scale;
+        [MessagePackMember(10)] public int   moonType;
+        [MessagePackMember(11)] public Guid  orbitTarget;
+        [MessagePackMember(12)] public float OrbitRadius;
+        [MessagePackMember(13)] public float Zrotate;
+        [MessagePackMember(14)] public float OrbitalAngle;
 
-	    private const float ZrotateAmount = 0.05f;
-
-        [XmlIgnore][ScriptIgnore]
-		public SceneObject So;
-        [XmlIgnore][ScriptIgnore]
-        private Planet OrbitPlanet;
+        [XmlIgnore][MessagePackIgnore] public SceneObject So;
+        [XmlIgnore][MessagePackIgnore] private Planet OrbitPlanet;
 
 		public Moon()
 		{
@@ -36,8 +25,7 @@ namespace Ship_Game.Gameplay
 
 		public override void Initialize()
 		{
-			base.Initialize();
-		    So = new SceneObject((ResourceManager.GetModel("Model/SpaceObjects/planet_" + moonType).Meshes)[0])
+		    So = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + moonType).Meshes[0])
 		    {
 		        ObjectType = ObjectType.Static,
 		        Visibility = ObjectVisibility.Rendered,
@@ -48,7 +36,7 @@ namespace Ship_Game.Gameplay
 
 		public void UpdatePosition(float elapsedTime)
 		{
-            Zrotate += ZrotateAmount * elapsedTime;
+            Zrotate += 0.05f * elapsedTime;
             if (!Planet.universeScreen.Paused)
             {
                 OrbitalAngle += (float)Math.Asin(15.0 / OrbitRadius);

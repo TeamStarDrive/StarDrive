@@ -49,53 +49,35 @@ namespace Ship_Game
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            List<FileData> saves = new List<FileData>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(this.Path);
-            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            var saves = new List<FileData>();
+            foreach (FileInfo fileInfo in Dir.GetFiles(Path))
             {
-                Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
-                    XmlSerializer serializer1 = new XmlSerializer(typeof(SetupSave));
-                    SetupSave data = (SetupSave)serializer1.Deserialize(file);
+                    SetupSave data = fileInfo.Deserialize<SetupSave>();
                     if (string.IsNullOrEmpty(data.Name) || data.Version < 308)
-                    {
-                        file.Dispose();
                         continue;
-                    }
 
                     if (GlobalStats.ActiveMod != null)
                     {
                         if (data.ModPath != GlobalStats.ActiveMod.ModPath)
-                        {
-                            file.Dispose();
                             continue;
-                        }
                     }
                     else if (!string.IsNullOrEmpty(data.ModPath))
-                    {
-                        file.Dispose();
                         continue;
-                    }
 
                     string info = data.Date;
-                    string extraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
-                    saves.Add(new FileData(filesFromDirectory[i], data, data.Name, info, extraInfo));
-                    file.Dispose();
+                    string extraInfo = data.ModName != "" ? "Mod: "+data.ModName : "Default";
+                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo));
                 }
                 catch
                 {
-                    file.Dispose();
                 }
             }
-            IOrderedEnumerable<FileData> sortedList =
-                from data in saves
-                orderby data.FileName ascending
-                select data;
+
+            var sortedList = from data in saves orderby data.FileName ascending select data;
             foreach (FileData data in sortedList)
-            {
-                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
-            }
+                SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
         }
     }
 }

@@ -8,20 +8,14 @@ using System.Xml.Serialization;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
+using MsgPack.Serialization;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class ThreatMatrix
 	{
-		//public Dictionary<Guid, ThreatMatrix.Pin> Pins = new Dictionary<Guid, ThreatMatrix.Pin>();
-        public ConcurrentDictionary<Guid, ThreatMatrix.Pin> Pins = new ConcurrentDictionary<Guid, ThreatMatrix.Pin>();
-        //public Dictionary<Guid, Ship> ship = new Dictionary<Guid, Ship>();
+        public ConcurrentDictionary<Guid, Pin> Pins = new ConcurrentDictionary<Guid, Pin>();
         public ConcurrentDictionary<Guid, Ship> ship = new ConcurrentDictionary<Guid, Ship>();
-		private object thislock = new object();
-        List<Guid> purge = new List<Guid>();
-		public ThreatMatrix()
-		{
-		}
 
         public float StrengthOfAllEmpireShipsInBorders(Empire them)
         {
@@ -459,13 +453,13 @@ namespace Ship_Game.Gameplay
 
 		public class Pin
 		{
-            public Vector2 Position;
-            public Vector2 Velocity;
-            public float Strength;
-            public string EmpireName;
-            public bool InBorders;
-            [XmlIgnore][ScriptIgnore]
-            public Ship Ship;
+            [MessagePackMember(0)] public Vector2 Position;
+            [MessagePackMember(1)] public Vector2 Velocity;
+            [MessagePackMember(2)] public float Strength;
+            [MessagePackMember(3)] public string EmpireName;
+            [MessagePackMember(4)] public bool InBorders;
+
+            [XmlIgnore][MessagePackIgnore] public Ship Ship;
 		}
 	}
 }

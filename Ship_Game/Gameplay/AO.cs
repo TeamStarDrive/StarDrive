@@ -1,47 +1,30 @@
 using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using MsgPack.Serialization;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class AO : IDisposable
 	{
-		public int ThreatLevel;
+        [MessagePackIgnore] private Planet CoreWorld;
+        [MessagePackIgnore] private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
+        [MessagePackIgnore] private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
+        [MessagePackIgnore] private Fleet CoreFleet = new Fleet();
+        [MessagePackIgnore] private readonly List<Ship> ShipsWaitingForCoreFleet = new List<Ship>();
+        [MessagePackIgnore] private List<Planet> PlanetsInAO = new List<Planet>();
+        [MessagePackIgnore] private bool disposed;
+        [MessagePackIgnore] public Vector2 Position => CoreWorld.Position;
 
-		private Planet CoreWorld;
-
-		public Guid CoreWorldGuid;
-
-		public List<Guid> OffensiveForceGuids = new List<Guid>();
-
-		public List<Guid> ShipsWaitingGuids = new List<Guid>();
-
-		public Guid fleetGuid;
-
-		private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
-
-		private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
-
-		private Fleet CoreFleet = new Fleet();
-
-		private List<Ship> ShipsWaitingForCoreFleet = new List<Ship>();
-
-		public int WhichFleet = -1;
-
-		private bool Flip;
-
-		public float Radius;
-
-		private List<Planet> PlanetsInAO = new List<Planet>();
-
-		public int TurnsToRelax;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public Vector2 Position => this.CoreWorld.Position;
+        [MessagePackMember(0)] public int ThreatLevel;
+        [MessagePackMember(1)] public Guid CoreWorldGuid;
+        [MessagePackMember(2)] public List<Guid> OffensiveForceGuids = new List<Guid>();
+        [MessagePackMember(3)] public List<Guid> ShipsWaitingGuids = new List<Guid>();
+        [MessagePackMember(4)] public Guid fleetGuid;
+        [MessagePackMember(5)] public int WhichFleet = -1;
+        [MessagePackMember(6)] private bool Flip;
+        [MessagePackMember(7)] public float Radius;
+        [MessagePackMember(8)] public int TurnsToRelax;
 
 	    public AO()
 		{

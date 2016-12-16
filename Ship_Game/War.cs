@@ -6,48 +6,27 @@ namespace Ship_Game
 {
 	public sealed class War
 	{
-		public Ship_Game.WarType WarType;
-
+		public WarType WarType;
 		public float OurStartingStrength;
-
 		public float TheirStartingStrength;
-
 		public float OurStartingGroundStrength;
-
 		public int OurStartingColonies;
-
 		public float TheirStartingGroundStrength;
-
 		public float StrengthKilled;
-
 		public float StrengthLost;
-
 		public float TroopsKilled;
-
 		public float TroopsLost;
-
 		public int ColoniestWon;
-
 		public int ColoniesLost;
-
 		public List<string> AlliesCalled = new List<string>();
-
 		public List<Guid> ContestedSystemsGUIDs = new List<Guid>();
-
 		public float TurnsAtWar;
-
 		public float EndStarDate;
-
 		public float StartDate;
-
 		private Empire Us;
-
 		public string UsName;
-
 		public string ThemName;
-
 		private Empire Them;
-
 		public int StartingNumContestedSystems;
 
 		public War()

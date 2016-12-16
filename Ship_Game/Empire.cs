@@ -513,14 +513,14 @@ namespace Ship_Game
                 if (keyValuePair.Value.RaceRestrictions.Count != 0)
                 {
                     techEntry.Discovered = false;
-                    techEntry.GetTech().Secret = true;
+                    techEntry.Tech.Secret = true;
                     foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceRestrictions)
                     {
                         if (raceTech.ShipType == data.Traits.ShipType)
                         {
                             techEntry.Discovered = true;
                             techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
-                            if (data.Traits.Militaristic == 1 && techEntry.GetTech().Militaristic)
+                            if (data.Traits.Militaristic == 1 && techEntry.Tech.Militaristic)
                                 techEntry.Unlocked = true;
                             break;
                         }
@@ -551,7 +551,7 @@ namespace Ship_Game
                 if (data.Traits.Militaristic == 1)
                 {
                     //added by McShooterz: alternate way to unlock militaristic techs
-                    if (techEntry.GetTech().Militaristic && techEntry.GetTech().RaceRestrictions.Count == 0)
+                    if (techEntry.Tech.Militaristic && techEntry.Tech.RaceRestrictions.Count == 0)
                         techEntry.Unlocked = true;
 
                     // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
@@ -566,7 +566,7 @@ namespace Ship_Game
                         techEntry.Unlocked = true;
                 }
                 if (techEntry.Unlocked)
-                    techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
+                    techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
                 TechnologyDict.Add(keyValuePair.Key, techEntry);
             }
 
@@ -591,7 +591,7 @@ namespace Ship_Game
             var ourShips = GetOurFactionShips();
             foreach (KeyValuePair<string, TechEntry> entry in TechnologyDict)
             {
-                var tech = entry.Value.GetTech();
+                var tech = entry.Value.Tech;
                 if (tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0 && !WeCanUseThis(tech, ourShips))
                     entry.Value.shipDesignsCanuseThis = false;
             }
@@ -702,7 +702,7 @@ namespace Ship_Game
             var ourShips = GetOurFactionShips();
             foreach (KeyValuePair<string, TechEntry> entry in TechnologyDict)
             {
-                var tech = entry.Value.GetTech();
+                var tech = entry.Value.Tech;
                 if (tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0 && !WeCanUseThis(tech, ourShips))
                     entry.Value.shipDesignsCanuseThis = false;
             }
@@ -782,7 +782,7 @@ namespace Ship_Game
         }
         private bool WeCanUseThisLater(TechEntry tech)
         {
-            foreach (Technology.LeadsToTech leadsto in tech.GetTech().LeadsTo)
+            foreach (Technology.LeadsToTech leadsto in tech.Tech.LeadsTo)
             {
                 TechEntry entry = TechnologyDict[leadsto.UID];
                 if (entry.shipDesignsCanuseThis || WeCanUseThisLater(entry))
@@ -814,7 +814,7 @@ namespace Ship_Game
                 techEntry.Level++;
                 if (techEntry.Level == technology.MaxLevel)
                 {
-                    techEntry.Progress = techEntry.GetTechCost() * UniverseScreen.GamePaceStatic;
+                    techEntry.Progress = techEntry.TechCost* UniverseScreen.GamePaceStatic;
                     techEntry.Unlocked = true;
                 }
                 else
@@ -825,7 +825,7 @@ namespace Ship_Game
             }
             else
             {
-                techEntry.Progress = techEntry.GetTech().Cost * UniverseScreen.GamePaceStatic;
+                techEntry.Progress = techEntry.Tech.Cost * UniverseScreen.GamePaceStatic;
                 techEntry.Unlocked = true;
             }
             //Set GSAI to build ship roles
@@ -863,7 +863,7 @@ namespace Ship_Game
                 foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
                 {
                     //added by McShooterz: Prevent Racial tech from being discovered by unintentional means
-                    if (TechnologyDict[leadsToTech.UID].GetTech().RaceRestrictions.Count == 0 && !TechnologyDict[leadsToTech.UID].GetTech().Secret)
+                    if (TechnologyDict[leadsToTech.UID].Tech.RaceRestrictions.Count == 0 && !TechnologyDict[leadsToTech.UID].Tech.Secret)
                         TechnologyDict[leadsToTech.UID].Discovered = true;
                 }
             }
@@ -1055,7 +1055,7 @@ namespace Ship_Game
 
         public void UnlockTechFromSave(TechEntry tech)
         {
-            var technology = tech.GetTech();
+            var technology = tech.Tech;
             tech.Progress = technology.Cost * UniverseScreen.GamePaceStatic;
             tech.Unlocked = true;
             foreach (Technology.UnlockedBuilding unlockedBuilding in technology.BuildingsUnlocked)
@@ -1068,7 +1068,7 @@ namespace Ship_Game
                 foreach (Technology.LeadsToTech leadsToTech in technology.LeadsTo)
                 {
                     TechEntry leadsTo = TechnologyDict[leadsToTech.UID];
-                    Technology theTechnology = leadsTo.GetTech();
+                    Technology theTechnology = leadsTo.Tech;
                     if (theTechnology.RaceRestrictions.Count == 0 && !theTechnology.Secret)
                         leadsTo.Discovered = true;
                 }
@@ -2433,7 +2433,7 @@ namespace Ship_Game
                             float cyberneticMultiplier = 1.0f;
                             if (this.data.Traits.Cybernetic > 0)
                             {
-                                foreach (Technology.UnlockedBuilding buildingName in tech.GetTech().BuildingsUnlocked)
+                                foreach (Technology.UnlockedBuilding buildingName in tech.Tech.BuildingsUnlocked)
                                 {
                                     Building building = ResourceManager.GetBuilding(buildingName.Name);
                                     if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0 || building.PlusTerraformPoints > 0)
@@ -2444,7 +2444,7 @@ namespace Ship_Game
 
                                 }
                             }
-                            if ((tech.GetTech().Cost*cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
+                            if ((tech.Tech.Cost*cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
                             {
                                 tech.Progress += research;
                                 this.leftoverResearch = 0f;
@@ -2454,8 +2454,8 @@ namespace Ship_Game
                             {
     
                                 
-                                research -= (tech.GetTech().Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
-                                tech.Progress = tech.GetTech().Cost * UniverseScreen.GamePaceStatic;
+                                research -= (tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
+                                tech.Progress = tech.Tech.Cost * UniverseScreen.GamePaceStatic;
                                 this.UnlockTech(this.ResearchTopic);
                                 if (this.isPlayer)
                                     Universe.NotificationManager.AddResearchComplete(this.ResearchTopic, this);

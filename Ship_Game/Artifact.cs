@@ -1,39 +1,26 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using MsgPack.Serialization;
 using static Ship_Game.EventPopup;
 namespace Ship_Game
 {
 	public sealed class Artifact
 	{
-		public bool Discovered;
-
-		public string Name;
-
-		public string Description;
-
-		public int NameIndex;
-
-		public int DescriptionIndex;
-
-		public float ReproductionMod;
-
-		public float ShieldPenBonus;
-
-		public float FertilityMod;
-
-		public float ProductionMod;
-
-		public float GroundCombatMod;
-
-		public float ResearchMod;
-
-		public float PlusFlatMoney;
-
-		public float DiplomacyMod;
-
-		public float SensorMod;
-
-		public float ModuleHPMod;
+        [MessagePackMember(0)] public bool Discovered;
+		[MessagePackMember(1)] public string Name;
+		[MessagePackMember(2)] public string Description;
+		[MessagePackMember(3)] public int NameIndex;
+		[MessagePackMember(4)] public int DescriptionIndex;
+		[MessagePackMember(5)] public float ReproductionMod;
+		[MessagePackMember(6)] public float ShieldPenBonus;
+		[MessagePackMember(7)] public float FertilityMod;
+		[MessagePackMember(8)] public float ProductionMod;
+		[MessagePackMember(9)] public float GroundCombatMod;
+		[MessagePackMember(10)] public float ResearchMod;
+		[MessagePackMember(11)] public float PlusFlatMoney;
+		[MessagePackMember(12)] public float DiplomacyMod;
+		[MessagePackMember(13)] public float SensorMod;
+		[MessagePackMember(14)] public float ModuleHPMod;
 
 
 		public Artifact()
