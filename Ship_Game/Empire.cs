@@ -106,10 +106,6 @@ namespace Ship_Game
         public float freighterBudget;
         public bool RecalculateMaxHP;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
         public float cargoNeed = 0;
-        [XmlIgnore]
-        public ReaderWriterLockSlim SensorNodeLocker;
-        [XmlIgnore]
-        public ReaderWriterLockSlim BorderNodeLocker;
         //[XmlIgnore]
         //private Dictionary<string, bool> UnlockAbleDesigns = new Dictionary<string, bool>
         //adding for thread safe Dispose because class uses unmanaged resources 
@@ -138,8 +134,6 @@ namespace Ship_Game
 
         public Empire()
         {
-            SensorNodeLocker = new ReaderWriterLockSlim();
-            BorderNodeLocker = new ReaderWriterLockSlim();
         }
         public class PatchCacheEntry
         {
@@ -172,10 +166,9 @@ namespace Ship_Game
         public float GetPopulation()
         {
             float pop = 0.0f;
-            OwnedPlanets.thisLock.EnterReadLock();
-            foreach (Planet p in OwnedPlanets)
-                pop += p.Population;
-            OwnedPlanets.thisLock.ExitReadLock();
+            using (OwnedPlanets.AcquireReadLock())
+                foreach (Planet p in OwnedPlanets)
+                    pop += p.Population;
             return pop / 1000f;
         }
 
@@ -216,12 +209,9 @@ namespace Ship_Game
             data.Defeated = true;
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                 solarSystem.OwnerList.Remove(this);
-            BorderNodeLocker.EnterWriteLock();
+
             BorderNodes.Clear();
-            BorderNodeLocker.ExitWriteLock();
-            SensorNodeLocker.EnterWriteLock();
             SensorNodes.Clear();
-            SensorNodeLocker.ExitWriteLock();
             if (isFaction)
                 return;
 
@@ -332,14 +322,12 @@ namespace Ship_Game
             data.Defeated = true;
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
                 solarSystem.OwnerList.Remove(this);
-            BorderNodeLocker.EnterWriteLock();
+
             BorderNodes.Clear();
-            BorderNodeLocker.ExitWriteLock();
-            SensorNodeLocker.EnterWriteLock();
             SensorNodes.Clear();
-            SensorNodeLocker.ExitWriteLock();
             if (isFaction)
                 return;
+
             foreach (var relation in Relationships)
             {
                 relation.Value.AtWar              = false;
@@ -368,12 +356,23 @@ namespace Ship_Game
             data.AgentList.Clear();
         }
 
+        // @todo This uses an expensive linear search. Consider using a QuadTree in the future
         public bool IsPointInBorders(Vector2 point)
         {
-            BorderNodeLocker.EnterReadLock();
-            bool inside = BorderNodes.Any(node => Vector2.Distance(node.Position, point) <= node.Radius);
-            BorderNodeLocker.ExitReadLock();
-            return inside;
+            using (BorderNodes.AcquireReadLock())
+                foreach (var node in BorderNodes)
+                    if (node.Position.InRadius(point, node.Radius))
+                        return true;
+            return false;
+        }
+
+        public bool IsPointInSensors(Vector2 point)
+        {
+            using (BorderNodes.AcquireReadLock())
+                foreach (var node in SensorNodes)
+                    if (node.Position.InRadius(point, node.Radius))
+                        return true;
+            return false;
         }
 
         public Dictionary<string, bool> GetHDict()
@@ -428,9 +427,8 @@ namespace Ship_Game
 
         public void UpdatePlanetIncomes()
         {
-            OwnedPlanets.EnterReadLock();
-            foreach (Planet planet in OwnedPlanets) planet.UpdateIncomes(false);
-            OwnedPlanets.ExitReadLock();
+            using (OwnedPlanets.AcquireReadLock())
+                foreach (Planet planet in OwnedPlanets) planet.UpdateIncomes(false);
         }
 
         public void RemovePlanet(Planet planet)
@@ -1171,15 +1169,13 @@ namespace Ship_Game
 
             if (isPlayer && Universe.Debug)
             {
-                    
-                Universe.MasterShipList.thisLock.EnterReadLock();
-                foreach (Ship nearby in Universe.MasterShipList)
-                {
-                    nearby.inSensorRange = true;
-                    KnownShips.Add(nearby);
-                    GSAI.ThreatMatrix.UpdatePin(nearby);
-                }
-                Universe.MasterShipList.thisLock.ExitReadLock();
+                using (Universe.MasterShipList.AcquireReadLock())
+                    foreach (Ship nearby in Universe.MasterShipList)
+                    {
+                        nearby.inSensorRange = true;
+                        KnownShips.Add(nearby);
+                        GSAI.ThreatMatrix.UpdatePin(nearby);
+                    }
                 return;
             }
             //added by gremlin ships in border search
@@ -1187,111 +1183,108 @@ namespace Ship_Game
             var source = Universe.MasterShipList.ToArray();
             var rangePartitioner = Partitioner.Create(0, source.Length);
             ConcurrentBag<Ship> shipbag = new ConcurrentBag<Ship>();
-            //Parallel.For(0, Empire.Universe.MasterShipList.Count, i =>  
-            
+            var influenceNodes = SensorNodes.AtomicCopy();
+
+            Parallel.ForEach(rangePartitioner, (range) =>
             {
-                SensorNodeLocker.EnterReadLock();
-                var influenceNodes = new List<InfluenceNode>(SensorNodes);
-                SensorNodeLocker.ExitReadLock();
-                Parallel.ForEach(rangePartitioner, (range) =>
+                var toadd = new List<Ship>();
+                for (int i = range.Item1; i < range.Item2; i++)
                 {
-                    var toadd = new List<Ship>();
-                    for (int i = range.Item1; i < range.Item2; i++)
-                    {
-                        toadd.Clear();
-                        Ship nearby = source[i];
-                        if (nearby == null || !nearby.Active)
-                            continue;
-                        nearby.getBorderCheck.Remove(this);                        
-                        if (nearby.loyalty != this)
-                        {                            
-                            bool insensors = false;
-                            bool border = false;
+                    toadd.Clear();
+                    Ship nearby = source[i];
+                    if (nearby == null || !nearby.Active)
+                        continue;
+                    nearby.getBorderCheck.Remove(this);                        
+                    if (nearby.loyalty != this)
+                    {                            
+                        bool insensors = false;
+                        bool border = false;
 
-                            foreach (InfluenceNode node in influenceNodes)
-                            {
-                                if (node.Position.SqDist(nearby.Center) >= node.Radius*node.Radius)
-                                {
-                                    continue;
-                                }
-                                if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
-                                {
-                                    GlobalStats.UILocker.EnterWriteLock();
-                                    DoFirstContact(nearby.loyalty);
-                                    GlobalStats.UILocker.ExitWriteLock();
-                                }
-                                insensors = true;
-                                Ship shipKey = node.KeyedObject as Ship;
-                                if (shipKey != null && (shipKey.inborders || shipKey.Name == "Subspace Projector") ||
-                                    node.KeyedObject is SolarSystem || node.KeyedObject is Planet)
-                                {
-                                    border = true;
-                                    nearby.getBorderCheck.Add(this);
-                                }
-                                if (!isPlayer)
-                                {
-                                    break;
-                                }
-                                nearby.inSensorRange = true;
-                                if (nearby.System== null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
-                                {
-                                    break;
-                                }
-
-                                nearby.System.DangerTimer = 120f;
-                                break;
-                            }
-
-                            GSAI.ThreatMatrix.UpdatePin(nearby, border, insensors);
-
-                            if (insensors) toadd.Add(nearby);
-                            foreach (Ship ship in toadd) shipbag.Add(ship);
-                            toadd.Clear();
-                        }
-                        else
+                        foreach (InfluenceNode node in influenceNodes)
                         {
-                            GSAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
-                            shipbag.Add(nearby);
-                            if (isPlayer)
+                            if (node.Position.SqDist(nearby.Center) >= node.Radius*node.Radius)
                             {
-                                nearby.inSensorRange = true;
+                                continue;
                             }
-                            nearby.inborders = false;
-                            BorderNodeLocker.EnterReadLock();
-                            foreach (InfluenceNode node in BorderNodes)
+                            if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
                             {
-                                if (node.Position.SqDist(nearby.Center) > node.Radius * node.Radius)
-                                    continue;
-                                nearby.inborders = true;
+                                GlobalStats.UILocker.EnterWriteLock();
+                                DoFirstContact(nearby.loyalty);
+                                GlobalStats.UILocker.ExitWriteLock();
+                            }
+                            insensors = true;
+                            Ship shipKey = node.KeyedObject as Ship;
+                            if (shipKey != null && (shipKey.inborders || shipKey.Name == "Subspace Projector") ||
+                                node.KeyedObject is SolarSystem || node.KeyedObject is Planet)
+                            {
+                                border = true;
                                 nearby.getBorderCheck.Add(this);
+                            }
+                            if (!isPlayer)
+                            {
                                 break;
                             }
-                            if (!nearby.inborders)
+                            nearby.inSensorRange = true;
+                            if (nearby.System== null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
                             {
-                                foreach (var relationship in Relationships)
+                                break;
+                            }
+
+                            nearby.System.DangerTimer = 120f;
+                            break;
+                        }
+
+                        GSAI.ThreatMatrix.UpdatePin(nearby, border, insensors);
+
+                        if (insensors) toadd.Add(nearby);
+                        foreach (Ship ship in toadd) shipbag.Add(ship);
+                        toadd.Clear();
+                    }
+                    else
+                    {
+                        GSAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
+                        shipbag.Add(nearby);
+                        if (isPlayer)
+                        {
+                            nearby.inSensorRange = true;
+                        }
+                        nearby.inborders = false;
+
+                        using (BorderNodes.AcquireReadLock())
+                        foreach (InfluenceNode node in BorderNodes)
+                        {
+                            if (node.Position.SqDist(nearby.Center) > node.Radius * node.Radius)
+                                continue;
+                            nearby.inborders = true;
+                            nearby.getBorderCheck.Add(this);
+                            break;
+                        }
+
+                        if (!nearby.inborders)
+                        {
+                            foreach (var relationship in Relationships)
+                            {
+                                if (!relationship.Value.Treaty_Alliance) //Relationship.Key == this ||
                                 {
-                                    if (!relationship.Value.Treaty_Alliance) //Relationship.Key == this ||
-                                    {
+                                    continue;
+                                }
+                                using (relationship.Key.BorderNodes.AcquireReadLock())
+                                foreach (InfluenceNode node in relationship.Key.BorderNodes)
+                                {
+                                    if (node.Position.SqDist(nearby.Center) > node.Radius*node.Radius)
                                         continue;
-                                    }
-                                    foreach (InfluenceNode node in relationship.Key.BorderNodes)
-                                    {
-                                        if (node.Position.SqDist(nearby.Center) > node.Radius*node.Radius)
-                                            continue;
-                                        nearby.inborders = true;
-                                        nearby.getBorderCheck.Add(this);
-                                        break;
-                                    }
+                                    nearby.inborders = true;
+                                    nearby.getBorderCheck.Add(this);
+                                    break;
                                 }
                             }
-                            BorderNodeLocker.ExitReadLock();
                         }
                     }
-                });
+                }
+            });
 
-                foreach (Ship ship in shipbag)
-                    KnownShips.Add(ship);
-            }
+            foreach (Ship ship in shipbag)
+                KnownShips.Add(ship);
             Task task4 = new Task(() =>
             {
                 GSAI.ThreatMatrix.ScrubMatrix();
@@ -1422,7 +1415,7 @@ namespace Ship_Game
                     {
                         foreach (Empire empire in EmpireManager.EmpireList)
                         {
-                            empire.OwnedPlanets.thisLock.EnterReadLock();
+                            using (empire.OwnedPlanets.AcquireReadLock())
                             foreach (Planet planet in empire.OwnedPlanets)
                             {
                                 if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
@@ -1435,7 +1428,6 @@ namespace Ship_Game
                                     StarDateMade = Universe.StarDate
                                 });
                             }
-                            empire.OwnedPlanets.thisLock.ExitReadLock();
                         }
                     }
                     if (!this.InitialziedHostilesDict)
@@ -1563,7 +1555,7 @@ namespace Ship_Game
             this.GrossTaxes = 0f;
             this.OtherIncome = 0f;
 
-            OwnedPlanets.thisLock.EnterReadLock();
+            using (OwnedPlanets.AcquireReadLock())
             {
                 foreach (Planet planet in this.OwnedPlanets)
                 {
@@ -1572,7 +1564,6 @@ namespace Ship_Game
                     this.OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
                 }
             }
-            this.OwnedPlanets.thisLock.ExitReadLock();
             this.TradeMoneyAddedThisTurn = 0.0f;
             foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
             {
@@ -1587,83 +1578,57 @@ namespace Ship_Game
             {
                 this.totalShipMaintenance = 0.0f;
                 
-                this.OwnedShips.thisLock.EnterReadLock();
-                foreach (Ship ship in (List<Ship>)this.OwnedShips)
+                using (OwnedShips.AcquireReadLock())
+                foreach (Ship ship in OwnedShips)
                 {
-                    //Added by McShooterz: Remove Privativation stuff due to this being done in GetMaintCost()
-                    //removed because getmaintcost does this now
-                    //if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                    //{
-                    //    this.totalShipMaintenance += ship.GetMaintCostRealism();
-                    //}
-                    //else
+                    if (data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
+                        || (ship.shipData.Role == ShipData.RoleName.station && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                     {
-                        if (this.data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
-                            || (ship.shipData.Role == ShipData.RoleName.station && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
+                        data.DefenseBudget -= ship.GetMaintCost();
+                        continue;
+                    }
+                    totalShipMaintenance += ship.GetMaintCost();
+                }
+
+                using (OwnedProjectors.AcquireReadLock())
+                foreach (Ship ship in OwnedProjectors)
+                {
+                        if (data.SSPBudget > 0)
                         {
-                            this.data.DefenseBudget -= ship.GetMaintCost();
+                            data.SSPBudget -= ship.GetMaintCost();
                             continue;
                         }
-                        this.totalShipMaintenance += ship.GetMaintCost();
-                    }
-                
-                    
-
+                        totalShipMaintenance += ship.GetMaintCost();
                 }
-                this.OwnedShips.thisLock.ExitReadLock();
-
-                this.OwnedProjectors.thisLock.EnterReadLock();
-                foreach (Ship ship in (List<Ship>)this.OwnedProjectors)
-                {
-                    {
-                        if (this.data.SSPBudget > 0)
-                        {
-                            this.data.SSPBudget -= ship.GetMaintCost();
-                            continue;
-                        }
-                        this.totalShipMaintenance += ship.GetMaintCost();
-                    }
-                    ////added by gremlin reset border stats.
-                    //ship.IsInNeutralSpace = false;
-                    //ship.IsIndangerousSpace = false;
-                    //ship.IsInFriendlySpace = false;
-                }
-                this.OwnedProjectors.thisLock.ExitReadLock();
 
             }//,
            // () =>
             {
-                this.OwnedPlanets.thisLock.EnterReadLock();
-                float newBuildM = 0f;
-   
-                int planetcount = this.GetPlanets().Count;
-                this.exportFTrack =0;
-                this.exportPTrack =0;
-                this.averagePLanetStorage =0;
-                foreach (Planet planet in this.OwnedPlanets)
+                using (OwnedPlanets.AcquireReadLock())
                 {
+                    float newBuildM = 0f;
+                    int planetcount = this.GetPlanets().Count;
+                    this.exportFTrack = 0;
+                    this.exportPTrack = 0;
+                    this.averagePLanetStorage =0;
+                    foreach (Planet planet in this.OwnedPlanets)
+                    {
 
-                    this.exportFTrack += planet.ExportFSWeight;
-                    this.exportPTrack += planet.ExportPSWeight;
-                    this.averagePLanetStorage += (int)planet.MAX_STORAGE;
-                }
-                this.averagePLanetStorage /= planetcount;
+                        this.exportFTrack += planet.ExportFSWeight;
+                        this.exportPTrack += planet.ExportPSWeight;
+                        this.averagePLanetStorage += (int)planet.MAX_STORAGE;
+                    }
+                    this.averagePLanetStorage /= planetcount;
                 
-                foreach (Planet planet in this.OwnedPlanets)// .OrderBy(weight => (int)(weight.ExportFSWeight) + (int)(weight.ExportPSWeight)))
-                {
+                    foreach (Planet planet in this.OwnedPlanets)// .OrderBy(weight => (int)(weight.ExportFSWeight) + (int)(weight.ExportPSWeight)))
+                    {
                     
-                    planet.UpdateOwnedPlanet();
+                        planet.UpdateOwnedPlanet();
 
-                    newBuildM += planet.TotalMaintenanceCostsPerTurn;
+                        newBuildM += planet.TotalMaintenanceCostsPerTurn;
+                    }
+                    totalBuildingMaintenance = newBuildM;
                 }
-                //foreach (Planet planet in this.OwnedPlanets)
-                //{
-
-                //    planet.ExportFSWeight = 0;
-                //    planet.ExportPSWeight = 0;
-                //}
-                this.OwnedPlanets.thisLock.ExitReadLock();
-                this.totalBuildingMaintenance = newBuildM;
             }
            // );
             this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
@@ -1878,24 +1843,18 @@ namespace Ship_Game
         public float GetTotalPop()
         {
             float num = 0.0f;
-            this.OwnedPlanets.thisLock.EnterReadLock();
-            {
+            using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet item_0 in this.OwnedPlanets)
                     num += item_0.Population / 1000f;
-            }
-            this.OwnedPlanets.thisLock.ExitReadLock();
             return num;
         }
 
         public float GetGrossFoodPerTurn()
         {
             float num = 0.0f;
-            this.OwnedPlanets.thisLock.EnterReadLock();
-            {
+            using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet item_0 in this.OwnedPlanets)
                     num += item_0.GrossFood;
-            }
-            this.OwnedPlanets.thisLock.ExitReadLock();
             return num;
         }
 
@@ -2011,23 +1970,17 @@ namespace Ship_Game
             int AgriculturalCount = 0;
             int MilitaryCount = 0;
             int ResearchCount = 0;
-            this.OwnedPlanets.thisLock.EnterReadLock();
+            using (OwnedPlanets.AcquireReadLock())
             {
                 foreach (Planet item_0 in this.OwnedPlanets)
                 {
-                    if (item_0.colonyType == Planet.ColonyType.Agricultural)
-                        ++AgriculturalCount;
-                    if (item_0.colonyType == Planet.ColonyType.Core)
-                        ++CoreCount;
-                    if (item_0.colonyType == Planet.ColonyType.Industrial)
-                        ++IndustrialCount;
-                    if (item_0.colonyType == Planet.ColonyType.Research)
-                        ++ResearchCount;
-                    if (item_0.colonyType == Planet.ColonyType.Military)
-                        ++MilitaryCount;
+                    if (item_0.colonyType == Planet.ColonyType.Agricultural) ++AgriculturalCount;
+                    if (item_0.colonyType == Planet.ColonyType.Core)         ++CoreCount;
+                    if (item_0.colonyType == Planet.ColonyType.Industrial)   ++IndustrialCount;
+                    if (item_0.colonyType == Planet.ColonyType.Research)     ++ResearchCount;
+                    if (item_0.colonyType == Planet.ColonyType.Military)     ++MilitaryCount;
                 }
             }
-            this.OwnedPlanets.thisLock.ExitReadLock();
             float AssignedFactor = (float)(CoreCount + IndustrialCount + AgriculturalCount + MilitaryCount + ResearchCount) / ((float)this.OwnedPlanets.Count + 0.01f);
             float CoreDesire = PopSupport + (AssignedFactor - (float)CoreCount) ;
             float IndustrialDesire = MineralWealth + (AssignedFactor - (float)IndustrialCount);
@@ -2048,83 +2001,66 @@ namespace Ship_Game
 
         public void ResetBorders()
         {
-            this.BorderNodeLocker.EnterWriteLock();
-            this.BorderNodes.ClearAndRecycle();  //
-            //this.BorderNodes.Clear();
-              this.BorderNodeLocker.ExitWriteLock();
-            this.SensorNodeLocker.EnterWriteLock();
-            this.SensorNodes.ClearAndRecycle(); //
-            //this.SensorNodes.Clear();
-              this.SensorNodeLocker.ExitWriteLock();
-            List<Empire> list = new List<Empire>();
+            BorderNodes.ClearAndRecycle(); //
+            SensorNodes.ClearAndRecycle(); //
+
+            var list = new List<Empire>();
             foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
             {
                 if (keyValuePair.Value.Treaty_Alliance)
                     list.Add(keyValuePair.Key);
             }
-            //try
-            //{
-                foreach (Empire empire in list)
+            foreach (Empire empire in list)
+            {
+                List<Planet> tempPlanets = new List<Planet>(empire.OwnedPlanets);// new List<Planet>(empire.GetPlanets());
+                foreach (Planet planet in tempPlanets)
                 {
-                    List<Planet> tempPlanets = new List<Planet>(empire.OwnedPlanets);// new List<Planet>(empire.GetPlanets());
-                    foreach (Planet planet in tempPlanets)
+                    InfluenceNode influenceNode1 = SensorNodes.RecycleObject() ?? new InfluenceNode();
+
+                    influenceNode1.KeyedObject = (object)planet;
+                    influenceNode1.Position = planet.Position;
+                    influenceNode1.Radius = 1f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
+                                                // influenceNode1.Radius = this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
+
+                    SensorNodes.Add(influenceNode1);
+
+                    InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
+                    influenceNode2.Position = planet.Position;
+                    influenceNode2.Radius = isFaction 
+                                            ? 1f : this == Universe.PlayerEmpire ? 300000f * empire.data.SensorModifier 
+                                            : 600000f * empire.data.SensorModifier;
+                    foreach (Building building in planet.BuildingList)
                     {
-                        InfluenceNode influenceNode1 = this.SensorNodes.RecycleObject();
-                        
-                        if(influenceNode1 == null)
-                            influenceNode1 = new Empire.InfluenceNode();
-                        influenceNode1.KeyedObject = (object)planet;
-                        influenceNode1.Position = planet.Position;
-                        influenceNode1.Radius = 1f; //this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
-                        // influenceNode1.Radius = this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
-                        SensorNodeLocker.EnterWriteLock();
-                        SensorNodes.Add(influenceNode1);
-                        SensorNodeLocker.ExitWriteLock();
-                        InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                        influenceNode2.Position = planet.Position;
-                        influenceNode2.Radius = isFaction 
-                                                ? 1f : this == Universe.PlayerEmpire ? 300000f * empire.data.SensorModifier 
-                                                : 600000f * empire.data.SensorModifier;
-                        foreach (Building building in planet.BuildingList)
-                        {
-                            //if (building.IsSensor)
-                            if (building.SensorRange * data.SensorModifier > influenceNode2.Radius)
-                                influenceNode2.Radius = building.SensorRange * data.SensorModifier;
-                        }
-                        SensorNodeLocker.EnterWriteLock();
-                        SensorNodes.Add(influenceNode2);
-                        SensorNodeLocker.ExitWriteLock();
+                        //if (building.IsSensor)
+                        if (building.SensorRange * data.SensorModifier > influenceNode2.Radius)
+                            influenceNode2.Radius = building.SensorRange * data.SensorModifier;
                     }
 
-                    //var clonedList = empire.GetShips();// new List<Ship>(empire.GetShips());
-                    foreach (Ship ship in empire.GetShips())
-                    {
-                        InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                        //this.SensorNodes.pendingRemovals.TryPop(out influenceNode);
-                        influenceNode.Position = ship.Center;
-                        influenceNode.Radius = ship.SensorRange;
-                        this.SensorNodeLocker.EnterWriteLock();
-                        this.SensorNodes.Add(influenceNode);
-                        this.SensorNodeLocker.ExitWriteLock();
-                        influenceNode.KeyedObject = (object)ship;
-                    }
-
-                    foreach (Ship ship in empire.GetProjectors())
-                    {   //loop over all ALLIED projectors
-                        //Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
-                        InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                        //this.SensorNodes.pendingRemovals.TryPop(out influenceNode);
-                        influenceNode.Position = ship.Center;
-                        influenceNode.Radius = ProjectorRadius;  //projectors currently use their projection radius as sensors
-                        //lock (GlobalStats.SensorNodeLocker)
-                        this.SensorNodeLocker.EnterWriteLock();
-                        this.SensorNodes.Add(influenceNode);
-                        this.SensorNodeLocker.ExitWriteLock();
-                        influenceNode.KeyedObject = (object)ship;
-                    }
+                    SensorNodes.Add(influenceNode2);
                 }
-           // }
-           // catch { }
+
+                //var clonedList = empire.GetShips();// new List<Ship>(empire.GetShips());
+                foreach (Ship ship in empire.GetShips())
+                {
+                    InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
+                    //this.SensorNodes.pendingRemovals.TryPop(out influenceNode);
+                    influenceNode.Position = ship.Center;
+                    influenceNode.Radius = ship.SensorRange;
+                    SensorNodes.Add(influenceNode);
+                    influenceNode.KeyedObject = (object)ship;
+                }
+
+                foreach (Ship ship in empire.GetProjectors())
+                {   //loop over all ALLIED projectors
+                    //Empire.InfluenceNode influenceNode = new Empire.InfluenceNode();
+                    InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
+                    //this.SensorNodes.pendingRemovals.TryPop(out influenceNode);
+                    influenceNode.Position = ship.Center;
+                    influenceNode.Radius = ProjectorRadius;  //projectors currently use their projection radius as sensors
+                    SensorNodes.Add(influenceNode);
+                    influenceNode.KeyedObject = (object)ship;
+                }
+            }
             foreach (Planet planet in GetPlanets())
             {   //loop over OWN planets
                 //Empire.InfluenceNode influenceNode1 = new Empire.InfluenceNode();
@@ -2153,17 +2089,14 @@ namespace Ship_Game
                 {
                     influenceNode1.Radius = this.isFaction ? 20000f : Empire.ProjectorRadius + (float)(10000.0 * (double)planet.Population / 1000.0);
                 }
-                this.BorderNodeLocker.EnterWriteLock();
-                this.BorderNodes.Add(influenceNode1);
-                this.BorderNodeLocker.ExitWriteLock();
+
+                BorderNodes.Add(influenceNode1);
                 InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
 
                 influenceNode2.KeyedObject = (object)planet;
                 influenceNode2.Position = planet.Position;
                 influenceNode2.Radius = 1f; //this == Empire.Universe.PlayerEmpire ? 300000f * this.data.SensorModifier : 600000f * this.data.SensorModifier;
-                SensorNodeLocker.EnterWriteLock();
                 SensorNodes.Add(influenceNode2);
-                SensorNodeLocker.ExitWriteLock();
                 InfluenceNode influenceNode3 = this.SensorNodes.RecycleObject() ?? new Empire.InfluenceNode();
                 influenceNode3.KeyedObject = (object)planet;
                 influenceNode3.Position = planet.Position;
@@ -2173,18 +2106,14 @@ namespace Ship_Game
                     if (t.SensorRange * data.SensorModifier > influenceNode3.Radius)
                         influenceNode3.Radius = t.SensorRange * this.data.SensorModifier;
                 }
-                this.SensorNodeLocker.EnterWriteLock();
                 this.SensorNodes.Add(influenceNode3);
-                this.SensorNodeLocker.ExitWriteLock();
             }
-            this.SensorNodeLocker.EnterWriteLock();
             foreach (Mole mole in data.MoleList)   // Moles are spies who have successfuly been planted during 'Infiltrate' type missions, I believe - Doctor
                 SensorNodes.Add(new InfluenceNode()
                 {
                     Position = Universe.PlanetsDict[mole.PlanetGuid].Position,
                     Radius = 100000f * this.data.SensorModifier
                 });
-            this.SensorNodeLocker.ExitWriteLock();
             this.Inhibitors.Clear();
             foreach (Ship ship in this.OwnedShips)
             {
@@ -2193,10 +2122,8 @@ namespace Ship_Game
                 InfluenceNode influenceNode = this.SensorNodes.RecycleObject() ?? new InfluenceNode();
                 influenceNode.Position = ship.Center;
                 influenceNode.Radius = ship.SensorRange;
-                influenceNode.KeyedObject = (object)ship;
-                this.SensorNodeLocker.EnterWriteLock();
+                influenceNode.KeyedObject = ship;
                 this.SensorNodes.Add(influenceNode);
-                this.SensorNodeLocker.ExitWriteLock();
             }
 
             foreach (Ship ship in this.OwnedProjectors)
@@ -2216,37 +2143,31 @@ namespace Ship_Game
                     influenceNodeB.KeyedObject = (object)ship;
                     
                     SensorNodes.Add(influenceNodeS);
-                    BorderNodeLocker.EnterWriteLock();
                     BorderNodes.Add(influenceNodeB);
-                    BorderNodeLocker.ExitWriteLock();
             }
             BorderNodes.ClearPendingRemovals();
             SensorNodes.ClearPendingRemovals();
-            BorderNodeLocker.EnterReadLock();
+            using (BorderNodes.AcquireReadLock())
+            foreach (InfluenceNode item5 in BorderNodes)
             {
-                foreach (InfluenceNode item5 in BorderNodes)
+                foreach (InfluenceNode item6 in BorderNodes)
                 {
-                    foreach (InfluenceNode item6 in BorderNodes)
-                    {
-                        if (item6.KeyedObject == item5.KeyedObject && (double)item6.Radius < (double)item5.Radius)
-                            this.BorderNodes.QueuePendingRemoval(item6);
-                    }
+                    if (item6.KeyedObject == item5.KeyedObject && (double)item6.Radius < (double)item5.Radius)
+                        BorderNodes.QueuePendingRemoval(item6);
                 }
-                
             }
-            this.BorderNodeLocker.ExitReadLock();
-            //this.BorderNodeLocker.EnterWriteLock();
-            this.BorderNodes.ApplyPendingRemovals();
-            //this.BorderNodeLocker.ExitWriteLock();
+            BorderNodes.ApplyPendingRemovals();
             
         }
 
         private void TakeTurn()
         {
             //Added by McShooterz: Home World Elimination game mode
-            if (!this.isFaction && !this.data.Defeated && (this.OwnedPlanets.Count == 0 || GlobalStats.EliminationMode && this.Capital != null && this.Capital.Owner != this))
+            if (!isFaction && !data.Defeated 
+                && (OwnedPlanets.Count == 0 || GlobalStats.EliminationMode 
+                && Capital != null && Capital.Owner != this))
             {
-                this.SetAsDefeated();
+                SetAsDefeated();
                 if (Universe.PlayerEmpire == this)
                 {
                     foreach(Ship ship in Universe.MasterShipList)
@@ -2471,15 +2392,14 @@ namespace Ship_Game
                         //if(this.data.TurnsBelowZero >10 && this.data.TurnsBelowZero < 20)
                         {
                             Ship pirate = null;
-                            this.GetShips().thisLock.EnterReadLock();
-                            foreach (Ship pirateChoice in this.GetShips())
+                            using (GetShips().AcquireReadLock())
+                            foreach (Ship pirateChoice in GetShips())
                             {
                                 if (pirateChoice == null || !pirateChoice.Active)
                                     continue;
                                 pirate = pirateChoice;
                                 break;
                             }
-                            this.GetShips().thisLock.ExitReadLock();
                             if (pirate != null)
                             {
                                 pirate.loyalty = rebelsFromEmpireData;
@@ -3023,7 +2943,7 @@ namespace Ship_Game
         {
             int num = 0;
             Vector2 vector2 = new Vector2();
-            OwnedPlanets.thisLock.EnterReadLock();
+            using (OwnedPlanets.AcquireReadLock())
             foreach (Planet planet in OwnedPlanets)
             {
                 for (int index = 0; (double)index < (double)planet.Population / 1000.0; ++index)
@@ -3032,7 +2952,6 @@ namespace Ship_Game
                     vector2 += planet.Position;
                 }
             }
-            OwnedPlanets.thisLock.ExitReadLock();
             if (num == 0)
                 num = 1;
             return vector2 / (float)num;
@@ -3284,41 +3203,25 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed)
+                return;
+            disposed = true;
+
+            if (disposing)
             {
-                if (disposing)
-                {
-                    if (this.ForcePool != null)
-                        this.ForcePool.Dispose();
-                    if (this.BorderNodes != null)
-                        this.BorderNodes.Dispose();
-                    if (this.SensorNodes != null)
-                        this.SensorNodes.Dispose();
-                    if (this.OwnedShips != null)
-                        this.OwnedShips.Dispose();
-                    if (this.SensorNodeLocker != null)
-                        this.SensorNodeLocker.Dispose();
-                    if (this.BorderNodeLocker != null)
-                        this.BorderNodeLocker.Dispose();
-                    if (this.DefensiveFleet != null)
-                        this.DefensiveFleet.Dispose();
-                    if (this.GSAI != null)
-                        this.GSAI.Dispose();
-
-                }
-                this.ForcePool = null;
-                this.BorderNodes = null;
-                this.SensorNodes = null;
-                this.OwnedShips = null;
-                this.SensorNodeLocker = null;
-                this.BorderNodeLocker = null;
-                this.DefensiveFleet = null;
-                this.GSAI = null;
-                this.disposed = true;
-
+                ForcePool?.Dispose();
+                BorderNodes?.Dispose();
+                SensorNodes?.Dispose();
+                OwnedShips?.Dispose();
+                DefensiveFleet?.Dispose();
+                GSAI?.Dispose();
             }
+            ForcePool      = null;
+            BorderNodes    = null;
+            SensorNodes    = null;
+            OwnedShips     = null;
+            DefensiveFleet = null;
+            GSAI           = null;
         }
-
-        
     }
 }

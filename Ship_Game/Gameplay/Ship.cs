@@ -2302,15 +2302,8 @@ namespace Ship_Game.Gameplay
             }
             if (this.engineState == Ship.MoveState.Warp && Vector2.Distance(this.Center, new Vector2(Ship.universeScreen.camPos.X, Ship.universeScreen.camPos.Y)) < 100000.0 && Ship.universeScreen.camHeight < 250000)
             {
-                Cue cue = AudioManager.GetCue(this.GetEndWarpCue());
-                cue.Apply3D(Ship.universeScreen.listener, this.emitter);
-                cue.Play();
-                FTL ftl = new FTL();
-                ftl.Center = new Vector2(this.Center.X, this.Center.Y);
-                //lock (FTLManager.FTLLock)
-               // FTLManager.FTLList.thisLock.EnterWriteLock();
-                FTLManager.FTLList.Add(ftl);
-                //FTLManager.FTLList.thisLock.ExitWriteLock();
+                AudioManager.PlayCue(GetEndWarpCue(), universeScreen.listener, emitter);
+                FTLManager.AddFTL(Center);
             }
             this.engineState = Ship.MoveState.Sublight;
             this.ResetJumpTimer();
@@ -3112,16 +3105,10 @@ namespace Ship_Game.Gameplay
                     {
                         if (InCombat)
                             InCombat = false;
-                        try
+                        if (AI.State == AIState.Combat && loyalty != universeScreen.player)
                         {
-                            if (AI.State == AIState.Combat && loyalty != universeScreen.player)
-                            {
-                                AI.State = AIState.AwaitingOrders;
-                                AI.OrderQueue.Clear();
-                            }
-                        }
-                        catch
-                        {
+                            AI.State = AIState.AwaitingOrders;
+                            AI.OrderQueue.Clear();
                         }
                     }
                     //this.Velocity.Length(); //Pretty sure this return value is a useless waste of 0.00012 CPU cycles... -Gretman
@@ -3208,12 +3195,7 @@ namespace Ship_Game.Gameplay
                         {
                             if (this.engineState == Ship.MoveState.Sublight )//&& (!this.Inhibited && this.GetmaxFTLSpeed > this.velocityMaximum))
                             {
-                                FTL ftl = new FTL();
-                                ftl.Center = new Vector2(this.Center.X, this.Center.Y);
-                                //lock (FTLManager.FTLLock)
-                                //FTLManager.FTLList.thisLock.EnterWriteLock();
-                                    FTLManager.FTLList.Add(ftl);
-                                   // FTLManager.FTLList.thisLock.ExitWriteLock();
+                                FTLManager.AddFTL(Center);
                                 this.engineState = Ship.MoveState.Warp;
                             }
                             else
@@ -3274,7 +3256,6 @@ namespace Ship_Game.Gameplay
                             }
                         }); 
                     }
-                    object locker = new object();
 
                     if (this.beams.Count >0)
                     {
@@ -3329,9 +3310,7 @@ namespace Ship_Game.Gameplay
                     this.beams.ApplyPendingRemovals() ; //this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
                     //foreach (Projectile projectile in this.projectiles.pendingRemovals)
                     //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals(this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
-
-                    
+                    this.Projectiles.ApplyPendingRemovals(GetAI().BadGuysNear && (InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
                 }
             }
         }
@@ -4670,16 +4649,7 @@ namespace Ship_Game.Gameplay
                     if (junkScale > 1.4f) junkScale = 1.4f; // bigger doesn't look good
 
                     //System.Diagnostics.Debug.WriteLine("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
-                    List<SpaceJunk> junk = SpaceJunk.MakeJunk(explosionJunk, Center, System, this, Radius/4, junkScale);
-				    lock (GlobalStats.ObjectManagerLocker)
-				    {
-					    foreach (SpaceJunk j in junk)
-					    {
-						    j.wasAddedToScene = true;
-						    ShipModule.universeScreen.ScreenManager.inter.ObjectManager.Submit(j.JunkSO);
-						    UniverseScreen.JunkList.Add(j);
-					    }
-				    }
+                    SpaceJunk.SpawnJunk(explosionJunk, Center, System, this, Radius/4, junkScale);
                 }
             }
             var ship = ResourceManager.ShipsDict[Name];
@@ -4694,51 +4664,36 @@ namespace Ship_Game.Gameplay
 
         public void QueueTotalRemoval()
         {
-            //lock (GlobalStats.AddShipLocker)
-            //if (Ship.universeScreen.SelectedShip == this)
-            //    lock (this.GetAI().WayPointLocker)
-            //    {
-
-
-            //        Ship.universeScreen.SelectedShip = null;
-
-            //        Ship.universeScreen.ShipsToRemove.Add(this);
-            //    }
-            //else
-                Ship.universeScreen.ShipsToRemove.Add(this);
-
-
+            universeScreen.ShipsToRemove.Add(this);
         }
 
         public void TotallyRemove()
         {
-            this.Active = false;
-            this.AI.Target = (GameplayObject)null;
-            this.AI.TargetShip = (Ship)null;
-            this.AI.ColonizeTarget = (Planet)null;
-            this.AI.EscortTarget = (Ship)null;
-            this.ExternalSlots.Clear();
+            Active            = false;
+            AI.Target         = null;
+            AI.TargetShip     = null;
+            AI.ColonizeTarget = null;
+            AI.EscortTarget   = null;
+            ExternalSlots.Clear();
      
-            this.AI.start = (Planet)null;
-            this.AI.end = (Planet)null;
-            this.AI.PotentialTargets.Clear();
-            this.AI.TrackProjectiles.Clear();
-            this.AI.NearbyShips.Clear();
-            this.AI.FriendliesNearby.Clear();
-            Ship.universeScreen.MasterShipList.QueuePendingRemoval(this);
-            this.AttackerTargetting.Clear();
-            //UniverseScreen.ShipSpatialManager.CollidableObjects.QueuePendingRemoval((GameplayObject)this);
-            if (Ship.universeScreen.SelectedShip == this)
-                Ship.universeScreen.SelectedShip = (Ship)null;
-            if (Ship.universeScreen.SelectedShipList.Contains(this))
-                Ship.universeScreen.SelectedShipList.Remove(this);
-            if (this.System != null)
+            AI.start = null;
+            AI.end   = null;
+            AI.PotentialTargets.Clear();
+            AI.TrackProjectiles.Clear();
+            AI.NearbyShips.Clear();
+            AI.FriendliesNearby.Clear();
+            universeScreen.MasterShipList.QueuePendingRemoval(this);
+            AttackerTargetting.Clear();
+            if (universeScreen.SelectedShip == this)
+                universeScreen.SelectedShip = null;
+            universeScreen.SelectedShipList.Remove(this);
+            if (System != null)
             {
-                this.System.ShipList.QueuePendingRemoval(this);
-                this.System.spatialManager.CollidableObjects.Remove((GameplayObject)this);
+                System.ShipList.QueuePendingRemoval(this);
+                System.spatialManager.CollidableObjects.Remove(this);
             }
-            else if (this.isInDeepSpace)
-                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove((GameplayObject)this);
+            else if (isInDeepSpace)
+                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove(this);
             if (this.Mothership != null)
             {
                 foreach (ShipModule shipModule in this.Mothership.Hangars)
@@ -4750,18 +4705,18 @@ namespace Ship_Game.Gameplay
             foreach (ShipModule hanger in this.Hangars)
             {
                 if (hanger.GetHangarShip() != null)
-                    hanger.GetHangarShip().Mothership = (Ship)null;
+                    hanger.GetHangarShip().Mothership = null;
             }
             foreach(Empire empire in EmpireManager.EmpireList)
             {
                 empire.GetGSAI().ThreatMatrix.UpdatePin(this);
-
             }
-            for (int index = 0; index < this.projectiles.Count; ++index)
-                this.projectiles[index].Die((GameplayObject)this, false);
-            this.projectiles.Clear();
-            this.projectiles.ApplyPendingRemovals();
-            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+
+            foreach (Projectile projectile in projectiles)
+                projectile.Die(this, false);
+            projectiles.Clear();
+
+            foreach (ModuleSlot moduleSlot in ModuleSlotList)
                 moduleSlot.module.Clear();
             this.Shields.Clear();
             this.Hangars.Clear();
@@ -4772,11 +4727,11 @@ namespace Ship_Game.Gameplay
             this.RemoveFromAllFleets();
             this.ShipSO.Clear();
             lock (GlobalStats.ObjectManagerLocker)
-                Ship.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.ShipSO);
+                universeScreen.ScreenManager.inter.ObjectManager.Remove(ShipSO);
 
             this.loyalty.RemoveShip(this);
-            this.System = (SolarSystem)null;
-            this.TetheredTo = (Planet)null;
+            this.System = null;
+            this.TetheredTo = null;
             this.Transporters.Clear();
             this.RepairBeams.Clear();
             this.ModulesDictionary.Clear();
