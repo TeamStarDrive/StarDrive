@@ -398,12 +398,12 @@ namespace Ship_Game
                     asteroid.Position3D.X += Data.SolarSystemsList[systemToMake].Position.X;
                     asteroid.Position3D.Y += Data.SolarSystemsList[systemToMake].Position.Y;
                     asteroid.Initialize();
-                    ScreenManager.inter.ObjectManager.Submit(asteroid.GetSO());
+                    ScreenManager.inter.ObjectManager.Submit(asteroid.So);
                 }
                 foreach (Moon moon in Data.SolarSystemsList[systemToMake].MoonList)
                 {
                     moon.Initialize();
-                    ScreenManager.inter.ObjectManager.Submit(moon.GetSO());
+                    ScreenManager.inter.ObjectManager.Submit(moon.So);
                 }
                 foreach (Ship ship in Data.SolarSystemsList[systemToMake].ShipList)
                 {

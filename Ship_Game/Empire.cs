@@ -361,7 +361,7 @@ namespace Ship_Game
         {
             using (BorderNodes.AcquireReadLock())
                 foreach (var node in BorderNodes)
-                    if (node.Position.WithinRadius(point, node.Radius))
+                    if (node.Position.InRadius(point, node.Radius))
                         return true;
             return false;
         }
@@ -370,7 +370,7 @@ namespace Ship_Game
         {
             using (BorderNodes.AcquireReadLock())
                 foreach (var node in SensorNodes)
-                    if (node.Position.WithinRadius(point, node.Radius))
+                    if (node.Position.InRadius(point, node.Radius))
                         return true;
             return false;
         }

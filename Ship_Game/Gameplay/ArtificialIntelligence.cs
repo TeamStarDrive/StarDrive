@@ -7841,19 +7841,7 @@ namespace Ship_Game.Gameplay
             }
             else if (this.OrderQueue.Count > 0)
             {
-#if DEBUG
-                try
-#endif
-                {
-                    toEvaluate = this.OrderQueue.First<ArtificialIntelligence.ShipGoal>();
-                }
-#if DEBUG
-                catch
-
-                {
-                    return;
-                }
-#endif
+                toEvaluate = this.OrderQueue.First();
                 Planet target = toEvaluate.TargetPlanet;
                 switch (toEvaluate.Plan)
                 {

@@ -120,6 +120,7 @@ namespace Ship_Game
         {
             thisLock.EnterWriteLock();
             base.Clear();
+            pendingRemovals.Clear();
             thisLock.ExitWriteLock();
         }
         public void ClearAndRecycle()
@@ -167,12 +168,11 @@ namespace Ship_Game
         //    return result;
         //}
 
-        public void AddRange(List<T> item)
+        public new void AddRange(IEnumerable<T> collection)
         {
             thisLock.EnterWriteLock();
-            base.AddRange(item);
+            base.AddRange(collection);
             thisLock.ExitWriteLock();
-            
         }
         // to use this:
         // somelist.foreach(action => { do some action with action},false,false,false);
