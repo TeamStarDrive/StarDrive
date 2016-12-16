@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.Generic;
-using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using MsgPack.Serialization;
 
@@ -135,7 +134,7 @@ namespace Ship_Game.Gameplay
         public GameplayObject fireTarget;
         public float TargetChangeTimer;
         public bool PrimaryTarget = false;
-        [XmlIgnore][ScriptIgnore][MessagePackIgnore]
+        [XmlIgnore][MessagePackIgnore]
         public List<ModuleSlot> AttackerTargetting;// = new List<ModuleSlot>();
 
 		public static AudioListener audioListener { get; set; }
