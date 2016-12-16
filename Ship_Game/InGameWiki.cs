@@ -58,7 +58,7 @@ namespace Ship_Game
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-			Help = (GlobalStats.Config.Language == "English" ? HelperFunctions.GetFilesFromDirectory("Content/HelpTopics/English") : HelperFunctions.GetFilesFromDirectory(string.Concat("Content/HelpTopics/", GlobalStats.Config.Language)));
+			Help = (GlobalStats.Config.Language == "English" ? Dir.GetFiles("Content/HelpTopics/English") : Dir.GetFiles(string.Concat("Content/HelpTopics/", GlobalStats.Config.Language)));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(HelpTopics));
 			this.ht = (HelpTopics)serializer1.Deserialize(Help[0].OpenRead());
 		}
@@ -69,7 +69,7 @@ namespace Ship_Game
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-			Help = (GlobalStats.Config.Language != "German" ? HelperFunctions.GetFilesFromDirectory("Content/HelpTopics/English") : HelperFunctions.GetFilesFromDirectory("Content/HelpTopics/German"));
+			Help = (GlobalStats.Config.Language != "German" ? Dir.GetFiles("Content/HelpTopics/English") : Dir.GetFiles("Content/HelpTopics/German"));
 			XmlSerializer serializer1 = new XmlSerializer(typeof(HelpTopics));
 			this.ht = (HelpTopics)serializer1.Deserialize(Help[0].OpenRead());
 		}

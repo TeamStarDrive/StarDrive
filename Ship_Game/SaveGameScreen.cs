@@ -42,41 +42,32 @@ namespace Ship_Game
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            List<FileData> saves = new List<FileData>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(this.Path, "Headers"));
-            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            var saves = new List<FileData>();
+            foreach (FileInfo fileInfo in Dir.GetFiles(Path + "Headers"))
             {
-                Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
-                    HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
+                    HeaderData data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(fileInfo);
 
                     if (string.IsNullOrEmpty(data.SaveName))
                     {
-                        data.SaveName = System.IO.Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);         // set name before it's used
+                        data.SaveName = fileInfo.NameNoExt(); // set name before it's used
                         data.Version = 0;
                     }
 
-                    data.SetFileInfo(new FileInfo(string.Concat(this.Path, data.SaveName, ".xml.gz")));
+                    data.FI = new FileInfo(Path + data.SaveName + ".xml.gz");
 
                     string info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
                     string extraInfo = data.RealDate;
-                    saves.Add(new FileData(data.GetFileInfo(), data, data.SaveName, info, extraInfo));
-                    file.Dispose();
+                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));
                 }
                 catch
                 {
-                    file.Dispose();
                 }
             }
-            IOrderedEnumerable<FileData> sortedList =
-                from header in saves
-                orderby (header.Data as HeaderData).Time descending
-                select header;
+            var sortedList = from header in saves orderby (header.Data as HeaderData)?.Time descending select header;
             foreach (FileData data in sortedList)
-            {
-                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
-            }
+                SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
         }
     }
 }

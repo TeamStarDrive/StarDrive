@@ -3,61 +3,59 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using MsgPack.Serialization;
 
 namespace Ship_Game
 {
 	public sealed class Troop
 	{
-		public string Name;
-		public string RaceType;
-		public int first_frame = 1;
-		public bool animated;
-		public string idle_path;
-		public string Icon;
-		public string MovementCue;
-		public int Level;
-        public int AttackTimerBase = 10;
-		public int MoveTimerBase = 10;
-		public int num_idle_frames;
-		public int num_attack_frames;
-		public int idle_x_offset;
-		public int idle_y_offset;
-		public int attack_width = 128;
-		private Planet p;
-		public string attack_path;
-        public bool facingRight;
-		public string Description;
-		public string OwnerString;
-		private Empire Owner;
-		public int BoardingStrength;
-		private Ship ship;
-		public int MaxStoredActions = 1;
-		public float MoveTimer;
-		public float AttackTimer;
-		public float MovingTimer = 1f;
-		private Rectangle fromRect;
-		public int AvailableMoveActions = 1;
-		public int AvailableAttackActions = 1;
-		public string TexturePath;
-		public bool Idle = true;
-		public int WhichFrame = 1;
-		private float updateTimer;
-		public float Strength;
-		public float StrengthMax;
-        public int HardAttack;
-		public int SoftAttack;
-		public string Class;
-		public int Kills;
-		public string TargetType;
-		public int Experience;
-        public float Cost;
-		public string sound_attack;
-        public float Range;
-	    public float Launchtimer = 10f;
+        [MessagePackMember(0)] public string Name;
+        [MessagePackMember(1)] public string RaceType;
+        [MessagePackMember(2)] public int first_frame = 1;
+        [MessagePackMember(3)] public bool animated;
+        [MessagePackMember(4)] public string idle_path;
+        [MessagePackMember(5)] public string Icon;
+        [MessagePackMember(6)] public string MovementCue;
+        [MessagePackMember(7)] public int Level;
+        [MessagePackMember(8)] public int AttackTimerBase = 10;
+        [MessagePackMember(9)] public int MoveTimerBase = 10;
+        [MessagePackMember(10)] public int num_idle_frames;
+        [MessagePackMember(11)] public int num_attack_frames;
+        [MessagePackMember(12)] public int idle_x_offset;
+        [MessagePackMember(13)] public int idle_y_offset;
+        [MessagePackMember(14)] public int attack_width = 128;
+        [MessagePackMember(15)] public string attack_path;
+        [MessagePackMember(16)] public bool facingRight;
+        [MessagePackMember(17)] public string Description;
+        [MessagePackMember(18)] public string OwnerString;
+        [MessagePackMember(19)] public int BoardingStrength;
+        [MessagePackMember(20)] public int MaxStoredActions = 1;
+        [MessagePackMember(21)] public float MoveTimer;
+        [MessagePackMember(22)] public float AttackTimer;
+        [MessagePackMember(23)] public float MovingTimer = 1f;
+        [MessagePackMember(24)] public int AvailableMoveActions = 1;
+        [MessagePackMember(25)] public int AvailableAttackActions = 1;
+        [MessagePackMember(26)] public string TexturePath;
+        [MessagePackMember(27)] public bool Idle = true;
+        [MessagePackMember(28)] public int WhichFrame = 1;
+        [MessagePackMember(29)] public float Strength;
+        [MessagePackMember(30)] public float StrengthMax;
+        [MessagePackMember(31)] public int HardAttack;
+        [MessagePackMember(32)] public int SoftAttack;
+        [MessagePackMember(33)] public string Class;
+        [MessagePackMember(34)] public int Kills;
+        [MessagePackMember(35)] public string TargetType;
+        [MessagePackMember(36)] public int Experience;
+        [MessagePackMember(37)] public float Cost;
+        [MessagePackMember(38)] public string sound_attack;
+        [MessagePackMember(39)] public float Range;
+        [MessagePackMember(40)] public float Launchtimer = 10f;
 
-		public Troop()
-		{
-		}
+        [MessagePackIgnore] private Planet p;
+        [MessagePackIgnore] private Empire Owner;
+        [MessagePackIgnore] private Ship ship;
+        [MessagePackIgnore] private Rectangle fromRect;
+        [MessagePackIgnore] private float updateTimer;
 
         public Troop Clone()
         {

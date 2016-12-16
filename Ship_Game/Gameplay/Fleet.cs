@@ -547,7 +547,7 @@ namespace Ship_Game.Gameplay
                         s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
                 }
                 FleetDataNode fleetDataNode = new FleetDataNode();
-                fleetDataNode.SetShip(s);
+                fleetDataNode.Ship = s;
                 fleetDataNode.ShipName = s.Name;
                 fleetDataNode.FleetOffset = s.RelativeFleetOffset;
                 fleetDataNode.OrdersOffset = s.RelativeFleetOffset;

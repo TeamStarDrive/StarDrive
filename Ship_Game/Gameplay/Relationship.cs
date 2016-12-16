@@ -2,86 +2,102 @@ using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MsgPack.Serialization;
 
 namespace Ship_Game.Gameplay
 {
-	public sealed class Relationship: IDisposable
+    public sealed class TrustEntry
+    {
+        [MessagePackMember(0)] public int TurnTimer;
+        [MessagePackMember(1)] public int TurnsInExistence;
+        [MessagePackMember(2)] public float TrustCost;
+        [MessagePackMember(3)] public TrustEntryType Type;
+    }
+
+    public sealed class FearEntry
+    {
+        [MessagePackMember(0)] public int TurnTimer;
+        [MessagePackMember(1)] public float FearCost;
+        [MessagePackMember(2)] public float TurnsInExistence;
+        [MessagePackMember(3)] public TrustEntryType Type;
+    }
+
+    public sealed class FederationQuest
+    {
+        [MessagePackMember(0)] public QuestType type;
+        [MessagePackMember(1)] public string EnemyName;
+    }
+
+    public sealed class Relationship : IDisposable
 	{
-		public FederationQuest FedQuest;
+        [MessagePackMember(0)] public FederationQuest FedQuest;
+        [MessagePackMember(1)] public Posture Posture = Posture.Neutral;
+        [MessagePackMember(2)] public string Name;
+        [MessagePackMember(3)] public bool Known;
+        [MessagePackMember(4)] public float IntelligenceBudget;
+        [MessagePackMember(5)] public float IntelligencePenetration;
+        [MessagePackMember(6)] public int turnsSinceLastContact;
+        [MessagePackMember(7)] public bool WarnedAboutShips;
+        [MessagePackMember(8)] public bool WarnedAboutColonizing;
+        [MessagePackMember(9)] public int EncounterStep;
 
-		public Posture Posture = Posture.Neutral;
+        [MessagePackMember(10)] public float Anger_FromShipsInOurBorders;
+        [MessagePackMember(11)] public float Anger_TerritorialConflict;
+        [MessagePackMember(12)] public float Anger_MilitaryConflict;
+        [MessagePackMember(13)] public float Anger_DiplomaticConflict;
 
-		public string Name;
+        [MessagePackMember(14)] public int SpiesDetected;
+        [MessagePackMember(15)] public int TimesSpiedOnAlly;
+        [MessagePackMember(16)] public int SpiesKilled;
+        [MessagePackMember(17)] public float TotalAnger;
+        [MessagePackMember(18)] public bool Treaty_OpenBorders;
+        [MessagePackMember(19)] public bool Treaty_NAPact;
+        [MessagePackMember(20)] public bool Treaty_Trade;
+        [MessagePackMember(21)] public int Treaty_Trade_TurnsExisted;
+        [MessagePackMember(22)] public bool Treaty_Alliance;
+        [MessagePackMember(23)] public bool Treaty_Peace;
 
-		public bool Known;
+        [MessagePackMember(24)] public int PeaceTurnsRemaining;
+        [MessagePackMember(25)] public float Threat;
+        [MessagePackMember(26)] public float Trust;
+        [MessagePackMember(27)] public War ActiveWar;
+        [MessagePackMember(28)] public List<War> WarHistory = new List<War>();
+        [MessagePackMember(29)] public bool haveRejectedNAPact;
+        [MessagePackMember(30)] public bool HaveRejected_TRADE;
+        [MessagePackMember(31)] public bool haveRejectedDemandTech;
+        [MessagePackMember(32)] public bool HaveRejected_OpenBorders;
+        [MessagePackMember(33)] public bool HaveRejected_Alliance;
+        [MessagePackMember(34)] public int NumberStolenClaims;
 
-		public float IntelligenceBudget;
+        [MessagePackMember(35)] public List<Guid> StolenSystems = new List<Guid>();
+        [MessagePackMember(36)] public bool HaveInsulted_Military;
+        [MessagePackMember(37)] public bool HaveComplimented_Military;
+        [MessagePackMember(38)] public bool XenoDemandedTech;
+        [MessagePackMember(39)] public List<Guid> WarnedSystemsList = new List<Guid>();
+        [MessagePackMember(40)] public bool HaveWarnedTwice;
+        [MessagePackMember(41)] public bool HaveWarnedThrice;
+        [MessagePackMember(42)] public Guid contestedSystemGuid;
 
-		public float IntelligencePenetration;
+        [MessagePackIgnore] private SolarSystem contestedSystem;
 
-		public int turnsSinceLastContact;
+        [MessagePackMember(43)] public bool AtWar;
+        [MessagePackMember(44)] public bool PreparingForWar;
+        [MessagePackMember(45)] public WarType PreparingForWarType = WarType.ImperialistWar;
+        [MessagePackMember(46)] public int DefenseFleet = -1;
+        [MessagePackMember(47)] public bool HasDefenseFleet;
+        [MessagePackMember(48)] public float InvasiveColonyPenalty;
+        [MessagePackMember(49)] public float AggressionAgainstUsPenalty;
+        [MessagePackMember(50)] public float InitialStrength;
+        [MessagePackMember(51)] public int TurnsKnown;
+        [MessagePackMember(52)] public int TurnsAbove95;
+        [MessagePackMember(53)] public int TurnsAllied;
 
-		public bool WarnedAboutShips;
-
-		public bool WarnedAboutColonizing;
-
-		public int EncounterStep;
-
-		public float Anger_FromShipsInOurBorders;
-		public float Anger_TerritorialConflict;
-		public float Anger_MilitaryConflict;
-		public float Anger_DiplomaticConflict;
-
-		public int SpiesDetected;
-		public int TimesSpiedOnAlly;
-		public int SpiesKilled;
-		public float TotalAnger;
-		public bool Treaty_OpenBorders;
-		public bool Treaty_NAPact;
-		public bool Treaty_Trade;
-		public int Treaty_Trade_TurnsExisted;
-		public bool Treaty_Alliance;
-		public bool Treaty_Peace;
-
-		public int PeaceTurnsRemaining;
-		public float Threat;
-		public float Trust;
-		public War ActiveWar;
-		public List<War> WarHistory = new List<War>();
-		public bool haveRejectedNAPact;
-		public bool HaveRejected_TRADE;
-		public bool haveRejectedDemandTech;
-		public bool HaveRejected_OpenBorders;
-		public bool HaveRejected_Alliance;
-		public int NumberStolenClaims;
-
-		public List<Guid> StolenSystems = new List<Guid>();
-		public bool HaveInsulted_Military;
-		public bool HaveComplimented_Military;
-		public bool XenoDemandedTech;
-		public List<Guid> WarnedSystemsList = new List<Guid>();
-		public bool HaveWarnedTwice;
-		public bool HaveWarnedThrice;
-		public Guid contestedSystemGuid;
-		private SolarSystem contestedSystem;
-		public bool AtWar;
-		public bool PreparingForWar;
-		public WarType PreparingForWarType = WarType.ImperialistWar;
-		public int DefenseFleet = -1;
-		public bool HasDefenseFleet;
-		public float InvasiveColonyPenalty;
-		public float AggressionAgainstUsPenalty;
-		public float InitialStrength;
-		public int TurnsKnown;
-		public int TurnsAbove95;
-		public int TurnsAllied;
-
-		public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
-		public BatchRemovalCollection<FearEntry> FearEntries = new BatchRemovalCollection<FearEntry>();
-		public float TrustUsed;
-		public float FearUsed;
-		public float TheyOweUs;
-		public float WeOweThem;
+        [MessagePackMember(54)] public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
+        [MessagePackMember(55)] public BatchRemovalCollection<FearEntry> FearEntries = new BatchRemovalCollection<FearEntry>();
+        [MessagePackMember(56)] public float TrustUsed;
+        [MessagePackMember(57)] public float FearUsed;
+        [MessagePackMember(58)] public float TheyOweUs;
+        [MessagePackMember(59)] public float WeOweThem;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
