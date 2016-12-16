@@ -489,7 +489,7 @@ namespace Ship_Game
 				{
 					if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
 				}
-				else if (ship.GetAI().State != AIState.SystemDefender)
+				else if (ship.GetAI().State == AIState.SystemDefender)
                 {
                     ship.loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
 					ship.AddedOnLoad = true;
