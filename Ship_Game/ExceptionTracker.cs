@@ -93,16 +93,15 @@ namespace Ship_Game
         private static string GenerateErrorLines_withWhoops(Exception ex)
         {
             if (!(ex.Message == "Manual Report" || ex.Message == "Kudos"))
-            return DefaultText + Environment.NewLine + GenerateErrorLines(ex);
-            else
-                return ex.Message + Environment.NewLine + GenerateErrorLines(ex);            
+                return DefaultText + Environment.NewLine + GenerateErrorLines(ex);
+            return ex.Message + Environment.NewLine + GenerateErrorLines(ex);            
         }
 
         public static void TrackException(Exception ex)
         {
             try
             {
-                ExceptionTracker.active = true;
+                active = true;
                 string dts = DateTime.Now.ToString("yyyy-MM-dd hh-mm-ss");
                 string path = AppDomain.CurrentDomain.BaseDirectory + "Exception " + dts + ".log";
                 System.IO.StreamWriter file = new System.IO.StreamWriter(path);
@@ -120,10 +119,10 @@ namespace Ship_Game
 
         public static void DisplayException(Exception ex)
         {
-#if DEBUG
-            if(!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
-            return;
-#endif
+            #if DEBUG
+                if (!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
+                    return;
+            #endif
             try
             {
                 Form form = (Form)Control.FromHandle(Game1.Instance.Window.Handle);
@@ -141,48 +140,7 @@ namespace Ship_Game
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
             }
-            ExceptionTracker.active = false;
-        }
-
-        #if DEBUG
-        //test exception
-        //ExceptionTracker.TestStackTrace(0, 10);
-
-        /// <summary>
-        /// testing stacktrace
-        /// </summary>
-        /// <param name="startCount">sould be smaller than para2</param>
-        /// <param name="errorOn">ErrorOn = on which number make a crash </param>
-        public static void TestStackTrace(int startCount, int errorOn)
-        {
-            if (startCount == errorOn)
-                throw new StarDriveTestException("test exception");
-            else
-            {
-                startCount++;
-                TestStackTrace(startCount, errorOn);
-            }
-
-        }
-        #endif //debug
-    }
-
-    #if DEBUG
-    internal class StarDriveTestException : Exception
-    {
-        public StarDriveTestException()
-        {
-        }
-
-        public StarDriveTestException(string message)
-            : base(message)
-        {
-        }
-
-        public StarDriveTestException(string message, Exception inner)
-            : base(message, inner)
-        {
+            active = false;
         }
     }
-    #endif //debug
 }

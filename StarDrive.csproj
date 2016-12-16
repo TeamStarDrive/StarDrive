@@ -420,6 +420,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\FileSystemExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
     <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />
@@ -690,6 +691,7 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Utils\PerfTimer.cs" />
+    <Compile Include="Ship_Game\Utils\ScopedLock.cs" />
     <Compile Include="Ship_Game\YouWinScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -1634,7 +1636,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\BatchRemovalCollection_T_.cs">
+    <Compile Include="Ship_Game\Utils\BatchRemovalCollection_T_.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

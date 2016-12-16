@@ -142,28 +142,14 @@ namespace Ship_Game.Gameplay
 
         internal List<GameplayObject> GetNearby(GameplayObject obj)
         {
-            BatchRemovalCollection<GameplayObject> list = new BatchRemovalCollection<GameplayObject>();
-           
+            var nearby = new List<GameplayObject>();
+            foreach (int key in GetIdForObj(obj))
             {
-                BatchRemovalCollection<GameplayObject> test;
-                foreach (int key in this.GetIdForObj(obj))
-                {
-
-                    
-                    if (!this.Buckets.TryGetValue(key, out test))
-                    {
-            
-                        return this.Buckets[1];
-                      
-                    }
-          
-                    list.AddRange(test);
-                    test = null;
-          
-                }
+                if (!Buckets.TryGetValue(key, out var list))
+                    return Buckets[1];
+                nearby.AddRange(list);
             }
-       
-            return list;
+            return nearby;
         }
 
         internal List<GameplayObject> GetNearby(Vector2 position)

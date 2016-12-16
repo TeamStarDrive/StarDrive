@@ -1972,8 +1972,8 @@ namespace Ship_Game
 
         private void DoViewedCombat(float elapsedTime)
         {
-            this.ActiveCombats.thisLock.EnterReadLock();
-            foreach (Combat combat in (List<Combat>)this.ActiveCombats)
+            using (ActiveCombats.AcquireReadLock())
+            foreach (Combat combat in ActiveCombats)
             {
                 if (combat.Attacker.TroopsHere.Count == 0 && combat.Attacker.building == null)
                 {
@@ -2087,14 +2087,12 @@ namespace Ship_Game
                     }
                 }
             }
-            this.ActiveCombats.thisLock.ExitReadLock();
-
         }
 
         private void DoCombatUnviewed(float elapsedTime)
         {
-            this.ActiveCombats.thisLock.EnterReadLock();
-            foreach (Combat combat in (List<Combat>)this.ActiveCombats)
+            using (ActiveCombats.AcquireReadLock())
+            foreach (Combat combat in ActiveCombats)
             {
                 if (combat.Attacker.TroopsHere.Count == 0 && combat.Attacker.building == null)
                 {
@@ -2195,7 +2193,6 @@ namespace Ship_Game
                     }
                 }
             }
-            this.ActiveCombats.thisLock.ExitReadLock();
         }
 
         public void DoCombats(float elapsedTime)
@@ -2229,7 +2226,7 @@ namespace Ship_Game
             
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
-                planetGridSquare.TroopsHere.thisLock.EnterReadLock();
+                using (planetGridSquare.TroopsHere.AcquireReadLock())
                 foreach (Troop troop in planetGridSquare.TroopsHere)
                 {
                     if (troop.GetOwner() != null && troop.GetOwner() != this.Owner)
@@ -2242,7 +2239,6 @@ namespace Ship_Game
                     else
                         ++num1;
                 }
-                planetGridSquare.TroopsHere.thisLock.ExitReadLock();
                 if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
                     ++num1;
             }
@@ -2668,22 +2664,19 @@ namespace Ship_Game
         {
             foreach (PlanetGridSquare eventLocation in this.TilesList)
             {
-                if (eventLocation.x == start.x + changex && eventLocation.y == start.y + changey)
-                {
-                    Troop troop = null;
+                if (eventLocation.x != start.x + changex || eventLocation.y != start.y + changey)
+                    continue;
 
-                    eventLocation.TroopsHere.thisLock.EnterReadLock();
+                Troop troop = null;
+                using (eventLocation.TroopsHere.AcquireWriteLock())
+                {
                     if (start.TroopsHere.Count > 0)
                     {
                         troop = start.TroopsHere[0];
                     }
-                    
 
                     if (eventLocation.building != null && eventLocation.building.CombatStrength > 0 || eventLocation.TroopsHere.Count > 0)
-                    {
-                        eventLocation.TroopsHere.thisLock.ExitReadLock();
                         return false;
-                    }
                     if (troop != null)
                     {
                         if (changex > 0)
@@ -2693,20 +2686,15 @@ namespace Ship_Game
                         troop.SetFromRect(start.TroopClickRect);
                         troop.MovingTimer = 0.75f;
                         --troop.AvailableMoveActions;
-                        troop.MoveTimer = (float)troop.MoveTimerBase;
-                        eventLocation.TroopsHere.thisLock.ExitReadLock();
+                        troop.MoveTimer = troop.MoveTimerBase;
                         eventLocation.TroopsHere.Add(troop);
                         start.TroopsHere.Clear();
                     }
-                    if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
-                    {
-                        if (eventLocation.TroopsHere.thisLock.IsReadLockHeld)
-                        eventLocation.TroopsHere.thisLock.ExitReadLock();
+                    if (string.IsNullOrEmpty(eventLocation.building?.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                         return true;
-                    }
-                    ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Planet.universeScreen);
-                    
                 }
+
+                ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Planet.universeScreen);
             }
             return false;
         }
@@ -2973,21 +2961,24 @@ namespace Ship_Game
 
                     }
                     //auto load troop:
-                    if ((this.ParentSystem.combatTimer <= 0 || !ship.InCombat) && this.TroopsHere.Count() > 0 && this.TroopsHere.Where(troop => troop.GetOwner() != this.Owner).Count() == 0)
+                    using (TroopsHere.AcquireWriteLock())
                     {
-                        foreach (var pgs in this.TilesList)
+                        if ((ParentSystem.combatTimer > 0 && ship.InCombat) || !TroopsHere.Any() ||
+                            TroopsHere.Any(troop => troop.GetOwner() != Owner))
+                            continue;
+                        foreach (var pgs in TilesList)
                         {
                             if (ship.TroopCapacity ==0 || ship.TroopList.Count >= ship.TroopCapacity) 
                                 break;
-                            pgs.TroopsHere.thisLock.EnterWriteLock();
-                            if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == this.Owner)
-                            {                                
-                                Troop troop = pgs.TroopsHere[0];
-                                ship.TroopList.Add(troop);
-                                pgs.TroopsHere.Clear();
-                                this.TroopsHere.Remove(troop);
-                            }
-                            pgs.TroopsHere.thisLock.ExitWriteLock();
+
+                            using (pgs.TroopsHere.AcquireWriteLock())
+                                if (pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].GetOwner() == Owner)
+                                {                                
+                                    Troop troop = pgs.TroopsHere[0];
+                                    ship.TroopList.Add(troop);
+                                    pgs.TroopsHere.Clear();
+                                    TroopsHere.Remove(troop);
+                                }
                         }
                     }
                 }
@@ -4658,8 +4649,8 @@ namespace Ship_Game
                         bool flag9 = true;
                         if (flag8)
                         {
-                            this.ConstructionQueue.thisLock.EnterReadLock();
-                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                            using (ConstructionQueue.AcquireReadLock())
+                            foreach (QueueItem queueItem in ConstructionQueue)
                             {
                                 if (queueItem.isBuilding
                                     && ( queueItem.Building.PlusFlatProductionAmount > 0.0
@@ -4671,7 +4662,6 @@ namespace Ship_Game
                                     break;
                                 }
                             }
-                            this.ConstructionQueue.thisLock.ExitReadLock();
                         }
                         if (flag9 &&  num6 < 2f)
                         {
@@ -5525,7 +5515,7 @@ namespace Ship_Game
                 //finances
                 //if (this.Owner.Money*.5f < this.Owner.GrossTaxes*(1-this.Owner.data.TaxRate) && this.GrossMoneyPT - this.TotalMaintenanceCostsPerTurn < 0)
                 {
-                    this.ConstructionQueue.thisLock.EnterReadLock();
+                    using (ConstructionQueue.AcquireReadLock())
                     foreach (PlanetGridSquare PGS in this.TilesList)
                     {
                         bool qitemTest = PGS.QItem != null;
@@ -5564,7 +5554,6 @@ namespace Ship_Game
                     //        this.ConstructionQueue.QueuePendingRemoval(queueItem);
                     //    }
                     //}
-                    this.ConstructionQueue.thisLock.ExitReadLock();
                     this.ConstructionQueue.ApplyPendingRemovals();
                     //foreach (Building building in this.BuildingList)
                     //{
@@ -6702,9 +6691,8 @@ output = maxp * take10 = 5
             float num = 0;
             if (this.Owner == empire)
                 num += this.BuildingList.Sum(offense => offense.CombatStrength);
-            this.TroopsHere.thisLock.EnterReadLock();
-            num += this.TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
-            this.TroopsHere.thisLock.ExitReadLock();
+            using (TroopsHere.AcquireReadLock())
+                num += TroopsHere.Where(empiresTroops => empiresTroops.GetOwner() == empire).Sum(strength => strength.Strength);
             return num;
 
 
@@ -6796,7 +6784,7 @@ output = maxp * take10 = 5
         public bool TroopsHereAreEnemies(Empire empire)
         {
             bool enemies = false;
-            this.TroopsHere.thisLock.EnterReadLock();
+            using (TroopsHere.AcquireReadLock())
             foreach (Troop trooper in this.TroopsHere)
             {
                 if (!empire.TryGetRelations(trooper.GetOwner(), out Relationship trouble) || trouble.AtWar)
@@ -6806,7 +6794,6 @@ output = maxp * take10 = 5
                 }
 
             }
-            this.TroopsHere.thisLock.ExitReadLock();
             return enemies;
         }
         public bool EventsOnBuildings()
@@ -6826,8 +6813,8 @@ output = maxp * take10 = 5
         public int GetGroundLandingSpots()
         {
             int spotCount =this.TilesList.Where(spots => spots.building == null).Sum(spots => spots.number_allowed_troops);            
-            int troops = this.TroopsHere.Where(owner=> owner.GetOwner() == this.Owner) .Count();
-            return spotCount -troops;
+            int troops = this.TroopsHere.Where(owner=> owner.GetOwner() == this.Owner).Count();
+            return spotCount - troops;
 
 
         }
@@ -6835,15 +6822,11 @@ output = maxp * take10 = 5
         //Added by McShooterz: heal builds and troops every turn
         public void HealTroops()
         {
-            if (this.RecentCombat)
+            if (RecentCombat)
                 return;
-            //heal troops
-            this.TroopsHere.thisLock.EnterReadLock();
-            foreach (Troop troop in this.TroopsHere)
-            {
-                troop.Strength = troop.GetStrengthMax();
-            }
-            this.TroopsHere.thisLock.ExitReadLock();
+            using (TroopsHere.AcquireReadLock())
+                foreach (Troop troop in TroopsHere)
+                    troop.Strength = troop.GetStrengthMax();
         }
 
         public enum ColonyType

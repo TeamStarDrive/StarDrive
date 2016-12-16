@@ -16,58 +16,35 @@ namespace Ship_Game
 	public sealed class ScreenManager : IDisposable
 	{
 		public List<GameScreen> screens = new List<GameScreen>();
-
 		private List<GameScreen> screensToUpdate = new List<GameScreen>();
-
 		private List<GameScreen> screensToDraw = new List<GameScreen>();
-
 		public InputState input = new InputState();
-
 		private IGraphicsDeviceService graphicsDeviceService;
-
 	    private Texture2D blankTexture;
-
 	    public LightingSystemManager lightingSystemManager;
-
 		public LightingSystemEditor editor;
-
 		public SceneState sceneState;
-
 		public SceneEnvironment environment;
-
 		public LightingSystemPreferences preferences;
-
 		public SplashScreenGameComponent splashScreenGameComponent;
-
 		public SceneInterface inter;
-
 		public SceneInterface buffer1;
-
 		public SceneInterface buffer2;
-
 		public SceneInterface renderBuffer;
-
 		public Cue Music;
-
 		public AudioCategory musicCategory;
-
 		public AudioCategory racialMusic;
-
 		public AudioCategory combatMusic;
-
 		public AudioCategory weaponsCategory;
-
         public AudioCategory defaultCategory;
         public AudioCategory GlobalCategory;
-
-		public Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
-
-		public Microsoft.Xna.Framework.Graphics.SpriteBatch SpriteBatch;
+		public GraphicsDevice GraphicsDevice;
+		public SpriteBatch SpriteBatch;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-        public float exitScreenTimer = 0;
+        public float exitScreenTimer;
 
 		public ContentManager Content { get; private set; }
 	    public Rectangle TitleSafeArea { get; private set; }
@@ -140,7 +117,7 @@ namespace Ship_Game
 
 		public void ExitAll()
 		{
-		    foreach (GameScreen screen in screens)
+		    foreach (GameScreen screen in screens.ToArray())
 		        screen.ExitScreen();
 		}
 
@@ -158,10 +135,7 @@ namespace Ship_Game
 			SpriteBatch.End();
 		}
 
-		public GameScreen[] GetScreens()
-		{
-			return this.screens.ToArray();
-		}
+        public int ScreenCount => screens.Count;
 
 		public void LoadContent()
 		{
@@ -195,14 +169,11 @@ namespace Ship_Game
 
 		public void RemoveScreen(GameScreen screen)
 		{
-			if (this.graphicsDeviceService != null && this.graphicsDeviceService.GraphicsDevice != null)
-			{
+			if (graphicsDeviceService?.GraphicsDevice != null)
 				screen.UnloadContent();
-			}
-			this.screens.Remove(screen);
-			this.screensToUpdate.Remove(screen);
-            this.exitScreenTimer = .025f;
-            
+			screens.Remove(screen);
+			screensToUpdate.Remove(screen);
+            exitScreenTimer = .025f;
 		}
 
 		public void SetupSunburn()
@@ -211,43 +182,39 @@ namespace Ship_Game
 
 		private void TraceScreens()
 		{
-			List<string> screenNames = new List<string>();
-			foreach (GameScreen screen in this.screens)
-			{
+			var screenNames = new List<string>();
+			foreach (GameScreen screen in screens)
 				screenNames.Add(screen.GetType().Name);
-			}
 			Trace.WriteLine(string.Join(", ", screenNames.ToArray()));
 		}
 
         private void UnloadContent()
 		{
-			this.Content.Unload();
-			foreach (GameScreen screen in this.screens)
-			{
+			Content.Unload();
+			foreach (GameScreen screen in screens)
 				screen.UnloadContent();
-			}
 		}
 
 		public void Update(GameTime gameTime)
 		{
-			this.input.Update(gameTime);
-			this.screensToUpdate.Clear();
-			foreach (GameScreen screen in this.screens)
+			input.Update(gameTime);
+			screensToUpdate.Clear();
+			foreach (GameScreen screen in screens)
 			{
 				this.screensToUpdate.Add(screen);
 			}
 			bool otherScreenHasFocus = !Game1.Instance.IsActive;
 			bool coveredByOtherScreen = false;
-			while (this.screensToUpdate.Count > 0)
+			while (screensToUpdate.Count > 0)
 			{
-				GameScreen screen = this.screensToUpdate[this.screensToUpdate.Count - 1];
-				this.screensToUpdate.RemoveAt(this.screensToUpdate.Count - 1);
+				GameScreen screen = screensToUpdate[screensToUpdate.Count - 1];
+				screensToUpdate.RemoveAt(screensToUpdate.Count - 1);
 				screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 				if (screen.ScreenState != ScreenState.TransitionOn && screen.ScreenState != ScreenState.Active)
 					continue;
 				if (!otherScreenHasFocus)
 				{
-					screen.HandleInput(this.input);
+					screen.HandleInput(input);
 					otherScreenHasFocus = true;
 				}
 				if (screen.IsPopup)
@@ -267,20 +234,15 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    if (this.Content != null)
-                        this.Content.Dispose();
-                    if (this.SpriteBatch != null)
-                        this.SpriteBatch.Dispose();
-
-                }
-                this.Content = null;
-                this.SpriteBatch = null;
-                this.disposed = true;
+                Content?.Dispose();
+                SpriteBatch?.Dispose();
             }
+            Content     = null;
+            SpriteBatch = null;
+            disposed    = true;
         }
 	}
 }
