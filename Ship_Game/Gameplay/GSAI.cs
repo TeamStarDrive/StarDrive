@@ -6235,7 +6235,7 @@ namespace Ship_Game.Gameplay
 				foreach (SolarSystem sys in data.SolarSystemsList)
 				{
 					foreach (Planet p in sys.PlanetList)
-                        if (p.Position.WithinRadius(area.Position, area.Radius))
+                        if (p.Position.InRadius(area.Position, area.Radius))
 						    area.GetPlanets().Add(p);
 				}
 				foreach (Guid guid in area.OffensiveForceGuids)

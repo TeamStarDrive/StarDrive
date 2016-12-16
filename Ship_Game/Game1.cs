@@ -23,42 +23,33 @@ namespace Ship_Game
 {
 	public sealed class Game1 : Game
 	{
-		public GraphicsDeviceManager graphics;
-
+		public GraphicsDeviceManager Graphics;
 		public static Game1 Instance;
-
-		public ScreenManager screenManager;
-
+		public ScreenManager ScreenManager;
+		public WindowMode CurrentMode = WindowMode.Borderless;
 		public bool IsLoaded;
-
-		public Game1.WindowMode CurrentMode = Game1.WindowMode.Borderless;
 
 		public Game1()
 		{
-#if STEAM
+        #if STEAM
             if (SteamManager.SteamInitialize())
 			{
                 SteamManager.RequestCurrentStats();
                 if (SteamManager.SetAchievement("Thanks"))
-                {
                     SteamManager.SaveAllStatAndAchievementChanges();
-                }
 			}
-            
-
-
 #endif
 
-#if UNSAFE && DEBUG
+            Exiting += GameExiting;
 
-
+        #if UNSAFE && DEBUG
             MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("Update2"), typeof(SplashScreen).GetMethod("Update"));
             foreach (var method in from type in Assembly.GetAssembly(typeof(SplashScreen)).GetTypes() where type.Name == "a" select type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic) into methods from method in methods where method.Name == "k" select method)
             {
                 MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("k2", BindingFlags.Static | BindingFlags.Public), method);
             }
-#endif
-			this.graphics = new GraphicsDeviceManager(this)
+        #endif
+			this.Graphics = new GraphicsDeviceManager(this)
 			{
 				MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
 				MinimumVertexShaderProfile = ShaderProfile. VS_2_0
@@ -94,8 +85,8 @@ namespace Ship_Game
 			{
 				GlobalStats.Config.Language = "English";
 			}
-			GlobalStats.Config.RanOnce = (ConfigurationManager.AppSettings["RanOnce"] == "false" ? false : true);
-			GlobalStats.ForceFullSim = (ConfigurationManager.AppSettings["ForceFullSim"] == "false" ? false : true);
+			GlobalStats.Config.RanOnce = ConfigurationManager.AppSettings["RanOnce"] != "false";
+			GlobalStats.ForceFullSim   = ConfigurationManager.AppSettings["ForceFullSim"] != "false";
             if (int.TryParse(ConfigurationManager.AppSettings["WindowMode"], out int winmode))
 			{
 				GlobalStats.Config.WindowMode = winmode;
@@ -104,25 +95,25 @@ namespace Ship_Game
 			{
                 if (int.TryParse(ConfigurationManager.AppSettings["XRES"], out int xres))
 				{
-					this.graphics.PreferredBackBufferWidth = xres;
+					this.Graphics.PreferredBackBufferWidth = xres;
 					GlobalStats.Config.XRES = xres;
 				}
 				if (int.TryParse(ConfigurationManager.AppSettings["YRES"], out int yres))
 				{
-					this.graphics.PreferredBackBufferHeight = yres;
+					this.Graphics.PreferredBackBufferHeight = yres;
 					GlobalStats.Config.YRES = yres;
 				}
 			}
 			else
 			{
-				this.graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-				this.graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-				this.graphics.IsFullScreen = true;
+				this.Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+				this.Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+				this.Graphics.IsFullScreen = true;
 			}
-			this.graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
-			this.graphics.PreferMultiSampling = true;
-			this.graphics.SynchronizeWithVerticalRetrace = true;
-			this.graphics.PreparingDeviceSettings += new EventHandler<PreparingDeviceSettingsEventArgs>(this.PrepareDeviceSettings);
+			this.Graphics.PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8;
+			this.Graphics.PreferMultiSampling = true;
+			this.Graphics.SynchronizeWithVerticalRetrace = true;
+			this.Graphics.PreparingDeviceSettings += new EventHandler<PreparingDeviceSettingsEventArgs>(this.PrepareDeviceSettings);
 			if (!GlobalStats.Config.RanOnce)
 			{
 				GlobalStats.Config.WindowMode = 0;
@@ -146,27 +137,32 @@ namespace Ship_Game
 				}
 			}
 			Bitmap cur = new Bitmap("Content/Cursors/Cursor.png", true);
-			Graphics.FromImage(cur);
+			System.Drawing.Graphics.FromImage(cur);
 			Cursor c = new Cursor(cur.GetHicon());
 			Control.FromHandle(base.Window.Handle).Cursor = c;
 			base.IsMouseVisible = true;
 		}
 
-		public void ApplySettings()
+        private void GameExiting(object sender, EventArgs e)
+        {
+            ScreenManager.ExitAll();
+        }
+
+        public void ApplySettings()
 		{
-			this.graphics.ApplyChanges();
+			this.Graphics.ApplyChanges();
 		}
 
 		protected override void Draw(GameTime gameTime)
 		{
-			if (base.GraphicsDevice.GraphicsDeviceStatus == GraphicsDeviceStatus.Normal)
+			if (GraphicsDevice.GraphicsDeviceStatus == GraphicsDeviceStatus.Normal)
 			{
-				base.GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
+				GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
 				if (!SplashScreen.DisplayComplete)
 				{
-					this.screenManager.splashScreenGameComponent.Draw(gameTime);
+					ScreenManager.splashScreenGameComponent.Draw(gameTime);
 				}
-				this.screenManager.Draw(gameTime);
+				ScreenManager.Draw(gameTime);
 				base.Draw(gameTime);
 			}
 		}
@@ -175,11 +171,11 @@ namespace Ship_Game
 		{
 			base.Window.Title = "StarDrive";
 			base.Content.RootDirectory = "Content";
-			this.screenManager = new ScreenManager(this, this.graphics)
+			this.ScreenManager = new ScreenManager(this, this.Graphics)
 			{
-				splashScreenGameComponent = new SplashScreenGameComponent(this, this.graphics)
+				splashScreenGameComponent = new SplashScreenGameComponent(this, this.Graphics)
 			};
-			base.Components.Add(this.screenManager.splashScreenGameComponent);
+			base.Components.Add(this.ScreenManager.splashScreenGameComponent);
 			AudioManager.Initialize(this, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
             
 			Game1.Instance = this;
@@ -194,9 +190,9 @@ namespace Ship_Game
 				return;
             }
 
-            this.screenManager.LoadContent();
+            this.ScreenManager.LoadContent();
 			Fonts.LoadContent(base.Content);
-			this.screenManager.AddScreen(new GameLoadingScreen());
+			this.ScreenManager.AddScreen(new GameLoadingScreen());
 			this.IsLoaded = true;
 		}
 
@@ -244,27 +240,27 @@ namespace Ship_Game
 			{
 				case Game1.WindowMode.Fullscreen:
 				{
-					if (!this.graphics.IsFullScreen)
+					if (!this.Graphics.IsFullScreen)
 					{
-						this.graphics.ToggleFullScreen();
+						this.Graphics.ToggleFullScreen();
 					}
                     
-					this.graphics.PreferredBackBufferWidth = width;
-					this.graphics.PreferredBackBufferHeight = height;
-					this.graphics.ApplyChanges();
+					this.Graphics.PreferredBackBufferWidth = width;
+					this.Graphics.PreferredBackBufferHeight = height;
+					this.Graphics.ApplyChanges();
 					this.CurrentMode = Game1.WindowMode.Fullscreen;
 					GlobalStats.Config.WindowMode = 0;
 					return;
 				}
 				case Game1.WindowMode.Windowed:
 				{
-					if (this.graphics.IsFullScreen)
+					if (this.Graphics.IsFullScreen)
 					{
-						this.graphics.ToggleFullScreen();
+						this.Graphics.ToggleFullScreen();
 					}
-					this.graphics.PreferredBackBufferWidth = width;
-					this.graphics.PreferredBackBufferHeight = height;
-					this.graphics.ApplyChanges();
+					this.Graphics.PreferredBackBufferWidth = width;
+					this.Graphics.PreferredBackBufferHeight = height;
+					this.Graphics.ApplyChanges();
 					form.WindowState = FormWindowState.Normal;
 					form.FormBorderStyle = FormBorderStyle.Fixed3D;
 					form.ClientSize = new Size(width, height);
@@ -278,13 +274,13 @@ namespace Ship_Game
 				}
 				case Game1.WindowMode.Borderless:
 				{
-					if (this.graphics.IsFullScreen)
+					if (this.Graphics.IsFullScreen)
 					{
-						this.graphics.ToggleFullScreen();
+						this.Graphics.ToggleFullScreen();
 					}
-					this.graphics.PreferredBackBufferWidth = width;
-					this.graphics.PreferredBackBufferHeight = height;
-					this.graphics.ApplyChanges();
+					this.Graphics.PreferredBackBufferWidth = width;
+					this.Graphics.PreferredBackBufferHeight = height;
+					this.Graphics.ApplyChanges();
 					form.FormBorderStyle = FormBorderStyle.None;
 					form.WindowState = FormWindowState.Normal;
 					form.ClientSize = new Size(width, height);
@@ -305,11 +301,12 @@ namespace Ship_Game
 
 		protected override void UnloadContent()
 		{
+            return;
 		}
 
 		protected override void Update(GameTime gameTime)
 		{
-			this.screenManager.Update(gameTime);
+			this.ScreenManager.Update(gameTime);
 			base.Update(gameTime);
 		}
 

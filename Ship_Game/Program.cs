@@ -12,13 +12,12 @@ namespace Ship_Game
 
             try
             {
-                if (Game1.Instance.graphics.IsFullScreen)
-                    Game1.Instance.graphics.ToggleFullScreen();
+                if (Game1.Instance.Graphics.IsFullScreen)
+                    Game1.Instance.Graphics.ToggleFullScreen();
             }
             catch { }
             try
             {
-                
                 //added by CrimsonED
                 //---
                 Exception ex = (Exception)e.ExceptionObject;
