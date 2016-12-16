@@ -34,10 +34,10 @@ namespace SDUnitTests
         }
 
         [Test]
-        public void TestWithinRadius()
+        public void TestInRadius()
         {
-            Assert.IsTrue(Inside.WithinRadius(Center, Radius),  "WithinRadius failed, inside point should return true");
-            Assert.IsTrue(Outside.WithinRadius(Center, Radius) == false, "WithinRadius failed, outside point should return false");
+            Assert.IsTrue(Inside.InRadius(Center, Radius),  "InRadius failed, inside point should return true");
+            Assert.IsTrue(Outside.InRadius(Center, Radius) == false, "InRadius failed, outside point should return false");
         }
 
         // StarDrive +Y is South and -Y is North

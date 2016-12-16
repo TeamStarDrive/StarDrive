@@ -125,12 +125,9 @@ namespace Ship_Game
                if (p.Owner != us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(this.us))
                {
                    p.TroopsHere.ApplyPendingRemovals();
-                   foreach (Troop troop in p.TroopsHere.Where(loyalty => loyalty.GetOwner() == this.us).ToList())
+                   foreach (Troop troop in p.TroopsHere.Where(loyalty => loyalty.GetOwner() == this.us))
                    {
                        p.TroopsHere.QueuePendingRemoval(troop);
-                   }
-                   foreach(Troop troop in p.TroopsHere.pendingRemovals)
-                   {
                        troop.Launch();
                    }
                    p.TroopsHere.ApplyPendingRemovals();

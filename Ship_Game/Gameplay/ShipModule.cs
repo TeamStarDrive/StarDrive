@@ -1668,16 +1668,7 @@ namespace Ship_Game.Gameplay
             if (debriCount != 0)
             {
                 float debriScale = size * 0.1f;
-			    List<SpaceJunk> junk = SpaceJunk.MakeJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
-			    lock (GlobalStats.ObjectManagerLocker)
-			    {
-				    foreach (SpaceJunk j in junk)
-				    {
-					    j.wasAddedToScene = true;
-					    universeScreen.ScreenManager.inter.ObjectManager.Submit(j.JunkSO);
-					    UniverseScreen.JunkList.Add(j);
-				    }
-			    }
+			    SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
             }
 
             //this.SetNewExternals();
@@ -2090,7 +2081,7 @@ namespace Ship_Game.Gameplay
                     || hangarShip.GetAI().hasPriorityTarget
                     || hangarShip.GetAI().IgnoreCombat 
                     || hangarShip.GetAI().Target != null
-                    || hangarShip.Center.WithinRadius(Parent.Center, Parent.SensorRange)
+                    || hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange)
                 ) return;
                 hangarShip.DoEscort(Parent);
                 return;

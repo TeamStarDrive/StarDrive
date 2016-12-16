@@ -17,11 +17,11 @@ namespace Ship_Game
 				{
 					return false;
 				}
-				if (ScreenState == Ship_Game.ScreenState.TransitionOn)
+				if (ScreenState == ScreenState.TransitionOn)
 				{
 					return true;
 				}
-				return ScreenState == Ship_Game.ScreenState.Active;
+				return ScreenState == ScreenState.Active;
 			}
 		}
 

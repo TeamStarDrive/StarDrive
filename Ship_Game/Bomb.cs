@@ -55,19 +55,18 @@ namespace Ship_Game
 		public void Update(float deltaTime)
 		{
 			Position += Velocity*deltaTime;
-			World    = Matrix.CreateTranslation(Position)
-                //* Matrix.CreateRotationZ(Facing)
-                ;
+			World    = Matrix.CreateTranslation(Position);
+                        //* Matrix.CreateRotationZ(Facing);
 
             Vector3 planetPos = TargetPlanet.Position.ToVec3(z:2500f);
 
             float impactRadius = TargetPlanet.ShieldStrengthCurrent > 0f ? 100f : 30f;
-            if (Position.WithinRadius(planetPos, PlanetRadius + impactRadius))
+            if (Position.InRadius(planetPos, PlanetRadius + impactRadius))
 				DoImpact();
 
 
             // fiery trail radius:
-		    if (!Position.WithinRadius(planetPos, PlanetRadius + 1000f))
+		    if (!Position.InRadius(planetPos, PlanetRadius + 1000f))
                 return;
 
             if (TrailEmitter == null)
