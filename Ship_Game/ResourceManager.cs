@@ -381,11 +381,11 @@ namespace Ship_Game
             {
                 ModuleSlot newSlot = new ModuleSlot();
                 newSlot.SetParent(ship);
-                newSlot.SlotOptions = slot.SlotOptions;
+                newSlot.SlotOptions  = slot.SlotOptions;
                 newSlot.Restrictions = slot.Restrictions;
                 newSlot.Position = slot.Position;
-                newSlot.facing = slot.facing;
-                newSlot.state = slot.state;
+                newSlot.facing   = slot.facing;
+                newSlot.state    = slot.state;
                 newSlot.InstalledModuleUID = slot.InstalledModuleUID;
                 ship.ModuleSlotList.Add(newSlot);
             }
@@ -1066,7 +1066,7 @@ namespace Ship_Game
             LoadPlanetEdicts();
             LoadEconomicResearchStrats();
 
-            Localizer.cleanLocalizer();
+            Localizer.CleanLocalizer();
             OffSet = 0;
         }
 

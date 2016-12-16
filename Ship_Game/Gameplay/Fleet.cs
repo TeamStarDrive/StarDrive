@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
@@ -52,9 +53,9 @@ namespace Ship_Game.Gameplay
         private bool InCombat;
         public int TaskStep;
         public bool IsCoreFleet;
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public Vector2 StoredFleetPosition;
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public float StoredFleetDistancetoMove;
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;

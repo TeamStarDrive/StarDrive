@@ -17,8 +17,6 @@ namespace Ship_Game
 
 		private Menu2 window;
 
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		private Rectangle TaxRateRect;
 
 		private Rectangle CostRect;

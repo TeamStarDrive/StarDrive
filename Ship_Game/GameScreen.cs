@@ -1,5 +1,7 @@
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -8,25 +10,17 @@ namespace Ship_Game
 		public bool IsLoaded;
 	    public bool AlwaysUpdate;
 	    private bool OtherScreenHasFocus;
+        protected readonly List<UIButton> Buttons = new List<UIButton>();
+        protected Texture2D BtnDefault;
+        protected Texture2D BtnHovered;
+        protected Texture2D BtnPressed;
 
-	    public bool IsActive
-		{
-			get
-			{
-				if (OtherScreenHasFocus)
-				{
-					return false;
-				}
-				if (ScreenState == ScreenState.TransitionOn)
-				{
-					return true;
-				}
-				return ScreenState == ScreenState.Active;
-			}
-		}
+        public bool IsActive => !OtherScreenHasFocus
+                                && ScreenState == ScreenState.TransitionOn 
+                                || ScreenState == ScreenState.Active;
 
-		public bool IsExiting { get; protected set; }
-	    public bool IsPopup { get; protected set; }
+	    public bool IsExiting { get; protected set; }
+	    public bool IsPopup   { get; protected set; }
 
 	    public ScreenManager ScreenManager { get; internal set; }
 	    public ScreenState   ScreenState   { get; protected set; }
@@ -38,7 +32,8 @@ namespace Ship_Game
 
         protected GameScreen()
 		{
-		}
+
+        }
 
 		public abstract void Draw(GameTime gameTime);
 
@@ -59,7 +54,10 @@ namespace Ship_Game
 
 		public virtual void LoadContent()
 		{
-		}
+            BtnDefault = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+            BtnHovered = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
+            BtnPressed = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
+        }
 
 		public virtual void UnloadContent()
 		{
@@ -100,5 +98,32 @@ namespace Ship_Game
 			TransitionPosition = MathHelper.Clamp(TransitionPosition, 0f, 1f);
 			return false;
 		}
-	}
+
+        // Shared utility functions:
+        protected UIButton Button(ref Vector2 pos, string launches, int localization)
+        {
+            return Button(ref pos, launches, Localizer.Token(localization));
+        }
+
+        protected UIButton Button(ref Vector2 pos, string launches, string text)
+        {
+            var button = new UIButton
+            {
+                NormalTexture  = BtnDefault,
+                HoverTexture   = BtnHovered,
+                PressedTexture = BtnPressed,
+                Launches       = launches,
+                Text           = text
+            };
+            Layout(ref pos, button);
+            Buttons.Add(button);
+            return button;
+        }
+
+        protected void Layout(ref Vector2 pos, UIButton button)
+        {
+            button.Rect = new Rectangle((int)pos.X, (int)pos.Y, BtnDefault.Width, BtnDefault.Height);
+            pos.Y += BtnDefault.Height + 15;
+        }
+    }
 }

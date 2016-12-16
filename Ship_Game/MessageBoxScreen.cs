@@ -20,8 +20,6 @@ namespace Ship_Game
 
 		public UIButton Cancel;
 
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		private float timer;
 
 		private bool timed;
@@ -193,7 +191,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
 				{
-					b.State = UIButton.PressState.Normal;
+					b.State = UIButton.PressState.Default;
 				}
 				else
 				{

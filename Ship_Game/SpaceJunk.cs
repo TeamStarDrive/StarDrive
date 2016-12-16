@@ -132,7 +132,7 @@ namespace Ship_Game
                 return;
 		    Position        += Velocity;
 		    RotationRadians += Spin * elapsedTime;
-		    So.SetAffineTransform(Position, RotationRadians, Scale);
+		    So.AffineTransform(Position, RotationRadians, Scale);
 
 		    TrailEmitter?.Update(elapsedTime, Position);
 		}

@@ -2142,7 +2142,7 @@ namespace Ship_Game
             }
             if (!HelperFunctions.CheckIntersection(this.launchTroops.Rect, input.CursorPosition))
             {
-                this.launchTroops.State = UIButton.PressState.Normal;
+                this.launchTroops.State = UIButton.PressState.Default;
             }
             else
             {
@@ -2176,7 +2176,7 @@ namespace Ship_Game
             //fbedard: Click button to send troops
             if (!HelperFunctions.CheckIntersection(this.SendTroops.Rect, input.CursorPosition))
             {
-                this.SendTroops.State = UIButton.PressState.Normal;
+                this.SendTroops.State = UIButton.PressState.Default;
             }
             else
             {

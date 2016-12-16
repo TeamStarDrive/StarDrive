@@ -7,6 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
+
 namespace Ship_Game.Gameplay
 {
 	public sealed class ThreatMatrix
@@ -462,7 +464,7 @@ namespace Ship_Game.Gameplay
             public float Strength;
             public string EmpireName;
             public bool InBorders;
-            [XmlIgnore]
+            [XmlIgnore][ScriptIgnore]
             public Ship Ship;
 		}
 	}
