@@ -358,27 +358,18 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                IOrderedEnumerable<Ship> strsorted =
-                    from ship in defenseDict.Value.GetShipList()
-                    //where  !ship.GetAI().BadGuysNear && ship.GetAI().State == AIState.AwaitingOrders
-                    orderby ship.GetStrength()
-                    select ship;
-                using (IEnumerator<Ship> enumerator = strsorted.GetEnumerator())
+
+                var ships = defenseDict.Value.GetShipList();
+                ships.Sort((x,y) => x.GetStrength().CompareTo(y.GetStrength()));
+                foreach (Ship current in ships)
                 {
-                    do
-                    {
-                        if (!enumerator.MoveNext())
-                        {
-                            break;
-                        }
-                        Ship current = enumerator.Current;
-                        Ship remove;
-                        defenseDict.Value.ShipsDict.TryRemove(current.guid, out remove);
-                        ShipsAvailableForAssignment.Add(current);
-                        current.GetAI().SystemToDefend = null;                        
-                        //current.GetAI().State = AIState.AwaitingOrders;
-                    }
-                    while (defenseDict.Value.GetOurStrength() >= defenseDict.Value.IdealShipStrength );
+                    defenseDict.Value.ShipsDict.TryRemove(current.guid, out Ship remove);
+                    ShipsAvailableForAssignment.Add(current);
+                    current.GetAI().SystemToDefend = null;
+                    //current.GetAI().State = AIState.AwaitingOrders;
+
+                    if (defenseDict.Value.GetOurStrength() <= defenseDict.Value.IdealShipStrength)
+                        break;
                 }
             }
             //Add available force to pool:
