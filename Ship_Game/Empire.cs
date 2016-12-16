@@ -15,7 +15,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Diagnostics;
-using System.Web.Script.Serialization;
 
 namespace Ship_Game
 {
@@ -117,18 +116,18 @@ namespace Ship_Game
         public float exportPTrack;
         public float exportFTrack;
         public float averagePLanetStorage;
-        [XmlIgnore][ScriptIgnore]
+        [XmlIgnore]
         public Dictionary<Point, Dictionary<Point, PatchCacheEntry>> PathCache = new Dictionary<Point, Dictionary<Point, PatchCacheEntry>>();
         //public Dictionary<List<Vector2>, int> pathcache = new Dictionary<List<Vector2>, int>();
-        [XmlIgnore][ScriptIgnore]
+        [XmlIgnore]
         public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
-        [XmlIgnore][ScriptIgnore]
+        [XmlIgnore]
         public int pathcacheMiss = 0;
-        [XmlIgnore][ScriptIgnore]
+        [XmlIgnore]
         public ArtificialIntelligence.Grid pathhMap { get; set; }
-        [XmlIgnore][ScriptIgnore]
+        [XmlIgnore]
         public byte[,] grid;
-        [XmlIgnore][ScriptIgnore]
+        [XmlIgnore]
         public int granularity = 0;
 
         private bool disposed;
