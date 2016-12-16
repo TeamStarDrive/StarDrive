@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SynapseGaming.LightingSystem.Rendering;
 using static System.Math;
 
 namespace Ship_Game
@@ -50,25 +51,34 @@ namespace Ship_Game
 
 
         // True if this given position is within the radius of Circle [center,radius]
-        public static bool WithinRadius(this Vector2 position, Vector2 center, float radius)
+        public static bool InRadius(this Vector2 position, Vector2 center, float radius)
             => position.SqDist(center) <= radius*radius;
 
         // True if this given position is within the radius of Circle [center,radius]
-        public static bool WithinRadius(this Vector3 position, Vector3 center, float radius)
+        public static bool InRadius(this Vector3 position, Vector3 center, float radius)
             => position.SqDist(center) <= radius*radius;
 
         // Reverse of WithinRadius, returns true if position is outside of Circle [center,radius]
         public static bool OutsideRadius(this Vector2 position, Vector2 center, float radius)
             => position.SqDist(center) > radius*radius;
 
+
         // Reverse of WithinRadius, returns true if position is outside of Circle [center,radius]
         public static bool OutsideRadius(this Vector3 position, Vector3 center, float radius)
             => position.SqDist(center) > radius*radius;
+
 
         // Returns true if Frustrum either partially or fully contains this 2D circle
         public static bool Contains(this BoundingFrustum frustrum, Vector2 center, float radius)
         {
             return frustrum.Contains(new BoundingSphere(new Vector3(center, 0f), radius))
+                != ContainmentType.Disjoint; // Disjoint: no intersection at all
+        }
+
+        // Returns true if Frustrum either partially or fully contains this 2D circle
+        public static bool Contains(this BoundingFrustum frustrum, Vector3 center, float radius)
+        {
+            return frustrum.Contains(new BoundingSphere(center, radius))
                 != ContainmentType.Disjoint; // Disjoint: no intersection at all
         }
 
@@ -169,6 +179,53 @@ namespace Ship_Game
         {
             double rads = degrees * (PI / 180.0);
             return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
+        }
+
+        // @todo Axes don't match up with XNA's internals
+        // Creates a 3D direction vector from Euler XYZ rotation RADIANS
+        // X = Yaw
+        // Y = Pitch
+        // Z = Roll
+        public static Vector3 DirectionFromRadians(this Vector3 xyzRadians)
+        {
+            double sx = Sin(xyzRadians.Z);
+            double cx = Cos(xyzRadians.Z);
+            double sy = Sin(xyzRadians.Y);
+            double cy = Cos(xyzRadians.Y);
+            double sz = Sin(xyzRadians.X);
+            double cz = Cos(xyzRadians.X);
+            return new Vector3((float)( -cz*sy*sx - sz*cx),
+                               (float)( -sz*sy*sx + cz*cx),
+                               (float)( cy*sx ));
+        }
+
+        // Creates an Affine World transformation Matrix
+        public static Matrix AffineTransform(Vector3 position, Vector3 rotationRadians, float scale)
+        {
+            return Matrix.CreateScale(scale)
+                * Matrix.CreateRotationX(rotationRadians.X)
+                * Matrix.CreateRotationY(rotationRadians.Y)
+                * Matrix.CreateRotationZ(rotationRadians.Z)
+                * Matrix.CreateTranslation(position);
+        }
+
+        // Sets the Affine World transformation Matrix for this SceneObject
+        public static void SetAffineTransform(this SceneObject so, Vector3 position, Vector3 rotationRadians, float scale)
+        {
+            so.World = Matrix.CreateScale(scale)
+                * Matrix.CreateRotationX(rotationRadians.X)
+                * Matrix.CreateRotationY(rotationRadians.Y)
+                * Matrix.CreateRotationZ(rotationRadians.Z)
+                * Matrix.CreateTranslation(position);
+        }
+
+        // Sets the Affine World transformation Matrix for this SceneObject
+        public static void SetAffineTransform(this SceneObject so, Vector2 position, float xRads, float yRads, float zRads)
+        {
+            so.World = Matrix.CreateRotationX(xRads)
+                * Matrix.CreateRotationY(yRads)
+                * Matrix.CreateRotationZ(zRads)
+                * Matrix.CreateTranslation(position.ToVec3());
         }
     }
 }

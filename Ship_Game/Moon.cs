@@ -16,24 +16,18 @@ namespace Ship_Game.Gameplay
 	public sealed class Moon : GameplayObject
 	{
 		public float scale;
-
-		public static UniverseScreen universeScreen;
-
-		private SceneObject SO;
-
-		public Matrix WorldMatrix;
-
         public int moonType;
-
         public Guid orbitTarget;
-
         public float OrbitRadius;
-
         public float Zrotate;
+	    public float OrbitalAngle;
 
-        private float ZrotateAmount = 0.05f;
+	    private const float ZrotateAmount = 0.05f;
 
-        public float OrbitalAngle;
+        [XmlIgnore]
+		public SceneObject So;
+        [XmlIgnore]
+        private Planet OrbitPlanet;
 
 		public Moon()
 		{
@@ -42,34 +36,31 @@ namespace Ship_Game.Gameplay
 		public override void Initialize()
 		{
 			base.Initialize();
-			this.SO = new SceneObject(((ReadOnlyCollection<ModelMesh>)ResourceManager.GetModel("Model/SpaceObjects/planet_" + (object)this.moonType).Meshes)[0]);
-            this.SO.ObjectType = ObjectType.Static;
-            this.SO.Visibility = ObjectVisibility.Rendered;
-			this.WorldMatrix = ((Matrix.Identity * Matrix.CreateScale(this.scale)) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f)));
-			this.SO.World = this.WorldMatrix;
-			base.Radius = this.SO.ObjectBoundingSphere.Radius * this.scale * 0.65f;
+		    So = new SceneObject((ResourceManager.GetModel("Model/SpaceObjects/planet_" + moonType).Meshes)[0])
+		    {
+		        ObjectType = ObjectType.Static,
+		        Visibility = ObjectVisibility.Rendered,
+		        World = Matrix.CreateScale(scale)*Matrix.CreateTranslation(new Vector3(Position, 2500f))
+		    };
+		    Radius = So.ObjectBoundingSphere.Radius * scale * 0.65f;
 		}
-
-        public SceneObject GetSO()
-        {
-            return this.SO;
-        }
 
 		public void UpdatePosition(float elapsedTime)
 		{
-            this.Zrotate += this.ZrotateAmount * elapsedTime;
+            Zrotate += ZrotateAmount * elapsedTime;
             if (!Planet.universeScreen.Paused)
             {
-                this.OrbitalAngle += (float)Math.Asin(15.0 / (double)this.OrbitRadius);
-                if ((double)this.OrbitalAngle >= 360.0)
-                    this.OrbitalAngle -= 360f;
+                OrbitalAngle += (float)Math.Asin(15.0 / OrbitRadius);
+                if (OrbitalAngle >= 360.0f) OrbitalAngle -= 360f;
             }
-            this.Position = universeScreen.PlanetsDict[orbitTarget].Position.PointOnCircle(OrbitalAngle, OrbitRadius);
-            this.WorldMatrix = ((Matrix.Identity * Matrix.CreateScale(this.scale) * Matrix.CreateRotationZ(-this.Zrotate)) * Matrix.CreateTranslation(new Vector3(this.Position, 3200f)));
-			if (this.SO != null)
-			{
-				this.SO.World = this.WorldMatrix;
-			}
+
+            if (OrbitPlanet == null)
+                OrbitPlanet = Empire.Universe.PlanetsDict[orbitTarget];
+
+            Position = OrbitPlanet.Position.PointOnCircle(OrbitalAngle, OrbitRadius);
+			So.World = Matrix.CreateScale(scale) 
+                        * Matrix.CreateRotationZ(-Zrotate) 
+                        * Matrix.CreateTranslation(new Vector3(Position, 3200f));
 			base.Update(elapsedTime);
 		}
 	}

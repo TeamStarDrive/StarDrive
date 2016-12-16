@@ -814,7 +814,7 @@ namespace Ship_Game
             {
                 Vector2 pos = GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-spread, spread), Vector2.Zero);
                 if (NoAsteroidProximity(pos))
-                    return new Vector3(pos.X, pos.Y, 0f);
+                    return new Vector3(pos.X, pos.Y, -500f);
             }
             return Vector3.Zero; // should never reach this point, but if it does... we don't care, just don't crash or freeze
         }
@@ -826,7 +826,7 @@ namespace Ship_Game
 			{
 				AsteroidsList.Add(new Asteroid
 				{
-					scale      = RandomMath.RandomBetween(scaleMin, scaleMax),
+					Scale      = RandomMath.RandomBetween(scaleMin, scaleMax),
 					Position3D = GenerateAsteroidPos(ringRadius, spread)
 				});
 			}

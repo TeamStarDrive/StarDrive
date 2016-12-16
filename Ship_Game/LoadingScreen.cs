@@ -6,68 +6,56 @@ namespace Ship_Game
 {
 	internal sealed class LoadingScreen : GameScreen
 	{
-		private bool loadingIsSlow;
+		private readonly GameScreen[] ScreensToLoad;
+		private readonly bool LoadingIsSlow;
+		private bool OtherScreensAreGone;
 
-		private bool otherScreensAreGone;
-
-		private GameScreen[] screensToLoad;
-
-		private LoadingScreen(Ship_Game.ScreenManager screenManager, bool loadingIsSlow, GameScreen[] screensToLoad)
+		private LoadingScreen(bool loadingIsSlow, GameScreen[] screensToLoad)
 		{
-            //GC.Collect(1,GCCollectionMode.Optimized);
-            this.loadingIsSlow = loadingIsSlow;
-			this.screensToLoad = screensToLoad;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0);
+			ScreensToLoad = screensToLoad;
+            LoadingIsSlow = loadingIsSlow;
+			TransitionOnTime = TimeSpan.FromSeconds(0);
+			TransitionOffTime = TimeSpan.FromSeconds(0);
 		}
 
 		public override void Draw(GameTime gameTime)
 		{
-			if (base.ScreenState == Ship_Game.ScreenState.Active && (int)base.ScreenManager.GetScreens().Length == 1)
+			if (ScreenState == ScreenState.Active && ScreenManager.ScreenCount == 1)
 			{
-				this.otherScreensAreGone = true;
+				OtherScreensAreGone = true;
 			}
-			if (this.loadingIsSlow)
+			if (LoadingIsSlow)
 			{
-				SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
-				Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
-				Vector2 viewportSize = new Vector2((float)viewport.Width, (float)viewport.Height);
-				Vector2 textSize = Fonts.Arial12Bold.MeasureString("Loading...");
-				Vector2 textPosition = (viewportSize - textSize) / 2f;
-				Color color = new Color(255, 255, 255, base.TransitionAlpha);
+				SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
+				Viewport viewport       = ScreenManager.GraphicsDevice.Viewport;
+				Vector2 viewportSize    = new Vector2(viewport.Width, viewport.Height);
+				Vector2 textSize        = Fonts.Arial12Bold.MeasureString("Loading...");
+				Vector2 textPosition    = (viewportSize - textSize) / 2f;
+				Color color             = new Color(255, 255, 255, TransitionAlpha);
 				spriteBatch.Begin();
 				spriteBatch.DrawString(Fonts.Arial12Bold, "Loading...", textPosition, color);
 				spriteBatch.End();
 			}
 		}
 
-		public static void Load(Ship_Game.ScreenManager screenManager, bool loadingIsSlow, params GameScreen[] screensToLoad)
+		public static void Load(ScreenManager screenManager, bool loadingIsSlow, params GameScreen[] screensToLoad)
 		{
-			GameScreen[] screens = screenManager.GetScreens();
-			for (int i = 0; i < (int)screens.Length; i++)
-			{
-				screens[i].ExitScreen();
-			}
-			screenManager.AddScreen(new LoadingScreen(screenManager, loadingIsSlow, screensToLoad));
+            screenManager.ExitAll();
+			screenManager.AddScreen(new LoadingScreen(loadingIsSlow, screensToLoad));
 		}
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-			if (this.otherScreensAreGone)
-			{
-				base.ScreenManager.RemoveScreen(this);
-				GameScreen[] gameScreenArray = this.screensToLoad;
-				for (int i = 0; i < (int)gameScreenArray.Length; i++)
-				{
-					GameScreen screen = gameScreenArray[i];
-					if (screen != null)
-					{
-						base.ScreenManager.AddScreen(screen);
-					}
-				}
-				Game1.Instance.ResetElapsedTime();
-			}
+		    if (!OtherScreensAreGone)
+                return;
+
+		    ScreenManager.RemoveScreen(this);
+		    foreach (GameScreen screen in ScreensToLoad)
+		    {
+		        if (screen != null) ScreenManager.AddScreen(screen);
+		    }
+		    Game1.Instance.ResetElapsedTime();
 		}
 	}
 }
