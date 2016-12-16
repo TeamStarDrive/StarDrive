@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using MsgPack.Serialization;
 
 namespace Ship_Game
 {
 	public sealed class Mole
 	{
-		public Guid PlanetGuid;
+        [MessagePackMember(0)] public Guid PlanetGuid;
 
 		public Mole()
 		{

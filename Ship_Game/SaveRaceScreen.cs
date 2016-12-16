@@ -36,18 +36,16 @@ namespace Ship_Game
         protected override void SetSavesSL()        // Set list of files to show
         {
             List<FileData> saves = new List<FileData>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(this.Path);
-            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            FileInfo[] filesFromDirectory = Dir.GetFiles(this.Path);
+            foreach (FileInfo fileInfo in filesFromDirectory)
             {
-                Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
-                    XmlSerializer serializer1 = new XmlSerializer(typeof(RaceSave));
-                    RaceSave data = (RaceSave)serializer1.Deserialize(file);
+                    RaceSave data = fileInfo.Deserialize<RaceSave>();
 
                     if (string.IsNullOrEmpty(data.Name))
                     {
-                        data.Name = System.IO.Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
+                        data.Name = fileInfo.NameNoExt();
                         data.Version = 0;
                     }
 
@@ -61,12 +59,10 @@ namespace Ship_Game
                         info = String.Concat("Race Name: ", data.Traits.Name);
                         extraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
                     }
-                    saves.Add(new FileData(filesFromDirectory[i], data, data.Name, info, extraInfo));
-                    file.Dispose();
+                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo));
                 }
                 catch
                 {
-                    file.Dispose();
                 }
             }
             IOrderedEnumerable<FileData> sortedList =

@@ -4259,7 +4259,7 @@ namespace Ship_Game.Gameplay
 							foreach (KeyValuePair<string, TechEntry> tech in Relationship.Key.GetTDict())
 							{
                                 //Added by McShooterz: prevent root nodes from being demanded, and secret but not discovered
-								if (!tech.Value.Unlocked || this.empire.GetTDict()[tech.Key].Unlocked || tech.Value.GetTech().RootNode == 1 || (tech.Value.GetTech().Secret && !tech.Value.GetTech().Discovered))
+								if (!tech.Value.Unlocked || this.empire.GetTDict()[tech.Key].Unlocked || tech.Value.Tech.RootNode == 1 || (tech.Value.Tech.Secret && !tech.Value.Tech.Discovered))
 								{
 									continue;
 								}
@@ -8040,7 +8040,7 @@ namespace Ship_Game.Gameplay
                 if (this.empire.data.TaxRate >= .50f )
                     highTaxes = true;
                 if (!string.IsNullOrEmpty(this.postResearchTopic))
-                researchDebt = (int)(this.empire.TechnologyDict[this.postResearchTopic].GetTechCost() / (.1f + (100*UniverseScreen.GamePaceStatic)*this.empire.GetPlanets().Sum(research => research.NetResearchPerTurn)));
+                researchDebt = (int)(this.empire.TechnologyDict[this.postResearchTopic].TechCost/ (.1f + (100*UniverseScreen.GamePaceStatic)*this.empire.GetPlanets().Sum(research => research.NetResearchPerTurn)));
                 if(researchDebt >4)
                 lowResearch = true;
                 //if (this.empire.GetPlanets().Sum(research => research.NetResearchPerTurn) < this.empire.GetPlanets().Count / 3)
@@ -8138,14 +8138,14 @@ namespace Ship_Game.Gameplay
                             if (!techexists || tech == null)
                                 //continue;
                                 return;
-                            Technology technology = tech.GetTech();
+                            Technology technology = tech.Tech;
                             if (tech.Unlocked
                                 || !this.empire.HavePreReq(Technology.Key)
                                 || (Technology.Value.Secret && !tech.Discovered)
                                 || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
                                 || !tech.shipDesignsCanuseThis
                                 || (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && technology.HullsUnlocked.Count == 0
-                                && !this.empire.WeCanUseThisNow(tech.GetTech())))
+                                && !this.empire.WeCanUseThisNow(tech.Tech)))
                             {
                                 //continue;
                                 return;
@@ -8464,7 +8464,7 @@ namespace Ship_Game.Gameplay
 
                                             int X = GlobalStats.ScriptedTechWithin;
                                             List<TechEntry> unresearched = new List<TechEntry>();
-                                            unresearched = this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && filter.shipDesignsCanuseThis && (!filter.GetTech().Secret || !filter.Discovered) && this.empire.HavePreReq(filter.UID) && filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost).ToList();
+                                            unresearched = this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && filter.shipDesignsCanuseThis && (!filter.Tech.Secret || !filter.Discovered) && this.empire.HavePreReq(filter.UID) && filter.Tech.Cost > 0).OrderBy(cost => cost.Tech.Cost).ToList();
                                             //foreach (TechEntry tech2 in unresearched)//this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && !filter.GetTech().Secret&& filter.Discovered  && filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost))
                                             //{
                                             //    X--;
@@ -8552,7 +8552,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (flag)
                     continue;
-                Technology technology = tech.GetTech();
+                Technology technology = tech.Tech;
                 if (tech.Unlocked
                     || !this.empire.HavePreReq(Technology.Key)
                     || (Technology.Value.Secret && !tech.Discovered)

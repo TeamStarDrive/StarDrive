@@ -1,43 +1,38 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using MsgPack.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class Snapshot
+    public sealed class NRO
+    {
+        [MessagePackMember(0)] public Vector2 Node;
+        [MessagePackMember(1)] public float Radius;
+        [MessagePackMember(2)] public float StarDateMade;
+    }
+
+    public sealed class Snapshot
 	{
-		public List<NRO> EmpireNodes = new List<NRO>();
-
-		public int ShipCount;
-
-		public float MilitaryStrength;
-
-		public float Population;
-
-		public List<string> Events = new List<string>();
-
-		public float TaxRate;
-
-		public float StarDate;
-
-		public int TotalShips;
-
-		public int TotalShipsKilled;
-
-		public int TotalShipsLost;
-
-		public int TotalGroundTroopsKilled;
-
-		public int TotalGroundTroopsLost;
-
-		public int TotalMoney;
-
-		public int TotalMaintenance;
-
-		public int TotalPopulation;
+		[MessagePackMember(0)] public List<NRO> EmpireNodes = new List<NRO>();
+        [MessagePackMember(1)] public int ShipCount;
+        [MessagePackMember(2)] public float MilitaryStrength;
+        [MessagePackMember(3)] public float Population;
+        [MessagePackMember(4)] public List<string> Events = new List<string>();
+        [MessagePackMember(5)] public float TaxRate;
+        [MessagePackMember(6)] public float StarDate;
+        [MessagePackMember(7)] public int TotalShips;
+        [MessagePackMember(8)] public int TotalShipsKilled;
+        [MessagePackMember(9)] public int TotalShipsLost;
+        [MessagePackMember(10)] public int TotalGroundTroopsKilled;
+        [MessagePackMember(11)] public int TotalGroundTroopsLost;
+        [MessagePackMember(12)] public int TotalMoney;
+        [MessagePackMember(13)] public int TotalMaintenance;
+        [MessagePackMember(14)] public int TotalPopulation;
 
 		public Snapshot(float date)
 		{
-			this.StarDate = date;
+			StarDate = date;
 		}
 
 		public Snapshot()

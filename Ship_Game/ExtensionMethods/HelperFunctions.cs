@@ -110,7 +110,7 @@ namespace Ship_Game
                 {
                     Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
                     s.RelativeFleetOffset = node.FleetOffset;
-                    node.SetShip(s);
+                    node.Ship = s;
                     fleet.AddShip(s);
                 }
             return fleet;
@@ -231,16 +231,6 @@ namespace Ship_Game
 		public static Vector2 FindVectorToTarget(Vector2 origin, Vector2 target)
 		{
 			return Vector2.Normalize(target - origin);
-		}
-
-		public static FileInfo[] GetFilesFromDirectory(string dirPath)
-		{
-			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.TopDirectoryOnly);
-		}
-
-		public static FileInfo[] GetFilesFromDirectoryAndSubs(string dirPath)
-		{
-			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.AllDirectories);
 		}
 
 		public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)

@@ -10,30 +10,27 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class LoadSaveScreen : GenericLoadSaveScreen, IDisposable
+	public sealed class LoadSaveScreen : GenericLoadSaveScreen
 	{
         private UniverseScreen screen;
-
 		private MainMenuScreen mmscreen;
 
         public LoadSaveScreen(UniverseScreen screen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
 		{
 			this.screen = screen;
-            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
+            Path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +  "/StarDrive/Saved Games/";
         }
-
 		public LoadSaveScreen(MainMenuScreen mmscreen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
         {
             this.mmscreen = mmscreen;
-            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Games/");
+            Path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/StarDrive/Saved Games/";
         }
 
         protected override void DeleteFile(object sender, EventArgs e)
         {
             try
             {
-                FileInfo headerToDel = new FileInfo(string.Concat(this.Path, "Headers/", this.fileToDel.Name.Substring(0, this.fileToDel.Name.LastIndexOf('.'))));       // find header of save file
-                //Console.WriteLine(headerToDel.FullName);
+                FileInfo headerToDel = new FileInfo(Path + "Headers/" + fileToDel.Name.Substring(0, fileToDel.Name.LastIndexOf('.')));       // find header of save file
                 headerToDel.Delete();
             }
             catch { }
@@ -43,74 +40,58 @@ namespace Ship_Game
 
         protected override void Load()
         {
-            if (this.selectedFile != null)
+            if (selectedFile != null)
             {
-                if (this.screen != null)
-                {
-                    this.screen.ExitScreen();
-                }
-                base.ScreenManager.AddScreen(new LoadUniverseScreen(this.selectedFile.FileLink));
-                if (this.mmscreen != null)
-                {
-                    this.mmscreen.ExitScreen();
-                }
+                screen?.ExitScreen();
+                ScreenManager.AddScreen(new LoadUniverseScreen(selectedFile.FileLink));
+                mmscreen?.ExitScreen();
             }
             else
             {
                 AudioManager.PlayCue("UI_Misc20");
             }
-            this.ExitScreen();
+            ExitScreen();
         }
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            List<FileData> saves = new List<FileData>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(this.Path, "Headers"));
-            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            var saves = new List<FileData>();
+            foreach (FileInfo saveFile in Dir.GetFiles(Path + "Headers", "gz"))
             {
-                Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
-                    HeaderData data = (HeaderData)ResourceManager.HeaderSerializer.Deserialize(file);
-                    data.SetFileInfo(new FileInfo(string.Concat(this.Path, data.SaveName, ".xml.gz")));
+                    HeaderData data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(saveFile);
+                    data.FI = saveFile;
+
                     if (string.IsNullOrEmpty(data.SaveName))
-                    {
-                        file.Dispose();
                         continue;
-                    }
 
                     if (GlobalStats.ActiveMod != null)
                     {
-                        if ((data.Version > 0 && data.ModPath != GlobalStats.ActiveMod.ModPath) || (data.Version == 0 && data.ModName != GlobalStats.ActiveMod.ModPath))    // check mod and check version of save file since format changed
-                        {
-                            file.Dispose();
+                        // check mod and check version of save file since format changed
+                        if (data.Version  > 0 && data.ModPath != GlobalStats.ActiveMod.ModPath || 
+                            data.Version == 0 && data.ModName != GlobalStats.ActiveMod.ModPath)   
                             continue;
-                        }
                     }
-                    else if ((!string.IsNullOrEmpty(data.ModPath) && data.Version > 0) || (data.Version == 0 && !string.IsNullOrEmpty(data.ModName)))
-                    {
-                        file.Dispose();
-                        continue;
-                    }
+                    else if (data.Version  > 0 && !string.IsNullOrEmpty(data.ModPath) || 
+                             data.Version == 0 && !string.IsNullOrEmpty(data.ModName))
+                        continue; // skip non-mod savegames
 
-                    string info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
+                    string info = data.PlayerName + " StarDate " + data.StarDate;
                     string extraInfo = data.RealDate;
-                    saves.Add(new FileData(data.GetFileInfo(), data, data.SaveName, info, extraInfo));
-                    file.Dispose();
+                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));
                 }
                 catch
                 {
-                    file.Dispose();
                 }
             }
-            IOrderedEnumerable<FileData> sortedList =
-                from header in saves
-                orderby (header.Data as HeaderData).Time descending
-                select header;
+
+            var sortedList = from header in saves
+                             orderby (header.Data as HeaderData)?.Time 
+                             descending select header;
+
             foreach (FileData data in sortedList)
-            {
-                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
-            }
+                SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
         }
 
         /*public void Dispose()
