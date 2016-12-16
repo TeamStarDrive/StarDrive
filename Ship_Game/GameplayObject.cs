@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Runtime.CompilerServices;
+using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 
 namespace Ship_Game
@@ -11,7 +12,7 @@ namespace Ship_Game
 	{
 		public bool Active = true;
 		protected SolarSystem system; // @todo This has to be lowercase due to serialization... sigh. Can we change it??
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public SolarSystem System { get { return system; } protected set { system = value; } }
         public static GraphicsDevice device;
 		public Vector2 Center;

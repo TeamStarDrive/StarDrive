@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Diagnostics;
+using System.Web.Script.Serialization;
 
 namespace Ship_Game
 {
@@ -106,7 +107,7 @@ namespace Ship_Game
         public float freighterBudget;
         public bool RecalculateMaxHP;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
         public float cargoNeed = 0;
-        //[XmlIgnore]
+        //[XmlIgnore][ScriptIgnore]
         //private Dictionary<string, bool> UnlockAbleDesigns = new Dictionary<string, bool>
         //adding for thread safe Dispose because class uses unmanaged resources 
 
@@ -116,18 +117,18 @@ namespace Ship_Game
         public float exportPTrack;
         public float exportFTrack;
         public float averagePLanetStorage;
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public Dictionary<Point, Dictionary<Point, PatchCacheEntry>> PathCache = new Dictionary<Point, Dictionary<Point, PatchCacheEntry>>();
         //public Dictionary<List<Vector2>, int> pathcache = new Dictionary<List<Vector2>, int>();
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public int pathcacheMiss = 0;
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public ArtificialIntelligence.Grid pathhMap { get; set; }
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public byte[,] grid;
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public int granularity = 0;
 
         private bool disposed;

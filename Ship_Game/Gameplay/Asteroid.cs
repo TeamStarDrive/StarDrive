@@ -1,3 +1,4 @@
+using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using SynapseGaming.LightingSystem.Core;
@@ -14,7 +15,7 @@ namespace Ship_Game.Gameplay
         private Vector3 RotationRadians;
 	    private readonly int AsteroidId;
 
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         public SceneObject So { get; private set; }
 
 		public Asteroid()
@@ -69,7 +70,7 @@ namespace Ship_Game.Gameplay
             //    return;
             //}
 
-            So.SetAffineTransform(Position3D, RotationRadians, Scale);
+            So.AffineTransform(Position3D, RotationRadians, Scale);
 		}
 	}
 }

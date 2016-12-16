@@ -9,57 +9,39 @@ namespace Ship_Game
 {
 	public sealed class GameplayMMScreen : GameScreen
 	{
-		private Vector2 Cursor = Vector2.Zero;
-
 		private UniverseScreen screen;
-
 		private GameScreen caller;
-
 		private Menu2 window;
-
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		private UIButton Save;
-
 		private UIButton Load;
-
 		private UIButton Options;
-
 		private UIButton Return;
-
 		private UIButton Exit;
-
 		private UIButton ExitToMain;
-
 		private MouseState currentMouse;
-
 		private MouseState previousMouse;
 
-		//private float transitionElapsedTime;
-
-		public GameplayMMScreen(UniverseScreen screen)
+        private GameplayMMScreen()
+        {
+            IsPopup = true;
+            TransitionOnTime  = TimeSpan.FromSeconds(0.25);
+            TransitionOffTime = TimeSpan.FromSeconds(0.25);
+        }
+		public GameplayMMScreen(UniverseScreen screen) : this()
 		{
 			this.screen = screen;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
-
-		public GameplayMMScreen(UniverseScreen screen, GameScreen caller)
+		public GameplayMMScreen(UniverseScreen screen, GameScreen caller) : this()
 		{
 			this.caller = caller;
 			this.screen = screen;
-			base.IsPopup = true;
-			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
-		}
-
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
-			if (SavedGame.thread != null && SavedGame.thread.IsAlive)
+			if (SavedGame.IsSaving)
 			{
 				TimeSpan totalGameTime = gameTime.TotalGameTime;
 				float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
@@ -69,80 +51,24 @@ namespace Ship_Game
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
 			}
 			this.window.Draw();
-			foreach (UIButton b in this.Buttons)
+			foreach (UIButton b in Buttons)
 			{
-				string launches = b.Launches;
-				string str = launches;
-				if (launches != null)
+				switch (b.Launches)
 				{
-					if (str == "Save")
-					{
-						if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-						{
-							b.Draw(base.ScreenManager.SpriteBatch);
-							continue;
-						}
-						else
-						{
-							b.DrawInActive(base.ScreenManager.SpriteBatch);
-							continue;
-						}
-					}
-					else if (str == "Load Game")
-					{
-						if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-						{
-							b.Draw(base.ScreenManager.SpriteBatch);
-							continue;
-						}
-						else
-						{
-							b.DrawInActive(base.ScreenManager.SpriteBatch);
-							continue;
-						}
-					}
-					else if (str != "Exit to Main Menu")
-					{
-						if (str == "Exit to Windows")
-						{
-							if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-							{
-								b.Draw(base.ScreenManager.SpriteBatch);
-								continue;
-							}
-							else
-							{
-								b.DrawInActive(base.ScreenManager.SpriteBatch);
-								continue;
-							}
-						}
-					}
-					else if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-					{
-						b.Draw(base.ScreenManager.SpriteBatch);
-						continue;
-					}
-					else
-					{
-						b.DrawInActive(base.ScreenManager.SpriteBatch);
-						continue;
-					}
+                    case "Load Game":
+                    case "Exit to Main Menu":
+                    case "Exit to Windows":
+                    case "Save": b.Draw(ScreenManager.SpriteBatch, enabled: SavedGame.NotSaving); break;
+                    default:     b.Draw(ScreenManager.SpriteBatch);                               break;
 				}
-				b.Draw(base.ScreenManager.SpriteBatch);
 			}
-			base.ScreenManager.SpriteBatch.End();
+			ScreenManager.SpriteBatch.End();
 		}
-
-		public override void ExitScreen()
-		{
-			base.ExitScreen();
-		}
-
 
 		public override void HandleInput(InputState input)
 		{
 			this.currentMouse = input.CurrentMouseState;
-			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
+			Vector2 mousePos = new Vector2(currentMouse.X, currentMouse.Y);
             if (input.CurrentKeyboardState.IsKeyDown(Keys.O) && !input.LastKeyboardState.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
             {
                 AudioManager.PlayCue("echo_affirm");
@@ -154,49 +80,19 @@ namespace Ship_Game
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+				if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
 				{
-					b.State = UIButton.PressState.Normal;
+					b.State = UIButton.PressState.Default;
 				}
 				else
 				{
-					string launches = b.Launches;
-					string str = launches;
-					if (launches != null)
+					switch (b.Launches)
 					{
-						if (str == "Save")
-						{
-							if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-							{
-								b.State = UIButton.PressState.Hover;
-							}
-						}
-						else if (str == "Load Game")
-						{
-							if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-							{
-								b.State = UIButton.PressState.Hover;
-							}
-						}
-						else if (str == "Options")
-						{
-							b.State = UIButton.PressState.Hover;
-						}
-						else if (str == "Return to Game")
-						{
-							b.State = UIButton.PressState.Hover;
-						}
-						else if (str == "Exit to Main Menu")
-						{
-							b.State = UIButton.PressState.Hover;
-						}
-						else if (str == "Exit to Windows")
-						{
-							if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-							{
-								b.State = UIButton.PressState.Hover;
-							}
-						}
+						case "Save":
+                        case "Load Game":
+                        case "Exit to Windows":
+                            if (SavedGame.NotSaving) b.State = UIButton.PressState.Hover; break;
+                        default: b.State = UIButton.PressState.Hover; break;
 					}
 					if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Pressed)
 					{
@@ -212,165 +108,76 @@ namespace Ship_Game
 					{
 						continue;
 					}
-					if (str1 == "Save")
+					switch (str1)
 					{
-						if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-						{
-							SaveGameScreen sgs = new SaveGameScreen(this.screen);
-							base.ScreenManager.AddScreen(sgs);
-						}
-						else
-						{
-							AudioManager.PlayCue("UI_Misc20");
-						}
-					}
-					else if (str1 == "Load Game")
-					{
-						if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-						{
-							LoadSaveScreen lss = new LoadSaveScreen(this.screen);
-							base.ScreenManager.AddScreen(lss);
-							this.ExitScreen();
-						}
-						else
-						{
-							AudioManager.PlayCue("UI_Misc20");
-						}
-					}
-					else if (str1 == "Options")
-					{
-						OptionsScreen options = new OptionsScreen(this.screen, this, new Rectangle(0, 0, 600, 600))
-						{
-							TitleText = Localizer.Token(4),
-							MiddleText = Localizer.Token(4004)
-						};
-						base.ScreenManager.AddScreen(options);
-					}
-					else if (str1 == "Return to Game")
-					{
-						this.ExitScreen();
-					}
-					else if (str1 == "Exit to Main Menu")
-					{
-						this.ExitScreen();
-						if (this.caller != null)
-						{
-							base.ScreenManager.RemoveScreen(this.caller);
-						}
-						this.screen.ExitScreen();
-						base.ScreenManager.AddScreen(new MainMenuScreen());
-					}
-					else if (str1 == "Exit to Windows")
-					{
-						if (SavedGame.thread == null || SavedGame.thread != null && !SavedGame.thread.IsAlive)
-						{
-							Game1.Instance.Exit();
-						}
-						else
-						{
-							AudioManager.PlayCue("UI_Misc20");
-						}
+					    case "Save":
+					        if (SavedGame.NotSaving)
+					            ScreenManager.AddScreen(new SaveGameScreen(Empire.Universe));
+					        else AudioManager.PlayCue("UI_Misc20");
+					        break;
+					    case "Load Game":
+					        if (SavedGame.NotSaving)
+					        {
+					            ScreenManager.AddScreen(new LoadSaveScreen(Empire.Universe));
+					            ExitScreen();
+					        }
+					        else AudioManager.PlayCue("UI_Misc20");
+					        break;
+					    case "Options":
+					        ScreenManager.AddScreen(new OptionsScreen(screen, this, new Rectangle(0, 0, 600, 600))
+                            {
+                                TitleText  = Localizer.Token(4),
+                                MiddleText = Localizer.Token(4004)
+                            });
+					        break;
+					    case "Return to Game": ExitScreen(); break;
+					    case "Exit to Main Menu":
+                            ExitScreen();
+					        if (caller != null) ScreenManager.RemoveScreen(caller);
+					        screen.ExitScreen();
+					        ScreenManager.AddScreen(new MainMenuScreen());
+					        break;
+					    case "Exit to Windows":
+					        if (SavedGame.NotSaving) Game1.Instance.Exit();
+					        else AudioManager.PlayCue("UI_Misc20");
+					        break;
 					}
 				}
 			}
-			this.previousMouse = input.LastMouseState;
+			previousMouse = input.LastMouseState;
 			base.HandleInput(input);
 		}
 
-		public override void LoadContent()
+        public override void LoadContent()
 		{
-			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.window = new Menu2(base.ScreenManager, new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 100, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 150, 200, 330));
-			this.Save = new UIButton()
-			{
-				Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				Launches = "Save",
-				Text = Localizer.Token(300)
-			};
-			this.Buttons.Add(this.Save);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.Load = new UIButton()
-			{
-				Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				Text = Localizer.Token(2),
-				Launches = "Load Game"
-			};
-			this.Buttons.Add(this.Load);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.Options = new UIButton()
-			{
-				Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				Text = Localizer.Token(4),
-				Launches = "Options"
-			};
-			this.Buttons.Add(this.Options);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.Return = new UIButton()
-			{
-				Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				Launches = "Return to Game",
-				Text = Localizer.Token(301)
-			};
-			this.Buttons.Add(this.Return);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.ExitToMain = new UIButton()
-			{
-				Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				Launches = "Exit to Main Menu",
-				Text = Localizer.Token(302)
-			};
-			this.Buttons.Add(this.ExitToMain);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.Exit = new UIButton()
-			{
-				Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height),
-				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
-				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
-				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				Launches = "Exit to Windows",
-				Text = Localizer.Token(303)
-			};
-			this.Buttons.Add(this.Exit);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			base.LoadContent();
+            base.LoadContent();
+
+            var para = ScreenManager.GraphicsDevice.PresentationParameters;
+            var size = new Vector2(para.BackBufferWidth / 2f, para.BackBufferHeight / 2f);
+			window = new Menu2(ScreenManager, new Rectangle((int)size.X - 100, (int)size.Y - 150, 200, 330));
+
+            Vector2 pos = new Vector2(size.X - 84, size.Y - 100);
+            Save       = Button(ref pos, "Save",              localization: 300);
+            Load       = Button(ref pos, "Load Game",         localization: 2);
+            Options    = Button(ref pos, "Options",           localization: 4);
+            Return     = Button(ref pos, "Return to Game",    localization: 301);
+            ExitToMain = Button(ref pos, "Exit to Main Menu", localization: 302);
+            Exit       = Button(ref pos, "Exit to Windows",   localization: 303);
 		}
 
 		public void LoadGraphics()
 		{
-			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.window = new Menu2(base.ScreenManager, new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 100, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 150, 200, 330));
-			this.Save.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.Load.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.Options.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.Return.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.ExitToMain.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-			this.Exit.Rect = new Rectangle((int)Cursor.X, (int)Cursor.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-			Cursor.Y = Cursor.Y + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height + 15);
-		}
+            var para = ScreenManager.GraphicsDevice.PresentationParameters;
+            var size = new Vector2(para.BackBufferWidth / 2f, para.BackBufferHeight / 2f);
+            window = new Menu2(ScreenManager, new Rectangle((int)size.X - 100, (int)size.Y - 150, 200, 330));
 
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-		{
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            Vector2 pos = new Vector2(size.X - 84, size.Y - 100);
+            Layout(ref pos, Save);
+            Layout(ref pos, Load);
+            Layout(ref pos, Options);
+            Layout(ref pos, Return);
+            Layout(ref pos, ExitToMain);
+            Layout(ref pos, Exit);
 		}
 	}
 }
