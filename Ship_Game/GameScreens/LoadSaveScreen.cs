@@ -56,12 +56,20 @@ namespace Ship_Game
         protected override void SetSavesSL()        // Set list of files to show
         {
             var saves = new List<FileData>();
-            foreach (FileInfo saveFile in Dir.GetFiles(Path + "Headers", "gz"))
+            foreach (FileInfo saveHeaderFile in Dir.GetFiles(Path + "Headers", "xml"))
             {
                 try
                 {
-                    HeaderData data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(saveFile);
-                    data.FI = saveFile;
+                    HeaderData data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(saveHeaderFile);
+
+                    data.FI = new FileInfo(Path + data.SaveName + ".sav.gz");
+                    if (!data.FI.Exists)
+                        data.FI = new FileInfo(Path + data.SaveName + ".xml.gz");
+                    if (!data.FI.Exists)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Savegame missing payload: {0}", data.FI.FullName);
+                        continue;
+                    }
 
                     if (string.IsNullOrEmpty(data.SaveName))
                         continue;
@@ -78,6 +86,7 @@ namespace Ship_Game
                         continue; // skip non-mod savegames
 
                     string info = data.PlayerName + " StarDate " + data.StarDate;
+
                     string extraInfo = data.RealDate;
                     saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));
                 }

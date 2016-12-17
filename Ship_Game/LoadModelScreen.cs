@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Ship_Game
@@ -195,11 +196,11 @@ namespace Ship_Game
 			        }
 			        if (fullFile.StartsWith(fullDirectory))
 			        {
-			            Console.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
+                        Debug.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
 			        }
 			        else
 			        {
-			            Console.WriteLine("Unable to make relative path");
+                        Debug.WriteLine("Unable to make relative path");
 			        }
 
 			        ModelData data = new ModelData();

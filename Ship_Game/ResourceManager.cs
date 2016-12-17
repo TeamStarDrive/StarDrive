@@ -239,7 +239,74 @@ namespace Ship_Game
             WhichModPath = "Content";
             LoadItAll();
         }
-        
+
+        private static void LoadItAll()
+        {
+            Log.Info("LoadItAll {0}", WhichModPath);
+            LoadLanguage();
+            LoadTroops();
+            LoadTextures();
+            LoadToolTips();
+            LoadHullData();
+            LoadWeapons();
+            LoadShipModules();
+            LoadGoods();
+            LoadShips();
+            LoadJunk();
+            LoadAsteroids();
+            LoadProjTexts();
+            LoadBuildings();
+            LoadProjectileMeshes();
+            LoadTechTree();
+            LoadRandomItems();
+            LoadFlagTextures();
+            LoadNebulas();
+            LoadSmallStars();
+            LoadMediumStars();
+            LoadLargeStars();
+            LoadEmpires();
+            LoadDialogs();
+            LoadEncounters();
+            LoadExpEvents();
+            LoadArtifacts();
+            LoadShipRoles();
+            LoadPlanetEdicts();
+            LoadEconomicResearchStrats();
+            //Ship_Game.ResourceManager.MarkShipDesignsUnlockable();
+            HelperFunctions.CollectMemory();
+        }
+
+        public static void LoadMods(string modPath)
+        {
+            Log.Info("LoadMods {0}", WhichModPath);
+            LoadLanguage();
+            LoadTroops();
+            LoadTextures();
+            LoadToolTips();
+            LoadHullData();
+            LoadWeapons();
+            LoadShipModules();
+            LoadGoods();
+            LoadBuildings();
+            LoadTechTree();
+            LoadFlagTextures();
+            LoadModdedEmpires();
+            LoadDialogs();
+            LoadEncounters();
+            LoadExpEvents();
+            LoadArtifacts();
+            LoadShips();
+            LoadRandomItems();
+            LoadProjTexts();
+            LoadModsProjectileMeshes();
+            LoadBlackboxSpecific();
+            LoadShipRoles();
+            LoadPlanetEdicts();
+            LoadEconomicResearchStrats();
+            HelperFunctions.CollectMemory();
+        }
+
+
         // Added by RedFox: only deseralize to ref entity IF the file exists
         private static bool DeserializeIfExists<T>(string contentFolder, string file, ref T entity) where T : class
         {
@@ -833,41 +900,6 @@ namespace Ship_Game
             return retList;
         }
 
-        private static void LoadItAll()
-        {
-            LoadLanguage();
-            LoadTroops();
-            LoadTextures();
-            LoadToolTips();
-            LoadHullData();
-            LoadWeapons();
-            LoadShipModules();
-            LoadGoods();
-            LoadShips();
-            LoadJunk();
-            LoadAsteroids();
-            LoadProjTexts();
-            LoadBuildings();
-            LoadProjectileMeshes();
-            LoadTechTree();
-            LoadRandomItems();
-            LoadFlagTextures();
-            LoadNebulas();
-            LoadSmallStars();
-            LoadMediumStars();
-            LoadLargeStars();
-            LoadEmpires();
-            LoadDialogs();
-            LoadEncounters();
-            LoadExpEvents();
-            LoadArtifacts();			
-            LoadShipRoles();
-            LoadPlanetEdicts();
-            LoadEconomicResearchStrats();
-            //Ship_Game.ResourceManager.MarkShipDesignsUnlockable();
-            HelperFunctions.CollectMemory();
-        }
-
         public static Model GetJunkModel(int idx)
         {
             return JunkModels[idx];
@@ -971,37 +1003,6 @@ namespace Ship_Game
                 else             Empires[index] = empireData;
             }
         }
-
-        public static void LoadMods(string modPath)
-        {		
-            WhichModPath = modPath;
-            LoadLanguage();
-            LoadTroops();
-            LoadTextures();
-            LoadToolTips();
-            LoadHullData();
-            LoadWeapons();
-            LoadShipModules();
-            LoadGoods();
-            LoadBuildings();
-            LoadTechTree();
-            LoadFlagTextures();
-            LoadModdedEmpires();
-            LoadDialogs();
-            LoadEncounters();
-            LoadExpEvents();
-            LoadArtifacts();		
-            LoadShips();
-            LoadRandomItems();
-            LoadProjTexts();
-            LoadModsProjectileMeshes();
-            LoadBlackboxSpecific();
-            LoadShipRoles();
-            LoadPlanetEdicts();
-            LoadEconomicResearchStrats();
-            HelperFunctions.CollectMemory();
-        }
-
 
         // Refactored by RedFox
         private static void LoadNebulas()

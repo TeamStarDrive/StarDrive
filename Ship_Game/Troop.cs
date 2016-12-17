@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using MsgPack.Serialization;
 
 namespace Ship_Game
@@ -51,11 +52,11 @@ namespace Ship_Game
         [MessagePackMember(39)] public float Range;
         [MessagePackMember(40)] public float Launchtimer = 10f;
 
-        [MessagePackIgnore] private Planet p;
-        [MessagePackIgnore] private Empire Owner;
-        [MessagePackIgnore] private Ship ship;
-        [MessagePackIgnore] private Rectangle fromRect;
-        [MessagePackIgnore] private float updateTimer;
+        [XmlIgnore][MessagePackIgnore] private Planet p;
+        [XmlIgnore][MessagePackIgnore] private Empire Owner;
+        [XmlIgnore][MessagePackIgnore] private Ship ship;
+        [XmlIgnore][MessagePackIgnore] private Rectangle fromRect;
+        [XmlIgnore][MessagePackIgnore] private float updateTimer;
 
         public Troop Clone()
         {

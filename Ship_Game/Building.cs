@@ -1,3 +1,4 @@
+using System.Xml.Serialization;
 using Ship_Game.Gameplay;
 using MsgPack.Serialization;
 
@@ -65,7 +66,7 @@ namespace Ship_Game
         [MessagePackMember(58)] public BuildingCategory Category = BuildingCategory.General;
         [MessagePackMember(59)] public bool IsPlayerAdded = false;
 
-        [MessagePackIgnore] public Weapon theWeapon;
+        [XmlIgnore][MessagePackIgnore] public Weapon theWeapon;
 
         public void SetPlanet(Planet p)
 		{
