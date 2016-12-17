@@ -7101,8 +7101,8 @@ namespace Ship_Game.Gameplay
                     float distanceFleetCenterToDistance = this.Owner.fleet.StoredFleetDistancetoMove;
                     speedLimit = this.Owner.fleet.speed;
 
-                    #region FleetGrouping
-#if false
+                #region FleetGrouping
+                #if true
                     if (Distance <= distanceFleetCenterToDistance)
                     {
                         float speedreduction = distanceFleetCenterToDistance - Distance;
@@ -7115,8 +7115,8 @@ namespace Ship_Game.Gameplay
                         float speedIncrease = Distance - distanceFleetCenterToDistance;
                         speedLimit = this.Owner.fleet.speed + speedIncrease;
                     }
-#endif
-#endregion
+                #endif
+                #endregion
 
                     if (fleetReady) this.Owner.EngageStarDrive();   //Fleet is ready to Go into warp
                     else if (this.Owner.engineState == Ship.MoveState.Warp) this.Owner.HyperspaceReturn(); //Fleet is not ready for warp

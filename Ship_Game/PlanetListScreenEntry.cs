@@ -336,7 +336,7 @@ namespace Ship_Game
 		{
             if (!HelperFunctions.CheckIntersection(this.SendTroops.Rect, input.CursorPosition))
             {
-                this.SendTroops.State = UIButton.PressState.Normal;              
+                this.SendTroops.State = UIButton.PressState.Default;              
             }
             else
             {
@@ -382,7 +382,7 @@ namespace Ship_Game
             }
             if (!HelperFunctions.CheckIntersection(this.Colonize.Rect, input.CursorPosition))
 			{
-				this.Colonize.State = UIButton.PressState.Normal;
+				this.Colonize.State = UIButton.PressState.Default;
 			}
 			else
 			{

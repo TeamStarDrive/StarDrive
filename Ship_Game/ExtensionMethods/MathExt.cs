@@ -152,6 +152,12 @@ namespace Ship_Game
             return (float)(180 - Atan2(direction.X, direction.Y) * 180.0 / PI);
         }
 
+        // Converts a Vector3 with XYZ degrees into Vector3 XYZ radians
+        public static Vector3 DegsToRad(this Vector3 degrees)
+        {
+            return degrees * ((float)PI / 180.0f);
+        }
+
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
         public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)
@@ -210,7 +216,7 @@ namespace Ship_Game
         }
 
         // Sets the Affine World transformation Matrix for this SceneObject
-        public static void SetAffineTransform(this SceneObject so, Vector3 position, Vector3 rotationRadians, float scale)
+        public static void AffineTransform(this SceneObject so, Vector3 position, Vector3 rotationRadians, float scale)
         {
             so.World = Matrix.CreateScale(scale)
                 * Matrix.CreateRotationX(rotationRadians.X)
@@ -220,7 +226,27 @@ namespace Ship_Game
         }
 
         // Sets the Affine World transformation Matrix for this SceneObject
-        public static void SetAffineTransform(this SceneObject so, Vector2 position, float xRads, float yRads, float zRads)
+        public static void AffineTransform(this SceneObject so, Vector3 position, float xRads, float yRads, float zRads, float scale)
+        {
+            so.World = Matrix.CreateScale(scale)
+                * Matrix.CreateRotationX(xRads)
+                * Matrix.CreateRotationY(yRads)
+                * Matrix.CreateRotationZ(zRads)
+                * Matrix.CreateTranslation(position);
+        }
+
+        // Sets the Affine World transformation Matrix for this SceneObject
+        public static void AffineTransform(this SceneObject so, float x, float y, float z, float xRads, float yRads, float zRads, float scale)
+        {
+            so.World = Matrix.CreateScale(scale)
+                * Matrix.CreateRotationX(xRads)
+                * Matrix.CreateRotationY(yRads)
+                * Matrix.CreateRotationZ(zRads)
+                * Matrix.CreateTranslation(x, y, z);
+        }
+
+        // Sets the Affine World transformation Matrix for this SceneObject
+        public static void AffineTransform(this SceneObject so, Vector2 position, float xRads, float yRads, float zRads)
         {
             so.World = Matrix.CreateRotationX(xRads)
                 * Matrix.CreateRotationY(yRads)
