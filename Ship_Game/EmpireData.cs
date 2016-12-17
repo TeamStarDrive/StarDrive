@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using MsgPack.Serialization;
 
 namespace Ship_Game
@@ -152,7 +153,7 @@ namespace Ship_Game
         [MessagePackMember(88)] public bool AutoTaxes = false;
         //autosave in save games.        
 
-        [MessagePackIgnore]
+        [XmlIgnore][MessagePackIgnore]
         public int AutoSaveFreq => GlobalStats.AutoSaveFreq;
 
 		public EmpireData()

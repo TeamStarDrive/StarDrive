@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 using MsgPack.Serialization;
 
 namespace Ship_Game.Gameplay
@@ -27,10 +28,10 @@ namespace Ship_Game.Gameplay
         [MessagePackMember(0)] public bool IsToughNut;
         [MessagePackMember(0)] public int NeededTroopStrength;
 
-        [MessagePackIgnore] private Planet TargetPlanet;
-        [MessagePackIgnore] private Empire empire;
-        [MessagePackIgnore] private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
-        [MessagePackIgnore] private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
+        [XmlIgnore][MessagePackIgnore] private Planet TargetPlanet;
+        [XmlIgnore][MessagePackIgnore] private Empire empire;
+        [XmlIgnore][MessagePackIgnore] private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][MessagePackIgnore] private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
 
         //This file Refactored by Gretman
 

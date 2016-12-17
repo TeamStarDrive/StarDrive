@@ -287,8 +287,7 @@ namespace Ship_Game
 
 		private void DecompressFile(object info, DoWorkEventArgs e)
 		{
-			FileInfo compressedSave = (FileInfo)e.Argument;
-            SavedGame.UniverseSaveData usData = SavedGame.DeserializeCompressedSave(compressedSave);
+            var usData = SavedGame.DeserializeFromCompressedSave((FileInfo)e.Argument);
 
 			GlobalStats.RemnantKills                  = usData.RemnantKills;
             GlobalStats.RemnantActivation             = usData.RemnantActivation;

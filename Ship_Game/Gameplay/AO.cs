@@ -1,20 +1,21 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using MsgPack.Serialization;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class AO : IDisposable
 	{
-        [MessagePackIgnore] private Planet CoreWorld;
-        [MessagePackIgnore] private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
-        [MessagePackIgnore] private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
-        [MessagePackIgnore] private Fleet CoreFleet = new Fleet();
-        [MessagePackIgnore] private readonly List<Ship> ShipsWaitingForCoreFleet = new List<Ship>();
-        [MessagePackIgnore] private List<Planet> PlanetsInAO = new List<Planet>();
-        [MessagePackIgnore] private bool disposed;
-        [MessagePackIgnore] public Vector2 Position => CoreWorld.Position;
+        [XmlIgnore][MessagePackIgnore] private Planet CoreWorld;
+        [XmlIgnore][MessagePackIgnore] private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][MessagePackIgnore] private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][MessagePackIgnore] private Fleet CoreFleet = new Fleet();
+        [XmlIgnore][MessagePackIgnore] private readonly List<Ship> ShipsWaitingForCoreFleet = new List<Ship>();
+        [XmlIgnore][MessagePackIgnore] private List<Planet> PlanetsInAO = new List<Planet>();
+        [XmlIgnore][MessagePackIgnore] private bool disposed;
+        [XmlIgnore][MessagePackIgnore] public Vector2 Position => CoreWorld.Position;
 
         [MessagePackMember(0)] public int ThreatLevel;
         [MessagePackMember(1)] public Guid CoreWorldGuid;

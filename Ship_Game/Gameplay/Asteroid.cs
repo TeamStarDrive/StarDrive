@@ -10,9 +10,9 @@ namespace Ship_Game.Gameplay
 	{
 		[MessagePackMember(9)]  public Vector3 Position3D;
         [MessagePackMember(10)] public float Scale = 1.0f;
-        [MessagePackIgnore] private Vector3 RotationRadians;
-        [MessagePackIgnore] private readonly Vector3 Spin;
-        [MessagePackIgnore] private readonly int AsteroidId;
+        [XmlIgnore][MessagePackIgnore] private Vector3 RotationRadians;
+        [XmlIgnore][MessagePackIgnore] private readonly Vector3 Spin;
+        [XmlIgnore][MessagePackIgnore] private readonly int AsteroidId;
 
         [XmlIgnore][MessagePackIgnore] public SceneObject So;
 
