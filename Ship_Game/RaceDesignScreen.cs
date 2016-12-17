@@ -112,8 +112,6 @@ namespace Ship_Game
 
         protected UIButton ClearTraits;
 
-		protected List<UIButton> Buttons = new List<UIButton>();
-
 		private int numOpponents = 7;
 
 		protected RacialTrait tipped;
@@ -1330,7 +1328,7 @@ namespace Ship_Game
             {
                 if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
                 {
-                    b.State = UIButton.PressState.Normal;
+                    b.State = UIButton.PressState.Default;
                 }
                 else
                 {
@@ -1711,7 +1709,7 @@ namespace Ship_Game
             {
                 if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
                 {
-                    b.State = UIButton.PressState.Normal;
+                    b.State = UIButton.PressState.Default;
                 }
                 else
                 {

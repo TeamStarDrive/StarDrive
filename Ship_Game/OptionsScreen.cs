@@ -29,8 +29,6 @@ namespace Ship_Game
 
         //private DropOptions AntiAliasingDD;          //Not referenced in code, removing to save memory
 
-        private List<UIButton> Buttons = new List<UIButton>();
-
 		private UIButton Apply;
 
 		//private UIButton Cancel;
@@ -127,8 +125,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					this.mmscreen.Buttons.Clear();
-					this.mmscreen.LoadContent();
+					this.mmscreen.ReloadContent();
 				}
 				this.MainOptionsRect = new Rectangle(this.R.X + 20, this.R.Y + 175, 300, 375);
 				this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width + 20, this.MainOptionsRect.Y, 210, 305);
@@ -269,8 +266,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				this.mmscreen.Buttons.Clear();
-				this.mmscreen.LoadContent();
+				this.mmscreen.ReloadContent();
 			}
 			this.MainOptionsRect = new Rectangle(this.R.X + 20, this.R.Y + 175, 300, 375);
 			this.SecondaryOptionsRect = new Rectangle(this.MainOptionsRect.X + this.MainOptionsRect.Width, this.MainOptionsRect.Y, 210, 305);
@@ -487,7 +483,7 @@ namespace Ship_Game
 				{
 					if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
 					{
-						b.State = UIButton.PressState.Normal;
+						b.State = UIButton.PressState.Default;
 					}
 					else
 					{

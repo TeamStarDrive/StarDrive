@@ -43,7 +43,7 @@ namespace Ship_Game
 
 		private Menu2 Player;
 
-		private List<GenericButton> Buttons = new List<GenericButton>();
+		private readonly List<GenericButton> GenericButtons = new List<GenericButton>();
 
 		private GenericButton DeclareWar;
 
@@ -559,7 +559,7 @@ namespace Ship_Game
 					{
 						int numEntries = 4;
 						int k = 4;
-						foreach (GenericButton b in this.Buttons)
+						foreach (GenericButton b in this.GenericButtons)
 						{
 							Rectangle r = b.R;
 							float transitionOffset = MathHelper.Clamp((base.TransitionPosition - 0.5f * (float)k / (float)numEntries) / 0.5f, 0f, 1f);
@@ -1461,17 +1461,17 @@ namespace Ship_Game
 			if (!playerEmpire.GetRelations(them).AtWar)
 			{
 				this.DeclareWar = new GenericButton(Cursor, Localizer.Token(1200), Fonts.Pirulen20, Fonts.Pirulen16);
-				this.Buttons.Add(this.DeclareWar);
+				this.GenericButtons.Add(this.DeclareWar);
 				Cursor.Y = Cursor.Y + 25f;
 				this.Discuss = new GenericButton(Cursor, Localizer.Token(1201), Fonts.Pirulen20, Fonts.Pirulen16);
-				this.Buttons.Add(this.Discuss);
+				this.GenericButtons.Add(this.Discuss);
 				Cursor.Y = Cursor.Y + 25f;
 			}
 			this.Negotiate = new GenericButton(Cursor, Localizer.Token(1202), Fonts.Pirulen20, Fonts.Pirulen16);
-			this.Buttons.Add(this.Negotiate);
+			this.GenericButtons.Add(this.Negotiate);
 			Cursor.Y = Cursor.Y + 25f;
 			this.Exit = new GenericButton(Cursor, Localizer.Token(1203), Fonts.Pirulen20, Fonts.Pirulen16);
-			this.Buttons.Add(this.Exit);
+			this.GenericButtons.Add(this.Exit);
 			Cursor = new Vector2((float)(this.Portrait.X + 115), (float)(this.Portrait.Y + 160));
 			this.Trust = new GenericButton(Cursor, Localizer.Token(1204), Fonts.Pirulen16, Fonts.Pirulen12)
 			{

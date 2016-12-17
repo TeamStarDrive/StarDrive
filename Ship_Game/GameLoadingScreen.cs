@@ -10,9 +10,7 @@ namespace Ship_Game
 {
 	public sealed class GameLoadingScreen : GameScreen, IDisposable
 	{
-		private Texture2D BGTexture;
-
-		private Thread WorkerThread;
+		//private Texture2D BGTexture;
 
 		private Video LoadingVideo;
 
@@ -49,53 +47,39 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-		public GameLoadingScreen()
-		{
-		}
-
 		public override void Draw(GameTime gameTime)
 		{
-			if (!base.IsActive)
-			{
+			if (!IsActive)
 				return;
-			}
-			base.ScreenManager.GraphicsDevice.Clear(Color.Black);
-			if (this.LoadingPlayer.State != MediaState.Stopped)
-			{
-				this.LoadingTexture = this.LoadingPlayer.GetTexture();
-			}
-			base.ScreenManager.SpriteBatch.Begin();
-			if (this.SplashPlayer.State != MediaState.Stopped)
-			{
-				this.SplashTexture = this.SplashPlayer.GetTexture();
-			}
-			if (this.SplashTexture != null)
-			{
-				base.ScreenManager.SpriteBatch.Draw(this.SplashTexture, this.SplashRect, Color.White);
-			}
-			if (this.LoadingTexture != null && this.SplashPlayer.State != MediaState.Playing)
-			{
-				base.ScreenManager.SpriteBatch.Draw(this.LoadingTexture, this.LoadingRect, Color.White);
-			}
-			base.ScreenManager.SpriteBatch.Draw(this.bridgetexture, this.BridgeRect, Color.White);
-			base.ScreenManager.SpriteBatch.End();
+
+			ScreenManager.GraphicsDevice.Clear(Color.Black);
+			if (LoadingPlayer.State != MediaState.Stopped) LoadingTexture = LoadingPlayer.GetTexture();
+			if (SplashPlayer.State  != MediaState.Stopped) SplashTexture  = SplashPlayer.GetTexture();
+
+            ScreenManager.SpriteBatch.Begin();
+
+            if      (SplashTexture  != null && SplashPlayer.State  != MediaState.Stopped) ScreenManager.SpriteBatch.Draw(SplashTexture,  SplashRect,  Color.White);
+            else if (LoadingTexture != null && LoadingPlayer.State != MediaState.Stopped) ScreenManager.SpriteBatch.Draw(LoadingTexture, LoadingRect, Color.White);
+
+            ScreenManager.SpriteBatch.Draw(bridgetexture, BridgeRect, Color.White);
+			ScreenManager.SpriteBatch.End();
 		}
 
 		public override void ExitScreen()
 		{
 			try
 			{
-				if (this.SplashVideo != null)
+				if (SplashVideo != null)
 				{
-					this.SplashPlayer.Stop();
-					this.SplashVideo = null;
-					this.SplashPlayer.Dispose();
+					SplashPlayer.Stop();
+					SplashVideo = null;
+					SplashPlayer.Dispose();
 				}
-				if (this.LoadingVideo != null)
+				if (LoadingVideo != null)
 				{
-					this.LoadingPlayer.Stop();
-					this.LoadingVideo = null;
-					this.LoadingPlayer.Dispose();
+					LoadingPlayer.Stop();
+					LoadingVideo = null;
+					LoadingPlayer.Dispose();
 				}
 			}
 			catch
@@ -103,147 +87,100 @@ namespace Ship_Game
 			}
 			base.ExitScreen();
 		}
-
-		/*protected override void Finalize()
-		{
-			try
-			{
-				this.Dispose(false);
-			}
-			finally
-			{
-				base.Finalize();
-			}
-		}*/
-        ~GameLoadingScreen() {
-            //should implicitly do the same thing as the original bad finalize
-            this.Dispose(false);
-        }
-
 		public override void HandleInput(InputState input)
 		{
-			if (!base.IsExiting && base.IsActive)
-			{
-				if (this.playedOnce && this.SplashPlayer.State != MediaState.Playing)
-				{
-					if (!this.AddedScreen)
-					{
-						base.ScreenManager.AddScreen(new MainMenuScreen());
-					}
-					this.AddedScreen = true;
-					this.ExitScreen();
-				}
-				if (input.InGameSelect)
-				{
-					if (!this.AddedScreen)
-					{
-						base.ScreenManager.AddScreen(new MainMenuScreen());
-					}
-					this.ExitScreen();
-				}
-			}
+		    if (IsExiting || !IsActive)
+                return;
+		    if (playedOnce && SplashPlayer.State != MediaState.Playing)
+		    {
+		        if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
+		        AddedScreen = true;
+		        ExitScreen();
+		    }
+		    if (input.InGameSelect)
+		    {
+		        if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
+		        ExitScreen();
+		    }
 		}
 
 		public override void LoadContent()
 		{
-			this.BridgeRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
-			this.WorkerThread = new Thread(new ThreadStart(this.Worker))
-			{
-				IsBackground = true
-			};
-			this.BGTexture = base.ScreenManager.Content.Load<Texture2D>("WinLose/launch");
-			this.bridgetexture = base.ScreenManager.Content.Load<Texture2D>("Textures/GameScreens/Bridge");
-			this.LoadingVideo = base.ScreenManager.Content.Load<Video>("Video/Loading 2");
-			this.SplashVideo = base.ScreenManager.Content.Load<Video>("Video/zerosplash");
-			this.ScreenRect = new Rectangle(0, 0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-			this.SplashRect = new Rectangle(this.ScreenRect.Width / 2 - 640, this.ScreenRect.Height / 2 - 360, 1280, 720);
-			this.LoadingRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 64, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 64, 128, 128);
-			this.LoadingPlayer = new VideoPlayer()
+            var size = new Point(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
+                                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
+
+            BridgeRect = new Rectangle(size.X / 2 - 960, size.Y / 2 - 540, 1920, 1080);
+			//BGTexture = ScreenManager.Content.Load<Texture2D>("WinLose/launch");
+			bridgetexture = ScreenManager.Content.Load<Texture2D>("Textures/GameScreens/Bridge");
+			LoadingVideo  = ScreenManager.Content.Load<Video>("Video/Loading 2");
+			SplashVideo   = ScreenManager.Content.Load<Video>("Video/zerosplash");
+			ScreenRect    = new Rectangle(0, 0, size.X, size.Y);
+			LoadingRect   = new Rectangle(size.X / 2 - 64, size.Y / 2 - 64, 128, 128);
+            SplashRect = new Rectangle(ScreenRect.Width / 2 - 640, ScreenRect.Height / 2 - 360, 1280, 720);
+            LoadingPlayer = new VideoPlayer
 			{
 				IsLooped = true,
                 Volume = GlobalStats.Config.MusicVolume
 			};
-			this.SplashPlayer = new VideoPlayer();
-            this.SplashPlayer.Volume = GlobalStats.Config.MusicVolume;
-			ResourceManager.Initialize(base.ScreenManager.Content);
-			base.LoadContent();
-		}
+		    SplashPlayer = new VideoPlayer {Volume = GlobalStats.Config.MusicVolume};
 
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+            // Initialize all game resources
+		    ResourceManager.Initialize(ScreenManager.Content);
+            base.LoadContent();
+            Ready = true;
+        }
+
+        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
-			if (!base.IsActive)
+			if (!IsActive)
 			{
-				if (this.LoadingPlayer.State == MediaState.Playing)
+				if (LoadingPlayer.State == MediaState.Playing) LoadingPlayer.Pause();
+				if (SplashPlayer.State == MediaState.Playing)  SplashPlayer.Pause();
+				if (Ready)
 				{
-					this.LoadingPlayer.Pause();
-				}
-				if (this.SplashPlayer.State == MediaState.Playing)
-				{
-					this.SplashPlayer.Pause();
-				}
-				if (this.Ready)
-				{
-					if (!this.AddedScreen)
-					{
-						base.ScreenManager.AddScreen(new MainMenuScreen());
-					}
-					this.AddedScreen = true;
-					this.ExitScreen();
+					if (!AddedScreen) ScreenManager.AddScreen(new MainMenuScreen());
+					AddedScreen = true;
+					ExitScreen();
 					return;
 				}
 			}
 			else if (SplashScreen.DisplayComplete)
 			{
-				if (!this.LoadingPlayer.IsDisposed && !this.playedOnceA)
+				if (!LoadingPlayer.IsDisposed && !playedOnceA)
 				{
-					this.playedOnceA = true;
-					this.LoadingPlayer.Play(this.LoadingVideo);
+					playedOnceA = true;
+					LoadingPlayer.Play(LoadingVideo);
 				}
-				if (!this.SplashPlayer.IsDisposed && !this.playedOnce)
+				if (!SplashPlayer.IsDisposed && !playedOnce)
 				{
-					this.SplashPlayer.Play(this.SplashVideo);
-					this.playedOnce = true;
+                    playedOnce = true;
+                    SplashPlayer.Play(SplashVideo);
 				}
-				if (this.LoadingPlayer.State == MediaState.Paused)
-				{
-					this.LoadingPlayer.Resume();
-				}
-				if (this.SplashPlayer.State == MediaState.Paused)
-				{
-					this.SplashPlayer.Resume();
-				}
+				if (LoadingPlayer.State == MediaState.Paused) LoadingPlayer.Resume();
+				if (SplashPlayer.State == MediaState.Paused)  SplashPlayer.Resume();
 			}
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 
-		private void Worker()
-		{
-			//this.Loading = true;
-			this.Ready = true;
-		}
+        ~GameLoadingScreen() { Dispose(false); }
+
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-
         private void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed) return;
+            disposed = true;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    if (this.LoadingPlayer != null)
-                        this.LoadingPlayer.Dispose();
-                    if (this.SplashPlayer != null)
-                        this.SplashPlayer.Dispose();
-
-                }
-                this.LoadingPlayer = null;
-                this.SplashPlayer = null;
-                this.disposed = true;
+                LoadingPlayer?.Dispose();
+                SplashPlayer?.Dispose();
             }
+            LoadingPlayer = null;
+            SplashPlayer  = null;
         }
 	}
 }

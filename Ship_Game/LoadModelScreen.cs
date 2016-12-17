@@ -12,7 +12,6 @@ namespace Ship_Game
 	{
 		private Vector2 Cursor = Vector2.Zero;
 		private ShipToolScreen screen;
-		private List<UIButton> Buttons = new List<UIButton>();
 		//private MainMenuScreen mmscreen;
 		//private Submenu subSave;
 		private Rectangle Window;
@@ -99,7 +98,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
 				{
-					b.State = UIButton.PressState.Normal;
+					b.State = UIButton.PressState.Default;
 				}
 				else
 				{

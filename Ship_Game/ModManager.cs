@@ -17,8 +17,6 @@ namespace Ship_Game
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		private MainMenuScreen mmscreen;
 
 		//private Submenu subSave;
@@ -55,7 +53,7 @@ namespace Ship_Game
         private bool disposed;
         private Task modLoad;
 
-        private bool flip = false;
+        //private bool flip = false;
 		//private float transitionElapsedTime;
 
 		public ModManager(MainMenuScreen mmscreen)
@@ -127,8 +125,6 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-            
-
             this.selector = null;
 			if (this.CurrentButton==null &&( input.Escaped || input.RightMouseClick))
 			{
@@ -143,7 +139,7 @@ namespace Ship_Game
                 if (!HelperFunctions.CheckIntersection(b.Rect, input.CursorPosition) )
 				{
 					
-                    b.State = UIButton.PressState.Normal;
+                    b.State = UIButton.PressState.Default;
 				}
 				else
 				{
@@ -235,23 +231,21 @@ namespace Ship_Game
             }
             if (this.CurrentButton != null)
             {
-                if (this.flip)
-                {
-
-                    if (CurrentButton.PressColor.A > 253)
-                        this.flip = false;
-                    else
-                        CurrentButton.PressColor.A++;
-                }
-                else
-                {
-                    if (CurrentButton.PressColor.A < 1)
-                        this.flip = true;
-                    else
-                        CurrentButton.PressColor.A--;
-                }
-                if (CurrentButton.State != UIButton.PressState.Pressed)
-                    CurrentButton.State = UIButton.PressState.Pressed;
+                //if (this.flip)
+                //{
+                //    if (CurrentButton.PressColor.A > 253)
+                //        this.flip = false;
+                //    else
+                //        CurrentButton.PressColor.A++;
+                //}
+                //else
+                //{
+                //    if (CurrentButton.PressColor.A < 1)
+                //        this.flip = true;
+                //    else
+                //        CurrentButton.PressColor.A--;
+                //}
+                CurrentButton.State = UIButton.PressState.Pressed;
                 return;
             }
 			this.ModsSL.HandleInput(input);
@@ -316,8 +310,7 @@ namespace Ship_Game
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             config.AppSettings.Settings["ActiveMod"].Value = this.ActiveEntry.ModPath;
             config.Save();
-            this.mmscreen.Buttons.Clear();
-            this.mmscreen.LoadContent();
+            this.mmscreen.ReloadContent();
             this.ExitScreen();
             this.mmscreen.ResetMusic();
         }

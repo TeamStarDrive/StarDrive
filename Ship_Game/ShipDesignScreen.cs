@@ -56,8 +56,6 @@ namespace Ship_Game
 
 		private List<ShipData> AvailableHulls = new List<ShipData>();
 
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		//private UIButton HullLeft;
 
 		//private UIButton HullRight;
@@ -5642,7 +5640,7 @@ namespace Ship_Game
                         }
                     }
                     else
-                        uiButton.State = UIButton.PressState.Normal;
+                        uiButton.State = UIButton.PressState.Default;
                 }
                 if (this.ActiveHull != null)
                 {

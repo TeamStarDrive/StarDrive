@@ -13,45 +13,47 @@ namespace Ship_Game
 {
 	public sealed class SavedGame
 	{
-		public SavedGame.UniverseSaveData data = new SavedGame.UniverseSaveData();
+		private readonly UniverseSaveData SaveData = new UniverseSaveData();
+		private static Thread SaveThread;
 
-		public static Thread thread;
+        public static bool IsSaving  => SaveThread != null && SaveThread.IsAlive;
+        public static bool NotSaving => SaveThread == null || !SaveThread.IsAlive;
 
-		public SavedGame(UniverseScreen screenToSave, string SaveAs)
+		public SavedGame(UniverseScreen screenToSave, string saveAs)
 		{
-		    data.RemnantKills        = GlobalStats.RemnantKills;
-            data.RemnantActivation   = GlobalStats.RemnantActivation;
-            data.RemnantArmageddon   = GlobalStats.RemnantArmageddon;
-			data.gameDifficulty      = screenToSave.GameDifficulty;
-			data.AutoColonize        = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoColonize;
-			data.AutoExplore         = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoExplore;
-			data.AutoFreighters      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoFreighters;
-			data.AutoProjectors      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoBuild;
-			data.GamePacing          = UniverseScreen.GamePaceStatic;
-			data.GameScale           = UniverseScreen.GameScaleStatic;
-			data.StarDate            = screenToSave.StarDate;
-			data.FTLModifier         = screenToSave.FTLModifier;
-            data.EnemyFTLModifier    = screenToSave.EnemyFTLModifier;
-			data.GravityWells        = screenToSave.GravityWells;
-			data.PlayerLoyalty       = screenToSave.PlayerLoyalty;
-			data.RandomEvent         = RandomEventManager.ActiveEvent;
-			data.campos              = new Vector2(screenToSave.camPos.X, screenToSave.camPos.Y);
-			data.camheight           = screenToSave.camHeight;
-            data.MemoryLimiter       = GlobalStats.MemoryLimiter;
-            data.MinimumWarpRange    = GlobalStats.MinimumWarpRange;
-            data.TurnTimer           = GlobalStats.TurnTimer;
-            data.IconSize            = GlobalStats.IconSize;
-            data.preventFederations  = GlobalStats.preventFederations;
-            data.GravityWellRange    = GlobalStats.GravityWellRange;
-            data.EliminationMode     = GlobalStats.EliminationMode;
-			data.EmpireDataList      = new List<EmpireSaveData>();
-			data.SolarSystemDataList = new List<SolarSystemSaveData>();
-            data.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+		    SaveData.RemnantKills        = GlobalStats.RemnantKills;
+            SaveData.RemnantActivation   = GlobalStats.RemnantActivation;
+            SaveData.RemnantArmageddon   = GlobalStats.RemnantArmageddon;
+			SaveData.gameDifficulty      = screenToSave.GameDifficulty;
+			SaveData.AutoColonize        = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoColonize;
+			SaveData.AutoExplore         = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoExplore;
+			SaveData.AutoFreighters      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoFreighters;
+			SaveData.AutoProjectors      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoBuild;
+			SaveData.GamePacing          = UniverseScreen.GamePaceStatic;
+			SaveData.GameScale           = UniverseScreen.GameScaleStatic;
+			SaveData.StarDate            = screenToSave.StarDate;
+			SaveData.FTLModifier         = screenToSave.FTLModifier;
+            SaveData.EnemyFTLModifier    = screenToSave.EnemyFTLModifier;
+			SaveData.GravityWells        = screenToSave.GravityWells;
+			SaveData.PlayerLoyalty       = screenToSave.PlayerLoyalty;
+			SaveData.RandomEvent         = RandomEventManager.ActiveEvent;
+			SaveData.campos              = new Vector2(screenToSave.camPos.X, screenToSave.camPos.Y);
+			SaveData.camheight           = screenToSave.camHeight;
+            SaveData.MemoryLimiter       = GlobalStats.MemoryLimiter;
+            SaveData.MinimumWarpRange    = GlobalStats.MinimumWarpRange;
+            SaveData.TurnTimer           = GlobalStats.TurnTimer;
+            SaveData.IconSize            = GlobalStats.IconSize;
+            SaveData.preventFederations  = GlobalStats.preventFederations;
+            SaveData.GravityWellRange    = GlobalStats.GravityWellRange;
+            SaveData.EliminationMode     = GlobalStats.EliminationMode;
+			SaveData.EmpireDataList      = new List<EmpireSaveData>();
+			SaveData.SolarSystemDataList = new List<SolarSystemSaveData>();
+            SaveData.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
             
 
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{
-				SolarSystemSaveData sdata = new SolarSystemSaveData
+				SolarSystemSaveData sysSave = new SolarSystemSaveData
 				{
 					Name = system.Name,
 					Position = system.Position,
@@ -61,12 +63,12 @@ namespace Ship_Game
 				};
 				foreach (Asteroid roid in system.AsteroidsList)
 				{
-					sdata.AsteroidsList.Add(roid);
+					sysSave.AsteroidsList.Add(roid);
 				}
                 foreach (Moon moon in system.MoonList)
-                    sdata.Moons.Add(moon);
-				sdata.guid = system.guid;
-				sdata.RingList = new List<RingSave>();
+                    sysSave.Moons.Add(moon);
+				sysSave.guid = system.guid;
+				sysSave.RingList = new List<RingSave>();
 				foreach (SolarSystem.Ring ring in system.RingList)
 				{
 					RingSave rsave = new RingSave
@@ -76,7 +78,7 @@ namespace Ship_Game
 					};
 					if (ring.planet == null)
 					{
-						sdata.RingList.Add(rsave);
+						sysSave.RingList.Add(rsave);
 					}
 					else
 					{
@@ -183,16 +185,16 @@ namespace Ship_Game
 							    pdata.EmpiresThatKnowThisPlanet.Add(explored.Key.data.Traits.Name);
 						}
 						rsave.Planet = pdata;
-						sdata.RingList.Add(rsave);
+						sysSave.RingList.Add(rsave);
 					}
-					sdata.EmpiresThatKnowThisSystem = new List<string>();
+					sysSave.EmpiresThatKnowThisSystem = new List<string>();
 					foreach (var explored in system.ExploredDict)
 					{
 						if (explored.Value)
-						    sdata.EmpiresThatKnowThisSystem.Add(explored.Key.data.Traits.Name); // @todo This is a duplicate??
+						    sysSave.EmpiresThatKnowThisSystem.Add(explored.Key.data.Traits.Name); // @todo This is a duplicate??
 					}
 				}
-				data.SolarSystemDataList.Add(sdata);
+				SaveData.SolarSystemDataList.Add(sysSave);
 			}
 			
             foreach (Empire e in EmpireManager.EmpireList)
@@ -516,24 +518,24 @@ namespace Ship_Game
                     empireToSave.OwnedShips.Add(sdata);
                 }
 
-				data.EmpireDataList.Add(empireToSave);
+				SaveData.EmpireDataList.Add(empireToSave);
 			}
-			data.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
+			SaveData.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
 			foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> Entry in StatTracker.SnapshotsDict)
 			{
-				data.Snapshots.Add(Entry.Key, Entry.Value);
+				SaveData.Snapshots.Add(Entry.Key, Entry.Value);
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			data.path = path;
-			data.SaveAs = SaveAs;
-			data.Size = screenToSave.Size;
-			data.FogMapName = string.Concat(SaveAs, "fog");
-			screenToSave.FogMap.Save(string.Concat(path, "/StarDrive/Saved Games/Fog Maps/", SaveAs, "fog.png"), ImageFileFormat.Png);
-			thread = new Thread(DoSave);
-			thread.Start(data);
+			SaveData.path = path;
+			SaveData.SaveAs = saveAs;
+			SaveData.Size = screenToSave.Size;
+			SaveData.FogMapName = saveAs + "fog";
+			screenToSave.FogMap.Save(path + "/StarDrive/Saved Games/Fog Maps/" + saveAs + "fog.png", ImageFileFormat.Png);
+		    SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};
+		    SaveThread.Start(SaveData);
 		}
 
-		private void DoSave(object universeSaveData)
+		private void SaveUniverseDataAsync(object universeSaveData)
 		{
 			UniverseSaveData data = (UniverseSaveData)universeSaveData;
 			try
@@ -590,88 +592,56 @@ namespace Ship_Game
 		public struct FleetSave
 		{
 			public bool IsCoreFleet;
-
 			public string Name;
-
 			public int TaskStep;
-
 			public Vector2 Position;
-
 			public Guid FleetGuid;
-
 			public float facing;
-
 			public int Key;
-
-			public List<SavedGame.FleetShipSave> ShipsInFleet;
-
+			public List<FleetShipSave> ShipsInFleet;
 			public List<FleetDataNode> DataNodes;
 		}
 
 		public struct FleetShipSave
 		{
 			public Guid shipGuid;
-
 			public Vector2 fleetOffset;
 		}
 
 		public struct GoalSave
 		{
 			public GoalType type;
-
 			public int GoalStep;
-
 			public Guid markedPlanetGuid;
-
 			public Guid colonyShipGuid;
-
 			public Vector2 BuildPosition;
-
 			public string ToBuildUID;
-
 			public Guid planetWhereBuildingAtGuid;
-
 			public string GoalName;
-
 			public Guid beingBuiltGUID;
-
 			public Guid fleetGuid;
-
 			public Guid GoalGuid;
 		}
 
 		public class GSAISAVE
 		{
             public List<int> UsedFleets;
-
-			public List<SavedGame.GoalSave> Goals;
-
+			public List<GoalSave> Goals;
 			public List<MilitaryTask> MilitaryTaskList;
-
 			public List<Guid> PinGuids;
-
-            //[XmlIgnore]
-			public List<ThreatMatrix.Pin>   PinList ;//= new List<ThreatMatrix.Pin>();
+			public List<ThreatMatrix.Pin> PinList;
 		}
 
 		public struct PGSData
 		{
 			public int x;
-
 			public int y;
-
 			public List<Troop> TroopsHere;
-
 			public bool Biosphere;
-
 			public Building building;
-
 			public bool Habitable;
-
 			public int foodbonus;
-
 			public int resbonus;
-
 			public int prodbonus;
 		}
 
@@ -679,328 +649,193 @@ namespace Ship_Game
 		{
 			public Guid guid;
             public string SpecialDescription;
-
 			public string Name;
-
             public float Scale;
-
 			public string Owner;
-
 			public float Population;
-
 			public float PopulationMax;
-
 			public float Fertility;
-
 			public float Richness;
-
 			public int WhichPlanet;
-
 			public float OrbitalAngle;
-
 			public float OrbitalDistance;
-
 			public float Radius;
-
 			public bool HasRings;
-
 			public float farmerPercentage;
-
 			public float workerPercentage;
-
 			public float researcherPercentage;
-
 			public float foodHere;
-
 			public float prodHere;
-
-			public List<SavedGame.PGSData> PGSList;
-
+			public List<PGSData> PGSList;
 			public bool GovernorOn;
-
-			public List<SavedGame.QueueItemSave> QISaveList;
-
+			public List<QueueItemSave> QISaveList;
 			public Planet.ColonyType ColonyType;
-
 			public Planet.GoodState FoodState;
-
 			public int Crippled_Turns;
-
 			public Planet.GoodState ProdState;
-
 			public List<string> EmpiresThatKnowThisPlanet;
-
 			public float TerraformPoints;
-
 			public List<Guid> StationsList;
-
 			public bool FoodLock;
-
 			public bool ResLock;
-
 			public bool ProdLock;
-
 			public float ShieldStrength;
 		}
 
 		public struct ProjectileSaveData
 		{
 			public string Weapon;
-
 			public float Duration;
-
 			public float Rotation;
-
 			public Vector2 Velocity;
-
 			public Vector2 Position;
 		}
 
 		public struct QueueItemSave
 		{
 			public string UID;
-
 			public Guid GoalGUID;
-
 			public float ProgressTowards;
-
 			public bool isBuilding;
-
 			public bool isTroop;
-
 			public bool isShip;
-
 			public string DisplayName;
-
 			public bool IsRefit;
-
 			public float RefitCost;
-
 			public Vector2 pgsVector;
             public bool isPlayerAdded;
 		}
 
 		public struct RingSave
 		{
-			public SavedGame.PlanetSaveData Planet;
-
+			public PlanetSaveData Planet;
 			public bool Asteroids;
-
 			public float OrbitalDistance;
 		}
 
 		public struct RoadNodeSave
 		{
 			public Vector2 Position;
-
 			public Guid Guid_Platform;
 		}
 
 		public struct ShipAISave
 		{
 			public AIState state;
-
 			public int numFood;
-
 			public int numProd;
-
 			public string FoodOrProd;
-
 			public AIState defaultstate;
-
-			public List<SavedGame.ShipGoalSave> ShipGoalsList;
-
+			public List<ShipGoalSave> ShipGoalsList;
 			public List<Vector2> ActiveWayPoints;
-
 			public Guid startGuid;
-
 			public Guid endGuid;
-
 			public int GoToStep;
-
 			public Vector2 MovePosition;
-
 			public Guid OrbitTarget;
-
 			public Guid ColonizeTarget;
-
 			public Guid SystemToDefend;
-
 			public Guid AttackTarget;
-
 			public Guid EscortTarget;
 		}
 
 		public struct ShipGoalSave
 		{
 			public ArtificialIntelligence.Plan Plan;
-
 			public Guid goalGuid;
-
 			public string VariableString;
-
 			public Guid fleetGuid;
-
 			public float SpeedLimit;
-
 			public Vector2 MovePosition;
-
 			public float DesiredFacing;
-
 			public float FacingVector;
-
 			public Guid TargetPlanetGuid;
 		}
 
 		public struct ShipSaveData
 		{
 			public Guid guid;
-
 			public bool AfterBurnerOn;
-
-			public SavedGame.ShipAISave AISave;
-
+			public ShipAISave AISave;
 			public Vector2 Position;
-
 			public Vector2 Velocity;
-
 			public float Rotation;
-
 			public ShipData data;
-
 			public string Hull;
-
 			public string Name;
-
             public string VanityName;
-
 			public bool IsPlayerShip;
-
 			public float yRotation;
-
 			public float Power;
-
 			public float Ordnance;
-
 			public float InCombatTimer;
-
 			public float experience;
-
 			public int kills;
-
 			public List<Troop> TroopList;
-
             public List<Rectangle> AreaOfOperation;
-
 			public float FoodCount;
-
 			public float ProdCount;
-
 			public float PopCount;
-
 			public Guid TetheredTo;
-
 			public Vector2 TetherOffset;
-
-			public List<SavedGame.ProjectileSaveData> Projectiles;
+			public List<ProjectileSaveData> Projectiles;
 		}
 
 		public struct SolarSystemSaveData
 		{
 			public Guid guid;
-
 			public string SunPath;
-
 			public string Name;
-
 			public Vector2 Position;
-
-			public List<SavedGame.RingSave> RingList;
-
+			public List<RingSave> RingList;
 			public List<Asteroid> AsteroidsList;
-
             public List<Moon> Moons;
-
 			public List<string> EmpiresThatKnowThisSystem;
 		}
 
 		public struct SpaceRoadSave
 		{
-			public List<SavedGame.RoadNodeSave> RoadNodes;
-
+			public List<RoadNodeSave> RoadNodes;
 			public Guid OriginGUID;
-
 			public Guid DestGUID;
 		}
 
 		public class UniverseSaveData
 		{
 			public string path;
-
 			public string SaveAs;
-
 			public string FileName;
-
 			public string FogMapName;
-
 			public string PlayerLoyalty;
-
 			public Vector2 campos;
-
 			public float camheight;
-
 			public Vector2 Size;
-
 			public float StarDate;
-
 			public float GameScale;
-
 			public float GamePacing;
-
-			public List<SavedGame.SolarSystemSaveData> SolarSystemDataList;
-
-			public List<SavedGame.EmpireSaveData> EmpireDataList;
-
+			public List<SolarSystemSaveData> SolarSystemDataList;
+			public List<EmpireSaveData> EmpireDataList;
 			public UniverseData.GameDifficulty gameDifficulty;
-
 			public bool AutoExplore;
-
 			public bool AutoColonize;
-
 			public bool AutoFreighters;
-
 			public bool AutoProjectors;
-
 			public int RemnantKills;
-
             public int RemnantActivation;
-
             public bool RemnantArmageddon;
-
 			public float FTLModifier = 1.0f;
             public float EnemyFTLModifier = 1.0f;
-
 			public bool GravityWells;
-
 			public RandomEvent RandomEvent;
-
 			public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
             public float OptionIncreaseShipMaintenance=GlobalStats.OptionIncreaseShipMaintenance;
             public float MinimumWarpRange=GlobalStats.MinimumWarpRange;
-
             public float MemoryLimiter=GlobalStats.MemoryLimiter;
-            
             public int IconSize;
-
             public byte TurnTimer;
-
             public bool preventFederations;
             public float GravityWellRange=GlobalStats.GravityWellRange;
             public bool EliminationMode;
-
-			public UniverseSaveData()
-			{
-			}
 		}
 
 	}

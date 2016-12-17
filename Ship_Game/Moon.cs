@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
@@ -24,9 +25,9 @@ namespace Ship_Game.Gameplay
 
 	    private const float ZrotateAmount = 0.05f;
 
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
 		public SceneObject So;
-        [XmlIgnore]
+        [XmlIgnore][ScriptIgnore]
         private Planet OrbitPlanet;
 
 		public Moon()
