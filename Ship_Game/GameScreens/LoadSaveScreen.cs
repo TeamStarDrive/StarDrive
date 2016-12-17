@@ -62,9 +62,13 @@ namespace Ship_Game
                 {
                     HeaderData data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(saveHeaderFile);
 
+                    bool savFormat = true;
                     data.FI = new FileInfo(Path + data.SaveName + ".sav.gz");
                     if (!data.FI.Exists)
+                    {
                         data.FI = new FileInfo(Path + data.SaveName + ".xml.gz");
+                        savFormat = false;
+                    }
                     if (!data.FI.Exists)
                     {
                         System.Diagnostics.Debug.WriteLine("Savegame missing payload: {0}", data.FI.FullName);
@@ -86,6 +90,8 @@ namespace Ship_Game
                         continue; // skip non-mod savegames
 
                     string info = data.PlayerName + " StarDate " + data.StarDate;
+                    if (savFormat) info += " (sav)";
+                    else           info += " (xml)";
 
                     string extraInfo = data.RealDate;
                     saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));

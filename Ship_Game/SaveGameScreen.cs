@@ -43,7 +43,7 @@ namespace Ship_Game
         protected override void SetSavesSL()        // Set list of files to show
         {
             var saves = new List<FileData>();
-            foreach (FileInfo fileInfo in Dir.GetFiles(Path + "Headers"))
+            foreach (FileInfo fileInfo in Dir.GetFiles(Path + "Headers", "xml"))
             {
                 try
                 {
@@ -55,9 +55,17 @@ namespace Ship_Game
                         data.Version = 0;
                     }
 
-                    data.FI = new FileInfo(Path + data.SaveName + ".xml.gz");
 
-                    string info = string.Concat(data.PlayerName, " StarDate ", data.StarDate);
+                    data.FI = new FileInfo(Path + data.SaveName + ".sav.gz");
+                    if (!data.FI.Exists)
+                        data.FI = new FileInfo(Path + data.SaveName + ".xml.gz");
+                    if (!data.FI.Exists)
+                    {
+                        Log.Warning("Missing save payload {0}", data.FI.FullName);
+                        continue;
+                    }
+
+                    string info = data.PlayerName + " StarDate " + data.StarDate;
                     string extraInfo = data.RealDate;
                     saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));
                 }
