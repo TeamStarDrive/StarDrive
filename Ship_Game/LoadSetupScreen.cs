@@ -11,7 +11,7 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-    public sealed class LoadSetupScreen : GenericLoadSaveScreen, IDisposable
+    public sealed class LoadSetupScreen : GenericLoadSaveScreen
     {
         private RaceDesignScreen screen;
 

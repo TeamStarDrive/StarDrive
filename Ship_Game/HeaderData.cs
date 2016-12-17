@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Xml.Serialization;
+using MsgPack.Serialization;
 
 namespace Ship_Game
 {
@@ -12,10 +14,12 @@ namespace Ship_Game
 		public string RealDate;
 		public string ModName = "";
         public string ModPath = "";
-		public FileInfo FI;
         public int Version;
 
-		public HeaderData()
+        [XmlIgnore][MessagePackIgnore]
+        public FileInfo FI;
+
+        public HeaderData()
 		{
 		}
 	}
