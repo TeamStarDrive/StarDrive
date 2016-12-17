@@ -14,7 +14,8 @@ namespace Ship_Game
 {
 	public sealed class SavedGame
 	{
-        private static bool UseMessagePack = true;
+        // @todo MessagePack library eats a lot of memory and instance creation is horribly slow
+        private static bool UseMessagePack = false;
 		private readonly UniverseSaveData SaveData = new UniverseSaveData();
 		private static Thread SaveThread;
 
@@ -543,10 +544,24 @@ namespace Ship_Game
                 FileInfo info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ext);
                 using (FileStream writeStream = info.OpenWrite())
                 {
+                    var t = PerfTimer.StartNew();
                     if (UseMessagePack)
-                        MessagePackSerializer.Get<UniverseSaveData>().Pack(writeStream, data);
+                    {
+                        var t1 = PerfTimer.StartNew();
+                        var ctx = new SerializationContext { SerializationMethod = SerializationMethod.Array };
+                        var ser = MessagePackSerializer.Get<UniverseSaveData>(ctx);
+                        float e1 = t1.Elapsed;
+                        ser.Pack(writeStream, data);
+                        Log.Warning("MPACK Total Save elapsed: {0}s  serializer: {1}s", t.Elapsed, e1);
+                    }
                     else
-                        new XmlSerializer(typeof(UniverseSaveData)).Serialize(writeStream, data);
+                    {
+                        var t1 = PerfTimer.StartNew();
+                        var ser = new XmlSerializer(typeof(UniverseSaveData));
+                        float e1 = t1.Elapsed;
+                        ser.Serialize(writeStream, data);
+                        Log.Warning("XML Total Save elapsed: {0}s  serializer: {1}s", t.Elapsed, e1);
+                    }
                 }
                 HelperFunctions.Compress(info);
                 info.Delete();
@@ -576,14 +591,28 @@ namespace Ship_Game
             UniverseSaveData usData;
             FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(compressedSave));
 
-            if (decompressed.Extension == "sav") // new MsgPack savegame format
+            var t = PerfTimer.StartNew();
+            if (decompressed.Extension == ".sav") // new MsgPack savegame format
             {
-                var serializer = MessagePackSerializer.Get<UniverseSaveData>();
+                var t1 = PerfTimer.StartNew();
+                long mem = GC.GetTotalMemory(false);
+
+                var ctx = new SerializationContext { SerializationMethod = SerializationMethod.Array };
+                var serializer = MessagePackSerializer.Get<UniverseSaveData>(ctx);
+
+                long serSize = GC.GetTotalMemory(false) - mem;
+                float e1 = t1.Elapsed;
+
                 using (FileStream stream = decompressed.OpenRead())
                     usData = serializer.Unpack(stream);
+
+                Log.Warning("MPACK Total Load elapsed: {0}s  serializer: {1}s  mem: {2}MB", t.Elapsed, e1, serSize/(1024f*1024f));
             }
             else // old 100MB XML savegame format (haha)
             {
+                var t1 = PerfTimer.StartNew();
+                long mem = GC.GetTotalMemory(false);
+
                 XmlSerializer serializer1;
                 try
                 {
@@ -597,8 +626,13 @@ namespace Ship_Game
                     serializer1 = new XmlSerializer(typeof(UniverseSaveData), attributeOverrides);
                 }
 
+                long serSize = GC.GetTotalMemory(false) - mem;
+                float e1 = t1.Elapsed;
+
                 using (FileStream stream = decompressed.OpenRead())
                     usData = (UniverseSaveData)serializer1.Deserialize(stream);
+
+                Log.Warning("XML Total Load elapsed: {0}s  serializer: {1}s  mem: {2}MB", t.Elapsed, e1, serSize / (1024f * 1024f));
             }
             decompressed.Delete();
             return usData;

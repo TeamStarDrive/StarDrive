@@ -12,21 +12,21 @@ namespace Ship_Game.Gameplay
 	public sealed class MilitaryTask : IDisposable
 	{
         [MessagePackMember(0)] public bool IsCoreFleetTask;
-        [MessagePackMember(0)] public bool WaitForCommand;
-        [MessagePackMember(0)] public List<Guid> HeldGoals = new List<Guid>();
-        [MessagePackMember(0)] public int Step;
-        [MessagePackMember(0)] public Guid TargetPlanetGuid = Guid.Empty;
-        [MessagePackMember(0)] public TaskType type;
-        [MessagePackMember(0)] public Vector2 AO;
-        [MessagePackMember(0)] public float AORadius;
-        [MessagePackMember(0)] public float InitialEnemyStrength;
-        [MessagePackMember(0)] public float EnemyStrength;
-        [MessagePackMember(0)] public float StartingStrength;
-        [MessagePackMember(0)] public float MinimumTaskForceStrength;
-        [MessagePackMember(0)] public float TaskTimer;
-        [MessagePackMember(0)] public int WhichFleet = -1;
-        [MessagePackMember(0)] public bool IsToughNut;
-        [MessagePackMember(0)] public int NeededTroopStrength;
+        [MessagePackMember(1)] public bool WaitForCommand;
+        [MessagePackMember(2)] public List<Guid> HeldGoals = new List<Guid>();
+        [MessagePackMember(3)] public int Step;
+        [MessagePackMember(4)] public Guid TargetPlanetGuid = Guid.Empty;
+        [MessagePackMember(5)] public TaskType type;
+        [MessagePackMember(6)] public Vector2 AO;
+        [MessagePackMember(7)] public float AORadius;
+        [MessagePackMember(8)] public float InitialEnemyStrength;
+        [MessagePackMember(9)] public float EnemyStrength;
+        [MessagePackMember(10)] public float StartingStrength;
+        [MessagePackMember(11)] public float MinimumTaskForceStrength;
+        [MessagePackMember(12)] public float TaskTimer;
+        [MessagePackMember(13)] public int WhichFleet = -1;
+        [MessagePackMember(14)] public bool IsToughNut;
+        [MessagePackMember(15)] public int NeededTroopStrength;
 
         [XmlIgnore][MessagePackIgnore] private Planet TargetPlanet;
         [XmlIgnore][MessagePackIgnore] private Empire empire;

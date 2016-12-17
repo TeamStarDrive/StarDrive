@@ -26,17 +26,33 @@ namespace Ship_Game
             QueryPerformanceFrequency(out Frequency);
         }
 
+        public static PerfTimer StartNew()
+        {
+            PerfTimer t = new PerfTimer();
+            t.Start();
+            return t;
+        }
+
         // start perf timer
         public void Start()
         {
             QueryPerformanceCounter(out Time);
         }
 
+        // Get intermediate sampling value that isn't stored
+        public float Elapsed
+        {
+            get
+            {
+                QueryPerformanceCounter(out long end);
+                return (float)((double)(end - Time) / Frequency);
+            }
+        }
+
         // stop and gather performance sample
         public void Stop()
         {
-            long end;
-            QueryPerformanceCounter(out end);
+            QueryPerformanceCounter(out long end);
             float elapsed = (float)((double)(end - Time) / Frequency);
 
             AvgTime = (AvgTime*NumSamples + elapsed) / (NumSamples + 1);
