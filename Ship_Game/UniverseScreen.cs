@@ -1137,7 +1137,7 @@ namespace Ship_Game
                 }
                 catch (ThreadAbortException)
                 {
-                    throw; // Game over, Make sure to Quit the loop!
+                    return; // Game over, Make sure to Quit the loop!
                 }
                 catch (Exception ex)
                 {
@@ -2660,7 +2660,7 @@ namespace Ship_Game
             //fbedard: Click button to Cycle through ships in Combat
             if (!HelperFunctions.CheckIntersection(this.ShipsInCombat.Rect, input.CursorPosition))
             {
-                this.ShipsInCombat.State = UIButton.PressState.Normal;
+                this.ShipsInCombat.State = UIButton.PressState.Default;
             }
             else
             {
@@ -2704,7 +2704,7 @@ namespace Ship_Game
             //fbedard: Click button to Cycle through Planets in Combat
             if (!HelperFunctions.CheckIntersection(this.PlanetsInCombat.Rect, input.CursorPosition))
             {
-                this.PlanetsInCombat.State = UIButton.PressState.Normal;
+                this.PlanetsInCombat.State = UIButton.PressState.Default;
             }
             else
             {
@@ -5765,7 +5765,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Hyperspace Flux", 
                     new Vector2(graphics.PresentationParameters.BackBufferWidth/2f - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f, 45 + Fonts.Pirulen16.LineSpacing + 2), Color.Yellow);
             }
-            if (SavedGame.thread != null && SavedGame.thread.IsAlive && IsActive)
+            if (IsActive && SavedGame.IsSaving)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Saving...", 
                     new Vector2(graphics.PresentationParameters.BackBufferWidth/2f - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4), 
