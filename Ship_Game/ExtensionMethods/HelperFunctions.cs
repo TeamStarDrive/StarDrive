@@ -146,7 +146,7 @@ namespace Ship_Game
 				    compress.Write(buffer, 0, bytesRead = inFile.Read(buffer, 0, buffer.Length));
                 } while (bytesRead == buffer.Length);
 
-				Console.WriteLine("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
+				Debug.WriteLine("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
 			}
 		}
 
@@ -363,6 +363,7 @@ namespace Ship_Game
             // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
             long after = GC.GetTotalMemory(forceFullCollection: true);
             Debug.WriteLine("CollectMemory After:  {0:0.0}MB", after / (1024f*1024f));
+            Debug.WriteLine(" ===================== ");
         }
     }
 }

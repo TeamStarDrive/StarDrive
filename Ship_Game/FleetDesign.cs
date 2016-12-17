@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using MsgPack.Serialization;
 using Ship_Game.Gameplay;
 
@@ -8,7 +9,7 @@ namespace Ship_Game
 {
     public sealed class FleetDataNode
     {
-        [MessagePackIgnore] public Ship Ship { get; set; }
+        [XmlIgnore][MessagePackIgnore] public Ship Ship { get; set; }
 
         [MessagePackMember(0)] public Guid ShipGuid;
         [MessagePackMember(1)] public Guid GoalGUID;

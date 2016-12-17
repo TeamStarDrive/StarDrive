@@ -677,6 +677,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Ship_Game\Utils\Log.cs" />
     <Compile Include="Ship_Game\Utils\PerfTimer.cs" />
     <Compile Include="Ship_Game\Utils\ScopedLock.cs" />
     <Compile Include="Ship_Game\YouWinScreen.cs">

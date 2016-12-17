@@ -14,6 +14,7 @@ namespace Ship_Game
 {
 	public sealed class SavedGame
 	{
+        private static bool UseMessagePack = true;
 		private readonly UniverseSaveData SaveData = new UniverseSaveData();
 		private static Thread SaveThread;
 
@@ -519,14 +520,14 @@ namespace Ship_Game
 				SaveData.EmpireDataList.Add(empireToSave);
 			}
 			SaveData.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
-			foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> Entry in StatTracker.SnapshotsDict)
+			foreach (var e in StatTracker.SnapshotsDict)
 			{
-				SaveData.Snapshots.Add(Entry.Key, Entry.Value);
+				SaveData.Snapshots.Add(e.Key, e.Value);
 			}
 			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			SaveData.path = path;
-			SaveData.SaveAs = saveAs;
-			SaveData.Size = screenToSave.Size;
+			SaveData.path       = path;
+			SaveData.SaveAs     = saveAs;
+			SaveData.Size       = screenToSave.Size;
 			SaveData.FogMapName = saveAs + "fog";
 			screenToSave.FogMap.Save(path + "/StarDrive/Saved Games/Fog Maps/" + saveAs + "fog.png", ImageFileFormat.Png);
 		    SaveThread = new Thread(SaveUniverseDataAsync) {Name = "Save Thread: " + saveAs};
@@ -538,19 +539,17 @@ namespace Ship_Game
 			UniverseSaveData data = (UniverseSaveData)universeSaveData;
             try
             {
-            #if true // new MsgPack file saving
-                FileInfo info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ".sav");
+                string ext = UseMessagePack ? ".sav" : ".xml";
+                FileInfo info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ext);
                 using (FileStream writeStream = info.OpenWrite())
-                    MessagePackSerializer.Get<UniverseSaveData>().Pack(writeStream, data);
+                {
+                    if (UseMessagePack)
+                        MessagePackSerializer.Get<UniverseSaveData>().Pack(writeStream, data);
+                    else
+                        new XmlSerializer(typeof(UniverseSaveData)).Serialize(writeStream, data);
+                }
                 HelperFunctions.Compress(info);
                 info.Delete();
-            #else // old XML file saving (ugh 100MB XML files)
-                FileInfo info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ".xml");
-                using (FileStream writeStream = info.OpenWrite())
-                    new XmlSerializer(typeof(UniverseSaveData)).Serialize(writeStream, data);
-                HelperFunctions.Compress(info);
-                info.Delete();
-            #endif
             }
             catch
             {
@@ -572,7 +571,7 @@ namespace Ship_Game
                 new XmlSerializer(typeof(HeaderData)).Serialize(wf, header);
 		}
 
-        public static UniverseSaveData DeserializeCompressedSave(FileInfo compressedSave)
+        public static UniverseSaveData DeserializeFromCompressedSave(FileInfo compressedSave)
         {
             UniverseSaveData usData;
             FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(compressedSave));
