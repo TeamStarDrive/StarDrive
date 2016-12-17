@@ -60,46 +60,9 @@ namespace Ship_Game.Gameplay
         private bool disposed;
         public bool HasRepair;  //fbedard: ships in fleet with repair capability will not return for repair.
 
-
         public Fleet()
         {
-            this.FleetIconIndex = (int)RandomMath2.RandomBetween(1f, 10f);
-        }
-
-        public Fleet(bool temp, List<Ship> shiplist)
-        {
-            Fleet.Squad squad = new Fleet.Squad();
-            squad.Fleet = this;
-            for (int index = 0; index < Enumerable.Count<Ship>((IEnumerable<Ship>)shiplist); ++index)
-            {
-                if (squad.Ships.Count < 4)
-                    squad.Ships.Add(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)shiplist, index));
-                if (squad.Ships.Count == 4 || index == Enumerable.Count<Ship>((IEnumerable<Ship>)shiplist) - 1)
-                {
-                    this.CenterFlank.Add(squad);
-                    squad = new Fleet.Squad();
-                    squad.Fleet = this;
-                }
-                this.Ships.Add(shiplist[index]);
-            }
-            this.AllFlanks.Add(this.CenterFlank);
-            int num1 = 0;
-            int num2 = 0;
-            for (int index = 0; index < this.CenterFlank.Count; ++index)
-            {
-                if (index == 0)
-                    this.CenterFlank[index].Offset = new Vector2(0.0f, 0.0f);
-                else if (index % 2 == 1)
-                {
-                    ++num1;
-                    this.CenterFlank[index].Offset = new Vector2((float)(num1 * -1400), 0.0f);
-                }
-                else
-                {
-                    ++num2;
-                    this.CenterFlank[index].Offset = new Vector2((float)(num2 * 1400), 0.0f);
-                }
-            }
+            this.FleetIconIndex = RandomMath.IntBetween(1, 10);
         }
 
         public void SetNameByFleetIndex(int index)
@@ -113,11 +76,6 @@ namespace Ship_Game.Gameplay
             Name = index + suffix + " fleet";
         }
 
-        public void PushToStack(Fleet.FleetGoal g)
-        {
-            this.GoalStack.Push(g);
-        }
-
         public Stack<Fleet.FleetGoal> GetStack()
         {
             return this.GoalStack;
@@ -126,76 +84,12 @@ namespace Ship_Game.Gameplay
         public void AddShip(Ship shiptoadd)
         {
             if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
-            {
                 return;
-            }
             this.Ships.Add(shiptoadd);
             shiptoadd.fleet = this;
             this.SetSpeed();
             this.AssignPositions(this.facing);
         }
-        #region Unused
-        //public void AddShipORIG(Ship shiptoadd)
-        //{
-        //    this.Ships.Add(shiptoadd);
-        //    shiptoadd.fleet = this;
-        //    IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
-        //    this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable, 0).speed : 200f;
-        //    Vector2 vector2 = shiptoadd.RelativeFleetOffset;
-        //    this.AssignPositions(this.facing);
-        //}
-
-
-
-        //public void SetSpeedORIG()
-        //{
-        //    IOrderedEnumerable<Ship> orderedEnumerable = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
-        //    this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable, 0).speed : 200f;
-        //    if ((double)this.speed != 0.0)
-        //        return;
-        //    this.speed = 200f;
-        //}
-
-        ////added by gremlin make fleet speed average not include warpless ships.
-        //public void SetSpeedstddev()
-        //{
-        //    List<float> distances = new List<float>();
-
-        //    foreach (Ship distance in (List<Ship>)this.Ships)
-        //    {
-        //        if (distance.EnginesKnockedOut || !distance.Active ||  distance.GetAI().State != AIState.FormationWarp)//  distance.engineState != Ship.MoveState.Warp)
-        //            continue;
-        //        distances.Add(distance  .speed);
-        //    }
-
-        //    if (distances.Count ==0)
-        //    {
-        //        this.speed = 200;
-        //        return;
-
-        //    }
-        //    if(distances.Count ==1)
-        //    {
-        //        this.speed = distances.First();
-        //        return;
-        //    }
-        //    try
-        //    {
-        //        float avgdistance = distances.Average();
-        //        float sum = (float)distances.Sum(distance => Math.Pow(distance - avgdistance, 2));
-        //        float stddev = (float)Math.Sqrt((sum) / (distances.Count - 1));
-        //        this.speed = distances.Where(distance => distance >= avgdistance - stddev).Min();
-        //    }
-        //    catch { }
-        //    if (this.speed == 0f)
-        //    {
-        //        this.speed = 200f;
-        //    }
-
-
-
-        //}
-        #endregion
 
         public void SetSpeed()
         {
@@ -211,132 +105,6 @@ namespace Ship_Game.Gameplay
                 if (slowestship < 200) slowestship = 200;
                 this.speed = slowestship;
             }
-        }
-
-        public void IncrementFCS()
-        {
-            ++this.fcs;
-            if (this.fcs > Fleet.FleetCombatStatus.Free)
-                this.fcs = Fleet.FleetCombatStatus.Maintain;
-            foreach (List<Fleet.Squad> Flank in this.AllFlanks)
-                this.SetCombatStatusTo(this.fcs, Flank);
-        }
-
-        public void SetCombatStatusTo(Fleet.FleetCombatStatus fcs)
-        {
-            this.CenterCS = fcs;
-            this.ScreenCS = fcs;
-            this.LeftCS = fcs;
-            this.RightCS = fcs;
-            this.RearCS = fcs;
-            foreach (Ship ship in (List<Ship>)this.Ships)
-                ship.FleetCombatStatus = fcs;
-        }
-
-        public Fleet.FleetCombatStatus GetCombatStatus(List<Fleet.Squad> Flank)
-        {
-            if (this.CenterFlank == Flank)
-                return this.CenterCS;
-            if (this.ScreenFlank == Flank)
-                return this.ScreenCS;
-            if (this.LeftFlank == Flank)
-                return this.LeftCS;
-            if (this.RightFlank == Flank)
-                return this.RightCS;
-            if (this.RearFlank == Flank)
-                return this.RearCS;
-            else
-                return Fleet.FleetCombatStatus.Maintain;
-        }
-
-        public void SetCombatStatusTo(Fleet.FleetCombatStatus fcs, List<Fleet.Squad> Flank)
-        {
-            if (this.CenterFlank == Flank)
-            {
-                this.CenterCS = fcs;
-                foreach (Fleet.Squad squad in Flank)
-                {
-                    foreach (Ship ship in (List<Ship>)squad.Ships)
-                        ship.FleetCombatStatus = fcs;
-                }
-            }
-            else if (this.ScreenFlank == Flank)
-            {
-                this.ScreenCS = fcs;
-                foreach (Fleet.Squad squad in Flank)
-                {
-                    foreach (Ship ship in (List<Ship>)squad.Ships)
-                        ship.FleetCombatStatus = fcs;
-                }
-            }
-            else if (this.LeftFlank == Flank)
-            {
-                this.LeftCS = fcs;
-                foreach (Fleet.Squad squad in Flank)
-                {
-                    foreach (Ship ship in (List<Ship>)squad.Ships)
-                        ship.FleetCombatStatus = fcs;
-                }
-            }
-            else if (this.RightFlank == Flank)
-            {
-                this.RightCS = fcs;
-                foreach (Fleet.Squad squad in Flank)
-                {
-                    foreach (Ship ship in (List<Ship>)squad.Ships)
-                        ship.FleetCombatStatus = fcs;
-                }
-            }
-            else if (this.RearFlank == Flank)
-            {
-                this.RearCS = fcs;
-                foreach (Fleet.Squad squad in Flank)
-                {
-                    foreach (Ship ship in (List<Ship>)squad.Ships)
-                        ship.FleetCombatStatus = fcs;
-                }
-            }
-            else
-            {
-                foreach (Fleet.Squad squad in Flank)
-                {
-                    foreach (Ship ship in (List<Ship>)squad.Ships)
-                        ship.FleetCombatStatus = fcs;
-                }
-            }
-        }
-
-        public void AttackPlanet(Planet planet)
-        {
-            foreach (Ship ship in (List<Ship>)this.Ships)
-            {
-                if (ship.shipData.Role != ShipData.RoleName.troop)
-                    ship.GetAI().OrderToOrbit(planet, true);
-                else if (planet.Owner != null && planet.Owner == ship.loyalty)
-                    ship.GetAI().GoRebase(planet);
-                else
-                    ship.GetAI().OrderToOrbit(planet, true);
-            }
-        }
-
-        public void FlankAttackPlanet(Planet planet, List<Fleet.Squad> Flank)
-        {
-            foreach (Fleet.Squad squad in Flank)
-            {
-                foreach (Ship ship in (List<Ship>)squad.Ships)
-                {
-                    if (ship.shipData.Role != ShipData.RoleName.troop)
-                        ship.GetAI().OrderToOrbit(planet, true);
-                    else if (planet.Owner != null && planet.Owner == ship.loyalty)
-                        ship.GetAI().GoRebase(planet);
-                    else
-                        ship.GetAI().OrderToOrbit(planet, true);
-                }
-            }
-        }
-
-        public void SetAllShipsToHoldPosition()
-        {
         }
 
         public void AutoArrange()
@@ -356,183 +124,59 @@ namespace Ship_Game.Gameplay
             this.AllFlanks.Add(this.RightFlank);
             this.AllFlanks.Add(this.ScreenFlank);
             this.AllFlanks.Add(this.RearFlank);
-            BatchRemovalCollection<Ship> removalCollection = new BatchRemovalCollection<Ship>();
-            removalCollection.AddRange(this.Ships);
-            //foreach (Ship ship in (List<Ship>)this.Ships)
-            //    removalCollection.Add(ship);
-            foreach (Ship ship in (List<Ship>)removalCollection)
+
+            BatchRemovalCollection<Ship> mainShipList = new BatchRemovalCollection<Ship>();
+            mainShipList.AddRange(this.Ships);
+            foreach (Ship ship in (List<Ship>)mainShipList)
             {
                 if (ship.shipData.Role == ShipData.RoleName.scout || ship.shipData.ShipCategory == ShipData.Category.Recon)
                 {
                     this.ScreenShips.Add(ship);
-                    removalCollection.QueuePendingRemoval(ship);
+                    mainShipList.QueuePendingRemoval(ship);
                 }
-                if (ship.shipData.Role == ShipData.RoleName.troop || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                else if (ship.shipData.Role == ShipData.RoleName.troop || ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                 {
                     this.RearShips.Add(ship);
-                    removalCollection.QueuePendingRemoval(ship);
+                    mainShipList.QueuePendingRemoval(ship);
                 }
-                if (ship.shipData.Role > ShipData.RoleName.cruiser)
+                else if (ship.shipData.Role > ShipData.RoleName.cruiser)
                 {
                     this.CenterShips.Add(ship);
-                    removalCollection.QueuePendingRemoval(ship);
+                    mainShipList.QueuePendingRemoval(ship);
                 }
             }
-            removalCollection.ApplyPendingRemovals();
-            //IOrderedEnumerable<Ship> orderedEnumerable1 = Enumerable.OrderBy<Ship, float>((IEnumerable<Ship>)this.Ships, (Func<Ship, float>)(ship => ship.speed));
-            //this.speed = Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable1) > 0 ? Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable1, 0).speed : 200f;
-            this.SetSpeed();
-            IOrderedEnumerable<Ship> orderedEnumerable2 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)removalCollection, (Func<Ship, float>)(ship => ship.GetStrength() + (float)ship.Size));
-            int num1 = 0;
-            foreach (Ship ship in (IEnumerable<Ship>)orderedEnumerable2)
-            {
-                if (num1 < 4)
-                {
-                    this.CenterShips.Add(ship);
-                    ++num1;
-                }
-                else if (num1 < 7)
-                {
-                    this.LeftShips.Add(ship);
-                    ++num1;
-                }
-                else if (num1 < 11)
-                {
-                    this.RightShips.Add(ship);
-                    ++num1;
-                }
-                else if (num1 < 15)
-                {
-                    this.ScreenShips.Add(ship);
-                    ship.FleetCombatStatus = FleetCombatStatus.Maintain;
+            mainShipList.ApplyPendingRemovals();
 
-                    ++num1;
-                }
-                if (num1 == 15)
-                    num1 = 0;
-            }
-            IOrderedEnumerable<Ship> orderedEnumerable3 = Enumerable.OrderByDescending<Ship, int>((IEnumerable<Ship>)this.CenterShips, (Func<Ship, int>)(ship => ship.Size));
-            Fleet.Squad squad1 = new Fleet.Squad();
-            squad1.Fleet = this;
-            for (int index = 0; index < Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable3); ++index)
+            this.SetSpeed();
+            IOrderedEnumerable<Ship> remainingShips = Enumerable.OrderByDescending(mainShipList, ship => ship.GetStrength() + ship.Size);
+            int totalShips = this.CenterShips.Count;
+            foreach (Ship ship in remainingShips)
             {
-                if (squad1.Ships.Count < 4)
-                    squad1.Ships.Add(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable3, index));
-                if (squad1.Ships.Count == 4 || index == Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable3) - 1)
+                if (totalShips < 4) this.CenterShips.Add(ship);
+                else if (totalShips < 8) this.LeftShips.Add(ship);
+                else if (totalShips < 12) this.RightShips.Add(ship);
+                else if (totalShips < 16) this.ScreenShips.Add(ship);
+
+                ++totalShips;
+                if (totalShips == 16)
                 {
-                    this.CenterFlank.Add(squad1);
-                    squad1 = new Fleet.Squad();
-                    squad1.Fleet = this;
+                    ship.FleetCombatStatus = FleetCombatStatus.Maintain;
+                    totalShips = 0;
                 }
             }
-            IOrderedEnumerable<Ship> orderedEnumerable4 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)this.LeftShips, (Func<Ship, float>)(ship => ship.speed));
-            Fleet.Squad squad2 = new Fleet.Squad();
-            squad2.Fleet = this;
-            for (int index = 0; index < Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable4); ++index)
-            {
-                if (squad2.Ships.Count < 4)
-                    squad2.Ships.Add(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable4, index));
-                if (squad2.Ships.Count == 4 || index == Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable4) - 1)
-                {
-                    this.LeftFlank.Add(squad2);
-                    squad2 = new Fleet.Squad();
-                    squad2.Fleet = this;
-                }
-            }
-            IOrderedEnumerable<Ship> orderedEnumerable5 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)this.RightShips, (Func<Ship, float>)(ship => ship.speed));
-            Fleet.Squad squad3 = new Fleet.Squad();
-            squad3.Fleet = this;
-            for (int index = 0; index < Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable5); ++index)
-            {
-                if (squad3.Ships.Count < 4)
-                    squad3.Ships.Add(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable5, index));
-                if (squad3.Ships.Count == 4 || index == Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable5) - 1)
-                {
-                    this.RightFlank.Add(squad3);
-                    squad3 = new Fleet.Squad();
-                    squad3.Fleet = this;
-                }
-            }
-            IOrderedEnumerable<Ship> orderedEnumerable6 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)this.ScreenShips, (Func<Ship, float>)(ship => ship.speed));
-            Fleet.Squad squad4 = new Fleet.Squad();
-            squad4.Fleet = this;
-            for (int index = 0; index < Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable6); ++index)
-            {
-                if (squad4.Ships.Count < 4)
-                    squad4.Ships.Add(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable6, index));
-                if (squad4.Ships.Count == 4 || index == Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable6) - 1)
-                {
-                    this.ScreenFlank.Add(squad4);
-                    squad4 = new Fleet.Squad();
-                    squad4.Fleet = this;
-                }
-            }
-            IOrderedEnumerable<Ship> orderedEnumerable7 = Enumerable.OrderByDescending<Ship, float>((IEnumerable<Ship>)this.RearShips, (Func<Ship, float>)(ship => ship.speed));
-            Fleet.Squad squad5 = new Fleet.Squad();
-            squad5.Fleet = this;
-            for (int index = 0; index < Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable7); ++index)
-            {
-                if (squad5.Ships.Count < 4)
-                    squad5.Ships.Add(Enumerable.ElementAt<Ship>((IEnumerable<Ship>)orderedEnumerable7, index));
-                if (squad5.Ships.Count == 4 || index == Enumerable.Count<Ship>((IEnumerable<Ship>)orderedEnumerable7) - 1)
-                {
-                    this.RearFlank.Add(squad5);
-                    squad5 = new Fleet.Squad();
-                    squad5.Fleet = this;
-                }
-            }
+
+            SortSquad(this.CenterShips, this.CenterFlank, true);
+            SortSquad(this.LeftShips, this.LeftFlank);
+            SortSquad(this.RightShips, this.RightFlank);
+            SortSquad(this.ScreenShips, this.ScreenFlank);
+            SortSquad(this.RearShips, this.RearFlank);
+
             this.Position = this.findAveragePosition();
-            int num2 = 0;
-            int num3 = 0;
-            for (int index = 0; index < this.CenterFlank.Count; ++index)
-            {
-                if (index == 0)
-                    this.CenterFlank[index].Offset = new Vector2(0.0f, 0.0f);
-                else if (index % 2 == 1)
-                {
-                    ++num2;
-                    this.CenterFlank[index].Offset = new Vector2((float)(num2 * -1400), 0.0f);
-                }
-                else
-                {
-                    ++num3;
-                    this.CenterFlank[index].Offset = new Vector2((float)(num3 * 1400), 0.0f);
-                }
-            }
-            int num4 = 0;
-            int num5 = 0;
-            for (int index = 0; index < this.ScreenFlank.Count; ++index)
-            {
-                if (index == 0)
-                    this.ScreenFlank[index].Offset = new Vector2(0.0f, -2500f);
-                else if (index % 2 == 1)
-                {
-                    ++num4;
-                    this.ScreenFlank[index].Offset = new Vector2((float)(num4 * -1400), -2500f);
-                }
-                else
-                {
-                    ++num5;
-                    this.ScreenFlank[index].Offset = new Vector2((float)(num5 * 1400), -2500f);
-                }
-            }
-            int num6 = 0;
-            int num7 = 0;
-            for (int index = 0; index < this.RearFlank.Count; ++index)
-            {
-                if (index == 0)
-                    this.RearFlank[index].Offset = new Vector2(0.0f, 2500f);
-                else if (index % 2 == 1)
-                {
-                    ++num6;
-                    this.RearFlank[index].Offset = new Vector2((float)(num6 * -1400), 2500f);
-                }
-                else
-                {
-                    ++num7;
-                    this.RearFlank[index].Offset = new Vector2((float)(num7 * 1400), 2500f);
-                }
-            }
+
+            ArrangeSquad(this.CenterFlank, Vector2.Zero);
+            ArrangeSquad(this.ScreenFlank, new Vector2(0.0f, -2500f));
+            ArrangeSquad(this.RearFlank, new Vector2(0.0f, 2500f));
+
             for (int index = 0; index < this.LeftFlank.Count; ++index)
                 this.LeftFlank[index].Offset = new Vector2((float)(-this.CenterFlank.Count * 1400 - (this.LeftFlank.Count == 1 ? 1400 : index * 1400)), 0.0f);
             for (int index = 0; index < this.RightFlank.Count; ++index)
@@ -551,45 +195,49 @@ namespace Ship_Game.Gameplay
                 fleetDataNode.FleetOffset = s.RelativeFleetOffset;
                 fleetDataNode.OrdersOffset = s.RelativeFleetOffset;
                 this.DataNodes.Add(fleetDataNode);
-
             }
-
-
-            //foreach (List<Fleet.Squad> list in this.AllFlanks)
-            ////Parallel.ForEach(this.AllFlanks, list =>
-            //{
-            //    foreach (Fleet.Squad squad6 in list)
-            //    {
-
-
-            //        foreach (Ship ship in (List<Ship>)squad6.Ships)
-            //        {
-            //            foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.DataNodes)
-            //            {
-            //                if (ship == fleetDataNode.GetShip())
-            //                    squad6.DataNodes.Add(fleetDataNode);
-            //            }
-            //        }
-            //    }
-            //}//);
         }
 
-        public override void MoveTo(Vector2 MovePosition, float facing, Vector2 fVec)
+        private void SortSquad(List<Ship> allShips, List<Squad> destSquad, bool sizeOverSpeed = false)
         {
-            this.Position = this.findAveragePosition();
-            if (this.Owner.isPlayer && this.InCombat)
-                this.HasPriorityOrder = true;            
-            this.GoalStack.Clear();
-            this.MoveToNow(MovePosition, facing, fVec);
+            IOrderedEnumerable<Ship> orderedShips;
+            if (sizeOverSpeed) { orderedShips = Enumerable.OrderByDescending(allShips, ship => ship.Size);  }
+            else               { orderedShips = Enumerable.OrderByDescending(allShips, ship => ship.speed); }
+
+            Fleet.Squad squad = new Fleet.Squad();
+            squad.Fleet = this;
+            for (int index = 0; index < orderedShips.Count(); ++index)
+            {
+                if (squad.Ships.Count < 4)
+                    squad.Ships.Add(orderedShips.ElementAt(index));
+                if (squad.Ships.Count == 4 || index == orderedShips.Count() - 1)
+                {
+                    destSquad.Add(squad);
+                    squad = new Fleet.Squad();
+                    squad.Fleet = this;
+                }
+            }
         }
 
-        public void MoveToAddQ(Vector2 MovePosition, float facing, Vector2 fVec)
+        private void ArrangeSquad(List<Fleet.Squad> squad, Vector2 squadOffset)
         {
-            this.Position = this.findAveragePosition();
-            if (this.InCombat)
-                this.HasPriorityOrder = true;
-            this.GoalStack.Clear();
-            this.MoveToQueue(MovePosition, facing, fVec);
+            int leftSide = 0;
+            int rightSide = 0;
+            for (int index = 0; index < squad.Count; ++index)
+            {
+                if (index == 0)
+                    squad[index].Offset = squadOffset;
+                else if (index % 2 == 1)
+                {
+                    ++leftSide;
+                    squad[index].Offset = new Vector2(leftSide * (-1400 + squadOffset.X), squadOffset.Y);
+                }
+                else
+                {
+                    ++rightSide;
+                    squad[index].Offset = new Vector2(rightSide * (1400 + squadOffset.X), squadOffset.Y);
+                }
+            }
         }
 
         public void MoveToDirectly(Vector2 MovePosition, float facing, Vector2 fVec)
@@ -602,25 +250,6 @@ namespace Ship_Game.Gameplay
         }
 
         public void FormationWarpTo(Vector2 MovePosition, float facing, Vector2 fvec)
-        {
-            this.GoalStack.Clear();
-            this.Position = MovePosition;
-            this.facing = facing;
-            this.AssembleFleet(facing, fvec);
-            this.Ships.ForEach(ship =>
-            {
-                if (ship.fleet != null)
-                {
-                    ship.GetAI().SetPriorityOrder();
-                    ship.GetAI().OrderFormationWarp(MovePosition + ship.FleetOffset, facing, fvec);
-                }
-            }
-            );
-
-   
-        }
-
-        public void FormationWarpToQ(Vector2 MovePosition, float facing, Vector2 fvec)
         {
             this.GoalStack.Clear();
             this.Position = MovePosition;
@@ -648,38 +277,11 @@ namespace Ship_Game.Gameplay
             this.AssembleFleet(facing, fVec);
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
-                //if (ship.GetStrength() == 0 || !(ship.GetAI().BadGuysNear && !ship.isInDeepSpace))
-                {
-                    ship.GetAI().SetPriorityOrder();
-                    ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true, null);
-                }
+                ship.GetAI().SetPriorityOrder();
+                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true, null);
             }
         }
 
-        private void MoveToQueue(Vector2 MovePosition, float facing, Vector2 fVec)
-        {
-            this.Position = MovePosition;
-            this.facing = facing;
-            this.AssembleFleet(facing, fVec);
-            foreach (Ship ship in (List<Ship>)this.Ships)
-            {
-                ship.GetAI().SetPriorityOrder();
-                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, false,null);
-            }
-        }
-        #region Unused
-        private void MoveToQueueLowPri(Vector2 MovePosition, float facing, Vector2 fVec)
-        {
-            this.Position = MovePosition;
-            this.facing = facing;
-            this.AssembleFleet(facing, fVec);
-            foreach (Ship ship in (List<Ship>)this.Ships)
-            {
-                
-                ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, false, null);
-            }
-        }
-        #endregion
         private void MoveDirectlyNow(Vector2 MovePosition, float facing, Vector2 fVec)
         {
             this.Position = MovePosition;
@@ -688,9 +290,7 @@ namespace Ship_Game.Gameplay
             foreach (Ship ship in (List<Ship>)this.Ships)
             {
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
-
-                if (this.Owner.isPlayer  ||ship.GetAI().State == AIState.AwaitingOrders || ship.GetAI().State == AIState.AwaitingOffenseOrders) //    || !ship.GetAI().BadGuysNear || ship.isInDeepSpace || this.TaskStep > 1 ||  Vector2.Distance(ship.Center, MovePosition) > 300000 )//this.Owner.isPlayer || ship.GetSystem() ==null|| this.Task != null || 
-
+                if (this.Owner.isPlayer || ship.GetAI().State == AIState.AwaitingOrders || ship.GetAI().State == AIState.AwaitingOffenseOrders)
                 {
                     ship.GetAI().SetPriorityOrder();
                     ship.GetAI().OrderMoveDirectlyTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true);
@@ -698,7 +298,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private void AutoAssembleFleet(float facing, Vector2 facingVec)
+        private void AutoAssembleFleet(float facing, Vector2 facingVec) //Mer Gretman left off here
         {
             foreach (List<Fleet.Squad> list in this.AllFlanks)
             {
@@ -708,7 +308,6 @@ namespace Ship_Game.Gameplay
                     {
                         float angle1 = squad.Offset.ToRadians() + facing;
                         float distance = squad.Offset.Length();
-                        //Vector2 vector2_1 = new Vector2();
                         Vector2 distanceUsingRadians1 = MathExt.PointFromRadians(Vector2.Zero, angle1, distance);
                         Vector2 vector2_2;
                         switch (index)
@@ -760,17 +359,6 @@ namespace Ship_Game.Gameplay
                 float angle      = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance   = ship.RelativeFleetOffset.Length();
                 ship.FleetOffset = MathExt.PointFromRadians(Vector2.Zero, angle, distance);
-            }
-        }
-
-        public void AssignDataPositions(float facing)
-        {
-            this.facing = facing;
-            foreach (FleetDataNode fleetDataNode in DataNodes)
-            {
-                float angle = fleetDataNode.FleetOffset.ToRadians() + facing;
-                float distance = fleetDataNode.FleetOffset.Length();
-                fleetDataNode.OrdersOffset = MathExt.PointFromRadians(Vector2.Zero, angle, distance);
             }
         }
 
@@ -836,26 +424,6 @@ namespace Ship_Game.Gameplay
                 }
             }
         }
-        #region Unused
-
-        public void MoveFlankToProjectedPos(Vector2 ProjectedPosition, float facing, List<Fleet.Squad> Flank, Vector2 fVec)
-        {
-            this.ProjectedFacing = facing;
-            foreach (Fleet.Squad squad in Flank)
-            {
-                for (int index = 0; index < squad.Ships.Count; ++index)
-                {
-                    lock (GlobalStats.WayPointLock)
-                        squad.Ships[index].GetAI().OrderThrustTowardsPosition(squad.Ships[index].projectedPosition, facing, fVec, true);
-                }
-            }
-        }
-
-        public void ProtectedMove()
-        {
-        }
-
-        #endregion
 
         public override void ProjectPos(Vector2 ProjectedPosition, float facing, Vector2 fVec)
         {
@@ -867,7 +435,6 @@ namespace Ship_Game.Gameplay
                 ship.projectedPosition = ProjectedPosition + MathExt.PointFromRadians(Vector2.Zero, angle, distance);
             }
         }
-
 
         public Vector2 findAveragePosition()
         {
@@ -891,6 +458,7 @@ namespace Ship_Game.Gameplay
             center /= Ships.Count;
             return center;
         }
+
         public void Setavgtodestination()
         {
             List<float> distances = new List<float>();
@@ -911,59 +479,6 @@ namespace Ship_Game.Gameplay
             float stddev = (float)Math.Sqrt((sum) / (distances.Count  - 1));
             this.StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average(); //&& && distance > avgdistance - stddev
         }
-
-        #region unused
-        public void TrackEnemies()
-        {
-            Fleet.quadrantscan quadrantscan1 = new Fleet.quadrantscan();
-            Fleet.quadrantscan quadrantscan2 = new Fleet.quadrantscan();
-            Fleet.quadrantscan quadrantscan3 = new Fleet.quadrantscan();
-            Fleet.quadrantscan quadrantscan4 = new Fleet.quadrantscan();
-            quadrantscan1.Strength = this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.Position + new Vector2(25000f, -25000f), 25000f, this.Owner);
-            quadrantscan1.avgPos = this.Owner.GetGSAI().ThreatMatrix.PingRadarAvgPos(this.Position + new Vector2(25000f, -25000f), 25000f, this.Owner);
-            quadrantscan2.Strength = this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.Position + new Vector2(25000f, 25000f), 25000f, this.Owner);
-            quadrantscan2.avgPos = this.Owner.GetGSAI().ThreatMatrix.PingRadarAvgPos(this.Position + new Vector2(25000f, 25000f), 25000f, this.Owner);
-            quadrantscan3.Strength = this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.Position + new Vector2(-25000f, -25000f), 25000f, this.Owner);
-            quadrantscan3.avgPos = this.Owner.GetGSAI().ThreatMatrix.PingRadarAvgPos(this.Position + new Vector2(-25000f, -25000f), 25000f, this.Owner);
-            quadrantscan4.Strength = this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.Position + new Vector2(-25000f, 25000f), 25000f, this.Owner);
-            quadrantscan4.avgPos = this.Owner.GetGSAI().ThreatMatrix.PingRadarAvgPos(this.Position + new Vector2(-25000f, 25000f), 25000f, this.Owner);
-            IOrderedEnumerable<Fleet.quadrantscan> orderedEnumerable = Enumerable.OrderByDescending<Fleet.quadrantscan, float>((IEnumerable<Fleet.quadrantscan>)new List<Fleet.quadrantscan>()
-      {
-        quadrantscan1,
-        quadrantscan2,
-        quadrantscan3,
-        quadrantscan4
-      }, (Func<Fleet.quadrantscan, float>)(q => q.Strength));
-            if (Enumerable.Count<Fleet.quadrantscan>((IEnumerable<Fleet.quadrantscan>)orderedEnumerable) <= 0)
-                return;
-            Fleet.quadrantscan quadrantscan5 = Enumerable.ElementAt<Fleet.quadrantscan>((IEnumerable<Fleet.quadrantscan>)orderedEnumerable, 0);
-            if ((double)quadrantscan5.Strength <= 0.0)
-                return;
-            if ((double)Vector2.Distance(quadrantscan5.avgPos, this.Position) > 1500.0)
-            {
-                float facing = quadrantscan5.avgPos.ToRadians();
-                Vector2 fVec = Vector2.Normalize(quadrantscan5.avgPos - this.Position);
-                quadrantscan5.avgPos -= fVec * 5000f;
-                bool flag = true;
-                foreach (Ship ship in (List<Ship>)this.Ships)
-                {
-                    if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 2500.0)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-                if (!this.HasPriorityOrder && flag)
-                    this.AttackMoveTo(quadrantscan5.avgPos);
-                else
-                    this.MoveToNow(quadrantscan5.avgPos, facing, fVec);
-                this.InCombat = true;
-            }
-            if (!this.InCombat || (double)Vector2.Distance(quadrantscan5.avgPos, this.Position) <= 7500.0)
-                return;
-            this.InCombat = false;
-        } 
-        #endregion
 
         public void Reset()
         {
@@ -1674,14 +1189,6 @@ namespace Ship_Game.Gameplay
 
         private float GetGroundStrOfPlanet(Planet p)
         {
-            //float num = 0.0f;
-            //foreach (PlanetGridSquare planetGridSquare in p.TilesList)
-            //{
-            //    if (planetGridSquare.TroopsHere.Count > 0)
-            //        num += (float)planetGridSquare.TroopsHere[0].Strength;
-            //    else if (planetGridSquare.building != null && planetGridSquare.building.CombatStrength > 0)
-            //        num += (float)planetGridSquare.building.CombatStrength;
-            //}
             return p.GetGroundStrengthOther(this.Owner);
         }
 
@@ -2377,14 +1884,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private float GetClumpStrength(List<Ship> clumpships)
-        {
-            float num = 0.0f;
-            foreach (Ship ship in clumpships)
-                num += ship.GetStrength();
-            return num;
-        }
-
         private void DoCohesiveClearAreaOfEnemies(MilitaryTask Task)
         {
             switch (this.TaskStep)
@@ -2932,7 +2431,6 @@ namespace Ship_Game.Gameplay
                 if (ship.Active)
                     num += ship.GetStrength();
             }
-
             return num;
         }
 
@@ -3020,8 +2518,8 @@ namespace Ship_Game.Gameplay
                 Dispose(true);
                 GC.SuppressFinalize(this);
             }
-
             ~Squad() { Dispose(false); }
+
             private void Dispose(bool disposing)
             {
                 if (!disposed)
@@ -3041,13 +2539,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-
-        private struct quadrantscan
-        {
-            public Vector2 avgPos;
-            public float Strength;
-        }
-
         public enum FleetGoalType
         {
             AttackMoveTo,
@@ -3064,13 +2555,6 @@ namespace Ship_Game.Gameplay
             public SolarSystem sysToAttack;
             private Fleet fleet;
             public float FinalFacing;
-
-            public FleetGoal(SolarSystem toAttack, Fleet fleet, Fleet.FleetGoalType t)
-            {
-                this.fleet = fleet;
-                this.sysToAttack = toAttack;
-                this.type = t;
-            }
 
             public FleetGoal(Fleet fleet, Vector2 MovePosition, float facing, Vector2 fVec, Fleet.FleetGoalType t)
             {
