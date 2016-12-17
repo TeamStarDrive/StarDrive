@@ -525,7 +525,7 @@ namespace Ship_Game
 					}
 					ship.experience = shipData.experience;
 					ship.kills = shipData.kills;
-					if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(shipData.Name))
+					if (!ResourceManager.ShipsDict.ContainsKey(shipData.Name))
 					{
 						shipData.data.Hull = shipData.Hull;
 						Ship newShip = Ship.CreateShipFromShipData(shipData.data);
@@ -537,16 +537,16 @@ namespace Ship_Game
 						newShip.InitializeStatus();
 						newShip.IsPlayerDesign = false;
 						newShip.FromSave = true;
-						Ship_Game.ResourceManager.ShipsDict.Add(shipData.Name, newShip);
+						ResourceManager.ShipsDict.Add(shipData.Name, newShip);
 					}				
-                    else if (Ship_Game.ResourceManager.ShipsDict[shipData.Name].FromSave)
+                    else if (ResourceManager.ShipsDict[shipData.Name].FromSave)
 					{
 						ship.IsPlayerDesign = false;
 						ship.FromSave = true;
 					}
                     ship.BaseStrength = ResourceManager.CalculateBaseStrength(ship);
 
-                    foreach(ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
+                    foreach (ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
                     {
                         ShipModule mismatch =null;
                         bool exists =ResourceManager.ShipModulesDict.TryGetValue(moduleSD.InstalledModuleUID,out mismatch);
@@ -563,15 +563,18 @@ namespace Ship_Game
 					ship.Velocity = shipData.Velocity;
 					ship.isSpooling = shipData.AfterBurnerOn;
 					ship.InCombatTimer = shipData.InCombatTimer;
-					foreach (Troop t in shipData.TroopList)
+
+					if (shipData.TroopList != null)
+                    foreach (Troop t in shipData.TroopList)
 					{
 						t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
 						ship.TroopList.Add(t);
 					}
 
-                    foreach (Rectangle AOO in shipData.AreaOfOperation)
+                    if (shipData.AreaOfOperation != null)
+                    foreach (Rectangle aoRect in shipData.AreaOfOperation)
                     {
-                        ship.AreaOfOperation.Add(AOO);
+                        ship.AreaOfOperation.Add(aoRect);
                     }
 					ship.TetherGuid = shipData.TetheredTo;
 					ship.TetherOffset = shipData.TetherOffset;
@@ -581,17 +584,17 @@ namespace Ship_Game
 					}
 					ship.loyalty = e;
 					ship.InitializeAI();
-					ship.GetAI().CombatState = shipData.data.CombatState;
-					ship.GetAI().FoodOrProd = shipData.AISave.FoodOrProd;
-					ship.GetAI().State = shipData.AISave.state;
-					ship.GetAI().DefaultAIState = shipData.AISave.defaultstate;
-					ship.GetAI().GotoStep = shipData.AISave.GoToStep;
-					ship.GetAI().MovePosition = shipData.AISave.MovePosition;
-					ship.GetAI().OrbitTargetGuid = shipData.AISave.OrbitTarget;
+					ship.GetAI().CombatState          = shipData.data.CombatState;
+					ship.GetAI().FoodOrProd           = shipData.AISave.FoodOrProd;
+					ship.GetAI().State                = shipData.AISave.state;
+					ship.GetAI().DefaultAIState       = shipData.AISave.defaultstate;
+					ship.GetAI().GotoStep             = shipData.AISave.GoToStep;
+					ship.GetAI().MovePosition         = shipData.AISave.MovePosition;
+					ship.GetAI().OrbitTargetGuid      = shipData.AISave.OrbitTarget;
                     //ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;          //Not referenced in code, removing to save memory
-                    ship.GetAI().TargetGuid = shipData.AISave.AttackTarget;
-					ship.GetAI().SystemToDefendGuid = shipData.AISave.SystemToDefend;
-					ship.GetAI().EscortTargetGuid = shipData.AISave.EscortTarget;
+                    ship.GetAI().TargetGuid           = shipData.AISave.AttackTarget;
+					ship.GetAI().SystemToDefendGuid   = shipData.AISave.SystemToDefend;
+					ship.GetAI().EscortTargetGuid     = shipData.AISave.EscortTarget;
 					bool hasCargo = false;
 					if (shipData.FoodCount > 0f)
 					{
