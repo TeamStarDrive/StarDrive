@@ -1161,7 +1161,7 @@ namespace Ship_Game
             return GSAI.ThreatMatrix.FindShipsInOurBorders();
         }
 
-        public void UpdateKnownShips()  //Mer
+        public void UpdateKnownShips()
         {
            // this.GetGSAI().ThreatMatrix.ScrubMatrix(true);
             if (data.Defeated)

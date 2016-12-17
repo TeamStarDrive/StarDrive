@@ -721,7 +721,7 @@ namespace Ship_Game
                 this.Stars.Add(nebulousOverlay);
             }
             this.LoadGraphics();
-            DeepSpaceManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));       //Mer Investigate me
+            DeepSpaceManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));
             UniverseScreen.ShipSpatialManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));
             this.DoParticleLoad();
             this.bg3d = new Background3D(this);
@@ -3032,7 +3032,8 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Sceptre Torp", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Devourer-Class Mk V Battleship", this.player, this.mouseWorldPos);    //Vulfen
                             ResourceManager.CreateShipAtPoint("SS-Fighter Base Alpha", this.player, this.mouseWorldPos);    //Station
-                            ++DebugInfoScreen.loadmodels;
+                            DebugInfoScreen.loadmodels = 0;
+                            PlayerEmpire.Money = 10000;
                         }
 
                         if (DebugInfoScreen.loadmodels == 3)    //Cruiser
@@ -3056,7 +3057,6 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Scythe Torpedo", this.player, this.mouseWorldPos);    //Draylock
                             ResourceManager.CreateShipAtPoint("Laser Frigate", this.player, this.mouseWorldPos);    //Human
                             ResourceManager.CreateShipAtPoint("Missile Corvette", this.player, this.mouseWorldPos);    //Human
-                            ResourceManager.CreateShipAtPoint("Razorclaw", this.player, this.mouseWorldPos);    //Kulrathi
                             ResourceManager.CreateShipAtPoint("Kulrathi Railer", this.player, this.mouseWorldPos);    //Kulrathi
                             ResourceManager.CreateShipAtPoint("Stormsoldier", this.player, this.mouseWorldPos);    //Opteris
                             ResourceManager.CreateShipAtPoint("Fern Artillery", this.player, this.mouseWorldPos);    //Pollops
@@ -3105,7 +3105,6 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Seeder Transport", this.player, this.mouseWorldPos);    //Pollops
                             ResourceManager.CreateShipAtPoint("Sower Transport", this.player, this.mouseWorldPos);    //Pollops
                             ResourceManager.CreateShipAtPoint("Grower Transport", this.player, this.mouseWorldPos);    //Pollops
-                            ResourceManager.CreateShipAtPoint("Ralyeh Inquisitor", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Vessel S", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Vessel M", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Vessel L", this.player, this.mouseWorldPos);    //Rayleh
@@ -3717,7 +3716,7 @@ namespace Ship_Game
                                 }
                             }
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                this.SelectedFleet.FormationWarpToQ(vector2_1, num3, vectorToTarget);
+                                this.SelectedFleet.FormationWarpTo(vector2_1, num3, vectorToTarget);
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
                                 this.SelectedFleet.MoveToDirectly(vector2_1, num3, vectorToTarget);
                             else
@@ -3968,7 +3967,7 @@ namespace Ship_Game
                         {
                             this.SelectedSomethingTimer = 3f;
                             if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                this.SelectedFleet.FormationWarpToQ(this.ProjectedPosition, num2, vector2_2);
+                                this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2);
                             else
                                 this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2);
                             AudioManager.PlayCue("echo_affirm1");
