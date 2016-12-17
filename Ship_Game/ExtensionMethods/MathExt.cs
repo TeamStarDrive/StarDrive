@@ -187,23 +187,29 @@ namespace Ship_Game
             return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
         }
 
-        // @todo Axes don't match up with XNA's internals
-        // Creates a 3D direction vector from Euler XYZ rotation RADIANS
-        // X = Yaw
-        // Y = Pitch
-        // Z = Roll
-        public static Vector3 DirectionFromRadians(this Vector3 xyzRadians)
+
+        // Creates a 3D Forward vector from XYZ RADIANS rotation
+        // X = Yaw;  Y = Pitch;  Z = Roll
+        public static Vector3 RadiansToForward(this Vector3 radians)
         {
-            double sx = Sin(xyzRadians.Z);
-            double cx = Cos(xyzRadians.Z);
-            double sy = Sin(xyzRadians.Y);
-            double cy = Cos(xyzRadians.Y);
-            double sz = Sin(xyzRadians.X);
-            double cz = Cos(xyzRadians.X);
-            return new Vector3((float)( -cz*sy*sx - sz*cx),
-                               (float)( -sz*sy*sx + cz*cx),
-                               (float)( cy*sx ));
+            return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Forward;
         }
+        public static Vector3 RadiansToRight(this Vector3 radians)
+        {
+            return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Right;
+        }
+        public static Vector3 RadiansToUp(this Vector3 radians)
+        {
+            return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Up;
+        }
+
+
+        // Creates a 3D Forward vector from XYZ DEGREES rotation
+        // X = Yaw;  Y = Pitch;  Z = Roll
+        public static Vector3 DegreesToForward(this Vector3 degrees) => degrees.DegsToRad().RadiansToForward();
+        public static Vector3 DegreesToRight(this Vector3 degrees)   => degrees.DegsToRad().RadiansToRight();
+        public static Vector3 DegreesToUp(this Vector3 degrees)      => degrees.DegsToRad().RadiansToUp();
+
 
         // Creates an Affine World transformation Matrix
         public static Matrix AffineTransform(Vector3 position, Vector3 rotationRadians, float scale)

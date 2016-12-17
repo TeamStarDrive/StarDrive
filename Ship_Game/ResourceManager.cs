@@ -44,7 +44,6 @@ namespace Ship_Game
         public static Dictionary<string, DiplomacyDialog> DDDict         = new Dictionary<string, DiplomacyDialog>();
         public static Dictionary<string, LocalizationFile> LanguageDict  = new Dictionary<string, LocalizationFile>();
 
-        public static LocalizationFile LanguageFile                      = new LocalizationFile();
         public static Dictionary<string, Artifact> ArtifactsDict         = new Dictionary<string, Artifact>();
         public static Dictionary<string, ExplorationEvent> EventsDict    = new Dictionary<string, ExplorationEvent>();
         public static List<Texture2D> BigNebulas                         = new List<Texture2D>();
@@ -74,7 +73,6 @@ namespace Ship_Game
 
         public static Dictionary<string, EconomicResearchStrategy> EconStrats = new Dictionary<string, EconomicResearchStrategy>();
 
-        public static int OffSet;
         private static RacialTraits RacialTraits;
         private static DiplomaticTraits DiplomacyTraits;
 
@@ -657,22 +655,7 @@ namespace Ship_Game
         public static RacialTraits RaceTraits => RacialTraits ?? LoadRaceTraits();
         private static RacialTraits LoadRaceTraits()
         {
-            if (null == DeserializeModOrContent("/RacialTraits/RacialTraits.xml", "GetRaceTraits", out RacialTraits))
-                return null;
-            foreach (RacialTrait trait in RacialTraits.TraitList)
-            {
-                if (Localizer.LocalizerDict.ContainsKey(trait.TraitName + OffSet))
-                {
-                    trait.TraitName += OffSet;
-                    Localizer.used[trait.TraitName] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(trait.Description + OffSet))
-                {
-                    trait.Description += OffSet;
-                    Localizer.used[trait.Description] = true;
-                }
-            }
-            return RacialTraits;
+            return DeserializeModOrContent("/RacialTraits/RacialTraits.xml", "GetRaceTraits", out RacialTraits);
         }
 
 
@@ -737,8 +720,6 @@ namespace Ship_Game
             {
                 foreach (Artifact art in arts)
                 {
-                    art.DescriptionIndex += OffSet;
-                    art.NameIndex += OffSet;
                     art.Name = string.Intern(art.Name);
                     ArtifactsDict[art.Name] = art;
                 }
@@ -750,31 +731,7 @@ namespace Ship_Game
             foreach (var kv in LoadEntitiesWithInfo<Building>("/Buildings", "LoadBuildings"))
             {
                 Building newB = kv.Value;
-                try
-                {
-                    if (Localizer.LocalizerDict.ContainsKey(newB.DescriptionIndex + OffSet))
-                    {
-                        newB.DescriptionIndex += OffSet;
-                        Localizer.used[newB.DescriptionIndex] = true;
-                    }
-                    if (Localizer.LocalizerDict.ContainsKey(newB.NameTranslationIndex + OffSet))
-                    {
-                        newB.NameTranslationIndex += OffSet;
-                        Localizer.used[newB.NameTranslationIndex] = true;
-                    }
-                    if (Localizer.LocalizerDict.ContainsKey(newB.ShortDescriptionIndex + OffSet))
-                    {
-                        newB.ShortDescriptionIndex += OffSet;
-                        Localizer.used[newB.ShortDescriptionIndex] = true;
-                    }
-
-                    BuildingsDict[string.Intern(newB.Name)] = newB;
-                }
-                catch (NullReferenceException ex)
-                {
-                    ex.Data["Building Lookup"] = newB.Name;
-                    ReportLoadingError(kv.Key, "LoadBuildings", ex);
-                }
+                BuildingsDict[string.Intern(newB.Name)] = newB;
             }
         }
 
@@ -791,12 +748,7 @@ namespace Ship_Game
         public static void LoadEmpires() // Refactored by RedFox
         {
             Empires.Clear();
-            foreach (var empireData in LoadEntities<EmpireData>("/Races", "LoadEmpires"))
-            {
-                empireData.TroopDescriptionIndex += OffSet; // @todo Is += correct here? Old version had =+
-                empireData.TroopNameIndex += OffSet;
-                Empires.Add(empireData);
-            }
+            Empires.AddRange(LoadEntities<EmpireData>("/Races", "LoadEmpires"));
         }
 
         public static void LoadEncounters() // Refactored by RedFox
@@ -883,7 +835,6 @@ namespace Ship_Game
 
         private static void LoadItAll()
         {
-            OffSet = 0;
             LoadLanguage();
             LoadTroops();
             LoadTextures();
@@ -914,7 +865,7 @@ namespace Ship_Game
             LoadPlanetEdicts();
             LoadEconomicResearchStrats();
             //Ship_Game.ResourceManager.MarkShipDesignsUnlockable();
-            
+            HelperFunctions.CollectMemory();
         }
 
         public static Model GetJunkModel(int idx)
@@ -968,19 +919,15 @@ namespace Ship_Game
         private static void LoadLanguage() // Refactored by RedFox
         {
             foreach (var localization in LoadEntities<LocalizationFile>("/Localization/English/", "LoadLanguage"))
-            {
-                LanguageFile = localization;
-            }
-            Localizer.FillLocalizer();
+                Localizer.AddTokens(localization.TokenList);
 
+            // load extra tokens from Config Language
             if (GlobalStats.Config.Language != "English")
             {
                 foreach (var localization in LoadEntities<LocalizationFile>("/Localization/" + GlobalStats.Config.Language + "/", "LoadLanguage"))
-                {
-                    LanguageFile = localization;
-                }
+                    Localizer.AddTokens(localization.TokenList);
             }
-            Localizer.FillLocalizer();
+            Debug.WriteLine(" === Localizer Total Memory: {0}KB === ", Localizer.CountBytesUsed() / 1024);
         }
 
         private static void LoadLargeStars() // Refactored by RedFox
@@ -1019,17 +966,6 @@ namespace Ship_Game
         {
             foreach (var empireData in LoadEntities<EmpireData>("/Races", "LoadModdedEmpires"))
             {
-                if (Localizer.LocalizerDict.ContainsKey(empireData.TroopDescriptionIndex + OffSet))
-                {
-                    empireData.TroopDescriptionIndex += OffSet;
-                    Localizer.used[empireData.TroopDescriptionIndex] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(empireData.TroopNameIndex + OffSet))
-                {
-                    empireData.TroopNameIndex += OffSet;
-                    Localizer.used[empireData.TroopNameIndex] = true;
-                }
-
                 int index = Empires.FindIndex(x => x.PortraitName == empireData.PortraitName);
                 if (index == -1) Empires.Add(empireData);
                 else             Empires[index] = empireData;
@@ -1039,7 +975,6 @@ namespace Ship_Game
         public static void LoadMods(string modPath)
         {		
             WhichModPath = modPath;
-            OffSet = modPath == "Mods/SD_Extended" ? 0 : 32000;
             LoadLanguage();
             LoadTroops();
             LoadTextures();
@@ -1064,9 +999,7 @@ namespace Ship_Game
             LoadShipRoles();
             LoadPlanetEdicts();
             LoadEconomicResearchStrats();
-
-            Localizer.CleanLocalizer();
-            OffSet = 0;
+            HelperFunctions.CollectMemory();
         }
 
 
@@ -1154,17 +1087,6 @@ namespace Ship_Game
                     continue;
                 ShipModule_Deserialize data = kv.Value;
 
-                if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
-                {
-                    data.DescriptionIndex += (ushort)OffSet;
-                    Localizer.used[data.DescriptionIndex] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(data.NameIndex + OffSet))
-                {
-                    data.NameIndex += (ushort)OffSet;
-                    Localizer.used[data.NameIndex] = true;
-                }
-                
                 data.UID = string.Intern(kv.Key.NameNoExt());
                 data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
@@ -1403,30 +1325,6 @@ namespace Ship_Game
             foreach (var kv in LoadEntitiesWithInfo<Technology>("/Technology", "LoadTechTree"))
             {
                 var tech = kv.Value;
-                if (Localizer.LocalizerDict.ContainsKey(tech.DescriptionIndex + OffSet))
-                {
-                    tech.DescriptionIndex += OffSet;
-                    Localizer.used[tech.DescriptionIndex] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(tech.NameIndex + OffSet))
-                {
-                    tech.NameIndex += OffSet;
-                    Localizer.used[tech.NameIndex] = true;
-                }
-                foreach (Technology.UnlockedBonus bonus in tech.BonusUnlocked)
-                {
-                    if (Localizer.LocalizerDict.ContainsKey(bonus.BonusIndex + OffSet))
-                    {
-                        bonus.BonusIndex += OffSet;
-                        Localizer.used[bonus.BonusIndex] = true;
-                    }
-                    if (Localizer.LocalizerDict.ContainsKey(bonus.BonusNameIndex + OffSet))
-                    {
-                        bonus.BonusNameIndex += OffSet;
-                        Localizer.used[bonus.BonusNameIndex] = true;
-                    }
-                }
-
                 tech.UID = string.Intern(kv.Key.NameNoExt());
                 TechTree[tech.UID] = tech;
 
@@ -1589,20 +1487,6 @@ namespace Ship_Game
         {
             foreach (var shipRole in LoadEntities<ShipRole>("/ShipRoles", "LoadShipRoles"))
             {
-                if (Localizer.LocalizerDict.ContainsKey(shipRole.Localization + OffSet))
-                {
-                    shipRole.Localization += OffSet;
-                    Localizer.used[shipRole.Localization] = true;
-                }
-
-                foreach (var race in shipRole.RaceList)
-                {
-                    if (!Localizer.LocalizerDict.ContainsKey(race.Localization + OffSet))
-                        continue;
-                    race.Localization += OffSet;
-                    Localizer.used[race.Localization] = true;
-                }
-
                 Enum.TryParse(shipRole.Name, out ShipData.RoleName key);
                 ShipRoles[key] = shipRole;
             }
