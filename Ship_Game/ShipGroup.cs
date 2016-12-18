@@ -18,7 +18,7 @@ namespace Ship_Game
 		}
 
 		public virtual void ProjectPos(Vector2 position, float facing, List<Fleet.Squad> flank)
-		{
+		{//This is basically here so it can be overridden in fleet.cs -Gretman
 		}
 
 		public virtual void ProjectPos(Vector2 position, float facing, Vector2 fVec)

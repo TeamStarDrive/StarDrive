@@ -60,6 +60,8 @@ namespace Ship_Game.Gameplay
         private bool disposed;
         public bool HasRepair;  //fbedard: ships in fleet with repair capability will not return for repair.
 
+        //This file refactored by Gretman
+
         public Fleet()
         {
             this.FleetIconIndex = RandomMath.IntBetween(1, 10);
@@ -152,10 +154,11 @@ namespace Ship_Game.Gameplay
             int totalShips = this.CenterShips.Count;
             foreach (Ship ship in remainingShips)
             {
-                if (totalShips < 4) this.CenterShips.Add(ship);
+                if      (totalShips < 4) this.CenterShips.Add(ship);
                 else if (totalShips < 8) this.LeftShips.Add(ship);
                 else if (totalShips < 12) this.RightShips.Add(ship);
                 else if (totalShips < 16) this.ScreenShips.Add(ship);
+                else if (totalShips < 20 && this.RearShips.Count == 0) this.RearShips.Add(ship);
 
                 ++totalShips;
                 if (totalShips == 16)
@@ -178,9 +181,15 @@ namespace Ship_Game.Gameplay
             ArrangeSquad(this.RearFlank, new Vector2(0.0f, 2500f));
 
             for (int index = 0; index < this.LeftFlank.Count; ++index)
+            {
                 this.LeftFlank[index].Offset = new Vector2((float)(-this.CenterFlank.Count * 1400 - (this.LeftFlank.Count == 1 ? 1400 : index * 1400)), 0.0f);
+            }
+
             for (int index = 0; index < this.RightFlank.Count; ++index)
+            {
                 this.RightFlank[index].Offset = new Vector2((float)(this.CenterFlank.Count * 1400 + (this.RightFlank.Count == 1 ? 1400 : index * 1400)), 0.0f);
+            }
+
             this.AutoAssembleFleet(0.0f, new Vector2(0.0f, -1f));
             foreach (Ship s in (List<Ship>)this.Ships)
             {
@@ -200,7 +209,7 @@ namespace Ship_Game.Gameplay
 
         private void SortSquad(List<Ship> allShips, List<Squad> destSquad, bool sizeOverSpeed = false)
         {
-            IOrderedEnumerable<Ship> orderedShips;
+            IOrderedEnumerable<Ship> orderedShips;      //If true, sort by size instead of speed
             if (sizeOverSpeed) { orderedShips = Enumerable.OrderByDescending(allShips, ship => ship.Size);  }
             else               { orderedShips = Enumerable.OrderByDescending(allShips, ship => ship.speed); }
 
@@ -306,45 +315,29 @@ namespace Ship_Game.Gameplay
                 {
                     for (int index = 0; index < squad.Ships.Count; ++index)
                     {
-                        float angle1 = squad.Offset.ToRadians() + facing;
-                        float distance = squad.Offset.Length();
-                        Vector2 distanceUsingRadians1 = MathExt.PointFromRadians(Vector2.Zero, angle1, distance);
-                        Vector2 vector2_2;
+                        float radiansAngle = 0;
                         switch (index)
                         {
                             case 0:
-                                vector2_2 = new Vector2();
-                                float angle2 = new Vector2(0.0f, -500f).ToRadians() + facing;
-                                vector2_2 = MathExt.PointFromRadians(this.Position + distanceUsingRadians1, angle2, 500f);
-                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + MathExt.PointFromRadians(Vector2.Zero, angle2, 500f);
-                                Vector2 distanceUsingRadians2 = MathExt.PointFromRadians(Vector2.Zero, new Vector2(0.0f, -500f).ToRadians(), 500f);
-                                squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians2;
+                                radiansAngle = new Vector2(0.0f, -500f).ToRadians();
                                 break;
                             case 1:
-                                vector2_2 = new Vector2();
-                                float angle3 = new Vector2(-500f, 0.0f).ToRadians() + facing;
-                                vector2_2 = MathExt.PointFromRadians(this.Position + distanceUsingRadians1, angle3, 500f);
-                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + MathExt.PointFromRadians(Vector2.Zero, angle3, 500f);
-                                Vector2 distanceUsingRadians3 = MathExt.PointFromRadians(Vector2.Zero, new Vector2(-500f, 0.0f).ToRadians(), 500f);
-                                squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians3;
+                                radiansAngle = new Vector2(-500f, 0.0f).ToRadians();
                                 break;
                             case 2:
-                                vector2_2 = new Vector2();
-                                float angle4 = new Vector2(500f, 0.0f).ToRadians() + facing;
-                                vector2_2 = MathExt.PointFromRadians(this.Position + distanceUsingRadians1, angle4, 500f);
-                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + MathExt.PointFromRadians(Vector2.Zero, angle4, 500f);
-                                Vector2 distanceUsingRadians4 = MathExt.PointFromRadians(Vector2.Zero, new Vector2(500f, 0.0f).ToRadians(), 500f);
-                                squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians4;
+                                radiansAngle = new Vector2(500f, 0.0f).ToRadians();
                                 break;
                             case 3:
-                                vector2_2 = new Vector2();
-                                float angle5 = new Vector2(0.0f, 500f).ToRadians() + facing;
-                                vector2_2 = MathExt.PointFromRadians(this.Position + distanceUsingRadians1, angle5, 500f);
-                                squad.Ships[index].FleetOffset = distanceUsingRadians1 + MathExt.PointFromRadians(Vector2.Zero, angle5, 500f);
-                                Vector2 distanceUsingRadians5 = MathExt.PointFromRadians(Vector2.Zero, new Vector2(0.0f, 500f).ToRadians(), 500f);
-                                squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians5;
+                                radiansAngle = new Vector2(0.0f, 500f).ToRadians();
+                                break;
+                            default:
+                                radiansAngle = new Vector2(0.0f, 0.0f).ToRadians();
                                 break;
                         }
+                        Vector2 distanceUsingRadians = MathExt.PointFromRadians(Vector2.Zero, (squad.Offset.ToRadians() + facing), squad.Offset.Length());
+                        squad.Ships[index].FleetOffset = distanceUsingRadians + MathExt.PointFromRadians(Vector2.Zero, radiansAngle + facing, 500f);
+                        distanceUsingRadians = MathExt.PointFromRadians(Vector2.Zero, radiansAngle, 500f);
+                        squad.Ships[index].RelativeFleetOffset = squad.Offset + distanceUsingRadians;
                     }
                 }
             }
@@ -353,7 +346,6 @@ namespace Ship_Game.Gameplay
         public void AssignPositions(float facing)
         {
             this.facing = facing;
-            //foreach (Ship ship in (List<Ship>)this.Ships)
             foreach (Ship ship in Ships)
             {
                 float angle      = ship.RelativeFleetOffset.ToRadians() + facing;
@@ -365,7 +357,7 @@ namespace Ship_Game.Gameplay
         public void AssembleFleet(float facing, Vector2 facingVec)
         {
             this.facing = facing;
-            foreach (Ship ship in (List<Ship>)this.Ships)
+            foreach (Ship ship in this.Ships)
             {
                 if (ship.GetAI().State == AIState.AwaitingOrders || this.IsCoreFleet)
                 {
@@ -383,19 +375,15 @@ namespace Ship_Game.Gameplay
             foreach (Fleet.Squad squad in Flank)
                 vector2_1.X += squad.Offset.X;
             vector2_1.X = vector2_1.X / (float)Flank.Count;
-            int num = 0;
+
             foreach (Fleet.Squad squad in Flank)
             {
                 Vector2 target = new Vector2();
                 target = new Vector2(squad.Offset.X - vector2_1.X, 0.0f);
-                ++num;
                 for (int index = 0; index < squad.Ships.Count; ++index)
                 {
                     Vector2 vector2_2 = new Vector2();
-                    float angle1 = target.ToRadians() + facing;
-                    float distance = target.Length();
-                    //Vector2 vector2_3 = new Vector2();
-                    Vector2 distanceUsingRadians = MathExt.PointFromRadians(Vector2.Zero, angle1, distance);
+                    Vector2 distanceUsingRadians = MathExt.PointFromRadians(Vector2.Zero, target.ToRadians() + facing, target.Length());
                    // Vector2 vector2_4;
                     switch (index)
                     {
