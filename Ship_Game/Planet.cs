@@ -2473,14 +2473,16 @@ namespace Ship_Game
                             continue;
                     }
                     try
-                    {
+                    {                        
                         if (!hasAttacked && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
                         {
                             foreach (PlanetGridSquare planetGridSquare in (IEnumerable<PlanetGridSquare>)Enumerable.OrderBy<PlanetGridSquare, int>((IEnumerable<PlanetGridSquare>)this.TilesList, (Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
                             {
-                                if (planetGridSquare != pgs)
-                                {
-                                    if (planetGridSquare.TroopsHere.Count > 0)
+                                if (!pgs.TroopsHere.Any())
+                                    break;
+                                if (planetGridSquare != pgs )
+                                {                                    
+                                    if (planetGridSquare.TroopsHere.Any())
                                     {
                                         if (planetGridSquare.TroopsHere[0].GetOwner() != pgs.TroopsHere[0].GetOwner())
                                         {
