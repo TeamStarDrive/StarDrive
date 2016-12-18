@@ -1,34 +1,34 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
     public sealed class NRO
     {
-        [MessagePackMember(0)] public Vector2 Node;
-        [MessagePackMember(1)] public float Radius;
-        [MessagePackMember(2)] public float StarDateMade;
+        [Serialize(0)] public Vector2 Node;
+        [Serialize(1)] public float Radius;
+        [Serialize(2)] public float StarDateMade;
     }
 
     public sealed class Snapshot
 	{
-		[MessagePackMember(0)] public List<NRO> EmpireNodes = new List<NRO>();
-        [MessagePackMember(1)] public int ShipCount;
-        [MessagePackMember(2)] public float MilitaryStrength;
-        [MessagePackMember(3)] public float Population;
-        [MessagePackMember(4)] public List<string> Events = new List<string>();
-        [MessagePackMember(5)] public float TaxRate;
-        [MessagePackMember(6)] public float StarDate;
-        [MessagePackMember(7)] public int TotalShips;
-        [MessagePackMember(8)] public int TotalShipsKilled;
-        [MessagePackMember(9)] public int TotalShipsLost;
-        [MessagePackMember(10)] public int TotalGroundTroopsKilled;
-        [MessagePackMember(11)] public int TotalGroundTroopsLost;
-        [MessagePackMember(12)] public int TotalMoney;
-        [MessagePackMember(13)] public int TotalMaintenance;
-        [MessagePackMember(14)] public int TotalPopulation;
+		[Serialize(0)] public List<NRO> EmpireNodes = new List<NRO>();
+        [Serialize(1)] public int ShipCount;
+        [Serialize(2)] public float MilitaryStrength;
+        [Serialize(3)] public float Population;
+        [Serialize(4)] public List<string> Events = new List<string>();
+        [Serialize(5)] public float TaxRate;
+        [Serialize(6)] public float StarDate;
+        [Serialize(7)] public int TotalShips;
+        [Serialize(8)] public int TotalShipsKilled;
+        [Serialize(9)] public int TotalShipsLost;
+        [Serialize(10)] public int TotalGroundTroopsKilled;
+        [Serialize(11)] public int TotalGroundTroopsLost;
+        [Serialize(12)] public int TotalMoney;
+        [Serialize(13)] public int TotalMaintenance;
+        [Serialize(14)] public int TotalPopulation;
 
 		public Snapshot(float date)
 		{
