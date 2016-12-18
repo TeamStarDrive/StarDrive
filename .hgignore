@@ -11,3 +11,7 @@ UpgradeLog2.htm
 Deploy/Upload/
 Deploy/
 *.suo
+StarDrive/
+SDNative\SDNative.vcxproj
+x64\Debug\SDNative.lib
+x64/
