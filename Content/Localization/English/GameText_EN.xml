@@ -8005,7 +8005,23 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>6186</Index>
-      <Text>Targets</Text>
+      <Text>FCS Bonus</Text>
+    </Token>
+	<Token>
+      <Index>6187</Index>
+      <Text>Fire Control</Text>
+    </Token>
+	<Token>
+      <Index>6188</Index>
+      <Text>FCS Power</Text>
+    </Token>
+	<Token>
+      <Index>6189</Index>
+      <Text>ECM</Text>
+    </Token>
+	<Token>
+      <Index>6190</Index>
+      <Text>Total Off</Text>
     </Token>
     
 	<!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -8346,7 +8362,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>7083</Index>
-      <Text>Number of addition targets that can be tracked. A ship with any command can track 1 target. A command module with 0 additional targets can not track PD targets or fire at targets of opportunity unless it has a carrier and experience levels.</Text>
+      <Text>This is a bonus to the number targets that can be tracked by this ship's fire control. As a bonus, it is cumulative and stacks on top of the command module's maximum targets.</Text>
     </Token>
     <Token>
       <Index>7084</Index>
@@ -8355,6 +8371,30 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>7085</Index>
       <Text>Ship will rotate so that forward-firing weapons are facing its target. If in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within minimum weapons range</Text>
+    </Token>
+	<Token>
+      <Index>7086</Index>
+      <Text>This value represents the complexity of this command module's fire control systems. It represents the number of targets on sensors that can be tracked and potentially engaged simultaneously. It does not stack with more command modules.</Text>
+    </Token>
+	<Token>
+      <Index>7087</Index>
+      <Text>This is the total number of targets this ship's fire control systems can track, and fire upon at a time. Higher values allow for greater weapon autonomy, while lower values can limit defenses and make them more prone to being overwhelmed.</Text>
+    </Token>
+	<Token>
+      <Index>7088</Index>
+      <Text>This is the total number of targets this ship's fire control systems can track at a time. This ship can only track a single target, so is incapable of firing at other targets, including incoming projectiles, simultaneously.</Text>
+    </Token>
+	<Token>
+      <Index>7089</Index>
+      <Text>This is the total electronic countermeasure (ECM) value for this ship. It represents the baseline % chance to jam an incoming missile with no ECM resistance.</Text>
+    </Token>
+	<Token>
+      <Index>7090</Index>
+      <Text>This is the maximum sensor range of this vessel: essentially how far this vessel can detect spaceborne objects. A basic local scan is available through command modules; to scan further dedicated sensor modules are required.</Text>
+    </Token>
+	<Token>
+      <Index>7091</Index>
+      <Text>This is this ship's self-repair rate per tick - it can self repair this many hitpoints of a module per tick when outside of combat. Better command and engineering modules improve this.</Text>
     </Token>
   </TokenList>
 </LocalizationFile>

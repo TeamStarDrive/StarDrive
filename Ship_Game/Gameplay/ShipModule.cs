@@ -173,7 +173,7 @@ namespace Ship_Game.Gameplay
         public bool isPowerArmour               { get { return this.Advanced.isPowerArmour; } }
         public bool isBulkhead                  { get { return this.Advanced.isBulkhead; } }
         public sbyte TargetTracking             { get { return this.Advanced.TargetTracking; } }
-
+        public sbyte FixedTracking              { get { return this.Advanced.FixedTracking; } }
         public bool IsWeapon
 		{
 			get
@@ -1715,7 +1715,7 @@ namespace Ship_Game.Gameplay
 			return this.Parent;
 		}
 
-		public void Initialize(Vector2 pos) //Mer
+		public void Initialize(Vector2 pos)
 		{
             DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
 			this.XMLPosition = pos;
@@ -1735,14 +1735,13 @@ namespace Ship_Game.Gameplay
 			this.SetAttributesByType();
 			if (this.Parent != null && this.Parent.loyalty != null)
 			{
-                //bool flag = false;
-                //if (this.HealthMax == base.Health)
-                //    flag = true;
-                this.HealthMax = this.HealthMax + this.HealthMax * this.Parent.loyalty.data.Traits.ModHpModifier;
-				base.Health = base.Health + base.Health * this.Parent.loyalty.data.Traits.ModHpModifier;
-                this.Health = base.Health;
-                //if (flag)
-                //    this.Health = this.HealthMax;
+                float test = this.HealthMax;
+                if (this.ModuleType != ShipModuleType.Dummy)
+                 test = ResourceManager.ShipModulesDict[this.UID].HealthMax;
+                else if(this.ParentOfDummy != null && !string.IsNullOrEmpty(this.ParentOfDummy.UID))
+                    test = ResourceManager.ShipModulesDict[this.ParentOfDummy.UID].HealthMax;
+                this.HealthMax = test + test * this.Parent.loyalty.data.Traits.ModHpModifier;
+                base.Health = this.Health = this.HealthMax;     //Gretman (Health bug fix)
 			}
 			if (!this.isDummy && (this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
 			{

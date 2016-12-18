@@ -53,8 +53,8 @@ namespace Ship_Game
 		public void Draw(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
 		{
 			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar"], this.Housing, Color.White);
-			float scale = (float)this.ActualMap.Width / screen.Size.X;
-			Vector2 MinimapZero = new Vector2((float)this.ActualMap.X, (float)this.ActualMap.Y);
+			float scale = (float)this.ActualMap.Width / (screen.Size.X * 2);        //Updated to play nice with the new negative map values
+			Vector2 MinimapZero = new Vector2((float)this.ActualMap.X + 100, (float)this.ActualMap.Y + 100);
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
 				if (e != EmpireManager.GetEmpireByName(screen.PlayerLoyalty) && !EmpireManager.GetEmpireByName(screen.PlayerLoyalty).GetRelations()[e].Known)
@@ -120,7 +120,7 @@ namespace Ship_Game
 			Vector2 botMiddleView = new Vector2(topMiddleView.X - 1f, (float)(LookingAt.Y + LookingAt.Height));
 			Vector2 leftMiddleView = new Vector2((float)LookingAt.X, (float)(LookingAt.Y + LookingAt.Height / 2));
 			Vector2 rightMiddleView = new Vector2((float)(LookingAt.X + LookingAt.Width), leftMiddleView.Y + 1f);
-			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(topMiddleView.X, MinimapZero.Y), topMiddleView, Color.White);
+			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(topMiddleView.X, MinimapZero.Y - 100), topMiddleView, Color.White);
 			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(botMiddleView.X, (float)(this.ActualMap.Y + this.ActualMap.Height)), botMiddleView, Color.White);
 			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2((float)this.ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
 			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2((float)(this.ActualMap.X + this.ActualMap.Width), rightMiddleView.Y), rightMiddleView, Color.White);

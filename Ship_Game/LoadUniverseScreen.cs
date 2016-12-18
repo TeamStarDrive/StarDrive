@@ -573,9 +573,9 @@ namespace Ship_Game
 			this.data.GravityWells = this.savedData.GravityWells;
             //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
             //this is pretty bad as its not connected to the creating game screen code that sets the map sizes. If someone changes the map size they wont know to change this as well.
-            if (this.data.Size.X > 7300000f)
+            if (this.data.Size.X > 3500000f) 
             Empire.ProjectorRadius = this.data.Size.X / 70f;
-			EmpireManager.EmpireList.Clear();
+			EmpireManager.Clear();
             if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
                 Empire.universeScreen.MasterShipList.Clear();
             
@@ -728,7 +728,7 @@ namespace Ship_Game
 					ship.GetAI().GotoStep = shipData.AISave.GoToStep;
 					ship.GetAI().MovePosition = shipData.AISave.MovePosition;
 					ship.GetAI().OrbitTargetGuid = shipData.AISave.OrbitTarget;
-                    //ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;          //Not referenced in code, removing to save memory -Gretman
+                    //ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;          //Not referenced in code, removing to save memory
                     ship.GetAI().TargetGuid = shipData.AISave.AttackTarget;
 					ship.GetAI().SystemToDefendGuid = shipData.AISave.SystemToDefend;
 					ship.GetAI().EscortTargetGuid = shipData.AISave.EscortTarget;
@@ -1166,70 +1166,71 @@ namespace Ship_Game
 					}
 				}
 			}
-            int shipsPurged = 0;
-            float SpaceSaved = GC.GetTotalMemory(true);
-            foreach(Empire empire in  EmpireManager.EmpireList)
-            {
-                if (empire.data.Defeated && !empire.isFaction)
-                {
-                    List<string> shipkill = new List<string>();
-                    HashSet<string> model =  new HashSet<string>();
-                    foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
-                    {
-                        if (ship.Value.shipData.ShipStyle == empire.data.Traits.ShipType )
-                        {
-                            bool killSwitch = true;
-                            foreach (Empire ebuild in EmpireManager.EmpireList)
-                            {
-                                if (ebuild == empire)
-                                    continue;
-                                if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
-                                {
-                                    killSwitch = false;
-                                    model.Add(ship.Value.shipData.Hull);
-                                    break;
-                                }
-                            }
+            //int shipsPurged = 0;
+            //float SpaceSaved = GC.GetTotalMemory(true);
+            //foreach(Empire empire in  EmpireManager.EmpireList)
+            //{
+            //    if (empire.data.Defeated && !empire.isFaction)
+            //    {
+            //        List<string> shipkill = new List<string>();
+            //        HashSet<string> model =  new HashSet<string>();
+            //        foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
+            //        {
+            //            if (ship.Value.shipData.ShipStyle == empire.data.Traits.ShipType )
+            //            {                            
+
+            //                bool killSwitch = true;
+            //                foreach (Empire ebuild in EmpireManager.EmpireList)
+            //                {
+            //                    if (ebuild == empire)
+            //                        continue;
+            //                    if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
+            //                    {
+            //                        killSwitch = false;
+            //                        model.Add(ship.Value.shipData.Hull);
+            //                        break;
+            //                    }
+            //                }
 
 
-                            if (killSwitch)
-                                foreach (Ship mship in this.data.MasterShipList)
-                                {
-                                    if (ship.Key == mship.Name)
-                                    {
-                                        killSwitch = false;
-                                        model.Add(ship.Value.shipData.Hull);
-                                        break;
-                                    }
-                                }
-                            if (killSwitch)
-                            {
-                                shipsPurged++;
-                                shipkill.Add(ship.Key);
-                            }
-                        }
-                    }
-                    foreach (string shiptoclear in shipkill)
-                    {
-                        ResourceManager.ShipsDict.Remove(shiptoclear);
-                    }
-                    foreach (string hull in empire.GetHDict().Keys)
-                    {
-                        if (model.Contains(hull))
-                            continue;
-                        ResourceManager.ModelDict.Remove(ResourceManager.HullsDict[hull].ModelPath);
+            //                if (killSwitch)
+            //                    foreach (Ship mship in this.data.MasterShipList)
+            //                    {
+            //                        if (ship.Key == mship.Name)
+            //                        {
+            //                            killSwitch = false;
+            //                            model.Add(ship.Value.shipData.Hull);
+            //                            break;
+            //                        }
+            //                    }
+            //                if (killSwitch)
+            //                {
+            //                    shipsPurged++;
+            //                    shipkill.Add(ship.Key);
+            //                }
+            //            }
+            //        }
+            //        foreach (string shiptoclear in shipkill)
+            //        {
+            //            ResourceManager.ShipsDict.Remove(shiptoclear);
+            //        }
+                    //foreach (string hull in empire.GetHDict().Keys)
+                    //{
+                    //    if (model.Contains(hull))
+                    //        continue;
+                    //    ResourceManager.ModelDict.Remove(ResourceManager.HullsDict[hull].ModelPath);
 
 
-                    }
+                    //}
 
-                }
+                //}
 
                 
-            }
-            System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
-            System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(false)).ToString());
+            //}
+            //System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
+            //System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(false)).ToString());
 			this.Loaded = true;
-            UniverseData.UniverseWidth = data.Size.X;
+            UniverseData.UniverseWidth = data.Size.X ;
 		}
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
