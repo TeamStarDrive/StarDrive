@@ -74,8 +74,8 @@ namespace Ship_Game
         public Dictionary<Guid, Planet> PlanetsDict = new Dictionary<Guid, Planet>();
         public Dictionary<Guid, SolarSystem> SolarSystemDict = new Dictionary<Guid, SolarSystem>();
         public BatchRemovalCollection<Bomb> BombList = new BatchRemovalCollection<Bomb>();
-        private AutoResetEvent   DrawCompletedEvt     = new AutoResetEvent(false);
-        private ManualResetEvent ProcessTurnsCompletedEvt = new ManualResetEvent(true);
+        private AutoResetEvent DrawCompletedEvt         = new AutoResetEvent(false);
+        private AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
         public float camHeight = 2550f;
         public Vector3 camPos = Vector3.Zero;
         public List<Ship> ShipsToAdd = new List<Ship>();
@@ -1059,6 +1059,7 @@ namespace Ship_Game
 
         private void ProcessTurns()
         {
+            int failedLoops = 0; // for detecting cyclic crash loops
             while (true)
             {
                 try
@@ -1107,33 +1108,34 @@ namespace Ship_Game
                             AutoSaveTimer = EmpireManager.Player.data.AutoSaveFreq;
                             DoAutoSave();
                         }
-                        if (!IsActive)
-                            continue;
-
-                        if (Paused)
+                        if (IsActive)
                         {
-                            ProcessTurnDelta(0.0f);
-                        }
-                        else if (GameSpeed < 1.0f)
-                        {
-                            if (flip) ProcessTurnDelta(deltaTime);
-                            flip = !flip;
-                        }
-                        else
-                        {
-                            // With higher GameSpeed, we take more than 1 turn
-                            for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
+                            if (Paused)
                             {
-                                ProcessTurnDelta(deltaTime);
-                                deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
+                                ProcessTurnDelta(0.0f);
                             }
+                            else if (GameSpeed < 1.0f)
+                            {
+                                if (flip) ProcessTurnDelta(deltaTime);
+                                flip = !flip;
+                            }
+                            else
+                            {
+                                // With higher GameSpeed, we take more than 1 turn
+                                for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
+                                {
+                                    ProcessTurnDelta(deltaTime);
+                                    deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
+                                }
+                            }
+                            #if AUTOTIME
+                                if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
+                                    ++GameSpeed;
+                                else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
+                            #endif
                         }
-                        #if AUTOTIME
-                            if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
-                                ++GameSpeed;
-                            else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
-                        #endif
                     }
+                    failedLoops = 0; // no exceptions this turn
                 }
                 catch (ThreadAbortException)
                 {
@@ -1141,7 +1143,9 @@ namespace Ship_Game
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("Worker() loop crashed: {0}\n{1}", ex.Message, ex.StackTrace);
+                    if (++failedLoops > 1)
+                        throw ex; // the loop is having a cyclic crash, no way to recover
+                    Log.Error("ProcessTurns: {0}\n{1}", ex.Message, ex.StackTrace);
                 }
                 finally
                 {
@@ -5417,8 +5421,8 @@ namespace Ship_Game
         public override void Draw(GameTime gameTime)
         {
             // Wait for ProcessTurns to finish before we start drawing
-            ProcessTurnsCompletedEvt.WaitOne();
-            ProcessTurnsCompletedEvt.Reset();
+            if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock
+                ProcessTurnsCompletedEvt.WaitOne();
 
             lock (GlobalStats.BeamEffectLocker)
             {
