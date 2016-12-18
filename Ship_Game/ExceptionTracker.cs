@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -102,12 +103,10 @@ namespace Ship_Game
             try
             {
                 active = true;
-                string dts = DateTime.Now.ToString("yyyy-MM-dd hh-mm-ss");
+                string dts  = DateTime.Now.ToString("yyyy-MM-dd hh-mm-ss");
                 string path = AppDomain.CurrentDomain.BaseDirectory + "Exception " + dts + ".log";
-                System.IO.StreamWriter file = new System.IO.StreamWriter(path);
-                file.Write(GenerateErrorLines(ex));
-                file.Close();
-                
+                using (var file = new StreamWriter(path))
+                    file.Write(GenerateErrorLines(ex));
             }
             catch (Exception)
             {

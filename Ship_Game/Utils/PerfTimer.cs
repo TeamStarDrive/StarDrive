@@ -66,7 +66,7 @@ namespace Ship_Game
 
         public override string ToString()
         {
-            return $"{AvgTime*1000f:0.0,+5}ms ({MaxTime*1000f:0.0,+5}ms)";
+            return $"{AvgTime*1000f:0.0,5}ms ({MaxTime*1000f:0.0,5}ms)";
         }
     }
 }
