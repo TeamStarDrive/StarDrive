@@ -429,7 +429,6 @@ namespace Ship_Game
             GlobalStats.freighterlimit = (int)this.FreighterLimiter.amountRange;
             this.AutoSaveFreq.HandleInput(input);
             if(EmpireManager.Player != null) // ? EmpireManager.Player.data.AutoSaveFreq : GlobalStats.AutoSaveFreq) = (int)this.AutoSaveFreq.amountRange; 
-            EmpireManager.Player.data.AutoSaveFreq = (int)this.AutoSaveFreq.amountRange;                        
             GlobalStats.AutoSaveFreq = (int)this.AutoSaveFreq.amountRange;
 
             if (!this.ResolutionDropDown.Open)// && !this.AntiAliasingDD.Open)

@@ -4,31 +4,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
+using MsgPack.Serialization;
 
 namespace Ship_Game.Gameplay
 {
-	public sealed class MilitaryTask: IDisposable
+	public sealed class MilitaryTask : IDisposable
 	{
-		public bool IsCoreFleetTask;
-        public bool WaitForCommand;
-        public List<Guid> HeldGoals = new List<Guid>();
-        public int Step;
-        public Guid TargetPlanetGuid = Guid.Empty;
-		public MilitaryTask.TaskType type;
-		public Vector2 AO;
-		public float AORadius;
-		public float InitialEnemyStrength;
-		public float EnemyStrength;
-		public float StartingStrength;
-		public float MinimumTaskForceStrength;
-		private Planet TargetPlanet;
-		public float TaskTimer;
-		private Empire empire;
-		public bool IsToughNut;
-		public int NeededTroopStrength;
-		private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
-		public int WhichFleet = -1;
-        private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
+        [MessagePackMember(0)] public bool IsCoreFleetTask;
+        [MessagePackMember(1)] public bool WaitForCommand;
+        [MessagePackMember(2)] public List<Guid> HeldGoals = new List<Guid>();
+        [MessagePackMember(3)] public int Step;
+        [MessagePackMember(4)] public Guid TargetPlanetGuid = Guid.Empty;
+        [MessagePackMember(5)] public TaskType type;
+        [MessagePackMember(6)] public Vector2 AO;
+        [MessagePackMember(7)] public float AORadius;
+        [MessagePackMember(8)] public float InitialEnemyStrength;
+        [MessagePackMember(9)] public float EnemyStrength;
+        [MessagePackMember(10)] public float StartingStrength;
+        [MessagePackMember(11)] public float MinimumTaskForceStrength;
+        [MessagePackMember(12)] public float TaskTimer;
+        [MessagePackMember(13)] public int WhichFleet = -1;
+        [MessagePackMember(14)] public bool IsToughNut;
+        [MessagePackMember(15)] public int NeededTroopStrength;
+
+        [XmlIgnore][MessagePackIgnore] private Planet TargetPlanet;
+        [XmlIgnore][MessagePackIgnore] private Empire empire;
+        [XmlIgnore][MessagePackIgnore] private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][MessagePackIgnore] private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
 
         //This file Refactored by Gretman
 

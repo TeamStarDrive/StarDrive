@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
@@ -53,9 +52,9 @@ namespace Ship_Game.Gameplay
         private bool InCombat;
         public int TaskStep;
         public bool IsCoreFleet;
-        [XmlIgnore][ScriptIgnore]
+        [XmlIgnore]
         public Vector2 StoredFleetPosition;
-        [XmlIgnore][ScriptIgnore]
+        [XmlIgnore]
         public float StoredFleetDistancetoMove;
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
@@ -547,7 +546,7 @@ namespace Ship_Game.Gameplay
                         s.GetAI().OrderThrustTowardsPosition(this.Position + s.FleetOffset, this.facing, new Vector2(0.0f, -1f), true);
                 }
                 FleetDataNode fleetDataNode = new FleetDataNode();
-                fleetDataNode.SetShip(s);
+                fleetDataNode.Ship = s;
                 fleetDataNode.ShipName = s.Name;
                 fleetDataNode.FleetOffset = s.RelativeFleetOffset;
                 fleetDataNode.OrdersOffset = s.RelativeFleetOffset;

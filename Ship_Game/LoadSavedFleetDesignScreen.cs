@@ -45,11 +45,11 @@ namespace Ship_Game
 
             if (GlobalStats.ActiveMod != null && Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns")))
             {
-                filesFromDirectory = HelperFunctions.GetFilesFromDirectory(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns"));
+                filesFromDirectory = Dir.GetFiles(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/FleetDesigns"));
             }
             else
             {
-                filesFromDirectory = HelperFunctions.GetFilesFromDirectory("Content/FleetDesigns");
+                filesFromDirectory = Dir.GetFiles("Content/FleetDesigns");
             }
 
 			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
@@ -72,7 +72,7 @@ namespace Ship_Game
 				}
 			}
 
-			FileInfo[] fileInfoArray = HelperFunctions.GetFilesFromDirectory(this.Path);            // player made fleets, can be deleted
+			FileInfo[] fileInfoArray = Dir.GetFiles(this.Path);            // player made fleets, can be deleted
 			for (int j = 0; j < (int)fileInfoArray.Length; j++)
 			{
 				FileInfo FI = fileInfoArray[j];
