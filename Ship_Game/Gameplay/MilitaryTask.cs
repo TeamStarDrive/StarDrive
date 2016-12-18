@@ -5,33 +5,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class MilitaryTask : IDisposable
 	{
-        [MessagePackMember(0)] public bool IsCoreFleetTask;
-        [MessagePackMember(1)] public bool WaitForCommand;
-        [MessagePackMember(2)] public List<Guid> HeldGoals = new List<Guid>();
-        [MessagePackMember(3)] public int Step;
-        [MessagePackMember(4)] public Guid TargetPlanetGuid = Guid.Empty;
-        [MessagePackMember(5)] public TaskType type;
-        [MessagePackMember(6)] public Vector2 AO;
-        [MessagePackMember(7)] public float AORadius;
-        [MessagePackMember(8)] public float InitialEnemyStrength;
-        [MessagePackMember(9)] public float EnemyStrength;
-        [MessagePackMember(10)] public float StartingStrength;
-        [MessagePackMember(11)] public float MinimumTaskForceStrength;
-        [MessagePackMember(12)] public float TaskTimer;
-        [MessagePackMember(13)] public int WhichFleet = -1;
-        [MessagePackMember(14)] public bool IsToughNut;
-        [MessagePackMember(15)] public int NeededTroopStrength;
+        [Serialize(0)] public bool IsCoreFleetTask;
+        [Serialize(1)] public bool WaitForCommand;
+        [Serialize(2)] public List<Guid> HeldGoals = new List<Guid>();
+        [Serialize(3)] public int Step;
+        [Serialize(4)] public Guid TargetPlanetGuid = Guid.Empty;
+        [Serialize(5)] public TaskType type;
+        [Serialize(6)] public Vector2 AO;
+        [Serialize(7)] public float AORadius;
+        [Serialize(8)] public float InitialEnemyStrength;
+        [Serialize(9)] public float EnemyStrength;
+        [Serialize(10)] public float StartingStrength;
+        [Serialize(11)] public float MinimumTaskForceStrength;
+        [Serialize(12)] public float TaskTimer;
+        [Serialize(13)] public int WhichFleet = -1;
+        [Serialize(14)] public bool IsToughNut;
+        [Serialize(15)] public int NeededTroopStrength;
 
-        [XmlIgnore][MessagePackIgnore] private Planet TargetPlanet;
-        [XmlIgnore][MessagePackIgnore] private Empire empire;
-        [XmlIgnore][MessagePackIgnore] private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
-        [XmlIgnore][MessagePackIgnore] private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
+        [XmlIgnore][JsonIgnore] private Planet TargetPlanet;
+        [XmlIgnore][JsonIgnore] private Empire empire;
+        [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][JsonIgnore] private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
 
         //This file Refactored by Gretman
 

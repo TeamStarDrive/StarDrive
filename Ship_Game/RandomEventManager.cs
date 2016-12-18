@@ -1,16 +1,16 @@
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
     public sealed class RandomEvent
     {
-        [MessagePackMember(0)] public string Name;
-        [MessagePackMember(1)] public string NotificationString;
-        [MessagePackMember(2)] public int TurnTimer;
-        [MessagePackMember(3)] public bool InhibitWarp;
+        [Serialize(0)] public string Name;
+        [Serialize(1)] public string NotificationString;
+        [Serialize(2)] public int TurnTimer;
+        [Serialize(3)] public bool InhibitWarp;
     }
 
     public sealed class RandomEventManager

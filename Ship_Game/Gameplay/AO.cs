@@ -2,30 +2,30 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class AO : IDisposable
 	{
-        [XmlIgnore][MessagePackIgnore] private Planet CoreWorld;
-        [XmlIgnore][MessagePackIgnore] private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
-        [XmlIgnore][MessagePackIgnore] private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
-        [XmlIgnore][MessagePackIgnore] private Fleet CoreFleet = new Fleet();
-        [XmlIgnore][MessagePackIgnore] private readonly List<Ship> ShipsWaitingForCoreFleet = new List<Ship>();
-        [XmlIgnore][MessagePackIgnore] private List<Planet> PlanetsInAO = new List<Planet>();
-        [XmlIgnore][MessagePackIgnore] private bool disposed;
-        [XmlIgnore][MessagePackIgnore] public Vector2 Position => CoreWorld.Position;
+        [XmlIgnore][JsonIgnore] private Planet CoreWorld;
+        [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][JsonIgnore] private Fleet CoreFleet = new Fleet();
+        [XmlIgnore][JsonIgnore] private readonly List<Ship> ShipsWaitingForCoreFleet = new List<Ship>();
+        [XmlIgnore][JsonIgnore] private List<Planet> PlanetsInAO = new List<Planet>();
+        [XmlIgnore][JsonIgnore] private bool disposed;
+        [XmlIgnore][JsonIgnore] public Vector2 Position => CoreWorld.Position;
 
-        [MessagePackMember(0)] public int ThreatLevel;
-        [MessagePackMember(1)] public Guid CoreWorldGuid;
-        [MessagePackMember(2)] public List<Guid> OffensiveForceGuids = new List<Guid>();
-        [MessagePackMember(3)] public List<Guid> ShipsWaitingGuids = new List<Guid>();
-        [MessagePackMember(4)] public Guid fleetGuid;
-        [MessagePackMember(5)] public int WhichFleet = -1;
-        [MessagePackMember(6)] private bool Flip;
-        [MessagePackMember(7)] public float Radius;
-        [MessagePackMember(8)] public int TurnsToRelax;
+        [Serialize(0)] public int ThreatLevel;
+        [Serialize(1)] public Guid CoreWorldGuid;
+        [Serialize(2)] public List<Guid> OffensiveForceGuids = new List<Guid>();
+        [Serialize(3)] public List<Guid> ShipsWaitingGuids = new List<Guid>();
+        [Serialize(4)] public Guid fleetGuid;
+        [Serialize(5)] public int WhichFleet = -1;
+        [Serialize(6)] private bool Flip;
+        [Serialize(7)] public float Radius;
+        [Serialize(8)] public int TurnsToRelax;
 
 	    public AO()
 		{
