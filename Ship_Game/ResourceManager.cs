@@ -193,9 +193,9 @@ namespace Ship_Game
 
             }
 
-            System.Diagnostics.Debug.WriteLine("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
-            foreach (string purger in purge)
-                System.Diagnostics.Debug.WriteLine("These are Designs" + purger);
+            //System.Diagnostics.Debug.WriteLine("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
+            //foreach (string purger in purge)
+            //    System.Diagnostics.Debug.WriteLine("These are Designs" + purger);
         }
 
 

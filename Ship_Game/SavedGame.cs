@@ -8,15 +8,32 @@ using System.Threading;
 using System.Xml.Serialization;
 using System.Globalization;
 using System.Configuration;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
+    public class SerializeAttribute : Attribute
+    {
+        public int Id { get; set; } = -1;
+
+        public SerializeAttribute()
+        {
+        }
+        public SerializeAttribute(int id)
+        {
+            Id = id;
+        }
+    }
+
 	public sealed class SavedGame
 	{
-        // @todo MessagePack library eats a lot of memory and instance creation is horribly slow
-        private static bool UseMessagePack = false;
-		private readonly UniverseSaveData SaveData = new UniverseSaveData();
+        public static bool NewFormat = true; // use new save format ?
+        public const string NewExt = ".sav";
+        public const string OldExt = ".xml";
+        public const string NewZipExt = ".sav.gz";
+        public const string OldZipExt = ".xml.gz";
+
+        private readonly UniverseSaveData SaveData = new UniverseSaveData();
 		private static Thread SaveThread;
 
         public static bool IsSaving  => SaveThread != null && SaveThread.IsAlive;
@@ -535,32 +552,34 @@ namespace Ship_Game
 		    SaveThread.Start(SaveData);
 		}
 
-		private static void SaveUniverseDataAsync(object universeSaveData)
+        private static void SaveUniverseDataAsync(object universeSaveData)
 		{
 			UniverseSaveData data = (UniverseSaveData)universeSaveData;
             try
             {
-                string ext = UseMessagePack ? ".sav" : ".xml";
+                string ext = NewFormat ? NewExt : OldExt;
                 FileInfo info = new FileInfo(data.path + "/StarDrive/Saved Games/" + data.SaveAs + ext);
                 using (FileStream writeStream = info.OpenWrite())
                 {
                     var t = PerfTimer.StartNew();
-                    if (UseMessagePack)
+                    if (NewFormat)
                     {
-                        var t1 = PerfTimer.StartNew();
-                        var ctx = new SerializationContext { SerializationMethod = SerializationMethod.Array };
-                        var ser = MessagePackSerializer.Get<UniverseSaveData>(ctx);
-                        float e1 = t1.Elapsed;
-                        ser.Pack(writeStream, data);
-                        Log.Warning("MPACK Total Save elapsed: {0}s  serializer: {1}s", t.Elapsed, e1);
+                        using (var textWriter = new StreamWriter(writeStream))
+                        {
+                            var ser = new JsonSerializer
+                            {
+                                NullValueHandling = NullValueHandling.Ignore,
+                                DefaultValueHandling = DefaultValueHandling.Ignore,
+                            };
+                            ser.Serialize(textWriter, data);
+                        }
+                        Log.Warning("JSON Total Save elapsed: {0}s", t.Elapsed);
                     }
                     else
                     {
-                        var t1 = PerfTimer.StartNew();
                         var ser = new XmlSerializer(typeof(UniverseSaveData));
-                        float e1 = t1.Elapsed;
                         ser.Serialize(writeStream, data);
-                        Log.Warning("XML Total Save elapsed: {0}s  serializer: {1}s", t.Elapsed, e1);
+                        Log.Warning("XML Total Save elapsed: {0}s", t.Elapsed);
                     }
                 }
                 HelperFunctions.Compress(info);
@@ -584,7 +603,9 @@ namespace Ship_Game
 			};
             using (var wf = new StreamWriter(data.path + "/StarDrive/Saved Games/Headers/" + data.SaveAs + ".xml"))
                 new XmlSerializer(typeof(HeaderData)).Serialize(wf, header);
-		}
+
+            HelperFunctions.CollectMemory();
+        }
 
         public static UniverseSaveData DeserializeFromCompressedSave(FileInfo compressedSave)
         {
@@ -592,25 +613,23 @@ namespace Ship_Game
             FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(compressedSave));
 
             var t = PerfTimer.StartNew();
-            if (decompressed.Extension == ".sav") // new MsgPack savegame format
+            if (decompressed.Extension == NewExt) // new save format
             {
-                var t1 = PerfTimer.StartNew();
-                long mem = GC.GetTotalMemory(false);
-
-                var ctx = new SerializationContext { SerializationMethod = SerializationMethod.Array };
-                var serializer = MessagePackSerializer.Get<UniverseSaveData>(ctx);
-
-                long serSize = GC.GetTotalMemory(false) - mem;
-                float e1 = t1.Elapsed;
-
                 using (FileStream stream = decompressed.OpenRead())
-                    usData = serializer.Unpack(stream);
+                using (var reader = new JsonTextReader(new StreamReader(stream)))
+                {
+                    var ser = new JsonSerializer
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore,
+                    };
+                    usData = ser.Deserialize<UniverseSaveData>(reader);
+                }
 
-                Log.Warning("MPACK Total Load elapsed: {0}s  serializer: {1}s  mem: {2}MB", t.Elapsed, e1, serSize/(1024f*1024f));
+                Log.Warning("JSON Total Load elapsed: {0}s  ", t.Elapsed);
             }
             else // old 100MB XML savegame format (haha)
             {
-                var t1 = PerfTimer.StartNew();
                 long mem = GC.GetTotalMemory(false);
 
                 XmlSerializer serializer1;
@@ -620,294 +639,295 @@ namespace Ship_Game
                 }
                 catch
                 {
-                    var attributeOverrides = new XmlAttributeOverrides();
-                    attributeOverrides.Add(typeof(SolarSystemSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
-                    attributeOverrides.Add(typeof(EmpireSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
-                    serializer1 = new XmlSerializer(typeof(UniverseSaveData), attributeOverrides);
+                    var attrOpts = new XmlAttributeOverrides();
+                    attrOpts.Add(typeof(SolarSystemSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
+                    attrOpts.Add(typeof(EmpireSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
+                    serializer1 = new XmlSerializer(typeof(UniverseSaveData), attrOpts);
                 }
 
                 long serSize = GC.GetTotalMemory(false) - mem;
-                float e1 = t1.Elapsed;
 
                 using (FileStream stream = decompressed.OpenRead())
                     usData = (UniverseSaveData)serializer1.Deserialize(stream);
 
-                Log.Warning("XML Total Load elapsed: {0}s  serializer: {1}s  mem: {2}MB", t.Elapsed, e1, serSize / (1024f * 1024f));
+                Log.Warning("XML Total Load elapsed: {0}s  mem: {1}MB", t.Elapsed, serSize / (1024f * 1024f));
             }
             decompressed.Delete();
+
+            HelperFunctions.CollectMemory();
             return usData;
         }
 
         public struct EmpireSaveData
 		{
-			[MessagePackMember(0)] public string Name;
-			[MessagePackMember(1)] public List<Relationship> Relations;
-			[MessagePackMember(2)] public List<SpaceRoadSave> SpaceRoadData;
-			[MessagePackMember(3)] public bool IsFaction;
-            [MessagePackMember(4)] public bool isMinorRace;
-			[MessagePackMember(5)] public RacialTrait Traits;
-			[MessagePackMember(6)] public EmpireData empireData;
-			[MessagePackMember(7)] public List<ShipSaveData> OwnedShips;
-			[MessagePackMember(8)] public float Research;
-			[MessagePackMember(9)] public float Money;
-			[MessagePackMember(10)] public List<TechEntry> TechTree;
-			[MessagePackMember(11)] public GSAISAVE GSAIData;
-			[MessagePackMember(12)] public string ResearchTopic;
-			[MessagePackMember(13)] public List<AO> AOs;
-			[MessagePackMember(14)] public List<FleetSave> FleetsList;
-            [MessagePackMember(15)] public string CurrentAutoFreighter;
-            [MessagePackMember(16)] public string CurrentAutoColony;
-            [MessagePackMember(17)] public string CurrentAutoScout;
-            [MessagePackMember(18)] public string CurrentConstructor;
+			[Serialize(0)] public string Name;
+			[Serialize(1)] public List<Relationship> Relations;
+			[Serialize(2)] public List<SpaceRoadSave> SpaceRoadData;
+			[Serialize(3)] public bool IsFaction;
+            [Serialize(4)] public bool isMinorRace;
+			[Serialize(5)] public RacialTrait Traits;
+			[Serialize(6)] public EmpireData empireData;
+			[Serialize(7)] public List<ShipSaveData> OwnedShips;
+			[Serialize(8)] public float Research;
+			[Serialize(9)] public float Money;
+			[Serialize(10)] public List<TechEntry> TechTree;
+			[Serialize(11)] public GSAISAVE GSAIData;
+			[Serialize(12)] public string ResearchTopic;
+			[Serialize(13)] public List<AO> AOs;
+			[Serialize(14)] public List<FleetSave> FleetsList;
+            [Serialize(15)] public string CurrentAutoFreighter;
+            [Serialize(16)] public string CurrentAutoColony;
+            [Serialize(17)] public string CurrentAutoScout;
+            [Serialize(18)] public string CurrentConstructor;
 		}
 
 		public struct FleetSave
 		{
-            [MessagePackMember(0)] public bool IsCoreFleet;
-            [MessagePackMember(1)] public string Name;
-            [MessagePackMember(2)] public int TaskStep;
-            [MessagePackMember(3)] public Vector2 Position;
-            [MessagePackMember(4)] public Guid FleetGuid;
-            [MessagePackMember(5)] public float facing;
-            [MessagePackMember(6)] public int Key;
-            [MessagePackMember(7)] public List<FleetShipSave> ShipsInFleet;
-            [MessagePackMember(8)] public List<FleetDataNode> DataNodes;
+            [Serialize(0)] public bool IsCoreFleet;
+            [Serialize(1)] public string Name;
+            [Serialize(2)] public int TaskStep;
+            [Serialize(3)] public Vector2 Position;
+            [Serialize(4)] public Guid FleetGuid;
+            [Serialize(5)] public float facing;
+            [Serialize(6)] public int Key;
+            [Serialize(7)] public List<FleetShipSave> ShipsInFleet;
+            [Serialize(8)] public List<FleetDataNode> DataNodes;
 		}
 
 		public struct FleetShipSave
 		{
-			[MessagePackMember(0)] public Guid shipGuid;
-			[MessagePackMember(1)] public Vector2 fleetOffset;
+			[Serialize(0)] public Guid shipGuid;
+			[Serialize(1)] public Vector2 fleetOffset;
 		}
 
 		public struct GoalSave
 		{
-			[MessagePackMember(0)] public GoalType type;
-			[MessagePackMember(1)] public int GoalStep;
-			[MessagePackMember(2)] public Guid markedPlanetGuid;
-			[MessagePackMember(3)] public Guid colonyShipGuid;
-			[MessagePackMember(4)] public Vector2 BuildPosition;
-			[MessagePackMember(5)] public string ToBuildUID;
-			[MessagePackMember(6)] public Guid planetWhereBuildingAtGuid;
-			[MessagePackMember(7)] public string GoalName;
-			[MessagePackMember(8)] public Guid beingBuiltGUID;
-			[MessagePackMember(9)] public Guid fleetGuid;
-			[MessagePackMember(10)] public Guid GoalGuid;
+			[Serialize(0)] public GoalType type;
+			[Serialize(1)] public int GoalStep;
+			[Serialize(2)] public Guid markedPlanetGuid;
+			[Serialize(3)] public Guid colonyShipGuid;
+			[Serialize(4)] public Vector2 BuildPosition;
+			[Serialize(5)] public string ToBuildUID;
+			[Serialize(6)] public Guid planetWhereBuildingAtGuid;
+			[Serialize(7)] public string GoalName;
+			[Serialize(8)] public Guid beingBuiltGUID;
+			[Serialize(9)] public Guid fleetGuid;
+			[Serialize(10)] public Guid GoalGuid;
 		}
 
 		public class GSAISAVE
 		{
-            [MessagePackMember(0)] public List<int> UsedFleets;
-			[MessagePackMember(1)] public List<GoalSave> Goals;
-			[MessagePackMember(2)] public List<MilitaryTask> MilitaryTaskList;
-			[MessagePackMember(3)] public List<Guid> PinGuids;
-			[MessagePackMember(4)] public List<ThreatMatrix.Pin> PinList;
+            [Serialize(0)] public List<int> UsedFleets;
+			[Serialize(1)] public List<GoalSave> Goals;
+			[Serialize(2)] public List<MilitaryTask> MilitaryTaskList;
+			[Serialize(3)] public List<Guid> PinGuids;
+			[Serialize(4)] public List<ThreatMatrix.Pin> PinList;
 		}
 
 		public struct PGSData
 		{
-			[MessagePackMember(0)] public int x;
-			[MessagePackMember(1)] public int y;
-			[MessagePackMember(2)] public List<Troop> TroopsHere;
-			[MessagePackMember(3)] public bool Biosphere;
-			[MessagePackMember(4)] public Building building;
-			[MessagePackMember(5)] public bool Habitable;
-			[MessagePackMember(6)] public int foodbonus;
-			[MessagePackMember(7)] public int resbonus;
-			[MessagePackMember(8)] public int prodbonus;
+			[Serialize(0)] public int x;
+			[Serialize(1)] public int y;
+			[Serialize(2)] public List<Troop> TroopsHere;
+			[Serialize(3)] public bool Biosphere;
+			[Serialize(4)] public Building building;
+			[Serialize(5)] public bool Habitable;
+			[Serialize(6)] public int foodbonus;
+			[Serialize(7)] public int resbonus;
+			[Serialize(8)] public int prodbonus;
 		}
 
 		public struct PlanetSaveData
 		{
-			[MessagePackMember(0)] public Guid guid;
-            [MessagePackMember(1)] public string SpecialDescription;
-			[MessagePackMember(2)] public string Name;
-            [MessagePackMember(3)] public float Scale;
-			[MessagePackMember(4)] public string Owner;
-			[MessagePackMember(5)] public float Population;
-			[MessagePackMember(6)] public float PopulationMax;
-			[MessagePackMember(7)] public float Fertility;
-			[MessagePackMember(8)] public float Richness;
-			[MessagePackMember(9)] public int WhichPlanet;
-			[MessagePackMember(10)] public float OrbitalAngle;
-			[MessagePackMember(11)] public float OrbitalDistance;
-			[MessagePackMember(12)] public float Radius;
-			[MessagePackMember(13)] public bool HasRings;
-			[MessagePackMember(14)] public float farmerPercentage;
-			[MessagePackMember(15)] public float workerPercentage;
-			[MessagePackMember(16)] public float researcherPercentage;
-			[MessagePackMember(17)] public float foodHere;
-			[MessagePackMember(18)] public float prodHere;
-			[MessagePackMember(19)] public List<PGSData> PGSList;
-			[MessagePackMember(20)] public bool GovernorOn;
-			[MessagePackMember(21)] public List<QueueItemSave> QISaveList;
-			[MessagePackMember(22)] public Planet.ColonyType ColonyType;
-			[MessagePackMember(23)] public Planet.GoodState FoodState;
-			[MessagePackMember(24)] public int Crippled_Turns;
-			[MessagePackMember(25)] public Planet.GoodState ProdState;
-			[MessagePackMember(26)] public List<string> EmpiresThatKnowThisPlanet;
-			[MessagePackMember(27)] public float TerraformPoints;
-			[MessagePackMember(28)] public List<Guid> StationsList;
-			[MessagePackMember(29)] public bool FoodLock;
-			[MessagePackMember(30)] public bool ResLock;
-			[MessagePackMember(31)] public bool ProdLock;
-			[MessagePackMember(32)] public float ShieldStrength;
+			[Serialize(0)] public Guid guid;
+            [Serialize(1)] public string SpecialDescription;
+			[Serialize(2)] public string Name;
+            [Serialize(3)] public float Scale;
+			[Serialize(4)] public string Owner;
+			[Serialize(5)] public float Population;
+			[Serialize(6)] public float PopulationMax;
+			[Serialize(7)] public float Fertility;
+			[Serialize(8)] public float Richness;
+			[Serialize(9)] public int WhichPlanet;
+			[Serialize(10)] public float OrbitalAngle;
+			[Serialize(11)] public float OrbitalDistance;
+			[Serialize(12)] public float Radius;
+			[Serialize(13)] public bool HasRings;
+			[Serialize(14)] public float farmerPercentage;
+			[Serialize(15)] public float workerPercentage;
+			[Serialize(16)] public float researcherPercentage;
+			[Serialize(17)] public float foodHere;
+			[Serialize(18)] public float prodHere;
+			[Serialize(19)] public List<PGSData> PGSList;
+			[Serialize(20)] public bool GovernorOn;
+			[Serialize(21)] public List<QueueItemSave> QISaveList;
+			[Serialize(22)] public Planet.ColonyType ColonyType;
+			[Serialize(23)] public Planet.GoodState FoodState;
+			[Serialize(24)] public int Crippled_Turns;
+			[Serialize(25)] public Planet.GoodState ProdState;
+			[Serialize(26)] public List<string> EmpiresThatKnowThisPlanet;
+			[Serialize(27)] public float TerraformPoints;
+			[Serialize(28)] public List<Guid> StationsList;
+			[Serialize(29)] public bool FoodLock;
+			[Serialize(30)] public bool ResLock;
+			[Serialize(31)] public bool ProdLock;
+			[Serialize(32)] public float ShieldStrength;
 		}
 
 		public struct ProjectileSaveData
 		{
-			[MessagePackMember(0)] public string Weapon;
-			[MessagePackMember(1)] public float Duration;
-			[MessagePackMember(2)] public float Rotation;
-			[MessagePackMember(3)] public Vector2 Velocity;
-			[MessagePackMember(4)] public Vector2 Position;
+			[Serialize(0)] public string Weapon;
+			[Serialize(1)] public float Duration;
+			[Serialize(2)] public float Rotation;
+			[Serialize(3)] public Vector2 Velocity;
+			[Serialize(4)] public Vector2 Position;
 		}
 
 		public struct QueueItemSave
 		{
-			[MessagePackMember(0)] public string UID;
-			[MessagePackMember(1)] public Guid GoalGUID;
-			[MessagePackMember(2)] public float ProgressTowards;
-			[MessagePackMember(3)] public bool isBuilding;
-			[MessagePackMember(4)] public bool isTroop;
-			[MessagePackMember(5)] public bool isShip;
-			[MessagePackMember(6)] public string DisplayName;
-			[MessagePackMember(7)] public bool IsRefit;
-			[MessagePackMember(8)] public float RefitCost;
-			[MessagePackMember(9)] public Vector2 pgsVector;
-            [MessagePackMember(10)] public bool isPlayerAdded;
+			[Serialize(0)] public string UID;
+			[Serialize(1)] public Guid GoalGUID;
+			[Serialize(2)] public float ProgressTowards;
+			[Serialize(3)] public bool isBuilding;
+			[Serialize(4)] public bool isTroop;
+			[Serialize(5)] public bool isShip;
+			[Serialize(6)] public string DisplayName;
+			[Serialize(7)] public bool IsRefit;
+			[Serialize(8)] public float RefitCost;
+			[Serialize(9)] public Vector2 pgsVector;
+            [Serialize(10)] public bool isPlayerAdded;
 		}
 
 		public struct RingSave
 		{
-			[MessagePackMember(0)] public PlanetSaveData Planet;
-			[MessagePackMember(1)] public bool Asteroids;
-			[MessagePackMember(2)] public float OrbitalDistance;
+			[Serialize(0)] public PlanetSaveData Planet;
+			[Serialize(1)] public bool Asteroids;
+			[Serialize(2)] public float OrbitalDistance;
 		}
 
 		public struct RoadNodeSave
 		{
-			[MessagePackMember(0)] public Vector2 Position;
-			[MessagePackMember(1)] public Guid Guid_Platform;
+			[Serialize(0)] public Vector2 Position;
+			[Serialize(1)] public Guid Guid_Platform;
 		}
 
 		public struct ShipAISave
 		{
-			[MessagePackMember(0)] public AIState state;
-			[MessagePackMember(1)] public int numFood;
-			[MessagePackMember(2)] public int numProd;
-			[MessagePackMember(3)] public string FoodOrProd;
-			[MessagePackMember(4)] public AIState defaultstate;
-			[MessagePackMember(5)] public List<ShipGoalSave> ShipGoalsList;
-			[MessagePackMember(6)] public List<Vector2> ActiveWayPoints;
-			[MessagePackMember(7)] public Guid startGuid;
-			[MessagePackMember(8)] public Guid endGuid;
-			[MessagePackMember(9)] public int GoToStep;
-			[MessagePackMember(10)] public Vector2 MovePosition;
-			[MessagePackMember(11)] public Guid OrbitTarget;
-			[MessagePackMember(12)] public Guid ColonizeTarget;
-			[MessagePackMember(13)] public Guid SystemToDefend;
-			[MessagePackMember(14)] public Guid AttackTarget;
-			[MessagePackMember(15)] public Guid EscortTarget;
+			[Serialize(0)] public AIState state;
+			[Serialize(1)] public int numFood;
+			[Serialize(2)] public int numProd;
+			[Serialize(3)] public string FoodOrProd;
+			[Serialize(4)] public AIState defaultstate;
+			[Serialize(5)] public List<ShipGoalSave> ShipGoalsList;
+			[Serialize(6)] public List<Vector2> ActiveWayPoints;
+			[Serialize(7)] public Guid startGuid;
+			[Serialize(8)] public Guid endGuid;
+			[Serialize(9)] public int GoToStep;
+			[Serialize(10)] public Vector2 MovePosition;
+			[Serialize(11)] public Guid OrbitTarget;
+			[Serialize(12)] public Guid ColonizeTarget;
+			[Serialize(13)] public Guid SystemToDefend;
+			[Serialize(14)] public Guid AttackTarget;
+			[Serialize(15)] public Guid EscortTarget;
 		}
 
 		public struct ShipGoalSave
 		{
-			[MessagePackMember(0)] public ArtificialIntelligence.Plan Plan;
-			[MessagePackMember(1)] public Guid goalGuid;
-			[MessagePackMember(2)] public string VariableString;
-			[MessagePackMember(3)] public Guid fleetGuid;
-			[MessagePackMember(4)] public float SpeedLimit;
-			[MessagePackMember(5)] public Vector2 MovePosition;
-			[MessagePackMember(6)] public float DesiredFacing;
-			[MessagePackMember(7)] public float FacingVector;
-			[MessagePackMember(8)] public Guid TargetPlanetGuid;
+			[Serialize(0)] public ArtificialIntelligence.Plan Plan;
+			[Serialize(1)] public Guid goalGuid;
+			[Serialize(2)] public string VariableString;
+			[Serialize(3)] public Guid fleetGuid;
+			[Serialize(4)] public float SpeedLimit;
+			[Serialize(5)] public Vector2 MovePosition;
+			[Serialize(6)] public float DesiredFacing;
+			[Serialize(7)] public float FacingVector;
+			[Serialize(8)] public Guid TargetPlanetGuid;
 		}
 
 		public struct ShipSaveData
 		{
-			[MessagePackMember(0)] public Guid guid;
-			[MessagePackMember(1)] public bool AfterBurnerOn;
-			[MessagePackMember(2)] public ShipAISave AISave;
-			[MessagePackMember(3)] public Vector2 Position;
-			[MessagePackMember(4)] public Vector2 Velocity;
-			[MessagePackMember(5)] public float Rotation;
-			[MessagePackMember(6)] public ShipData data;
-			[MessagePackMember(7)] public string Hull;
-			[MessagePackMember(8)] public string Name;
-            [MessagePackMember(9)] public string VanityName;
-			[MessagePackMember(10)] public bool IsPlayerShip;
-			[MessagePackMember(11)] public float yRotation;
-			[MessagePackMember(12)] public float Power;
-			[MessagePackMember(13)] public float Ordnance;
-			[MessagePackMember(14)] public float InCombatTimer;
-			[MessagePackMember(15)] public float experience;
-			[MessagePackMember(16)] public int kills;
-			[MessagePackMember(17)] public List<Troop> TroopList;
-            [MessagePackMember(18)] public List<Rectangle> AreaOfOperation;
-			[MessagePackMember(19)] public float FoodCount;
-			[MessagePackMember(20)] public float ProdCount;
-			[MessagePackMember(21)] public float PopCount;
-			[MessagePackMember(22)] public Guid TetheredTo;
-			[MessagePackMember(23)] public Vector2 TetherOffset;
-			[MessagePackMember(24)] public List<ProjectileSaveData> Projectiles;
+			[Serialize(0)] public Guid guid;
+			[Serialize(1)] public bool AfterBurnerOn;
+			[Serialize(2)] public ShipAISave AISave;
+			[Serialize(3)] public Vector2 Position;
+			[Serialize(4)] public Vector2 Velocity;
+			[Serialize(5)] public float Rotation;
+			[Serialize(6)] public ShipData data;
+			[Serialize(7)] public string Hull;
+			[Serialize(8)] public string Name;
+            [Serialize(9)] public string VanityName;
+			[Serialize(10)] public bool IsPlayerShip;
+			[Serialize(11)] public float yRotation;
+			[Serialize(12)] public float Power;
+			[Serialize(13)] public float Ordnance;
+			[Serialize(14)] public float InCombatTimer;
+			[Serialize(15)] public float experience;
+			[Serialize(16)] public int kills;
+			[Serialize(17)] public List<Troop> TroopList;
+            [Serialize(18)] public List<Rectangle> AreaOfOperation;
+			[Serialize(19)] public float FoodCount;
+			[Serialize(20)] public float ProdCount;
+			[Serialize(21)] public float PopCount;
+			[Serialize(22)] public Guid TetheredTo;
+			[Serialize(23)] public Vector2 TetherOffset;
+			[Serialize(24)] public List<ProjectileSaveData> Projectiles;
 		}
 
 		public struct SolarSystemSaveData
 		{
-			[MessagePackMember(0)] public Guid guid;
-			[MessagePackMember(1)] public string SunPath;
-			[MessagePackMember(2)] public string Name;
-			[MessagePackMember(3)] public Vector2 Position;
-			[MessagePackMember(4)] public List<RingSave> RingList;
-			[MessagePackMember(5)] public List<Asteroid> AsteroidsList;
-            [MessagePackMember(6)] public List<Moon> Moons;
-			[MessagePackMember(7)] public List<string> EmpiresThatKnowThisSystem;
+			[Serialize(0)] public Guid guid;
+			[Serialize(1)] public string SunPath;
+			[Serialize(2)] public string Name;
+			[Serialize(3)] public Vector2 Position;
+			[Serialize(4)] public List<RingSave> RingList;
+			[Serialize(5)] public List<Asteroid> AsteroidsList;
+            [Serialize(6)] public List<Moon> Moons;
+			[Serialize(7)] public List<string> EmpiresThatKnowThisSystem;
 		}
 
 		public struct SpaceRoadSave
 		{
-			[MessagePackMember(0)] public List<RoadNodeSave> RoadNodes;
-			[MessagePackMember(1)] public Guid OriginGUID;
-			[MessagePackMember(2)] public Guid DestGUID;
+			[Serialize(0)] public List<RoadNodeSave> RoadNodes;
+			[Serialize(1)] public Guid OriginGUID;
+			[Serialize(2)] public Guid DestGUID;
 		}
 
 		public class UniverseSaveData
 		{
-			[MessagePackMember(0)] public string path;
-			[MessagePackMember(1)] public string SaveAs;
-			[MessagePackMember(2)] public string FileName;
-			[MessagePackMember(3)] public string FogMapName;
-			[MessagePackMember(4)] public string PlayerLoyalty;
-			[MessagePackMember(5)] public Vector2 campos;
-			[MessagePackMember(6)] public float camheight;
-			[MessagePackMember(7)] public Vector2 Size;
-			[MessagePackMember(8)] public float StarDate;
-			[MessagePackMember(9)] public float GameScale;
-			[MessagePackMember(10)] public float GamePacing;
-			[MessagePackMember(11)] public List<SolarSystemSaveData> SolarSystemDataList;
-			[MessagePackMember(12)] public List<EmpireSaveData> EmpireDataList;
-			[MessagePackMember(13)] public UniverseData.GameDifficulty gameDifficulty;
-			[MessagePackMember(14)] public bool AutoExplore;
-			[MessagePackMember(15)] public bool AutoColonize;
-			[MessagePackMember(16)] public bool AutoFreighters;
-			[MessagePackMember(17)] public bool AutoProjectors;
-			[MessagePackMember(18)] public int RemnantKills;
-            [MessagePackMember(19)] public int RemnantActivation;
-            [MessagePackMember(20)] public bool RemnantArmageddon;
-			[MessagePackMember(21)] public float FTLModifier = 1.0f;
-            [MessagePackMember(22)] public float EnemyFTLModifier = 1.0f;
-			[MessagePackMember(23)] public bool GravityWells;
-			[MessagePackMember(24)] public RandomEvent RandomEvent;
-			[MessagePackMember(25)] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
-            [MessagePackMember(26)] public float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
-            [MessagePackMember(27)] public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
-            [MessagePackMember(28)] public float MemoryLimiter    = GlobalStats.MemoryLimiter;
-            [MessagePackMember(29)] public int IconSize;
-            [MessagePackMember(30)] public byte TurnTimer;
-            [MessagePackMember(31)] public bool preventFederations;
-            [MessagePackMember(32)] public float GravityWellRange = GlobalStats.GravityWellRange;
-            [MessagePackMember(33)] public bool EliminationMode;
+			[Serialize(0)] public string path;
+			[Serialize(1)] public string SaveAs;
+			[Serialize(2)] public string FileName;
+			[Serialize(3)] public string FogMapName;
+			[Serialize(4)] public string PlayerLoyalty;
+			[Serialize(5)] public Vector2 campos;
+			[Serialize(6)] public float camheight;
+			[Serialize(7)] public Vector2 Size;
+			[Serialize(8)] public float StarDate;
+			[Serialize(9)] public float GameScale;
+			[Serialize(10)] public float GamePacing;
+			[Serialize(11)] public List<SolarSystemSaveData> SolarSystemDataList;
+			[Serialize(12)] public List<EmpireSaveData> EmpireDataList;
+			[Serialize(13)] public UniverseData.GameDifficulty gameDifficulty;
+			[Serialize(14)] public bool AutoExplore;
+			[Serialize(15)] public bool AutoColonize;
+			[Serialize(16)] public bool AutoFreighters;
+			[Serialize(17)] public bool AutoProjectors;
+			[Serialize(18)] public int RemnantKills;
+            [Serialize(19)] public int RemnantActivation;
+            [Serialize(20)] public bool RemnantArmageddon;
+			[Serialize(21)] public float FTLModifier = 1.0f;
+            [Serialize(22)] public float EnemyFTLModifier = 1.0f;
+			[Serialize(23)] public bool GravityWells;
+			[Serialize(24)] public RandomEvent RandomEvent;
+			[Serialize(25)] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
+            [Serialize(26)] public float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+            [Serialize(27)] public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
+            [Serialize(28)] public float MemoryLimiter    = GlobalStats.MemoryLimiter;
+            [Serialize(29)] public int IconSize;
+            [Serialize(30)] public byte TurnTimer;
+            [Serialize(31)] public bool preventFederations;
+            [Serialize(32)] public float GravityWellRange = GlobalStats.GravityWellRange;
+            [Serialize(33)] public bool EliminationMode;
 		}
 
 	}

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
@@ -134,7 +134,7 @@ namespace Ship_Game.Gameplay
         public GameplayObject fireTarget;
         public float TargetChangeTimer;
         public bool PrimaryTarget = false;
-        [XmlIgnore][MessagePackIgnore]
+        [XmlIgnore][JsonIgnore]
         public List<ModuleSlot> AttackerTargetting;// = new List<ModuleSlot>();
 
 		public static AudioListener audioListener { get; set; }

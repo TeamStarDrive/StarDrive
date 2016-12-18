@@ -3,21 +3,21 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Xml.Serialization;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class Moon : GameplayObject
 	{
-        [MessagePackMember(9)]  public float scale;
-        [MessagePackMember(10)] public int   moonType;
-        [MessagePackMember(11)] public Guid  orbitTarget;
-        [MessagePackMember(12)] public float OrbitRadius;
-        [MessagePackMember(13)] public float Zrotate;
-        [MessagePackMember(14)] public float OrbitalAngle;
+        [Serialize(9)]  public float scale;
+        [Serialize(10)] public int   moonType;
+        [Serialize(11)] public Guid  orbitTarget;
+        [Serialize(12)] public float OrbitRadius;
+        [Serialize(13)] public float Zrotate;
+        [Serialize(14)] public float OrbitalAngle;
 
-        [XmlIgnore][MessagePackIgnore] public SceneObject So;
-        [XmlIgnore][MessagePackIgnore] private Planet OrbitPlanet;
+        [XmlIgnore][JsonIgnore] public SceneObject So;
+        [XmlIgnore][JsonIgnore] private Planet OrbitPlanet;
 
 		public Moon()
 		{

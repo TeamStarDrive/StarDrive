@@ -906,6 +906,11 @@ namespace Ship_Game.Gameplay
             };
         }
 
+        public Ship Clone()
+        {
+            return (Ship)MemberwiseClone();
+        }
+
         public float GetCost(Empire e)
         {
             if (this.shipData.HasFixedCost)

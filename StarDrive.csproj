@@ -384,19 +384,18 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Fasterflect">
-      <HintPath>packages\fasterflect.2.1.3\lib\net40\Fasterflect.dll</HintPath>
-    </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
-    <Reference Include="MsgPack, Version=0.9.0.0, Culture=neutral, PublicKeyToken=a2625990d5dc0167, processorArchitecture=MSIL">
-      <HintPath>packages\MsgPack.Cli.0.9.0-beta1\lib\net45\MsgPack.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.9.0.2-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SynapseGaming-SunBurn-Pro">
       <HintPath>StarDrive\SynapseGaming-SunBurn-Pro.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -1852,6 +1851,7 @@
     <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
   <ItemGroup>
@@ -3375,7 +3375,6 @@
     <None Include="Deploy\7-Zip\descript.ion" />
     <None Include="Deploy\7-Zip\Lang\en.ttt" />
     <None Include="Deploy\7-Zip\sd.7z" />
-    <None Include="packages.config" />
     <None Include="Resources\StarTrek-SA.ico" />
   </ItemGroup>
   <ItemGroup>
