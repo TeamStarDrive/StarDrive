@@ -364,5 +364,11 @@ namespace Ship_Game
             Log.Info("CollectMemory After:  {0:0.0}MB", after / (1024f*1024f));
             Log.Info(" ===================== ");
         }
+
+        public static void CollectMemorySilent()
+        {
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        }
     }
 }

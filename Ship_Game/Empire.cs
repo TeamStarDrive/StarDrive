@@ -2175,9 +2175,7 @@ namespace Ship_Game
                         ship.Die(null, true);
                     }
                     Universe.Paused = true;
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                    GC.Collect();                    
+                    HelperFunctions.CollectMemory();
                     Universe.ScreenManager.AddScreen(new YouLoseScreen());
                     Universe.Paused = false;
                     return;
@@ -2186,8 +2184,9 @@ namespace Ship_Game
                     Universe.NotificationManager.AddEmpireDiedNotification(this);
                 return;
             }
-            List<Planet> list1 = new List<Planet>();
-            foreach (Planet planet in this.OwnedPlanets)
+
+            var list1 = new List<Planet>();
+            foreach (Planet planet in OwnedPlanets)
             {
                 if (planet.Owner == null)
                     list1.Add(planet);

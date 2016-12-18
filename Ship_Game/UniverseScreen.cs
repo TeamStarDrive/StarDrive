@@ -84,7 +84,7 @@ namespace Ship_Game
         protected float TimerDelay = 0.25f;
         protected GameTime zgameTime = new GameTime();
         public List<ShipModule> ModulesNeedingReset = new List<ShipModule>();
-        private bool flip = true;
+        private bool TurnFlip = true;
         private int Auto = 1;
         private AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
         private ManualResetEvent SystemThreadGateKeeper = new ManualResetEvent(false);
@@ -1105,19 +1105,15 @@ namespace Ship_Game
                     
                         if (AutoSaveTimer <= 0.0f)
                         {
-                            AutoSaveTimer = EmpireManager.Player.data.AutoSaveFreq;
+                            AutoSaveTimer = GlobalStats.AutoSaveFreq;
                             DoAutoSave();
                         }
                         if (IsActive)
                         {
-                            if (Paused)
+                            if (GameSpeed < 1.0f) // default to 0.5x,
                             {
-                                ProcessTurnDelta(0.0f);
-                            }
-                            else if (GameSpeed < 1.0f)
-                            {
-                                if (flip) ProcessTurnDelta(deltaTime);
-                                flip = !flip;
+                                if (TurnFlip) ProcessTurnDelta(deltaTime);
+                                TurnFlip = !TurnFlip;
                             }
                             else
                             {
@@ -1279,8 +1275,7 @@ namespace Ship_Game
             }
             if (GlobalStats.RemnantArmageddon)
             {
-                if (!Paused)
-                    ArmageddonTimer -= elapsedTime;
+                if (!Paused) ArmageddonTimer -= elapsedTime;
                 if (ArmageddonTimer < 0.0)
                 {
                     ArmageddonTimer = 300f;
@@ -2475,27 +2470,29 @@ namespace Ship_Game
 
         public override void HandleInput(InputState input)
         {
-            if (this.ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && this.ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
-                this.Paused = !this.Paused;
-            if (!this.LookingAtPlanet)
+            if (ScreenManager.input.CurrentKeyboardState.IsKeyDown(Keys.Space) && ScreenManager.input.LastKeyboardState.IsKeyUp(Keys.Space) && !GlobalStats.TakingInput)
+                Paused = !Paused;
+
+            if (!LookingAtPlanet)
             {
-                this.ScreenManager.exitScreenTimer -= .0016f;
-                if (this.ScreenManager.exitScreenTimer > 0f)
+                ScreenManager.exitScreenTimer -= .0016f;
+                if (ScreenManager.exitScreenTimer > 0f)
                     return;
             }
-            else
-            this.ScreenManager.exitScreenTimer = .025f;
+            else ScreenManager.exitScreenTimer = .025f;
 
-            for (int index = 0; index < this.SelectedShipList.Count; ++index)
+            for (int index = 0; index < SelectedShipList.Count; ++index)
             {
-                Ship ship = this.SelectedShipList[index];
+                Ship ship = SelectedShipList[index];
                 if (!ship.Active)
-                    this.SelectedShipList.QueuePendingRemoval(ship);
+                    SelectedShipList.QueuePendingRemoval(ship);
             }
             //CG: previous target code. 
-            if (this.previousSelection != null && input.CurrentMouseState.XButton1 == ButtonState.Pressed && input.LastMouseState.XButton1 == ButtonState.Released)
+            if (previousSelection != null 
+                && input.CurrentMouseState.XButton1 == ButtonState.Pressed 
+                && input.LastMouseState.XButton1 == ButtonState.Released)
             {
-                if (this.previousSelection.Active)
+                if (previousSelection.Active)
                 {
                     Ship tempship = this.previousSelection;
                     if (this.SelectedShip != null && this.SelectedShip != this.previousSelection)
@@ -2541,33 +2538,23 @@ namespace Ship_Game
             if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.active)
             {
                 bool switchedmode = false;
-#if RELEASE //only switch screens in release
+            #if RELEASE //only switch screens in release
                 
                 if (Game1.Instance.graphics.IsFullScreen)
                 {
                     switchedmode = true;
                     Game1.Instance.graphics.ToggleFullScreen();
                 }
-#endif
+            #endif
                 Exception ex = new Exception("Manual Report");
-
-                  ExceptionTracker.TrackException(ex);
-
+                ExceptionTracker.TrackException(ex);
 
                 // if(ExceptionViewer.ActiveForm == null)
                 {
-                    bool paused = false;
-                    if (!this.Paused)
-                    {
-                        paused = true;
-                        this.Paused = true;
-                    }
+                    bool wasPaused = Paused;
+                    Paused = true;
                     ExceptionTracker.DisplayException(ex);
-                    if (paused)
-                    {
-                        
-                        this.Paused = false;
-                    }
+                    Paused = wasPaused;
                 }
                 if (switchedmode)
                 {
@@ -2592,18 +2579,10 @@ namespace Ship_Game
                 ExceptionTracker.Kudos = true;
                 // if(ExceptionViewer.ActiveForm == null)
                 {
-                    bool paused = false;
-                    if (!this.Paused)
-                    {
-                        paused = true;
-                        this.Paused = true;
-                    }
+                    bool wasPaused = Paused;
+                    Paused = true;
                     ExceptionTracker.DisplayException(ex);
-                    if (paused)
-                    {
-
-                        this.Paused = false;
-                    }
+                    Paused = wasPaused;
                 }
                 if (switchedmode)
                 {

@@ -3119,24 +3119,28 @@ namespace Ship_Game.Gameplay
                     //this.Velocity.Length(); //Pretty sure this return value is a useless waste of 0.00012 CPU cycles... -Gretman
                     //Ship ship2 = this;
                     //Vector2 vector2_1 = this.Position + this.Velocity * elapsedTime;
-                    this.Position += this.Velocity * elapsedTime;
+                    Position += Velocity * elapsedTime;
                     //Ship ship3 = this;
                     //Vector2 vector2_2 = this.Center + this.Velocity * elapsedTime;
-                    this.Center += this.Velocity * elapsedTime;
-                    this.UpdateShipStatus(elapsedTime);
-                    if (!this.Active)
+                    Center += Velocity * elapsedTime;
+                    UpdateShipStatus(elapsedTime);
+                    if (!Active)
                         return;
-                    if (!this.disabled && !Ship.universeScreen.Paused) //this.hasCommand &&
-                        this.AI.Update(elapsedTime);
-                    if (this.InFrustum)
+                    if (!disabled && !Empire.Universe.Paused) //this.hasCommand &&
+                        AI.Update(elapsedTime);
+                    if (InFrustum)
                     {
-                        if (this.ShipSO == null)
+                        if (ShipSO == null)
                             return;
-                        this.ShipSO.World = Matrix.Identity * Matrix.CreateRotationY(this.yRotation) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(new Vector3(this.Center, 0.0f));
-                        if (this.shipData.Animated && this.animationController != null)
+                        ShipSO.World = Matrix.Identity 
+                            * Matrix.CreateRotationY(yRotation) 
+                            * Matrix.CreateRotationZ(Rotation) 
+                            * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+
+                        if (shipData.Animated && animationController != null)
                         {
-                            this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
-                            this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                            ShipSO.SkinBones = animationController.SkinnedBoneTransforms;
+                            animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                         }
                         else if (this.shipData != null && this.animationController != null && this.shipData.Animated)
                         {
