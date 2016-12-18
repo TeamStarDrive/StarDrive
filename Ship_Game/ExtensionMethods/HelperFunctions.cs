@@ -8,7 +8,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Xml.Serialization;
-using Fasterflect;
 using static System.Math;
 
 namespace Ship_Game
@@ -357,13 +356,13 @@ namespace Ship_Game
         // Added by RedFox: blocking full blown GC to reduce memory fragmentation
         public static void CollectMemory()
         {
-            Debug.WriteLine(" === CollectMemory === ");
-            Debug.WriteLine("CollectMemory Before: {0:0.0}MB", GC.GetTotalMemory(false) / (1024f*1024f));
+            Log.Info(" === CollectMemory === ");
+            Log.Info("CollectMemory Before: {0:0.0}MB", GC.GetTotalMemory(false) / (1024f*1024f));
 
             // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
             long after = GC.GetTotalMemory(forceFullCollection: true);
-            Debug.WriteLine("CollectMemory After:  {0:0.0}MB", after / (1024f*1024f));
-            Debug.WriteLine(" ===================== ");
+            Log.Info("CollectMemory After:  {0:0.0}MB", after / (1024f*1024f));
+            Log.Info(" ===================== ");
         }
     }
 }

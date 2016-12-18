@@ -2,34 +2,34 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 
 namespace Ship_Game
 {
 	public sealed class Agent
 	{
-        [MessagePackMember(0)] public string Name;
-        [MessagePackMember(1)] public int Level = 1;
-        [MessagePackMember(2)] public int Experience;
-        [MessagePackMember(3)] public AgentMission Mission;
-        [MessagePackMember(4)] public AgentMission PrevisousMission = AgentMission.Training;
-        [MessagePackMember(5)] public string PreviousTarget;
-        [MessagePackMember(6)] public int TurnsRemaining;
-        [MessagePackMember(7)] public string TargetEmpire = "";
-        [MessagePackMember(8)] public Guid TargetGUID;
-        [MessagePackMember(9)] public int MissionNameIndex = 2183;
-        [MessagePackMember(10)] public bool spyMute;
-        [MessagePackMember(11)] public string HomePlanet = "";
-        [MessagePackMember(12)] public float Age = 30f;
-        [MessagePackMember(13)] public float ServiceYears = 0f;
-        [MessagePackMember(14)] public short Assassinations;
-        [MessagePackMember(15)] public short Training;
-        [MessagePackMember(16)] public short Infiltrations;
-        [MessagePackMember(17)] public short Sabotages;
-        [MessagePackMember(18)] public short TechStolen;
-        [MessagePackMember(19)] public short Robberies;
-        [MessagePackMember(20)] public short Rebellions;
+        [Serialize(0)] public string Name;
+        [Serialize(1)] public int Level = 1;
+        [Serialize(2)] public int Experience;
+        [Serialize(3)] public AgentMission Mission;
+        [Serialize(4)] public AgentMission PrevisousMission = AgentMission.Training;
+        [Serialize(5)] public string PreviousTarget;
+        [Serialize(6)] public int TurnsRemaining;
+        [Serialize(7)] public string TargetEmpire = "";
+        [Serialize(8)] public Guid TargetGUID;
+        [Serialize(9)] public int MissionNameIndex = 2183;
+        [Serialize(10)] public bool spyMute;
+        [Serialize(11)] public string HomePlanet = "";
+        [Serialize(12)] public float Age = 30f;
+        [Serialize(13)] public float ServiceYears = 0f;
+        [Serialize(14)] public short Assassinations;
+        [Serialize(15)] public short Training;
+        [Serialize(16)] public short Infiltrations;
+        [Serialize(17)] public short Sabotages;
+        [Serialize(18)] public short TechStolen;
+        [Serialize(19)] public short Robberies;
+        [Serialize(20)] public short Rebellions;
 
 		public Agent()
 		{
