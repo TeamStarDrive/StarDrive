@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Xml.Serialization;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
@@ -12,23 +12,23 @@ namespace Ship_Game
         public static GraphicsDevice device;
         public static AudioListener audioListener { get; set; }
 
-        [XmlIgnore][MessagePackIgnore] public bool Active = true;
-        [XmlIgnore][MessagePackIgnore] protected Cue dieCue;
-        [XmlIgnore][MessagePackIgnore] public SolarSystem System;
+        [XmlIgnore][JsonIgnore] public bool Active = true;
+        [XmlIgnore][JsonIgnore] protected Cue dieCue;
+        [XmlIgnore][JsonIgnore] public SolarSystem System;
 
-        [MessagePackMember(0)] public Vector2 Position;
-        [MessagePackMember(1)] public Vector2 Center;
-        [MessagePackMember(2)] public Vector2 Velocity;
-        [MessagePackMember(3)] public float Rotation;
+        [Serialize(0)] public Vector2 Position;
+        [Serialize(1)] public Vector2 Center;
+        [Serialize(2)] public Vector2 Velocity;
+        [Serialize(3)] public float Rotation;
 
-        [MessagePackMember(4)] public Vector2 Dimensions;
-        [MessagePackMember(5)] public float Radius = 1f;
-        [MessagePackMember(6)] public float Mass = 1f;
-        [MessagePackMember(7)] public float Health;
-        [MessagePackMember(8)] public bool isInDeepSpace = true;
+        [Serialize(4)] public Vector2 Dimensions;
+        [Serialize(5)] public float Radius = 1f;
+        [Serialize(6)] public float Mass = 1f;
+        [Serialize(7)] public float Health;
+        [Serialize(8)] public bool isInDeepSpace = true;
 
-        [XmlIgnore][MessagePackIgnore] public GameplayObject LastDamagedBy;
-        [XmlIgnore][MessagePackIgnore] public bool CollidedThisFrame;
+        [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
+        [XmlIgnore][JsonIgnore] public bool CollidedThisFrame;
 
         protected GameplayObject()
 		{

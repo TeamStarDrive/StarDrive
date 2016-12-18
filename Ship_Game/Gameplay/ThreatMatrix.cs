@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
@@ -452,13 +452,13 @@ namespace Ship_Game.Gameplay
 
 		public class Pin
 		{
-            [MessagePackMember(0)] public Vector2 Position;
-            [MessagePackMember(1)] public Vector2 Velocity;
-            [MessagePackMember(2)] public float Strength;
-            [MessagePackMember(3)] public string EmpireName;
-            [MessagePackMember(4)] public bool InBorders;
+            [Serialize(0)] public Vector2 Position;
+            [Serialize(1)] public Vector2 Velocity;
+            [Serialize(2)] public float Strength;
+            [Serialize(3)] public string EmpireName;
+            [Serialize(4)] public bool InBorders;
 
-            [XmlIgnore][MessagePackIgnore] public Ship Ship;
+            [XmlIgnore][JsonIgnore] public Ship Ship;
 		}
 	}
 }

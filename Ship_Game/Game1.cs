@@ -13,7 +13,6 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using System.Reflection;
-using Fasterflect;
 using System.Linq;
 using System.Threading;
 

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Xml.Serialization;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
@@ -16,7 +16,7 @@ namespace Ship_Game
         public string ModPath = "";
         public int Version;
 
-        [XmlIgnore][MessagePackIgnore]
+        [XmlIgnore][JsonIgnore]
         public FileInfo FI;
 
         public HeaderData()
