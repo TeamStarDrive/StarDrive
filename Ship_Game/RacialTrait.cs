@@ -1,173 +1,108 @@
 using System;
+using MsgPack.Serialization;
 
 namespace Ship_Game
 {
 	public sealed class RacialTrait
 	{
-		public string Name;
-
-		public int TraitName;
-
-		public string VideoPath = "";
-
-		public string ShipType = "Pollops";
-
-		public string Singular;
-
-		public string Plural;
-
-		public bool Pack;
-
-		public float SpyMultiplier;
-
-		public string Adj1;
-
-		public string Adj2;
-
-		public string HomeSystemName;
-
-		public string HomeworldName;
-
-		public int FlagIndex;
-
-		public float R;
-
-		public float G;
-
-		public float B;
-
-		public int Excludes;
-
-		public int Description;
-
-		public string Category;
-
-		public int Cost;
-
-		public float ConsumptionModifier;
-
-		public float ReproductionMod;
-
-		public float PopGrowthMax;
-
-		public float PopGrowthMin;
-
-		public float DiplomacyMod;
-
-		public float GenericMaxPopMod;
-
-		public int Blind;
-
-		public int BonusExplored;
-
-		public int Militaristic;
-
-		public float HomeworldSizeMod;
-
-		public int Prewarp;
-
-		public int Prototype;
-
-		public float Spiritual;
-
-		public float HomeworldFertMod;
-
-		public float HomeworldRichMod;
-
-		public float DodgeMod;
-
-		public float EnergyDamageMod;
-
-		public float ResearchMod;
-
-		public float Mercantile;
-
-		public int Miners;
-
-		public float ProductionMod;
-
-		public float MaintMod;
-
-		public float InBordersSpeedBonus = 0.5f;
-
-		public float TaxMod;
-
-		public float ShipCostMod;
-
-		public float ModHpModifier;
-
-		public int SmallSize;
-
-		public int HugeSize;
-
-		public int PassengerModifier = 1;
-
-		public int PassengerBonus;
-
-		public bool Assimilators;
-
-		public float GroundCombatModifier;
-
-		public float RepairMod;
-
-		public int Cybernetic;
+		[MessagePackMember(0)] public string Name;
+		[MessagePackMember(1)] public int TraitName;
+		[MessagePackMember(2)] public string VideoPath = "";
+		[MessagePackMember(3)] public string ShipType = "Pollops";
+		[MessagePackMember(4)] public string Singular;
+		[MessagePackMember(5)] public string Plural;
+		[MessagePackMember(6)] public bool Pack;
+		[MessagePackMember(7)] public float SpyMultiplier;
+		[MessagePackMember(8)] public string Adj1;
+		[MessagePackMember(9)] public string Adj2;
+		[MessagePackMember(10)] public string HomeSystemName;
+		[MessagePackMember(11)] public string HomeworldName;
+		[MessagePackMember(12)] public int FlagIndex;
+		[MessagePackMember(13)] public float R;
+		[MessagePackMember(14)] public float G;
+		[MessagePackMember(15)] public float B;
+		[MessagePackMember(16)] public int Excludes;
+		[MessagePackMember(17)] public int Description;
+		[MessagePackMember(18)] public string Category;
+		[MessagePackMember(19)] public int Cost;
+		[MessagePackMember(20)] public float ConsumptionModifier;
+		[MessagePackMember(21)] public float ReproductionMod;
+		[MessagePackMember(22)] public float PopGrowthMax;
+		[MessagePackMember(23)] public float PopGrowthMin;
+		[MessagePackMember(24)] public float DiplomacyMod;
+		[MessagePackMember(25)] public float GenericMaxPopMod;
+		[MessagePackMember(26)] public int Blind;
+		[MessagePackMember(27)] public int BonusExplored;
+		[MessagePackMember(28)] public int Militaristic;
+		[MessagePackMember(29)] public float HomeworldSizeMod;
+		[MessagePackMember(30)] public int Prewarp;
+		[MessagePackMember(31)] public int Prototype;
+		[MessagePackMember(32)] public float Spiritual;
+		[MessagePackMember(33)] public float HomeworldFertMod;
+		[MessagePackMember(34)] public float HomeworldRichMod;
+		[MessagePackMember(35)] public float DodgeMod;
+		[MessagePackMember(36)] public float EnergyDamageMod;
+		[MessagePackMember(37)] public float ResearchMod;
+		[MessagePackMember(38)] public float Mercantile;
+		[MessagePackMember(39)] public int Miners;
+		[MessagePackMember(40)] public float ProductionMod;
+		[MessagePackMember(41)] public float MaintMod;
+		[MessagePackMember(42)] public float InBordersSpeedBonus = 0.5f;
+		[MessagePackMember(43)] public float TaxMod;
+		[MessagePackMember(44)] public float ShipCostMod;
+		[MessagePackMember(45)] public float ModHpModifier;
+		[MessagePackMember(46)] public int SmallSize;
+		[MessagePackMember(47)] public int HugeSize;
+		[MessagePackMember(48)] public int PassengerModifier = 1;
+		[MessagePackMember(49)] public int PassengerBonus;
+		[MessagePackMember(50)] public bool Assimilators;
+		[MessagePackMember(51)] public float GroundCombatModifier;
+		[MessagePackMember(52)] public float RepairMod;
+		[MessagePackMember(53)] public int Cybernetic;
 
         //Trait Booleans
-        public bool PhysicalTraitAlluring;
-        public bool PhysicalTraitRepulsive;
+        [MessagePackMember(54)] public bool PhysicalTraitAlluring;
+        [MessagePackMember(55)] public bool PhysicalTraitRepulsive;
+        [MessagePackMember(56)] public bool PhysicalTraitEagleEyed;
+        [MessagePackMember(57)] public bool PhysicalTraitBlind;
+        [MessagePackMember(58)] public bool PhysicalTraitEfficientMetabolism;
+        [MessagePackMember(59)] public bool PhysicalTraitGluttonous;
+        [MessagePackMember(60)] public bool PhysicalTraitFertile;
+        [MessagePackMember(61)] public bool PhysicalTraitLessFertile;
+        [MessagePackMember(62)] public bool PhysicalTraitSmart;
+        [MessagePackMember(63)] public bool PhysicalTraitDumb;
+        [MessagePackMember(64)] public bool PhysicalTraitReflexes;
+        [MessagePackMember(65)] public bool PhysicalTraitPonderous;
+        [MessagePackMember(66)] public bool PhysicalTraitSavage;
+        [MessagePackMember(67)] public bool PhysicalTraitTimid;
+        [MessagePackMember(68)] public bool SociologicalTraitEfficient;
+        [MessagePackMember(69)] public bool SociologicalTraitWasteful;
+        [MessagePackMember(70)] public bool SociologicalTraitIndustrious;
+        [MessagePackMember(71)] public bool SociologicalTraitLazy;
+        [MessagePackMember(72)] public bool SociologicalTraitMercantile;
+        [MessagePackMember(73)] public bool SociologicalTraitMeticulous;
+        [MessagePackMember(74)] public bool SociologicalTraitCorrupt;
+        [MessagePackMember(75)] public bool SociologicalTraitSkilledEngineers;
+        [MessagePackMember(76)] public bool SociologicalTraitHaphazardEngineers;
 
-        public bool PhysicalTraitEagleEyed;
-        public bool PhysicalTraitBlind;
+        [MessagePackMember(77)] public bool HistoryTraitAstronomers;
+        [MessagePackMember(78)] public bool HistoryTraitCybernetic;
+        [MessagePackMember(79)] public bool HistoryTraitManifestDestiny;
+        [MessagePackMember(80)] public bool HistoryTraitMilitaristic;
+        [MessagePackMember(81)] public bool HistoryTraitNavalTraditions;
+        [MessagePackMember(82)] public bool HistoryTraitPackMentality;
+        [MessagePackMember(83)] public bool HistoryTraitPrototypeFlagship;
+        [MessagePackMember(84)] public bool HistoryTraitSpiritual;
+        [MessagePackMember(85)] public bool HistoryTraitPollutedHomeWorld;
+        [MessagePackMember(86)] public bool HistoryTraitIndustrializedHomeWorld;
+        [MessagePackMember(87)] public bool HistoryTraitDuplicitous;
+        [MessagePackMember(88)] public bool HistoryTraitHonest;
+        [MessagePackMember(89)] public bool HistoryTraitHugeHomeWorld;
+        [MessagePackMember(90)] public bool HistoryTraitSmallHomeWorld;
 
-        public bool PhysicalTraitEfficientMetabolism;
-        public bool PhysicalTraitGluttonous;
-
-        public bool PhysicalTraitFertile;
-        public bool PhysicalTraitLessFertile;
-
-        public bool PhysicalTraitSmart;
-        public bool PhysicalTraitDumb;
-
-        public bool PhysicalTraitReflexes;
-        public bool PhysicalTraitPonderous;
-
-        public bool PhysicalTraitSavage;
-        public bool PhysicalTraitTimid;
-
-        public bool SociologicalTraitEfficient;
-        public bool SociologicalTraitWasteful;
-
-        public bool SociologicalTraitIndustrious;
-        public bool SociologicalTraitLazy;
-
-        public bool SociologicalTraitMercantile;
-
-        public bool SociologicalTraitMeticulous;
-        public bool SociologicalTraitCorrupt;
-
-        public bool SociologicalTraitSkilledEngineers;
-        public bool SociologicalTraitHaphazardEngineers;
-
-        public bool HistoryTraitAstronomers;
-        public bool HistoryTraitCybernetic;
-        public bool HistoryTraitManifestDestiny;
-        public bool HistoryTraitMilitaristic;
-        public bool HistoryTraitNavalTraditions;
-        public bool HistoryTraitPackMentality;
-        public bool HistoryTraitPrototypeFlagship;
-        public bool HistoryTraitSpiritual;
-        public bool HistoryTraitPollutedHomeWorld;
-        public bool HistoryTraitIndustrializedHomeWorld;
-
-        public bool HistoryTraitDuplicitous;
-        public bool HistoryTraitHonest;
-
-        public bool HistoryTraitHugeHomeWorld;
-        public bool HistoryTraitSmallHomeWorld;
-
-        //Pointless variables
-        public int Aquatic;
-        public int Burrowers;
+        // Pointless variables
+        [MessagePackMember(91)] public int Aquatic;
+        [MessagePackMember(92)] public int Burrowers;
 
 		public RacialTrait()
 		{

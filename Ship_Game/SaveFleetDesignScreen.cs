@@ -42,17 +42,13 @@ namespace Ship_Game
 
 		protected override void SetSavesSL()
 		{
-			FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(this.Path);
-			for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+			foreach (FileInfo info in Dir.GetFiles(Path))
 			{
-				FileInfo FI = filesFromDirectory[i];
-				this.SavesSL.AddItem(new FileData(FI, FI as object, System.IO.Path.GetFileNameWithoutExtension(FI.Name))).AddItemWithCancel(FI);
+			    this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddItemWithCancel(info);
 			}
-			FileInfo[] fileInfoArray = HelperFunctions.GetFilesFromDirectory("Content/FleetDesigns");
-			for (int j = 0; j < (int)fileInfoArray.Length; j++)
+			foreach (FileInfo info in Dir.GetFiles("Content/FleetDesigns"))
 			{
-				FileInfo FI = fileInfoArray[j];
-				this.SavesSL.AddItem(new FileData(FI, FI as object, System.IO.Path.GetFileNameWithoutExtension(FI.Name)));
+			    this.SavesSL.AddItem(new FileData(info, info, info.NameNoExt()));
 			}
 		}
 	}
