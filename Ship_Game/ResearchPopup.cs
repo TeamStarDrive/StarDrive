@@ -59,7 +59,7 @@ namespace Ship_Game
                 ScrollList.Entry entry = this.UnlockSL.Copied[index];
                 UnlockItem unlockItem = entry.item as UnlockItem;
                 vector2.Y = (float)entry.clickRect.Y;
-                if (unlockItem.Type == "SHIPMODULE")
+                if (unlockItem.Type == UnlockType.SHIPMODULE)
                 {
                     Rectangle destinationRectangle = new Rectangle((int)vector2.X, (int)vector2.Y, 16 * (int)unlockItem.module.XSIZE, 16 * (int)unlockItem.module.YSIZE);
                     destinationRectangle.X = destinationRectangle.X + 48 - destinationRectangle.Width / 2;
@@ -97,7 +97,7 @@ namespace Ship_Game
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, unlockItem.privateName, Pos, Fonts.Arial14Bold, Color.Orange);
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
-                if (unlockItem.Type == "TROOP")
+                if (unlockItem.Type == UnlockType.TROOP)
                 {
                     Rectangle drawRect = new Rectangle((int)vector2.X + 16, (int)vector2.Y + entry.clickRect.Height / 2 - 32, 64, 64);
                     unlockItem.troop.Draw(this.ScreenManager.SpriteBatch, drawRect);
@@ -110,7 +110,7 @@ namespace Ship_Game
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, Text, Pos, Fonts.Arial14Bold, Color.Orange);
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
-                if (unlockItem.Type == "BUILDING")
+                if (unlockItem.Type == UnlockType.BUILDING)
                 {
                     Rectangle destinationRectangle = new Rectangle((int)vector2.X + 16, (int)vector2.Y + entry.clickRect.Height / 2 - 32, 64, 64);
                     //picture of building
@@ -126,7 +126,7 @@ namespace Ship_Game
                     //description of unlocked building
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
-                if (unlockItem.Type == "HULL")
+                if (unlockItem.Type == UnlockType.HULL)
                 {
                     Rectangle destinationRectangle = new Rectangle((int)vector2.X, (int)vector2.Y, 96, 96);
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[unlockItem.privateName].IconPath], destinationRectangle, Color.White);
@@ -138,7 +138,7 @@ namespace Ship_Game
                     HelperFunctions.DrawDropShadowText(this.ScreenManager, Text, Pos, Fonts.Arial14Bold, Color.Orange);
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, unlockItem.Description, Pos + new Vector2(0.0f, (float)(Fonts.Arial14Bold.LineSpacing + 2)), Color.LightGray);
                 }
-                if (unlockItem.Type == "ADVANCE")
+                if (unlockItem.Type == UnlockType.ADVANCE)
                 {
                     string text = HelperFunctions.ParseText(Fonts.Arial12, unlockItem.Description, (float)(entry.clickRect.Width - 100));
                     float num = (float)(Fonts.Arial14Bold.LineSpacing + 5) + Fonts.Arial12.MeasureString(text).Y;
@@ -176,7 +176,7 @@ namespace Ship_Game
                 {
                     UnlockItem unlock = new UnlockItem()
                     {
-                        Type = "SHIPMODULE",
+                        Type = UnlockType.SHIPMODULE,
                         module = ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID],
                         Description = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].DescriptionIndex),
                         privateName = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].NameIndex)
@@ -190,7 +190,7 @@ namespace Ship_Game
                 {
                     UnlockItem unlock = new UnlockItem()
                     {
-                        Type = "TROOP",
+                        Type = UnlockType.TROOP,
                         troop = ResourceManager.TroopsDict[troop.Name]
                     };
                     this.UnlockSL.AddItem(unlock);
@@ -203,7 +203,7 @@ namespace Ship_Game
 
                     UnlockItem unlock = new UnlockItem()
                     {
-                        Type = "HULL",
+                        Type = UnlockType.HULL,
                         privateName = hull.Name,
                         HullUnlocked = ResourceManager.HullsDict[hull.Name].Name
                     };
@@ -218,7 +218,7 @@ namespace Ship_Game
                 {
                     UnlockItem unlock = new UnlockItem()
                     {
-                        Type = "BUILDING",
+                        Type = UnlockType.BUILDING,
                         building = ResourceManager.BuildingsDict[UnlockedBuilding.Name]
                     };
                     this.UnlockSL.AddItem(unlock);
@@ -230,18 +230,13 @@ namespace Ship_Game
                 {
                     UnlockItem unlock = new UnlockItem()
                     {
-                        Type = "ADVANCE",
+                        Type = UnlockType.ADVANCE,
                         privateName = UnlockedBonus.Name,
                         Description = Localizer.Token(UnlockedBonus.BonusIndex)
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
 			}
-		}
-
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-		{
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 
         public void Dispose()
