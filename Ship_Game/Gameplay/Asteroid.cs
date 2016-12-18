@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -8,13 +8,13 @@ namespace Ship_Game.Gameplay
 {
 	public sealed class Asteroid : GameplayObject
 	{
-		[MessagePackMember(9)]  public Vector3 Position3D;
-        [MessagePackMember(10)] public float Scale = 1.0f;
-        [XmlIgnore][MessagePackIgnore] private Vector3 RotationRadians;
-        [XmlIgnore][MessagePackIgnore] private readonly Vector3 Spin;
-        [XmlIgnore][MessagePackIgnore] private readonly int AsteroidId;
+		[Serialize(9)]  public Vector3 Position3D;
+        [Serialize(10)] public float Scale = 1.0f;
+        [XmlIgnore][JsonIgnore] private Vector3 RotationRadians;
+        [XmlIgnore][JsonIgnore] private readonly Vector3 Spin;
+        [XmlIgnore][JsonIgnore] private readonly int AsteroidId;
 
-        [XmlIgnore][MessagePackIgnore] public SceneObject So;
+        [XmlIgnore][JsonIgnore] public SceneObject So;
 
 		public Asteroid()
 		{

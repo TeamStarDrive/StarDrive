@@ -2,37 +2,37 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using MsgPack.Serialization;
+using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
     public sealed class FleetDataNode
     {
-        [XmlIgnore][MessagePackIgnore] public Ship Ship { get; set; }
+        [XmlIgnore][JsonIgnore] public Ship Ship { get; set; }
 
-        [MessagePackMember(0)] public Guid ShipGuid;
-        [MessagePackMember(1)] public Guid GoalGUID;
-        [MessagePackMember(2)] public string ShipName;
-        [MessagePackMember(3)] public Vector2 FleetOffset;
-        [MessagePackMember(4)] public float VultureWeight = 0.5f;
-        [MessagePackMember(5)] public float AttackShieldedWeight = 0.5f;
-        [MessagePackMember(6)] public float AssistWeight = 0.5f;
-        [MessagePackMember(7)] public float DefenderWeight = 0.5f;
-        [MessagePackMember(8)] public float DPSWeight = 0.5f;
-        [MessagePackMember(9)] public float SizeWeight = 0.5f;
-        [MessagePackMember(10)] public float ArmoredWeight = 0.5f;
-        [MessagePackMember(11)] public Orders orders;
-        [MessagePackMember(12)] public CombatState CombatState;
-        [MessagePackMember(13)] public Vector2 OrdersOffset;
-        [MessagePackMember(14)] public float OrdersRadius = 0.5f;
+        [Serialize(0)] public Guid ShipGuid;
+        [Serialize(1)] public Guid GoalGUID;
+        [Serialize(2)] public string ShipName;
+        [Serialize(3)] public Vector2 FleetOffset;
+        [Serialize(4)] public float VultureWeight = 0.5f;
+        [Serialize(5)] public float AttackShieldedWeight = 0.5f;
+        [Serialize(6)] public float AssistWeight = 0.5f;
+        [Serialize(7)] public float DefenderWeight = 0.5f;
+        [Serialize(8)] public float DPSWeight = 0.5f;
+        [Serialize(9)] public float SizeWeight = 0.5f;
+        [Serialize(10)] public float ArmoredWeight = 0.5f;
+        [Serialize(11)] public Orders orders;
+        [Serialize(12)] public CombatState CombatState;
+        [Serialize(13)] public Vector2 OrdersOffset;
+        [Serialize(14)] public float OrdersRadius = 0.5f;
     }
 
     public sealed class FleetDesign
 	{
-        [MessagePackMember(0)] public List<FleetDataNode> Data = new List<FleetDataNode>();
-        [MessagePackMember(1)] public int FleetIconIndex;
-        [MessagePackMember(2)] public string Name;
+        [Serialize(0)] public List<FleetDataNode> Data = new List<FleetDataNode>();
+        [Serialize(1)] public int FleetIconIndex;
+        [Serialize(2)] public string Name;
 
 		public void Rotate(float facing)
 		{
