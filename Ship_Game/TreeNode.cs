@@ -61,7 +61,7 @@ namespace Ship_Game
                     unlock.module = ResourceManager.ShipModulesDict[ResourceManager.TechTree[this.tech.UID].ModulesUnlocked[i].ModuleUID];
                     unlock.privateName = Localizer.Token(unlock.module.NameIndex);
                     unlock.Description = Localizer.Token(unlock.module.DescriptionIndex);
-                    unlock.Type = "SHIPMODULE";
+                    unlock.Type = UnlockType.SHIPMODULE;
                     this.Unlocks.Add(unlock);
                     numUnlocks++;
                 }
@@ -75,7 +75,7 @@ namespace Ship_Game
                     {
                         privateName = ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].Name,
                         Description = Localizer.Token(ResourceManager.TechTree[this.tech.UID].BonusUnlocked[i].BonusIndex),
-                        Type = "ADVANCE"
+                        Type = UnlockType.ADVANCE
                     };
                     numUnlocks++;
                     this.Unlocks.Add(unlock);
@@ -90,7 +90,7 @@ namespace Ship_Game
                     unlock.building = ResourceManager.BuildingsDict[ResourceManager.TechTree[this.tech.UID].BuildingsUnlocked[i].Name];
                     unlock.privateName = Localizer.Token(unlock.building.NameTranslationIndex);
                     unlock.Description = Localizer.Token(unlock.building.DescriptionIndex);
-                    unlock.Type = "BUILDING";
+                    unlock.Type = UnlockType.BUILDING;
                     numUnlocks++;
                     this.Unlocks.Add(unlock);
                 }
@@ -105,7 +105,7 @@ namespace Ship_Game
 						HullUnlocked = ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].Name,
 						privateName = ResourceManager.TechTree[this.tech.UID].HullsUnlocked[i].Name,
 						Description = "",
-						Type = "HULL"
+						Type = UnlockType.HULL
 					};
 					numUnlocks++;
 					this.Unlocks.Add(unlock);
@@ -121,7 +121,7 @@ namespace Ship_Game
 						unlock.troop = ResourceManager.TroopsDict[ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Name];
 						unlock.privateName = ResourceManager.TechTree[this.tech.UID].TroopsUnlocked[i].Name;
 						unlock.Description = unlock.troop.Description;
-                        unlock.Type = "TROOP";
+                        unlock.Type = UnlockType.TROOP;
 					//};
 					numUnlocks++;
 					this.Unlocks.Add(unlock);
