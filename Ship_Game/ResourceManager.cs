@@ -56,6 +56,7 @@ namespace Ship_Game
         public static XmlSerializer HeaderSerializer                     = new XmlSerializer(typeof(HeaderData));
         public static XmlSerializer ModSerializer                        = new XmlSerializer(typeof(ModInformation));
         public static Dictionary<string, Model> ModelDict                = new Dictionary<string, Model>();
+        public static Dictionary<string, SkinnedModel> SkinnedModels     = new Dictionary<string, SkinnedModel>();
         public static Dictionary<string, ShipData> HullsDict             = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 
         public static List<KeyValuePair<string, Texture2D>> FlagTextures = new List<KeyValuePair<string, Texture2D>>();
@@ -416,12 +417,12 @@ namespace Ship_Game
 
             Ship ship = new Ship
             {
-                shipData = template.shipData,
-                Name = template.Name,
+                shipData     = template.shipData,
+                Name         = template.Name,
                 BaseStrength = template.BaseStrength,
-                BaseCanWarp = template.BaseCanWarp,
-                loyalty = owner,
-                Position = position
+                BaseCanWarp  = template.BaseCanWarp,
+                loyalty      = owner,
+                Position     = position
             };
 
             if (!template.shipData.Animated)
@@ -746,7 +747,10 @@ namespace Ship_Game
 
         public static SkinnedModel GetSkinnedModel(string path)
         {
-            return ContentManager.Load<SkinnedModel>(path);
+            if (SkinnedModels.TryGetValue(path, out SkinnedModel model))
+                return model;
+            // allow this to throw an exception on load error
+            return SkinnedModels[path] = ContentManager.Load<SkinnedModel>(path);
         }
 
         // Refactored by RedFox, gets a new weapon instance based on weapon UID
