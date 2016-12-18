@@ -37,7 +37,8 @@ Global
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_Experimental_|Any CPU.Build.0 = BlackBox_Experimental_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_Experimental_|x86.ActiveCfg = BlackBox_Experimental_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_Experimental_|x86.Build.0 = BlackBox_Experimental_|x86
-		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_ModSuperPack_|Any CPU.ActiveCfg = BlackBox_ModSuperPack_|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_ModSuperPack_|Any CPU.ActiveCfg = BlackBox_ModSuperPack_|Any CPU
+		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_ModSuperPack_|Any CPU.Build.0 = BlackBox_ModSuperPack_|Any CPU
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_ModSuperPack_|x86.ActiveCfg = BlackBox_ModSuperPack_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_ModSuperPack_|x86.Build.0 = BlackBox_ModSuperPack_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_Release_|Any CPU.ActiveCfg = BlackBox_RadicalElements_Release_|x86
