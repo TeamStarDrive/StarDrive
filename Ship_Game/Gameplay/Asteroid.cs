@@ -1,6 +1,6 @@
-using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using MsgPack.Serialization;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -8,19 +8,16 @@ namespace Ship_Game.Gameplay
 {
 	public sealed class Asteroid : GameplayObject
 	{
-        // Note: These fields are all serialized
-		public Vector3 Position3D;
-		public float Scale = 1.0f;
-        private readonly Vector3 Spin;
-        private Vector3 RotationRadians;
-	    private readonly int AsteroidId;
+		[MessagePackMember(9)]  public Vector3 Position3D;
+        [MessagePackMember(10)] public float Scale = 1.0f;
+        [XmlIgnore][MessagePackIgnore] private Vector3 RotationRadians;
+        [XmlIgnore][MessagePackIgnore] private readonly Vector3 Spin;
+        [XmlIgnore][MessagePackIgnore] private readonly int AsteroidId;
 
-        [XmlIgnore][ScriptIgnore]
-        public SceneObject So { get; private set; }
+        [XmlIgnore][MessagePackIgnore] public SceneObject So;
 
 		public Asteroid()
 		{
-			Radius          = RandomMath.RandomBetween(30f, 90f);
             Spin            = RandomMath.Vector3D(0.01f, 0.2f);
             RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
             AsteroidId      = RandomMath.InRange(ResourceManager.NumAsteroidModels);
@@ -28,7 +25,6 @@ namespace Ship_Game.Gameplay
 
 	    public override void Initialize()
 		{
-			base.Initialize();
 			So = new SceneObject(ResourceManager.GetAsteroidModel(AsteroidId).Meshes[0])
 			{
 				ObjectType = ObjectType.Static,
@@ -37,7 +33,7 @@ namespace Ship_Game.Gameplay
 
 			Radius   = So.ObjectBoundingSphere.Radius * Scale * 0.65f;
             Position = Center = new Vector2(Position3D.X, Position3D.Y);
-			So.World = MathExt.AffineTransform(Position3D, RotationRadians, Scale);
+			So.AffineTransform(Position3D, RotationRadians, Scale);
 		}
 
         //private static int LogicFlip = 0;
@@ -49,27 +45,6 @@ namespace Ship_Game.Gameplay
                 return;
 
             RotationRadians += Spin * elapsedTime;
-
-            // WIP new faster affine transform
-            //++LogicFlip;
-            //if (LogicFlip > 5000)
-            //{
-            //    LogicFlip = 0;
-            //    global::System.Diagnostics.Debug.WriteLine("Asteroids DEFAULT");
-            //}
-            //else if (LogicFlip >= 2500)
-            //{
-            //    if (LogicFlip == 2500)
-            //        global::System.Diagnostics.Debug.WriteLine("Asteroids NEW");
-            //    Vector3 dir = RotationRadians.DirectionFromRadians();
-            //    Vector3 up = Vector3.Up;
-            //    Matrix affine;
-            //    Matrix.CreateWorld(ref Position3D, ref dir, ref up, out affine);
-            //    So.World = Matrix.CreateScale(Scale) * affine;
-
-            //    return;
-            //}
-
             So.AffineTransform(Position3D, RotationRadians, Scale);
 		}
 	}

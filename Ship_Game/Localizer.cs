@@ -1,35 +1,58 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.Collections;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Ship_Game
 {
+    public struct Token
+    {
+        public int Index;
+        public string Text;
+    }
+
+    public sealed class LocalizationFile
+    {
+        public Token[] TokenList;
+    }
+
     public static class Localizer
     {
-        public static readonly Dictionary<int, string> LocalizerDict = new Dictionary<int, string>();
-        public static readonly Dictionary<int, bool> used = new Dictionary<int, bool>();
+        private static string[] Strings;
 
-        public static void FillLocalizer()
+        public static bool Contains(int locIndex)
         {
-            foreach (Token t in ResourceManager.LanguageFile.TokenList)
-            {
-                if (ResourceManager.OffSet != 0 && t.Index > ResourceManager.OffSet)
-                    continue;
-                t.Index += ResourceManager.OffSet;
+            return locIndex <= Strings.Length && Strings[locIndex - 1] != null;
+        }
+        public static string Token(int locIndex)
+        {
+            return Contains(locIndex) ? Strings[locIndex - 1] : "<localization missing>";
+        }
 
-                LocalizerDict[t.Index] = string.Intern(t.Text.Replace("\\n", "\n"));
-                if (ResourceManager.OffSet > 0)
-                    used.Add(t.Index, false);
+        // add extra localization tokens to the localizer
+        public static void AddTokens(Token[] tokens)
+        {
+            // Index entries aren't guaranteed to be ordered properly (due to messy mods)
+            int limit = tokens.Max(t => t.Index);
+
+            // Fill sparse map with empty entries
+            if (Strings == null || Strings.Length < limit)
+                Array.Resize(ref Strings, limit);
+
+            foreach (Token t in tokens)
+            {
+                int locIndex = t.Index;
+                string text = t.Text.Replace("\\n", "\n"); // only creates new string if \\n is found
+
+                Strings[locIndex - 1] = text;
             }
         }
 
         public static string GetRole(ShipData.RoleName role, Empire owner)
         {
-            if (!ResourceManager.ShipRoles.ContainsKey(role))
+            if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
                 return "unknown";
 
-            var shipRole = ResourceManager.ShipRoles[role];
             foreach (ShipRole.Race race in shipRole.RaceList)
                 if (race.ShipType == owner.data.Traits.ShipType)
                     return Token(race.Localization);
@@ -37,45 +60,17 @@ namespace Ship_Game
             return Token(shipRole.Localization);
         }
 
-        public static string Token(int index)
+        // statistic for amount of memory used for storing strings
+        public static int CountBytesUsed()
         {
-            if (LocalizerDict.TryGetValue(index, out string str) && str != null)
-                return str;
-            return "String not found";
-        }
-        public static void CleanLocalizer()
-        {
-            if (ResourceManager.OffSet == 0)
-                return;
-            var keys = new List<int>(LocalizerDict.Keys);
-            foreach(int i in keys)
-            {
-                if (i < ResourceManager.OffSet || (i >= ResourceManager.OffSet&& used[i]))
-                    continue;
+            if (Strings == null)
+                return 0;
 
-                string replace = null;
-                int clear = i - ResourceManager.OffSet;
-                try
-                {
-                    if (LocalizerDict.TryGetValue(clear, out replace) && !string.IsNullOrEmpty(replace))
-                    {
-                        LocalizerDict[clear] = LocalizerDict[i];
-                    }
-                    else if (LocalizerDict.TryGetValue(i, out replace) && !string.IsNullOrEmpty(replace))
-                    {
-                        if (!LocalizerDict.ContainsKey(clear))
-                        {
-                            LocalizerDict.Add(clear, LocalizerDict[i]);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    e.Data.Add("Text", replace);
-                    e.Data.Add("SafeIndex", i);
-                    e.Data.Add("UnSafeIndex", clear);
-                }
-            }
+            int bytes = Strings.Length  * 4 + 8;
+            foreach (string text in Strings)
+                if (text != null) bytes += 4 + text.Length * 2;
+
+            return bytes;
         }
     }
 

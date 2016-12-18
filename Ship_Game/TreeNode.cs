@@ -164,7 +164,7 @@ namespace Ship_Game
 			this.CostPos = new Vector2(65f, 70f) + new Vector2((float)this.BaseRect.X, (float)this.BaseRect.Y);
 			float x = this.CostPos.X;
 			SpriteFont titleFont = this.TitleFont;
-			float cost = (float)((int)EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).TechnologyDict[this.tech.UID].GetTechCost()) * UniverseScreen.GamePaceStatic;
+			float cost = (float)((int)EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).TechnologyDict[this.tech.UID].TechCost) * UniverseScreen.GamePaceStatic;
 			this.CostPos.X = x - titleFont.MeasureString(cost.ToString()).X;
 			this.CostPos.X = (float)((int)this.CostPos.X);
 			this.CostPos.Y = (float)((int)this.CostPos.Y - 3);
@@ -186,11 +186,11 @@ namespace Ship_Game
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_base_complete"] : ResourceManager.TextureDict["ResearchMenu/tech_base"], this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
-                    if(ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.GetTech().IconPath))
+                    if(ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.Tech.IconPath))
                     {
                         try
                         {
-                            spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.GetTech().IconPath], this.IconRect, Color.White);
+                            spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.Tech.IconPath], this.IconRect, Color.White);
                         }
                         catch (Exception e)
                         {
@@ -224,7 +224,7 @@ namespace Ship_Game
                         spriteBatch.DrawString(this.TitleFont, text, position, this.complete ? new Color((byte)132, (byte)172, (byte)208) : Color.White);
                         ++num1;
                     }
-                    int num2 = (int)((double)this.progressRect.Height - (double)(EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].Progress / EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].GetTechCost() * UniverseScreen.GamePaceStatic) * (double)this.progressRect.Height);
+                    int num2 = (int)((double)this.progressRect.Height - (double)(EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].Progress / EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].TechCost* UniverseScreen.GamePaceStatic) * (double)this.progressRect.Height);
                     Rectangle destinationRectangle1 = this.progressRect;
                     destinationRectangle1.Height = num2;
                     spriteBatch.Draw(this.complete || flag ? ResourceManager.TextureDict["ResearchMenu/tech_progress"] : ResourceManager.TextureDict["ResearchMenu/tech_progress_inactive"], this.progressRect, Color.White);
@@ -236,9 +236,9 @@ namespace Ship_Game
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
-                    if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.GetTech().IconPath))
+                    if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.Tech.IconPath))
                     {
-                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.GetTech().IconPath], this.IconRect, Color.White);
+                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.Tech.IconPath], this.IconRect, Color.White);
                     }
                     else
                     {
@@ -268,9 +268,9 @@ namespace Ship_Game
                     this.grid.Draw(spriteBatch);
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_base_hover"], this.BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
-                    if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.GetTech().IconPath))
+                    if (ResourceManager.TextureDict.ContainsKey("TechIcons/" + this.tech.Tech.IconPath))
                     {
-                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.GetTech().IconPath], this.IconRect, Color.White);
+                        spriteBatch.Draw(ResourceManager.TextureDict["TechIcons/" + this.tech.Tech.IconPath], this.IconRect, Color.White);
                     }
                     else
                     {
@@ -288,14 +288,14 @@ namespace Ship_Game
                         spriteBatch.DrawString(this.TitleFont, text, position, this.complete ? new Color((byte)163, (byte)198, (byte)236) : Color.White);
                         ++num5;
                     }
-                    int num6 = (int)((double)this.progressRect.Height - (double)(EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].Progress / EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].GetTechCost() * UniverseScreen.GamePaceStatic) * (double)this.progressRect.Height);
+                    int num6 = (int)((double)this.progressRect.Height - (double)(EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].Progress / EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].TechCost* UniverseScreen.GamePaceStatic) * (double)this.progressRect.Height);
                     Rectangle destinationRectangle3 = this.progressRect;
                     destinationRectangle3.Height = num6;
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress"], this.progressRect, Color.White);
                     spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/tech_progress_bgactive"], destinationRectangle3, Color.White);
                     break;
             }
-            spriteBatch.DrawString(this.TitleFont, ((float)(int)EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].GetTechCost() * UniverseScreen.GamePaceStatic).ToString(), this.CostPos, Color.White);
+            spriteBatch.DrawString(this.TitleFont, ((float)(int)EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[this.tech.UID].TechCost* UniverseScreen.GamePaceStatic).ToString(), this.CostPos, Color.White);
         }
 
 		public void DrawGlow(Ship_Game.ScreenManager ScreenManager)

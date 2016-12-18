@@ -44,16 +44,14 @@ namespace Ship_Game
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             if (!CatchStuff)
 			{
-				using (Game1 game = new Game1())
-					game.Run();
+                new Game1().Run();
 			    return;
 			}
 
             try
             {
                 using (new SingleGlobalInstance())
-                using (Game1 game = new Game1())
-                    game.Run();
+                    new Game1().Run();
             }
             catch (Exception e)
             {

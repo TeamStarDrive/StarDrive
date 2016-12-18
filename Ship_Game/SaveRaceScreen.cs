@@ -10,44 +10,39 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public sealed class SaveRaceScreen : GenericLoadSaveScreen, IDisposable
+    public sealed class SaveRaceScreen : GenericLoadSaveScreen
     {
-        private RaceDesignScreen screen;
-        private RaceSave RS;
+        private readonly RaceDesignScreen Screen;
+        private readonly RaceSave RaceSave;
 
-        public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) : base(SLMode.Save, data.Name, "Save Race", "Saved Races", "Saved Race already exists.  Overwrite?")
+        public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) 
+            : base(SLMode.Save, data.Name, "Save Race", "Saved Races", "Saved Race already exists.  Overwrite?")
         {
-            this.screen = screen;
-            //this.selectedFile = new FileData(null, new RaceSave(data), this.TitleText);            // save some extra info for filtering purposes
-            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Saved Races/");
-            this.RS = new RaceSave(data);
+            Screen = screen;
+            Path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +"/StarDrive/Saved Races/";
+            RaceSave = new RaceSave(data);
         }
 
         public override void DoSave()
         {
-            this.RS.Name = this.EnterNameArea.Text;
-            XmlSerializer Serializer = new XmlSerializer(typeof(RaceSave));
-            TextWriter WriteFileStream = new StreamWriter(string.Concat(this.Path, this.EnterNameArea.Text, ".xml"));
-            Serializer.Serialize(WriteFileStream, this.RS);
-            WriteFileStream.Dispose();
-            this.ExitScreen();
+            RaceSave.Name = EnterNameArea.Text;
+            using (TextWriter writeStream = new StreamWriter(Path + EnterNameArea.Text + ".xml"))
+                new XmlSerializer(typeof(RaceSave)).Serialize(writeStream, RaceSave);
+            ExitScreen();
         }
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            List<FileData> saves = new List<FileData>();
-            FileInfo[] filesFromDirectory = HelperFunctions.GetFilesFromDirectory(this.Path);
-            for (int i = 0; i < (int)filesFromDirectory.Length; i++)
+            var saves = new List<FileData>();
+            foreach (FileInfo fileInfo in Dir.GetFiles(Path))
             {
-                Stream file = filesFromDirectory[i].OpenRead();
                 try
                 {
-                    XmlSerializer serializer1 = new XmlSerializer(typeof(RaceSave));
-                    RaceSave data = (RaceSave)serializer1.Deserialize(file);
+                    RaceSave data = fileInfo.Deserialize<RaceSave>();
 
                     if (string.IsNullOrEmpty(data.Name))
                     {
-                        data.Name = System.IO.Path.GetFileNameWithoutExtension(filesFromDirectory[i].Name);
+                        data.Name = fileInfo.NameNoExt();
                         data.Version = 0;
                     }
 
@@ -58,25 +53,19 @@ namespace Ship_Game
                         info = "Invalid Race File";
                         extraInfo = "";
                     } else {
-                        info = String.Concat("Race Name: ", data.Traits.Name);
-                        extraInfo = (data.ModName != "" ? String.Concat("Mod: ", data.ModName) : "Default");
+                        info ="Race Name: " + data.Traits.Name;
+                        extraInfo = data.ModName != "" ? "Mod: " + data.ModName : "Default";
                     }
-                    saves.Add(new FileData(filesFromDirectory[i], data, data.Name, info, extraInfo));
-                    file.Dispose();
+                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo));
                 }
                 catch
                 {
-                    file.Dispose();
                 }
             }
-            IOrderedEnumerable<FileData> sortedList =
-                from data in saves
-                orderby data.FileName ascending
-                select data;
+
+            var sortedList = from data in saves orderby data.FileName ascending select data;
             foreach (FileData data in sortedList)
-            {
-                this.SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
-            }
+                SavesSL.AddItem(data).AddItemWithCancel(data.FileLink);
         }
     }
 }

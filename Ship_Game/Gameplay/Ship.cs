@@ -4747,8 +4747,8 @@ namespace Ship_Game.Gameplay
             this.fleet.Ships.Remove(this);
             foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.fleet.DataNodes)
             {
-                if (fleetDataNode.GetShip() == this)
-                    fleetDataNode.SetShip((Ship)null);
+                if (fleetDataNode.Ship== this)
+                    fleetDataNode.Ship = (Ship)null;
             }
             foreach (List<Fleet.Squad> list in this.fleet.AllFlanks)
             {
@@ -4758,8 +4758,8 @@ namespace Ship_Game.Gameplay
                         squad.Ships.QueuePendingRemoval(this);
                     foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)squad.DataNodes)
                     {
-                        if (fleetDataNode.GetShip() == this)
-                            fleetDataNode.SetShip((Ship)null);
+                        if (fleetDataNode.Ship== this)
+                            fleetDataNode.Ship = (Ship)null;
                     }
                 }
             }

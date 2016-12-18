@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using System.Runtime.InteropServices;
-using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 
 namespace Ship_Game
 {
     public sealed class ShipData
     {
-        [XmlIgnore][ScriptIgnore]
+        [XmlIgnore]
         public int Id;
 
         public bool Animated;

@@ -2,35 +2,35 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Runtime.CompilerServices;
-using System.Web.Script.Serialization;
 using System.Xml.Serialization;
+using MsgPack.Serialization;
 
 namespace Ship_Game
 {
 	public abstract class GameplayObject
 	{
-		public bool Active = true;
-		protected SolarSystem system; // @todo This has to be lowercase due to serialization... sigh. Can we change it??
-        [XmlIgnore][ScriptIgnore]
-        public SolarSystem System { get { return system; } protected set { system = value; } }
         public static GraphicsDevice device;
-		public Vector2 Center;
-	    protected Cue dieCue;
-	    public bool isInDeepSpace = true;
+        public static AudioListener audioListener { get; set; }
 
-		public static AudioListener audioListener { get; set; }
-		public bool CollidedThisFrame { get; set; }
-	    public Vector2 Dimensions { get; set; }
-		public float Health { get; set; }
-		public GameplayObject LastDamagedBy { get; set; }
-	    public float Mass { get; set; } = 1f;
-	    public Vector2 Position { get; set; }
-		public float Radius { get; set; } = 1f;
-	    public float Rotation { get; set; }
-	    public Vector2 Velocity { get; set; } = Vector2.Zero;
+        [XmlIgnore][MessagePackIgnore] public bool Active = true;
+        [XmlIgnore][MessagePackIgnore] protected Cue dieCue;
+        [XmlIgnore][MessagePackIgnore] public SolarSystem System;
 
-	    protected GameplayObject()
+        [MessagePackMember(0)] public Vector2 Position;
+        [MessagePackMember(1)] public Vector2 Center;
+        [MessagePackMember(2)] public Vector2 Velocity;
+        [MessagePackMember(3)] public float Rotation;
+
+        [MessagePackMember(4)] public Vector2 Dimensions;
+        [MessagePackMember(5)] public float Radius = 1f;
+        [MessagePackMember(6)] public float Mass = 1f;
+        [MessagePackMember(7)] public float Health;
+        [MessagePackMember(8)] public bool isInDeepSpace = true;
+
+        [XmlIgnore][MessagePackIgnore] public GameplayObject LastDamagedBy;
+        [XmlIgnore][MessagePackIgnore] public bool CollidedThisFrame;
+
+        protected GameplayObject()
 		{
 		}
 

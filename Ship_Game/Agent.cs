@@ -2,41 +2,34 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MsgPack.Serialization;
 
 
 namespace Ship_Game
 {
 	public sealed class Agent
 	{
-		public string Name;
-
-		public int Level = 1;
-
-        public int Experience = 0;
-
-		public AgentMission Mission;
-        public AgentMission PrevisousMission = AgentMission.Training;
-        public string PreviousTarget;
-
-		public int TurnsRemaining;
-
-		public string TargetEmpire = "";
-
-		public Guid TargetGUID;
-
-		public int MissionNameIndex = 2183;
-        public bool spyMute = false;
-
-        public string HomePlanet = "";
-        public float Age = 30.0f;
-        public float ServiceYears = 0.0f;
-        public short Assassinations = 0;
-        public short Training = 0;
-        public short Infiltrations = 0;
-        public short Sabotages = 0;
-        public short TechStolen = 0;
-        public short Robberies = 0;
-        public short Rebellions = 0;
+        [MessagePackMember(0)] public string Name;
+        [MessagePackMember(1)] public int Level = 1;
+        [MessagePackMember(2)] public int Experience;
+        [MessagePackMember(3)] public AgentMission Mission;
+        [MessagePackMember(4)] public AgentMission PrevisousMission = AgentMission.Training;
+        [MessagePackMember(5)] public string PreviousTarget;
+        [MessagePackMember(6)] public int TurnsRemaining;
+        [MessagePackMember(7)] public string TargetEmpire = "";
+        [MessagePackMember(8)] public Guid TargetGUID;
+        [MessagePackMember(9)] public int MissionNameIndex = 2183;
+        [MessagePackMember(10)] public bool spyMute;
+        [MessagePackMember(11)] public string HomePlanet = "";
+        [MessagePackMember(12)] public float Age = 30f;
+        [MessagePackMember(13)] public float ServiceYears = 0f;
+        [MessagePackMember(14)] public short Assassinations;
+        [MessagePackMember(15)] public short Training;
+        [MessagePackMember(16)] public short Infiltrations;
+        [MessagePackMember(17)] public short Sabotages;
+        [MessagePackMember(18)] public short TechStolen;
+        [MessagePackMember(19)] public short Robberies;
+        [MessagePackMember(20)] public short Rebellions;
 
 		public Agent()
 		{
@@ -413,7 +406,7 @@ namespace Ship_Game
                         foreach (KeyValuePair<string, TechEntry> entry in Target.GetTDict())
                         {
                             //Added by McShooterz: Root nodes cannot be stolen
-                            if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked || entry.Value.GetTech().RootNode == 1)
+                            if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked || entry.Value.Tech.RootNode == 1)
                             {
                                 continue;
                             }

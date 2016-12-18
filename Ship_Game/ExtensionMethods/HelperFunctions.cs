@@ -110,7 +110,7 @@ namespace Ship_Game
                 {
                     Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
                     s.RelativeFleetOffset = node.FleetOffset;
-                    node.SetShip(s);
+                    node.Ship = s;
                     fleet.AddShip(s);
                 }
             return fleet;
@@ -146,7 +146,7 @@ namespace Ship_Game
 				    compress.Write(buffer, 0, bytesRead = inFile.Read(buffer, 0, buffer.Length));
                 } while (bytesRead == buffer.Length);
 
-				Console.WriteLine("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
+				Debug.WriteLine("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
 			}
 		}
 
@@ -231,16 +231,6 @@ namespace Ship_Game
 		public static Vector2 FindVectorToTarget(Vector2 origin, Vector2 target)
 		{
 			return Vector2.Normalize(target - origin);
-		}
-
-		public static FileInfo[] GetFilesFromDirectory(string dirPath)
-		{
-			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.TopDirectoryOnly);
-		}
-
-		public static FileInfo[] GetFilesFromDirectoryAndSubs(string dirPath)
-		{
-			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.AllDirectories);
 		}
 
 		public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)
@@ -363,5 +353,17 @@ namespace Ship_Game
                 default:                          return 5;
             }
         }
-	}
+
+        // Added by RedFox: blocking full blown GC to reduce memory fragmentation
+        public static void CollectMemory()
+        {
+            Debug.WriteLine(" === CollectMemory === ");
+            Debug.WriteLine("CollectMemory Before: {0:0.0}MB", GC.GetTotalMemory(false) / (1024f*1024f));
+
+            // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
+            long after = GC.GetTotalMemory(forceFullCollection: true);
+            Debug.WriteLine("CollectMemory After:  {0:0.0}MB", after / (1024f*1024f));
+            Debug.WriteLine(" ===================== ");
+        }
+    }
 }

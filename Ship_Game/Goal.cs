@@ -222,7 +222,7 @@ namespace Ship_Game
                                 fleet.Position += new Vector2(RandomMath.RandomBetween(-3000f, 3000f), RandomMath.RandomBetween(-3000f, 3000f));
 
                             var ship = beingBuilt.DeepClone();
-                            current.SetShip(ship);
+                            current.Ship = ship;
                             fleet.AddShip(ship);
                             current.GoalGUID = Guid.Empty;
 

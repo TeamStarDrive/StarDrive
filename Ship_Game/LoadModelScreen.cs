@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Ship_Game
@@ -89,14 +90,14 @@ namespace Ship_Game
 		{
 			this.selector = null;
 			this.currentMouse = input.CurrentMouseState;
-			Vector2 MousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
+			Vector2 mousePos = new Vector2((float)this.currentMouse.X, (float)this.currentMouse.Y);
 			if (input.Escaped || input.RightMouseClick)
 			{
 				this.ExitScreen();
 			}
 			foreach (UIButton b in this.Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+				if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
 				{
 					b.State = UIButton.PressState.Default;
 				}
@@ -108,25 +109,16 @@ namespace Ship_Game
 						b.State = UIButton.PressState.Pressed;
 					}
 					if (this.currentMouse.LeftButton != ButtonState.Released || this.previousMouse.LeftButton != ButtonState.Pressed)
-					{
 						continue;
-					}
-					string launches = b.Launches;
-					if (launches == null || !(launches == "Load"))
-					{
+
+
+                    // @todo What the hell is this stuff doing here?? LoadUniverseScreen in LoadModel???
+					if (b.Launches != "Load")
 						continue;
-					}
-					if (this.activeFile != null)
+					if (activeFile != null)
 					{
-						if (this.screen != null)
-						{
-							this.screen.ExitScreen();
-						}
-						base.ScreenManager.AddScreen(new LoadUniverseScreen(this.activeFile));
-						/*if (this.mmscreen != null)  //would never have happened
-						{
-							this.mmscreen.ExitScreen();
-						}*/
+					    screen?.ExitScreen();
+					    ScreenManager.AddScreen(new LoadUniverseScreen(activeFile));
 					}
 					else
 					{
@@ -138,7 +130,7 @@ namespace Ship_Game
 			this.SavesSL.HandleInput(input);
 			foreach (ScrollList.Entry e in this.SavesSL.Copied)
 			{
-				if (!HelperFunctions.CheckIntersection(e.clickRect, MousePos))
+				if (!HelperFunctions.CheckIntersection(e.clickRect, mousePos))
 				{
 					e.clickRectHover = 0;
 				}
@@ -204,11 +196,11 @@ namespace Ship_Game
 			        }
 			        if (fullFile.StartsWith(fullDirectory))
 			        {
-			            Console.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
+                        Debug.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
 			        }
 			        else
 			        {
-			            Console.WriteLine("Unable to make relative path");
+                        Debug.WriteLine("Unable to make relative path");
 			        }
 
 			        ModelData data = new ModelData();

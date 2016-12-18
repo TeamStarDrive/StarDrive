@@ -441,11 +441,7 @@ namespace Ship_Game
 
 		private bool CheckKey(Keys theKey)
 		{
-			if (!this.lastKeyboardState.IsKeyDown(theKey))
-			{
-				return false;
-			}
-			return this.currentKeyboardState.IsKeyUp(theKey);
+		    return lastKeyboardState.IsKeyDown(theKey) && this.currentKeyboardState.IsKeyUp(theKey);
 		}
 
         public void Dispose()
@@ -458,22 +454,17 @@ namespace Ship_Game
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    if (this.traitsSL != null)
-                        this.traitsSL.Dispose();
-                    if (this.RaceArchetypeSL != null)
-                        this.RaceArchetypeSL.Dispose();
-                    if (this.DescriptionSL != null)
-                        this.DescriptionSL.Dispose();
-                }
-                this.traitsSL = null;
-                this.RaceArchetypeSL = null;
-                this.DescriptionSL = null;
-                this.disposed = true;
+                traitsSL?.Dispose();
+                RaceArchetypeSL?.Dispose();
+                DescriptionSL?.Dispose();
             }
+            this.traitsSL = null;
+            this.RaceArchetypeSL = null;
+            this.DescriptionSL = null;
+            this.disposed = true;
         }
 
 		protected void DoRaceDescription()
@@ -494,15 +485,13 @@ namespace Ship_Game
 				RaceDesignScreen raceDesignScreen2 = this;
 				raceDesignScreen2.rd = string.Concat(raceDesignScreen2.rd, this.Plural, Localizer.Token(1301));
 			}
-			if (this.RaceSummary.Aquatic <= 0)
+			if (RaceSummary.Aquatic <= 0)
 			{
-				RaceDesignScreen raceDesignScreen3 = this;
-				raceDesignScreen3.rd = string.Concat(raceDesignScreen3.rd, Localizer.Token(1304));
+                rd = rd + Localizer.Token(1304);
 			}
 			else
 			{
-				RaceDesignScreen raceDesignScreen4 = this;
-				raceDesignScreen4.rd = string.Concat(raceDesignScreen4.rd, Localizer.Token(1303));
+                rd = rd + Localizer.Token(1303);
 			}
 			if (this.RaceSummary.Cybernetic <= 0)
 			{
