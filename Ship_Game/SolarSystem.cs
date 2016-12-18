@@ -42,7 +42,7 @@ namespace Ship_Game
 
 		public int RingsCount;
 
-        //public Vector2 Size = new Vector2(200000f, 200000f);          //Not referenced in code, removing to save memory -Gretman
+        //public Vector2 Size = new Vector2(200000f, 200000f);          //Not referenced in code, removing to save memory
 
         public List<Planet> PlanetList = new List<Planet>();
 
@@ -430,6 +430,8 @@ namespace Ship_Game
                 else if (GlobalStats.ExtraPlanets < 4) this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(2f, (float)GlobalStats.ExtraPlanets);
                 else if (GlobalStats.ExtraPlanets == 6) this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(3f, (float)GlobalStats.ExtraPlanets);
                 else this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(0f, (float)GlobalStats.ExtraPlanets);
+
+                if (this.numberOfRings == 0) this.numberOfRings = 1;        //If "Extra Planets" was selected at all, there will always be at least 1 in each system. -Gretman
             }
             // END OF ADDED BY SHAHMATT
 			this.RingsCount = this.numberOfRings;

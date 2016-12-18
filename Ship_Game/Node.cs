@@ -13,13 +13,13 @@ namespace Ship_Game
 
 		public Vector2 NodePosition;
 
-        //public Color NodeColor;          //Not referenced in code, removing to save memory -Gretman
+        //public Color NodeColor;          //Not referenced in code, removing to save memory
 
         public bool isResearched;
 
-        //public Node preReq;          //Not referenced in code, removing to save memory -Gretman
+        //public Node preReq;          //Not referenced in code, removing to save memory
 
-        //public float Progress;          //Not referenced in code, removing to save memory -Gretman
+        //public float Progress;          //Not referenced in code, removing to save memory
 
         public DanProgressBar pb;
 

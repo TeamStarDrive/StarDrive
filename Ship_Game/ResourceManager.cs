@@ -361,7 +361,7 @@ namespace Ship_Game
 			troop.Range = t.Range;
 			troop.Description = t.Description;
 			troop.HardAttack = t.HardAttack;
-            //troop.Initiative = t.Initiative;          //Not referenced in code, removing to save memory -Gretman
+            //troop.Initiative = t.Initiative;          //Not referenced in code, removing to save memory
             troop.SoftAttack = t.SoftAttack;
 			troop.Strength = t.Strength;
 			troop.StrengthMax = t.StrengthMax;
@@ -391,7 +391,7 @@ namespace Ship_Game
 
        
 
-		public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit)
+		public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit)   //Normal Shipyard ship creation
 		{
             Ship newShip;
             //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
@@ -500,7 +500,7 @@ namespace Ship_Game
 		}
 
         //Added by McShooterz: for refit to keep name
-        public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, string RefitName, byte RefitLevel)
+        public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, string RefitName, byte RefitLevel)    //Refit Ship Creation
         {
             Ship newShip;
             //if (universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
@@ -587,100 +587,100 @@ namespace Ship_Game
             return newShip;
         }
 
-		//fbedard: do not use, cannot change role of shipdata !
-        public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, ShipData.RoleName role, List<Troop> Troops)
-		{
-			Ship newShip = new Ship()
-			{
+        //fbedard: do not use, cannot change role of shipdata !
+        public static Ship CreateShipAt(string key, Empire Owner, Planet p, bool DoOrbit, ShipData.RoleName role, List<Troop> Troops) //Unused
+        {
+            Ship newShip = new Ship()
+            {
                 shipData = Ship_Game.ResourceManager.ShipsDict[key].shipData,
                 BaseStrength = Ship_Game.ResourceManager.ShipsDict[key].BaseStrength,
                 BaseCanWarp = Ship_Game.ResourceManager.ShipsDict[key].BaseCanWarp
-			};
+            };
             //newShip.shipData.Role = role;
-			if (role == ShipData.RoleName.troop)
-			{
-				if (Troops.Count <= 0)
-				{
-					newShip.VanityName = "Troop Shuttle";
-				}
-				else
-				{
-					newShip.VanityName = Troops[0].Name;
-				}
-			}
-			newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
-			newShip.LoadContent(GetContentManager());
-			SceneObject newSO = new SceneObject();
-			if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
-			{
-				newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
-				{
-					ObjectType = ObjectType.Dynamic
-				};
-			}
-			else
-			{
-				SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
-				newSO = new SceneObject(model.Model);
-				newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
-			}
-			newShip.SetSO(newSO);
-			newShip.Position = p.Position;
-			foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
-			{
-				Thruster thr = new Thruster()
-				{
-					Parent = newShip,
-					tscale = t.tscale,
-					XMLPos = t.XMLPos
-				};
-				newShip.GetTList().Add(thr);
-			}
-			foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
-			{
-				ModuleSlot newSlot = new ModuleSlot();
-				newSlot.SetParent(newShip);
-				newSlot.SlotOptions = slot.SlotOptions;
-				newSlot.Restrictions = slot.Restrictions;
-				newSlot.Position = slot.Position;
-				newSlot.facing = slot.facing;
-				newSlot.state = slot.state;
-				newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-				newShip.ModuleSlotList.AddLast(newSlot);
-			}
+            if (role == ShipData.RoleName.troop)
+            {
+                if (Troops.Count <= 0)
+                {
+                    newShip.VanityName = "Troop Shuttle";
+                }
+                else
+                {
+                    newShip.VanityName = Troops[0].Name;
+                }
+            }
+            newShip.Name = Ship_Game.ResourceManager.ShipsDict[key].Name;
+            newShip.LoadContent(GetContentManager());
+            SceneObject newSO = new SceneObject();
+            if (!Ship_Game.ResourceManager.ShipsDict[key].GetShipData().Animated)
+            {
+                newSO = new SceneObject(Ship_Game.ResourceManager.GetModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath).Meshes[0])
+                {
+                    ObjectType = ObjectType.Dynamic
+                };
+            }
+            else
+            {
+                SkinnedModel model = Ship_Game.ResourceManager.GetSkinnedModel(Ship_Game.ResourceManager.ShipsDict[key].ModelPath);
+                newSO = new SceneObject(model.Model);
+                newShip.SetAnimationController(new AnimationController(model.SkeletonBones), model);
+            }
+            newShip.SetSO(newSO);
+            newShip.Position = p.Position;
+            foreach (Thruster t in Ship_Game.ResourceManager.ShipsDict[key].GetTList())
+            {
+                Thruster thr = new Thruster()
+                {
+                    Parent = newShip,
+                    tscale = t.tscale,
+                    XMLPos = t.XMLPos
+                };
+                newShip.GetTList().Add(thr);
+            }
+            foreach (ModuleSlot slot in Ship_Game.ResourceManager.ShipsDict[key].ModuleSlotList)
+            {
+                ModuleSlot newSlot = new ModuleSlot();
+                newSlot.SetParent(newShip);
+                newSlot.SlotOptions = slot.SlotOptions;
+                newSlot.Restrictions = slot.Restrictions;
+                newSlot.Position = slot.Position;
+                newSlot.facing = slot.facing;
+                newSlot.state = slot.state;
+                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
+                newShip.ModuleSlotList.AddLast(newSlot);
+            }
             if (newShip.shipData.Role == ShipData.RoleName.fighter)
-			{
-				Ship level = newShip;
-				level.Level = level.Level + Owner.data.BonusFighterLevels;
-			}
-			newShip.loyalty = Owner;
-			newShip.Initialize();
+            {
+                Ship level = newShip;
+                level.Level = level.Level + Owner.data.BonusFighterLevels;
+            }
+            newShip.loyalty = Owner;
+            newShip.Initialize();
             //Added by McShooterz: add automatic ship naming
-			if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
+            if (GlobalStats.ActiveModInfo != null && Ship_Game.ResourceManager.ShipNames.CheckForName(Owner.data.Traits.ShipType, newShip.shipData.Role))
                 newShip.VanityName = Ship_Game.ResourceManager.ShipNames.GetName(Owner.data.Traits.ShipType, newShip.shipData.Role);
-			newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
-			lock (GlobalStats.ObjectManagerLocker)
-			{
-				Ship_Game.ResourceManager.universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
-			}
-			foreach (Thruster t in newShip.GetTList())
-			{
-				t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
-				t.InitializeForViewing();
-			}
-			if (DoOrbit)
-			{
-				newShip.DoOrbit(p);
-			}
-			foreach (Troop t in Troops)
-			{
-				newShip.TroopList.Add(Ship_Game.ResourceManager.CopyTroop(t));
-			}
-			Owner.AddShip(newShip);
-			return newShip;
-		}
+            newShip.GetSO().World = Matrix.CreateTranslation(new Vector3(newShip.Center, 0f));
+            lock (GlobalStats.ObjectManagerLocker)
+            {
+                Ship_Game.ResourceManager.universeScreen.ScreenManager.inter.ObjectManager.Submit(newShip.GetSO());
+            }
+            foreach (Thruster t in newShip.GetTList())
+            {
+                t.load_and_assign_effects(Ship_Game.ResourceManager.universeScreen.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", Ship_Game.ResourceManager.universeScreen.ThrusterEffect);
+                t.InitializeForViewing();
+            }
+            if (DoOrbit)
+            {
+                newShip.DoOrbit(p);
+            }
+            foreach (Troop t in Troops)
+            {
+                newShip.TroopList.Add(Ship_Game.ResourceManager.CopyTroop(t));
+            }
+            Owner.AddShip(newShip);
+            return newShip;
+        }
 
-		public static Ship CreateShipAtPoint(string key, Empire Owner, Vector2 p)
+        public static Ship CreateShipAtPoint(string key, Empire Owner, Vector2 p)       //Debug, Hanger Ship, and Platform creation
 		{
             if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(key))
             {
@@ -764,7 +764,7 @@ namespace Ship_Game
 			return newShip;
 		}
 
-		public static Ship CreateShipAtPoint(string key, Empire Owner, Vector2 p, float facing)
+		public static Ship CreateShipAtPoint(string key, Empire Owner, Vector2 p, float facing)     //unused   -- Called in fleet creation function, which is in turn not used
 		{
 						Ship newShip;
             //if(universeScreen.MasterShipList.pendingRemovals.TryPop(out newShip))
@@ -851,7 +851,7 @@ namespace Ship_Game
 			return newShip;
 		}
 
-		public static Ship CreateShipAtPointNow(string key, Empire Owner, Vector2 p)
+		public static Ship CreateShipAtPointNow(string key, Empire Owner, Vector2 p)        //Unused
 		{
 			Ship newShip = new Ship();
 			if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(key))
@@ -928,7 +928,7 @@ namespace Ship_Game
 			return newShip;
 		}
 
-		public static Ship CreateShipForBattleMode(string key, Empire Owner, Vector2 p)
+		public static Ship CreateShipForBattleMode(string key, Empire Owner, Vector2 p)     //Unused... Battle mode, eh?
 		{
 			Ship newShip = new Ship()
 			{
@@ -984,7 +984,7 @@ namespace Ship_Game
 			return newShip;
 		}
 
-		public static Ship CreateShipFromHangar(string key, Empire Owner, Vector2 p, Ship Parent)
+		public static Ship CreateShipFromHangar(string key, Empire Owner, Vector2 p, Ship Parent)       //Hanger Ship Creation (Actually just calls the one above)
 		{
 			Ship s = Ship_Game.ResourceManager.CreateShipAtPoint(key, Owner, p);
 			if (s != null)
@@ -1005,7 +1005,7 @@ namespace Ship_Game
 				Name = t.Name,
 				Description = t.Description,
 				HardAttack = t.HardAttack,
-                //Initiative = t.Initiative,          //Not referenced in code, removing to save memory -Gretman
+                //Initiative = t.Initiative,          //Not referenced in code, removing to save memory
                 SoftAttack = t.SoftAttack,
 				Strength = t.Strength,
                 StrengthMax = t.StrengthMax > 0 ? t.StrengthMax : t.Strength,
@@ -1501,7 +1501,7 @@ namespace Ship_Game
 				//shield_recharge_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_rate,
 				//TechLevel = Ship_Game.ResourceManager.ShipModulesDict[uid].TechLevel,
 				//thrust = Ship_Game.ResourceManager.ShipModulesDict[uid].thrust,
-                //TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,    //Not referenced in code, removing to save memory -Gretman
+                //TroopBoardingDefense = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopBoardingDefense,    //Not referenced in code, removing to save memory
                 //TroopCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopCapacity,
 				//TroopsSupplied = Ship_Game.ResourceManager.ShipModulesDict[uid].TroopsSupplied,
 				UID = Ship_Game.ResourceManager.ShipModulesDict[uid].UID,
@@ -1526,16 +1526,16 @@ namespace Ship_Game
 				PermittedHangarRoles = Ship_Game.ResourceManager.ShipModulesDict[uid].PermittedHangarRoles,
 				//MaximumHangarShipSize = Ship_Game.ResourceManager.ShipModulesDict[uid].MaximumHangarShipSize,
 				//IsRepairModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsRepairModule,
-                //MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,    //Not referenced in code, removing to save memory -Gretman
-                //MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,    //Not referenced in code, removing to save memory -Gretman
-                //MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,    //Not referenced in code, removing to save memory -Gretman
+                //MountLeft = Ship_Game.ResourceManager.ShipModulesDict[uid].MountLeft,    //Not referenced in code, removing to save memory
+                //MountRight = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRight,    //Not referenced in code, removing to save memory
+                //MountRear = Ship_Game.ResourceManager.ShipModulesDict[uid].MountRear,    //Not referenced in code, removing to save memory
                 //WarpMassCapacity = Ship_Game.ResourceManager.ShipModulesDict[uid].WarpMassCapacity,
 				//PowerDrawAtWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].PowerDrawAtWarp,
 				//FTLSpeed = Ship_Game.ResourceManager.ShipModulesDict[uid].FTLSpeed,
 				//ResourceStored = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStored,
-                //ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,    //Not referenced in code, removing to save memory -Gretman
-                //ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,    //Not referenced in code, removing to save memory -Gretman
-                //ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,    //Not referenced in code, removing to save memory -Gretman
+                //ResourceRequired = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceRequired,    //Not referenced in code, removing to save memory
+                //ResourcePerSecond = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecond,    //Not referenced in code, removing to save memory
+                //ResourcePerSecondWarp = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourcePerSecondWarp,    //Not referenced in code, removing to save memory
                 //ResourceStorageAmount = Ship_Game.ResourceManager.ShipModulesDict[uid].ResourceStorageAmount,
 				//IsCommandModule = Ship_Game.ResourceManager.ShipModulesDict[uid].IsCommandModule,
 				//shield_recharge_combat_rate = Ship_Game.ResourceManager.ShipModulesDict[uid].shield_recharge_combat_rate,
@@ -1864,10 +1864,11 @@ namespace Ship_Game
                 TerminalPhaseSpeedMod = Ship_Game.ResourceManager.WeaponsDict[uid].TerminalPhaseSpeedMod,
                 ArmourPen = Ship_Game.ResourceManager.WeaponsDict[uid].ArmourPen,
                 RangeVariance = Ship_Game.ResourceManager.WeaponsDict[uid].RangeVariance,
-                //ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,          //Not referenced in code, removing to save memory -Gretman
+                //ExplosionFlash = Ship_Game.ResourceManager.WeaponsDict[uid].ExplosionFlash,          //Not referenced in code, removing to save memory
                 AltFireMode = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireMode,
                 AltFireTriggerFighter = Ship_Game.ResourceManager.WeaponsDict[uid].AltFireTriggerFighter,
-                SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire
+                SecondaryFire = Ship_Game.ResourceManager.WeaponsDict[uid].SecondaryFire,
+                OffPowerMod = Ship_Game.ResourceManager.WeaponsDict[uid].OffPowerMod
 			};
 			return w;
 		}
@@ -2701,7 +2702,7 @@ namespace Ship_Game
                     string.Intern(data.IconTexturePath);
                 if (!string.IsNullOrEmpty(data.WeaponType) && string.IsNullOrEmpty(String.IsInterned(data.WeaponType)))
                     string.Intern(data.WeaponType);
-                if(data.IsCommandModule  && data.TargetTracking ==0)
+                if(data.IsCommandModule  && data.TargetTracking ==0 && data.FixedTracking == 0)
                 {
                     data.TargetTracking = Convert.ToSByte((data.XSIZE * data.YSIZE) / 3);
                 }
@@ -3175,8 +3176,8 @@ namespace Ship_Game
 
 
 
-            //bool fighters = false;          //Not referenced in code, removing to save memory -Gretman
-            //bool weapons = false;          //Not referenced in code, removing to save memory -Gretman
+            //bool fighters = false;          //Not referenced in code, removing to save memory
+            //bool weapons = false;          //Not referenced in code, removing to save memory
             //ModuleSlot slot = moduleslot;
             //foreach (ModuleSlot slot in entry.Value.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
             {
@@ -3187,16 +3188,78 @@ namespace Ship_Game
                     {
                         //weapons = true;
                         Weapon w = module.InstalledWeapon;
-                        if (!w.explodes)
-                        {
-                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
-                        }
-                        else
-                        {
-                            offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
 
-                        }
-                        if (offRate > 0 && (w.TruePD || w.Range < 1000))
+                    //Doctor: The 25% penalty to explosive weapons is presumably to note that not all the damage is applied to a single module - this isn't really weaker overall, though
+                    //and unfairly penalises weapons with explosive damage and makes them appear falsely weaker.
+
+                        //if (!w.explodes)
+                        //{
+                            offRate += (!w.isBeam ? (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) : w.DamageAmount * 18f);
+                       // }
+                        //else
+                        //{
+                         //   offRate += (w.DamageAmount * w.SalvoCount) * (1f / w.fireDelay) * 0.75f;
+
+                       // }
+
+                    //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
+                    if (w.Tag_Guided)
+                    {
+                        offRate *= 1.25f;
+                    }
+
+                    //Doctor: Higher range on a weapon attracts a small bonus to offensive rating. E.g. a range 2000 weapon gets 5% uplift vs a 5000 range weapon 12.5% uplift. 
+                    offRate *= (1 + (w.Range / 40000));
+
+
+                    //Doctor: Here follows multipliers which modify the perceived offensive value of weapons based on any modifiers they may have against armour and shields
+                    //Previously if e.g. a rapid-fire cannon only did 20% damage to armour, it could have amuch higher off rating than a railgun that had less technical DPS but did double armour damage.
+                    if (w.EffectVsArmor < 1)
+                    {
+                        if (w.EffectVsArmor > 0.75)
+                            offRate *= 0.9f;
+                        else if (w.EffectVsArmor > 0.5)
+                            offRate *= 0.85f;
+                        else if (w.EffectVsArmor > 0.25)
+                            offRate *= 0.8f;
+                        else
+                            offRate *= 0.75f;
+                    }
+                    if (w.EffectVsArmor > 1)
+                    {
+                        if (w.EffectVsArmor > 2.0)
+                            offRate *= 1.5f;
+                        else if (w.EffectVsArmor > 1.5)
+                            offRate *= 1.3f;
+                        else
+                            offRate *= 1.1f;
+                    }
+                    if (w.EffectVSShields < 1)
+                    {
+                        if (w.EffectVSShields > 0.75)
+                            offRate *= 0.9f;
+                        else if (w.EffectVSShields > 0.5)
+                            offRate *= 0.85f;
+                        else if (w.EffectVSShields > 0.25)
+                            offRate *= 0.8f;
+                        else
+                            offRate *= 0.75f;
+                    }
+                    if (w.EffectVSShields > 1)
+                    {
+                        if (w.EffectVSShields > 2)
+                            offRate *= 1.5f;
+                        else if (w.EffectVSShields > 1.5)
+                            offRate *= 1.3f;
+                        else
+                            offRate *= 1.1f;
+                    }
+
+
+                    //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+                    offRate *= w.OffPowerMod;
+
+                    if (offRate > 0 && (w.TruePD || w.Range < 1000))
                         {
                             float range = 0f;
                             if (w.Range < 1000)
