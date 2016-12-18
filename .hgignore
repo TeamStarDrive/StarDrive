@@ -4,11 +4,14 @@ obj/
 *.vsp
 Ship_Game\Gameplay\GremlinAI.cs
 bin/
-StarDrive.csproj.orig
 *.orig
 StarDrive.sln
-StarDrive.v12.suo
 UpgradeLog2.htm
 *.vspx
 Deploy/Upload/
 Deploy/
+*.suo
+StarDrive/
+SDNative\SDNative.vcxproj
+x64\Debug\SDNative.lib
+x64/

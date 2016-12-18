@@ -9,7 +9,7 @@ namespace Ship_Game
 {
 	public sealed class Bomb
 	{
-        //private const float trailParticlesPerSecond = 500f;          //Not referenced in code, removing to save memory -Gretman
+        //private const float trailParticlesPerSecond = 500f;          //Not referenced in code, removing to save memory
 
         public static UniverseScreen screen;
 
@@ -19,9 +19,9 @@ namespace Ship_Game
 
 		public Vector3 Velocity;
 
-        //public string FireCueName;          //Not referenced in code, removing to save memory -Gretman
+        //public string FireCueName;          //Not referenced in code, removing to save memory
 
-        //public string ExplodeCueName;          //Not referenced in code, removing to save memory -Gretman
+        //public string ExplodeCueName;          //Not referenced in code, removing to save memory
 
         public string WeaponName;
 
@@ -35,7 +35,7 @@ namespace Ship_Game
         //public float PopulationDamage;
         //public float OrdnanceCost;
         //public float OreDamage;
-        //public float BuildingDestructionChance;          //None of these are referenced in any code, removing to save memory -Gretman
+        //public float BuildingDestructionChance;          //None of these are referenced in any code, removing to save memory
         //public float TroopDamageChance;
         //public float MinTroopDamage;
         //public float MaxTroopDamage;

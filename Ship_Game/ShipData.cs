@@ -79,7 +79,7 @@ namespace Ship_Game
         public int TechScore = 0;
         //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
         private static string[] RoleArray = {"disabled","platform","station","construction","supply","freighter","troop","fighter","scout","gunboat","drone","corvette","frigate","destroyer","cruiser","carrier","capital","prototype"};
-        private static string[] CategoryArray = {"Unclassified","Civilian","Recon","Combat","Kamikaze"};
+        private static string[] CategoryArray = {"Unclassified","Civilian","Recon","Combat", "Bomber", "Fighter", "Kamikaze"};
 
 		public ShipData()
 		{
@@ -118,6 +118,8 @@ namespace Ship_Game
             Civilian,
             Recon,
             Combat,
+            Bomber,
+            Fighter,            
             Kamikaze
         }
 

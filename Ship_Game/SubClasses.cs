@@ -87,31 +87,35 @@ namespace Ship_Game.Gameplay
         public float TransporterOrdnance;
         public byte TransporterTroopLanding;
         public byte TransporterTroopAssault;
-        public sbyte KineticResist = 0;
-        public sbyte EnergyResist = 0;
-        public sbyte GuidedResist = 0;
-        public sbyte MissileResist = 0;
-        public sbyte HybridResist = 0;
-        public sbyte BeamResist = 0;
-        public sbyte ExplosiveResist = 0;
-        public sbyte InterceptResist = 0;
-        public sbyte RailgunResist = 0;
-        public sbyte SpaceBombResist = 0;
-        public sbyte BombResist = 0;
-        public sbyte BioWeaponResist = 0;
-        public sbyte DroneResist = 0;
-        public sbyte WarpResist = 0;
-        public sbyte TorpedoResist = 0;
-        public sbyte CannonResist = 0;
-        public sbyte SubspaceResist = 0;
-        public sbyte PDResist = 0;
-        public sbyte FlakResist = 0;
-        public byte DamageThreshold = 0;
+
+        //Doctor: these were floats for a reason: they're decimal fractions to define damage resistance. Loading them with sbytes caused crashes from xml and broke the resistance mechanics.
+        //Likewise, DamageThreshold is a set damage amount which armour disregards damage value under - immediately broke as a byte as some armours had values higher than 255.
+        public float KineticResist = 0f;
+        public float EnergyResist = 0f;
+        public float GuidedResist = 0f;
+        public float MissileResist = 0f;
+        public float HybridResist = 0f;
+        public float BeamResist = 0f;
+        public float ExplosiveResist = 0f;
+        public float InterceptResist = 0f;
+        public float RailgunResist = 0f;
+        public float SpaceBombResist = 0f;
+        public float BombResist = 0f;
+        public float BioWeaponResist = 0f;
+        public float DroneResist = 0f;
+        public float WarpResist = 0f;
+        public float TorpedoResist = 0f;
+        public float CannonResist = 0f;
+        public float SubspaceResist = 0f;
+        public float PDResist = 0f;
+        public float FlakResist = 0f;
+        public float DamageThreshold = 0f;
         public int APResist = 0;
         public bool IndirectPower = false;
         public bool isPowerArmour = false;
         public bool isBulkhead = false;
         public sbyte TargetTracking = 0;
+        public sbyte FixedTracking = 0;
 
         public static ShipModule_Advanced Empty = new ShipModule_Advanced();    //A static instance to be assigned to leftover modules
 
@@ -246,32 +250,33 @@ namespace Ship_Game.Gameplay
         public byte TransporterTroopLanding;
         public byte TransporterTroopAssault;
         public int TargetValue = 0;
-        public sbyte KineticResist = 0;
-        public sbyte EnergyResist = 0;
-        public sbyte GuidedResist = 0;
-        public sbyte MissileResist = 0;
-        public sbyte HybridResist = 0;
-        public sbyte BeamResist = 0;
-        public sbyte ExplosiveResist = 0;
-        public sbyte InterceptResist = 0;
-        public sbyte RailgunResist = 0;
-        public sbyte SpaceBombResist = 0;
-        public sbyte BombResist = 0;
-        public sbyte BioWeaponResist = 0;
-        public sbyte DroneResist = 0;
-        public sbyte WarpResist = 0;
-        public sbyte TorpedoResist = 0;
-        public sbyte CannonResist = 0;
-        public sbyte SubspaceResist = 0;
-        public sbyte PDResist = 0;
-        public sbyte FlakResist = 0;
-        public byte DamageThreshold = 0;
+        public float KineticResist = 0;
+        public float EnergyResist = 0;
+        public float GuidedResist = 0;
+        public float MissileResist = 0;
+        public float HybridResist = 0;
+        public float BeamResist = 0;
+        public float ExplosiveResist = 0;
+        public float InterceptResist = 0;
+        public float RailgunResist = 0;
+        public float SpaceBombResist = 0;
+        public float BombResist = 0;
+        public float BioWeaponResist = 0;
+        public float DroneResist = 0;
+        public float WarpResist = 0;
+        public float TorpedoResist = 0;
+        public float CannonResist = 0;
+        public float SubspaceResist = 0;
+        public float PDResist = 0;
+        public float FlakResist = 0;
+        public float DamageThreshold = 0;
         public int APResist = 0;
         public bool IndirectPower = false;
         public bool isPowerArmour = false;
         public bool isBulkhead = false;
         public sbyte quadrant = -1;
         public sbyte TargetTracking = 0;
+        public sbyte FixedTracking = 0;
 
         public ShipModule ConvertToShipModule()
         {                                                           //This functions translates from the old ShipModule (eg the XML files)
@@ -416,6 +421,7 @@ namespace Ship_Game.Gameplay
             ReturnModule.Advanced.isPowerArmour = this.isPowerArmour;
             ReturnModule.Advanced.isBulkhead = this.isBulkhead;
             ReturnModule.Advanced.TargetTracking = this.TargetTracking;
+            ReturnModule.Advanced.FixedTracking = this.FixedTracking;
 
             return ReturnModule;
         }

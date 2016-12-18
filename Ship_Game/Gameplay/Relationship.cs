@@ -193,6 +193,8 @@ namespace Ship_Game.Gameplay
             
             if (GlobalStats.perf && EmpireManager.GetEmpireByName(Us.GetUS().PlayerLoyalty) == Them)
                 return;
+            float angerMod = 1+ ((int)Ship.universeScreen.GameDifficulty+1) * .2f;
+            Amount *= angerMod;
             string str = why;
 			string str1 = str;
 			if (str != null)
@@ -820,8 +822,7 @@ namespace Ship_Game.Gameplay
             }
             if (this.Anger_MilitaryConflict > 0f)
             {
-                Relationship angerTerritorialConflict2 = this;
-                angerTerritorialConflict2.Anger_TerritorialConflict = angerTerritorialConflict2.Anger_TerritorialConflict - dt.AngerDissipation;
+                this.Anger_MilitaryConflict -= dt.AngerDissipation;
             }
             if (this.Anger_MilitaryConflict < 0f)
             {
@@ -837,6 +838,7 @@ namespace Ship_Game.Gameplay
                 this.Anger_DiplomaticConflict = 0f;
             }
             this.TotalAnger = 0f;
+
             Relationship totalAnger = this;
             totalAnger.TotalAnger = totalAnger.TotalAnger + this.Anger_DiplomaticConflict;
             Relationship totalAnger1 = this;
