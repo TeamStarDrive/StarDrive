@@ -107,13 +107,15 @@ namespace Ship_Game
             string text = "!! Error: " + error;
             LogFile.WriteLine(text);
 
-            Raven.Capture(new SentryEvent(text)
-            {
-                Level = ErrorLevel.Error
-            });
-
             if (!HasDebugger)
+            {
+                // only log errors to sentry if debugger not attached
+                Raven.Capture(new SentryEvent(text)
+                {
+                    Level = ErrorLevel.Error
+                });
                 return;
+            }
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(text);
             // Error triggered while in Debug mode. Check the error message for what went wrong
@@ -131,14 +133,16 @@ namespace Ship_Game
             string text = "!! Exception: " + error;
             LogFile.WriteLine(text);
 
-            Raven.Capture(new SentryEvent(ex)
-            {
-                Message = new SentryMessage(text + " | " + ex.Message),
-                Level = ErrorLevel.Fatal, // this is soooooo serious
-            });
-
             if (!HasDebugger)
+            {
+                // only log errors to sentry if debugger not attached
+                Raven.Capture(new SentryEvent(ex)
+                {
+                    Message = new SentryMessage(text + " | " + ex.Message),
+                    Level = ErrorLevel.Fatal, // this is soooooo serious
+                });
                 return;
+            }
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine(text);
             // Error triggered while in Debug mode. Check the error message for what went wrong

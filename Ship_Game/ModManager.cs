@@ -170,7 +170,7 @@ namespace Ship_Game
                         if (GlobalStats.ActiveMod != null)
                         {
                             ResourceManager.Reset();
-                            ResourceManager.Initialize(base.ScreenManager.Content);
+                            ResourceManager.LoadItAll();
                         }    
                         
                         this.modLoad = Task.Factory.StartNew(loadModTask);
@@ -212,7 +212,7 @@ namespace Ship_Game
                         GlobalStats.ActiveMod = null;
                         GlobalStats.ActiveModInfo = null;						                     
                         ResourceManager.Reset();
-						ResourceManager.Initialize(base.ScreenManager.Content);                        
+						ResourceManager.LoadItAll();                        
 						ResourceManager.LoadEmpires();
                         //Fonts.LoadContent(this.ScreenManager.Content);
                         this.mmscreen.ReloadContent();
@@ -291,9 +291,8 @@ namespace Ship_Game
         {
             if (GlobalStats.ActiveMod != null)
             {
-                
                 ResourceManager.Reset();
-                ResourceManager.Initialize(base.ScreenManager.Content);
+                ResourceManager.LoadItAll();
             }     
         }
         private void loadModTask()
