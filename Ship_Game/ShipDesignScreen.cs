@@ -6059,11 +6059,7 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
-			lock (GlobalStats.ObjectManagerLocker)
-			{
-				base.ScreenManager.inter.LightManager.Clear();
-				base.ScreenManager.inter.LightManager.Submit(rig);
-			}
+            rig.AssignTo(this);
 			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280 || base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 768)
 			{
 				this.LowRes = true;
@@ -6422,10 +6418,10 @@ namespace Ship_Game
 		private void ReallyExit()
 		{
 			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/NewGamelight_rig");
-			lock (GlobalStats.ObjectManagerLocker)
+            rig.AssignTo(this);
+
+            lock (GlobalStats.ObjectManagerLocker)
 			{
-				base.ScreenManager.inter.LightManager.Clear();
-				base.ScreenManager.inter.LightManager.Submit(rig);
 				base.ScreenManager.inter.ObjectManager.Remove(this.shipSO);
 			}
 			if (Ship.universeScreen.LookingAtPlanet && Ship.universeScreen.workersPanel is ColonyScreen)
