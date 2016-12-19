@@ -2095,10 +2095,9 @@ namespace Ship_Game
                         screen.workersPanel = new ColonyScreen(p, ScreenManager, eui);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-
-                    System.Diagnostics.Debug.WriteLine("Colony Screen Handle Inpu. Likely null reference.");
+                    Log.Exception(ex, "Colony Screen HandleInput(). Likely null reference.");
                 }
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {

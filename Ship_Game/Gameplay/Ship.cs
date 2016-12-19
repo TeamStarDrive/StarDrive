@@ -974,7 +974,7 @@ namespace Ship_Game.Gameplay
 
         public void AddGood(string UID, int Amount)
         {
-            //System.Diagnostics.Debug.WriteLine("AddGood {0}: {1}", UID, Amount);
+            //Log.Info("AddGood {0}: {1}", UID, Amount);
             if (this.CargoDict.ContainsKey(UID))
             {
                 Dictionary<string, float> dictionary;
@@ -2041,7 +2041,7 @@ namespace Ship_Game.Gameplay
             this.shipInitialized = true;
             this.RecalculateMaxHP();            //Fix for Ship Max health being greater than all modules combined (those damned haphazard engineers). -Gretman
 
-            if (this.VanityName == "MerCraft") global::System.Diagnostics.Debug.WriteLine("Health from InitializeFromSave is:  " + this.HealthMax);
+            if (this.VanityName == "MerCraft") Log.Info("Health from InitializeFromSave is:  " + this.HealthMax);
         }
 
         public override void Initialize()
@@ -2883,8 +2883,7 @@ namespace Ship_Game.Gameplay
                 moduleSlot.SetParent(this);
                 if (!ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
                 {
-                    global::System.Diagnostics.Debug.WriteLine("Ship {0} init failed, module {1} doesn't exist",
-                                                        Name, moduleSlot.InstalledModuleUID);
+                    Log.Warning("Ship {0} init failed, module {1} doesn't exist", Name, moduleSlot.InstalledModuleUID);
                     return false;
                 }
 
@@ -2911,7 +2910,7 @@ namespace Ship_Game.Gameplay
             //else 
             //if (this.FTLmodifier < 1.0 && this.system != null && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed() - 1 ))
             //{
-            //    if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Break Hyperspace because of FTL Mod.  " + this.velocityMaximum + "  :  " + this.GetSTLSpeed());
+            //    if (this.VanityName == "MerCraft") Log.Info("Break Hyperspace because of FTL Mod.  " + this.velocityMaximum + "  :  " + this.GetSTLSpeed());
             //    this.HyperspaceReturn();      //This section commented out because it was causing ships ot not be able ot warp at all if the FTL modifier was anything less than 1.0 -Gretman
             //}
             if (ScuttleTimer > -1.0 || ScuttleTimer <-1.0)
@@ -3739,10 +3738,9 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-                catch 
+                catch (Exception ex)
                 {
-
-                    global::System.Diagnostics.Debug.WriteLine("Inhibitor blew up");
+                    Log.Exception(ex, "Inhibitor blew up");
                 }
                 this.inSensorRange = false;
                 if (Ship.universeScreen.Debug || this.loyalty == Ship.universeScreen.player || this.loyalty != Ship.universeScreen.player && Ship.universeScreen.player.GetRelations(loyalty).Treaty_Alliance)
@@ -4407,7 +4405,7 @@ namespace Ship_Game.Gameplay
 #if DEBUG
 
                 //if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
-                    //System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
+                    //Log.Info("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
 
 #endif
                 if (!slot.module.isDummy && (this.BaseStrength == -1 ||( slot.module.Powered && slot.module.Active )))
@@ -4657,7 +4655,7 @@ namespace Ship_Game.Gameplay
                     float junkScale   = radSqrt * 0.05f; // trial and error, depends on junk model sizes
                     if (junkScale > 1.4f) junkScale = 1.4f; // bigger doesn't look good
 
-                    //System.Diagnostics.Debug.WriteLine("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
+                    //Log.Info("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
                     SpaceJunk.SpawnJunk(explosionJunk, Center, System, this, Radius/4, junkScale);
                 }
             }
@@ -4945,7 +4943,7 @@ namespace Ship_Game.Gameplay
 
         public void RecalculateMaxHP()          //Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
         {
-            if (VanityName == "MerCraft") global::System.Diagnostics.Debug.WriteLine("Health was " + Health + " / " + HealthMax + "   (" + loyalty.data.Traits.ModHpModifier + ")");
+            if (VanityName == "MerCraft") Log.Info("Health was " + Health + " / " + HealthMax + "   (" + loyalty.data.Traits.ModHpModifier + ")");
             this.HealthMax = 0;
             foreach (ModuleSlot slot in ModuleSlotList)
             {
@@ -4961,7 +4959,7 @@ namespace Ship_Game.Gameplay
                 HealthMax += slot.module.HealthMax;
             }
             if (Health >= HealthMax) Health = HealthMax;
-            if (VanityName == "MerCraft") global::System.Diagnostics.Debug.WriteLine("Health is  " + Health + " / " + HealthMax);
+            if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);
         }
 
     }

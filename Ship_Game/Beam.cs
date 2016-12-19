@@ -413,9 +413,6 @@ namespace Ship_Game
    //                             GlobalStats.BeamOOM = 0;
    //                         }
                             
-   //                         System.Diagnostics.Debug.WriteLine("BEAM EXPLODED");
-
-
    //                         this.Active = false;
    //                         return false;
    //                     }
@@ -525,18 +522,18 @@ namespace Ship_Game
             //Modified by Gretman
             if (this.Target == null)// If current target sucks, use "destination" instead
             {
-                global::System.Diagnostics.Debug.WriteLine("Beam assigned alternate destination at update");
-                this.Destination = MathExt.PointFromRadians(this.Source, this.owner.Rotation - this.BeamOffsetAngle, this.range);
+                Log.Info("Beam assigned alternate destination at update");
+                this.Destination = Source.PointFromRadians(this.owner.Rotation - this.BeamOffsetAngle, this.range);
             }
             else if (!this.owner.isPlayerShip() && Vector2.Distance(this.Destination, this.Source) > this.range + this.owner.Radius) //So beams at the back of a ship can hit too!
             {
-                global::System.Diagnostics.Debug.WriteLine("Beam killed because of distance: Dist = " + Vector2.Distance(this.Destination, this.Source).ToString() + "  Beam Range = " + (this.range).ToString());
+                Log.Info("Beam killed because of distance: Dist = " + Vector2.Distance(this.Destination, this.Source).ToString() + "  Beam Range = " + (this.range).ToString());
                 this.Die(null, true);
                 return;
             }
             else if (!this.owner.isPlayerShip() && !this.Owner.CheckIfInsideFireArc(this.weapon, this.Destination, base.Owner.Rotation))
             {
-                global::System.Diagnostics.Debug.WriteLine("Beam killed because of angle");
+                Log.Info("Beam killed because of angle");
                 this.Die(null, true);
                 return;
             }
