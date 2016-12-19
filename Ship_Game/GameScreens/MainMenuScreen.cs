@@ -665,7 +665,7 @@ namespace Ship_Game
         // for quick feature testing in the main menu
         private void LoadTestContent()
         {
-            var atlas = TextureAtlas.Load(ScreenManager.Content, "Explosions/smaller/shipExplosion");
+            //var atlas = TextureAtlas.Load(ScreenManager.Content, "Explosions/smaller/shipExplosion");
 
         }
 
