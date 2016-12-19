@@ -758,9 +758,9 @@ namespace Ship_Game
                                 pgs.TroopsHere[0].SetPlanet(null);
                                 pgs.TroopsHere.Clear();
                             }
-                            catch
+                            catch (Exception ex)
                             {
-                                System.Diagnostics.Debug.WriteLine("Troop Launch Crash");
+                                Log.Exception(ex, "Troop Launch Crash");
                             }
                         }
                         if (play)
@@ -823,9 +823,9 @@ namespace Ship_Game
                             foundPlace = true;
                             this.draggedTroop = null;
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine("Troop Launch Crash");
+                            Log.Exception(ex, "TroopLaunch crash");
                         }
 					}
 					else
@@ -837,33 +837,33 @@ namespace Ship_Game
                         try
                         {
                             AudioManager.PlayCue("sd_troop_land");
-                            pgs.TroopsHere.Add((this.draggedTroop.item as Ship).TroopList[0]);
+                            pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
                             pgs.TroopsHere[0].AvailableAttackActions = 0;
                             pgs.TroopsHere[0].AvailableMoveActions = 0;
                             pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                            pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
-                            pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
-                            this.p.TroopsHere.Add((this.draggedTroop.item as Ship).TroopList[0]);
-                            (this.draggedTroop.item as Ship).TroopList[0].SetPlanet(this.p);
-                            if (pgs.building != null && !string.IsNullOrEmpty(pgs.building.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction && !pgs.TroopsHere[0].GetOwner().MinorRace)
+                            pgs.TroopsHere[0].AttackTimer = pgs.TroopsHere[0].AttackTimerBase;
+                            pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
+                            p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
+                            (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
+                            if (!string.IsNullOrEmpty(pgs.building?.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction && !pgs.TroopsHere[0].GetOwner().MinorRace)
                             {
                                 ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs,  CombatScreen.universeScreen);
                             }
-                            this.OrbitSL.Entries.Remove(this.draggedTroop);
-                            this.OrbitSL.Copied.Remove(this.draggedTroop);
-                            (this.draggedTroop.item as Ship).QueueTotalRemoval();
+                            OrbitSL.Entries.Remove(draggedTroop);
+                            OrbitSL.Copied.Remove(draggedTroop);
+                            (draggedTroop.item as Ship).QueueTotalRemoval();
                             foundPlace = true;
-                            this.draggedTroop = null;
+                            draggedTroop = null;
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine("Troop Launch Crash");
+                            Log.Exception(ex, "Troop Launch Crash");
                         }
 					}
 				}
 				if (!foundPlace)
 				{
-					this.draggedTroop = null;
+					draggedTroop = null;
 					AudioManager.PlayCue("UI_Misc20");
 				}
 			}

@@ -196,11 +196,11 @@ namespace Ship_Game
 			        }
 			        if (fullFile.StartsWith(fullDirectory))
 			        {
-                        Debug.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
+                        Log.Info("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
 			        }
 			        else
 			        {
-                        Debug.WriteLine("Unable to make relative path");
+                        Log.Warning("Unable to make relative path");
 			        }
 
 			        ModelData data = new ModelData();
@@ -230,11 +230,11 @@ namespace Ship_Game
 			        }
 			        if (fullFile.StartsWith(fullDirectory))
 			        {
-			            Console.WriteLine("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
+                        Log.Info("Relative path: {0}", fullFile.Substring(fullDirectory.Length + 1));
 			        }
 			        else
 			        {
-			            Console.WriteLine("Unable to make relative path");
+                        Log.Info("Unable to make relative path");
 			        }
 			        ModelData data = new ModelData();
 			        data.Name     = Path.GetFileNameWithoutExtension(info.FullName);

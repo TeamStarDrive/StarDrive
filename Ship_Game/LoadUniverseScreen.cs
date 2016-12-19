@@ -552,7 +552,7 @@ namespace Ship_Game
                         bool exists =ResourceManager.ShipModulesDict.TryGetValue(moduleSD.InstalledModuleUID,out mismatch);
                         if (exists)
                             continue;
-                        System.Diagnostics.Debug.WriteLine(string.Concat("mismatch =", moduleSD.InstalledModuleUID));
+                        Log.Info("mismatch = "+ moduleSD.InstalledModuleUID);
                     }
 
 
@@ -1071,8 +1071,8 @@ namespace Ship_Game
 
                 
             //}
-            //System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
-            //System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(false)).ToString());
+            //Log.Info("Ships Purged: " + shipsPurged.ToString());
+            //Log.Info("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(false)).ToString());
 			this.Loaded = true;
             UniverseData.UniverseWidth = data.Size.X ;
 		}
@@ -1256,7 +1256,7 @@ namespace Ship_Game
 				this.us.player = EmpireManager.GetEmpireByName(this.PlayerLoyalty);
 				this.us.LoadContent();
 
-                System.Diagnostics.Debug.WriteLine("LoadUniverseScreen.UpdateAllSystems(0.01)");
+                Log.Info("LoadUniverseScreen.UpdateAllSystems(0.01)");
 				this.us.UpdateAllSystems(0.01f);
                 ResourceManager.MarkShipDesignsUnlockable();
                 /*

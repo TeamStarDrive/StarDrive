@@ -11,7 +11,6 @@ using Particle3DSample;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +19,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
-using SharpRaven;
 
 namespace Ship_Game
 {
@@ -258,7 +256,6 @@ namespace Ship_Game
         public int lastplanetcombat = 0;
         public int reducer = 1;
         public float screenDelay = 0f;
-        public RavenClient ravenClient = new RavenClient("https://3e16bcf9f97d4af3b3fb4f8d4ba1830b:1f0e6d3598e14584877e0c0e87554966@sentry.io/123180");
 
         public UniverseScreen()
         {
@@ -1142,10 +1139,7 @@ namespace Ship_Game
                 {
                     if (++failedLoops > 1)
                         throw ex; // the loop is having a cyclic crash, no way to recover
-                    Log.Error("ProcessTurns: {0}\n{1}", ex.Message, ex.StackTrace);
-                    
-                    ravenClient.CaptureException(ex);
-
+                    Log.Exception(ex, "ProcessTurns crashed");
                 }
                 finally
                 {
@@ -1663,7 +1657,7 @@ namespace Ship_Game
 
             #region end
 
-            //System.Diagnostics.Debug.WriteLine(this.zgameTime.TotalGameTime.Seconds - elapsedTime);
+            //Log.Info(this.zgameTime.TotalGameTime.Seconds - elapsedTime);
             Parallel.Invoke(() =>
             {
                 if (elapsedTime > 0)
@@ -1968,7 +1962,7 @@ namespace Ship_Game
         //                        }
         //                    //    catch (Exception ex)
         //                    //    {
-        //                    //        System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+        //                    //        Log.Exception(ex, "");
         //                    //    }
         //                    }
         //                }
@@ -2791,20 +2785,20 @@ namespace Ship_Game
                     this.previousSelection = this.SelectedShip;
                 this.SelectedShip = (Ship)null;
                 this.SelectedShipList.Clear();
-                this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
-                this.SelectedSystem = (SolarSystem)null;
+                this.SelectedItem = null;
+                this.SelectedSystem = null;
             }
             if ((input.CurrentKeyboardState.IsKeyDown(Keys.Back) || input.CurrentKeyboardState.IsKeyDown(Keys.Delete)) && (this.SelectedItem != null && this.SelectedItem.AssociatedGoal.empire == this.player))
             {
-                this.player.GetGSAI().Goals.QueuePendingRemoval(this.SelectedItem.AssociatedGoal);
+                this.player.GetGSAI().Goals.QueuePendingRemoval(SelectedItem.AssociatedGoal);
                 bool flag = false;
-                foreach (Ship ship in (List<Ship>)this.player.GetShips())
+                foreach (Ship ship in player.GetShips())
                 {
                     if (ship.isConstructor && ship.GetAI().OrderQueue.Count > 0)
                     {
                         for (int index = 0; index < ship.GetAI().OrderQueue.Count; ++index)
                         {
-                            if (Enumerable.ElementAt<ArtificialIntelligence.ShipGoal>((IEnumerable<ArtificialIntelligence.ShipGoal>)ship.GetAI().OrderQueue, index).goal == this.SelectedItem.AssociatedGoal)
+                            if (Enumerable.ElementAt(ship.GetAI().OrderQueue, index).goal == SelectedItem.AssociatedGoal)
                             {
                                 flag = true;
                                 ship.GetAI().OrderScrapShip();
@@ -2817,7 +2811,7 @@ namespace Ship_Game
                 {
                     foreach (Planet planet in this.player.GetPlanets())
                     {
-                        foreach (QueueItem queueItem in (List<QueueItem>)planet.ConstructionQueue)
+                        foreach (QueueItem queueItem in planet.ConstructionQueue)
                         {
                             if (queueItem.Goal == this.SelectedItem.AssociatedGoal)
                             {
@@ -2977,24 +2971,23 @@ namespace Ship_Game
                     }
                     catch (Exception e)
                     {
-
-                        System.Diagnostics.Debug.WriteLine(e.InnerException);
+                        Log.Exception(e, "Fleet creation failed");
                     }
                     if (this.SelectedShip != null && this.Debug)
                     {
                         if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
                         {
-                            foreach (ModuleSlot mod in this.SelectedShip.ModuleSlotList)
+                            foreach (ModuleSlot mod in SelectedShip.ModuleSlotList)
                             { mod.module.Health = 1; }    //Added by Gretman so I can hurt ships when the disobey me... I mean for testing... Yea, thats it...
-                            this.SelectedShip.Health = this.SelectedShip.ModuleSlotList.Count;
+                            SelectedShip.Health = SelectedShip.ModuleSlotList.Count;
                         }
                         else if (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
-                            this.SelectedShip.Die((GameplayObject)null, false);
+                            SelectedShip.Die(null, false);
                     }
-                    else if (this.SelectedPlanet != null && this.Debug && (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X)))
+                    else if (SelectedPlanet != null && Debug && (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X)))
                     {
                         foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
-                            this.SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.Remnants));
+                            SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.Remnants));
                     }
 
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))

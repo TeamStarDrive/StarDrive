@@ -5767,18 +5767,18 @@ namespace Ship_Game.Gameplay
                 DesiredTroops = (float)Math.Ceiling((double)(atwar ? TotalMilShipCount / 10f : TotalMilShipCount / 30f));
             }
 #if DEBUG
-            //System.Diagnostics.Debug.WriteLine("Build Ratios for: " + this.empire.data.PortraitName);
-            //System.Diagnostics.Debug.WriteLine("fighters: " + DesiredFighters + " / " + numFighters);
-            //System.Diagnostics.Debug.WriteLine("corvettes: " + DesiredCorvettes + " / " + numCorvettes);
-            //System.Diagnostics.Debug.WriteLine("Frigates: " + DesiredFrigates + " / " + numFrigates);
-            //System.Diagnostics.Debug.WriteLine("Cruisers: " + DesiredCruisers + " / " + numCruisers);
-            //System.Diagnostics.Debug.WriteLine("Capitals: " + DesiredCapitals + " / " + numCapitals);
-            //System.Diagnostics.Debug.WriteLine("Carriers: " + DesiredCarriers + " / " + numCarriers);
-            //System.Diagnostics.Debug.WriteLine("Bombers: " + DesiredBombers + " / " + numBombers);
-            //System.Diagnostics.Debug.WriteLine("TroopsHips: " + DesiredTroops + " / " + numTroops);
-            //System.Diagnostics.Debug.WriteLine("Capacity: " + Capacity);
-            //System.Diagnostics.Debug.WriteLine("ShipGoals: " + this.empire.GetGSAI().numberOfShipGoals);
-           
+            //Log.Info("Build Ratios for: " + this.empire.data.PortraitName);
+            //Log.Info("fighters: " + DesiredFighters + " / " + numFighters);
+            //Log.Info("corvettes: " + DesiredCorvettes + " / " + numCorvettes);
+            //Log.Info("Frigates: " + DesiredFrigates + " / " + numFrigates);
+            //Log.Info("Cruisers: " + DesiredCruisers + " / " + numCruisers);
+            //Log.Info("Capitals: " + DesiredCapitals + " / " + numCapitals);
+            //Log.Info("Carriers: " + DesiredCarriers + " / " + numCarriers);
+            //Log.Info("Bombers: " + DesiredBombers + " / " + numBombers);
+            //Log.Info("TroopsHips: " + DesiredTroops + " / " + numTroops);
+            //Log.Info("Capacity: " + Capacity);
+            //Log.Info("ShipGoals: " + this.empire.GetGSAI().numberOfShipGoals);
+
 #endif
             //Scrap ships when overspending by class
             if (this.buildCapacity /(TotalUpkeep *.90f +1) <1)  //capScrapping prevent from scrapping too much
@@ -5937,12 +5937,12 @@ namespace Ship_Game.Gameplay
                     buildThis = this.PickFromCandidates(pick.Key, Capacity, PotentialShips);
                     if (!string.IsNullOrEmpty(buildThis))
                     {
-                        //System.Diagnostics.Debug.WriteLine("Chosen: " + buildThis);
-                        //System.Diagnostics.Debug.WriteLine("TroopsHips: " + DesiredTroops);
+                        //Log.Info("Chosen: " + buildThis);
+                        //Log.Info("TroopsHips: " + DesiredTroops);
                         return buildThis;
                     }
-                }            
-            System.Diagnostics.Debug.WriteLine("Chosen: Nothing");
+                }
+            Log.Info("Chosen: Nothing");
             this.nobuild = true;
             return null;  //Find nothing to build !
         }
@@ -6064,7 +6064,7 @@ namespace Ship_Game.Gameplay
                 PotentialShips.Add(ship);
             }
             float nearmax = maxtech * .5f;
-            //System.Diagnostics.Debug.WriteLine("number of candidates : " + PotentialShips.Count + " _ trying for : " + role);
+            //Log.Info("number of candidates : " + PotentialShips.Count + " _ trying for : " + role);
             if (PotentialShips.Count > 0)
             {
                 IOrderedEnumerable<Ship> sortedList =
@@ -6079,7 +6079,7 @@ namespace Ship_Game.Gameplay
                 ship = sortedList.Skip(ran).First();
                 name = ship.Name;
             #if DEBUG
-                System.Diagnostics.Debug.WriteLine("Choosen Role: {0}  Chosen Hull: {1}  Strength: {2}", 
+                Log.Info("Chosen Role: {0}  Chosen Hull: {1}  Strength: {2}", 
                     ship.GetShipData().Role, ship.GetShipData().Hull, ship.BaseStrength); 
             #endif
             }
@@ -6091,8 +6091,7 @@ namespace Ship_Game.Gameplay
                 {
                     ships += known + " : ";
                 }
-                System.Diagnostics.Debug.WriteLine(ships);
-                System.Diagnostics.Debug.WriteLine(""); 
+                Log.Info(ships);
             #endif
             }
             PotentialShips.Clear();
@@ -6633,8 +6632,8 @@ namespace Ship_Game.Gameplay
                     }
                     float str =this.ThreatMatrix.PingRadarStr(s.Position, 300000f, this.empire,true);
                     if (str > 0f)
-                    {                                                
-                        //System.Diagnostics.Debug.WriteLine("Colonization ignored in " + s.Name + " Incorrect pin str :" +str.ToString() );
+                    {
+                        //Log.Info("Colonization ignored in " + s.Name + " Incorrect pin str :" +str.ToString() );
                         continue;
                     }
                     foreach (Planet planetList in s.PlanetList)
@@ -7644,7 +7643,7 @@ namespace Ship_Game.Gameplay
                     numgoals = numgoals + 1f;
                 }
             //if(numgoals >this.numberOfShipGoals)
-            //    System.Diagnostics.Debug.WriteLine("Offense Needed: " + this.numberOfShipGoals);
+            //    Log.Info("Offense Needed: " + this.numberOfShipGoals);
             //Build Offensive ships:
             while (Capacity > 0 //this.buildCapacity > 0 //Capacity > allowable_deficit 
                 && numgoals < this.numberOfShipGoals
@@ -8447,9 +8446,9 @@ namespace Ship_Game.Gameplay
                                         }
                                         else
                                         {
-                                            System.Diagnostics.Debug.WriteLine("TechNotFound : " + scriptentry);
+                                            Log.Info("TechNotFound : " + scriptentry);
                                             ScriptIndex++;
-                                            //System.Diagnostics.Debug.WriteLine(scriptentry);
+                                            //Log.Info(scriptentry);
                                         }
 
 
@@ -8693,9 +8692,9 @@ namespace Ship_Game.Gameplay
 
                         if (shortTermBest.shipData.techsNeeded.Count == 0)
                         {
-                            if (Ship.universeScreen.Debug)
+                            if (Empire.Universe.Debug)
                             {
-                                System.Diagnostics.Debug.WriteLine(this.empire.data.PortraitName + " : no techlist :" + shortTermBest.Name);
+                                Log.Info(this.empire.data.PortraitName + " : no techlist :" + shortTermBest.Name);
                             }
                             continue;
                         }
@@ -8772,7 +8771,7 @@ namespace Ship_Game.Gameplay
                     {
                         if (Ship.universeScreen.Debug)
                         {
-                            System.Diagnostics.Debug.WriteLine(this.empire.data.PortraitName + " : NewBestShip :" + this.BestCombatShip.Name + " : " + this.BestCombatShip.shipData.HullRole.ToString());
+                            Log.Info(this.empire.data.PortraitName + " : NewBestShip :" + this.BestCombatShip.Name + " : " + this.BestCombatShip.shipData.HullRole.ToString());
                         }
 
                     }
@@ -8830,7 +8829,7 @@ namespace Ship_Game.Gameplay
                     bestShiptechs = AvailableTechs.Intersect(bestShiptechs).ToList();
                 }
                 else
-                    System.Diagnostics.Debug.WriteLine(this.empire.data.PortraitName + " : NoShipFound :" + hullScaler + " : " );
+                    Log.Info(this.empire.data.PortraitName + " : NoShipFound :" + hullScaler + " : " );
             }
             HashSet<Technology> remove = new HashSet<Technology>();
             foreach (Technology test in AvailableTechs)
@@ -8964,13 +8963,13 @@ namespace Ship_Game.Gameplay
                             .Where(uid => ship.shipData.techsNeeded.Contains(uid.UID)).OrderBy(techscost => techscost.Cost).FirstOrDefault();
                         if (shiptech == null)
                         {
-                            //System.Diagnostics.Debug.WriteLine(this.BestCombatShip.Name);
+                            //Log.Info(this.BestCombatShip.Name);
                             //foreach (string Bestshiptech in ship.shipData.techsNeeded) //.techsNeeded.Where(uid => !ship.shipData.techsNeeded.Contains(uid.UID))
                             //{
                             //    if (unlockedTech.Contains(Bestshiptech))
                             //        //|| AvailableTechs.Where(uid => uid.UID == Bestshiptech).Count()>0)
                             //        continue;
-                            //    System.Diagnostics.Debug.WriteLine("Missing Tech: " + Bestshiptech);
+                            //    Log.Info("Missing Tech: " + Bestshiptech);
                             //}
                             return false;
                         }
@@ -8986,7 +8985,7 @@ namespace Ship_Game.Gameplay
                         {
 
                             techtype = (TechnologyType)Enum.Parse(typeof(TechnologyType), command2);
-                            //System.Diagnostics.Debug.WriteLine(this.EmpireName + " : " + techtype.ToString());
+                            //Log.Info(this.EmpireName + " : " + techtype.ToString());
 
                         }
                         catch
@@ -9042,7 +9041,7 @@ namespace Ship_Game.Gameplay
                 //    e.Data.Add("Tech Name(UID)", this.empire.ResearchTopic);
 
                 //}
-                //System.Diagnostics.Debug.WriteLine(this.EmpireName + " : " + ResourceManager.TechTree[this.empire.ResearchTopic].TechnologyType.ToString() + " : " + this.empire.ResearchTopic);
+                //Log.Info(this.EmpireName + " : " + ResourceManager.TechTree[this.empire.ResearchTopic].TechnologyType.ToString() + " : " + this.empire.ResearchTopic);
                 return true;
             }
 
@@ -9190,7 +9189,7 @@ namespace Ship_Game.Gameplay
         //           // useableTech.AddRange(ship.shipData.techsNeeded);
         //            if (trueTechcost == 0)
         //            {
-        //                System.Diagnostics.Debug.WriteLine("skipped: " + ship.Name);
+        //                Log.Info("skipped: " + ship.Name);
         //                if (ship.Name == this.BestCombatShip)
         //                    this.BestCombatShip = string.Empty;
         //                ship = null;
@@ -9205,7 +9204,7 @@ namespace Ship_Game.Gameplay
         //            //    bestShipStrength = ship.BaseStrength;
         //            //    BestShip = wecanbuildit.Value;
         //            //    BestShipTechCost = techCost;
-        //            //    //System.Diagnostics.Debug.WriteLine("Choosing Best Ship Tech: " + this.empire.data.Traits.ShipType + " -Ship: " + BestShip + " -TechCount: " + trueTechcost +"/"+techCost);
+        //            //    //Log.Info("Choosing Best Ship Tech: " + this.empire.data.Traits.ShipType + " -Ship: " + BestShip + " -TechCount: " + trueTechcost +"/"+techCost);
         //            //}
 
         //        }

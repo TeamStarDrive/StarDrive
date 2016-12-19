@@ -194,9 +194,9 @@ namespace Ship_Game
 
             }
 
-            //System.Diagnostics.Debug.WriteLine("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
+            //Log.Info("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
             //foreach (string purger in purge)
-            //    System.Diagnostics.Debug.WriteLine("These are Designs" + purger);
+            //    Log.Info("These are Designs" + purger);
         }
 
 
@@ -963,7 +963,7 @@ namespace Ship_Game
                 foreach (var localization in LoadEntities<LocalizationFile>("/Localization/" + GlobalStats.Config.Language + "/", "LoadLanguage"))
                     Localizer.AddTokens(localization.TokenList);
             }
-            Debug.WriteLine(" === Localizer Total Memory: {0}KB === ", Localizer.CountBytesUsed() / 1024);
+            Log.Info(ConsoleColor.DarkYellow, " === Localizer Total Memory: {0}KB === ", Localizer.CountBytesUsed() / 1024);
         }
 
         private static void LoadLargeStars() // Refactored by RedFox
@@ -1104,7 +1104,7 @@ namespace Ship_Game
 
             #if DEBUG
                 if (ShipModulesDict.ContainsKey(data.UID))
-                    System.Diagnostics.Debug.WriteLine("ShipModule UID already found. Conflicting name:  {0}", data.UID);
+                    Log.Info("ShipModule UID already found. Conflicting name:  {0}", data.UID);
             #endif
                 ShipModulesDict[data.UID] = data.ConvertToShipModule();
             }

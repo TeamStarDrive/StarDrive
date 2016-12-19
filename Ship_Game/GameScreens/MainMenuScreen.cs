@@ -28,7 +28,7 @@ namespace Ship_Game
 
 		private UIButton PlayGame;
         private UIButton Load;
-        private UIButton Adventure;
+        //private UIButton Adventure; // @todo Planned feature: Battle Mode
         private UIButton Tutorials;
         private UIButton Mods;
 		private UIButton Options;
@@ -454,7 +454,7 @@ namespace Ship_Game
                 InitRandomShip();
 
             if (input.CurrentKeyboardState.GetPressedKeys().Length > 0)
-                Debug.WriteLine("rot {0}   {1}", ShipRotation, MoonRotation);
+                Log.Info("rot {0}   {1}", ShipRotation, MoonRotation);
         #endif
 
             if (input.InGameSelect)
@@ -605,7 +605,7 @@ namespace Ship_Game
 
             Vector2 pos = new Vector2(size.X - 200, size.Y / 2 - 100);
             PlayGame  = Button(ref pos, "New Campaign", localization: 1);
-            Adventure = Button(ref pos, "", "Battle Mode");
+            //Adventure = Button(ref pos, "", "Battle Mode");
             Tutorials = Button(ref pos, "Tutorials", localization: 3);
             Load      = Button(ref pos, "Load Game", localization: 2);
             Options   = Button(ref pos, "Options", localization: 4);
@@ -764,7 +764,7 @@ namespace Ship_Game
             //float length = bb.Max.Z - bb.Min.Z;
             //float width  = bb.Max.X - bb.Min.X;
             //float height = bb.Max.Y - bb.Min.Y;
-            //Debug.WriteLine("ship length {0} width {1} height {2}", length, width, height);
+            //Log.Info("ship length {0} width {1} height {2}", length, width, height);
 
             ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
             ScreenManager.inter.ObjectManager.Submit(ShipObj);
