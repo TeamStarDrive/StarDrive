@@ -619,7 +619,7 @@ namespace Ship_Game
 
             // @todo Is this part even used anymore? Should it get removed?
             #if false // purge designs that don't advance the ships
-                System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
+                Log.Info(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
                 if (!this.isFaction)
                 {
                     HashSet<string> techs = new HashSet<string>();
@@ -654,7 +654,7 @@ namespace Ship_Game
 
 
                     }
-                    System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " - Purging " + purgelist.Count.ToString());
+                    Log.Info(this.data.PortraitName + " - Purging " + purgelist.Count.ToString());
                     foreach (string purge in purgelist)
                     {
                         ResourceManager.ShipsDict.Remove(purge);
@@ -665,7 +665,7 @@ namespace Ship_Game
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
-                System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
+                Log.Info(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
             #endif
         }
 
@@ -734,7 +734,7 @@ namespace Ship_Game
             economicResearchStrategy = ResourceManager.EconStrats[data.EconomicPersonality.Name];
 
             #if false // purge designs that dont advance the ships
-                System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
+                Log.Info(this.data.PortraitName + " Before Purge : " + GC.GetTotalMemory(true));
                 if (!this.isFaction)
                 {
                     HashSet<string> techs = new HashSet<string>();
@@ -769,14 +769,14 @@ namespace Ship_Game
 
 
                     }
-                    System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " - Purging " + purgelist.Count.ToString());
+                    Log.Info(this.data.PortraitName + " - Purging " + purgelist.Count);
                     foreach (string purge in purgelist)
                     {
                         ResourceManager.ShipsDict.Remove(purge);
                     }
                 }
                 GC.Collect();
-                System.Diagnostics.Debug.WriteLine(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
+                Log.Info(this.data.PortraitName + " after Purge : " + GC.GetTotalMemory(true));
             #endif
         }
         private bool WeCanUseThisLater(TechEntry tech)
@@ -788,7 +788,6 @@ namespace Ship_Game
                     return true;
             }
             return false;
-
         }
         
         public EconomicResearchStrategy getResStrat()
@@ -1737,7 +1736,7 @@ namespace Ship_Game
             if (shipData == null)
             {
                 #if TRACE
-                    //Debug.WriteLine("{0} : shipData is null : {1}", data.PortraitName, ship);
+                    //Log.Info("{0} : shipData is null : {1}", data.PortraitName, ship);
                 #endif
                 return false;
             }
@@ -1745,21 +1744,21 @@ namespace Ship_Game
             // If the ship role is not defined don't try to use it
             if (!UnlockedHullsDict.TryGetValue(shipData.Hull, out bool goodHull) || !goodHull)
             {
-            //#if TRACE
-            //    if (shipData.HullRole >= ShipData.RoleName.fighter && shipData.ShipStyle == data.Traits.ShipType)
-            //        Debug.WriteLine("{0} : Bad hull  : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5} : {6}",
-            //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable, shipData.techsNeeded.Count);
-            //#endif
+                //#if TRACE
+                //    if (shipData.HullRole >= ShipData.RoleName.fighter && shipData.ShipStyle == data.Traits.ShipType)
+                //        Log.Info("{0} : Bad hull  : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5} : {6}",
+                //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable, shipData.techsNeeded.Count);
+                //#endif
                 return false;
             }
 
             if (!ResourceManager.ShipRoles.ContainsKey(shipData.HullRole))
             {
-            //#if TRACE
-            //    if (shipData.ShipStyle == data.Traits.ShipType)
-            //        Debug.WriteLine("{0} : Bad  role : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5}",
-            //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable);
-            //#endif
+                //#if TRACE
+                //    if (shipData.ShipStyle == data.Traits.ShipType)
+                //        Log.Info("{0} : Bad  role : {1} : {2} : {3} :hull unlockable: {4} :Modules Unlockable: {5}",
+                //                data.PortraitName, ship, shipData.Hull, shipData.Role, shipData.hullUnlockable, shipData.allModulesUnlocakable);
+                //#endif
                 return false;
             }
 
@@ -1771,15 +1770,15 @@ namespace Ship_Game
                     UnlockedModulesDict[moduleSlotData.InstalledModuleUID])
                     continue;
 
-            //#if TRACE
-            //    Debug.WriteLine("{0} : Bad Modules : {1} : {2} : {3} : {4} :hull unlockable: {5} :Modules Unlockable: {6}",
-            //            data.PortraitName, ship, shipData.Hull, shipData.Role, moduleSlotData.InstalledModuleUID, shipData.hullUnlockable, shipData.allModulesUnlocakable);
-            //#endif
+                //#if TRACE
+                //    Log.Info("{0} : Bad Modules : {1} : {2} : {3} : {4} :hull unlockable: {5} :Modules Unlockable: {6}",
+                //            data.PortraitName, ship, shipData.Hull, shipData.Role, moduleSlotData.InstalledModuleUID, shipData.hullUnlockable, shipData.allModulesUnlocakable);
+                //#endif
                 return false; // can't build this ship because it contains a locked Module
             }
 
             //#if TRACE
-            //    Debug.WriteLine("{0} : good ship : {1} : {2} : {3}", data.PortraitName, ship, shipData.Hull, shipData.Role);
+            //    Log.Info("{0} : good ship : {1} : {2} : {3}", data.PortraitName, ship, shipData.Hull, shipData.Role);
             //#endif
             return true;
         }
@@ -2408,9 +2407,8 @@ namespace Ship_Game
 
                         }
                     }
-                    else 
-                        System.Diagnostics.Debug.WriteLine("Rebellion Failure: " + this.data.RebelName);
-                    this.data.TurnsBelowZero = 0;
+                    else Log.Info("Rebellion Failure: {0}", this.data.RebelName);
+                    data.TurnsBelowZero = 0;
                 }
                
             }

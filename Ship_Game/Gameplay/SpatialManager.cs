@@ -329,14 +329,14 @@ namespace Ship_Game.Gameplay
                 else if (beamTarget is Asteroid)
                     gameplayObject1 = beam.GetTarget();
                 else
-                    System.Diagnostics.Debug.WriteLine("beam null");
+                    Log.Info("beam null");
             }
             else if (beam.Owner != null)
                 gameplayObject1 = beam.owner;
 
             if (gameplayObject1 == null)
             {
-                System.Diagnostics.Debug.WriteLine("CollideBeam gameplayObject1 null");
+                Log.Info("CollideBeam gameplayObject1 null");
             }
 
             List<GameplayObject> nearby = new List<GameplayObject>(this.GetNearby(gameplayObject1).OrderBy(distance => Vector2.Distance(beam.Source, distance.Center)));

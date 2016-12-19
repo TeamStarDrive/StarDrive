@@ -145,7 +145,7 @@ namespace Ship_Game
 				    compress.Write(buffer, 0, bytesRead = inFile.Read(buffer, 0, buffer.Length));
                 } while (bytesRead == buffer.Length);
 
-				Debug.WriteLine("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
+                Log.Info("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
 			}
 		}
 
@@ -162,7 +162,7 @@ namespace Ship_Game
                 int numRead;
 				while ((numRead = decompress.Read(buffer, 0, buffer.Length)) > 0)
 					outFile.Write(buffer, 0, numRead);
-				Console.WriteLine("Decompressed: {0}", fi.Name);
+				Log.Info("Decompressed: {0}", fi.Name);
 				return origName;
 			}
 		}
@@ -356,13 +356,13 @@ namespace Ship_Game
         // Added by RedFox: blocking full blown GC to reduce memory fragmentation
         public static void CollectMemory()
         {
-            Log.Info(" === CollectMemory === ");
-            Log.Info("CollectMemory Before: {0:0.0}MB", GC.GetTotalMemory(false) / (1024f*1024f));
+            Log.Info(ConsoleColor.DarkYellow, " ======== CollectMemory ======== ");
+            Log.Info(ConsoleColor.DarkYellow, " CollectMemory Before: {0:0.0}MB", GC.GetTotalMemory(false) / (1024f*1024f));
 
             // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
             long after = GC.GetTotalMemory(forceFullCollection: true);
-            Log.Info("CollectMemory After:  {0:0.0}MB", after / (1024f*1024f));
-            Log.Info(" ===================== ");
+            Log.Info(ConsoleColor.DarkYellow, " CollectMemory After:  {0:0.0}MB", after / (1024f*1024f));
+            Log.Info(ConsoleColor.DarkYellow, " =============================== ");
         }
 
         public static void CollectMemorySilent()

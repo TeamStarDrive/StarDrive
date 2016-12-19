@@ -71,7 +71,7 @@ namespace Ship_Game
                     }
                     if (!data.FI.Exists)
                     {
-                        System.Diagnostics.Debug.WriteLine("Savegame missing payload: {0}", data.FI.FullName);
+                        Log.Info("Savegame missing payload: {0}", data.FI.FullName);
                         continue;
                     }
 
