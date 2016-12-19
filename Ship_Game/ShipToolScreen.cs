@@ -604,8 +604,7 @@ namespace Ship_Game
 				Text = this.HullName
 			};
 			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
-			base.ScreenManager.inter.LightManager.Clear();
-			base.ScreenManager.inter.LightManager.Submit(rig);
+            rig.AssignTo(this);
 			base.ScreenManager.environment = base.ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
 			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;

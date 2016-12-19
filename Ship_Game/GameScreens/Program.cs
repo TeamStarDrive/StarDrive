@@ -4,37 +4,23 @@ namespace Ship_Game
 {
 	internal static class Program
 	{
-        // Refactored by RedFox: should we keep this enabled?
-        private static readonly bool CatchStuff = true;
-
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
+            var graphicsMgr = Game1.Instance?.Graphics;
+            if (graphicsMgr != null && graphicsMgr.IsFullScreen)
+                graphicsMgr.ToggleFullScreen();
 
             try
             {
-                if (Game1.Instance.Graphics.IsFullScreen)
-                    Game1.Instance.Graphics.ToggleFullScreen();
-            }
-            catch { }
-            try
-            {
-                //added by CrimsonED
-                //---
-                Exception ex = (Exception)e.ExceptionObject;
+                Exception ex = e.ExceptionObject as Exception;
                 #if RELEASE //only log exception on release build
                   ExceptionTracker.TrackException(ex);
                 #endif
                 ExceptionTracker.DisplayException(ex);
-                //---
-            }
-            catch
-            {
-                Exception ex = (Exception)e.ExceptionObject; 
-                MessageBox.Show("BlackBox failsafe Error Trap\n\n"+e);
             }
 			finally
 			{
-				Game1.Instance.Exit();
+				Game1.Instance?.Exit();
 			}
 		}
 
@@ -42,16 +28,17 @@ namespace Ship_Game
 		private static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            if (!CatchStuff)
-			{
-                new Game1().Run();
-			    return;
-			}
-
             try
             {
-                using (new SingleGlobalInstance())
+                using (var instance = new SingleGlobalInstance())
+                {
+                    if (!instance.UniqueInstance)
+                    {
+                        MessageBox.Show("Another instance of SD-BlackBox is already running!");
+                        return;
+                    }
                     new Game1().Run();
+                }
             }
             catch (Exception e)
             {

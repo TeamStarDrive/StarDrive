@@ -305,20 +305,21 @@ namespace Ship_Game
         public void SetLighting(bool real)
         {
             lock (GlobalStats.ObjectManagerLocker)
-            {
                 ScreenManager.inter.LightManager.Clear();
-                if (real)
+            if (real)
+            {
+                foreach (SolarSystem system in SolarSystemList)
                 {
-                    foreach (SolarSystem system in SolarSystemList)
-                    {
-                        AddLight(system, 2.5f, 150000f, zpos:+2500f, fillLight:true);
-                        AddLight(system, 2.5f, 5000f,   zpos:-2500f, fillLight:false);
-                        AddLight(system, 1.0f, 100000f, zpos:-6500f, fillLight:false);
-                    }
-                    return;
+                    AddLight(system, 2.5f, 150000f, zpos: +2500f, fillLight: true);
+                    AddLight(system, 2.5f, 5000f,   zpos: -2500f, fillLight: false);
+                    AddLight(system, 1.0f, 100000f, zpos: -6500f, fillLight: false);
                 }
-                ScreenManager.inter.LightManager.Submit(ScreenManager.Content.Load<LightRig>("example/NewGamelight_rig"));
+                return;
             }
+
+            LightRig rig = ScreenManager.Content.Load<LightRig>("example/NewGamelight_rig");
+            lock (GlobalStats.ObjectManagerLocker)
+                ScreenManager.inter.LightManager.Submit(rig);
         }
 
         protected void AddLight(SolarSystem system, float intensity, float radius, float zpos, bool fillLight)
@@ -334,7 +335,7 @@ namespace Ship_Game
                 Enabled      = true
             };
             light.World = Matrix.Identity * Matrix.CreateTranslation(light.Position);
-            ScreenManager.inter.LightManager.Submit(light);
+            light.AddTo(this);
         }
 
         protected virtual void LoadMenu()
@@ -960,7 +961,7 @@ namespace Ship_Game
             Projectile.contentManager             = content;
             MuzzleFlashManager.universeScreen     = this;
             DroneAI.universeScreen                = this;
-            ExplosionManager.universeScreen       = this;
+            ExplosionManager.Universe       = this;
             ShipDesignScreen.screen               = this;
             Fleet.screen                          = this;
             Bomb.Screen                           = this;
@@ -2521,19 +2522,10 @@ namespace Ship_Game
             //if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && input.LastKeyboardState.IsKeyUp(Keys.P) && input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
             if (input.CurrentKeyboardState.IsKeyDown(Keys.F5) && input.LastKeyboardState.IsKeyUp(Keys.F5))
             {
-                if (this.UseRealLights)
-                {
-                    this.UseRealLights = false;
-                    this.SetLighting(this.UseRealLights);
-                }
-                else
-                {
-                    this.UseRealLights = true;
-                    this.SetLighting(this.UseRealLights);
-                }
-                
+                UseRealLights = !UseRealLights; // toggle real lights
+                SetLighting(UseRealLights);
             } 
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.active)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.F6) && input.LastKeyboardState.IsKeyUp(Keys.F6) && !ExceptionTracker.Visible)
             {
                 bool switchedmode = false;
             #if RELEASE //only switch screens in release
@@ -2560,7 +2552,7 @@ namespace Ship_Game
                     Game1.Instance.Graphics.ToggleFullScreen();
                 }
             }
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.F7) && input.LastKeyboardState.IsKeyUp(Keys.F7) && !ExceptionTracker.active)
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.F7) && input.LastKeyboardState.IsKeyUp(Keys.F7) && !ExceptionTracker.Visible)
             {
                 bool switchedmode = false;
 #if RELEASE //only switch screens in release
@@ -4974,7 +4966,7 @@ namespace Ship_Game
             CombatScreen.universeScreen           = null;
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
-            ExplosionManager.universeScreen       = null;
+            ExplosionManager.Universe       = null;
             DroneAI.universeScreen                = null;
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
