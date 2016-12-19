@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Linq;
-using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -73,5 +71,4 @@ namespace Ship_Game
             return bytes;
         }
     }
-
 }
