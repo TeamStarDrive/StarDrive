@@ -20,7 +20,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
-
+using SharpRaven;
 
 namespace Ship_Game
 {
@@ -258,6 +258,7 @@ namespace Ship_Game
         public int lastplanetcombat = 0;
         public int reducer = 1;
         public float screenDelay = 0f;
+        public RavenClient ravenClient = new RavenClient("https://3e16bcf9f97d4af3b3fb4f8d4ba1830b:1f0e6d3598e14584877e0c0e87554966@sentry.io/123180");
 
         public UniverseScreen()
         {
@@ -1146,6 +1147,9 @@ namespace Ship_Game
                     if (++failedLoops > 1)
                         throw ex; // the loop is having a cyclic crash, no way to recover
                     Log.Error("ProcessTurns: {0}\n{1}", ex.Message, ex.StackTrace);
+                    
+                    ravenClient.CaptureException(ex);
+
                 }
                 finally
                 {
