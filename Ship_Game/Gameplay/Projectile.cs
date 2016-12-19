@@ -1077,8 +1077,7 @@ namespace Ship_Game.Gameplay
                     this.light.Intensity = 1.7f;
                     this.light.FillLight = true;
                     this.light.Enabled = true;
-                    lock (GlobalStats.ObjectManagerLocker)
-                        Projectile.universeScreen.ScreenManager.inter.LightManager.Submit((ILight)this.light);
+                    this.light.AddTo(Empire.Universe);
                 }
                 else if (this.weapon.Light != null && this.LightWasAddedToSceneGraph)
                 {
@@ -1099,8 +1098,7 @@ namespace Ship_Game.Gameplay
                         this.MuzzleFlash.Intensity = 1f;
                         this.MuzzleFlash.FillLight = false;
                         this.MuzzleFlash.Enabled = true;
-                        lock (GlobalStats.ObjectManagerLocker)
-                            Projectile.universeScreen.ScreenManager.inter.LightManager.Submit((ILight)this.MuzzleFlash);
+                        this.MuzzleFlash.AddTo(Empire.Universe);
                         this.flashTimer -= elapsedTime;
                         this.flash = new MuzzleFlash();
                         this.flash.WorldMatrix = Matrix.Identity * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.MuzzleFlash.Position);

@@ -15,7 +15,7 @@ namespace Ship_Game
         public const string BugtrackerURL = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new";
         public const string KudosURL = "http://www.indiedb.com/mods/deveks-mod/reviews";
         const string DefaultText = "Whoops! Please post this StarDrive forums or in the Bugtracker";
-        public static bool active = false;
+        public static bool Visible;
         public static bool Kudos = false;
         private static string GenerateErrorLines(Exception ex)
         {
@@ -102,7 +102,7 @@ namespace Ship_Game
         {
             try
             {
-                active = true;
+                Visible = true;
                 string dts  = DateTime.Now.ToString("yyyy-MM-dd hh-mm-ss");
                 string path = AppDomain.CurrentDomain.BaseDirectory + "Exception " + dts + ".log";
                 using (var file = new StreamWriter(path))
@@ -112,9 +112,7 @@ namespace Ship_Game
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
             }
-
         }
-
 
         public static void DisplayException(Exception ex)
         {
@@ -122,24 +120,23 @@ namespace Ship_Game
                 if (!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
                     return;
             #endif
-            try
+            
+            if (Game1.Instance?.Window != null)
             {
                 Form form = (Form)Control.FromHandle(Game1.Instance.Window.Handle);
                 form.WindowState = FormWindowState.Minimized;
                 form.Update();
             }
-            catch { }
             try
             {
                 ExceptionViewer exviewer = new ExceptionViewer();
                 exviewer.ShowDialog(GenerateErrorLines_withWhoops(ex));
-               
             }
             catch (Exception)
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
             }
-            active = false;
+            Visible = false;
         }
     }
 }

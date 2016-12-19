@@ -314,21 +314,21 @@ namespace Ship_Game
 			}
 			if (this.AnimationFrame >= 141 && this.AnimationFrame <= 149)
 			{
-				float alphaStep = (float)(255 / 9);
+				float alphaStep = 255f / 9;
 				float Alpha = (float)(this.AnimationFrame - 141) * alphaStep;
 				Rectangle Grid1Hex = new Rectangle(277, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 592, 77, 33);
 				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], Grid1Hex, new Color(Color.White, (byte)Alpha));
 			}
 			if (this.AnimationFrame > 149 && this.AnimationFrame <= 165)
 			{
-				float alphaStep = (float)(255 / 16);
+				float alphaStep = 255f / 16;
 				float Alpha = 255f - (float)(this.AnimationFrame - 149) * alphaStep;
 				Rectangle Grid1Hex = new Rectangle(277, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 592, 77, 33);
 				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], Grid1Hex, new Color(Color.White, (byte)Alpha));
 			}
 			if (this.AnimationFrame >= 159 && this.AnimationFrame <= 168)
 			{
-				float alphaStep = (float)(255 / 10);
+				float alphaStep = 255f / 10;
 				float Alpha = (float)(this.AnimationFrame - 159) * alphaStep;
 				Rectangle Grid1Hex = new Rectangle(392, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 418, 79, 60);
 				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_2"], Grid1Hex, new Color(Color.White, (byte)Alpha));
@@ -647,7 +647,8 @@ namespace Ship_Game
 
             InitRandomShip();
 
-            ScreenManager.inter.LightManager.Submit(ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig"));
+            LightRig rig = ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
+            rig.AssignTo(this);
 			ScreenManager.environment = ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
 
 			Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
