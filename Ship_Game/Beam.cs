@@ -299,196 +299,115 @@ namespace Ship_Game
             //    this.quadEffect.Dispose();
         }
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager)
+		public void Draw(ScreenManager screenMgr)
 		{
 			lock (GlobalStats.BeamEffectLocker)
 			{
-				Projectile.universeScreen.beamflashes.AddParticleThreadA(new Vector3(this.Source, this.BeamZ), Vector3.Zero);
-				ScreenManager.GraphicsDevice.VertexDeclaration = this.quadVertexDecl;
-				Beam.BeamEffect.CurrentTechnique = Beam.BeamEffect.Techniques["Technique1"];
-				Beam.BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
+				Empire.Universe.beamflashes.AddParticleThreadA(new Vector3(Source, BeamZ), Vector3.Zero);
+				screenMgr.GraphicsDevice.VertexDeclaration = quadVertexDecl;
+				BeamEffect.CurrentTechnique = BeamEffect.Techniques["Technique1"];
+				BeamEffect.Parameters["World"].SetValue(Matrix.Identity);
                 string beamTexPath = "Beams/" + ResourceManager.WeaponsDict[weapon.UID].BeamTexture;
-                var beamTex = ResourceManager.GetTexture(beamTexPath);
-				Beam.BeamEffect.Parameters["tex"].SetValue(beamTex);
-				Beam beam = this;
-				beam.displacement = beam.displacement - 0.05f;
-				if (this.displacement < 0f)
+				BeamEffect.Parameters["tex"].SetValue(ResourceManager.Texture(beamTexPath));
+				displacement -= 0.05f;
+				if (displacement < 0f)
 				{
-					this.displacement = 1f;
+					displacement = 1f;
 				}
-				Beam.BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, this.displacement));
-				Beam.BeamEffect.Begin();
-				ScreenManager.GraphicsDevice.RenderState.AlphaTestEnable = true;
-				ScreenManager.GraphicsDevice.RenderState.AlphaFunction = CompareFunction.GreaterEqual;
-				ScreenManager.GraphicsDevice.RenderState.ReferenceAlpha = 200;
-				foreach (EffectPass pass in Beam.BeamEffect.CurrentTechnique.Passes)
-				{
-					pass.Begin();
-					ScreenManager.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, this.Vertices, 0, 4, this.Indexes, 0, 2);
-					pass.End();
-				}
-				ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-				ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-				ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-				ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
-				ScreenManager.GraphicsDevice.RenderState.AlphaTestEnable = true;
-				ScreenManager.GraphicsDevice.RenderState.AlphaFunction = CompareFunction.Less;
-				ScreenManager.GraphicsDevice.RenderState.ReferenceAlpha = 200;
-				foreach (EffectPass pass in Beam.BeamEffect.CurrentTechnique.Passes)
+				BeamEffect.Parameters["displacement"].SetValue(new Vector2(0f, displacement));
+				BeamEffect.Begin();
+                var rs = screenMgr.GraphicsDevice.RenderState;
+				rs.AlphaTestEnable = true;
+				rs.AlphaFunction   = CompareFunction.GreaterEqual;
+				rs.ReferenceAlpha  = 200;
+				foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
 				{
 					pass.Begin();
-					ScreenManager.GraphicsDevice.DrawUserIndexedPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, this.Vertices, 0, 4, this.Indexes, 0, 2);
+					screenMgr.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
 					pass.End();
 				}
-				ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable = false;
-				ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
-				ScreenManager.GraphicsDevice.RenderState.AlphaTestEnable = false;
-				Beam.BeamEffect.End();
+				rs.DepthBufferWriteEnable = false;
+				rs.AlphaBlendEnable       = true;
+				rs.SourceBlend            = Blend.SourceAlpha;
+				rs.DestinationBlend       = Blend.InverseSourceAlpha;
+				rs.AlphaTestEnable        = true;
+				rs.AlphaFunction          = CompareFunction.Less;
+				rs.ReferenceAlpha         = 200;
+				foreach (EffectPass pass in BeamEffect.CurrentTechnique.Passes)
+				{
+					pass.Begin();
+					screenMgr.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, Vertices, 0, 4, Indexes, 0, 2);
+					pass.End();
+				}
+				rs.AlphaBlendEnable = false;
+				rs.DepthBufferWriteEnable = true;
+				rs.AlphaTestEnable = false;
+				BeamEffect.End();
 			}
 		}
 
 		private void FillVertices()
 		{
-			Vector2 textureUpperLeft = new Vector2(0f, 0f);
-			Vector2 textureUpperRight = new Vector2(1f, 0f);
-			Vector2 textureLowerLeft = new Vector2(0f, 1f);
-			Vector2 textureLowerRight = new Vector2(1f, 1f);
-			this.Vertices[0].Position = this.LowerLeft;
-			this.Vertices[0].TextureCoordinate = textureLowerLeft;
-			this.Vertices[1].Position = this.UpperLeft;
-			this.Vertices[1].TextureCoordinate = textureUpperLeft;
-			this.Vertices[2].Position = this.LowerRight;
-			this.Vertices[2].TextureCoordinate = textureLowerRight;
-			this.Vertices[3].Position = this.UpperRight;
-			this.Vertices[3].TextureCoordinate = textureUpperRight;
-			this.Indexes[0] = 0;
-			this.Indexes[1] = 1;
-			this.Indexes[2] = 2;
-			this.Indexes[3] = 2;
-			this.Indexes[4] = 1;
-			this.Indexes[5] = 3;
+			Vertices[0].Position = LowerLeft;
+            Vertices[1].Position = UpperLeft;
+            Vertices[2].Position = LowerRight;
+            Vertices[3].Position = UpperRight;
+            Vertices[0].TextureCoordinate = new Vector2(0f, 1f);
+			Vertices[1].TextureCoordinate = new Vector2(0f, 0f);
+			Vertices[2].TextureCoordinate = new Vector2(1f, 1f);
+			Vertices[3].TextureCoordinate = new Vector2(1f, 0f);
+			Indexes[0] = 0;
+			Indexes[1] = 1;
+			Indexes[2] = 2;
+			Indexes[3] = 2;
+			Indexes[4] = 1;
+			Indexes[5] = 3;
 		}
 
 		public GameplayObject GetTarget()
 		{
-			return this.Target;
+			return Target;
 		}
 
-		public bool LoadContent(ScreenManager ScreenManager, Matrix view, Matrix projection)
+		public bool LoadContent(ScreenManager screenMgr, Matrix view, Matrix projection)
 		{
-			//lock (GlobalStats.BeamEffectLocker)
-			//{
-                
-                    //Texture2D texture = ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)];
-                   // Beam beam=null;
-                //if(this.owner != null)
-                  //  beam = this.owner.Beams.RecycleObject();
-                    this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-                    //Beam.BeamEffect.Parameters["tex"].SetValue(texture);
-                    return true;
-   //            // if (beam != null) // || beam.quadEffect == null)
-   //                 {
-   //                     try
-   //                     {
-   //                         this.quadEffect = new BasicEffect(ScreenManager.GraphicsDevice, (EffectPool)null)
-   //                             {
-   //                                 World = Matrix.Identity,
-   //                                 View = view,
-   //                                 Projection = projection,
-   //                                 TextureEnabled = true,
-   //                                // Texture = texture// ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]
-   //                             };
-   //                         this.quadVertexDecl = new VertexDeclaration(ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
-   //                         //Beam.BeamEffect.Parameters["tex"].SetValue(texture);
-   //                     }
-   //                     catch
-   //                     {
-   //                         GlobalStats.BeamOOM++;
-   //                         if (GlobalStats.BeamOOM > 10)
-   //                         {
-   //                             GC.WaitForPendingFinalizers(); GC.Collect();
-
-   //                             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-   //                             GC.Collect();
-   //                             GlobalStats.BeamOOM = 0;
-   //                         }
-                            
-   //                         this.Active = false;
-   //                         return false;
-   //                     }
-   //                 }
-   //               //  else
-   //                 {
-   //                     //this.quadEffect = beam.quadEffect;
-                        
-   //                     //if(this.quadEffect.World != Matrix.Identity)
-   //                     //this.quadEffect.World = Matrix.Identity;
-   //                     //if(this.quadEffect.View!=view)
-   //                     //this.quadEffect.View = view;
-   //                     //if(this.quadEffect.Projection != projection)
-   //                     //this.quadEffect.Projection = projection;
-   //                     //this.quadEffect.TextureEnabled = true;
-                        
-
-   //                     //    this.quadEffect.Texture = texture;
-   //                  //       Beam.BeamEffect.Parameters["tex"].SetValue(texture);
-                      
-                    
-                        
-   //                 }
-                    
-                    
-   //                    //ResourceManager.TextureDict[string.Concat("Beams/", ResourceManager.WeaponsDict[this.weapon.UID].BeamTexture)]);
-     
-              
-			//}
-   //         return true;
-		}
+            quadVertexDecl = new VertexDeclaration(screenMgr.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+            return true;
+        }
 
 		public override bool Touch(GameplayObject target)
 		{
-			if (target != null)
-			{
-                bool isShipModule = target is ShipModule;
-                ShipModule targetShipmodule = target as ShipModule;
-                if (target == this.owner && !this.weapon.HitsFriendlies)
-				{
-					return false;
-				}
-				if (target is Projectile && this.WeaponType != "Missile")
-				{
-					return false;
-				}
-				if (target is Ship)
-				{
-					return false;
-				}
-                if (this.damageAmount < 0f && isShipModule && targetShipmodule.shield_power > 0f)
-				{
-					return false;
-				}
-                if (!this.DamageToggleOn && isShipModule)
-				{
-					this.DamageToggleOn = true;
-				}
-				else if (this.DamageToggleOn && this.DamageToggleSound != null && this.DamageToggleSound.IsPrepared)
-				{
-					try
-					{
-						bool inFrustum = base.Owner.InFrustum;
-					}
-					catch
-					{
-					}
-				}
-                targetShipmodule.Damage(this, this.damageAmount);
-			}
-			return true;
+		    if (target == null)
+                return true;
+
+		    bool isShipModule = target is ShipModule;
+		    ShipModule targetModule = target as ShipModule;
+		    if (target == owner && !weapon.HitsFriendlies)
+		        return false;
+
+		    if (target is Projectile && WeaponType != "Missile")
+		        return false;
+		    if (target is Ship)
+		        return false;
+		    if (damageAmount < 0f && isShipModule && targetModule.shield_power > 0f)
+		        return false;
+
+		    if (!DamageToggleOn && isShipModule)
+		    {
+		        DamageToggleOn = true;
+		    }
+		    else if (DamageToggleOn && DamageToggleSound != null && DamageToggleSound.IsPrepared)
+		    {
+                // @todo What's going on here?
+		    }
+
+		    targetModule?.Damage(this, damageAmount);
+		    return true;
 		}
 
 		public void Update(Vector2 srcCenter, Vector2 dstCenter, int Thickness, Matrix view, Matrix projection, float elapsedTime)
         {
-            if (!this.CollidedThisFrame && this.DamageToggleOn)
+            if (!CollidedThisFrame && DamageToggleOn)
             {
                 this.DamageToggleOn = false;
                 if (this.DamageToggleSound != null && this.DamageToggleSound.IsPlaying)

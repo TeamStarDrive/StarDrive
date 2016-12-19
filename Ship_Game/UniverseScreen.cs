@@ -934,7 +934,7 @@ namespace Ship_Game
             string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             if (loadFogPath == null)
             {
-                FogMap = ResourceManager.TextureDict["Textures/UniverseFeather"];
+                FogMap = ResourceManager.TextureDict["UniverseFeather"];
             }
             else
             {
@@ -1786,199 +1786,6 @@ namespace Ship_Game
             //else GlobalStats.ForceFullSim = true;
 
         }
-
-
-
-
-
-        //public void ShipUpdater()     //This is not referenced anywhere. Commenting out so I can code-search without this stuff coming up -Gretman
-        //{
-        //    while (true)
-        //    {
-        //        this.ShipGateKeeper.WaitOne();
-        //        GlobalStats.CombatScans = 0;
-        //        GlobalStats.DSCombatScans = 0;
-        //        GlobalStats.ModulesMoved = 0;
-        //        GlobalStats.WeaponArcChecks = 0;
-
-
-
-        //        foreach (Empire empire in EmpireManager.EmpireList)
-        //        {
-        //            try
-        //            {
-        //                foreach (KeyValuePair<int, Fleet> keyValuePair in empire.GetFleetsDict())
-        //                {
-        //                    if (keyValuePair.Value.Ships.Count > 0)
-        //                    {
-        //                        keyValuePair.Value.Setavgtodestination();
-
-
-        //                    }
-        //                }
-        //            }
-        //            catch { }
-        //        }
-
-        //        for (int i = 0; i < this.MasterShipList.Count; i++)
-        //        {
-        //            Ship item = this.MasterShipList[i];
-        //            if (item.Active)
-        //            {
-        //                if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-        //                {
-        //                    item.Inhibited = true;
-        //                    item.InhibitedTimer = 10f;
-        //                }
-        //                item.PauseUpdate = true;
-        //                item.Update(0.0166666675f);
-        //                if (item.PlayerShip)
-        //                {
-        //                    item.ProcessInput(0.0166666675f);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                this.MasterShipList.QueuePendingRemoval(item);
-        //            }
-        //        }
-        //        foreach (KeyValuePair<Guid, Planet> planetsDict in this.PlanetsDict)
-        //        {
-        //            for (int j = 0; j < planetsDict.Value.Projectiles.Count; j++)
-        //            {
-        //                Projectile projectile = planetsDict.Value.Projectiles[j];
-        //                if (!projectile.Active)
-        //                {
-        //                    planetsDict.Value.Projectiles.QueuePendingRemoval(projectile);
-        //                }
-        //                else
-        //                {
-        //                    projectile.Update(0.0166666675f);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
-        //public void SystemUpdater(object data)        //This is not referenced anywhere. Commenting out so I can code-search without this stuff coming up -Gretman
-        //{
-        //    List<SolarSystem> list = (List<SolarSystem>)data;
-        //    while (true)
-        //    {
-        //        this.SystemGateKeeper[list[0].IndexOfResetEvent].WaitOne();
-        //        //float elapsedTime = this.ztimeSnapShot;
-        //        float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-        //        foreach (SolarSystem system in list)
-        //        //Parallel.ForEach(list, system =>
-        //        {
-        //            system.DangerTimer -= elapsedTime;
-        //            system.DangerUpdater -= elapsedTime;
-        //            if ((double)system.DangerUpdater < 0.0)
-        //            {
-        //                system.DangerUpdater = 10f;
-        //                system.DangerTimer = (double)this.player.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000f * UniverseScreen.GameScaleStatic, this.player) <= 0.0 ? 0.0f : 120f;
-        //            }
-        //            system.combatTimer -= elapsedTime;
-
-
-        //            if ((double)system.combatTimer <= 0.0)
-        //                system.CombatInSystem = false;
-        //            bool viewing = false;
-        //            this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(system.Position, 0.0f), this.projection, this.view, Matrix.Identity);
-        //            if (this.Frustum.Contains(new BoundingSphere(new Vector3(system.Position, 0.0f), 100000f)) != ContainmentType.Disjoint)
-        //                viewing = true;
-        //            else if (this.viewState == UniverseScreen.UnivScreenState.ShipView)
-        //            {
-        //                Rectangle rect = new Rectangle((int)system.Position.X - 100000, (int)system.Position.Y - 100000, 200000, 200000);
-        //                Vector3 position = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 0.0f), this.projection, this.view, Matrix.Identity);
-        //                Vector3 direction = this.ScreenManager.GraphicsDevice.Viewport.Unproject(new Vector3(500f, 500f, 1f), this.projection, this.view, Matrix.Identity) - position;
-        //                direction.Normalize();
-        //                Ray ray = new Ray(position, direction);
-        //                float num = -ray.Position.Z / ray.Direction.Z;
-        //                Vector3 vector3 = new Vector3(ray.Position.X + num * ray.Direction.X, ray.Position.Y + num * ray.Direction.Y, 0.0f);
-        //                Vector2 pos = new Vector2(vector3.X, vector3.Y);
-        //                if (HelperFunctions.CheckIntersection(rect, pos))
-        //                    viewing = true;
-        //            }
-        //            if (system.ExploredDict[this.player] && viewing)
-        //            {
-        //                system.isVisible = (double)this.camHeight < 250000.0;
-        //            }
-        //            if (system.isVisible && this.camHeight < 150000.0)
-        //            {
-        //                foreach (Asteroid asteroid in system.AsteroidsList)
-        //                {
-        //                    asteroid.GetSO().Visibility = ObjectVisibility.Rendered;
-        //                    asteroid.Update(elapsedTime);
-        //                }
-        //                foreach (Moon moon in system.MoonList)
-        //                {
-        //                    moon.GetSO().Visibility = ObjectVisibility.Rendered;
-        //                    moon.UpdatePosition(elapsedTime);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                foreach (Asteroid asteroid in system.AsteroidsList)
-        //                {
-        //                    asteroid.GetSO().Visibility = ObjectVisibility.None;
-        //                }
-        //                foreach (Moon moon in system.MoonList)
-        //                {
-        //                    moon.GetSO().Visibility = ObjectVisibility.None;
-        //                }
-        //            }
-        //            foreach (Planet planet in system.PlanetList)
-        //            {
-        //                planet.Update(elapsedTime);
-        //                if (planet.HasShipyard && system.isVisible)
-        //                    planet.Station.Update(elapsedTime);
-        //            }
-
-        //           foreach (Ship ship in (List<Ship>)system.ShipList)
-        //          // Parallel.ForEach(system.ShipList, ship =>
-        //            {
-        //                //try
-        //                {
-        //                    if (ship.GetSystem() == null)
-        //                        continue;
-        //                        //return;
-        //                    if (!ship.Active)
-        //                    {
-        //                        this.MasterShipList.QueuePendingRemoval(ship);
-        //                    }
-        //                    else
-        //                    {
-        //                        if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-        //                        {
-        //                            ship.Inhibited = true;
-        //                            ship.InhibitedTimer = 10f;
-        //                        }
-        //                        //try
-        //                        {
-        //                            ship.PauseUpdate = true;
-        //                            ship.Update(elapsedTime);
-        //                            if (ship.PlayerShip)
-        //                                ship.ProcessInput(elapsedTime);
-        //                        }
-        //                    //    catch (Exception ex)
-        //                    //    {
-        //                    //        Log.Exception(ex, "");
-        //                    //    }
-        //                    }
-        //                }
-        //                //catch
-        //                {
-        //                }
-        //            }//);
-        //            if (!this.Paused && this.IsActive)
-        //                system.spatialManager.Update(elapsedTime, system);
-        //            system.AsteroidsList.ApplyPendingRemovals();
-        //            system.ShipList.ApplyPendingRemovals();
-        //        }//);
-        //        this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
-        //    }
-        //}
 
         public void SystemUpdaterTaskBased(SolarSystem system)
         {
@@ -5066,7 +4873,7 @@ namespace Ship_Game
             {
                 basicEffect.World = Matrix.CreateScale(4.1f) * world;
                 basicEffect.View = view;
-                basicEffect.Texture = ResourceManager.TextureDict["Textures/Atmos"];
+                basicEffect.Texture = ResourceManager.TextureDict["Atmos"];
                 basicEffect.TextureEnabled = true;
                 basicEffect.Projection = projection;
                 basicEffect.LightingEnabled = true;

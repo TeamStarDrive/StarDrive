@@ -356,13 +356,13 @@ namespace Ship_Game
         // Added by RedFox: blocking full blown GC to reduce memory fragmentation
         public static void CollectMemory()
         {
-            Log.Info(ConsoleColor.DarkYellow, " ======== CollectMemory ======== ");
-            Log.Info(ConsoleColor.DarkYellow, " CollectMemory Before: {0:0.0}MB", GC.GetTotalMemory(false) / (1024f*1024f));
-
             // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
-            long after = GC.GetTotalMemory(forceFullCollection: true);
-            Log.Info(ConsoleColor.DarkYellow, " CollectMemory After:  {0:0.0}MB", after / (1024f*1024f));
-            Log.Info(ConsoleColor.DarkYellow, " =============================== ");
+
+            Log.Info(ConsoleColor.DarkYellow, " ========= CollectMemory ========= ");
+            float before = GC.GetTotalMemory(false) / (1024f * 1024f);
+            float after  = GC.GetTotalMemory(forceFullCollection: true) / (1024f * 1024f);
+            Log.Info(ConsoleColor.DarkYellow, "   Before: {0:0.0}MB  After: {1:0.0}MB", before, after);
+            Log.Info(ConsoleColor.DarkYellow, " ================================= ");
         }
 
         public static void CollectMemorySilent()

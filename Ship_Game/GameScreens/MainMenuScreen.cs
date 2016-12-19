@@ -426,7 +426,7 @@ namespace Ship_Game
 			}
 			ScreenManager.SpriteBatch.End();
 			ScreenManager.SpriteBatch.Begin();
-			ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/vignette"], screenRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/vignette"], screenRect, Color.White);
 			ScreenManager.SpriteBatch.End();
 		}
 
@@ -477,7 +477,7 @@ namespace Ship_Game
 				}
 			}
 			this.CurrentMouse = input.CurrentMouseState;
-			Vector2 MousePos = new Vector2((float)this.CurrentMouse.X, (float)this.CurrentMouse.Y);
+			Vector2 MousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
 			bool okcomet = true;
 			foreach (UIButton b in this.Buttons)
 			{
@@ -563,7 +563,7 @@ namespace Ship_Game
 					config.Save();
 					ResourceManager.WhichModPath = "Content";
 					ResourceManager.Reset();
-					ResourceManager.Initialize(base.ScreenManager.Content);
+					ResourceManager.LoadItAll();
 				}
 				else
 				{
@@ -658,6 +658,15 @@ namespace Ship_Game
                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 
             Projection = Matrix.CreateOrthographic(size.X, size.Y, 1f, 80000f);
+
+            LoadTestContent();
+        }
+
+        // for quick feature testing in the main menu
+        private void LoadTestContent()
+        {
+            var atlas = TextureAtlas.Load(ScreenManager.Content, "Explosions/smaller/shipExplosion");
+
         }
 
         public void ReloadContent()
@@ -723,6 +732,7 @@ namespace Ship_Game
                 ScreenManager.inter.ObjectManager.Remove(ShipObj);
                 ShipObj.Clear();
                 ShipObj = null;
+                ShipAnim = null;
             }
 
             // FrostHand: do we actually need to show Model/Ships/speeder/ship07 in base version? Or could show random ship for base and modded version?
@@ -784,14 +794,18 @@ namespace Ship_Game
             ShipRotation.Y += deltaTime * 0.06f;
             ShipPosition   += deltaTime * -ShipRotation.DegreesToUp() * 1.5f; // move forward 1.5 units/s
 
-            ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
-
-            // Added by RedFox: support animated ships
-            if (ShipAnim != null)
+            // shipObj can be modified while mod is loading
+            if (ShipObj != null)
             {
-                ShipObj.SkinBones = ShipAnim.SkinnedBoneTransforms;
-                ShipAnim.Speed = 0.45f;
-                ShipAnim.Update(gameTime.ElapsedGameTime, Matrix.Identity);
+                ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
+
+                // Added by RedFox: support animated ships
+                if (ShipAnim != null)
+                {
+                    ShipObj.SkinBones = ShipAnim.SkinnedBoneTransforms;
+                    ShipAnim.Speed = 0.45f;
+                    ShipAnim.Update(gameTime.ElapsedGameTime, Matrix.Identity);
+                }
             }
 
 		    ScreenManager.inter.Update(gameTime);
