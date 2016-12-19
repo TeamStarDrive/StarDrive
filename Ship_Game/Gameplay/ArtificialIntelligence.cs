@@ -5615,6 +5615,7 @@ namespace Ship_Game.Gameplay
                 endp.Y /= reducer;
                 endp.Y += granularity;
                 endp.X += granularity;
+                //@Bug Add sanity correct to prevent start and end from getting posistions off the map
                 PathFinderFast path;
                 Owner.loyalty.LockPatchCache.EnterReadLock();
                 if (PathCacheLookup(startp, endp, startPos, endPos))
