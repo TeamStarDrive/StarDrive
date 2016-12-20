@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using SharpRaven;
+using SharpRaven.Data;
 
 namespace Ship_Game
 {
@@ -278,6 +279,7 @@ namespace Ship_Game
             playerShip.loyalty.isPlayer = true;
             ShipToView                  = playerShip;
 
+            this.ravenClient.Release = GlobalStats.branch;           
         }
         
         public UniverseScreen(UniverseData data, string loyalty)
@@ -1148,7 +1150,7 @@ namespace Ship_Game
                         throw ex; // the loop is having a cyclic crash, no way to recover
                     Log.Error("ProcessTurns: {0}\n{1}", ex.Message, ex.StackTrace);
                     
-                    ravenClient.CaptureException(ex);
+                    ravenClient.Capture(new SentryEvent(ex));
 
                 }
                 finally
