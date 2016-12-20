@@ -266,6 +266,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -3398,7 +3399,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist ..\Config if not exist ..\Config_$(ConfigurationName) (mkdir ..\Config_$(ConfigurationName)) else $(ProjectDir)\deploy\7-Zip\7z A sd.7z @$(ProjectDir)deploy\Config_$(ConfigurationName)\include.txt &amp;&amp; copy /b $(ProjectDir)deploy\7-Zip\7ZSD.sfx + $(ProjectDir)deploy\Config_$(ConfigurationName)\config.txt + sd.7z $(ConfigurationName)$([System.DateTime]::Now.ToString(`MMdd`)).exe
-</PostBuildEvent>
+    <PostBuildEvent>$(ProjectDir)deploy\Config\Depoly.cmd $([System.DateTime]::Now.ToString(`MMdd))</PostBuildEvent>
   </PropertyGroup>
 </Project>
