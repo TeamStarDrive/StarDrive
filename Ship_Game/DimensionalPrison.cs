@@ -60,7 +60,7 @@ namespace Ship_Game
 			this.Prison.LowerLeft = this.Prison.UpperLeft + new Vector3(0f, (float)r.Height, 0f);
 			this.Prison.UpperRight = this.Prison.UpperLeft + new Vector3((float)r.Width, 0f, 0f);
 			this.Prison.LowerRight = this.Prison.UpperLeft + new Vector3((float)r.Width, (float)r.Height, 0f);
-			this.Prison.Texture = ResourceManager.TextureDict["Textures/star_neutron"];
+			this.Prison.Texture = ResourceManager.TextureDict["star_neutron"];
 			this.Prison.FillVertices();
 			this.b1 = new Beam(this.p1, Position, 50, this.s1)
 			{

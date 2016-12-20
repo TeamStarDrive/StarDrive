@@ -32,7 +32,7 @@ namespace Ship_Game
             try
             {
                 FileInfo headerToDel = new FileInfo(string.Concat(this.Path, "Headers/", this.fileToDel.Name.Substring(0, this.fileToDel.Name.LastIndexOf('.'))));       // find header of save file
-                //Console.WriteLine(headerToDel.FullName);
+                //Log.Info(headerToDel.FullName);
                 headerToDel.Delete();
             }
             catch { }

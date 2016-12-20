@@ -151,10 +151,6 @@ namespace Ship_Game
         [Serialize(86)] public bool SpyMissionRepeat = false;
         [Serialize(87)] public float treasuryGoal = .20f;
         [Serialize(88)] public bool AutoTaxes = false;
-        //autosave in save games.        
-
-        [XmlIgnore][JsonIgnore]
-        public int AutoSaveFreq => GlobalStats.AutoSaveFreq;
 
 		public EmpireData()
 		{

@@ -125,7 +125,7 @@ namespace Ship_Game
 		    SplashPlayer = new VideoPlayer {Volume = GlobalStats.Config.MusicVolume};
 
             // Initialize all game resources
-		    ResourceManager.Initialize(ScreenManager.Content);
+		    ResourceManager.LoadItAll();
             base.LoadContent();
             Ready = true;
         }

@@ -1583,8 +1583,8 @@ namespace Ship_Game
                         }
                         else
                         {
-                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["Textures/transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/transparent"], fIcon, Color.White);
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["transparent"], fIcon, Color.White);
                         }
                         Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
                         SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
@@ -1603,8 +1603,8 @@ namespace Ship_Game
                         }
                         else
                         {
-                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["Textures/transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/transparent"], fIcon, Color.White);
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["transparent"], fIcon, Color.White);
                         }
                         Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
                         SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
@@ -2095,10 +2095,9 @@ namespace Ship_Game
                         screen.workersPanel = new ColonyScreen(p, ScreenManager, eui);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-
-                    System.Diagnostics.Debug.WriteLine("Colony Screen Handle Inpu. Likely null reference.");
+                    Log.Exception(ex, "Colony Screen HandleInput(). Likely null reference.");
                 }
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {

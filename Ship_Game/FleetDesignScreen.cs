@@ -882,11 +882,7 @@ namespace Ship_Game
 		public override void ExitScreen()
 		{
 			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/NewGamelight_rig");
-			lock (GlobalStats.ObjectManagerLocker)
-			{
-				base.ScreenManager.inter.LightManager.Clear();
-				base.ScreenManager.inter.LightManager.Submit(rig);
-			}
+            rig.AssignTo(this);
 			this.EmpireUI.screen.RecomputeFleetButtons(true);
 			this.starfield.UnloadContent();
 			base.ExitScreen();
@@ -1758,11 +1754,7 @@ namespace Ship_Game
 		{
 			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
 			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
-			lock (GlobalStats.ObjectManagerLocker)
-			{
-				base.ScreenManager.inter.LightManager.Clear();
-				base.ScreenManager.inter.LightManager.Submit(rig);
-			}
+            rig.AssignTo(this);
 			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, base.ScreenManager.Content);
 			this.starfield.LoadContent();
 			Rectangle titleRect = new Rectangle(2, 44, 250, 80);

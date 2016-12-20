@@ -8,6 +8,7 @@ using System.Threading;
 public class SingleGlobalInstance : IDisposable
 {
 	private Mutex Mutex;
+    public readonly bool UniqueInstance; // true if this is an unique game instance
 
 	public SingleGlobalInstance()
 	{
@@ -15,10 +16,7 @@ public class SingleGlobalInstance : IDisposable
 		{
             string appGuid = ((GuidAttribute)Assembly.GetExecutingAssembly()
                                 .GetCustomAttributes(typeof(GuidAttribute), false)[0]).Value;
-
-            Mutex = new Mutex(true, $"Global\\{{{appGuid}}}", out bool newMutexCreated);
-            if (!newMutexCreated)
-                throw new Exception("An instance of StarDrive is already running");
+            Mutex = new Mutex(true, $"Global\\{{{appGuid}}}", out UniqueInstance);
 		}
 		catch (AbandonedMutexException)
 		{

@@ -194,9 +194,9 @@ namespace Ship_Game
 
             }
 
-            //System.Diagnostics.Debug.WriteLine("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
+            //Log.Info("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
             //foreach (string purger in purge)
-            //    System.Diagnostics.Debug.WriteLine("These are Designs" + purger);
+            //    Log.Info("These are Designs" + purger);
         }
 
 
@@ -233,16 +233,9 @@ namespace Ship_Game
             throw e;
         }
 
-        
-
-        public static void Initialize(ContentManager c)
+        public static void LoadItAll()
         {
             WhichModPath = "Content";
-            LoadItAll();
-        }
-
-        private static void LoadItAll()
-        {
             Log.Info("LoadItAll {0}", WhichModPath);
             LoadLanguage();
             LoadTroops();
@@ -279,6 +272,7 @@ namespace Ship_Game
 
         public static void LoadMods(string modPath)
         {
+            WhichModPath = modPath;
             Log.Info("LoadMods {0}", WhichModPath);
             LoadLanguage();
             LoadTroops();
@@ -963,12 +957,12 @@ namespace Ship_Game
                 foreach (var localization in LoadEntities<LocalizationFile>("/Localization/" + GlobalStats.Config.Language + "/", "LoadLanguage"))
                     Localizer.AddTokens(localization.TokenList);
             }
-            Debug.WriteLine(" === Localizer Total Memory: {0}KB === ", Localizer.CountBytesUsed() / 1024);
+            //Log.Info(ConsoleColor.DarkYellow, " === Localizer Total Memory: {0}KB === ", Localizer.CountBytesUsed() / 1024);
         }
 
         private static void LoadLargeStars() // Refactored by RedFox
         {
-            foreach (FileInfo info in Dir.GetFilesNoThumbs("Content/LargeStars"))
+            foreach (FileInfo info in Dir.GetFiles("Content/LargeStars", "xnb"))
             {
                 try
                 {
@@ -984,7 +978,7 @@ namespace Ship_Game
 
         private static void LoadMediumStars() // Refactored by RedFox
         {
-            foreach (FileInfo info in Dir.GetFilesNoThumbs("Content/MediumStars"))
+            foreach (FileInfo info in Dir.GetFiles("Content/MediumStars", "xnb"))
             {
                 try
                 {
@@ -1031,12 +1025,10 @@ namespace Ship_Game
                 ProjectileMeshDict[nameNoExt]  = projModel.Meshes[0];
                 ProjectileModelDict[nameNoExt] = projModel;
             }
-            catch (Exception e) when (e.HResult == -2146233088)
-            {
-                return;
-            }
             catch (Exception e)
             {
+                if (e.HResult == -2146233088)
+                    return;
                 ReportLoadingError(fullPath, "LoadProjectile", e);
             }
         }
@@ -1104,7 +1096,7 @@ namespace Ship_Game
 
             #if DEBUG
                 if (ShipModulesDict.ContainsKey(data.UID))
-                    System.Diagnostics.Debug.WriteLine("ShipModule UID already found. Conflicting name:  {0}", data.UID);
+                    Log.Info("ShipModule UID already found. Conflicting name:  {0}", data.UID);
             #endif
                 ShipModulesDict[data.UID] = data.ConvertToShipModule();
             }
@@ -1417,32 +1409,69 @@ namespace Ship_Game
             }
         }
 
+
+        // Gets a loaded texture using the given abstract texture path
+        public static Texture2D Texture(string texturePath)
+        {
+            return TextureDict[texturePath];
+        }
+        private static void AddTexture(string relativePath, Texture2D tex)
+        {
+            string texName = relativePath.Substring("Textures/".Length);
+            lock (TextureDict)
+            {
+                TextureDict[texName] = tex;
+            }
+        }
+
         // This method is a hot path during Loading and accounts for ~25% of time spent
         private static void LoadTextures()
         {
             ContentManager content = ContentManager;
 
-            string rootDir = WhichModPath != "Content" ? "../"+WhichModPath+"/Textures/" : "Textures/";
+            string contentRoot = content.RootDirectory;
+
+            if (WhichModPath == "Content") // not a mod
+            {
+                Parallel.ForEach(Dir.GetFiles(WhichModPath + "/Textures", "xnb"), info =>
+                {
+                    string relPath = info.PathNoExt().Substring(contentRoot.Length + 1).Replace('\\', '/');
+                    // 90% of this methods time is spent inside content::Load
+                    AddTexture(relPath, content.Load<Texture2D>(relPath));
+                });
+                return;
+            }
+
+            // The logic is way easier if we just separate Mod loading.
+            contentRoot = Path.GetFullPath(contentRoot + "\\..\\" + WhichModPath);
             Parallel.ForEach(Dir.GetFiles(WhichModPath + "/Textures", "xnb"), info =>
             {
-                string nameNoExt = info.NameNoExt();
-                string directory = info.Directory?.Name ?? "";
-                string loadPath = $"{rootDir}{(directory == "Textures" ? "" : directory + '/')}{nameNoExt}";
-
-                // 90% of this methods time is spent inside content::Load
-                Texture2D tex = content.Load<Texture2D>(loadPath);
-
-                lock (TextureDict)
-                {
-                    TextureDict[directory + "/" + nameNoExt] = tex;
-                }
+                string relPath = info.PathNoExt().Substring(contentRoot.Length + 1).Replace('\\', '/');
+                AddTexture(relPath, content.Load<Texture2D>($"../{WhichModPath}/{relPath}"));
             });
         }
 
-        // Gets a loaded texture using the given abstract texture path
-        public static Texture2D GetTexture(string texturePath)
+        // Load texture with its abstract path such as
+        // "Explosions/smaller/shipExplosion"
+        public static Texture2D LoadTexture(string textureName)
         {
-            return TextureDict[texturePath];
+            // first check mod texture path
+            if (TextureDict.TryGetValue(textureName, out Texture2D tex))
+                return tex;
+
+            if (WhichModPath != "Content") // if we have a mod enabled, try loading from modpath first
+            {
+                string modTexPath = WhichModPath+"/Textures/"+textureName;
+                if (File.Exists(modTexPath+".xnb"))
+                    return TextureDict[textureName] = ContentManager.Load<Texture2D>("../" + modTexPath);
+            }
+
+            // fall back to /Content/ regardless
+            if (File.Exists("Content/Textures/"+textureName+".xnb"))
+                return TextureDict[textureName] = 
+                    ContentManager.Load<Texture2D>("Textures/"+textureName);
+
+            return null;
         }
 
         private static void LoadToolTips()
@@ -1524,7 +1553,7 @@ namespace Ship_Game
             DeserializeIfExists(WhichModPath, "/AgentMissions/AgentMissionData.xml", ref AgentMissionData);
             DeserializeIfExists(WhichModPath, "/MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
 
-            foreach (FileInfo info in Dir.GetFilesNoThumbs(WhichModPath + "/SoundEffects"))
+            foreach (FileInfo info in Dir.GetFiles(WhichModPath + "/SoundEffects", "xnb"))
             {
                 string nameNoExt = info.NameNoExt();
                 SoundEffect se = ContentManager.Load<SoundEffect>("..\\" + WhichModPath + "\\SoundEffects\\" + nameNoExt);

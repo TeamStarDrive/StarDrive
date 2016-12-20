@@ -110,7 +110,7 @@ namespace Ship_Game
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
                             eventtext, "Planets/"+targetplanet.planetType, "SnapToPlanet", targetplanet);
 		            }
-		            else System.Diagnostics.Debug.WriteLine("Something horrible would have happened to '" + targetplanet.Name + "' but it was on a planet the player hasn't discovered yet.");
+		            else Log.Info($"Something horrible would have happened to '{targetplanet.Name}' but it was on a planet the player hasn't discovered yet.");
 		        }
 
 		    }
