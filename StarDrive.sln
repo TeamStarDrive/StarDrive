@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26009.0
+VisualStudioVersion = 15.0.26014.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarDrive", "StarDrive.csproj", "{8071E07A-300E-485D-B139-066E15E82178}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -44,17 +44,22 @@ Global
 		RedFox-Release|Any CPU = RedFox-Release|Any CPU
 		RedFox-Release|x64 = RedFox-Release|x64
 		RedFox-Release|x86 = RedFox-Release|x86
+		RelaseTexas|Any CPU = RelaseTexas|Any CPU
+		RelaseTexas|x64 = RelaseTexas|x64
+		RelaseTexas|x86 = RelaseTexas|x86
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 		Texas_Release_Unstable|Any CPU = Texas_Release_Unstable|Any CPU
 		Texas_Release_Unstable|x64 = Texas_Release_Unstable|x64
 		Texas_Release_Unstable|x86 = Texas_Release_Unstable|x86
+		Texas_release|Any CPU = Texas_release|Any CPU
+		Texas_release|x64 = Texas_release|x64
+		Texas_release|x86 = Texas_release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|Any CPU.ActiveCfg = BlackBox_RadicalElements_RC_16_|Any CPU
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|Any CPU.Build.0 = BlackBox_RadicalElements_RC_16_|Any CPU
-		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|Any CPU.Build.2 = BlackBox_Experimental_|Any CPU
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|x64.ActiveCfg = BlackBox_RadicalElements_RC_16_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|x86.ActiveCfg = BlackBox_RadicalElements_RC_16_|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.BlackBox_RadicalElements_RC_16_|x86.Build.0 = BlackBox_RadicalElements_RC_16_|x86
@@ -104,6 +109,12 @@ Global
 		{8071E07A-300E-485D-B139-066E15E82178}.RedFox-Release|x64.ActiveCfg = RedFox-Release|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.RedFox-Release|x86.ActiveCfg = RedFox-Release|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.RedFox-Release|x86.Build.0 = RedFox-Release|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.RelaseTexas|Any CPU.ActiveCfg = Release|Any CPU
+		{8071E07A-300E-485D-B139-066E15E82178}.RelaseTexas|Any CPU.Build.0 = Release|Any CPU
+		{8071E07A-300E-485D-B139-066E15E82178}.RelaseTexas|x64.ActiveCfg = Release|Any CPU
+		{8071E07A-300E-485D-B139-066E15E82178}.RelaseTexas|x64.Build.0 = Release|Any CPU
+		{8071E07A-300E-485D-B139-066E15E82178}.RelaseTexas|x86.ActiveCfg = Texas_Release_Unstable|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.RelaseTexas|x86.Build.0 = Texas_Release_Unstable|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8071E07A-300E-485D-B139-066E15E82178}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8071E07A-300E-485D-B139-066E15E82178}.Release|x64.ActiveCfg = Release|x86
@@ -114,6 +125,11 @@ Global
 		{8071E07A-300E-485D-B139-066E15E82178}.Texas_Release_Unstable|x64.ActiveCfg = Texas_Release_Unstable|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Texas_Release_Unstable|x86.ActiveCfg = Texas_Release_Unstable|x86
 		{8071E07A-300E-485D-B139-066E15E82178}.Texas_Release_Unstable|x86.Build.0 = Texas_Release_Unstable|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Texas_release|Any CPU.ActiveCfg = Crunchies-Debug|Any CPU
+		{8071E07A-300E-485D-B139-066E15E82178}.Texas_release|Any CPU.Build.0 = Crunchies-Debug|Any CPU
+		{8071E07A-300E-485D-B139-066E15E82178}.Texas_release|x64.ActiveCfg = Crunchies-Debug|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Texas_release|x86.ActiveCfg = Texas_TestorBuild|x86
+		{8071E07A-300E-485D-B139-066E15E82178}.Texas_release|x86.Build.0 = Texas_TestorBuild|x86
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.BlackBox_RadicalElements_RC_16_|Any CPU.ActiveCfg = Texas_Release_Unstable|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.BlackBox_RadicalElements_RC_16_|Any CPU.Build.0 = Texas_Release_Unstable|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.BlackBox_RadicalElements_RC_16_|x64.ActiveCfg = Release|x64
@@ -174,6 +190,11 @@ Global
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x64.Deploy.0 = Release|x64
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x86.ActiveCfg = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RedFox-Release|x86.Build.0 = Release|Win32
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RelaseTexas|Any CPU.ActiveCfg = Texas_Release_Unstable|x64
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RelaseTexas|Any CPU.Build.0 = Texas_Release_Unstable|x64
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RelaseTexas|x64.ActiveCfg = Release|x64
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RelaseTexas|x64.Build.0 = Release|x64
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.RelaseTexas|x86.ActiveCfg = Texas_Release_Unstable|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release|Any CPU.ActiveCfg = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release|x64.ActiveCfg = Release|x64
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release|x64.Build.0 = Release|x64
@@ -184,6 +205,12 @@ Global
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Texas_Release_Unstable|x64.Build.0 = Texas_Release_Unstable|x64
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Texas_Release_Unstable|x86.ActiveCfg = Texas_Release_Unstable|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Texas_Release_Unstable|x86.Build.0 = Texas_Release_Unstable|Win32
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Texas_release|Any CPU.ActiveCfg = Texas_Release_Unstable|Win32
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Texas_release|Any CPU.Build.0 = Texas_Release_Unstable|Win32
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Texas_release|x64.ActiveCfg = Debug|x64
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Texas_release|x64.Build.0 = Debug|x64
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Texas_release|x86.ActiveCfg = Debug|Win32
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Texas_release|x86.Build.0 = Debug|Win32
 		{8785944C-C586-403C-A948-F5180F413B5D}.BlackBox_RadicalElements_RC_16_|Any CPU.ActiveCfg = Debug|x86
 		{8785944C-C586-403C-A948-F5180F413B5D}.BlackBox_RadicalElements_RC_16_|Any CPU.Build.0 = Debug|x86
 		{8785944C-C586-403C-A948-F5180F413B5D}.BlackBox_RadicalElements_RC_16_|x64.ActiveCfg = Release|x86
@@ -242,6 +269,9 @@ Global
 		{8785944C-C586-403C-A948-F5180F413B5D}.RedFox-Release|x64.Build.0 = Release|x86
 		{8785944C-C586-403C-A948-F5180F413B5D}.RedFox-Release|x86.ActiveCfg = Release|x86
 		{8785944C-C586-403C-A948-F5180F413B5D}.RedFox-Release|x86.Build.0 = Release|x86
+		{8785944C-C586-403C-A948-F5180F413B5D}.RelaseTexas|Any CPU.ActiveCfg = RelaseTexas|x86
+		{8785944C-C586-403C-A948-F5180F413B5D}.RelaseTexas|x64.ActiveCfg = RelaseTexas|x86
+		{8785944C-C586-403C-A948-F5180F413B5D}.RelaseTexas|x86.ActiveCfg = RelaseTexas|x86
 		{8785944C-C586-403C-A948-F5180F413B5D}.Release|Any CPU.ActiveCfg = Release|x86
 		{8785944C-C586-403C-A948-F5180F413B5D}.Release|x64.ActiveCfg = Release|x86
 		{8785944C-C586-403C-A948-F5180F413B5D}.Release|x86.ActiveCfg = Release|x86
@@ -252,6 +282,12 @@ Global
 		{8785944C-C586-403C-A948-F5180F413B5D}.Texas_Release_Unstable|x64.Build.0 = Release|x86
 		{8785944C-C586-403C-A948-F5180F413B5D}.Texas_Release_Unstable|x86.ActiveCfg = Release|x86
 		{8785944C-C586-403C-A948-F5180F413B5D}.Texas_Release_Unstable|x86.Build.0 = Release|x86
+		{8785944C-C586-403C-A948-F5180F413B5D}.Texas_release|Any CPU.ActiveCfg = Debug|x86
+		{8785944C-C586-403C-A948-F5180F413B5D}.Texas_release|Any CPU.Build.0 = Debug|x86
+		{8785944C-C586-403C-A948-F5180F413B5D}.Texas_release|x64.ActiveCfg = Release|x86
+		{8785944C-C586-403C-A948-F5180F413B5D}.Texas_release|x64.Build.0 = Release|x86
+		{8785944C-C586-403C-A948-F5180F413B5D}.Texas_release|x86.ActiveCfg = Debug|x86
+		{8785944C-C586-403C-A948-F5180F413B5D}.Texas_release|x86.Build.0 = Debug|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
