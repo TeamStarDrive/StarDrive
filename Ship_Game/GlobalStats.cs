@@ -27,9 +27,7 @@ namespace Ship_Game
 
     public static class GlobalStats
 	{
-        public static string Branch = "Refactor";
-        //public static string Version = "1013A";
-
+        public static string Branch = "0.301 Texas_Refactor";
         public static int ComparisonCounter = 1;
 		public static int Comparisons = 0;
 		public static bool HardcoreRuleset = false;
@@ -92,7 +90,7 @@ namespace Ship_Game
         public static float MemoryLimiter;
 
         public static float StartingPlanetRichness;
-        public static string ExtendedVersion = "Texas_";
+        public static string ExtendedVersion = ""; 
         public static int IconSize;
         public static int TurnTimer = 5;
 
