@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using SynapseGaming.LightingSystem.Rendering;
 using static System.Math;
 
@@ -83,6 +84,8 @@ namespace Ship_Game
         }
 
 
+
+
         // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f
         public static Vector3 ToVec3(this Vector2 a) => new Vector3(a.X, a.Y, 0f);
 
@@ -98,7 +101,14 @@ namespace Ship_Game
         // Center of a Texture2D. Not rounded! So 121x121 --> {60.5;60.5}
         public static Vector2 Center(this Texture2D texture)   => new Vector2(texture.Width / 2f, texture.Height / 2f);
         public static Vector2 Position(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
+        public static Vector2 Pos(this MouseState ms) => new Vector2(ms.X, ms.Y);
 
+        // Center of the screen
+        public static Vector2 Center(this ScreenManager screenMgr)
+        {
+            var p = screenMgr.GraphicsDevice.PresentationParameters;
+            return new Vector2(p.BackBufferWidth / 2f, p.BackBufferHeight / 2f);
+        }
 
         // result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)

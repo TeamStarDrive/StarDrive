@@ -179,7 +179,6 @@ namespace Ship_Game
 			AllSaves             = new Submenu(ScreenManager, scrollList);
 			AllSaves.AddTab("Load Model");
 			SavesSL              = new ScrollList(AllSaves, 55);
-			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 			ModuleHeader original = new ModuleHeader("Vanilla StarDrive");
 			SavesSL.AddItem(original);
 

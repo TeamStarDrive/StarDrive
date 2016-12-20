@@ -931,7 +931,7 @@ namespace Ship_Game
             MiniMapSector = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
             BorderRT      = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
             StencilRT     = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
-            string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string folderPath = Dir.ApplicationData;
             if (loadFogPath == null)
             {
                 FogMap = ResourceManager.TextureDict["UniverseFeather"];

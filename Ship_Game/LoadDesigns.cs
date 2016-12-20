@@ -332,7 +332,7 @@ namespace Ship_Game
 			this.ShipDesigns = new ScrollList(this.SaveShips);
 			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
 			this.TitlePosition = new Vector2((float)(this.Window.X + 20), (float)(this.Window.Y + 20));
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			string path = Dir.ApplicationData;
 			Rectangle gridRect = new Rectangle(this.SaveShips.Menu.X + this.SaveShips.Menu.Width - 44, this.SaveShips.Menu.Y, 29, 20);
 			this.playerDesignsToggle = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
 			{
@@ -453,7 +453,7 @@ namespace Ship_Game
 		{
 			this.ShipDesigns.Entries.Clear();
 			this.ShipDesigns.Copied.Clear();
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			string path = Dir.ApplicationData;
 			List<ShipData> WIPs = new List<ShipData>();
 			foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
 			{
