@@ -910,7 +910,7 @@ namespace Ship_Game.Gameplay
                 if (Target == null)
                 {
                     if (this.OrderQueue.Count > 0) this.OrderQueue.RemoveFirst();
-                    //else System.Diagnostics.Debug.WriteLine("Attempted to 'OrderQueue.RemoveFirst()' from empty SafeQueue.");
+                    //else Log.Info("Attempted to 'OrderQueue.RemoveFirst()' from empty SafeQueue.");
                     // this.ClearOrdersNext = true;
                     //this.HadPO = true;
 
@@ -1586,7 +1586,7 @@ namespace Ship_Game.Gameplay
 				this.HasPriorityOrder = false;
                 this.State = this.DefaultAIState;
 				this.OrderQueue.Clear();
-                System.Diagnostics.Debug.WriteLine("Do Land Troop: Troop Assault Canceled");
+                Log.Info("Do Land Troop: Troop Assault Canceled");
 			}
             else if (distCenter < radius)
 			{
@@ -2503,8 +2503,7 @@ namespace Ship_Game.Gameplay
         //fire on target
         public void FireOnTarget() //(float elapsedTime)
         {
-            //Reasons not to fire
-            //try
+            try
             {
                 TargetShip = this.Target as Ship;
                 //Relationship enemy =null;
@@ -2803,16 +2802,11 @@ namespace Ship_Game.Gameplay
 
                 }
             }
-            //catch (Exception e)
+            catch (Exception e)
             {
-#if DEBUG
-                //System.Diagnostics.Debug.WriteLine(e.InnerException); 
-#endif
-
+                Log.Exception(e, "FireOnTarget() crashed");
             }
-
-            this.TargetShip = null;
-
+            TargetShip = null;
         }
         //fire on calculate and fire
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
@@ -2848,17 +2842,17 @@ namespace Ship_Game.Gameplay
                 float timeToTarget = distance / dir.Length();
                 projectedPosition = target.Center;
     //            if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed <= 0)
-             //       System.Diagnostics.Debug.WriteLine(this.Owner.GetSystemName() + " - Velocity error compensator in calculate and fire. Fix weird velocity");
+             //       Log.Info(this.Owner.GetSystemName() + " - Velocity error compensator in calculate and fire. Fix weird velocity");
   //              if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed > 0)
                     projectedPosition = moduleTarget.Center + (moduleTarget.GetParent().Velocity * timeToTarget);
                 //else
                 //{
-                //    System.Diagnostics.Debug.WriteLine(this.Owner.GetSystemName() + " - posistion compensator in calculate and fire.");
+                //    Log.Info(this.Owner.GetSystemName() + " - posistion compensator in calculate and fire.");
                 //    projectedPosition = moduleTarget.Center;
                 //}
                 if (projectedPosition != moduleTarget.Center && moduleTarget.GetParent().Velocity.Length() <= 0)
                 {
-                    System.Diagnostics.Debug.WriteLine(this.Owner.System.Name + " - calculate and fire error");
+                    Log.Info(this.Owner.System.Name + " - calculate and fire error");
                     //moved docs target correction here. 
                     Vector2 fireatstationary = Vector2.Zero;
                     fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, moduleTarget.Center));
@@ -4495,7 +4489,7 @@ namespace Ship_Game.Gameplay
 		public void OrderScrapShip()
 		{
 #if SHOWSCRUB
-            //System.Diagnostics.Debug.WriteLine(string.Concat(this.Owner.loyalty.PortraitName, " : ", this.Owner.Role)); 
+            //Log.Info(string.Concat(this.Owner.loyalty.PortraitName, " : ", this.Owner.Role)); 
 #endif
 
             if ((this.Owner.shipData.Role <= ShipData.RoleName.station) && this.Owner.ScuttleTimer < 1)
@@ -4589,7 +4583,7 @@ namespace Ship_Game.Gameplay
 
 #if SHOWSCRUB
                 if (this.Target != null && (this.Target as Ship).Name == "Subspace Projector")
-                    System.Diagnostics.Debug.WriteLine(string.Concat("Scrubbed", (this.Target as Ship).Name)); 
+                    Log.Info(string.Concat("Scrubbed", (this.Target as Ship).Name)); 
 #endif
                 this.SystemToDefend = system;
                 this.HasPriorityOrder = false;
@@ -5241,9 +5235,9 @@ namespace Ship_Game.Gameplay
                                         plan = s.GetAI().OrderQueue.LastOrDefault();
                                         
                                     }
-                                    catch
+                                    catch (Exception ex)
                                     {
-                                        System.Diagnostics.Debug.WriteLine("Order Trade Orderqueue fail");
+                                        Log.Exception(ex, "Order Trade Orderqueue fail");
                                     }
                                     if (plan != null && s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && plan.Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
                                     {
@@ -5874,9 +5868,9 @@ namespace Ship_Game.Gameplay
                         }
                         
                     }
-                     if(!test)
+                    if(!test)
                     {
-                        System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
+                        Log.Info("failed to find road path for {0}", Owner.loyalty.PortraitName);
                         return new List<Vector2>();
                     }
                 }
@@ -5909,7 +5903,7 @@ namespace Ship_Game.Gameplay
                     }
                     if(!test)
                     {
-                        System.Diagnostics.Debug.WriteLine("failed to find road path for " + this.Owner.loyalty.PortraitName);
+                        Log.Info("failed to find road path for {0}", Owner.loyalty.PortraitName);
                         return new List<Vector2>();
                     }
 
@@ -6614,7 +6608,7 @@ namespace Ship_Game.Gameplay
             {
                 //#if DEBUG
                 //                if (this.State == AIState.Intercept && this.Target != null)
-                //                    System.Diagnostics.Debug.WriteLine(this.Target); 
+                //                    Log.Info(this.Target); 
                 //#endif
                 if (this.Owner.Mothership != null)
                 {
@@ -7022,7 +7016,7 @@ namespace Ship_Game.Gameplay
                     float WarpSpeed = (this.Owner.WarpThrust / this.Owner.Mass + 0.1f) * this.Owner.loyalty.data.FTLModifier;
                     if (this.Owner.inborders && this.Owner.loyalty.data.Traits.InBordersSpeedBonus > 0) WarpSpeed *= 1 + this.Owner.loyalty.data.Traits.InBordersSpeedBonus;
 
-                    if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("AngleDiff: " + angleDiff + "     TurnRate = " + TurnRate + "     WarpSpeed = " + WarpSpeed + "     Distance = " + Distance);
+                    if (this.Owner.VanityName == "MerCraft") Log.Info("AngleDiff: " + angleDiff + "     TurnRate = " + TurnRate + "     WarpSpeed = " + WarpSpeed + "     Distance = " + Distance);
                     //AngleDiff: 1.500662     TurnRate = 0.2491764     WarpSpeed = 26286.67     Distance = 138328.4
 
                     if (this.ActiveWayPoints.Count >= 2 && Distance > Empire.ProjectorRadius / 2 && Vector2.Distance(this.Owner.Center, this.ActiveWayPoints.ElementAt(1)) < Empire.ProjectorRadius * 5)
@@ -7162,14 +7156,14 @@ namespace Ship_Game.Gameplay
 #region warp
                 if (angleDiff > 0.25f && this.Owner.engineState == Ship.MoveState.Warp)
                 {
-                    if (this.Owner.VanityName == "MerCraftA") System.Diagnostics.Debug.WriteLine("angleDiff: " + angleDiff);
+                    if (this.Owner.VanityName == "MerCraftA") Log.Info("angleDiff: " + angleDiff);
                     //this.Owner.speed *= 0.999f;
                     if (this.ActiveWayPoints.Count > 1)
                     {
                         if (angleDiff > 1.0f)
                         {
                             this.Owner.HyperspaceReturn();
-                            if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Dropped out of warp:  Master Angle too large for warp." + "   angleDiff: " + angleDiff);
+                            if (this.Owner.VanityName == "MerCraft") Log.Info("Dropped out of warp:  Master Angle too large for warp." + "   angleDiff: " + angleDiff);
                         }
                         //wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, this.ActiveWayPoints.ElementAt<Vector2>(1)));
                         //float angleDiffToNext = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
@@ -7181,13 +7175,13 @@ namespace Ship_Game.Gameplay
 
                             if (angleDiff > 0.25f) //Gretman tinkering with fbedard's 2nd attempt to smooth movement around waypoints
                             {
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Pre Dequeue Queue size:  " + this.ActiveWayPoints.Count);
+                                if (this.Owner.VanityName == "MerCraft") Log.Info("Pre Dequeue Queue size:  " + this.ActiveWayPoints.Count);
                                 lock (this.WayPointLocker)
                                 this.ActiveWayPoints.Dequeue();
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Post Dequeue Pre Remove 1st Queue size:  " + this.ActiveWayPoints.Count);
+                                if (this.Owner.VanityName == "MerCraft") Log.Info("Post Dequeue Pre Remove 1st Queue size:  " + this.ActiveWayPoints.Count);
                                 if (this.OrderQueue.Count > 0)
                                     this.OrderQueue.RemoveFirst();
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Post Remove 1st Queue size:  " + this.ActiveWayPoints.Count);
+                                if (this.Owner.VanityName == "MerCraft") Log.Info("Post Remove 1st Queue size:  " + this.ActiveWayPoints.Count);
                                 Position = this.ActiveWayPoints.First();
                                 Distance = Vector2.Distance(Position, this.Owner.Center);
                                 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
@@ -7195,24 +7189,24 @@ namespace Ship_Game.Gameplay
                                 angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
 
                                 speedLimit = speedLimit * 0.75f;
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Rounded Corner:  Slowed down." + "   angleDiff: " + angleDiff);
+                                if (this.Owner.VanityName == "MerCraft") Log.Info("Rounded Corner:  Slowed down.   angleDiff: {0}", angleDiff);
                             }
                             else
                             {
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Pre Dequeue Queue size:  " + this.ActiveWayPoints.Count);
+                                if (this.Owner.VanityName == "MerCraft") Log.Info("Pre Dequeue Queue size:  " + this.ActiveWayPoints.Count);
                                 lock (this.WayPointLocker)
                                 this.ActiveWayPoints.Dequeue();
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Post Dequeue Pre Remove 1st Queue size:  " + this.ActiveWayPoints.Count);
+                                if (this.Owner.VanityName == "MerCraft") Log.Info("Post Dequeue Pre Remove 1st Queue size:  " + this.ActiveWayPoints.Count);
                                 if (this.OrderQueue.Count > 0)
                                     this.OrderQueue.RemoveFirst();
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Post Remove 1st Queue size:  " + this.ActiveWayPoints.Count);
+                                if (this.Owner.VanityName == "MerCraft") Log.Info("Post Remove 1st Queue size:  " + this.ActiveWayPoints.Count);
                                 Position = this.ActiveWayPoints.First();
                                 Distance = Vector2.Distance(Position, this.Owner.Center);
                                 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.Owner.Center, Position));
                                 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
                                 angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
 
-                                if (this.Owner.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Rounded Corner:  Did not slow down." + "   angleDiff: " + angleDiff);
+                                if (this.Owner.VanityName == "MerCraft") Log.Info("Rounded Corner:  Did not slow down." + "   angleDiff: " + angleDiff);
                             }
                         }
                     }
@@ -7883,7 +7877,7 @@ namespace Ship_Game.Gameplay
                             this.OrderQueue.AddLast(orbit);         //Stay in Orbit
 
                             this.HasPriorityOrder = false;
-                            //System.Diagnostics.Debug.WriteLine("Bombardment info! " + target.GetGroundStrengthOther(this.Owner.loyalty) + " : " + target.GetGroundStrength(this.Owner.loyalty));
+                            //Log.Info("Bombardment info! " + target.GetGroundStrengthOther(this.Owner.loyalty) + " : " + target.GetGroundStrength(this.Owner.loyalty));
 
                         }   //Done -Gretman
 
@@ -8103,7 +8097,7 @@ namespace Ship_Game.Gameplay
                     case ArtificialIntelligence.Plan.DefendSystem:
                         {
                             //if (this.Target != null)
-                            //    System.Diagnostics.Debug.WriteLine(this.Target);
+                            //    Log.Info(this.Target);
                             this.DoSystemDefense(elapsedTime);
                             break;
                         }
@@ -8134,7 +8128,7 @@ namespace Ship_Game.Gameplay
                             }
                             catch
                             {
-                                System.Diagnostics.Debug.WriteLine("DropoffPassengers failed");
+                                Log.Info("DropoffPassengers failed");
 
                             }
                             break;
@@ -8843,12 +8837,9 @@ namespace Ship_Game.Gameplay
                 {
                     return Pathfind(start.Position, end.Position, true);
                 }
-               // return ReconstructPath(cameFrom, end);
-                System.Diagnostics.Debug.WriteLine(string.Format(
-                        "unable to find a path between {0},{1} and {2},{3}",
-                        start.Position.X, start.Position.Y,
-                        end.Position.X, end.Position.Y
-                    ));
+                // return ReconstructPath(cameFrom, end);
+                Log.Info("unable to find a path between {0},{1} and {2},{3}",
+                         start.Position.X, start.Position.Y, end.Position.X, end.Position.Y);
                 
                 return null;// cameFrom.Keys.ToList();
             }

@@ -411,8 +411,7 @@ namespace Ship_Game
                             Goal = this,
                             Cost = ResourceManager.TroopsDict[this.ToBuildUID].GetCost()
                         });
-                    else
-                        System.Diagnostics.Debug.WriteLine(string.Concat("Missing Troop "));
+                    else Log.Info("Missing Troop ");
                     this.Step = 1;
 
                     break;

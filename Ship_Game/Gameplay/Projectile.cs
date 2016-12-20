@@ -15,133 +15,66 @@ namespace Ship_Game.Gameplay
 	public class Projectile : GameplayObject, IDisposable
 	{
 		public float ShieldDamageBonus;
-
 		public float ArmorDamageBonus;
-
 		public byte ArmorPiercing;
-
 		public static ContentManager contentManager;
-
 		public Ship owner;
-
 		public bool IgnoresShields;
-
 		public string WeaponType;
-
 		private MissileAI missileAI;
-
-		private Ship_Game.Planet planet;
-
+		private Planet planet;
 		public float velocityMaximum;
-
 		public float speed;
-
 		public float range;
-
 		public float damageAmount;
-
 		public float damageRadius;
-
         public float explosionradiusmod;
-
 		public float duration;
-
 		public bool explodes;
-
-        //protected Color[] explosionColors;          //Not referenced in code, removing to save memory
-
         public ShipModule moduleAttachedTo;
-
-        //protected string weaponEffect;          //Not referenced in code, removing to save memory
-
         public string WeaponEffectType;
-
 		private Matrix WorldMatrix;
-
 		public static UniverseScreen universeScreen;
-
 		private ParticleEmitter trailEmitter;
-
 		private ParticleEmitter firetrailEmitter;
-
 		private SceneObject ProjSO;
-
 		public string InFlightCue = "";
-
 		public AudioEmitter emitter = new AudioEmitter();
-
 		public bool Miss;
-
 		public Empire loyalty;
-
 		private float initialDuration;
-
 		private Vector2 direction;
-
 		private float switchFrames;
-
 		private float frameTimer;
-
         public float RotationRadsPerSecond;
-
 		private DroneAI droneAI;
-
 		public Weapon weapon;
-
 		public string texturePath;
-
 		public string modelPath;
-
 		private float zStart = -25f;
-
 		private float particleDelay;
-
 		private PointLight light;
-
 		public bool firstRun = true;
-
-		private Ship_Game.MuzzleFlash flash;
-
+		private MuzzleFlash flash;
 		private PointLight MuzzleFlash;
-
 		private float flashTimer = 0.142f;
-
 		public float Scale = 1f;
-
 		private int AnimationFrame;
-
 		private string fmt = "00000.##";
-
 		private float TimeElapsed;
-
 		private bool DieNextFrame;
-
 		public bool DieSound;
-
 		private Cue inFlight;
-
 		public string dieCueName = "";
-
-        //public ShipModule HitModule;          //Not referenced in code, removing to save memory
-
         private bool wasAddedToSceneGraph;
-
 		private bool LightWasAddedToSceneGraph;
-
 		private bool muzzleFlashAdded;
-
         public Vector2 FixedError;
-
         public bool ErrorSet = false;
-
         public bool flashExplode;
-
         public bool isSecondary;
-
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
-
-
 
 		public Ship Owner
 		{
@@ -1077,8 +1010,7 @@ namespace Ship_Game.Gameplay
                     this.light.Intensity = 1.7f;
                     this.light.FillLight = true;
                     this.light.Enabled = true;
-                    lock (GlobalStats.ObjectManagerLocker)
-                        Projectile.universeScreen.ScreenManager.inter.LightManager.Submit((ILight)this.light);
+                    this.light.AddTo(Empire.Universe);
                 }
                 else if (this.weapon.Light != null && this.LightWasAddedToSceneGraph)
                 {
@@ -1099,8 +1031,7 @@ namespace Ship_Game.Gameplay
                         this.MuzzleFlash.Intensity = 1f;
                         this.MuzzleFlash.FillLight = false;
                         this.MuzzleFlash.Enabled = true;
-                        lock (GlobalStats.ObjectManagerLocker)
-                            Projectile.universeScreen.ScreenManager.inter.LightManager.Submit((ILight)this.MuzzleFlash);
+                        this.MuzzleFlash.AddTo(Empire.Universe);
                         this.flashTimer -= elapsedTime;
                         this.flash = new MuzzleFlash();
                         this.flash.WorldMatrix = Matrix.Identity * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.MuzzleFlash.Position);

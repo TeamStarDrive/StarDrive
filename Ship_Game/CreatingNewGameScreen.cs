@@ -118,7 +118,7 @@ namespace Ship_Game
             NumSystems = (int)(size * starNumModifier);
             if (size > 45)
                 Empire.ProjectorRadius = Data.Size.X / 70; // reduce projector radius??
-            System.Diagnostics.Debug.WriteLine("Empire.ProjectorRadius = {0}", Empire.ProjectorRadius);
+            Log.Info("Empire.ProjectorRadius = {0}", Empire.ProjectorRadius);
 
             UniverseData.UniverseWidth = Data.Size.X * 2;
             Data.Size *= Scale;
@@ -174,19 +174,17 @@ namespace Ship_Game
                             removalCollection.Add(empireData);                        
                     }
                     int num = removalCollection.Count - NumOpponents;
-                    int shipsPurged = 0;
                     float spaceSaved = GC.GetTotalMemory(true);
                     for (int opponents = 0; opponents < num; ++opponents)
                     {
                         //Intentionally using too high of a value here, because of the truncated decimal. -Gretman
                         int index = RandomMath.InRange(removalCollection.Count);
 
-                        System.Diagnostics.Debug.WriteLine("Race excluded from game: " + removalCollection[index].PortraitName + "  (Index " + index + " of " + (removalCollection.Count - 1) + ")");
+                        Log.Info("Race excluded from game: {0}  (Index {1} of {2})",  removalCollection[index].PortraitName, index, removalCollection.Count-1);
                         removalCollection.RemoveAt(index);
                     }
 
-                    System.Diagnostics.Debug.WriteLine("Ships Purged:  {0}", shipsPurged);
-                    System.Diagnostics.Debug.WriteLine("Memory purged: {0}", spaceSaved - GC.GetTotalMemory(true));
+                    Log.Info("Memory purged: {0}", spaceSaved - GC.GetTotalMemory(true));
                                            
                     foreach (EmpireData data in removalCollection)
                     {                        
@@ -246,8 +244,7 @@ namespace Ship_Game
                     }
                     ResourceManager.MarkShipDesignsUnlockable();                    
                     
-                    System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
-                    System.Diagnostics.Debug.WriteLine("Memory purged: " + (spaceSaved - GC.GetTotalMemory(true)).ToString());
+                    Log.Info("Memory purged: {0}", spaceSaved - GC.GetTotalMemory(true));
 
                     foreach (Empire empire in Data.EmpireList)
                     {
@@ -862,7 +859,7 @@ namespace Ship_Game
             WorkerThread = null;
             ScreenManager.AddScreen(us);
 
-            System.Diagnostics.Debug.WriteLine("CreatingNewGameScreen.UpdateAllSystems(0.01)");
+            Log.Info("CreatingNewGameScreen.UpdateAllSystems(0.01)");
             us.UpdateAllSystems(0.01f);
             mmscreen.OnPlaybackStopped(null, null);
             ScreenManager.RemoveScreen(mmscreen);

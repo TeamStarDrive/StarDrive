@@ -10,7 +10,8 @@ namespace Ship_Game
 {
     public class Dir
     {
-        private static readonly FileInfo[] NoFiles = new FileInfo[0];
+        private static readonly FileInfo[]      NoFiles = new FileInfo[0];
+        private static readonly DirectoryInfo[] NoDirs  = new DirectoryInfo[0];
 
         // Added by RedFox - this is a safe wrapper to DirectoryInfo.GetFiles which assumes 
         //                   dir is optional and if it doesn't exist, returns empty file list
@@ -39,11 +40,16 @@ namespace Ship_Game
         {
             return GetFiles(dir, "*."+ext, SearchOption.TopDirectoryOnly);
         }
-        public static IEnumerable<FileInfo> GetFilesNoThumbs(string dir)
+
+        // Finds all subdirectories
+        public static DirectoryInfo[] GetDirs(string dir, SearchOption option = SearchOption.AllDirectories)
         {
-            foreach (FileInfo info in GetFiles(dir))
-                if (info.Name != "Thumbs.db")
-                    yield return info;
+            try
+            {
+                var info = new DirectoryInfo(dir);
+                return info.Exists ? info.GetDirectories("*", option) : NoDirs;
+            }
+            catch { return NoDirs; }
         }
 
         public static void CopyDir(string sourceDirName, string destDirName, bool copySubDirs)

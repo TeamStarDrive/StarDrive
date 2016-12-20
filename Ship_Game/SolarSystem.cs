@@ -54,9 +54,9 @@ namespace Ship_Game
             {
                 predictionTimeout -= time;
                 predictedETA -= time;
-                System.Diagnostics.Debug.WriteLine("Prediction Timeout: {0}", predictionTimeout);
-                System.Diagnostics.Debug.WriteLine("Prediction ETA: {0}", predictedETA);
-                System.Diagnostics.Debug.WriteLine("Prediction: {0}", prediction);
+                Log.Info("Prediction Timeout: {0}", predictionTimeout);
+                Log.Info("Prediction ETA: {0}", predictedETA);
+                Log.Info("Prediction: {0}", prediction);
             }
         }
 

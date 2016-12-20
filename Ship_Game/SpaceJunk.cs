@@ -36,9 +36,9 @@ namespace Ship_Game
 
             Velocity.X += source.Velocity.X;
             Velocity.Y += source.Velocity.Y;
-            //System.Diagnostics.Debug.WriteLine("SpaceJunk vx={0} vy={1} v={2}", Xvel, Yvel, new Vector2(Xvel,Yvel).Length());
+            //Log.Info("SpaceJunk vx={0} vy={1} v={2}", Xvel, Yvel, new Vector2(Xvel,Yvel).Length());
 
-		}
+        }
 
         private void RandomValues(Vector2 center, float velMin, float velMax, float spinMin, float spinMax, float scaleMin, float scaleMax)
         {

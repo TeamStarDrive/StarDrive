@@ -28,7 +28,7 @@ namespace Ship_Game
 
 		private UIButton PlayGame;
         private UIButton Load;
-        private UIButton Adventure;
+        //private UIButton Adventure; // @todo Planned feature: Battle Mode
         private UIButton Tutorials;
         private UIButton Mods;
 		private UIButton Options;
@@ -314,21 +314,21 @@ namespace Ship_Game
 			}
 			if (this.AnimationFrame >= 141 && this.AnimationFrame <= 149)
 			{
-				float alphaStep = (float)(255 / 9);
+				float alphaStep = 255f / 9;
 				float Alpha = (float)(this.AnimationFrame - 141) * alphaStep;
 				Rectangle Grid1Hex = new Rectangle(277, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 592, 77, 33);
 				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], Grid1Hex, new Color(Color.White, (byte)Alpha));
 			}
 			if (this.AnimationFrame > 149 && this.AnimationFrame <= 165)
 			{
-				float alphaStep = (float)(255 / 16);
+				float alphaStep = 255f / 16;
 				float Alpha = 255f - (float)(this.AnimationFrame - 149) * alphaStep;
 				Rectangle Grid1Hex = new Rectangle(277, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 592, 77, 33);
 				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], Grid1Hex, new Color(Color.White, (byte)Alpha));
 			}
 			if (this.AnimationFrame >= 159 && this.AnimationFrame <= 168)
 			{
-				float alphaStep = (float)(255 / 10);
+				float alphaStep = 255f / 10;
 				float Alpha = (float)(this.AnimationFrame - 159) * alphaStep;
 				Rectangle Grid1Hex = new Rectangle(392, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 418, 79, 60);
 				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_2"], Grid1Hex, new Color(Color.White, (byte)Alpha));
@@ -426,7 +426,7 @@ namespace Ship_Game
 			}
 			ScreenManager.SpriteBatch.End();
 			ScreenManager.SpriteBatch.Begin();
-			ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/vignette"], screenRect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/vignette"], screenRect, Color.White);
 			ScreenManager.SpriteBatch.End();
 		}
 
@@ -454,7 +454,7 @@ namespace Ship_Game
                 InitRandomShip();
 
             if (input.CurrentKeyboardState.GetPressedKeys().Length > 0)
-                Debug.WriteLine("rot {0}   {1}", ShipRotation, MoonRotation);
+                Log.Info("rot {0}   {1}", ShipRotation, MoonRotation);
         #endif
 
             if (input.InGameSelect)
@@ -477,7 +477,7 @@ namespace Ship_Game
 				}
 			}
 			this.CurrentMouse = input.CurrentMouseState;
-			Vector2 MousePos = new Vector2((float)this.CurrentMouse.X, (float)this.CurrentMouse.Y);
+			Vector2 MousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
 			bool okcomet = true;
 			foreach (UIButton b in this.Buttons)
 			{
@@ -563,7 +563,7 @@ namespace Ship_Game
 					config.Save();
 					ResourceManager.WhichModPath = "Content";
 					ResourceManager.Reset();
-					ResourceManager.Initialize(base.ScreenManager.Content);
+					ResourceManager.LoadItAll();
 				}
 				else
 				{
@@ -605,7 +605,7 @@ namespace Ship_Game
 
             Vector2 pos = new Vector2(size.X - 200, size.Y / 2 - 100);
             PlayGame  = Button(ref pos, "New Campaign", localization: 1);
-            Adventure = Button(ref pos, "", "Battle Mode");
+            //Adventure = Button(ref pos, "", "Battle Mode");
             Tutorials = Button(ref pos, "Tutorials", localization: 3);
             Load      = Button(ref pos, "Load Game", localization: 2);
             Options   = Button(ref pos, "Options", localization: 4);
@@ -647,7 +647,8 @@ namespace Ship_Game
 
             InitRandomShip();
 
-            ScreenManager.inter.LightManager.Submit(ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig"));
+            LightRig rig = ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
+            rig.AssignTo(this);
 			ScreenManager.environment = ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
 
 			Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
@@ -657,6 +658,15 @@ namespace Ship_Game
                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 
             Projection = Matrix.CreateOrthographic(size.X, size.Y, 1f, 80000f);
+
+            LoadTestContent();
+        }
+
+        // for quick feature testing in the main menu
+        private void LoadTestContent()
+        {
+            //var atlas = TextureAtlas.Load(ScreenManager.Content, "Explosions/smaller/shipExplosion");
+
         }
 
         public void ReloadContent()
@@ -722,6 +732,7 @@ namespace Ship_Game
                 ScreenManager.inter.ObjectManager.Remove(ShipObj);
                 ShipObj.Clear();
                 ShipObj = null;
+                ShipAnim = null;
             }
 
             // FrostHand: do we actually need to show Model/Ships/speeder/ship07 in base version? Or could show random ship for base and modded version?
@@ -764,7 +775,7 @@ namespace Ship_Game
             //float length = bb.Max.Z - bb.Min.Z;
             //float width  = bb.Max.X - bb.Min.X;
             //float height = bb.Max.Y - bb.Min.Y;
-            //Debug.WriteLine("ship length {0} width {1} height {2}", length, width, height);
+            //Log.Info("ship length {0} width {1} height {2}", length, width, height);
 
             ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
             ScreenManager.inter.ObjectManager.Submit(ShipObj);
@@ -783,14 +794,18 @@ namespace Ship_Game
             ShipRotation.Y += deltaTime * 0.06f;
             ShipPosition   += deltaTime * -ShipRotation.DegreesToUp() * 1.5f; // move forward 1.5 units/s
 
-            ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
-
-            // Added by RedFox: support animated ships
-            if (ShipAnim != null)
+            // shipObj can be modified while mod is loading
+            if (ShipObj != null)
             {
-                ShipObj.SkinBones = ShipAnim.SkinnedBoneTransforms;
-                ShipAnim.Speed = 0.45f;
-                ShipAnim.Update(gameTime.ElapsedGameTime, Matrix.Identity);
+                ShipObj.AffineTransform(ShipPosition, ShipRotation.DegsToRad(), ShipScale);
+
+                // Added by RedFox: support animated ships
+                if (ShipAnim != null)
+                {
+                    ShipObj.SkinBones = ShipAnim.SkinnedBoneTransforms;
+                    ShipAnim.Speed = 0.45f;
+                    ShipAnim.Update(gameTime.ElapsedGameTime, Matrix.Identity);
+                }
             }
 
 		    ScreenManager.inter.Update(gameTime);

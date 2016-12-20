@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {
@@ -32,7 +33,6 @@ namespace Ship_Game
 
         protected GameScreen()
 		{
-
         }
 
 		public abstract void Draw(GameTime gameTime);

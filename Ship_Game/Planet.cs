@@ -2354,7 +2354,7 @@ namespace Ship_Game
                 keyValuePair.Value.loyalty = index;
                 this.Owner.RemoveShip(keyValuePair.Value);      //Transfer to new owner's ship list. Fixes platforms changing loyalty after game load bug      -Gretman
                 index.AddShip(keyValuePair.Value);
-                System.Diagnostics.Debug.WriteLine("Owner of platform tethered to " + this.Name + " changed from " + this.Owner.PortraitName + "  to " + index.PortraitName);
+                Log.Info("Owner of platform tethered to {0} changed from {1} to {2}", Name, Owner.PortraitName, index.PortraitName);
             }
             this.Owner = index;
             this.TurnsSinceTurnover = 0;
@@ -2718,7 +2718,7 @@ namespace Ship_Game
             Ship remove;
             foreach (Guid key in list)
                 this.Shipyards.TryRemove(key,out remove);
-            if (!Planet.universeScreen.Paused)
+            if (!Empire.Universe.Paused)
             {
                 
                 if (this.TroopsHere.Count > 0)
@@ -6300,7 +6300,7 @@ output = maxp * take10 = 5
         private  void UpdatePosition(float elapsedTime)
         {
             this.Zrotate += this.ZrotateAmount * elapsedTime;
-            if (!Planet.universeScreen.Paused)
+            if (!Empire.Universe.Paused)
             {
                 this.OrbitalAngle += (float)Math.Asin(15.0 /  this.OrbitalRadius);
                 if ( this.OrbitalAngle >= 360.0f)
