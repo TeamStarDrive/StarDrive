@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class Dir
+    public static class Dir
     {
         private static readonly FileInfo[]      NoFiles = new FileInfo[0];
         private static readonly DirectoryInfo[] NoDirs  = new DirectoryInfo[0];
@@ -72,6 +68,10 @@ namespace Ship_Game
             foreach (DirectoryInfo subdir in dirs)
                 CopyDir(subdir.FullName, Path.Combine(destDirName, subdir.Name), true);
         }
+
+        // System AppData folder
+        public static string ApplicationData => Environment.GetFolderPath(
+                                                Environment.SpecialFolder.ApplicationData);
     }
 
     public static class FileSystemExtensions

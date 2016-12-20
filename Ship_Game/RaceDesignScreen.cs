@@ -970,7 +970,7 @@ namespace Ship_Game
 			this.Name.Draw();
 			Color c = new Color(255, 239, 208);
 			this.NameSub.Draw();
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), this.RaceNamePos, Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), this.RaceNamePos, Color.BurlyWood);
 			Vector2 rpos = this.RaceNamePos;
 			rpos.X = rpos.X + 205f;
 			if (!this.RaceName.HandlingInput)
@@ -984,7 +984,7 @@ namespace Ship_Game
 			this.RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
 			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
 			rpos.X = rpos.X + 205f;
 			if (!this.SingEntry.HandlingInput)
 			{
@@ -997,7 +997,7 @@ namespace Ship_Game
 			this.SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
 			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
 			rpos.X = rpos.X + 205f;
 			if (!this.PlurEntry.HandlingInput)
 			{
@@ -1010,7 +1010,7 @@ namespace Ship_Game
 			this.PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
 			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
 			rpos.X = rpos.X + 205f;
 			if (!this.HomeSystemEntry.HandlingInput)
 			{
@@ -2289,11 +2289,11 @@ namespace Ship_Game
 			this.Traits.AddTab(Localizer.Token(20));
 			this.Traits.AddTab(Localizer.Token(21));
 			int size = 55;
-			if (GlobalStats.Config.Language != "German" && base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+			if (GlobalStats.NotGerman && base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				size = 65;
 			}
-			if (GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{
 				size = 70;
 			}
@@ -2816,7 +2816,6 @@ namespace Ship_Game
 
         public enum StarNum
         {
-
             VeryRare,
             Rare,
             Uncommon,

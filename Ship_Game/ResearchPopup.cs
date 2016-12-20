@@ -25,7 +25,7 @@ namespace Ship_Game
 
 		public ResearchPopup(UniverseScreen s, Rectangle dimensions, string uid)
 		{
-			if (GlobalStats.Config.Language != "English")
+			if (!GlobalStats.IsEnglish)
 			{
 				dimensions.X = dimensions.X - 20;
 				dimensions.Width = dimensions.Width + 40;

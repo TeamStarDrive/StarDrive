@@ -41,7 +41,7 @@ namespace Ship_Game
 
 		public TreeNode(Vector2 Position, TechEntry Tech, ResearchScreenNew screen)
 		{
-			if (GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{
 				this.TitleFont = Fonts.Arial10;
 			}
@@ -154,7 +154,7 @@ namespace Ship_Game
 			this.UnlocksRect.Y = this.UnlocksRect.Y - 2;
 			this.UnlocksRect.Height = this.UnlocksRect.Height + 4;
 			this.TitleRect = new Rectangle(this.BaseRect.X + 8, this.BaseRect.Y - 15, 82, 29);
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				this.TitleRect.X = this.TitleRect.X - 5;
 				this.TitleRect.Width = this.TitleRect.Width + 5;
