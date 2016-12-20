@@ -567,8 +567,7 @@ namespace Ship_Game
             int ships =0;
 
             r = new Rectangle(this.MainOptionsRect.X + 9, (int)this.FullScreen.NamePosition.Y + 290, 225, 50);    //
-            int ASF = EmpireManager.Player != null ?EmpireManager.Player.data.AutoSaveFreq : GlobalStats.AutoSaveFreq;
-            this.AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 540, ASF);      //Added by Gretman
+            this.AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);      //Added by Gretman
             this.AutoSaveFreq.Tip_ID = 4100;                                                                      //
 
             if (Empire.Universe != null )

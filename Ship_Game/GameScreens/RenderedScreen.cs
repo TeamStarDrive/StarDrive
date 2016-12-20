@@ -22,10 +22,6 @@ namespace Ship_Game
 
 		private SceneObject shipSO;
 
-		private Background bg = new Background();
-
-		//private Model mode;
-
 		private Vector2 ShipPosition = new Vector2(640f, 350f);
 
 		private float Zrotate;
@@ -55,17 +51,14 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			base.ScreenManager.inter.ObjectManager.Clear();
-			base.ScreenManager.inter.LightManager.Clear();
-			this.model = base.ScreenManager.Content.Load<Model>("Model/SpaceObjects/planet_22");
-			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/light_rig");
-			base.ScreenManager.inter.LightManager.Submit(rig);
-			base.ScreenManager.environment = base.ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
-			ModelMesh mesh = this.model.Meshes[0];
-			this.shipSO = new SceneObject(mesh)
+			ScreenManager.inter.ObjectManager.Clear();
+			model = ScreenManager.Content.Load<Model>("Model/SpaceObjects/planet_22");
+			ScreenManager.Content.Load<LightRig>("example/light_rig").AssignTo(this);
+			ScreenManager.environment = ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
+			shipSO = new SceneObject(model.Meshes[0])
 			{
 				ObjectType = ObjectType.Dynamic,
-				World = this.worldMatrix
+				World = worldMatrix
 			};
 			base.ScreenManager.inter.ObjectManager.Submit(this.shipSO);
 			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;

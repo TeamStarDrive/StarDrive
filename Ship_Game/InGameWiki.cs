@@ -140,7 +140,7 @@ namespace Ship_Game
 					if (this.HoverSmallVideo)
 					{
 						Rectangle playIcon = new Rectangle(this.SmallViewer.X + this.SmallViewer.Width / 2 - 64, this.SmallViewer.Y + this.SmallViewer.Height / 2 - 64, 128, 128);
-						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/icon_play"], playIcon, new Color(255, 255, 255, 200));
+						base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["icon_play"], playIcon, new Color(255, 255, 255, 200));
 					}
 				}
 				else

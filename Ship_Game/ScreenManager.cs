@@ -81,7 +81,6 @@ namespace Ship_Game
 			if (graphicsDeviceService?.GraphicsDevice != null)
 				screen.LoadContent();
 			screens.Add(screen);
-
 		}
 
 		public void AddScreenNoLoad(GameScreen screen)

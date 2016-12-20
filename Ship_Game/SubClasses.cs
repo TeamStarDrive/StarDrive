@@ -127,7 +127,7 @@ namespace Ship_Game.Gameplay
         {
             //This should only be called once per module XML file -Gretman
             ++TotalNumModules;
-            //System.Diagnostics.Debug.WriteLine("ShipModule_Advanced Created. Total so far: {0}", TotalNumModules);
+            //Log.Info("ShipModule_Advanced Created. Total so far: {0}", TotalNumModules);
         }
     }
 
