@@ -28,7 +28,6 @@ namespace Ship_Game
 
         private FloatSlider OptionIncreaseShipMaintenance;
         private FloatSlider MinimumWarpRange;
-        private FloatSlider MemoryLimiter;
         private FloatSlider StartingPlanetRichness;
 
         private FloatSlider TurnTimer;
@@ -66,7 +65,6 @@ namespace Ship_Game
             this.extraPlanets.Draw(base.ScreenManager);
             this.OptionIncreaseShipMaintenance.Draw(base.ScreenManager);
             this.MinimumWarpRange.Draw(base.ScreenManager);
-            this.MemoryLimiter.Draw(base.ScreenManager);
             this.StartingPlanetRichness.Draw(base.ScreenManager);
             this.TurnTimer.Draw(base.ScreenManager);
 			this.close.Draw(base.ScreenManager);
@@ -117,12 +115,6 @@ namespace Ship_Game
             this.extraPlanets.HandleInput(input);
             GlobalStats.ExtraPlanets = (int)this.extraPlanets.amountRange;
 //new options
-            if (HelperFunctions.CheckIntersection(this.MemoryLimiter.ContainerRect, input.CursorPosition))
-            {
-                ToolTip.CreateTooltip("Constrain the AI to only build offensive ships when this memory *10 is not exceeded", base.ScreenManager);
-            }
-            this.MemoryLimiter.HandleInput(input);
-            GlobalStats.MemoryLimiter = this.MemoryLimiter.amountRange;
 
             if (HelperFunctions.CheckIntersection(this.MinimumWarpRange.ContainerRect, input.CursorPosition))
             {
@@ -206,8 +198,6 @@ namespace Ship_Game
             this.StartingPlanetRichness = new FloatSlider(StartingPlanetRichness, "Starting Planet Richness Bonus", 0, 5f, GlobalStats.StartingPlanetRichness);
             Rectangle MinimumWarpRange = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 340, 270, 50);
             this.MinimumWarpRange = new FloatSlider(MinimumWarpRange, "Minimum Warp Range", 0, 1200000f, GlobalStats.MinimumWarpRange);
-            Rectangle MemoryLimiter = new Rectangle(leftRect.X + 60, leftRect.Y + 400, 270, 50);
-            this.MemoryLimiter = new FloatSlider(MemoryLimiter, "Memory Limit", 150000, 300000f, GlobalStats.MemoryLimiter);
             Rectangle OptionIncreaseShipMaintenance = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 400, 270, 50);
             this.OptionIncreaseShipMaintenance = new FloatSlider(OptionIncreaseShipMaintenance, "Increase Maintenance", 1, 10f, GlobalStats.ShipMaintenanceMulti);
             //Added by McShooterz: slider to change time for turns
