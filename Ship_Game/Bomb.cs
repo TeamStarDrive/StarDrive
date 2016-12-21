@@ -1,128 +1,82 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
-using SynapseGaming.LightingSystem.Rendering;
-using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
 	public sealed class Bomb
 	{
-        //private const float trailParticlesPerSecond = 500f;          //Not referenced in code, removing to save memory
-
-        public static UniverseScreen screen;
-
-		private Matrix WorldMatrix;
-
-		public Vector3 Position;
-
+        public static UniverseScreen Screen;
+	    public Vector3 Position;
 		public Vector3 Velocity;
-
-        //public string FireCueName;          //Not referenced in code, removing to save memory
-
-        //public string ExplodeCueName;          //Not referenced in code, removing to save memory
+        private Planet TargetPlanet;
+        public Matrix World { get; private set; }
 
         public string WeaponName;
+		private const string TextureName = "projBall_02_orange";
+		private const string ModelName   = "projBall";
 
-		public string TextureName = "projBall_02_orange";
+	    private ParticleEmitter TrailEmitter;
+		private ParticleEmitter FiretrailEmitter;
 
-		public string ModelName = "projBall";
+		public Empire Owner;
+		//public float Facing;
+		private float PlanetRadius;
 
-		private Texture2D projTexture;
+        public Texture2D Texture { get; }
+        public Model     Model   { get; }
 
-        private Planet TargetPlanet;
-        //public float PopulationDamage;
-        //public float OrdnanceCost;
-        //public float OreDamage;
-        //public float BuildingDestructionChance;          //None of these are referenced in any code, removing to save memory
-        //public float TroopDamageChance;
-        //public float MinTroopDamage;
-        //public float MaxTroopDamage;
-
-        private ParticleEmitter trailEmitter;
-
-		private ParticleEmitter firetrailEmitter;
-
-		public Empire owner;
-
-		public float facing;
-
-		private Model projModel;
-
-		private float planetRadius;
-
-		public Bomb(Vector3 Position, Empire e)
+		public Bomb(Vector3 position, Empire empire)
 		{
-			this.owner = e;
-			this.projTexture = ResourceManager.ProjTextDict[this.TextureName];
-			this.projModel = ResourceManager.ProjectileModelDict[this.ModelName];
-			this.WeaponName = "NuclearBomb";
-			this.Position = Position;
+			Owner = empire;
+			Texture     = ResourceManager.ProjTextDict[TextureName];
+			Model       = ResourceManager.ProjectileModelDict[ModelName];
+			WeaponName  = "NuclearBomb";
+			Position    = position;
 		}
 
 		public void DoImpact()
 		{
-			this.TargetPlanet.DropBomb(this);
-			Bomb.screen.BombList.QueuePendingRemoval(this);
+			TargetPlanet.DropBomb(this);
+			Screen.BombList.QueuePendingRemoval(this);
 		}
 
-		public Model GetModel()
+	    public void SetTarget(Planet p)
 		{
-			return this.projModel;
-		}
-
-		public Texture2D GetTexture()
-		{
-			return this.projTexture;
-		}
-
-		public Matrix GetWorld()
-		{
-			return this.WorldMatrix;
-		}
-
-		public void SetTarget(Planet p)
-		{
-			this.TargetPlanet = p;
-			this.planetRadius = this.TargetPlanet.SO.WorldBoundingSphere.Radius;
-            Vector3 vtt = (new Vector3(this.TargetPlanet.Position, 2500f ) + new Vector3(RandomMath2.RandomBetween(-500f, 500f) * p.scale, RandomMath2.RandomBetween(-500f, 500f) * p.scale, 0f)) - this.Position;
+			TargetPlanet = p;
+			PlanetRadius = TargetPlanet.SO.WorldBoundingSphere.Radius;
+            Vector3 vtt = new Vector3(TargetPlanet.Position, 2500f) + 
+                new Vector3(RandomMath2.RandomBetween(-500f, 500f) * p.scale, 
+                            RandomMath2.RandomBetween(-500f, 500f) * p.scale, 0f) - Position;
 			vtt = Vector3.Normalize(vtt);
-			this.Velocity = vtt * 1350f;
+			Velocity = vtt * 1350f;
 		}
 
-		public void Update(float elapsedTime)
+		public void Update(float deltaTime)
 		{
-			Bomb position = this;
-			position.Position = position.Position + (this.Velocity * elapsedTime);
-			this.WorldMatrix = Matrix.CreateTranslation(this.Position) * Matrix.CreateRotationZ(this.facing);
-			this.planetRadius = this.TargetPlanet.SO.WorldBoundingSphere.Radius ;
-			if (this.TargetPlanet.ShieldStrengthCurrent > 0f)
-			{
-                if (Vector3.Distance(this.Position, new Vector3(this.TargetPlanet.Position, 2500f )) < this.planetRadius + 100f)
-				{
-					this.DoImpact();
-				}
-			}
-            else if (Vector3.Distance(this.Position, new Vector3(this.TargetPlanet.Position, 2500f )) < this.planetRadius  + 30f)
-			{
-				this.DoImpact();
-			}
-            if (Vector3.Distance(this.Position, new Vector3(this.TargetPlanet.Position, 2500f )) < this.planetRadius + 1000f)
-			{
-				if (this.trailEmitter == null)
-				{
-					Bomb velocity = this;
-					velocity.Velocity = velocity.Velocity * 0.65f;
-					this.trailEmitter = new ParticleEmitter(Bomb.screen.projectileTrailParticles, 500f, this.Position);
-					this.firetrailEmitter = new ParticleEmitter(Bomb.screen.fireTrailParticles, 500f, this.Position);
-				}
-				if (this.trailEmitter != null)
-				{
-					this.firetrailEmitter.Update(elapsedTime, this.Position);
-					this.trailEmitter.Update(elapsedTime, this.Position);
-				}
-			}
+			Position += Velocity*deltaTime;
+			World    = Matrix.CreateTranslation(Position);
+                        //* Matrix.CreateRotationZ(Facing);
+
+            Vector3 planetPos = TargetPlanet.Position.ToVec3(z:2500f);
+
+            float impactRadius = TargetPlanet.ShieldStrengthCurrent > 0f ? 100f : 30f;
+            if (Position.InRadius(planetPos, PlanetRadius + impactRadius))
+				DoImpact();
+
+
+            // fiery trail radius:
+		    if (!Position.InRadius(planetPos, PlanetRadius + 1000f))
+                return;
+
+            if (TrailEmitter == null)
+		    {
+		        Velocity *= 0.65f;
+		        TrailEmitter     = new ParticleEmitter(Screen.projectileTrailParticles, 500f, Position);
+		        FiretrailEmitter = new ParticleEmitter(Screen.fireTrailParticles,       500f, Position);
+		    }
+		    TrailEmitter.Update(deltaTime, Position);
+		    FiretrailEmitter.Update(deltaTime, Position);
 		}
 	}
 }

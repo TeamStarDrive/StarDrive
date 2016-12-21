@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
 	public sealed class Mole
 	{
-		public Guid PlanetGuid;
+        [Serialize(0)] public Guid PlanetGuid;
 
 		public Mole()
 		{
@@ -38,7 +39,7 @@ namespace Ship_Game
 			}
 			if (Potentials.Count == 0)
 			{
-				Potentials = Target.GetPlanets();
+				Potentials = new List<Planet>(Target.GetPlanets());
 			}
 			Mole mole = null;
 			if (Potentials.Count > 0)

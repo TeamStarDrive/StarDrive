@@ -156,16 +156,6 @@ namespace Ship_Game
                 return result;
             }
         }
-        public T LastOrDefault<T>()
-        {
-            //get
-            {
-                thisLock.EnterReadLock();
-                var result = (this as LinkedList<T>).LastOrDefault<T>();
-                thisLock.ExitReadLock();
-                return result;
-            }
-        }
         new public Enumerator GetEnumerator()
         {
             thisLock.EnterReadLock();
@@ -248,7 +238,7 @@ namespace Ship_Game
 
         ~SafeQueue() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

@@ -105,7 +105,7 @@ namespace Ship_Game
 		public void Draw(Ship_Game.ScreenManager ScreenManager, GameTime gameTime)
 		{
 			Color TextColor = new Color(255, 239, 208);
-			string sysname = (this.ship.GetSystem() != null ? this.ship.GetSystem().Name : Localizer.Token(150));
+			string sysname = (this.ship.System!= null ? this.ship.System.Name : Localizer.Token(150));
 			if (Fonts.Arial20Bold.MeasureString(sysname).X <= (float)this.SysNameRect.Width)
 			{
 				Vector2 SysNameCursor = new Vector2((float)(this.SysNameRect.X + this.SysNameRect.Width / 2) - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, (float)(2 + this.SysNameRect.Y + this.SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));

@@ -1,78 +1,45 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
-using System.Xml.Serialization;
 
 namespace Ship_Game
 {
 	public sealed class LoadUniverseScreen : GameScreen, IDisposable
 	{
 		private Vector2 ScreenCenter;
-
 		private UniverseData data;
-
 		private SavedGame.UniverseSaveData savedData;
-
 		private float GamePace;
-
 		private float GameScale;
-
 		private Vector2 camPos;
-
 		private float camHeight;
-
 		private string PlayerLoyalty;
-
 		//private bool ReadyToRoll;
-
 		private string text;
-
-		private int whichAdvice;
-
-		private int whichTexture;
-
-		private FileInfo[] textList;
-
-		private List<Texture2D> TextureList = new List<Texture2D>();
-
-		private List<string> AdviceList;
-
+        private Texture2D LoadingImage;
 		private Effect ThrusterEffect;
-
 		private int systemToMake;
-
 		private ManualResetEvent GateKeeper = new ManualResetEvent(false);
-
 		private bool Loaded;
-
 		private UniverseScreen us;
-
 		private Ship playerShip;
-
 		private float percentloaded;
-
 		private bool ready;
 
 		public LoadUniverseScreen(FileInfo activeFile)
 		{
-            
             GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
 			BackgroundWorker bgw = new BackgroundWorker();
-			bgw.DoWork += new DoWorkEventHandler(this.DecompressFile);
-            
-            //GC.Collect(2, GCCollectionMode.Optimized);
-			bgw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.LoadEverything);
+			bgw.DoWork += DecompressFile;
+			bgw.RunWorkerCompleted += LoadEverything;
 			bgw.RunWorkerAsync(activeFile);
 		}
 
@@ -97,7 +64,6 @@ namespace Ship_Game
 			else
 			{
                 e.data = new EmpireData();
-                //Tdata = data.empireData as TempEmpireData;
                 
                 foreach (string key in e.data.WeaponTags.Keys)
                 {
@@ -107,33 +73,15 @@ namespace Ship_Game
                 }
                 e.data = data.empireData;
                 
-               // e.data.
 				e.data.ResearchQueue = data.empireData.ResearchQueue;
-				e.ResearchTopic = data.ResearchTopic;
-				if (e.ResearchTopic == null)
-				{
-					e.ResearchTopic = "";
-				}
-				e.dd = Ship_Game.ResourceManager.DDDict[e.data.DiplomacyDialogPath];
-				e.PortraitName = e.data.PortraitName;
+				e.ResearchTopic      = data.ResearchTopic ?? "";
+				e.PortraitName       = e.data.PortraitName;
+			    e.dd                 = ResourceManager.DDDict[e.data.DiplomacyDialogPath];
 				e.EmpireColor = new Color((byte)e.data.Traits.R, (byte)e.data.Traits.G, (byte)e.data.Traits.B);
-                if (data.CurrentAutoScout != null)
-                    e.data.CurrentAutoScout = data.CurrentAutoScout;
-                else
-                    e.data.CurrentAutoScout = e.data.StartingScout;
-                if (data.CurrentAutoFreighter != null)
-                    e.data.CurrentAutoFreighter = data.CurrentAutoFreighter;
-                else
-                    e.data.CurrentAutoFreighter = e.data.DefaultSmallTransport;
-                if (data.CurrentAutoColony != null)
-                    e.data.CurrentAutoColony = data.CurrentAutoColony;
-                else
-                    e.data.CurrentAutoColony = e.data.DefaultColonyShip;
-
-                if (data.CurrentConstructor != null)
-                    e.data.CurrentConstructor = data.CurrentConstructor;
-                else
-                    e.data.CurrentConstructor = e.data.DefaultConstructor;
+                e.data.CurrentAutoScout     = data.CurrentAutoScout     ?? e.data.StartingScout;
+                e.data.CurrentAutoFreighter = data.CurrentAutoFreighter ?? e.data.DefaultSmallTransport;
+                e.data.CurrentAutoColony    = data.CurrentAutoColony    ?? e.data.DefaultColonyShip;
+                e.data.CurrentConstructor   = data.CurrentConstructor   ?? e.data.DefaultConstructor;
                 if(string.IsNullOrEmpty(data.empireData.DefaultTroopShip))
                 {
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
@@ -152,22 +100,25 @@ namespace Ship_Game
 			return e;
 		}
 
-		private Planet CreatePlanetFromPlanetSaveData(SavedGame.PlanetSaveData data)
+		private Planet CreatePlanetFromPlanetSaveData(SolarSystem forSystem, SavedGame.PlanetSaveData data)
 		{
-			Building building;
-			Planet p = new Planet();
-			if (!string.IsNullOrEmpty(data.Owner))
+		    Planet p = new Planet
+		    {
+		        system = forSystem,
+		        ParentSystem = forSystem,
+                guid = data.guid,
+                Name = data.Name
+            };
+		    if (!string.IsNullOrEmpty(data.Owner))
 			{
 				p.Owner = EmpireManager.GetEmpireByName(data.Owner);
 				p.Owner.AddPlanet(p);
 			}
-			p.guid = data.guid;
-			p.Name = data.Name;
             if(!string.IsNullOrEmpty(data.SpecialDescription))
             {
                 p.SpecialDescription = data.SpecialDescription;
             }
-            if (data.Scale != 0)
+            if (data.Scale > 0f)
             {
                 p.scale = data.Scale;
             }
@@ -179,23 +130,23 @@ namespace Ship_Game
 			p.colonyType = data.ColonyType;
 			if (!data.GovernorOn)
 			{
-				p.GovernorOn = data.GovernorOn;
+				p.GovernorOn = false;
 				p.colonyType = Planet.ColonyType.Colony;
 			}
-			p.OrbitalAngle = data.OrbitalAngle;
-			p.fs = data.FoodState;
-			p.ps = data.ProdState;
-			p.FoodLocked = data.FoodLock;
-			p.ProdLocked = data.ProdLock;
-			p.ResLocked = data.ResLock;
-			p.OrbitalRadius = data.OrbitalDistance;
-			p.Population = data.Population;
-			p.MaxPopulation = data.PopulationMax;
-			p.Fertility = data.Fertility;
-			p.MineralRichness = data.Richness;
-			p.TerraformPoints = data.TerraformPoints;
-			p.hasRings = data.HasRings;
-			p.planetType = data.WhichPlanet;
+			p.OrbitalAngle          = data.OrbitalAngle;
+			p.fs                    = data.FoodState;
+			p.ps                    = data.ProdState;
+			p.FoodLocked            = data.FoodLock;
+			p.ProdLocked            = data.ProdLock;
+			p.ResLocked             = data.ResLock;
+			p.OrbitalRadius         = data.OrbitalDistance;
+			p.Population            = data.Population;
+			p.MaxPopulation         = data.PopulationMax;
+			p.Fertility             = data.Fertility;
+			p.MineralRichness       = data.Richness;
+			p.TerraformPoints       = data.TerraformPoints;
+			p.hasRings              = data.HasRings;
+			p.planetType            = data.WhichPlanet;
 			p.ShieldStrengthCurrent = data.ShieldStrength;
 			p.LoadAttributes();
 			p.Crippled_Turns = data.Crippled_Turns;
@@ -217,47 +168,25 @@ namespace Ship_Game
 			}
 			foreach (SavedGame.PGSData d in data.PGSList)
 			{
-				int num = d.x;
-				int num1 = d.y;
-				int num2 = d.foodbonus;
-				int num3 = d.prodbonus;
-				int num4 = d.resbonus;
-				if (d.building != null)
-				{
-					building = d.building;
-				}
-				else
-				{
-					building = null;
-				}
-				PlanetGridSquare pgs = new PlanetGridSquare(num, num1, num2, num3, num4, building, d.Habitable)
+				PlanetGridSquare pgs = new PlanetGridSquare(d.x, d.y, d.foodbonus, d.prodbonus, 
+                                            d.resbonus, d.building, d.Habitable)
 				{
 					Biosphere = d.Biosphere
 				};
 				if (pgs.Biosphere)
 				{
-					p.BuildingList.Add(Ship_Game.ResourceManager.GetBuilding("Biospheres"));
+					p.BuildingList.Add(ResourceManager.GetBuilding("Biospheres"));
 				}
 				p.TilesList.Add(pgs);
-                //List<Troop> toremove = new List<Troop>();
                 foreach (Troop t in d.TroopsHere)
                 {
-                    if (Ship_Game.ResourceManager.TroopsDict.ContainsKey(t.Name))
-                    {
-                        pgs.TroopsHere.Add(t);
-                        p.TroopsHere.Add(t);
-                        t.SetPlanet(p);
-                    }
+                    if (!ResourceManager.TroopsDict.ContainsKey(t.Name))
+                        continue;
+                    pgs.TroopsHere.Add(t);
+                    p.TroopsHere.Add(t);
+                    t.SetPlanet(p);
                 }
-                //    else
-                //    {
-                //        toremove.Add(t);
-                //    }
-                //}
-                //foreach(Troop killit in toremove)
-                //{
 
-                //}
 				if (pgs.building == null)
 				{
 					continue;
@@ -267,7 +196,7 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				pgs.building.theWeapon = Ship_Game.ResourceManager.WeaponsDict[pgs.building.Weapon];
+				pgs.building.theWeapon = ResourceManager.WeaponsDict[pgs.building.Weapon];
 			}
 			return p;
 		}
@@ -276,9 +205,9 @@ namespace Ship_Game
 		{
 			SolarSystem system = new SolarSystem()
 			{
-				Name = data.Name,
+				Name     = data.Name,
 				Position = data.Position,
-				SunPath = data.SunPath,
+				SunPath  = data.SunPath,
 				AsteroidsList = new BatchRemovalCollection<Asteroid>(),
                 MoonList = new List<Moon>()
 			};
@@ -296,9 +225,9 @@ namespace Ship_Game
 			{
 				system.ExploredDict.Add(e, false);
 			}
-			foreach (string EmpireName in data.EmpiresThatKnowThisSystem)
+			foreach (string empireName in data.EmpiresThatKnowThisSystem)
 			{
-				system.ExploredDict[EmpireManager.GetEmpireByName(EmpireName)] = true;
+				system.ExploredDict[EmpireManager.GetEmpireByName(empireName)] = true;
 			}
 			system.RingList = new List<SolarSystem.Ring>();
 			foreach (SavedGame.RingSave ring in data.RingList)
@@ -313,25 +242,20 @@ namespace Ship_Game
 				}
 				else
 				{
-					Planet p = this.CreatePlanetFromPlanetSaveData(ring.Planet);
-					p.system = system;
-					p.ParentSystem = system;
-					p.Position = HelperFunctions.GeneratePointOnCircle(p.OrbitalAngle, system.Position, p.OrbitalRadius);
+					Planet p = this.CreatePlanetFromPlanetSaveData(system, ring.Planet);
+					p.Position = system.Position.PointOnCircle(p.OrbitalAngle, p.OrbitalRadius);
                     
 					foreach (Building b in p.BuildingList)
 					{
 						if (b.Name != "Space Port")
-						{
 							continue;
-						}
-						p.Station = new SpaceStation()
+						p.Station = new SpaceStation
 						{
-							planet = p,
-							Position = p.Position,
+							planet       = p,
+							Position     = p.Position,
 							ParentSystem = p.system
-                            
 						};
-						p.Station.LoadContent(base.ScreenManager);
+						p.Station.LoadContent(ScreenManager);
 						p.HasShipyard = true;
                         
 					}
@@ -345,9 +269,9 @@ namespace Ship_Game
 					{
 						p.ExploredDict.Add(e, false);
 					}
-					foreach (string EmpireName in data.EmpiresThatKnowThisSystem)
+					foreach (string empireName in data.EmpiresThatKnowThisSystem)
 					{
-						p.ExploredDict[EmpireManager.GetEmpireByName(EmpireName)] = true;
+						p.ExploredDict[EmpireManager.GetEmpireByName(empireName)] = true;
 					}
 					SolarSystem.Ring r1 = new SolarSystem.Ring()
 					{
@@ -363,93 +287,64 @@ namespace Ship_Game
 
 		private void DecompressFile(object info, DoWorkEventArgs e)
 		{
-			FileInfo activeFile = (FileInfo)e.Argument;
-			Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			FileInfo decompressed = new FileInfo(HelperFunctions.Decompress(activeFile));
+            var usData = SavedGame.DeserializeFromCompressedSave((FileInfo)e.Argument);
 
-            //XmlAttributes saveCompatibility = new XmlAttributes();
-            XmlSerializer serializer1=null;// = new XmlSerializer();
-            try
-            {
-                //XmlSerializer 
-                    serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData));
-            }
-            catch
-            {
-                var attributeOverrides = new XmlAttributeOverrides();
-                attributeOverrides.Add(typeof(SavedGame.SolarSystemSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
-                attributeOverrides.Add(typeof(SavedGame.EmpireSaveData), "MoonList", new XmlAttributes { XmlIgnore = true });
-                serializer1 = new XmlSerializer(typeof(SavedGame.UniverseSaveData), attributeOverrides);
-            }
-			FileStream stream = decompressed.OpenRead();
-			SavedGame.UniverseSaveData savedData = (SavedGame.UniverseSaveData)serializer1.Deserialize(stream);
-			//stream.Close();
-			stream.Dispose();
-			decompressed.Delete();
-			GlobalStats.RemnantKills = savedData.RemnantKills;
-            GlobalStats.RemnantActivation = savedData.RemnantActivation;
-            GlobalStats.RemnantArmageddon = savedData.RemnantArmageddon;
-            
-            GlobalStats.GravityWellRange = savedData.GravityWellRange;            
-            GlobalStats.IconSize = savedData.IconSize;        
-            GlobalStats.MemoryLimiter = savedData.MemoryLimiter;          
-            GlobalStats.MinimumWarpRange = savedData.MinimumWarpRange;         
-            GlobalStats.OptionIncreaseShipMaintenance = savedData.OptionIncreaseShipMaintenance;            
-            GlobalStats.preventFederations = savedData.preventFederations;
-            GlobalStats.EliminationMode = savedData.EliminationMode;
-            if (savedData.TurnTimer == 0)
-                savedData.TurnTimer = 5;
-            GlobalStats.TurnTimer = savedData.TurnTimer;
+			GlobalStats.RemnantKills                  = usData.RemnantKills;
+            GlobalStats.RemnantActivation             = usData.RemnantActivation;
+            GlobalStats.RemnantArmageddon             = usData.RemnantArmageddon;
+            GlobalStats.GravityWellRange              = usData.GravityWellRange;
+            GlobalStats.IconSize                      = usData.IconSize;
+            GlobalStats.MinimumWarpRange              = usData.MinimumWarpRange;
+            GlobalStats.ShipMaintenanceMulti = usData.OptionIncreaseShipMaintenance;
+            GlobalStats.PreventFederations            = usData.preventFederations;
+            GlobalStats.EliminationMode               = usData.EliminationMode;
+            if (usData.TurnTimer == 0)
+                usData.TurnTimer = 5;
+            GlobalStats.TurnTimer = usData.TurnTimer;
 
-
-
-			this.savedData = savedData;
-			this.camPos = savedData.campos;
-			this.camHeight = savedData.camheight;
-			this.GamePace = savedData.GamePacing;
-			UniverseScreen.GamePaceStatic = this.GamePace;
-			this.GameScale = savedData.GameScale;
-			this.PlayerLoyalty = savedData.PlayerLoyalty;
-			UniverseScreen.GamePaceStatic = this.GamePace;
-			UniverseScreen.GameScaleStatic = this.GameScale;
+			savedData     = usData;
+			camPos        = usData.campos;
+			camHeight     = usData.camheight;
+			GamePace      = usData.GamePacing;
+			GameScale     = usData.GameScale;
+			PlayerLoyalty = usData.PlayerLoyalty;
+            UniverseScreen.GamePaceStatic  = GamePace;
+			UniverseScreen.GameScaleStatic = GameScale;
 			RandomEventManager.ActiveEvent = null;
 			StatTracker.SnapshotsDict.Clear();
-			StatTracker.SnapshotsDict = savedData.Snapshots;
-            UniverseData.UniverseWidth = savedData.Size.X;
-			this.GateKeeper.Set();
-            
+			StatTracker.SnapshotsDict = usData.Snapshots;
+            UniverseData.UniverseWidth = usData.Size.X;
+			GateKeeper.Set();
 		}
 
 		public void Dispose()
 		{
-			this.Dispose(true);
+			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
 
         ~LoadUniverseScreen() { Dispose(false); }
 
-		protected void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
             if (disposing)
             {
                 lock (this)
                 {
-                    if (this.GateKeeper != null)
-                        this.GateKeeper.Dispose();
-                    if (this.data != null)
-                        this.data.Dispose();
+                    GateKeeper?.Dispose();
+                    data?.Dispose();
                 }
-                this.GateKeeper = null;
-                this.data = null;
             }
-		}
+            GateKeeper = null;
+            data = null;
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.GraphicsDevice.Clear(Color.Black);
 			base.ScreenManager.SpriteBatch.Begin();
 			Rectangle ArtRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
-			base.ScreenManager.SpriteBatch.Draw(this.TextureList[this.whichTexture], ArtRect, Color.White);
+			base.ScreenManager.SpriteBatch.Draw(LoadingImage, ArtRect, Color.White);
 			Rectangle MeterBar = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 150, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 25, 300, 25);
 			ProgressBar pb = new ProgressBar(MeterBar)
 			{
@@ -485,99 +380,68 @@ namespace Ship_Game
 			{
                 if (!ship.Active)
                 {
-                    this.us.MasterShipList.QueuePendingRemoval(ship);
+                    us.MasterShipList.QueuePendingRemoval(ship);
                     continue;
                 }
 
                 ship.UpdateSystem(0f);
-				if (ship.loyalty != EmpireManager.GetEmpireByName(this.us.PlayerLoyalty))
+				if (ship.loyalty != EmpireManager.Player)
 				{
-					if (ship.AddedOnLoad)
-					{
-						continue;
-					}
-					ship.loyalty.ForcePoolAdd(ship);
+					if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
 				}
-				else
-				{
-					if (ship.GetAI().State != AIState.SystemDefender)
-					{
-						continue;
-					}
-					ship.loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
+				else if (ship.GetAI().State == AIState.SystemDefender)
+                {
+                    ship.loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
 					ship.AddedOnLoad = true;
 				}
 			}
-            this.us.MasterShipList.ApplyPendingRemovals();
-			base.ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
-			this.us.EmpireUI.empire = this.us.player;
-			base.ScreenManager.AddScreenNoLoad(this.us);
-            this.ExitScreen();
+            us.MasterShipList.ApplyPendingRemovals();
+			ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
+			us.EmpireUI.empire = us.player;
+			ScreenManager.AddScreenNoLoad(us);
+            ExitScreen();
 		}
 
 		public override void HandleInput(InputState input)
 		{
-			if (this.ready && input.InGameSelect)
+			if (ready && input.InGameSelect)
 			{
-				this.Go();
+				Go();
 			}
 		}
 
 		public override void LoadContent()
 		{
-			this.ScreenCenter = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
-			this.textList = HelperFunctions.GetFilesFromDirectory(Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")) ? string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen") : "Content/LoadingScreen");
-			XmlSerializer serializer2 = new XmlSerializer(typeof(List<string>));
-            //Added by McShooterz: mod folder support of Advice folder
-            if (File.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/", GlobalStats.Config.Language, "/Advice.xml")))
-            {
-                this.AdviceList = (List<string>)serializer2.Deserialize((new FileInfo(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/Advice/", GlobalStats.Config.Language, "/Advice.xml"))).OpenRead());
-            }
-            else
-            {
-                this.AdviceList = (List<string>)serializer2.Deserialize((new FileInfo(string.Concat("Content/Advice/", GlobalStats.Config.Language, "/Advice.xml"))).OpenRead());
-            }
-            //Added by McShooterz: fix to load game crash, not finding loading screen
-			for (int i = 0; i < (int)this.textList.Length; i++)
-			{
-                Texture2D what;
-                if (Directory.Exists(string.Concat(Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen")))
-                    what = base.ScreenManager.Content.Load<Texture2D>(string.Concat("../",Ship_Game.ResourceManager.WhichModPath, "/LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[i].Name)));
-                else
-                    what = base.ScreenManager.Content.Load<Texture2D>(string.Concat("LoadingScreen/", Path.GetFileNameWithoutExtension(this.textList[i].Name)));
-				this.TextureList.Add(what);
-			}
-			this.whichAdvice = (int)RandomMath.RandomBetween(0f, (float)this.AdviceList.Count);
-			this.whichTexture = (int)RandomMath.RandomBetween(0f, (float)this.TextureList.Count);
-			this.text = HelperFunctions.parseText(Fonts.Arial12Bold, this.AdviceList[this.whichAdvice], 500f);
+			ScreenCenter = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth  / 2f, 
+                                       ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2f);
+
+            LoadingImage = ResourceManager.LoadRandomLoadingScreen(ScreenManager.Content);
+            text = HelperFunctions.ParseText(Fonts.Arial12Bold, ResourceManager.LoadRandomAdvice(), 500f);
 			base.LoadContent();
 		}
 
 		private void LoadEverything(object sender, RunWorkerCompletedEventArgs ev)
 		{
-			bool stop;
-            ResourceManager.LoadShips();
-			List<SolarSystem>.Enumerator enumerator;
-			base.ScreenManager.inter.ObjectManager.Clear();
+		    ResourceManager.LoadShips();
+		    base.ScreenManager.inter.ObjectManager.Clear();
 			this.data = new UniverseData();
 			RandomEventManager.ActiveEvent = this.savedData.RandomEvent;
 			UniverseScreen.DeepSpaceManager = new SpatialManager();
 			this.ThrusterEffect = base.ScreenManager.Content.Load<Effect>("Effects/Thrust");
-			int count = this.data.SolarSystemsList.Count;
-			this.data.loadFogPath = this.savedData.FogMapName;
-			this.data.difficulty = UniverseData.GameDifficulty.Normal;
-			this.data.difficulty = this.savedData.gameDifficulty;
-			this.data.Size = this.savedData.Size;
-			this.data.FTLSpeedModifier = this.savedData.FTLModifier;
+			this.data.loadFogPath           = this.savedData.FogMapName;
+			this.data.difficulty            = UniverseData.GameDifficulty.Normal;
+			this.data.difficulty            = this.savedData.gameDifficulty;
+			this.data.Size                  = this.savedData.Size;
+			this.data.FTLSpeedModifier      = this.savedData.FTLModifier;
             this.data.EnemyFTLSpeedModifier = this.savedData.EnemyFTLModifier;
-			this.data.GravityWells = this.savedData.GravityWells;
+			this.data.GravityWells          = this.savedData.GravityWells;
             //added by gremlin: adjuse projector radius to map size. but only normal or higher. 
             //this is pretty bad as its not connected to the creating game screen code that sets the map sizes. If someone changes the map size they wont know to change this as well.
             if (this.data.Size.X > 3500000f) 
             Empire.ProjectorRadius = this.data.Size.X / 70f;
 			EmpireManager.Clear();
-            if (Empire.universeScreen!=null && Empire.universeScreen.MasterShipList != null)
-                Empire.universeScreen.MasterShipList.Clear();
+            if (Empire.Universe!=null && Empire.Universe.MasterShipList != null)
+                Empire.Universe.MasterShipList.Clear();
             
          
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
@@ -615,12 +479,9 @@ namespace Ship_Game
 				Empire e = EmpireManager.GetEmpireByName(d.Name);
 				foreach (Relationship r in d.Relations)
 				{
-					e.GetRelations().Add(EmpireManager.GetEmpireByName(r.Name), r);
-					if (r.ActiveWar == null)
-					{
-						continue;
-					}
-					r.ActiveWar.SetCombatants(e, EmpireManager.GetEmpireByName(r.Name));
+                    var empire = EmpireManager.GetEmpireByName(r.Name);
+					e.AddRelationships(empire, r);
+				    r.ActiveWar?.SetCombatants(e, empire);
 				}
 			}
 			this.data.SolarSystemsList = new List<SolarSystem>();
@@ -663,7 +524,7 @@ namespace Ship_Game
 					}
 					ship.experience = shipData.experience;
 					ship.kills = shipData.kills;
-					if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(shipData.Name))
+					if (!ResourceManager.ShipsDict.ContainsKey(shipData.Name))
 					{
 						shipData.data.Hull = shipData.Hull;
 						Ship newShip = Ship.CreateShipFromShipData(shipData.data);
@@ -675,24 +536,22 @@ namespace Ship_Game
 						newShip.InitializeStatus();
 						newShip.IsPlayerDesign = false;
 						newShip.FromSave = true;
-						Ship_Game.ResourceManager.ShipsDict.Add(shipData.Name, newShip);
+						ResourceManager.ShipsDict.Add(shipData.Name, newShip);
 					}				
-                    else if (Ship_Game.ResourceManager.ShipsDict[shipData.Name].FromSave)
+                    else if (ResourceManager.ShipsDict[shipData.Name].FromSave)
 					{
 						ship.IsPlayerDesign = false;
 						ship.FromSave = true;
 					}
-                    float oldbasestr = ship.BaseStrength;
-                    float newbasestr = ResourceManager.CalculateBaseStrength(ship);
-                    ship.BaseStrength = newbasestr;
+                    ship.BaseStrength = ResourceManager.CalculateBaseStrength(ship);
 
-                    foreach(ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
+                    foreach (ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
                     {
                         ShipModule mismatch =null;
                         bool exists =ResourceManager.ShipModulesDict.TryGetValue(moduleSD.InstalledModuleUID,out mismatch);
                         if (exists)
                             continue;
-                        System.Diagnostics.Debug.WriteLine(string.Concat("mismatch =", moduleSD.InstalledModuleUID));
+                        Log.Info("mismatch = "+ moduleSD.InstalledModuleUID);
                     }
 
 
@@ -703,15 +562,18 @@ namespace Ship_Game
 					ship.Velocity = shipData.Velocity;
 					ship.isSpooling = shipData.AfterBurnerOn;
 					ship.InCombatTimer = shipData.InCombatTimer;
-					foreach (Troop t in shipData.TroopList)
+
+					if (shipData.TroopList != null)
+                    foreach (Troop t in shipData.TroopList)
 					{
 						t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
 						ship.TroopList.Add(t);
 					}
 
-                    foreach (Rectangle AOO in shipData.AreaOfOperation)
+                    if (shipData.AreaOfOperation != null)
+                    foreach (Rectangle aoRect in shipData.AreaOfOperation)
                     {
-                        ship.AreaOfOperation.Add(AOO);
+                        ship.AreaOfOperation.Add(aoRect);
                     }
 					ship.TetherGuid = shipData.TetheredTo;
 					ship.TetherOffset = shipData.TetherOffset;
@@ -721,17 +583,17 @@ namespace Ship_Game
 					}
 					ship.loyalty = e;
 					ship.InitializeAI();
-					ship.GetAI().CombatState = shipData.data.CombatState;
-					ship.GetAI().FoodOrProd = shipData.AISave.FoodOrProd;
-					ship.GetAI().State = shipData.AISave.state;
-					ship.GetAI().DefaultAIState = shipData.AISave.defaultstate;
-					ship.GetAI().GotoStep = shipData.AISave.GoToStep;
-					ship.GetAI().MovePosition = shipData.AISave.MovePosition;
-					ship.GetAI().OrbitTargetGuid = shipData.AISave.OrbitTarget;
+					ship.GetAI().CombatState          = shipData.data.CombatState;
+					ship.GetAI().FoodOrProd           = shipData.AISave.FoodOrProd;
+					ship.GetAI().State                = shipData.AISave.state;
+					ship.GetAI().DefaultAIState       = shipData.AISave.defaultstate;
+					ship.GetAI().GotoStep             = shipData.AISave.GoToStep;
+					ship.GetAI().MovePosition         = shipData.AISave.MovePosition;
+					ship.GetAI().OrbitTargetGuid      = shipData.AISave.OrbitTarget;
                     //ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;          //Not referenced in code, removing to save memory
-                    ship.GetAI().TargetGuid = shipData.AISave.AttackTarget;
-					ship.GetAI().SystemToDefendGuid = shipData.AISave.SystemToDefend;
-					ship.GetAI().EscortTargetGuid = shipData.AISave.EscortTarget;
+                    ship.GetAI().TargetGuid           = shipData.AISave.AttackTarget;
+					ship.GetAI().SystemToDefendGuid   = shipData.AISave.SystemToDefend;
+					ship.GetAI().EscortTargetGuid     = shipData.AISave.EscortTarget;
 					bool hasCargo = false;
 					if (shipData.FoodCount > 0f)
 					{
@@ -809,7 +671,7 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							node.SetShip(ship);
+							node.Ship = ship;
 							node.ShipName = ship.Name;
 							break;
 						}
@@ -950,52 +812,32 @@ namespace Ship_Game
 						e.GetGSAI().TaskList.Add(task);
 						if (task.TargetPlanetGuid != Guid.Empty)
 						{
-							enumerator = this.data.SolarSystemsList.GetEnumerator();
-							try
-							{
-								do
-								{
-									if (!enumerator.MoveNext())
-									{
-										break;
-									}
-									SolarSystem s = enumerator.Current;
-									stop = false;
-									foreach (Planet p in s.PlanetList)
-									{
-										if (p.guid != task.TargetPlanetGuid)
-										{
-											continue;
-										}
-										task.SetTargetPlanet(p);
-										stop = true;
-										break;
-									}
-								}
-								while (!stop);
-							}
-							finally
-							{
-								((IDisposable)enumerator).Dispose();
-							}
+                            foreach (SolarSystem s in data.SolarSystemsList)
+                            {
+                                bool stop = false;
+                                foreach (Planet p in s.PlanetList)
+                                {
+                                    if (p.guid != task.TargetPlanetGuid)
+                                        continue;
+                                    task.SetTargetPlanet(p);
+                                    stop = true;
+                                    break;
+                                }
+                                if (stop) break;
+                            }
 						}
 						foreach (Guid guid in task.HeldGoals)
 						{
 							foreach (Goal g in e.GetGSAI().Goals)
 							{
-								if (g.guid != guid)
-								{
-									continue;
-								}
-								g.Held = true;
+								if (g.guid == guid)
+								    g.Held = true;
 							}
 						}
 						try
 						{
 							if (task.WhichFleet != -1)
-							{
 								e.GetFleetsDict()[task.WhichFleet].Task = task;
-							}
 						}
 						catch
 						{
@@ -1071,20 +913,17 @@ namespace Ship_Game
 			{
 				foreach (SavedGame.RingSave rsave in sdata.RingList)
 				{
-					Planet p = new Planet();
-					foreach (SolarSystem s in this.data.SolarSystemsList)
+					Planet p = null;
+					foreach (SolarSystem s in data.SolarSystemsList)
 					{
 						foreach (Planet p1 in s.PlanetList)
 						{
-							if (p1.guid != rsave.Planet.guid)
-							{
-								continue;
-							}
-							p = p1;
-							break;
+						    if (p1.guid != rsave.Planet.guid) continue;
+						    p = p1;
+						    break;
 						}
 					}
-					if (p.Owner == null)
+					if (p?.Owner == null)
 					{
 						continue;
 					}
@@ -1112,35 +951,39 @@ namespace Ship_Game
 						if (qisave.isTroop)
 						{
 							qi.isTroop = true;
-							qi.troop = Ship_Game.ResourceManager.TroopsDict[qisave.UID];
+							qi.troop = ResourceManager.TroopsDict[qisave.UID];
                             qi.Cost = qi.troop.GetCost();
                             qi.NotifyOnEmpty = false;
 						}
 						if (qisave.isShip)
 						{
 							qi.isShip = true;
-							if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(qisave.UID))
-							{
+							if (!ResourceManager.ShipsDict.ContainsKey(qisave.UID))
 								continue;
-							}
-							qi.sData = Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData();
+
+                            Ship shipTemplate = ResourceManager.GetShipTemplate(qisave.UID);
+                            qi.sData = shipTemplate.GetShipData();
 							qi.DisplayName = qisave.DisplayName;
 							qi.Cost = 0f;
-							foreach (ModuleSlot slot in Ship_Game.ResourceManager.GetShip(qisave.UID).ModuleSlotList)
+							foreach (ModuleSlot slot in shipTemplate.ModuleSlotList)
 							{
 								if (slot.InstalledModuleUID == null)
-								{
 									continue;
-								}
-								QueueItem cost = qi;
-								cost.Cost = cost.Cost + Ship_Game.ResourceManager.GetModule(slot.InstalledModuleUID).Cost * this.savedData.GamePacing;
+								qi.Cost += ResourceManager.GetModuleCost(slot.InstalledModuleUID) * savedData.GamePacing;
 							}
 							QueueItem queueItem = qi;
                             queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;
-							queueItem.Cost *= (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().Hull) ? 1f - ResourceManager.HullBonuses[Ship_Game.ResourceManager.GetShip(qisave.UID).GetShipData().Hull].CostBonus : 1);
+
+                            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
+                            {
+                                string hull = ResourceManager.GetShipHull(qisave.UID);
+                                if (ResourceManager.HullBonuses.TryGetValue(hull, out HullBonus bonus))
+                                    queueItem.Cost *= 1f - bonus.CostBonus;
+                            }
+
 							if (qi.sData.HasFixedCost)
 							{
-								qi.Cost = (float)qi.sData.FixedCost;
+								qi.Cost = qi.sData.FixedCost;
 							}
 							if (qisave.IsRefit)
 							{
@@ -1159,7 +1002,7 @@ namespace Ship_Game
 						}
 						if (qisave.isShip && qi.Goal != null)
 						{
-							qi.Goal.beingBuilt = Ship_Game.ResourceManager.GetShip(qisave.UID);
+							qi.Goal.beingBuilt = ResourceManager.GetShipTemplate(qisave.UID);
 						}
 						qi.productionTowards = qisave.ProgressTowards;
 						p.ConstructionQueue.Add(qi);
@@ -1227,38 +1070,30 @@ namespace Ship_Game
 
                 
             //}
-            //System.Diagnostics.Debug.WriteLine("Ships Purged: " + shipsPurged.ToString());
-            //System.Diagnostics.Debug.WriteLine("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(false)).ToString());
+            //Log.Info("Ships Purged: " + shipsPurged.ToString());
+            //Log.Info("Memory purged: " + (SpaceSaved - GC.GetTotalMemory(false)).ToString());
 			this.Loaded = true;
             UniverseData.UniverseWidth = data.Size.X ;
 		}
 
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
-			if (!this.GateKeeper.WaitOne(0))
-			{
+			if (!GateKeeper.WaitOne(0) || ready || !Loaded)
 				return;
-			}
-			if (this.ready)
+
+            var system = data.SolarSystemsList[systemToMake];
+			system.spatialManager.Setup((int)(200000f * this.GameScale), (int)(200000f * this.GameScale), (int)(100000f * this.GameScale), system.Position);
+			this.percentloaded = systemToMake / (float)data.SolarSystemsList.Count;
+			foreach (Planet p in system.PlanetList)
 			{
-				return;
-			}
-			if (!this.Loaded)
-			{
-				return;
-			}
-			this.data.SolarSystemsList[this.systemToMake].spatialManager.Setup((int)(200000f * this.GameScale), (int)(200000f * this.GameScale), (int)(100000f * this.GameScale), this.data.SolarSystemsList[this.systemToMake].Position);
-			this.percentloaded = (float)this.systemToMake / (float)this.data.SolarSystemsList.Count;
-			foreach (Planet p in this.data.SolarSystemsList[this.systemToMake].PlanetList)
-			{
-				p.system = this.data.SolarSystemsList[this.systemToMake];
+				p.system = system;
 				p.InitializeUpdate();
 				base.ScreenManager.inter.ObjectManager.Submit(p.SO);
 			}
-            foreach (Asteroid roid in this.data.SolarSystemsList[this.systemToMake].AsteroidsList)
-                base.ScreenManager.inter.ObjectManager.Submit(roid.GetSO());
-            foreach (Moon moon in this.data.SolarSystemsList[this.systemToMake].MoonList)
-                base.ScreenManager.inter.ObjectManager.Submit(moon.GetSO());
+            foreach (Asteroid roid in system.AsteroidsList)
+                base.ScreenManager.inter.ObjectManager.Submit(roid.So);
+            foreach (Moon moon in system.MoonList)
+                base.ScreenManager.inter.ObjectManager.Submit(moon.So);
 			LoadUniverseScreen loadUniverseScreen = this;
 			loadUniverseScreen.systemToMake = loadUniverseScreen.systemToMake + 1;
 			if (this.systemToMake == this.data.SolarSystemsList.Count)
@@ -1279,9 +1114,7 @@ namespace Ship_Game
 							foreach (Ship othership in ship.loyalty.GetShips())
 							{
 								if (hangar.installedSlot.HangarshipGuid != othership.guid)
-								{
 									continue;
-								}
 								hangar.SetHangarShip(othership);
 								othership.Mothership = ship;
 							}
@@ -1383,21 +1216,17 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							LoadUniverseScreen.SysDisPair sp = new LoadUniverseScreen.SysDisPair()
+							dysSys[indexOfFarthestSystem] = new SysDisPair
 							{
-								System = toCheck,
-								Distance = Distance
+								System = toCheck, Distance = Distance
 							};
-							dysSys[indexOfFarthestSystem] = sp;
 						}
 						else
 						{
-							LoadUniverseScreen.SysDisPair sp = new LoadUniverseScreen.SysDisPair()
+							dysSys.Add(new SysDisPair
 							{
-								System = toCheck,
-								Distance = Distance
-							};
-							dysSys.Add(sp);
+								System = toCheck, Distance = Distance
+							});
 						}
 					}
 					foreach (LoadUniverseScreen.SysDisPair sp in dysSys)
@@ -1425,6 +1254,8 @@ namespace Ship_Game
 
 				this.us.player = EmpireManager.GetEmpireByName(this.PlayerLoyalty);
 				this.us.LoadContent();
+
+                Log.Info("LoadUniverseScreen.UpdateAllSystems(0.01)");
 				this.us.UpdateAllSystems(0.01f);
                 ResourceManager.MarkShipDesignsUnlockable();
                 /*
@@ -1454,7 +1285,6 @@ namespace Ship_Game
 		private struct SysDisPair
 		{
 			public SolarSystem System;
-
 			public float Distance;
 		}
 	}

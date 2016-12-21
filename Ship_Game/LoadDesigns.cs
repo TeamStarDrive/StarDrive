@@ -27,8 +27,6 @@ namespace Ship_Game
 
 		private UITextEntry EnterNameArea = new UITextEntry();
 
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		//private UIButton Save;
 
 		private UIButton Load;
@@ -98,7 +96,7 @@ namespace Ship_Game
 
         ~LoadDesigns() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -218,7 +216,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
 				{
-					b.State = UIButton.PressState.Normal;
+					b.State = UIButton.PressState.Default;
 				}
 				else
 				{
@@ -334,25 +332,21 @@ namespace Ship_Game
 			this.ShipDesigns = new ScrollList(this.SaveShips);
 			Vector2 Cursor = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
 			this.TitlePosition = new Vector2((float)(this.Window.X + 20), (float)(this.Window.Y + 20));
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			string path = Dir.ApplicationData;
 			Rectangle gridRect = new Rectangle(this.SaveShips.Menu.X + this.SaveShips.Menu.Width - 44, this.SaveShips.Menu.Y, 29, 20);
 			this.playerDesignsToggle = new ToggleButton(gridRect, "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid")
 			{
 				Active = this.ShowAllDesigns
 			};
-			FileInfo[] textList = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/WIP"));
 			List<ShipData> WIPs = new List<ShipData>();
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
 			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
-				{
-					WIPs.Add(newShipData);
-				}
+			    ShipData newShipData = ShipData.Parse(info);
+			    var empire = EmpireManager.GetEmpireByName(screen.EmpireUI.screen.PlayerLoyalty);
+                if (empire.IsHullUnlocked(newShipData.Hull))
+			    {
+			        WIPs.Add(newShipData);
+			    }
 			}
 			List<string> ShipRoles = new List<string>();
 			if (this.screen != null)
@@ -459,20 +453,16 @@ namespace Ship_Game
 		{
 			this.ShipDesigns.Entries.Clear();
 			this.ShipDesigns.Copied.Clear();
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			FileInfo[] textList = HelperFunctions.GetFilesFromDirectory(string.Concat(path, "/StarDrive/WIP"));
+			string path = Dir.ApplicationData;
 			List<ShipData> WIPs = new List<ShipData>();
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
 			{
-				FileStream stream = fileInfoArray[i].OpenRead();
-				ShipData newShipData = (ShipData)ResourceManager.serializer_shipdata.Deserialize(stream);
-				//stream.Close();
-				stream.Dispose();
-				if (EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict().ContainsKey(newShipData.Hull) && EmpireManager.GetEmpireByName(this.screen.EmpireUI.screen.PlayerLoyalty).GetHDict()[newShipData.Hull])
-				{
-					WIPs.Add(newShipData);
-				}
+			    ShipData newShipData = ShipData.Parse(info);
+			    var empire = EmpireManager.GetEmpireByName(screen.EmpireUI.screen.PlayerLoyalty);
+                if (empire.IsHullUnlocked(newShipData.Hull))
+			    {
+			        WIPs.Add(newShipData);
+			    }
 			}
 			List<string> ShipRoles = new List<string>();
 			if (this.screen != null)

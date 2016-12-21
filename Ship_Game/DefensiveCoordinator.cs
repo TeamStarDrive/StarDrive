@@ -125,12 +125,9 @@ namespace Ship_Game
                if (p.Owner != us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(this.us))
                {
                    p.TroopsHere.ApplyPendingRemovals();
-                   foreach (Troop troop in p.TroopsHere.Where(loyalty => loyalty.GetOwner() == this.us).ToList())
+                   foreach (Troop troop in p.TroopsHere.Where(loyalty => loyalty.GetOwner() == this.us))
                    {
                        p.TroopsHere.QueuePendingRemoval(troop);
-                   }
-                   foreach(Troop troop in p.TroopsHere.pendingRemovals)
-                   {
                        troop.Launch();
                    }
                    p.TroopsHere.ApplyPendingRemovals();
@@ -161,7 +158,7 @@ namespace Ship_Game
             {
                 foreach (KeyValuePair<Guid, Ship> entry in this.DefenseDict[key].ShipsDict)
                 {
-                    if (entry.Value.GetSystem() == entry.Value.GetAI().SystemToDefend)
+                    if (entry.Value.System== entry.Value.GetAI().SystemToDefend)
                         entry.Value.GetAI().SystemToDefend = null;
                 }
                 this.DefenseDict[key].ShipsDict.Clear();
@@ -211,22 +208,22 @@ namespace Ship_Game
                         {
                             continue;
                         }
-                        if (this.us.GetRelations()[other.Owner].Trust < 50f)
+                        if (this.us.GetRelations(other.Owner).Trust < 50f)
                         {
                             SystemCommander valueToUs1 = entry.Value;
                             valueToUs1.ValueToUs = valueToUs1.ValueToUs + 2.5f;
                         }
-                        if (this.us.GetRelations()[other.Owner].Trust < 10f)
+                        if (this.us.GetRelations(other.Owner).Trust < 10f)
                         {
                             SystemCommander systemCommander1 = entry.Value;
                             systemCommander1.ValueToUs = systemCommander1.ValueToUs + 2.5f;
                         }
-                        if (this.us.GetRelations()[other.Owner].TotalAnger > 2.5f)
+                        if (this.us.GetRelations(other.Owner).TotalAnger > 2.5f)
                         {
                             SystemCommander value2 = entry.Value;
                             value2.ValueToUs = value2.ValueToUs + 2.5f;
                         }
-                        if (this.us.GetRelations()[other.Owner].TotalAnger <= 30f)
+                        if (this.us.GetRelations(other.Owner).TotalAnger <= 30f)
                         {
                             continue;
                         }
@@ -237,7 +234,7 @@ namespace Ship_Game
                 foreach (SolarSystem fiveClosestSystem in entry.Key.FiveClosestSystems)                
                 {
                     bool flag = false; ;
-                    foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.us.GetRelations())
+                    foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.us.AllRelations)
                     {
                         if (!flag && fiveClosestSystem.OwnerList.Count == 0)
                         {
@@ -361,27 +358,18 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                IOrderedEnumerable<Ship> strsorted =
-                    from ship in defenseDict.Value.GetShipList()
-                    //where  !ship.GetAI().BadGuysNear && ship.GetAI().State == AIState.AwaitingOrders
-                    orderby ship.GetStrength()
-                    select ship;
-                using (IEnumerator<Ship> enumerator = strsorted.GetEnumerator())
+
+                var ships = defenseDict.Value.GetShipList();
+                ships.Sort((x,y) => x.GetStrength().CompareTo(y.GetStrength()));
+                foreach (Ship current in ships)
                 {
-                    do
-                    {
-                        if (!enumerator.MoveNext())
-                        {
-                            break;
-                        }
-                        Ship current = enumerator.Current;
-                        Ship remove;
-                        defenseDict.Value.ShipsDict.TryRemove(current.guid, out remove);
-                        ShipsAvailableForAssignment.Add(current);
-                        current.GetAI().SystemToDefend = null;                        
-                        //current.GetAI().State = AIState.AwaitingOrders;
-                    }
-                    while (defenseDict.Value.GetOurStrength() >= defenseDict.Value.IdealShipStrength );
+                    defenseDict.Value.ShipsDict.TryRemove(current.guid, out Ship remove);
+                    ShipsAvailableForAssignment.Add(current);
+                    current.GetAI().SystemToDefend = null;
+                    //current.GetAI().State = AIState.AwaitingOrders;
+
+                    if (defenseDict.Value.GetOurStrength() <= defenseDict.Value.IdealShipStrength)
+                        break;
                 }
             }
             //Add available force to pool:
@@ -696,7 +684,8 @@ namespace Ship_Game
 
   
             List<Ship> incomingShips = new List<Ship>();
-            incomingShips = Empire.universeScreen.GameDifficulty > UniverseData.GameDifficulty.Hard ? Empire.universeScreen.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != this.us && (bases.loyalty.isFaction || this.us.GetRelations()[bases.loyalty].AtWar || !this.us.GetRelations()[bases.loyalty].Treaty_OpenBorders)).ToList() : this.us.GetShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
+            incomingShips = Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Hard 
+                ? Empire.Universe.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != us && (bases.loyalty.isFaction || us.GetRelations(bases.loyalty).AtWar || !us.GetRelations(bases.loyalty).Treaty_OpenBorders)).ToList() : this.us.FindShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
             
 
 
@@ -720,7 +709,7 @@ namespace Ship_Game
                             Ship ship = incomingShips[i];
 
                             if (ship != null && ship.loyalty != this.us
-                                && (ship.loyalty.isFaction || this.us.GetRelations()[ship.loyalty].AtWar || !this.us.GetRelations()[ship.loyalty].Treaty_OpenBorders)
+                                && (ship.loyalty.isFaction || this.us.GetRelations(ship.loyalty).AtWar || !this.us.GetRelations(ship.loyalty).Treaty_OpenBorders)
                                 && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
                             {
                                 //lock(this.EnemyClumpsDict)
@@ -729,10 +718,10 @@ namespace Ship_Game
                                 lock(ShipsAlreadyConsidered)
                                 ShipsAlreadyConsidered.Add(ship);
                                 //for (int j = 0; j < this.system.ShipList.Count; j++)
-                                //                             var source = Empire.universeScreen.MasterShipList.ToArray();
+                                //                             var source = Empire.Universe.MasterShipList.ToArray();
                                 //     var rangePartitioner = Partitioner.Create(0, source.Length);
 
-                                //     //Parallel.For(0, Empire.universeScreen.MasterShipList.Count, i =>  
+                                //     //Parallel.For(0, Empire.Universe.MasterShipList.Count, i =>  
                                 //     Parallel.ForEach(rangePartitioner, (range, loopState) =>
                                 //{
                                 //    for (int i = range.Item1; i < range.Item2; i++)
@@ -778,7 +767,7 @@ namespace Ship_Game
 
         ~DefensiveCoordinator() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

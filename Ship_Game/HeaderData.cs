@@ -1,39 +1,26 @@
 using System;
 using System.IO;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
 	public sealed class HeaderData
 	{
 		public string SaveName;
-
 		public string StarDate;
-
 		public DateTime Time;
-
 		public string PlayerName;
-
 		public string RealDate;
-
 		public string ModName = "";
         public string ModPath = "";
-
-		private FileInfo FI;
-
         public int Version;
 
-		public HeaderData()
-		{
-		}
+        [XmlIgnore][JsonIgnore]
+        public FileInfo FI;
 
-		public FileInfo GetFileInfo()
+        public HeaderData()
 		{
-			return this.FI;
-		}
-
-		public void SetFileInfo(FileInfo fi)
-		{
-			this.FI = fi;
 		}
 	}
 }

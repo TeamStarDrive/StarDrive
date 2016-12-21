@@ -1,173 +1,108 @@
 using System;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
 	public sealed class RacialTrait
 	{
-		public string Name;
-
-		public int TraitName;
-
-		public string VideoPath = "";
-
-		public string ShipType = "Pollops";
-
-		public string Singular;
-
-		public string Plural;
-
-		public bool Pack;
-
-		public float SpyMultiplier;
-
-		public string Adj1;
-
-		public string Adj2;
-
-		public string HomeSystemName;
-
-		public string HomeworldName;
-
-		public int FlagIndex;
-
-		public float R;
-
-		public float G;
-
-		public float B;
-
-		public int Excludes;
-
-		public int Description;
-
-		public string Category;
-
-		public int Cost;
-
-		public float ConsumptionModifier;
-
-		public float ReproductionMod;
-
-		public float PopGrowthMax;
-
-		public float PopGrowthMin;
-
-		public float DiplomacyMod;
-
-		public float GenericMaxPopMod;
-
-		public int Blind;
-
-		public int BonusExplored;
-
-		public int Militaristic;
-
-		public float HomeworldSizeMod;
-
-		public int Prewarp;
-
-		public int Prototype;
-
-		public float Spiritual;
-
-		public float HomeworldFertMod;
-
-		public float HomeworldRichMod;
-
-		public float DodgeMod;
-
-		public float EnergyDamageMod;
-
-		public float ResearchMod;
-
-		public float Mercantile;
-
-		public int Miners;
-
-		public float ProductionMod;
-
-		public float MaintMod;
-
-		public float InBordersSpeedBonus = 0.5f;
-
-		public float TaxMod;
-
-		public float ShipCostMod;
-
-		public float ModHpModifier;
-
-		public int SmallSize;
-
-		public int HugeSize;
-
-		public int PassengerModifier = 1;
-
-		public int PassengerBonus;
-
-		public bool Assimilators;
-
-		public float GroundCombatModifier;
-
-		public float RepairMod;
-
-		public int Cybernetic;
+		[Serialize(0)] public string Name;
+		[Serialize(1)] public int TraitName;
+		[Serialize(2)] public string VideoPath = "";
+		[Serialize(3)] public string ShipType = "Pollops";
+		[Serialize(4)] public string Singular;
+		[Serialize(5)] public string Plural;
+		[Serialize(6)] public bool Pack;
+		[Serialize(7)] public float SpyMultiplier;
+		[Serialize(8)] public string Adj1;
+		[Serialize(9)] public string Adj2;
+		[Serialize(10)] public string HomeSystemName;
+		[Serialize(11)] public string HomeworldName;
+		[Serialize(12)] public int FlagIndex;
+		[Serialize(13)] public float R;
+		[Serialize(14)] public float G;
+		[Serialize(15)] public float B;
+		[Serialize(16)] public int Excludes;
+		[Serialize(17)] public int Description;
+		[Serialize(18)] public string Category;
+		[Serialize(19)] public int Cost;
+		[Serialize(20)] public float ConsumptionModifier;
+		[Serialize(21)] public float ReproductionMod;
+		[Serialize(22)] public float PopGrowthMax;
+		[Serialize(23)] public float PopGrowthMin;
+		[Serialize(24)] public float DiplomacyMod;
+		[Serialize(25)] public float GenericMaxPopMod;
+		[Serialize(26)] public int Blind;
+		[Serialize(27)] public int BonusExplored;
+		[Serialize(28)] public int Militaristic;
+		[Serialize(29)] public float HomeworldSizeMod;
+		[Serialize(30)] public int Prewarp;
+		[Serialize(31)] public int Prototype;
+		[Serialize(32)] public float Spiritual;
+		[Serialize(33)] public float HomeworldFertMod;
+		[Serialize(34)] public float HomeworldRichMod;
+		[Serialize(35)] public float DodgeMod;
+		[Serialize(36)] public float EnergyDamageMod;
+		[Serialize(37)] public float ResearchMod;
+		[Serialize(38)] public float Mercantile;
+		[Serialize(39)] public int Miners;
+		[Serialize(40)] public float ProductionMod;
+		[Serialize(41)] public float MaintMod;
+		[Serialize(42)] public float InBordersSpeedBonus = 0.5f;
+		[Serialize(43)] public float TaxMod;
+		[Serialize(44)] public float ShipCostMod;
+		[Serialize(45)] public float ModHpModifier;
+		[Serialize(46)] public int SmallSize;
+		[Serialize(47)] public int HugeSize;
+		[Serialize(48)] public int PassengerModifier = 1;
+		[Serialize(49)] public int PassengerBonus;
+		[Serialize(50)] public bool Assimilators;
+		[Serialize(51)] public float GroundCombatModifier;
+		[Serialize(52)] public float RepairMod;
+		[Serialize(53)] public int Cybernetic;
 
         //Trait Booleans
-        public Boolean PhysicalTraitAlluring;
-        public Boolean PhysicalTraitRepulsive;
+        [Serialize(54)] public bool PhysicalTraitAlluring;
+        [Serialize(55)] public bool PhysicalTraitRepulsive;
+        [Serialize(56)] public bool PhysicalTraitEagleEyed;
+        [Serialize(57)] public bool PhysicalTraitBlind;
+        [Serialize(58)] public bool PhysicalTraitEfficientMetabolism;
+        [Serialize(59)] public bool PhysicalTraitGluttonous;
+        [Serialize(60)] public bool PhysicalTraitFertile;
+        [Serialize(61)] public bool PhysicalTraitLessFertile;
+        [Serialize(62)] public bool PhysicalTraitSmart;
+        [Serialize(63)] public bool PhysicalTraitDumb;
+        [Serialize(64)] public bool PhysicalTraitReflexes;
+        [Serialize(65)] public bool PhysicalTraitPonderous;
+        [Serialize(66)] public bool PhysicalTraitSavage;
+        [Serialize(67)] public bool PhysicalTraitTimid;
+        [Serialize(68)] public bool SociologicalTraitEfficient;
+        [Serialize(69)] public bool SociologicalTraitWasteful;
+        [Serialize(70)] public bool SociologicalTraitIndustrious;
+        [Serialize(71)] public bool SociologicalTraitLazy;
+        [Serialize(72)] public bool SociologicalTraitMercantile;
+        [Serialize(73)] public bool SociologicalTraitMeticulous;
+        [Serialize(74)] public bool SociologicalTraitCorrupt;
+        [Serialize(75)] public bool SociologicalTraitSkilledEngineers;
+        [Serialize(76)] public bool SociologicalTraitHaphazardEngineers;
 
-        public Boolean PhysicalTraitEagleEyed;
-        public Boolean PhysicalTraitBlind;
+        [Serialize(77)] public bool HistoryTraitAstronomers;
+        [Serialize(78)] public bool HistoryTraitCybernetic;
+        [Serialize(79)] public bool HistoryTraitManifestDestiny;
+        [Serialize(80)] public bool HistoryTraitMilitaristic;
+        [Serialize(81)] public bool HistoryTraitNavalTraditions;
+        [Serialize(82)] public bool HistoryTraitPackMentality;
+        [Serialize(83)] public bool HistoryTraitPrototypeFlagship;
+        [Serialize(84)] public bool HistoryTraitSpiritual;
+        [Serialize(85)] public bool HistoryTraitPollutedHomeWorld;
+        [Serialize(86)] public bool HistoryTraitIndustrializedHomeWorld;
+        [Serialize(87)] public bool HistoryTraitDuplicitous;
+        [Serialize(88)] public bool HistoryTraitHonest;
+        [Serialize(89)] public bool HistoryTraitHugeHomeWorld;
+        [Serialize(90)] public bool HistoryTraitSmallHomeWorld;
 
-        public Boolean PhysicalTraitEfficientMetabolism;
-        public Boolean PhysicalTraitGluttonous;
-
-        public Boolean PhysicalTraitFertile;
-        public Boolean PhysicalTraitLessFertile;
-
-        public Boolean PhysicalTraitSmart;
-        public Boolean PhysicalTraitDumb;
-
-        public Boolean PhysicalTraitReflexes;
-        public Boolean PhysicalTraitPonderous;
-
-        public Boolean PhysicalTraitSavage;
-        public Boolean PhysicalTraitTimid;
-
-        public Boolean SociologicalTraitEfficient;
-        public Boolean SociologicalTraitWasteful;
-
-        public Boolean SociologicalTraitIndustrious;
-        public Boolean SociologicalTraitLazy;
-
-        public Boolean SociologicalTraitMercantile;
-
-        public Boolean SociologicalTraitMeticulous;
-        public Boolean SociologicalTraitCorrupt;
-
-        public Boolean SociologicalTraitSkilledEngineers;
-        public Boolean SociologicalTraitHaphazardEngineers;
-
-        public Boolean HistoryTraitAstronomers;
-        public Boolean HistoryTraitCybernetic;
-        public Boolean HistoryTraitManifestDestiny;
-        public Boolean HistoryTraitMilitaristic;
-        public Boolean HistoryTraitNavalTraditions;
-        public Boolean HistoryTraitPackMentality;
-        public Boolean HistoryTraitPrototypeFlagship;
-        public Boolean HistoryTraitSpiritual;
-        public Boolean HistoryTraitPollutedHomeWorld;
-        public Boolean HistoryTraitIndustrializedHomeWorld;
-
-        public Boolean HistoryTraitDuplicitous;
-        public Boolean HistoryTraitHonest;
-
-        public Boolean HistoryTraitHugeHomeWorld;
-        public Boolean HistoryTraitSmallHomeWorld;
-
-        //Pointless variables
-        public int Aquatic;
-        public int Burrowers;
+        // Pointless variables
+        [Serialize(91)] public int Aquatic;
+        [Serialize(92)] public int Burrowers;
 
 		public RacialTrait()
 		{
@@ -175,119 +110,123 @@ namespace Ship_Game
 
         public RacialTrait GetClone()
         {
-            return (RacialTrait)this.MemberwiseClone();
+            return (RacialTrait)MemberwiseClone();
         }
 
         //Added by McShooterz: set old values from new bools
-        public void SetValues()
+        public void LoadTraitConstraints()
         {
-            if (ResourceManager.GetRaceTraits().TraitList == null)
+            var traits = ResourceManager.RaceTraits;
+            if (traits.TraitList == null)
                 return;
-            foreach (RacialTrait RacialTrait in ResourceManager.GetRaceTraits().TraitList)
+            foreach (RacialTrait trait in traits.TraitList)
             {
-                if ((this.PhysicalTraitAlluring && RacialTrait.DiplomacyMod > 0) || (this.PhysicalTraitRepulsive && RacialTrait.DiplomacyMod < 0))
+                if (PhysicalTraitAlluring && trait.DiplomacyMod > 0 
+                    || PhysicalTraitRepulsive && trait.DiplomacyMod < 0)
                 {
-                    this.DiplomacyMod = RacialTrait.DiplomacyMod;
+                    DiplomacyMod = trait.DiplomacyMod;
                 }
-                if ((this.PhysicalTraitEagleEyed && RacialTrait.EnergyDamageMod > 0) || (this.PhysicalTraitBlind && RacialTrait.EnergyDamageMod < 0))
+                if (PhysicalTraitEagleEyed && trait.EnergyDamageMod > 0 
+                    || PhysicalTraitBlind && trait.EnergyDamageMod < 0)
                 {
-                    this.EnergyDamageMod = RacialTrait.EnergyDamageMod;
+                    EnergyDamageMod = trait.EnergyDamageMod;
                 }
-                if ((this.PhysicalTraitEfficientMetabolism && RacialTrait.ConsumptionModifier < 0) || (this.PhysicalTraitGluttonous && RacialTrait.ConsumptionModifier > 0))
+                if (PhysicalTraitEfficientMetabolism && trait.ConsumptionModifier < 0 
+                    || PhysicalTraitGluttonous && trait.ConsumptionModifier > 0)
                 {
-                    this.ConsumptionModifier = RacialTrait.ConsumptionModifier;
+                    ConsumptionModifier = trait.ConsumptionModifier;
                 }
-                if (this.PhysicalTraitFertile && RacialTrait.PopGrowthMin > 0)
+                if (PhysicalTraitFertile && trait.PopGrowthMin > 0)
                 {
-                    this.PopGrowthMin = RacialTrait.PopGrowthMin;
+                    PopGrowthMin = trait.PopGrowthMin;
                 }
-                else if (this.PhysicalTraitLessFertile && RacialTrait.PopGrowthMax > 0)
+                else if (PhysicalTraitLessFertile && trait.PopGrowthMax > 0)
                 {
-                    this.PopGrowthMax = RacialTrait.PopGrowthMax;
+                    PopGrowthMax = trait.PopGrowthMax;
                 }
-                if ((this.PhysicalTraitSmart && RacialTrait.ResearchMod > 0) || (this.PhysicalTraitDumb && RacialTrait.ResearchMod < 0))
+                if (PhysicalTraitSmart && trait.ResearchMod > 0 || PhysicalTraitDumb && trait.ResearchMod < 0)
                 {
-                    this.ResearchMod = RacialTrait.ResearchMod;
+                    ResearchMod = trait.ResearchMod;
                 }
-                if ((this.PhysicalTraitReflexes && RacialTrait.DodgeMod > 0) || (this.PhysicalTraitPonderous && RacialTrait.DodgeMod < 0))
+                if (PhysicalTraitReflexes && trait.DodgeMod > 0 || PhysicalTraitPonderous && trait.DodgeMod < 0)
                 {
-                    this.DodgeMod = RacialTrait.DodgeMod;
+                    DodgeMod = trait.DodgeMod;
                 }
-                if ((this.PhysicalTraitSavage && RacialTrait.GroundCombatModifier > 0) || (this.PhysicalTraitTimid && RacialTrait.GroundCombatModifier < 0))
+                if ((PhysicalTraitSavage && trait.GroundCombatModifier > 0) || (PhysicalTraitTimid && trait.GroundCombatModifier < 0))
                 {
-                    this.GroundCombatModifier = RacialTrait.GroundCombatModifier;
+                    GroundCombatModifier = trait.GroundCombatModifier;
                 }
-                if ((this.SociologicalTraitEfficient && RacialTrait.MaintMod < 0) || (this.SociologicalTraitWasteful && RacialTrait.MaintMod > 0))
+                if ((SociologicalTraitEfficient && trait.MaintMod < 0) || (SociologicalTraitWasteful && trait.MaintMod > 0))
                 {
-                    this.MaintMod = RacialTrait.MaintMod;
+                    MaintMod = trait.MaintMod;
                 }
-                if ((this.SociologicalTraitIndustrious && RacialTrait.ProductionMod > 0) || (this.SociologicalTraitLazy && RacialTrait.ProductionMod < 0))
+                if ((SociologicalTraitIndustrious && trait.ProductionMod > 0) || (SociologicalTraitLazy && trait.ProductionMod < 0))
                 {
-                    this.ProductionMod = RacialTrait.ProductionMod;
+                    ProductionMod = trait.ProductionMod;
                 }
-                if ((this.SociologicalTraitMeticulous && RacialTrait.TaxMod > 0) || (this.SociologicalTraitCorrupt && RacialTrait.TaxMod < 0))
+                if ((SociologicalTraitMeticulous && trait.TaxMod > 0) || (SociologicalTraitCorrupt && trait.TaxMod < 0))
                 {
-                    this.TaxMod = RacialTrait.TaxMod;
+                    TaxMod = trait.TaxMod;
                 }
-                if ((this.SociologicalTraitSkilledEngineers && RacialTrait.ModHpModifier > 0) || (this.SociologicalTraitHaphazardEngineers && RacialTrait.ModHpModifier < 0))
+                if ((SociologicalTraitSkilledEngineers && trait.ModHpModifier > 0) || (SociologicalTraitHaphazardEngineers && trait.ModHpModifier < 0))
                 {
-                    this.ModHpModifier = RacialTrait.ModHpModifier;
+                    ModHpModifier = trait.ModHpModifier;
                 }
-                if (this.SociologicalTraitMercantile && RacialTrait.Mercantile > 0)
+                if (SociologicalTraitMercantile && trait.Mercantile > 0)
                 {
-                    this.Mercantile = RacialTrait.Mercantile;
+                    Mercantile = trait.Mercantile;
                 }
-                if ((this.HistoryTraitDuplicitous && RacialTrait.SpyMultiplier > 0) || (this.HistoryTraitHonest && RacialTrait.SpyMultiplier < 0))
+                if ((HistoryTraitDuplicitous && trait.SpyMultiplier > 0) || (HistoryTraitHonest && trait.SpyMultiplier < 0))
                 {
-                    this.SpyMultiplier = RacialTrait.SpyMultiplier;
+                    SpyMultiplier = trait.SpyMultiplier;
                 }
-                if ((this.HistoryTraitHugeHomeWorld && RacialTrait.HomeworldSizeMod > 0) || (this.HistoryTraitSmallHomeWorld && RacialTrait.HomeworldSizeMod < 0))
+                if ((HistoryTraitHugeHomeWorld && trait.HomeworldSizeMod > 0) || (HistoryTraitSmallHomeWorld && trait.HomeworldSizeMod < 0))
                 {
-                    this.HomeworldSizeMod = RacialTrait.HomeworldSizeMod;
+                    HomeworldSizeMod = trait.HomeworldSizeMod;
                 }
-                if (this.HistoryTraitAstronomers && RacialTrait.BonusExplored > 0)
+                if (HistoryTraitAstronomers && trait.BonusExplored > 0)
                 {
-                    this.BonusExplored = RacialTrait.BonusExplored;
+                    BonusExplored = trait.BonusExplored;
                 }
-                if (this.HistoryTraitCybernetic)
+                if (HistoryTraitCybernetic)
                 {
-                    this.Cybernetic = 1;
-                    if (RacialTrait.RepairMod > 0)
-                        this.RepairMod = RacialTrait.RepairMod;
+                    Cybernetic = 1;
+                    if (trait.RepairMod > 0)
+                        RepairMod = trait.RepairMod;
                 }
-                if (this.HistoryTraitManifestDestiny && RacialTrait.PassengerBonus > 0)
+                if (HistoryTraitManifestDestiny && trait.PassengerBonus > 0)
                 {
-                    this.PassengerBonus = RacialTrait.PassengerBonus;
+                    PassengerBonus = trait.PassengerBonus;
                 }
-                if (this.HistoryTraitNavalTraditions && RacialTrait.ShipCostMod < 0)
+                if (HistoryTraitNavalTraditions && trait.ShipCostMod < 0)
                 {
-                    this.ShipCostMod = RacialTrait.ShipCostMod;
+                    ShipCostMod = trait.ShipCostMod;
                 }
-                if (this.HistoryTraitSpiritual && RacialTrait.Spiritual > 0)
+                if (HistoryTraitSpiritual && trait.Spiritual > 0)
                 {
-                    this.Spiritual = RacialTrait.Spiritual;
+                    Spiritual = trait.Spiritual;
                 }
-                if (this.HistoryTraitPollutedHomeWorld && RacialTrait.HomeworldFertMod < 0 && RacialTrait.HomeworldRichMod == 0)
+                if (HistoryTraitPollutedHomeWorld && trait.HomeworldFertMod < 0 && trait.HomeworldRichMod == 0)
                 {
-                    this.HomeworldFertMod -= RacialTrait.HomeworldFertMod;
+                    HomeworldFertMod -= trait.HomeworldFertMod;
                 }
-                if (this.HistoryTraitIndustrializedHomeWorld && RacialTrait.HomeworldFertMod < 0 && RacialTrait.HomeworldRichMod > 0)
+                if (HistoryTraitIndustrializedHomeWorld && trait.HomeworldFertMod < 0 && trait.HomeworldRichMod > 0)
                 {
-                    this.HomeworldFertMod -= RacialTrait.HomeworldFertMod;
-                    this.HomeworldRichMod = RacialTrait.HomeworldRichMod;
+                    HomeworldFertMod -= trait.HomeworldFertMod;
+                    HomeworldRichMod = trait.HomeworldRichMod;
                 }
             }
-            if (this.HistoryTraitMilitaristic)
+            if (HistoryTraitMilitaristic)
             {
-                this.Militaristic = 1;
+                Militaristic = 1;
             }
-            if (this.HistoryTraitPackMentality)
+            if (HistoryTraitPackMentality)
             {
-                this.Pack = true;
+                Pack = true;
             }
-            if (this.HistoryTraitPrototypeFlagship)
+            if (HistoryTraitPrototypeFlagship)
             {
-                this.Prototype = 1;
+                Prototype = 1;
             }
         }
 	}
