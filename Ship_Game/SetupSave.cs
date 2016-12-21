@@ -24,8 +24,7 @@ namespace Ship_Game
         public float EnemyFTLModifier;
         public float OptionIncreaseShipMaintenance;
         public float MinimumWarpRange;
-        public float MemoryLimiter;
-        public byte TurnTimer;
+        public int TurnTimer;
         public bool preventFederations;
         public float GravityWellRange;
         public RaceDesignScreen.GameMode mode;
@@ -59,8 +58,7 @@ namespace Ship_Game
             this.EnemyFTLModifier              = GlobalStats.EnemyFTLInSystemModifier;
             this.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             this.MinimumWarpRange              = GlobalStats.MinimumWarpRange;
-            this.MemoryLimiter                 = GlobalStats.MemoryLimiter;
-            this.TurnTimer                     = (byte)GlobalStats.TurnTimer;
+            this.TurnTimer                     = GlobalStats.TurnTimer;
             this.preventFederations            = GlobalStats.PreventFederations;
             this.GravityWellRange              = GlobalStats.GravityWellRange;
             this.mode                          = mode;

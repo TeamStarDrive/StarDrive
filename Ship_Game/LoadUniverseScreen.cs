@@ -292,11 +292,10 @@ namespace Ship_Game
 			GlobalStats.RemnantKills                  = usData.RemnantKills;
             GlobalStats.RemnantActivation             = usData.RemnantActivation;
             GlobalStats.RemnantArmageddon             = usData.RemnantArmageddon;
-            GlobalStats.GravityWellRange              = usData.GravityWellRange;            
-            GlobalStats.IconSize                      = usData.IconSize;        
-            GlobalStats.MemoryLimiter                 = usData.MemoryLimiter;          
-            GlobalStats.MinimumWarpRange              = usData.MinimumWarpRange;         
-            GlobalStats.ShipMaintenanceMulti = usData.OptionIncreaseShipMaintenance;            
+            GlobalStats.GravityWellRange              = usData.GravityWellRange;
+            GlobalStats.IconSize                      = usData.IconSize;
+            GlobalStats.MinimumWarpRange              = usData.MinimumWarpRange;
+            GlobalStats.ShipMaintenanceMulti = usData.OptionIncreaseShipMaintenance;
             GlobalStats.PreventFederations            = usData.preventFederations;
             GlobalStats.EliminationMode               = usData.EliminationMode;
             if (usData.TurnTimer == 0)
