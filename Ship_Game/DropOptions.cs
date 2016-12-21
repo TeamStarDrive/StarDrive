@@ -6,47 +6,36 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class DropOptions
+    public sealed class Entry
+    {
+        public string Name;
+        public bool Hover;
+        public Rectangle clickRect;
+        public int @value;
+        public object ReferencedObject;
+    }
+
+    public sealed class DropOptions
 	{
-		private DropOptions.RecTexPair TL;
-
-		private DropOptions.RecTexPair TR;
-
-		private DropOptions.RecTexPair BL;
-
-		private DropOptions.RecTexPair BR;
-
-		private DropOptions.RecTexPair LV;
-
-		private DropOptions.RecTexPair RV;
-
-		private DropOptions.RecTexPair Top;
-
-		private DropOptions.RecTexPair Bot;
-
-		private List<DropOptions.RecTexPair> container = new List<DropOptions.RecTexPair>();
+		private RecTexPair TL;
+		private RecTexPair TR;
+		private RecTexPair BL;
+		private RecTexPair BR;
+		private RecTexPair LV;
+		private RecTexPair RV;
+		private RecTexPair Top;
+		private RecTexPair Bot;
+		private readonly List<RecTexPair> container = new List<RecTexPair>();
 
 		public Rectangle r;
-
-		private Rectangle OpenRect = new Rectangle();
-
-		private Rectangle ClickAbleOpenRect = new Rectangle();
-
+		private Rectangle OpenRect;
+		private Rectangle ClickAbleOpenRect;
 		public int ActiveIndex;
-
 		public List<Entry> Options = new List<Entry>();
-
 		public bool Open;
+		public Entry Active => Options[ActiveIndex];
 
-		public Entry Active
-		{
-			get
-			{
-				return this.Options[this.ActiveIndex];
-			}
-		}
-
-		public DropOptions(Rectangle r)
+	    public DropOptions(Rectangle r)
 		{
 			this.r = r;
 			this.TL = new DropOptions.RecTexPair(r.X, r.Y, "NewUI/dropdown_menu_corner_TL");

@@ -185,7 +185,7 @@ namespace Ship_Game
 		    cb.Tip_Token = 2288;
 
             //Added by McShooterz: new checkbox to prevent AI federations
-            Ref<bool> pfRef = new Ref<bool>(() => GlobalStats.preventFederations, (bool x) => GlobalStats.preventFederations = x);
+            Ref<bool> pfRef = new Ref<bool>(() => GlobalStats.PreventFederations, (bool x) => GlobalStats.PreventFederations = x);
             Checkbox cb2 = new Checkbox(new Vector2((float)(ftlRect.X + 500), (float)(ftlRect.Y)), Localizer.Token(6022), pfRef, Fonts.Arial12Bold);
             this.Checkboxes.Add(cb2);
 

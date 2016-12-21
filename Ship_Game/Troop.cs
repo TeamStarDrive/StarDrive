@@ -3,61 +3,60 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
 	public sealed class Troop
 	{
-		public string Name;
-		public string RaceType;
-		public int first_frame = 1;
-		public bool animated;
-		public string idle_path;
-		public string Icon;
-		public string MovementCue;
-		public int Level;
-        public int AttackTimerBase = 10;
-		public int MoveTimerBase = 10;
-		public int num_idle_frames;
-		public int num_attack_frames;
-		public int idle_x_offset;
-		public int idle_y_offset;
-		public int attack_width = 128;
-		private Planet p;
-		public string attack_path;
-        public bool facingRight;
-		public string Description;
-		public string OwnerString;
-		private Empire Owner;
-		public int BoardingStrength;
-		private Ship ship;
-		public int MaxStoredActions = 1;
-		public float MoveTimer;
-		public float AttackTimer;
-		public float MovingTimer = 1f;
-		private Rectangle fromRect;
-		public int AvailableMoveActions = 1;
-		public int AvailableAttackActions = 1;
-		public string TexturePath;
-		public bool Idle = true;
-		public int WhichFrame = 1;
-		private float updateTimer;
-		public float Strength;
-		public float StrengthMax;
-        public int HardAttack;
-		public int SoftAttack;
-		public string Class;
-		public int Kills;
-		public string TargetType;
-		public int Experience;
-        public float Cost;
-		public string sound_attack;
-        public float Range;
-	    public float Launchtimer = 10f;
+        [Serialize(0)] public string Name;
+        [Serialize(1)] public string RaceType;
+        [Serialize(2)] public int first_frame = 1;
+        [Serialize(3)] public bool animated;
+        [Serialize(4)] public string idle_path;
+        [Serialize(5)] public string Icon;
+        [Serialize(6)] public string MovementCue;
+        [Serialize(7)] public int Level;
+        [Serialize(8)] public int AttackTimerBase = 10;
+        [Serialize(9)] public int MoveTimerBase = 10;
+        [Serialize(10)] public int num_idle_frames;
+        [Serialize(11)] public int num_attack_frames;
+        [Serialize(12)] public int idle_x_offset;
+        [Serialize(13)] public int idle_y_offset;
+        [Serialize(14)] public int attack_width = 128;
+        [Serialize(15)] public string attack_path;
+        [Serialize(16)] public bool facingRight;
+        [Serialize(17)] public string Description;
+        [Serialize(18)] public string OwnerString;
+        [Serialize(19)] public int BoardingStrength;
+        [Serialize(20)] public int MaxStoredActions = 1;
+        [Serialize(21)] public float MoveTimer;
+        [Serialize(22)] public float AttackTimer;
+        [Serialize(23)] public float MovingTimer = 1f;
+        [Serialize(24)] public int AvailableMoveActions = 1;
+        [Serialize(25)] public int AvailableAttackActions = 1;
+        [Serialize(26)] public string TexturePath;
+        [Serialize(27)] public bool Idle = true;
+        [Serialize(28)] public int WhichFrame = 1;
+        [Serialize(29)] public float Strength;
+        [Serialize(30)] public float StrengthMax;
+        [Serialize(31)] public int HardAttack;
+        [Serialize(32)] public int SoftAttack;
+        [Serialize(33)] public string Class;
+        [Serialize(34)] public int Kills;
+        [Serialize(35)] public string TargetType;
+        [Serialize(36)] public int Experience;
+        [Serialize(37)] public float Cost;
+        [Serialize(38)] public string sound_attack;
+        [Serialize(39)] public float Range;
+        [Serialize(40)] public float Launchtimer = 10f;
 
-		public Troop()
-		{
-		}
+        [XmlIgnore][JsonIgnore] private Planet p;
+        [XmlIgnore][JsonIgnore] private Empire Owner;
+        [XmlIgnore][JsonIgnore] private Ship ship;
+        [XmlIgnore][JsonIgnore] private Rectangle fromRect;
+        [XmlIgnore][JsonIgnore] private float updateTimer;
 
         public Troop Clone()
         {

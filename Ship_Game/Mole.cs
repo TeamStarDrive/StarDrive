@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
 	public sealed class Mole
 	{
-		public Guid PlanetGuid;
+        [Serialize(0)] public Guid PlanetGuid;
 
 		public Mole()
 		{

@@ -38,33 +38,37 @@ namespace Ship_Game
         public SetupSave()
         { }
 
-        public SetupSave(UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum StarEnum, RaceDesignScreen.GalSize Galaxysize, int Pacing, RaceDesignScreen.ExtraRemnantPresence ExtraRemnant, int numOpponents, RaceDesignScreen.GameMode mode)
+        public SetupSave(UniverseData.GameDifficulty gameDifficulty, 
+            RaceDesignScreen.StarNum starNum, 
+            RaceDesignScreen.GalSize galaxysize, int pacing, 
+            RaceDesignScreen.ExtraRemnantPresence extraRemnant, 
+            int numOpponents, RaceDesignScreen.GameMode mode)
         {
             if (GlobalStats.ActiveMod != null)
             {
-                this.ModName = GlobalStats.ActiveMod.mi.ModName;
-                this.ModPath = GlobalStats.ActiveMod.ModPath;
+                ModName = GlobalStats.ActiveMod.mi.ModName;
+                ModPath = GlobalStats.ActiveMod.ModPath;
             }
             this.Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
-            this.GameDifficulty = gameDifficulty;
-            this.StarEnum = StarEnum;
-            this.Galaxysize = Galaxysize;
-            this.Pacing = Pacing;
-            this.ExtraRemnant = ExtraRemnant;
-            this.FTLModifier = GlobalStats.FTLInSystemModifier;
-            this.EnemyFTLModifier = GlobalStats.EnemyFTLInSystemModifier;
+            this.GameDifficulty                = gameDifficulty;
+            this.StarEnum                      = starNum;
+            this.Galaxysize                    = galaxysize;
+            this.Pacing                        = pacing;
+            this.ExtraRemnant                  = extraRemnant;
+            this.FTLModifier                   = GlobalStats.FTLInSystemModifier;
+            this.EnemyFTLModifier              = GlobalStats.EnemyFTLInSystemModifier;
             this.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
-            this.MinimumWarpRange = GlobalStats.MinimumWarpRange;
-            this.MemoryLimiter = GlobalStats.MemoryLimiter;
-            this.TurnTimer = GlobalStats.TurnTimer;
-            this.preventFederations = GlobalStats.preventFederations;
-            this.GravityWellRange = GlobalStats.GravityWellRange;
-            this.mode = mode;
-            this.numOpponents = numOpponents;
-            this.ExtraPlanets = GlobalStats.ExtraPlanets;
-            this.StartingPlanetRichness = GlobalStats.StartingPlanetRichness;
-            this.PlanetaryGravityWells = GlobalStats.PlanetaryGravityWells;
-            this.WarpInSystem = GlobalStats.WarpInSystem;
+            this.MinimumWarpRange              = GlobalStats.MinimumWarpRange;
+            this.MemoryLimiter                 = GlobalStats.MemoryLimiter;
+            this.TurnTimer                     = (byte)GlobalStats.TurnTimer;
+            this.preventFederations            = GlobalStats.PreventFederations;
+            this.GravityWellRange              = GlobalStats.GravityWellRange;
+            this.mode                          = mode;
+            this.numOpponents                  = numOpponents;
+            this.ExtraPlanets                  = GlobalStats.ExtraPlanets;
+            this.StartingPlanetRichness        = GlobalStats.StartingPlanetRichness;
+            this.PlanetaryGravityWells         = GlobalStats.PlanetaryGravityWells;
+            this.WarpInSystem                  = GlobalStats.WarpInSystem;
 
             string str = DateTime.Now.ToString("M/d/yyyy");
             DateTime now = DateTime.Now;

@@ -8,7 +8,6 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Fasterflect;
 
 namespace Ship_Game
 {
@@ -221,8 +220,8 @@ namespace Ship_Game
                             if (fleet.Ships.Count == 0)
                                 fleet.Position += new Vector2(RandomMath.RandomBetween(-3000f, 3000f), RandomMath.RandomBetween(-3000f, 3000f));
 
-                            var ship = beingBuilt.DeepClone();
-                            current.SetShip(ship);
+                            var ship = beingBuilt.Clone();
+                            current.Ship = ship;
                             fleet.AddShip(ship);
                             current.GoalGUID = Guid.Empty;
 
@@ -412,8 +411,7 @@ namespace Ship_Game
                             Goal = this,
                             Cost = ResourceManager.TroopsDict[this.ToBuildUID].GetCost()
                         });
-                    else
-                        System.Diagnostics.Debug.WriteLine(string.Concat("Missing Troop "));
+                    else Log.Info("Missing Troop ");
                     this.Step = 1;
 
                     break;

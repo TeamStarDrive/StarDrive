@@ -2,34 +2,35 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
 	public abstract class GameplayObject
 	{
-		public bool Active = true;
-		protected SolarSystem system; // @todo This has to be lowercase due to serialization... sigh. Can we change it??
-        [XmlIgnore]
-        public SolarSystem System { get { return system; } protected set { system = value; } }
         public static GraphicsDevice device;
-		public Vector2 Center;
-	    protected Cue dieCue;
-	    public bool isInDeepSpace = true;
+        public static AudioListener audioListener { get; set; }
 
-		public static AudioListener audioListener { get; set; }
-		public bool CollidedThisFrame { get; set; }
-	    public Vector2 Dimensions { get; set; }
-		public float Health { get; set; }
-		public GameplayObject LastDamagedBy { get; set; }
-	    public float Mass { get; set; } = 1f;
-	    public Vector2 Position { get; set; }
-		public float Radius { get; set; } = 1f;
-	    public float Rotation { get; set; }
-	    public Vector2 Velocity { get; set; } = Vector2.Zero;
+        [XmlIgnore][JsonIgnore] public bool Active = true;
+        [XmlIgnore][JsonIgnore] protected Cue dieCue;
+        [XmlIgnore][JsonIgnore] public SolarSystem System;
 
-	    protected GameplayObject()
+        [Serialize(0)] public Vector2 Position;
+        [Serialize(1)] public Vector2 Center;
+        [Serialize(2)] public Vector2 Velocity;
+        [Serialize(3)] public float Rotation;
+
+        [Serialize(4)] public Vector2 Dimensions;
+        [Serialize(5)] public float Radius = 1f;
+        [Serialize(6)] public float Mass = 1f;
+        [Serialize(7)] public float Health;
+        [Serialize(8)] public bool isInDeepSpace = true;
+
+        [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
+        [XmlIgnore][JsonIgnore] public bool CollidedThisFrame;
+
+        protected GameplayObject()
 		{
 		}
 

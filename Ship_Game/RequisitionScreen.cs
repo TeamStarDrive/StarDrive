@@ -47,11 +47,11 @@ namespace Ship_Game
 			{
 				foreach (FleetDataNode node in this.f.DataNodes)
 				{
-					if (!(node.ShipName == ship.Name) || node.GetShip() != null)
+					if (node.ShipName != ship.Name || node.Ship!= null)
 					{
 						continue;
 					}
-					node.SetShip(ship);
+					node.Ship = ship;
 					ship.RelativeFleetOffset = node.FleetOffset;
 					ship.fleet = this.f;
 					this.f.AddShip(ship);
@@ -71,11 +71,11 @@ namespace Ship_Game
 										while (enumerator2.MoveNext())
 										{
 											FleetDataNode sqnode = enumerator2.Current;
-											if (sqnode.GetShip() != null || !(sqnode.ShipName == ship.Name))
+											if (sqnode.Ship!= null || !(sqnode.ShipName == ship.Name))
 											{
 												continue;
 											}
-											sqnode.SetShip(ship);
+											sqnode.Ship = ship;
 										}
 									}
 									finally
@@ -110,7 +110,7 @@ namespace Ship_Game
 		{
 			foreach (FleetDataNode node in this.f.DataNodes)
 			{
-				if (node.GetShip() != null)
+				if (node.Ship!= null)
 				{
 					continue;
 				}
@@ -136,7 +136,7 @@ namespace Ship_Game
 			int actualnumber = 0;
 			foreach (FleetDataNode node in this.f.DataNodes)
 			{
-				if (node.GetShip() == null)
+				if (node.Ship== null)
 				{
 					continue;
 				}
@@ -149,7 +149,7 @@ namespace Ship_Game
 			float cost = 0f;
 			foreach (FleetDataNode node in this.f.DataNodes)
 			{
-				cost = (node.GetShip() == null ? cost + ResourceManager.ShipsDict[node.ShipName].GetCost(this.f.Owner) : cost + node.GetShip().GetCost(this.f.Owner));
+				cost = (node.Ship== null ? cost + ResourceManager.ShipsDict[node.ShipName].GetCost(this.f.Owner) : cost + node.Ship.GetCost(this.f.Owner));
 			}
 			this.DrawStat("Total Production Cost:", (int)cost, ref this.Cursor);
 			this.Cursor.Y = this.Cursor.Y + 20f;
@@ -305,7 +305,7 @@ namespace Ship_Game
 			{
 				foreach (FleetDataNode node in this.f.DataNodes)
 				{
-					if (!(node.ShipName == ship.Name) || node.GetShip() != null)
+					if (!(node.ShipName == ship.Name) || node.Ship!= null)
 					{
 						continue;
 					}

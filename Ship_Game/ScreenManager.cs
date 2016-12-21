@@ -81,7 +81,6 @@ namespace Ship_Game
 			if (graphicsDeviceService?.GraphicsDevice != null)
 				screen.LoadContent();
 			screens.Add(screen);
-
 		}
 
 		public void AddScreenNoLoad(GameScreen screen)
@@ -201,7 +200,7 @@ namespace Ship_Game
 			screensToUpdate.Clear();
 			foreach (GameScreen screen in screens)
 			{
-				this.screensToUpdate.Add(screen);
+				screensToUpdate.Add(screen);
 			}
 			bool otherScreenHasFocus = !Game1.Instance.IsActive;
 			bool coveredByOtherScreen = false;

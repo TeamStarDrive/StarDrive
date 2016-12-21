@@ -906,6 +906,11 @@ namespace Ship_Game.Gameplay
             };
         }
 
+        public Ship Clone()
+        {
+            return (Ship)MemberwiseClone();
+        }
+
         public float GetCost(Empire e)
         {
             if (this.shipData.HasFixedCost)
@@ -969,7 +974,7 @@ namespace Ship_Game.Gameplay
 
         public void AddGood(string UID, int Amount)
         {
-            //System.Diagnostics.Debug.WriteLine("AddGood {0}: {1}", UID, Amount);
+            //Log.Info("AddGood {0}: {1}", UID, Amount);
             if (this.CargoDict.ContainsKey(UID))
             {
                 Dictionary<string, float> dictionary;
@@ -2036,7 +2041,7 @@ namespace Ship_Game.Gameplay
             this.shipInitialized = true;
             this.RecalculateMaxHP();            //Fix for Ship Max health being greater than all modules combined (those damned haphazard engineers). -Gretman
 
-            if (this.VanityName == "MerCraft") global::System.Diagnostics.Debug.WriteLine("Health from InitializeFromSave is:  " + this.HealthMax);
+            if (this.VanityName == "MerCraft") Log.Info("Health from InitializeFromSave is:  " + this.HealthMax);
         }
 
         public override void Initialize()
@@ -2878,8 +2883,7 @@ namespace Ship_Game.Gameplay
                 moduleSlot.SetParent(this);
                 if (!ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
                 {
-                    global::System.Diagnostics.Debug.WriteLine("Ship {0} init failed, module {1} doesn't exist",
-                                                        Name, moduleSlot.InstalledModuleUID);
+                    Log.Warning("Ship {0} init failed, module {1} doesn't exist", Name, moduleSlot.InstalledModuleUID);
                     return false;
                 }
 
@@ -2906,7 +2910,7 @@ namespace Ship_Game.Gameplay
             //else 
             //if (this.FTLmodifier < 1.0 && this.system != null && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed() - 1 ))
             //{
-            //    if (this.VanityName == "MerCraft") System.Diagnostics.Debug.WriteLine("Break Hyperspace because of FTL Mod.  " + this.velocityMaximum + "  :  " + this.GetSTLSpeed());
+            //    if (this.VanityName == "MerCraft") Log.Info("Break Hyperspace because of FTL Mod.  " + this.velocityMaximum + "  :  " + this.GetSTLSpeed());
             //    this.HyperspaceReturn();      //This section commented out because it was causing ships ot not be able ot warp at all if the FTL modifier was anything less than 1.0 -Gretman
             //}
             if (ScuttleTimer > -1.0 || ScuttleTimer <-1.0)
@@ -3114,24 +3118,28 @@ namespace Ship_Game.Gameplay
                     //this.Velocity.Length(); //Pretty sure this return value is a useless waste of 0.00012 CPU cycles... -Gretman
                     //Ship ship2 = this;
                     //Vector2 vector2_1 = this.Position + this.Velocity * elapsedTime;
-                    this.Position += this.Velocity * elapsedTime;
+                    Position += Velocity * elapsedTime;
                     //Ship ship3 = this;
                     //Vector2 vector2_2 = this.Center + this.Velocity * elapsedTime;
-                    this.Center += this.Velocity * elapsedTime;
-                    this.UpdateShipStatus(elapsedTime);
-                    if (!this.Active)
+                    Center += Velocity * elapsedTime;
+                    UpdateShipStatus(elapsedTime);
+                    if (!Active)
                         return;
-                    if (!this.disabled && !Ship.universeScreen.Paused) //this.hasCommand &&
-                        this.AI.Update(elapsedTime);
-                    if (this.InFrustum)
+                    if (!disabled && !Empire.Universe.Paused) //this.hasCommand &&
+                        AI.Update(elapsedTime);
+                    if (InFrustum)
                     {
-                        if (this.ShipSO == null)
+                        if (ShipSO == null)
                             return;
-                        this.ShipSO.World = Matrix.Identity * Matrix.CreateRotationY(this.yRotation) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(new Vector3(this.Center, 0.0f));
-                        if (this.shipData.Animated && this.animationController != null)
+                        ShipSO.World = Matrix.Identity 
+                            * Matrix.CreateRotationY(yRotation) 
+                            * Matrix.CreateRotationZ(Rotation) 
+                            * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+
+                        if (shipData.Animated && animationController != null)
                         {
-                            this.ShipSO.SkinBones = this.animationController.SkinnedBoneTransforms;
-                            this.animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
+                            ShipSO.SkinBones = animationController.SkinnedBoneTransforms;
+                            animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                         }
                         else if (this.shipData != null && this.animationController != null && this.shipData.Animated)
                         {
@@ -3730,10 +3738,9 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-                catch 
+                catch (Exception ex)
                 {
-
-                    global::System.Diagnostics.Debug.WriteLine("Inhibitor blew up");
+                    Log.Exception(ex, "Inhibitor blew up");
                 }
                 this.inSensorRange = false;
                 if (Ship.universeScreen.Debug || this.loyalty == Ship.universeScreen.player || this.loyalty != Ship.universeScreen.player && Ship.universeScreen.player.GetRelations(loyalty).Treaty_Alliance)
@@ -3796,16 +3803,18 @@ namespace Ship_Game.Gameplay
                 //Repair
                 if (this.Health < this.HealthMax)
                 {
-                    this.shipStatusChanged = true;
-					if (!this.InCombat || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair)
+                    shipStatusChanged = true;
+					if (!InCombat || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair)
                     {
                         //Added by McShooterz: Priority repair
-                        float repairTracker = this.InCombat ? this.RepairRate * 0.1f : this.RepairRate;
-                        IEnumerable<ModuleSlot> damagedModules = this.ModuleSlotList.Where(moduleSlot => moduleSlot.module.ModuleType != ShipModuleType.Dummy && moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                        float repairTracker = InCombat ? RepairRate * 0.1f : RepairRate;
+                        var damagedModules = ModuleSlotList
+                            .Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax)
+                            .OrderBy(moduleSlot => moduleSlot.module.ModulePriority);
                         foreach (ModuleSlot moduleSlot in damagedModules)
                         {
                             //if destroyed do not repair in combat
-                            if (this.InCombat && moduleSlot.module.Health < 1)
+                            if (InCombat && moduleSlot.module.Health < 1)
                                 continue;
                             if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
                             {
@@ -4398,7 +4407,7 @@ namespace Ship_Game.Gameplay
 #if DEBUG
 
                 //if( this.BaseStrength ==0 && (this.Weapons.Count >0 ))
-                    //System.Diagnostics.Debug.WriteLine("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
+                    //Log.Info("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
 
 #endif
                 if (!slot.module.isDummy && (this.BaseStrength == -1 ||( slot.module.Powered && slot.module.Active )))
@@ -4648,7 +4657,7 @@ namespace Ship_Game.Gameplay
                     float junkScale   = radSqrt * 0.05f; // trial and error, depends on junk model sizes
                     if (junkScale > 1.4f) junkScale = 1.4f; // bigger doesn't look good
 
-                    //System.Diagnostics.Debug.WriteLine("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
+                    //Log.Info("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
                     SpaceJunk.SpawnJunk(explosionJunk, Center, System, this, Radius/4, junkScale);
                 }
             }
@@ -4747,8 +4756,8 @@ namespace Ship_Game.Gameplay
             this.fleet.Ships.Remove(this);
             foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.fleet.DataNodes)
             {
-                if (fleetDataNode.GetShip() == this)
-                    fleetDataNode.SetShip((Ship)null);
+                if (fleetDataNode.Ship== this)
+                    fleetDataNode.Ship = (Ship)null;
             }
             foreach (List<Fleet.Squad> list in this.fleet.AllFlanks)
             {
@@ -4758,8 +4767,8 @@ namespace Ship_Game.Gameplay
                         squad.Ships.QueuePendingRemoval(this);
                     foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)squad.DataNodes)
                     {
-                        if (fleetDataNode.GetShip() == this)
-                            fleetDataNode.SetShip((Ship)null);
+                        if (fleetDataNode.Ship== this)
+                            fleetDataNode.Ship = (Ship)null;
                     }
                 }
             }
@@ -4936,7 +4945,7 @@ namespace Ship_Game.Gameplay
 
         public void RecalculateMaxHP()          //Added so ships would get the benefit of +HP mods from research and/or artifacts.   -Gretman
         {
-            if (VanityName == "MerCraft") global::System.Diagnostics.Debug.WriteLine("Health was " + Health + " / " + HealthMax + "   (" + loyalty.data.Traits.ModHpModifier + ")");
+            if (VanityName == "MerCraft") Log.Info("Health was " + Health + " / " + HealthMax + "   (" + loyalty.data.Traits.ModHpModifier + ")");
             this.HealthMax = 0;
             foreach (ModuleSlot slot in ModuleSlotList)
             {
@@ -4952,7 +4961,7 @@ namespace Ship_Game.Gameplay
                 HealthMax += slot.module.HealthMax;
             }
             if (Health >= HealthMax) Health = HealthMax;
-            if (VanityName == "MerCraft") global::System.Diagnostics.Debug.WriteLine("Health is  " + Health + " / " + HealthMax);
+            if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);
         }
 
     }

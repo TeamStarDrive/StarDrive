@@ -35,11 +35,7 @@ namespace Ship_Game.Gameplay
 
 		private Ship Parent;
 
-		public ShipModule module
-		{
-			get;
-			set;
-		}
+        public ShipModule module;
 
 		public ModuleSlot()
 		{

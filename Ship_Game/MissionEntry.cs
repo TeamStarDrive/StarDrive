@@ -55,7 +55,7 @@ namespace Ship_Game
 			if (this.Available)
 			{
 				this.DoMission.Rect = new Rectangle(smallmoney.X + 50, (int)Cursor.Y - 1, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_80px"].Height);
-				this.DoMission.DrawLowRes(ScreenManager.SpriteBatch);
+				this.DoMission.DrawLight(ScreenManager.SpriteBatch);
 			}
 			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2((float)clickRect.X, (float)(clickRect.Y + clickRect.Height)), new Vector2((float)(clickRect.X + clickRect.Width), (float)(clickRect.Y + clickRect.Height)), Color.OrangeRed);
 		}
@@ -66,7 +66,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(this.DoMission.Rect, input.CursorPosition))
 				{
-					this.DoMission.State = UIButton.PressState.Normal;
+					this.DoMission.State = UIButton.PressState.Default;
 				}
 				else
 				{
@@ -94,7 +94,7 @@ namespace Ship_Game
             {
                 if (!HelperFunctions.CheckIntersection(this.DoMission.Rect, input.CursorPosition))
                 {
-                    this.DoMission.State = UIButton.PressState.Normal;
+                    this.DoMission.State = UIButton.PressState.Default;
 
                 }
                 else

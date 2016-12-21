@@ -1,14 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Ship_Game;
 using System;
-using System.Collections;
-using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
@@ -139,7 +134,7 @@ namespace Ship_Game.Gameplay
         public GameplayObject fireTarget;
         public float TargetChangeTimer;
         public bool PrimaryTarget = false;
-        [XmlIgnore]
+        [XmlIgnore][JsonIgnore]
         public List<ModuleSlot> AttackerTargetting;// = new List<ModuleSlot>();
 
 		public static AudioListener audioListener { get; set; }
