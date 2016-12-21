@@ -57,7 +57,7 @@ namespace Ship_Game
             this.ExtraRemnant                  = extraRemnant;
             this.FTLModifier                   = GlobalStats.FTLInSystemModifier;
             this.EnemyFTLModifier              = GlobalStats.EnemyFTLInSystemModifier;
-            this.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+            this.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             this.MinimumWarpRange              = GlobalStats.MinimumWarpRange;
             this.MemoryLimiter                 = GlobalStats.MemoryLimiter;
             this.TurnTimer                     = (byte)GlobalStats.TurnTimer;

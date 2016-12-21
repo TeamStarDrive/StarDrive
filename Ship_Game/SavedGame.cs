@@ -68,7 +68,7 @@ namespace Ship_Game
             SaveData.EliminationMode     = GlobalStats.EliminationMode;
 			SaveData.EmpireDataList      = new List<EmpireSaveData>();
 			SaveData.SolarSystemDataList = new List<SolarSystemSaveData>();
-            SaveData.OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+            SaveData.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             
 
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
@@ -920,7 +920,7 @@ namespace Ship_Game
 			[Serialize(23)] public bool GravityWells;
 			[Serialize(24)] public RandomEvent RandomEvent;
 			[Serialize(25)] public SerializableDictionary<string, SerializableDictionary<int, Snapshot>> Snapshots;
-            [Serialize(26)] public float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+            [Serialize(26)] public float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             [Serialize(27)] public float MinimumWarpRange = GlobalStats.MinimumWarpRange;
             [Serialize(28)] public float MemoryLimiter    = GlobalStats.MemoryLimiter;
             [Serialize(29)] public int IconSize;
