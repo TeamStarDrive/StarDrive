@@ -9,12 +9,10 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using System.Diagnostics;
 
 namespace Ship_Game
 {
@@ -250,7 +248,6 @@ namespace Ship_Game
                 rebels.AddRelation(key);                
                 
             }
-
             foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
             {
                 solarSystem.ExploredDict.Add(rebels, false);
@@ -265,52 +262,6 @@ namespace Ship_Game
                 s.loyalty = rebels;
                 rebels.AddShip(s);
             }
-
-            // @todo Should we remove this part during future dead code removal?
-            //clear out empires ships from ship dictionary
-            //List<string> shipkill = new List<string>();
-            //HashSet<string> model =  new HashSet<string>();
-            //foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
-            //{
-            //    if (ship.Value.shipData.ShipStyle == this.data.Traits.ShipType)
-            //    {
-            //        bool killSwitch = true;
-            //        foreach (Empire ebuild in EmpireManager.EmpireList)
-            //        {
-            //            if (ebuild == this)
-            //                continue;
-            //            if (ebuild.ShipsWeCanBuild.Contains(ship.Key))
-            //            {    
-            //                killSwitch = false;
-            //                model.Add(ship.Value.shipData.Hull);
-            //                break;
-            //            }
-            //        }
-            //        if (killSwitch)
-            //            foreach (Ship mship in universeScreen.MasterShipList)
-            //            {
-            //                if (ship.Key == mship.Name)
-            //                {
-            //                    killSwitch = false;
-            //                    model.Add(ship.Value.shipData.Hull);
-            //                    break;
-            //                }
-            //            }
-            //        if (killSwitch)
-            //            shipkill.Add(ship.Key);
-            //    }
-            //}
-            //foreach (string shiptoclear in shipkill)
-            //{
-            //    ResourceManager.ShipsDict.Remove(shiptoclear);
-            //}
-            //clear out hull models too.
-            //foreach(string hull in this.GetHDict().Keys)
-            //{
-            //    if (model.Contains(hull))
-            //        continue;
-            //    ResourceManager.ModelDict.Remove(ResourceManager.HullsDict[hull].ModelPath);
-            //}
             OwnedShips.Clear();
             data.AgentList.Clear();
         }

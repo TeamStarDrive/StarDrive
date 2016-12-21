@@ -452,7 +452,7 @@ namespace Ship_Game
             return cb;
         }
 
-        public override unsafe void LoadContent()
+        public override void LoadContent()
         {
             base.LoadContent();
             MainOptionsRect = new Rectangle(R.X + 20, R.Y + 175, 300, 375);
@@ -465,7 +465,7 @@ namespace Ship_Game
 
             GamespeedCap        = BindCheckbox(ref pos, 30f, () => GlobalStats.LimitSpeed,          title: 2206, tooltip: 2205);
             ForceFullSim        = BindCheckbox(ref pos, 30f, () => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
-            pauseOnNotification = BindCheckbox(ref pos, 30f, () => GlobalStats.PauseOnNotification, title:6007, tooltip: 7004);
+            pauseOnNotification = BindCheckbox(ref pos, 30f, () => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
             KeyboardArc         = BindCheckbox(ref pos, 30f, () => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
             LockZoom            = BindCheckbox(ref pos, 30f, () => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
 

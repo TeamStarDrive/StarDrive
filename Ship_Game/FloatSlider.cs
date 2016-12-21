@@ -9,25 +9,15 @@ namespace Ship_Game
 	public sealed class FloatSlider
 	{
 		public Rectangle rect;
-
 		public Rectangle ContainerRect;
-
 		public bool Hover;
-
 		public string Text = "";
-
 		public float amount = 0.5f;
-
 		public Rectangle cursor;
-
 		public int Tip_ID;
-
 		private Rectangle redRect;
-
 		private Rectangle greenRect;
-
 		private bool dragging;
-
         private float bottom;
         private float top ;
         public float amountRange;
