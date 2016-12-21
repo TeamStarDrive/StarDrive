@@ -15,7 +15,6 @@ using System.Xml.Serialization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Fasterflect;
 using Microsoft.Xna.Framework.Media;
 
 namespace Ship_Game
@@ -45,7 +44,6 @@ namespace Ship_Game
         public static Dictionary<string, DiplomacyDialog> DDDict         = new Dictionary<string, DiplomacyDialog>();
         public static Dictionary<string, LocalizationFile> LanguageDict  = new Dictionary<string, LocalizationFile>();
 
-        public static LocalizationFile LanguageFile                      = new LocalizationFile();
         public static Dictionary<string, Artifact> ArtifactsDict         = new Dictionary<string, Artifact>();
         public static Dictionary<string, ExplorationEvent> EventsDict    = new Dictionary<string, ExplorationEvent>();
         public static List<Texture2D> BigNebulas                         = new List<Texture2D>();
@@ -58,6 +56,7 @@ namespace Ship_Game
         public static XmlSerializer HeaderSerializer                     = new XmlSerializer(typeof(HeaderData));
         public static XmlSerializer ModSerializer                        = new XmlSerializer(typeof(ModInformation));
         public static Dictionary<string, Model> ModelDict                = new Dictionary<string, Model>();
+        public static Dictionary<string, SkinnedModel> SkinnedModels     = new Dictionary<string, SkinnedModel>();
         public static Dictionary<string, ShipData> HullsDict             = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 
         public static List<KeyValuePair<string, Texture2D>> FlagTextures = new List<KeyValuePair<string, Texture2D>>();
@@ -75,7 +74,6 @@ namespace Ship_Game
 
         public static Dictionary<string, EconomicResearchStrategy> EconStrats = new Dictionary<string, EconomicResearchStrategy>();
 
-        public static int OffSet;
         private static RacialTraits RacialTraits;
         private static DiplomaticTraits DiplomacyTraits;
 
@@ -196,9 +194,9 @@ namespace Ship_Game
 
             }
 
-            System.Diagnostics.Debug.WriteLine("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
-            foreach (string purger in purge)
-                System.Diagnostics.Debug.WriteLine("These are Designs" + purger);
+            //Log.Info("Designs Bad: " + purge.Count + " : ShipDesigns OK : " + x);
+            //foreach (string purger in purge)
+            //    Log.Info("These are Designs" + purger);
         }
 
 
@@ -235,14 +233,75 @@ namespace Ship_Game
             throw e;
         }
 
-        
-
-        public static void Initialize(ContentManager c)
+        public static void LoadItAll()
         {
             WhichModPath = "Content";
-            LoadItAll();
+            Log.Info("LoadItAll {0}", WhichModPath);
+            LoadLanguage();
+            LoadTroops();
+            LoadTextures();
+            LoadToolTips();
+            LoadHullData();
+            LoadWeapons();
+            LoadShipModules();
+            LoadGoods();
+            LoadShips();
+            LoadJunk();
+            LoadAsteroids();
+            LoadProjTexts();
+            LoadBuildings();
+            LoadProjectileMeshes();
+            LoadTechTree();
+            LoadRandomItems();
+            LoadFlagTextures();
+            LoadNebulas();
+            LoadSmallStars();
+            LoadMediumStars();
+            LoadLargeStars();
+            LoadEmpires();
+            LoadDialogs();
+            LoadEncounters();
+            LoadExpEvents();
+            LoadArtifacts();
+            LoadShipRoles();
+            LoadPlanetEdicts();
+            LoadEconomicResearchStrats();
+            //Ship_Game.ResourceManager.MarkShipDesignsUnlockable();
+            HelperFunctions.CollectMemory();
         }
-        
+
+        public static void LoadMods(string modPath)
+        {
+            WhichModPath = modPath;
+            Log.Info("LoadMods {0}", WhichModPath);
+            LoadLanguage();
+            LoadTroops();
+            LoadTextures();
+            LoadToolTips();
+            LoadHullData();
+            LoadWeapons();
+            LoadShipModules();
+            LoadGoods();
+            LoadBuildings();
+            LoadTechTree();
+            LoadFlagTextures();
+            LoadModdedEmpires();
+            LoadDialogs();
+            LoadEncounters();
+            LoadExpEvents();
+            LoadArtifacts();
+            LoadShips();
+            LoadRandomItems();
+            LoadProjTexts();
+            LoadModsProjectileMeshes();
+            LoadBlackboxSpecific();
+            LoadShipRoles();
+            LoadPlanetEdicts();
+            LoadEconomicResearchStrats();
+            HelperFunctions.CollectMemory();
+        }
+
+
         // Added by RedFox: only deseralize to ref entity IF the file exists
         private static bool DeserializeIfExists<T>(string contentFolder, string file, ref T entity) where T : class
         {
@@ -352,12 +411,12 @@ namespace Ship_Game
 
             Ship ship = new Ship
             {
-                shipData = template.shipData,
-                Name = template.Name,
+                shipData     = template.shipData,
+                Name         = template.Name,
                 BaseStrength = template.BaseStrength,
-                BaseCanWarp = template.BaseCanWarp,
-                loyalty = owner,
-                Position = position
+                BaseCanWarp  = template.BaseCanWarp,
+                loyalty      = owner,
+                Position     = position
             };
 
             if (!template.shipData.Animated)
@@ -381,11 +440,11 @@ namespace Ship_Game
             {
                 ModuleSlot newSlot = new ModuleSlot();
                 newSlot.SetParent(ship);
-                newSlot.SlotOptions = slot.SlotOptions;
+                newSlot.SlotOptions  = slot.SlotOptions;
                 newSlot.Restrictions = slot.Restrictions;
                 newSlot.Position = slot.Position;
-                newSlot.facing = slot.facing;
-                newSlot.state = slot.state;
+                newSlot.facing   = slot.facing;
+                newSlot.state    = slot.state;
                 newSlot.InstalledModuleUID = slot.InstalledModuleUID;
                 ship.ModuleSlotList.Add(newSlot);
             }
@@ -525,7 +584,7 @@ namespace Ship_Game
             DeleteShipFromDir("Content/StarterShips", shipName);
             DeleteShipFromDir("Content/SavedDesigns", shipName);
 
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appData = Dir.ApplicationData;
             DeleteShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/StarDrive/WIP", shipName);
 
@@ -658,22 +717,7 @@ namespace Ship_Game
         public static RacialTraits RaceTraits => RacialTraits ?? LoadRaceTraits();
         private static RacialTraits LoadRaceTraits()
         {
-            if (null == DeserializeModOrContent("/RacialTraits/RacialTraits.xml", "GetRaceTraits", out RacialTraits))
-                return null;
-            foreach (RacialTrait trait in RacialTraits.TraitList)
-            {
-                if (Localizer.LocalizerDict.ContainsKey(trait.TraitName + OffSet))
-                {
-                    trait.TraitName += OffSet;
-                    Localizer.used[trait.TraitName] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(trait.Description + OffSet))
-                {
-                    trait.Description += OffSet;
-                    Localizer.used[trait.Description] = true;
-                }
-            }
-            return RacialTraits;
+            return DeserializeModOrContent("/RacialTraits/RacialTraits.xml", "GetRaceTraits", out RacialTraits);
         }
 
 
@@ -697,7 +741,10 @@ namespace Ship_Game
 
         public static SkinnedModel GetSkinnedModel(string path)
         {
-            return ContentManager.Load<SkinnedModel>(path);
+            if (SkinnedModels.TryGetValue(path, out SkinnedModel model))
+                return model;
+            // allow this to throw an exception on load error
+            return SkinnedModels[path] = ContentManager.Load<SkinnedModel>(path);
         }
 
         // Refactored by RedFox, gets a new weapon instance based on weapon UID
@@ -721,7 +768,7 @@ namespace Ship_Game
         // advice is temporary and only sticks around while loading
         public static string LoadRandomAdvice()
         {
-            string adviceFile = "/Advice/"+GlobalStats.Config.Language+"/Advice.xml";
+            string adviceFile = "/Advice/"+GlobalStats.Language+"/Advice.xml";
 
             List<string> adviceList = null;
             if (DeserializeIfExists(WhichModPath, adviceFile, ref adviceList)
@@ -738,8 +785,6 @@ namespace Ship_Game
             {
                 foreach (Artifact art in arts)
                 {
-                    art.DescriptionIndex += OffSet;
-                    art.NameIndex += OffSet;
                     art.Name = string.Intern(art.Name);
                     ArtifactsDict[art.Name] = art;
                 }
@@ -751,37 +796,13 @@ namespace Ship_Game
             foreach (var kv in LoadEntitiesWithInfo<Building>("/Buildings", "LoadBuildings"))
             {
                 Building newB = kv.Value;
-                try
-                {
-                    if (Localizer.LocalizerDict.ContainsKey(newB.DescriptionIndex + OffSet))
-                    {
-                        newB.DescriptionIndex += OffSet;
-                        Localizer.used[newB.DescriptionIndex] = true;
-                    }
-                    if (Localizer.LocalizerDict.ContainsKey(newB.NameTranslationIndex + OffSet))
-                    {
-                        newB.NameTranslationIndex += OffSet;
-                        Localizer.used[newB.NameTranslationIndex] = true;
-                    }
-                    if (Localizer.LocalizerDict.ContainsKey(newB.ShortDescriptionIndex + OffSet))
-                    {
-                        newB.ShortDescriptionIndex += OffSet;
-                        Localizer.used[newB.ShortDescriptionIndex] = true;
-                    }
-
-                    BuildingsDict[string.Intern(newB.Name)] = newB;
-                }
-                catch (NullReferenceException ex)
-                {
-                    ex.Data["Building Lookup"] = newB.Name;
-                    ReportLoadingError(kv.Key, "LoadBuildings", ex);
-                }
+                BuildingsDict[string.Intern(newB.Name)] = newB;
             }
         }
 
         private static void LoadDialogs() // Refactored by RedFox
         {
-            string dir = "/DiplomacyDialogs/" + GlobalStats.Config.Language + "/";
+            string dir = "/DiplomacyDialogs/" + GlobalStats.Language + "/";
             foreach (var kv in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
             {
                 string nameNoExt = kv.Key.NameNoExt();
@@ -792,12 +813,7 @@ namespace Ship_Game
         public static void LoadEmpires() // Refactored by RedFox
         {
             Empires.Clear();
-            foreach (var empireData in LoadEntities<EmpireData>("/Races", "LoadEmpires"))
-            {
-                empireData.TroopDescriptionIndex += OffSet; // @todo Is += correct here? Old version had =+
-                empireData.TroopNameIndex += OffSet;
-                Empires.Add(empireData);
-            }
+            Empires.AddRange(LoadEntities<EmpireData>("/Races", "LoadEmpires"));
         }
 
         public static void LoadEncounters() // Refactored by RedFox
@@ -882,42 +898,6 @@ namespace Ship_Game
             return retList;
         }
 
-        private static void LoadItAll()
-        {
-            OffSet = 0;
-            LoadLanguage();
-            LoadTroops();
-            LoadTextures();
-            LoadToolTips();
-            LoadHullData();
-            LoadWeapons();
-            LoadShipModules();
-            LoadGoods();
-            LoadShips();
-            LoadJunk();
-            LoadAsteroids();
-            LoadProjTexts();
-            LoadBuildings();
-            LoadProjectileMeshes();
-            LoadTechTree();
-            LoadRandomItems();
-            LoadFlagTextures();
-            LoadNebulas();
-            LoadSmallStars();
-            LoadMediumStars();
-            LoadLargeStars();
-            LoadEmpires();
-            LoadDialogs();
-            LoadEncounters();
-            LoadExpEvents();
-            LoadArtifacts();			
-            LoadShipRoles();
-            LoadPlanetEdicts();
-            LoadEconomicResearchStrats();
-            //Ship_Game.ResourceManager.MarkShipDesignsUnlockable();
-            
-        }
-
         public static Model GetJunkModel(int idx)
         {
             return JunkModels[idx];
@@ -969,24 +949,20 @@ namespace Ship_Game
         private static void LoadLanguage() // Refactored by RedFox
         {
             foreach (var localization in LoadEntities<LocalizationFile>("/Localization/English/", "LoadLanguage"))
-            {
-                LanguageFile = localization;
-            }
-            Localizer.FillLocalizer();
+                Localizer.AddTokens(localization.TokenList);
 
-            if (GlobalStats.Config.Language != "English")
+            // load extra tokens from Config Language
+            if (GlobalStats.NotEnglish)
             {
-                foreach (var localization in LoadEntities<LocalizationFile>("/Localization/" + GlobalStats.Config.Language + "/", "LoadLanguage"))
-                {
-                    LanguageFile = localization;
-                }
+                foreach (var localization in LoadEntities<LocalizationFile>("/Localization/" + GlobalStats.Language + "/", "LoadLanguage"))
+                    Localizer.AddTokens(localization.TokenList);
             }
-            Localizer.FillLocalizer();
+            //Log.Info(ConsoleColor.DarkYellow, " === Localizer Total Memory: {0}KB === ", Localizer.CountBytesUsed() / 1024);
         }
 
         private static void LoadLargeStars() // Refactored by RedFox
         {
-            foreach (FileInfo info in Dir.GetFilesNoThumbs("Content/LargeStars"))
+            foreach (FileInfo info in Dir.GetFiles("Content/LargeStars", "xnb"))
             {
                 try
                 {
@@ -1002,7 +978,7 @@ namespace Ship_Game
 
         private static void LoadMediumStars() // Refactored by RedFox
         {
-            foreach (FileInfo info in Dir.GetFilesNoThumbs("Content/MediumStars"))
+            foreach (FileInfo info in Dir.GetFiles("Content/MediumStars", "xnb"))
             {
                 try
                 {
@@ -1020,56 +996,11 @@ namespace Ship_Game
         {
             foreach (var empireData in LoadEntities<EmpireData>("/Races", "LoadModdedEmpires"))
             {
-                if (Localizer.LocalizerDict.ContainsKey(empireData.TroopDescriptionIndex + OffSet))
-                {
-                    empireData.TroopDescriptionIndex += OffSet;
-                    Localizer.used[empireData.TroopDescriptionIndex] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(empireData.TroopNameIndex + OffSet))
-                {
-                    empireData.TroopNameIndex += OffSet;
-                    Localizer.used[empireData.TroopNameIndex] = true;
-                }
-
                 int index = Empires.FindIndex(x => x.PortraitName == empireData.PortraitName);
                 if (index == -1) Empires.Add(empireData);
                 else             Empires[index] = empireData;
             }
         }
-
-        public static void LoadMods(string modPath)
-        {		
-            WhichModPath = modPath;
-            OffSet = modPath == "Mods/SD_Extended" ? 0 : 32000;
-            LoadLanguage();
-            LoadTroops();
-            LoadTextures();
-            LoadToolTips();
-            LoadHullData();
-            LoadWeapons();
-            LoadShipModules();
-            LoadGoods();
-            LoadBuildings();
-            LoadTechTree();
-            LoadFlagTextures();
-            LoadModdedEmpires();
-            LoadDialogs();
-            LoadEncounters();
-            LoadExpEvents();
-            LoadArtifacts();		
-            LoadShips();
-            LoadRandomItems();
-            LoadProjTexts();
-            LoadModsProjectileMeshes();
-            LoadBlackboxSpecific();
-            LoadShipRoles();
-            LoadPlanetEdicts();
-            LoadEconomicResearchStrats();
-
-            Localizer.cleanLocalizer();
-            OffSet = 0;
-        }
-
 
         // Refactored by RedFox
         private static void LoadNebulas()
@@ -1094,12 +1025,10 @@ namespace Ship_Game
                 ProjectileMeshDict[nameNoExt]  = projModel.Meshes[0];
                 ProjectileModelDict[nameNoExt] = projModel;
             }
-            catch (Exception e) when (e.HResult == -2146233088)
-            {
-                return;
-            }
             catch (Exception e)
             {
+                if (e.HResult == -2146233088)
+                    return;
                 ReportLoadingError(fullPath, "LoadProjectile", e);
             }
         }
@@ -1155,17 +1084,6 @@ namespace Ship_Game
                     continue;
                 ShipModule_Deserialize data = kv.Value;
 
-                if (Localizer.LocalizerDict.ContainsKey(data.DescriptionIndex + OffSet))
-                {
-                    data.DescriptionIndex += (ushort)OffSet;
-                    Localizer.used[data.DescriptionIndex] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(data.NameIndex + OffSet))
-                {
-                    data.NameIndex += (ushort)OffSet;
-                    Localizer.used[data.NameIndex] = true;
-                }
-                
                 data.UID = string.Intern(kv.Key.NameNoExt());
                 data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
@@ -1178,7 +1096,7 @@ namespace Ship_Game
 
             #if DEBUG
                 if (ShipModulesDict.ContainsKey(data.UID))
-                    System.Diagnostics.Debug.WriteLine("ShipModule UID already found. Conflicting name:  {0}", data.UID);
+                    Log.Info("ShipModule UID already found. Conflicting name:  {0}", data.UID);
             #endif
                 ShipModulesDict[data.UID] = data.ConvertToShipModule();
             }
@@ -1240,7 +1158,7 @@ namespace Ship_Game
             foreach (Ship ship in LoadShipsFromDirectory(WhichModPath + "/SavedDesigns"))
                 ship.reserved = true;
 
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appData = Dir.ApplicationData;
             foreach (Ship ship in LoadShipsFromDirectory(appData + "/StarDrive/Saved Designs"))
                 ship.IsPlayerDesign = true;
 
@@ -1404,30 +1322,6 @@ namespace Ship_Game
             foreach (var kv in LoadEntitiesWithInfo<Technology>("/Technology", "LoadTechTree"))
             {
                 var tech = kv.Value;
-                if (Localizer.LocalizerDict.ContainsKey(tech.DescriptionIndex + OffSet))
-                {
-                    tech.DescriptionIndex += OffSet;
-                    Localizer.used[tech.DescriptionIndex] = true;
-                }
-                if (Localizer.LocalizerDict.ContainsKey(tech.NameIndex + OffSet))
-                {
-                    tech.NameIndex += OffSet;
-                    Localizer.used[tech.NameIndex] = true;
-                }
-                foreach (Technology.UnlockedBonus bonus in tech.BonusUnlocked)
-                {
-                    if (Localizer.LocalizerDict.ContainsKey(bonus.BonusIndex + OffSet))
-                    {
-                        bonus.BonusIndex += OffSet;
-                        Localizer.used[bonus.BonusIndex] = true;
-                    }
-                    if (Localizer.LocalizerDict.ContainsKey(bonus.BonusNameIndex + OffSet))
-                    {
-                        bonus.BonusNameIndex += OffSet;
-                        Localizer.used[bonus.BonusNameIndex] = true;
-                    }
-                }
-
                 tech.UID = string.Intern(kv.Key.NameNoExt());
                 TechTree[tech.UID] = tech;
 
@@ -1515,32 +1409,69 @@ namespace Ship_Game
             }
         }
 
+
+        // Gets a loaded texture using the given abstract texture path
+        public static Texture2D Texture(string texturePath)
+        {
+            return TextureDict[texturePath];
+        }
+        private static void AddTexture(string relativePath, Texture2D tex)
+        {
+            string texName = relativePath.Substring("Textures/".Length);
+            lock (TextureDict)
+            {
+                TextureDict[texName] = tex;
+            }
+        }
+
         // This method is a hot path during Loading and accounts for ~25% of time spent
         private static void LoadTextures()
         {
             ContentManager content = ContentManager;
 
-            string rootDir = WhichModPath != "Content" ? "../"+WhichModPath+"/Textures/" : "Textures/";
+            string contentRoot = content.RootDirectory;
+
+            if (WhichModPath == "Content") // not a mod
+            {
+                Parallel.ForEach(Dir.GetFiles(WhichModPath + "/Textures", "xnb"), info =>
+                {
+                    string relPath = info.PathNoExt().Substring(contentRoot.Length + 1).Replace('\\', '/');
+                    // 90% of this methods time is spent inside content::Load
+                    AddTexture(relPath, content.Load<Texture2D>(relPath));
+                });
+                return;
+            }
+
+            // The logic is way easier if we just separate Mod loading.
+            contentRoot = Path.GetFullPath(contentRoot + "\\..\\" + WhichModPath);
             Parallel.ForEach(Dir.GetFiles(WhichModPath + "/Textures", "xnb"), info =>
             {
-                string nameNoExt = info.NameNoExt();
-                string directory = info.Directory?.Name ?? "";
-                string loadPath = $"{rootDir}{(directory == "Textures" ? "" : directory + '/')}{nameNoExt}";
-
-                // 90% of this methods time is spent inside content::Load
-                Texture2D tex = content.Load<Texture2D>(loadPath);
-
-                lock (TextureDict)
-                {
-                    TextureDict[directory + "/" + nameNoExt] = tex;
-                }
+                string relPath = info.PathNoExt().Substring(contentRoot.Length + 1).Replace('\\', '/');
+                AddTexture(relPath, content.Load<Texture2D>($"../{WhichModPath}/{relPath}"));
             });
         }
 
-        // Gets a loaded texture using the given abstract texture path
-        public static Texture2D GetTexture(string texturePath)
+        // Load texture with its abstract path such as
+        // "Explosions/smaller/shipExplosion"
+        public static Texture2D LoadTexture(string textureName)
         {
-            return TextureDict[texturePath];
+            // first check mod texture path
+            if (TextureDict.TryGetValue(textureName, out Texture2D tex))
+                return tex;
+
+            if (WhichModPath != "Content") // if we have a mod enabled, try loading from modpath first
+            {
+                string modTexPath = WhichModPath+"/Textures/"+textureName;
+                if (File.Exists(modTexPath+".xnb"))
+                    return TextureDict[textureName] = ContentManager.Load<Texture2D>("../" + modTexPath);
+            }
+
+            // fall back to /Content/ regardless
+            if (File.Exists("Content/Textures/"+textureName+".xnb"))
+                return TextureDict[textureName] = 
+                    ContentManager.Load<Texture2D>("Textures/"+textureName);
+
+            return null;
         }
 
         private static void LoadToolTips()
@@ -1590,20 +1521,6 @@ namespace Ship_Game
         {
             foreach (var shipRole in LoadEntities<ShipRole>("/ShipRoles", "LoadShipRoles"))
             {
-                if (Localizer.LocalizerDict.ContainsKey(shipRole.Localization + OffSet))
-                {
-                    shipRole.Localization += OffSet;
-                    Localizer.used[shipRole.Localization] = true;
-                }
-
-                foreach (var race in shipRole.RaceList)
-                {
-                    if (!Localizer.LocalizerDict.ContainsKey(race.Localization + OffSet))
-                        continue;
-                    race.Localization += OffSet;
-                    Localizer.used[race.Localization] = true;
-                }
-
                 Enum.TryParse(shipRole.Name, out ShipData.RoleName key);
                 ShipRoles[key] = shipRole;
             }
@@ -1636,7 +1553,7 @@ namespace Ship_Game
             DeserializeIfExists(WhichModPath, "/AgentMissions/AgentMissionData.xml", ref AgentMissionData);
             DeserializeIfExists(WhichModPath, "/MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
 
-            foreach (FileInfo info in Dir.GetFilesNoThumbs(WhichModPath + "/SoundEffects"))
+            foreach (FileInfo info in Dir.GetFiles(WhichModPath + "/SoundEffects", "xnb"))
             {
                 string nameNoExt = info.NameNoExt();
                 SoundEffect se = ContentManager.Load<SoundEffect>("..\\" + WhichModPath + "\\SoundEffects\\" + nameNoExt);

@@ -112,8 +112,6 @@ namespace Ship_Game
 
         protected UIButton ClearTraits;
 
-		protected List<UIButton> Buttons = new List<UIButton>();
-
 		private int numOpponents = 7;
 
 		protected RacialTrait tipped;
@@ -443,11 +441,7 @@ namespace Ship_Game
 
 		private bool CheckKey(Keys theKey)
 		{
-			if (!this.lastKeyboardState.IsKeyDown(theKey))
-			{
-				return false;
-			}
-			return this.currentKeyboardState.IsKeyUp(theKey);
+		    return lastKeyboardState.IsKeyDown(theKey) && this.currentKeyboardState.IsKeyUp(theKey);
 		}
 
         public void Dispose()
@@ -460,22 +454,17 @@ namespace Ship_Game
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    if (this.traitsSL != null)
-                        this.traitsSL.Dispose();
-                    if (this.RaceArchetypeSL != null)
-                        this.RaceArchetypeSL.Dispose();
-                    if (this.DescriptionSL != null)
-                        this.DescriptionSL.Dispose();
-                }
-                this.traitsSL = null;
-                this.RaceArchetypeSL = null;
-                this.DescriptionSL = null;
-                this.disposed = true;
+                traitsSL?.Dispose();
+                RaceArchetypeSL?.Dispose();
+                DescriptionSL?.Dispose();
             }
+            this.traitsSL = null;
+            this.RaceArchetypeSL = null;
+            this.DescriptionSL = null;
+            this.disposed = true;
         }
 
 		protected void DoRaceDescription()
@@ -496,15 +485,13 @@ namespace Ship_Game
 				RaceDesignScreen raceDesignScreen2 = this;
 				raceDesignScreen2.rd = string.Concat(raceDesignScreen2.rd, this.Plural, Localizer.Token(1301));
 			}
-			if (this.RaceSummary.Aquatic <= 0)
+			if (RaceSummary.Aquatic <= 0)
 			{
-				RaceDesignScreen raceDesignScreen3 = this;
-				raceDesignScreen3.rd = string.Concat(raceDesignScreen3.rd, Localizer.Token(1304));
+                rd = rd + Localizer.Token(1304);
 			}
 			else
 			{
-				RaceDesignScreen raceDesignScreen4 = this;
-				raceDesignScreen4.rd = string.Concat(raceDesignScreen4.rd, Localizer.Token(1303));
+                rd = rd + Localizer.Token(1303);
 			}
 			if (this.RaceSummary.Cybernetic <= 0)
 			{
@@ -983,7 +970,7 @@ namespace Ship_Game
 			this.Name.Draw();
 			Color c = new Color(255, 239, 208);
 			this.NameSub.Draw();
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), this.RaceNamePos, Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), this.RaceNamePos, Color.BurlyWood);
 			Vector2 rpos = this.RaceNamePos;
 			rpos.X = rpos.X + 205f;
 			if (!this.RaceName.HandlingInput)
@@ -997,7 +984,7 @@ namespace Ship_Game
 			this.RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
 			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
 			rpos.X = rpos.X + 205f;
 			if (!this.SingEntry.HandlingInput)
 			{
@@ -1010,7 +997,7 @@ namespace Ship_Game
 			this.SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
 			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
 			rpos.X = rpos.X + 205f;
 			if (!this.PlurEntry.HandlingInput)
 			{
@@ -1023,7 +1010,7 @@ namespace Ship_Game
 			this.PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(this.PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
 			rpos.X = this.RaceNamePos.X;
 			rpos.Y = rpos.Y + (float)(Fonts.Arial14Bold.LineSpacing + 2);
-			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" || GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "French" ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
+			base.ScreenManager.SpriteBatch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
 			rpos.X = rpos.X + 205f;
 			if (!this.HomeSystemEntry.HandlingInput)
 			{
@@ -1330,7 +1317,7 @@ namespace Ship_Game
             {
                 if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
                 {
-                    b.State = UIButton.PressState.Normal;
+                    b.State = UIButton.PressState.Default;
                 }
                 else
                 {
@@ -1711,7 +1698,7 @@ namespace Ship_Game
             {
                 if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
                 {
-                    b.State = UIButton.PressState.Normal;
+                    b.State = UIButton.PressState.Default;
                 }
                 else
                 {
@@ -2302,11 +2289,11 @@ namespace Ship_Game
 			this.Traits.AddTab(Localizer.Token(20));
 			this.Traits.AddTab(Localizer.Token(21));
 			int size = 55;
-			if (GlobalStats.Config.Language != "German" && base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+			if (GlobalStats.NotGerman && base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				size = 65;
 			}
-			if (GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{
 				size = 70;
 			}
@@ -2829,7 +2816,6 @@ namespace Ship_Game
 
         public enum StarNum
         {
-
             VeryRare,
             Rare,
             Uncommon,

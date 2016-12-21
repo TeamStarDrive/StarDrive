@@ -8,7 +8,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Xml.Serialization;
-using Fasterflect;
 using static System.Math;
 
 namespace Ship_Game
@@ -85,7 +84,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+				string appData = Dir.ApplicationData;
 				info = new FileInfo(appData + "/StarDrive/Fleet Designs/" + designPath);
 			}
 			var serializer1 = new XmlSerializer(typeof(FleetDesign));
@@ -110,7 +109,7 @@ namespace Ship_Game
                 {
                     Ship s = ResourceManager.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
                     s.RelativeFleetOffset = node.FleetOffset;
-                    node.SetShip(s);
+                    node.Ship = s;
                     fleet.AddShip(s);
                 }
             return fleet;
@@ -146,7 +145,7 @@ namespace Ship_Game
 				    compress.Write(buffer, 0, bytesRead = inFile.Read(buffer, 0, buffer.Length));
                 } while (bytesRead == buffer.Length);
 
-				Console.WriteLine("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
+                Log.Info("Compressed {0} from {1} to {2} bytes.", fi.Name, fi.Length, outFile.Length);
 			}
 		}
 
@@ -163,7 +162,7 @@ namespace Ship_Game
                 int numRead;
 				while ((numRead = decompress.Read(buffer, 0, buffer.Length)) > 0)
 					outFile.Write(buffer, 0, numRead);
-				Console.WriteLine("Decompressed: {0}", fi.Name);
+				Log.Info("Decompressed: {0}", fi.Name);
 				return origName;
 			}
 		}
@@ -231,16 +230,6 @@ namespace Ship_Game
 		public static Vector2 FindVectorToTarget(Vector2 origin, Vector2 target)
 		{
 			return Vector2.Normalize(target - origin);
-		}
-
-		public static FileInfo[] GetFilesFromDirectory(string dirPath)
-		{
-			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.TopDirectoryOnly);
-		}
-
-		public static FileInfo[] GetFilesFromDirectoryAndSubs(string dirPath)
-		{
-			return (new DirectoryInfo(dirPath)).GetFiles("*.*", SearchOption.AllDirectories);
 		}
 
 		public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)
@@ -350,9 +339,9 @@ namespace Ship_Game
 		}
 
         // Added by McShooterz: module repair priority list
-        public static int ModulePriority(ShipModule ShipModule)
+        public static int ModulePriority(ShipModule shipModule)
         {
-            switch (ShipModule.ModuleType)
+            switch (shipModule.ModuleType)
             {
                 case ShipModuleType.Command:      return 0;
                 case ShipModuleType.PowerPlant:   return 1;
@@ -363,5 +352,23 @@ namespace Ship_Game
                 default:                          return 5;
             }
         }
-	}
+
+        // Added by RedFox: blocking full blown GC to reduce memory fragmentation
+        public static void CollectMemory()
+        {
+            // the GetTotalMemory full collection loop is pretty good, so we use it instead of GC.Collect()
+
+            Log.Info(ConsoleColor.DarkYellow, " ========= CollectMemory ========= ");
+            float before = GC.GetTotalMemory(false) / (1024f * 1024f);
+            float after  = GC.GetTotalMemory(forceFullCollection: true) / (1024f * 1024f);
+            Log.Info(ConsoleColor.DarkYellow, "   Before: {0:0.0}MB  After: {1:0.0}MB", before, after);
+            Log.Info(ConsoleColor.DarkYellow, " ================================= ");
+        }
+
+        public static void CollectMemorySilent()
+        {
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        }
+    }
 }

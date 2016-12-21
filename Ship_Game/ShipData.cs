@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 using System.Xml.Serialization;
-using Fasterflect;
 
 namespace Ship_Game
 {
     public sealed class ShipData
     {
-        [XmlIgnore]
-        public int ID;
+        [XmlIgnore][JsonIgnore]
+        public int Id;
 
         public bool Animated;
         public string ShipStyle;
@@ -39,8 +39,8 @@ namespace Ship_Game
         public Category ShipCategory = Category.Unclassified;
 
         // @todo This lookup is expensive and never changes once initialized, find a way to initialize this properly
-        public RoleName HullRole => ResourceManager.HullsDict.TryGetValue(Hull, out ShipData role) ? role.Role : Role;
-        public ShipData HullData => ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : null;
+        [XmlIgnore][JsonIgnore] public RoleName HullRole => ResourceManager.HullsDict.TryGetValue(Hull, out ShipData role) ? role.Role : Role;
+        [XmlIgnore][JsonIgnore] public ShipData HullData => ResourceManager.HullsDict.TryGetValue(Hull, out ShipData hull) ? hull : null;
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
@@ -53,6 +53,7 @@ namespace Ship_Game
         //public HashSet<string> EmpiresThatCanUseThis = new HashSet<string>();
         public HashSet<string> techsNeeded = new HashSet<string>();
         public int TechScore;
+
         //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         private static readonly string[] CategoryArray = typeof(Category).GetEnumNames();

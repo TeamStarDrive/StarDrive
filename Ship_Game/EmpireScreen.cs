@@ -173,7 +173,7 @@ namespace Ship_Game
 			Vector2 PNameCursor = new Vector2((float)(PlanetIconRect.X + PlanetIconRect.Width + 5), nameCursor.Y + 20f);
 			string fmt = "0.#";
 			float amount = 80f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				amount = amount + 25f;
 			}

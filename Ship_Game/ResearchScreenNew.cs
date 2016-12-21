@@ -828,7 +828,7 @@ namespace Ship_Game
             {
                 foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[UID].LeadsTo)
                 {
-                    if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].GetTech().Secret && !EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Discovered)
+                    if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Tech.Secret && !EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Discovered)
                     {
                         continue;
                     }
@@ -839,7 +839,7 @@ namespace Ship_Game
             }
             foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[UID].LeadsTo)
             {
-                if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].GetTech().Secret && !EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Discovered)
+                if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Tech.Secret && !EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Discovered)
                 {
                     continue;
                 }

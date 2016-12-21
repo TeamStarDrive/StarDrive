@@ -2,86 +2,102 @@ using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
-	public sealed class Relationship: IDisposable
+    public sealed class TrustEntry
+    {
+        [Serialize(0)] public int TurnTimer;
+        [Serialize(1)] public int TurnsInExistence;
+        [Serialize(2)] public float TrustCost;
+        [Serialize(3)] public TrustEntryType Type;
+    }
+
+    public sealed class FearEntry
+    {
+        [Serialize(0)] public int TurnTimer;
+        [Serialize(1)] public float FearCost;
+        [Serialize(2)] public float TurnsInExistence;
+        [Serialize(3)] public TrustEntryType Type;
+    }
+
+    public sealed class FederationQuest
+    {
+        [Serialize(0)] public QuestType type;
+        [Serialize(1)] public string EnemyName;
+    }
+
+    public sealed class Relationship : IDisposable
 	{
-		public FederationQuest FedQuest;
+        [Serialize(0)] public FederationQuest FedQuest;
+        [Serialize(1)] public Posture Posture = Posture.Neutral;
+        [Serialize(2)] public string Name;
+        [Serialize(3)] public bool Known;
+        [Serialize(4)] public float IntelligenceBudget;
+        [Serialize(5)] public float IntelligencePenetration;
+        [Serialize(6)] public int turnsSinceLastContact;
+        [Serialize(7)] public bool WarnedAboutShips;
+        [Serialize(8)] public bool WarnedAboutColonizing;
+        [Serialize(9)] public int EncounterStep;
 
-		public Posture Posture = Posture.Neutral;
+        [Serialize(10)] public float Anger_FromShipsInOurBorders;
+        [Serialize(11)] public float Anger_TerritorialConflict;
+        [Serialize(12)] public float Anger_MilitaryConflict;
+        [Serialize(13)] public float Anger_DiplomaticConflict;
 
-		public string Name;
+        [Serialize(14)] public int SpiesDetected;
+        [Serialize(15)] public int TimesSpiedOnAlly;
+        [Serialize(16)] public int SpiesKilled;
+        [Serialize(17)] public float TotalAnger;
+        [Serialize(18)] public bool Treaty_OpenBorders;
+        [Serialize(19)] public bool Treaty_NAPact;
+        [Serialize(20)] public bool Treaty_Trade;
+        [Serialize(21)] public int Treaty_Trade_TurnsExisted;
+        [Serialize(22)] public bool Treaty_Alliance;
+        [Serialize(23)] public bool Treaty_Peace;
 
-		public bool Known;
+        [Serialize(24)] public int PeaceTurnsRemaining;
+        [Serialize(25)] public float Threat;
+        [Serialize(26)] public float Trust;
+        [Serialize(27)] public War ActiveWar;
+        [Serialize(28)] public List<War> WarHistory = new List<War>();
+        [Serialize(29)] public bool haveRejectedNAPact;
+        [Serialize(30)] public bool HaveRejected_TRADE;
+        [Serialize(31)] public bool haveRejectedDemandTech;
+        [Serialize(32)] public bool HaveRejected_OpenBorders;
+        [Serialize(33)] public bool HaveRejected_Alliance;
+        [Serialize(34)] public int NumberStolenClaims;
 
-		public float IntelligenceBudget;
+        [Serialize(35)] public List<Guid> StolenSystems = new List<Guid>();
+        [Serialize(36)] public bool HaveInsulted_Military;
+        [Serialize(37)] public bool HaveComplimented_Military;
+        [Serialize(38)] public bool XenoDemandedTech;
+        [Serialize(39)] public List<Guid> WarnedSystemsList = new List<Guid>();
+        [Serialize(40)] public bool HaveWarnedTwice;
+        [Serialize(41)] public bool HaveWarnedThrice;
+        [Serialize(42)] public Guid contestedSystemGuid;
 
-		public float IntelligencePenetration;
+        [JsonIgnore] private SolarSystem contestedSystem;
 
-		public int turnsSinceLastContact;
+        [Serialize(43)] public bool AtWar;
+        [Serialize(44)] public bool PreparingForWar;
+        [Serialize(45)] public WarType PreparingForWarType = WarType.ImperialistWar;
+        [Serialize(46)] public int DefenseFleet = -1;
+        [Serialize(47)] public bool HasDefenseFleet;
+        [Serialize(48)] public float InvasiveColonyPenalty;
+        [Serialize(49)] public float AggressionAgainstUsPenalty;
+        [Serialize(50)] public float InitialStrength;
+        [Serialize(51)] public int TurnsKnown;
+        [Serialize(52)] public int TurnsAbove95;
+        [Serialize(53)] public int TurnsAllied;
 
-		public bool WarnedAboutShips;
-
-		public bool WarnedAboutColonizing;
-
-		public int EncounterStep;
-
-		public float Anger_FromShipsInOurBorders;
-		public float Anger_TerritorialConflict;
-		public float Anger_MilitaryConflict;
-		public float Anger_DiplomaticConflict;
-
-		public int SpiesDetected;
-		public int TimesSpiedOnAlly;
-		public int SpiesKilled;
-		public float TotalAnger;
-		public bool Treaty_OpenBorders;
-		public bool Treaty_NAPact;
-		public bool Treaty_Trade;
-		public int Treaty_Trade_TurnsExisted;
-		public bool Treaty_Alliance;
-		public bool Treaty_Peace;
-
-		public int PeaceTurnsRemaining;
-		public float Threat;
-		public float Trust;
-		public War ActiveWar;
-		public List<War> WarHistory = new List<War>();
-		public bool haveRejectedNAPact;
-		public bool HaveRejected_TRADE;
-		public bool haveRejectedDemandTech;
-		public bool HaveRejected_OpenBorders;
-		public bool HaveRejected_Alliance;
-		public int NumberStolenClaims;
-
-		public List<Guid> StolenSystems = new List<Guid>();
-		public bool HaveInsulted_Military;
-		public bool HaveComplimented_Military;
-		public bool XenoDemandedTech;
-		public List<Guid> WarnedSystemsList = new List<Guid>();
-		public bool HaveWarnedTwice;
-		public bool HaveWarnedThrice;
-		public Guid contestedSystemGuid;
-		private SolarSystem contestedSystem;
-		public bool AtWar;
-		public bool PreparingForWar;
-		public WarType PreparingForWarType = WarType.ImperialistWar;
-		public int DefenseFleet = -1;
-		public bool HasDefenseFleet;
-		public float InvasiveColonyPenalty;
-		public float AggressionAgainstUsPenalty;
-		public float InitialStrength;
-		public int TurnsKnown;
-		public int TurnsAbove95;
-		public int TurnsAllied;
-
-		public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
-		public BatchRemovalCollection<FearEntry> FearEntries = new BatchRemovalCollection<FearEntry>();
-		public float TrustUsed;
-		public float FearUsed;
-		public float TheyOweUs;
-		public float WeOweThem;
+        [Serialize(54)] public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
+        [Serialize(55)] public BatchRemovalCollection<FearEntry> FearEntries = new BatchRemovalCollection<FearEntry>();
+        [Serialize(56)] public float TrustUsed;
+        [Serialize(57)] public float FearUsed;
+        [Serialize(58)] public float TheyOweUs;
+        [Serialize(59)] public float WeOweThem;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;

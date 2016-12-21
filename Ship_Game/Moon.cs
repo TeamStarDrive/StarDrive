@@ -1,33 +1,23 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Particle3DSample;
-using Ship_Game;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class Moon : GameplayObject
 	{
-		public float scale;
-        public int moonType;
-        public Guid orbitTarget;
-        public float OrbitRadius;
-        public float Zrotate;
-	    public float OrbitalAngle;
+        [Serialize(9)]  public float scale;
+        [Serialize(10)] public int   moonType;
+        [Serialize(11)] public Guid  orbitTarget;
+        [Serialize(12)] public float OrbitRadius;
+        [Serialize(13)] public float Zrotate;
+        [Serialize(14)] public float OrbitalAngle;
 
-	    private const float ZrotateAmount = 0.05f;
-
-        [XmlIgnore]
-		public SceneObject So;
-        [XmlIgnore]
-        private Planet OrbitPlanet;
+        [XmlIgnore][JsonIgnore] public SceneObject So;
+        [XmlIgnore][JsonIgnore] private Planet OrbitPlanet;
 
 		public Moon()
 		{
@@ -35,8 +25,7 @@ namespace Ship_Game.Gameplay
 
 		public override void Initialize()
 		{
-			base.Initialize();
-		    So = new SceneObject((ResourceManager.GetModel("Model/SpaceObjects/planet_" + moonType).Meshes)[0])
+		    So = new SceneObject(ResourceManager.GetModel("Model/SpaceObjects/planet_" + moonType).Meshes[0])
 		    {
 		        ObjectType = ObjectType.Static,
 		        Visibility = ObjectVisibility.Rendered,
@@ -47,7 +36,7 @@ namespace Ship_Game.Gameplay
 
 		public void UpdatePosition(float elapsedTime)
 		{
-            Zrotate += ZrotateAmount * elapsedTime;
+            Zrotate += 0.05f * elapsedTime;
             if (!Planet.universeScreen.Paused)
             {
                 OrbitalAngle += (float)Math.Asin(15.0 / OrbitRadius);

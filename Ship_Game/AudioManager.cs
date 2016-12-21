@@ -146,7 +146,7 @@ namespace Ship_Game
                 return;
             SoundEffectInstance sei = se.CreateInstance();
             AudioManager.audioManager.SoundEffectInstances.Add(sei);
-            sei.Volume = GlobalStats.Config.EffectsVolume * VolumeMod;
+            sei.Volume = GlobalStats.EffectsVolume * VolumeMod;
             sei.Play();
         }
 
@@ -158,7 +158,7 @@ namespace Ship_Game
             SoundEffectInstance sei = se.CreateInstance();
             AudioManager.audioManager.SoundEffectInstances.Add(sei);
             sei.Apply3D(al, ae);
-            sei.Volume = GlobalStats.Config.EffectsVolume * VolumeMod;
+            sei.Volume = GlobalStats.EffectsVolume * VolumeMod;
             sei.Play();
         }
 

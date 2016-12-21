@@ -1,39 +1,26 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using static Ship_Game.EventPopup;
 namespace Ship_Game
 {
 	public sealed class Artifact
 	{
-		public bool Discovered;
-
-		public string Name;
-
-		public string Description;
-
-		public int NameIndex;
-
-		public int DescriptionIndex;
-
-		public float ReproductionMod;
-
-		public float ShieldPenBonus;
-
-		public float FertilityMod;
-
-		public float ProductionMod;
-
-		public float GroundCombatMod;
-
-		public float ResearchMod;
-
-		public float PlusFlatMoney;
-
-		public float DiplomacyMod;
-
-		public float SensorMod;
-
-		public float ModuleHPMod;
+        [Serialize(0)] public bool Discovered;
+		[Serialize(1)] public string Name;
+		[Serialize(2)] public string Description;
+		[Serialize(3)] public int NameIndex;
+		[Serialize(4)] public int DescriptionIndex;
+		[Serialize(5)] public float ReproductionMod;
+		[Serialize(6)] public float ShieldPenBonus;
+		[Serialize(7)] public float FertilityMod;
+		[Serialize(8)] public float ProductionMod;
+		[Serialize(9)] public float GroundCombatMod;
+		[Serialize(10)] public float ResearchMod;
+		[Serialize(11)] public float PlusFlatMoney;
+		[Serialize(12)] public float DiplomacyMod;
+		[Serialize(13)] public float SensorMod;
+		[Serialize(14)] public float ModuleHPMod;
 
 
 		public Artifact()

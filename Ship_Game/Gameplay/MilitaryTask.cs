@@ -4,31 +4,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
-	public sealed class MilitaryTask: IDisposable
+	public sealed class MilitaryTask : IDisposable
 	{
-		public bool IsCoreFleetTask;
-        public bool WaitForCommand;
-        public List<Guid> HeldGoals = new List<Guid>();
-        public int Step;
-        public Guid TargetPlanetGuid = Guid.Empty;
-		public MilitaryTask.TaskType type;
-		public Vector2 AO;
-		public float AORadius;
-		public float InitialEnemyStrength;
-		public float EnemyStrength;
-		public float StartingStrength;
-		public float MinimumTaskForceStrength;
-		private Planet TargetPlanet;
-		public float TaskTimer;
-		private Empire empire;
-		public bool IsToughNut;
-		public int NeededTroopStrength;
-		private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
-		public int WhichFleet = -1;
-        private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
+        [Serialize(0)] public bool IsCoreFleetTask;
+        [Serialize(1)] public bool WaitForCommand;
+        [Serialize(2)] public List<Guid> HeldGoals = new List<Guid>();
+        [Serialize(3)] public int Step;
+        [Serialize(4)] public Guid TargetPlanetGuid = Guid.Empty;
+        [Serialize(5)] public TaskType type;
+        [Serialize(6)] public Vector2 AO;
+        [Serialize(7)] public float AORadius;
+        [Serialize(8)] public float InitialEnemyStrength;
+        [Serialize(9)] public float EnemyStrength;
+        [Serialize(10)] public float StartingStrength;
+        [Serialize(11)] public float MinimumTaskForceStrength;
+        [Serialize(12)] public float TaskTimer;
+        [Serialize(13)] public int WhichFleet = -1;
+        [Serialize(14)] public bool IsToughNut;
+        [Serialize(15)] public int NeededTroopStrength;
+
+        [XmlIgnore][JsonIgnore] private Planet TargetPlanet;
+        [XmlIgnore][JsonIgnore] private Empire empire;
+        [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][JsonIgnore] private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
 
         //This file Refactored by Gretman
 

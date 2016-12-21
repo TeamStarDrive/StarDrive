@@ -394,7 +394,7 @@ namespace Ship_Game
 
 		public void LoadContent()
 		{
-			this.cloudTexture = ResourceManager.TextureDict["Textures/clouds"];
+			this.cloudTexture = ResourceManager.TextureDict["clouds"];
 			this.cloudEffect = Ship.universeScreen.ScreenManager.Content.Load<Effect>("Effects/Clouds");
 			this.cloudEffectPosition = this.cloudEffect.Parameters["Position"];
 			int width = Ship.universeScreen.ScreenManager.GraphicsDevice.Viewport.Width;
