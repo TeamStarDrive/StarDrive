@@ -136,7 +136,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip("Multiply Global Maintenance Cost By This. SSP's Are Not Affected", base.ScreenManager);
             }
             this.OptionIncreaseShipMaintenance.HandleInput(input);
-            GlobalStats.OptionIncreaseShipMaintenance = this.OptionIncreaseShipMaintenance.amountRange;
+            GlobalStats.ShipMaintenanceMulti = this.OptionIncreaseShipMaintenance.amountRange;
             
             if (HelperFunctions.CheckIntersection(this.StartingPlanetRichness.ContainerRect, input.CursorPosition))
             {
@@ -209,7 +209,7 @@ namespace Ship_Game
             Rectangle MemoryLimiter = new Rectangle(leftRect.X + 60, leftRect.Y + 400, 270, 50);
             this.MemoryLimiter = new FloatSlider(MemoryLimiter, "Memory Limit", 150000, 300000f, GlobalStats.MemoryLimiter);
             Rectangle OptionIncreaseShipMaintenance = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 400, 270, 50);
-            this.OptionIncreaseShipMaintenance = new FloatSlider(OptionIncreaseShipMaintenance, "Increase Maintenance", 1, 10f, GlobalStats.OptionIncreaseShipMaintenance);
+            this.OptionIncreaseShipMaintenance = new FloatSlider(OptionIncreaseShipMaintenance, "Increase Maintenance", 1, 10f, GlobalStats.ShipMaintenanceMulti);
             //Added by McShooterz: slider to change time for turns
             Rectangle OptionTurnTimer = new Rectangle(leftRect.X * 2 + 60, leftRect.Y + 275, 270, 50);
             this.TurnTimer = new FloatSlider(OptionTurnTimer, "Change Turn Timer", 2f, 18f, GlobalStats.TurnTimer);
