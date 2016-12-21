@@ -15,13 +15,13 @@ namespace Ship_Game
 
 		public LoadSavedFleetDesignScreen() : base(SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
-            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Fleet Designs/");
+            this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Fleet Designs/");
         }
 
         public LoadSavedFleetDesignScreen(FleetDesignScreen caller) : base(SLMode.Load, "", "Load Saved Fleet", "Saved Fleets", 40)
         {
 			this.parentScreen = caller;
-            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Fleet Designs/");
+            this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Fleet Designs/");
         }
 
         protected override void Load()

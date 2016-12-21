@@ -3108,7 +3108,7 @@ namespace Ship_Game
             UpdateIncomes(false);
 
             // notification about empty queue
-            if (GlobalStats.ExtraNotiofications && Owner != null && Owner.isPlayer)
+            if (GlobalStats.ExtraNotifications && Owner != null && Owner.isPlayer)
             {
                 if (ConstructionQueue.Count == 0 && !queueEmptySent)
                 {

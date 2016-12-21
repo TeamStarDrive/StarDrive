@@ -218,7 +218,7 @@ namespace Ship_Game
 				this.Mark = new Rectangle(this.RightRect.X - 10, this.Housing.Y + 150, 182, 25);
 				Vector2 Text = new Vector2((float)(this.RightRect.X + 25), (float)(this.Mark.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2));
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], this.Mark, Color.White);
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					Text.X = Text.X - 9f;
 				}

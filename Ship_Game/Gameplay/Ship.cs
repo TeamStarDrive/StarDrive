@@ -3803,16 +3803,18 @@ namespace Ship_Game.Gameplay
                 //Repair
                 if (this.Health < this.HealthMax)
                 {
-                    this.shipStatusChanged = true;
-					if (!this.InCombat || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair)
+                    shipStatusChanged = true;
+					if (!InCombat || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair)
                     {
                         //Added by McShooterz: Priority repair
-                        float repairTracker = this.InCombat ? this.RepairRate * 0.1f : this.RepairRate;
-                        IEnumerable<ModuleSlot> damagedModules = this.ModuleSlotList.Where(moduleSlot => moduleSlot.module.ModuleType != ShipModuleType.Dummy && moduleSlot.module.Health < moduleSlot.module.HealthMax).OrderBy(moduleSlot => HelperFunctions.ModulePriority(moduleSlot.module)).AsEnumerable();
+                        float repairTracker = InCombat ? RepairRate * 0.1f : RepairRate;
+                        var damagedModules = ModuleSlotList
+                            .Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax)
+                            .OrderBy(moduleSlot => moduleSlot.module.ModulePriority);
                         foreach (ModuleSlot moduleSlot in damagedModules)
                         {
                             //if destroyed do not repair in combat
-                            if (this.InCombat && moduleSlot.module.Health < 1)
+                            if (InCombat && moduleSlot.module.Health < 1)
                                 continue;
                             if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
                             {

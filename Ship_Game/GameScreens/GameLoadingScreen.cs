@@ -120,9 +120,9 @@ namespace Ship_Game
             LoadingPlayer = new VideoPlayer
 			{
 				IsLooped = true,
-                Volume = GlobalStats.Config.MusicVolume
+                Volume = GlobalStats.MusicVolume
 			};
-		    SplashPlayer = new VideoPlayer {Volume = GlobalStats.Config.MusicVolume};
+		    SplashPlayer = new VideoPlayer {Volume = GlobalStats.MusicVolume};
 
             // Initialize all game resources
 		    ResourceManager.LoadItAll();

@@ -18,12 +18,12 @@ namespace Ship_Game
         public LoadSaveScreen(UniverseScreen screen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
 		{
 			this.screen = screen;
-            Path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +  "/StarDrive/Saved Games/";
+            Path = Dir.ApplicationData +  "/StarDrive/Saved Games/";
         }
 		public LoadSaveScreen(MainMenuScreen mmscreen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
         {
             this.mmscreen = mmscreen;
-            Path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/StarDrive/Saved Games/";
+            Path = Dir.ApplicationData + "/StarDrive/Saved Games/";
         }
 
         protected override void DeleteFile(object sender, EventArgs e)
