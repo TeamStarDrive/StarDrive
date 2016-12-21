@@ -297,7 +297,7 @@ namespace Ship_Game
             GlobalStats.MemoryLimiter                 = usData.MemoryLimiter;          
             GlobalStats.MinimumWarpRange              = usData.MinimumWarpRange;         
             GlobalStats.OptionIncreaseShipMaintenance = usData.OptionIncreaseShipMaintenance;            
-            GlobalStats.preventFederations            = usData.preventFederations;
+            GlobalStats.PreventFederations            = usData.preventFederations;
             GlobalStats.EliminationMode               = usData.EliminationMode;
             if (usData.TurnTimer == 0)
                 usData.TurnTimer = 5;

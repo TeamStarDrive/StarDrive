@@ -22,7 +22,7 @@ namespace Ship_Game
 
 		public RootNode(Vector2 Position, TechEntry Tech)
 		{
-			if (GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{
 				this.TitleFont = Fonts.Arial10;
 			}

@@ -84,7 +84,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+				string appData = Dir.ApplicationData;
 				info = new FileInfo(appData + "/StarDrive/Fleet Designs/" + designPath);
 			}
 			var serializer1 = new XmlSerializer(typeof(FleetDesign));
@@ -339,9 +339,9 @@ namespace Ship_Game
 		}
 
         // Added by McShooterz: module repair priority list
-        public static int ModulePriority(ShipModule ShipModule)
+        public static int ModulePriority(ShipModule shipModule)
         {
-            switch (ShipModule.ModuleType)
+            switch (shipModule.ModuleType)
             {
                 case ShipModuleType.Command:      return 0;
                 case ShipModuleType.PowerPlant:   return 1;

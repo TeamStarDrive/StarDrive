@@ -576,13 +576,13 @@ namespace Ship_Game
 					ResourceManager.LoadMods("Mods/" + config.AppSettings.Settings["ActiveMod"].Value);
 				}
 			}
-			ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
-            ScreenManager.racialMusic.SetVolume(GlobalStats.Config.MusicVolume);
-            ScreenManager.combatMusic.SetVolume(GlobalStats.Config.MusicVolume);
-			ScreenManager.weaponsCategory.SetVolume(GlobalStats.Config.EffectsVolume);
-            ScreenManager.defaultCategory.SetVolume(GlobalStats.Config.EffectsVolume *.5f);
+			ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
+            ScreenManager.racialMusic.SetVolume(GlobalStats.MusicVolume);
+            ScreenManager.combatMusic.SetVolume(GlobalStats.MusicVolume);
+			ScreenManager.weaponsCategory.SetVolume(GlobalStats.EffectsVolume);
+            ScreenManager.defaultCategory.SetVolume(GlobalStats.EffectsVolume *.5f);
 
-            if (GlobalStats.Config.EffectsVolume > 0 || GlobalStats.Config.MusicVolume > 0)
+            if (GlobalStats.EffectsVolume > 0 || GlobalStats.MusicVolume > 0)
                 ScreenManager.GlobalCategory.SetVolume(1);
             else ScreenManager.GlobalCategory.SetVolume(0);
 
@@ -631,7 +631,7 @@ namespace Ship_Game
 			}
 			else if (ScreenManager.Music == null || ScreenManager.Music != null && ScreenManager.Music.IsStopped)
 			{
-				ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
+				ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
 				ScreenManager.Music = AudioManager.GetCue("SD_Theme_Reprise_06");
 				ScreenManager.Music.Play();
 			}
@@ -695,7 +695,7 @@ namespace Ship_Game
 			{
 				WaveOut.Init(Mp3FileReader);
 #pragma warning disable CS0618 // Type or member is obsolete
-                WaveOut.Volume = GlobalStats.Config.MusicVolume;
+                WaveOut.Volume = GlobalStats.MusicVolume;
 #pragma warning restore CS0618 // Type or member is obsolete
                 WaveOut.Play();
 				WaveOut.PlaybackStopped += OnPlaybackStopped;
@@ -719,7 +719,7 @@ namespace Ship_Game
 			}
 			if (ScreenManager.Music == null || ScreenManager.Music != null && ScreenManager.Music.IsStopped)
 			{
-				ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
+				ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
 				ScreenManager.Music = AudioManager.GetCue("SD_Theme_Reprise_06");
 				ScreenManager.Music.Play();
 			}
@@ -813,7 +813,7 @@ namespace Ship_Game
 			{
 				ScreenManager.Music.Stop(AudioStopOptions.Immediate);
 				ScreenManager.Music = null;
-				ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
+				ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
 			}
 			if (GlobalStats.ActiveMod == null || string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
@@ -824,7 +824,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					ScreenManager.musicCategory.SetVolume(GlobalStats.Config.MusicVolume);
+					ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
 				}
 			}
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);

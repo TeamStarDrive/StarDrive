@@ -78,7 +78,7 @@ namespace Ship_Game
 			{
 				IsLooped = false
 			};
-            this.player.Volume = GlobalStats.Config.MusicVolume;
+            this.player.Volume = GlobalStats.MusicVolume;
 			
             this.player.Play(this.video);
 			base.ScreenManager.musicCategory.SetVolume(0f);

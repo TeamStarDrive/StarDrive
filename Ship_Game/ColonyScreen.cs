@@ -1161,7 +1161,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.ResLock.Path], this.ResLock.LockRect, Color.White);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)this.p.planetType], this.PlanetIcon, Color.White);
             float num5 = 80f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
                 num5 += 20f;
             Vector2 vector2_2 = new Vector2((float)(this.PlanetInfo.Menu.X + 20), (float)(this.PlanetInfo.Menu.Y + 45));
             this.p.Name = this.PlanetName.Text;

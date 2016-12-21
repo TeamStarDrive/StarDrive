@@ -3462,7 +3462,7 @@ namespace Ship_Game
 		private void DrawRequirement(ref Vector2 Cursor, string words, bool met)
 		{
 			float amount = 165f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanFrenchOrPolish)
 			{
 				amount = amount + 35f;
 			}
@@ -4150,7 +4150,7 @@ namespace Ship_Game
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, string tip)
 		{
 			float amount = 105f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4171,7 +4171,7 @@ namespace Ship_Game
 		private void DrawStat(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
 		{
 			float amount = 120f;  //fbedard: was 105f
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4195,7 +4195,7 @@ namespace Ship_Game
         private void DrawStatSummaryFloat(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
 		{
 			float amount = 165f;  //fbedard: was 105f
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4220,7 +4220,7 @@ namespace Ship_Game
         private void DrawStatNeutral(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 120f;  //fbedard: was 105f
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4246,7 +4246,7 @@ namespace Ship_Game
         private void DrawStatBonus(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 120f;  //fbedard: was 105f
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4272,7 +4272,7 @@ namespace Ship_Game
         private void DrawStatPC(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 120f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4297,7 +4297,7 @@ namespace Ship_Game
         private void DrawStatPCShield(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 120f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4322,7 +4322,7 @@ namespace Ship_Game
         private void DrawStatEnergy(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 105f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4347,7 +4347,7 @@ namespace Ship_Game
         private void DrawStatPropulsion(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 105f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4372,7 +4372,7 @@ namespace Ship_Game
         private void DrawStatUpkeep(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4393,7 +4393,7 @@ namespace Ship_Game
         private void DrawStatPercent(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 105f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4416,7 +4416,7 @@ namespace Ship_Game
         private void DrawStatPercentDefence(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4439,7 +4439,7 @@ namespace Ship_Game
         private void DrawStat(ref Vector2 Cursor, string words, int stat, string tip)
 		{
 			float amount = 165f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanFrenchOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4464,7 +4464,7 @@ namespace Ship_Game
 		private void DrawStat(ref Vector2 Cursor, string words, int stat, int Tooltip_ID)
 		{
 			float amount = 165f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanFrenchOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4485,7 +4485,7 @@ namespace Ship_Game
         private void DrawStatEnergy(ref Vector2 Cursor, string words, int stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4506,7 +4506,7 @@ namespace Ship_Game
         private void DrawStatDefence(ref Vector2 Cursor, string words, int stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4527,7 +4527,7 @@ namespace Ship_Game
         private void DrawStatPropulsion(ref Vector2 Cursor, string words, int stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4549,7 +4549,7 @@ namespace Ship_Game
         private void DrawStatOrdnance(ref Vector2 Cursor, string words, int stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4570,7 +4570,7 @@ namespace Ship_Game
 		private void DrawStat(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
 		{
 			float amount = 165f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanFrenchOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4590,7 +4590,7 @@ namespace Ship_Game
         private void DrawStatEnergy(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4610,7 +4610,7 @@ namespace Ship_Game
         private void DrawStatPropulsion(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4630,7 +4630,7 @@ namespace Ship_Game
         private void DrawStatOrdnance(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4650,7 +4650,7 @@ namespace Ship_Game
 		private void DrawStat105(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
 		{
 			float amount = 105f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanFrenchOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4670,7 +4670,7 @@ namespace Ship_Game
 		private void DrawStat105Bad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
 		{
 			float amount = 105f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanFrenchOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4690,7 +4690,7 @@ namespace Ship_Game
 		private void DrawStat60(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
 		{
 			float amount = 165f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanFrenchOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4715,7 +4715,7 @@ namespace Ship_Game
         private void DrawStatEnergy60(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4740,7 +4740,7 @@ namespace Ship_Game
         private void DrawStatPropulsion60(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4765,7 +4765,7 @@ namespace Ship_Game
         private void DrawStatOrdnance60(ref Vector2 Cursor, string words, float stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -4791,7 +4791,7 @@ namespace Ship_Game
 		private void DrawStatBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
 		{
 			float amount = 165f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanFrenchOrPolish)
 			{
 				amount = amount + 20f;
 			}
@@ -4811,7 +4811,7 @@ namespace Ship_Game
         private void DrawStatEnergyBad(ref Vector2 Cursor, string words, string stat, int Tooltip_ID)
         {
             float amount = 165f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "French" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanFrenchOrPolish)
             {
                 amount = amount + 20f;
             }
@@ -6572,7 +6572,7 @@ namespace Ship_Game
 					data.state = slot.state;
 				}
 			}
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			string path = Dir.ApplicationData;
 			CombatState combatState = toSave.CombatState;
 			toSave.CombatState = this.CombatState;
 			toSave.Name = name;
@@ -6672,7 +6672,7 @@ namespace Ship_Game
 					savedShip.ModuleSlotList.Add(data);
 				}
 			}
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			string path = Dir.ApplicationData;
 			Ship_Game.Gameplay.CombatState defaultstate = this.ActiveHull.CombatState;
 			savedShip.CombatState = this.CombatState;
 			string filename = string.Format("{0:yyyy-MM-dd}__{1}", DateTime.Now, this.ActiveHull.Name);

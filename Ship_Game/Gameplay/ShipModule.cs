@@ -3,13 +3,9 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
-using Ship_Game;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Lights;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 namespace Ship_Game.Gameplay
 {
     public sealed class ShipModule : GameplayObject
@@ -2480,9 +2476,27 @@ namespace Ship_Game.Gameplay
             if (!GlobalStats.ActiveModInfo.useHullBonuses)
                 return value;
 
-            if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out HullBonus mod))
+            if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
                 value += shield_power_max * mod.ShieldBonus;
             return value;
+        }
+
+        // Used for picking best repair candidate
+        public int ModulePriority
+        {
+            get
+            {
+                switch (ModuleType)
+                {
+                    case ShipModuleType.Command:      return 0;
+                    case ShipModuleType.PowerPlant:   return 1;
+                    case ShipModuleType.PowerConduit: return 2;
+                    case ShipModuleType.Engine:       return 3;
+                    case ShipModuleType.Shield:       return 4;
+                    case ShipModuleType.Armor:        return 6;
+                    default:                          return 5;
+                }
+            }
         }
 	}
 }

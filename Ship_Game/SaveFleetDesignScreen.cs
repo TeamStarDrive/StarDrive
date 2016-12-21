@@ -16,7 +16,7 @@ namespace Ship_Game
 		public SaveFleetDesignScreen(Fleet f) : base(SLMode.Save, f.Name, "Save Fleet As...", "Saved Fleets", "Saved Fleet already exists.  Overwrite?", 40)
         {
 			this.f = f;        // set save file data and starting name
-            this.Path = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "/StarDrive/Fleet Designs/");
+            this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Fleet Designs/");
         }
 
 		public override void DoSave()
