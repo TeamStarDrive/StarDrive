@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Ship_Game
@@ -37,7 +39,6 @@ namespace Ship_Game
 		private int ytoApply;
         private Checkbox pauseOnNotification;
         private FloatSlider IconSize;
-        private FloatSlider memoryLimit;
         private FloatSlider ShipLimiter;
         private FloatSlider FreighterLimiter;
         private FloatSlider AutoSaveFreq; //Added by Gretman
@@ -107,35 +108,9 @@ namespace Ship_Game
 				}
 				MainOptionsRect = new Rectangle(R.X + 20, R.Y + 175, 300, 375);
 				SecondaryOptionsRect = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width + 20, MainOptionsRect.Y, 210, 305);
-				/*GamespeedCap = new Checkbox(new Vector2((float)(MainOptionsRect.X + 20), (float)(MainOptionsRect.Y + 300)), Localizer.Token(2206), new Ref<bool>(() => GlobalStats.LimitSpeed, (bool x) => GlobalStats.LimitSpeed = x), Fonts.Arial12Bold)
-				{
-					Tip_Token = 2205
-				};
-                pauseOnNotification = new Checkbox(new Vector2((float)(MainOptionsRect.X + 20), (float)(MainOptionsRect.Y + 360)), Localizer.Token(6007), new Ref<bool>(() => GlobalStats.PauseOnNotification, (bool x) => GlobalStats.PauseOnNotification = x), Fonts.Arial12Bold)
-                {
-                    Tip_Token = 7004
-                };
-				Resolution = new OptionsScreen.Option()
-				{
-					Name = "Resolution:     ",
-					NamePosition = new Vector2((float)(MainOptionsRect.X + 20), (float)MainOptionsRect.Y)
-				};
-				string xResolution = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth.ToString();
-				string yResolution = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight.ToString();
-				xtoApply = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-				ytoApply = base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-				string reso = string.Concat(xResolution, " x ", yResolution);
-				Resolution.ClickableArea = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y, (int)Fonts.Arial20Bold.MeasureString(reso).X, Fonts.Arial20Bold.LineSpacing);
-				Resolution.Value = reso;
-				Resolution.highlighted = false;
-				FullScreen = new OptionsScreen.Option()
-				{
-					Name = "Screen Mode:     ",
-					NamePosition = new Vector2((float)(MainOptionsRect.X + 20), (float)(MainOptionsRect.Y + Fonts.Arial20Bold.LineSpacing * 2 + 2 + 20)),
-					Value = Game1.Instance.CurrentMode,
-					ClickableArea = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)FullScreen.NamePosition.Y, (int)Fonts.Arial20Bold.MeasureString(FullScreen.Value.ToString()).X, Fonts.Arial20Bold.LineSpacing)
-				};
-                 */
+
+
+
 				Rectangle ftlRect = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 65, 270, 50);
 				MusicVolumeSlider = new FloatSlider(ftlRect, "Music Volume");
 				MusicVolumeSlider.SetAmount(GlobalStats.MusicVolume);
@@ -216,11 +191,6 @@ namespace Ship_Game
 				{
 					AcceptChanges(this, EventArgs.Empty);
 				}
-                ConfigurationManager.AppSettings.Set("IconSize",GlobalStats.IconSize.ToString());
-                ConfigurationManager.AppSettings.Set("PauseOnNotification", GlobalStats.PauseOnNotification.ToString());
-                ConfigurationManager.AppSettings.Set("MemoryLimiter", GlobalStats.MemoryLimiter.ToString());
-                ConfigurationManager.AppSettings.Set("shipcountlimit", GlobalStats.ShipCountLimit.ToString());
-                ConfigurationManager.AppSettings.Set("ZoomTracking", GlobalStats.ZoomTracking.ToString());
 			}
 			catch
 			{
@@ -289,14 +259,15 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				Option reso1 = new Option();
-				//{
-					reso1.x = mode.Width;
-					reso1.y = mode.Height;
-					reso1.Name = string.Concat(reso1.x.ToString(), " x ", reso1.y.ToString());
-					reso1.NamePosition = Cursor;
-                    reso1.ClickableArea = new Rectangle((int)reso1.NamePosition.X, (int)reso1.NamePosition.Y, (int)Fonts.Arial12Bold.MeasureString(reso1.Name).X, Fonts.Arial12Bold.LineSpacing);
-				//};
+                string name = mode.Width + " x " + mode.Height;
+                Option reso1 = new Option
+			    {
+			        x = mode.Width,
+			        y = mode.Height,
+                    Name = name,
+                    NamePosition = Cursor,
+                    ClickableArea = new Rectangle((int)Cursor.X, (int)Cursor.Y, (int)Fonts.Arial12Bold.MeasureString(name).X, Fonts.Arial12Bold.LineSpacing)
+                };
 				bool oktoadd = true;
 				foreach (Option opt in ResolutionOptions)
 				{
@@ -340,29 +311,25 @@ namespace Ship_Game
 
 		public override void Draw(GameTime gameTime)
 		{
-			if (fade)
-			{
-				ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-			}
+            if (fade) ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+
 			DrawBase(gameTime);
 			ScreenManager.SpriteBatch.Begin();
 			Selector selector = new Selector(ScreenManager, MainOptionsRect, true);
 			Selector selector1 = new Selector(ScreenManager, SecondaryOptionsRect, true);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Resolution.Name, Resolution.NamePosition, new Color(255, 239, 208));
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, FullScreen.Name, FullScreen.NamePosition, new Color(255, 239, 208));
-			Vector2 valuePos = new Vector2((float)(FullScreen.ClickableArea.X + 2), (float)FullScreen.ClickableArea.Y);
-			if (!FullScreen.highlighted)
-			{
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, FullScreen.Value.ToString(), valuePos, Color.White);
-			}
-			else
-			{
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, FullScreen.Value.ToString(), valuePos, new Color(255, 239, 208));
-			}
+
+            Color uiColor = new Color(255, 239, 208);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Resolution.Name, Resolution.NamePosition, uiColor);
+			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, FullScreen.Name, FullScreen.NamePosition, uiColor);
+
+			Vector2 valuePos = new Vector2(FullScreen.ClickableArea.X + 2, FullScreen.ClickableArea.Y);
+
+            Color color = FullScreen.highlighted ? uiColor : Color.White;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, FullScreen.Value.ToString(), valuePos, color);
+
 			foreach (UIButton b in Buttons)
-			{
 				b.Draw(ScreenManager.SpriteBatch);
-			}
+
 			GamespeedCap.Draw(ScreenManager);
 			ForceFullSim.Draw(ScreenManager);
             pauseOnNotification.Draw(ScreenManager);
@@ -371,8 +338,6 @@ namespace Ship_Game
 			MusicVolumeSlider.DrawDecimal(ScreenManager);
 			EffectsVolumeSlider.DrawDecimal(ScreenManager);
             IconSize.Draw(ScreenManager);
-            memoryLimit.Draw(ScreenManager);
-            //AntiAliasingDD.Draw(base.ScreenManager.SpriteBatch);
 			ResolutionDropDown.Draw(ScreenManager.SpriteBatch);
             FreighterLimiter.Draw(ScreenManager);
             AutoSaveFreq.Draw(ScreenManager);
@@ -398,15 +363,14 @@ namespace Ship_Game
             KeyboardArc.HandleInput(input);
             LockZoom.HandleInput(input);
             IconSize.HandleInput(input);
-            GlobalStats.IconSize = (int)IconSize.amountRange;
-            memoryLimit.HandleInput(input);
-            GlobalStats.MemoryLimiter = memoryLimit.amountRange;
             ShipLimiter.HandleInput(input);
-            GlobalStats.ShipCountLimit = (int)ShipLimiter.amountRange;
             FreighterLimiter.HandleInput(input);
-            GlobalStats.FreighterLimit = (int)FreighterLimiter.amountRange;
             AutoSaveFreq.HandleInput(input);
-            GlobalStats.AutoSaveFreq = (int)AutoSaveFreq.amountRange;
+
+            GlobalStats.IconSize       = (int)IconSize.amountRange;
+            GlobalStats.ShipCountLimit = (int)ShipLimiter.amountRange;
+            GlobalStats.FreighterLimit = (int)FreighterLimiter.amountRange;
+            GlobalStats.AutoSaveFreq   = (int)AutoSaveFreq.amountRange;
 
             if (!ResolutionDropDown.Open)// && !AntiAliasingDD.Open)
 			{
@@ -419,11 +383,11 @@ namespace Ship_Game
 				GlobalStats.EffectsVolume = EffectsVolumeSlider.amount;
 				ScreenManager.weaponsCategory.SetVolume(EffectsVolumeSlider.amount);
                 ScreenManager.defaultCategory.SetVolume(EffectsVolumeSlider.amount *.5f);
-                if (EffectsVolumeSlider.amount == 0 && MusicVolumeSlider.amount == 0)
-                    ScreenManager.GlobalCategory.SetVolume(0);
-                else
+
+                if (EffectsVolumeSlider.amount > 0 || MusicVolumeSlider.amount > 0)
                     ScreenManager.GlobalCategory.SetVolume(1);
-                        
+                else
+                    ScreenManager.GlobalCategory.SetVolume(0);
 			}
 			if (!ResolutionDropDown.Open)
 			{
@@ -452,78 +416,76 @@ namespace Ship_Game
 			{
 				ExitScreen();
 			}
-			for (int i = 0; i < Buttons.Count; i++)
+			foreach (UIButton b in Buttons)
 			{
-				UIButton b = Buttons[i];
-				if (b != null)
-				{
-					if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
-					{
-						b.State = UIButton.PressState.Default;
-					}
-					else
-					{
-						b.State = UIButton.PressState.Hover;
-						if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed)
-						{
-							b.State = UIButton.PressState.Pressed;
-						}
-						if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
-						{
-							string launches = b.Launches;
-							if (launches != null && launches == "Apply Settings")
-							{
-								ApplySettings();
-							}
-						}
-					}
-				}
+			    if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
+			    {
+			        b.State = UIButton.PressState.Default;
+                    continue;
+			    }
+
+			    b.State = UIButton.PressState.Hover;
+			    if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed)
+			    {
+			        b.State = UIButton.PressState.Pressed;
+			    }
+			    if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+			    {
+			        string launches = b.Launches;
+			        if (launches != null && launches == "Apply Settings")
+			            ApplySettings();
+			    }
 			}
 			ResolutionDropDown.HandleInput(input);
 			previousMouse = input.LastMouseState;
 			base.HandleInput(input);
 		}
 
-        public override void LoadContent()
+        private static Checkbox BindCheckbox(ref Vector2 pos, float yMove, Expression<Func<bool>> binding, int title, int tooltip)
+        {
+            return BindCheckbox(ref pos, yMove, binding, Localizer.Token(title), tooltip);
+        }
+        private static Checkbox BindCheckbox(ref Vector2 pos, float yMove, Expression<Func<bool>> binding, string title, int tooltip)
+        {
+            var cb = new Checkbox(pos, title, new Ref<bool>(binding), Fonts.Arial12Bold) { Tip_Token = tooltip };
+            pos.Y += yMove;
+            return cb;
+        }
+
+        public override unsafe void LoadContent()
         {
             base.LoadContent();
             MainOptionsRect = new Rectangle(R.X + 20, R.Y + 175, 300, 375);
 
             Resolution = new Option();
             Resolution.Name = Localizer.Token(9) + ":";
-            Resolution.NamePosition = new Vector2((float)(MainOptionsRect.X + 20), (float)MainOptionsRect.Y);
+            Resolution.NamePosition = new Vector2(MainOptionsRect.X + 20, MainOptionsRect.Y);
 
-            GamespeedCap = new Checkbox(new Vector2((float)(MainOptionsRect.X + MainOptionsRect.Width + 5), (float)(Resolution.NamePosition.Y)), Localizer.Token(2206), new Ref<bool>((Func<bool>)(() => GlobalStats.LimitSpeed), (Action<bool>)(x => GlobalStats.LimitSpeed = x)), Fonts.Arial12Bold);
-            GamespeedCap.Tip_Token = 2205;
-            ForceFullSim = new Checkbox(new Vector2((float)(MainOptionsRect.X + MainOptionsRect.Width + 5), (float)(Resolution.NamePosition.Y + 30)), "Force Full Simulation", new Ref<bool>((Func<bool>)(() => GlobalStats.ForceFullSim), (Action<bool>)(x => GlobalStats.ForceFullSim = x)), Fonts.Arial12Bold);
-            ForceFullSim.Tip_Token = 5086;
-            pauseOnNotification = new Checkbox(new Vector2((float)(MainOptionsRect.X + MainOptionsRect.Width + 5), (float)(Resolution.NamePosition.Y + 60)), Localizer.Token(6007), new Ref<bool>((Func<bool>)(() => GlobalStats.PauseOnNotification), (Action<bool>)(x => GlobalStats.PauseOnNotification = x)), Fonts.Arial12Bold);
-            pauseOnNotification.Tip_Token = 7004;
+            Vector2 pos = new Vector2(MainOptionsRect.X + MainOptionsRect.Width + 5, Resolution.NamePosition.Y);
 
-            KeyboardArc = new Checkbox(new Vector2((float)(MainOptionsRect.X + MainOptionsRect.Width + 5), (float)(Resolution.NamePosition.Y + 90)), Localizer.Token(6184), new Ref<bool>((Func<bool>)(() => GlobalStats.AltArcControl), (Action<bool>)(x => GlobalStats.AltArcControl = x)), Fonts.Arial12Bold);
-            KeyboardArc.Tip_Token = 7081;
-            
-            LockZoom = new Checkbox(new Vector2((float)(MainOptionsRect.X + MainOptionsRect.Width + 5), (float)(Resolution.NamePosition.Y + 120)), Localizer.Token(6185), new Ref<bool>((Func<bool>)(() => GlobalStats.ZoomTracking), (Action<bool>)(x => GlobalStats.ZoomTracking = x)), Fonts.Arial12Bold);
-            LockZoom.Tip_Token = 7082;
+            GamespeedCap        = BindCheckbox(ref pos, 30f, () => GlobalStats.LimitSpeed,          title: 2206, tooltip: 2205);
+            ForceFullSim        = BindCheckbox(ref pos, 30f, () => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
+            pauseOnNotification = BindCheckbox(ref pos, 30f, () => GlobalStats.PauseOnNotification, title:6007, tooltip: 7004);
+            KeyboardArc         = BindCheckbox(ref pos, 30f, () => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
+            LockZoom            = BindCheckbox(ref pos, 30f, () => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
 
             SecondaryOptionsRect = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width + 20, MainOptionsRect.Y, 210, 305);
-            
-            string str1 = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth.ToString();
-            string str2 = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight.ToString();
-            startingx = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            startingy = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
 
-            xtoApply = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            ytoApply = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-            string text = str1 + " x " + str2;
-            Resolution.ClickableArea = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y, (int)Fonts.Arial20Bold.MeasureString(text).X, Fonts.Arial20Bold.LineSpacing);
-            Resolution.Value = (object)text;
+            xtoApply = startingx = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            ytoApply = startingy = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            string text = startingx + " x " + startingy;
+
+            Resolution.ClickableArea = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y, 
+                                                    (int)Fonts.Arial20Bold.MeasureString(text).X, Fonts.Arial20Bold.LineSpacing);
+            Resolution.Value = text;
             Resolution.highlighted = false;
             FullScreen = new Option();
             FullScreen.Name = Localizer.Token(10) + ":";
-            FullScreen.NamePosition = new Vector2((float)(MainOptionsRect.X + 20), (float)(MainOptionsRect.Y + Fonts.Arial20Bold.LineSpacing * 2 + 2 + 17));
+            FullScreen.NamePosition = new Vector2(MainOptionsRect.X + 20, MainOptionsRect.Y + Fonts.Arial20Bold.LineSpacing * 2 + 2 + 17);
             FullScreen.Value = GlobalStats.WindowMode.ToString();
-            FullScreen.ClickableArea = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)FullScreen.NamePosition.Y, (int)Fonts.Arial20Bold.MeasureString(FullScreen.Value.ToString()).X, Fonts.Arial20Bold.LineSpacing);
+            FullScreen.ClickableArea = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)FullScreen.NamePosition.Y, 
+                                                    (int)Fonts.Arial20Bold.MeasureString(FullScreen.Value.ToString()).X, Fonts.Arial20Bold.LineSpacing);
+
             Rectangle r = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 65, 270, 50);
             MusicVolumeSlider = new FloatSlider(r, "Music Volume");
             MusicVolumeSlider.SetAmount(GlobalStats.MusicVolume);
@@ -539,16 +501,12 @@ namespace Ship_Game
             IconSize = new FloatSlider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
 
             r = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 235, 225, 50);
-            
-            memoryLimit = new FloatSlider(r, string.Concat("Memory limit. KBs In Use: ",(int)(GC.GetTotalMemory(true)/1000f)), 150000, 300000, GlobalStats.MemoryLimiter);
-            int ships =0;
-
-            r = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 290, 225, 50);    //
             AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);      //Added by Gretman
             AutoSaveFreq.Tip_ID = 4100;                                                                      //
 
-            if (Empire.Universe != null )
-             ships= Empire.Universe.globalshipCount;
+            int ships = 0;
+            if (Empire.Universe != null ) ships= Empire.Universe.globalshipCount;
+
             r = new Rectangle(MainOptionsRect.X - 9 + MainOptionsRect.Width, (int)FullScreen.NamePosition.Y + 235, 225, 50);
             ShipLimiter = new FloatSlider(r, "All AI Ship Limit. AI Ships: "+ ships, 500, 3500, GlobalStats.ShipCountLimit);
             r = new Rectangle(MainOptionsRect.X - 9 + MainOptionsRect.Width, (int)FullScreen.NamePosition.Y + 185, 225, 50);
@@ -582,31 +540,7 @@ namespace Ship_Game
                     }
                 }
             }
-            //int qualityLevels = 0;          //Not referenced in code, removing to save memory
-            //AntiAliasingDD = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y + 26, 105, 18));
-            //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
-            //    AntiAliasingDD.AddOption("8x AA", 8);
-            //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
-            //    AntiAliasingDD.AddOption("4x AA", 4);
-            //if (GraphicsAdapter.DefaultAdapter.CheckDeviceMultiSampleType(DeviceType.Hardware, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Format, false, MultiSampleType.EightSamples, out qualityLevels))
-            //    AntiAliasingDD.AddOption("2x AA", 2);
-            //AntiAliasingDD.AddOption("No AA", 0);
-            //AntiAliasingDD.ActiveIndex = 0;
-            //switch (GlobalStats.AASamples)
-            //{
-            //    case 0:
-            //        AntiAliasingDD.ActiveIndex = 3;
-            //        break;
-            //    case 2:
-            //        AntiAliasingDD.ActiveIndex = 2;
-            //        break;
-            //    case 4:
-            //        AntiAliasingDD.ActiveIndex = 1;
-            //        break;
-            //    case 8:
-            //        AntiAliasingDD.ActiveIndex = 0;
-            //        break;
-            //}
+
             foreach (Option option in ResolutionOptions)
             {
                 if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth == option.x && ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight == option.y)

@@ -37,25 +37,23 @@ namespace Ship_Game
         public static float EnemyFTLInSystemModifier = 1f;
 
         // @todo Get rid of all global locks
-		public static object ShieldLocker = new object();
+		public static object ShieldLocker         = new object();
 		public static object ClickableSystemsLock = new object();
-		public static object SensorNodeLocker = new object();
-		public static object BorderNodeLocker = new object();
-		public static object BombLock = new object();
-		public static object ObjectManagerLocker = new object();
-		public static object ExplosionLocker = new object();
-		public static object KnownShipsLock = new object();
-		public static object AddShipLocker = new object();
-		public static object BucketLock = new object();
-		public static object OwnedPlanetsLock = new object();
-		public static object DeepSpaceLock = new object();
-		public static object WayPointLock = new object();
-		public static object ClickableItemLocker = new object();
-		public static object TaskLocker = new object();
-		public static object FleetButtonLocker = new object();
-		public static object BeamEffectLocker = new object();
-
-		public static Config Config = new Config();
+		public static object SensorNodeLocker     = new object();
+		public static object BorderNodeLocker     = new object();
+		public static object BombLock             = new object();
+		public static object ObjectManagerLocker  = new object();
+		public static object ExplosionLocker      = new object();
+		public static object KnownShipsLock       = new object();
+		public static object AddShipLocker        = new object();
+		public static object BucketLock           = new object();
+		public static object OwnedPlanetsLock     = new object();
+		public static object DeepSpaceLock        = new object();
+		public static object WayPointLock         = new object();
+		public static object ClickableItemLocker  = new object();
+		public static object TaskLocker           = new object();
+		public static object FleetButtonLocker    = new object();
+		public static object BeamEffectLocker     = new object();
 
 		public static bool ShowAllDesigns = true;
 		public static int ModulesMoved = 0;
@@ -71,7 +69,7 @@ namespace Ship_Game
 		public static bool AutoCombat = true;
 
         // Option for keyboard hotkey based arc movement
-        public static bool AltArcControl;
+        public static bool AltArcControl; // "Keyboard Fire Arc Locking"
 		public static int TimesPlayed = 0;
 		public static ModEntry ActiveMod;
 		public static ModInformation ActiveModInfo;
@@ -84,10 +82,8 @@ namespace Ship_Game
         public static bool ExtraNotifications;
         public static bool PauseOnNotification;
         public static int ExtraPlanets;
-        public static float OptionIncreaseShipMaintenance;
+        public static float ShipMaintenanceMulti;
         public static float MinimumWarpRange;
-
-        public static float MemoryLimiter;
 
         public static float StartingPlanetRichness;
         public static string ExtendedVersion = ""; 
@@ -176,20 +172,20 @@ namespace Ship_Game
 
         public static void Statreset()
         {
-            GetSetting("ExtraNotifications",            ref ExtraNotifications);
-            GetSetting("PauseOnNotification",           ref PauseOnNotification);
-            GetSetting("ExtraPlanets",                  ref ExtraPlanets);
-            GetSetting("MemoryLimiter",                 ref MemoryLimiter);
-            GetSetting("MinimumWarpRange",              ref MinimumWarpRange);
-            GetSetting("OptionIncreaseShipMaintenance", ref OptionIncreaseShipMaintenance);
-            GetSetting("IconSize",                      ref IconSize);
-            GetSetting("preventFederations",            ref PreventFederations);
-            GetSetting("shipcountlimit",                ref ShipCountLimit);
-            GetSetting("EliminationMode",               ref EliminationMode);
-            GetSetting("ZoomTracking",                  ref ZoomTracking);
-            GetSetting("TurnTimer",                     ref TurnTimer);
-            GetSetting("AltArcControl",                 ref AltArcControl);
-            GetSetting("freighterlimit",                ref FreighterLimit);
+            GetSetting("ExtraNotifications",   ref ExtraNotifications);
+            GetSetting("PauseOnNotification",  ref PauseOnNotification);
+            GetSetting("ExtraPlanets",         ref ExtraPlanets);
+            GetSetting("MinimumWarpRange",     ref MinimumWarpRange);
+            GetSetting("ShipMaintenanceMulti", ref ShipMaintenanceMulti);
+            GetSetting("IconSize",             ref IconSize);
+            GetSetting("preventFederations",   ref PreventFederations);
+            GetSetting("shipcountlimit",       ref ShipCountLimit);
+            GetSetting("EliminationMode",      ref EliminationMode);
+            GetSetting("ZoomTracking",         ref ZoomTracking);
+            GetSetting("TurnTimer",            ref TurnTimer);
+            GetSetting("AltArcControl",        ref AltArcControl);
+            GetSetting("FreighterLimit",       ref FreighterLimit);
+            GetSetting("LimitSpeed",           ref LimitSpeed);
         }
 
         public static void SaveSettings()
@@ -209,18 +205,18 @@ namespace Ship_Game
 
             WriteSetting(config, "ExtraNotifications",  ExtraNotifications);
             WriteSetting(config, "PauseOnNotification", PauseOnNotification);
-            WriteSetting(config, "ExtraPlanets",     ExtraPlanets);
-            WriteSetting(config, "MemoryLimiter",    MemoryLimiter);
-            WriteSetting(config, "MinimumWarpRange", MinimumWarpRange);
-            WriteSetting(config, "OptionIncreaseShipMaintenance", OptionIncreaseShipMaintenance);
-            WriteSetting(config, "IconSize",           IconSize);
-            WriteSetting(config, "PreventFederations", PreventFederations);
-            WriteSetting(config, "EliminationMode",    EliminationMode);
-            WriteSetting(config, "shipcountlimit", ShipCountLimit);
-            WriteSetting(config, "ZoomTracking",   ZoomTracking);
-            WriteSetting(config, "TurnTimer",      TurnTimer);
-            WriteSetting(config, "AltArcControl",  AltArcControl);
-            WriteSetting(config, "freighterlimit", FreighterLimit);
+            WriteSetting(config, "ExtraPlanets",        ExtraPlanets);
+            WriteSetting(config, "MinimumWarpRange",    MinimumWarpRange);
+            WriteSetting(config, "ShipMaintenanceMulti",ShipMaintenanceMulti);
+            WriteSetting(config, "IconSize",            IconSize);
+            WriteSetting(config, "PreventFederations",  PreventFederations);
+            WriteSetting(config, "EliminationMode",     EliminationMode);
+            WriteSetting(config, "ShipCountLimit",      ShipCountLimit);
+            WriteSetting(config, "ZoomTracking",        ZoomTracking);
+            WriteSetting(config, "TurnTimer",           TurnTimer);
+            WriteSetting(config, "AltArcControl",       AltArcControl);
+            WriteSetting(config, "FreighterLimit",      FreighterLimit);
+            WriteSetting(config, "LimitSpeed",          LimitSpeed);
 
             WriteSetting(config, "MusicVolume",   (int)(MusicVolume * 100));
             WriteSetting(config, "EffectsVolume", (int)(EffectsVolume * 100));
@@ -231,6 +227,8 @@ namespace Ship_Game
             config.Save();
             ConfigurationManager.RefreshSection("appSettings");
         }
+
+
 
         // Only assigns the ref parameter is parsing succeeds. This avoid overwriting default values
         public static bool GetSetting(string name, ref float f)
@@ -259,18 +257,23 @@ namespace Ship_Game
         }
         public static string GetSetting(string name) => ConfigurationManager.AppSettings[name];
 
+
+
         private static void WriteSetting(Configuration config, string name, float v)
         {
             WriteSetting(config, name, v.ToString(CultureInfo.InvariantCulture));
         }
         private static void WriteSetting<T>(Configuration config, string name, T v) where T : struct
         {
-            config.AppSettings.Settings[name].Value = v.ToString();
+            WriteSetting(config, name, v.ToString());
         }
         private static void WriteSetting(Configuration config, string name, string value)
         {
-            config.AppSettings.Settings[name].Value = value;
+            var setting = config.AppSettings.Settings[name];
+            if (setting != null) setting.Value = value;
+            else config.AppSettings.Settings.Add(name, value);
         }
+
 
 
         // @todo Why is this here??

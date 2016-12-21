@@ -18,38 +18,33 @@ namespace Ship_Game.Gameplay
         public BatchRemovalCollection<FleetDataNode> DataNodes = new BatchRemovalCollection<FleetDataNode>();
         public Guid guid = Guid.NewGuid();
         public string Name = "";
-        private Stack<Fleet.FleetGoal> GoalStack = new Stack<Fleet.FleetGoal>();
+        private Stack<FleetGoal> GoalStack = new Stack<FleetGoal>();
         private List<Ship> CenterShips = new List<Ship>();
-        private List<Ship> LeftShips = new List<Ship>();
-        private List<Ship> RightShips = new List<Ship>();
-        private List<Ship> RearShips = new List<Ship>();
+        private List<Ship> LeftShips   = new List<Ship>();
+        private List<Ship> RightShips  = new List<Ship>();
+        private List<Ship> RearShips   = new List<Ship>();
         private List<Ship> ScreenShips = new List<Ship>();
-        public List<Fleet.Squad> CenterFlank = new List<Fleet.Squad>();
-        public List<Fleet.Squad> LeftFlank = new List<Fleet.Squad>();
-        public List<Fleet.Squad> RightFlank = new List<Fleet.Squad>();
-        public List<Fleet.Squad> ScreenFlank = new List<Fleet.Squad>();
-        public List<Fleet.Squad> RearFlank = new List<Fleet.Squad>();
-        public List<List<Fleet.Squad>> AllFlanks = new List<List<Fleet.Squad>>();
+        public List<Squad> CenterFlank = new List<Squad>();
+        public List<Squad> LeftFlank   = new List<Squad>();
+        public List<Squad> RightFlank  = new List<Squad>();
+        public List<Squad> ScreenFlank = new List<Squad>();
+        public List<Squad> RearFlank   = new List<Squad>();
+        public List<List<Squad>> AllFlanks = new List<List<Squad>>();
         public Vector2 GoalMovePosition = new Vector2();
         private Dictionary<Vector2, List<Ship>> EnemyClumpsDict = new Dictionary<Vector2, List<Ship>>();
         private Dictionary<Ship, List<Ship>> InterceptorDict = new Dictionary<Ship, List<Ship>>();
         private int defenseTurns = 50;
         private Vector2 targetPosition = Vector2.Zero;
         public MilitaryTask Task;
-        public Fleet.FleetCombatStatus fcs;
+        public FleetCombatStatus fcs;
         public Empire Owner;
         public Vector2 Position;
         public float facing;
         public float speed;
         public int FleetIconIndex;
-        private Fleet.FleetCombatStatus CenterCS;
-        private Fleet.FleetCombatStatus ScreenCS;
-        private Fleet.FleetCombatStatus LeftCS;
-        private Fleet.FleetCombatStatus RightCS;
-        private Fleet.FleetCombatStatus RearCS;
-        private bool HasPriorityOrder;
+        //private bool HasPriorityOrder;
+        //private bool InCombat;
         public static UniverseScreen screen;
-        private bool InCombat;
         public int TaskStep;
         public bool IsCoreFleet;
         [XmlIgnore]
@@ -252,8 +247,8 @@ namespace Ship_Game.Gameplay
         public void MoveToDirectly(Vector2 MovePosition, float facing, Vector2 fVec)
         {
             this.Position = this.findAveragePosition();
-            if (this.InCombat)
-                this.HasPriorityOrder = true;
+            //if (this.InCombat)
+            //    this.HasPriorityOrder = true;
             this.GoalStack.Clear();
             this.MoveDirectlyNow(MovePosition, facing, fVec);
         }

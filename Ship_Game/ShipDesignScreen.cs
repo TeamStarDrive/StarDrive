@@ -4062,7 +4062,7 @@ namespace Ship_Game
 
             //Maintenance fluctuator
             //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
-            float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+            float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             if (OptionIncreaseShipMaintenance > 1)
             {
                 maintModReduction = OptionIncreaseShipMaintenance;
@@ -4074,8 +4074,6 @@ namespace Ship_Game
         private float GetMaintCostShipyardProportional(ShipData ship, float fCost, Empire empire)
         {
             float maint = 0f;
-            float maintModReduction = 1;
-            //string role = ship.Role;
 
             // Calculate maintenance by proportion of ship cost, Duh.
             if (ship.Role == ShipData.RoleName.fighter || ship.Role == ShipData.RoleName.scout)
@@ -4118,10 +4116,9 @@ namespace Ship_Game
                 maint *= 0.5f;
             }
 
-            if (GlobalStats.OptionIncreaseShipMaintenance > 1)
+            if (GlobalStats.ShipMaintenanceMulti > 1)
             {
-                maintModReduction = GlobalStats.OptionIncreaseShipMaintenance;
-                maint *= (float)maintModReduction;
+                maint *= GlobalStats.ShipMaintenanceMulti;
             }
             return maint;
 
