@@ -73,7 +73,7 @@ namespace Ship_Game
 			spriteBatch.DrawString(Fonts.Arial20Bold, this.p.Name, PNameCursor, new Color(255, 239, 208));
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing * 2);
 			float amount = 80f;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				amount = amount + 25f;
 			}

@@ -15,7 +15,7 @@ namespace Ship_Game.Gameplay
 
 		public Guid HangarshipGuid;
 
-		public Ship_Game.Gameplay.Restrictions Restrictions;
+		public Restrictions Restrictions;
 
 		public bool Powered;
 
@@ -35,11 +35,7 @@ namespace Ship_Game.Gameplay
 
 		private Ship Parent;
 
-		public ShipModule module
-		{
-			get;
-			set;
-		}
+        public ShipModule module;
 
 		public ModuleSlot()
 		{

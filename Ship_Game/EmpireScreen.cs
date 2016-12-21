@@ -135,7 +135,7 @@ namespace Ship_Game
 
                ~EmpireScreen() { Dispose(false); }
 
-               protected void Dispose(bool disposing)
+               private void Dispose(bool disposing)
                {
                    if (!disposed)
                    {
@@ -173,7 +173,7 @@ namespace Ship_Game
 			Vector2 PNameCursor = new Vector2((float)(PlanetIconRect.X + PlanetIconRect.Width + 5), nameCursor.Y + 20f);
 			string fmt = "0.#";
 			float amount = 80f;
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				amount = amount + 25f;
 			}
@@ -214,14 +214,14 @@ namespace Ship_Game
 			}
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-			string text = HelperFunctions.parseText(Fonts.Arial12Bold, this.SelectedPlanet.Description, (float)(PlanetInfoRect.Width - PlanetIconRect.Width + 15));
+			string text = HelperFunctions.ParseText(Fonts.Arial12Bold, this.SelectedPlanet.Description, (float)(PlanetInfoRect.Width - PlanetIconRect.Width + 15));
 			if (Fonts.Arial12Bold.MeasureString(text).Y + PNameCursor.Y <= (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 20))
 			{
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, PNameCursor, Color.White);
 			}
 			else
 			{
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.parseText(Fonts.Arial12, this.SelectedPlanet.Description, (float)(PlanetInfoRect.Width - PlanetIconRect.Width + 15)), PNameCursor, Color.White);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, HelperFunctions.ParseText(Fonts.Arial12, this.SelectedPlanet.Description, (float)(PlanetInfoRect.Width - PlanetIconRect.Width + 15)), PNameCursor, Color.White);
 			}
 			Rectangle MapRect = new Rectangle(PlanetInfoRect.X + PlanetInfoRect.Width, PlanetInfoRect.Y, e1.QueueRect.X - (PlanetInfoRect.X + PlanetInfoRect.Width), PlanetInfoRect.Height);
 			int desiredWidth = 700;
@@ -338,37 +338,37 @@ namespace Ship_Game
 			{
 				case Planet.ColonyType.Core:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(378), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(378), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Colony:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(382), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(382), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Industrial:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(379), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(379), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Research:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(381), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(381), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Agricultural:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(377), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(377), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
 				case Planet.ColonyType.Military:
 				{
-					desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+					desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(380), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
 					break;
 				}
                 case Planet.ColonyType.TradeHub:
                 {
-                    desc = HelperFunctions.parseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
+                    desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(394), (float)(GovernorRect.Width - 50 - portraitRect.Width - 25));
                     break;
                 }
 			}

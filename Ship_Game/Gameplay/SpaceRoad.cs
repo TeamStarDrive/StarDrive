@@ -37,33 +37,27 @@ namespace Ship_Game.Gameplay
                 this.NumberOfProjectors = 0;
                 return ;
             }
-			for (int i = 0; i < this.NumberOfProjectors; i++)
+			for (int i = 0; i < NumberOfProjectors; i++)
 			{
 				RoadNode node = new RoadNode();
-				float angle = HelperFunctions.findAngleToTarget(Origin.Position, Destination.Position);
-                node.Position = HelperFunctions.GeneratePointOnCircle(angle, Origin.Position, offset + (i * (float)( Distance / this.NumberOfProjectors) ));
+				float angle = Origin.Position.AngleToTarget(Destination.Position);
+                node.Position = Origin.Position.PointOnCircle(angle, offset + (i * (float)( Distance / this.NumberOfProjectors) ));
 				bool reallyAdd = true;
-                empire.BorderNodeLocker.EnterReadLock();
+                float extrad = Empire.ProjectorRadius;
+
+                using (empire.BorderNodes.AcquireReadLock())
+                foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
                 {
-                    float extrad = Empire.ProjectorRadius;
-                    foreach (Empire.InfluenceNode bordernode in empire.BorderNodes)
-                    {
-                        extrad = !(bordernode.KeyedObject is Ship) ? Empire.ProjectorRadius : 0;
+                    extrad = !(bordernode.KeyedObject is Ship) ? Empire.ProjectorRadius : 0;
                   
-                        if (Vector2.Distance(node.Position, bordernode.Position) + extrad >= bordernode.Radius)
-                        {
-                            continue;
-                        }
-                        reallyAdd = false;
-                    }
+                    if (Vector2.Distance(node.Position, bordernode.Position) + extrad >= bordernode.Radius)
+                        continue;
+                    reallyAdd = false;
                 }
-                empire.BorderNodeLocker.ExitReadLock();
+
                 if (reallyAdd)
-				{
 					this.RoadNodesList.Add(node);
-				}
 			}
-            return ;
 		}
 
 		public SolarSystem GetDestination()

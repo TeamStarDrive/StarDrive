@@ -1,241 +1,125 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Ship_Game;
 using System;
-using System.Collections;
-using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
 	public class Weapon : IDisposable
 	{
 		public bool Tag_Kinetic;
-
 		public bool Tag_Energy;
-
 		public bool Tag_Guided;
-
 		public bool Tag_Missile;
-
 		public bool Tag_Hybrid;
-
 		public bool Tag_Beam;
-
 		public bool Tag_Explosive;
-
 		public bool Tag_Intercept;
-
 		public bool Tag_Railgun;
-
 		public bool Tag_Bomb;
-
 		public bool Tag_SpaceBomb;
-
 		public bool Tag_BioWeapon;
-
 		public bool Tag_Drone;
-
 		public bool Tag_Warp;
-
 		public bool Tag_Torpedo;
-
 		public bool Tag_Cannon;
-
 		public bool Tag_Subspace;
-
 		public bool Tag_PD;
-
         // Added by The Doctor: new tags for categorisation for mods who otherwise have large numbers of items in one Shipyard menu node, also new modifiers.
-
         public bool Tag_Flak;
-
         public bool Tag_Array;
-
         public bool Tag_Tractor;
-
         // End
-
 		private Ship owner;
-
 		public GameplayObject drowner;
-
 		public float HitPoints;
-
 		public bool isBeam;
-
 		public float EffectVsArmor = 1f;
-
 		public float EffectVSShields = 1f;
-
 		public bool PlaySoundOncePerSalvo;
-
 		public int SalvoCount = 1;
-
 		public float SalvoTimer;
-
 		public bool TruePD;
-
 		public float TroopDamageChance;
-
 		public float MassDamage;
-
 		public float BombPopulationKillPerHit;
-
 		public int BombTroopDamage_Min;
-
 		public int BombTroopDamage_Max;
-
 		public int BombHardDamageMin;
-
 		public int BombHardDamageMax;
-
 		public string HardCodedAction;
-
 		public float RepulsionDamage;
-
 		public float EMPDamage;
-
 		public float ShieldPenChance;
-
 		public float PowerDamage;
-
 		public float SiphonDamage;
-
 		public int BeamThickness;
-
         public float BeamDuration=2f;
-
 		public int BeamPowerCostPerSecond;
-
 		public string BeamTexture;
-
 		public int Animated;
-
 		public int Frames;
-
 		public string AnimationPath;
-
 		public string ExpColor;
-
 		public string dieCue;
-
 		protected Cue fireCue;
-
 		public string ToggleSoundName = "";
-
 		private bool ToggleSoundOn;
-
 		private Cue ToggleCue;
-
 		public string Light;
-
 		public bool isTurret;
-
 		public bool isMainGun;
-
 		public float OrdinanceRequiredToFire;
-
 		public Vector2 Center;
-
 		public float Range;
-
 		public float DamageAmount;
-
 		public float ProjectileSpeed;
-
 		public int ProjectileCount = 1;
-
 		public int FireArc;
-
 		public int FireCone;
-
 		public string ProjectileTexturePath;
-
 		public string ModelPath;
-
 		public string WeaponType;
-
 		public string WeaponEffectType;
-
 		public string UID;
-
 		public ShipModule moduleAttachedTo;
-
 		public float timeToNextFire;
-
 		public float fireDelay;
-
 		public float PowerRequiredToFire;
-
 		public bool explodes;
-
 		public float DamageRadius;
-
 		public string fireCueName;
-
 		public string MuzzleFlash;
-
 		//private float toggleTimer;
-
 		public bool IsRepairDrone;
-
-		private BatchRemovalCollection<Weapon.Salvo> SalvoList = new BatchRemovalCollection<Weapon.Salvo>();
-
+		private BatchRemovalCollection<Salvo> SalvoList = new BatchRemovalCollection<Salvo>();
 		public bool FakeExplode;
-
 		public float ProjectileRadius = 4f;
-
 		public string Name;
-
 		public byte LoopAnimation;
-
 		public float Scale = 1f;
-
 		private float lastFireSound;
-
 		public static UniverseScreen universeScreen;
-
 		public float RotationRadsPerSecond = 2f;
-
 		private AudioEmitter planetEmitter;
-
 		public bool HitsFriendlies;
-
 		public string InFlightCue = "";
-
 		public float particleDelay;
-
         public float ECMResist;
-
         public bool Excludes_Fighters;
-
         public bool Excludes_Corvettes;
-
         public bool Excludes_Capitals;
-
         public bool Excludes_Stations;
-
         public bool isRepairBeam;
-
         public bool TerminalPhaseAttack;
-
         public float TerminalPhaseDistance;
-
         public float TerminalPhaseSpeedMod;
-
         public float ArmourPen = 0f;
-
         public string SecondaryFire;
-
         public bool AltFireMode;
-
         public bool AltFireTriggerFighter;
-
         public float OffPowerMod = 1f;
 
         //public bool ExplosionFlash;          //Not referenced in code, removing to save memory
@@ -245,19 +129,15 @@ namespace Ship_Game.Gameplay
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-        public GameplayObject SalvoTarget = null;
+        public GameplayObject SalvoTarget;
         public float ExplosionRadiusVisual = 4.5f;
-        public GameplayObject fireTarget = null;
-        public float TargetChangeTimer = 0;
+        public GameplayObject fireTarget;
+        public float TargetChangeTimer;
         public bool PrimaryTarget = false;
-        [XmlIgnore]
+        [XmlIgnore][JsonIgnore]
         public List<ModuleSlot> AttackerTargetting;// = new List<ModuleSlot>();
 
-		public static AudioListener audioListener
-		{
-			get;
-			set;
-		}
+		public static AudioListener audioListener { get; set; }
 
 		public Weapon(Ship owner, ShipModule moduleAttachedTo)
 		{
@@ -267,14 +147,24 @@ namespace Ship_Game.Gameplay
 
 		public Weapon()
 		{
-            if(GlobalStats.ActiveMod != null)
+            if(GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi !=null)
             {
-                if(GlobalStats.ActiveMod.mi !=null)
-                {
-                    this.ExplosionRadiusVisual *= GlobalStats.ActiveMod.mi.GlobalExplosionVisualIncreaser;
-                }
+                this.ExplosionRadiusVisual *= GlobalStats.ActiveMod.mi.GlobalExplosionVisualIncreaser;
             }
 		}
+
+        public Weapon Clone()
+        {
+            Weapon wep = (Weapon)MemberwiseClone();
+            wep.SalvoList = new BatchRemovalCollection<Salvo>();
+            wep.SalvoTarget = null;
+            wep.fireTarget = null;
+            wep.planetEmitter = null;
+            wep.moduleAttachedTo = null;
+            wep.owner = null;
+            wep.drowner = null;
+            return wep;
+        }
 
         private void AddModifiers(string Tag, Projectile projectile)
         {
@@ -507,7 +397,7 @@ namespace Ship_Game.Gameplay
             }
             this.moduleAttachedTo.GetParent().Beams.Add(beam);
 			this.ToggleSoundOn = false;
-			if ((this.owner.GetSystem() != null && this.owner.GetSystem().isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+			if ((this.owner.System!= null && this.owner.System.isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
                 //Added by McShooterz: Use sounds from new sound dictionary
                 if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
@@ -543,37 +433,37 @@ namespace Ship_Game.Gameplay
             {
                 Weapon AltFire = ResourceManager.GetWeapon(this.SecondaryFire);
                 Projectile projectile;
-                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
+                if (this.owner.Projectiles.TryReuseItem(out projectile))
                 {
                     projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
-                    projectile.range = AltFire.Range;
-                    projectile.weapon = this;
-                    projectile.explodes = AltFire.explodes;
-                    projectile.damageAmount = AltFire.DamageAmount;
-                    projectile.damageRadius = AltFire.DamageRadius;
-                    projectile.explosionradiusmod = AltFire.ExplosionRadiusVisual;
-                    projectile.Health = AltFire.HitPoints;
-                    projectile.speed = AltFire.ProjectileSpeed;
-                    projectile.WeaponEffectType = AltFire.WeaponEffectType;
-                    projectile.WeaponType = AltFire.WeaponType;
+                    projectile.range                 = AltFire.Range;
+                    projectile.weapon                = this;
+                    projectile.explodes              = AltFire.explodes;
+                    projectile.damageAmount          = AltFire.DamageAmount;
+                    projectile.damageRadius          = AltFire.DamageRadius;
+                    projectile.explosionradiusmod    = AltFire.ExplosionRadiusVisual;
+                    projectile.Health                = AltFire.HitPoints;
+                    projectile.speed                 = AltFire.ProjectileSpeed;
+                    projectile.WeaponEffectType      = AltFire.WeaponEffectType;
+                    projectile.WeaponType            = AltFire.WeaponType;
                     projectile.RotationRadsPerSecond = AltFire.RotationRadsPerSecond;
-                    projectile.ArmorPiercing = (byte)AltFire.ArmourPen;
+                    projectile.ArmorPiercing         = (byte)AltFire.ArmourPen;
                 }
                 else
                     projectile = new Projectile(this.owner, direction, this.moduleAttachedTo)
                     {
-                        range = AltFire.Range,
-                        weapon = this,
-                        explodes = AltFire.explodes,
-                        damageAmount = AltFire.DamageAmount,
-                        damageRadius = AltFire.DamageRadius,
-                        explosionradiusmod = AltFire.ExplosionRadiusVisual,
-                        Health = AltFire.HitPoints,
-                        speed = AltFire.ProjectileSpeed,
-                        WeaponEffectType = AltFire.WeaponEffectType,
-                        WeaponType = AltFire.WeaponType,
+                        range                 = AltFire.Range,
+                        weapon                = this,
+                        explodes              = AltFire.explodes,
+                        damageAmount          = AltFire.DamageAmount,
+                        damageRadius          = AltFire.DamageRadius,
+                        explosionradiusmod    = AltFire.ExplosionRadiusVisual,
+                        Health                = AltFire.HitPoints,
+                        speed                 = AltFire.ProjectileSpeed,
+                        WeaponEffectType      = AltFire.WeaponEffectType,
+                        WeaponType            = AltFire.WeaponType,
                         RotationRadsPerSecond = AltFire.RotationRadsPerSecond,
-                        ArmorPiercing = (byte)AltFire.ArmourPen,
+                        ArmorPiercing         = (byte)AltFire.ArmourPen,
                     };
                 //damage increase by level
                 if (this.owner.Level > 0)
@@ -603,7 +493,7 @@ namespace Ship_Game.Gameplay
                     string remainder = 0.ToString("00000.##");
                     projectile.texturePath = string.Concat(AltFire.AnimationPath, remainder);
                 }
-                //if(HelperFunctions.GetRandomIndex((int)(Ship.universeScreen.Lag *100)) <2)
+                //if(RandomMath.InRange((int)(Ship.universeScreen.Lag *100)) <2)
                 if (Weapon.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.owner.InFrustum && playSound)
                 {
                     projectile.DieSound = true;
@@ -674,7 +564,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 Projectile projectile;
-                if (this.owner.Projectiles.pendingRemovals.TryPop(out projectile))
+                if (this.owner.Projectiles.TryReuseItem(out projectile))
                 {
                     projectile.ProjectileRecreate(this.owner, direction, this.moduleAttachedTo);
                     projectile.range = this.Range;
@@ -909,47 +799,6 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		private float findAngleToTarget(Vector2 target)
-		{
-			float theta;
-			float tX = target.X;
-			float tY = target.Y;
-			float centerX = 0f;
-			float centerY = 0f;
-			float angle_to_target = 0f;
-			if (tX > centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 90f - Math.Abs(theta);
-			}
-			else if (tX > centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 90f + theta * 180f / 3.14159274f;
-			}
-			else if (tX < centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 270f - Math.Abs(theta);
-			}
-			else if (tX < centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 270f + theta * 180f / 3.14159274f;
-			}
-			else if (tX == centerX && tY < centerY)
-			{
-				angle_to_target = 0f;
-			}
-			else if (tX == centerX && tY > centerY)
-			{
-				angle_to_target = 180f;
-			}
-			return angle_to_target;
-		}
-
 		private Vector2 findTargetFromAngleAndDistance(Vector2 position, float angle, float distance)
 		{
 			float theta;
@@ -1055,7 +904,7 @@ namespace Ship_Game.Gameplay
 				return;
 			this.owner.InCombatTimer = 15f;
 
-			this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) *.016f + -.008f);
+			this.timeToNextFire = this.fireDelay + ((float)RandomMath.InRange(10) *.016f + -.008f);
 
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -1068,7 +917,7 @@ namespace Ship_Game.Gameplay
 					if (this.FireArc != 0)
 					{
 						float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 						for (int i = 0; i < this.ProjectileCount; i++)
 						{
 							Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1088,7 +937,7 @@ namespace Ship_Game.Gameplay
 					}
 					float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
                     //renamed angletotarget,newtarget,firedirection
-                    float angleToTarget2 = this.findAngleToTarget(direction);
+                    float angleToTarget2 = Vector2.Zero.AngleToTarget(direction);
 					Vector2 newTarget2 = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget2 + spread, this.Range);
 					Vector2 fireDirection2 = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget2);
 					fireDirection2.Y = fireDirection2.Y * -1f;
@@ -1111,7 +960,7 @@ namespace Ship_Game.Gameplay
 					if (this.FireArc != 0)
 					{
 						float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 						for (int i = 0; i < this.ProjectileCount; i++)
 						{
 							Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1124,7 +973,7 @@ namespace Ship_Game.Gameplay
 					if (this.FireCone > 0)
 					{
 						float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 						Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
 						Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
 						fireDirection.Y = fireDirection.Y * -1f;
@@ -1178,7 +1027,7 @@ namespace Ship_Game.Gameplay
             if (this.FireArc != 0)
             {
                 float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                float angleToTarget = this.findAngleToTarget(direction);
+                float angleToTarget = Vector2.Zero.AngleToTarget(direction);
                 for (int i = 0; i < this.ProjectileCount; i++)
                 {
                     Vector2 newTarget = this.findTargetFromAngleAndDistance(StartPos, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1207,7 +1056,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
             float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-            float angleToTarget2 = this.findAngleToTarget(direction);
+            float angleToTarget2 = Vector2.Zero.AngleToTarget(direction);
             Vector2 newTarget2 = this.findTargetFromAngleAndDistance(StartPos, angleToTarget2 + spread, this.Range);
             Vector2 fireDirection2 = this.findVectorToTarget(StartPos, newTarget2);
             fireDirection2.Y = fireDirection2.Y * -1f;
@@ -1228,7 +1077,7 @@ namespace Ship_Game.Gameplay
 				if (this.FireArc != 0)
 				{
 					float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                    float angleToTarget = this.findAngleToTarget(direction);
+                    float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 					for (int i = 0; i < this.ProjectileCount; i++)
 					{
 						Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1241,7 +1090,7 @@ namespace Ship_Game.Gameplay
 				if (this.FireCone > 0)
 				{
 					float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                    float angleToTarget = this.findAngleToTarget(direction);
+                    float angleToTarget = Vector2.Zero.AngleToTarget(direction);
 					Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
 					Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
 					fireDirection.Y = fireDirection.Y * -1f;
@@ -1268,7 +1117,7 @@ namespace Ship_Game.Gameplay
             //    return;
             //}
 			this.owner.InCombatTimer = 15f;
-            this.timeToNextFire = this.fireDelay + ((float)HelperFunctions.GetRandomIndex(10) * .016f + -.008f);
+            this.timeToNextFire = this.fireDelay + ((float)RandomMath.InRange(10) * .016f + -.008f);
             
             if (this.moduleAttachedTo.Active && this.owner.PowerCurrent > this.PowerRequiredToFire && this.OrdinanceRequiredToFire <= this.owner.Ordinance)
 			{
@@ -1318,7 +1167,7 @@ namespace Ship_Game.Gameplay
                     if (this.FireArc != 0)
                     {
                         float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
                         for (int i = 0; i < this.ProjectileCount; i++)
                         {
                             Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1338,7 +1187,7 @@ namespace Ship_Game.Gameplay
                     }
                     float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
                     //renamed angletotarget,newtarget,firedirection
-                    float angleToTarget2 = this.findAngleToTarget(direction);
+                    float angleToTarget2 = Vector2.Zero.AngleToTarget(direction);
                     Vector2 newTarget2 = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget2 + spread, this.Range);
                     Vector2 fireDirection2 = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget2);
                     fireDirection2.Y = fireDirection2.Y * -1f;
@@ -1360,7 +1209,7 @@ namespace Ship_Game.Gameplay
                     if (this.FireArc != 0)
                     {
                         float DegreesBetweenShots = (float)(this.FireArc / this.ProjectileCount);
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
                         for (int i = 0; i < this.ProjectileCount; i++)
                         {
                             Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget - (float)(this.FireArc / 2) + DegreesBetweenShots * (float)i, this.Range);
@@ -1373,7 +1222,7 @@ namespace Ship_Game.Gameplay
                     if (this.FireCone > 0)
                     {
                         float spread = RandomMath2.RandomBetween((float)(-this.FireCone / 2), (float)(this.FireCone / 2));
-                        float angleToTarget = this.findAngleToTarget(direction);
+                        float angleToTarget = Vector2.Zero.AngleToTarget(direction);
                         Vector2 newTarget = this.findTargetFromAngleAndDistance(this.moduleAttachedTo.Center, angleToTarget + spread, this.Range);
                         Vector2 fireDirection = this.findVectorToTarget(this.moduleAttachedTo.Center, newTarget);
                         fireDirection.Y = fireDirection.Y * -1f;
@@ -1412,7 +1261,7 @@ namespace Ship_Game.Gameplay
 			projectile.Initialize(this.ProjectileSpeed, direction, owner.Center);
 			projectile.Radius = this.ProjectileRadius;
 			projectile.LoadContent(this.ProjectileTexturePath, this.ModelPath);
-			if (owner.GetSystem() != null && owner.GetSystem().isVisible || owner.isInDeepSpace)
+			if (owner.System!= null && owner.System.isVisible || owner.isInDeepSpace)
 			{
 				int numberSameWeapons = 0;
 				//this.toggleTimer = 0f;

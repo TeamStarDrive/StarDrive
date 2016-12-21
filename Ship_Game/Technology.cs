@@ -23,28 +23,28 @@ namespace Ship_Game
 
 		public int DescriptionIndex;
 
-		public List<Technology.LeadsToTech> LeadsTo = new List<Technology.LeadsToTech>();
+		public List<LeadsToTech> LeadsTo = new List<LeadsToTech>();
 
-		public List<Technology.UnlockedMod> ModulesUnlocked = new List<Technology.UnlockedMod>();
+		public List<UnlockedMod> ModulesUnlocked = new List<UnlockedMod>();
 
-		public List<Technology.UnlockedBuilding> BuildingsUnlocked = new List<Technology.UnlockedBuilding>();
+		public List<UnlockedBuilding> BuildingsUnlocked = new List<UnlockedBuilding>();
 
-		public List<Technology.UnlockedBonus> BonusUnlocked = new List<Technology.UnlockedBonus>();
+		public List<UnlockedBonus> BonusUnlocked = new List<UnlockedBonus>();
 
-		public List<Technology.UnlockedTroop> TroopsUnlocked = new List<Technology.UnlockedTroop>();
+		public List<UnlockedTroop> TroopsUnlocked = new List<UnlockedTroop>();
 
-		public List<Technology.UnlockedHull> HullsUnlocked = new List<Technology.UnlockedHull>();
+		public List<UnlockedHull> HullsUnlocked = new List<UnlockedHull>();
 
-        public List<Technology.TriggeredEvent> EventsTriggered = new List<Technology.TriggeredEvent>();
+        public List<TriggeredEvent> EventsTriggered = new List<TriggeredEvent>();
 
-        public List<Technology.RevealedTech> TechsRevealed = new List<Technology.RevealedTech>();
+        public List<RevealedTech> TechsRevealed = new List<RevealedTech>();
 
         //Added by McShooterz to allow for techs with more than one level
         public byte MaxLevel = 1;
 
         //added by McShooterz: Racial Tech variables
-        public List<Technology.RequiredRace> RaceRestrictions = new List<Technology.RequiredRace>();
-        public List<Technology.RequiredRace> RaceExclusions = new List<Technology.RequiredRace>();
+        public List<RequiredRace> RaceRestrictions = new List<RequiredRace>();
+        public List<RequiredRace> RaceExclusions = new List<RequiredRace>();
         public struct RequiredRace
         {
             public string ShipType;
@@ -69,19 +69,12 @@ namespace Ship_Game
 		public class UnlockedBonus
 		{
 			public string Name;
-
             public string Type;
-
 			public string BonusType;
-
 			public List<string> Tags;
-
 			public float Bonus;
-
 			public string Description;
-
 			public int BonusIndex;
-
 			public int BonusNameIndex;
 
 			public UnlockedBonus()
@@ -92,28 +85,24 @@ namespace Ship_Game
 		public struct UnlockedBuilding
 		{
 			public string Name;
-
             public string Type;
 		}
 
 		public struct UnlockedHull
 		{
 			public string Name;
-
 			public string ShipType;
 		}
 
 		public struct UnlockedMod
 		{
 			public string ModuleUID;
-
             public string Type;
 		}
 
 		public struct UnlockedTroop
 		{
 			public string Name;
-
 			public string Type;
 		}
 

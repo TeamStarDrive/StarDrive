@@ -67,7 +67,7 @@ namespace Ship_Game
 
         ~EspionageScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -123,9 +123,9 @@ namespace Ship_Game
 						spriteBatch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
 					}
 				}
-				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e && EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].Known)
+				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e && EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(race.e).Known)
 				{
-					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].AtWar && !race.e.data.Defeated)
+					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(race.e).AtWar && !race.e.data.Defeated)
 					{
 						Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
 						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, war, Color.Red);
@@ -446,7 +446,7 @@ namespace Ship_Game
 			bool GotRace = false;
 			foreach (RaceEntry race in this.Races)
 			{
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) == race.e || !EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations()[race.e].Known)
+				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) == race.e || !EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(race.e).Known)
 				{
 					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e || !HelperFunctions.ClickedRect(race.container, input))
 					{

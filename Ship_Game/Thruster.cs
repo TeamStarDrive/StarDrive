@@ -81,57 +81,6 @@ namespace Ship_Game
 			this.model.Meshes[0].Draw();
 		}
 
-		public float findAngleToTarget(Vector2 origin, Vector2 target)
-		{
-			float theta;
-			float tX = target.X;
-			float tY = target.Y;
-			float centerX = origin.X;
-			float centerY = origin.Y;
-			float angle_to_target = 0f;
-			if (tX > centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 90f - Math.Abs(theta);
-			}
-			else if (tX > centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 90f + theta * 180f / 3.14159274f;
-			}
-			else if (tX < centerX && tY > centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				theta = theta * 180f / 3.14159274f;
-				angle_to_target = 270f - Math.Abs(theta);
-				angle_to_target = -angle_to_target;
-			}
-			else if (tX < centerX && tY < centerY)
-			{
-				theta = (float)Math.Atan((double)((tY - centerY) / (tX - centerX)));
-				angle_to_target = 270f + theta * 180f / 3.14159274f;
-				angle_to_target = -angle_to_target;
-			}
-			if (tX == centerX && tY < centerY)
-			{
-				angle_to_target = 0f;
-			}
-			else if (tX > centerX && tY == centerY)
-			{
-				angle_to_target = 90f;
-			}
-			else if (tX == centerX && tY > centerY)
-			{
-				angle_to_target = 180f;
-			}
-			else if (tX < centerX && tY == centerY)
-			{
-				angle_to_target = 270f;
-			}
-			return angle_to_target;
-		}
-
 		public void InitializeForViewing()
 		{
 			Vector2 RelativeShipCenter = new Vector2(512f, 512f);
@@ -141,24 +90,30 @@ namespace Ship_Game
 				Y = this.XMLPos.Y + 256f
 			};
 			this.distanceToParentCenter = (float)Math.Sqrt((double)((this.ThrusterCenter.X - RelativeShipCenter.X) * (this.ThrusterCenter.X - RelativeShipCenter.X) + (this.ThrusterCenter.Y - RelativeShipCenter.Y) * (this.ThrusterCenter.Y - RelativeShipCenter.Y)));
-			this.offsetAngle = (float)Math.Abs(this.findAngleToTarget(RelativeShipCenter, this.ThrusterCenter));
+			this.offsetAngle = RelativeShipCenter.AngleToTarget(ThrusterCenter);
 			this.SetPosition();
 		}
 
 		public void load_and_assign_effects(ContentManager content, string filename, string noisefilename, Effect effect)
 		{
-			this.model = content.Load<Model>(filename);
-			this.Noise = content.Load<Texture3D>(noisefilename);
-			this.model.Meshes[0].MeshParts[0].Effect = effect;
-			this.technique = effect.Techniques["thrust_technique"];
-			this.shader_matrices = effect.Parameters["world_matrices"];
-			this.thrust_color = effect.Parameters["thrust_color"];
-			this.effect_tick = effect.Parameters["ticks"];
-			this.effect_noise = effect.Parameters["noise_texture"];
-			this.world_matrix = Matrix.Identity;
+		    load_and_assign_effects(content, content.Load<Model>(filename), content.Load<Texture3D>(noisefilename), effect);
 		}
 
-		public void prepare_effect(ref Matrix view, ref Matrix project, Effect effect)
+	    public void load_and_assign_effects(ContentManager content, Model model, Texture3D noiseTexture, Effect effect)
+	    {
+            this.model = model;
+            this.Noise = noiseTexture;
+            this.model.Meshes[0].MeshParts[0].Effect = effect;
+            this.technique = effect.Techniques["thrust_technique"];
+            this.shader_matrices = effect.Parameters["world_matrices"];
+            this.thrust_color = effect.Parameters["thrust_color"];
+            this.effect_tick = effect.Parameters["ticks"];
+            this.effect_noise = effect.Parameters["noise_texture"];
+            this.world_matrix = Matrix.Identity;
+        }
+
+
+        public void prepare_effect(ref Matrix view, ref Matrix project, Effect effect)
 		{
 			this.matrices_combined[0] = this.world_matrix;
 			this.matrices_combined[1] = (this.world_matrix * view) * project;
@@ -181,7 +136,7 @@ namespace Ship_Game
 		public void SetPosition()
 		{
 			Vector2 centerPoint = this.Parent.Center;
-			double angle = (double)(MathHelper.ToRadians(this.offsetAngle) + this.Parent.Rotation + 1.57079637f);
+			double angle = (double)(offsetAngle.ToRadians() + this.Parent.Rotation + 1.57079637f);
 			float distance = this.distanceToParentCenter;
 			this.ThrusterCenter.Y = centerPoint.Y + distance * -(float)Math.Sin(angle);
 			this.ThrusterCenter.X = centerPoint.X + distance * -(float)Math.Cos(angle);
@@ -193,7 +148,7 @@ namespace Ship_Game
 		public void SetPosition(Vector2 Center)
 		{
 			Vector2 centerPoint = Center;
-			double angle = (double)(MathHelper.ToRadians(this.offsetAngle) + this.Parent.Rotation + 1.57079637f);
+			double angle = (double)(offsetAngle.ToRadians() + this.Parent.Rotation + 1.57079637f);
 			float distance = this.distanceToParentCenter;
 			this.ThrusterCenter.Y = centerPoint.Y + distance * -(float)Math.Sin(angle);
 			this.ThrusterCenter.X = centerPoint.X + distance * -(float)Math.Cos(angle);

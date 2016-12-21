@@ -149,7 +149,7 @@ namespace Ship_Game
 
         ~PlanetListScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -185,37 +185,37 @@ namespace Ship_Game
 				this.sb_Name.Update(TextCursor);
 				this.sb_Name.Draw(base.ScreenManager);
 				TextCursor = new Vector2((float)(entry.FertRect.X + entry.FertRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(386)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
 				}
 				
 				this.sb_Fert.Update(TextCursor);
-				this.sb_Fert.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
+				this.sb_Fert.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				TextCursor = new Vector2((float)(entry.RichRect.X + entry.RichRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(387)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
 				}
 				
 				this.sb_Rich.Update(TextCursor);
-				this.sb_Rich.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
+				this.sb_Rich.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				TextCursor = new Vector2((float)(entry.PopRect.X + entry.PopRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(1403)).X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					TextCursor = TextCursor + new Vector2(15f, 10f);
 				}
 				
 				this.sb_Pop.Update(TextCursor);
-				this.sb_Pop.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
+				this.sb_Pop.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				TextCursor = new Vector2((float)(entry.OwnerRect.X + entry.OwnerRect.Width / 2) - Fonts.Arial20Bold.MeasureString("Owner").X / 2f, (float)(this.eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-				if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+				if (GlobalStats.IsGermanOrPolish)
 				{
 					TextCursor = TextCursor + new Vector2(10f, 10f);
 				}
 				
 				this.sb_Owned.Update(TextCursor);
-				this.sb_Owned.Draw(base.ScreenManager, (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish" ? Fonts.Arial12Bold : Fonts.Arial20Bold));
+				this.sb_Owned.Draw(base.ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
 				Color smallHighlight = TextColor;
 				smallHighlight.A = (byte)(TextColor.A / 2);
 				for (int i = this.PlanetSL.indexAtTop; i < this.PlanetSL.Entries.Count && i < this.PlanetSL.indexAtTop + this.PlanetSL.entriesToDisplay; i++)

@@ -50,57 +50,52 @@ namespace Ship_Game
 			this.Auto = new ToggleButton(this.R, "Minimap/button_down_active", "Minimap/button_down_inactive", "Minimap/button_down_hover", "Minimap/button_down_inactive", "AI");
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
+		public void Draw(ScreenManager screenManager, UniverseScreen screen)
 		{
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar"], this.Housing, Color.White);
+			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
 			float scale = (float)this.ActualMap.Width / (screen.Size.X * 2);        //Updated to play nice with the new negative map values
-			Vector2 MinimapZero = new Vector2((float)this.ActualMap.X + 100, (float)this.ActualMap.Y + 100);
+			Vector2 minimapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
+            var uiNode  = ResourceManager.TextureDict["UI/node"];
+            var uiNode1 = ResourceManager.TextureDict["UI/node1"];
+
 			foreach (Empire e in EmpireManager.EmpireList)
 			{
-				if (e != EmpireManager.GetEmpireByName(screen.PlayerLoyalty) && !EmpireManager.GetEmpireByName(screen.PlayerLoyalty).GetRelations()[e].Known)
-				{
+				if (e != EmpireManager.GetEmpireByName(screen.PlayerLoyalty) && !EmpireManager.GetEmpireByName(screen.PlayerLoyalty).GetRelations(e).Known)
 					continue;
-				}
-				List<Circle> circles = new List<Circle>();
-                e.BorderNodeLocker.EnterReadLock();
+
+                using (e.BorderNodes.AcquireReadLock())
 				{
 					foreach (Empire.InfluenceNode node in e.BorderNodes)
 					{
 						float radius = node.Radius * scale;
-						Vector2 nodepos = new Vector2(MinimapZero.X + node.Position.X * scale, MinimapZero.Y + node.Position.Y * scale);
-						Vector2 Origin = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
+						Vector2 nodepos = new Vector2(minimapZero.X + node.Position.X * scale, minimapZero.Y + node.Position.Y * scale);
 						Color ec = new Color(e.EmpireColor.R, e.EmpireColor.G, e.EmpireColor.B, 30);
 						float rscale = radius * 0.005f;
-						if ((double)rscale < 0.006)
-						{
-							rscale = 0.006f;
-						}
-						Rectangle? nullable = null;
-						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], nodepos, nullable, ec, 0f, Origin, rscale, SpriteEffects.None, 1f);
+						if (rscale < 0.006f) rscale = 0.006f;
+						screenManager.SpriteBatch.Draw(uiNode1, nodepos, null, ec, 0f, uiNode.Center(), rscale, SpriteEffects.None, 1f);
 					}
 				}
-                e.BorderNodeLocker.ExitReadLock();
 			}
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{
-				Rectangle star = new Rectangle((int)(MinimapZero.X + system.Position.X * scale), (int)(MinimapZero.Y + system.Position.Y * scale), 2, 2);
+				Rectangle star = new Rectangle((int)(minimapZero.X + system.Position.X * scale), (int)(minimapZero.Y + system.Position.Y * scale), 2, 2);
 				if (system.OwnerList.Count <= 0 || !system.ExploredDict[EmpireManager.GetEmpireByName(screen.PlayerLoyalty)])
 				{
-					Primitives2D.FillRectangle(ScreenManager.SpriteBatch, star, Color.Gray);
+					Primitives2D.FillRectangle(screenManager.SpriteBatch, star, Color.Gray);
 				}
 				else
 				{
-                    Primitives2D.FillRectangle(ScreenManager.SpriteBatch, star, system.OwnerList.ToList()[0].EmpireColor);
+                    Primitives2D.FillRectangle(screenManager.SpriteBatch, star, system.OwnerList.ToList()[0].EmpireColor);
 				}
 			}
 			Vector2 upperLeftView = screen.GetWorldSpaceFromScreenSpace(new Vector2(0f, 0f));
 			upperLeftView = new Vector2((float)HelperFunctions.RoundTo(upperLeftView.X, 20000), (float)HelperFunctions.RoundTo(upperLeftView.Y, 20000));
-			Vector2 right = screen.GetWorldSpaceFromScreenSpace(new Vector2((float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, 0f));
+			Vector2 right = screen.GetWorldSpaceFromScreenSpace(new Vector2((float)screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, 0f));
 			right = new Vector2((float)HelperFunctions.RoundTo(right.X, 20000), 0f);
 			float xdist = (right.X - upperLeftView.X) * scale;
 			xdist = (float)HelperFunctions.RoundTo(xdist, 1);
-			float ydist = xdist * (float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / (float)ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-			Rectangle LookingAt = new Rectangle((int)MinimapZero.X + (int)(upperLeftView.X * scale), (int)MinimapZero.Y + (int)(upperLeftView.Y * scale), (int)xdist, (int)ydist);
+			float ydist = xdist * (float)screenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / (float)screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+			Rectangle LookingAt = new Rectangle((int)minimapZero.X + (int)(upperLeftView.X * scale), (int)minimapZero.Y + (int)(upperLeftView.Y * scale), (int)xdist, (int)ydist);
 			if (LookingAt.Width < 2)
 			{
 				LookingAt.Width = 2;
@@ -114,17 +109,17 @@ namespace Ship_Game
 			{
 				LookingAt.Y = this.ActualMap.Y;
 			}
-			Primitives2D.FillRectangle(ScreenManager.SpriteBatch, LookingAt, new Color(255, 255, 255, 30));
-			Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, LookingAt, Color.White);
+			Primitives2D.FillRectangle(screenManager.SpriteBatch, LookingAt, new Color(255, 255, 255, 30));
+			Primitives2D.DrawRectangle(screenManager.SpriteBatch, LookingAt, Color.White);
 			Vector2 topMiddleView = new Vector2((float)(LookingAt.X + LookingAt.Width / 2), (float)LookingAt.Y);
 			Vector2 botMiddleView = new Vector2(topMiddleView.X - 1f, (float)(LookingAt.Y + LookingAt.Height));
 			Vector2 leftMiddleView = new Vector2((float)LookingAt.X, (float)(LookingAt.Y + LookingAt.Height / 2));
 			Vector2 rightMiddleView = new Vector2((float)(LookingAt.X + LookingAt.Width), leftMiddleView.Y + 1f);
-			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(topMiddleView.X, MinimapZero.Y - 100), topMiddleView, Color.White);
-			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(botMiddleView.X, (float)(this.ActualMap.Y + this.ActualMap.Height)), botMiddleView, Color.White);
-			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2((float)this.ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
-			Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2((float)(this.ActualMap.X + this.ActualMap.Width), rightMiddleView.Y), rightMiddleView, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
+			Primitives2D.DrawLine(screenManager.SpriteBatch, new Vector2(topMiddleView.X, minimapZero.Y - 100), topMiddleView, Color.White);
+			Primitives2D.DrawLine(screenManager.SpriteBatch, new Vector2(botMiddleView.X, (float)(this.ActualMap.Y + this.ActualMap.Height)), botMiddleView, Color.White);
+			Primitives2D.DrawLine(screenManager.SpriteBatch, new Vector2((float)this.ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
+			Primitives2D.DrawLine(screenManager.SpriteBatch, new Vector2((float)(this.ActualMap.X + this.ActualMap.Width), rightMiddleView.Y), rightMiddleView, Color.White);
+			//ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Minimap/radar_over"], this.Housing, Color.White);
             if (screen.showingFTLOverlay)
             {
                 this.sList.Active = true;
@@ -161,13 +156,13 @@ namespace Ship_Game
                 this.Fleets.Active = false;
             }
 
-			this.zOut.DrawIconResized(ScreenManager);
-			this.zIn.DrawIconResized(ScreenManager);
-			this.DSB.DrawIconResized(ScreenManager);
-			this.pList.DrawIconResized(ScreenManager);
-			this.sList.DrawIconResized(ScreenManager);
-			this.Fleets.DrawIconResized(ScreenManager);
-			this.Auto.DrawIconResized(ScreenManager);
+			this.zOut.DrawIconResized(screenManager);
+			this.zIn.DrawIconResized(screenManager);
+			this.DSB.DrawIconResized(screenManager);
+			this.pList.DrawIconResized(screenManager);
+			this.sList.DrawIconResized(screenManager);
+			this.Fleets.DrawIconResized(screenManager);
+			this.Auto.DrawIconResized(screenManager);
 		}
 
 		public bool HandleInput(InputState input, UniverseScreen screen)

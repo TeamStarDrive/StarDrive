@@ -138,7 +138,7 @@ namespace Ship_Game.Gameplay
 
 		private void OrbitShip(Ship ship, float elapsedTime)
 		{
-			this.OrbitPos = HelperFunctions.GeneratePointOnCircle(this.OrbitalAngle, ship.Center, 1500f);
+			this.OrbitPos = ship.Center.PointOnCircle(this.OrbitalAngle, 1500f);
 			if (Vector2.Distance(this.OrbitPos, this.Owner.Center) < 1500f)
 			{
 				DroneAI orbitalAngle = this;
@@ -148,7 +148,7 @@ namespace Ship_Game.Gameplay
 					DroneAI droneAI = this;
 					droneAI.OrbitalAngle = droneAI.OrbitalAngle - 360f;
 				}
-				this.OrbitPos = HelperFunctions.GeneratePointOnCircle(this.OrbitalAngle, ship.Position, 2500f);
+				this.OrbitPos = ship.Position.PointOnCircle(this.OrbitalAngle, 2500f);
 			}
 			this.MoveTowardsPosition(elapsedTime);
 		}
@@ -208,7 +208,7 @@ namespace Ship_Game.Gameplay
 
         ~DroneAI() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

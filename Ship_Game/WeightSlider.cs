@@ -35,7 +35,8 @@ namespace Ship_Game
 			this.Text = Text;
 			this.ContainerRect = r;
 			this.rect = new Rectangle(r.X + 9, r.Y + r.Height / 2 + 3, 120, 6);
-			this.cursor = new Rectangle(this.rect.X + (int)((float)this.rect.Width * this.amount), this.rect.Y + this.rect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
+            var tex = ResourceManager.TextureDict["NewUI/slider_crosshair"];
+			this.cursor = new Rectangle(this.rect.X + (int)((float)this.rect.Width * this.amount), this.rect.Y + this.rect.Height / 2 - tex.Height / 2, tex.Width, tex.Height);
 			this.redRect = new Rectangle(this.rect.X, this.rect.Y, this.rect.Width / 2, 6);
 			this.greenRect = new Rectangle(this.rect.X + this.rect.Width / 2, this.rect.Y, this.rect.Width / 2, 6);
 		}
@@ -127,7 +128,8 @@ namespace Ship_Game
 		public void SetAmount(float amt)
 		{
 			this.amount = amt;
-			this.cursor = new Rectangle(this.rect.X + (int)((float)this.rect.Width * this.amount), this.rect.Y + this.rect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
+            var tex = ResourceManager.TextureDict["NewUI/slider_crosshair"];
+			this.cursor = new Rectangle(this.rect.X + (int)((float)this.rect.Width * this.amount), this.rect.Y + this.rect.Height / 2 - tex.Height / 2, tex.Width, tex.Height);
 		}
 	}
 }

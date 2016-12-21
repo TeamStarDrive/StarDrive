@@ -176,7 +176,7 @@ namespace Ship_Game
             this.AgentSL.Draw(this.ScreenManager.SpriteBatch);
             this.RecruitButton.Draw(this.ScreenManager);
             Rectangle MoneyRect = new Rectangle(this.RecruitButton.r.X, this.RecruitButton.r.Y + 30, 21, 20);
-            this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_money"], MoneyRect, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_money"], MoneyRect, Color.White);
             Vector2 costPos = new Vector2((float)(MoneyRect.X + 25), (float)(MoneyRect.Y + 10 - Fonts.Arial12Bold.LineSpacing / 2));
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost).ToString(), costPos, Color.White);
 
@@ -200,7 +200,7 @@ namespace Ship_Game
             cbSpyMute.Draw(ScreenManager);
 
             Rectangle spyLimit = new Rectangle((int)MoneyRect.X + 65, (int)MoneyRect.Y, 21, 20);
-            this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/icon_lock"], spyLimit, Color.White);
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_lock"], spyLimit, Color.White);
             Vector2 spyLimitPos = new Vector2((float)(spyLimit.X + 25), (float)(spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
             //empirePlanetSpys = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
             //if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Where(canBuildTroops => canBuildTroops.BuildingList.Where(building => building.Name == "Capital City") != null).Count() > 0) empirePlanetSpys = empirePlanetSpys + 2;
@@ -306,8 +306,8 @@ namespace Ship_Game
 					PotentialSecond.Add(t);
 				}
 			}
-			ret = string.Concat(ret, PotentialFirst[HelperFunctions.GetRandomIndex(PotentialFirst.Count)], " ");
-			ret = string.Concat(ret, PotentialSecond[HelperFunctions.GetRandomIndex(PotentialSecond.Count)]);
+			ret = string.Concat(ret, PotentialFirst[RandomMath.InRange(PotentialFirst.Count)], " ");
+			ret = string.Concat(ret, PotentialSecond[RandomMath.InRange(PotentialSecond.Count)]);
 			return ret;
 		}
 
@@ -422,7 +422,7 @@ namespace Ship_Game
                     a.Name = AgentComponent.GetName(Tokens);
                     //Added new agent information
                     a.Age = RandomMath.RandomBetween(20, 30);
-                    int RandomPlanetIndex = HelperFunctions.GetRandomIndex(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count);
+                    int RandomPlanetIndex = RandomMath.InRange(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().Count);
                     a.HomePlanet = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()[RandomPlanetIndex].Name;
                     EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.AgentList.Add(a);
                     this.AgentSL.AddItem(a);
@@ -509,7 +509,7 @@ namespace Ship_Game
 
         ~AgentComponent() { Dispose(false);  }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

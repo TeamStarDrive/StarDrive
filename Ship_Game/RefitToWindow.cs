@@ -15,8 +15,6 @@ namespace Ship_Game
 
 		private Ship shiptorefit;
 
-		private List<UIButton> Buttons = new List<UIButton>();
-
 		//private UIButton Exit;
 
 		private Submenu sub_ships;
@@ -60,7 +58,7 @@ namespace Ship_Game
         }
 
             ~RefitToWindow() { Dispose(false); }
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -121,7 +119,7 @@ namespace Ship_Game
 				this.RefitOne.Draw(base.ScreenManager.SpriteBatch);
 				this.RefitAll.Draw(base.ScreenManager.SpriteBatch);
 				Vector2 Cursor = new Vector2((float)this.ConfirmRefit.r.X, (float)(this.ConfirmRefit.r.Y + 30));
-				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.parseText(Fonts.Arial12Bold, string.Concat("Refit ", this.shiptorefit.Name, " to ", this.RefitTo), 270f), Cursor, Color.White);
+				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12Bold, string.Concat("Refit ", this.shiptorefit.Name, " to ", this.RefitTo), 270f), Cursor, Color.White);
 			}
 			if (base.IsActive)
 			{

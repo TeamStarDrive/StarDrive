@@ -14,8 +14,6 @@ namespace Ship_Game
     {
         protected Vector2 Cursor = Vector2.Zero;
 
-        protected List<UIButton> Buttons = new List<UIButton>();
-
         protected Rectangle Window;
 
         protected Menu1 SaveMenu;
@@ -101,7 +99,7 @@ namespace Ship_Game
 
         ~GenericLoadSaveScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -250,7 +248,7 @@ namespace Ship_Game
             {
                 if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
                 {
-                    b.State = UIButton.PressState.Normal;
+                    b.State = UIButton.PressState.Default;
                 }
                 else
                 {

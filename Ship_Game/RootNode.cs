@@ -22,7 +22,7 @@ namespace Ship_Game
 
 		public RootNode(Vector2 Position, TechEntry Tech)
 		{
-			if (GlobalStats.Config.Language == "Russian" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{
 				this.TitleFont = Fonts.Arial10;
 			}
@@ -45,7 +45,7 @@ namespace Ship_Game
 				case NodeState.Normal:
 				{
 					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_title"], this.TitleRect, Color.White);
-					text = HelperFunctions.parseText(this.TitleFont, this.TechName, 93f);
+					text = HelperFunctions.ParseText(this.TitleFont, this.TechName, 93f);
 					textarray = Regex.Split(text, "\n");
 					TextPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(text).X / 2f, (float)(this.TitleRect.Y + 7 + 12) - this.TitleFont.MeasureString(text).Y / 2f);
 					line = 0;
@@ -66,7 +66,7 @@ namespace Ship_Game
 				{
 					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_underglow_selhoverpress"], this.RootRect, Color.White);
 					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_title_selhoverpress"], this.TitleRect, Color.White);
-					text = HelperFunctions.parseText(this.TitleFont, this.TechName, 93f);
+					text = HelperFunctions.ParseText(this.TitleFont, this.TechName, 93f);
 					textarray = Regex.Split(text, "\n");
 					TextPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(text).X / 2f, (float)(this.TitleRect.Y + 7 + 12) - this.TitleFont.MeasureString(text).Y / 2f);
 					line = 0;
@@ -87,7 +87,7 @@ namespace Ship_Game
 				{
 					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_underglow_selhoverpress"], this.RootRect, Color.White);
 					spriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/techroot_title_selhoverpress"], this.TitleRect, Color.White);
-					text = HelperFunctions.parseText(this.TitleFont, this.TechName, 93f);
+					text = HelperFunctions.ParseText(this.TitleFont, this.TechName, 93f);
 					textarray = Regex.Split(text, "\n");
 					TextPos = new Vector2((float)(this.TitleRect.X + 10 + 46) - this.TitleFont.MeasureString(text).X / 2f, (float)(this.TitleRect.Y + 7 + 12) - this.TitleFont.MeasureString(text).Y / 2f);
 					line = 0;

@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -57,11 +57,7 @@ namespace Ship_Game
 
         public bool alreadyTriggered;
 
-		public Outcome()
-		{
-		}
-
-		public Artifact GetArtifact()
+	    public Artifact GetArtifact()
 		{
 			return this.grantedArtifact;
 		}
@@ -80,5 +76,183 @@ namespace Ship_Game
 		{
 			this.SelectedPlanet = p;
 		}
+
+	    private void FlatGrants(Empire triggerEmpire)
+	    {
+            triggerEmpire.Money += MoneyGranted;
+            triggerEmpire.data.Traits.ResearchMod += ScienceBonus;
+            triggerEmpire.data.Traits.ProductionMod += IndustryBonus;
+        }
+
+	    private void TechGrants(Empire triggerer)
+	    {
+            if (SecretTechDiscovered != null)
+            {
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.overrideSecretsTree)
+                {
+                    triggerer.GetTDict()[SecretTechDiscovered].Discovered = true;
+                }
+                else
+                {
+                    triggerer.GetTDict()["Secret"].Discovered = true;
+                    triggerer.GetTDict()[SecretTechDiscovered].Discovered = true;
+                }
+            }
+            if (UnlockTech != null)
+            {
+                if (!triggerer.GetTDict()[UnlockTech].Unlocked)
+                {
+                    triggerer.UnlockTech(UnlockTech);
+                }
+                else
+                {
+                    WeHadIt = true;
+                }
+            }
+        }
+
+	    private void ShipGrants(Empire triggerer ,Planet p)
+	    {
+            foreach (string ship in FriendlyShipsToSpawn)
+            {
+                triggerer.ForcePoolAdd(ResourceManager.CreateShipAt(ship, triggerer, p, true));
+            }
+            foreach (string ship in RemnantShipsToSpawn)
+            {
+                Ship tomake = ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName("The Remnant"), p, true);
+                tomake.GetAI().DefaultAIState = AIState.Exterminate;
+            }
+        }
+
+	    private void BuildingActions(Planet p, PlanetGridSquare eventLocation)
+	    {
+            if (RemoveTrigger)
+            {
+                p.BuildingList.Remove(eventLocation.building);
+                eventLocation.building = null;
+            }
+            if (!string.IsNullOrEmpty(ReplaceWith))
+            {
+                eventLocation.building = ResourceManager.GetBuilding(ReplaceWith);
+                p.BuildingList.Add(eventLocation.building);
+            }
+        }
+
+	    private bool SetRandomPlanet()
+	    {
+	        if (!SelectRandomPlanet) return false;
+            List<Planet> potentials = new List<Planet>();
+            foreach (SolarSystem s in UniverseScreen.SolarSystemList)
+            {
+                foreach (Planet rp in s.PlanetList)
+                {
+                    if (!rp.habitable || rp.Owner != null)
+                    {
+                        continue;
+                    }
+                    potentials.Add(rp);
+                }
+            }
+            if (potentials.Count > 0)
+            {
+                SetPlanet(potentials[RandomMath.InRange(potentials.Count)]);
+                return true;
+            }
+            return false;	        
+	    }
+	    private void TroopActions(Empire triggerer, Planet p, PlanetGridSquare eventLocation)
+	    {
+            if (TroopsGranted != null)
+            {
+                foreach (string troopname in TroopsGranted)
+                {
+                    Troop t = ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopname], triggerer);
+                    t.SetOwner(triggerer);
+                    if (p.AssignTroopToNearestAvailableTile(t, eventLocation))
+                    {
+                        continue;
+                    }
+                    p.AssignTroopToTile(t);
+                }
+            }
+            if (TroopsToSpawn != null)
+            {
+                foreach (string troopname in TroopsToSpawn)
+                {
+                    Troop t = ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopname],
+                        EmpireManager.GetEmpireByName("Unknown"));
+                    t.SetOwner(EmpireManager.GetEmpireByName("Unknown"));
+                    if (p.AssignTroopToNearestAvailableTile(t, eventLocation))
+                    {
+                        continue;
+                    }
+                    p.AssignTroopToTile(t);
+                }
+            }
+        }
+
+	    public bool InValidOutcome(Empire triggerer)
+	    {
+	        return onlyTriggerOnce && alreadyTriggered && triggerer.isPlayer;
+
+	    }
+	    public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer, EventPopup popup)
+	    {
+            //artifact setup
+            if (GrantArtifact)
+	        {
+                //Find all available artifacts
+                List<Artifact> potentials = new List<Artifact>();
+                foreach (var kv in ResourceManager.ArtifactsDict)
+                {
+                    if (kv.Value.Discovered)
+                    {
+                        continue;
+                    }
+                    potentials.Add(kv.Value);
+                }
+                //if no artifact is available just give them money 
+                if (potentials.Count <= 0)
+                {
+                    MoneyGranted = 500;
+                }
+                else
+                {
+                    //choose a random available artifact and process it. 
+                    Artifact chosenArtifact = potentials[RandomMath.InRange(potentials.Count)];
+                    triggerer.data.OwnedArtifacts.Add(chosenArtifact);
+                    ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
+                    SetArtifact(chosenArtifact);
+                    chosenArtifact.CheckGrantArtifact(triggerer, this, popup);
+                }                
+	        }
+            //Generic grants
+	        FlatGrants(triggerer);
+            TechGrants(triggerer);
+	        ShipGrants(triggerer, p);
+	        if (BeginArmageddon)
+	        {
+	            GlobalStats.RemnantArmageddon = true;
+	        }
+            //planet triggered events
+	        if (p != null)
+	        {
+	            BuildingActions(p, eventLocation);
+	            TroopActions(triggerer, p, eventLocation);
+                return;	            
+	        }
+
+	        //events that trigger on other planets
+	        if(!SetRandomPlanet()) return;
+	        p = SelectedPlanet;
+                        
+            if (eventLocation == null)
+	        {
+                eventLocation = p.TilesList[17];
+	        }
+
+            BuildingActions(p, eventLocation);
+            TroopActions(triggerer, p, eventLocation);
+	    }
 	}
 }

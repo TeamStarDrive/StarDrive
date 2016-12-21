@@ -37,7 +37,7 @@ namespace Ship_Game
 			string str;
 			Color color;
 			Vector2 pos = this.TextPos;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}
@@ -64,7 +64,7 @@ namespace Ship_Game
 			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button"], rect, Color.White);
 			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
 			Vector2 pos = tPos;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}
@@ -88,7 +88,7 @@ namespace Ship_Game
 			string str;
 			Color color;
 			Vector2 pos = this.TextPos;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}
@@ -115,7 +115,7 @@ namespace Ship_Game
 			screenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], rect, Color.White);
 			Vector2 tPos = new Vector2((float)(rect.X + 25), (float)(rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2));
 			Vector2 pos = tPos;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				pos.X = pos.X - 9f;
 			}

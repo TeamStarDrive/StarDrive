@@ -147,7 +147,7 @@ namespace Ship_Game
 						{
 							this.empToDiscuss.GetGSAI().EndWarFromEvent(this.playerEmpire);
 						}
-						this.playerEmpire.GetRelations()[this.empToDiscuss].EncounterStep = this.MessageList[this.CurrentMessage].SetEncounterStep;
+						this.playerEmpire.GetRelations(this.empToDiscuss).EncounterStep = this.MessageList[this.CurrentMessage].SetEncounterStep;
 						this.SetResponses();
 					}
 				}
@@ -344,7 +344,7 @@ namespace Ship_Game
 
                ~Encounter() { Dispose(false); }
 
-               protected void Dispose(bool disposing)
+               private void Dispose(bool disposing)
                {
                    if (!disposed)
                    {
