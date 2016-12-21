@@ -17,28 +17,8 @@ namespace Ship_Game
 		{
 		}
 
-		public virtual void MoveTo(Vector2 Position, float facing, Vector2 fVec)
-		{
-			Ships[0].Center.RadiansToTarget(Position);
-			Vector2 MovePosition = Position;
-			this.Ships[0].GetAI().GoTo(MovePosition, fVec);
-			for (int i = 1; i < this.Ships.Count; i++)
-			{
-				if (i % 2 != 1)
-				{
-					MovePosition = MathExt.PointFromRadians(Position, facing - 1.57079637f, (float)(i * 500));
-					this.Ships[i].GetAI().GoTo(MovePosition, fVec);
-				}
-				else
-				{
-					MovePosition = MathExt.PointFromRadians(Position, facing + 1.57079637f, (float)(i * 500));
-					this.Ships[i].GetAI().GoTo(MovePosition, fVec);
-				}
-			}
-		}
-
 		public virtual void ProjectPos(Vector2 position, float facing, List<Fleet.Squad> flank)
-		{
+		{//This is basically here so it can be overridden in fleet.cs -Gretman
 		}
 
 		public virtual void ProjectPos(Vector2 position, float facing, Vector2 fVec)
