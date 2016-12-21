@@ -32,7 +32,11 @@ namespace Ship_Game
 			TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			TransitionOffTime = TimeSpan.FromSeconds(0);
 			R = new Rectangle(0, 0, 600, 600);
-		}
+            foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
+            {
+                DrawPackages.Add(packagetype, new List<DrawPackage>());
+            }
+        }
 
 		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome, bool TriggerNow)
 		{

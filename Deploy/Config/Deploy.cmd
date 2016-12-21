@@ -6,15 +6,18 @@ set day=%date:~7,2%
 
 
 for /f "delims=" %%i in (..\..\.hg\branch) do (
-if not exist "..\config\config_%%i" (
-copy "..\config\config.txt" "..\config\config_%%i" 
-copy "..\config\include.txt" "..\config\include_%%i" 
+set name=%%i
 )
-echo %%i
-echo ..\7-Zip\7z A sd.7z @"..\Config\include_%%i"
-echo copy /b "..\7-Zip\7ZSD.sfx" + "..\Config\config_%%i" + sd.7z "%%i %month%%day%.exe"
+set name=%name:/=_%
+if not exist "..\config\config_%name%" (
+copy "..\config\config.txt" "..\config\config_%name%" 
+copy "..\config\include.txt" "..\config\include_%name%" 
+)
+echo %name%
+echo ..\7-Zip\7z A sd.7z @"..\Config\include_%name%"
+echo copy /b "..\7-Zip\7ZSD.sfx" + "..\Config\config_%name%" + sd.7z "%name% %month%%day%.exe"
 
-..\7-Zip\7z A sd.7z @"..\Config\include_%%i"
-copy /b "..\7-Zip\7ZSD.sfx" + "..\Config\config_%%i" + sd.7z "%%i%month%%day%.exe"
+..\7-Zip\7z A sd.7z @"..\Config\include_%name%"
+copy /b "..\7-Zip\7ZSD.sfx" + "..\Config\config_%name%" + sd.7z "%name%%month%%day%.exe"
 )
 
