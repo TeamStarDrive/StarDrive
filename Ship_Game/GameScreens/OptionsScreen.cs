@@ -39,7 +39,6 @@ namespace Ship_Game
 		private int ytoApply;
         private Checkbox pauseOnNotification;
         private FloatSlider IconSize;
-        private FloatSlider memoryLimit;
         private FloatSlider ShipLimiter;
         private FloatSlider FreighterLimiter;
         private FloatSlider AutoSaveFreq; //Added by Gretman
@@ -192,11 +191,6 @@ namespace Ship_Game
 				{
 					AcceptChanges(this, EventArgs.Empty);
 				}
-                ConfigurationManager.AppSettings.Set("IconSize",GlobalStats.IconSize.ToString());
-                ConfigurationManager.AppSettings.Set("PauseOnNotification", GlobalStats.PauseOnNotification.ToString());
-                ConfigurationManager.AppSettings.Set("MemoryLimiter", GlobalStats.MemoryLimiter.ToString());
-                ConfigurationManager.AppSettings.Set("shipcountlimit", GlobalStats.ShipCountLimit.ToString());
-                ConfigurationManager.AppSettings.Set("ZoomTracking", GlobalStats.ZoomTracking.ToString());
 			}
 			catch
 			{
@@ -344,7 +338,6 @@ namespace Ship_Game
 			MusicVolumeSlider.DrawDecimal(ScreenManager);
 			EffectsVolumeSlider.DrawDecimal(ScreenManager);
             IconSize.Draw(ScreenManager);
-            memoryLimit.Draw(ScreenManager);
 			ResolutionDropDown.Draw(ScreenManager.SpriteBatch);
             FreighterLimiter.Draw(ScreenManager);
             AutoSaveFreq.Draw(ScreenManager);
@@ -370,13 +363,11 @@ namespace Ship_Game
             KeyboardArc.HandleInput(input);
             LockZoom.HandleInput(input);
             IconSize.HandleInput(input);
-            memoryLimit.HandleInput(input);
             ShipLimiter.HandleInput(input);
             FreighterLimiter.HandleInput(input);
             AutoSaveFreq.HandleInput(input);
 
             GlobalStats.IconSize       = (int)IconSize.amountRange;
-            GlobalStats.MemoryLimiter  = memoryLimit.amountRange;
             GlobalStats.ShipCountLimit = (int)ShipLimiter.amountRange;
             GlobalStats.FreighterLimit = (int)FreighterLimiter.amountRange;
             GlobalStats.AutoSaveFreq   = (int)AutoSaveFreq.amountRange;
@@ -510,16 +501,12 @@ namespace Ship_Game
             IconSize = new FloatSlider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
 
             r = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 235, 225, 50);
-            
-            memoryLimit = new FloatSlider(r, string.Concat("Memory limit. KBs In Use: ",(int)(GC.GetTotalMemory(true)/1000f)), 150000, 300000, GlobalStats.MemoryLimiter);
-            int ships =0;
-
-            r = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 290, 225, 50);    //
             AutoSaveFreq = new FloatSlider(r, "Autosave Frequency", 60, 540, GlobalStats.AutoSaveFreq);      //Added by Gretman
             AutoSaveFreq.Tip_ID = 4100;                                                                      //
 
-            if (Empire.Universe != null )
-             ships= Empire.Universe.globalshipCount;
+            int ships = 0;
+            if (Empire.Universe != null ) ships= Empire.Universe.globalshipCount;
+
             r = new Rectangle(MainOptionsRect.X - 9 + MainOptionsRect.Width, (int)FullScreen.NamePosition.Y + 235, 225, 50);
             ShipLimiter = new FloatSlider(r, "All AI Ship Limit. AI Ships: "+ ships, 500, 3500, GlobalStats.ShipCountLimit);
             r = new Rectangle(MainOptionsRect.X - 9 + MainOptionsRect.Width, (int)FullScreen.NamePosition.Y + 185, 225, 50);

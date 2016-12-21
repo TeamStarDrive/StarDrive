@@ -7412,7 +7412,6 @@ namespace Ship_Game.Gameplay
         {
 #region ShipBuilding
             this.nobuild = false;
-            float SizeLimiter = GlobalStats.MemoryLimiter;
             int ShipCountLimit = GlobalStats.ShipCountLimit;
             List<AO>.Enumerator enumerator;
             if (!this.empire.MinorRace)

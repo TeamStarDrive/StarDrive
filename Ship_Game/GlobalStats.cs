@@ -85,8 +85,6 @@ namespace Ship_Game
         public static float ShipMaintenanceMulti;
         public static float MinimumWarpRange;
 
-        public static float MemoryLimiter;
-
         public static float StartingPlanetRichness;
         public static string ExtendedVersion = ""; 
         public static int IconSize;
@@ -177,7 +175,6 @@ namespace Ship_Game
             GetSetting("ExtraNotifications",   ref ExtraNotifications);
             GetSetting("PauseOnNotification",  ref PauseOnNotification);
             GetSetting("ExtraPlanets",         ref ExtraPlanets);
-            GetSetting("MemoryLimiter",        ref MemoryLimiter);
             GetSetting("MinimumWarpRange",     ref MinimumWarpRange);
             GetSetting("ShipMaintenanceMulti", ref ShipMaintenanceMulti);
             GetSetting("IconSize",             ref IconSize);
@@ -209,13 +206,12 @@ namespace Ship_Game
             WriteSetting(config, "ExtraNotifications",  ExtraNotifications);
             WriteSetting(config, "PauseOnNotification", PauseOnNotification);
             WriteSetting(config, "ExtraPlanets",        ExtraPlanets);
-            WriteSetting(config, "MemoryLimiter",       MemoryLimiter);
             WriteSetting(config, "MinimumWarpRange",    MinimumWarpRange);
             WriteSetting(config, "ShipMaintenanceMulti",ShipMaintenanceMulti);
             WriteSetting(config, "IconSize",            IconSize);
             WriteSetting(config, "PreventFederations",  PreventFederations);
             WriteSetting(config, "EliminationMode",     EliminationMode);
-            WriteSetting(config, "shipcountlimit",      ShipCountLimit);
+            WriteSetting(config, "ShipCountLimit",      ShipCountLimit);
             WriteSetting(config, "ZoomTracking",        ZoomTracking);
             WriteSetting(config, "TurnTimer",           TurnTimer);
             WriteSetting(config, "AltArcControl",       AltArcControl);
