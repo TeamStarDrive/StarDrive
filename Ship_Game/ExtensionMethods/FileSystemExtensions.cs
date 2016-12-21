@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class Dir
+    public static class Dir
     {
-        private static readonly FileInfo[] NoFiles = new FileInfo[0];
+        private static readonly FileInfo[]      NoFiles = new FileInfo[0];
+        private static readonly DirectoryInfo[] NoDirs  = new DirectoryInfo[0];
 
         // Added by RedFox - this is a safe wrapper to DirectoryInfo.GetFiles which assumes 
         //                   dir is optional and if it doesn't exist, returns empty file list
@@ -39,11 +36,16 @@ namespace Ship_Game
         {
             return GetFiles(dir, "*."+ext, SearchOption.TopDirectoryOnly);
         }
-        public static IEnumerable<FileInfo> GetFilesNoThumbs(string dir)
+
+        // Finds all subdirectories
+        public static DirectoryInfo[] GetDirs(string dir, SearchOption option = SearchOption.AllDirectories)
         {
-            foreach (FileInfo info in GetFiles(dir))
-                if (info.Name != "Thumbs.db")
-                    yield return info;
+            try
+            {
+                var info = new DirectoryInfo(dir);
+                return info.Exists ? info.GetDirectories("*", option) : NoDirs;
+            }
+            catch { return NoDirs; }
         }
 
         public static void CopyDir(string sourceDirName, string destDirName, bool copySubDirs)
@@ -66,6 +68,10 @@ namespace Ship_Game
             foreach (DirectoryInfo subdir in dirs)
                 CopyDir(subdir.FullName, Path.Combine(destDirName, subdir.Name), true);
         }
+
+        // System AppData folder
+        public static string ApplicationData => Environment.GetFolderPath(
+                                                Environment.SpecialFolder.ApplicationData);
     }
 
     public static class FileSystemExtensions

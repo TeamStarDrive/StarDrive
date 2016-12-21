@@ -3,13 +3,9 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
-using Ship_Game;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Lights;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 namespace Ship_Game.Gameplay
 {
     public sealed class ShipModule : GameplayObject
@@ -566,11 +562,8 @@ namespace Ship_Game.Gameplay
 					this.shield.Rotation = source.Rotation - 3.14159274f;
 					this.shield.displacement = 0f;
 					this.shield.texscale = 2.8f;
-					lock (GlobalStats.ObjectManagerLocker)
-					{
-						ShipModule.universeScreen.ScreenManager.inter.LightManager.Remove(this.shield.pointLight);
-						ShipModule.universeScreen.ScreenManager.inter.LightManager.Submit(this.shield.pointLight);
-					}
+                    shield.pointLight.Refresh(Empire.Universe);
+
                     if (psource != null && !psource.IgnoresShields && this.Parent.InFrustum)
 					{
 						Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
@@ -1044,11 +1037,8 @@ namespace Ship_Game.Gameplay
                     this.shield.Rotation = source.Rotation - 3.14159274f;
                     this.shield.displacement = 0f;
                     this.shield.texscale = 2.8f;
-                    lock (GlobalStats.ObjectManagerLocker)
-                    {
-                        ShipModule.universeScreen.ScreenManager.inter.LightManager.Remove(this.shield.pointLight);
-                        ShipModule.universeScreen.ScreenManager.inter.LightManager.Submit(this.shield.pointLight);
-                    }
+                    shield.pointLight.Refresh(Empire.Universe);
+
                     if (source is Beam)
                     {
                         if ((source as Beam).weapon.SiphonDamage > 0f)
@@ -1530,16 +1520,13 @@ namespace Ship_Game.Gameplay
                     damageAmount = 0f;
 
 				this.shield_power = this.shield_power - damageAmount;
-				if (ShipModule.universeScreen.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
+				if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && this.Parent.InFrustum)
 				{
 					this.shield.Rotation = source.Rotation - 3.14159274f;
 					this.shield.displacement = 0f;
 					this.shield.texscale = 2.8f;
-					lock (GlobalStats.ObjectManagerLocker)
-					{
-						ShipModule.universeScreen.ScreenManager.inter.LightManager.Remove(this.shield.pointLight);
-						ShipModule.universeScreen.ScreenManager.inter.LightManager.Submit(this.shield.pointLight);
-					}
+                    shield.pointLight.Refresh(Empire.Universe);
+
 					if (source is Beam)
 					{
 						this.shield.Rotation = Center.RadiansToTarget((source as Beam).Source);
@@ -1555,15 +1542,15 @@ namespace Ship_Game.Gameplay
 						this.shield.pointLight.Enabled = true;
 						Vector2 vel = (source as Beam).Source - this.Center;
 						vel = Vector2.Normalize(vel);
-						if (RandomMath.RandomBetween(0f, 100f) > 90f && this.Parent.InFrustum)
+						if (RandomMath.IntBetween(0, 100) > 90 && Parent.InFrustum)
 						{
-							ShipModule.universeScreen.flash.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), Vector3.Zero);
+                            Empire.Universe.flash.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), Vector3.Zero);
 						}
 						if (this.Parent.InFrustum)
 						{
 							for (int i = 0; i < 20; i++)
 							{
-								ShipModule.universeScreen.sparks.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
+                                Empire.Universe.sparks.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, this.Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
 							}
 						}
 						if ((source as Beam).weapon.SiphonDamage > 0f)
@@ -2489,9 +2476,27 @@ namespace Ship_Game.Gameplay
             if (!GlobalStats.ActiveModInfo.useHullBonuses)
                 return value;
 
-            if (ResourceManager.HullBonuses.TryGetValue(this.GetParent().shipData.Hull, out HullBonus mod))
+            if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
                 value += shield_power_max * mod.ShieldBonus;
             return value;
+        }
+
+        // Used for picking best repair candidate
+        public int ModulePriority
+        {
+            get
+            {
+                switch (ModuleType)
+                {
+                    case ShipModuleType.Command:      return 0;
+                    case ShipModuleType.PowerPlant:   return 1;
+                    case ShipModuleType.PowerConduit: return 2;
+                    case ShipModuleType.Engine:       return 3;
+                    case ShipModuleType.Shield:       return 4;
+                    case ShipModuleType.Armor:        return 6;
+                    default:                          return 5;
+                }
+            }
         }
 	}
 }

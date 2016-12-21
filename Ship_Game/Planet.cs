@@ -2354,7 +2354,7 @@ namespace Ship_Game
                 keyValuePair.Value.loyalty = index;
                 this.Owner.RemoveShip(keyValuePair.Value);      //Transfer to new owner's ship list. Fixes platforms changing loyalty after game load bug      -Gretman
                 index.AddShip(keyValuePair.Value);
-                System.Diagnostics.Debug.WriteLine("Owner of platform tethered to " + this.Name + " changed from " + this.Owner.PortraitName + "  to " + index.PortraitName);
+                Log.Info("Owner of platform tethered to {0} changed from {1} to {2}", Name, Owner.PortraitName, index.PortraitName);
             }
             this.Owner = index;
             this.TurnsSinceTurnover = 0;
@@ -2473,14 +2473,16 @@ namespace Ship_Game
                             continue;
                     }
                     try
-                    {
+                    {                        
                         if (!hasAttacked && pgs.TroopsHere.Count > 0 && pgs.TroopsHere[0].AvailableMoveActions > 0)
                         {
                             foreach (PlanetGridSquare planetGridSquare in (IEnumerable<PlanetGridSquare>)Enumerable.OrderBy<PlanetGridSquare, int>((IEnumerable<PlanetGridSquare>)this.TilesList, (Func<PlanetGridSquare, int>)(tile => Math.Abs(tile.x - pgs.x) + Math.Abs(tile.y - pgs.y))))
                             {
-                                if (planetGridSquare != pgs)
-                                {
-                                    if (planetGridSquare.TroopsHere.Count > 0)
+                                if (!pgs.TroopsHere.Any())
+                                    break;
+                                if (planetGridSquare != pgs )
+                                {                                    
+                                    if (planetGridSquare.TroopsHere.Any())
                                     {
                                         if (planetGridSquare.TroopsHere[0].GetOwner() != pgs.TroopsHere[0].GetOwner())
                                         {
@@ -2716,7 +2718,7 @@ namespace Ship_Game
             Ship remove;
             foreach (Guid key in list)
                 this.Shipyards.TryRemove(key,out remove);
-            if (!Planet.universeScreen.Paused)
+            if (!Empire.Universe.Paused)
             {
                 
                 if (this.TroopsHere.Count > 0)
@@ -3106,7 +3108,7 @@ namespace Ship_Game
             UpdateIncomes(false);
 
             // notification about empty queue
-            if (GlobalStats.ExtraNotiofications && Owner != null && Owner.isPlayer)
+            if (GlobalStats.ExtraNotifications && Owner != null && Owner.isPlayer)
             {
                 if (ConstructionQueue.Count == 0 && !queueEmptySent)
                 {
@@ -6298,7 +6300,7 @@ output = maxp * take10 = 5
         private  void UpdatePosition(float elapsedTime)
         {
             this.Zrotate += this.ZrotateAmount * elapsedTime;
-            if (!Planet.universeScreen.Paused)
+            if (!Empire.Universe.Paused)
             {
                 this.OrbitalAngle += (float)Math.Asin(15.0 /  this.OrbitalRadius);
                 if ( this.OrbitalAngle >= 360.0f)

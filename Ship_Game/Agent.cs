@@ -2,41 +2,34 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 
 namespace Ship_Game
 {
 	public sealed class Agent
 	{
-		public string Name;
-
-		public int Level = 1;
-
-        public int Experience = 0;
-
-		public AgentMission Mission;
-        public AgentMission PrevisousMission = AgentMission.Training;
-        public string PreviousTarget;
-
-		public int TurnsRemaining;
-
-		public string TargetEmpire = "";
-
-		public Guid TargetGUID;
-
-		public int MissionNameIndex = 2183;
-        public bool spyMute = false;
-
-        public string HomePlanet = "";
-        public float Age = 30.0f;
-        public float ServiceYears = 0.0f;
-        public short Assassinations = 0;
-        public short Training = 0;
-        public short Infiltrations = 0;
-        public short Sabotages = 0;
-        public short TechStolen = 0;
-        public short Robberies = 0;
-        public short Rebellions = 0;
+        [Serialize(0)] public string Name;
+        [Serialize(1)] public int Level = 1;
+        [Serialize(2)] public int Experience;
+        [Serialize(3)] public AgentMission Mission;
+        [Serialize(4)] public AgentMission PrevisousMission = AgentMission.Training;
+        [Serialize(5)] public string PreviousTarget;
+        [Serialize(6)] public int TurnsRemaining;
+        [Serialize(7)] public string TargetEmpire = "";
+        [Serialize(8)] public Guid TargetGUID;
+        [Serialize(9)] public int MissionNameIndex = 2183;
+        [Serialize(10)] public bool spyMute;
+        [Serialize(11)] public string HomePlanet = "";
+        [Serialize(12)] public float Age = 30f;
+        [Serialize(13)] public float ServiceYears = 0f;
+        [Serialize(14)] public short Assassinations;
+        [Serialize(15)] public short Training;
+        [Serialize(16)] public short Infiltrations;
+        [Serialize(17)] public short Sabotages;
+        [Serialize(18)] public short TechStolen;
+        [Serialize(19)] public short Robberies;
+        [Serialize(20)] public short Rebellions;
 
 		public Agent()
 		{
@@ -413,7 +406,7 @@ namespace Ship_Game
                         foreach (KeyValuePair<string, TechEntry> entry in Target.GetTDict())
                         {
                             //Added by McShooterz: Root nodes cannot be stolen
-                            if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked || entry.Value.GetTech().RootNode == 1)
+                            if (!entry.Value.Unlocked || !Owner.HavePreReq(entry.Value.UID) || Owner.GetTDict()[entry.Value.UID].Unlocked || entry.Value.Tech.RootNode == 1)
                             {
                                 continue;
                             }

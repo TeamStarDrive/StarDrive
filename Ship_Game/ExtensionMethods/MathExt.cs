@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using SynapseGaming.LightingSystem.Rendering;
 using static System.Math;
 
@@ -83,6 +84,8 @@ namespace Ship_Game
         }
 
 
+
+
         // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f
         public static Vector3 ToVec3(this Vector2 a) => new Vector3(a.X, a.Y, 0f);
 
@@ -98,7 +101,14 @@ namespace Ship_Game
         // Center of a Texture2D. Not rounded! So 121x121 --> {60.5;60.5}
         public static Vector2 Center(this Texture2D texture)   => new Vector2(texture.Width / 2f, texture.Height / 2f);
         public static Vector2 Position(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
+        public static Vector2 Pos(this MouseState ms) => new Vector2(ms.X, ms.Y);
 
+        // Center of the screen
+        public static Vector2 Center(this ScreenManager screenMgr)
+        {
+            var p = screenMgr.GraphicsDevice.PresentationParameters;
+            return new Vector2(p.BackBufferWidth / 2f, p.BackBufferHeight / 2f);
+        }
 
         // result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
@@ -152,6 +162,12 @@ namespace Ship_Game
             return (float)(180 - Atan2(direction.X, direction.Y) * 180.0 / PI);
         }
 
+        // Converts a Vector3 with XYZ degrees into Vector3 XYZ radians
+        public static Vector3 DegsToRad(this Vector3 degrees)
+        {
+            return degrees * ((float)PI / 180.0f);
+        }
+
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
         public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)
@@ -181,23 +197,29 @@ namespace Ship_Game
             return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
         }
 
-        // @todo Axes don't match up with XNA's internals
-        // Creates a 3D direction vector from Euler XYZ rotation RADIANS
-        // X = Yaw
-        // Y = Pitch
-        // Z = Roll
-        public static Vector3 DirectionFromRadians(this Vector3 xyzRadians)
+
+        // Creates a 3D Forward vector from XYZ RADIANS rotation
+        // X = Yaw;  Y = Pitch;  Z = Roll
+        public static Vector3 RadiansToForward(this Vector3 radians)
         {
-            double sx = Sin(xyzRadians.Z);
-            double cx = Cos(xyzRadians.Z);
-            double sy = Sin(xyzRadians.Y);
-            double cy = Cos(xyzRadians.Y);
-            double sz = Sin(xyzRadians.X);
-            double cz = Cos(xyzRadians.X);
-            return new Vector3((float)( -cz*sy*sx - sz*cx),
-                               (float)( -sz*sy*sx + cz*cx),
-                               (float)( cy*sx ));
+            return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Forward;
         }
+        public static Vector3 RadiansToRight(this Vector3 radians)
+        {
+            return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Right;
+        }
+        public static Vector3 RadiansToUp(this Vector3 radians)
+        {
+            return Matrix.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z).Up;
+        }
+
+
+        // Creates a 3D Forward vector from XYZ DEGREES rotation
+        // X = Yaw;  Y = Pitch;  Z = Roll
+        public static Vector3 DegreesToForward(this Vector3 degrees) => degrees.DegsToRad().RadiansToForward();
+        public static Vector3 DegreesToRight(this Vector3 degrees)   => degrees.DegsToRad().RadiansToRight();
+        public static Vector3 DegreesToUp(this Vector3 degrees)      => degrees.DegsToRad().RadiansToUp();
+
 
         // Creates an Affine World transformation Matrix
         public static Matrix AffineTransform(Vector3 position, Vector3 rotationRadians, float scale)
@@ -210,7 +232,7 @@ namespace Ship_Game
         }
 
         // Sets the Affine World transformation Matrix for this SceneObject
-        public static void SetAffineTransform(this SceneObject so, Vector3 position, Vector3 rotationRadians, float scale)
+        public static void AffineTransform(this SceneObject so, Vector3 position, Vector3 rotationRadians, float scale)
         {
             so.World = Matrix.CreateScale(scale)
                 * Matrix.CreateRotationX(rotationRadians.X)
@@ -220,7 +242,27 @@ namespace Ship_Game
         }
 
         // Sets the Affine World transformation Matrix for this SceneObject
-        public static void SetAffineTransform(this SceneObject so, Vector2 position, float xRads, float yRads, float zRads)
+        public static void AffineTransform(this SceneObject so, Vector3 position, float xRads, float yRads, float zRads, float scale)
+        {
+            so.World = Matrix.CreateScale(scale)
+                * Matrix.CreateRotationX(xRads)
+                * Matrix.CreateRotationY(yRads)
+                * Matrix.CreateRotationZ(zRads)
+                * Matrix.CreateTranslation(position);
+        }
+
+        // Sets the Affine World transformation Matrix for this SceneObject
+        public static void AffineTransform(this SceneObject so, float x, float y, float z, float xRads, float yRads, float zRads, float scale)
+        {
+            so.World = Matrix.CreateScale(scale)
+                * Matrix.CreateRotationX(xRads)
+                * Matrix.CreateRotationY(yRads)
+                * Matrix.CreateRotationZ(zRads)
+                * Matrix.CreateTranslation(x, y, z);
+        }
+
+        // Sets the Affine World transformation Matrix for this SceneObject
+        public static void AffineTransform(this SceneObject so, Vector2 position, float xRads, float yRads, float zRads)
         {
             so.World = Matrix.CreateRotationX(xRads)
                 * Matrix.CreateRotationY(yRads)

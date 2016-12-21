@@ -1161,7 +1161,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[this.ResLock.Path], this.ResLock.LockRect, Color.White);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Planets/" + (object)this.p.planetType], this.PlanetIcon, Color.White);
             float num5 = 80f;
-            if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+            if (GlobalStats.IsGermanOrPolish)
                 num5 += 20f;
             Vector2 vector2_2 = new Vector2((float)(this.PlanetInfo.Menu.X + 20), (float)(this.PlanetInfo.Menu.Y + 45));
             this.p.Name = this.PlanetName.Text;
@@ -1583,8 +1583,8 @@ namespace Ship_Game
                         }
                         else
                         {
-                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["Textures/transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/transparent"], fIcon, Color.White);
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["transparent"], fIcon, Color.White);
                         }
                         Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
                         SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
@@ -1603,8 +1603,8 @@ namespace Ship_Game
                         }
                         else
                         {
-                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["Textures/transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/transparent"], fIcon, Color.White);
+                            fIcon = new Rectangle((int)bCursor.X, (int)bCursor.Y, ResourceManager.TextureDict["transparent"].Width, ResourceManager.TextureDict["Textures/transparent"].Height);
+                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["transparent"], fIcon, Color.White);
                         }
                         Vector2 tCursor = new Vector2(bCursor.X + (float)fIcon.Width + 5f, bCursor.Y + 3f);
                         SpriteBatch spriteBatch1 = this.ScreenManager.SpriteBatch;
@@ -2095,10 +2095,9 @@ namespace Ship_Game
                         screen.workersPanel = new ColonyScreen(p, ScreenManager, eui);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-
-                    System.Diagnostics.Debug.WriteLine("Colony Screen Handle Inpu. Likely null reference.");
+                    Log.Exception(ex, "Colony Screen HandleInput(). Likely null reference.");
                 }
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
@@ -2142,7 +2141,7 @@ namespace Ship_Game
             }
             if (!HelperFunctions.CheckIntersection(this.launchTroops.Rect, input.CursorPosition))
             {
-                this.launchTroops.State = UIButton.PressState.Normal;
+                this.launchTroops.State = UIButton.PressState.Default;
             }
             else
             {
@@ -2176,7 +2175,7 @@ namespace Ship_Game
             //fbedard: Click button to send troops
             if (!HelperFunctions.CheckIntersection(this.SendTroops.Rect, input.CursorPosition))
             {
-                this.SendTroops.State = UIButton.PressState.Normal;
+                this.SendTroops.State = UIButton.PressState.Default;
             }
             else
             {

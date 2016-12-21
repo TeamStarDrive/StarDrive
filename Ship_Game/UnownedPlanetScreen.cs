@@ -69,7 +69,7 @@ namespace Ship_Game
 			PNameCursor.Y = PNameCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing * 2);
 			string fmt = "#.#";
 			float amount = 80f;
-			if (GlobalStats.Config.Language == "German")
+			if (GlobalStats.IsGerman)
 			{
 				amount = amount + 25f;
 			}

@@ -1,10 +1,19 @@
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
-	public sealed class RandomEventManager
+    public sealed class RandomEvent
+    {
+        [Serialize(0)] public string Name;
+        [Serialize(1)] public string NotificationString;
+        [Serialize(2)] public int TurnTimer;
+        [Serialize(3)] public bool InhibitWarp;
+    }
+
+    public sealed class RandomEventManager
 	{
 		public static RandomEvent ActiveEvent;
 
@@ -14,120 +23,112 @@ namespace Ship_Game
 
 		public static void TryEventSpawn()
 		{
-			if (RandomEventManager.ActiveEvent == null)
-			{
-				float Random = RandomMath.RandomBetween(0f, 1000f);
+		    if (ActiveEvent != null)
+                return;
+
+		    float random = RandomMath.RandomBetween(0f, 1000f);
+
+		    if (random < 1f)        //Hyperspace Flux
+		    {
+		        ActiveEvent = new RandomEvent
+		        {
+		            TurnTimer = (int)RandomMath.RandomBetween(10f, 40f),
+		            Name = "Hyperspace Flux",
+		            NotificationString = Localizer.Token(4010),
+		            InhibitWarp = true
+		        };
+                Empire.Universe.NotificationManager.AddRandomEventNotification(
+                    ActiveEvent.NotificationString, null, null, null);
+		    }
 
 
-				if (Random < 1f)        //Hyperspace Flux
-				{
-					RandomEventManager.ActiveEvent = new RandomEvent()
-					{
-						TurnTimer = (int)RandomMath.RandomBetween(10f, 40f),
-						Name = "Hyperspace Flux",
-						NotificationString = Localizer.Token(4010),
-						InhibitWarp = true
-					};
-					Ship.universeScreen.NotificationManager.AddRandomEventNotification(RandomEventManager.ActiveEvent.NotificationString, null, null, null);
-				}
+		    if (random > 2f && random < 4f)         //Shifted in orbit (+ Fertility)
+		    {
+		        var potentials = new List<Planet>();
+		        foreach (var planet in Empire.Universe.PlanetsDict)
+		        {
+		            if (planet.Value.habitable)
+		                potentials.Add(planet.Value);
+		        }
+		        if (potentials.Count > 0)
+		        {
+		            Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
+		            if (toImprove.ExploredDict[EmpireManager.Player])
+		            {
+		                toImprove.TerraformExternal(0.5f);
+		                string txt = toImprove.Name + Localizer.Token(4011);
+		                Empire.Universe.NotificationManager.AddRandomEventNotification(
+                            txt, "Planets/"+toImprove.planetType, "SnapToPlanet", toImprove);
+		            }
+		        }
+		    }
 
+		    if (random > 4f && random < 6f)     //Volcano (- Fertility)
+		    {
+		        var potentials = new List<Planet>();
+		        foreach (var planet in Empire.Universe.PlanetsDict)
+		        {
+		            if (planet.Value.habitable)
+		                potentials.Add(planet.Value);
+		        }
+		        if (potentials.Count > 0)
+		        {
+		            Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
+		            if (toImprove.ExploredDict[EmpireManager.Player])
+		            {
+		                toImprove.TerraformExternal(-0.5f);
+		                toImprove.MaxPopulation = toImprove.MaxPopulation * 0.65f;
+		                if (toImprove.Population > toImprove.MaxPopulation)
+		                {
+		                    toImprove.Population = toImprove.MaxPopulation;
+		                }
+		                string txt = toImprove.Name + Localizer.Token(4012);
+                        Empire.Universe.NotificationManager.AddRandomEventNotification(
+                            txt, "Planets/"+toImprove.planetType, "SnapToPlanet", toImprove);
+		            }
+		        }
+		    }
+		    if (random > 6 && random < 8)   //Meteor Strike --  Added by Gretman
+		    {
+		        var potentials = new List<Planet>();
+		        foreach (var planet in Empire.Universe.PlanetsDict)
+		        {
+		            if (planet.Value.habitable)
+		                potentials.Add(planet.Value);
+		        }
 
-				if (Random > 2f && Random < 4f)         //Shifted in orbit (+ Fertility)
-				{
-					List<Planet> potentials = new List<Planet>();
-					foreach (KeyValuePair<Guid, Planet> planet in Ship.universeScreen.PlanetsDict)
-					{
-						if (!planet.Value.habitable)
-						{
-							continue;
-						}
-						potentials.Add(planet.Value);
-					}
-					if (potentials.Count > 0)
-					{
-						Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
-						if (toImprove.ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
-						{
-							toImprove.TerraformExternal(0.5f);
-							string txt = string.Concat(toImprove.Name, Localizer.Token(4011));
-							Ship.universeScreen.NotificationManager.AddRandomEventNotification(txt, string.Concat("Planets/", toImprove.planetType), "SnapToPlanet", toImprove);
-						}
-					}
-				}
+		        if (potentials.Count > 0)
+		        {
+		            Planet targetplanet = potentials[RandomMath.InRange(potentials.Count)];
+		            if (targetplanet.ExploredDict[EmpireManager.Player])
+		            {
+		                float sizeofmeteor = RandomMath.RandomBetween(1, 3) / 10;
+		                if (targetplanet.Fertility > 0) targetplanet.TerraformExternal(-sizeofmeteor);      //Lose half of the richness gained (if not already 0);
+		                targetplanet.MineralRichness += sizeofmeteor * 2;
 
+		                string eventtext = targetplanet.Name + Localizer.Token(4105);
+                        Empire.Universe.NotificationManager.AddRandomEventNotification(
+                            eventtext, "Planets/"+targetplanet.planetType, "SnapToPlanet", targetplanet);
+		            }
+		            else Log.Info($"Something horrible would have happened to '{targetplanet.Name}' but it was on a planet the player hasn't discovered yet.");
+		        }
 
-				if (Random > 4f && Random < 6f)     //Volcano (- Fertility)
-				{
-					List<Planet> potentials = new List<Planet>();
-					foreach (KeyValuePair<Guid, Planet> planet in Ship.universeScreen.PlanetsDict)
-					{
-						if (!planet.Value.habitable)
-						{
-							continue;
-						}
-						potentials.Add(planet.Value);
-					}
-					if (potentials.Count > 0)
-					{
-						Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
-						if (toImprove.ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
-						{
-							toImprove.TerraformExternal(-0.5f);
-							toImprove.MaxPopulation = toImprove.MaxPopulation * 0.65f;
-							if (toImprove.Population > toImprove.MaxPopulation)
-							{
-								toImprove.Population = toImprove.MaxPopulation;
-							}
-							string txt = string.Concat(toImprove.Name, Localizer.Token(4012));
-							Ship.universeScreen.NotificationManager.AddRandomEventNotification(txt, string.Concat("Planets/", toImprove.planetType), "SnapToPlanet", toImprove);
-						}
-					}
-				}
-                if (Random > 6 && Random < 8)   //Meteor Strike --  Added by Gretman
-                {
-                    List<Planet> potentials = new List<Planet>();
-                    foreach (KeyValuePair<Guid, Planet> planet in Ship.universeScreen.PlanetsDict)
-                    {
-                        if (!planet.Value.habitable)
-                        {
-                            continue;
-                        }
-                        potentials.Add(planet.Value);
-                    }
-
-                    if (potentials.Count > 0)
-                    {
-                        Planet targetplanet = potentials[RandomMath.InRange(potentials.Count)];
-                        if (targetplanet.ExploredDict[EmpireManager.GetEmpireByName(Planet.universeScreen.PlayerLoyalty)])
-                        {
-
-                        float sizeofmeteor = RandomMath.RandomBetween(1, 3) / 10;
-                        if (targetplanet.Fertility > 0) targetplanet.TerraformExternal(-sizeofmeteor);      //Lose half of the richness gained (if not already 0);
-                        targetplanet.MineralRichness += sizeofmeteor * 2;
-
-                        string eventtext = string.Concat(targetplanet.Name, Localizer.Token(4105));
-                        Ship.universeScreen.NotificationManager.AddRandomEventNotification(eventtext, string.Concat("Planets/", targetplanet.planetType), "SnapToPlanet", targetplanet);
-                        }
-                        else System.Diagnostics.Debug.WriteLine("Some shit would have happened to '" + targetplanet.Name + "' but it was on a planet the player hasn't discovered yet.");
-                    }
-
-                }
-			}
+		    }
 		}
 
 		public static void UpdateEvents()
 		{
-			if (RandomEventManager.ActiveEvent == null)
+			if (ActiveEvent == null)
 			{
-				RandomEventManager.TryEventSpawn();
+				TryEventSpawn();
 				return;
 			}
-			RandomEvent activeEvent = RandomEventManager.ActiveEvent;
+			RandomEvent activeEvent = ActiveEvent;
 			activeEvent.TurnTimer = activeEvent.TurnTimer - 1;
-			if (RandomEventManager.ActiveEvent.TurnTimer <= 0)
+			if (ActiveEvent.TurnTimer <= 0)
 			{
-				RandomEventManager.ActiveEvent = null;
-				Ship.universeScreen.NotificationManager.AddRandomEventNotification(Localizer.Token(4009), null, null, null);
+				ActiveEvent = null;
+                Empire.Universe.NotificationManager.AddRandomEventNotification(Localizer.Token(4009), null, null, null);
 			}
 		}
 	}

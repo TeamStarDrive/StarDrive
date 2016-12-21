@@ -74,7 +74,7 @@ namespace Ship_Game
 		public PopupWindow(Rectangle r)
 		{
 			base.IsPopup = true;
-			if (GlobalStats.Config.Language != "English")
+			if (!GlobalStats.IsEnglish)
 			{
 				r.X = r.X - 20;
 				r.Width = r.Width + 40;

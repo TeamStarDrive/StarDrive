@@ -1,47 +1,31 @@
 using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
 	public sealed class AO : IDisposable
 	{
-		public int ThreatLevel;
+        [XmlIgnore][JsonIgnore] private Planet CoreWorld;
+        [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][JsonIgnore] private Fleet CoreFleet = new Fleet();
+        [XmlIgnore][JsonIgnore] private readonly List<Ship> ShipsWaitingForCoreFleet = new List<Ship>();
+        [XmlIgnore][JsonIgnore] private List<Planet> PlanetsInAO = new List<Planet>();
+        [XmlIgnore][JsonIgnore] private bool disposed;
+        [XmlIgnore][JsonIgnore] public Vector2 Position => CoreWorld.Position;
 
-		private Planet CoreWorld;
-
-		public Guid CoreWorldGuid;
-
-		public List<Guid> OffensiveForceGuids = new List<Guid>();
-
-		public List<Guid> ShipsWaitingGuids = new List<Guid>();
-
-		public Guid fleetGuid;
-
-		private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
-
-		private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
-
-		private Fleet CoreFleet = new Fleet();
-
-		private List<Ship> ShipsWaitingForCoreFleet = new List<Ship>();
-
-		public int WhichFleet = -1;
-
-		private bool Flip;
-
-		public float Radius;
-
-		private List<Planet> PlanetsInAO = new List<Planet>();
-
-		public int TurnsToRelax;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public Vector2 Position => this.CoreWorld.Position;
+        [Serialize(0)] public int ThreatLevel;
+        [Serialize(1)] public Guid CoreWorldGuid;
+        [Serialize(2)] public List<Guid> OffensiveForceGuids = new List<Guid>();
+        [Serialize(3)] public List<Guid> ShipsWaitingGuids = new List<Guid>();
+        [Serialize(4)] public Guid fleetGuid;
+        [Serialize(5)] public int WhichFleet = -1;
+        [Serialize(6)] private bool Flip;
+        [Serialize(7)] public float Radius;
+        [Serialize(8)] public int TurnsToRelax;
 
 	    public AO()
 		{
