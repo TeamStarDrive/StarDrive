@@ -3399,6 +3399,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(ProjectDir)deploy\Config\Depoly.cmd $([System.DateTime]::Now.ToString(`MMdd))</PostBuildEvent>
+    <PostBuildEvent>$(ProjectDir)deploy\Config\Deploy.cmd</PostBuildEvent>
   </PropertyGroup>
 </Project>
