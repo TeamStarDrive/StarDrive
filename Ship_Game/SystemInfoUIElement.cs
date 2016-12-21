@@ -104,14 +104,14 @@ namespace Ship_Game
 			{
 				for (int i = 0; i < this.s.PlanetList.Count; i++)
 				{
-					Vector2 planetPos = HelperFunctions.findPointFromAngleAndDistance(pPos, this.s.PlanetList[i].OrbitalAngle, (float)(40 + 40 * i));
+					Vector2 planetPos = pPos.PointFromAngle(s.PlanetList[i].OrbitalAngle, 40 + 40 * i);
 					planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (float)(40 + 40 * i)) * transitionOffset);
 					Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, pPos, Vector2.Distance(pPos, planetPos), 50, (this.s.PlanetList[i].Owner == null ? new Color(50, 50, 50, 90) : new Color(this.s.PlanetList[i].Owner.EmpireColor, 100)), 2f);
 				}
 				for (int i = 0; i < this.s.PlanetList.Count; i++)
 				{
 					Planet planet = this.s.PlanetList[i];
-                    Vector2 planetPos = HelperFunctions.findPointFromAngleAndDistance(pPos, this.s.PlanetList[i].OrbitalAngle, (float)(40 + 40 * i));
+                    Vector2 planetPos = pPos.PointFromAngle(s.PlanetList[i].OrbitalAngle, 40 + 40 * i);
 					planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (float)(40 + 40 * i)) * transitionOffset);
                     float fIconScale = 1.0f + ((float)(Math.Log(this.s.PlanetList[i].scale)));
 					Rectangle PlanetRect = new Rectangle((int)planetPos.X - (int)(16 * fIconScale / 2), (int)planetPos.Y - (int)(16 * fIconScale / 2), (int)(16 * fIconScale), (int)(16 * fIconScale));

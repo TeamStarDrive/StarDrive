@@ -44,24 +44,17 @@ namespace Ship_Game
 			this.SL = new ScrollList(this.ConstructionSubMenu, 40);
 
             //The Doctor: Ensure Subspace Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
-            foreach (string s in EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild)
+		    var buildables = EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild;
+            foreach (string s in buildables)
             {
-                if (ResourceManager.GetShip(s).Name == "Subspace Projector")
-                {
-                    this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
-                    break;
-                }
-                else
-                    continue;
+                if (s != "Subspace Projector") continue;
+                SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
+                break;
             }
-			foreach (string s in EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild)
+			foreach (string s in buildables)
 			{
-                if (ResourceManager.GetShip(s).Name != "Subspace Projector")
-                {
-                    this.SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
-                }
-                else
-                    continue;
+                if (s != "Subspace Projector")
+                    SL.AddItem(ResourceManager.ShipsDict[s], 0, 0);
             }
 			this.TextPos = new Vector2((float)(this.win.X + this.win.Width / 2) - Fonts.Arial12Bold.MeasureString("Deep Space Construction").X / 2f, (float)(this.win.Y + 25));
 		}
@@ -74,7 +67,7 @@ namespace Ship_Game
 
        ~DeepSpaceBuildingWindow() { Dispose(false); }
 
-       protected void Dispose(bool disposing)
+       private void Dispose(bool disposing)
        {
            if (!disposed)
            {

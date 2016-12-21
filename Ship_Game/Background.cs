@@ -95,7 +95,7 @@ namespace Ship_Game
 			ScreenManager.SpriteBatch.Begin();
 			Color c = new Color(255, 255, 255, 160);
 			Primitives2D.FillRectangle(ScreenManager.SpriteBatch, blackRect, new Color(12, 17, 24));
-			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/hqstarfield1"], blackRect, new Rectangle?(blackRect), c);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, new Rectangle?(blackRect), c);
 			Vector2 vector21 = new Vector2(camPos.X, camPos.Y);
 			float percentX = camPos.X / 500000f;
 			float percentY = camPos.Y / 500000f;
@@ -131,11 +131,11 @@ namespace Ship_Game
 			Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, new Color(12, 17, 24));
 			if (universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth > 2048)
 			{
-				universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/hqstarfield1"], blackRect, c);
+				universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, c);
 			}
 			else
 			{
-				universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/hqstarfield1"], blackRect, new Rectangle?(blackRect), c);
+				universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, new Rectangle?(blackRect), c);
 			}
 			Vector2 vector21 = new Vector2(camPos.X, camPos.Y);
 			float percentX = camPos.X / 500000f;
@@ -189,7 +189,7 @@ namespace Ship_Game
 			universe.ScreenManager.SpriteBatch.Begin();
 			Color c = new Color(255, 255, 255, 160);
 			Primitives2D.FillRectangle(universe.ScreenManager.SpriteBatch, blackRect, new Color(12, 17, 24));
-			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/hqstarfield1"], blackRect, new Rectangle?(blackRect), c);
+			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["hqstarfield1"], blackRect, blackRect, c);
 			Vector2 vector21 = new Vector2(camPos.X, camPos.Y);
 			float percentX = camPos.X / 500000f;
 			float percentY = camPos.Y / 500000f;
@@ -232,7 +232,7 @@ namespace Ship_Game
 			Viewport viewport5 = universe.ScreenManager.GraphicsDevice.Viewport;
 			viewport5.Project(new Vector3(universe.Size.X / 2f, universe.Size.Y / 2f, 0f), universe.projection, universe.view, Matrix.Identity);
 			Rectangle drawRect = new Rectangle((int)UpperLeft.X, (int)UpperLeft.Y, (int)LowerRight.X - (int)UpperLeft.X, (int)LowerRight.Y - (int)UpperLeft.Y);
-			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Textures/galaxy"], drawRect, Color.White);
+			universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["galaxy"], drawRect, Color.White);
 			universe.ScreenManager.SpriteBatch.End();
 			this.lastCamPos = camPos;
 		}

@@ -299,9 +299,9 @@ namespace Ship_Game
 				SpriteFont arial12Bold = Fonts.Arial12Bold;
 				float mechanicalBoardingDefense = this.HoveredShip.MechanicalBoardingDefense + this.HoveredShip.TroopBoardingDefense;
 				spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(this.fmt), defPos, Color.White);
-				text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
+				text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
                 Vector2 ShipStatus = new Vector2((float)(this.sel.Menu.X + this.sel.Menu.Width - 170), this.Housing.Y + 68);
-				text = HelperFunctions.parseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
+				text = HelperFunctions.ParseText(Fonts.Arial10, ShipListScreenEntry.GetStatusText(this.HoveredShip), 155f);
 				HelperFunctions.ClampVectorToInt(ref ShipStatus);
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, this.tColor);
 				ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
@@ -824,7 +824,7 @@ namespace Ship_Game
 
         ~ShipListInfoUIElement() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

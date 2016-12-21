@@ -126,8 +126,8 @@ namespace Ship_Game
                 Launches = "LaunchAll",
                 Text = "Launch All"
             };
-            CombatScreen.universeScreen.MasterShipList.thisLock.EnterReadLock();
-            foreach (Ship ship in CombatScreen.universeScreen.MasterShipList)			                        
+            using (universeScreen.MasterShipList.AcquireReadLock())
+            foreach (Ship ship in universeScreen.MasterShipList)			                        
             {
                 
                 if (ship == null)
@@ -158,7 +158,6 @@ namespace Ship_Game
                     this.OrbitSL.AddItem(ship);
                 }
             }
-            CombatScreen.universeScreen.MasterShipList.thisLock.ExitReadLock();
 			this.gridPos = new Rectangle(ColonyGrid.X + 20, ColonyGrid.Y + 20, ColonyGrid.Width - 40, ColonyGrid.Height - 40);
 			int xsize = this.gridPos.Width / 7;
 			int ysize = this.gridPos.Height / 5;
@@ -702,7 +701,7 @@ namespace Ship_Game
 			{
 				if (!HelperFunctions.CheckIntersection(this.LandAll.Rect, input.CursorPosition))
 				{
-					this.LandAll.State = UIButton.PressState.Normal;
+					this.LandAll.State = UIButton.PressState.Default;
 				}
 				else
 				{
@@ -728,11 +727,11 @@ namespace Ship_Game
                     
 				}
 			}
-            if (p.TroopsHere.Where(mytroops => mytroops.GetOwner() == universeScreen.player).Count() > 0)
+            if (p.TroopsHere.Any(mytroops => mytroops.GetOwner() == universeScreen.player))
             {
                 if (!HelperFunctions.CheckIntersection(this.LaunchAll.Rect, input.CursorPosition))
                 {
-                    this.LaunchAll.State = UIButton.PressState.Normal;
+                    this.LaunchAll.State = UIButton.PressState.Default;
                 }
                 else
                 {
@@ -759,9 +758,9 @@ namespace Ship_Game
                                 pgs.TroopsHere[0].SetPlanet(null);
                                 pgs.TroopsHere.Clear();
                             }
-                            catch
+                            catch (Exception ex)
                             {
-                                System.Diagnostics.Debug.WriteLine("Troop Launch Crash");
+                                Log.Exception(ex, "Troop Launch Crash");
                             }
                         }
                         if (play)
@@ -824,9 +823,9 @@ namespace Ship_Game
                             foundPlace = true;
                             this.draggedTroop = null;
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine("Troop Launch Crash");
+                            Log.Exception(ex, "TroopLaunch crash");
                         }
 					}
 					else
@@ -838,33 +837,33 @@ namespace Ship_Game
                         try
                         {
                             AudioManager.PlayCue("sd_troop_land");
-                            pgs.TroopsHere.Add((this.draggedTroop.item as Ship).TroopList[0]);
+                            pgs.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
                             pgs.TroopsHere[0].AvailableAttackActions = 0;
                             pgs.TroopsHere[0].AvailableMoveActions = 0;
                             pgs.TroopsHere[0].Launchtimer = pgs.TroopsHere[0].MoveTimerBase;
-                            pgs.TroopsHere[0].AttackTimer = (float)pgs.TroopsHere[0].AttackTimerBase;
-                            pgs.TroopsHere[0].MoveTimer = (float)pgs.TroopsHere[0].MoveTimerBase;
-                            this.p.TroopsHere.Add((this.draggedTroop.item as Ship).TroopList[0]);
-                            (this.draggedTroop.item as Ship).TroopList[0].SetPlanet(this.p);
-                            if (pgs.building != null && !string.IsNullOrEmpty(pgs.building.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction && !pgs.TroopsHere[0].GetOwner().MinorRace)
+                            pgs.TroopsHere[0].AttackTimer = pgs.TroopsHere[0].AttackTimerBase;
+                            pgs.TroopsHere[0].MoveTimer = pgs.TroopsHere[0].MoveTimerBase;
+                            p.TroopsHere.Add((draggedTroop.item as Ship).TroopList[0]);
+                            (draggedTroop.item as Ship).TroopList[0].SetPlanet(p);
+                            if (!string.IsNullOrEmpty(pgs.building?.EventTriggerUID) && pgs.TroopsHere.Count > 0 && !pgs.TroopsHere[0].GetOwner().isFaction && !pgs.TroopsHere[0].GetOwner().MinorRace)
                             {
-                                ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs, EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty), CombatScreen.universeScreen);
+                                ResourceManager.EventsDict[pgs.building.EventTriggerUID].TriggerPlanetEvent(this.p, pgs.TroopsHere[0].GetOwner(), pgs,  CombatScreen.universeScreen);
                             }
-                            this.OrbitSL.Entries.Remove(this.draggedTroop);
-                            this.OrbitSL.Copied.Remove(this.draggedTroop);
-                            (this.draggedTroop.item as Ship).QueueTotalRemoval();
+                            OrbitSL.Entries.Remove(draggedTroop);
+                            OrbitSL.Copied.Remove(draggedTroop);
+                            (draggedTroop.item as Ship).QueueTotalRemoval();
                             foundPlace = true;
-                            this.draggedTroop = null;
+                            draggedTroop = null;
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine("Troop Launch Crash");
+                            Log.Exception(ex, "Troop Launch Crash");
                         }
 					}
 				}
 				if (!foundPlace)
 				{
-					this.draggedTroop = null;
+					draggedTroop = null;
 					AudioManager.PlayCue("UI_Misc20");
 				}
 			}
@@ -1042,7 +1041,7 @@ namespace Ship_Game
                 Ship ship = this.p.ParentSystem.ShipList[i];
 				if (Vector2.Distance(this.p.Position, ship.Center) < 15000f && ship.loyalty == EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
 				{
-                    if (ship.shipData.Role == ShipData.RoleName.troop && !CombatScreen.universeScreen.MasterShipList.pendingRemovals.Contains(ship))
+                    if (ship.shipData.Role == ShipData.RoleName.troop && !universeScreen.MasterShipList.IsPendingRemoval(ship))
 					{
 						this.OrbitSL.AddItem(ship);
 					}
@@ -1281,7 +1280,7 @@ namespace Ship_Game
 
         ~CombatScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {

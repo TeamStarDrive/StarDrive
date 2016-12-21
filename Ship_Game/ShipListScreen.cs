@@ -163,7 +163,7 @@ namespace Ship_Game
 
         ~ShipListScreen() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -582,8 +582,8 @@ namespace Ship_Game
 				if (!this.SortSystem.Ascending)
 				{
 					IOrderedEnumerable<ScrollList.Entry> sortedList = 
-						from theship in this.ShipSL.Entries
-						orderby (theship.item as ShipListScreenEntry).ship.GetSystemName() descending
+						from theship in ShipSL.Entries
+						orderby (theship.item as ShipListScreenEntry)?.ship.SystemName descending
 						select theship;
 					this.ResetListSorted(sortedList);
 				}
@@ -591,8 +591,7 @@ namespace Ship_Game
 				{
 					IOrderedEnumerable<ScrollList.Entry> sortedList = 
 						from theship in this.ShipSL.Entries
-						orderby (theship.item as ShipListScreenEntry).ship.GetSystemName()
-						select theship;
+						orderby (theship.item as ShipListScreenEntry).ship.SystemName						select theship;
 					this.ResetListSorted(sortedList);
 				}
 				this.ResetPos();

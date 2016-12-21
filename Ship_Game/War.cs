@@ -6,48 +6,27 @@ namespace Ship_Game
 {
 	public sealed class War
 	{
-		public Ship_Game.WarType WarType;
-
+		public WarType WarType;
 		public float OurStartingStrength;
-
 		public float TheirStartingStrength;
-
 		public float OurStartingGroundStrength;
-
 		public int OurStartingColonies;
-
 		public float TheirStartingGroundStrength;
-
 		public float StrengthKilled;
-
 		public float StrengthLost;
-
 		public float TroopsKilled;
-
 		public float TroopsLost;
-
 		public int ColoniestWon;
-
 		public int ColoniesLost;
-
 		public List<string> AlliesCalled = new List<string>();
-
 		public List<Guid> ContestedSystemsGUIDs = new List<Guid>();
-
 		public float TurnsAtWar;
-
 		public float EndStarDate;
-
 		public float StartDate;
-
 		private Empire Us;
-
 		public string UsName;
-
 		public string ThemName;
-
 		private Empire Them;
-
 		public int StartingNumContestedSystems;
 
 		public War()
@@ -75,18 +54,17 @@ namespace Ship_Game
 			{
 				War ourStartingColonies = this;
 				ourStartingColonies.OurStartingColonies = ourStartingColonies.OurStartingColonies + 1;
-                p.TroopsHere.thisLock.EnterReadLock();
-                foreach (Troop t in p.TroopsHere)
-				{
-					if (t.GetOwner() != us)
-					{
-						continue;
-					}
-					War war = this;
-					war.OurStartingGroundStrength = war.OurStartingGroundStrength + (float)t.Strength;
-                    
-				}
-                p.TroopsHere.thisLock.ExitReadLock();
+                using (p.TroopsHere.AcquireReadLock())
+                    foreach (Troop t in p.TroopsHere)
+                    {
+                        if (t.GetOwner() != us)
+                        {
+                            continue;
+                        }
+                        War war = this;
+                        war.OurStartingGroundStrength = war.OurStartingGroundStrength + (float)t.Strength;
+
+                    }
 			}
 			foreach (Ship ship in them.GetShips())
 			{
@@ -100,7 +78,7 @@ namespace Ship_Game
 			}
 			foreach (Planet p in them.GetPlanets())
 			{
-                p.TroopsHere.thisLock.EnterReadLock();
+                using (p.TroopsHere.AcquireReadLock())
                 foreach (Troop t in p.TroopsHere)
 				{
 					if (t.GetOwner() != them)
@@ -110,9 +88,8 @@ namespace Ship_Game
 					War theirStartingGroundStrength1 = this;
 					theirStartingGroundStrength1.TheirStartingGroundStrength = theirStartingGroundStrength1.TheirStartingGroundStrength + (float)t.Strength;
 				}
-                p.TroopsHere.thisLock.ExitReadLock();
 			}
-			foreach (KeyValuePair<Guid, SolarSystem> system in this.Us.GetUS().SolarSystemDict)
+			foreach (KeyValuePair<Guid, SolarSystem> system in Empire.Universe.SolarSystemDict)
 			{
 				bool WeAreThere = false;
 				bool TheyAreThere = false;
@@ -202,11 +179,11 @@ namespace Ship_Game
 			{
 				bool WeAreThere = false;
 				bool TheyAreThere = false;
-				if (this.Us.GetUS().SolarSystemDict[guid].OwnerList.Contains(this.Us))
+				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(this.Us))
 				{
 					WeAreThere = true;
 				}
-				if (this.Them.GetUS().SolarSystemDict[guid].OwnerList.Contains(this.Them))
+				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(this.Them))
 				{
 					TheyAreThere = true;
 				}
@@ -233,11 +210,11 @@ namespace Ship_Game
 			{
 				bool WeAreThere = false;
 				bool TheyAreThere = false;
-				if (this.Us.GetUS().SolarSystemDict[guid].OwnerList.Contains(this.Us))
+				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(this.Us))
 				{
 					WeAreThere = true;
 				}
-				if (this.Them.GetUS().SolarSystemDict[guid].OwnerList.Contains(this.Them))
+				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(this.Them))
 				{
 					TheyAreThere = true;
 				}
@@ -260,7 +237,7 @@ namespace Ship_Game
 		public WarState GetWarScoreState()
 		{
 			float totalThreatAgainstUs = 0f;
-			foreach (KeyValuePair<Empire, Relationship> r in this.Us.GetRelations())
+			foreach (KeyValuePair<Empire, Relationship> r in this.Us.AllRelations)
 			{
 				if (r.Key.isFaction || r.Key.data.Defeated || !r.Value.AtWar)
 				{

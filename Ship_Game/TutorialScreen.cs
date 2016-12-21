@@ -76,30 +76,22 @@ namespace Ship_Game
             FileInfo[] textList;
             try
             {
-                 textList = HelperFunctions.GetFilesFromDirectory(string.Concat("Content/Tutorials/", GlobalStats.Config.Language, "/"));
+                 textList = Dir.GetFiles("Content/Tutorials/" + GlobalStats.Language + "/", "xnb");
             }
             catch
             {
-                 textList = HelperFunctions.GetFilesFromDirectory(string.Concat("Content/Tutorials/", "English", "/"));
+                 textList = Dir.GetFiles("Content/Tutorials/English/", "xnb");
             }
-			FileInfo[] fileInfoArray = textList;
-			for (int i = 0; i < (int)fileInfoArray.Length; i++)
+			foreach (FileInfo info in textList)
 			{
-				string name = Path.GetFileNameWithoutExtension(fileInfoArray[i].Name);
-				if (name != "Thumbs")
-				{
-					Texture2D tex = Game1.Instance.Content.Load<Texture2D>(string.Concat("Tutorials/", GlobalStats.Config.Language, "/", name));
-					this.TexDict[name] = tex;
-				}
+			    string name = Path.GetFileNameWithoutExtension(info.Name);
+			    Texture2D tex = Game1.Instance.Content.Load<Texture2D>("Tutorials/"+ GlobalStats.Language+"/"+name);
+			    TexDict[name] = tex;
 			}
-			this.BridgeRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 640, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 360, 1280, 720);
-			this.close = new CloseButton(new Rectangle(this.BridgeRect.X + this.BridgeRect.Width - 38, this.BridgeRect.Y + 15, 20, 20));
+            var center = ScreenManager.Center();
+			BridgeRect = new Rectangle((int)center.X - 640, (int)center.Y - 360, 1280, 720);
+			close = new CloseButton(new Rectangle(BridgeRect.X + BridgeRect.Width - 38, BridgeRect.Y + 15, 20, 20));
 			base.LoadContent();
-		}
-
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-		{
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}
 }

@@ -2,113 +2,69 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.IO;
-using System.Xml.Serialization;
-using System.Linq;
 
 namespace Ship_Game
 {
 	public  sealed class SolarSystem: IDisposable
 	{
 		public string Name = "Random System";
-
 		public bool CombatInSystem;
-
 		public float combatTimer;
-
 		public Guid guid = Guid.NewGuid();
-
 		public int IndexOfResetEvent;
-
 		public bool DontStartNearPlayer;
-
 		public float DangerTimer;
-
 		public float DangerUpdater = 10f;
 
 		//public List<Empire> OwnerList = new List<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
-
 		public BatchRemovalCollection<Ship> ShipList = new BatchRemovalCollection<Ship>();
-
-		public RandomThreadMath RNG = new RandomThreadMath();
-
 		public SpatialManager spatialManager = new SpatialManager();
-
 		public bool isVisible;
-
 		public Vector2 Position;
-
 		public int RingsCount;
 
         //public Vector2 Size = new Vector2(200000f, 200000f);          //Not referenced in code, removing to save memory
 
         public List<Planet> PlanetList = new List<Planet>();
-
 		public BatchRemovalCollection<Asteroid> AsteroidsList = new BatchRemovalCollection<Asteroid>();
-
         public List<Moon> MoonList = new List<Moon>();
-
 		public string SunPath;
-
 		public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
-
-		public List<SolarSystem.Ring> RingList = new List<SolarSystem.Ring>();
-
+		public List<Ring> RingList = new List<Ring>();
 		private int numberOfRings;
-
 		public int StarRadius;
-
 		public List<SolarSystem> FiveClosestSystems = new List<SolarSystem>();
-
 		public List<string> ShipsToSpawn = new List<string>();
-
-		public List<SolarSystem.FleetAndPos> FleetsToSpawn = new List<SolarSystem.FleetAndPos>();
-
+		public List<FleetAndPos> FleetsToSpawn = new List<FleetAndPos>();
 		public List<Anomaly> AnomaliesList = new List<Anomaly>();
-
 		public bool isStartingSystem;
-
 		public List<string> DefensiveFleets = new List<string>();
-        
         public Dictionary<Empire,PredictionTimeout> predictionTimeout =new Dictionary<Empire,PredictionTimeout>();
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
-        private int myVar;
 
-        //public int MyProperty(Empire empire)
-        //{
-             
-        //    foreach(Planet p in this.PlanetList)
-        //    {
-        //        if(p.Owner == null || p.Owner != empire)
-        //            continue;
-        //    }
-        //    this == EmpireManager.GetEmpireByName(Empire.universeScreen.PlayerLoyalty) ? 300000f * empire.data.SensorModifier : 600000f * empire.data.SensorModifier
-            
-        //}
-        
-            public class PredictionTimeout{
-                public float prediction;
-                public float predictionTimeout;
-                public float predictedETA;
-                public void update(float time)
-                {
-                    this.predictionTimeout -= time;
-                    this.predictedETA -= time;
-                    System.Diagnostics.Debug.WriteLine("Prediction Timeout: " + this.predictionTimeout);
-                    System.Diagnostics.Debug.WriteLine("Prediction ETA: " + this.predictedETA);
-                    System.Diagnostics.Debug.WriteLine("Prediction: " + this.prediction);
-                    
-                }
+        public class PredictionTimeout
+        {
+            public float prediction;
+            public float predictionTimeout;
+            public float predictedETA;
+            public void update(float time)
+            {
+                predictionTimeout -= time;
+                predictedETA -= time;
+                Log.Info("Prediction Timeout: {0}", predictionTimeout);
+                Log.Info("Prediction ETA: {0}", predictedETA);
+                Log.Info("Prediction: {0}", prediction);
             }
+        }
+
 		public SolarSystem()
 		{
 		}
 
-		private void AddMajorRemnantPresence(Planet newOrbital)
+		private static void AddMajorRemnantPresence(Planet newOrbital)
 		{
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
             {
@@ -125,7 +81,7 @@ namespace Ship_Game
             }
 		}
 
-		private void AddMinorRemnantPresence(Planet newOrbital)
+		private static void AddMinorRemnantPresence(Planet newOrbital)
 		{
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
             {
@@ -141,377 +97,368 @@ namespace Ship_Game
             }
 		}
 
-        private void AddMiniRemnantPresence(Planet newOrbital)  //Added by Gretman
+        private static void AddMiniRemnantPresence(Planet newOrbital)  //Added by Gretman
         {
             newOrbital.Guardians.Add("Xeno Fighter");
             newOrbital.Guardians.Add("Xeno Fighter");
             newOrbital.Guardians.Add("Heavy Drone");
         }
 
-        private void AddSupportRemnantPresence(Planet newOrbital)  //Added by Gretman
+        private static void AddSupportRemnantPresence(Planet newOrbital)  //Added by Gretman
         {
             newOrbital.Guardians.Add("Support Drone");
             newOrbital.Guardians.Add("Support Drone");
         }
 
-        private void AddCarrierRemnantPresence(Planet newOrbital)  //Added by Gretman
+        private static void AddCarrierRemnantPresence(Planet newOrbital)  //Added by Gretman
         {
             newOrbital.Guardians.Add("Ancient Carrier");
         }
 
-        private void AddTorpedoRemnantPresence(Planet newOrbital)  //Added by Gretman
+        private static void AddTorpedoRemnantPresence(Planet newOrbital)  //Added by Gretman
         {
             newOrbital.Guardians.Add("Ancient Torpedo Cruiser");
         }
 
-        private void AddRemnantPatrol(Planet newOrbital, UniverseData data)
+        private static void AddRemnantPatrol(Planet newOrbital, UniverseData data)
         {
             newOrbital.PlanetFleets.Add("Remnant Patrol");
         }
 
-        private void AddRemnantGarrison(Planet newOrbital, UniverseData data)
+        private static void AddRemnantGarrison(Planet newOrbital, UniverseData data)
         {
             newOrbital.PlanetFleets.Add("Remnant Garrison");
         }
 
-		private Vector2 findPointFromAngleAndDistance(Vector2 position, float angle, float distance)
-		{
-			float theta;
-			Vector2 TargetPosition = new Vector2(0f, 0f);
-			float gamma = angle;
-			float D = distance;
-			int gammaQuadrant = 0;
-			float oppY = 0f;
-			float adjX = 0f;
-			if (gamma > 360f)
+        // @todo This method is huge, find a way to generalize the logic, perhaps by changing the logic into something more generic
+        private static void GenerateRemnantPresence(Planet newOrbital, UniverseData data)
+        {
+            float quality = newOrbital.Fertility + newOrbital.MineralRichness + newOrbital.MaxPopulation / 1000f;
+			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
+            {
+                if (quality > 6f && quality < 10f)
+                {
+                    int n = RandomMath.IntBetween(0, 100);
+                    if (n > 20 && n < 50) AddRemnantPatrol(newOrbital, data);
+                    else if (n >= 50)   AddRemnantGarrison(newOrbital, data);
+                }
+                else if (quality > 10f)
+                {
+                    int n = RandomMath.IntBetween(0, 100);
+                    if (n > 50 && n < 85) AddMinorRemnantPresence(newOrbital);
+                    else if (n >= 85)     AddMajorRemnantPresence(newOrbital);
+                }
+            }
+            else
+            {   
+                //Boost the quality score for planets that are very rich, or very fertile
+                if (newOrbital.Fertility > 1.6)      quality += 1;
+                if (newOrbital.MineralRichness >1.6) quality += 1;
+                        
+                //Added by Gretman
+                if (GlobalStats.ExtraRemnantGS == 0)  //Rare Remnant
+                {
+                    if (quality > 8f)
+                    {
+                        int chance = RandomMath.IntBetween(0, 100);
+                        if (chance > 70) AddMajorRemnantPresence(newOrbital); // RedFox, changed the rare remnant to Major
+                    }
+                }
+                else if (GlobalStats.ExtraRemnantGS == 1)  //Normal Remnant (Vanilla)
+                {
+                    int chance = RandomMath.IntBetween(0, 100);
+                    if (quality > 6f && quality < 10f)
+                    {
+                        if (chance > 50) AddMinorRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 10f)
+                    {
+                        if (chance > 50) AddMajorRemnantPresence(newOrbital);
+                    }
+                }
+                else if (GlobalStats.ExtraRemnantGS == 2)  //More Remnant
+                {
+                    int chance = RandomMath.IntBetween(0, 100);
+                    if (quality > 6f && quality < 9f)
+                    {
+                        if (chance > 35) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 70) AddMiniRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 9f && quality < 12f)
+                    {
+                        if (chance > 25) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 45) AddMajorRemnantPresence(newOrbital);
+                        if (chance > 65) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 85) AddMiniRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 12f)
+                    {
+                        if (chance > 15) AddMajorRemnantPresence(newOrbital);
+                        if (chance > 30) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 45) AddSupportRemnantPresence(newOrbital);
+                        if (chance > 65) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 75) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 85) AddMiniRemnantPresence(newOrbital);
+                    }
+                }
+                else if (GlobalStats.ExtraRemnantGS == 3)  //MuchMore Remnant
+                {
+                    int chance = RandomMath.IntBetween(0, 100);
+                    if (quality > 4f && quality < 6f)
+                    {
+                        if (chance > 50) AddMiniRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 6f && quality < 8f)
+                    {
+                        if (chance > 25) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 50) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 75) AddMiniRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 8f && quality < 10f)
+                    {
+                        if (chance > 15) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 35) AddMajorRemnantPresence(newOrbital);
+                        if (chance > 50) AddSupportRemnantPresence(newOrbital);
+                        if (chance > 65) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 80) AddMiniRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 10f && quality < 12f)
+                    {
+                        if (chance > 05) AddMajorRemnantPresence(newOrbital);
+                        if (chance > 25) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 30) AddSupportRemnantPresence(newOrbital);
+                        if (chance > 45) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 60) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 70) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 80) AddMiniRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 12f)
+                    {
+                        if (chance > 00) AddMajorRemnantPresence(newOrbital);
+                        if (chance > 10) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 20) AddSupportRemnantPresence(newOrbital);
+                        if (chance > 40) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 55) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 70)
+                        {
+                            if (RandomMath.IntBetween(0, 100) > 50)   //50-50 chance of Carrier or Torpedo Remnant
+                                AddCarrierRemnantPresence(newOrbital);
+                            else AddTorpedoRemnantPresence(newOrbital);
+                        }
+                    }
+                }
+                else if (GlobalStats.ExtraRemnantGS == 4)  //Remnant Everywhere!
+                {
+                    int chance = RandomMath.IntBetween(0, 100);
+                    if (quality > 2f && quality < 4f)
+                    {
+                        if (chance > 50) AddMiniRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 4f && quality < 6f)
+                    {
+                        if (chance > 30) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 50) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 80) AddMiniRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 6f && quality < 8f)
+                    {
+                        if (chance > 10) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 30) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 50) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 70) AddSupportRemnantPresence(newOrbital);
+                    }
+                    else if (quality >= 8f && quality < 10f)
+                    {
+                        if (chance > 00) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 20) AddMajorRemnantPresence(newOrbital);
+                        if (chance > 40) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 50) AddSupportRemnantPresence(newOrbital);
+                        if (chance > 70)
+                        {
+                            if (RandomMath.IntBetween(0, 100) > 50)   //50-50 chance of Carrier or Torpedo Remnant
+                                AddCarrierRemnantPresence(newOrbital);
+                            else AddTorpedoRemnantPresence(newOrbital);
+                        }
+                    }
+                    else if (quality >= 10f && quality < 12f)
+                    {
+                        if (chance > 00) AddMajorRemnantPresence(newOrbital);
+                        if (chance > 00) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 20) AddSupportRemnantPresence(newOrbital);
+                        if (chance > 40) AddMiniRemnantPresence(newOrbital);
+                        if (chance > 60)
+                        {
+                            if (RandomMath.IntBetween(0, 100) > 50)   //50-50 chance of Carrier or Torpedo Remnant
+                                AddCarrierRemnantPresence(newOrbital);
+                            else AddTorpedoRemnantPresence(newOrbital);
+                        }
+                        if (chance > 85)
+                        {
+                            if (RandomMath.IntBetween(0, 100) > 50)   //50-50 chance of Carrier or Torpedo Remnant
+                                AddCarrierRemnantPresence(newOrbital);
+                            else AddTorpedoRemnantPresence(newOrbital);
+                        }
+                    }
+                    else if (quality >= 12f)
+                    {
+                        if (chance > 00) AddMajorRemnantPresence(newOrbital);
+                        if (chance > 00) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 00) AddSupportRemnantPresence(newOrbital);
+                        if (chance > 20) AddMinorRemnantPresence(newOrbital);
+                        if (chance > 40)
+                        {
+                            if (RandomMath.IntBetween(0, 100) > 50)   //50-50 chance of Carrier or Torpedo Remnant
+                                AddCarrierRemnantPresence(newOrbital);
+                            else AddTorpedoRemnantPresence(newOrbital);
+                        }
+                        if (chance > 60)
+                        {
+                            if (RandomMath.IntBetween(0, 100) > 50)   //50-50 chance of Carrier or Torpedo Remnant
+                                AddCarrierRemnantPresence(newOrbital);
+                            else AddTorpedoRemnantPresence(newOrbital);
+                        }
+                        if (chance > 80) AddMajorRemnantPresence(newOrbital);
+                    }
+                }
+            }
+        }
+
+        private void SetSunPath(int whichSun)
+        {
+            switch (whichSun)
 			{
-				gamma = gamma - 360f;
+                default:SunPath = "star_red";     break;
+			    case 2: SunPath = "star_yellow";  break;
+			    case 3: SunPath = "star_green";   break;
+			    case 4: SunPath = "star_blue";    break;
+			    case 5: SunPath = "star_yellow2"; break;
+			    case 6: SunPath = "star_binary";  break;
 			}
-			if (gamma < 90f)
-			{
-				theta = 90f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 1;
-			}
-			else if (gamma > 90f && gamma < 180f)
-			{
-				theta = gamma - 90f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 2;
-			}
-			else if (gamma > 180f && gamma < 270f)
-			{
-				theta = 270f - gamma;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 3;
-			}
-			else if (gamma > 270f && gamma < 360f)
-			{
-				theta = gamma - 270f;
-				theta = theta * 3.14159274f / 180f;
-				oppY = D * (float)Math.Sin((double)theta);
-				adjX = D * (float)Math.Cos((double)theta);
-				gammaQuadrant = 4;
-			}
-			if (gamma == 0f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y - D;
-			}
-			if (gamma == 90f)
-			{
-				TargetPosition.X = position.X + D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gamma == 180f)
-			{
-				TargetPosition.X = position.X;
-				TargetPosition.Y = position.Y + D;
-			}
-			if (gamma == 270f)
-			{
-				TargetPosition.X = position.X - D;
-				TargetPosition.Y = position.Y;
-			}
-			if (gammaQuadrant == 1)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			else if (gammaQuadrant == 2)
-			{
-				TargetPosition.X = position.X + adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 3)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y + oppY;
-			}
-			else if (gammaQuadrant == 4)
-			{
-				TargetPosition.X = position.X - adjX;
-				TargetPosition.Y = position.Y - oppY;
-			}
-			return TargetPosition;
-		}
+        }
 
 		public void GenerateCorsairSystem(string name)
 		{
-			int WhichSun = (int)RandomMath.RandomBetween(1f, 3f);
-			if (WhichSun == 1)
+            SetSunPath(RandomMath.IntBetween(1, 3));
+			Name = name;
+			numberOfRings = 2;
+			RingsCount = numberOfRings;
+			StarRadius = RandomMath.IntBetween(250, 500);
+			for (int i = 1; i < numberOfRings + 1; i++)
 			{
-				this.SunPath = "star_red";
-			}
-			else if (WhichSun == 2)
-			{
-				this.SunPath = "star_yellow";
-			}
-			else if (WhichSun == 3)
-			{
-				this.SunPath = "star_green";
-			}
-			else if (WhichSun == 4)
-			{
-				this.SunPath = "star_blue";
-			}
-			else if (WhichSun == 5)
-			{
-				this.SunPath = "star_neutron";
-			}
-			else if (WhichSun == 6)
-			{
-				this.SunPath = "star_binary";
-			}
-			this.Name = name;
-			this.numberOfRings = 2;
-			this.RingsCount = this.numberOfRings;
-			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
-			for (int i = 1; i < this.numberOfRings + 1; i++)
-			{
-				float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f));
+				float ringRadius = i * (StarRadius + RandomMath.RandomBetween(10500f, 12000f));
 				if (i != 1)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
-					for (int k = 0; (float)k < numberOfAsteroids; k++)
-					{
-						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f, 3500f), Vector2.Zero), 0f);
-						while (!this.RoidPosOK(asteroidCenter))
-						{
-							asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f, 3500f), Vector2.Zero), 0f);
-						}
-						Asteroid newRoid = new Asteroid()
-						{
-							scale = RandomMath.RandomBetween(0.75f, 1.6f),
-							Position3D = asteroidCenter
-						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
-						this.AsteroidsList.Add(newRoid);
-					}
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = true
-					};
-					this.RingList.Add(ring);
+                    GenerateAsteroidRing(ringRadius, spread:3500f);
 				}
 				else
 				{
 					float scale = RandomMath.RandomBetween(1f, 2f);
                     float planetRadius = 1000f * scale;// (float)(1 + ((Math.Log(scale)) / 1.5));
-					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-					Planet newOrbital = new Planet()
+					float randomAngle = RandomMath.RandomBetween(0f, 360f);
+					Vector2 planetCenter = Vector2.Zero.PointFromAngle(randomAngle, ringRadius);
+					Planet newOrbital = new Planet
 					{
-						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
-						OrbitalAngle = RandomAngle,
+						Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
+						OrbitalAngle = randomAngle,
 						ParentSystem = this,
-						planetType = 22
+                        system       = this,
+						planetType   = 22
 					};
 					newOrbital.SetPlanetAttributes();
-					newOrbital.Position = planetCenter;
-					newOrbital.scale = scale;
-					newOrbital.ObjectRadius = planetRadius;
+					newOrbital.Position      = planetCenter;
+					newOrbital.scale         = scale;
+					newOrbital.ObjectRadius  = planetRadius;
 					newOrbital.OrbitalRadius = ringRadius;
 					newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
-					if (RandomMath.RandomBetween(1f, 100f) < 15f)
+					if (RandomMath.IntBetween(1, 100) < 15)
 					{
 						newOrbital.hasRings = true;
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
-					float fertility = newOrbital.Fertility;
+					float fertility       = newOrbital.Fertility;
 					float mineralRichness = newOrbital.MineralRichness;
-					float maxPopulation = newOrbital.MaxPopulation / 1000f;
+					float maxPopulation   = newOrbital.MaxPopulation / 1000f;
 					newOrbital.CorsairPresence = true;
-					this.PlanetList.Add(newOrbital);
+					PlanetList.Add(newOrbital);
 					RandomMath.RandomBetween(0f, 3f);
-					SolarSystem.Ring ring = new SolarSystem.Ring()
+					Ring ring = new Ring
 					{
 						Distance = ringRadius,
 						Asteroids = false,
 						planet = newOrbital
 					};
-					this.RingList.Add(ring);
+					RingList.Add(ring);
 				}
 			}
 		}
 
-		private Vector2 GenerateRandomPointOnCircle(float radius, Vector2 center)
+		private static Vector2 GenerateRandomPointOnCircle(float radius, Vector2 center)
 		{
-			float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-			return this.findPointFromAngleAndDistance(center, RandomAngle, radius);
+			float randomAngle = RandomMath.RandomBetween(0f, 360f);
+			return center.PointFromAngle(randomAngle, radius);
 		}
 
 		public void GenerateRandomSystem(string name, UniverseData data, float systemScale)
 		{
-            int WhichSun = (int)RandomMath.RandomBetween(1f, 6f);
-            // CHANGED BY SHAHMATT
-            if (WhichSun > 5)
-            {
-                if ((int)RandomMath.RandomBetween(0f, 100f) < 10)   // 10% for binary star (so 1/6 * 10% = 1/60 for binary star in system)
-                {
-                    WhichSun = 6;
-                }
-                else
-                {
-                    WhichSun = 5;
-                }
+            // Changed by RedFox: 3% chance to get a tri-sun star
+            SetSunPath(RandomMath.IntBetween(0, 100) < 3 ? (6) : RandomMath.IntBetween(1, 5));
 
-            }
-            // END OF CHANGED BY SHAHMATT
-            
-            //int WhichSun = (int)RandomMath.RandomBetween(1f, 6f);
-            //if (WhichSun > 5)
-            //{
-            //    WhichSun = 5;
-            //}
-			if (WhichSun == 1)
-			{
-				this.SunPath = "star_red";
-			}
-			else if (WhichSun == 2)
-			{
-				this.SunPath = "star_yellow";
-			}
-			else if (WhichSun == 3)
-			{
-				this.SunPath = "star_green";
-			}
-			else if (WhichSun == 4)
-			{
-				this.SunPath = "star_blue";
-			}
-			else if (WhichSun == 5)
-			{
-				this.SunPath = "star_yellow2";
-			}
-			else if (WhichSun == 6)
-			{
-				this.SunPath = "star_binary";
-			}
-			this.Name = name;
-			this.numberOfRings = (int)RandomMath.RandomBetween(1f, 6f);
-            // ADDED BY SHAHMATT (more planets in system)
-            if (GlobalStats.ExtraPlanets > 0)
-            {                                                 //Edited by Gretman, so if lots of extra planets are selected, there will definitely be extra
-                if (GlobalStats.ExtraPlanets < 2) this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(1f, (float)GlobalStats.ExtraPlanets);
-                else if (GlobalStats.ExtraPlanets < 4) this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(2f, (float)GlobalStats.ExtraPlanets);
-                else if (GlobalStats.ExtraPlanets == 6) this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(3f, (float)GlobalStats.ExtraPlanets);
-                else this.numberOfRings = this.numberOfRings + (int)RandomMath.RandomBetween(0f, (float)GlobalStats.ExtraPlanets);
+			Name = name;
+			numberOfRings = RandomMath.IntBetween(1, 6);
+            if (GlobalStats.ExtraPlanets > 0) // ADDED BY SHAHMATT (more planets in system)
+            {   
+                //Edited by Gretman, so if lots of extra planets are selected, there will definitely be extra
+                if      (GlobalStats.ExtraPlanets < 2)  numberOfRings += RandomMath.IntBetween(1, GlobalStats.ExtraPlanets);
+                else if (GlobalStats.ExtraPlanets < 4)  numberOfRings += RandomMath.IntBetween(2, GlobalStats.ExtraPlanets);
+                else if (GlobalStats.ExtraPlanets == 6) numberOfRings += RandomMath.IntBetween(3, GlobalStats.ExtraPlanets);
+                else                                    numberOfRings += RandomMath.IntBetween(0, GlobalStats.ExtraPlanets);
 
-                if (this.numberOfRings == 0) this.numberOfRings = 1;        //If "Extra Planets" was selected at all, there will always be at least 1 in each system. -Gretman
+                if (numberOfRings == 0) numberOfRings = 1; // If "Extra Planets" was selected at all, there will always be at least 1 in each system. - Gretman
             }
-            // END OF ADDED BY SHAHMATT
-			this.RingsCount = this.numberOfRings;
-			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
+			RingsCount = numberOfRings;
+			StarRadius = RandomMath.IntBetween(250, 500);
             float ringbase = 10500f;
-            float ringmax = 0;
-            if (this.RingsCount > 0)
-            {
-                ringmax = (95000 - this.StarRadius) / this.numberOfRings;
-                //ringbase = (10000 - this.StarRadius) / this.numberOfRings;
-            }
+            float ringmax = RingsCount > 0 ? (95000f - StarRadius) / numberOfRings : 0f;
 
-			for (int i = 1; i < this.numberOfRings + 1; i++)
+			for (int i = 1; i < numberOfRings + 1; i++)
 			{
-                if (this.RingList.Count > 1)
+                if (RingList.Count > 1)
                 {
-                    ringbase = this.RingList[this.RingList.Count - 1].Distance + 5000;// / this.numberOfRings;
-                    Planet p = this.RingList[this.RingList.Count - 1].planet;
+                    ringbase = RingList[RingList.Count - 1].Distance + 5000;
+                    Planet p = RingList[RingList.Count - 1].planet;
                     if (p != null)
                         ringbase += p.ObjectRadius;
-
                 }
                 
-                //float ringRadius = (float)i * ((float)this.StarRadius + RandomMath.RandomBetween(10500f, 12000f) + 10000f);
-                float ringRadius = ringbase + RandomMath.RandomBetween(0, ringmax);// + 20000f / this.numberOfRings);
-				ringRadius = ringRadius * systemScale;
-				if ((int)RandomMath.RandomBetween(1f, 100f) > 80)
+                float ringRadius = ringbase + RandomMath.RandomBetween(0, ringmax);
+				ringRadius *= systemScale;
+				if (RandomMath.IntBetween(1, 100) > 80)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
-					for (int k = 0; (float)k < numberOfAsteroids; k++)
-					{
-						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f * systemScale, 3500f * systemScale), Vector2.Zero), 0f);
-						while (!this.RoidPosOK(asteroidCenter))
-						{
-							asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f * systemScale, 3500f * systemScale), Vector2.Zero), 0f);
-						}
-						Asteroid newRoid = new Asteroid()
-						{
-							scale = RandomMath.RandomBetween(0.75f, 1.6f),
-							Position3D = asteroidCenter
-						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
-						this.AsteroidsList.Add(newRoid);
-					}
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = true
-					};
-					this.RingList.Add(ring);
+                    GenerateAsteroidRing(ringRadius, spread:3500f*systemScale);
 				}
 				else
 				{
-
-					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-					Planet newOrbital = new Planet()
+					float randomAngle = RandomMath.RandomBetween(0f, 360f);
+					Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
+					Planet newOrbital = new Planet
 					{
-						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
-						OrbitalAngle = RandomAngle,
+						Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
+						OrbitalAngle = randomAngle,
 						ParentSystem = this,
-						planetType = (int)RandomMath.RandomBetween(1f, 24f)
+                        system       = this,
+						planetType   = RandomMath.IntBetween(1, 24)
 					};
 					if ((newOrbital.planetType == 22 || newOrbital.planetType == 13) && RandomMath.RandomBetween(0f, 100f) > 50f)
 					{
-						newOrbital.planetType = (int)RandomMath.RandomBetween(1f, 24f);
+						newOrbital.planetType = RandomMath.IntBetween(1, 24);
 					}
 
                     float scale = RandomMath.RandomBetween(0.9f, 1.8f);
-                    if (newOrbital.planetType == 2 || newOrbital.planetType == 6 || newOrbital.planetType == 10 || newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 || newOrbital.planetType == 26)
-                    {
+                    if (newOrbital.planetType == 2  || newOrbital.planetType == 6  || newOrbital.planetType == 10 || 
+                        newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 || newOrbital.planetType == 26)
                         scale += 2.5f;
-                    }
-                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
+
+                    float planetRadius = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
 					newOrbital.SetPlanetAttributes();
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -523,385 +470,104 @@ namespace Ship_Game
 						newOrbital.hasRings = true;
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
-					float quality = newOrbital.Fertility + newOrbital.MineralRichness + newOrbital.MaxPopulation / 1000f;
-					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.customRemnantElements)
-                    {
-                        if (quality > 6f && quality < 10f)
-                        {
-                            int iRandom = (int)RandomMath.RandomBetween(0f, 100f);
-                            if (iRandom > 20 && iRandom < 50)
-                            {
-                                this.AddRemnantPatrol(newOrbital, data);
-                            }
-                            else if (iRandom >= 50)
-                            {
-                                this.AddRemnantGarrison(newOrbital, data);
-                            }
-                        }
-                        else if (quality > 10f)
-                        {
-                            int iRandom = (int)RandomMath.RandomBetween(0f, 100f);
-                            if (iRandom > 50 && iRandom < 85)
-                            {
-                                this.AddMinorRemnantPresence(newOrbital);
-                            }
-                            else if (iRandom >= 85)
-                            {
-                                this.AddMajorRemnantPresence(newOrbital);
-                            }
-                        }
-                    }
-                    else
-                    {   //Added by Gretman
 
-                        if (GlobalStats.ExtraRemnantGS == 0)  //Rare Remnant
-                        {
-                            if (quality > 8f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 70) this.AddMinorRemnantPresence(newOrbital);
-                            }
-                        }
+                    GenerateRemnantPresence(newOrbital, data);
 
-                        
-                        if (GlobalStats.ExtraRemnantGS == 1)  //Normal Remnant (Vanilla)
-                        {
-                            if (quality > 6f && quality < 10f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 50) this.AddMinorRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 10f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 50) this.AddMajorRemnantPresence(newOrbital);
-                            }
-                        }
-
-                        //Boost the quality score for planets that are very rich, or very fertile
-                        if (newOrbital.Fertility > 1.6) quality += 1;
-                        if (newOrbital.MineralRichness >1.6) quality += 1;
-
-                        if (GlobalStats.ExtraRemnantGS == 2)  //More Remnant
-                        {
-                            if (quality > 6f && quality < 9f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 35) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 70) this.AddMiniRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 9f && quality < 12f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 25) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 45) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 65) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 85) this.AddMiniRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 12f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 15) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 30) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 45) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 65) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 75) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 85) this.AddMiniRemnantPresence(newOrbital);
-                            }
-                        }
-
-
-                        if (GlobalStats.ExtraRemnantGS == 3)  //MuchMore Remnant
-                        {
-                            if (quality > 4f && quality < 6f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 50) this.AddMiniRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 6f && quality < 8f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 25) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 50) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 75) this.AddMiniRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 8f && quality < 10f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 15) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 35) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 50) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 65) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 80) this.AddMiniRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 10f && quality < 12f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 05) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 25) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 30) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 45) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 60) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 70) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 80) this.AddMiniRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 12f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 00) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 10) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 20) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 40) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 55) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 70)
-                                {
-                                    if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
-                                        this.AddCarrierRemnantPresence(newOrbital);
-                                    else this.AddTorpedoRemnantPresence(newOrbital);
-                                }
-                            }
-                        }
-
-
-                        if (GlobalStats.ExtraRemnantGS == 4)  //Remnant Everywhere!
-                        {
-                            if (quality > 2f && quality < 4f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 50) this.AddMiniRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 4f && quality < 6f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 30) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 50) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 80) this.AddMiniRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 6f && quality < 8f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 10) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 30) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 50) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 70) this.AddSupportRemnantPresence(newOrbital);
-                            }
-                            else if (quality >= 8f && quality < 10f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 00) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 20) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 40) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 50) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 70)
-                                {
-                                    if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
-                                        this.AddCarrierRemnantPresence(newOrbital);
-                                    else this.AddTorpedoRemnantPresence(newOrbital);
-                                }
-
-                            }
-                            else if (quality >= 10f && quality < 12f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 00) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 00) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 20) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 40) this.AddMiniRemnantPresence(newOrbital);
-                                if (chance > 60)
-                                {
-                                    if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
-                                        this.AddCarrierRemnantPresence(newOrbital);
-                                    else this.AddTorpedoRemnantPresence(newOrbital);
-                                }
-                                if (chance > 85)
-                                {
-                                    if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
-                                        this.AddCarrierRemnantPresence(newOrbital);
-                                    else this.AddTorpedoRemnantPresence(newOrbital);
-                                }
-                            }
-                            else if (quality >= 12f)
-                            {
-                                int chance = (int)RandomMath.RandomBetween(0f, 100f);
-                                if (chance > 00) this.AddMajorRemnantPresence(newOrbital);
-                                if (chance > 00) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 00) this.AddSupportRemnantPresence(newOrbital);
-                                if (chance > 20) this.AddMinorRemnantPresence(newOrbital);
-                                if (chance > 40)
-                                {
-                                    if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
-                                        this.AddCarrierRemnantPresence(newOrbital);
-                                    else this.AddTorpedoRemnantPresence(newOrbital);
-                                }
-                                if (chance > 60)
-                                {
-                                    if ((int)RandomMath.RandomBetween(0f, 100f) > 50)   //50-50 chance of Carrier or Torpedo Remnant
-                                        this.AddCarrierRemnantPresence(newOrbital);
-                                    else this.AddTorpedoRemnantPresence(newOrbital);
-                                }
-                                if (chance > 80) this.AddMajorRemnantPresence(newOrbital);
-
-                            }
-                        }
-                    }   //Done adding stuff -Gretman
-
-
-
-					this.PlanetList.Add(newOrbital);
+					PlanetList.Add(newOrbital);
 					RandomMath.RandomBetween(0f, 3f);
-					SolarSystem.Ring ring = new SolarSystem.Ring()
+					Ring ring = new Ring
 					{
 						Distance = ringRadius,
 						Asteroids = false,
 						planet = newOrbital
 					};
-					this.RingList.Add(ring);
+					RingList.Add(ring);
 				}
 			}
 		}
 
-		public void GenerateStartingSystem(string name, Empire Owner, float systemScale)
+		public void GenerateStartingSystem(string name, Empire owner, float systemScale)
 		{
-			this.isStartingSystem = true;
-			int WhichSun = (int)RandomMath.RandomBetween(1f, 6f);
-			if (WhichSun > 5)
-			{
-				WhichSun = 5;
-			}
-			if (WhichSun == 1)
-			{
-				this.SunPath = "star_red";
-			}
-			else if (WhichSun == 2)
-			{
-				this.SunPath = "star_yellow";
-			}
-			else if (WhichSun == 3)
-			{
-				this.SunPath = "star_green";
-			}
-			else if (WhichSun == 4)
-			{
-				this.SunPath = "star_blue";
-			}
-			else if (WhichSun == 5)
-			{
-				this.SunPath = "star_yellow2";
-			}
-			else if (WhichSun == 6)
-			{
-				this.SunPath = "star_binary";
-			}
-			this.Name = name;
-            this.numberOfRings = GlobalStats.ExtraPlanets > 3?GlobalStats.ExtraPlanets:  3;
+			isStartingSystem = true;
+            SetSunPath(RandomMath.IntBetween(1, 6));
 
-            this.numberOfRings += (int)(RandomMath.RandomBetween(0, 1) + RandomMath.RandomBetween(0, 1) + RandomMath.RandomBetween(0, 1));
-            if (this.numberOfRings > 6)
-                this.numberOfRings = 6;
-			this.RingsCount = this.numberOfRings;
-			this.StarRadius = (int)RandomMath.RandomBetween(250f, 500f);
-			for (int i = 1; i < this.numberOfRings + 1; i++)
+			Name = name;
+            numberOfRings = GlobalStats.ExtraPlanets > 3 ? GlobalStats.ExtraPlanets : 3;
+            numberOfRings += RandomMath.IntBetween(0, 1) + RandomMath.IntBetween(0, 1) + RandomMath.IntBetween(0, 1);
+            if (numberOfRings > 6)
+                numberOfRings = 6;
+			RingsCount = numberOfRings;
+			StarRadius = RandomMath.IntBetween(250, 500);
+			for (int i = 1; i < numberOfRings + 1; i++)
 			{
-				float ringRadius = (float)i * ((float)this.StarRadius +  RandomMath.RandomBetween(500f, 3500f) + 10000f);
+				float ringRadius = i * (StarRadius +  RandomMath.RandomBetween(500f, 3500f) + 10000f);
 				ringRadius = ringRadius * systemScale;
-				if (i ==1 || i>3) 
+				if (i == 1 || i > 3)
 				{
-					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-					Planet newOrbital = new Planet()
+					float randomAngle = RandomMath.RandomBetween(0f, 360f);
+					Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
+					Planet newOrbital = new Planet
 					{
-						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
-						OrbitalAngle = RandomAngle,
+						Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
+						OrbitalAngle = randomAngle,
 						ParentSystem = this,
-						planetType = (int)RandomMath.RandomBetween(1f, 24f)
+                        system       = this,
+						planetType   = RandomMath.IntBetween(1, 24)
 					};
                     float scale = RandomMath.RandomBetween(0.9f, 1.8f);
-                    if (newOrbital.planetType == 2 || newOrbital.planetType == 6 || newOrbital.planetType == 10 || newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 || newOrbital.planetType == 26)
-                    {
+                    if (newOrbital.planetType == 2  || newOrbital.planetType == 6  || newOrbital.planetType == 10 || 
+                        newOrbital.planetType == 12 || newOrbital.planetType == 15 || newOrbital.planetType == 20 || newOrbital.planetType == 26)
                         scale += 2.5f;
-                    }
-                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
+
+                    float planetRadius = 1000f * (float)(1 + Math.Log(scale) / 1.5);
 					newOrbital.SetPlanetAttributes();
-					newOrbital.Position = planetCenter;
-					newOrbital.scale = scale;
-					newOrbital.ObjectRadius = planetRadius;
+					newOrbital.Position      = planetCenter;
+					newOrbital.scale         = scale;
+					newOrbital.ObjectRadius  = planetRadius;
 					newOrbital.OrbitalRadius = ringRadius;
-					newOrbital.planetTilt = RandomMath.RandomBetween(45f, 135f);
+					newOrbital.planetTilt    = RandomMath.RandomBetween(45f, 135f);
 					if (RandomMath.RandomBetween(1f, 100f) < 15f)
 					{
 						newOrbital.hasRings = true;
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
-					this.PlanetList.Add(newOrbital);
+					PlanetList.Add(newOrbital);
 					RandomMath.RandomBetween(0f, 3f);
-					SolarSystem.Ring ring = new SolarSystem.Ring()
+					Ring ring = new Ring
 					{
 						Distance = ringRadius,
 						Asteroids = false,
 						planet = newOrbital
 					};
-					this.RingList.Add(ring);
+					RingList.Add(ring);
 				}
 				else if (i == 2)
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
-					for (int k = 0; (float)k < numberOfAsteroids; k++)
-					{
-						Vector3 asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f * systemScale, 3500f * systemScale), Vector2.Zero), 0f);
-						while (!this.RoidPosOK(asteroidCenter))
-						{
-							asteroidCenter = new Vector3(this.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3500f * systemScale, 3500f * systemScale), Vector2.Zero), 0f);
-						}
-						Asteroid newRoid = new Asteroid()
-						{
-							scale = RandomMath.RandomBetween(0.75f, 1.6f),
-							Position3D = asteroidCenter
-						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
-					}
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = true
-					};
-					this.RingList.Add(ring);
+                    GenerateAsteroidRing(ringRadius, spread:3500f*systemScale);
 				}
 				else if (i == 3)
 				{
 					float scale = RandomMath.RandomBetween(1f, 2f);
-                    float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
-					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = this.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
-					Planet newOrbital = new Planet()
+                    float planetRadius   = 1000f * (float)(1 + (Math.Log(scale) / 1.5));
+					float randomAngle    = RandomMath.RandomBetween(0f, 360f);
+					Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
+					Planet newOrbital = new Planet
 					{
-						Name = string.Concat(this.Name, " ", NumberToRomanConvertor.NumberToRoman(i)),
-						OrbitalAngle = RandomAngle,
-						ParentSystem = this
+						Name = Name + " " + NumberToRomanConvertor.NumberToRoman(i),
+						OrbitalAngle = randomAngle,
+						ParentSystem = this,
+                        system       = this,
+                        planetType   = RandomMath.IntBetween(0, 1) == 0 ? 27 : 29
 					};
-					int random = (int)RandomMath.RandomBetween(1f, 3f);
-					if (random == 1)
-					{
-						newOrbital.planetType = 27;
-					}
-					else if (random == 2)
-					{
-						newOrbital.planetType = 29;
-					}
-					newOrbital.Owner = Owner;
-                    Owner.Capital = newOrbital;
-					newOrbital.InitializeSliders(Owner);
-					Owner.AddPlanet(newOrbital);
+					newOrbital.Owner = owner;
+                    owner.Capital = newOrbital;
+					newOrbital.InitializeSliders(owner);
+					owner.AddPlanet(newOrbital);
 					newOrbital.SetPlanetAttributes(26f);
-					newOrbital.MineralRichness = 1f + Owner.data.Traits.HomeworldRichMod;
+					newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
 					newOrbital.Special = "None";
-					newOrbital.Fertility = 2f + Owner.data.Traits.HomeworldFertMod;
-					newOrbital.MaxPopulation = 14000f + 14000f * Owner.data.Traits.HomeworldSizeMod;
+					newOrbital.Fertility = 2f + owner.data.Traits.HomeworldFertMod;
+					newOrbital.MaxPopulation = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
 					newOrbital.Population = 14000f;
 					newOrbital.FoodHere = 100f;
 					newOrbital.ProductionHere = 100f;
@@ -926,20 +592,20 @@ namespace Ship_Game
 						newOrbital.hasRings = true;
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
-					this.PlanetList.Add(newOrbital);
+					PlanetList.Add(newOrbital);
 					RandomMath.RandomBetween(0f, 3f);
-					SolarSystem.Ring ring = new SolarSystem.Ring()
+					Ring ring = new Ring
 					{
-						Distance = ringRadius,
+						Distance  = ringRadius,
 						Asteroids = false,
-						planet = newOrbital
+						planet    = newOrbital
 					};
-					this.RingList.Add(ring);
+					RingList.Add(ring);
 				}
 			}
 		}
 
-		public static SolarSystem GenerateSystemFromData(SolarSystemData data, Empire Owner)
+		public static SolarSystem GenerateSystemFromData(SolarSystemData data, Empire owner)
 		{
 			SolarSystem newSys = new SolarSystem()
 			{
@@ -947,94 +613,88 @@ namespace Ship_Game
 				Name = data.Name
 			};
 			int numberOfRings = data.RingList.Count;
-			int StarRadius = (int)RandomMath.RandomBetween(50f, 500f);
-			for (int i = 1; i < numberOfRings + 1; i++)
+			int randomBetween = RandomMath.IntBetween(50, 500);
+			for (int i = 0; i < numberOfRings; i++)
 			{
-                int ringtype = 0;
-                
-                {
-                    int x = (int)(RandomMath.RandomBetween(1, 29));
-                    
-                        ringtype = x;
-                    
+                int ringtype = RandomMath.IntBetween(1, 29);
+                float ringRadius = 10000f + (randomBetween + RandomMath.RandomBetween(10500f, 12000f)) * (i+1);
+                SolarSystemData.Ring ringData = data.RingList[i];
 
-                }
-                float ringRadius = (float)((i * ((float)StarRadius + RandomMath.RandomBetween(10500f, 12000f))) + 10000f);
-				if (data.RingList[i - 1].Asteroids == null )
+				if (ringData.Asteroids == null)
 				{
-                    int WhichPlanet = data.RingList[i - 1].WhichPlanet > 0 ? data.RingList[i - 1].WhichPlanet : ringtype;
-                    float scale = 1f;
-                    if (data.RingList[i - 1].planetScale > 0)
+                    int whichPlanet = ringData.WhichPlanet > 0 ? ringData.WhichPlanet : ringtype;
+                    float scale;
+                    if (ringData.planetScale > 0)
                     {
-                        scale = data.RingList[i - 1].planetScale;
+                        scale = ringData.planetScale;
                     }
                     else
                     {
                         scale = RandomMath.RandomBetween(0.9f, 1.8f);
-                        if (WhichPlanet == 2 || WhichPlanet == 6 || WhichPlanet == 10 || WhichPlanet == 12 || WhichPlanet == 15 || WhichPlanet == 20 || WhichPlanet == 26)
-                        {
+                        if (whichPlanet == 2  || whichPlanet == 6  || whichPlanet == 10 || 
+                            whichPlanet == 12 || whichPlanet == 15 || whichPlanet == 20 || whichPlanet == 26)
                             scale += 2.5f;
-                        }
                     }
 
                     float planetRadius = 1000f * (float)(1 + ((Math.Log(scale)) / 1.5));
-					float RandomAngle = RandomMath.RandomBetween(0f, 360f);
-					Vector2 planetCenter = newSys.findPointFromAngleAndDistance(Vector2.Zero, RandomAngle, ringRadius);
+					float randomAngle = RandomMath.RandomBetween(0f, 360f);
+					Vector2 planetCenter = MathExt.PointOnCircle(randomAngle, ringRadius);
                     
-                    Planet newOrbital = new Planet()
+                    Planet newOrbital = new Planet
 					{
-						Name = data.RingList[i - 1].Planet,
-						OrbitalAngle = RandomAngle,
-						ParentSystem = newSys,
-						SpecialDescription = data.RingList[i - 1].SpecialDescription,
-						planetType = WhichPlanet,
-						Position = planetCenter,
-                        scale = scale,
-						ObjectRadius = planetRadius,
-						OrbitalRadius = ringRadius,
-						planetTilt = RandomMath.RandomBetween(45f, 135f)
+						Name               = ringData.Planet,
+						OrbitalAngle       = randomAngle,
+						ParentSystem       = newSys,
+                        system             = newSys,
+						SpecialDescription = ringData.SpecialDescription,
+						planetType         = whichPlanet,
+						Position           = planetCenter,
+                        scale              = scale,
+						ObjectRadius       = planetRadius,
+						OrbitalRadius      = ringRadius,
+						planetTilt         = RandomMath.RandomBetween(45f, 135f)
 					};
 					newOrbital.InitializeUpdate();
-                    if (!data.RingList[i - 1].HomePlanet || Owner == null)
+                    if (!ringData.HomePlanet || owner == null)
 					{
-                        if (data.RingList[i - 1].UniqueHabitat)
+                        if (ringData.UniqueHabitat)
                         {
                             newOrbital.UniqueHab = true;
-                            newOrbital.uniqueHabPercent = data.RingList[i - 1].UniqueHabPC;
+                            newOrbital.uniqueHabPercent = ringData.UniqueHabPC;
                         }
                         newOrbital.SetPlanetAttributes();
-                        if (data.RingList[i - 1].MaxPopDefined > 0)
-                            newOrbital.MaxPopulation = data.RingList[i - 1].MaxPopDefined * 1000f;
-                        if (!string.IsNullOrEmpty(data.RingList[i - 1].Owner) && !string.IsNullOrEmpty(data.RingList[i - 1].Owner))
+                        if (ringData.MaxPopDefined > 0)
+                            newOrbital.MaxPopulation = ringData.MaxPopDefined * 1000f;
+                        if (!string.IsNullOrEmpty(ringData.Owner) && !string.IsNullOrEmpty(ringData.Owner))
                         {
-                            newOrbital.Owner = EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner);
-                            EmpireManager.GetEmpireByName(data.RingList[i - 1].Owner).AddPlanet(newOrbital);
-                            newOrbital.Population = newOrbital.MaxPopulation;
-                            newOrbital.MineralRichness = 1f;
-                            newOrbital.Fertility = 2f;
+                            newOrbital.Owner = EmpireManager.GetEmpireByName(ringData.Owner);
+                            newOrbital.Owner.AddPlanet(newOrbital);
                             newOrbital.InitializeSliders(newOrbital.Owner);
-                            newOrbital.colonyType = Planet.ColonyType.Core;
-                            newOrbital.GovernorOn = true;
+                            newOrbital.Population      = newOrbital.MaxPopulation;
+                            newOrbital.MineralRichness = 1f;
+                            newOrbital.Fertility       = 2f;
+                            newOrbital.colonyType      = Planet.ColonyType.Core;
+                            newOrbital.GovernorOn      = true;
                         }
 					}
 					else
 					{
-						newOrbital.Owner = Owner;
-                        Owner.Capital = newOrbital;
-						newOrbital.InitializeSliders(Owner);
-						Owner.AddPlanet(newOrbital);
+						newOrbital.Owner = owner;
+                        owner.Capital = newOrbital;
+						newOrbital.InitializeSliders(owner);
+						owner.AddPlanet(newOrbital);
 						newOrbital.SetPlanetAttributes(26f);
-						newOrbital.MineralRichness = 1f + Owner.data.Traits.HomeworldRichMod;
-						newOrbital.Special = "None";
-						newOrbital.Fertility = 2f + Owner.data.Traits.HomeworldFertMod;
+						newOrbital.Special         = "None";
+						newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
+						newOrbital.Fertility       = 2f + owner.data.Traits.HomeworldFertMod;
 
-                        if (data.RingList[i - 1].MaxPopDefined > 0)
+                        if (ringData.MaxPopDefined > 0)
                         {
-                            newOrbital.MaxPopulation = (data.RingList[i - 1].MaxPopDefined * 1000f) + ((data.RingList[i - 1].MaxPopDefined * 1000f) *  Owner.data.Traits.HomeworldSizeMod);
+                            newOrbital.MaxPopulation = ringData.MaxPopDefined*1000f + ringData.MaxPopDefined*1000f*owner.data.Traits.HomeworldSizeMod;
                         }
                         else
                         {
-                            newOrbital.MaxPopulation = 14000f + 14000f * Owner.data.Traits.HomeworldSizeMod;
+                            newOrbital.MaxPopulation = 14000f + 14000f * owner.data.Traits.HomeworldSizeMod;
                         }
 						newOrbital.Population = 14000f;
 						newOrbital.FoodHere = 100f;
@@ -1055,76 +715,49 @@ namespace Ship_Game
 							ResourceManager.GetBuilding("Fuel Refinery").SetPlanet(newOrbital);
 						}
 					}
-					if (data.RingList[i - 1].HasRings != null)
+					if (ringData.HasRings != null)
 					{
 						newOrbital.hasRings = true;
 						newOrbital.ringTilt = RandomMath.RandomBetween(-80f, -45f);
 					}
                     //Add buildings to planet
-                    if (data.RingList[i - 1].BuildingList.Count > 0)
-                        foreach (string building in data.RingList[i - 1].BuildingList)
+                    if (ringData.BuildingList.Count > 0)
+                        foreach (string building in ringData.BuildingList)
                             ResourceManager.GetBuilding(building).SetPlanet(newOrbital);
                     //Add ships to orbit
-                    if (data.RingList[i - 1].Guardians.Count > 0)
-                        foreach (string ship in data.RingList[i - 1].Guardians)
+                    if (ringData.Guardians.Count > 0)
+                        foreach (string ship in ringData.Guardians)
                             newOrbital.Guardians.Add(ship);
                     //Add moons to planets
-                    if (data.RingList[i - 1].Moons.Count > 0)
+                    if (ringData.Moons.Count > 0)
                     {
-                        for (int j = 0; j < data.RingList[i - 1].Moons.Count; j++)
+                        for (int j = 0; j < ringData.Moons.Count; j++)
                         {
-                            float radius = newOrbital.ObjectRadius * 5 + (RandomMath.RandomBetween(1000f, 1500f) * (j + 1));
-                            Moon moon = new Moon()
+                            float radius = newOrbital.ObjectRadius * 5 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
+                            Moon moon = new Moon
                             {
-                                orbitTarget = newOrbital.guid,
-                                moonType = data.RingList[i - 1].Moons[j].WhichMoon,
-                                scale = data.RingList[i - 1].Moons[j].MoonScale,
-                                OrbitRadius = radius,
+                                orbitTarget  = newOrbital.guid,
+                                moonType     = ringData.Moons[j].WhichMoon,
+                                scale        = ringData.Moons[j].MoonScale,
+                                OrbitRadius  = radius,
                                 OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
-                                Position = newSys.GenerateRandomPointOnCircle(radius, newOrbital.Position)
+                                Position     = GenerateRandomPointOnCircle(radius, newOrbital.Position)
                             };
                             newSys.MoonList.Add(moon);
                         }
                     }
 					newSys.PlanetList.Add(newOrbital);
-					SolarSystem.Ring ring = new SolarSystem.Ring()
+					Ring ring = new Ring
 					{
-						Distance = ringRadius,
+						Distance  = ringRadius,
 						Asteroids = false,
-						planet = newOrbital
+						planet    = newOrbital
 					};
 					newSys.RingList.Add(ring);
 				}
 				else
 				{
-					float numberOfAsteroids = RandomMath.RandomBetween(150f, 250f);
-					for (int k = 0; (float)k < numberOfAsteroids; k++)
-					{
-						Vector3 asteroidCenter = new Vector3(newSys.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3000f, 3000f), Vector2.Zero), 0f);
-						while (!newSys.RoidPosOK(asteroidCenter))
-						{
-							asteroidCenter = new Vector3(newSys.GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-3000f, 3000f), Vector2.Zero), 0f);
-						}
-						Asteroid newRoid = new Asteroid()
-						{
-							scale = RandomMath.RandomBetween(1.2f, 4.6f),
-							Position3D = asteroidCenter
-						};
-						int whichRoid = 0;
-						while (whichRoid == 0 || whichRoid == 3)
-						{
-							whichRoid = (int)RandomMath.RandomBetween(1f, 9f);
-						}
-						newRoid.whichRoid = whichRoid;
-						newRoid.Radius = RandomMath.RandomBetween(30f, 90f);
-						newSys.AsteroidsList.Add(newRoid);
-					}
-					SolarSystem.Ring ring = new SolarSystem.Ring()
-					{
-						Distance = ringRadius,
-						Asteroids = true
-					};
-					newSys.RingList.Add(ring);
+                    newSys.GenerateAsteroidRing(ringRadius, spread:3000f, scaleMin:1.2f, scaleMax:4.6f);
 				}
 			}
 			return newSys;
@@ -1132,38 +765,34 @@ namespace Ship_Game
 
 		public float GetActualStrengthPresent(Empire e)
 		{
-			float StrHere = 0f;
-			foreach (Ship ship in this.ShipList)
+			float strength = 0f;
+			foreach (Ship ship in ShipList)
 			{
 				if (ship.loyalty != e)
-				{
 					continue;
-				}
-				StrHere = StrHere + ship.GetStrength();
+				strength += ship.GetStrength();
 			}
-			return StrHere;
+			return strength;
 		}
 
         public float GetPredictedEnemyPresence(float time, Empire us)
         {
             float prediction = 0f;
-            Relationship war = null;
-            foreach (Ship ship in this.ShipList)
+            foreach (Ship ship in ShipList)
             {
-                if (ship == null || ship.loyalty == us || (us.GetRelations().TryGetValue(ship.loyalty,out war) && war.Treaty_Alliance ))
-                {
+                if (ship == null || ship.loyalty == us || us.TryGetRelations(ship.loyalty, out Relationship war) && war.Treaty_Alliance)
                     continue;
-                }
-                if (war.Trust > 25)
-                    prediction = prediction + ship.GetStrength() * ( (125 -war.Trust) /100 );
-                else
-                    prediction = prediction + ship.GetStrength();
+
+                float trustPrediction = war.Trust > 25f ? (125f - war.Trust) / 100f : 0f;
+                prediction += ship.GetStrength() + trustPrediction;
             }
-            List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-            for (int i = 0; i < nearby.Count; i++)
+            var nearbyShips = UniverseScreen.ShipSpatialManager.GetNearby<Ship>(Position);
+            foreach (Ship ship in nearbyShips)
             {
-                Ship ship = nearby[i] as Ship;
-                if (ship != null && ship.loyalty != us && !this.ShipList.Contains(ship) && (ship.loyalty.isFaction || us.GetRelations()[ship.loyalty].AtWar) && HelperFunctions.IntersectCircleSegment(this.Position, 100000f * UniverseScreen.GameScaleStatic, ship.Center, ship.Center + (ship.Velocity * time)))
+                if (ship.loyalty != us && !ShipList.Contains(ship) 
+                    && (ship.loyalty.isFaction || us.GetRelations(ship.loyalty).AtWar) 
+                    && HelperFunctions.IntersectCircleSegment(Position, 100000f * UniverseScreen.GameScaleStatic, 
+                                                              ship.Center, ship.Center + ship.Velocity*time))
                 {
                     prediction = prediction + ship.GetStrength();
                 }
@@ -1171,31 +800,53 @@ namespace Ship_Game
             return prediction;
         }
 
-		private bool RoidPosOK(Vector3 roidPos)
+		private bool NoAsteroidProximity(Vector2 pos)
         {
-            Vector2 vector2_1 = new Vector2(roidPos.X, roidPos.Y);
-            foreach (Asteroid asteroid in (List<Asteroid>)this.AsteroidsList)
-            {
-                Vector2 vector2_2 = new Vector2(asteroid.Position3D.X, asteroid.Position3D.Y);
-                if (vector2_2 != vector2_1 && (double)Vector2.Distance(vector2_1, vector2_2) < 200.0)
+            foreach (Asteroid asteroid in AsteroidsList)
+                if (new Vector2(asteroid.Position3D.X, asteroid.Position3D.Y).SqDist(pos) < 200.0f*200.0f)
                     return false;
-            }
             return true;
+        }
+
+        private Vector3 GenerateAsteroidPos(float ringRadius, float spread)
+        {
+            for (int i = 0; i < 100; ++i) // while (true) would be unsafe, so give up after 100 turns
+            {
+                Vector2 pos = GenerateRandomPointOnCircle(ringRadius + RandomMath.RandomBetween(-spread, spread), Vector2.Zero);
+                if (NoAsteroidProximity(pos))
+                    return new Vector3(pos.X, pos.Y, -500f);
+            }
+            return Vector3.Zero; // should never reach this point, but if it does... we don't care, just don't crash or freeze
+        }
+
+        private void GenerateAsteroidRing(float ringRadius, float spread, float scaleMin=0.75f, float scaleMax=1.6f)
+        {
+            int numberOfAsteroids = RandomMath.IntBetween(150, 250);
+			for (int i = 0; i < numberOfAsteroids; ++i)
+			{
+				AsteroidsList.Add(new Asteroid
+				{
+					Scale      = RandomMath.RandomBetween(scaleMin, scaleMax),
+					Position3D = GenerateAsteroidPos(ringRadius, spread)
+				});
+			}
+			RingList.Add(new Ring
+			{
+				Distance  = ringRadius,
+				Asteroids = true
+			});
         }
 
 		public struct FleetAndPos
 		{
 			public string fleetname;
-
 			public Vector2 Pos;
 		}
 
 		public struct Ring
 		{
 			public float Distance;
-
 			public bool Asteroids;
-
 			public Planet planet;
 		}
 
@@ -1207,25 +858,20 @@ namespace Ship_Game
 
         ~SolarSystem() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed)
+                return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    if (this.ShipList != null)
-                        this.ShipList.Dispose();
-                    if (this.AsteroidsList != null)
-                        this.AsteroidsList.Dispose();
-                    if (this.spatialManager != null)
-                        this.spatialManager.Dispose();
-
-                }
-                this.ShipList = null;
-                this.AsteroidsList = null;
-                this.spatialManager = null;
-                this.disposed = true;
+                ShipList?.Dispose();
+                AsteroidsList?.Dispose();
+                spatialManager?.Dispose();
             }
+            ShipList       = null;
+            AsteroidsList  = null;
+            spatialManager = null;
+            disposed       = true;
         }
 	}
 }

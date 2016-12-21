@@ -9,7 +9,6 @@ using System.Xml.Serialization;
 using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SynapseGaming.LightingSystem.Rendering;
 namespace Ship_Game
@@ -17,8 +16,6 @@ namespace Ship_Game
 	public sealed class ModManager : GameScreen, IDisposable
 	{
 		private Vector2 Cursor = Vector2.Zero;
-
-		private List<UIButton> Buttons = new List<UIButton>();
 
 		private MainMenuScreen mmscreen;
 
@@ -56,7 +53,7 @@ namespace Ship_Game
         private bool disposed;
         private Task modLoad;
 
-        private bool flip = false;
+        //private bool flip = false;
 		//private float transitionElapsedTime;
 
 		public ModManager(MainMenuScreen mmscreen)
@@ -75,7 +72,7 @@ namespace Ship_Game
 
         ~ModManager() { Dispose(false); }
 
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposed)
             {
@@ -128,8 +125,6 @@ namespace Ship_Game
 
 		public override void HandleInput(InputState input)
 		{
-            
-
             this.selector = null;
 			if (this.CurrentButton==null &&( input.Escaped || input.RightMouseClick))
 			{
@@ -144,7 +139,7 @@ namespace Ship_Game
                 if (!HelperFunctions.CheckIntersection(b.Rect, input.CursorPosition) )
 				{
 					
-                    b.State = UIButton.PressState.Normal;
+                    b.State = UIButton.PressState.Default;
 				}
 				else
 				{
@@ -175,7 +170,7 @@ namespace Ship_Game
                         if (GlobalStats.ActiveMod != null)
                         {
                             ResourceManager.Reset();
-                            ResourceManager.Initialize(base.ScreenManager.Content);
+                            ResourceManager.LoadItAll();
                         }    
                         
                         this.modLoad = Task.Factory.StartNew(loadModTask);
@@ -217,7 +212,7 @@ namespace Ship_Game
                         GlobalStats.ActiveMod = null;
                         GlobalStats.ActiveModInfo = null;						                     
                         ResourceManager.Reset();
-						ResourceManager.Initialize(base.ScreenManager.Content);                        
+						ResourceManager.LoadItAll();                        
 						ResourceManager.LoadEmpires();
                         //Fonts.LoadContent(this.ScreenManager.Content);
                         this.mmscreen.ReloadContent();
@@ -236,23 +231,21 @@ namespace Ship_Game
             }
             if (this.CurrentButton != null)
             {
-                if (this.flip)
-                {
-
-                    if (CurrentButton.PressColor.A > 253)
-                        this.flip = false;
-                    else
-                        CurrentButton.PressColor.A++;
-                }
-                else
-                {
-                    if (CurrentButton.PressColor.A < 1)
-                        this.flip = true;
-                    else
-                        CurrentButton.PressColor.A--;
-                }
-                if (CurrentButton.State != UIButton.PressState.Pressed)
-                    CurrentButton.State = UIButton.PressState.Pressed;
+                //if (this.flip)
+                //{
+                //    if (CurrentButton.PressColor.A > 253)
+                //        this.flip = false;
+                //    else
+                //        CurrentButton.PressColor.A++;
+                //}
+                //else
+                //{
+                //    if (CurrentButton.PressColor.A < 1)
+                //        this.flip = true;
+                //    else
+                //        CurrentButton.PressColor.A--;
+                //}
+                CurrentButton.State = UIButton.PressState.Pressed;
                 return;
             }
 			this.ModsSL.HandleInput(input);
@@ -298,9 +291,8 @@ namespace Ship_Game
         {
             if (GlobalStats.ActiveMod != null)
             {
-                
                 ResourceManager.Reset();
-                ResourceManager.Initialize(base.ScreenManager.Content);
+                ResourceManager.LoadItAll();
             }     
         }
         private void loadModTask()
@@ -317,8 +309,7 @@ namespace Ship_Game
             Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             config.AppSettings.Settings["ActiveMod"].Value = this.ActiveEntry.ModPath;
             config.Save();
-            this.mmscreen.Buttons.Clear();
-            this.mmscreen.LoadContent();
+            this.mmscreen.ReloadContent();
             this.ExitScreen();
             this.mmscreen.ResetMusic();
         }
@@ -335,29 +326,24 @@ namespace Ship_Game
 			this.AllSaves = new Submenu(base.ScreenManager, scrollList);
 			this.AllSaves.AddTab(Localizer.Token(4013));
 			this.ModsSL = new ScrollList(this.AllSaves, 140);
-			FileInfo[] filesFromDirectoryNoSub = ResourceManager.GetFilesFromDirectoryNoSub("Mods");
-			for (int i = 0; i < (int)filesFromDirectoryNoSub.Length; i++)
+
+			foreach (FileInfo info in Dir.GetFilesNoSub("Mods"))
 			{
-				FileInfo FI = filesFromDirectoryNoSub[i];
-				Stream file = FI.OpenRead();
-                ModInformation data;
-                if(FI.Name.Contains(".txt"))
+                if (info.Name.Contains(".txt"))
                     continue;
-                try
-                {
-                     
-                    data = (ModInformation)ResourceManager.ModSerializer.Deserialize(file);
+			    try
+			    {
+			        ModInformation data;
+			        using (Stream file = info.OpenRead())
+			            data = (ModInformation)ResourceManager.ModSerializer.Deserialize(file);
+                    ModEntry me = new ModEntry(ScreenManager, data, Path.GetFileNameWithoutExtension(info.Name));
+                    ModsSL.AddItem(me);
                 }
-                catch (Exception ex)
-                {
-                    ex.Data.Add("Load Error in file", FI.Name);
-                    
-                    throw;
-                }
-				//file.Close();
-				file.Dispose();
-				ModEntry me = new ModEntry(base.ScreenManager, data, Path.GetFileNameWithoutExtension(FI.Name));
-				this.ModsSL.AddItem(me);
+			    catch (Exception ex)
+			    {
+			        ex.Data.Add("Load Error in file", info.Name);
+			        throw;
+			    }
 			}
 			this.EnternamePos = this.TitlePosition;
 			this.EnterNameArea = new UITextEntry();
@@ -394,9 +380,7 @@ namespace Ship_Game
 				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"],
 				HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
 				PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
-				
                 Text = Localizer.Token(4044),
-
 				Launches = "shiptool"
 			};
 			this.Buttons.Add(this.shiptool);
