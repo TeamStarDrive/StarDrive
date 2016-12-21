@@ -2,8 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Threading;
 
 namespace Ship_Game
 {
@@ -47,7 +45,7 @@ namespace Ship_Game
 				float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
 				f = Math.Abs(f) * 255f;
 				Color flashColor = new Color(255, 255, 255, (byte)f);
-				Vector2 pausePos = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Pirulen16.MeasureString("Paused").X / 2f, (float)(45 + Fonts.Pirulen16.LineSpacing * 2 + 4));
+				Vector2 pausePos = new Vector2(ScreenManager.Center().X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, flashColor);
 			}
 			this.window.Draw();

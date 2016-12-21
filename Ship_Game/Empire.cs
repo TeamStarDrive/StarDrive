@@ -1160,7 +1160,7 @@ namespace Ship_Game
             return GSAI.ThreatMatrix.FindShipsInOurBorders();
         }
 
-        public void UpdateKnownShips()  //Mer
+        public void UpdateKnownShips()
         {
            // this.GetGSAI().ThreatMatrix.ScrubMatrix(true);
             if (data.Defeated)
@@ -1207,9 +1207,9 @@ namespace Ship_Game
                             }
                             if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
                             {
-                                GlobalStats.UILocker.EnterWriteLock();
+                                GlobalStats.UiLocker.EnterWriteLock();
                                 DoFirstContact(nearby.loyalty);
-                                GlobalStats.UILocker.ExitWriteLock();
+                                GlobalStats.UiLocker.ExitWriteLock();
                             }
                             insensors = true;
                             Ship shipKey = node.KeyedObject as Ship;
@@ -2268,7 +2268,7 @@ namespace Ship_Game
                                             list3.Add(empire);
                                     }
                                     //Added by McShooterz: prevent AI from automatically merging together
-                                    if (list3.Count > 0 && !GlobalStats.preventFederations)
+                                    if (list3.Count > 0 && !GlobalStats.PreventFederations)
                                     {
                                         Empire strongest = list3.OrderByDescending(emp => biggest.GetRelations(emp).GetStrength()).First();
                                         if (!biggest.GetRelations(strongest).AtWar)
@@ -2761,8 +2761,7 @@ namespace Ship_Game
             float moneyForFreighters = (this.Money * .1f) * .1f - this.freighterBudget;
             this.freighterBudget = 0;
 
-            // int freighterLimit = ((int)naturalLimit > GlobalStats.freighterlimit ? (int)GlobalStats.freighterlimit : (int)naturalLimit );
-            int freighterLimit = (int)GlobalStats.freighterlimit;
+            int freighterLimit = GlobalStats.FreighterLimit;
 
             List<Ship> unusedFreighters = new List<Ship>();
             List<Ship> assignedShips = new List<Ship>();

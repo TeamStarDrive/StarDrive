@@ -584,7 +584,7 @@ namespace Ship_Game
             DeleteShipFromDir("Content/StarterShips", shipName);
             DeleteShipFromDir("Content/SavedDesigns", shipName);
 
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appData = Dir.ApplicationData;
             DeleteShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/StarDrive/WIP", shipName);
 
@@ -768,7 +768,7 @@ namespace Ship_Game
         // advice is temporary and only sticks around while loading
         public static string LoadRandomAdvice()
         {
-            string adviceFile = "/Advice/"+GlobalStats.Config.Language+"/Advice.xml";
+            string adviceFile = "/Advice/"+GlobalStats.Language+"/Advice.xml";
 
             List<string> adviceList = null;
             if (DeserializeIfExists(WhichModPath, adviceFile, ref adviceList)
@@ -802,7 +802,7 @@ namespace Ship_Game
 
         private static void LoadDialogs() // Refactored by RedFox
         {
-            string dir = "/DiplomacyDialogs/" + GlobalStats.Config.Language + "/";
+            string dir = "/DiplomacyDialogs/" + GlobalStats.Language + "/";
             foreach (var kv in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
             {
                 string nameNoExt = kv.Key.NameNoExt();
@@ -952,9 +952,9 @@ namespace Ship_Game
                 Localizer.AddTokens(localization.TokenList);
 
             // load extra tokens from Config Language
-            if (GlobalStats.Config.Language != "English")
+            if (GlobalStats.NotEnglish)
             {
-                foreach (var localization in LoadEntities<LocalizationFile>("/Localization/" + GlobalStats.Config.Language + "/", "LoadLanguage"))
+                foreach (var localization in LoadEntities<LocalizationFile>("/Localization/" + GlobalStats.Language + "/", "LoadLanguage"))
                     Localizer.AddTokens(localization.TokenList);
             }
             //Log.Info(ConsoleColor.DarkYellow, " === Localizer Total Memory: {0}KB === ", Localizer.CountBytesUsed() / 1024);
@@ -1158,7 +1158,7 @@ namespace Ship_Game
             foreach (Ship ship in LoadShipsFromDirectory(WhichModPath + "/SavedDesigns"))
                 ship.reserved = true;
 
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appData = Dir.ApplicationData;
             foreach (Ship ship in LoadShipsFromDirectory(appData + "/StarDrive/Saved Designs"))
                 ship.IsPlayerDesign = true;
 

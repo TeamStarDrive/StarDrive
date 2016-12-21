@@ -61,9 +61,9 @@ namespace Ship_Game
 			SaveData.camheight           = screenToSave.camHeight;
             SaveData.MemoryLimiter       = GlobalStats.MemoryLimiter;
             SaveData.MinimumWarpRange    = GlobalStats.MinimumWarpRange;
-            SaveData.TurnTimer           = GlobalStats.TurnTimer;
+            SaveData.TurnTimer           = (byte)GlobalStats.TurnTimer;
             SaveData.IconSize            = GlobalStats.IconSize;
-            SaveData.preventFederations  = GlobalStats.preventFederations;
+            SaveData.preventFederations  = GlobalStats.PreventFederations;
             SaveData.GravityWellRange    = GlobalStats.GravityWellRange;
             SaveData.EliminationMode     = GlobalStats.EliminationMode;
 			SaveData.EmpireDataList      = new List<EmpireSaveData>();
@@ -542,7 +542,7 @@ namespace Ship_Game
 			{
 				SaveData.Snapshots.Add(e.Key, e.Value);
 			}
-			string path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+			string path = Dir.ApplicationData;
 			SaveData.path       = path;
 			SaveData.SaveAs     = saveAs;
 			SaveData.Size       = screenToSave.Size;

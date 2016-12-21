@@ -166,7 +166,7 @@ namespace Ship_Game
 				color = "green"
 			};
 			int ddwidth = (int)(0.2f * (float)this.StorageRect.Width);
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				ddwidth = (int)Fonts.Arial12.MeasureString(Localizer.Token(330)).X + 22;
 			}
@@ -984,7 +984,7 @@ namespace Ship_Game
 				color = "green"
 			};
 			int ddwidth = (int)(0.2f * (float)this.StorageRect.Width);
-			if (GlobalStats.Config.Language == "German" || GlobalStats.Config.Language == "Polish")
+			if (GlobalStats.IsGermanOrPolish)
 			{
 				ddwidth = (int)Fonts.Arial12.MeasureString(Localizer.Token(330)).X + 22;
 			}

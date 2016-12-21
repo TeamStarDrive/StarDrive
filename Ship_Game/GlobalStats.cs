@@ -2,117 +2,88 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-	public sealed class GlobalStats
+    public enum Language
+    {
+        English,
+        French,
+        German,
+        Polish,
+        Russian,
+        Spanish,
+    }
+
+    public enum WindowMode
+    {
+        Fullscreen,
+        Windowed,
+        Borderless
+    }
+
+    public static class GlobalStats
 	{
-        public static string branch = "0.301 Texas_Refactor";
-        //public static string Version = "1013A";
-        public static int ComparisonCounter;
+        public static string Branch = "0.301 Texas_Refactor";
+        public static int ComparisonCounter = 1;
+		public static int Comparisons = 0;
+		public static bool HardcoreRuleset = false;
+		public static bool TakingInput = false;
+		public static bool WarpInSystem = true;
+		public static float FTLInSystemModifier = 1f;
+        public static float EnemyFTLInSystemModifier = 1f;
 
-		public static int Comparisons;
+        // @todo Get rid of all global locks
+		public static object ShieldLocker = new object();
+		public static object ClickableSystemsLock = new object();
+		public static object SensorNodeLocker = new object();
+		public static object BorderNodeLocker = new object();
+		public static object BombLock = new object();
+		public static object ObjectManagerLocker = new object();
+		public static object ExplosionLocker = new object();
+		public static object KnownShipsLock = new object();
+		public static object AddShipLocker = new object();
+		public static object BucketLock = new object();
+		public static object OwnedPlanetsLock = new object();
+		public static object DeepSpaceLock = new object();
+		public static object WayPointLock = new object();
+		public static object ClickableItemLocker = new object();
+		public static object TaskLocker = new object();
+		public static object FleetButtonLocker = new object();
+		public static object BeamEffectLocker = new object();
 
-		public static bool HardcoreRuleset;
+		public static Config Config = new Config();
 
-		public static bool TakingInput;
-        
-		public static bool WarpInSystem;
-
-		public static float FTLInSystemModifier;
-
-        public static float EnemyFTLInSystemModifier;
-
-		public static object ShieldLocker;
-
-		public static object ClickableSystemsLock;
-
-		public static object SensorNodeLocker;
-
-		public static object BorderNodeLocker;
-
-		public static object BombLock;
-
-		public static object ObjectManagerLocker;
-
-		public static object ExplosionLocker;
-
-		public static object KnownShipsLock;
-
-		public static object AddShipLocker;
-
-		public static object BucketLock;
-
-		public static object OwnedPlanetsLock;
-
-		public static object DeepSpaceLock;
-
-		public static object WayPointLock;
-
-		public static object ClickableItemLocker;
-
-		public static object TaskLocker;
-
-		public static object FleetButtonLocker;
-
-		public static object BeamEffectLocker;
-
-		public static Ship_Game.Config Config;
-
-		public static System.Configuration.Configuration Configuration;
-
-		public static bool ShowAllDesigns;
-
-		public static int ModulesMoved;
-
-		public static int DSCombatScans;
-
-		public static int BeamTests;
-
-		public static int ModuleUpdates;
-
-		public static int WeaponArcChecks;
-
-		public static int CombatScans;
-
-		public static int DistanceCheckTotal;
-
-		public static bool LimitSpeed;
-
+		public static bool ShowAllDesigns = true;
+		public static int ModulesMoved = 0;
+		public static int DSCombatScans = 0;
+		public static int BeamTests = 0;
+		public static int ModuleUpdates = 0;
+		public static int WeaponArcChecks = 0;
+		public static int CombatScans = 0;
+		public static int DistanceCheckTotal = 0;
+		public static bool LimitSpeed = true;
 		public static float GravityWellRange;
-
-		public static bool PlanetaryGravityWells;
-
-		public static bool AutoCombat;
-
+		public static bool PlanetaryGravityWells = true;
+		public static bool AutoCombat = true;
 
         // Option for keyboard hotkey based arc movement
         public static bool AltArcControl;
-
-		public static int TimesPlayed;
-
+		public static int TimesPlayed = 0;
 		public static ModEntry ActiveMod;
 		public static ModInformation ActiveModInfo;
+		public static string ResearchRootUIDToDisplay = "Colonization";
+		public static int RemnantKills = 0;
+        public static int RemnantActivation = 0;
+		public static bool RemnantArmageddon = false;
+		public static int CordrazinePlanetsCaptured = 0;
 
-		public static string ResearchRootUIDToDisplay;
-
-		public static bool ForceFullSim;
-
-		public static int RemnantKills;
-
-        public static int RemnantActivation;
-
-		public static bool RemnantArmageddon;
-
-		public static int CordrazinePlanetsCaptured;
-
-        public static bool ExtraNotiofications;
-        //PauseOnNotification
+        public static bool ExtraNotifications;
         public static bool PauseOnNotification;
         public static int ExtraPlanets;
-        //OptionIncreaseShipMaintenance
         public static float OptionIncreaseShipMaintenance;
         public static float MinimumWarpRange;
 
@@ -121,150 +92,216 @@ namespace Ship_Game
         public static float StartingPlanetRichness;
         public static string ExtendedVersion = ""; 
         public static int IconSize;
-        public static byte TurnTimer = 5;
+        public static int TurnTimer = 5;
 
-        public static bool preventFederations;
+        public static bool PreventFederations;
         public static bool EliminationMode;
         public static bool ZoomTracking;
 
         public static int ShipCountLimit;
         public static float spaceroadlimit = .025f;
-        public static float freighterlimit = 50f;
+        public static int FreighterLimit = 50;
         public static int ScriptedTechWithin = 6;
         public static bool perf;
         public static float DefensePlatformLimit = .025f;
-        public static ReaderWriterLockSlim UILocker;
+        public static ReaderWriterLockSlim UiLocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         public static int BeamOOM = 0;
         public static string bugTracker = "";
 
         public static int AutoSaveFreq = 300;   //Added by Gretman
-        public static bool CornersGame;     //Also added by Gretman
-
+        public static bool CornersGame = false;     //Also added by Gretman
         public static int ExtraRemnantGS;
+
+        ////////////////////////////////
+        // From old Config
+        public static int XRES;
+        public static int YRES;
+        public static WindowMode WindowMode;
+        public static bool RanOnce;
+        public static bool ForceFullSim = true;
+        public static int AntiAlias = 2;
+        public static bool AntiAlias8XOverride;
+        public static float MusicVolume = 0.7f;
+        public static float EffectsVolume = 1f;
+        public static Language Language = Language.English;
+
+        public static bool IsEnglish => Language == Language.English;
+        public static bool IsFrench => Language == Language.French;
+        public static bool IsGerman => Language == Language.German;
+        public static bool IsPolish => Language == Language.Polish;
+        public static bool IsRussian => Language == Language.Russian;
+        public static bool IsSpanish => Language == Language.Spanish;
+
+        public static bool IsGermanOrPolish => IsGerman || IsPolish;
+        public static bool IsGermanFrenchOrPolish => IsGerman || IsPolish || IsFrench;
+
+        public static bool NotEnglish => Language != Language.English;
+        public static bool NotGerman => Language != Language.German;
+        public static bool NotEnglishOrSpanish => IsGerman || IsPolish || IsRussian || IsFrench;
+        ////////////////////////////////
+
         static GlobalStats()
 		{
-            GlobalStats.UILocker = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-            GlobalStats.ComparisonCounter = 1;
-			GlobalStats.Comparisons = 0;
-			GlobalStats.HardcoreRuleset = false;
-			GlobalStats.TakingInput = false;
-			GlobalStats.WarpInSystem = true;
-			GlobalStats.FTLInSystemModifier = 1f;
-            GlobalStats.EnemyFTLInSystemModifier = 1f;
-			GlobalStats.ShieldLocker = new object();
-			GlobalStats.ClickableSystemsLock = new object();
-			GlobalStats.SensorNodeLocker = new object();
-			GlobalStats.BorderNodeLocker = new object();
-			GlobalStats.BombLock = new object();
-			GlobalStats.ObjectManagerLocker = new object();
-			GlobalStats.ExplosionLocker = new object();
-			GlobalStats.KnownShipsLock = new object();
-			GlobalStats.AddShipLocker = new object();
-			GlobalStats.BucketLock = new object();
-			GlobalStats.OwnedPlanetsLock = new object();
-			GlobalStats.DeepSpaceLock = new object();
-			GlobalStats.WayPointLock = new object();
-			GlobalStats.ClickableItemLocker = new object();
-			GlobalStats.TaskLocker = new object();
-			GlobalStats.FleetButtonLocker = new object();
-			GlobalStats.BeamEffectLocker = new object();
-			GlobalStats.ShowAllDesigns = true;
-			GlobalStats.ModulesMoved = 0;
-			GlobalStats.DSCombatScans = 0;
-			GlobalStats.BeamTests = 0;
-			GlobalStats.ModuleUpdates = 0;
-			GlobalStats.WeaponArcChecks = 0;
-			GlobalStats.CombatScans = 0;
-			GlobalStats.DistanceCheckTotal = 0;
-			GlobalStats.LimitSpeed = true;
-			GlobalStats.PlanetaryGravityWells = true;
-			GlobalStats.AutoCombat = true;
-			GlobalStats.TimesPlayed = 0;
-			GlobalStats.ResearchRootUIDToDisplay = "Colonization";
-			GlobalStats.ForceFullSim = true;
-			GlobalStats.RemnantKills = 0;
-            GlobalStats.RemnantActivation = 0;
-			GlobalStats.RemnantArmageddon = false;
-			GlobalStats.CordrazinePlanetsCaptured = 0;
-
-            GlobalStats.CornersGame = false;    //Added by Gretman
-            
-			try
-			{
-				GlobalStats.GravityWellRange = float.Parse(ConfigurationManager.AppSettings["GravityWellRange"]); // 8000f;
-	            GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
-	            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
-	            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
-                GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
-                GlobalStats.ZoomTracking = bool.Parse(ConfigurationManager.AppSettings["ZoomTracking"]);
-	            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
-	            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
-	            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
-	            GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
-                //GlobalStats.ExtendedVersion += "_" + GlobalStats.branch + "_" + GlobalStats.Version;
-                GlobalStats.ExtendedVersion +=  GlobalStats.branch + " : 16_" + ConfigurationManager.AppSettings["ExtendedVersion"] + " ";
-	            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
-	            GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
-	            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
-	            GlobalStats.freighterlimit = int.Parse(ConfigurationManager.AppSettings["freighterlimit"]);
-	            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
-	            GlobalStats.perf = bool.Parse(ConfigurationManager.AppSettings["perf"]);
-                GlobalStats.AutoSaveFreq = int.Parse(ConfigurationManager.AppSettings["AutoSaveFreq"]);
+            try
+            {
+                var mgr = ConfigurationManager.AppSettings;
             }
-			catch (Exception)
-			{
-				/// Not doing so much here. It is just empty config
-			}
-		}
+            catch (ConfigurationErrorsException)
+            {
+                return; // configuration file is missing
+            }
+            ExtendedVersion += Branch + " : 16_" + GetSetting("ExtendedVersion") + " ";
+            GetSetting("GravityWellRange",       ref GravityWellRange);
+            GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
+            GetSetting("perf",                   ref perf);
+            GetSetting("AutoSaveFreq",           ref AutoSaveFreq);
+            GetSetting("RanOnce",                ref RanOnce);
+            GetSetting("ForceFullSim",           ref ForceFullSim);
+            GetSetting("WindowMode",             ref WindowMode);
+            GetSetting("8XAntiAliasing",         ref AntiAlias8XOverride);
+            Statreset();
+
+            if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
+            if (int.TryParse(GetSetting("EffectsVolume"), out int fxVol))  EffectsVolume = fxVol / 100f;
+            GetSetting("Language", ref Language);
+            GetSetting("XRES", ref XRES);
+            GetSetting("YRES", ref YRES);
+
+            if (!RanOnce) // first run? try full screen
+                WindowMode = 0;
+            RanOnce = true;
+
+            Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
+        }
+
         public static void Statreset()
         {
-            GlobalStats.ExtraNotiofications = bool.Parse(ConfigurationManager.AppSettings["ExtraNotifications"]);
-            GlobalStats.PauseOnNotification = bool.Parse(ConfigurationManager.AppSettings["PauseOnNotification"]);
-            GlobalStats.ExtraPlanets = int.Parse(ConfigurationManager.AppSettings["ExtraPlanets"]);
-            GlobalStats.MemoryLimiter = int.Parse(ConfigurationManager.AppSettings["MemoryLimiter"]);
-            GlobalStats.MinimumWarpRange = int.Parse(ConfigurationManager.AppSettings["MinimumWarpRange"]);
-            GlobalStats.StartingPlanetRichness = int.Parse(ConfigurationManager.AppSettings["StartingPlanetRichness"]);
-            GlobalStats.OptionIncreaseShipMaintenance = int.Parse(ConfigurationManager.AppSettings["OptionIncreaseShipMaintenance"]);
-           // GlobalStats.ExtendedVersion = ConfigurationManager.AppSettings["ExtendedVersion"];
-            GlobalStats.IconSize = int.Parse(ConfigurationManager.AppSettings["IconSize"]);
-            GlobalStats.preventFederations = bool.Parse(ConfigurationManager.AppSettings["preventFederations"]);
-            GlobalStats.ShipCountLimit = int.Parse(ConfigurationManager.AppSettings["shipcountlimit"]);
-            GlobalStats.EliminationMode = bool.Parse(ConfigurationManager.AppSettings["EliminationMode"]);
-            GlobalStats.ZoomTracking = bool.Parse(ConfigurationManager.AppSettings["ZoomTracking"]);
-            GlobalStats.TurnTimer = byte.Parse(ConfigurationManager.AppSettings["TurnTimer"]);
-            GlobalStats.AltArcControl = bool.Parse(ConfigurationManager.AppSettings["AltArcControl"]);
+            GetSetting("ExtraNotifications",            ref ExtraNotifications);
+            GetSetting("PauseOnNotification",           ref PauseOnNotification);
+            GetSetting("ExtraPlanets",                  ref ExtraPlanets);
+            GetSetting("MemoryLimiter",                 ref MemoryLimiter);
+            GetSetting("MinimumWarpRange",              ref MinimumWarpRange);
+            GetSetting("OptionIncreaseShipMaintenance", ref OptionIncreaseShipMaintenance);
+            GetSetting("IconSize",                      ref IconSize);
+            GetSetting("preventFederations",            ref PreventFederations);
+            GetSetting("shipcountlimit",                ref ShipCountLimit);
+            GetSetting("EliminationMode",               ref EliminationMode);
+            GetSetting("ZoomTracking",                  ref ZoomTracking);
+            GetSetting("TurnTimer",                     ref TurnTimer);
+            GetSetting("AltArcControl",                 ref AltArcControl);
+            GetSetting("freighterlimit",                ref FreighterLimit);
         }
-		public GlobalStats()
-		{
-		}
 
-		public static void IncrementCordrazineCapture()
+        public static void SaveSettings()
+        {
+            XRES = Game1.Instance.Graphics.PreferredBackBufferWidth;
+            YRES = Game1.Instance.Graphics.PreferredBackBufferHeight;
+
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            WriteSetting(config, "GravityWellRange",       GravityWellRange);
+            WriteSetting(config, "StartingPlanetRichness", StartingPlanetRichness);
+            WriteSetting(config, "perf", perf);
+            WriteSetting(config, "AutoSaveFreq",   AutoSaveFreq);
+            WriteSetting(config, "RanOnce",        RanOnce);
+            WriteSetting(config, "ForceFullSim",   ForceFullSim);
+            WriteSetting(config, "WindowMode",     WindowMode);
+            WriteSetting(config, "8XAntiAliasing", AntiAlias8XOverride);
+
+            WriteSetting(config, "ExtraNotifications",  ExtraNotifications);
+            WriteSetting(config, "PauseOnNotification", PauseOnNotification);
+            WriteSetting(config, "ExtraPlanets",     ExtraPlanets);
+            WriteSetting(config, "MemoryLimiter",    MemoryLimiter);
+            WriteSetting(config, "MinimumWarpRange", MinimumWarpRange);
+            WriteSetting(config, "OptionIncreaseShipMaintenance", OptionIncreaseShipMaintenance);
+            WriteSetting(config, "IconSize",           IconSize);
+            WriteSetting(config, "PreventFederations", PreventFederations);
+            WriteSetting(config, "EliminationMode",    EliminationMode);
+            WriteSetting(config, "shipcountlimit", ShipCountLimit);
+            WriteSetting(config, "ZoomTracking",   ZoomTracking);
+            WriteSetting(config, "TurnTimer",      TurnTimer);
+            WriteSetting(config, "AltArcControl",  AltArcControl);
+            WriteSetting(config, "freighterlimit", FreighterLimit);
+
+            WriteSetting(config, "MusicVolume",   (int)(MusicVolume * 100));
+            WriteSetting(config, "EffectsVolume", (int)(EffectsVolume * 100));
+            WriteSetting(config, "Language", Language);
+            WriteSetting(config, "XRES", XRES);
+            WriteSetting(config, "YRES", YRES);
+
+            config.Save();
+            ConfigurationManager.RefreshSection("appSettings");
+        }
+
+        // Only assigns the ref parameter is parsing succeeds. This avoid overwriting default values
+        public static bool GetSetting(string name, ref float f)
+        {
+            if (!float.TryParse(ConfigurationManager.AppSettings[name], out float v)) return false;
+            f = v;
+            return true;
+        }
+        public static bool GetSetting(string name, ref int i)
+        {
+            if (!int.TryParse(ConfigurationManager.AppSettings[name], out int v)) return false;
+            i = v;
+            return true;
+        }
+        public static bool GetSetting(string name, ref bool b)
+        {
+            if (!bool.TryParse(ConfigurationManager.AppSettings[name], out bool v)) return false;
+            b = v;
+            return true;
+        }
+        public static bool GetSetting<T>(string name, ref T e) where T : struct
+        {
+            if (!Enum.TryParse(ConfigurationManager.AppSettings[name], out T v)) return false;
+            e = v;
+            return true;
+        }
+        public static string GetSetting(string name) => ConfigurationManager.AppSettings[name];
+
+        private static void WriteSetting(Configuration config, string name, float v)
+        {
+            WriteSetting(config, name, v.ToString(CultureInfo.InvariantCulture));
+        }
+        private static void WriteSetting<T>(Configuration config, string name, T v) where T : struct
+        {
+            config.AppSettings.Settings[name].Value = v.ToString();
+        }
+        private static void WriteSetting(Configuration config, string name, string value)
+        {
+            config.AppSettings.Settings[name].Value = value;
+        }
+
+
+        // @todo Why is this here??
+        public static void IncrementCordrazineCapture()
 		{
-			GlobalStats.CordrazinePlanetsCaptured = GlobalStats.CordrazinePlanetsCaptured + 1;
-			if (GlobalStats.CordrazinePlanetsCaptured == 1)
+			CordrazinePlanetsCaptured = CordrazinePlanetsCaptured + 1;
+			if (CordrazinePlanetsCaptured == 1)
 			{
 				Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
 			}
 		}
 
+        // @todo Why is this here??
 		public static void IncrementRemnantKills(int exp)
 		{
-            GlobalStats.RemnantKills = GlobalStats.RemnantKills + exp;
-			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.RemnantTechCount > 0)
+            RemnantKills = RemnantKills + exp;
+			if (ActiveModInfo != null && ActiveModInfo.RemnantTechCount > 0)
             {
-                if (GlobalStats.RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && GlobalStats.RemnantActivation < GlobalStats.ActiveModInfo.RemnantTechCount)
+                if (RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
                 {
-                    GlobalStats.RemnantActivation += 1;
+                    RemnantActivation += 1;
                     Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
-                    GlobalStats.RemnantKills = 0;
+                    RemnantKills = 0;
                 }
             }
             else
             {
-                if (GlobalStats.RemnantKills >= 5 && GlobalStats.RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
+                if (RemnantKills >= 5 && RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
                 {
                     Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
-                    GlobalStats.RemnantActivation = 1;
+                    RemnantActivation = 1;
                 }
             }
 		}
