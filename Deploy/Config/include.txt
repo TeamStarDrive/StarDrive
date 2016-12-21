@@ -2,3 +2,8 @@
 "Stardrive.exe"
 "Stardrive.exe.config"
 "StarDrive.pdb"
+
+"..\..\StarDrive\SDNative.lib"
+"..\..\StarDrive\SDNative.pdb"
+"..\..\StarDrive\SDNative.dll"
+"..\..\StarDrive\SDNative.exp"
