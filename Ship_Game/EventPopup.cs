@@ -12,8 +12,6 @@ namespace Ship_Game
 
 		public bool FromGame;
 
-		private UniverseScreen _screen;
-
 		public ExplorationEvent ExpEvent;
 
 		private readonly Outcome _outcome;
@@ -21,27 +19,10 @@ namespace Ship_Game
 		private Rectangle _blackRect;
 
         public Dictionary<Packagetypes, List<DrawPackage>> DrawPackages = new Dictionary<Packagetypes, List<DrawPackage>>();
-        public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome)
-		{
-			_screen = s;
-			_outcome = outcome;
-			ExpEvent = e;
-			Fade = true;
-			IsPopup = true;
-			FromGame = true;
-			TransitionOnTime = TimeSpan.FromSeconds(0.25);
-			TransitionOffTime = TimeSpan.FromSeconds(0);
-			R = new Rectangle(0, 0, 600, 600);
-            foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
-            {
-                DrawPackages.Add(packagetype, new List<DrawPackage>());
-            }
-        }
 
-		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome, bool TriggerNow)
+		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome, bool triggerNow)
 		{
-			_screen = s;
-			if (TriggerNow)
+			if (triggerNow)
 			{
 				e.TriggerOutcome(playerEmpire, outcome);
 			}
@@ -67,100 +48,95 @@ namespace Ship_Game
 			}
 			DrawBase(gameTime);
 			ScreenManager.SpriteBatch.Begin();
-			Vector2 TheirTextPos = new Vector2((float)(_blackRect.X + 10), (float)(_blackRect.Y + 10));
-			string Description = HelperFunctions.ParseText(Fonts.Verdana10, _outcome.DescriptionText, (float)(_blackRect.Width - 40));
-			ScreenManager.SpriteBatch.DrawString(Fonts.Verdana10, Description, TheirTextPos, Color.White);
-			TheirTextPos.Y = TheirTextPos.Y + (float)((int)Fonts.Verdana10.MeasureString(Description).Y + 10);
+			Vector2 theirTextPos = new Vector2((float)(_blackRect.X + 10), (float)(_blackRect.Y + 10));
+			string description = HelperFunctions.ParseText(Fonts.Verdana10, _outcome.DescriptionText, (float)(_blackRect.Width - 40));			
+		    theirTextPos = DrawString(Fonts.Verdana10, description, theirTextPos, Color.White);
+
 			if (_outcome.SelectRandomPlanet && _outcome.GetPlanet() != null)
 			{
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Relevant Planet: ", _outcome.GetPlanet().Name), TheirTextPos, Color.LightGreen);
-				TheirTextPos.Y = TheirTextPos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                theirTextPos = DrawString(Fonts.Arial12Bold, string.Concat("Relevant Planet: ", _outcome.GetPlanet().Name), theirTextPos, Color.LightGreen);				
 			}
 			if (_outcome.GetArtifact() != null)
 			{
 				string theirText = string.Concat("Artifact Granted: ", _outcome.GetArtifact().Name);
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.LightGreen);
-				TheirTextPos.Y = TheirTextPos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-				Rectangle Icon = new Rectangle((int)TheirTextPos.X, (int)TheirTextPos.Y, 32, 32);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Artifact Icons/", _outcome.GetArtifact().Name)], Icon, Color.White);
-				TheirTextPos.Y = TheirTextPos.Y + 36f;
+                theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.LightGreen);				
+				Rectangle icon = new Rectangle((int)theirTextPos.X, (int)theirTextPos.Y, 32, 32);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Artifact Icons/", _outcome.GetArtifact().Name)], icon, Color.White);
+				theirTextPos.Y = theirTextPos.Y + 36f;
 				theirText = HelperFunctions.ParseText(Fonts.Arial12, _outcome.GetArtifact().Description, (float)(_blackRect.Width - 40));
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, TheirTextPos, Color.White);
-				TheirTextPos.Y = TheirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
+				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, theirTextPos, Color.White);
+				theirTextPos.Y = theirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
 			    foreach (DrawPackage artifactDrawPackage in DrawPackages[Packagetypes.Artifact])
 			    {
-                    TheirTextPos.Y +=artifactDrawPackage.Font.LineSpacing;			        			        
-                    ScreenManager.SpriteBatch.DrawString(artifactDrawPackage.Font, artifactDrawPackage.Text, TheirTextPos, artifactDrawPackage.Color);
+                    theirTextPos.Y +=artifactDrawPackage.Font.LineSpacing;			        			        
+                    ScreenManager.SpriteBatch.DrawString(artifactDrawPackage.Font, artifactDrawPackage.Text, theirTextPos, artifactDrawPackage.Color);
                 }               
             }
 			if (_outcome.UnlockTech != null)
 			{
-				if (!_outcome.WeHadIt)
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					string theirText = string.Concat("Technology Acquired: ", Localizer.Token(ResourceManager.TechTree[_outcome.UnlockTech].NameIndex));
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-					TheirTextPos.Y = TheirTextPos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-					if (ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked.Count > 0)
-					{
-						ShipModule unlockedMod = ResourceManager.ShipModulesDict[ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked[0].ModuleUID];
-                        Rectangle IconRect = new Rectangle((int)TheirTextPos.X, (int)TheirTextPos.Y, 16 * unlockedMod.XSIZE, 16 * unlockedMod.YSIZE);
-						//{
-							IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
-							IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
-						//};
-						while (IconRect.Height > 96)
-						{
-							IconRect.Height = IconRect.Height - unlockedMod.YSIZE;
-							IconRect.Width = IconRect.Width - unlockedMod.XSIZE;
-							IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
-							IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
-						}
-						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[unlockedMod.UID].IconTexturePath], IconRect, Color.White);
-						string moduleName = Localizer.Token(unlockedMod.NameIndex);
-						ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, moduleName, new Vector2(TheirTextPos.X + 100f, TheirTextPos.Y), Color.Orange);
-						string desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(unlockedMod.DescriptionIndex), (float)(_blackRect.Width - 120));
-						ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, desc, new Vector2(TheirTextPos.X + 100f, TheirTextPos.Y + 22f), Color.White);
-					}
-				}
-				else
-				{
-					TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
-					string theirText = "We found some alien technology, but we already possessed this knowledge.";
-					ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-					TheirTextPos.Y = TheirTextPos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-				}
+			    if (!_outcome.WeHadIt)
+			    {                                        
+			        string theirText = string.Concat("Technology Acquired: ",
+			            Localizer.Token(ResourceManager.TechTree[_outcome.UnlockTech].NameIndex));
+                    theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);
+			        if (ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked.Count > 0)
+			        {
+			            ShipModule unlockedMod =
+			                ResourceManager.ShipModulesDict[
+			                    ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked[0].ModuleUID];
+			            Rectangle IconRect = new Rectangle((int) theirTextPos.X, (int) theirTextPos.Y, 16 * unlockedMod.XSIZE,
+			                16 * unlockedMod.YSIZE);
+
+			            IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
+			            IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
+
+			            while (IconRect.Height > 96)
+			            {
+			                IconRect.Height = IconRect.Height - unlockedMod.YSIZE;
+			                IconRect.Width = IconRect.Width - unlockedMod.XSIZE;
+			                IconRect.X = IconRect.X + 48 - IconRect.Width / 2;
+			                IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
+			            }
+			            ScreenManager.SpriteBatch.Draw(
+			                ResourceManager.TextureDict[ResourceManager.ShipModulesDict[unlockedMod.UID].IconTexturePath],
+			                IconRect, Color.White);
+			            string moduleName = Localizer.Token(unlockedMod.NameIndex);
+			            DrawString(Fonts.Arial20Bold, moduleName,
+			                new Vector2(theirTextPos.X + 100f, theirTextPos.Y), Color.Orange);
+			            string desc = HelperFunctions.ParseText(Fonts.Arial12Bold, Localizer.Token(unlockedMod.DescriptionIndex),
+			                (float) (_blackRect.Width - 120));
+			            DrawString(Fonts.Arial12Bold, desc, new Vector2(theirTextPos.X + 100f, theirTextPos.Y + 22f), Color.White);
+			        }
+			    }
+			    else
+			    {			        
+			        string theirText = "We found some alien technology, but we already possessed this knowledge.";
+                    theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);			        
+			    }
 			}
 			if (_outcome.MoneyGranted > 0)
-			{
-				TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+			{				
 				string theirText = string.Concat("Money Granted: ", _outcome.MoneyGranted.ToString());
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				TheirTextPos.Y = TheirTextPos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);
 			}
 			if (_outcome.ScienceBonus > 0f)
-			{
-				TheirTextPos.Y = TheirTextPos.Y + (float)Fonts.Arial12Bold.LineSpacing;
+			{				
 				int scienceBonus = (int)(_outcome.ScienceBonus * 100f);
 				string theirText = string.Concat("Research Bonus Granted: ", scienceBonus.ToString(), "%");
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, theirText, TheirTextPos, Color.White);
-				TheirTextPos.Y = TheirTextPos.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
+                theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);			
 			}
 			ScreenManager.SpriteBatch.End();
 		}
 
-		public override void HandleInput(InputState input)
-		{
-			base.HandleInput(input);
-		}
+
 
 		public override void LoadContent()
 		{
 			TitleText = ExpEvent.Name;
 			MiddleText = _outcome.TitleText;
 			base.LoadContent();
-			Rectangle FitRect = new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
-			_blackRect = new Rectangle(FitRect.X, FitRect.Y, FitRect.Width, 450);
+			Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
+			_blackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 450);
 		}
 
 	    public enum Packagetypes
