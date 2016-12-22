@@ -221,7 +221,7 @@ namespace Ship_Game
                 moon.Initialize();
                 system.MoonList.Add(moon);
             }
-			foreach (Empire e in EmpireManager.EmpireList)
+			foreach (Empire e in EmpireManager.Empires)
 			{
 				system.ExploredDict.Add(e, false);
 			}
@@ -265,7 +265,7 @@ namespace Ship_Game
 						system.OwnerList.Add(p.Owner);
 					}
 					system.PlanetList.Add(p);
-					foreach (Empire e in EmpireManager.EmpireList)
+					foreach (Empire e in EmpireManager.Empires)
 					{
 						p.ExploredDict.Add(e, false);
 					}
@@ -457,7 +457,7 @@ namespace Ship_Game
 					e.AutoFreighters = this.savedData.AutoFreighters;
 					e.AutoBuild = this.savedData.AutoProjectors;
 				}
-				EmpireManager.EmpireList.Add(e);
+				EmpireManager.Add(e);
 			}
 			foreach (Empire e in this.data.EmpireList)
 			{
@@ -465,13 +465,14 @@ namespace Ship_Game
 				{
 					continue;
 				}
-				foreach (KeyValuePair<string, TechEntry> tech in EmpireManager.GetEmpireByName(e.data.AbsorbedBy).GetTDict())
+                Empire empireAbsorbedBy = EmpireManager.GetEmpireByName(e.data.AbsorbedBy);
+				foreach (KeyValuePair<string, TechEntry> tech in empireAbsorbedBy.GetTDict())
 				{
 					if (!tech.Value.Unlocked)
 					{
 						continue;
 					}
-					EmpireManager.GetEmpireByName(e.data.AbsorbedBy).UnlockHullsSave(tech.Key, e.data.Traits.ShipType);
+                    empireAbsorbedBy.UnlockHullsSave(tech.Key, e.data.Traits.ShipType);
 				}
 			}
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
@@ -1011,7 +1012,7 @@ namespace Ship_Game
 			}
             //int shipsPurged = 0;
             //float SpaceSaved = GC.GetTotalMemory(true);
-            //foreach(Empire empire in  EmpireManager.EmpireList)
+            //foreach(Empire empire in  EmpireManager.Empires)
             //{
             //    if (empire.data.Defeated && !empire.isFaction)
             //    {
@@ -1023,7 +1024,7 @@ namespace Ship_Game
             //            {                            
 
             //                bool killSwitch = true;
-            //                foreach (Empire ebuild in EmpireManager.EmpireList)
+            //                foreach (Empire ebuild in EmpireManager.Empires)
             //                {
             //                    if (ebuild == empire)
             //                        continue;
@@ -1252,7 +1253,7 @@ namespace Ship_Game
                 // Finally fucking fixes the 'LOOK AT ME PA I'M ZOOMED RIGHT IN' vanilla bug when loading a saved game: the universe screen uses camheight separately to the campos z vector to actually do zoom.
                 this.us.camHeight = this.camHeight;
 
-				this.us.player = EmpireManager.GetEmpireByName(this.PlayerLoyalty);
+				this.us.player = EmpireManager.Player;
 				this.us.LoadContent();
 
                 Log.Info("LoadUniverseScreen.UpdateAllSystems(0.01)");

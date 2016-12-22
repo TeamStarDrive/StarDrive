@@ -1,58 +1,78 @@
+using System;
+using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 
 namespace Ship_Game
 {
+    using BoolExpression = Expression<Func<bool>>;
+
 	public sealed class Checkbox
 	{
-		private Rectangle EnclosingRect;
+		private readonly SpriteFont Font;
+        private readonly string Text;
+        private readonly string TipText;
+        private readonly Ref<bool> Binding;
 
-		private string Text;
+        private readonly Rectangle CheckRect;
+		private readonly Vector2 TextPos;
+		private readonly Vector2 CheckPos;
 
-		private Ref<bool> connectedTo;
-
-		private SpriteFont Font;
-
-		private Rectangle CheckRect;
-
-		private Vector2 TextPos;
-
-		private Vector2 CheckPos;
-
-		public int Tip_Token;
-
-		public Checkbox(Vector2 Position, string text, Ref<bool> connectedTo, SpriteFont Font)
+		public Checkbox(float x, float y, Ref<bool> binding, SpriteFont font, string title, string tooltip)
 		{
-			this.connectedTo = connectedTo;
-			this.Text = text;
-			this.Font = Font;
-			this.EnclosingRect = new Rectangle((int)Position.X, (int)Position.Y, (int)Font.MeasureString(text).X + 32, Font.LineSpacing + 6);
-			this.CheckRect = new Rectangle(this.EnclosingRect.X + 15, this.EnclosingRect.Y + this.EnclosingRect.Height / 2 - 5, 10, 10);
-			this.TextPos = new Vector2((float)(this.CheckRect.X + 15), (float)(this.CheckRect.Y + this.CheckRect.Height / 2 - Font.LineSpacing / 2));
-			this.CheckPos = new Vector2((float)(this.CheckRect.X + 5) - Fonts.Arial12Bold.MeasureString("x").X / 2f, (float)(this.CheckRect.Y + 4 - Fonts.Arial12Bold.LineSpacing / 2));
+		    Binding = binding;
+			Font    = font;
+            Text    = title;
+            TipText = tooltip;
+		    var bounds = new Rectangle((int)x, (int)y, (int)font.MeasureString(title).X + 32, font.LineSpacing + 6);
+			CheckRect  = new Rectangle(bounds.X + 15, bounds.Y + bounds.Height / 2 - 5, 10, 10);
+			TextPos    = new Vector2(CheckRect.X + 15, CheckRect.Y + CheckRect.Height / 2 - font.LineSpacing / 2);
+			CheckPos   = new Vector2(CheckRect.X + 5 - font.MeasureString("x").X / 2f, 
+                                     CheckRect.Y + 4 - font.LineSpacing / 2);
 		}
+        public Checkbox(float x, float y, BoolExpression binding, SpriteFont font, string title, string tooltip)
+            : this(x, y, new Ref<bool>(binding), font, title, tooltip)
+        {
+        }
+        public Checkbox(float x, float y, BoolExpression binding, SpriteFont font, string title, int tooltip)
+            : this(x, y, new Ref<bool>(binding), font, title, Localizer.Token(tooltip))
+        {
+        }
+        public Checkbox(float x, float y, BoolExpression binding, SpriteFont font, int title, int tooltip)
+            : this(x, y, new Ref<bool>(binding), font, Localizer.Token(title), Localizer.Token(tooltip))
+        {
+        }
+        public Checkbox(float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font, string title, int tooltip)
+            : this(x, y, new Ref<bool>(getter, setter), font, title, Localizer.Token(tooltip))
+        {
+        }
+        public Checkbox(float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font, int title, int tooltip)
+            : this(x, y, new Ref<bool>(getter, setter), font, Localizer.Token(title), Localizer.Token(tooltip))
+        {
+        }
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager)
+        public void Draw(ScreenManager screenManager)
 		{
-			if (HelperFunctions.CheckIntersection(this.CheckRect, new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y)) && this.Tip_Token != 0)
+			if (HelperFunctions.CheckIntersection(CheckRect, Mouse.GetState().Pos()) && !TipText.Empty())
 			{
-				ToolTip.CreateTooltip(Localizer.Token(this.Tip_Token), ScreenManager);
+				ToolTip.CreateTooltip(TipText, screenManager);
 			}
-			Primitives2D.DrawRectangle(ScreenManager.SpriteBatch, this.CheckRect, new Color(96, 81, 49));
-			ScreenManager.SpriteBatch.DrawString(this.Font, this.Text, this.TextPos, Color.White);
-			if (this.connectedTo.Value)
+			Primitives2D.DrawRectangle(screenManager.SpriteBatch, CheckRect, new Color(96, 81, 49));
+			screenManager.SpriteBatch.DrawString(Font, Text, TextPos, Color.White);
+			if (Binding.Value)
 			{
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "x", this.CheckPos, Color.White);
+				screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "x", CheckPos, Color.White);
 			}
 		}
 
 		public bool HandleInput(InputState input)
 		{
-			if (HelperFunctions.CheckIntersection(this.CheckRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
+			if (HelperFunctions.CheckIntersection(CheckRect, input.CursorPosition) && 
+                input.CurrentMouseState.LeftButton == ButtonState.Pressed && 
+                input.LastMouseState.LeftButton == ButtonState.Released)
 			{
-				this.connectedTo.Value = !this.connectedTo.Value;
+				Binding.Value = !Binding.Value;
 			}
 			return false;
 		}

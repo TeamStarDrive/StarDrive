@@ -588,7 +588,7 @@ namespace Ship_Game
             DeleteShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/StarDrive/WIP", shipName);
 
-            foreach (Empire e in EmpireManager.EmpireList)
+            foreach (Empire e in EmpireManager.Empires)
                 e.UpdateShipsWeCanBuild();
         }
 

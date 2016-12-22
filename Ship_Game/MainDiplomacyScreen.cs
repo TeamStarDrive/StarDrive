@@ -70,7 +70,7 @@ namespace Ship_Game
             this.Friends = EmpireManager.GetAllies(this.PlayerEmpire);
             this.Traders = EmpireManager.GetTradePartners(this.PlayerEmpire);
             HashSet<Empire> empires = new HashSet<Empire>();            
-            foreach(Empire empire in EmpireManager.EmpireList)
+            foreach(Empire empire in EmpireManager.Empires)
             {
                 bool flag =false;
                 if(empire.isPlayer || empire.isFaction || empire.MinorRace)
@@ -220,9 +220,9 @@ namespace Ship_Game
 						spriteBatch.Draw(item.Value, r, EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy).EmpireColor);
 					}
 				}
-				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e && EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(race.e).Known)
+				else if (EmpireManager.Player != race.e && EmpireManager.Player.GetRelations(race.e).Known)
 				{
-					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(race.e).AtWar && !race.e.data.Defeated)
+					if (EmpireManager.Player.GetRelations(race.e).AtWar && !race.e.data.Defeated)
 					{
 						Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
 						Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, war, Color.Red);
@@ -231,7 +231,7 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], race.container, Color.White);
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
 				}
-				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e)
+				else if (EmpireManager.Player != race.e)
 				{
 					base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/unknown"], race.container, Color.White);
 				}
@@ -258,7 +258,7 @@ namespace Ship_Game
 			KeyValuePair<string, Texture2D> keyValuePair = ResourceManager.FlagTextures[this.SelectedEmpire.data.Traits.FlagIndex];
 			spriteBatch1.Draw(keyValuePair.Value, FlagRect, this.SelectedEmpire.EmpireColor);
 			TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 4);
-			if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) == this.SelectedEmpire && !this.SelectedEmpire.data.Defeated)
+			if (EmpireManager.Player == this.SelectedEmpire && !this.SelectedEmpire.data.Defeated)
 			{
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1601), TextCursor, Color.White);
 				Vector2 ColumnBCursor = TextCursor;
@@ -266,7 +266,7 @@ namespace Ship_Game
 				ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				List<Empire> Sortlist = new List<Empire>();
-				foreach (Empire e in EmpireManager.EmpireList)
+				foreach (Empire e in EmpireManager.Empires)
 				{
 					if (e.isFaction || e.data.Defeated || e.MinorRace)
 					{
@@ -276,9 +276,9 @@ namespace Ship_Game
 						}
 						Sortlist.Add(e);
 					}
-					else if (e != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+					else if (e != EmpireManager.Player)
 					{
-						if (!EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetRelations(e).Known)
+						if (!EmpireManager.Player.GetRelations(e).Known)
 						{
 							continue;
 						}
@@ -397,7 +397,7 @@ namespace Ship_Game
 			}
 			else if (!this.SelectedEmpire.data.Defeated)
 			{
-				float intelligencePenetration = EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).IntelligencePenetration;
+				float intelligencePenetration = EmpireManager.Player.GetRelations(SelectedEmpire).IntelligencePenetration;
                 if (this.IntelligenceLevel(this.SelectedEmpire) > 0)
                 {
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.SelectedEmpire.data.DiplomaticPersonality.Name, " ", this.SelectedEmpire.data.EconomicPersonality.Name), TextCursor, Color.White);
@@ -408,34 +408,34 @@ namespace Ship_Game
                     base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Unknown", " ", "Unknown"), TextCursor, Color.White);
                     TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
                 }
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).AtWar)
+				if (EmpireManager.Player.GetRelations(SelectedEmpire).AtWar)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1608), TextCursor, Color.LightPink);
 				}
-				else if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_Peace)
+				else if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_Peace)
 				{
 					SpriteBatch spriteBatch2 = base.ScreenManager.SpriteBatch;
 					SpriteFont arial12Bold = Fonts.Arial12Bold;
-					object[] objArray = new object[] { Localizer.Token(1213), " (", EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).PeaceTurnsRemaining, " ", Localizer.Token(2200), ")" };
+					object[] objArray = new object[] { Localizer.Token(1213), " (", EmpireManager.Player.GetRelations(SelectedEmpire).PeaceTurnsRemaining, " ", Localizer.Token(2200), ")" };
 					spriteBatch2.DrawString(arial12Bold, string.Concat(objArray), TextCursor, Color.LightGreen);
 					TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_OpenBorders)
+				if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_OpenBorders)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1609), TextCursor, Color.LightGreen);
 					TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_Trade)
+				if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_Trade)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1610), TextCursor, Color.LightGreen);
 					TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_NAPact)
+				if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_NAPact)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1611), TextCursor, Color.LightGreen);
 					TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				}
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(SelectedEmpire).Treaty_Alliance)
+				if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_Alliance)
 				{
 					base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1612), TextCursor, Color.LightGreen);
 				}
@@ -456,7 +456,7 @@ namespace Ship_Game
 					}
 				}
 				List<Empire> Sortlist = new List<Empire>();
-				foreach (Empire e in EmpireManager.EmpireList)
+				foreach (Empire e in EmpireManager.Empires)
 				{
 					if (e.isFaction || e.data.Defeated || e.MinorRace)
 					{
@@ -466,9 +466,9 @@ namespace Ship_Game
 						}
 						Sortlist.Add(e);
 					}
-					else if (e != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+					else if (e != EmpireManager.Player)
 					{
-						if (!EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetRelations(e).Known)
+						if (!EmpireManager.Player.GetRelations(e).Known)
 						{
 							continue;
 						}
@@ -640,7 +640,7 @@ namespace Ship_Game
             }
             //End of intel report
 			TextCursor = new Vector2((float)(this.OperationsRect.X + 20), (float)(this.OperationsRect.Y + 10));
-			HelperFunctions.DrawDropShadowText(base.ScreenManager, (this.SelectedEmpire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) ? Localizer.Token(2181) : Localizer.Token(2212)), TextCursor, Fonts.Arial20Bold);
+			HelperFunctions.DrawDropShadowText(base.ScreenManager, (this.SelectedEmpire == EmpireManager.Player ? Localizer.Token(2181) : Localizer.Token(2212)), TextCursor, Fonts.Arial20Bold);
 			TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial20Bold.LineSpacing + 5);
             //Added by McShooterz: Only display modified bonuses
             if (this.IntelligenceLevel(this.SelectedEmpire)>0)
@@ -1006,15 +1006,15 @@ namespace Ship_Game
 				return;
 			}
 			//this.showExecuteButton = false;
-			if (this.SelectedEmpire != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) && !this.SelectedEmpire.data.Defeated && this.Contact.HandleInput(input))
+			if (this.SelectedEmpire != EmpireManager.Player && !this.SelectedEmpire.data.Defeated && this.Contact.HandleInput(input))
 			{
-				base.ScreenManager.AddScreen(new DiplomacyScreen(this.SelectedEmpire, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty), "Greeting"));
+				base.ScreenManager.AddScreen(new DiplomacyScreen(this.SelectedEmpire, EmpireManager.Player, "Greeting"));
 			}
 			foreach (RaceEntry race in this.Races)
 			{
-				if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) == race.e || !EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetRelations(race.e).Known)
+				if (EmpireManager.Player == race.e || !EmpireManager.Player.GetRelations(race.e).Known)
 				{
-					if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) != race.e || !HelperFunctions.ClickedRect(race.container, input))
+					if (EmpireManager.Player != race.e || !HelperFunctions.ClickedRect(race.container, input))
 					{
 						continue;
 					}
@@ -1114,9 +1114,9 @@ namespace Ship_Game
 			{
 				Toggled = true
 			};
-			foreach (Empire e in EmpireManager.EmpireList)
+			foreach (Empire e in EmpireManager.Empires)
 			{
-				if (e != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+				if (e != EmpireManager.Player)
 				{
 					if (e.isFaction || e.MinorRace)
 					{

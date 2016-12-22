@@ -110,6 +110,16 @@ namespace Ship_Game
             return new Vector2(p.BackBufferWidth / 2f, p.BackBufferHeight / 2f);
         }
 
+        // True if pos is inside the rectangle
+        public static bool HitTest(this Rectangle r, Vector2 pos)
+        {
+            return pos.X > r.X && pos.Y > r.Y && pos.X < r.X + r.Width && pos.Y < r.Y + r.Height;
+        }
+        public static bool HitTest(this Rectangle r, int x, int y)
+        {
+            return x > r.X && y > r.Y && x < r.X + r.Width && y < r.Y + r.Height;
+        }
+
         // result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
         {
