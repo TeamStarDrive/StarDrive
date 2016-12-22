@@ -93,8 +93,15 @@ namespace Ship_Game
 			ScreenManager.SpriteBatch.End();
 		}
 
+        public Vector2 DrawString(SpriteFont font, string theirText, Vector2 theirTextPos, Color color)
+        {
+            theirTextPos.Y = theirTextPos.Y + font.LineSpacing;
+            ScreenManager.SpriteBatch.DrawString(font, theirText, theirTextPos, color);
+            theirTextPos.Y = theirTextPos.Y + font.LineSpacing + 2;
+            return theirTextPos;
+        }
 
-		public override void HandleInput(InputState input)
+        public override void HandleInput(InputState input)
 		{
 			if (input.Escaped || input.RightMouseClick || close.HandleInput(input))
 			{

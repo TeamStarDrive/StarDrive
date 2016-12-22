@@ -563,7 +563,7 @@ namespace Ship_Game
 	    {
             Outcome triggeredOutcome = GetRandomOutcome(evt);
             Empire empire = EmpireManager.GetEmpireByName(Screen.PlayerLoyalty);
-            Screen.ScreenManager.AddScreen(new EventPopup(Screen, empire, evt, triggeredOutcome));
+            Screen.ScreenManager.AddScreen(new EventPopup(Screen, empire, evt, triggeredOutcome,false));
             evt.TriggerOutcome(empire, triggeredOutcome);
         }
 
