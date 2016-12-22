@@ -31,7 +31,7 @@ namespace Ship_Game
                 cursor = cursor + outcome.Chance;
                 if (random > cursor) continue;
                 triggeredOutcome = outcome;
-                if (triggerer.isPlayer) outcome.alreadyTriggered = true;
+                if (triggerer.isPlayer) outcome.AlreadyTriggered = true;
                 break;
             }
             if (triggeredOutcome != null)
