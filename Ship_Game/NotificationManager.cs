@@ -539,7 +539,7 @@ namespace Ship_Game
 
         public Outcome GetRandomOutcome(ExplorationEvent e)
         {
-            int ranMax = e.PotentialOutcomes.Where(outcome => !outcome.onlyTriggerOnce || !outcome.alreadyTriggered)
+            int ranMax = e.PotentialOutcomes.Where(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
                 .Sum(outcome => outcome.Chance);
 
             int random = (int)RandomMath.RandomBetween(0, ranMax);
@@ -547,13 +547,13 @@ namespace Ship_Game
             int cursor = 0;
             foreach (Outcome outcome in e.PotentialOutcomes)
             {
-                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered)
+                if (outcome.OnlyTriggerOnce && outcome.AlreadyTriggered)
                     continue;
                 cursor = cursor + outcome.Chance;
                 if (random > cursor)
                     continue;
                 triggeredOutcome = outcome;
-                outcome.alreadyTriggered = true;
+                outcome.AlreadyTriggered = true;
                 break;
             }
             return triggeredOutcome;
