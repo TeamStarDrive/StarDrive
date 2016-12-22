@@ -242,7 +242,7 @@ namespace Ship_Game
             rebels.data.Traits.Singular = data.Traits.Singular;
             rebels.data.Traits.Plural   = data.Traits.Plural;
             rebels.isFaction = true;
-            foreach (Empire key in EmpireManager.EmpireList)
+            foreach (Empire key in EmpireManager.Empires)
             {
                 key.AddRelation(rebels);
                 rebels.AddRelation(key);                
@@ -254,9 +254,9 @@ namespace Ship_Game
                 foreach (Planet planet in solarSystem.PlanetList)
                     planet.ExploredDict.Add(rebels, false);
             }
-            EmpireManager.EmpireList.Add(rebels);
+            EmpireManager.Add(rebels);
             data.RebellionLaunched = true;
-            StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")].Add(EmpireManager.EmpireList.IndexOf(rebels), new Snapshot(Universe.StarDate));
+            StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")].Add(EmpireManager.Empires.IndexOf(rebels), new Snapshot(Universe.StarDate));
             foreach (Ship s in OwnedShips)
             {
                 s.loyalty = rebels;
@@ -1351,26 +1351,26 @@ namespace Ship_Game
                     string starDate = Universe.StarDate.ToString("#.0");
                     if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
                         StatTracker.SnapshotsDict.Add(starDate, new SerializableDictionary<int, Snapshot>());
-                    foreach (Empire empire in EmpireManager.EmpireList)
+                    foreach (Empire empire in EmpireManager.Empires)
                     {
                         if (empire.data.IsRebelFaction)
                             continue;
 
                         var snapshots = StatTracker.SnapshotsDict[starDate];
-                        int empireIndex = EmpireManager.EmpireList.IndexOf(empire);
+                        int empireIndex = EmpireManager.Empires.IndexOf(empire);
                         if (!snapshots.ContainsKey(empireIndex))
                             snapshots.Add(empireIndex, new Snapshot(Universe.StarDate));
                     }
                     if (Universe.StarDate == 1000.09f)
                     {
-                        foreach (Empire empire in EmpireManager.EmpireList)
+                        foreach (Empire empire in EmpireManager.Empires)
                         {
                             using (empire.OwnedPlanets.AcquireReadLock())
                             foreach (Planet planet in empire.OwnedPlanets)
                             {
                                 if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
                                     continue;
-                                int empireIndex = EmpireManager.EmpireList.IndexOf(planet.Owner);
+                                int empireIndex = EmpireManager.Empires.IndexOf(planet.Owner);
                                 StatTracker.SnapshotsDict[starDate][empireIndex].EmpireNodes.Add(new NRO
                                 {
                                     Node = planet.Position,
@@ -2174,12 +2174,12 @@ namespace Ship_Game
                 MilitaryStrength += ship.GetStrength();
 
                 if (!this.data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(starDate))
-                    ++StatTracker.SnapshotsDict[starDate][EmpireManager.EmpireList.IndexOf(this)].ShipCount;
+                    ++StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(this)].ShipCount;
             }
             if (!this.data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(starDate))
             {
-                StatTracker.SnapshotsDict[starDate][EmpireManager.EmpireList.IndexOf(this)].MilitaryStrength = MilitaryStrength;
-                StatTracker.SnapshotsDict[starDate][EmpireManager.EmpireList.IndexOf(this)].TaxRate = this.data.TaxRate;
+                StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(this)].MilitaryStrength = MilitaryStrength;
+                StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(this)].TaxRate = this.data.TaxRate;
             }
             if (isPlayer)
             {
@@ -2192,9 +2192,9 @@ namespace Ship_Game
                         float num2 = 0.0f;
                         float num3 = 0.0f;
                         List<Empire> list2 = new List<Empire>();
-                        foreach (Empire empire in EmpireManager.EmpireList)
+                        foreach (Empire empire in EmpireManager.Empires)
                         {
-                            if (!empire.isFaction && !empire.data.Defeated && empire != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+                            if (!empire.isFaction && !empire.data.Defeated && empire != EmpireManager.Player)
                             {
                                 num2 += (float)empire.TotalScore;
                                 if ((double)empire.TotalScore > (double)num3)
@@ -2203,7 +2203,7 @@ namespace Ship_Game
                                     list2.Add(empire);
                             }
                         }
-                        float num4 = (float)EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).TotalScore;
+                        float num4 = (float)EmpireManager.Player.TotalScore;
                         float num5 = num2 + num4;
                         if (num4 > 0.5f * num5)
                         {
@@ -2242,7 +2242,7 @@ namespace Ship_Game
                 if (this.data.TurnsBelowZero == 5 && (double)this.Money < 0.0)
                     Universe.NotificationManager.AddMoneyWarning();
                 bool allEmpiresDead = true;
-                foreach (Empire empire in EmpireManager.EmpireList)
+                foreach (Empire empire in EmpireManager.Empires)
                 {
                     if (empire.GetPlanets().Count > 0 && !empire.isFaction && !empire.MinorRace && empire != this)
                     {
@@ -2260,7 +2260,7 @@ namespace Ship_Game
                     foreach (Planet planet in this.OwnedPlanets)
                     {
                         if (!this.data.IsRebelFaction)
-                            StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].Population += planet.Population;
+                            StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                         if (planet.HasWinBuilding)
                         {
                             Universe.ScreenManager.AddScreen((GameScreen)new YouWinScreen(Localizer.Token(5085)));
@@ -2272,7 +2272,7 @@ namespace Ship_Game
             foreach (Planet planet in this.OwnedPlanets)
             {
                 if (!this.data.IsRebelFaction)
-                    StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.EmpireList.IndexOf(this)].Population += planet.Population;
+                    StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                 int num2 = planet.HasWinBuilding ? 1 : 0;
             }
             if (this.data.TurnsBelowZero > 0  && (this.Money < 0.0 && !Universe.Debug))// && this.isPlayer)) // && this == Empire.Universe.PlayerEmpire)
@@ -2281,7 +2281,7 @@ namespace Ship_Game
                 {
                     Empire rebelsFromEmpireData = EmpireManager.GetEmpireByName(this.data.RebelName);
                     if(rebelsFromEmpireData == null)
-                    foreach (Empire rebel in EmpireManager.EmpireList)
+                    foreach (Empire rebel in EmpireManager.Empires)
                     {
                         if (rebel.data.PortraitName == this.data.RebelName)
                         {
@@ -2299,7 +2299,7 @@ namespace Ship_Game
                             rebelsFromEmpireData.data.Traits.Singular = data.RebelSing;
                             rebelsFromEmpireData.data.Traits.Plural   = data.RebelPlur;
                             rebelsFromEmpireData.isFaction = true;
-                            foreach (Empire key in EmpireManager.EmpireList)
+                            foreach (Empire key in EmpireManager.Empires)
                             {
                                 key.AddRelation(rebelsFromEmpireData);
                                 rebelsFromEmpireData.AddRelation(key);
@@ -2311,7 +2311,7 @@ namespace Ship_Game
                                     planet.ExploredDict.Add(rebelsFromEmpireData, false);
 
                             }
-                            EmpireManager.EmpireList.Add(rebelsFromEmpireData);
+                            EmpireManager.Add(rebelsFromEmpireData);
                             this.data.RebellionLaunched = true;
                         }
                     }
@@ -2599,7 +2599,7 @@ namespace Ship_Game
             target.SetAsMerged();
             this.ResetBorders();
             this.UpdateShipsWeCanBuild();
-            if (this != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+            if (this != EmpireManager.Player)
             {
                 this.data.difficulty = Difficulty.Brutal;
                 //lock (GlobalStats.TaskLocker)

@@ -119,7 +119,7 @@ namespace Ship_Game
             }
             foreach (string ship in RemnantShipsToSpawn)
             {
-                Ship tomake = ResourceManager.CreateShipAt(ship, EmpireManager.GetEmpireByName("The Remnant"), p, true);
+                Ship tomake = ResourceManager.CreateShipAt(ship, EmpireManager.Remnants, p, true);
                 tomake.GetAI().DefaultAIState = AIState.Exterminate;
             }
         }
@@ -180,8 +180,8 @@ namespace Ship_Game
                 foreach (string troopname in TroopsToSpawn)
                 {
                     Troop t = ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopname],
-                        EmpireManager.GetEmpireByName("Unknown"));
-                    t.SetOwner(EmpireManager.GetEmpireByName("Unknown"));
+                        EmpireManager.Unknown);
+                    t.SetOwner(EmpireManager.Unknown);
                     if (p.AssignTroopToNearestAvailableTile(t, eventLocation))
                     {
                         continue;

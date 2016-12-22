@@ -40,7 +40,7 @@ namespace Ship_Game
 			this.R = dimensions;
             this.TitleText = string.Concat(Localizer.Token(ResourceManager.TechTree[uid].NameIndex), 
                 ResourceManager.TechTree[uid].MaxLevel > 1 ? " " + 
-                NumberToRomanConvertor.NumberToRoman(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).TechnologyDict[uid].Level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[uid].MaxLevel) : "");
+                NumberToRomanConvertor.NumberToRoman(EmpireManager.Player.TechnologyDict[uid].Level) + "/" + NumberToRomanConvertor.NumberToRoman(ResourceManager.TechTree[uid].MaxLevel) : "");
 			this.MiddleText = Localizer.Token(ResourceManager.TechTree[uid].DescriptionIndex);
 		}
 
@@ -172,7 +172,7 @@ namespace Ship_Game
 			Technology unlockedTech = ResourceManager.TechTree[this.TechUID];
             foreach (Technology.UnlockedMod UnlockedMod in unlockedTech.ModulesUnlocked)
 			{
-                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == UnlockedMod.Type || UnlockedMod.Type == null || UnlockedMod.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                if (EmpireManager.Player.data.Traits.ShipType == UnlockedMod.Type || UnlockedMod.Type == null || UnlockedMod.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem()
                     {
@@ -186,7 +186,7 @@ namespace Ship_Game
 			}
 			foreach (Technology.UnlockedTroop troop in unlockedTech.TroopsUnlocked)
 			{
-                if (troop.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType || troop.Type == "ALL" || troop.Type == null || troop.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                if (troop.Type == EmpireManager.Player.data.Traits.ShipType || troop.Type == "ALL" || troop.Type == null || troop.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem()
                     {
@@ -198,7 +198,7 @@ namespace Ship_Game
 			}
 			foreach (Technology.UnlockedHull hull in unlockedTech.HullsUnlocked)
 			{
-                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == hull.ShipType || hull.ShipType == null || hull.ShipType == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                if (EmpireManager.Player.data.Traits.ShipType == hull.ShipType || hull.ShipType == null || hull.ShipType == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
 
                     UnlockItem unlock = new UnlockItem()
@@ -208,13 +208,13 @@ namespace Ship_Game
                         HullUnlocked = ResourceManager.HullsDict[hull.Name].Name
                     };
                     int size = ResourceManager.HullsDict[hull.Name].ModuleSlotList.Count;
-                    unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)));
+                    unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.Player));
                     this.UnlockSL.AddItem(unlock);
                 }
 			}
             foreach (Technology.UnlockedBuilding UnlockedBuilding in unlockedTech.BuildingsUnlocked)
 			{
-                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == UnlockedBuilding.Type || UnlockedBuilding.Type == null || UnlockedBuilding.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                if (EmpireManager.Player.data.Traits.ShipType == UnlockedBuilding.Type || UnlockedBuilding.Type == null || UnlockedBuilding.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem()
                     {
@@ -226,7 +226,7 @@ namespace Ship_Game
 			}
             foreach (Technology.UnlockedBonus UnlockedBonus in unlockedTech.BonusUnlocked)
 			{
-                if (EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).data.Traits.ShipType == UnlockedBonus.Type || UnlockedBonus.Type == null || UnlockedBonus.Type == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetTDict()[this.TechUID].AcquiredFrom)
+                if (EmpireManager.Player.data.Traits.ShipType == UnlockedBonus.Type || UnlockedBonus.Type == null || UnlockedBonus.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
                     UnlockItem unlock = new UnlockItem()
                     {

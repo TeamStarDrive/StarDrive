@@ -59,7 +59,7 @@ namespace Ship_Game
 				XmlSerializer serializer1 = new XmlSerializer(typeof(FleetDesign));
 				foreach (FleetDataNode node in ((FleetDesign)serializer1.Deserialize(FI.OpenRead())).Data)
 				{
-					if (EmpireManager.GetEmpireByName(this.parentScreen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(node.ShipName))
+					if (EmpireManager.Player.WeCanBuildThis(node.ShipName))
 					{
 						continue;
 					}
@@ -80,7 +80,7 @@ namespace Ship_Game
 				XmlSerializer serializer1 = new XmlSerializer(typeof(FleetDesign));
 				foreach (FleetDataNode node in ((FleetDesign)serializer1.Deserialize(FI.OpenRead())).Data)
 				{
-					if (EmpireManager.GetEmpireByName(this.parentScreen.EmpireUI.screen.PlayerLoyalty).WeCanBuildThis(node.ShipName))
+					if (EmpireManager.Player.WeCanBuildThis(node.ShipName))
 					{
 						continue;
 					}

@@ -1050,7 +1050,7 @@ namespace Ship_Game.Gameplay
                 if (this.flashTimer <= 0  && this.muzzleFlashAdded)
                 {
                     lock (GlobalStats.ObjectManagerLocker)
-                        Projectile.universeScreen.ScreenManager.inter.LightManager.Remove((ILight)this.MuzzleFlash);
+                        Projectile.universeScreen.ScreenManager.inter.LightManager.Remove(MuzzleFlash);
                 }
                 base.Update(elapsedTime);
             }
@@ -1066,17 +1066,13 @@ namespace Ship_Game.Gameplay
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    if (this.droneAI != null)
-                        this.droneAI.Dispose();
-
-                }
-                this.droneAI = null;
-                this.disposed = true;
+                droneAI?.Dispose();
             }
+            this.droneAI = null;
+            this.disposed = true;
         }
 	}
 }

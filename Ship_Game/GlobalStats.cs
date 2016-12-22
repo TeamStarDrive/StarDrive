@@ -27,7 +27,8 @@ namespace Ship_Game
 
     public static class GlobalStats
 	{
-        public static string Branch = "0.301 Texas_Refactor";
+        public static string ExtendedVersion = "0.301 Texas_Refactor";
+
         public static int ComparisonCounter = 1;
 		public static int Comparisons = 0;
 		public static bool HardcoreRuleset = false;
@@ -86,13 +87,13 @@ namespace Ship_Game
         public static float MinimumWarpRange;
 
         public static float StartingPlanetRichness;
-        public static string ExtendedVersion = ""; 
         public static int IconSize;
         public static int TurnTimer = 5;
 
         public static bool PreventFederations;
         public static bool EliminationMode;
         public static bool ZoomTracking;
+        public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
 
         public static int ShipCountLimit;
         public static float spaceroadlimit = .025f;
@@ -146,7 +147,7 @@ namespace Ship_Game
             {
                 return; // configuration file is missing
             }
-            ExtendedVersion += Branch + " : 16_" + GetSetting("ExtendedVersion") + " ";
+            ExtendedVersion += " : 16_" + GetSetting("ExtendedVersion") + " ";
             GetSetting("GravityWellRange",       ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf",                   ref perf);
@@ -155,6 +156,7 @@ namespace Ship_Game
             GetSetting("ForceFullSim",           ref ForceFullSim);
             GetSetting("WindowMode",             ref WindowMode);
             GetSetting("8XAntiAliasing",         ref AntiAlias8XOverride);
+            GetSetting("AutoErrorReport",        ref AutoErrorReport);
             Statreset();
 
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
@@ -193,7 +195,7 @@ namespace Ship_Game
             XRES = Game1.Instance.Graphics.PreferredBackBufferWidth;
             YRES = Game1.Instance.Graphics.PreferredBackBufferHeight;
 
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             WriteSetting(config, "GravityWellRange",       GravityWellRange);
             WriteSetting(config, "StartingPlanetRichness", StartingPlanetRichness);
             WriteSetting(config, "perf", perf);
@@ -202,6 +204,7 @@ namespace Ship_Game
             WriteSetting(config, "ForceFullSim",   ForceFullSim);
             WriteSetting(config, "WindowMode",     WindowMode);
             WriteSetting(config, "8XAntiAliasing", AntiAlias8XOverride);
+            WriteSetting(config, "AutoErrorReport", AutoErrorReport);
 
             WriteSetting(config, "ExtraNotifications",  ExtraNotifications);
             WriteSetting(config, "PauseOnNotification", PauseOnNotification);
@@ -279,10 +282,10 @@ namespace Ship_Game
         // @todo Why is this here??
         public static void IncrementCordrazineCapture()
 		{
-			CordrazinePlanetsCaptured = CordrazinePlanetsCaptured + 1;
+			CordrazinePlanetsCaptured += 1;
 			if (CordrazinePlanetsCaptured == 1)
 			{
-				Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
+				Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
 			}
 		}
 
@@ -295,7 +298,7 @@ namespace Ship_Game
                 if (RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
                 {
                     RemnantActivation += 1;
-                    Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
+                    Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
                     RemnantKills = 0;
                 }
             }
@@ -303,7 +306,7 @@ namespace Ship_Game
             {
                 if (RemnantKills >= 5 && RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
                 {
-                    Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
+                    Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
                     RemnantActivation = 1;
                 }
             }

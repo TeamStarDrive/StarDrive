@@ -44,6 +44,7 @@ namespace Ship_Game
         private FloatSlider AutoSaveFreq; //Added by Gretman
         private Checkbox KeyboardArc;
         private Checkbox LockZoom;
+        private Checkbox AutoErrorReport; // Added by RedFox
 
         private class Option
         {
@@ -218,27 +219,22 @@ namespace Ship_Game
 			}
 			MainOptionsRect = new Rectangle(R.X + 20, R.Y + 175, 300, 375);
 			SecondaryOptionsRect = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width, MainOptionsRect.Y, 210, 305);
-			GamespeedCap = new Checkbox(new Vector2((float)(MainOptionsRect.X + 20), (float)(MainOptionsRect.Y + 300)), Localizer.Token(2206), new Ref<bool>(() => GlobalStats.LimitSpeed, (bool x) => GlobalStats.LimitSpeed = x), Fonts.Arial12Bold)
-			{
-				Tip_Token = 2205
-			};
+			GamespeedCap = new Checkbox(MainOptionsRect.X + 20, MainOptionsRect.Y + 300, () => GlobalStats.LimitSpeed, Fonts.Arial12Bold, title:2206, tooltip:2205);
 			Resolution = new Option()
 			{
 				Name = string.Concat(Localizer.Token(9), ":     "),
 				NamePosition = new Vector2((float)(MainOptionsRect.X + 20), (float)(MainOptionsRect.Y + 20))
 			};
-			string xResolution = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth.ToString();
-			string yResolution = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight.ToString();
 			xtoApply = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
 			ytoApply = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-			string reso = string.Concat(xResolution, " x ", yResolution);
+			string reso = xtoApply + " x " + ytoApply;
 			Resolution.ClickableArea = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y, (int)Fonts.Arial20Bold.MeasureString(reso).X, Fonts.Arial20Bold.LineSpacing);
 			Resolution.Value = reso;
 			Resolution.highlighted = false;
 			FullScreen = new Option()
 			{
 				Name = string.Concat(Localizer.Token(10), ":     "),
-				NamePosition = new Vector2((float)(MainOptionsRect.X + 20), (float)(MainOptionsRect.Y + Fonts.Arial20Bold.LineSpacing * 2 + 2 + 20)),
+				NamePosition = new Vector2(MainOptionsRect.X + 20, MainOptionsRect.Y + Fonts.Arial20Bold.LineSpacing * 2 + 2 + 20),
 				Value = GlobalStats.WindowMode,
 				ClickableArea = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)FullScreen.NamePosition.Y, (int)Fonts.Arial20Bold.MeasureString(FullScreen.Value.ToString()).X, Fonts.Arial20Bold.LineSpacing)
 			};
@@ -441,14 +437,21 @@ namespace Ship_Game
 			base.HandleInput(input);
 		}
 
-        private static Checkbox BindCheckbox(ref Vector2 pos, float yMove, Expression<Func<bool>> binding, int title, int tooltip)
+        private static Checkbox BindCheckbox(ref Vector2 pos, Expression<Func<bool>> binding, int title, int tooltip)
         {
-            return BindCheckbox(ref pos, yMove, binding, Localizer.Token(title), tooltip);
+            return Layout(ref pos, new Checkbox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
         }
-        private static Checkbox BindCheckbox(ref Vector2 pos, float yMove, Expression<Func<bool>> binding, string title, int tooltip)
+        private static Checkbox BindCheckbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, string tooltip)
         {
-            var cb = new Checkbox(pos, title, new Ref<bool>(binding), Fonts.Arial12Bold) { Tip_Token = tooltip };
-            pos.Y += yMove;
+            return Layout(ref pos, new Checkbox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
+        }
+        private static Checkbox BindCheckbox(ref Vector2 pos, Expression<Func<bool>> binding, string title, int tooltip)
+        {
+            return Layout(ref pos, new Checkbox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
+        }
+        private static Checkbox Layout(ref Vector2 pos, Checkbox cb)
+        {
+            pos.Y += 30f;
             return cb;
         }
 
@@ -463,11 +466,14 @@ namespace Ship_Game
 
             Vector2 pos = new Vector2(MainOptionsRect.X + MainOptionsRect.Width + 5, Resolution.NamePosition.Y);
 
-            GamespeedCap        = BindCheckbox(ref pos, 30f, () => GlobalStats.LimitSpeed,          title: 2206, tooltip: 2205);
-            ForceFullSim        = BindCheckbox(ref pos, 30f, () => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
-            pauseOnNotification = BindCheckbox(ref pos, 30f, () => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
-            KeyboardArc         = BindCheckbox(ref pos, 30f, () => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
-            LockZoom            = BindCheckbox(ref pos, 30f, () => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
+            GamespeedCap        = BindCheckbox(ref pos, () => GlobalStats.LimitSpeed,          title: 2206, tooltip: 2205);
+            ForceFullSim        = BindCheckbox(ref pos, () => GlobalStats.ForceFullSim,        "Force Full Simulation", tooltip: 5086);
+            pauseOnNotification = BindCheckbox(ref pos, () => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
+            KeyboardArc         = BindCheckbox(ref pos, () => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
+            LockZoom            = BindCheckbox(ref pos, () => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
+            // @todo Add localization?... Or does anyone really care about non-english versions to be honest...?
+            AutoErrorReport     = BindCheckbox(ref pos, () => GlobalStats.AutoErrorReport, 
+                "Automatic Error Report", "Enable or disable");
 
             SecondaryOptionsRect = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width + 20, MainOptionsRect.Y, 210, 305);
 
@@ -495,8 +501,6 @@ namespace Ship_Game
             EffectsVolumeSlider.SetAmount(GlobalStats.EffectsVolume);
             EffectsVolumeSlider.amount = GlobalStats.EffectsVolume;
 
-            
-
             r = new Rectangle(MainOptionsRect.X + 9, (int)FullScreen.NamePosition.Y + 185, 225, 50);
             IconSize = new FloatSlider(r, "Icon Sizes", 0, 30, GlobalStats.IconSize);
 
@@ -511,8 +515,9 @@ namespace Ship_Game
             ShipLimiter = new FloatSlider(r, "All AI Ship Limit. AI Ships: "+ ships, 500, 3500, GlobalStats.ShipCountLimit);
             r = new Rectangle(MainOptionsRect.X - 9 + MainOptionsRect.Width, (int)FullScreen.NamePosition.Y + 185, 225, 50);
             FreighterLimiter = new FloatSlider(r, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit);
-            Vector2 vector2 = new Vector2(SecondaryOptionsRect.X + 10, SecondaryOptionsRect.Y + 10);
 
+
+            Vector2 vector2 = new Vector2(SecondaryOptionsRect.X + 10, SecondaryOptionsRect.Y + 10);
             ResolutionDropDown = new DropOptions(new Rectangle(MainOptionsRect.X + MainOptionsRect.Width / 2 + 10, (int)Resolution.NamePosition.Y - 2, 105, 18));
             foreach (DisplayMode displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
             {
@@ -553,16 +558,21 @@ namespace Ship_Game
                 }
             }
             vector2 = new Vector2((float)SecondaryOptionsRect.X, (float)(SecondaryOptionsRect.Y + SecondaryOptionsRect.Height + 60));
-            Apply = new UIButton();
-            Apply.Rect = new Rectangle((int)vector2.X, (int)vector2.Y, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-            Apply.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
-            Apply.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
-            Apply.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
-            Apply.Text = Localizer.Token(13);
-            Apply.Launches = "Apply Settings";
+
+            var defaultBtn = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+            Apply = new UIButton
+            {
+                Rect = new Rectangle((int) vector2.X, (int) vector2.Y, defaultBtn.Width, defaultBtn.Height),
+                NormalTexture = defaultBtn,
+                HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"],
+                PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"],
+                Text = Localizer.Token(13),
+                Launches = "Apply Settings"
+            };
             Buttons.Add(Apply);
         }
 
+        // @todo This is all BS and needs to be refactored
 		private void LoadGraphics()
 		{
             var p = ScreenManager.GraphicsDevice.PresentationParameters;
