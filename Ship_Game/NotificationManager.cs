@@ -52,7 +52,7 @@ namespace Ship_Game
 
         public void AddAgentResultNotification(bool good, string result, Empire owner)
 		{
-			if (owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+			if (owner != EmpireManager.Player)
 				return;
 
 		    AddNotification(new Notification
@@ -562,7 +562,7 @@ namespace Ship_Game
 	    private void TriggerExplorationEvent(ExplorationEvent evt)
 	    {
             Outcome triggeredOutcome = GetRandomOutcome(evt);
-            Empire empire = EmpireManager.GetEmpireByName(Screen.PlayerLoyalty);
+            Empire empire = EmpireManager.Player;
             Screen.ScreenManager.AddScreen(new EventPopup(Screen, empire, evt, triggeredOutcome));
             evt.TriggerOutcome(empire, triggeredOutcome);
         }

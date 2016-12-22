@@ -103,41 +103,27 @@ namespace Ship_Game
 			this.PlanetSL = new ScrollList(this.ShipSubMenu, 40);
            // this.LastSorted = this.empUI.empire.data.PLSort;
 
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => Vector2.Distance(distance.Position, EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetWeightedCenter())))
+            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => Vector2.Distance(distance.Position, EmpireManager.Player.GetWeightedCenter())))
             {
                 foreach (Planet p in system.PlanetList)
                 {
-                    if (!p.ExploredDict[EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty)])
+                    if (!p.ExploredDict[EmpireManager.Player])
                     {
                         continue;
                     }
                     this.planets.Add(p);
                 }
             }
-            //foreach (Planet p in this.planets)
-            //{
-            //    if (this.HideOwned && p.Owner != null || this.HideUninhab && !p.habitable)
-            //    {
-            //        continue;
-            //    }
-            //    PlanetListScreenEntry entry = new PlanetListScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 40, this);
-            //    this.PlanetSL.AddItem(entry);
-            //}
 
+			cb_hideOwned = new Checkbox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
+                () => HideOwned, 
+                x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0);
 
-            //this.ResetList();
-			//this.SelectedPlanet = (this.PlanetSL.Entries[this.PlanetSL.indexAtTop].item as PlanetListScreenEntry).planet;
-			Ref<bool> aeRef = new Ref<bool>(() => this.HideOwned, (bool x) => {
-				this.HideOwned = x;
-				this.ResetList();
-			});
-			this.cb_hideOwned = new Checkbox(new Vector2((float)(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 15), (float)(this.TitleBar.Menu.Y + 15)), "Hide Owned", aeRef, Fonts.Arial12Bold);
-			aeRef = new Ref<bool>(() => this.HideUninhab, (bool x) => {
-				this.HideUninhab = x;
-				this.ResetList();
-			});
-			this.cb_hideUninhabitable = new Checkbox(new Vector2((float)(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 15), (float)(this.TitleBar.Menu.Y + 35)), "Hide Uninhabitable", aeRef, Fonts.Arial12Bold);
-			this.AutoButton = new Rectangle(0, 0, 243, 33);
+			cb_hideUninhabitable = new Checkbox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
+                () => HideUninhab, 
+                x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0);
+
+			AutoButton = new Rectangle(0, 0, 243, 33);
             
 		}
 

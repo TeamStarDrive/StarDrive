@@ -726,7 +726,7 @@ namespace Ship_Game
 				{
 					AllResupply = false;
 				}
-				if (ship.loyalty != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+				if (ship.loyalty != EmpireManager.Player)
 				{
 					this.AllShipsMine = false;
 				}

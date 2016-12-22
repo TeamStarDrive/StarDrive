@@ -6,20 +6,42 @@ namespace Ship_Game
 {
 	public class EmpireManager
 	{
-		public  static readonly List<Empire> EmpireList = new List<Empire>();
+		private static readonly List<Empire> EmpireList = new List<Empire>();
         private static readonly Dictionary<string, Empire> EmpireDict = new Dictionary<string, Empire>(); 
-        private static Empire RemnantsEmpire;
+
         private static Empire PlayerEmpire;
+        private static Empire CordrazineEmpire;
+
+        private static Empire RemnantsFaction;
+        private static Empire UnknownFaction;
+        private static Empire CorsairsFaction;
+
+        public static IReadOnlyList<Empire> Empires => EmpireList;
 
         /// @todo These should be initialized ONCE during loading, leaving like this for future refactor
-        public static Empire Remnants => RemnantsEmpire ?? (RemnantsEmpire = GetEmpireByName("The Remnant"));
-        public static Empire Player   => PlayerEmpire   ?? (PlayerEmpire   = FindPlayerEmpire());
+        public static Empire Player     => PlayerEmpire     ?? (PlayerEmpire     = FindPlayerEmpire());
+        public static Empire Cordrazine => CordrazineEmpire ?? (CordrazineEmpire = GetEmpireByName("Cordrazine Collective"));
+
+        // Special factions
+        public static Empire Remnants => RemnantsFaction ?? (RemnantsFaction = GetEmpireByName("The Remnant"));
+        public static Empire Unknown  => UnknownFaction  ?? (UnknownFaction  = GetEmpireByName("Unknown"));
+        public static Empire Corsairs => CorsairsFaction ?? (CorsairsFaction = GetEmpireByName("Corsairs"));
+
+        public static void Add(Empire e)
+        {
+            // avoid duplicate entries, due to some bad design code structuring...
+            if (!EmpireList.Contains(e)) 
+                EmpireList.Add(e);
+        }
         public static void Clear()
         {
             EmpireList.Clear();
             EmpireDict.Clear();
-            RemnantsEmpire = null;
-            PlayerEmpire   = null;
+            PlayerEmpire     = null;
+            CordrazineEmpire = null;
+            RemnantsFaction  = null;
+            UnknownFaction   = null;
+            CorsairsFaction  = null;
         }
         public static Empire GetEmpireByName(string name)
         {
