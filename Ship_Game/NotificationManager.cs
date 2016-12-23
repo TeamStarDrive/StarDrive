@@ -16,8 +16,9 @@ namespace Ship_Game
         private readonly int MaxEntriesToDisplay;
         private Rectangle NotificationArea;
 
-	    private static object NotificationLocker = new object();
-        private BatchRemovalCollection<Notification> NotificationList = new BatchRemovalCollection<Notification>();
+	    private static readonly object NotificationLocker = new object();
+        private BatchRemovalCollection<Notification> NotificationList = 
+            new BatchRemovalCollection<Notification>();
         private float Timer;
 
 		public NotificationManager(ScreenManager screenManager, UniverseScreen screen)
@@ -26,8 +27,9 @@ namespace Ship_Game
 			ScreenManager = screenManager;
 
 		    var presentParams = screenManager.GraphicsDevice.PresentationParameters;
-            NotificationArea = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70, presentParams.BackBufferHeight - 70 - 275);
-			MaxEntriesToDisplay = this.NotificationArea.Height / 70;
+            NotificationArea = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70, 
+                                             presentParams.BackBufferHeight - 70 - 275);
+			MaxEntriesToDisplay = NotificationArea.Height / 70;
 		}
 
 	    private Rectangle GetNotificationRect(int index)
@@ -539,7 +541,7 @@ namespace Ship_Game
 
         public Outcome GetRandomOutcome(ExplorationEvent e)
         {
-            int ranMax = e.PotentialOutcomes.Where(outcome => !outcome.onlyTriggerOnce || !outcome.alreadyTriggered)
+            int ranMax = e.PotentialOutcomes.Where(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
                 .Sum(outcome => outcome.Chance);
 
             int random = (int)RandomMath.RandomBetween(0, ranMax);
@@ -547,13 +549,13 @@ namespace Ship_Game
             int cursor = 0;
             foreach (Outcome outcome in e.PotentialOutcomes)
             {
-                if (outcome.onlyTriggerOnce && outcome.alreadyTriggered)
+                if (outcome.OnlyTriggerOnce && outcome.AlreadyTriggered)
                     continue;
                 cursor = cursor + outcome.Chance;
                 if (random > cursor)
                     continue;
                 triggeredOutcome = outcome;
-                outcome.alreadyTriggered = true;
+                outcome.AlreadyTriggered = true;
                 break;
             }
             return triggeredOutcome;
@@ -562,8 +564,9 @@ namespace Ship_Game
 	    private void TriggerExplorationEvent(ExplorationEvent evt)
 	    {
             Outcome triggeredOutcome = GetRandomOutcome(evt);
+
             Empire empire = EmpireManager.Player;
-            Screen.ScreenManager.AddScreen(new EventPopup(Screen, empire, evt, triggeredOutcome));
+            Screen.ScreenManager.AddScreen(new EventPopup(Screen, empire, evt, triggeredOutcome, false));
             evt.TriggerOutcome(empire, triggeredOutcome);
         }
 
