@@ -149,7 +149,7 @@ namespace Ship_Game
                 GlobalCategory  = AudioManager.AudioEngine.GetCategory("Global");
 			}
 			SpriteBatch = new SpriteBatch(GraphicsDevice);
-            blankTexture = ResourceManager.Texture("blank");
+            blankTexture = ResourceManager.LoadTexture("blank");
 			foreach (GameScreen screen in screens)
 			{
 				screen.LoadContent();
