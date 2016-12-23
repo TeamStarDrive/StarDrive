@@ -18,18 +18,18 @@ namespace Ship_Game
         public string GoalName;
         public GoalType type;
         public int Step;
-        private Fleet fleet;
+        protected Fleet fleet;
         public Vector2 TetherOffset;
         public Guid TetherTarget;
         public bool Held;
         public Vector2 BuildPosition;
         public string ToBuildUID;
-        private Planet PlanetBuildingAt;
-        private Planet markedPlanet;
+        protected Planet PlanetBuildingAt;
+        protected Planet markedPlanet;
         public Ship beingBuilt;
-        private Ship colonyShip;
-        private Ship freighter;
-        private Ship passTran;
+        protected Ship colonyShip;
+        protected Ship freighter;
+        protected Ship passTran;
 
         public Goal(Vector2 buildPosition, string platformUid, Empire owner)
         {
@@ -88,7 +88,7 @@ namespace Ship_Game
             return fleet;
         }
 
-        public void Evaluate()
+        public virtual void Evaluate()
         {
             if (Held)
                 return;
@@ -99,12 +99,16 @@ namespace Ship_Game
                 case "IncreasePassengerShips":  DoIncreasePassTranGoal();   break;
                 case "BuildDefensiveShips":     DoBuildDefensiveShipsGoal();break;
                 case "BuildOffensiveShips":     DoBuildOffensiveShipsGoal();break;
-                case "FleetRequisition":        DoFleetRequisition();       break;
+               // case "FleetRequisition":        DoFleetRequisition();       break;
                 case "Build Troop":             DoBuildTroop();             break;
                 case "Build Scout":             DoBuildScoutGoal();         break;
             }
         }
 
+        public virtual void EvaluateGoal()
+        {
+            
+        }
         public Planet GetPlanetWhereBuilding()
         {
             return PlanetBuildingAt;
@@ -131,110 +135,110 @@ namespace Ship_Game
         }
 
         // Edited by EVWeb
-        private void DoFleetRequisition()
-        {
-            switch (Step)
-            {
-                case 0:
-                    Planet planet1 = (Planet)null;
-                    List<Planet> list = new List<Planet>();
-                    foreach (Planet planet2 in empire.GetPlanets())
-                    {
-                        if (planet2.HasShipyard)
-                            list.Add(planet2);
-                    }
-                    int num1 = 9999999;
-                    int x = 0;
-                    foreach (Planet planet2 in list.OrderBy(planet =>
-                        {
-                            float weight = -6;                      // so shipyard modifier works properly
-                            switch (planet.colonyType)
-                            {                                
-                                case Planet.ColonyType.Core:
-                                    weight -= 4;
-                                    break;
-                                case Planet.ColonyType.Colony:
-                                    break;
-                                case Planet.ColonyType.Industrial:
-                                    weight -= 2;
-                                    break;
-                                case Planet.ColonyType.Research:
-                                    weight += 6;
-                                    break;
-                                case Planet.ColonyType.Agricultural:
-                                    weight += 6;
-                                    break;
-                                case Planet.ColonyType.Military:
-                                    weight -= 2;
-                                    break;
-                                case Planet.ColonyType.TradeHub:
-                                    weight -= 2;
-                                    break;
-                            }
-                            //weight -= planet.ConstructionQueue.Count;
+        //private void DoFleetRequisition()
+        //{
+        //    switch (Step)
+        //    {
+        //        case 0:
+        //            Planet planet1 = (Planet)null;
+        //            List<Planet> list = new List<Planet>();
+        //            foreach (Planet planet2 in empire.GetPlanets())
+        //            {
+        //                if (planet2.HasShipyard)
+        //                    list.Add(planet2);
+        //            }
+        //            int num1 = 9999999;
+        //            int x = 0;
+        //            foreach (Planet planet2 in list.OrderBy(planet =>
+        //                {
+        //                    float weight = -6;                      // so shipyard modifier works properly
+        //                    switch (planet.colonyType)
+        //                    {                                
+        //                        case Planet.ColonyType.Core:
+        //                            weight -= 4;
+        //                            break;
+        //                        case Planet.ColonyType.Colony:
+        //                            break;
+        //                        case Planet.ColonyType.Industrial:
+        //                            weight -= 2;
+        //                            break;
+        //                        case Planet.ColonyType.Research:
+        //                            weight += 6;
+        //                            break;
+        //                        case Planet.ColonyType.Agricultural:
+        //                            weight += 6;
+        //                            break;
+        //                        case Planet.ColonyType.Military:
+        //                            weight -= 2;
+        //                            break;
+        //                        case Planet.ColonyType.TradeHub:
+        //                            weight -= 2;
+        //                            break;
+        //                    }
+        //                    //weight -= planet.ConstructionQueue.Count;
                  
-                            weight -= planet.developmentLevel;          // minus because order by goes smallest to largest, not other way round
-                            weight -= planet.MineralRichness;
-                            weight /= planet.ShipBuildingModifier;      // planets with shipyards in orbit should be higher in list
+        //                    weight -= planet.developmentLevel;          // minus because order by goes smallest to largest, not other way round
+        //                    weight -= planet.MineralRichness;
+        //                    weight /= planet.ShipBuildingModifier;      // planets with shipyards in orbit should be higher in list
 
-                            return weight;
-                        }) )
-                    {
-                        if (x < empire.GetPlanets().Count *.2)     // We already checked for whether or not this is a shipyard planet
-                        {
-                            int num2 = 0;
-                            x++;
-                            foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
-                                num2 += (int)(queueItem.Cost - queueItem.productionTowards);
+        //                    return weight;
+        //                }) )
+        //            {
+        //                if (x < empire.GetPlanets().Count *.2)     // We already checked for whether or not this is a shipyard planet
+        //                {
+        //                    int num2 = 0;
+        //                    x++;
+        //                    foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
+        //                        num2 += (int)(queueItem.Cost - queueItem.productionTowards);
 
 
-                            num2 += (int)(beingBuilt.GetCost(empire) - planet2.ProductionHere);   // Include the cost of the ship to be built on EVERY planet, not just ones with nothing to build
-                            num2 = (int)(num2*planet2.ShipBuildingModifier / (planet2.GovernorOn?planet2.GetMaxProductionPotential():planet2.NetProductionPerTurn));         // Apply ship cost reduction to everything just so planets with shipyards in orbit are more likely to be picked, also, if on manual control, don't assume you can get max production
-                            if (num2 < num1)
-                            {
-                                num1 = num2;
-                                planet1 = planet2;
-                            }
-                        }
-                    }
-                    if (planet1 == null)
-                        break;
-                    PlanetBuildingAt = planet1;
-                    planet1.ConstructionQueue.Add(new QueueItem()
-                    {
-                        isShip = true,
-                        QueueNumber = planet1.ConstructionQueue.Count,
-                        sData = beingBuilt.GetShipData(),
-                        Goal = this,
-                        Cost = beingBuilt.GetCost(empire),
-                        NotifyOnEmpty=false
-                    });
-                    ++Step;
-                    break;
-                case 2:
-                    if (fleet != null)
-                    {
-                        foreach (FleetDataNode current in fleet.DataNodes)
-                        {
-                            if (current.GoalGUID != guid) continue;
-                            if (fleet.Ships.Count == 0)
-                                fleet.Position += new Vector2(RandomMath.RandomBetween(-3000f, 3000f), RandomMath.RandomBetween(-3000f, 3000f));
+        //                    num2 += (int)(beingBuilt.GetCost(empire) - planet2.ProductionHere);   // Include the cost of the ship to be built on EVERY planet, not just ones with nothing to build
+        //                    num2 = (int)(num2*planet2.ShipBuildingModifier / (planet2.GovernorOn?planet2.GetMaxProductionPotential():planet2.NetProductionPerTurn));         // Apply ship cost reduction to everything just so planets with shipyards in orbit are more likely to be picked, also, if on manual control, don't assume you can get max production
+        //                    if (num2 < num1)
+        //                    {
+        //                        num1 = num2;
+        //                        planet1 = planet2;
+        //                    }
+        //                }
+        //            }
+        //            if (planet1 == null)
+        //                break;
+        //            PlanetBuildingAt = planet1;
+        //            planet1.ConstructionQueue.Add(new QueueItem()
+        //            {
+        //                isShip = true,
+        //                QueueNumber = planet1.ConstructionQueue.Count,
+        //                sData = beingBuilt.GetShipData(),
+        //                Goal = this,
+        //                Cost = beingBuilt.GetCost(empire),
+        //                NotifyOnEmpty=false
+        //            });
+        //            ++Step;
+        //            break;
+        //        case 2:
+        //            if (fleet != null)
+        //            {
+        //                foreach (FleetDataNode current in fleet.DataNodes)
+        //                {
+        //                    if (current.GoalGUID != guid) continue;
+        //                    if (fleet.Ships.Count == 0)
+        //                        fleet.Position += new Vector2(RandomMath.RandomBetween(-3000f, 3000f), RandomMath.RandomBetween(-3000f, 3000f));
 
-                            var ship = beingBuilt.Clone();
-                            current.Ship = ship;
-                            fleet.AddShip(ship);
-                            current.GoalGUID = Guid.Empty;
+        //                    var ship = beingBuilt.Clone();
+        //                    current.Ship = ship;
+        //                    fleet.AddShip(ship);
+        //                    current.GoalGUID = Guid.Empty;
 
-                            ship.fleet = fleet;
-                            ship.RelativeFleetOffset = current.FleetOffset;
-                            ship.GetAI().OrderMoveToFleetPosition(fleet.Position + ship.FleetOffset, ship.fleet.facing, new Vector2(0.0f, -1f), true, fleet.speed, fleet);
-                        }
-                        break;
-                    }
-                    empire.GetGSAI().Goals.QueuePendingRemoval(this);
-                    break;
-            }
-        }
+        //                    ship.fleet = fleet;
+        //                    ship.RelativeFleetOffset = current.FleetOffset;
+        //                    ship.GetAI().OrderMoveToFleetPosition(fleet.Position + ship.FleetOffset, ship.fleet.facing, new Vector2(0.0f, -1f), true, fleet.speed, fleet);
+        //                }
+        //                break;
+        //            }
+        //            empire.GetGSAI().Goals.QueuePendingRemoval(this);
+        //            break;
+        //    }
+        //}
 
         private void DoBuildOffensiveShipsGoal()
         {
@@ -301,13 +305,13 @@ namespace Ship_Game
                     {
                         if (PlanetBuildingAt == null || PlanetBuildingAt.ConstructionQueue.Count == 0)
                             break;
-                        //if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
-                        //{
-                        //    if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
-                        //    {
-                        //        PlanetBuildingAt.ApplyStoredProduction(0);
-                        //    }
-                        //}
+                        if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        {
+                            if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
+                            {
+                                PlanetBuildingAt.ApplyStoredProduction(0);
+                            }
+                        }
 
                         break;
                     }
@@ -434,7 +438,7 @@ namespace Ship_Game
             }
         }
 
-        public void ReportShipComplete(Ship ship)
+        public virtual void ReportShipComplete(Ship ship)
         {
             if (this.GoalName == "BuildDefensiveShips")
             {
@@ -446,8 +450,8 @@ namespace Ship_Game
                 this.beingBuilt = ship;
                 ++this.Step;
             }
-            if (!(this.GoalName == "FleetRequisition"))
-                return;
+            //if (!(this.GoalName == "FleetRequisition"))
+            //    return;
             this.beingBuilt = ship;
             ++this.Step;
         }

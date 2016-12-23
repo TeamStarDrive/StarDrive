@@ -5,13 +5,13 @@ namespace Ship_Game
 {
 	public sealed class Outcome
 	{
-		private Planet SelectedPlanet;
+		private Planet _selectedPlanet;
 
 		public bool BeginArmageddon;
 
 		public int Chance;
 
-		private Artifact grantedArtifact;
+		private Artifact _grantedArtifact;
 
 		public List<string> TroopsToSpawn;
 
@@ -53,28 +53,28 @@ namespace Ship_Game
 
 		public string SpawnFleetInOrbitOfPlanet;
 
-        public bool onlyTriggerOnce;
+        public bool OnlyTriggerOnce;
 
-        public bool alreadyTriggered;
+        public bool AlreadyTriggered;
 
 	    public Artifact GetArtifact()
 		{
-			return this.grantedArtifact;
+			return this._grantedArtifact;
 		}
 
 		public Planet GetPlanet()
 		{
-			return this.SelectedPlanet;
+			return this._selectedPlanet;
 		}
 
 		public void SetArtifact(Artifact art)
 		{
-			this.grantedArtifact = art;
+			this._grantedArtifact = art;
 		}
 
 		public void SetPlanet(Planet p)
 		{
-			this.SelectedPlanet = p;
+			this._selectedPlanet = p;
 		}
 
 	    private void FlatGrants(Empire triggerEmpire)
@@ -193,7 +193,7 @@ namespace Ship_Game
 
 	    public bool InValidOutcome(Empire triggerer)
 	    {
-	        return onlyTriggerOnce && alreadyTriggered && triggerer.isPlayer;
+	        return this.OnlyTriggerOnce && this.AlreadyTriggered && triggerer.isPlayer;
 
 	    }
 	    public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer, EventPopup popup)
@@ -244,7 +244,7 @@ namespace Ship_Game
 
 	        //events that trigger on other planets
 	        if(!SetRandomPlanet()) return;
-	        p = SelectedPlanet;
+	        p = this._selectedPlanet;
                         
             if (eventLocation == null)
 	        {
