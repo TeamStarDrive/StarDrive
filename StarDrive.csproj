@@ -288,7 +288,8 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Ship_Game\Commands\BuildShip.cs" />
+    <Compile Include="Ship_Game\Commands\MilitaryTasks\CohesiveClearAreaOfEnemies.cs" />
+    <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\FileSystemExtensions.cs" />
