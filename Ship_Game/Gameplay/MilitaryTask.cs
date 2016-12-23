@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
-	public sealed class MilitaryTask : IDisposable
+	public class MilitaryTask : IDisposable
 	{
         [Serialize(0)] public bool IsCoreFleetTask;
         [Serialize(1)] public bool WaitForCommand;
