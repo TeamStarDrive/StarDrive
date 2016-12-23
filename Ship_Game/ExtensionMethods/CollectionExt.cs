@@ -67,4 +67,29 @@ namespace Ship_Game
             return (elem = FindMin(list, selector)) != null;
         }
     }
+
+    public class MapKeyNotFoundException : Exception
+    {
+        public MapKeyNotFoundException(object whichKey)
+            : base($"Key [{whichKey}] was not present in the dictionary.")
+        {
+        }
+    }
+
+    public class Map<TKey, TValue> : Dictionary<TKey, TValue>
+    {
+        public new TValue this[TKey key]
+        {
+            get
+            {
+                if (TryGetValue(key, out TValue val))
+                    return val;
+                throw new MapKeyNotFoundException(key);
+            }
+            set
+            {
+                base[key] = value;
+            }
+        }
+    }
 }
