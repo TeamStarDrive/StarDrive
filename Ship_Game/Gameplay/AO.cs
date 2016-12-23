@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Ship_Game.Commands.MilitaryTasks;
 
 
 namespace Ship_Game.Gameplay
@@ -196,7 +197,7 @@ namespace Ship_Game.Gameplay
 			{
 				if (CoreFleet.Task == null && !CoreWorld.Owner.isPlayer)
 				{
-					CohesiveClearAreaOfEnemies clearArea = new CohesiveClearAreaOfEnemies(this);
+					var clearArea = new CohesiveClearAreaOfEnemies(this);
                     CoreFleet.Task = clearArea;
                     CoreFleet.TaskStep = 1;
 				    if (CoreFleet.Owner == null)
@@ -233,17 +234,6 @@ namespace Ship_Game.Gameplay
                 disposed = true;
             }
         }
-        public class CohesiveClearAreaOfEnemies: MilitaryTask //@proposal add all the code that is associated with the task here. 
-        {
-            public CohesiveClearAreaOfEnemies(AO ao)
-            {
-                AO = ao.Position;
-                AORadius = ao.Radius;
-                type = MilitaryTask.TaskType.CohesiveClearAreaOfEnemies;
-                WhichFleet = ao.WhichFleet;
-                IsCoreFleetTask = true;
-                SetEmpire(ao.CoreFleet.Owner);
-            }
-        }
+       
 	}
 }
