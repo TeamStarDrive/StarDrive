@@ -571,7 +571,7 @@ namespace Ship_Game.Gameplay
 				}
 				Vector2 projectedPosition = this.Target.Center;
 				ArtificialIntelligence target = this;
-				target.aiNewDir = target.aiNewDir + (this.findVectorToTarget(this.Owner.Center, projectedPosition) * 0.35f);
+				target.aiNewDir = target.aiNewDir + (Owner.Center.FindVectorToTarget(projectedPosition) * 0.35f);
 				if (distanceToTarget < (this.Owner.Radius + this.Target.Radius) * 3f && !this.AttackRunStarted)
 				{
 					this.AttackRunStarted = true;
@@ -616,7 +616,7 @@ namespace Ship_Game.Gameplay
 
                 Vector2 projectedPosition = this.Target.Center + this.Target.Velocity;
                 ArtificialIntelligence target = this;
-                target.aiNewDir = target.aiNewDir + (this.findVectorToTarget(this.Owner.Center, projectedPosition) * 0.35f);
+                target.aiNewDir = target.aiNewDir + (Owner.Center.FindVectorToTarget(projectedPosition) * 0.35f);
                 if (distanceToTarget < (this.Owner.Radius + this.Target.Radius) * 3f && !this.AttackRunStarted)
                 {
                     this.AttackRunStarted = true;
@@ -1058,7 +1058,7 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-                AverageDirection = AverageDirection + this.findVectorToTarget(this.Owner.Center, ship.ship.Center);
+                AverageDirection = AverageDirection + Owner.Center.FindVectorToTarget( ship.ship.Center);
                 count++;
             }
             if (count != 0)
@@ -1224,26 +1224,6 @@ namespace Ship_Game.Gameplay
 			return false;
 		}
 
-		private void DoFleetArtillery(float elapsedTime)
-		{
-			this.findVectorToTarget(this.Owner.Center, this.Target.Center);
-			Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-			Vector2 right = new Vector2(-forward.Y, forward.X);
-			Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, this.Target.Center);
-			float angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
-			if (Vector2.Distance(this.Owner.Center, this.Owner.fleet.Position + this.Owner.FleetOffset) > 2500f)
-			{
-				this.ThrustTowardsPosition(this.Target.Center, elapsedTime, this.Owner.speed);
-				return;
-			}
-			if (angleDiff <= 0.02f)
-			{
-				this.DeRotate();
-				return;
-			}
-			this.RotateToFacing(elapsedTime, angleDiff, (Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f));
-		}
-
 		private void DoHoldPositionCombat(float elapsedTime)
 		{
 			if (this.Owner.Velocity.Length() > 0f)
@@ -1262,11 +1242,11 @@ namespace Ship_Game.Gameplay
 				this.RotateToFacing(elapsedTime, angleDiff, facing);
 				return;
 			}
-			this.findVectorToTarget(this.Owner.Center, this.Target.Center);
+			Owner.Center.FindVectorToTarget(Target.Center);
             //renamed forward, right and anglediff
 			Vector2 forward2 = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
 			Vector2 right2 = new Vector2(-forward2.Y, forward2.X);
-			Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(this.Owner.Center, this.Target.Center);
+			Vector2 VectorToTarget = Owner.Center.FindVectorToTarget(Target.Center);
 			float angleDiff2 = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward2));
 			if (angleDiff2 <= 0.02f)
 			{
@@ -1575,7 +1555,7 @@ namespace Ship_Game.Gameplay
 		            break;
 		        }
                 if (friendliesNearby == null) return;
-                Vector2 target = this.findVectorToTarget(w.Center, friendliesNearby.Center);
+                Vector2 target = w.Center.FindVectorToTarget(friendliesNearby.Center);
                 target.Y = target.Y * -1f;
                 w.FireDrone(Vector2.Normalize(target));
             }            
@@ -1675,9 +1655,8 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.Clear();
 				return;
 			}
-			this.ThrustTowardsPosition(this.Owner.Mothership.Center, elapsedTime, this.Owner.speed);
-			//if (Vector2.Distance(this.Owner.Center, this.Owner.Mothership.Center) < 1000f)
-            if (Vector2.Distance(this.Owner.Center, this.Owner.Mothership.Center) < this.Owner.Mothership.Radius + 300f)
+			this.ThrustTowardsPosition(this.Owner.Mothership.Center, elapsedTime, this.Owner.speed);			
+            if (this.Owner.Center.InRadius(Owner.Mothership.Center, this.Owner.Mothership.Radius + 300f))
 			{
 				if (this.Owner.Mothership.TroopCapacity > this.Owner.Mothership.TroopList.Count && this.Owner.TroopList.Count == 1)
 				{
@@ -1699,25 +1678,20 @@ namespace Ship_Game.Gameplay
                     float ammoReloadTime = this.Owner.OrdinanceMax * .1f;
                     float shieldrechargeTime = this.Owner.shield_max * .1f;
                     float powerRechargeTime = this.Owner.PowerStoreMax * .1f;
-
                     float rearmTime = this.Owner.Health;
                     rearmTime += this.Owner.Ordinance*.1f;
                     rearmTime += this.Owner.PowerCurrent * .1f;
                     rearmTime += this.Owner.shield_power * .1f;
                     rearmTime /= (this.Owner.HealthMax + ammoReloadTime + shieldrechargeTime + powerRechargeTime);                    
-                        rearmTime = (1.01f - rearmTime) * (hangar.hangarTimerConstant *(1.01f- (this.Owner.Level + hangar.GetParent().Level)/10 ));  // fbedard: rearm time from 50% to 150%
-                        if (rearmTime < 0)
-                            rearmTime = 1;
+                    rearmTime = (1.01f - rearmTime) * (hangar.hangarTimerConstant *(1.01f- (this.Owner.Level + hangar.GetParent().Level)/10 ));  // fbedard: rearm time from 50% to 150%
+                    if (rearmTime < 0)
+                        rearmTime = 1;
                     //CG: if the fighter is fully functional reduce rearm time to very little. The default 5 minute hangar timer is way too high. It cripples fighter usage.
                     //at 50% that is still 2.5 minutes if the fighter simply launches and returns. with lag that can easily be 10 or 20 minutes. 
                     //at 1.01 that should be 3 seconds for the default hangar.
-                    
-                    //rearmTime = rearmConstant * rearmTime;
-                    //rearmTime = (rearmConstant - rearmConstant * rearmTime) + hangar.hangarTimer > 0 ? hangar.hangarTimer : 0;
                     hangar.SetHangarShip(null);
                     hangar.hangarTimer = rearmTime;
-                    hangar.installedSlot.HangarshipGuid = Guid.Empty;
-                   
+                    hangar.installedSlot.HangarshipGuid = Guid.Empty;                   
                 }
 			}
 		}
@@ -1737,7 +1711,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
 			this.ThrustTowardsPosition(this.EscortTarget.Center, elapsedTime, this.Owner.speed);
-			if (Vector2.Distance(this.Owner.Center, this.EscortTarget.Center) < this.EscortTarget.Radius + 300f)
+			if (Owner.Center.InRadius(EscortTarget.Center, this.EscortTarget.Radius + 300f))                
 			{
                 float ord_amt = this.Owner.Ordinance;
 				Ship escortTarget = this.EscortTarget;
@@ -1750,37 +1724,17 @@ namespace Ship_Game.Gameplay
                     this.State = AIState.AwaitingOrders;
                 else
                     this.Owner.ReturnToHangar();
-
-				/*
-                this.Owner.QueueTotalRemoval();
-				if (this.Owner.Mothership != null)
-				{
-					foreach (ShipModule hangar in this.Owner.Mothership.GetHangars())
-					{
-						if (hangar.GetHangarShip() != this.Owner)
-						{
-							continue;
-						}
-						hangar.hangarTimer = 1f;
-					}
-				}
-                */
 			}
 		}
         // do system defense
 		private void DoSystemDefense(float elapsedTime)
 		{
-            //if (this.Owner.InCombat || this.State == AIState.Intercept)                
-            //        return;
-      
             if (this.SystemToDefend == null)
-				this.SystemToDefend = this.Owner.System;               
-           //if(this.Owner.GetSystem() != this.SystemToDefend)               
-            if (this.SystemToDefend == null || (this.awaitClosest != null && this.awaitClosest.Owner == this.Owner.loyalty))
+				this.SystemToDefend = this.Owner.System;                  
+            if (this.SystemToDefend == null ||  this.awaitClosest?.Owner == this.Owner.loyalty)
                 this.AwaitOrders(elapsedTime);
             else
-                this.OrderSystemDefense(this.SystemToDefend);
-           //this.State = AIState.AwaitingOrders;               
+                this.OrderSystemDefense(this.SystemToDefend);              
 		}
         //do troop board ship
 		private void DoTroopToShip(float elapsedTime)
@@ -1791,7 +1745,7 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			this.MoveTowardsPosition(this.EscortTarget.Center, elapsedTime);
-			if (Vector2.Distance(this.Owner.Center, this.EscortTarget.Center) < this.EscortTarget.Radius +300f)
+            if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
 			{
 				if (this.EscortTarget.TroopCapacity > this.EscortTarget.TroopList.Count)
 				{
@@ -1803,83 +1757,80 @@ namespace Ship_Game.Gameplay
 			}
 		}
         //trade goods drop off
-        private void DropoffGoods()
-        {
-            if (this.end != null)
-            {
-                if (this.Owner.loyalty.data.Traits.Mercantile > 0f)
-                {
-                    this.Owner.loyalty.AddTradeMoney(this.Owner.CargoSpace_Used * this.Owner.loyalty.data.Traits.Mercantile);
-                }
+	    private void DropoffGoods()
+	    {
+	        if (end != null)
+	        {
+	            if (Owner.loyalty.data.Traits.Mercantile > 0f)
+	                Owner.loyalty.AddTradeMoney(Owner.CargoSpace_Used * Owner.loyalty.data.Traits.Mercantile);
 
-                if (this.Owner.GetCargo()["Food"] > 0f)
-                {
-                    int maxfood = (int)this.end.MAX_STORAGE - (int)this.end.FoodHere;
-                    if (this.end.FoodHere + this.Owner.GetCargo()["Food"] <= this.end.MAX_STORAGE)
-                    {
-                        Planet foodHere = this.end;
-                        foodHere.FoodHere = foodHere.FoodHere + (float)((int)this.Owner.GetCargo()["Food"]);
-                        this.Owner.GetCargo()["Food"] = 0f;
-                    }
-                    else
-                    {
-                        Planet planet = this.end;
-                        planet.FoodHere = planet.FoodHere + (float)maxfood;
-                        Dictionary<string, float> cargo = this.Owner.GetCargo();
-                        Dictionary<string, float> strs = cargo;
-                        cargo["Food"] = strs["Food"] - (float)maxfood;
-                    }
-                }
-                if (this.Owner.GetCargo()["Production"] > 0f)
-                {
-                    int maxprod = (int)this.end.MAX_STORAGE - (int)this.end.ProductionHere;
-                    if (this.end.ProductionHere + this.Owner.GetCargo()["Production"] <= this.end.MAX_STORAGE)
-                    {
-                        Planet productionHere = this.end;
-                        productionHere.ProductionHere = productionHere.ProductionHere + (float)((int)this.Owner.GetCargo()["Production"]);
-                        this.Owner.GetCargo()["Production"] = 0f;
-                    }
-                    else
-                    {
-                        Planet productionHere1 = this.end;
-                        productionHere1.ProductionHere = productionHere1.ProductionHere + (float)maxprod;
-                        Dictionary<string, float> item = this.Owner.GetCargo();
-                        Dictionary<string, float> strs1 = item;
-                        item["Production"] = strs1["Production"] - (float)maxprod;
-                    }
-                }
-            }
-            this.start = null;
-            this.end = null;
-            this.OrderQueue.RemoveFirst();
-            this.OrderTrade(5f);
-        }
+	            if (Owner.GetCargo()["Food"] > 0f)
+	            {
+	                int maxfood = (int) end.MAX_STORAGE - (int) end.FoodHere;
+	                if (end.FoodHere + Owner.GetCargo()["Food"] <= end.MAX_STORAGE)
+	                {
+	                    Planet foodHere = end;
+	                    foodHere.FoodHere = foodHere.FoodHere + (int) Owner.GetCargo()["Food"];
+	                    Owner.GetCargo()["Food"] = 0f;
+	                }
+	                else
+	                {
+	                    Planet planet = end;
+	                    planet.FoodHere = planet.FoodHere + maxfood;
+	                    var cargo = Owner.GetCargo();
+	                    var strs = cargo;
+	                    cargo["Food"] = strs["Food"] - maxfood;
+	                }
+	            }
+	            if (Owner.GetCargo()["Production"] > 0f)
+	            {
+	                int maxprod = (int) end.MAX_STORAGE - (int) end.ProductionHere;
+	                if (end.ProductionHere + Owner.GetCargo()["Production"] <= end.MAX_STORAGE)
+	                {
+	                    Planet productionHere = end;
+	                    productionHere.ProductionHere = productionHere.ProductionHere +
+	                                                    (int) Owner.GetCargo()["Production"];
+	                    Owner.GetCargo()["Production"] = 0f;
+	                }
+	                else
+	                {
+	                    Planet productionHere1 = end;
+	                    productionHere1.ProductionHere = productionHere1.ProductionHere + maxprod;
+	                    var item = Owner.GetCargo();
+	                    var strs1 = item;
+	                    item["Production"] = strs1["Production"] - maxprod;
+	                }
+	            }
+	        }
+	        start = null;
+	        end = null;
+	        OrderQueue.RemoveFirst();
+	        OrderTrade(5f);
+	    }
         //trade passengers drop off
-		private void DropoffPassengers()
-		{
-            if (this.end == null)
-            {
-                this.OrderQueue.RemoveFirst();
-                this.OrderTransportPassengers(0.1f);
-                return;
-            }
+	    private void DropoffPassengers()
+	    {
+	        if (end == null)
+	        {
+	            OrderQueue.RemoveFirst();
+	            OrderTransportPassengers(0.1f);
+	            return;
+	        }
 
-            while (this.Owner.GetCargo()["Colonists_1000"] > 0f)
-			{
-				Dictionary<string, float> cargo = this.Owner.GetCargo();
-				cargo["Colonists_1000"] = cargo["Colonists_1000"] - 1f;
-				Planet population = this.end;
-				population.Population = population.Population + (float)this.Owner.loyalty.data.Traits.PassengerModifier;
-			}
-			if (this.end.Population > this.end.MaxPopulation + this.end.MaxPopBonus)
-			{
-				this.end.Population = this.end.MaxPopulation + this.end.MaxPopBonus;
-			}
-			this.OrderQueue.RemoveFirst();
-            this.start = null;
-            this.end = null;
-			this.OrderTransportPassengers(5f);
-		}
+	        while (Owner.GetCargo()["Colonists_1000"] > 0f)
+	        {
+	            var cargo = Owner.GetCargo();
+	            cargo["Colonists_1000"] = cargo["Colonists_1000"] - 1f;
+	            Planet population = end;
+	            population.Population = population.Population + Owner.loyalty.data.Traits.PassengerModifier;
+	        }
+	        if (end.Population > end.MaxPopulation + end.MaxPopBonus)
+	            end.Population = end.MaxPopulation + end.MaxPopBonus;
+	        OrderQueue.RemoveFirst();
+	        start = null;
+	        end = null;
+	        OrderTransportPassengers(5f);
+	    }
         //explore system
 		private bool ExploreEmptySystem(float elapsedTime, SolarSystem system)
 		{
@@ -1901,23 +1852,7 @@ namespace Ship_Game.Gameplay
 			return false;
 		}
 
-		private Vector2 findVectorBehindTarget(GameplayObject ship, float distance)
-		{
-			Vector2 vector2 = new Vector2(0f, 0f);
-			Vector2 forward = new Vector2((float)Math.Sin((double)ship.Rotation), -(float)Math.Cos((double)ship.Rotation));
-			forward = Vector2.Normalize(forward);
-			return ship.Position - (forward * distance);
-		}
-        //helper
-		private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
-		{
-			Vector2 Vec2Target = new Vector2(0f, 0f)
-			{
-				X = -(OwnerPos.X - TargetPos.X),
-				Y = OwnerPos.Y - TargetPos.Y
-			};
-			return Vec2Target;
-		}
+
         //fire on target
         public void FireOnTarget() //(float elapsedTime)
         {
@@ -2240,13 +2175,13 @@ namespace Ship_Game.Gameplay
                 float distance = Vector2.Distance(weapon.Center, projectileTarget.Center) + projectileTarget.Velocity.Length() == 0 ? 0 : 500;
                  dir = Vector2.Zero;
       
-                 dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectileTarget.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
+                 dir = (Vector2.Normalize(weapon.Center.FindVectorToTarget(projectileTarget.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
 
                 float timeToTarget = distance / dir.Length();
 
                 projectedPosition = projectileTarget.Center + (projectileTarget.Velocity * timeToTarget);
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
-                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
+                dir = (Vector2.Normalize(weapon.Center.FindVectorToTarget(projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
                 timeToTarget = distance / dir.Length();
                 projectedPosition = projectileTarget.Center + ((projectileTarget.Velocity * timeToTarget) * 0.85f);
             }
@@ -2255,25 +2190,17 @@ namespace Ship_Game.Gameplay
                 float distance = Vector2.Distance(weapon.Center, moduleTarget.Center) + moduleTarget.Velocity.Length() == 0 ? 0 : 500;
                  dir = Vector2.Zero;
 
-                dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
+                dir = (Vector2.Normalize(weapon.Center.FindVectorToTarget( target.Center)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
 
                 float timeToTarget = distance / dir.Length();
                 projectedPosition = target.Center;
-    //            if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed <= 0)
-             //       Log.Info(this.Owner.GetSystemName() + " - Velocity error compensator in calculate and fire. Fix weird velocity");
-  //              if (moduleTarget.GetParent().Velocity.Length() > 0.0f && moduleTarget.GetParent().speed > 0)
-                    projectedPosition = moduleTarget.Center + (moduleTarget.GetParent().Velocity * timeToTarget);
-                //else
-                //{
-                //    Log.Info(this.Owner.GetSystemName() + " - posistion compensator in calculate and fire.");
-                //    projectedPosition = moduleTarget.Center;
-                //}
+                projectedPosition = moduleTarget.Center + (moduleTarget.GetParent().Velocity * timeToTarget);                
                 if (projectedPosition != moduleTarget.Center && moduleTarget.GetParent().Velocity.Length() <= 0)
                 {
                     Log.Info(this.Owner.System.Name + " - calculate and fire error");
                     //moved docs target correction here. 
                     Vector2 fireatstationary = Vector2.Zero;
-                    fireatstationary = Vector2.Normalize(this.findVectorToTarget(weapon.Center, moduleTarget.Center));
+                    fireatstationary = Vector2.Normalize(weapon.Center.FindVectorToTarget(moduleTarget.Center));
                     if (SalvoFire)
                         weapon.FireSalvo(fireatstationary, target);
                     else
@@ -2283,10 +2210,10 @@ namespace Ship_Game.Gameplay
                 }
                 distance = Vector2.Distance(weapon.Center, projectedPosition);
                 if (moduleTarget.GetParent().Velocity.Length() > 0.0f) 
-                    dir = (Vector2.Normalize(this.findVectorToTarget(weapon.Center, projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
+                    dir = (Vector2.Normalize(weapon.Center.FindVectorToTarget(projectedPosition)) * (weapon.ProjectileSpeed + this.Owner.Velocity.Length()));
                 else
                 {
-                    dir = this.findVectorToTarget(weapon.Center, projectedPosition);
+                    dir = weapon.Center.FindVectorToTarget(projectedPosition);
 
                 }
                 timeToTarget = distance / dir.Length();
@@ -2294,7 +2221,7 @@ namespace Ship_Game.Gameplay
             }
 
 
-            dir = this.findVectorToTarget(weapon.Center, projectedPosition);
+            dir = weapon.Center.FindVectorToTarget( projectedPosition);
             dir.Y = dir.Y * -1f;
             if (moduleTarget ==null  || moduleTarget.GetParent().Velocity.Length() >0)
                 dir = Vector2.Normalize(dir);
@@ -3085,7 +3012,7 @@ namespace Ship_Game.Gameplay
 		public void OrderDeepSpaceBuild(Goal goal)
 		{
             OrderQueue.Clear();
-            OrderMoveTowardsPosition(goal.BuildPosition, Owner.Center.RadiansToTarget(goal.BuildPosition), findVectorToTarget(Owner.Center, goal.BuildPosition), true,null);
+            OrderMoveTowardsPosition(goal.BuildPosition, Owner.Center.RadiansToTarget(goal.BuildPosition), Owner.Center.FindVectorToTarget( goal.BuildPosition), true,null);
 			ShipGoal Deploy = new ShipGoal(Plan.DeployStructure, goal.BuildPosition, Owner.Center.RadiansToTarget(goal.BuildPosition))
 			{
 				goal = goal,

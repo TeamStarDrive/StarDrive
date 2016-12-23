@@ -167,6 +167,22 @@ namespace Ship_Game
         {
             return degrees * ((float)PI / 180.0f);
         }
+        public static Vector2 FindVectorBehindTarget(this GameplayObject ship, float distance)
+        {
+            Vector2 vector2 = new Vector2(0f, 0f);
+            Vector2 forward = new Vector2((float)Math.Sin((double)ship.Rotation), -(float)Math.Cos((double)ship.Rotation));
+            forward = Vector2.Normalize(forward);
+            return ship.Position - (forward * distance);
+        }
+        public static Vector2 FindVectorToTarget(this Vector2 OwnerPos, Vector2 TargetPos)
+        {
+            Vector2 vec2Target = new Vector2(0f, 0f)
+            {
+                X = -(OwnerPos.X - TargetPos.X),
+                Y = OwnerPos.Y - TargetPos.Y
+            };
+            return vec2Target;
+        }
 
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees

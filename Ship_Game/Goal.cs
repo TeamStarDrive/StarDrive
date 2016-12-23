@@ -305,13 +305,13 @@ namespace Ship_Game
                     {
                         if (PlanetBuildingAt == null || PlanetBuildingAt.ConstructionQueue.Count == 0)
                             break;
-                        //if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
-                        //{
-                        //    if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
-                        //    {
-                        //        PlanetBuildingAt.ApplyStoredProduction(0);
-                        //    }
-                        //}
+                        if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+                        {
+                            if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
+                            {
+                                PlanetBuildingAt.ApplyStoredProduction(0);
+                            }
+                        }
 
                         break;
                     }
