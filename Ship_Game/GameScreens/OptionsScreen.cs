@@ -105,7 +105,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					mmscreen.ReloadContent();
+					mmscreen.LoadContent();
 				}
 				MainOptionsRect = new Rectangle(R.X + 20, R.Y + 175, 300, 375);
 				SecondaryOptionsRect = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width + 20, MainOptionsRect.Y, 210, 305);
@@ -215,7 +215,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				mmscreen.ReloadContent();
+				mmscreen.LoadContent();
 			}
 			MainOptionsRect = new Rectangle(R.X + 20, R.Y + 175, 300, 375);
 			SecondaryOptionsRect = new Rectangle(MainOptionsRect.X + MainOptionsRect.Width, MainOptionsRect.Y, 210, 305);

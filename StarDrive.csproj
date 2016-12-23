@@ -288,8 +288,8 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Ship_Game\ExtensionMethods\CollectionExtensions.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\FileSystemExtensions.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\FileSystemExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MeshUtil.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SceneExt.cs" />
