@@ -84,7 +84,7 @@ namespace Ship_Game
 			this.ColoniesList = new ScrollList(this.ColonySubMenu, 80);
             //if (!this.firstSort || this.pop.Ascending !=true)
             {
-                foreach (Planet p in EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetPlanets())
+                foreach (Planet p in EmpireManager.Player.GetPlanets())
                 {
                     EmpireScreenEntry entry = new EmpireScreenEntry(p, this.eRect.X + 22, this.leftRect.Y + 20, this.EMenu.Menu.Width - 30, 80, this);
                     this.ColoniesList.AddItem(entry);
@@ -284,7 +284,7 @@ namespace Ship_Game
 				portraitRect.Height = portraitRect.Height - (int)(0.25 * (double)portraitRect.Height);
 				portraitRect.Width = portraitRect.Width - (int)(0.25 * (double)portraitRect.Width);
 			}
-			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", EmpireManager.GetEmpireByName(this.eui.screen.PlayerLoyalty).data.PortraitName)], portraitRect, Color.White);
+			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Portraits/", EmpireManager.Player.data.PortraitName)], portraitRect, Color.White);
 			base.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Portraits/portrait_shine"], portraitRect, Color.White);
 			if (this.SelectedPlanet.colonyType == Planet.ColonyType.Colony)
 			{
@@ -573,7 +573,7 @@ namespace Ship_Game
                 if (!this.pop.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.Population
 						select p;
 					this.pop.Ascending = true;
@@ -582,7 +582,7 @@ namespace Ship_Game
 				else
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.Population descending
 						select p;
 					this.ResetListSorted(sortedList);
@@ -598,7 +598,7 @@ namespace Ship_Game
 				if (!this.food.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.NetFoodPerTurn - p.consumption
 						select p;
 					this.food.Ascending = true;
@@ -607,7 +607,7 @@ namespace Ship_Game
 				else
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.NetFoodPerTurn - p.consumption descending
 						select p;
 					this.ResetListSorted(sortedList);
@@ -623,7 +623,7 @@ namespace Ship_Game
                 
                 if (!this.prod.Ascending)
 				{
-					IOrderedEnumerable<Planet> sortedList = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().OrderBy<Planet, float>((Planet p) => {
+					IOrderedEnumerable<Planet> sortedList = EmpireManager.Player.GetPlanets().OrderBy<Planet, float>((Planet p) => {
 						if (p.Owner.data.Traits.Cybernetic == 0)
 						{
 							return p.NetProductionPerTurn;
@@ -635,7 +635,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					IOrderedEnumerable<Planet> sortedList = EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets().OrderByDescending<Planet, float>((Planet p) => {
+					IOrderedEnumerable<Planet> sortedList = EmpireManager.Player.GetPlanets().OrderByDescending<Planet, float>((Planet p) => {
 						if (p.Owner.data.Traits.Cybernetic == 0)
 						{
 							return p.NetProductionPerTurn;
@@ -655,7 +655,7 @@ namespace Ship_Game
 				if (!this.res.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.NetResearchPerTurn
 						select p;
 					this.res.Ascending = true;
@@ -664,7 +664,7 @@ namespace Ship_Game
 				else
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.NetResearchPerTurn descending
 						select p;
 					this.ResetListSorted(sortedList);
@@ -680,7 +680,7 @@ namespace Ship_Game
 				if (!this.money.Ascending)
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.GrossMoneyPT + p.Owner.data.Traits.TaxMod * p.GrossMoneyPT - (p.TotalMaintenanceCostsPerTurn + p.TotalMaintenanceCostsPerTurn * p.Owner.data.Traits.MaintMod)
 						select p;
 					this.money.Ascending = true;
@@ -689,7 +689,7 @@ namespace Ship_Game
 				else
 				{
 					IOrderedEnumerable<Planet> sortedList = 
-						from p in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetPlanets()
+						from p in EmpireManager.Player.GetPlanets()
 						orderby p.GrossMoneyPT + p.Owner.data.Traits.TaxMod * p.GrossMoneyPT - (p.TotalMaintenanceCostsPerTurn + p.TotalMaintenanceCostsPerTurn * p.Owner.data.Traits.MaintMod) descending
 						select p;
 					this.ResetListSorted(sortedList);

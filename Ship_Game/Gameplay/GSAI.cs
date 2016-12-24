@@ -145,7 +145,7 @@ namespace Ship_Game.Gameplay
 				Them.GetRelations(this.empire).ActiveWar.EndStarDate = Empire.Universe.StarDate;
 				Them.GetRelations(this.empire).WarHistory.Add(Them.GetRelations(this.empire).ActiveWar);
 				Them.GetRelations(this.empire).Posture = Posture.Neutral;
-				if (EmpireManager.GetEmpireByName(Empire.Universe.PlayerLoyalty) != Them)
+				if (EmpireManager.Player != Them)
 				{
 					if (Them.GetRelations(this.empire).Anger_FromShipsInOurBorders > (float)(Them.data.DiplomaticPersonality.Territorialism / 3))
 					{
@@ -391,7 +391,7 @@ namespace Ship_Game.Gameplay
 					toRemove.Add(p);
 					p.Owner = Them;
 					Them.AddPlanet(p);
-					if (Them != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+					if (Them != EmpireManager.Player)
 					{
 						p.colonyType = Them.AssessColonyNeeds(p);
 					}
@@ -472,7 +472,7 @@ namespace Ship_Game.Gameplay
 						};
 						Them.GetRelations(us).TrustEntries.Add(te);
 					}
-					if (us == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+					if (us == EmpireManager.Player)
 					{
 						continue;
 					}
@@ -534,7 +534,7 @@ namespace Ship_Game.Gameplay
 				Them.GetRelations(this.empire).ActiveWar.EndStarDate = Empire.Universe.StarDate;
 				Them.GetRelations(this.empire).WarHistory.Add(Them.GetRelations(this.empire).ActiveWar);
 				Them.GetRelations(this.empire).Posture = Posture.Neutral;
-				if (EmpireManager.GetEmpireByName(Empire.Universe.PlayerLoyalty) != Them)
+				if (EmpireManager.Player != Them)
 				{
 					if (Them.GetRelations(this.empire).Anger_FromShipsInOurBorders > (float)(Them.data.DiplomaticPersonality.Territorialism / 3))
 					{
@@ -6293,7 +6293,7 @@ namespace Ship_Game.Gameplay
                 int min = (int)(empireStr * ((DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets())+1) * .01f));
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
-                //foreach (Empire empireList in EmpireManager.EmpireList)
+                //foreach (Empire empireList in EmpireManager.Empires)
                 //{                                        
                 //    if (empireList == this.empire || empireList.data.Defeated || !this.empire.GetRelations()[empireList].AtWar)
                 //    {
@@ -6762,7 +6762,7 @@ namespace Ship_Game.Gameplay
                         if (!planetList.ExploredDict[this.empire] 
                             || !planetList.habitable 
                             || planetList.Owner == this.empire 
-                            || this.empire == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) 
+                            || this.empire == EmpireManager.Player 
                                 && this.ThreatMatrix.PingRadarStr(planetList.Position, 50000f, this.empire) > 0f)
                         {
                             continue;
@@ -7710,14 +7710,14 @@ namespace Ship_Game.Gameplay
                 {
                     if (g.GetMarkedPlanet() != null)
                     {
-                        foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.ThreatMatrix.Pins
+                        foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in ThreatMatrix.Pins
                             .Where(pin => !((Vector2.Distance(g.GetMarkedPlanet().Position, pin.Value.Position) >= 75000f) 
-                            || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == this.empire || pin.Value.Strength <= 0f
+                            || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == empire || pin.Value.Strength <= 0f
                             || !this.empire.GetRelations(EmpireManager.GetEmpireByName(pin.Value.EmpireName)).AtWar)))
                         {
                             if (Vector2.Distance(g.GetMarkedPlanet().Position, pin.Value.Position) >= 75000f 
-                                || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == this.empire || pin.Value.Strength <= 0f 
-                                || !this.empire.GetRelations(EmpireManager.GetEmpireByName(pin.Value.EmpireName)).AtWar 
+                                || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == empire || pin.Value.Strength <= 0f 
+                                || !empire.GetRelations(EmpireManager.GetEmpireByName(pin.Value.EmpireName)).AtWar 
                                 && !EmpireManager.GetEmpireByName(pin.Value.EmpireName).isFaction)
                             {
                                 continue;

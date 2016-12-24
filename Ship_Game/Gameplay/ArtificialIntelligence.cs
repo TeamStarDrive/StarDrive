@@ -24,7 +24,6 @@ namespace Ship_Game.Gameplay
 		public CombatAI CombatAI = new CombatAI();
 		public BatchRemovalCollection<ShipWeight> NearbyShips = new BatchRemovalCollection<ShipWeight>();
         public BatchRemovalCollection<Ship> PotentialTargets = new BatchRemovalCollection<Ship>();
-        private int resupplystep;
 		public Planet resupplyTarget;
 		public Planet start;
 		public Planet end;
@@ -315,21 +314,25 @@ namespace Ship_Game.Gameplay
 				this.OrderQueue.Clear();
 				return;
 			}
-			this.ColonizeTarget = TargetPlanet;
-			this.ColonizeTarget.Owner = this.Owner.loyalty;
-			this.ColonizeTarget.system.OwnerList.Add(this.Owner.loyalty);
-            if (!this.Owner.loyalty.AutoColonize && this.Owner.loyalty.isPlayer)
+			ColonizeTarget = TargetPlanet;
+			ColonizeTarget.Owner = Owner.loyalty;
+			ColonizeTarget.system.OwnerList.Add(Owner.loyalty);
+            if (!Owner.loyalty.AutoColonize && Owner.loyalty.isPlayer)
             {
-                this.ColonizeTarget.colonyType = Planet.ColonyType.Colony;
-                this.ColonizeTarget.GovernorOn = false;
+                ColonizeTarget.colonyType = Planet.ColonyType.Colony;
+                ColonizeTarget.GovernorOn = false;
             }
             else
-                this.ColonizeTarget.colonyType = this.Owner.loyalty.AssessColonyNeeds(this.ColonizeTarget);
-			if (this.Owner.loyalty.isPlayer )  
+            {
+                ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
+            }
+
+            if (Owner.loyalty.isPlayer)  
 			{
-				ArtificialIntelligence.universeScreen.NotificationManager.AddColonizedNotification(this.ColonizeTarget, EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty));
+                Empire.Universe.NotificationManager.AddColonizedNotification(ColonizeTarget, EmpireManager.Player);
 			}
-		    this.Owner.loyalty.AddPlanet(this.ColonizeTarget);
+		    Owner.loyalty.AddPlanet(ColonizeTarget);
+
 			this.ColonizeTarget.InitializeSliders(this.Owner.loyalty);
 			this.ColonizeTarget.ExploredDict[this.Owner.loyalty] = true;
 			List<string> BuildingsAdded = new List<string>();
@@ -367,7 +370,7 @@ namespace Ship_Game.Gameplay
             string starDate = universeScreen.StarDate.ToString("#.0");
 			if (StatTracker.SnapshotsDict.ContainsKey(starDate))
 			{
-				StatTracker.SnapshotsDict[starDate][EmpireManager.EmpireList.IndexOf(Owner.loyalty)].Events.Add(
+				StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(Owner.loyalty)].Events.Add(
                     string.Concat(Owner.loyalty.data.Traits.Name, " colonized ", this.ColonizeTarget.Name));
 				NRO nro = new NRO()
 				{
@@ -375,7 +378,7 @@ namespace Ship_Game.Gameplay
 					Radius = 300000f,
 					StarDateMade = ArtificialIntelligence.universeScreen.StarDate
 				};
-				StatTracker.SnapshotsDict[starDate][EmpireManager.EmpireList.IndexOf(this.Owner.loyalty)].EmpireNodes.Add(nro);
+				StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(Owner.loyalty)].EmpireNodes.Add(nro);
 			}
 			foreach (Goal g in this.Owner.loyalty.GetGSAI().Goals)
 			{
@@ -1035,7 +1038,7 @@ namespace Ship_Game.Gameplay
 						Radius = 300000f,
 						StarDateMade = universeScreen.StarDate
 					};
-					StatTracker.SnapshotsDict[starDate][EmpireManager.EmpireList.IndexOf(this.Owner.loyalty)].EmpireNodes.Add(nro);
+					StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(this.Owner.loyalty)].EmpireNodes.Add(nro);
 				}
 			}
 			if (shipgoal.goal.TetherTarget != Guid.Empty)
@@ -1279,7 +1282,7 @@ namespace Ship_Game.Gameplay
 			}
             else if (this.Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0 || this.Owner.TroopList.Count <= 0 || (this.Owner.shipData.Role != ShipData.RoleName.troop && (this.Owner.GetHangars().Where(hangar => hangar.hangarTimer <= 0 && hangar.IsTroopBay).Count() == 0 && !this.Owner.hasTransporter)))//|| goal.TargetPlanet.GetGroundStrength(this.Owner.loyalty)+3 > goal.TargetPlanet.GetGroundStrength(goal.TargetPlanet.Owner)*1.5)
 			{                
-				if (this.Owner.loyalty == EmpireManager.GetEmpireByName(universeScreen.PlayerLoyalty))
+				if (this.Owner.loyalty == EmpireManager.Player)
 				{
 					this.HadPO = true;
 				}
@@ -1646,7 +1649,7 @@ namespace Ship_Game.Gameplay
                 }
             }
         }
-        //removed DoResupply method
+
         //do hangar return
 		private void DoReturnToHangar(float elapsedTime)
 		{
@@ -2157,7 +2160,7 @@ namespace Ship_Game.Gameplay
             }
             catch (Exception e)
             {
-                Log.Exception(e, "FireOnTarget() crashed");
+                Log.Error(e, "FireOnTarget() crashed");
             }
             TargetShip = null;
         }
@@ -2413,7 +2416,7 @@ namespace Ship_Game.Gameplay
 		public void GoTo(Vector2 movePos, Vector2 facing)
 		{
 			this.GotoStep = 0;
-			if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+			if (this.Owner.loyalty == EmpireManager.Player)
 			{
 				this.HasPriorityOrder = true;
 			}
@@ -3158,7 +3161,7 @@ namespace Ship_Game.Gameplay
 					this.ActiveWayPoints.Clear();
 				}
 			}
-			if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+			if (this.Owner.loyalty == EmpireManager.Player)
 			{
 				this.HasPriorityOrder = true;
 			}
@@ -3231,7 +3234,7 @@ namespace Ship_Game.Gameplay
 					this.ActiveWayPoints.Clear();
 				}
 			}
-			if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+			if (this.Owner.loyalty == EmpireManager.Player)
 			{
 				this.HasPriorityOrder = true;
 			}
@@ -3343,7 +3346,7 @@ namespace Ship_Game.Gameplay
 					this.ActiveWayPoints.Clear();
 				}
 			}
-			if (ArtificialIntelligence.universeScreen != null && this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+			if (ArtificialIntelligence.universeScreen != null && this.Owner.loyalty == EmpireManager.Player)
 			{
 				this.HasPriorityOrder = true;
 			}
@@ -3425,7 +3428,7 @@ namespace Ship_Game.Gameplay
         //    Vector2 right = new Vector2(-forward.Y, forward.X);
         //    float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
         //    Vector2.Dot(wantedForward, right);
-        //    if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+        //    if (this.Owner.loyalty == EmpireManager.Player)
         //    {
         //        this.HasPriorityOrder = true;
         //    }
@@ -4582,7 +4585,7 @@ namespace Ship_Game.Gameplay
                                     }
                                     catch (Exception ex)
                                     {
-                                        Log.Exception(ex, "Order Trade Orderqueue fail");
+                                        Log.Error(ex, "Order Trade Orderqueue fail");
                                     }
                                     if (plan != null && s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && plan.Plan == ArtificialIntelligence.Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
                                     {
@@ -6197,7 +6200,7 @@ namespace Ship_Game.Gameplay
                     Goal.MovePosition = Goal.TargetPlanet.Position;
                 }
             }
-            if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+            if (this.Owner.loyalty == EmpireManager.Player)
 			{
 				this.HadPO = true;
 			}
@@ -6212,7 +6215,7 @@ namespace Ship_Game.Gameplay
 					this.ActiveWayPoints.Clear();
 				}
 				this.Owner.Velocity = Vector2.Zero;
-				if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+				if (this.Owner.loyalty == EmpireManager.Player)
 				{
 					this.HadPO = true;
 				}
@@ -6262,7 +6265,7 @@ namespace Ship_Game.Gameplay
         private void StopWithBackwardsThrustbroke(float elapsedTime, ArtificialIntelligence.ShipGoal Goal)
         {
             
-            if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+            if (this.Owner.loyalty == EmpireManager.Player)
             {
                 this.HadPO = true;
             }
@@ -6276,7 +6279,7 @@ namespace Ship_Game.Gameplay
                     this.ActiveWayPoints.Clear();
                 }
                 this.Owner.Velocity = Vector2.Zero;
-                if (this.Owner.loyalty == EmpireManager.GetEmpireByName(ArtificialIntelligence.universeScreen.PlayerLoyalty))
+                if (this.Owner.loyalty == EmpireManager.Player)
                 {
                     this.HadPO = true;
                 }
@@ -7952,7 +7955,7 @@ namespace Ship_Game.Gameplay
 
 
                 Relationship rel;
-                foreach(Empire e in EmpireManager.EmpireList)
+                foreach(Empire e in EmpireManager.Empires)
                 {
                     if (empire.TryGetRelations(e, out rel) && rel.Treaty_Alliance)
                     {

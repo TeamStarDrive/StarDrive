@@ -494,7 +494,7 @@ namespace Ship_Game
                         if (Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, looper).ConstructionQueue.Count > leastque) break;
 
                         //If the distance from this planet to the build site is less than the last one, mark this the best planet to assign construction to
-                        float currentdist = Vector2.Distance(Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, looper).Position, this.BuildPosition);
+                        float currentdist = Vector2.Distance(orderedEnumerable.ElementAt(looper).Position, this.BuildPosition);
                         if (currentdist < leastdist)
                         {
                             bestplanet = looper;    //Mark this one as the best
@@ -502,15 +502,15 @@ namespace Ship_Game
                         }
                     }
                     //after all that, assign the contruction site based on the best found above
-                    this.PlanetBuildingAt = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, bestplanet);
+                    PlanetBuildingAt = orderedEnumerable.ElementAt(bestplanet);
 
                     //Ok, i'm done   -Gretman
 
                     QueueItem queueItem = new QueueItem();
                     queueItem.isShip = true;
                     queueItem.DisplayName = "Construction Ship";
-                    queueItem.QueueNumber = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, bestplanet).ConstructionQueue.Count; //Gretman
-                    queueItem.sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentConstructor].GetShipData();
+                    queueItem.QueueNumber = PlanetBuildingAt.ConstructionQueue.Count; //Gretman
+                    queueItem.sData = ResourceManager.ShipsDict[EmpireManager.Player.data.CurrentConstructor].GetShipData();
                     queueItem.Goal = this;
                     queueItem.Cost = ResourceManager.ShipsDict[this.ToBuildUID].GetCost(this.empire);
                     queueItem.NotifyOnEmpty = false;
@@ -866,15 +866,15 @@ namespace Ship_Game
                     }
                     if (planet1 == null)
                         break;
-                    if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty) == this.empire && ResourceManager.ShipsDict.ContainsKey(EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoScout))
+                    if (EmpireManager.Player == this.empire && ResourceManager.ShipsDict.ContainsKey(EmpireManager.Player.data.CurrentAutoScout))
                     {
                         planet1.ConstructionQueue.Add(new QueueItem()
                         {
                             isShip = true,
                             QueueNumber = planet1.ConstructionQueue.Count,
-                            sData = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoScout].GetShipData(),
+                            sData = ResourceManager.ShipsDict[EmpireManager.Player.data.CurrentAutoScout].GetShipData(),
                             Goal = this,
-                            Cost = ResourceManager.ShipsDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoScout].GetCost(this.empire),
+                            Cost = ResourceManager.ShipsDict[EmpireManager.Player.data.CurrentAutoScout].GetCost(this.empire),
                             NotifyOnEmpty=false
                         });
                         ++this.Step;
@@ -906,7 +906,7 @@ namespace Ship_Game
                     bool flag = false;
                     foreach (Ship ship in (List<Ship>)this.empire.GetShips())
                     {
-                        if ((ship.shipData.Role == ShipData.RoleName.scout || ship.Name == EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).data.CurrentAutoScout) && !ship.isPlayerShip())
+                        if ((ship.shipData.Role == ShipData.RoleName.scout || ship.Name == EmpireManager.Player.data.CurrentAutoScout) && !ship.isPlayerShip())
                         {
                             this.freighter = ship;
                             flag = true;
