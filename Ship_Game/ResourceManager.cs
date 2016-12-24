@@ -484,7 +484,7 @@ namespace Ship_Game
             owner.AddShip(ship);
             return ship;
         }
-
+        //@bug #1002  cant add a ship to a system in readlock. 
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
         {
             Ship ship = CreateShipAtPoint(shipName, owner, p.Position + deltaPos);
