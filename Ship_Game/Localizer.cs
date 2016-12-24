@@ -20,7 +20,7 @@ namespace Ship_Game
 
         public static bool Contains(int locIndex) //@bug issue #1003
         {
-            return locIndex <= Strings.Length && Strings[locIndex - 1] != null;
+            return 0 < locIndex && locIndex <= Strings.Length && Strings[locIndex - 1] != null;
         }
         public static string Token(int locIndex) //
         {

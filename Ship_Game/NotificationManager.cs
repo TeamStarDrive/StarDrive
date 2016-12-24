@@ -16,8 +16,9 @@ namespace Ship_Game
         private readonly int MaxEntriesToDisplay;
         private Rectangle NotificationArea;
 
-	    private static object NotificationLocker = new object();
-        private BatchRemovalCollection<Notification> NotificationList = new BatchRemovalCollection<Notification>();
+	    private static readonly object NotificationLocker = new object();
+        private BatchRemovalCollection<Notification> NotificationList = 
+            new BatchRemovalCollection<Notification>();
         private float Timer;
 
 		public NotificationManager(ScreenManager screenManager, UniverseScreen screen)
@@ -26,8 +27,9 @@ namespace Ship_Game
 			ScreenManager = screenManager;
 
 		    var presentParams = screenManager.GraphicsDevice.PresentationParameters;
-            NotificationArea = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70, presentParams.BackBufferHeight - 70 - 275);
-			MaxEntriesToDisplay = this.NotificationArea.Height / 70;
+            NotificationArea = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70, 
+                                             presentParams.BackBufferHeight - 70 - 275);
+			MaxEntriesToDisplay = NotificationArea.Height / 70;
 		}
 
 	    private Rectangle GetNotificationRect(int index)
@@ -52,7 +54,7 @@ namespace Ship_Game
 
         public void AddAgentResultNotification(bool good, string result, Empire owner)
 		{
-			if (owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty))
+			if (owner != EmpireManager.Player)
 				return;
 
 		    AddNotification(new Notification
@@ -562,8 +564,9 @@ namespace Ship_Game
 	    private void TriggerExplorationEvent(ExplorationEvent evt)
 	    {
             Outcome triggeredOutcome = GetRandomOutcome(evt);
-            Empire empire = EmpireManager.GetEmpireByName(Screen.PlayerLoyalty);
-            Screen.ScreenManager.AddScreen(new EventPopup(Screen, empire, evt, triggeredOutcome,false));
+
+            Empire empire = EmpireManager.Player;
+            Screen.ScreenManager.AddScreen(new EventPopup(Screen, empire, evt, triggeredOutcome, false));
             evt.TriggerOutcome(empire, triggeredOutcome);
         }
 
