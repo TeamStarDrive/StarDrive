@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
 namespace Ship_Game
@@ -11,9 +12,9 @@ namespace Ship_Game
 	public sealed class AutomationWindow
 	{
 		public bool isOpen;
-		private Ship_Game.ScreenManager ScreenManager;
+		private ScreenManager ScreenManager;
 		private Submenu ConstructionSubMenu;
-		private UniverseScreen screen;
+		private UniverseScreen Universe;
 		private Rectangle win;
 		private List<Checkbox> Checkboxes = new List<Checkbox>();
 		private DropOptions AutoFreighterDropDown;
@@ -23,61 +24,43 @@ namespace Ship_Game
         private Vector2 ConstructorTitle;
         private string ConstructorString;
 
-		public AutomationWindow(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
+        private void Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
+        {
+            Checkboxes.Add(new Checkbox(win.X, win.Y + 25, binding, Fonts.Arial12Bold, title, tooltip));
+        }
+        private void Checkbox(float x, float y, Expression<Func<bool>> binding, string title, int tooltip)
+        {
+            Checkboxes.Add(new Checkbox(win.X, win.Y + 25, binding, Fonts.Arial12Bold, title, tooltip));
+        }
+
+        public AutomationWindow(ScreenManager screenManager, UniverseScreen universe)
 		{
-			this.screen = screen;
-			this.ScreenManager = ScreenManager;
-			int WindowWidth = 210;
-			this.win = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 115 - WindowWidth, 490, WindowWidth, 300);
-			Rectangle rectangle = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - WindowWidth + 20, 225, WindowWidth - 40, 455);
-			this.ConstructionSubMenu = new Submenu(ScreenManager, this.win, true);
-			this.ConstructionSubMenu.AddTab(Localizer.Token(304));
+			Universe = universe;
+			ScreenManager = screenManager;
+			const int windowWidth = 210;
+			win = new Rectangle(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 115 - windowWidth, 490, windowWidth, 300);
+			ConstructionSubMenu = new Submenu(screenManager, win, true);
+			ConstructionSubMenu.AddTab(Localizer.Token(304));
 
-			Ref<bool> aeRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoExplore, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoExplore = x);
-			Checkbox cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 25)), Localizer.Token(305), aeRef, Fonts.Arial12Bold);
-			this.Checkboxes.Add(cb);
-			cb.Tip_Token = 2226;
+            ScoutDropDown      = new DropOptions(new Rectangle(win.X + 12, win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            ColonyShipDropDown = new DropOptions(new Rectangle(win.X + 12, win.Y + 65 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
-            this.ScoutDropDown = new DropOptions(new Rectangle(this.win.X + 12, this.win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            Checkbox(win.X, win.Y + 25,  () => EmpireManager.Player.AutoExplore,    title:305, tooltip:2226);
+            Checkbox(win.X, win.Y + 65,  () => EmpireManager.Player.AutoColonize,   title:306, tooltip:2227);
+            Checkbox(win.X, win.Y + 105, () => EmpireManager.Player.AutoFreighters, title:308, tooltip:2229);
 
-			Ref<bool> acRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoColonize, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoColonize = x);
-			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 65)), Localizer.Token(306), acRef, Fonts.Arial12Bold);
-			this.Checkboxes.Add(cb);
-			cb.Tip_Token = 2227;
+			AutoFreighterDropDown = new DropOptions(new Rectangle(win.X + 12, win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
-			this.ColonyShipDropDown = new DropOptions(new Rectangle(this.win.X + 12, this.win.Y + 65 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            ConstructorTitle = new Vector2(win.X + 29, win.Y + 155);
+            ConstructorString = Localizer.Token(6181);
+            ConstructorDropDown = new DropOptions(new Rectangle(this.win.X + 12, this.win.Y + 155 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
-			Ref<bool> afRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoFreighters, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoFreighters = x);
-			cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 105)), Localizer.Token(308), afRef, Fonts.Arial12Bold);
-			this.Checkboxes.Add(cb);
-			cb.Tip_Token = 2229;
+            Checkbox(win.X, win.Y + 210, () => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
 
-			this.AutoFreighterDropDown = new DropOptions(new Rectangle(this.win.X + 12, this.win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
-
-            this.ConstructorTitle = new Vector2((float)this.win.X + 29, (float)(this.win.Y + 155));
-            this.ConstructorString = Localizer.Token(6181);
-            this.ConstructorDropDown = new DropOptions(new Rectangle(this.win.X + 12, this.win.Y + 155 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
-
-
-            Ref<bool> abRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoBuild, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoBuild = x);
-            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 210)), string.Concat(Localizer.Token(307), " Projectors"), abRef, Fonts.Arial12Bold);
-            this.Checkboxes.Add(cb);
-            cb.Tip_Token = 2228;
-
-			Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.AutoCombat, (bool x) => GlobalStats.AutoCombat = x);
-            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 210 + Fonts.Arial12Bold.LineSpacing + 3)), Localizer.Token(2207), acomRef, Fonts.Arial12Bold);
-			this.Checkboxes.Add(cb);
-			cb.Tip_Token = 2230;
-
-            Ref<bool> arRef = new Ref<bool>(() => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoResearch, (bool x) => EmpireManager.GetEmpireByName(screen.PlayerLoyalty).AutoResearch = x);
-            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 210 + Fonts.Arial12Bold.LineSpacing * 2 + 6)), Localizer.Token(6136), arRef, Fonts.Arial12Bold);
-            this.Checkboxes.Add(cb);
-            cb.Tip_Token = 7039;
-
-            Ref<bool> atRef = new Ref<bool>(() => EmpireManager.Player.data.AutoTaxes, (bool x) => EmpireManager.Player.data.AutoTaxes = x);
-            cb = new Checkbox(new Vector2((float)this.win.X, (float)(this.win.Y + 210 + Fonts.Arial12Bold.LineSpacing * 3 + 9)), Localizer.Token(6138), atRef, Fonts.Arial12Bold);
-            this.Checkboxes.Add(cb);
-            cb.Tip_Token = 7040;
+            Func<int, int> yPos = i => win.Y + 210 + Fonts.Arial12Bold.LineSpacing * i + 3 * i;
+            Checkbox(win.X, yPos(1), () => GlobalStats.AutoCombat,              title:2207, tooltip:2230);
+            Checkbox(win.X, yPos(2), () => EmpireManager.Player.AutoResearch,   title:6136, tooltip:7039);
+            Checkbox(win.X, yPos(3), () => EmpireManager.Player.data.AutoTaxes, title:6138, tooltip:7040);
 
 			this.SetDropDowns();
 		}
@@ -105,7 +88,7 @@ namespace Ship_Game
 
         public bool HandleInput(InputState input)
         {
-            var empire = EmpireManager.GetEmpireByName(screen.PlayerLoyalty);
+            var empire = EmpireManager.Player;
             if (!ColonyShipDropDown.Open && !ScoutDropDown.Open && !ConstructorDropDown.Open)
             {
                 AutoFreighterDropDown.HandleInput(input);
@@ -172,10 +155,10 @@ namespace Ship_Game
 		public void SetDropDowns()
 		{
             ResetDropDowns();
-            var playerData = screen.player.data;
+            var playerData = Universe.player.data;
 		    string current = !string.IsNullOrEmpty(playerData.CurrentAutoFreighter) ? playerData.CurrentAutoFreighter : playerData.DefaultSmallTransport;
 
-            var empire = EmpireManager.GetEmpireByName(screen.PlayerLoyalty);
+            var empire = EmpireManager.Player;
 			foreach (string ship in empire.ShipsWeCanBuild)
 			{                
                 if (!ResourceManager.ShipsDict.TryGetValue(ship, out Ship automation) 

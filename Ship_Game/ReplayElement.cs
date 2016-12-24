@@ -135,7 +135,7 @@ namespace Ship_Game
                         starPos.X = starPos.X + (MapRect.Width / 2);        //Correction for negative map values -Gretman
                         starPos.Y = starPos.Y + (MapRect.Height / 2);
                         Rectangle StarRect = new Rectangle((int)starPos.X - (int)(nro.Radius * scale), (int)starPos.Y - (int)(nro.Radius * scale), (int)(nro.Radius * scale * 2f), (int)(nro.Radius * scale * 2f));
-						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], StarRect, new Color(EmpireManager.EmpireList[entry.Key].EmpireColor, 128));
+						ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node"], StarRect, new Color(EmpireManager.Empires[entry.Key].EmpireColor, 128));
 					}
 				}
 			}
@@ -202,7 +202,7 @@ namespace Ship_Game
 								}
 								Vector2 Start = new Vector2((float)(MapRect.X + (int)(XInterval * (float)turn)), (float)(MapRect.Y + MapRect.Height - (int)(YPerShip * (float)shot.ShipCount)));
 								Vector2 End = new Vector2((float)(MapRect.X + (int)(XInterval * (float)(1 + turn))), (float)(MapRect.Y + MapRect.Height - (int)(YPerShip * (float)nextShot.ShipCount)));
-								Primitives2D.DrawLine(ScreenManager.SpriteBatch, Start, End, EmpireManager.EmpireList[entry.Key].EmpireColor);
+								Primitives2D.DrawLine(ScreenManager.SpriteBatch, Start, End, EmpireManager.Empires[entry.Key].EmpireColor);
 							}
 						}
 					}
@@ -234,7 +234,7 @@ namespace Ship_Game
 								}
 								Vector2 Start = new Vector2((float)(MapRect.X + (int)(XInterval * (float)turn)), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * shot.MilitaryStrength)));
 								Vector2 End = new Vector2((float)(MapRect.X + (int)(XInterval * (float)(1 + turn))), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * nextShot.MilitaryStrength)));
-								Primitives2D.DrawLine(ScreenManager.SpriteBatch, Start, End, EmpireManager.EmpireList[entry.Key].EmpireColor);
+								Primitives2D.DrawLine(ScreenManager.SpriteBatch, Start, End, EmpireManager.Empires[entry.Key].EmpireColor);
 							}
 						}
 					}
@@ -266,7 +266,7 @@ namespace Ship_Game
 								}
 								Vector2 Start = new Vector2((float)(MapRect.X + (int)(XInterval * (float)turn)), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * shot.Population)));
 								Vector2 End = new Vector2((float)(MapRect.X + (int)(XInterval * (float)(1 + turn))), (float)(MapRect.Y + MapRect.Height - (int)(YPerStr * nextShot.Population)));
-								Primitives2D.DrawLine(ScreenManager.SpriteBatch, Start, End, EmpireManager.EmpireList[entry.Key].EmpireColor);
+								Primitives2D.DrawLine(ScreenManager.SpriteBatch, Start, End, EmpireManager.Empires[entry.Key].EmpireColor);
 							}
 						}
 					}

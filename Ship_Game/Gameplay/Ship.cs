@@ -691,9 +691,9 @@ namespace Ship_Game.Gameplay
                 //added by gremlin Toggle Ship System Defense.
 
 
-                if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
+                if (EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
                 {
-                    EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.remove(this);
+                    EmpireManager.Player.GetGSAI().DefensiveCoordinator.remove(this);
                     this.GetAI().OrderQueue.Clear();
                     this.GetAI().HasPriorityOrder = false;
                     this.GetAI().SystemToDefend = (SolarSystem)null;
@@ -703,7 +703,7 @@ namespace Ship_Game.Gameplay
                     return;
                 }
 
-                EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(this);
+                EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(this);
                 this.GetAI().OrderQueue.Clear();
                 this.GetAI().HasPriorityOrder = false;
                 this.GetAI().SystemToDefend = (SolarSystem)null;
@@ -3712,7 +3712,7 @@ namespace Ship_Game.Gameplay
                 try
                 {
                     if(this.InhibitedTimer <2f)
-                    foreach (Empire index1 in EmpireManager.EmpireList)
+                    foreach (Empire index1 in EmpireManager.Empires)
                     {
                         if (index1 != this.loyalty && !this.loyalty.GetRelations(index1).Treaty_OpenBorders)
                         {
@@ -3733,7 +3733,7 @@ namespace Ship_Game.Gameplay
                 }
                 catch (Exception ex)
                 {
-                    Log.Exception(ex, "Inhibitor blew up");
+                    Log.Error(ex, "Inhibitor blew up");
                 }
                 this.inSensorRange = false;
                 if (Ship.universeScreen.Debug || this.loyalty == Ship.universeScreen.player || this.loyalty != Ship.universeScreen.player && Ship.universeScreen.player.GetRelations(loyalty).Treaty_Alliance)
@@ -4608,7 +4608,7 @@ namespace Ship_Game.Gameplay
                 else                 dieSoundEffect = "sd_explosion_ship_det_large";
                 AudioManager.PlayCue(dieSoundEffect, universeScreen.listener, emitter);
             }
-            foreach (Empire empire in EmpireManager.EmpireList)
+            foreach (Empire empire in EmpireManager.Empires)
             {
                 empire.GetGSAI().ThreatMatrix.Pins.TryRemove(guid, out ThreatMatrix.Pin pin);
             }
@@ -4709,7 +4709,7 @@ namespace Ship_Game.Gameplay
                 if (hanger.GetHangarShip() != null)
                     hanger.GetHangarShip().Mothership = null;
             }
-            foreach(Empire empire in EmpireManager.EmpireList)
+            foreach(Empire empire in EmpireManager.Empires)
             {
                 empire.GetGSAI().ThreatMatrix.UpdatePin(this);
             }
