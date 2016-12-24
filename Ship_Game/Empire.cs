@@ -122,8 +122,6 @@ namespace Ship_Game
         [XmlIgnore]
         public int pathcacheMiss = 0;
         [XmlIgnore]
-        public ArtificialIntelligence.Grid pathhMap { get; set; }
-        [XmlIgnore]
         public byte[,] grid;
         [XmlIgnore]
         public int granularity = 0;
