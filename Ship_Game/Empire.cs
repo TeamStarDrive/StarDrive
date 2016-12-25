@@ -122,8 +122,6 @@ namespace Ship_Game
         [XmlIgnore]
         public int pathcacheMiss = 0;
         [XmlIgnore]
-        public ArtificialIntelligence.Grid pathhMap { get; set; }
-        [XmlIgnore]
         public byte[,] grid;
         [XmlIgnore]
         public int granularity = 0;
@@ -1659,9 +1657,10 @@ namespace Ship_Game
                 }
 
                 var r = ship.shipData.HullRole;
-                canBuildCorvettes = r == ShipData.RoleName.gunboat || r == ShipData.RoleName.corvette;
-                canBuildFrigates  = r == ShipData.RoleName.frigate || r == ShipData.RoleName.destroyer;
-                canBuildCruisers  = r == ShipData.RoleName.cruiser || r == ShipData.RoleName.carrier || r == ShipData.RoleName.capital;
+                canBuildCorvettes = canBuildCorvettes || (r ==  ShipData.RoleName.gunboat || r == ShipData.RoleName.corvette);
+                canBuildFrigates  = canBuildFrigates || (r == ShipData.RoleName.frigate || r == ShipData.RoleName.destroyer);
+                canBuildCruisers  = canBuildCruisers ||  r == ShipData.RoleName.cruiser;
+                canBuildCapitals  = canBuildCapitals || (r == ShipData.RoleName.capital || r == ShipData.RoleName.carrier );
             }
             if (Universe == null || this != Universe.PlayerEmpire)
                 return;
@@ -2280,11 +2279,13 @@ namespace Ship_Game
                 if (this.data.TurnsBelowZero >= 25)
                 {
                     Empire rebelsFromEmpireData = EmpireManager.GetEmpireByName(this.data.RebelName);
+                    Log.Info("Rebellion for: "+ data.Traits.Name);
                     if(rebelsFromEmpireData == null)
                     foreach (Empire rebel in EmpireManager.Empires)
                     {
                         if (rebel.data.PortraitName == this.data.RebelName)
                         {
+                            Log.Info("Found Existing Rebel: "+ rebel.data.PortraitName);
                             rebelsFromEmpireData = rebel;
                             break;
                         }
