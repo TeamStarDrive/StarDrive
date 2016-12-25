@@ -23,10 +23,6 @@ namespace Ship_Game
 		public int ToolTip;
         public bool Active = true;
 
-		public UIButton()
-		{
-		}
-
         private Texture2D ButtonTexture()
         {
             switch (State)
