@@ -30,7 +30,7 @@ namespace Ship_Game
             int n = list.Count;
             T found = null;
             float max = float.MinValue;
-            for (int i = 1; i < n; ++i)
+            for (int i = 0; i < n; ++i)
             {
                 float value = selector(list[i]);
                 if (value <= max) continue;
@@ -48,7 +48,7 @@ namespace Ship_Game
             int n = list.Count;
             T found = null;
             float max = float.MinValue;
-            for (int i = 1; i < n; ++i)
+            for (int i = 0; i < n; ++i)
             {
                 if (!filter(list[i])) continue;
                 float value = selector(list[i]);
