@@ -201,7 +201,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Crunchies-LocalRelease\</OutputPath>
+    <OutputPath>StarDrive\</OutputPath>
     <DefineConstants>STEAM ALTERTHREAD PERF  AUTOTIME</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -209,6 +209,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Gretman%27s Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -1700,6 +1701,9 @@
     <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Deploy\Config\Deploy.cmd" />
+    <None Include="Deploy\Config\include_Crunchies cleanup" />
+    <None Include="Deploy\Config\include_Unstable_Texas_Refactor" />
     <None Include="packages.config" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>

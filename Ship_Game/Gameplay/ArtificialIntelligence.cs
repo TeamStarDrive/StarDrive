@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Algorithms;
@@ -85,95 +86,6 @@ namespace Ship_Game.Gameplay
             WayPointLocker = new object();
 		}
      
-        private void AwaitOrdersWithPlot(float elapsedTime)
-        {            
-            if (State != AIState.Resupply)
-                HasPriorityOrder = false;
-            AIState savestate = State;
-            if (awaitClosest != null)
-            {
-                if(Vector2.Distance(awaitClosest.Position,Owner.Center) > Empire.ProjectorRadius *2)
-                {
-                    OrderMoveTowardsPosition(awaitClosest.Position, 0, Vector2.Zero, false, awaitClosest);
-                    State = savestate;
-                }
-                else
-                {
-                    DoOrbit(awaitClosest, elapsedTime);
-                }
-            }
-            else if (Owner.System== null)
-            {
-                if (SystemToDefend != null)
-                {                    
-                    awaitClosest = SystemToDefend.PlanetList[0];
-                    if (Vector2.Distance(awaitClosest.Position, Owner.Center) > Empire.ProjectorRadius * 2)
-                    {
-                        OrderMoveTowardsPosition(awaitClosest.Position, 0, Vector2.Zero, false, awaitClosest);
-                        State = savestate;
-                    }
-                    else
-                    {
-                        DoOrbit(awaitClosest, elapsedTime);
-                    }
-                    return;
-                }
-                IOrderedEnumerable<SolarSystem> sortedList = null;
-                if(!Owner.loyalty.isFaction)
-                    sortedList =
-                    from solarsystem in Owner.loyalty.GetOwnedSystems()
-                    orderby Vector2.Distance(Owner.Center, solarsystem.Position)
-                    select solarsystem;
-                else if(Owner.loyalty.isFaction)
-                    sortedList =
-                        from solarsystem in Ship.universeScreen.SolarSystemDict.Values
-                        orderby Vector2.Distance(Owner.Center, solarsystem.Position) < 800000
-                        , Owner.loyalty.GetOwnedSystems().Contains(solarsystem)
-                        select solarsystem;
-
-                if (sortedList.Count<SolarSystem>() > 0)
-                {
-                    awaitClosest = sortedList.First<SolarSystem>().PlanetList[0];
-                    if (Vector2.Distance(awaitClosest.Position, Owner.Center) > Empire.ProjectorRadius * 2)
-                    {
-                        OrderMoveTowardsPosition(awaitClosest.Position, 0, Vector2.Zero, false, awaitClosest);
-                        State = savestate;
-                    }
-                    else
-                    {
-                        DoOrbit(awaitClosest, elapsedTime);
-                    }
-                    return;
-                }
-            }
-            else
-            {
-                var closestD = 999999f;
-                var closestUS = false;
-                foreach (Planet p in Owner.System.PlanetList)
-                {
-                    if (awaitClosest == null)
-                        awaitClosest = p;
-                    var us = false;
-                    if (Owner.loyalty.isFaction)
-                        us = p.Owner != null || p.habitable;
-                    else
-                        us = p.Owner == Owner.loyalty;
-                    if (closestUS && !us)
-                        continue;
-                    float Distance = Vector2.Distance(Owner.Center, p.Position);
-                    if (us == closestUS)
-                        if (Distance >= closestD)
-                            continue;
-                    closestUS = us;
-                    closestD = Distance;
-                    awaitClosest = p;
-
-
-                }
-
-            }
-        }
         private void AwaitOrders(float elapsedTime)
 		{
             if(State != AIState.Resupply)
@@ -238,53 +150,47 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
-		private void AwaitOrdersPlayer(float elapsedTime)
-		{
-			HasPriorityOrder = false;
-            if (Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
-                ScanForThreatTimer = 0;
-            if (EscortTarget != null)
-            {
-                State = AIState.Escort;
-            }
-            else
-                if (!HadPO)
-                {
-                    if (SystemToDefend != null)
-                    {
-                        DoOrbit(SystemToDefend.PlanetList[0], elapsedTime);
-                        awaitClosest = SystemToDefend.PlanetList[0];
-                        return;
-                    } 
-                    if (awaitClosest != null)
-                    {
-                        DoOrbit(awaitClosest, elapsedTime);
-                        return;
-                    }
-                    var planets = new List<Planet>();
-                    foreach (var entry in universeScreen.PlanetsDict)
-                        planets.Add(entry.Value);
-                    var sortedList =
-                        from planet in planets
-                        orderby  Vector2.Distance(planet.Position, Owner.Center) + (Owner.loyalty != planet.Owner ? 300000 : 0)
-                        select planet;
-                    awaitClosest = sortedList.First<Planet>();
-                }
-                else
-                {
-                    if(Owner.System!= null && Owner.System.OwnerList.Contains(Owner.loyalty))
-                    {
-                        HadPO = false;
-                    return;
-                    }
-                    Stop(elapsedTime);
-                }
+	    private void AwaitOrdersPlayer(float elapsedTime)
+	    {
+	        HasPriorityOrder = false;
+	        if (Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
+	            ScanForThreatTimer = 0;
+	        if (EscortTarget != null)
+	        {
+	            State = AIState.Escort;
+	            return;
+	        }
+	        if (!HadPO)
+	        {
+	            if (SystemToDefend != null)
+	            {
+	                DoOrbit(SystemToDefend.PlanetList[0], elapsedTime);
+	                awaitClosest = SystemToDefend.PlanetList[0]; //@TASK change this to use the highest value planet from the sys def ai. 
+	                return;
+	            }
+	            if (awaitClosest != null)
+	            {
+	                DoOrbit(awaitClosest, elapsedTime);
+	                return;
+	            }
+	            awaitClosest =
+	                Owner.loyalty.GetGSAI()
+	                    .GetKnownPlanets()
+	                    .FindMin(
+	                        planet => planet.Position.SqDist(Owner.Center) + (Owner.loyalty != planet.Owner ? 300000 : 0));
+	            return;
+	        }	        
+            if (Owner.System?.OwnerList.Contains(Owner.loyalty) ?? false)
+	        {
+	            HadPO = false;
+	            return;
+	        }
+	        Stop(elapsedTime);
+	    }
 
-		}
-
-		private void Colonize(Planet TargetPlanet)
+	    private void Colonize(Planet TargetPlanet)
 		{
-			if (Vector2.Distance(Owner.Center, TargetPlanet.Position) > 2000f)
+			if (Owner.Center.OutsideRadius(TargetPlanet.Position, 2000f))
 			{
 				OrderQueue.RemoveFirst();
 				OrderColonization(TargetPlanet);
@@ -292,11 +198,10 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			if (TargetPlanet.Owner != null || !TargetPlanet.habitable)
-			{
-				if (ColonizeGoal != null)
-				{
-					Goal colonizeGoal = ColonizeGoal;
-					colonizeGoal.Step = colonizeGoal.Step + 1;
+			{                
+                if (ColonizeGoal != null)
+				{					
+                    ColonizeGoal.Step += 1;
 					Owner.loyalty.GetGSAI().Goals.QueuePendingRemoval(ColonizeGoal);
 				}
 				State = AIState.AwaitingOrders;
@@ -306,24 +211,22 @@ namespace Ship_Game.Gameplay
 			ColonizeTarget = TargetPlanet;
 			ColonizeTarget.Owner = Owner.loyalty;
 			ColonizeTarget.system.OwnerList.Add(Owner.loyalty);
-            if (!Owner.loyalty.AutoColonize && Owner.loyalty.isPlayer)
-            {
-                ColonizeTarget.colonyType = Planet.ColonyType.Colony;
-                ColonizeTarget.GovernorOn = false;
-            }
-            else
-            {
-                ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
-            }
-
-            if (Owner.loyalty.isPlayer)
+		    if (Owner.loyalty.isPlayer)
+		    {
+		        if (!Owner.loyalty.AutoColonize)
+		        {
+		            ColonizeTarget.colonyType = Planet.ColonyType.Colony;
+		            ColonizeTarget.GovernorOn = false;
+		        }
+                else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);
                 Empire.Universe.NotificationManager.AddColonizedNotification(ColonizeTarget, EmpireManager.Player);
+            }
+            else ColonizeTarget.colonyType = Owner.loyalty.AssessColonyNeeds(ColonizeTarget);                
 		    Owner.loyalty.AddPlanet(ColonizeTarget);
-
 			ColonizeTarget.InitializeSliders(Owner.loyalty);
 			ColonizeTarget.ExploredDict[Owner.loyalty] = true;
 			var BuildingsAdded = new List<string>();
-			foreach (ModuleSlot slot in Owner.ModuleSlotList)
+			foreach (ModuleSlot slot in Owner.ModuleSlotList)//@TODO create building placement methods in planet.cs that take into account the below logic. 
 			{
 				if (slot.module == null || slot.module.ModuleType != ShipModuleType.Colony || slot.module.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.module.DeployBuildingOnColonize))
 				    continue;
@@ -441,7 +344,7 @@ namespace Ship_Game.Gameplay
                 return;
             var OurTroopStrength = 0f;
             var OurOutStrength = 0f;
-            var tcount = 0;
+            var tcount = 0;            
             foreach (ShipModule s in Owner.GetHangars())
                 if (s.IsTroopBay)
                 {
@@ -465,25 +368,16 @@ namespace Ship_Game.Gameplay
 
             }
 
-            if (OurTroopStrength <= 0)
-                return;
-
+            if (OurTroopStrength <= 0) return;
             if (Target == null)
                 if (!Owner.InCombat && Owner.System!= null && Owner.System.OwnerList.Count > 0)
                 {
                     Owner.ScrambleAssaultShips(0);
-                    foreach (Planet p in Owner.System.PlanetList)
-                        if (p.Owner != null)
-                        {
-                            OrderAssaultPlanet(p);
-                            break;
-                        }
-                }
-
-            var EnemyStrength = 0f;
-            if (Target != null && Target is Ship)
-                EnemyStrength = (Target as Ship).MechanicalBoardingDefense + (Target as Ship).TroopBoardingDefense;
-
+                    Planet x = Owner.System.PlanetList.FindMinFiltered(
+                        p => p.Owner != null && p.Owner != Owner.loyalty || p.RecentCombat, p => Owner.Center.SqDist(p.Position));
+                }            
+            Ship shipTarget = Target as Ship;
+            float EnemyStrength = shipTarget?.BoardingDefenseTotal ?? 0;
 
             if (OurTroopStrength + OurOutStrength > EnemyStrength && (Owner.loyalty.isFaction || (Target as Ship).GetStrength() > 0f))
             {
