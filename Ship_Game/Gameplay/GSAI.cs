@@ -2445,6 +2445,17 @@ namespace Ship_Game.Gameplay
 			this.MarkedForExploration.Add(sortedList.First<SolarSystem>());
 			return sortedList.First<SolarSystem>();
 		}
+
+	    public List<Planet> GetKnownPlanets()
+	    {
+            List<Planet> KnownPlanets = new List<Planet>();
+            foreach (SolarSystem s in UniverseScreen.SolarSystemList)
+            {
+                if (!s.ExploredDict[empire]) continue;
+                KnownPlanets.AddRange(s.PlanetList);
+            }
+	        return KnownPlanets;
+	    }
         //added by gremlin ExplorationTarget
         public SolarSystem AssignExplorationTarget(Ship queryingShip)
         {

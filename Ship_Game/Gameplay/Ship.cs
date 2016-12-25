@@ -220,6 +220,8 @@ namespace Ship_Game.Gameplay
         public float maxFTLSpeed;
         public float maxSTLSpeed;
         public float NormalWarpThrust;
+        public float BoardingDefenseTotal => (MechanicalBoardingDefense  +TroopBoardingDefense);
+
         private BatchRemovalCollection<Empire> BorderCheck = new BatchRemovalCollection<Empire>();
         public BatchRemovalCollection<Empire> getBorderCheck
         {
@@ -3562,6 +3564,13 @@ namespace Ship_Game.Gameplay
             return this.Hangars;
         }
 
+        public List<ShipModule> GetTroopHangars()
+        {
+            var returnList = new List<ShipModule>();
+            foreach (ShipModule s in Hangars)
+                if (s.IsTroopBay) returnList.Add(s);
+            return returnList;
+        }
         public bool DoneRecovering()
         {
             for (int index = 0; index < this.Hangars.Count; ++index)

@@ -48,11 +48,12 @@ namespace Ship_Game
             if (name == null)
                 return null;
             if (EmpireDict.TryGetValue(name, out Empire e))
-                return e;
+                return e;                        
             foreach (Empire empire in EmpireList)
             {
                 if (empire.data.Traits.Name != name) continue;
                 EmpireDict.Add(name, empire);
+                Log.Info("Added Empire: " + empire.PortraitName);
                 return empire;
             }
             return null;
