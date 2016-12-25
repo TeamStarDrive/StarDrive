@@ -28,43 +28,77 @@ namespace Ship_Game
         public static T FindMax<T>(this List<T> list, Func<T, float> selector) where T : class
         {
             int n = list.Count;
-            if (n == 0) return null;
-            int  imax = 0;
-            float max = selector(list[0]);
-            for (int i = 1; i < n; ++i)
+            T found = null;
+            float max = float.MinValue;
+            for (int i = 0; i < n; ++i)
             {
                 float value = selector(list[i]);
                 if (value <= max) continue;
                 max  = value;
-                imax = i;
+                found = list[i];
             }
-            return list[imax];
+            return found;
         }
         public static bool FindMax<T>(this List<T> list, out T elem, Func<T, float> selector) where T : class
         {
             return (elem = FindMax(list, selector)) != null;
         }
-
-
+        public static T FindMaxFiltered<T>(this List<T> list, Func<T, bool> filter, Func<T, float> selector) where T : class
+        {
+            int n = list.Count;
+            T found = null;
+            float max = float.MinValue;
+            for (int i = 0; i < n; ++i)
+            {
+                if (!filter(list[i])) continue;
+                float value = selector(list[i]);
+                if (value <= max) continue;
+                max = value;
+                found = list[i];
+            }
+            return found;
+        }
+        public static bool FindMaxFiltered<T>(this List<T> list, out T elem, Func<T, bool> filter, Func<T, float> selector) where T : class
+        {
+            return (elem = FindMaxFiltered(list, filter, selector)) != null;
+        }
         // Return the element with the smallest selector value, or null if list empty
         public static T FindMin<T>(this List<T> list, Func<T, float> selector) where T : class
         {
             int n = list.Count;
-            if (n == 0) return null;
-            int  imin = 0;
-            float min = selector(list[0]);
-            for (int i = 1; i < n; ++i)
+            T found = null;
+            float min = float.MaxValue;
+            for (int i = 0; i < n; ++i)
             {
                 float value = selector(list[i]);
                 if (value > min) continue;
                 min  = value;
-                imin = i;
+                found = list[i];
             }
-            return list[imin];
+            return found;
         }
         public static bool FindMin<T>(this List<T> list, out T elem, Func<T, float> selector) where T : class
         {
             return (elem = FindMin(list, selector)) != null;
+        }
+        public static T FindMinFiltered<T>(this List<T> list, Func<T, bool> filter, Func<T, float> selector) where T : class
+        {
+            int n = list.Count;
+            T found = null;
+            float min = float.MaxValue;
+            for (int i = 0; i < n; ++i)
+            {
+                if (!filter(list[i])) continue;                
+                float value = selector(list[i]);
+                if (value > min) continue;
+                min = value;
+                found = list[i];
+            }
+            return found;
+        }
+        public static bool FindMinFiltered<T>(this List<T> list, out T elem, Func<T, bool> filter, Func<T, float> selector) where T : class
+        {
+            return (elem = FindMinFiltered(list, filter, selector)) != null;
         }
     }
 

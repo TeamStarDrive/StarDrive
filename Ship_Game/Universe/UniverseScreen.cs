@@ -1364,6 +1364,7 @@ namespace Ship_Game
                         x += (int) (p.Position.X / reducer + xround);
                         y += (int) (p.Position.Y / reducer + yround);
                         if (y < 0) y = 0;
+                        if (x < 0) x = 0;
                         grid[x, y] = 200;
                     }
                     Parallel.ForEach(EmpireManager.Empires, empire =>
