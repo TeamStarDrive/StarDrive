@@ -132,7 +132,7 @@ namespace Ship_Game
                 
                 if (ship == null)
                     continue;
-                if (Vector2.Distance(p.Position, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f || ship.loyalty != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
+                if (Vector2.Distance(p.Position, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f || ship.loyalty != EmpireManager.Player)
                 {
                     continue;
                 }
@@ -140,7 +140,7 @@ namespace Ship_Game
                 {
                     if (ship.TroopList.Count <= 0 || (!ship.HasTroopBay && !ship.hasTransporter && !(p.HasShipyard && p.Owner == ship.loyalty)))  //fbedard
                         continue;
-                    int LandingLimit = ship.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <= 0).Count();
+                    int LandingLimit = ship.GetHangars().Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
                     foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1))
                         LandingLimit += module.TransporterTroopLanding;
                     if (p.HasShipyard && p.Owner == ship.loyalty) LandingLimit = ship.TroopList.Count;  //fbedard: Allows to unload if shipyard
@@ -760,7 +760,7 @@ namespace Ship_Game
                             }
                             catch (Exception ex)
                             {
-                                Log.Exception(ex, "Troop Launch Crash");
+                                Log.Error(ex, "Troop Launch Crash");
                             }
                         }
                         if (play)
@@ -825,7 +825,7 @@ namespace Ship_Game
                         }
                         catch (Exception ex)
                         {
-                            Log.Exception(ex, "TroopLaunch crash");
+                            Log.Error(ex, "TroopLaunch crash");
                         }
 					}
 					else
@@ -857,7 +857,7 @@ namespace Ship_Game
                         }
                         catch (Exception ex)
                         {
-                            Log.Exception(ex, "Troop Launch Crash");
+                            Log.Error(ex, "Troop Launch Crash");
                         }
 					}
 				}
@@ -893,7 +893,7 @@ namespace Ship_Game
 					}
 					else if (this.ActiveTroop.TroopsHere.Count <= 0)
 					{
-                        if (this.ActiveTroop.building == null || this.ActiveTroop.building.CombatStrength <= 0 || this.ActiveTroop.building.AvailableAttackActions <= 0 || this.p.Owner == null || this.p.Owner != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+                        if (this.ActiveTroop.building == null || this.ActiveTroop.building.CombatStrength <= 0 || this.ActiveTroop.building.AvailableAttackActions <= 0 || this.p.Owner == null || this.p.Owner != EmpireManager.Player)
 						{
 							continue;
 						}
@@ -908,7 +908,7 @@ namespace Ship_Game
 					}
 					else
 					{
-                        if (this.ActiveTroop.TroopsHere[0].AvailableAttackActions <= 0 || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+                        if (this.ActiveTroop.TroopsHere[0].AvailableAttackActions <= 0 || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.Player)
 						{
 							continue;
 						}
@@ -939,7 +939,7 @@ namespace Ship_Game
 					{
 						if (HelperFunctions.CheckIntersection(pgs.TroopClickRect, MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 						{
-							if (pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
+							if (pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
 							{
 								this.ActiveTroop = pgs;
 								this.tInfo.SetPGS(pgs);
@@ -961,7 +961,7 @@ namespace Ship_Game
 					}
 					else if (pgs.building != null && !pgs.CanMoveTo && HelperFunctions.CheckIntersection(pgs.TroopClickRect, MousePos) && this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
 					{
-						if (this.p.Owner != EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
+						if (this.p.Owner != EmpireManager.Player)
 						{
 							this.ActiveTroop = pgs;
 							this.tInfo.SetPGS(pgs);
@@ -980,7 +980,7 @@ namespace Ship_Game
 							SelectedSomethingThisFrame = true;
 						}
 					}
-					if (this.ActiveTroop == null || !pgs.CanMoveTo || this.ActiveTroop.TroopsHere.Count == 0 || !HelperFunctions.CheckIntersection(pgs.ClickRect, MousePos) || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released || this.ActiveTroop.TroopsHere[0].AvailableMoveActions <= 0)
+					if (this.ActiveTroop == null || !pgs.CanMoveTo || this.ActiveTroop.TroopsHere.Count == 0 || !HelperFunctions.CheckIntersection(pgs.ClickRect, MousePos) || this.ActiveTroop.TroopsHere[0].GetOwner() != EmpireManager.Player || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released || this.ActiveTroop.TroopsHere[0].AvailableMoveActions <= 0)
 					{
 						continue;
 					}
@@ -1039,7 +1039,7 @@ namespace Ship_Game
             for (int i = 0; i < this.p.ParentSystem.ShipList.Count; i++)
 			{
                 Ship ship = this.p.ParentSystem.ShipList[i];
-				if (Vector2.Distance(this.p.Position, ship.Center) < 15000f && ship.loyalty == EmpireManager.GetEmpireByName(CombatScreen.universeScreen.PlayerLoyalty))
+				if (Vector2.Distance(this.p.Position, ship.Center) < 15000f && ship.loyalty == EmpireManager.Player)
 				{
                     if (ship.shipData.Role == ShipData.RoleName.troop && !universeScreen.MasterShipList.IsPendingRemoval(ship))
 					{
@@ -1047,7 +1047,7 @@ namespace Ship_Game
 					}
                     else if (ship.HasTroopBay || ship.hasTransporter)
                     {
-                        int LandingLimit = ship.GetHangars().Where(ready => ready.IsTroopBay && ready.hangarTimer <= 0).Count();
+                        int LandingLimit = ship.GetHangars().Count(ready => ready.IsTroopBay && ready.hangarTimer <= 0);
                         foreach (ShipModule module in ship.Transporters.Where(module => module.TransporterTimer <= 1f))
                             LandingLimit += module.TransporterTroopLanding;
                         for (int x = 0; x < ship.TroopList.Count && LandingLimit > 0; x++)

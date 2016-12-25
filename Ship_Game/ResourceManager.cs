@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework.Media;
@@ -54,7 +55,6 @@ namespace Ship_Game
         public static List<Texture2D> LargeStars                         = new List<Texture2D>();
         public static List<EmpireData> Empires                           = new List<EmpireData>();
         public static XmlSerializer HeaderSerializer                     = new XmlSerializer(typeof(HeaderData));
-        public static XmlSerializer ModSerializer                        = new XmlSerializer(typeof(ModInformation));
         public static Dictionary<string, Model> ModelDict                = new Dictionary<string, Model>();
         public static Dictionary<string, SkinnedModel> SkinnedModels     = new Dictionary<string, SkinnedModel>();
         public static Dictionary<string, ShipData> HullsDict             = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
@@ -235,8 +235,9 @@ namespace Ship_Game
 
         public static void LoadItAll()
         {
+            Reset();
+            Log.Info("Load Content");
             WhichModPath = "Content";
-            Log.Info("LoadItAll {0}", WhichModPath);
             LoadLanguage();
             LoadTroops();
             LoadTextures();
@@ -266,41 +267,38 @@ namespace Ship_Game
             LoadShipRoles();
             LoadPlanetEdicts();
             LoadEconomicResearchStrats();
-            //Ship_Game.ResourceManager.MarkShipDesignsUnlockable();
+
+            if (GlobalStats.HasMod)
+            {
+                WhichModPath = "Mods/" + GlobalStats.ModName;
+                Log.Info("Load {0}", WhichModPath);
+                LoadLanguage();
+                LoadTroops();
+                LoadTextures();
+                LoadToolTips();
+                LoadHullData();
+                LoadWeapons();
+                LoadShipModules();
+                LoadGoods();
+                LoadBuildings();
+                LoadTechTree();
+                LoadFlagTextures();
+                LoadModdedEmpires();
+                LoadDialogs();
+                LoadEncounters();
+                LoadExpEvents();
+                LoadArtifacts();
+                LoadShips();
+                LoadRandomItems();
+                LoadProjTexts();
+                LoadModsProjectileMeshes();
+                LoadBlackboxSpecific();
+                LoadShipRoles();
+                LoadPlanetEdicts();
+                LoadEconomicResearchStrats();
+            }
             HelperFunctions.CollectMemory();
         }
-
-        public static void LoadMods(string modPath)
-        {
-            WhichModPath = modPath;
-            Log.Info("LoadMods {0}", WhichModPath);
-            LoadLanguage();
-            LoadTroops();
-            LoadTextures();
-            LoadToolTips();
-            LoadHullData();
-            LoadWeapons();
-            LoadShipModules();
-            LoadGoods();
-            LoadBuildings();
-            LoadTechTree();
-            LoadFlagTextures();
-            LoadModdedEmpires();
-            LoadDialogs();
-            LoadEncounters();
-            LoadExpEvents();
-            LoadArtifacts();
-            LoadShips();
-            LoadRandomItems();
-            LoadProjTexts();
-            LoadModsProjectileMeshes();
-            LoadBlackboxSpecific();
-            LoadShipRoles();
-            LoadPlanetEdicts();
-            LoadEconomicResearchStrats();
-            HelperFunctions.CollectMemory();
-        }
-
 
         // Added by RedFox: only deseralize to ref entity IF the file exists
         private static bool DeserializeIfExists<T>(string contentFolder, string file, ref T entity) where T : class
@@ -484,7 +482,7 @@ namespace Ship_Game
             owner.AddShip(ship);
             return ship;
         }
-
+        //@bug #1002  cant add a ship to a system in readlock. 
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
         {
             Ship ship = CreateShipAtPoint(shipName, owner, p.Position + deltaPos);
@@ -588,7 +586,7 @@ namespace Ship_Game
             DeleteShipFromDir(appData + "/StarDrive/Saved Designs", shipName);
             DeleteShipFromDir(appData + "/StarDrive/WIP", shipName);
 
-            foreach (Empire e in EmpireManager.EmpireList)
+            foreach (Empire e in EmpireManager.Empires)
                 e.UpdateShipsWeCanBuild();
         }
 
@@ -1449,13 +1447,31 @@ namespace Ship_Game
                 string relPath = info.PathNoExt().Substring(contentRoot.Length + 1).Replace('\\', '/');
                 AddTexture(relPath, content.Load<Texture2D>($"../{WhichModPath}/{relPath}"));
             });
+
+            // check for any duplicate loads:
+            var field = typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance | BindingFlags.NonPublic);
+            var assets = field?.GetValue(ContentManager) as Dictionary<string, object>;
+            if (assets != null && assets.Count != 0)
+            {
+                var keys = assets.Keys.Where(key => key != null).ToArray();
+                var names = keys.Select(key => Path.GetDirectoryName(key) + "\\" + Path.GetFileName(key)).ToArray();
+                for (int i = 0; i < names.Length; ++i)
+                {
+                    for (int j = 0; j < names.Length; ++j)
+                    {
+                        if (i != j && names[i] == names[j])
+                        {
+                            Log.Warning("!! Duplicate texture load: \n    {0}\n    {1}", keys[i], keys[j]);
+                        }
+                    }
+                }
+            }
         }
 
         // Load texture with its abstract path such as
         // "Explosions/smaller/shipExplosion"
         public static Texture2D LoadTexture(string textureName)
         {
-            // first check mod texture path
             if (TextureDict.TryGetValue(textureName, out Texture2D tex))
                 return tex;
 
@@ -1470,6 +1486,19 @@ namespace Ship_Game
             if (File.Exists("Content/Textures/"+textureName+".xnb"))
                 return TextureDict[textureName] = 
                     ContentManager.Load<Texture2D>("Textures/"+textureName);
+
+            return null;
+        }
+
+        // Load texture for a specific mod, such as modName="Overdrive"
+        public static Texture2D LoadModTexture(string modName, string textureName)
+        {
+            if (TextureDict.TryGetValue(textureName, out Texture2D tex))
+                return tex;
+
+            string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
+            if (File.Exists(modTexPath + ".xnb"))
+                return TextureDict[textureName] = ContentManager.Load<Texture2D>("../" + modTexPath);
 
             return null;
         }
@@ -1572,19 +1601,14 @@ namespace Ship_Game
             TechTree.Clear();
             ArtifactsDict.Clear();
             ShipsDict.Clear();
-            HostileFleets = new HostileFleets(); ;
-            ShipNames = new ShipNames(); ;
+            HostileFleets = new HostileFleets();
+            ShipNames = new ShipNames();
             SoundEffectDict.Clear();
-
             TextureDict.Clear();
             ToolTips.Clear();
             GoodsDict.Clear();         
-            //Ship_Game.ResourceManager.LoadDialogs();
             Encounters.Clear();
             EventsDict.Clear();
-            
-            //Ship_Game.ResourceManager.LoadLanguage();
-
             RandomItemsList.Clear();
             ProjectileMeshDict.Clear();
             ProjTextDict.Clear();

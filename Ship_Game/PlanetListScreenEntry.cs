@@ -156,9 +156,9 @@ namespace Ship_Game
                 }
                 //i++;
             }
-            if (EmpireManager.GetEmpireByName(this.screen.empUI.screen.PlayerLoyalty).data.MoleList.Count > 0)
+            if (EmpireManager.Player.data.MoleList.Count > 0)
             {
-                foreach (Mole m in EmpireManager.GetEmpireByName(this.screen.empUI.screen.PlayerLoyalty).data.MoleList)
+                foreach (Mole m in EmpireManager.Player.data.MoleList)
                 {
                     if (m.PlanetGuid != this.planet.guid)
                     {

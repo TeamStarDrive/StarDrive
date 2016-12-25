@@ -58,9 +58,9 @@ namespace Ship_Game
             var uiNode  = ResourceManager.TextureDict["UI/node"];
             var uiNode1 = ResourceManager.TextureDict["UI/node1"];
 
-			foreach (Empire e in EmpireManager.EmpireList)
+			foreach (Empire e in EmpireManager.Empires)
 			{
-				if (e != EmpireManager.GetEmpireByName(screen.PlayerLoyalty) && !EmpireManager.GetEmpireByName(screen.PlayerLoyalty).GetRelations(e).Known)
+				if (e != EmpireManager.Player && !EmpireManager.Player.GetRelations(e).Known)
 					continue;
 
                 using (e.BorderNodes.AcquireReadLock())
@@ -79,7 +79,7 @@ namespace Ship_Game
 			foreach (SolarSystem system in UniverseScreen.SolarSystemList)
 			{
 				Rectangle star = new Rectangle((int)(minimapZero.X + system.Position.X * scale), (int)(minimapZero.Y + system.Position.Y * scale), 2, 2);
-				if (system.OwnerList.Count <= 0 || !system.ExploredDict[EmpireManager.GetEmpireByName(screen.PlayerLoyalty)])
+				if (system.OwnerList.Count <= 0 || !system.ExploredDict[EmpireManager.Player])
 				{
 					Primitives2D.FillRectangle(screenManager.SpriteBatch, star, Color.Gray);
 				}

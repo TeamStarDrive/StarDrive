@@ -334,15 +334,17 @@ namespace Ship_Game
                         this.p.GovernorOn = true;
                     }
                 }
-                Ref<bool> connectedTo = new Ref<bool>((Func<bool>)(() => p.GovBuildings), (Action<bool>)(x => p.GovBuildings = x));
-                Ref<bool> @ref = new Ref<bool>((Func<bool>)(() => p.GovSliders), (Action<bool>)(x => p.GovSliders = x));
-                this.GovBuildings = new Checkbox(new Vector2((float)(rectangle5.X - 10), (float)(rectangle5.Y - (Fonts.Arial12Bold.LineSpacing * 2 + 15))), "Governor manages buildings", connectedTo, Fonts.Arial12Bold);
-                this.GovSliders = new Checkbox(new Vector2((float)(rectangle5.X - 10), (float)(rectangle5.Y - (Fonts.Arial12Bold.LineSpacing + 10))), "Governor manages labor sliders", connectedTo, Fonts.Arial12Bold);
+
+                // @todo add localization
+                GovBuildings = new Checkbox(rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing * 2 + 15, 
+                                            () => p.GovBuildings, Fonts.Arial12Bold, "Governor manages buildings", 0);
+
+                GovSliders = new Checkbox(rectangle5.X - 10, rectangle5.Y - Fonts.Arial12Bold.LineSpacing + 10,
+                                          () => p.GovSliders, Fonts.Arial12Bold, "Governor manages labor sliders", 0);
             }
             else
             {
-                PlanetScreen.screen.LookingAtPlanet = false;
-                
+                Empire.Universe.LookingAtPlanet = false;
             }
         }
 
@@ -2083,7 +2085,7 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(Localizer.Token(2280), this.ScreenManager);
             }
-            if ((input.Right || this.RightColony.HandleInput(input)) && (screen.Debug || this.p.Owner == EmpireManager.GetEmpireByName(screen.PlayerLoyalty)))
+            if ((input.Right || this.RightColony.HandleInput(input)) && (screen.Debug || this.p.Owner == EmpireManager.Player))
             {
                 try
                 {
@@ -2097,7 +2099,7 @@ namespace Ship_Game
                 }
                 catch (Exception ex)
                 {
-                    Log.Exception(ex, "Colony Screen HandleInput(). Likely null reference.");
+                    Log.Error(ex, "Colony Screen HandleInput(). Likely null reference.");
                 }
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
@@ -2106,7 +2108,7 @@ namespace Ship_Game
                 }
                 return;
             }
-            if ((input.Left || this.LeftColony.HandleInput(input)) && (PlanetScreen.screen.Debug || this.p.Owner == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty)))
+            if ((input.Left || this.LeftColony.HandleInput(input)) && (PlanetScreen.screen.Debug || this.p.Owner == EmpireManager.Player))
             {
                 int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);
                 thisindex = (thisindex <= 0 ? this.p.Owner.GetPlanets().Count - 1 : thisindex - 1);
@@ -2129,7 +2131,7 @@ namespace Ship_Game
             this.buildSL.HandleInput(input);
             this.buildSL.Update();
             this.build.HandleInput(this);
-            if (this.p.Owner != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+            if (this.p.Owner != EmpireManager.Player)
             {
                 this.HandleDetailInfo(input);
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
@@ -2151,7 +2153,7 @@ namespace Ship_Game
                     bool play = false;
                     foreach (PlanetGridSquare pgs in this.p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+                        if (pgs.TroopsHere.Count <= 0 || pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
                         {
                             continue;
                         }
@@ -2420,7 +2422,7 @@ namespace Ship_Game
                     continue;
                 }
                 this.detailInfo = pgs.TroopsHere[0];
-                if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.GetEmpireByName(PlanetScreen.screen.PlayerLoyalty))
+                if (input.RightMouseClick && pgs.TroopsHere[0].GetOwner() == EmpireManager.Player)
                 {
                     AudioManager.PlayCue("sd_troop_takeoff");
                     ResourceManager.CreateTroopShipAtPoint(this.p.Owner.data.DefaultTroopShip, this.p.Owner, this.p.Position, pgs.TroopsHere[0]);

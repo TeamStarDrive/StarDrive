@@ -2379,28 +2379,28 @@ namespace Ship_Game.Gameplay
 
         public void UpdateAI(float elapsedTime, int which)
         {
-            if (this.Task != null)
+            if (Task != null)
             {
-                this.EvaluateTask(elapsedTime);
+                EvaluateTask(elapsedTime);
             }
             else
             {
-                if (EmpireManager.GetEmpireByName(Fleet.screen.PlayerLoyalty) == this.Owner || this.IsCoreFleet || this.Ships.Count <= 0)
+                if (EmpireManager.Player == Owner || IsCoreFleet || Ships.Count <= 0)
                     return;
-                foreach (Ship s in (List<Ship>)this.Owner.GetFleetsDict()[which].Ships)
+                foreach (Ship s in Owner.GetFleetsDict()[which].Ships)
                 {                    
                     s.GetAI().OrderQueue.Clear();
                     s.GetAI().State = AIState.AwaitingOrders;
-                    s.fleet = (Fleet)null;
+                    s.fleet = null;
                     s.HyperspaceReturn();
                     s.isSpooling = false;
                     if (s.shipData.Role == ShipData.RoleName.troop)
                         s.GetAI().OrderRebaseToNearest();
                     else
-                        this.Owner.ForcePoolAdd(s);
+                        Owner.ForcePoolAdd(s);
                 }
-                this.Owner.GetGSAI().UsedFleets.Remove(which);
-                this.Reset();
+                Owner.GetGSAI().UsedFleets.Remove(which);
+                Reset();
             }
         }
 

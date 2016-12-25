@@ -324,19 +324,19 @@ namespace Ship_Game
                 switch (ResourceManager.WeaponsDict[bomb.WeaponName].HardCodedAction)
                 {
                     case "Free Owlwoks":
-                        if (this.Owner == null || this.Owner != EmpireManager.GetEmpireByName("Cordrazine Collective"))
+                        if (this.Owner == null || this.Owner != EmpireManager.Cordrazine)
                             break;
                         for (int index = 0; index < this.TroopsHere.Count; ++index)
                         {
-                            if (this.TroopsHere[index].GetOwner() == EmpireManager.GetEmpireByName("Cordrazine Collective") && this.TroopsHere[index].TargetType == "Soft")
+                            if (this.TroopsHere[index].GetOwner() == EmpireManager.Cordrazine && this.TroopsHere[index].TargetType == "Soft")
                             {
 #if STEAM
                                 if (SteamManager.SetAchievement("Owlwoks_Freed"))
                                     SteamManager.SaveAllStatAndAchievementChanges();
 #endif
                                 this.TroopsHere[index].SetOwner(bomb.Owner);
-                                this.TroopsHere[index].Name = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopNameIndex);
-                                this.TroopsHere[index].Description = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopDescriptionIndex);
+                                this.TroopsHere[index].Name = Localizer.Token(EmpireManager.Cordrazine.data.TroopNameIndex);
+                                this.TroopsHere[index].Description = Localizer.Token(EmpireManager.Cordrazine.data.TroopDescriptionIndex);
                             }
                         }
                         break;
@@ -542,19 +542,19 @@ namespace Ship_Game
                         {
                             return;
                         }
-                        if (this.Owner != null && this.Owner == EmpireManager.GetEmpireByName("Cordrazine Collective"))
+                        if (this.Owner != null && this.Owner == EmpireManager.Cordrazine)
                         {
                             for (int i = 0; i < this.TroopsHere.Count; i++)
                             {
-                                if (this.TroopsHere[i].GetOwner() == EmpireManager.GetEmpireByName("Cordrazine Collective") && this.TroopsHere[i].TargetType == "Soft")
+                                if (this.TroopsHere[i].GetOwner() == EmpireManager.Cordrazine && this.TroopsHere[i].TargetType == "Soft")
                                 {
                                     if (SteamManager.SetAchievement("Owlwoks_Freed"))
                                     {
                                         SteamManager.SaveAllStatAndAchievementChanges();
                                     }
                                     this.TroopsHere[i].SetOwner(bomb.Owner);
-                                    this.TroopsHere[i].Name = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopNameIndex);
-                                    this.TroopsHere[i].Description = Localizer.Token(EmpireManager.GetEmpireByName("Cordrazine Collective").data.TroopDescriptionIndex);
+                                    this.TroopsHere[i].Name = Localizer.Token(EmpireManager.Cordrazine.data.TroopNameIndex);
+                                    this.TroopsHere[i].Description = Localizer.Token(EmpireManager.Cordrazine.data.TroopDescriptionIndex);
                                 }
                             }
                         }
@@ -2279,7 +2279,7 @@ namespace Ship_Game
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                 planetGridSquare.QItem = (QueueItem)null;
             this.Owner.RemovePlanet(this);
-            if (index == Empire.Universe.PlayerEmpire && this.Owner == EmpireManager.GetEmpireByName("Cordrazine Collective"))
+            if (index == Empire.Universe.PlayerEmpire && this.Owner == EmpireManager.Cordrazine)
                 GlobalStats.IncrementCordrazineCapture();
             if (this.ExploredDict[Empire.Universe.PlayerEmpire] && !flag)
                 Planet.universeScreen.NotificationManager.AddConqueredNotification(this, index, this.Owner);
@@ -4129,7 +4129,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)
+                if (this.Owner != EmpireManager.Player
                     && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
                     && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) && (double)this.GrossMoneyPT > 5.0
                     && (double)this.NetProductionPerTurn > 6.0)
@@ -5183,7 +5183,7 @@ namespace Ship_Game
                             if (!hasOutpost)
                                 this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
                         }
-                        if (this.Owner != EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)
+                        if (this.Owner != EmpireManager.Player
                             && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
                             && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) &&  this.GrossMoneyPT > 3.0)
                         {

@@ -811,10 +811,10 @@ namespace Ship_Game
                                 ResourceManager.CreateShipAt(key, EmpireManager.Remnants, p, true);
                             if (p.CorsairPresence)
                             {
-                                ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.GetEmpireByName("Corsairs"), p, true).TetherToPlanet(p);
-                                ResourceManager.CreateShipAt("Corsair", EmpireManager.GetEmpireByName("Corsairs"), p, true);
-                                ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
-                                ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.GetEmpireByName("Corsairs"), p, true);
+                                ResourceManager.CreateShipAt("Corsair Asteroid Base", EmpireManager.Corsairs, p, true).TetherToPlanet(p);
+                                ResourceManager.CreateShipAt("Corsair", EmpireManager.Corsairs, p, true);
+                                ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
+                                ResourceManager.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
                             }
                         }
                     }
@@ -1140,7 +1140,7 @@ namespace Ship_Game
                 {
                     if (++failedLoops > 1)
                         throw ex; // the loop is having a cyclic crash, no way to recover
-                    Log.Exception(ex, "ProcessTurns crashed");
+                    Log.Error(ex, "ProcessTurns crashed");
                 }
                 finally
                 {
@@ -1299,7 +1299,7 @@ namespace Ship_Game
             if (!Paused)
             {
                 bool rebuild = false;
-                Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
                     foreach (Ship s in empire.ShipsToAdd)
                     {
@@ -1364,9 +1364,10 @@ namespace Ship_Game
                         x += (int) (p.Position.X / reducer + xround);
                         y += (int) (p.Position.Y / reducer + yround);
                         if (y < 0) y = 0;
+                        if (x < 0) x = 0;
                         grid[x, y] = 200;
                     }
-                    Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                    Parallel.ForEach(EmpireManager.Empires, empire =>
                     {
                         byte[,] grid1 = (byte[,]) grid.Clone();
                         PathGridtranslateBordernode(empire, 1, grid1);
@@ -1436,7 +1437,7 @@ namespace Ship_Game
                 #region Empire
 
                 EmpireUpdatePerf.Start();
-                foreach (Empire empire in EmpireManager.EmpireList)
+                foreach (Empire empire in EmpireManager.Empires)
                     empire.Update(elapsedTime);
                 MasterShipList.ApplyPendingRemovals();
 
@@ -1509,7 +1510,7 @@ namespace Ship_Game
                 },
             () =>
             {
-                Parallel.ForEach(EmpireManager.EmpireList, empire =>
+                Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
                     foreach (var kv in empire.GetFleetsDict())
                     {
@@ -1773,7 +1774,7 @@ namespace Ship_Game
             {
                 this.perStarDateTimer = this.StarDate + .1f;
                 this.perStarDateTimer = (float)Math.Round((double)this.perStarDateTimer, 1);
-                this.empireShipCountReserve = EmpireManager.EmpireList.Where(empire => empire != this.player && !empire.data.Defeated && !empire.isFaction).Sum(empire => empire.EmpireShipCountReserve);
+                this.empireShipCountReserve = EmpireManager.Empires.Where(empire => empire != this.player && !empire.data.Defeated && !empire.isFaction).Sum(empire => empire.EmpireShipCountReserve);
                 this.globalshipCount = this.MasterShipList.Where(ship => (ship.loyalty != null && ship.loyalty != this.player) && ship.shipData.Role != ShipData.RoleName.troop && ship.Mothership == null).Count();
             }
 
@@ -2454,7 +2455,7 @@ namespace Ship_Game
                         int nbrship = 0;
                         if (lastshipcombat >= this.player.empireShipCombat)
                             lastshipcombat = 0;
-                        foreach (Ship ship in EmpireManager.GetEmpireByName(this.PlayerLoyalty).GetShips())
+                        foreach (Ship ship in EmpireManager.Player.GetShips())
                         {
                             if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active)
                                 continue;
@@ -2770,7 +2771,7 @@ namespace Ship_Game
                     }
                     catch (Exception e)
                     {
-                        Log.Exception(e, "Fleet creation failed");
+                        Log.Error(e, "Fleet creation failed");
                     }
                     if (this.SelectedShip != null && this.Debug)
                     {
@@ -4696,7 +4697,7 @@ namespace Ship_Game
                 }
                 solarSystem.MoonList.Clear();
             }
-            foreach (Empire empire in EmpireManager.EmpireList)
+            foreach (Empire empire in EmpireManager.Empires)
                 empire.CleanOut();
 
             JunkList.ApplyPendingRemovals();
@@ -5080,7 +5081,7 @@ namespace Ship_Game
             var nodeCorrected = ResourceManager.TextureDict["UI/nodecorrected"];
             var nodeConnect   = ResourceManager.TextureDict["UI/nodeconnect"];
 
-            foreach (Empire empire in EmpireManager.EmpireList)
+            foreach (Empire empire in EmpireManager.Empires)
             {
                 if (!Debug && empire != player && !player.GetRelations(empire).Known)
                     continue;
@@ -5277,7 +5278,7 @@ namespace Ship_Game
             }       
             if (Debug) //input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && 
             {
-                foreach (Empire e in EmpireManager.EmpireList)
+                foreach (Empire e in EmpireManager.Empires)
                 {
                     //if (e.isPlayer || e.isFaction)
                     //    continue;
@@ -5367,7 +5368,7 @@ namespace Ship_Game
             {
                 foreach (ClickableShip ship in this.ClickableShipsList)
                 {
-                    if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0 && ship.shipToClick.loyalty == EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty))
+                    if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0 && ship.shipToClick.loyalty == EmpireManager.Player)
                     {
                         float local_14 = (float)(ship.shipToClick.RangeForOverlay);
                         Vector3 local_15 = graphics.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
@@ -5605,7 +5606,7 @@ namespace Ship_Game
             if (viewState < UnivScreenState.SectorView)
                 return;
 
-            foreach (Empire empire in EmpireManager.EmpireList)
+            foreach (Empire empire in EmpireManager.Empires)
             {
                 foreach (var kv in empire.GetFleetsDict())
                 {
@@ -5956,7 +5957,7 @@ namespace Ship_Game
                     float local_6_1 = Math.Abs((float)Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * 200f;
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/rounded_square"], item_0.ClickRect, local_3 ? new Color(byte.MaxValue, (byte)0, (byte)0, (byte)local_6_1) : new Color((byte)0, (byte)0, (byte)0, (byte)80));
                     local_1.Draw();
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["FleetIcons/" + item_0.Fleet.FleetIconIndex.ToString()], local_2, EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).EmpireColor);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["FleetIcons/" + item_0.Fleet.FleetIconIndex.ToString()], local_2, EmpireManager.Player.EmpireColor);
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, item_0.Key.ToString(), new Vector2((float)(item_0.ClickRect.X + 4), (float)(item_0.ClickRect.Y + 4)), Color.Orange);
                     Vector2 local_7 = new Vector2((float)(item_0.ClickRect.X + 50), (float)item_0.ClickRect.Y);
                     for (int local_8 = 0; local_8 < item_0.Fleet.Ships.Count; ++local_8)
@@ -6639,7 +6640,7 @@ namespace Ship_Game
                     {
                         foreach (Planet planet in solarSystem.PlanetList)
                         {
-                            if (solarSystem.ExploredDict[EmpireManager.GetEmpireByName(this.PlayerLoyalty)])
+                            if (solarSystem.ExploredDict[EmpireManager.Player])
                             {
                                 float radius = planet.SO.WorldBoundingSphere.Radius;
                                 Vector3 vector3_4 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(planet.Position, 2500f), this.projection, this.view, Matrix.Identity);
@@ -6671,7 +6672,7 @@ namespace Ship_Game
                     {
                         this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ(this.Zrotate) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
                         this.DrawTransparentModel(this.SunModel, Matrix.CreateRotationZ((float)(-(double)this.Zrotate / 2.0)) * Matrix.CreateTranslation(new Vector3(solarSystem.Position, 0.0f)), this.view, this.projection, ResourceManager.TextureDict["Suns/" + solarSystem.SunPath], 10.0f);
-                        if (solarSystem.ExploredDict[EmpireManager.GetEmpireByName(this.PlayerLoyalty)])
+                        if (solarSystem.ExploredDict[EmpireManager.Player])
                         {
                             foreach (Planet planet in solarSystem.PlanetList)
                             {
