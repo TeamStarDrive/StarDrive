@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
 namespace Ship_Game
@@ -145,66 +146,58 @@ namespace Ship_Game
             GlobalStats.TurnTimer = (byte)this.TurnTimer.amountRange;
 		}
 
+        private void Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
+        {
+            Checkboxes.Add(new Checkbox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
+        }
+
 		public override void LoadContent()
 		{
-			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 || base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
-			{
-				this.LowRes = true;
-			}
-			Rectangle titleRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 203, (this.LowRes ? 10 : 44), 406, 80);
-			Rectangle nameRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f) / 2, titleRect.Y + titleRect.Height + 5, (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f), 150);
-			Rectangle leftRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f) / 2, nameRect.Y + nameRect.Height + 5, (int)((float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f), base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - (int)(0.28f * (float)base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight));
+            int width  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            int height = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+
+            if (width <= 1366 || height <= 720)
+				LowRes = true;
+			Rectangle titleRect = new Rectangle(width / 2 - 203, (LowRes ? 10 : 44), 406, 80);
+			Rectangle nameRect = new Rectangle(width / 2 - height / 4, titleRect.Y + titleRect.Height + 5, width / 2, 150);
+			Rectangle leftRect = new Rectangle(width / 2 - height / 4, nameRect.Y + nameRect.Height + 5, width / 2,
+                                              height - (titleRect.Y + titleRect.Height) - (int)(0.28f * height));
 			if (leftRect.Height > 580)
-			{
 				leftRect.Height = 580;
-			}
-			this.close = new CloseButton(new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+			close = new CloseButton(new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
 
 			Rectangle ftlRect = new Rectangle(leftRect.X + 60, leftRect.Y + 100, 270, 50);
-			this.FTLPenaltySlider = new FloatSlider(ftlRect, Localizer.Token(4007));
-			this.FTLPenaltySlider.SetAmount(GlobalStats.FTLInSystemModifier);
-			this.FTLPenaltySlider.amount = GlobalStats.FTLInSystemModifier;
+			FTLPenaltySlider = new FloatSlider(ftlRect, Localizer.Token(4007));
+			FTLPenaltySlider.SetAmount(GlobalStats.FTLInSystemModifier);
 
-            Rectangle EftlRect = new Rectangle(leftRect.X + 60, leftRect.Y + 150, 270, 50);
-            this.EnemyFTLPenaltySlider = new FloatSlider(EftlRect, Localizer.Token(6139));
-            this.EnemyFTLPenaltySlider.SetAmount(GlobalStats.EnemyFTLInSystemModifier);
-            this.EnemyFTLPenaltySlider.amount = GlobalStats.EnemyFTLInSystemModifier;
+            Rectangle eftlRect = new Rectangle(leftRect.X + 60, leftRect.Y + 150, 270, 50);
+            EnemyFTLPenaltySlider = new FloatSlider(eftlRect, text:6139);
+            EnemyFTLPenaltySlider.SetAmount(GlobalStats.EnemyFTLInSystemModifier);
 
-			Ref<bool> acomRef = new Ref<bool>(() => GlobalStats.PlanetaryGravityWells, (bool x) => GlobalStats.PlanetaryGravityWells = x);
-            Checkbox cb = new Checkbox(new Vector2((float)ftlRect.X, (float)(ftlRect.Y + 100)), Localizer.Token(4008), acomRef, Fonts.Arial12Bold);
-			this.Checkboxes.Add(cb);
-
-		    cb.Tip_Token = 2288;
-
-            //Added by McShooterz: new checkbox to prevent AI federations
-            Ref<bool> pfRef = new Ref<bool>(() => GlobalStats.PreventFederations, (bool x) => GlobalStats.PreventFederations = x);
-            Checkbox cb2 = new Checkbox(new Vector2((float)(ftlRect.X + 500), (float)(ftlRect.Y)), Localizer.Token(6022), pfRef, Fonts.Arial12Bold);
-            this.Checkboxes.Add(cb2);
-
-            cb2.Tip_Token = 7011;
-
-            Ref<bool> FTLsRef = new Ref<bool>(() => GlobalStats.WarpInSystem, (bool x) => GlobalStats.WarpInSystem = x);
-            Checkbox cb3 = new Checkbox(new Vector2((float)(ftlRect.X + 500), (float)(EftlRect.Y)), Localizer.Token(6178), FTLsRef, Fonts.Arial12Bold);
-            this.Checkboxes.Add(cb3);
+            Checkbox(ftlRect.X, ftlRect.Y + 100, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: 2288);
+            Checkbox(ftlRect.X + 500, ftlRect.Y, () => GlobalStats.PreventFederations,    title: 6022, tooltip: 7011);
+            Checkbox(ftlRect.X + 500, eftlRect.Y,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: 6178);
 
             Rectangle gwRect = new Rectangle(leftRect.X + 60, leftRect.Y + 220, 270, 50);
-            this.GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002),0,20000,GlobalStats.GravityWellRange);
+            GravityWellSize = new FloatSlider(gwRect, Localizer.Token(6002),0,20000,GlobalStats.GravityWellRange);
             
             //added by gremlin init extra planets slider
             Rectangle epRect = new Rectangle(leftRect.X + 60, leftRect.Y + 280, 270, 50);
-            this.extraPlanets = new FloatSlider(epRect, "Extra Planets",0,6f,(float)GlobalStats.ExtraPlanets);
+            extraPlanets = new FloatSlider(epRect, "Extra Planets",0,6f,(float)GlobalStats.ExtraPlanets);
 
-            Rectangle StartingPlanetRichness = new Rectangle(leftRect.X  + 60, leftRect.Y + 340, 270, 50);
-            this.StartingPlanetRichness = new FloatSlider(StartingPlanetRichness, "Starting Planet Richness Bonus", 0, 5f, GlobalStats.StartingPlanetRichness);
-            Rectangle MinimumWarpRange = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 340, 270, 50);
-            this.MinimumWarpRange = new FloatSlider(MinimumWarpRange, "Minimum Warp Range", 0, 1200000f, GlobalStats.MinimumWarpRange);
-            Rectangle OptionIncreaseShipMaintenance = new Rectangle(leftRect.X *2 + 60, leftRect.Y + 400, 270, 50);
-            this.OptionIncreaseShipMaintenance = new FloatSlider(OptionIncreaseShipMaintenance, "Increase Maintenance", 1, 10f, GlobalStats.ShipMaintenanceMulti);
+            Rectangle richnessRect = new Rectangle(leftRect.X  + 60, leftRect.Y + 340, 270, 50);
+            Rectangle minimumWarpRange = new Rectangle(leftRect.X * 2 + 60, leftRect.Y + 340, 270, 50);
+            Rectangle maintenanceRect = new Rectangle(leftRect.X * 2 + 60, leftRect.Y + 400, 270, 50);
+
+            StartingPlanetRichness = new FloatSlider(richnessRect, "Starting Planet Richness Bonus", 0, 5f, GlobalStats.StartingPlanetRichness);
+            MinimumWarpRange = new FloatSlider(minimumWarpRange, "Minimum Warp Range", 0, 1200000f, GlobalStats.MinimumWarpRange);
+            OptionIncreaseShipMaintenance = new FloatSlider(maintenanceRect, "Increase Maintenance", 1, 10f, GlobalStats.ShipMaintenanceMulti);
+            
             //Added by McShooterz: slider to change time for turns
-            Rectangle OptionTurnTimer = new Rectangle(leftRect.X * 2 + 60, leftRect.Y + 275, 270, 50);
-            this.TurnTimer = new FloatSlider(OptionTurnTimer, "Change Turn Timer", 2f, 18f, GlobalStats.TurnTimer);
+            Rectangle optionTurnTimer = new Rectangle(leftRect.X * 2 + 60, leftRect.Y + 275, 270, 50);
+            TurnTimer = new FloatSlider(optionTurnTimer, "Change Turn Timer", 2f, 18f, GlobalStats.TurnTimer);
            
-			this.MainMenu = new Menu2(base.ScreenManager, leftRect);
+			MainMenu = new Menu2(base.ScreenManager, leftRect);
 		}
 	}
 }

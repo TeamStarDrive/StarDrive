@@ -4,7 +4,7 @@ using System;
 
 namespace Ship_Game
 {
-	public sealed class QueueItem
+	public class QueueItem
 	{
 		public bool isBuilding;
 

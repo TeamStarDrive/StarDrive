@@ -49,9 +49,9 @@ namespace Ship_Game
 			this.p1 = Position + new Vector2(0f, -400f);
 			this.p2 = Position + new Vector2(-400f, 400f);
 			this.p3 = Position + new Vector2(400f, 400f);
-			this.s1 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.GetEmpireByName("Unknown"), this.p1);
-			this.s2 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.GetEmpireByName("Unknown"), this.p2);
-			this.s3 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.GetEmpireByName("Unknown"), this.p3);
+			this.s1 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p1);
+			this.s2 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p2);
+			this.s3 = ResourceManager.CreateShipAtPoint(this.PlatformName, EmpireManager.Unknown, this.p3);
 			this.Position = Position;
 			Rectangle r = new Rectangle((int)Position.X - 200, (int)Position.Y - 200, 400, 400);
 			this.Prison = new BackgroundItem();

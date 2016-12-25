@@ -1,10 +1,10 @@
 using Ship_Game.Gameplay;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
+using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Ship_Game
 {
@@ -27,7 +27,9 @@ namespace Ship_Game
 
     public static class GlobalStats
 	{
-        public static string Branch = "0.301 Texas_Refactor";
+        public static readonly string Version = "0.301";
+        public static string ExtendedVersion = Version + " Texas_Refactor";
+
         public static int ComparisonCounter = 1;
 		public static int Comparisons = 0;
 		public static bool HardcoreRuleset = false;
@@ -72,7 +74,9 @@ namespace Ship_Game
         public static bool AltArcControl; // "Keyboard Fire Arc Locking"
 		public static int TimesPlayed = 0;
 		public static ModEntry ActiveMod;
+        public static bool HasMod => ActiveMod != null;
 		public static ModInformation ActiveModInfo;
+        public static string ModName = "";
 		public static string ResearchRootUIDToDisplay = "Colonization";
 		public static int RemnantKills = 0;
         public static int RemnantActivation = 0;
@@ -86,13 +90,13 @@ namespace Ship_Game
         public static float MinimumWarpRange;
 
         public static float StartingPlanetRichness;
-        public static string ExtendedVersion = ""; 
         public static int IconSize;
         public static int TurnTimer = 5;
 
         public static bool PreventFederations;
         public static bool EliminationMode;
         public static bool ZoomTracking;
+        public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
 
         public static int ShipCountLimit;
         public static float spaceroadlimit = .025f;
@@ -146,7 +150,7 @@ namespace Ship_Game
             {
                 return; // configuration file is missing
             }
-            ExtendedVersion += Branch + " : 16_" + GetSetting("ExtendedVersion") + " ";
+            ExtendedVersion += " : 16_" + GetSetting("ExtendedVersion") + " ";
             GetSetting("GravityWellRange",       ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf",                   ref perf);
@@ -155,6 +159,8 @@ namespace Ship_Game
             GetSetting("ForceFullSim",           ref ForceFullSim);
             GetSetting("WindowMode",             ref WindowMode);
             GetSetting("8XAntiAliasing",         ref AntiAlias8XOverride);
+            GetSetting("AutoErrorReport",        ref AutoErrorReport);
+            GetSetting("ActiveMod",              ref ModName);
             Statreset();
 
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
@@ -163,11 +169,47 @@ namespace Ship_Game
             GetSetting("XRES", ref XRES);
             GetSetting("YRES", ref YRES);
 
+            LoadModInfo(ModName);
+
             if (!RanOnce) // first run? try full screen
                 WindowMode = 0;
             RanOnce = true;
 
             Log.Info(ConsoleColor.DarkYellow, "Loaded App Settings");
+        }
+
+        public static void LoadModInfo(string modName)
+        {
+            ModName = modName;
+            if (modName == "")
+            {
+                ActiveMod     = null;
+                ActiveModInfo = null;
+                SaveActiveMod();
+                return;
+            }
+
+            FileInfo info = new FileInfo($"Mods/{modName}.xml");
+            if (info.Exists)
+            {
+                ActiveModInfo = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(info);
+                ActiveMod     = new ModEntry(ActiveModInfo);
+            }
+            else
+            {
+                ModName       = "";
+                ActiveMod     = null;
+                ActiveModInfo = null;
+            }
+            SaveActiveMod();
+        }
+
+        public static void LoadModInfo(ModEntry me)
+        {
+            ModName       = me.ModPath;
+            ActiveModInfo = me.mi;
+            ActiveMod     = me;
+            SaveActiveMod();
         }
 
         public static void Statreset()
@@ -193,7 +235,7 @@ namespace Ship_Game
             XRES = Game1.Instance.Graphics.PreferredBackBufferWidth;
             YRES = Game1.Instance.Graphics.PreferredBackBufferHeight;
 
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             WriteSetting(config, "GravityWellRange",       GravityWellRange);
             WriteSetting(config, "StartingPlanetRichness", StartingPlanetRichness);
             WriteSetting(config, "perf", perf);
@@ -202,6 +244,8 @@ namespace Ship_Game
             WriteSetting(config, "ForceFullSim",   ForceFullSim);
             WriteSetting(config, "WindowMode",     WindowMode);
             WriteSetting(config, "8XAntiAliasing", AntiAlias8XOverride);
+            WriteSetting(config, "AutoErrorReport", AutoErrorReport);
+            WriteSetting(config, "ActiveMod",       ModName);
 
             WriteSetting(config, "ExtraNotifications",  ExtraNotifications);
             WriteSetting(config, "PauseOnNotification", PauseOnNotification);
@@ -228,6 +272,12 @@ namespace Ship_Game
             ConfigurationManager.RefreshSection("appSettings");
         }
 
+        public static void SaveActiveMod()
+        {
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            WriteSetting(config, "ActiveMod", ModName);
+            config.Save();
+        }
 
 
         // Only assigns the ref parameter is parsing succeeds. This avoid overwriting default values
@@ -247,6 +297,13 @@ namespace Ship_Game
         {
             if (!bool.TryParse(ConfigurationManager.AppSettings[name], out bool v)) return false;
             b = v;
+            return true;
+        }
+        public static bool GetSetting(string name, ref string s)
+        {
+            string v = ConfigurationManager.AppSettings[name];
+            if (string.IsNullOrEmpty(v)) return false;
+            s = v;
             return true;
         }
         public static bool GetSetting<T>(string name, ref T e) where T : struct
@@ -279,10 +336,10 @@ namespace Ship_Game
         // @todo Why is this here??
         public static void IncrementCordrazineCapture()
 		{
-			CordrazinePlanetsCaptured = CordrazinePlanetsCaptured + 1;
+			CordrazinePlanetsCaptured += 1;
 			if (CordrazinePlanetsCaptured == 1)
 			{
-				Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
+				Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
 			}
 		}
 
@@ -295,7 +352,7 @@ namespace Ship_Game
                 if (RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
                 {
                     RemnantActivation += 1;
-                    Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
+                    Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
                     RemnantKills = 0;
                 }
             }
@@ -303,7 +360,7 @@ namespace Ship_Game
             {
                 if (RemnantKills >= 5 && RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
                 {
-                    Ship.universeScreen.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
+                    Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
                     RemnantActivation = 1;
                 }
             }

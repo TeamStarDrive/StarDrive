@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Ship_Game
 {
@@ -66,6 +65,31 @@ namespace Ship_Game
         public static bool FindMin<T>(this List<T> list, out T elem, Func<T, float> selector) where T : class
         {
             return (elem = FindMin(list, selector)) != null;
+        }
+    }
+
+    public class MapKeyNotFoundException : Exception
+    {
+        public MapKeyNotFoundException(object whichKey)
+            : base($"Key [{whichKey}] was not present in the dictionary.")
+        {
+        }
+    }
+
+    public class Map<TKey, TValue> : Dictionary<TKey, TValue>
+    {
+        public new TValue this[TKey key]
+        {
+            get
+            {
+                if (TryGetValue(key, out TValue val))
+                    return val;
+                throw new MapKeyNotFoundException(key);
+            }
+            set
+            {
+                base[key] = value;
+            }
         }
     }
 }
