@@ -1457,40 +1457,33 @@ namespace Ship_Game.Gameplay
 
         public float GetMaintCostRealism()
         {
-            float maint = 0f;
-            float maintModReduction = 1;
             ShipData.RoleName role = this.shipData.Role;
             
-            //Free upkeep ships
-            if (this.GetShipData().ShipStyle == "Remnant" || this.loyalty == null || this.loyalty.data == null || this.loyalty.data.PrototypeShip == this.Name
-                || (this.Mothership != null && (this.shipData.Role >= ShipData.RoleName.fighter && this.shipData.Role <= ShipData.RoleName.frigate)))
+            // Free upkeep ships
+            if (GetShipData().ShipStyle == "Remnant" || loyalty?.data == null || loyalty.data.PrototypeShip == Name ||
+                Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate)
             {
                 return 0f;
             }
-            
+
+            float maint = GetCost(loyalty);
+
             // Calculate maintenance by proportion of ship cost, Duh.
-            if (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.scout)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFighter;
-            else if (this.shipData.Role == ShipData.RoleName.corvette || this.shipData.Role == ShipData.RoleName.gunboat)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCorvette;
-            else if (this.shipData.Role == ShipData.RoleName.frigate || this.shipData.Role == ShipData.RoleName.destroyer)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFrigate;
-            else if (this.shipData.Role == ShipData.RoleName.cruiser)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCruiser;
-            else if (this.shipData.Role == ShipData.RoleName.carrier)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCarrier;
-            else if (this.shipData.Role == ShipData.RoleName.capital)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepCapital;
-            else if (this.shipData.Role == ShipData.RoleName.freighter)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepFreighter;
-            else if (this.shipData.Role == ShipData.RoleName.platform)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepPlatform;
-            else if (this.shipData.Role == ShipData.RoleName.station)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepStation;
-            else if (this.shipData.Role == ShipData.RoleName.drone && GlobalStats.ActiveModInfo.useDrones)
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepDrone;
-            else
-                maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepBaseline;
+            if (role == ShipData.RoleName.fighter 
+                || role == ShipData.RoleName.scout)       maint *= GlobalStats.ActiveModInfo.UpkeepFighter;
+            else if (role == ShipData.RoleName.corvette 
+                || role == ShipData.RoleName.gunboat)     maint *= GlobalStats.ActiveModInfo.UpkeepCorvette;
+            else if (role == ShipData.RoleName.frigate 
+                || role == ShipData.RoleName.destroyer)   maint *= GlobalStats.ActiveModInfo.UpkeepFrigate;
+            else if (role == ShipData.RoleName.cruiser)   maint *= GlobalStats.ActiveModInfo.UpkeepCruiser;
+            else if (role == ShipData.RoleName.carrier)   maint *= GlobalStats.ActiveModInfo.UpkeepCarrier;
+            else if (role == ShipData.RoleName.capital)   maint *= GlobalStats.ActiveModInfo.UpkeepCapital;
+            else if (role == ShipData.RoleName.freighter) maint *= GlobalStats.ActiveModInfo.UpkeepFreighter;
+            else if (role == ShipData.RoleName.platform)  maint *= GlobalStats.ActiveModInfo.UpkeepPlatform;
+            else if (role == ShipData.RoleName.station)   maint *= GlobalStats.ActiveModInfo.UpkeepStation;
+            else if (role == ShipData.RoleName.drone
+                && GlobalStats.ActiveModInfo.useDrones)   maint *= GlobalStats.ActiveModInfo.UpkeepDrone;
+            else                                          maint *= GlobalStats.ActiveModInfo.UpkeepBaseline;
 
             if (maint == 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0)
                 maint = this.GetCost(this.loyalty) * GlobalStats.ActiveModInfo.UpkeepBaseline;
@@ -1499,7 +1492,7 @@ namespace Ship_Game.Gameplay
 
             // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
 
-            if (this.shipData.HasFixedUpkeep && this.loyalty != null)
+            if (shipData.HasFixedUpkeep && loyalty != null)
             {
                 maint = shipData.FixedUpkeep;
             }      
@@ -1508,20 +1501,19 @@ namespace Ship_Game.Gameplay
 
 
             //Doctor: Configurable civilian maintenance modifier.
-            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1)
+            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1)
             {
                 maint *= this.loyalty.data.CivMaintMod;
             }
 
-            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
+            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
             {
                 maint *= 0.5f;
             }
 
-            if (GlobalStats.OptionIncreaseShipMaintenance > 1)
+            if (GlobalStats.ShipMaintenanceMulti > 1)
             {
-                maintModReduction = GlobalStats.OptionIncreaseShipMaintenance;
-                maint *= (float)maintModReduction;
+                maint *= GlobalStats.ShipMaintenanceMulti;
             }
             return maint;
 
@@ -1531,28 +1523,28 @@ namespace Ship_Game.Gameplay
         {
             float maint = 0f;
             float maintModReduction = 1;
-            //string role = this.shipData.Role;
+            ShipData.RoleName role = shipData.Role;
 
             // Calculate maintenance by proportion of ship cost, Duh.
-            if (this.shipData.Role == ShipData.RoleName.fighter || this.shipData.Role == ShipData.RoleName.scout)
+            if (role == ShipData.RoleName.fighter || role == ShipData.RoleName.scout)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFighter;
-            else if (this.shipData.Role == ShipData.RoleName.corvette || this.shipData.Role == ShipData.RoleName.gunboat)
+            else if (role == ShipData.RoleName.corvette || role == ShipData.RoleName.gunboat)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCorvette;
-                else if (this.shipData.Role == ShipData.RoleName.frigate || this.shipData.Role == ShipData.RoleName.destroyer)
+                else if (role == ShipData.RoleName.frigate || role == ShipData.RoleName.destroyer)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFrigate;
-                else if (this.shipData.Role == ShipData.RoleName.cruiser)
+                else if (role == ShipData.RoleName.cruiser)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCruiser;
-                else if (this.shipData.Role == ShipData.RoleName.carrier)
+                else if (role == ShipData.RoleName.carrier)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCarrier;
-                else if (this.shipData.Role == ShipData.RoleName.capital)
+                else if (role == ShipData.RoleName.capital)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepCapital;
-                else if (this.shipData.Role == ShipData.RoleName.freighter)
+                else if (role == ShipData.RoleName.freighter)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepFreighter;
-                else if (this.shipData.Role == ShipData.RoleName.platform)
+                else if (role == ShipData.RoleName.platform)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepPlatform;
-                else if (this.shipData.Role == ShipData.RoleName.station)
+                else if (role == ShipData.RoleName.station)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepStation;
-                else if (this.shipData.Role == ShipData.RoleName.drone && GlobalStats.ActiveModInfo.useDrones)
+                else if (role == ShipData.RoleName.drone && GlobalStats.ActiveModInfo.useDrones)
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepDrone;
                 else
                     maint = this.GetCost(empire) * GlobalStats.ActiveModInfo.UpkeepBaseline;
@@ -1572,19 +1564,19 @@ namespace Ship_Game.Gameplay
 
             // Modifiers below here   
 
-            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1)
+            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.CivMaintMod != 1)
             {
                 maint *= empire.data.CivMaintMod;
             }
 
-            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.Privatization)
+            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && empire != null && !empire.isFaction && empire.data.Privatization)
             {
                 maint *= 0.5f;
             }
 
-            if (GlobalStats.OptionIncreaseShipMaintenance > 1)
+            if (GlobalStats.ShipMaintenanceMulti > 1)
             {
-                maintModReduction = GlobalStats.OptionIncreaseShipMaintenance;
+                maintModReduction = GlobalStats.ShipMaintenanceMulti;
                 maint *= (float)maintModReduction;
             }
             maint += maint * empire.data.Traits.MaintMod;
@@ -1603,39 +1595,40 @@ namespace Ship_Game.Gameplay
                     return this.GetMaintCostRealism(this.loyalty);
             }
             float maint = 0f;
-            //string role = this.shipData.Role;
+            ShipData.RoleName role = shipData.Role;
+            //string role = role;
             //string str = role;
             //bool nonCombat = false;
             //added by gremlin: Maintenance changes
             float maintModReduction = 1;
 
             //Ships without upkeep
-            if (this.shipData.ShipStyle == "Remnant" || this.loyalty?.data == null || (this.Mothership != null && (this.shipData.Role >= ShipData.RoleName.fighter && this.shipData.Role <= ShipData.RoleName.frigate)))
+            if (this.shipData.ShipStyle == "Remnant" || this.loyalty?.data == null || (this.Mothership != null && (role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate)))
             {
                 return 0f;
             }
 
             //Get Maintanence of ship role
             bool foundMaint = false;
-            if (ResourceManager.ShipRoles.ContainsKey(this.shipData.Role))
+            if (ResourceManager.ShipRoles.ContainsKey(role))
             {
-                for (int i = 0; i < ResourceManager.ShipRoles[this.shipData.Role].RaceList.Count(); i++)
+                for (int i = 0; i < ResourceManager.ShipRoles[role].RaceList.Count(); i++)
                 {
-                    if (ResourceManager.ShipRoles[this.shipData.Role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
+                    if (ResourceManager.ShipRoles[role].RaceList[i].ShipType == this.loyalty.data.Traits.ShipType)
                     {
-                        maint = ResourceManager.ShipRoles[this.shipData.Role].RaceList[i].Upkeep;
+                        maint = ResourceManager.ShipRoles[role].RaceList[i].Upkeep;
                         foundMaint = true;
                         break;
                     }
                 }
                 if (!foundMaint)
-                    maint = ResourceManager.ShipRoles[this.shipData.Role].Upkeep;
+                    maint = ResourceManager.ShipRoles[role].Upkeep;
             }
             else
                 return 0f;
 
             //Modify Maintanence by freighter size
-            if(this.shipData.Role == ShipData.RoleName.freighter)
+            if(role == ShipData.RoleName.freighter)
             {
                 switch (this.Size / 50)
                 {
@@ -1666,13 +1659,13 @@ namespace Ship_Game.Gameplay
             }
 
 
-            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1.0)
+            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.CivMaintMod != 1.0)
             {
                 maint *= this.loyalty.data.CivMaintMod;
             }
 
             //Apply Privatization
-            if ((this.shipData.Role == ShipData.RoleName.freighter || this.shipData.Role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
+            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && this.loyalty != null && !this.loyalty.isFaction && this.loyalty.data.Privatization)
             {
                 maint *= 0.5f;
             }
@@ -1686,7 +1679,7 @@ namespace Ship_Game.Gameplay
             //added by gremlin shipyard exploit fix
             if (this.IsTethered())
             {
-                if (this.shipData.Role == ShipData.RoleName.platform)
+                if (role == ShipData.RoleName.platform)
                     return maint *= 0.5f;
                 if (this.shipData.IsShipyard && this.GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) > 3)
                     maint *= this.GetTether().Shipyards.Count(shipyard => shipyard.Value.shipData.IsShipyard) - 3;
@@ -1694,7 +1687,7 @@ namespace Ship_Game.Gameplay
 
             //Maintenance fluctuator
             //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
-            float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+            float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             if (OptionIncreaseShipMaintenance > 1)
             {
                 maintModReduction = OptionIncreaseShipMaintenance;
@@ -1816,7 +1809,7 @@ namespace Ship_Game.Gameplay
 
             //Maintenance fluctuator
             //string configvalue1 = ConfigurationManager.AppSettings["countoffiles"];
-            float OptionIncreaseShipMaintenance = GlobalStats.OptionIncreaseShipMaintenance;
+            float OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             if (OptionIncreaseShipMaintenance > 1)
             {
                 maintModReduction = OptionIncreaseShipMaintenance;

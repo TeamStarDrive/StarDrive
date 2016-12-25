@@ -18,38 +18,33 @@ namespace Ship_Game.Gameplay
         public BatchRemovalCollection<FleetDataNode> DataNodes = new BatchRemovalCollection<FleetDataNode>();
         public Guid guid = Guid.NewGuid();
         public string Name = "";
-        private Stack<Fleet.FleetGoal> GoalStack = new Stack<Fleet.FleetGoal>();
+        private Stack<FleetGoal> GoalStack = new Stack<FleetGoal>();
         private List<Ship> CenterShips = new List<Ship>();
-        private List<Ship> LeftShips = new List<Ship>();
-        private List<Ship> RightShips = new List<Ship>();
-        private List<Ship> RearShips = new List<Ship>();
+        private List<Ship> LeftShips   = new List<Ship>();
+        private List<Ship> RightShips  = new List<Ship>();
+        private List<Ship> RearShips   = new List<Ship>();
         private List<Ship> ScreenShips = new List<Ship>();
-        public List<Fleet.Squad> CenterFlank = new List<Fleet.Squad>();
-        public List<Fleet.Squad> LeftFlank = new List<Fleet.Squad>();
-        public List<Fleet.Squad> RightFlank = new List<Fleet.Squad>();
-        public List<Fleet.Squad> ScreenFlank = new List<Fleet.Squad>();
-        public List<Fleet.Squad> RearFlank = new List<Fleet.Squad>();
-        public List<List<Fleet.Squad>> AllFlanks = new List<List<Fleet.Squad>>();
+        public List<Squad> CenterFlank = new List<Squad>();
+        public List<Squad> LeftFlank   = new List<Squad>();
+        public List<Squad> RightFlank  = new List<Squad>();
+        public List<Squad> ScreenFlank = new List<Squad>();
+        public List<Squad> RearFlank   = new List<Squad>();
+        public List<List<Squad>> AllFlanks = new List<List<Squad>>();
         public Vector2 GoalMovePosition = new Vector2();
         private Dictionary<Vector2, List<Ship>> EnemyClumpsDict = new Dictionary<Vector2, List<Ship>>();
         private Dictionary<Ship, List<Ship>> InterceptorDict = new Dictionary<Ship, List<Ship>>();
         private int defenseTurns = 50;
         private Vector2 targetPosition = Vector2.Zero;
         public MilitaryTask Task;
-        public Fleet.FleetCombatStatus fcs;
+        public FleetCombatStatus fcs;
         public Empire Owner;
         public Vector2 Position;
         public float facing;
         public float speed;
         public int FleetIconIndex;
-        private Fleet.FleetCombatStatus CenterCS;
-        private Fleet.FleetCombatStatus ScreenCS;
-        private Fleet.FleetCombatStatus LeftCS;
-        private Fleet.FleetCombatStatus RightCS;
-        private Fleet.FleetCombatStatus RearCS;
-        private bool HasPriorityOrder;
+        //private bool HasPriorityOrder;
+        //private bool InCombat;
         public static UniverseScreen screen;
-        private bool InCombat;
         public int TaskStep;
         public bool IsCoreFleet;
         [XmlIgnore]
@@ -252,8 +247,6 @@ namespace Ship_Game.Gameplay
         public void MoveToDirectly(Vector2 MovePosition, float facing, Vector2 fVec)
         {
             this.Position = this.findAveragePosition();
-            if (this.InCombat)
-                this.HasPriorityOrder = true;
             this.GoalStack.Clear();
             this.MoveDirectlyNow(MovePosition, facing, fVec);
         }
@@ -307,7 +300,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private void AutoAssembleFleet(float facing, Vector2 facingVec) //Mer Gretman left off here
+        private void AutoAssembleFleet(float facing, Vector2 facingVec)
         {
             foreach (List<Fleet.Squad> list in this.AllFlanks)
             {
@@ -368,51 +361,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public override void ProjectPos(Vector2 ProjectedPosition, float facing, List<Fleet.Squad> Flank)
-        {
-            this.ProjectedFacing = facing;
-            Vector2 vector2_1 = new Vector2();
-            foreach (Fleet.Squad squad in Flank)
-                vector2_1.X += squad.Offset.X;
-            vector2_1.X = vector2_1.X / (float)Flank.Count;
-
-            foreach (Fleet.Squad squad in Flank)
-            {
-                Vector2 target = new Vector2();
-                target = new Vector2(squad.Offset.X - vector2_1.X, 0.0f);
-                for (int index = 0; index < squad.Ships.Count; ++index)
-                {
-                    Vector2 vector2_2 = new Vector2();
-                    Vector2 distanceUsingRadians = MathExt.PointFromRadians(Vector2.Zero, target.ToRadians() + facing, target.Length());
-                   // Vector2 vector2_4;
-                    switch (index)
-                    {
-                        case 0:
-                           // vector2_4 = new Vector2();
-                            float angle2 = new Vector2(0.0f, -500f).ToRadians() + facing;
-                            vector2_2 = MathExt.PointFromRadians(ProjectedPosition + distanceUsingRadians, angle2, 500f);
-                            break;
-                        case 1:
-                          //  vector2_4 = new Vector2();
-                            float angle3 = new Vector2(-500f, 0.0f).ToRadians() + facing;
-                            vector2_2 = MathExt.PointFromRadians(ProjectedPosition + distanceUsingRadians, angle3, 500f);
-                            break;
-                        case 2:
-                           // vector2_4 = new Vector2();
-                            float angle4 = new Vector2(500f, 0.0f).ToRadians() + facing;
-                            vector2_2 = MathExt.PointFromRadians(ProjectedPosition + distanceUsingRadians, angle4, 500f);
-                            break;
-                        case 3:
-                           // vector2_4 = new Vector2();
-                            float angle5 = new Vector2(0.0f, 500f).ToRadians() + facing;
-                            vector2_2 = MathExt.PointFromRadians(ProjectedPosition + distanceUsingRadians, angle5, 500f);
-                            break;
-                    }
-                    squad.Ships[index].projectedPosition = vector2_2;
-                }
-            }
-        }
-
         public override void ProjectPos(Vector2 ProjectedPosition, float facing, Vector2 fVec)
         {
             this.ProjectedFacing = facing;
@@ -457,6 +405,7 @@ namespace Ship_Game.Gameplay
                     continue;
                 distances.Add(Vector2.Distance(distance.Center, this.Position + distance.FleetOffset) - 100);
             }
+
             if (distances.Count <= 2)
             {
                 this.StoredFleetDistancetoMove = Vector2.Distance(this.StoredFleetPosition, this.Position);
@@ -465,7 +414,7 @@ namespace Ship_Game.Gameplay
             float avgdistance = distances.Average();
             float sum = (float)distances.Sum(distance => Math.Pow(distance -avgdistance, 2));
             float stddev = (float)Math.Sqrt((sum) / (distances.Count  - 1));
-            this.StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average(); //&& && distance > avgdistance - stddev
+            this.StoredFleetDistancetoMove = distances.Where(distance => distance <= avgdistance + stddev).Average();
         }
 
         public void Reset()
@@ -506,58 +455,63 @@ namespace Ship_Game.Gameplay
             if (this.TaskStep != 0)
                 return;
             this.Task.TaskTimer -= elapsedTime;
-            if (Task.TaskTimer <= 0.0)
+            if (this.Task.TaskTimer <= 0.0)
             {
-                Ship ship1 = new Ship();
-                foreach (Ship ship2 in Owner.GetShips())
+                Ship HomeBase = new Ship();
+                foreach (Ship ship in Owner.GetShips())
                 {
-                    if (ship2.Name == "Corsair Asteroid Base")
+                    if (ship.Name == "Corsair Asteroid Base")
                     {
-                        ship1 = ship2;
+                        HomeBase = ship;
                         break;
                     }
                 }
-                if (ship1 != null)
+                if (HomeBase != null)
                 {
                     this.AssembleFleet(0.0f, Vector2.One);
-                    this.FormationWarpTo(ship1.Position, 0.0f, Vector2.One);
+                    this.FormationWarpTo(HomeBase.Position, 0.0f, Vector2.One);
                     this.Task.EndTaskWithMove();
                 }
                 else
                     this.Task.EndTask();
             }
-            if (this.Ships.Count != 0)
-                return;
-            this.Task.EndTask();
+            if (this.Ships.Count == 0)
+                this.Task.EndTask();
         }
 
         private void DoExplorePlanet(MilitaryTask Task)
         {
-            bool flag1 = true;
+            System.Diagnostics.Debug.WriteLine("DoExplorePlanet called!");
+            bool eventBuildingFound = true;
             foreach (Building building in Task.GetTargetPlanet().BuildingList)
             {
                 if (!string.IsNullOrEmpty(building.EventTriggerUID))
                 {
-                    flag1 = false;
+                    eventBuildingFound = false;
                     break;
                 }
             }
-            bool flag2 = false;
-            using (Ships.AcquireReadLock())
-            foreach (Ship ship in Ships)
+
+            bool enemyTroops = false;
+            if (!eventBuildingFound)    //No need to do this part if a task ending scenario has already been found -Gretman
             {
-                if (ship.TroopList.Count > 0)
-                    flag2 = true;
-            }
-            foreach (PlanetGridSquare planetGridSquare in Task.GetTargetPlanet().TilesList)
-            {
-                if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() == this.Owner)
+                using (this.Ships.AcquireReadLock())
+                    foreach (Ship ship in this.Ships)
+                    {
+                        if (ship.TroopList.Count > 0)
+                            enemyTroops = true;
+                    }
+                foreach (PlanetGridSquare planetGridSquare in Task.GetTargetPlanet().TilesList)
                 {
-                    flag2 = true;
-                    break;
+                    if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() == this.Owner)
+                    {
+                        enemyTroops = true;
+                        break;
+                    }
                 }
             }
-            if (flag1 || !flag2 || Task.GetTargetPlanet().Owner != null)
+
+            if (eventBuildingFound || !enemyTroops || Task.GetTargetPlanet().Owner != null)
             {
                 Task.EndTask();
             }
@@ -572,6 +526,7 @@ namespace Ship_Game.Gameplay
                             if (planet.HasShipyard)
                                 list1.Add(planet);
                         }
+                        //float nearestShipyard = list1.FindMin(planet => Vector2.Distance(Task.AO, planet.Position));
                         IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list1, (Func<Planet, float>)(planet => Vector2.Distance(Task.AO, planet.Position)));
                         if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1) <= 0)
                             break;
