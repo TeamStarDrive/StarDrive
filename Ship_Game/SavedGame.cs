@@ -45,10 +45,10 @@ namespace Ship_Game
             SaveData.RemnantActivation   = GlobalStats.RemnantActivation;
             SaveData.RemnantArmageddon   = GlobalStats.RemnantArmageddon;
 			SaveData.gameDifficulty      = screenToSave.GameDifficulty;
-			SaveData.AutoColonize        = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoColonize;
-			SaveData.AutoExplore         = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoExplore;
-			SaveData.AutoFreighters      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoFreighters;
-			SaveData.AutoProjectors      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoBuild;
+			SaveData.AutoColonize        = EmpireManager.Player.AutoColonize;
+			SaveData.AutoExplore         = EmpireManager.Player.AutoExplore;
+			SaveData.AutoFreighters      = EmpireManager.Player.AutoFreighters;
+			SaveData.AutoProjectors      = EmpireManager.Player.AutoBuild;
 			SaveData.GamePacing          = UniverseScreen.GamePaceStatic;
 			SaveData.GameScale           = UniverseScreen.GameScaleStatic;
 			SaveData.StarDate            = screenToSave.StarDate;
@@ -216,7 +216,7 @@ namespace Ship_Game
 				SaveData.SolarSystemDataList.Add(sysSave);
 			}
 			
-            foreach (Empire e in EmpireManager.EmpireList)
+            foreach (Empire e in EmpireManager.Empires)
 			{
 				EmpireSaveData empireToSave = new EmpireSaveData
 				{

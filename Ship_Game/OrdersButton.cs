@@ -330,9 +330,9 @@ namespace Ship_Game
 								Ship ship = this.ShipList[i];
 								lock (ship)
 								{
-									if (!EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
+									if (!EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
 									{
-										EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
+										EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
 										ship.GetAI().OrderQueue.Clear();
 										ship.GetAI().HasPriorityOrder = false;
 										ship.GetAI().SystemToDefend = null;
@@ -341,7 +341,7 @@ namespace Ship_Game
 									}
                                     else
                                     {
-                                        EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.remove(ship);
+                                        EmpireManager.Player.GetGSAI().DefensiveCoordinator.remove(ship);
                                         ship.GetAI().OrderQueue.Clear();
                                         ship.GetAI().HasPriorityOrder = false;
                                         ship.GetAI().SystemToDefend = null;

@@ -265,7 +265,7 @@ namespace Ship_Game
 			this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/icon_troop_shipUI"], this.TroopRect, Color.White);
 			Vector2 troopPos = new Vector2((float)(this.TroopRect.X + this.TroopRect.Width + 2), (float)(this.TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2));
 			this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(this.ship.TroopList.Count, "/", this.ship.TroopCapacity), troopPos, Color.White);
-			if (this.ship.loyalty == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+			if (this.ship.loyalty == EmpireManager.Player)
 			{
 				foreach (ToggleButton button in this.CombatStatusButtons)
 				{
@@ -481,7 +481,7 @@ namespace Ship_Game
                     }
                     else if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
                         this.DoubleClickTimer = 0.25f;    
-                    if (this.ship.loyalty == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty) && !this.ship.isConstructor)
+                    if (this.ship.loyalty == EmpireManager.Player && !this.ship.isConstructor)
                     {
                         foreach (ToggleButton toggleButton in this.CombatStatusButtons)
                         {
@@ -594,7 +594,7 @@ namespace Ship_Game
 
 		public void SetShip(Ship s)
 		{
-			if (s.loyalty == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+			if (s.loyalty == EmpireManager.Player)
 			{
 				this.CanRename = true;
 			}
@@ -606,7 +606,7 @@ namespace Ship_Game
 			this.ShipNameArea.Text = s.VanityName;
 			this.Orders.Clear();
 			this.ship = s;
-			if (this.ship.loyalty != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+			if (this.ship.loyalty != EmpireManager.Player)
 			{
 				return;
 			}

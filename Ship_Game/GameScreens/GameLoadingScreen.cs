@@ -126,6 +126,7 @@ namespace Ship_Game
 
             // Initialize all game resources
 		    ResourceManager.LoadItAll();
+
             base.LoadContent();
             Ready = true;
         }

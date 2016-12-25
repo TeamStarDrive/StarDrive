@@ -123,7 +123,7 @@ namespace Ship_Game
             UniverseData.UniverseWidth = Data.Size.X * 2;
             Data.Size *= Scale;
             Data.EmpireList.Add(empire);
-            EmpireManager.EmpireList.Add(empire);
+            EmpireManager.Add(empire);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.SnapshotsDict.Clear();
         }
@@ -214,7 +214,7 @@ namespace Ship_Game
                                 traits.ShipCostMod   -= 0.5f;
                                 break;
                         }
-                        EmpireManager.EmpireList.Add(empireFromEmpireData);
+                        EmpireManager.Add(empireFromEmpireData);
                     }
                     
                     foreach (EmpireData data in ResourceManager.Empires)
@@ -223,7 +223,7 @@ namespace Ship_Game
                             continue;
                         Empire empireFromEmpireData = CreateEmpireFromEmpireData(data);
                         Data.EmpireList.Add(empireFromEmpireData);
-                        EmpireManager.EmpireList.Add(empireFromEmpireData);
+                        EmpireManager.Add(empireFromEmpireData);
                     }
                    
                     foreach (Empire empire in Data.EmpireList)
