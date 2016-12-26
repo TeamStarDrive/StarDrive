@@ -19,13 +19,13 @@ namespace Ship_Game
     public sealed class Empire : IDisposable
     {
         public static float ProjectorRadius = 150000f;
-        //private Dictionary<int, Fleet> FleetsDict = new Dictionary<int, Fleet>();
+        //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
         private readonly ConcurrentDictionary<int, Fleet> FleetsDict    = new ConcurrentDictionary<int, Fleet>();
-        private readonly Dictionary<string, bool> UnlockedHullsDict     = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly Dictionary<string, bool> UnlockedTroopDict     = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly Dictionary<string, bool> UnlockedBuildingsDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly Dictionary<string, bool> UnlockedModulesDict   = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
-        public Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Map<string, bool> UnlockedHullsDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Map<string, bool> UnlockedTroopDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Map<string, bool> UnlockedModulesDict   = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship>      Inhibitors     = new Array<Ship>();
         public Array<Ship>      ShipsToAdd     = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
@@ -37,8 +37,8 @@ namespace Ship_Game
         public  BatchRemovalCollection<Ship>          KnownShips  = new BatchRemovalCollection<Ship>();
         public  BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public  BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
-        private readonly Dictionary<SolarSystem, bool>  HostilesPresent = new Dictionary<SolarSystem, bool>();
-        private readonly Dictionary<Empire, Relationship> Relationships = new Dictionary<Empire, Relationship>();
+        private readonly Map<SolarSystem, bool>  HostilesPresent = new Map<SolarSystem, bool>();
+        private readonly Map<Empire, Relationship> Relationships = new Map<Empire, Relationship>();
         public HashSet<string> ShipsWeCanBuild      = new HashSet<string>();
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
@@ -105,7 +105,7 @@ namespace Ship_Game
         public bool RecalculateMaxHP;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
         public float cargoNeed = 0;
         //[XmlIgnore][ScriptIgnore]
-        //private Dictionary<string, bool> UnlockAbleDesigns = new Dictionary<string, bool>
+        //private Map<string, bool> UnlockAbleDesigns = new Map<string, bool>
         //adding for thread safe Dispose because class uses unmanaged resources 
 
         public HashSet<string> ShipTechs = new HashSet<string>();
@@ -115,8 +115,8 @@ namespace Ship_Game
         public float exportFTrack;
         public float averagePLanetStorage;
         [XmlIgnore]
-        public Dictionary<Point, Dictionary<Point, PatchCacheEntry>> PathCache = new Dictionary<Point, Dictionary<Point, PatchCacheEntry>>();
-        //public Dictionary<Array<Vector2>, int> pathcache = new Dictionary<Array<Vector2>, int>();
+        public Map<Point, Map<Point, PatchCacheEntry>> PathCache = new Map<Point, Map<Point, PatchCacheEntry>>();
+        //public Map<Array<Vector2>, int> pathcache = new Map<Array<Vector2>, int>();
         [XmlIgnore]
         public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
         [XmlIgnore]
@@ -324,7 +324,7 @@ namespace Ship_Game
             return false;
         }
 
-        public Dictionary<string, bool> GetHDict()
+        public Map<string, bool> GetHDict()
         {
             return UnlockedHullsDict;
         }
@@ -334,22 +334,22 @@ namespace Ship_Game
             return UnlockedHullsDict.TryGetValue(hullName, out bool unlocked) && unlocked;
         }
 
-        public Dictionary<string, bool> GetTrDict()
+        public Map<string, bool> GetTrDict()
         {
             return UnlockedTroopDict;
         }
 
-        public Dictionary<string, bool> GetBDict()
+        public Map<string, bool> GetBDict()
         {
             return UnlockedBuildingsDict;
         }
 
-        public Dictionary<string, bool> GetMDict()
+        public Map<string, bool> GetMDict()
         {
             return UnlockedModulesDict;
         }
 
-        public Dictionary<string, TechEntry> GetTDict()
+        public Map<string, TechEntry> GetTDict()
         {
             return TechnologyDict;
         }

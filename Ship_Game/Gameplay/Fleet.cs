@@ -31,8 +31,8 @@ namespace Ship_Game.Gameplay
         public Array<Squad> RearFlank   = new Array<Squad>();
         public Array<Array<Squad>> AllFlanks = new Array<Array<Squad>>();
         public Vector2 GoalMovePosition = new Vector2();
-        private Dictionary<Vector2, Array<Ship>> EnemyClumpsDict = new Dictionary<Vector2, Array<Ship>>();
-        private Dictionary<Ship, Array<Ship>> InterceptorDict = new Dictionary<Ship, Array<Ship>>();
+        private Map<Vector2, Array<Ship>> EnemyClumpsDict = new Map<Vector2, Array<Ship>>();
+        private Map<Ship, Array<Ship>> InterceptorDict = new Map<Ship, Array<Ship>>();
         private int defenseTurns = 50;
         private Vector2 targetPosition = Vector2.Zero;
         public MilitaryTask Task;
@@ -1877,7 +1877,7 @@ namespace Ship_Game.Gameplay
                     break;
                 case 1:
                    // Array<ThreatMatrix.Pin> list1 = new Array<ThreatMatrix.Pin>();
-                    Dictionary<Vector2, float> threatDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarThreatClusters(this.Task.AO, this.Task.AORadius, 10000f, this.Owner);
+                    Map<Vector2, float> threatDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarThreatClusters(this.Task.AO, this.Task.AORadius, 10000f, this.Owner);
                     float strength = this.GetStrength();
                     this.targetPosition = Vector2.Zero;
                     

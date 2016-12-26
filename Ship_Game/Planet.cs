@@ -31,7 +31,7 @@ namespace Ship_Game
         public BatchRemovalCollection<Planet.OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<Planet.OrbitalDrop>();
         public Planet.GoodState fs = Planet.GoodState.STORE;
         public Planet.GoodState ps = Planet.GoodState.STORE;
-        public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
+        public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
         public Array<Building> BuildingList = new Array<Building>();
         public SpaceStation Station = new SpaceStation();
         public ConcurrentDictionary<Guid, Ship> Shipyards = new ConcurrentDictionary<Guid, Ship>();
@@ -48,7 +48,7 @@ namespace Ship_Game
         public float WorkerPercentage = 0.33f;
         public float ResearcherPercentage = 0.33f;
         public Array<string> CommoditiesPresent = new Array<string>();
-        private Dictionary<string, float> ResourcesDict = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+        private Map<string, float> ResourcesDict = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
         private float PosUpdateTimer = 1f;
         public float MAX_STORAGE = 10f;
         public string DevelopmentStatus = "Undeveloped";
@@ -2882,25 +2882,25 @@ namespace Ship_Game
                             {
                                 if (maxGood.Value - ship.GetCargo()[maxGood.Key] < 1f)
                                 {
-                                    Dictionary<string, float> resourcesDict = this.ResourcesDict;
-                                    Dictionary<string, float> strs = resourcesDict;
+                                    Map<string, float> resourcesDict = this.ResourcesDict;
+                                    Map<string, float> strs = resourcesDict;
                                     string key = maxGood.Key;
                                     string str = key;
                                     resourcesDict[key] = strs[str] - (maxGood.Value - ship.GetCargo()[maxGood.Key]);
-                                    Dictionary<string, float> cargo = ship.GetCargo();
-                                    Dictionary<string, float> strs1 = cargo;
+                                    Map<string, float> cargo = ship.GetCargo();
+                                    Map<string, float> strs1 = cargo;
                                     string key1 = maxGood.Key;
                                     string str1 = key1;
                                     cargo[key1] = strs1[str1] + (maxGood.Value - ship.GetCargo()[maxGood.Key]);
                                 }
                                 else
                                 {
-                                    Dictionary<string, float> resourcesDict1 = this.ResourcesDict;
-                                    Dictionary<string, float> strs2 = resourcesDict1;
+                                    Map<string, float> resourcesDict1 = this.ResourcesDict;
+                                    Map<string, float> strs2 = resourcesDict1;
                                     string key2 = maxGood.Key;
                                     resourcesDict1[key2] = strs2[key2] - 1f;
-                                    Dictionary<string, float> cargo1 = ship.GetCargo();
-                                    Dictionary<string, float> strs3 = cargo1;
+                                    Map<string, float> cargo1 = ship.GetCargo();
+                                    Map<string, float> strs3 = cargo1;
                                     string str2 = maxGood.Key;
                                     cargo1[str2] = strs3[str2] + 1f;
                                 }
@@ -6160,10 +6160,10 @@ output = maxp * take10 = 5
                     {
                         if ( this.ResourcesDict[building1.ResourceConsumed] >=  building1.ConsumptionPerTurn)
                         {
-                            Dictionary<string, float> dictionary1;
+                            Map<string, float> dictionary1;
                             string index1;
                             (dictionary1 = this.ResourcesDict)[index1 = building1.ResourceConsumed] = dictionary1[index1] - building1.ConsumptionPerTurn;
-                            Dictionary<string, float> dictionary2;
+                            Map<string, float> dictionary2;
                             string index2;
                             (dictionary2 = this.ResourcesDict)[index2 = building1.ResourceCreated] = dictionary2[index2] + building1.OutputPerTurn;
                         }
@@ -6176,7 +6176,7 @@ output = maxp * take10 = 5
                             {
                                 if (building2.IsCommodity && building2.Name == building1.CommodityRequired)
                                 {
-                                    Dictionary<string, float> dictionary;
+                                    Map<string, float> dictionary;
                                     string index;
                                     (dictionary = this.ResourcesDict)[index = building1.ResourceCreated] = dictionary[index] + building1.OutputPerTurn;
                                 }
@@ -6185,7 +6185,7 @@ output = maxp * take10 = 5
                     }
                     else
                     {
-                        Dictionary<string, float> dictionary;
+                        Map<string, float> dictionary;
                         string index;
                         (dictionary = this.ResourcesDict)[index = building1.ResourceCreated] = dictionary[index] + building1.OutputPerTurn;
                     }
@@ -6270,7 +6270,7 @@ output = maxp * take10 = 5
         {
             if (this.ResourcesDict.ContainsKey(UID))
             {
-                Dictionary<string, float> dictionary;
+                Map<string, float> dictionary;
                 string index;
                 (dictionary = this.ResourcesDict)[index = UID] = dictionary[index] + (float)Amount;
             }

@@ -8,13 +8,13 @@ namespace Ship_Game
 {
 	public static class Primitives2D
 	{
-		private readonly static Dictionary<string, Array<Vector2>> m_arcCache;
+		private readonly static Map<string, Array<Vector2>> m_arcCache;
 
 		private static Texture2D m_pixel;
 
 		static Primitives2D()
 		{
-			Primitives2D.m_arcCache = new Dictionary<string, Array<Vector2>>();
+			Primitives2D.m_arcCache = new Map<string, Array<Vector2>>();
 		}
 
 		public static void BracketRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color, int BracketSize)

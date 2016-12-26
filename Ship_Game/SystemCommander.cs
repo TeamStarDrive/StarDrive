@@ -28,11 +28,11 @@ namespace Ship_Game
         public float RankImportance;
 		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
-		public Dictionary<Ship, Array<Ship>> EnemyClumpsDict = new Dictionary<Ship, Array<Ship>>();
+		public Map<Ship, Array<Ship>> EnemyClumpsDict = new Map<Ship, Array<Ship>>();
 
 		private Empire us;
         //public ReaderWriterLockSlim 
-        public Dictionary<Planet, PlanetTracker> planetTracker = new Dictionary<Planet, PlanetTracker>();
+        public Map<Planet, PlanetTracker> planetTracker = new Map<Planet, PlanetTracker>();
 
 		public SystemCommander(Empire e, SolarSystem system)
 		{

@@ -145,31 +145,5 @@ namespace Ship_Game
         }
     }
 
-    public class MapKeyNotFoundException : Exception
-    {
-        public MapKeyNotFoundException(object whichKey)
-            : base($"Key [{whichKey}] was not present in the dictionary.")
-        {
-        }
-    }
 
-    /// <summary>
-    /// This is a custom wrapper of Dictionary to make debugging easier
-    /// </summary>
-    public class Map<TKey, TValue> : Dictionary<TKey, TValue>
-    {
-        public new TValue this[TKey key]
-        {
-            get
-            {
-                if (TryGetValue(key, out TValue val))
-                    return val;
-                throw new MapKeyNotFoundException(key);
-            }
-            set
-            {
-                base[key] = value;
-            }
-        }
-    }
 }

@@ -100,7 +100,7 @@ namespace Ship_Game
 
 		private Rectangle DifficultyRect;
 
-		private Dictionary<EmpireData, Texture2D> TextureDict = new Dictionary<EmpireData, Texture2D>();
+		private Map<EmpireData, Texture2D> TextureDict = new Map<EmpireData, Texture2D>();
 
 		private ScrollList DescriptionSL;
 
