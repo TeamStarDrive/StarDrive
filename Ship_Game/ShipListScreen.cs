@@ -626,7 +626,7 @@ namespace Ship_Game
                         this.empUI.screen.SelectedShipList.Clear();
                     }
                     else if (this.empUI.screen.SelectedShipList.Count > 1)
-                        this.empUI.screen.shipListInfoUI.SetShipList((List<Ship>)this.empUI.screen.SelectedShipList, false);
+                        this.empUI.screen.shipListInfoUI.SetShipList((Array<Ship>)this.empUI.screen.SelectedShipList, false);
                 }
                 return;
             }
@@ -657,7 +657,7 @@ namespace Ship_Game
                         this.empUI.screen.SelectedShipList.Clear();
                     }
                     else if (this.empUI.screen.SelectedShipList.Count > 1)
-                        this.empUI.screen.shipListInfoUI.SetShipList((List<Ship>)this.empUI.screen.SelectedShipList, false);
+                        this.empUI.screen.shipListInfoUI.SetShipList((Array<Ship>)this.empUI.screen.SelectedShipList, false);
                 }
 			}
 		}
@@ -824,7 +824,7 @@ namespace Ship_Game
 		public void ResetListSorted(IOrderedEnumerable<ScrollList.Entry> SortedList)
 		{
 			this.ShipSL.Copied.Clear();
-			List<ShipListScreenEntry> shipslist = new List<ShipListScreenEntry>();
+			Array<ShipListScreenEntry> shipslist = new Array<ShipListScreenEntry>();
 			foreach (ScrollList.Entry e in SortedList)
 			{
 				shipslist.Add(e.item as ShipListScreenEntry);

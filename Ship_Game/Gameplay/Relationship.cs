@@ -61,7 +61,7 @@ namespace Ship_Game.Gameplay
         [Serialize(25)] public float Threat;
         [Serialize(26)] public float Trust;
         [Serialize(27)] public War ActiveWar;
-        [Serialize(28)] public List<War> WarHistory = new List<War>();
+        [Serialize(28)] public Array<War> WarHistory = new Array<War>();
         [Serialize(29)] public bool haveRejectedNAPact;
         [Serialize(30)] public bool HaveRejected_TRADE;
         [Serialize(31)] public bool haveRejectedDemandTech;
@@ -69,11 +69,11 @@ namespace Ship_Game.Gameplay
         [Serialize(33)] public bool HaveRejected_Alliance;
         [Serialize(34)] public int NumberStolenClaims;
 
-        [Serialize(35)] public List<Guid> StolenSystems = new List<Guid>();
+        [Serialize(35)] public Array<Guid> StolenSystems = new Array<Guid>();
         [Serialize(36)] public bool HaveInsulted_Military;
         [Serialize(37)] public bool HaveComplimented_Military;
         [Serialize(38)] public bool XenoDemandedTech;
-        [Serialize(39)] public List<Guid> WarnedSystemsList = new List<Guid>();
+        [Serialize(39)] public Array<Guid> WarnedSystemsList = new Array<Guid>();
         [Serialize(40)] public bool HaveWarnedTwice;
         [Serialize(41)] public bool HaveWarnedThrice;
         [Serialize(42)] public Guid contestedSystemGuid;
@@ -304,8 +304,8 @@ namespace Ship_Game.Gameplay
 				}
 				else if (str1 == "Colonized Owned System")
 				{
-					List<Planet> OurTargetPlanets = new List<Planet>();
-					List<Planet> TheirTargetPlanets = new List<Planet>();
+					Array<Planet> OurTargetPlanets = new Array<Planet>();
+					Array<Planet> TheirTargetPlanets = new Array<Planet>();
 					foreach (Goal g in Us.GetGSAI().Goals)
 					{
 						if (g.type != GoalType.Colonize)

@@ -147,7 +147,7 @@ namespace Ship_Game.Gameplay
         public float ResourcePerSecondWarp;
         public bool IsCommandModule;
         public bool IsRepairModule;
-        public List<string> PermittedHangarRoles;
+        public Array<string> PermittedHangarRoles;
         public short MaximumHangarShipSize;
         public bool FightersOnly;
         public bool DroneModule = false;
@@ -171,7 +171,7 @@ namespace Ship_Game.Gameplay
         public byte TechLevel;
         public float OrdnanceAddedPerSecond;
         public bool isDummy;
-        //public List<ShipModule> LinkedModulesList = new List<ShipModule>();       //Caused Deserialization issue
+        //public Array<ShipModule> LinkedModulesList = new Array<ShipModule>();       //Caused Deserialization issue
         public string BombType;
         public float WarpMassCapacity;
         public float FieldOfFire;

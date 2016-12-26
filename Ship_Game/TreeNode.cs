@@ -29,7 +29,7 @@ namespace Ship_Game
 
 		private Rectangle UnlocksRect;
 
-		private List<UnlockItem> Unlocks = new List<UnlockItem>();
+		private Array<UnlockItem> Unlocks = new Array<UnlockItem>();
 
 		private UnlocksGrid grid;
 

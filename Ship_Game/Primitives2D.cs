@@ -8,13 +8,13 @@ namespace Ship_Game
 {
 	public static class Primitives2D
 	{
-		private readonly static Dictionary<string, List<Vector2>> m_arcCache;
+		private readonly static Map<string, Array<Vector2>> m_arcCache;
 
 		private static Texture2D m_pixel;
 
 		static Primitives2D()
 		{
-			Primitives2D.m_arcCache = new Dictionary<string, List<Vector2>>();
+			Primitives2D.m_arcCache = new Map<string, Array<Vector2>>();
 		}
 
 		public static void BracketRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color, int BracketSize)
@@ -41,9 +41,9 @@ namespace Ship_Game
 			spriteBatch.Draw(ResourceManager.TextureDict["UI/bracket_BL"], BL, color);
 		}
 
-		private static List<Vector2> CreateArc(float radius, int sides, float startingAngle, float degrees)
+		private static Array<Vector2> CreateArc(float radius, int sides, float startingAngle, float degrees)
 		{
-			List<Vector2> points = new List<Vector2>();
+			Array<Vector2> points = new Array<Vector2>();
 			points.AddRange(Primitives2D.CreateCircle((double)radius, sides));
 			points.RemoveAt(points.Count - 1);
 			double curAngle = 0;
@@ -60,7 +60,7 @@ namespace Ship_Game
 			return points;
 		}
 
-		private static List<Vector2> CreateArc2(float radius, int sides, float startingAngle, float endingAngle)
+		private static Array<Vector2> CreateArc2(float radius, int sides, float startingAngle, float endingAngle)
 		{
 			double theta;
 			object[] objArray = new object[] { radius, "x", sides, "x", startingAngle, "x", endingAngle };
@@ -69,7 +69,7 @@ namespace Ship_Game
 			{
 				return Primitives2D.m_arcCache[arcKey];
 			}
-			List<Vector2> points = new List<Vector2>();
+			Array<Vector2> points = new Array<Vector2>();
 			double startRadians = 3.14159265358979 * (double)startingAngle / 180;
 			double endRadians = 3.14159265358979 * (double)endingAngle / 180;
 			if (startRadians >= endRadians)
@@ -88,7 +88,7 @@ namespace Ship_Game
 			return points;
 		}
 
-		public static List<Vector2> CreateArc3(float radius, int sides, float startingAngle, float endingAngle)
+		public static Array<Vector2> CreateArc3(float radius, int sides, float startingAngle, float endingAngle)
 		{
 			Vector2 startIntersect;
 			Vector2 endIntersect;
@@ -98,7 +98,7 @@ namespace Ship_Game
 			{
 				return Primitives2D.m_arcCache[arcKey];
 			}
-			List<Vector2> points = new List<Vector2>();
+			Array<Vector2> points = new Array<Vector2>();
 			double radiansPerSide = 6.28318530717959 / (double)sides;
 			double startRadians = 3.14159265358979 * (double)startingAngle / 180;
 			double endRadians = 3.14159265358979 * (double)endingAngle / 180;
@@ -143,9 +143,9 @@ namespace Ship_Game
 			return points;
 		}
 
-		private static List<Vector2> CreateCircle(double radius, int sides)
+		private static Array<Vector2> CreateCircle(double radius, int sides)
 		{
-			List<Vector2> vectors = new List<Vector2>();
+			Array<Vector2> vectors = new Array<Vector2>();
 			double step = 6.28318530717959 / (double)sides;
 			for (double theta = 0; theta < 6.28318530717959; theta = theta + step)
 			{
@@ -157,7 +157,7 @@ namespace Ship_Game
 			return vectors;
 		}
 
-		public static List<Vector2> CreateMyArc(SpriteBatch spriteBatch, Vector2 Center, float radius, int sides, float startingAngle, float degrees, Vector2 C0, Vector2 C1, Color c, float Thickness, List<Circle> Circles)
+		public static Array<Vector2> CreateMyArc(SpriteBatch spriteBatch, Vector2 Center, float radius, int sides, float startingAngle, float degrees, Vector2 C0, Vector2 C1, Color c, float Thickness, Array<Circle> Circles)
 		{
 			BatchRemovalCollection<Vector2> points = new BatchRemovalCollection<Vector2>();
 			double curAngle = (double)startingAngle.ToRadians();
@@ -196,7 +196,7 @@ namespace Ship_Game
 			return points;
 		}
 
-		private static List<Vector2> CreateMyCircle(Circle ToDraw, double radius, int sides, List<Circle> CircleList)
+		private static Array<Vector2> CreateMyCircle(Circle ToDraw, double radius, int sides, Array<Circle> CircleList)
 		{
 			BatchRemovalCollection<Vector2> vectors = new BatchRemovalCollection<Vector2>();
 			double step = 6.28318530717959 / (double)sides;
@@ -235,7 +235,7 @@ namespace Ship_Game
 
 		public static Vector2[] DrawArc(SpriteBatch spriteBatch, Vector2 center, float radius, int sides, float startingAngle, float degrees, Color color, float thickness)
 		{
-			List<Vector2> arc = Primitives2D.CreateArc(radius, sides, startingAngle, degrees);
+			Array<Vector2> arc = Primitives2D.CreateArc(radius, sides, startingAngle, degrees);
 			Primitives2D.DrawPoints(spriteBatch, center, arc, color, thickness);
 			Vector2[] ret = new Vector2[] { arc[0], arc[arc.Count - 1] };
 			return ret;
@@ -332,7 +332,7 @@ namespace Ship_Game
 			Primitives2D.DrawMyPoints(spriteBatch, points, c, Thickness, radius);
 		}
 
-		public static void DrawMyArc(SpriteBatch spriteBatch, Vector2 Center, float radius, int sides, float startingAngle, float degrees, Vector2 C0, Vector2 C1, Color c, float Thickness, List<Circle> Circles)
+		public static void DrawMyArc(SpriteBatch spriteBatch, Vector2 Center, float radius, int sides, float startingAngle, float degrees, Vector2 C0, Vector2 C1, Color c, float Thickness, Array<Circle> Circles)
 		{
 			BatchRemovalCollection<Vector2> points = new BatchRemovalCollection<Vector2>();
 			double curAngle = (double)startingAngle.ToRadians();
@@ -363,7 +363,7 @@ namespace Ship_Game
 			Primitives2D.DrawMyPoints(spriteBatch, points, c, Thickness, radius);
 		}
 
-		public static void DrawMyPoints(SpriteBatch spriteBatch, List<Vector2> points, Color color, float thickness, float Radius)
+		public static void DrawMyPoints(SpriteBatch spriteBatch, Array<Vector2> points, Color color, float thickness, float Radius)
 		{
 			if (points.Count < 2)
 			{
@@ -378,12 +378,12 @@ namespace Ship_Game
 			}
 		}
 
-		private static void DrawPoints(SpriteBatch spriteBatch, Vector2 position, List<Vector2> points, Color color)
+		private static void DrawPoints(SpriteBatch spriteBatch, Vector2 position, Array<Vector2> points, Color color)
 		{
 			Primitives2D.DrawPoints(spriteBatch, position, points, color, 1f);
 		}
 
-		private static void DrawPoints(SpriteBatch spriteBatch, Vector2 position, List<Vector2> points, Color color, float thickness)
+		private static void DrawPoints(SpriteBatch spriteBatch, Vector2 position, Array<Vector2> points, Color color, float thickness)
 		{
 			if (points.Count < 2)
 			{

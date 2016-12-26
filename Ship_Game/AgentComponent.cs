@@ -277,8 +277,8 @@ namespace Ship_Game
 		public static string GetName(string[] Tokens)
 		{
 			string ret = "";
-			List<string> PotentialFirst = new List<string>();
-			List<string> PotentialSecond = new List<string>();
+			Array<string> PotentialFirst = new Array<string>();
+			Array<string> PotentialSecond = new Array<string>();
 			string[] tokens = Tokens;
 			for (int i = 0; i < (int)tokens.Length; i++)
 			{

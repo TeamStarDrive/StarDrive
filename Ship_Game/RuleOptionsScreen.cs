@@ -12,7 +12,7 @@ namespace Ship_Game
 	{
 		public bool isOpen;
 
-		private List<Checkbox> Checkboxes = new List<Checkbox>();
+		private Array<Checkbox> Checkboxes = new Array<Checkbox>();
 
 		private Menu2 MainMenu;
 

@@ -23,7 +23,7 @@ namespace Ship_Game
 		private BatchRemovalCollection<Comet> CometList = new BatchRemovalCollection<Comet>();
 		private Rectangle StarFieldRect = new Rectangle(0, 0, 1920, 1080);
 		private Texture2D StarField;
-		private readonly List<Texture2D> LogoAnimation = new List<Texture2D>();
+		private readonly Array<Texture2D> LogoAnimation = new Array<Texture2D>();
 
 		private SceneObject MoonObj;
 		private Vector3 MoonPosition;
@@ -525,7 +525,7 @@ namespace Ship_Game
 			        Position = new Vector2(RandomMath.RandomBetween(-100f,
 			                    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 100), 0f)
 			    };
-			    c.Velocity = Vector2.Normalize(HelperFunctions.FindVectorToTarget(c.Position, input.CursorPosition));
+			    c.Velocity = c.Position.FindVectorToTarget(input.CursorPosition);
 				c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
 				CometList.Add(c);
 			}

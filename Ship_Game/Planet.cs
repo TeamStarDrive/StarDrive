@@ -26,13 +26,13 @@ namespace Ship_Game
         public bool GovSliders = true;
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public Guid guid = Guid.NewGuid();
-        public List<PlanetGridSquare> TilesList = new List<PlanetGridSquare>();
+        public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>();
         public string Special = "None";
         public BatchRemovalCollection<Planet.OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<Planet.OrbitalDrop>();
         public Planet.GoodState fs = Planet.GoodState.STORE;
         public Planet.GoodState ps = Planet.GoodState.STORE;
-        public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
-        public List<Building> BuildingList = new List<Building>();
+        public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
+        public Array<Building> BuildingList = new Array<Building>();
         public SpaceStation Station = new SpaceStation();
         public ConcurrentDictionary<Guid, Ship> Shipyards = new ConcurrentDictionary<Guid, Ship>();
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
@@ -43,16 +43,16 @@ namespace Ship_Game
         private AudioEmitter emit = new AudioEmitter();
         private float DecisionTimer = 0.5f;
         public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
-        private List<Building> BuildingsCanBuild = new List<Building>();
+        private Array<Building> BuildingsCanBuild = new Array<Building>();
         public float FarmerPercentage = 0.34f;
         public float WorkerPercentage = 0.33f;
         public float ResearcherPercentage = 0.33f;
-        public List<string> CommoditiesPresent = new List<string>();
-        private Dictionary<string, float> ResourcesDict = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+        public Array<string> CommoditiesPresent = new Array<string>();
+        private Map<string, float> ResourcesDict = new Map<string, float>(StringComparer.OrdinalIgnoreCase);
         private float PosUpdateTimer = 1f;
         public float MAX_STORAGE = 10f;
         public string DevelopmentStatus = "Undeveloped";
-        public List<string> Guardians = new List<string>();
+        public Array<string> Guardians = new Array<string>();
         public bool FoodLocked;
         public bool ProdLocked;
         public bool ResLocked;
@@ -133,7 +133,7 @@ namespace Ship_Game
         public bool CorsairPresence;
         public bool queueEmptySent =true ;
         public float RepairPerTurn = 50;
-        public List<string> PlanetFleets = new List<string>();
+        public Array<string> PlanetFleets = new Array<string>();
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
         private ReaderWriterLockSlim planetLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
@@ -230,7 +230,7 @@ namespace Ship_Game
                         Planet.universeScreen.explosionParticles.AddParticleThreadB(bomb.Position, Vector3.Zero);
                 }
                 Planet.OrbitalDrop orbitalDrop = new Planet.OrbitalDrop();
-                List<PlanetGridSquare> list = new List<PlanetGridSquare>();
+                Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
                 if (flag1)
                 {
                     foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -380,7 +380,7 @@ namespace Ship_Game
                     }
                 }
                 Planet.OrbitalDrop od = new Planet.OrbitalDrop();
-                List<PlanetGridSquare> PotentialHits = new List<PlanetGridSquare>();
+                Array<PlanetGridSquare> PotentialHits = new Array<PlanetGridSquare>();
                 if (hit)
                 {
                     int buildingcount = 0;
@@ -976,7 +976,7 @@ namespace Ship_Game
 
             if ((double)RandomMath.RandomBetween(0.0f, 100f) <= 15.0 && this.habitable)
             {
-                List<string> list = new List<string>();
+                Array<string> list = new Array<string>();
                 foreach (KeyValuePair<string, Building> keyValuePair in ResourceManager.BuildingsDict)
                 {
                     if (!string.IsNullOrEmpty(keyValuePair.Value.EventTriggerUID) && !keyValuePair.Value.NoRandomSpawn)
@@ -990,7 +990,7 @@ namespace Ship_Game
             switch (this.Type)
             {
                 case "Terran":
-                    using (List<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
+                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -1008,7 +1008,7 @@ namespace Ship_Game
                         break;
                     }
                 case "Steppe":
-                    using (List<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
+                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -1026,7 +1026,7 @@ namespace Ship_Game
                         break;
                     }
                 case "Ice":
-                    using (List<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
+                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -1044,7 +1044,7 @@ namespace Ship_Game
                         break;
                     }
                 case "Barren":
-                    using (List<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
+                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -1062,7 +1062,7 @@ namespace Ship_Game
                         break;
                     }
                 case "Tundra":
-                    using (List<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
+                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -1080,7 +1080,7 @@ namespace Ship_Game
                         break;
                     }
                 case "Desert":
-                    using (List<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
+                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -1098,7 +1098,7 @@ namespace Ship_Game
                         break;
                     }
                 case "Oceanic":
-                    using (List<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
+                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -1116,7 +1116,7 @@ namespace Ship_Game
                         break;
                     }
                 case "Swamp":
-                    using (List<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
+                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -1680,7 +1680,7 @@ namespace Ship_Game
 
         public bool AssignTroopToNearestAvailableTile(Troop t, PlanetGridSquare tile)
         {
-            List<PlanetGridSquare> list = new List<PlanetGridSquare>();
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
                 if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0) && (Math.Abs(tile.x - planetGridSquare.x) <= 1 && Math.Abs(tile.y - planetGridSquare.y) <= 1))
@@ -1709,7 +1709,7 @@ namespace Ship_Game
 
         public bool AssignTroopToTile(Troop t)
         {
-            List<PlanetGridSquare> list = new List<PlanetGridSquare>();
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
                 if (planetGridSquare.TroopsHere.Count < planetGridSquare.number_allowed_troops && (planetGridSquare.building == null || planetGridSquare.building != null && planetGridSquare.building.CombatStrength == 0))
@@ -1737,7 +1737,7 @@ namespace Ship_Game
 
         public bool AssignBuildingToTile(Building b)
         {
-            List<PlanetGridSquare> list = new List<PlanetGridSquare>();
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
                 if (planetGridSquare.Habitable && planetGridSquare.building == null)
@@ -1806,7 +1806,7 @@ namespace Ship_Game
 
         public bool AssignBuildingToTileOnColonize(Building b)
         {
-            List<PlanetGridSquare> list = new List<PlanetGridSquare>();
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
                 if (planetGridSquare.Habitable && planetGridSquare.building == null)
@@ -1854,7 +1854,7 @@ namespace Ship_Game
 
         public PlanetGridSquare AssignBuildingToRandomTile(Building b)
         {
-            List<PlanetGridSquare> list = new List<PlanetGridSquare>();
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
                 if (planetGridSquare.building == null)
@@ -1887,7 +1887,7 @@ namespace Ship_Game
 
         public bool TryBiosphereBuild(Building b, QueueItem qi)
         {
-            List<PlanetGridSquare> list = new List<PlanetGridSquare>();
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
                 if (!planetGridSquare.Habitable && planetGridSquare.building == null && (!planetGridSquare.Biosphere && planetGridSquare.QItem == null))
@@ -1918,13 +1918,13 @@ namespace Ship_Game
 
         public bool AssignBuildingToTile(Building b, QueueItem qi)
         {
-            List<PlanetGridSquare> list = new List<PlanetGridSquare>();
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             if (b.Name == "Biospheres") 
                 return false;
             foreach (PlanetGridSquare planetGridSquare in this.TilesList)
             {
                 bool flag = true;
-                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                 {
                     if (queueItem.pgs == planetGridSquare)
                     {
@@ -2386,7 +2386,7 @@ namespace Ship_Game
                     building.AttackTimer = 10f;
                 }
             }
-            List<Troop> list = new List<Troop>();
+            Array<Troop> list = new Array<Troop>();
             //foreach (Troop troop in this.TroopsHere)
             for (int x = 0; x < this.TroopsHere.Count;x++ )
             {
@@ -2435,7 +2435,7 @@ namespace Ship_Game
             }
             if (!enemyTroopsFound)
                 return;
-            List<PlanetGridSquare> list = new List<PlanetGridSquare>();
+            Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
             for (int index = 0; index < this.TilesList.Count; ++index)
             {
                 PlanetGridSquare pgs = this.TilesList[index];
@@ -2706,7 +2706,7 @@ namespace Ship_Game
             this.DecisionTimer -= elapsedTime;
             this.CombatTimer -= elapsedTime;
             this.RecentCombat = this.CombatTimer > 0.0f;
-            List<Guid> list = new List<Guid>();
+            Array<Guid> list = new Array<Guid>();
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
             {
                 if (!keyValuePair.Value.Active 
@@ -2882,25 +2882,25 @@ namespace Ship_Game
                             {
                                 if (maxGood.Value - ship.GetCargo()[maxGood.Key] < 1f)
                                 {
-                                    Dictionary<string, float> resourcesDict = this.ResourcesDict;
-                                    Dictionary<string, float> strs = resourcesDict;
+                                    Map<string, float> resourcesDict = this.ResourcesDict;
+                                    Map<string, float> strs = resourcesDict;
                                     string key = maxGood.Key;
                                     string str = key;
                                     resourcesDict[key] = strs[str] - (maxGood.Value - ship.GetCargo()[maxGood.Key]);
-                                    Dictionary<string, float> cargo = ship.GetCargo();
-                                    Dictionary<string, float> strs1 = cargo;
+                                    Map<string, float> cargo = ship.GetCargo();
+                                    Map<string, float> strs1 = cargo;
                                     string key1 = maxGood.Key;
                                     string str1 = key1;
                                     cargo[key1] = strs1[str1] + (maxGood.Value - ship.GetCargo()[maxGood.Key]);
                                 }
                                 else
                                 {
-                                    Dictionary<string, float> resourcesDict1 = this.ResourcesDict;
-                                    Dictionary<string, float> strs2 = resourcesDict1;
+                                    Map<string, float> resourcesDict1 = this.ResourcesDict;
+                                    Map<string, float> strs2 = resourcesDict1;
                                     string key2 = maxGood.Key;
                                     resourcesDict1[key2] = strs2[key2] - 1f;
-                                    Dictionary<string, float> cargo1 = ship.GetCargo();
-                                    Dictionary<string, float> strs3 = cargo1;
+                                    Map<string, float> cargo1 = ship.GetCargo();
+                                    Map<string, float> strs3 = cargo1;
                                     string str2 = maxGood.Key;
                                     cargo1[str2] = strs3[str2] + 1f;
                                 }
@@ -3279,10 +3279,10 @@ namespace Ship_Game
 
 
 
-        public List<Building> GetBuildingsWeCanBuildHere()
+        public Array<Building> GetBuildingsWeCanBuildHere()
         {
             if (this.Owner == null)
-                return new List<Building>();
+                return new Array<Building>();
             this.BuildingsCanBuild.Clear();
             bool flag1 = true;
             foreach (Building building in this.BuildingList)
@@ -3322,7 +3322,7 @@ namespace Ship_Game
                             }
                             if (flag2)
                             {
-                                foreach (QueueItem queueItem in (List<QueueItem>)planet.ConstructionQueue)
+                                foreach (QueueItem queueItem in (Array<QueueItem>)planet.ConstructionQueue)
                                 {
                                     if (queueItem.isBuilding && queueItem.Building.Name == building1.Name)
                                     {
@@ -3408,7 +3408,7 @@ namespace Ship_Game
             else if (this.Owner.data.Traits.Cybernetic <=0 && this.Owner.GetBDict()[terraformer.Name] && this.Fertility < 1.0 && this.WeCanAffordThis(terraformer, this.colonyType))
             {
                 bool flag = true;
-                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                 {
                     if (queueItem.isBuilding && queueItem.Building.Name == terraformer.Name)
                         flag = false;
@@ -3455,7 +3455,7 @@ namespace Ship_Game
           
             bool itsHere = this.BuildingList.Contains(building);
             
-            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+            foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
             {
                 if (queueItem.isBuilding)
                 {
@@ -4070,7 +4070,7 @@ namespace Ship_Game
                 //else
                 //    this.ps = Planet.GoodState.IMPORT;
                 float buildingCount = 0.0f;
-                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                 {
                     if (queueItem.isBuilding)
                         ++buildingCount;
@@ -4086,7 +4086,7 @@ namespace Ship_Game
                 if (flag1)
                 {
                     bool flag2 = false;
-                    foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                    foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                     {
                         if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
                         {
@@ -4117,7 +4117,7 @@ namespace Ship_Game
                 bool flag4 = true;
                 if (flag3)
                 {
-                    foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                    foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                     {
                         if (queueItem.isBuilding
                             && ((double)queueItem.Building.PlusFlatProductionAmount > 0.0
@@ -4135,7 +4135,7 @@ namespace Ship_Game
                     && (double)this.NetProductionPerTurn > 6.0)
                 {
                     bool hasShipyard = false;
-                    foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                    foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                     {
                         if (queueItem.isShip && queueItem.sData.IsShipyard)
                         {
@@ -4237,14 +4237,8 @@ namespace Ship_Game
                         //|| queueItem1.Building.PlusFlatFoodAmount >0f
                         )))
                     {
-                        LinkedList<QueueItem> linkedList = new LinkedList<QueueItem>();
-                        foreach (QueueItem queueItem2 in (List<QueueItem>)this.ConstructionQueue)
-                            linkedList.AddLast(queueItem2);
-                        linkedList.Remove(queueItem1);
-                        linkedList.AddFirst(queueItem1);
-                        this.ConstructionQueue.Clear();
-                        foreach (QueueItem queueItem2 in linkedList)
-                            this.ConstructionQueue.Add(queueItem2);
+                        ConstructionQueue.Remove(queueItem1);
+                        ConstructionQueue.Insert(0, queueItem1);
                     }
                 }
             }
@@ -4323,7 +4317,7 @@ namespace Ship_Game
                             // && (double)this.Owner.MoneyLastTurn > 5.0 && (double)this.NetProductionPerTurn > 4.0)
                             {
                                 bool hasShipyard = false;
-                                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                                foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                                 {
                                     if (queueItem.isShip && queueItem.sData.IsShipyard)
                                     {
@@ -4342,7 +4336,7 @@ namespace Ship_Game
                             #endregion
                             byte num5 = 0;
                             bool flag5 = false;
-                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                            foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isBuilding && queueItem.Building.Name != "Biospheres")
                                     ++num5;
@@ -4362,7 +4356,7 @@ namespace Ship_Game
                             if (flag6)
                             {
                                 bool flag1 = false;
-                                foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                                foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                                 {
                                     if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
                                     {
@@ -4507,16 +4501,13 @@ namespace Ship_Game
                                     }
                                     break;
                                 }
-                                else if (queueItem1.isBuilding && ( queueItem1.Building.PlusFlatProductionAmount > 0.0f ||  queueItem1.Building.PlusProdPerColonist > 0.0f || queueItem1.Building.Name == "Outpost"))
+                                else if (queueItem1.isBuilding && 
+                                    (queueItem1.Building.PlusFlatProductionAmount > 0.0f || 
+                                    queueItem1.Building.PlusProdPerColonist > 0.0f || 
+                                    queueItem1.Building.Name == "Outpost"))
                                 {
-                                    LinkedList<QueueItem> linkedList = new LinkedList<QueueItem>();
-                                    foreach (QueueItem queueItem2 in (List<QueueItem>)this.ConstructionQueue)
-                                        linkedList.AddLast(queueItem2);
-                                    linkedList.Remove(queueItem1);
-                                    linkedList.AddFirst(queueItem1);
-                                    this.ConstructionQueue.Clear();
-                                    foreach (QueueItem queueItem2 in linkedList)
-                                        this.ConstructionQueue.Add(queueItem2);
+                                    ConstructionQueue.Remove(queueItem1);
+                                    ConstructionQueue.Insert(0, queueItem1);
                                 }
                             }
 
@@ -4567,7 +4558,7 @@ namespace Ship_Game
                         
 
                         float num6 = 0.0f;
-                        foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                        foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                         {
                             if (queueItem.isBuilding)
                                 ++num6;
@@ -4583,7 +4574,7 @@ namespace Ship_Game
                         if (flag7)
                         {
                             bool flag1 = false;
-                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                            foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
                                 {
@@ -4828,7 +4819,7 @@ namespace Ship_Game
                         //    this.ResearcherPercentage = 1f - this.FarmerPercentage;
                         //}
                         float num8 = 0.0f;
-                        foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                        foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                         {
                             if (queueItem.isBuilding )
                                 ++num8;
@@ -4844,7 +4835,7 @@ namespace Ship_Game
                         if (flag10)
                         {
                             bool flag1 = false;
-                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                            foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
                                 {
@@ -5004,7 +4995,7 @@ namespace Ship_Game
 
                         float num9 = 0.0f;
                         //bool flag11 = false;
-                        foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                        foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                         {
                             if (queueItem.isBuilding)
                                 ++num9;
@@ -5024,7 +5015,7 @@ namespace Ship_Game
                         if (flag12)
                         {
                             bool flag1 = false;
-                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                            foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
                                 {
@@ -5156,7 +5147,7 @@ namespace Ship_Game
                         this.SetExportState(this.colonyType);
                         //this.ps = (double)this.ProductionHere >= 20.0 ? Planet.GoodState.EXPORT : Planet.GoodState.IMPORT;
                         float buildingCount = 0.0f;
-                        foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                        foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                         {
                             if (queueItem.isBuilding)
                                 ++buildingCount;
@@ -5172,7 +5163,7 @@ namespace Ship_Game
                         if (missingOutpost)
                         {
                             bool hasOutpost = false;
-                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                            foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isBuilding && queueItem.Building.Name == "Outpost")
                                 {
@@ -5188,7 +5179,7 @@ namespace Ship_Game
                             && this.Owner.ShipsWeCanBuild.Contains(this.Owner.data.DefaultShipyard) &&  this.GrossMoneyPT > 3.0)
                         {
                             bool hasShipyard = false;
-                            foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                            foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                             {
                                 if (queueItem.isShip && queueItem.sData.IsShipyard)
                                 {
@@ -5388,7 +5379,7 @@ namespace Ship_Game
                         //    buildStation = true;
                         int PlatformCount = 0;
                         int stationCount = 0;
-                        foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                        foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                         {
                             if (!queueItem.isShip)
                                 continue;
@@ -5493,7 +5484,7 @@ namespace Ship_Game
             #region Scrap
             //if (this.colonyType!= ColonyType.TradeHub)
             {
-                //List<Building> list = new List<Building>();
+                //Array<Building> list = new Array<Building>();
                 //foreach (Building building in this.BuildingList)
                 //{
                 //    if ((double)building.PlusFlatPopulation > 0.0 && (double)building.Maintenance > 0.0 && building.Name != "Biospheres")
@@ -5503,7 +5494,7 @@ namespace Ship_Game
                 //foreach (Building b in list)
                 //    this.ScrapBuilding(b);
 
-                List<Building> list1 = new List<Building>();
+                Array<Building> list1 = new Array<Building>();
                 if ( this.Fertility >= 1 )
                 {
 
@@ -5546,7 +5537,7 @@ namespace Ship_Game
 
                         }
                     }
-                    //foreach (QueueItem queueItem in (List<QueueItem>)this.ConstructionQueue)
+                    //foreach (QueueItem queueItem in (Array<QueueItem>)this.ConstructionQueue)
                     //{
                     //    if(queueItem.Building == cheapestFlatfood || queueItem.Building == cheapestFlatprod || queueItem.Building == cheapestFlatResearch)
                     //        continue;
@@ -5846,27 +5837,17 @@ output = maxp * take10 = 5
                     else
                         shipAt = ResourceManager.CreateShipAt(queueItem.sData.Name, this.Owner, this, true);
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
-                    using (List<string>.Enumerator enumerator = Enumerable.ToList<string>((IEnumerable<string>)shipAt.GetMaxGoods().Keys).GetEnumerator())
+
+                    foreach (string current in shipAt.GetMaxGoods().Keys)
                     {
-                        //label_35:
-                        while (enumerator.MoveNext())
+                        if (ResourcesDict[current] > 0.0f &&  shipAt.GetCargo()[current] <  shipAt.GetMaxGoods()[current])
                         {
-                            string current = enumerator.Current;
-                            while (true)
-                            {
-                                if ( this.ResourcesDict[current] > 0.0f &&  shipAt.GetCargo()[current] <  shipAt.GetMaxGoods()[current])
-                                {
-                                    Dictionary<string, float> dictionary;
-                                    string index2;
-                                    (dictionary = this.ResourcesDict)[index2 = current] = dictionary[index2] - 1f;
-                                    shipAt.AddGood(current, 1);
-                                }
-                                else
-                                    break;
-                                //goto label_35;
-                            }
+                            ResourcesDict[current] = ResourcesDict[current] - 1f;
+                            shipAt.AddGood(current, 1);
                         }
+                        else break;
                     }
+
                     if (queueItem.sData.Role == ShipData.RoleName.station || queueItem.sData.Role == ShipData.RoleName.platform)
                     {
                         int num = this.Shipyards.Count / 9;
@@ -5994,7 +5975,7 @@ output = maxp * take10 = 5
             this.ShipBuildingModifier = 0f;
             this.CommoditiesPresent.Clear();
             float shipbuildingmodifier = 1f;
-            List<Guid> list = new List<Guid>();
+            Array<Guid> list = new Array<Guid>();
             float shipyards =1;
             
             if (!LoadUniverse)
@@ -6179,10 +6160,10 @@ output = maxp * take10 = 5
                     {
                         if ( this.ResourcesDict[building1.ResourceConsumed] >=  building1.ConsumptionPerTurn)
                         {
-                            Dictionary<string, float> dictionary1;
+                            Map<string, float> dictionary1;
                             string index1;
                             (dictionary1 = this.ResourcesDict)[index1 = building1.ResourceConsumed] = dictionary1[index1] - building1.ConsumptionPerTurn;
-                            Dictionary<string, float> dictionary2;
+                            Map<string, float> dictionary2;
                             string index2;
                             (dictionary2 = this.ResourcesDict)[index2 = building1.ResourceCreated] = dictionary2[index2] + building1.OutputPerTurn;
                         }
@@ -6195,7 +6176,7 @@ output = maxp * take10 = 5
                             {
                                 if (building2.IsCommodity && building2.Name == building1.CommodityRequired)
                                 {
-                                    Dictionary<string, float> dictionary;
+                                    Map<string, float> dictionary;
                                     string index;
                                     (dictionary = this.ResourcesDict)[index = building1.ResourceCreated] = dictionary[index] + building1.OutputPerTurn;
                                 }
@@ -6204,7 +6185,7 @@ output = maxp * take10 = 5
                     }
                     else
                     {
-                        Dictionary<string, float> dictionary;
+                        Map<string, float> dictionary;
                         string index;
                         (dictionary = this.ResourcesDict)[index = building1.ResourceCreated] = dictionary[index] + building1.OutputPerTurn;
                     }
@@ -6289,7 +6270,7 @@ output = maxp * take10 = 5
         {
             if (this.ResourcesDict.ContainsKey(UID))
             {
-                Dictionary<string, float> dictionary;
+                Map<string, float> dictionary;
                 string index;
                 (dictionary = this.ResourcesDict)[index = UID] = dictionary[index] + (float)Amount;
             }

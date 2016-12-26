@@ -9,7 +9,7 @@ namespace Ship_Game
 	{
 		public string loadFogPath;
 
-		public List<SolarSystem> SolarSystemsList = new List<SolarSystem>();
+		public Array<SolarSystem> SolarSystemsList = new Array<SolarSystem>();
 
 		public Vector2 Size;
 
@@ -26,7 +26,7 @@ namespace Ship_Game
 
 		public Ship playerShip;
 
-		public List<Empire> EmpireList = new List<Empire>();
+		public Array<Empire> EmpireList = new Array<Empire>();
         public static float UniverseWidth;
 
         //adding for thread safe Dispose because class uses unmanaged resources 
