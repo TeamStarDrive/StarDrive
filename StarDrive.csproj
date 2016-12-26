@@ -158,7 +158,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>StarDrive\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM xPLAYERONLY AUTOTIME PERF</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STEAM xPLAYERONLY xAUTOTIME PERF</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
@@ -197,7 +197,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
