@@ -222,9 +222,12 @@ namespace Ship_Game
                     ConstructorDropDown.AddOption(ship.Name, 0);
                 }
             }
-            if (string.IsNullOrEmpty(empire.data.CurrentConstructor) || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentConstructor))
+            if (string.IsNullOrEmpty(empire.data.CurrentConstructor) 
+                || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentConstructor))
             {
-                empire.data.CurrentConstructor = ConstructorDropDown.Options[ConstructorDropDown.ActiveIndex].Name;
+                // @todo This is just a temporary measure. It does not fix the problem with ActiveIndex being invalid at times
+                if (ConstructorDropDown.ActiveIndex < ConstructorDropDown.Options.Count)
+                    empire.data.CurrentConstructor = ConstructorDropDown.Options[ConstructorDropDown.ActiveIndex].Name;
             }
             else
             {
