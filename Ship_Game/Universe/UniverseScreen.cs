@@ -1437,8 +1437,11 @@ namespace Ship_Game
                 #region Empire
 
                 EmpireUpdatePerf.Start();
-                foreach (Empire empire in EmpireManager.Empires)
+                for (var index = 0; index < EmpireManager.Empires.Count; index++)
+                {
+                    Empire empire = EmpireManager.Empires[index];
                     empire.Update(elapsedTime);
+                }
                 MasterShipList.ApplyPendingRemovals();
 
                 lock (GlobalStats.AddShipLocker) //needed to fix Issue #629
@@ -3460,14 +3463,14 @@ namespace Ship_Game
                     Vector2 target = new Vector2((float)input.CurrentMouseState.X, (float)input.CurrentMouseState.Y);
                     float num2 = startDrag.RadiansToTarget(target);
                     Vector2 vector2_2 = Vector2.Normalize(target - this.startDrag);
-                    if ((double)input.RightMouseTimer > 0.0)
+                    if (input.RightMouseTimer > 0.0f)
                     {
                         if (this.SelectedFleet != null && this.SelectedFleet.Owner.isPlayer)
                         {
                             AudioManager.PlayCue("echo_affirm1");
                             this.SelectedSomethingTimer = 3f;
                             float num3 = SelectedFleet.Position.RadiansToTarget(vector2_1);
-                            Vector2 vectorToTarget = HelperFunctions.FindVectorToTarget(Vector2.Zero, MathExt.PointFromRadians(this.SelectedFleet.Position, num3, 1f));
+                            Vector2 vectorToTarget = Vector2.Zero.FindVectorToTarget(SelectedFleet.Position.PointFromRadians(num3, 1f));
                             foreach (Ship ship in (List<Ship>)this.SelectedFleet.Ships)
                                 this.player.GetGSAI().DefensiveCoordinator.remove(ship);
                             Ship ship1 = this.CheckShipClick(this.startDrag);

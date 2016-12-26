@@ -525,7 +525,7 @@ namespace Ship_Game
 			        Position = new Vector2(RandomMath.RandomBetween(-100f,
 			                    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 100), 0f)
 			    };
-			    c.Velocity = Vector2.Normalize(HelperFunctions.FindVectorToTarget(c.Position, input.CursorPosition));
+			    c.Velocity = c.Position.FindVectorToTarget(input.CursorPosition);
 				c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
 				CometList.Add(c);
 			}
