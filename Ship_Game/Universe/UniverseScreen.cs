@@ -3500,7 +3500,7 @@ namespace Ship_Game
                                 }
                             }
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                this.SelectedFleet.FormationWarpTo(vector2_1, num3, vectorToTarget);
+                                this.SelectedFleet.FormationWarpTo(vector2_1, num3, vectorToTarget, true);
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
                                 this.SelectedFleet.MoveToDirectly(vector2_1, num3, vectorToTarget);
                             else
@@ -3751,7 +3751,7 @@ namespace Ship_Game
                         {
                             this.SelectedSomethingTimer = 3f;
                             if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2);
+                                this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2, true);
                             else
                                 this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2);
                             AudioManager.PlayCue("echo_affirm1");
