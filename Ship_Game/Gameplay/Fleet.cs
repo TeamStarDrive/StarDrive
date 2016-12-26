@@ -479,39 +479,42 @@ namespace Ship_Game.Gameplay
                 this.Task.EndTask();
         }
 
-        private void DoExplorePlanet(MilitaryTask Task)
+        private void DoExplorePlanet(MilitaryTask Task) //Mer Gretman Left off here
         {
-            System.Diagnostics.Debug.WriteLine("DoExplorePlanet called!");
-            bool eventBuildingFound = true;
+            Log.Info("DoExplorePlanet called!  " + this.Owner.PortraitName);
+            bool eventBuildingFound = false;
             foreach (Building building in Task.GetTargetPlanet().BuildingList)
             {
                 if (!string.IsNullOrEmpty(building.EventTriggerUID))
                 {
-                    eventBuildingFound = false;
+                    eventBuildingFound = true;
                     break;
                 }
             }
 
-            bool enemyTroops = false;
+            bool weHaveTroops = false;
             if (!eventBuildingFound)    //No need to do this part if a task ending scenario has already been found -Gretman
             {
                 using (this.Ships.AcquireReadLock())
                     foreach (Ship ship in this.Ships)
                     {
                         if (ship.TroopList.Count > 0)
-                            enemyTroops = true;
+                            weHaveTroops = true;
                     }
-                foreach (PlanetGridSquare planetGridSquare in Task.GetTargetPlanet().TilesList)
+                if (!weHaveTroops)
                 {
-                    if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() == this.Owner)
+                    foreach (PlanetGridSquare planetGridSquare in Task.GetTargetPlanet().TilesList)
                     {
-                        enemyTroops = true;
-                        break;
+                        if (planetGridSquare.TroopsHere.Count > 0 && planetGridSquare.TroopsHere[0].GetOwner() == this.Owner)
+                        {
+                            weHaveTroops = true;
+                            break;
+                        }
                     }
                 }
             }
 
-            if (eventBuildingFound || !enemyTroops || Task.GetTargetPlanet().Owner != null)
+            if (eventBuildingFound || !weHaveTroops || Task.GetTargetPlanet().Owner != null)
             {
                 Task.EndTask();
             }
@@ -520,39 +523,42 @@ namespace Ship_Game.Gameplay
                 switch (this.TaskStep)
                 {
                     case 0:
-                        List<Planet> list1 = new List<Planet>();
+                        List<Planet> planetsWithShipyards = new List<Planet>();
                         foreach (Planet planet in this.Owner.GetPlanets())
                         {
-                            if (planet.HasShipyard)
-                                list1.Add(planet);
+                            if (planet.HasShipyard) planetsWithShipyards.Add(planet);
                         }
-                        //float nearestShipyard = list1.FindMin(planet => Vector2.Distance(Task.AO, planet.Position));
-                        IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list1, (Func<Planet, float>)(planet => Vector2.Distance(Task.AO, planet.Position)));
-                        if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1) <= 0)
+
+                        Vector2 nearestShipyard = Vector2.Zero;
+                        if (planetsWithShipyards.Count > 0)
+                            nearestShipyard = planetsWithShipyards.FindMin(planet => Vector2.Distance(Task.AO, planet.Position)).Position;
+                        else
                             break;
-                        Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
-                        Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
-                        this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
+
+                        Vector2 fVec = Vector2.Normalize(Task.AO - nearestShipyard);
+                        this.MoveToNow(nearestShipyard, nearestShipyard.RadiansToTarget(Task.AO), fVec);
                         foreach (Ship ship in Ships)
+                        {
                             ship.GetAI().HasPriorityOrder = true;
+                        }
                         this.TaskStep = 1;
                         break;
                     case 1:
-                        bool flag3 = true;
-                        bool flag4 = false;
-                        foreach (Ship ship in (List<Ship>)this.Ships)
+                        bool fleetGathered = true;
+                        bool fleetNotInCombat = true;
+                        foreach (Ship ship in this.Ships)
                         {
                             if (!ship.disabled && ship.hasCommand && ship.Active)
                             {
                                 if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
-                                    flag3 = false;
+                                    fleetGathered = false;
                                 if (ship.InCombat)
-                                    flag4 = true;
-                                if (!flag3)
+                                    fleetNotInCombat = false;
+                                if (!fleetGathered)
                                     break;
                             }
                         }
-                        if (!flag3 && !flag4)
+                        if (!fleetGathered && fleetNotInCombat)
                             break;
                         this.TaskStep = 2;
                         Vector2 MovePosition = Task.GetTargetPlanet().Position + Vector2.Normalize(this.findAveragePosition() - Task.GetTargetPlanet().Position) * 50000f;
@@ -560,19 +566,20 @@ namespace Ship_Game.Gameplay
                         this.FormationWarpTo(MovePosition, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
                         break;
                     case 2:
-                        bool flag5 = true;
+                        bool fleetGathered2 = true;
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
                             ship.GetAI().HasPriorityOrder = false;
                             if (!ship.disabled && ship.hasCommand && ship.Active)
                             {
                                 if ((double)Vector2.Distance(ship.Center, this.Position + ship.FleetOffset) > 5000.0)
-                                    flag5 = false;
-                                if (!flag5)
+                                {
+                                    fleetGathered = false;
                                     break;
+                                }
                             }
                         }
-                        if (!flag5)
+                        if (!fleetGathered2)
                             break;
                         foreach (Ship ship in (List<Ship>)this.Ships)
                         {
@@ -618,9 +625,9 @@ namespace Ship_Game.Gameplay
                             List<Vector2> list3 = new List<Vector2>();
                             foreach (KeyValuePair<Vector2, List<Ship>> keyValuePair in this.EnemyClumpsDict)
                                 list3.Add(keyValuePair.Key);
-                            IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
+                            IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy(list3, clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos));
                             List<Ship> list4 = new List<Ship>();
-                            foreach (Ship toAttack in this.EnemyClumpsDict[Enumerable.First<Vector2>((IEnumerable<Vector2>)orderedEnumerable2)])
+                            foreach (Ship toAttack in this.EnemyClumpsDict[Enumerable.First(orderedEnumerable2)])
                             {
                                 float num = 0.0f;
                                 foreach (Ship ship in (List<Ship>)this.Ships)
@@ -649,24 +656,7 @@ namespace Ship_Game.Gameplay
                             break;
                         }
                     case 4:
-                        float num1 = 0.0f;
-                        float num2 = 0.0f;
-                        float num3 = 0.0f;
-                        float num4 = 0.0f;
-                        foreach (Ship ship in (List<Ship>)this.Ships)
-                        {
-                            num1 += ship.Ordinance;
-                            num2 += ship.OrdinanceMax;
-                            foreach (Weapon weapon in ship.Weapons)
-                            {
-                                if ((double)weapon.OrdinanceRequiredToFire > 0.0)
-                                    num3 = weapon.DamageAmount / weapon.fireDelay;
-                                if ((double)weapon.PowerRequiredToFire > 0.0)
-                                    num4 = weapon.DamageAmount / weapon.fireDelay;
-                            }
-                        }
-                        float num5 = num3 + num4;
-                        if ((double)num3 >= 0.5 * (double)num5 && (double)num1 <= 0.100000001490116 * (double)num2)
+                        if (FleetReadyCheck())
                         {
                             this.TaskStep = 5;
                             break;
@@ -674,7 +664,7 @@ namespace Ship_Game.Gameplay
                         else
                         {
                             bool flag6 = false;
-                            foreach (Ship ship in (List<Ship>)this.Ships)
+                            foreach (Ship ship in this.Ships)
                             {
                                 if (!ship.InCombat)
                                 {
@@ -721,33 +711,33 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                float num1 = 0.0f;
+                float totalStrength = 0.0f;
                 foreach (Ship ship in (List<Ship>)this.Ships)
-                    num1 += ship.GetStrength();
-                if (num1 == 0.0f)
+                    totalStrength += ship.GetStrength();
+                if (totalStrength == 0.0f)
                     Task.EndTask();
-                int num2 = 0;
-                int num3 = 0;
+                int availabelTroops = 0;
+                int assaultShips = 0;
                 foreach (Ship ship in (List<Ship>)this.Ships)
                 {
                     if (ship.GetStrength() > 0.0f)
-                        ++num3;
-                    num2 += ship.PlanetAssaultCount;                    
+                        ++assaultShips;
+                    availabelTroops += ship.PlanetAssaultCount;                    
                 }
-                if (num2 == 0)
+                if (availabelTroops == 0)
                 {
                     foreach (Troop troop in Task.GetTargetPlanet().TroopsHere)
                     {
                         if (troop.GetOwner() == this.Owner)
-                            ++num2;
+                            ++availabelTroops;
                     }
                 }
-                if (num2 == 0 || num3 == 0)
+                if (availabelTroops == 0 || assaultShips == 0)
                 {
-                    if (num3 == 0)
+                    if (assaultShips == 0)
                         Task.IsCoreFleetTask = false;
                     Task.EndTask();
-                    this.Task = (MilitaryTask)null;
+                    this.Task = null;
                     this.TaskStep = 0;
                 }
                 else
@@ -757,25 +747,22 @@ namespace Ship_Game.Gameplay
                         case -1:
                         case 0:
                             List<Planet> list1 = new List<Planet>();
-                            //foreach (Planet planet in this.Owner.GetPlanets().OrderBy(combat => combat.ParentSystem.DangerTimer))
                             foreach (Planet planet in this.Owner.GetPlanets()
                                 .OrderBy(combat => combat.ParentSystem.combatTimer < 30)
                                 .ThenBy(shipyard => shipyard.HasShipyard)
-                                .ThenBy(distance=> Vector2.Distance(distance.Position,this.Task.AO))) //fbedard: DangerTimer is in relation to the player only !
+                                .ThenBy(distance=> Vector2.Distance(distance.Position,this.Task.AO)))
                             {
-                                bool flag =false;
-                                foreach(Planet notsafe in  planet.ParentSystem.PlanetList)
+                                bool flag = false;
+                                foreach(Planet notsafe in planet.ParentSystem.PlanetList)
                                 {
-                                    Relationship test =null;
                                     if(notsafe.Owner != null && notsafe.Owner != this.Owner)
                                     {
-                                        this.Owner.TryGetRelations(notsafe.Owner,out test);
+                                        this.Owner.TryGetRelations(notsafe.Owner, out Relationship test);
                                             if(!test.Treaty_OpenBorders || !test.Treaty_NAPact)
                                             {
-                                                flag =true;
+                                                flag = true;
                                                 break;
                                             }
-
                                     }
                                     if (flag)
                                         break;
@@ -784,13 +771,13 @@ namespace Ship_Game.Gameplay
                                 list1.Add(planet);
                             }
                             
-                            if ( list1.Count>0          )
+                            if (list1.Count > 0)
                             {
                                 Planet goaltarget = list1.First();
                                 Vector2 fVec = Vector2.Normalize(Task.AO - goaltarget.Position);
                                 Vector2 vector2 = goaltarget.Position;
  
-                                    this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
+                                this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
         
                                 this.TaskStep = 1;
                                 break;
@@ -801,7 +788,7 @@ namespace Ship_Game.Gameplay
                                 break;
                             }
                         case 1:
-                            bool flag1 = true;
+                            bool nearFleet = true;
                             bool endTask = false;
                             using (Ships.AcquireReadLock())
                             {
@@ -811,7 +798,7 @@ namespace Ship_Game.Gameplay
                                         continue;
                                     if (Vector2.Distance(ship.Center, Position + ship.FleetOffset) > 5000)
                                     {
-                                        flag1 = false;
+                                        nearFleet = false;
                                         break;
                                     }
                                     if (ship.GetAI().BadGuysNear)
@@ -826,7 +813,7 @@ namespace Ship_Game.Gameplay
                             if (endTask) 
                                 Task.EndTask();
 
-                            if (flag1)
+                            if (nearFleet)
                             {
                                 this.TaskStep = 2;
                                 Vector2 MovePosition = Task.GetTargetPlanet().Position + Vector2.Normalize(this.findAveragePosition() - Task.GetTargetPlanet().Position) * 125000f;
@@ -865,25 +852,7 @@ namespace Ship_Game.Gameplay
                             this.TaskStep = 3;
                             break;
                         case 3:
-                            float num5 = 0.0f;
-                            float num6 = 0.0f;
-                            float num7 = 0.0f;
-                            float num8 = 0.0f;
-                            using (Ships.AcquireReadLock())
-                            foreach (Ship ship in Ships)
-                            {
-                                num5 += ship.Ordinance;
-                                num6 += ship.OrdinanceMax;
-                                foreach (Weapon weapon in ship.Weapons)
-                                {
-                                    if ( weapon.OrdinanceRequiredToFire > 0 )
-                                        num7 = weapon.DamageAmount / weapon.fireDelay;
-                                    if ( weapon.PowerRequiredToFire > 0 )
-                                        num8 = weapon.DamageAmount / weapon.fireDelay;
-                                }
-                            }
-                            float num9 = num7 + num8;
-                            if (num6 >0 && num7 >= 0.5f * num9 && num5 <= 0.1f * num6)
+                            if (FleetReadyCheck())
                             {
                                 this.TaskStep = 5;
                                 break;
@@ -990,27 +959,7 @@ namespace Ship_Game.Gameplay
                                     }
                                 } 
                             }
-                            float num11 = 0.0f;
-                            float num12 = 0.0f;
-                            float num13 = 0.0f;
-                            float num14 = 0.0f;
-                            float availableBombers = 0;
-                            float availableBombs = 0; 
-                            foreach (Ship ship in (List<Ship>)this.Ships)
-                            {
-                                ship.GetAI().hasPriorityTarget = false;
-                                num11 += ship.Ordinance;
-                                num12 += ship.OrdinanceMax;
-                                foreach (Weapon weapon in ship.Weapons)
-                                {
-                                    if (weapon.OrdinanceRequiredToFire > 0)
-                                        num13 = weapon.DamageAmount / weapon.fireDelay;
-                                    if (weapon.PowerRequiredToFire > 0)
-                                        num14 = weapon.DamageAmount / weapon.fireDelay;
-                                }
-                            }
-                            float num15 = num13 + num14;
-                            if (num12 >0 && num13 >= 0.5f * num15 && num11 <= 0.1f * num12)
+                            if (FleetReadyCheck())
                             {
                                 this.TaskStep = 5;
                                 break;
@@ -1018,7 +967,8 @@ namespace Ship_Game.Gameplay
                             else
                             {
                                 bool flag3 = false;
-                                
+                                int availableBombs = 0;
+                                int availableBombers = 0;
                                 float num4 = 0.0f;                                
                                 foreach (Ship ship in (List<Ship>)this.Ships)
                                 {
@@ -1080,7 +1030,7 @@ namespace Ship_Game.Gameplay
                                         
                                     }
                                 }
-                                else if(availableBombers >0)
+                                else if(availableBombers > 0)
                                 {
                                     this.TaskStep = 5;
                                 }
@@ -1128,6 +1078,31 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
+        }
+
+        private bool FleetReadyCheck()
+        {
+            float currentAmmo = 0.0f;
+            float maxAmmo = 0.0f;
+            float ammoDPS = 0.0f;
+            float energyDPS = 0.0f;
+            foreach (Ship ship in this.Ships)
+            {
+                currentAmmo += ship.Ordinance;
+                maxAmmo += ship.OrdinanceMax;
+                foreach (Weapon weapon in ship.Weapons)
+                {
+                    if (weapon.OrdinanceRequiredToFire > 0.0)
+                        ammoDPS = weapon.DamageAmount / weapon.fireDelay;
+                    if (weapon.PowerRequiredToFire > 0.0)
+                        energyDPS = weapon.DamageAmount / weapon.fireDelay;
+                }
+            }
+            if (ammoDPS >= (ammoDPS + energyDPS) * 0.5f && currentAmmo <= maxAmmo * 0.1f)
+            {
+                return true;
+            }
+            return false;
         }
 
         private float GetGroundStrOfPlanet(Planet p)
@@ -1293,27 +1268,7 @@ namespace Ship_Game.Gameplay
                             break;
                         }
                     case 4:
-                        float num1 = 0.0f;
-                        float num2 = 0.0f;
-                        float num3 = 0.0f;
-                        float num4 = 0.0f;
-                        foreach (Ship ship in (List<Ship>)this.Ships)
-                        {
-                            num1 += ship.Ordinance;
-                            num2 += ship.OrdinanceMax;
-                            foreach (Weapon weapon in ship.Weapons)
-                            {
-                                if (weapon.BombTroopDamage_Max <= 0)
-                                {
-                                    if ((double)weapon.OrdinanceRequiredToFire > 0.0)
-                                        num3 = weapon.DamageAmount / weapon.fireDelay;
-                                    if ((double)weapon.PowerRequiredToFire > 0.0)
-                                        num4 = weapon.DamageAmount / weapon.fireDelay;
-                                }
-                            }
-                        }
-                        float num5 = num3 + num4;
-                        if ((double)num3 >= 0.649999976158142 * (double)num5 && (double)num1 <= 0.100000001490116 * (double)num2)
+                        if (FleetReadyCheck())
                         {
                             this.TaskStep = 5;
                             break;
@@ -1517,24 +1472,7 @@ namespace Ship_Game.Gameplay
                         break;
                     }
                 case 4:
-                    float num1 = 0.0f;
-                    float num2 = 0.0f;
-                    float num3 = 0.0f;
-                    float num4 = 0.0f;
-                    foreach (Ship ship in (List<Ship>)this.Ships)
-                    {
-                        num1 += ship.Ordinance;
-                        num2 += ship.OrdinanceMax;
-                        foreach (Weapon weapon in ship.Weapons)
-                        {
-                            if ((double)weapon.OrdinanceRequiredToFire > 0.0)
-                                num3 = weapon.DamageAmount / weapon.fireDelay;
-                            if ((double)weapon.PowerRequiredToFire > 0.0)
-                                num4 = weapon.DamageAmount / weapon.fireDelay;
-                        }
-                    }
-                    float num5 = num3 + num4;
-                    if ((double)num3 >= 0.5 * (double)num5 && (double)num1 <= 0.100000001490116 * (double)num2)
+                    if (FleetReadyCheck())
                     {
                         this.TaskStep = 5;
                         break;
@@ -1921,37 +1859,21 @@ namespace Ship_Game.Gameplay
                         break;
                     }
                 case 4:
-                    float num1 = 0.0f;
-                    float num2 = 0.0f;
-                    float num3 = 0.0f;
-                    float num4 = 0.0f;
-                    bool AllInCombat = false;                    
-                    foreach (Ship ship in (List<Ship>)this.Ships)
-                    {
-                        if (ship.GetAI().BadGuysNear && !ship.isInDeepSpace)
-                        {
-                            AllInCombat = true;
-
-                        }
-                        num1 += ship.Ordinance;
-                        num2 += ship.OrdinanceMax;
-                        foreach (Weapon weapon in ship.Weapons)
-                        {
-                            if (weapon.OrdinanceRequiredToFire > 0)
-                                num3 = weapon.DamageAmount / weapon.fireDelay;
-                            if (weapon.PowerRequiredToFire > 0)
-                                num4 = weapon.DamageAmount / weapon.fireDelay;
-                        }
-                    }
-                    float num5 = num3 + num4;
-                    if (num3 >= 0.5f * num5 && num1 <= 0.1f * num2)
+                    if (FleetReadyCheck())
                     {
                         this.TaskStep = 5;
                         break;
                     }
 
-
-
+                    bool AllInCombat = true;
+                    foreach (Ship ship in (List<Ship>)this.Ships)
+                    {
+                        if (ship.GetAI().BadGuysNear && !ship.isInDeepSpace)
+                        {
+                            AllInCombat = false;
+                            break;
+                        }
+                    }
                     if (this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.Position, 150000, this.Owner) > 0)
                     {
                         
@@ -2057,24 +1979,7 @@ namespace Ship_Game.Gameplay
                         this.TaskStep = 4;
                         break;
                     case 4:
-                        float num1 = 0.0f;
-                        float num2 = 0.0f;
-                        float num3 = 0.0f;
-                        float num4 = 0.0f;
-                        foreach (Ship ship in (List<Ship>)this.Ships)
-                        {
-                            num1 += ship.Ordinance;
-                            num2 += ship.OrdinanceMax;
-                            foreach (Weapon weapon in ship.Weapons)
-                            {
-                                if ( weapon.OrdinanceRequiredToFire > 0)
-                                    num3 = weapon.DamageAmount / weapon.fireDelay;
-                                if ( weapon.PowerRequiredToFire > 0)
-                                    num4 = weapon.DamageAmount / weapon.fireDelay;
-                            }
-                        }
-                        float num5 = num3 + num4;
-                        if (num3 >= 0.5 * num5 && num1 <= 0.1f * num2)
+                        if (FleetReadyCheck())
                         {
                             this.TaskStep = 5;
                             break;
@@ -2171,24 +2076,7 @@ namespace Ship_Game.Gameplay
                         break;
                     }
                 case 2:
-                    float num1 = 0.0f;
-                    float num2 = 0.0f;
-                    float num3 = 0.0f;
-                    float num4 = 0.0f;
-                    foreach (Ship ship in (List<Ship>)this.Ships)
-                    {
-                        num1 += ship.Ordinance;
-                        num2 += ship.OrdinanceMax;
-                        foreach (Weapon weapon in ship.Weapons)
-                        {
-                            if ((double)weapon.OrdinanceRequiredToFire > 0.0)
-                                num3 = weapon.DamageAmount / weapon.fireDelay;
-                            if ((double)weapon.PowerRequiredToFire > 0.0)
-                                num4 = weapon.DamageAmount / weapon.fireDelay;
-                        }
-                    }
-                    float num5 = num3 + num4;
-                    if ((double)num3 >= 0.5 * (double)num5 && (double)num1 <= 0.100000001490116 * (double)num2)
+                    if (FleetReadyCheck())
                     {
                         this.TaskStep = 5;
                         break;
@@ -2289,24 +2177,7 @@ namespace Ship_Game.Gameplay
                         break;
                     }
                 case 4:
-                    float num7 = 0.0f;
-                    float num8 = 0.0f;
-                    float num9 = 0.0f;
-                    float num10 = 0.0f;
-                    foreach (Ship ship in (List<Ship>)this.Ships)
-                    {
-                        num7 += ship.Ordinance;
-                        num8 += ship.OrdinanceMax;
-                        foreach (Weapon weapon in ship.Weapons)
-                        {
-                            if ((double)weapon.OrdinanceRequiredToFire > 0.0)
-                                num9 = weapon.DamageAmount / weapon.fireDelay;
-                            if ((double)weapon.PowerRequiredToFire > 0.0)
-                                num10 = weapon.DamageAmount / weapon.fireDelay;
-                        }
-                    }
-                    float num11 = num9 + num10;
-                    if ((double)num9 >= 0.5 * (double)num11 && (double)num7 <= 0.100000001490116 * (double)num8)
+                    if (FleetReadyCheck())
                     {
                         this.TaskStep = 5;
                         break;
