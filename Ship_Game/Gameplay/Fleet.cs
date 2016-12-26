@@ -251,7 +251,7 @@ namespace Ship_Game.Gameplay
             this.MoveDirectlyNow(MovePosition, facing, fVec);
         }
 
-        public void FormationWarpTo(Vector2 MovePosition, float facing, Vector2 fvec)
+        public void FormationWarpTo(Vector2 MovePosition, float facing, Vector2 fvec, bool queueOrder = false)
         {
             this.GoalStack.Clear();
             this.Position = MovePosition;
@@ -260,7 +260,8 @@ namespace Ship_Game.Gameplay
             foreach (Ship ship in (Array<Ship>)this.Ships)
             {
                 ship.GetAI().SetPriorityOrder();
-                ship.GetAI().OrderFormationWarpQ(MovePosition + ship.FleetOffset, facing, fvec);
+                if (queueOrder) ship.GetAI().OrderFormationWarpQ(MovePosition + ship.FleetOffset, facing, fvec);
+                else            ship.GetAI().OrderFormationWarp(MovePosition + ship.FleetOffset, facing, fvec);
             }
         }
 
@@ -523,7 +524,7 @@ namespace Ship_Game.Gameplay
                 switch (this.TaskStep)
                 {
                     case 0:
-                        Array<Planet> list1 = new Array<Planet>();
+                        Array<Planet> planetsWithShipyards = new Array<Planet>();
                         foreach (Planet planet in this.Owner.GetPlanets())
                         {
                             if (planet.HasShipyard) planetsWithShipyards.Add(planet);
