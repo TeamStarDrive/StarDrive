@@ -54,7 +54,7 @@ namespace Ship_Game
         public HashSet<string> techsNeeded = new HashSet<string>();
         public int TechScore;
 
-        //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
+        //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         private static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
 

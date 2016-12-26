@@ -7,7 +7,7 @@ namespace Ship_Game
 	public class EmpireManager
 	{
 		private static readonly Array<Empire> EmpireList = new Array<Empire>();
-        private static readonly Dictionary<string, Empire> EmpireDict = new Dictionary<string, Empire>(); 
+        private static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>(); 
 
         private static Empire PlayerEmpire;
         private static Empire CordrazineEmpire;

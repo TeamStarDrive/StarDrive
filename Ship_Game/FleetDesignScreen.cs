@@ -101,7 +101,7 @@ namespace Ship_Game
 
 		private Vector3 CamPos = new Vector3(0f, 0f, 14000f);
 
-		private Dictionary<int, Rectangle> FleetsRects = new Dictionary<int, Rectangle>();
+		private Map<int, Rectangle> FleetsRects = new Map<int, Rectangle>();
 
 		private float dragTimer;
 

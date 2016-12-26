@@ -22,31 +22,31 @@ namespace Ship_Game
 {
     public sealed class ResourceManager // Refactored by RedFox
     {
-        public static Dictionary<string, Texture2D> TextureDict          = new Dictionary<string, Texture2D>();
+        public static Map<string, Texture2D> TextureDict          = new Map<string, Texture2D>();
         public static XmlSerializer WeaponSerializer                     = new XmlSerializer(typeof(Weapon));
-        public static Dictionary<string, Ship> ShipsDict                 = new Dictionary<string, Ship>();
-        public static Dictionary<string, Technology> TechTree            = new Dictionary<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
+        public static Map<string, Ship> ShipsDict                 = new Map<string, Ship>();
+        public static Map<string, Technology> TechTree            = new Map<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
         private static readonly Array<Model> RoidsModels                  = new Array<Model>();
         private static readonly Array<Model> JunkModels                   = new Array<Model>();
         private static readonly Array<ToolTip> ToolTips                   = new Array<ToolTip>();
         public static Array<Encounter> Encounters                         = new Array<Encounter>();
-        public static Dictionary<string, Building> BuildingsDict         = new Dictionary<string, Building>();
-        public static Dictionary<string, Good> GoodsDict                 = new Dictionary<string, Good>();
-        public static Dictionary<string, Weapon> WeaponsDict             = new Dictionary<string, Weapon>();
-        public static Dictionary<string, ShipModule> ShipModulesDict     = new Dictionary<string, ShipModule>();
-        public static Dictionary<string, Texture2D> ProjTextDict         = new Dictionary<string, Texture2D>();
-        public static Dictionary<string, ModelMesh> ProjectileMeshDict   = new Dictionary<string, ModelMesh>();
-        public static Dictionary<string, Model> ProjectileModelDict      = new Dictionary<string, Model>();
+        public static Map<string, Building> BuildingsDict         = new Map<string, Building>();
+        public static Map<string, Good> GoodsDict                 = new Map<string, Good>();
+        public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>();
+        public static Map<string, ShipModule> ShipModulesDict     = new Map<string, ShipModule>();
+        public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>();
+        public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
+        public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
         public static bool Initialized                                   = false;
         public static string WhichModPath                                = "";
 
         public static Array<RandomItem> RandomItemsList                   = new Array<RandomItem>();
-        public static Dictionary<string, Troop> TroopsDict               = new Dictionary<string, Troop>();
-        public static Dictionary<string, DiplomacyDialog> DDDict         = new Dictionary<string, DiplomacyDialog>();
-        public static Dictionary<string, LocalizationFile> LanguageDict  = new Dictionary<string, LocalizationFile>();
+        public static Map<string, Troop> TroopsDict               = new Map<string, Troop>();
+        public static Map<string, DiplomacyDialog> DDDict         = new Map<string, DiplomacyDialog>();
+        public static Map<string, LocalizationFile> LanguageDict  = new Map<string, LocalizationFile>();
 
-        public static Dictionary<string, Artifact> ArtifactsDict         = new Dictionary<string, Artifact>();
-        public static Dictionary<string, ExplorationEvent> EventsDict    = new Dictionary<string, ExplorationEvent>();
+        public static Map<string, Artifact> ArtifactsDict         = new Map<string, Artifact>();
+        public static Map<string, ExplorationEvent> EventsDict    = new Map<string, ExplorationEvent>();
         public static Array<Texture2D> BigNebulas                         = new Array<Texture2D>();
         public static Array<Texture2D> MedNebulas                         = new Array<Texture2D>();
         public static Array<Texture2D> SmallNebulas                       = new Array<Texture2D>();
@@ -55,24 +55,24 @@ namespace Ship_Game
         public static Array<Texture2D> LargeStars                         = new Array<Texture2D>();
         public static Array<EmpireData> Empires                           = new Array<EmpireData>();
         public static XmlSerializer HeaderSerializer                     = new XmlSerializer(typeof(HeaderData));
-        public static Dictionary<string, Model> ModelDict                = new Dictionary<string, Model>();
-        public static Dictionary<string, SkinnedModel> SkinnedModels     = new Dictionary<string, SkinnedModel>();
-        public static Dictionary<string, ShipData> HullsDict             = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
+        public static Map<string, Model> ModelDict                = new Map<string, Model>();
+        public static Map<string, SkinnedModel> SkinnedModels     = new Map<string, SkinnedModel>();
+        public static Map<string, ShipData> HullsDict             = new Map<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 
         public static Array<KeyValuePair<string, Texture2D>> FlagTextures = new Array<KeyValuePair<string, Texture2D>>();
-        public static Dictionary<string, SoundEffect> SoundEffectDict    = new Dictionary<string, SoundEffect>();
+        public static Map<string, SoundEffect> SoundEffectDict    = new Map<string, SoundEffect>();
 
         // Added by McShooterz
         public static HostileFleets HostileFleets                        = new HostileFleets();
         public static ShipNames ShipNames                                = new ShipNames();
         public static AgentMissionData AgentMissionData                  = new AgentMissionData();
         public static MainMenuShipList MainMenuShipList                  = new MainMenuShipList();
-        public static Dictionary<ShipData.RoleName, ShipRole> ShipRoles  = new Dictionary<ShipData.RoleName, ShipRole>();
-        public static Dictionary<string, HullBonus> HullBonuses          = new Dictionary<string, HullBonus>();
-        public static Dictionary<string, PlanetEdict> PlanetaryEdicts    = new Dictionary<string, PlanetEdict>();
+        public static Map<ShipData.RoleName, ShipRole> ShipRoles  = new Map<ShipData.RoleName, ShipRole>();
+        public static Map<string, HullBonus> HullBonuses          = new Map<string, HullBonus>();
+        public static Map<string, PlanetEdict> PlanetaryEdicts    = new Map<string, PlanetEdict>();
         public static XmlSerializer EconSerializer                       = new XmlSerializer(typeof(EconomicResearchStrategy));
 
-        public static Dictionary<string, EconomicResearchStrategy> EconStrats = new Dictionary<string, EconomicResearchStrategy>();
+        public static Map<string, EconomicResearchStrategy> EconStrats = new Map<string, EconomicResearchStrategy>();
 
         private static RacialTraits RacialTraits;
         private static DiplomaticTraits DiplomacyTraits;
@@ -86,7 +86,7 @@ namespace Ship_Game
 
         public static void MarkShipDesignsUnlockable()
         {
-            var shipTechs = new Dictionary<Technology, Array<string>>();
+            var shipTechs = new Map<Technology, Array<string>>();
             foreach (var techTreeItem in TechTree)
             {
                 Technology tech = techTreeItem.Value;
@@ -1450,7 +1450,7 @@ namespace Ship_Game
 
             // check for any duplicate loads:
             var field = typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance | BindingFlags.NonPublic);
-            var assets = field?.GetValue(ContentManager) as Dictionary<string, object>;
+            var assets = field?.GetValue(ContentManager) as Map<string, object>;
             if (assets != null && assets.Count != 0)
             {
                 var keys = assets.Keys.Where(key => key != null).ToArray();

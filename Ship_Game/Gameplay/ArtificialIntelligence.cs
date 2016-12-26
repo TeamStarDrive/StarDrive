@@ -857,7 +857,7 @@ namespace Ship_Game.Gameplay
                     var message = new StringBuilder(system.Name);
                     message.Append(" system explored.");
 
-                    var planetsTypesNumber = new Dictionary<string, int>();
+                    var planetsTypesNumber = new Map<string, int>();
                     if (system.PlanetList.Count > 0)
                     {
                         foreach (Planet planet in system.PlanetList)
@@ -4420,7 +4420,7 @@ namespace Ship_Game.Gameplay
         // movement cachelookup
         private bool PathCacheLookup(Point startp, Point endp, Vector2 startv, Vector2 endv)
         {            
-            if (!Owner.loyalty.PathCache.TryGetValue(startp, out Dictionary<Point, Empire.PatchCacheEntry> pathstart)
+            if (!Owner.loyalty.PathCache.TryGetValue(startp, out Map<Point, Empire.PatchCacheEntry> pathstart)
                 || !pathstart.TryGetValue(endp, out Empire.PatchCacheEntry pathend))
                 return false;
 
@@ -4514,7 +4514,7 @@ namespace Ship_Game.Gameplay
                         {
                             Owner.loyalty.LockPatchCache.EnterWriteLock();
                             var endValue = new Empire.PatchCacheEntry(cacheAdd);
-                            var endkey   = new Dictionary<Point, Empire.PatchCacheEntry>();
+                            var endkey   = new Map<Point, Empire.PatchCacheEntry>();
 
                             endkey.Add(endp, endValue);
                             cache.Add(startp, endkey);

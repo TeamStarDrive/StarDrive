@@ -14,7 +14,7 @@ namespace Ship_Game
 	{
 		private Empire us;
 
-		public Dictionary<SolarSystem, SystemCommander> DefenseDict = new Dictionary<SolarSystem, SystemCommander>();
+		public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
 
 		public BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
         public float defenseDeficit = 0;
@@ -348,7 +348,7 @@ namespace Ship_Game
                 
             }
             
-            Dictionary<Guid, Ship> AssignedShips = new Dictionary<Guid, Ship>();
+            Map<Guid, Ship> AssignedShips = new Map<Guid, Ship>();
             Array<Ship> ShipsAvailableForAssignment = new Array<Ship>();
             //Remove excess force:
             foreach (KeyValuePair<SolarSystem, SystemCommander> defenseDict in this.DefenseDict)
