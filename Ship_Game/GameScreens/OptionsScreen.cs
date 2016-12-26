@@ -83,7 +83,10 @@ namespace Ship_Game
             GlobalStats.SaveSettings();
 			EffectsVolumeSlider.SetAmount(GlobalStats.EffectsVolume);
 			MusicVolumeSlider.SetAmount(GlobalStats.MusicVolume);
-		}
+
+            // reload the Options Screen to fix layout
+            LoadContent();
+        }
 
 		private void ApplySettings()
 		{
@@ -311,8 +314,6 @@ namespace Ship_Game
 
 			DrawBase(gameTime);
 			ScreenManager.SpriteBatch.Begin();
-			Selector selector = new Selector(ScreenManager, MainOptionsRect, true);
-			Selector selector1 = new Selector(ScreenManager, SecondaryOptionsRect, true);
 
             Color uiColor = new Color(255, 239, 208);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Resolution.Name, Resolution.NamePosition, uiColor);
@@ -412,27 +413,28 @@ namespace Ship_Game
 			{
 				ExitScreen();
 			}
-			foreach (UIButton b in Buttons)
-			{
-			    if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
-			    {
-			        b.State = UIButton.PressState.Default;
-                    continue;
-			    }
+		    for (int i = 0; i < Buttons.Count; i++)
+		    {
+		        UIButton b = Buttons[i];
+		        if (!HelperFunctions.CheckIntersection(b.Rect, mousePos))
+		        {
+		            b.State = UIButton.PressState.Default;
+		            continue;
+		        }
 
-			    b.State = UIButton.PressState.Hover;
-			    if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed)
-			    {
-			        b.State = UIButton.PressState.Pressed;
-			    }
-			    if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
-			    {
-			        string launches = b.Launches;
-			        if (launches != null && launches == "Apply Settings")
-			            ApplySettings();
-			    }
-			}
-			ResolutionDropDown.HandleInput(input);
+		        b.State = UIButton.PressState.Hover;
+		        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Pressed)
+		        {
+		            b.State = UIButton.PressState.Pressed;
+		        }
+		        if (currentMouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released)
+		        {
+		            string launches = b.Launches;
+		            if (launches != null && launches == "Apply Settings")
+		                ApplySettings();
+		        }
+		    }
+		    ResolutionDropDown.HandleInput(input);
 			previousMouse = input.LastMouseState;
 			base.HandleInput(input);
 		}
