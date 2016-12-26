@@ -177,7 +177,7 @@ namespace Ship_Game.Gameplay
 	                Owner.loyalty.GetGSAI()
 	                    .GetKnownPlanets()
 	                    .FindMin(
-	                        planet => planet.Position.SqDist(Owner.Center) + (Owner.loyalty != planet.Owner ? 300000 : 0));
+	                        planet => planet.Position.Distance(Owner.Center) + (Owner.loyalty != planet.Owner ? 300000 : 0));
 	            return;
 	        }	        
             if (Owner.System?.OwnerList.Contains(Owner.loyalty) ?? false)
@@ -344,52 +344,57 @@ namespace Ship_Game.Gameplay
                 return;
             var OurTroopStrength = 0f;
             var OurOutStrength = 0f;
-            var tcount = 0;            
-            foreach (ShipModule s in Owner.GetHangars())
+            var tcount = 0;
+            for (var i = 0; i < Owner.GetHangars().Count; i++)
+            {
+                ShipModule s = Owner.GetHangars()[i];
                 if (s.IsTroopBay)
                 {
                     if (s.GetHangarShip() != null)
                         foreach (Troop st in s.GetHangarShip().TroopList)
                         {
                             OurTroopStrength += st.Strength;
-                            if (s.GetHangarShip().GetAI().EscortTarget == Target || s.GetHangarShip().GetAI().EscortTarget == null
+                            if (s.GetHangarShip().GetAI().EscortTarget == Target ||
+                                s.GetHangarShip().GetAI().EscortTarget == null
                                 || s.GetHangarShip().GetAI().EscortTarget == Owner)
                                 OurOutStrength += st.Strength;
                         }
                     if (s.hangarTimer <= 0)
                         tcount++;
                 }
-            foreach (Troop t in Owner.TroopList)
+            }
+            for (var i = 0; i < Owner.TroopList.Count; i++)
             {
+                Troop t = Owner.TroopList[i];
                 if (tcount <= 0)
                     break;
-                OurTroopStrength = OurTroopStrength + (float)t.Strength;
+                OurTroopStrength = OurTroopStrength + (float) t.Strength;
                 tcount--;
-
             }
 
             if (OurTroopStrength <= 0) return;
             if (Target == null)
-                if (!Owner.InCombat && Owner.System!= null && Owner.System.OwnerList.Count > 0)
+                if (!Owner.InCombat &&  Owner.System?.OwnerList.Count > 0)
                 {
                     Owner.ScrambleAssaultShips(0);
                     Planet x = Owner.System.PlanetList.FindMinFiltered(
-                        p => p.Owner != null && p.Owner != Owner.loyalty || p.RecentCombat, p => Owner.Center.SqDist(p.Position));
+                        filter: p => p.Owner != null && p.Owner != Owner.loyalty || p.RecentCombat,
+                        selector: p => Owner.Center.Distance(p.Position));
                 }            
             Ship shipTarget = Target as Ship;
             float EnemyStrength = shipTarget?.BoardingDefenseTotal ?? 0;
 
-            if (OurTroopStrength + OurOutStrength > EnemyStrength && (Owner.loyalty.isFaction || (Target as Ship).GetStrength() > 0f))
+            if (OurTroopStrength + OurOutStrength > EnemyStrength && (Owner.loyalty.isFaction || shipTarget.GetStrength() > 0f))
             {
                 if (OurOutStrength < EnemyStrength)
                     Owner.ScrambleAssaultShips(EnemyStrength);
-                foreach (ShipModule hangar in Owner.GetHangars())
+                for (var i = 0; i < Owner.GetHangars().Count; i++)
                 {
+                    ShipModule hangar = Owner.GetHangars()[i];
                     if (!hangar.IsTroopBay || hangar.GetHangarShip() == null)
                         continue;
-                    hangar.GetHangarShip().GetAI().OrderTroopToBoardShip(Target as Ship);
+                    hangar.GetHangarShip().GetAI().OrderTroopToBoardShip(shipTarget);
                 }
-
             }
 
         }
@@ -397,7 +402,7 @@ namespace Ship_Game.Gameplay
         private void DoAttackRun(float elapsedTime)
         {
 
-            float distanceToTarget = Vector2.Distance(Owner.Center, Target.Center);
+            float distanceToTarget = Owner.Center.Distance(Target.Center);
             float spacerdistance = Owner.Radius * 3 + Target.Radius;
             if (spacerdistance > Owner.maxWeaponsRange * .35f)
                 spacerdistance = Owner.maxWeaponsRange * .35f;
@@ -412,20 +417,15 @@ namespace Ship_Game.Gameplay
             }
 
 
-            if (distanceToTarget < Owner.maxWeaponsRange * .35f)// *.35f)
-            {
-                ArtificialIntelligence artificialIntelligence = this;
-                artificialIntelligence.runTimer = artificialIntelligence.runTimer + elapsedTime;
-                if ((double)runTimer > 7f) 
+            if (distanceToTarget < Owner.maxWeaponsRange * .35f)
+            {                
+                runTimer += elapsedTime;
+                if (runTimer > 7f) 
                 {
                     DoNonFleetArtillery(elapsedTime);
                     return;
-
-                }
-
-                Vector2 projectedPosition = Target.Center + Target.Velocity;
-                ArtificialIntelligence target = this;
-                target.aiNewDir = target.aiNewDir + Owner.Center.FindVectorToTarget(projectedPosition) * 0.35f;
+                }               
+                aiNewDir += Owner.Center.FindVectorToTarget(Target.Center + Target.Velocity) * 0.35f;
                 if (distanceToTarget < (Owner.Radius + Target.Radius) * 3f && !AttackRunStarted)
                 {
                     AttackRunStarted = true;
@@ -1096,9 +1096,9 @@ namespace Ship_Game.Gameplay
             //Heavily modified by Gretman
             var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
             var right = new Vector2(-forward.Y, forward.X);
-            Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(Owner.Center, Target.Center);
+            Vector2 VectorToTarget = Owner.Center.FindVectorToTarget(Target.Center);
             var angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
-            float DistanceToTarget = Vector2.Distance(Owner.Center, Target.Center) *.75f;
+            float DistanceToTarget = Owner.Center.Distance(Target.Center) *.75f;
 
             float AdjustedRange = Owner.maxWeaponsRange - Owner.Radius;
 
@@ -1126,7 +1126,7 @@ namespace Ship_Game.Gameplay
         {
             var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
             var right = new Vector2(-forward.Y, forward.X);
-            Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(Owner.Center, Target.Center);
+            Vector2 VectorToTarget = Owner.Center.FindVectorToTarget(Target.Center);
             var angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, right));
             float DistanceToTarget = Vector2.Distance(Owner.Center, Target.Center);
             if (DistanceToTarget > Owner.maxWeaponsRange)
@@ -1152,9 +1152,9 @@ namespace Ship_Game.Gameplay
             var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
             var right = new Vector2(-forward.Y, forward.X);
             var left = new Vector2(forward.Y, -forward.X);
-            Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(Owner.Center, Target.Center); 
+            Vector2 VectorToTarget = Owner.Center.FindVectorToTarget(Target.Center); 
             var angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, left));
-            float DistanceToTarget = Owner.Center.SqDist(Target.Center);
+            float DistanceToTarget = Owner.Center.Distance(Target.Center);
             if (DistanceToTarget > Owner.maxWeaponsRange)
             {
                 ThrustTowardsPosition(Target.Center, elapsedTime, Owner.speed);
@@ -1566,7 +1566,7 @@ namespace Ship_Game.Gameplay
 			if (system.ExploredDict[Owner.loyalty])
 			    return true;
 		    MovePosition = system.Position;
-			float Distance = Owner.Center.SqDist(MovePosition);
+			float Distance = Owner.Center.Distance(MovePosition);
 			if (Distance < 75000f)
 			{
 				system.ExploredDict[Owner.loyalty] = true;
@@ -1830,59 +1830,73 @@ namespace Ship_Game.Gameplay
             Vector2 projectedPosition = Vector2.Zero;
             if (projectileTarget !=null)
             {
-                float distance = weapon.Center.SqDist(projectileTarget.Center) + projectileTarget.Velocity.Length() == 0 ? 0 : 500;
-                dir = Vector2.Zero;
+                projectedPosition = weapon.Center.FindPredictedVectorToTarget(weapon.ProjectileSpeed,
+                    target.Center, projectileTarget.Velocity);
+
+                //float distance = weapon.Center.Distance(projectileTarget.Center) + projectileTarget.Velocity.Length() == 0 ? 0 : 500;
+                //dir = Vector2.Zero;
       
-                dir = Vector2.Normalize(weapon.Center.FindVectorToTarget(projectileTarget.Center)) * (weapon.ProjectileSpeed + Owner.Velocity.Length());
-                float timeToTarget = distance / dir.Length();
-                projectedPosition = projectileTarget.Center + projectileTarget.Velocity * timeToTarget;
-                distance = weapon.Center.SqDist( projectedPosition);
-                dir = Vector2.Normalize(weapon.Center.FindVectorToTarget(projectedPosition)) * (weapon.ProjectileSpeed + Owner.Velocity.Length());
-                timeToTarget = distance / dir.Length();
-                projectedPosition = projectileTarget.Center + projectileTarget.Velocity * timeToTarget * 0.85f;
+                //dir = weapon.Center.FindVectorToTarget(projectileTarget.Center) * (weapon.ProjectileSpeed + Owner.Velocity.Length());
+                //float timeToTarget = distance / dir.Length();
+                //projectedPosition = projectileTarget.Center + projectileTarget.Velocity * timeToTarget;
+                //distance = weapon.Center.Distance( projectedPosition);
+                //dir = weapon.Center.FindVectorToTarget(projectedPosition) * (weapon.ProjectileSpeed + Owner.Velocity.Length());
+                //timeToTarget = distance / dir.Length();
+                //projectedPosition = projectileTarget.Center + projectileTarget.Velocity * timeToTarget * 0.85f;
             }
             else if (moduleTarget !=null)
             {
-                float distance = weapon.Center.SqDist( moduleTarget.Center) + moduleTarget.Velocity.Length() == 0 ? 0 : 500;
-                 dir = Vector2.Zero;
+                projectedPosition = weapon.Center.FindPredictedVectorToTarget(weapon.ProjectileSpeed,
+                    target.Center, moduleTarget.GetParent().Velocity);
 
-                dir = Vector2.Normalize(weapon.Center.FindVectorToTarget( target.Center)) * (weapon.ProjectileSpeed + Owner.Velocity.Length());
 
-                float timeToTarget = distance / dir.Length();
-                projectedPosition = target.Center;
-                projectedPosition = moduleTarget.Center + moduleTarget.GetParent().Velocity * timeToTarget;                
-                if (projectedPosition != moduleTarget.Center && moduleTarget.GetParent().Velocity.Length() <= 0)
-                {
-                    Log.Info(Owner.System.Name + " - calculate and fire error");
-                    //moved docs target correction here. 
-                    Vector2 fireatstationary = Vector2.Zero;
-                    fireatstationary = Vector2.Normalize(weapon.Center.FindVectorToTarget(moduleTarget.Center));
-                    if (SalvoFire)
-                        weapon.FireSalvo(fireatstationary, target);
-                    else
-                        weapon.Fire(fireatstationary, target);
-                    return;
+                //else
+                //{
+                //    Vector2 VectorToTarget = weapon.Center.FindVectorToTarget(target.Center);
+                //    float distanceToTarget = (target.Center - weapon.Center).Length();
 
-                }
-                distance = weapon.Center.SqDist( projectedPosition);
-                if (moduleTarget.GetParent().Velocity.Length() > 0.0f) 
-                    dir = Vector2.Normalize(weapon.Center.FindVectorToTarget(projectedPosition)) * (weapon.ProjectileSpeed + Owner.Velocity.Length());
+                //    float a = moduleTarget.GetParent().Velocity.LengthSquared() - (weapon.ProjectileSpeed * weapon.ProjectileSpeed);
+                //    float b = 2 * (Vector2.Dot(moduleTarget.Center, VectorToTarget));
+                //    float c = VectorToTarget.LengthSquared();
+
+                //    //Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
+                //    float time = (float) ((-b + -Math.Sqrt(b * b - 4 * a * c)) / (2 * a));
+                //    //If(b * b - 4 * a * c) is negative, or a is 0, the equation has no solution, and you can't hit the target. 
+                //    //Otherwise, you'll end up with 2 values(or 1, if b * b - 4 * a * c is zero).
+                //    //Those values are the time values at which point you can hit the target.
+                //    //If any of them are negative, discard them, because you can't send the target back in time to hit it.  
+                //    //Take any of the remaining positive values (probably the smaller one).
+                //    Vector2 predictedVector = target.Center + moduleTarget.GetParent().Velocity * time;
+                //    VectorToTarget = weapon.Center.FindVectorToTarget(predictedVector);
+                //    if (SalvoFire)
+                //        weapon.FireSalvo(VectorToTarget, target);
+                //    else
+                //        weapon.Fire(VectorToTarget, target);
+                //}
+
+                
+
+
+               
+            }
+            if (Owner.CheckIfInsideFireArc(weapon, projectedPosition))
+            {
+                projectedPosition = Vector2.Normalize(projectedPosition - weapon.Center);
+                if (SalvoFire)
+                    weapon.FireSalvo(projectedPosition, target);
                 else
-                    dir = weapon.Center.FindVectorToTarget(projectedPosition);
-                timeToTarget = distance / dir.Length();
-                projectedPosition = target.Center + moduleTarget.GetParent().Velocity * timeToTarget;
+                    weapon.Fire(projectedPosition, target);
             }
 
+            //dir = weapon.Center.FindVectorToTarget( projectedPosition);
+            //dir.Y = dir.Y * -1f;
+            //if (moduleTarget ==null  || moduleTarget.GetParent().Velocity.Length() >0)
+            //    dir = Vector2.Normalize(dir);
 
-            dir = weapon.Center.FindVectorToTarget( projectedPosition);
-            dir.Y = dir.Y * -1f;
-            if (moduleTarget ==null  || moduleTarget.GetParent().Velocity.Length() >0)
-                dir = Vector2.Normalize(dir);
-
-            if (SalvoFire)
-                weapon.FireSalvo(dir, target);
-            else
-                weapon.Fire(dir, target);
+            //if (SalvoFire)
+            //    weapon.FireSalvo(dir, target);
+            //else
+            //    weapon.Fire(dir, target);
         }
         //fire on non visible
         private void FireOnTargetNonVisible(Weapon w, GameplayObject fireTarget)
@@ -1950,7 +1964,7 @@ namespace Ship_Game.Gameplay
                 {
                     if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0)
                         continue;
-                    var temp = (int)ES.module.Center.SqDist(Owner.Center);
+                    var temp = (int)ES.module.Center.Distance(Owner.Center);
                     if (nearest == 0 || temp < nearest)
                     {
                         nearest = temp;
@@ -2251,7 +2265,7 @@ namespace Ship_Game.Gameplay
 			if (!Owner.EnginesKnockedOut)
 			{
 				Owner.isThrusting = true;
-				Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, Position));
+				Vector2 wantedForward = Owner.Center.FindVectorToTarget(Position);
 				var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
 				var right = new Vector2(-forward.Y, forward.X);
 				var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
@@ -2301,7 +2315,7 @@ namespace Ship_Game.Gameplay
 			if (!Owner.EnginesKnockedOut)
 			{
 				Owner.isThrusting = true;
-				Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, Position));
+				Vector2 wantedForward = Owner.Center.FindVectorToTarget(Position);
 				var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
 				var right = new Vector2(-forward.Y, forward.X);
 				var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
@@ -2686,7 +2700,7 @@ namespace Ship_Game.Gameplay
 		{
 			Target = null;
 			hasPriorityTarget = false;
-			Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, position));
+			Vector2 wantedForward = Owner.Center.FindVectorToTarget(position);
 			var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
 			var right = new Vector2(-forward.Y, forward.X);
 			var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
@@ -2753,7 +2767,7 @@ namespace Ship_Game.Gameplay
 		{
 			Target = null;
 			hasPriorityTarget = false;
-			Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, position));
+		    Vector2 wantedForward = Owner.Center.FindVectorToTarget(position);
 			var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
 			var right = new Vector2(-forward.Y, forward.X);
 			var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
@@ -2859,8 +2873,9 @@ namespace Ship_Game.Gameplay
             DistanceLast = 0f;
             Target = null;
 			hasPriorityTarget = false;
-			Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, position));
-			var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
+		    Vector2 wantedForward = Owner.Center.FindVectorToTarget(position);
+
+            var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
 			var right = new Vector2(-forward.Y, forward.X);
 			var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
 			Vector2.Dot(wantedForward, right);
@@ -4867,7 +4882,7 @@ namespace Ship_Game.Gameplay
 		private void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
 		{
 			Vector2 p = MathExt.PointFromRadians(Vector2.Zero, goal.DesiredFacing, 1f);
-			Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, p);
+			Vector2 fvec = Vector2.Zero.FindVectorToTarget(p);
 			Vector2 wantedForward = Vector2.Normalize(fvec);
 			var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
 			var right = new Vector2(-forward.Y, forward.X);
@@ -4886,7 +4901,7 @@ namespace Ship_Game.Gameplay
             var turned = false;
             var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
 			var right = new Vector2(-forward.Y, forward.X);
-			Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(Owner.Center, goal.MovePosition);
+			Vector2 VectorToTarget = Owner.Center.FindVectorToTarget(goal.MovePosition);
 			var angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
 			if (angleDiff > 0.2f)
 			{
@@ -4906,7 +4921,7 @@ namespace Ship_Game.Gameplay
             var turned = false;
             var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
             var right = new Vector2(-forward.Y, forward.X);
-            Vector2 VectorToTarget = HelperFunctions.FindVectorToTarget(Owner.Center, MovePosition);
+            Vector2 VectorToTarget = Owner.Center.FindVectorToTarget( MovePosition);
             var angleDiff = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward));
             if (angleDiff > Owner.rotationRadiansPerSecond*elapsedTime )
             {
@@ -5683,7 +5698,7 @@ namespace Ship_Game.Gameplay
             if (Owner.EnginesKnockedOut) return;
 
             Owner.isThrusting = true;
-            Vector2 wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, Position));
+            Vector2 wantedForward = Owner.Center.FindVectorToTarget(Position);
             var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
             var right = new Vector2(-forward.Y, forward.X);
             var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
@@ -5708,7 +5723,7 @@ namespace Ship_Game.Gameplay
 
                     if (ActiveWayPoints.Count >= 2 && Distance > Empire.ProjectorRadius / 2 && Vector2.Distance(Owner.Center, ActiveWayPoints.ElementAt(1)) < Empire.ProjectorRadius * 5)
                     {
-                        Vector2 wantedForwardNext = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, ActiveWayPoints.ElementAt(1)));
+                        Vector2 wantedForwardNext = Owner.Center.FindVectorToTarget(ActiveWayPoints.ElementAt(1));
                         var angleDiffNext = (float)Math.Acos((double)Vector2.Dot(wantedForwardNext, forward));
                         if (angleDiff > angleDiffNext || angleDiffNext < TurnRate * 0.5) //Angle to next waypoint is better than angle to this one, just cut the corner.
                         {
@@ -5828,7 +5843,7 @@ namespace Ship_Game.Gameplay
             float Ownerspeed = Owner.speed;
             if (Ownerspeed > speedLimit)
                 Ownerspeed = speedLimit;
-            float Distance = Position.SqDist(Owner.Center);
+            float Distance = Position.Distance(Owner.Center);
  
             if (Owner.engineState != Ship.MoveState.Warp )
                 Position = Position - Owner.Velocity;
@@ -5867,7 +5882,7 @@ namespace Ship_Game.Gameplay
                                 if (Owner.VanityName == "MerCraft") Log.Info("Post Remove 1st Queue size:  " + ActiveWayPoints.Count);
                                 Position = ActiveWayPoints.First();
                                 Distance = Vector2.Distance(Position, Owner.Center);
-                                wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, Position));
+                                wantedForward = Owner.Center.FindVectorToTarget(Position);
                                 forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
                                 angleDiff = Math.Acos((double)Vector2.Dot(wantedForward, forward));
 
@@ -5887,7 +5902,7 @@ namespace Ship_Game.Gameplay
                                 if (Owner.VanityName == "MerCraft") Log.Info("Post Remove 1st Queue size:  " + ActiveWayPoints.Count);
                                 Position = ActiveWayPoints.First();
                                 Distance = Vector2.Distance(Position, Owner.Center);
-                                wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, Position));
+                                wantedForward = Owner.Center.FindVectorToTarget(Position);
                                 forward = new Vector2((float)Math.Sin(Owner.Rotation), -(float)Math.Cos(Owner.Rotation));
                                 angleDiff = Math.Acos(Vector2.Dot(wantedForward, forward));
                                 if (Owner.VanityName == "MerCraft") Log.Info("Rounded Corner:  Did not slow down." + "   angleDiff: " + angleDiff);
@@ -5907,8 +5922,8 @@ namespace Ship_Game.Gameplay
                     }
                     else if (OrderQueue.Last().TargetPlanet != null)
                     {
-                        float d = Vector2.Distance(OrderQueue.Last<ShipGoal>().TargetPlanet.Position, Owner.Center);
-                        wantedForward = Vector2.Normalize(HelperFunctions.FindVectorToTarget(Owner.Center, OrderQueue.Last().TargetPlanet.Position));
+                        float d = OrderQueue.Last().TargetPlanet.Position.Distance(Owner.Center);
+                        wantedForward = Owner.Center.FindVectorToTarget(OrderQueue.Last().TargetPlanet.Position);
                         angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));                        
                         if (angleDiff > 0.400000005960464f)
                             Owner.HyperspaceReturn();
@@ -6341,7 +6356,7 @@ namespace Ship_Game.Gameplay
 	                {
 	                    Owner.Velocity = Vector2.Zero;
 	                    Vector2 vector2 = MathExt.PointFromRadians(Vector2.Zero, Owner.fleet.facing, 1f);
-	                    Vector2 fvec = HelperFunctions.FindVectorToTarget(Vector2.Zero, vector2);
+	                    Vector2 fvec = Vector2.Zero.FindVectorToTarget(vector2);
 	                    Vector2 wantedForward = Vector2.Normalize(fvec);
 	                    var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
 	                        -(float) Math.Cos((double) Owner.Rotation));

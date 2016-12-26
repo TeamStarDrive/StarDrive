@@ -224,11 +224,6 @@ namespace Ship_Game
 			sb.DrawString(font, text, position, frontColor, rotation, origin, scale, SpriteEffects.None, 1f);
 		}
 
-		public static Vector2 FindVectorToTarget(Vector2 origin, Vector2 target)
-		{
-			return Vector2.Normalize(target - origin);
-		}
-
 		public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)
 		{
 			float x0 = c.X;
