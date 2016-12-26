@@ -8,21 +8,15 @@ namespace Ship_Game
 {
 	public abstract class MenuScreen : GameScreen
 	{
-		private List<string> menuEntries = new List<string>();
+		private Array<string> menuEntries = new Array<string>();
 
 		private int selectedEntry;
 
 		private Cue beep;
 
-		protected IList<string> MenuEntries
-		{
-			get
-			{
-				return this.menuEntries;
-			}
-		}
+		protected IList<string> MenuEntries => menuEntries;
 
-		protected MenuScreen()
+	    protected MenuScreen()
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(1);

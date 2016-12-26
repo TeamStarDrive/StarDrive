@@ -7,7 +7,7 @@ namespace Ship_Game
 	{
 		public string Name;
 		public string SunPath = "star_yellow";
-		public List<Ring> RingList = new List<Ring>();
+		public Array<Ring> RingList = new Array<Ring>();
 
 		public SolarSystemData()
 		{
@@ -24,9 +24,9 @@ namespace Ship_Game
             public float planetScale;
 			public string Owner;
 			public string Station;
-            public List<Moon> Moons;
-			public List<string> BuildingList;
-            public List<string> Guardians;
+            public Array<Moon> Moons;
+			public Array<string> BuildingList;
+            public Array<string> Guardians;
             public float MaxPopDefined;
             //Using a separate boolean to ensure that modders can define an unusual 0-habitability planet (e.g. 0 tile Terran); otherwise would have to disregard 0.
             public bool UniqueHabitat;

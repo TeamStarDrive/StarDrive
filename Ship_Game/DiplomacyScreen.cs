@@ -43,7 +43,7 @@ namespace Ship_Game
 
 		private Menu2 Player;
 
-		private readonly List<GenericButton> GenericButtons = new List<GenericButton>();
+		private readonly Array<GenericButton> GenericButtons = new Array<GenericButton>();
 
 		private GenericButton DeclareWar;
 
@@ -77,7 +77,7 @@ namespace Ship_Game
 
 		private GenericButton Fear;
 
-		private List<GenericButton> TAFButtons = new List<GenericButton>();
+		private Array<GenericButton> TAFButtons = new Array<GenericButton>();
 
 		private Rectangle Attitude_Pleading_Rect;
 
@@ -1150,7 +1150,7 @@ namespace Ship_Game
                 if (this.dState == DiplomacyScreen.DialogState.Discuss)
                 {
                     this.StatementsSL.HandleInput(input);
-                    foreach (ScrollList.Entry entry in (List<ScrollList.Entry>)this.StatementsSL.Entries)
+                    foreach (ScrollList.Entry entry in (Array<ScrollList.Entry>)this.StatementsSL.Entries)
                     {
                         if ((entry.item as DialogOption).HandleInput(input) != null)
                         {
@@ -1171,14 +1171,14 @@ namespace Ship_Game
                     this.OfferTextSL.HandleInput(input);
                     this.OurItemsSL.HandleInput(input);
                     //string str = (string)null;
-                    foreach (ScrollList.Entry e in (List<ScrollList.Entry>)this.OurItemsSL.Copied)
+                    foreach (ScrollList.Entry e in (Array<ScrollList.Entry>)this.OurItemsSL.Copied)
                     {
                         switch ((e.item as ItemToOffer).HandleInput(input, e))
                         {
                             case "NAPact":
                                 this.OurOffer.NAPact = !this.OurOffer.NAPact;
                                 this.TheirOffer.NAPact = this.OurOffer.NAPact;
-                                using (List<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -1191,7 +1191,7 @@ namespace Ship_Game
                             case "We Declare War":
                                 this.OurOffer.NAPact = !this.OurOffer.NAPact;
                                 this.TheirOffer.NAPact = this.OurOffer.NAPact;
-                                using (List<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -1204,7 +1204,7 @@ namespace Ship_Game
                             case "Peace Treaty":
                                 this.OurOffer.PeaceTreaty = !this.OurOffer.PeaceTreaty;
                                 this.TheirOffer.PeaceTreaty = this.OurOffer.PeaceTreaty;
-                                using (List<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -1217,7 +1217,7 @@ namespace Ship_Game
                             case "OfferAlliance":
                                 this.OurOffer.Alliance = !this.OurOffer.Alliance;
                                 this.TheirOffer.Alliance = this.OurOffer.Alliance;
-                                using (List<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -1266,7 +1266,7 @@ namespace Ship_Game
                             case "TradeTreaty":
                                 this.OurOffer.TradeTreaty = !this.OurOffer.TradeTreaty;
                                 this.TheirOffer.TradeTreaty = this.OurOffer.TradeTreaty;
-                                using (List<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -1283,14 +1283,14 @@ namespace Ship_Game
                     this.OurItemsSL.Update();
                     this.TheirItemsSL.HandleInput(input);
                     //str = (string)null;
-                    foreach (ScrollList.Entry e in (List<ScrollList.Entry>)this.TheirItemsSL.Copied)
+                    foreach (ScrollList.Entry e in (Array<ScrollList.Entry>)this.TheirItemsSL.Copied)
                     {
                         switch ((e.item as ItemToOffer).HandleInput(input, e))
                         {
                             case "NAPact":
                                 this.TheirOffer.NAPact = !this.TheirOffer.NAPact;
                                 this.OurOffer.NAPact = this.TheirOffer.NAPact;
-                                using (List<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
+                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -1314,7 +1314,7 @@ namespace Ship_Game
                             case "Peace Treaty":
                                 this.TheirOffer.PeaceTreaty = !this.TheirOffer.PeaceTreaty;
                                 this.OurOffer.PeaceTreaty = this.TheirOffer.PeaceTreaty;
-                                using (List<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
+                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -1327,7 +1327,7 @@ namespace Ship_Game
                             case "OfferAlliance":
                                 this.TheirOffer.Alliance = !this.TheirOffer.Alliance;
                                 this.OurOffer.Alliance = this.TheirOffer.Alliance;
-                                using (List<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
+                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -1376,7 +1376,7 @@ namespace Ship_Game
                             case "TradeTreaty":
                                 this.TheirOffer.TradeTreaty = !this.TheirOffer.TradeTreaty;
                                 this.OurOffer.TradeTreaty = this.TheirOffer.TradeTreaty;
-                                using (List<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
+                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -1834,7 +1834,7 @@ namespace Ship_Game
                     this.dState = DiplomacyScreen.DialogState.Them;
                     break;
                 case "EmpireDiscuss":
-                    using (List<StatementSet>.Enumerator enumerator = ResourceManager.DDDict["SharedDiplomacy"].StatementSets.GetEnumerator())
+                    using (Array<StatementSet>.Enumerator enumerator = ResourceManager.DDDict["SharedDiplomacy"].StatementSets.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -1994,8 +1994,8 @@ namespace Ship_Game
                         }
                         else
                         {
-                            List<Empire> warTargets = new List<Empire>();
-                            List<Empire> list2 = new List<Empire>();
+                            Array<Empire> warTargets = new Array<Empire>();
+                            Array<Empire> list2 = new Array<Empire>();
                             foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.them.AllRelations)
                             {
                                 if (!keyValuePair.Key.isFaction && keyValuePair.Value.AtWar)

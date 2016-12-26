@@ -11,7 +11,7 @@ namespace Ship_Game
 		public bool IsLoaded;
 	    public bool AlwaysUpdate;
 	    private bool OtherScreenHasFocus;
-        protected readonly List<UIButton> Buttons = new List<UIButton>();
+        protected readonly Array<UIButton> Buttons = new Array<UIButton>();
         protected Texture2D BtnDefault;
         protected Texture2D BtnHovered;
         protected Texture2D BtnPressed;
@@ -90,8 +90,7 @@ namespace Ship_Game
 		private bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
 		{
 		    float transitionDelta = (time != TimeSpan.Zero ? (float)(gameTime.ElapsedGameTime.TotalMilliseconds / time.TotalMilliseconds) : 1f);
-			GameScreen gameScreen = this;
-			gameScreen.TransitionPosition = gameScreen.TransitionPosition + transitionDelta * direction;
+			TransitionPosition += transitionDelta * direction;
 			if (TransitionPosition > 0f && TransitionPosition < 1f)
 				return true;
 

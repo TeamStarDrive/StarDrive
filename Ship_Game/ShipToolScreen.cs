@@ -41,9 +41,9 @@ namespace Ship_Game
 
 		private SpriteBatch spriteBatch;
 
-		private List<Rectangle> AABBList = new List<Rectangle>();
+		private Array<Rectangle> AABBList = new Array<Rectangle>();
 
-		private List<Rectangle> DrawList = new List<Rectangle>();
+		private Array<Rectangle> DrawList = new Array<Rectangle>();
 
 		private Texture2D DottedLine;
 
@@ -71,13 +71,13 @@ namespace Ship_Game
 
 		private MouseState mouseStatePrevious;
 
-		private List<PrimitiveQuad> cellQuads = new List<PrimitiveQuad>();
+		private Array<PrimitiveQuad> cellQuads = new Array<PrimitiveQuad>();
 
 		private Cue click;
 
 		public string TestTexture = "Textures/Modules/Armor";
 
-		private List<Ship> StartingShipList = new List<Ship>();
+		private Array<Ship> StartingShipList = new Array<Ship>();
 
 		//private float starpos;
 
@@ -97,9 +97,9 @@ namespace Ship_Game
 
 		private UITextEntry ShipNameBox;
 
-		private List<SceneObject> ShipSOList = new List<SceneObject>();
+		private Array<SceneObject> ShipSOList = new Array<SceneObject>();
 
-		private List<ToggleButton> DesignStateButtons = new List<ToggleButton>();
+		private Array<ToggleButton> DesignStateButtons = new Array<ToggleButton>();
 
 		private Rectangle ScreenRect = new Rectangle();
 
@@ -111,11 +111,11 @@ namespace Ship_Game
 
 		private bool applyThruster;
 
-		public List<ShipModule> ModuleList = new List<ShipModule>();
+		public Array<ShipModule> ModuleList = new Array<ShipModule>();
 
-		private List<SlotStruct> SlotList = new List<SlotStruct>();
+		private Array<SlotStruct> SlotList = new Array<SlotStruct>();
 
-		private List<SlotStruct> tempSlotList = new List<SlotStruct>();
+		private Array<SlotStruct> tempSlotList = new Array<SlotStruct>();
 
 		private Rectangle what = new Rectangle();
 
@@ -125,7 +125,7 @@ namespace Ship_Game
 
 		private float heat = 1f;
 
-		private List<ThrusterZone> TList = new List<ThrusterZone>();
+		private Array<ThrusterZone> TList = new Array<ThrusterZone>();
 
 		private string HullName = "Hull Name";
 
@@ -706,7 +706,7 @@ namespace Ship_Game
 				Hull = this.HullName,
 				IconPath = "ShipIcons/hunter"
 			};
-			List<ModuleSlotData> slotDataList = new List<ModuleSlotData>();
+			Array<ModuleSlotData> slotDataList = new Array<ModuleSlotData>();
 			foreach (SlotStruct slot in this.SlotList)
 			{
 				if (!slot.pq.isFilled)

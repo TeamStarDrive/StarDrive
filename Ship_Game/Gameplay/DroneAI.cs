@@ -39,9 +39,9 @@ namespace Ship_Game.Gameplay
 		public void ChooseTarget()
 		{
 			this.Target = null;
-			//List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
-            //List<GameplayObject> nearby = this.Owner.owner.GetAI().FriendliesNearby;
-			List<Ship> Potentials = new List<Ship>();
+			//Array<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
+            //Array<GameplayObject> nearby = this.Owner.owner.GetAI().FriendliesNearby;
+			Array<Ship> Potentials = new Array<Ship>();
             
 			//foreach (GameplayObject go in nearby)
             foreach (Ship go in this.Owner.owner.GetAI().FriendliesNearby)

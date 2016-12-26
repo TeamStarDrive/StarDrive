@@ -13,64 +13,33 @@ namespace Ship_Game
 	public sealed class Beam : Projectile
 	{
 		public Vector3 Origin;
-
 		public Vector3 UpperLeft;
-
 		public Vector3 LowerLeft;
-
 		public Vector3 UpperRight;
-
 		public Vector3 LowerRight;
-
 		public Vector3 Normal;
-
 		public Vector3 Up;
-
 		public Vector3 Left;
-
 		public int thickness;
-
 		public float PowerCost;
-
 		public ShipModule hitLast;
-
 		public Vector2 Source;
-
-		public Vector2 Destination;
-
+	    private readonly int Thickness;
+	    public Vector2 Destination;
 		public static Effect BeamEffect;
-
 		public Vector2 ActualHitDestination;
-
 		public bool followMouse;
-
-        //added by McShooterz: changed back to default
 		public float Duration = 2f;
-
 		public float BeamOffsetAngle;
-
 		public VertexPositionNormalTexture[] Vertices;
-
 		public int[] Indexes;
-
 		private float BeamZ;
-
 		private GameplayObject Target;
-
 		public bool infinite;
-
 		private Cue DamageToggleSound;
-
 		private bool DamageToggleOn;
-
 		private VertexDeclaration quadVertexDecl;
-
-		//private BasicEffect quadEffect;
-
 		private float displacement = 1f;
-        //private bool recycled = false;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
 		public Beam()
@@ -110,7 +79,7 @@ namespace Ship_Game
 			this.FillVertices();
 		}
 
-		public Beam(Vector2 srcCenter, Vector2 destination, int Thickness, Projectile Owner, GameplayObject target)
+		public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Projectile Owner, GameplayObject target)
 		{
 			this.Target = target;
 			this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
@@ -129,7 +98,7 @@ namespace Ship_Game
 			this.Vertices = new VertexPositionNormalTexture[4];
 			this.Indexes = new int[6];
 			this.BeamZ = RandomMath2.RandomBetween(-1f, 1f);
-			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, destination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
+			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, destination, (float)thickness, new Vector2[4], 0, this.BeamZ);
 			this.UpperLeft = points[0];
 			this.UpperRight = points[1];
 			this.LowerLeft = points[2];
@@ -138,56 +107,17 @@ namespace Ship_Game
 		}
         public void BeamRecreate(Vector2 srcCenter, int Thickness, Ship Owner, GameplayObject target)
         {
-
-
-            //Origin = Vector3.Zero;
-
-            //UpperLeft = Vector3.Zero;
-            //LowerLeft = Vector3.Zero;
-
-            //UpperRight = Vector3.Zero;
-
-            //LowerRight = Vector3.Zero;
-
-            //Normal = Vector3.Zero;
-
-            //Up = Vector3.Zero;
-
-            //Left = Vector3.Zero;
-
-            //thickness = 0;
-
-            //PowerCost = 0f;
-
-            //hitLast = null;
-
-            //Source = Vector2.Zero;
-
-            Vector2 Destination = Vector2.Zero;
-
             this.Indexes = new int[6]; ;
-
-           this.ActualHitDestination = Vector2.Zero;
-
+            ActualHitDestination = Vector2.Zero;
             this.followMouse = false;
-
             this.Duration = 2f;
-
             BeamOffsetAngle = 0f;
             this.BeamOffsetAngle = 0f;
-
-            //this.Vertices=new VertexPositionNormalTexture();
-
             Indexes.Initialize();
-
             this.BeamZ = 0f;
-
             this.Target = null;
-
             this.infinite = false;
-
             this.DamageToggleSound = null;
-
             this.DamageToggleOn = false;
 
             this.moduleAttachedTo = this.weapon.moduleAttachedTo;
@@ -232,10 +162,10 @@ namespace Ship_Game
             this.FillVertices();
             this.Active = true;
         }
-		public Beam(Vector2 srcCenter, Vector2 destination, int Thickness, Ship Owner)
+		public Beam(Vector2 srcCenter, Vector2 destination, int thickness, Ship shipOwner)
 		{
-			this.owner = Owner;
-			if (Owner.InFrustum)
+			this.owner = shipOwner;
+			if (shipOwner.InFrustum)
 			{
 				this.DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
 			}
@@ -249,13 +179,14 @@ namespace Ship_Game
 				this.System.spatialManager.BeamList.Add(this);
 			}
 			this.Source = srcCenter;
-			this.BeamOffsetAngle = Owner.Rotation - srcCenter.RadiansToTarget(destination);
-			this.Destination = MathExt.PointFromRadians(srcCenter, Owner.Rotation + this.BeamOffsetAngle, this.range);
+		    this.Thickness = thickness;
+		    this.BeamOffsetAngle = shipOwner.Rotation - srcCenter.RadiansToTarget(destination);
+			this.Destination = srcCenter.PointFromRadians(shipOwner.Rotation + this.BeamOffsetAngle, this.range);
 			this.ActualHitDestination = this.Destination;
 			this.Vertices = new VertexPositionNormalTexture[4];
 			this.Indexes = new int[6];
 			this.BeamZ = RandomMath2.RandomBetween(-1f, 1f);
-			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, destination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
+			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, destination, (float)thickness, new Vector2[4], 0, this.BeamZ);
 			this.UpperLeft = points[0];
 			this.UpperRight = points[1];
 			this.LowerLeft = points[2];
@@ -496,12 +427,6 @@ namespace Ship_Game
 			}
             this.Duration -= elapsedTime;
 			this.Source = srcCenter;
-            //if (this.quadEffect != null)
-            ////this.Die(null, true);
-            //{
-            //    this.quadEffect.View = view;
-            //    this.quadEffect.Projection = projection;
-            //}
 			this.Destination = dstCenter;
 			Vector3[] points = HelperFunctions.BeamPoints(srcCenter, this.Destination, (float)Thickness, new Vector2[4], 0, this.BeamZ);
 			this.UpperLeft = points[0];
@@ -520,22 +445,14 @@ namespace Ship_Game
 
         protected override void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed) return;
+            if (disposing)
             {
-                if (disposing )
-                {
-                    
-                    if (this.quadVertexDecl != null)
-                        this.quadVertexDecl.Dispose();
-                    //if (this.quadEffect != null)
-                    //    this.quadEffect.Dispose();
-                    
-
-                }
-                this.quadVertexDecl = null;
-                this.disposed = true;
-                base.Dispose(disposing);
+                quadVertexDecl?.Dispose();
             }
+            this.quadVertexDecl = null;
+            this.disposed = true;
+            base.Dispose(disposing);
         }
 	}
 }

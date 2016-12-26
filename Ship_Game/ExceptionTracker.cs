@@ -69,7 +69,7 @@ namespace Ship_Game
 
 
             
-            string msg = "Version: ("+ MainMenuScreen.Version+ "): "+rn;
+            string msg = "Version: (" + GlobalStats.ExtendedVersion + "): "+rn;
             msg += data+rn+rn;
             msg += "Exception : "+ ex.Message.ToString()+rn;
             msg += "ExceptionClass : "+ex.GetType().ToString()+rn;

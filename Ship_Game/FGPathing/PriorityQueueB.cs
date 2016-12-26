@@ -10,6 +10,7 @@
 //  Copyright (C) 2006 Franco, Gustavo 
 //
 using System.Collections.Generic;
+using Ship_Game;
 
 namespace Algorithms
 {
@@ -30,7 +31,7 @@ namespace Algorithms
     public class PriorityQueueB<T> : IPriorityQueue<T>
     {
         #region Variables Declaration
-        protected List<T>       InnerList = new List<T>();
+        protected Array<T>       InnerList = new Array<T>();
 		protected IComparer<T>  mComparer;
         #endregion
 

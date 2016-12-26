@@ -11,11 +11,11 @@ namespace Ship_Game
 	{
 		public Camera2d camera;
 
-        private Dictionary<string, Node> TechTree = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
+        private Map<string, Node> TechTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, Node> CompleteSubNodeTree = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
+        public Map<string, Node> CompleteSubNodeTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, Node> SubNodes = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
+        public Map<string, Node> SubNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
 
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -37,7 +37,7 @@ namespace Ship_Game
 
 		private int RowOffset = 100;
 
-		private List<Vector2> ClaimedSpots = new List<Vector2>();
+		private Array<Vector2> ClaimedSpots = new Array<Vector2>();
 
 		private Vector2 cameraVelocity = Vector2.Zero;
 
@@ -65,7 +65,7 @@ namespace Ship_Game
 
 		private Color needToBuy = new Color(255, 165, 0, 50);
 
-		private List<ResearchScreenNew.UnlockItem> DetailUnlocks = new List<ResearchScreenNew.UnlockItem>();
+		private Array<ResearchScreenNew.UnlockItem> DetailUnlocks = new Array<ResearchScreenNew.UnlockItem>();
 
 		private ScrollList UnlockSL;
 
@@ -125,10 +125,10 @@ namespace Ship_Game
                     vector2_2.X -= Vector2.Distance(vector2_1, vector2_2) / 2f;
                     for (int index = 0; index < ResourceManager.TechTree[keyValuePair.Key].LeadsTo.Count; ++index)
                     {
-                        if (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered)
+                        if (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered)
                         {
                             bool Complete = false;
-                            if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
+                            if (EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
                                 Complete = true;
                             Vector2 vector2_3 = new Vector2(vector2_2.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
                             --vector2_3.Y;
@@ -149,10 +149,10 @@ namespace Ship_Game
                     vector2_2.Y = vector2_1.Y;
                     for (int index = 0; index < ResourceManager.TechTree[keyValuePair.Key].LeadsTo.Count; ++index)
                     {
-                        if ((!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered) && (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered))
+                        if ((!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered) && (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered))
                         {
                             bool Complete = false;
-                            if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
+                            if (EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
                                 Complete = true;
                             Vector2 vector2_3 = new Vector2(vector2_2.X, (float)((this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Y + (this.SubNodes[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID] as TreeNode).BaseRect.Height / 2 - 10));
                             if ((double)vector2_3.Y > (double)vector2_2.Y)
@@ -173,10 +173,10 @@ namespace Ship_Game
                     bool Complete1 = false;
                     for (int index = 0; index < ResourceManager.TechTree[keyValuePair.Key].LeadsTo.Count; ++index)
                     {
-                        if ((!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered) && (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered))
+                        if ((!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered) && (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered))
                         {
                             bool Complete2 = false;
-                            if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
+                            if (EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
                             {
                                 Complete2 = true;
                                 Complete1 = true;
@@ -200,10 +200,10 @@ namespace Ship_Game
                     bool Complete1 = false;
                     for (int index = 0; index < ResourceManager.TechTree[keyValuePair.Key].LeadsTo.Count; ++index)
                     {
-                        if (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered)
+                        if (!ResourceManager.TechTree[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Discovered)
                         {
                             bool Complete2 = false;
-                            if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
+                            if (EmpireManager.Player.GetTDict()[ResourceManager.TechTree[keyValuePair.Key].LeadsTo[index].UID].Unlocked)
                             {
                                 Complete2 = true;
                                 Complete1 = true;
@@ -318,17 +318,17 @@ namespace Ship_Game
                     this.UnlockTree(tech.Key);
                     foreach(Technology.UnlockedMod unlockmod in tech.Value.ModulesUnlocked)
                     {
-                        EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetMDict()[unlockmod.ModuleUID] = true;
+                        EmpireManager.Player.GetMDict()[unlockmod.ModuleUID] = true;
                     }
                 }
                 foreach (KeyValuePair<string, ShipData> hull in ResourceManager.HullsDict)
                 {
-                    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetHDict()[hull.Key] = true;
+                    EmpireManager.Player.GetHDict()[hull.Key] = true;
                 }
                 //foreach (KeyValuePair<string, ShipModule> Module in ResourceManager.ShipModulesDict)
                 //{
                     
-                //    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetMDict()[Module.Key] = true;
+                //    EmpireManager.Player.GetMDict()[Module.Key] = true;
                 //}
 
 
@@ -336,9 +336,9 @@ namespace Ship_Game
                 {
                     //if (ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == null || ResourceManager.BuildingsDict[Building.Key].EventTriggerUID == "")
                     if (string.IsNullOrEmpty(ResourceManager.BuildingsDict[Building.Key].EventTriggerUID))
-                        EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetBDict()[Building.Key] = true;
+                        EmpireManager.Player.GetBDict()[Building.Key] = true;
                 }
-                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
+                EmpireManager.Player.UpdateShipsWeCanBuild();
 			}
             //Added by McShooterz: new cheat to only unlock tech
             if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F2) && input.LastKeyboardState.IsKeyUp(Keys.F2))
@@ -347,7 +347,7 @@ namespace Ship_Game
                 {
                     this.UnlockTree(tech.Key);
                 }
-                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
+                EmpireManager.Player.UpdateShipsWeCanBuild();
             }
             //Added by McShooterz: new cheat to only unlock tech
             if (input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && input.CurrentKeyboardState.IsKeyDown(Keys.F3) && input.LastKeyboardState.IsKeyUp(Keys.F3))
@@ -356,7 +356,7 @@ namespace Ship_Game
                 {
                     this.UnlockTreeNoBonus(tech.Key);
                 }
-                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UpdateShipsWeCanBuild();
+                EmpireManager.Player.UpdateShipsWeCanBuild();
             }
 			this.qcomponent.HandleInput(input);
 			if (this.qcomponent.Visible && HelperFunctions.CheckIntersection(this.qcomponent.container, input.CursorPosition))
@@ -381,17 +381,17 @@ namespace Ship_Game
                         this.RightClicked = true;
 					continue;
 				}
-				if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.Key].Unlocked)
+				if (EmpireManager.Player.GetTDict()[tech.Key].Unlocked)
 				{
 					AudioManager.PlayCue("UI_Misc20");
 				}
-				else if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).HavePreReq(tech.Key))
+				else if (EmpireManager.Player.HavePreReq(tech.Key))
 				{
 					this.qcomponent.SetVisible();
 					this.qcomponent.AddToQueue(tech.Value as TreeNode);
 					AudioManager.PlayCue("sd_ui_research_select");
 				}
-				else if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).HavePreReq(tech.Key))
+				else if (EmpireManager.Player.HavePreReq(tech.Key))
 				{
 					AudioManager.PlayCue("UI_Misc20");
 				}
@@ -400,20 +400,20 @@ namespace Ship_Game
 					this.qcomponent.SetVisible();
 					AudioManager.PlayCue("sd_ui_research_select");
 					string techToCheck = tech.Key;
-					List<string> TechsToAdd = new List<string>()
+					Array<string> TechsToAdd = new Array<string>()
 					{
 						techToCheck
 					};
 					if (ResourceManager.TechTree[techToCheck].RootNode != 1)
 					{
-						while (!EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[techToCheck].Unlocked)
+						while (!EmpireManager.Player.GetTDict()[techToCheck].Unlocked)
 						{
-							string prereq = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetPreReq(techToCheck);
+							string prereq = EmpireManager.Player.GetPreReq(techToCheck);
 							if (string.IsNullOrEmpty(prereq))
 							{
 								break;
 							}
-							if (!EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[prereq].Unlocked)
+							if (!EmpireManager.Player.GetTDict()[prereq].Unlocked)
 							{
 								TechsToAdd.Add(prereq);
 							}
@@ -457,7 +457,7 @@ namespace Ship_Game
 				this.qcomponent.SetInvisible();
 			}
 			int numRoots = 0;
-			foreach (KeyValuePair<string, TechEntry> tech in EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict())
+			foreach (KeyValuePair<string, TechEntry> tech in EmpireManager.Player.GetTDict())
 			{
 				if (ResourceManager.TechTree[tech.Value.UID].RootNode != 1)
 				{
@@ -467,7 +467,7 @@ namespace Ship_Game
 				{
 					numRoots++;
 				}
-                else if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.Value.UID].Discovered)
+                else if (EmpireManager.Player.GetTDict()[tech.Value.UID].Discovered)
 				{
 					numRoots++;
 				}
@@ -478,7 +478,7 @@ namespace Ship_Game
 			{
 				this.MainMenuOffset.Y = this.MainMenuOffset.Y + 8f;
 			}
-			foreach (KeyValuePair<string, TechEntry> tech in EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict())
+			foreach (KeyValuePair<string, TechEntry> tech in EmpireManager.Player.GetTDict())
 			{
 				if (ResourceManager.TechTree[tech.Value.UID].RootNode != 1)
 				{
@@ -486,7 +486,7 @@ namespace Ship_Game
 				}
 				if (ResourceManager.TechTree[tech.Value.UID].Secret)
 				{
-					if (!EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.Value.UID].Discovered)
+					if (!EmpireManager.Player.GetTDict()[tech.Value.UID].Discovered)
 					{
 						continue;
 					}
@@ -507,7 +507,7 @@ namespace Ship_Game
 				this.PopulateAllTechsFromRoot(entry.Value as RootNode);
 			}
 			this.PopulateNodesFromRoot(this.TechTree[GlobalStats.ResearchRootUIDToDisplay] as RootNode);
-			string resTop = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic;
+			string resTop = EmpireManager.Player.ResearchTopic;
 			if (!string.IsNullOrEmpty(resTop))
 			{
                 Node resTopNode = null;
@@ -517,10 +517,10 @@ namespace Ship_Game
                 else
                 {
                     resTop = string.Empty;
-                    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).ResearchTopic = string.Empty;
+                    EmpireManager.Player.ResearchTopic = string.Empty;
                 }
 			}
-			foreach (string uid in EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.ResearchQueue)
+			foreach (string uid in EmpireManager.Player.data.ResearchQueue)
 			{
 				this.qcomponent.LoadQueue(this.CompleteSubNodeTree[uid] as TreeNode);
 			}
@@ -531,7 +531,7 @@ namespace Ship_Game
 		{
 			for (int i = 0; i < ResourceManager.TechTree[treenode.tech.UID].LeadsTo.Count; i++)
 			{
-				if (!ResourceManager.TechTree[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID].Secret || EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID].Discovered)
+				if (!ResourceManager.TechTree[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID].Discovered)
 				{
 					if (i != 0)
 					{
@@ -542,12 +542,12 @@ namespace Ship_Game
 						this.Cursor.Y = (float)this.FindDeepestYSubNodes();
 					}
 					this.Cursor.X = treenode.NodePosition.X + 1f;
-					TechEntry te = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID];
+					TechEntry te = EmpireManager.Player.GetTDict()[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID];
 					TreeNode newNode = new TreeNode(this.MainMenuOffset + new Vector2((float)(this.ColumnOffset * (int)this.Cursor.X), (float)(this.RowOffset * (int)this.Cursor.Y)), te, this)
 					{
 						NodePosition = this.Cursor
 					};
-					if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[te.UID].Unlocked)
+					if (EmpireManager.Player.GetTDict()[te.UID].Unlocked)
 					{
 						newNode.complete = true;
 					}
@@ -567,14 +567,14 @@ namespace Ship_Game
 			this.Cursor = new Vector2(1f, 1f);
 			for (int i = 0; i < ResourceManager.TechTree[Root.tech.UID].LeadsTo.Count; i++)
 			{
-				if (!ResourceManager.TechTree[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Secret || EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Discovered)
+				if (!ResourceManager.TechTree[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Discovered)
 				{
-					TechEntry te = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID];
+					TechEntry te = EmpireManager.Player.GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID];
 					TreeNode newNode = new TreeNode(this.MainMenuOffset + new Vector2((float)(this.ColumnOffset * (int)this.Cursor.X), (float)(this.RowOffset * (int)this.Cursor.Y)), te, this)
 					{
 						NodePosition = this.Cursor
 					};
-					if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[te.UID].Unlocked)
+					if (EmpireManager.Player.GetTDict()[te.UID].Unlocked)
 					{
 						newNode.complete = true;
 					}
@@ -608,7 +608,7 @@ namespace Ship_Game
             bool first = true;
 			for (int i = 0; i < ResourceManager.TechTree[Root.tech.UID].LeadsTo.Count; i++)
 			{
-				if (!ResourceManager.TechTree[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Secret || EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Discovered)
+				if (!ResourceManager.TechTree[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID].Discovered)
 				{
 					if (!first)
 					{
@@ -620,12 +620,12 @@ namespace Ship_Game
                         first = false;
 					}
 					this.Cursor.X = Root.NodePosition.X + 1f;
-					TechEntry te = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID];
+					TechEntry te = EmpireManager.Player.GetTDict()[ResourceManager.TechTree[Root.tech.UID].LeadsTo[i].UID];
 					TreeNode newNode = new TreeNode(this.MainMenuOffset + new Vector2((float)(this.ColumnOffset * (int)this.Cursor.X), (float)(this.RowOffset * (int)this.Cursor.Y)), te, this)
 					{
 						NodePosition = this.Cursor
 					};
-					if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[te.UID].Unlocked)
+					if (EmpireManager.Player.GetTDict()[te.UID].Unlocked)
 					{
 						newNode.complete = true;
 					}
@@ -657,7 +657,7 @@ namespace Ship_Game
 			}
 			for (int i = 0; i < ResourceManager.TechTree[treenode.tech.UID].LeadsTo.Count; i++)
 			{
-				if (!ResourceManager.TechTree[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID].Secret || EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID].Discovered)
+				if (!ResourceManager.TechTree[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID].Secret || EmpireManager.Player.GetTDict()[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID].Discovered)
 				{
 					if (i != 0)
 					{
@@ -668,12 +668,12 @@ namespace Ship_Game
 						this.Cursor.Y = (float)this.FindDeepestYSubNodes();
 					}
 					this.Cursor.X = treenode.NodePosition.X + 1f;
-					TechEntry te = EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID];
+					TechEntry te = EmpireManager.Player.GetTDict()[ResourceManager.TechTree[treenode.tech.UID].LeadsTo[i].UID];
 					TreeNode newNode = new TreeNode(this.MainMenuOffset + new Vector2((float)(this.ColumnOffset * (int)this.Cursor.X), (float)(this.RowOffset * (int)this.Cursor.Y)), te, this)
 					{
 						NodePosition = this.Cursor
 					};
-					if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[te.UID].Unlocked)
+					if (EmpireManager.Player.GetTDict()[te.UID].Unlocked)
 					{
 						newNode.complete = true;
 					}
@@ -707,7 +707,7 @@ namespace Ship_Game
 			{
 				NodePosition = this.Cursor
 			};
-			if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Unlocked)
+			if (EmpireManager.Player.GetTDict()[tech.UID].Unlocked)
 			{
 				newNode.isResearched = true;
 			}
@@ -728,7 +728,7 @@ namespace Ship_Game
 			this.DetailUnlocks.Clear();
 			foreach (Technology.UnlockedMod unlockMod in unlockedTech.ModulesUnlocked)
 			{
-                if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.Traits.ShipType == unlockMod.Type || unlockMod.Type == null || unlockMod.Type == EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[techUID].AcquiredFrom)
+                if (EmpireManager.Player.data.Traits.ShipType == unlockMod.Type || unlockMod.Type == null || unlockMod.Type == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
                     ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
                     {
@@ -740,7 +740,7 @@ namespace Ship_Game
 			}
 			foreach (Technology.UnlockedTroop troop in unlockedTech.TroopsUnlocked)
 			{
-                if (troop.Type == EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.Traits.ShipType || troop.Type == null || troop.Type == "ALL" || troop.Type == EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[techUID].AcquiredFrom)
+                if (troop.Type == EmpireManager.Player.data.Traits.ShipType || troop.Type == null || troop.Type == "ALL" || troop.Type == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
                     ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
                     {
@@ -752,7 +752,7 @@ namespace Ship_Game
 			}
 			foreach (Technology.UnlockedHull hull in unlockedTech.HullsUnlocked)
 			{
-                if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.Traits.ShipType == hull.ShipType || hull.ShipType == null || hull.ShipType == EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[techUID].AcquiredFrom)
+                if (EmpireManager.Player.data.Traits.ShipType == hull.ShipType || hull.ShipType == null || hull.ShipType == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
                     ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
                     {
@@ -761,13 +761,13 @@ namespace Ship_Game
                         HullUnlocked = ResourceManager.HullsDict[hull.Name].Name
                     };
                     int size = ResourceManager.HullsDict[hull.Name].ModuleSlotList.Count;
-                    unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty)));
+                    unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.Player));
                     this.UnlockSL.AddItem(unlock);
                 }
 			}
 			foreach (Technology.UnlockedBuilding unlockedB in unlockedTech.BuildingsUnlocked)
 			{
-                if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.Traits.ShipType == unlockedB.Type || unlockedB.Type == null || unlockedB.Type == EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[techUID].AcquiredFrom)
+                if (EmpireManager.Player.data.Traits.ShipType == unlockedB.Type || unlockedB.Type == null || unlockedB.Type == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
                     ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
                     {
@@ -779,7 +779,7 @@ namespace Ship_Game
 			}
 			foreach (Technology.UnlockedBonus ub in unlockedTech.BonusUnlocked)
 			{
-                if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).data.Traits.ShipType == ub.Type || ub.Type == null || ub.Type == EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[techUID].AcquiredFrom)
+                if (EmpireManager.Player.data.Traits.ShipType == ub.Type || ub.Type == null || ub.Type == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
                     ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
                     {
@@ -793,9 +793,9 @@ namespace Ship_Game
 
 		private void UnlockTree(string key)
 		{
-            if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).HavePreReq(key) && (!ResourceManager.TechTree[key].Secret || (ResourceManager.TechTree[key].Secret && EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[key].Discovered)))
+            if (EmpireManager.Player.HavePreReq(key) && (!ResourceManager.TechTree[key].Secret || (ResourceManager.TechTree[key].Secret && EmpireManager.Player.GetTDict()[key].Discovered)))
             {
-                EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UnlockTech(key);
+                EmpireManager.Player.UnlockTech(key);
                 foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[key].LeadsTo)
                 {
                     this.UnlockTree(tech.UID);
@@ -805,10 +805,10 @@ namespace Ship_Game
 
         private void UnlockTreeNoBonus(string key)
         {
-            if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).HavePreReq(key) && (!ResourceManager.TechTree[key].Secret || (ResourceManager.TechTree[key].Secret && EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[key].Discovered)))
+            if (EmpireManager.Player.HavePreReq(key) && (!ResourceManager.TechTree[key].Secret || (ResourceManager.TechTree[key].Secret && EmpireManager.Player.GetTDict()[key].Discovered)))
             {
                 if(ResourceManager.TechTree[key].BonusUnlocked.Count == 0)
-                    EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).UnlockTech(key);
+                    EmpireManager.Player.UnlockTech(key);
                 foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[key].LeadsTo)
                 {
                     this.UnlockTreeNoBonus(tech.UID);
@@ -828,7 +828,7 @@ namespace Ship_Game
             {
                 foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[UID].LeadsTo)
                 {
-                    if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Tech.Secret && !EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Discovered)
+                    if (EmpireManager.Player.GetTDict()[tech.UID].Tech.Secret && !EmpireManager.Player.GetTDict()[tech.UID].Discovered)
                     {
                         continue;
                     }
@@ -839,7 +839,7 @@ namespace Ship_Game
             }
             foreach (Technology.LeadsToTech tech in ResourceManager.TechTree[UID].LeadsTo)
             {
-                if (EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Tech.Secret && !EmpireManager.GetEmpireByName(this.empireUI.screen.PlayerLoyalty).GetTDict()[tech.UID].Discovered)
+                if (EmpireManager.Player.GetTDict()[tech.UID].Tech.Secret && !EmpireManager.Player.GetTDict()[tech.UID].Discovered)
                 {
                     continue;
                 }

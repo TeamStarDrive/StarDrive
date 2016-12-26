@@ -9,11 +9,11 @@ using Newtonsoft.Json;
 
 namespace Ship_Game.Gameplay
 {
-	public sealed class MilitaryTask : IDisposable
+	public class MilitaryTask : IDisposable
 	{
         [Serialize(0)] public bool IsCoreFleetTask;
         [Serialize(1)] public bool WaitForCommand;
-        [Serialize(2)] public List<Guid> HeldGoals = new List<Guid>();
+        [Serialize(2)] public Array<Guid> HeldGoals = new Array<Guid>();
         [Serialize(3)] public int Step;
         [Serialize(4)] public Guid TargetPlanetGuid = Guid.Empty;
         [Serialize(5)] public TaskType type;
@@ -39,7 +39,7 @@ namespace Ship_Game.Gameplay
 		{
 		}
 
-		public MilitaryTask(Vector2 location, float radius, List<Goal> GoalsToHold, Empire Owner)
+		public MilitaryTask(Vector2 location, float radius, Array<Goal> GoalsToHold, Empire Owner)
 		{
 			this.type = MilitaryTask.TaskType.ClearAreaOfEnemies;
 			this.AO = location;
@@ -74,7 +74,7 @@ namespace Ship_Game.Gameplay
 			this.empire = Owner;
 		}
 
-        private void GetAvailableShips(AO area, List<Ship> Bombers, List<Ship> Combat, List<Ship> TroopShips, List<Ship> Utility)
+        private void GetAvailableShips(AO area, Array<Ship> Bombers, Array<Ship> Combat, Array<Ship> TroopShips, Array<Ship> Utility)
         {
             foreach (Ship ship in this.empire.GetShips().OrderBy(str => str.BaseStrength).ThenBy(ship => Vector2.Distance(ship.Center, area.Position) >= area.Radius))
             {
@@ -124,10 +124,10 @@ namespace Ship_Game.Gameplay
             if (sorted.Count<AO>() == 0)
                 return;
 
-            List<Ship> Bombers = new List<Ship>();
-            List<Ship> EverythingElse = new List<Ship>();
-            List<Ship> TroopShips = new List<Ship>();
-            List<Troop> Troops = new List<Troop>();
+            Array<Ship> Bombers = new Array<Ship>();
+            Array<Ship> EverythingElse = new Array<Ship>();
+            Array<Ship> TroopShips = new Array<Ship>();
+            Array<Troop> Troops = new Array<Troop>();
             
             foreach (AO area in sorted)
             {
@@ -148,7 +148,7 @@ namespace Ship_Game.Gameplay
             }
 
             EverythingElse.AddRange(TroopShips);
-            List<Ship> TaskForce = new List<Ship>();
+            Array<Ship> TaskForce = new Array<Ship>();
             float strAdded = 0f;
             float troopStr = 0f;
             int numOfTroops = 0;
@@ -170,7 +170,7 @@ namespace Ship_Game.Gameplay
                 strAdded += ship.GetStrength();
             }
 
-            List<Ship> BombTaskForce = new List<Ship>();
+            Array<Ship> BombTaskForce = new Array<Ship>();
             int numBombs = 0;
             foreach (Ship ship in Bombers)
             {
@@ -189,7 +189,7 @@ namespace Ship_Game.Gameplay
                 numBombs += ship.BombBays.Count;
             }
 
-            List<Troop> PotentialTroops = new List<Troop>();
+            Array<Troop> PotentialTroops = new Array<Troop>();
             foreach (Troop t in Troops)
             {
                 if (troopStr > EnemyTroopStr * 1.5f || numOfTroops > this.TargetPlanet.GetGroundLandingSpots() )
@@ -401,7 +401,7 @@ namespace Ship_Game.Gameplay
 
 				if (this.type == MilitaryTask.TaskType.Exploration)
 				{
-					List<Troop> toLaunch = new List<Troop>();
+					Array<Troop> toLaunch = new Array<Troop>();
 					foreach (Troop t in this.TargetPlanet.TroopsHere)
 					{
 						if (   t.GetOwner() != this.empire
@@ -509,7 +509,7 @@ namespace Ship_Game.Gameplay
                             break;
 
                         this.empire.GetFleetsDict()[1].Reset();
-                        foreach (Ship shiptoadd in (List<Ship>)this.empire.GetShips())
+                        foreach (Ship shiptoadd in (Array<Ship>)this.empire.GetShips())
                         {
                             if (shiptoadd.shipData.Role != ShipData.RoleName.platform)
                                 this.empire.GetFleetsDict()[1].AddShip(shiptoadd);
@@ -757,7 +757,7 @@ namespace Ship_Game.Gameplay
 
 				if (this.type == MilitaryTask.TaskType.Exploration)
 				{
-					List<Troop> toLaunch = new List<Troop>();
+					Array<Troop> toLaunch = new Array<Troop>();
 					foreach (Troop t in this.TargetPlanet.TroopsHere)
 					{
 						if (t.GetOwner() != this.empire)
@@ -849,13 +849,13 @@ namespace Ship_Game.Gameplay
             if (EnemyTroopStrength < 100f)
                 EnemyTroopStrength = 100f;
             
-            List<Ship> PotentialAssaultShips = new List<Ship>();
-            List<Troop> PotentialTroops = new List<Troop>();
-            List<Ship> potentialCombatShips = new List<Ship>();
-            List<Ship> PotentialBombers = new List<Ship>();
-            List<Ship> PotentialUtilityShips = new List<Ship>();
+            Array<Ship> PotentialAssaultShips = new Array<Ship>();
+            Array<Troop> PotentialTroops = new Array<Troop>();
+            Array<Ship> potentialCombatShips = new Array<Ship>();
+            Array<Ship> PotentialBombers = new Array<Ship>();
+            Array<Ship> PotentialUtilityShips = new Array<Ship>();
             this.GetAvailableShips(closestAO, PotentialBombers, potentialCombatShips, PotentialAssaultShips, PotentialUtilityShips);
-            List<Planet> shipyards = new List<Planet>();
+            Array<Planet> shipyards = new Array<Planet>();
 
             foreach (Planet planet1 in closestAO.GetPlanets())
             {
@@ -1316,8 +1316,8 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            List<Ship> PotentialAssaultShips = new List<Ship>();
-            List<Troop> PotentialTroops = new List<Troop>();
+            Array<Ship> PotentialAssaultShips = new Array<Ship>();
+            Array<Troop> PotentialTroops = new Array<Troop>();
             foreach (Ship ship in closestAO.GetOffensiveForcePool())
             {
                 if (ship.fleet != null || (!ship.HasTroopBay && !ship.hasTransporter && ship.shipData.Role != ShipData.RoleName.troop) || ship.TroopList.Count == 0)    
@@ -1326,7 +1326,7 @@ namespace Ship_Game.Gameplay
                 PotentialAssaultShips.Add(ship);
             }
 
-            List<Planet> shipyards = new List<Planet>();
+            Array<Planet> shipyards = new Array<Planet>();
             foreach (Planet planet1 in closestAO.GetPlanets())
             {
                 if (!planet1.CanBuildInfantry())

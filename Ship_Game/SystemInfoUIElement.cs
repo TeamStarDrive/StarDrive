@@ -45,7 +45,7 @@ namespace Ship_Game
 
 		private float HoverTimer;
 
-		private List<SystemInfoUIElement.ClickMe> ClickList = new List<SystemInfoUIElement.ClickMe>();
+		private Array<SystemInfoUIElement.ClickMe> ClickList = new Array<SystemInfoUIElement.ClickMe>();
 
 		new private Color tColor = new Color(255, 239, 208);
 
@@ -100,7 +100,7 @@ namespace Ship_Game
 			this.ClickList.Clear();
 			float TransitionPosition = 1f - this.SelectionTimer / 0.4f;
 			float transitionOffset = (float)Math.Pow((double)TransitionPosition, 2);
-			if (this.s.ExploredDict[EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)])
+			if (this.s.ExploredDict[EmpireManager.Player])
 			{
 				for (int i = 0; i < this.s.PlanetList.Count; i++)
 				{
@@ -142,7 +142,7 @@ namespace Ship_Game
                     //bool hasEnemyTroop = false;          //Not referenced in code, removing to save memory
                     int playerTroops = 0;
                     int sideSpacing = 0;
-					if (p.ExploredDict[EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)])
+					if (p.ExploredDict[EmpireManager.Player])
 					{
 						int j = 0;
                         #region replaced
@@ -274,7 +274,7 @@ namespace Ship_Game
 							this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], pIcon, Color.White);
 							Rectangle rIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(this.PlanetTypeCursor.Y + (float)(3 * Spacing)), 10, 10);
                             Rectangle tIcon = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 15, (int)(this.PlanetTypeCursor.Y + (float)(4 * Spacing)), 10, 10);
-							if (p.Owner != null && p.Owner == EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+							if (p.Owner != null && p.Owner == EmpireManager.Player)
 							{
 								this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rIcon, Color.White);
 
@@ -287,7 +287,7 @@ namespace Ship_Game
 							Vector2 pt = new Vector2((float)(pIcon.X + 12), (float)pIcon.Y);
 							HelperFunctions.ClampVectorToInt(ref ft);
 							HelperFunctions.ClampVectorToInt(ref pt);
-							if (p.Owner == null || p.Owner != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+							if (p.Owner == null || p.Owner != EmpireManager.Player)
 							{
 								this.ScreenManager.SpriteBatch.DrawString(SystemInfoUIElement.DataFont, p.Fertility.ToString(this.fmt), ft, this.tColor);
 								this.ScreenManager.SpriteBatch.DrawString(SystemInfoUIElement.DataFont, p.MineralRichness.ToString(this.fmt), pt, this.tColor);
@@ -314,14 +314,14 @@ namespace Ship_Game
 						float x = (float)Mouse.GetState().X;
 						MouseState state = Mouse.GetState();
 						Vector2 MousePos = new Vector2(x, (float)state.Y);
-						foreach (Goal g in EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals)
+						foreach (Goal g in EmpireManager.Player.GetGSAI().Goals)
 						{
 							if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
 							{
 								continue;
 							}
 							Rectangle Flag = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 6, PlanetRect.Y - 17, 13, 17);
-							this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], Flag, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).EmpireColor);
+							this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/flagicon"], Flag, EmpireManager.Player.EmpireColor);
 							if (!HelperFunctions.CheckIntersection(Flag, MousePos))
 							{
 								continue;

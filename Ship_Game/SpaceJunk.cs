@@ -95,7 +95,7 @@ namespace Ship_Game
 			};
 		}
 
-        private static readonly List<SpaceJunk> EmptyList = new List<SpaceJunk>();
+        private static readonly Array<SpaceJunk> EmptyList = new Array<SpaceJunk>();
 
 		public static void SpawnJunk(int howMuchJunk, Vector2 position, SolarSystem s, 
                                      GameplayObject source, float spawnRadius = 1.0f, float scaleMod = 1.0f)

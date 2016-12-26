@@ -30,7 +30,7 @@ namespace Ship_Game
 
     public sealed class FleetDesign
 	{
-        [Serialize(0)] public List<FleetDataNode> Data = new List<FleetDataNode>();
+        [Serialize(0)] public Array<FleetDataNode> Data = new Array<FleetDataNode>();
         [Serialize(1)] public int FleetIconIndex;
         [Serialize(2)] public string Name;
 

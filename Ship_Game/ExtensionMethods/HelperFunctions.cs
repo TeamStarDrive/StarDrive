@@ -2,13 +2,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Xml.Serialization;
-using static System.Math;
 
 namespace Ship_Game
 {
@@ -225,11 +222,6 @@ namespace Ship_Game
 			sb.DrawString(font, text, position + new Vector2(-1f * scale, 1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position + new Vector2(1f * scale, -1f * scale), backColor, rotation, origin, scale, SpriteEffects.None, 1f);
 			sb.DrawString(font, text, position, frontColor, rotation, origin, scale, SpriteEffects.None, 1f);
-		}
-
-		public static Vector2 FindVectorToTarget(Vector2 origin, Vector2 target)
-		{
-			return Vector2.Normalize(target - origin);
 		}
 
 		public static bool IntersectCircleSegment(Vector2 c, float r, Vector2 p1, Vector2 p2)
