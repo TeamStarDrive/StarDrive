@@ -36,7 +36,7 @@ namespace Ship_Game
 
 		public PlanetGridSquare pgs;
 
-        private List<TroopInfoUIElement.TippedItem> ToolTipItems = new List<TroopInfoUIElement.TippedItem>();
+        private Array<TroopInfoUIElement.TippedItem> ToolTipItems = new Array<TroopInfoUIElement.TippedItem>();
 
 		new private Color tColor = new Color(255, 239, 208);
 
@@ -154,7 +154,7 @@ namespace Ship_Game
 			{
 				this.ItemDisplayRect = new Rectangle(this.LeftRect.X + 85 + 16, this.LeftRect.Y + 5 + 16, 64, 64);
 				this.pgs.TroopsHere[0].Draw(this.ScreenManager.SpriteBatch, this.ItemDisplayRect);
-				if (this.pgs.TroopsHere[0].GetOwner() != EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty))
+				if (this.pgs.TroopsHere[0].GetOwner() != EmpireManager.Player)
 				{
 					this.LaunchTroop = null;
 				}

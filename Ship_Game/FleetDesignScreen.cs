@@ -89,7 +89,7 @@ namespace Ship_Game
 
 		private WeightSlider Slider_Shield;
 
-		private List<ToggleButton> OrdersButtons = new List<ToggleButton>();
+		private Array<ToggleButton> OrdersButtons = new Array<ToggleButton>();
 
 		private FloatSlider OperationalRadius;
 
@@ -101,11 +101,11 @@ namespace Ship_Game
 
 		private Vector3 CamPos = new Vector3(0f, 0f, 14000f);
 
-		private Dictionary<int, Rectangle> FleetsRects = new Dictionary<int, Rectangle>();
+		private Map<int, Rectangle> FleetsRects = new Map<int, Rectangle>();
 
 		private float dragTimer;
 
-		private List<FleetDesignScreen.ClickableSquad> ClickableSquads = new List<FleetDesignScreen.ClickableSquad>();
+		private Array<FleetDesignScreen.ClickableSquad> ClickableSquads = new Array<FleetDesignScreen.ClickableSquad>();
 
 		private Vector2 CamVelocity = Vector2.Zero;
 
@@ -131,7 +131,7 @@ namespace Ship_Game
 
 		private Selector priorityselector;
 
-		private List<FleetDesignScreen.ClickableNode> ClickableNodes = new List<FleetDesignScreen.ClickableNode>();
+		private Array<FleetDesignScreen.ClickableNode> ClickableNodes = new Array<FleetDesignScreen.ClickableNode>();
 
 		private Fleet.Squad SelectedSquad;
 
@@ -143,9 +143,9 @@ namespace Ship_Game
 
 		public static UniverseScreen screen;
 
-		private List<FleetDataNode> SelectedNodeList = new List<FleetDataNode>();
+		private Array<FleetDataNode> SelectedNodeList = new Array<FleetDataNode>();
 
-		private List<FleetDataNode> HoveredNodeList = new List<FleetDataNode>();
+		private Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
 
 		private Vector2 starfieldPos = Vector2.Zero;
 
@@ -194,18 +194,18 @@ namespace Ship_Game
 				}
 			}
 			this.FleetToEdit = which;
-			List<FleetDataNode> toRemove = new List<FleetDataNode>();
+			Array<FleetDataNode> toRemove = new Array<FleetDataNode>();
 			foreach (FleetDataNode node in EmpireManager.Player.GetFleetsDict()[FleetToEdit].DataNodes)
 			{
 				if ((ResourceManager.ShipsDict.ContainsKey(node.ShipName) || node.Ship!= null) && (node.Ship!= null || EmpireManager.Player.WeCanBuildThis(node.ShipName)))
 					continue;
 				toRemove.Add(node);
 			}
-			var squadsToRemove = new List<Fleet.Squad>();
+			var squadsToRemove = new Array<Fleet.Squad>();
 			foreach (FleetDataNode node in toRemove)
 			{
 				EmpireManager.Player.GetFleetsDict()[FleetToEdit].DataNodes.Remove(node);
-				foreach (List<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
+				foreach (Array<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
 				{
 					foreach (Ship_Game.Gameplay.Fleet.Squad Squad in flanks)
 					{
@@ -221,7 +221,7 @@ namespace Ship_Game
 					}
 				}
 			}
-			foreach (List<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
+			foreach (Array<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
 			{
 				foreach (Fleet.Squad squad in squadsToRemove)
 				{
@@ -490,11 +490,11 @@ namespace Ship_Game
 					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["NewUI/rounded_square"], r, new Color(0, 0, 255, 80));
 				}
 				sel.Draw();
-				Fleet f = EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[rect.Key];
+				Fleet f = EmpireManager.Player.GetFleetsDict()[rect.Key];
 				if (f.DataNodes.Count > 0)
 				{
 					Rectangle firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12, rect.Value.Width - 12);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], firect, EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).EmpireColor);
+					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[string.Concat("FleetIcons/", f.FleetIconIndex.ToString())], firect, EmpireManager.Player.EmpireColor);
 				}
 				Vector2 num = new Vector2((float)(rect.Value.X + 4), (float)(rect.Value.Y + 4));
 				SpriteBatch spriteBatch = base.ScreenManager.SpriteBatch;
@@ -691,7 +691,7 @@ namespace Ship_Game
 				float single = (float)Mouse.GetState().X;
 				state = Mouse.GetState();
 				nullable = null;
-				spriteBatch1.Draw(item, new Vector2(single, (float)state.Y), nullable, EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).EmpireColor, 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+				spriteBatch1.Draw(item, new Vector2(single, (float)state.Y), nullable, EmpireManager.Player.EmpireColor, 0f, IconOrigin, scale, SpriteEffects.None, 1f);
 			}
 			this.DrawSelectedData(gameTime);
 			this.close.Draw(base.ScreenManager);
@@ -712,7 +712,7 @@ namespace Ship_Game
 			Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
 			Primitives2D.FillRectangle(base.ScreenManager.SpriteBatch, new Rectangle((int)pPos.X - 3, (int)pPos.Y - 3, 6, 6), new Color(255, 255, 255, 80));
 			base.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Fleet Center", new Vector2(pPos.X - Fonts.Arial12Bold.MeasureString("Fleet Center").X / 2f, pPos.Y + 5f), new Color(255, 255, 255, 70));
-			foreach (List<Fleet.Squad> flank in this.fleet.AllFlanks)
+			foreach (Array<Fleet.Squad> flank in this.fleet.AllFlanks)
 			{
 				foreach (Fleet.Squad squad in flank)
 				{
@@ -856,7 +856,7 @@ namespace Ship_Game
 			}
 			this.stuffSelector = new Selector(base.ScreenManager, this.SelectedStuffRect, new Color(0, 0, 0, 180));
 			this.stuffSelector.Draw();
-			Fleet f = EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[this.FleetToEdit];
+			Fleet f = EmpireManager.Player.GetFleetsDict()[this.FleetToEdit];
 			Vector2 Cursor1 = new Vector2((float)(this.SelectedStuffRect.X + 20), (float)(this.SelectedStuffRect.Y + 10));
 			this.FleetNameEntry.Text = f.Name;
 			this.FleetNameEntry.ClickableArea = new Rectangle((int)Cursor1.X, (int)Cursor1.Y, (int)Fonts.Arial20Bold.MeasureString(f.Name).X, Fonts.Arial20Bold.LineSpacing);
@@ -971,7 +971,7 @@ namespace Ship_Game
 			else
 			{
 				GlobalStats.TakingInput = true;
-				this.FleetNameEntry.HandleTextInput(ref EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[this.FleetToEdit].Name);
+				this.FleetNameEntry.HandleTextInput(ref EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].Name);
 			}
 			if (input.CurrentKeyboardState.IsKeyDown(Keys.D1) && input.LastKeyboardState.IsKeyUp(Keys.D1))
 			{
@@ -1364,9 +1364,9 @@ namespace Ship_Game
 			{
 				dragging = true;
 				this.endDrag = MousePos;
-				if (Vector2.Distance(this.startDrag, this.endDrag) > 10f)
+				if (this.startDrag.OutsideRadius(endDrag, 10f))
 				{
-					this.CamVelocity = HelperFunctions.FindVectorToTarget(this.endDrag, this.startDrag);
+					this.CamVelocity = this.endDrag.FindVectorToTarget(this.startDrag);
 					this.CamVelocity = Vector2.Normalize(this.CamVelocity) * Vector2.Distance(this.startDrag, this.endDrag);
 				}
 			}
@@ -1396,7 +1396,7 @@ namespace Ship_Game
 				}
 				if (this.SelectedNodeList.Count > 0)
 				{
-					foreach (List<Fleet.Squad> flanks in this.fleet.AllFlanks)
+					foreach (Array<Fleet.Squad> flanks in this.fleet.AllFlanks)
 					{
 						foreach (Fleet.Squad squad in flanks)
 						{
@@ -1459,7 +1459,7 @@ namespace Ship_Game
 				}
 				this.HoveredSquad = squad.squad;
 				hovering = true;
-				List<FleetDataNode>.Enumerator enumerator = this.HoveredSquad.DataNodes.GetEnumerator();
+				Array<FleetDataNode>.Enumerator enumerator = this.HoveredSquad.DataNodes.GetEnumerator();
 				try
 				{
 					while (enumerator.MoveNext())
@@ -1728,7 +1728,7 @@ namespace Ship_Game
 					{
 						continue;
 					}
-					foreach (List<Fleet.Squad> flank in this.fleet.AllFlanks)
+					foreach (Array<Fleet.Squad> flank in this.fleet.AllFlanks)
 					{
 						foreach (Fleet.Squad squad in flank)
 						{
@@ -1764,7 +1764,7 @@ namespace Ship_Game
 			this.LeftMenu = new Menu1(base.ScreenManager, leftRect, true);
 			this.FleetSL = new ScrollList(this.LeftMenu.subMenu, 40);
 			int i = 0;
-			foreach (KeyValuePair<int, Ship_Game.Gameplay.Fleet> Fleet in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict())
+			foreach (KeyValuePair<int, Ship_Game.Gameplay.Fleet> Fleet in EmpireManager.Player.GetFleetsDict())
 			{
 				this.FleetsRects.Add(Fleet.Key, new Rectangle(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
 				i++;
@@ -1778,7 +1778,7 @@ namespace Ship_Game
 			this.ShipSL = new ScrollList(this.sub_ships, 40);
 			this.sub_ships.AddTab("Designs");
 			this.sub_ships.AddTab("Owned");
-			foreach (Ship ship in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetShips())
+			foreach (Ship ship in EmpireManager.Player.GetShips())
 			{
 				if (ship.fleet != null || !ship.Active)
 				{
@@ -1917,14 +1917,14 @@ namespace Ship_Game
 
 		public void LoadData(FleetDesign data)
 		{
-			foreach (Ship ship in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetFleetsDict()[this.FleetToEdit].Ships)
+			foreach (Ship ship in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].Ships)
 			{
 				ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
 				ship.fleet = null;
 			}
 			this.fleet.DataNodes.Clear();
 			this.fleet.Ships.Clear();
-			foreach (List<Fleet.Squad> Flank in this.fleet.AllFlanks)
+			foreach (Array<Fleet.Squad> Flank in this.fleet.AllFlanks)
 			{
 				Flank.Clear();
 			}
@@ -1939,7 +1939,7 @@ namespace Ship_Game
 		public void PopulateShipSL()
 		{
 			this.AvailableShips.Clear();
-			foreach (Ship ship in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).GetShips())
+			foreach (Ship ship in EmpireManager.Player.GetShips())
 			{
 				if (ship.fleet != null)
 				{
@@ -1951,8 +1951,8 @@ namespace Ship_Game
 			this.ShipSL.indexAtTop = 0;
 			if (this.sub_ships.Tabs[0].Selected)
 			{
-				List<string> Roles = new List<string>();
-				foreach (string shipname in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).ShipsWeCanBuild)
+				Array<string> Roles = new Array<string>();
+				foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
 				{
                     if (Roles.Contains(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole()))
 					{
@@ -1964,7 +1964,7 @@ namespace Ship_Game
 				}
 				foreach (ScrollList.Entry e in this.ShipSL.Entries)
 				{
-					foreach (string shipname in EmpireManager.GetEmpireByName(this.EmpireUI.screen.PlayerLoyalty).ShipsWeCanBuild)
+					foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
 					{
 						Ship ship = Ship_Game.ResourceManager.ShipsDict[shipname];
                         if (ship.shipData.GetRole() != (e.item as ModuleHeader).Text)
@@ -1977,7 +1977,7 @@ namespace Ship_Game
 			}
 			else if (this.sub_ships.Tabs[1].Selected)
 			{
-				List<string> Roles = new List<string>();
+				Array<string> Roles = new Array<string>();
 				foreach (Ship ship in this.AvailableShips)
 				{
                     if (Roles.Contains(ship.shipData.GetRole()) || ship.shipData.Role == ShipData.RoleName.troop)
@@ -2024,7 +2024,7 @@ namespace Ship_Game
 			this.CamPos.Y = this.CamPos.Y + this.CamVelocity.Y;
 			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(new Vector3(-this.CamPos.X, this.CamPos.Y, this.CamPos.Z), new Vector3(-this.CamPos.X, this.CamPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			this.ClickableSquads.Clear();
-			foreach (List<Fleet.Squad> flank in this.fleet.AllFlanks)
+			foreach (Array<Fleet.Squad> flank in this.fleet.AllFlanks)
 			{
 				foreach (Fleet.Squad squad in flank)
 				{
@@ -2040,7 +2040,7 @@ namespace Ship_Game
 				}
 			}
 			Vector2 p = MathExt.PointFromRadians(this.fleet.Position, this.fleet.facing, 1f);
-			Vector2 fvec = HelperFunctions.FindVectorToTarget(this.fleet.Position, p);
+			Vector2 fvec = fleet.Position.FindVectorToTarget(p);
 			this.fleet.AssembleFleet(this.fleet.facing, fvec);
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}

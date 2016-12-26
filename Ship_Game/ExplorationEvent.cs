@@ -6,7 +6,7 @@ namespace Ship_Game
     {
         public string Name;
 
-        public List<Outcome> PotentialOutcomes;
+        public Array<Outcome> PotentialOutcomes;
 
         public void TriggerOutcome(Empire triggerer, Outcome triggeredOutcome)
         {
@@ -31,14 +31,14 @@ namespace Ship_Game
                 cursor = cursor + outcome.Chance;
                 if (random > cursor) continue;
                 triggeredOutcome = outcome;
-                if (triggerer.isPlayer) outcome.alreadyTriggered = true;
+                if (triggerer.isPlayer) outcome.AlreadyTriggered = true;
                 break;
             }
             if (triggeredOutcome != null)
             {
                 EventPopup popup = null;
                 if (triggerer == EmpireManager.Player)
-                    popup = new EventPopup(screen, triggerer, this, triggeredOutcome);
+                    popup = new EventPopup(screen, triggerer, this, triggeredOutcome,false);
                 triggeredOutcome.CheckOutComes(p, eventLocation, triggerer,popup);
                 if (popup != null)
                 {

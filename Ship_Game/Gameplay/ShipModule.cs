@@ -18,10 +18,10 @@ namespace Ship_Game.Gameplay
         private ParticleEmitter flameEmitter;
 		public byte XSIZE = 1;
         public byte YSIZE = 1;
-		public List<string> PermittedHangarRoles;
+		public Array<string> PermittedHangarRoles;
 		public bool Powered;
         public bool isDummy;
-        public List<ShipModule> LinkedModulesList = new List<ShipModule>();
+        public Array<ShipModule> LinkedModulesList = new Array<ShipModule>();
         public static UniverseScreen universeScreen;
         private float distanceToParentCenter;
 		private float offsetAngle;
@@ -2084,7 +2084,7 @@ namespace Ship_Game.Gameplay
                                                    || !Parent.loyalty.ShipsWeCanBuild.Contains(hangarShipUID)))
             {
                 temphangarship = ResourceManager.ShipsDict[startingscout];
-                List<Ship> fighters = new List<Ship>();
+                Array<Ship> fighters = new Array<Ship>();
                 foreach (string shipsWeCanBuild in this.Parent.loyalty.ShipsWeCanBuild)
                 {
 

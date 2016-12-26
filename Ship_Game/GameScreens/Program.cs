@@ -42,7 +42,7 @@ namespace Ship_Game
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Whoops! Please post a screenshot of this to the StarDrive forums ({MainMenuScreen.Version}):\n\n{e.ToString()}");
+                MessageBox.Show($"Whoops! Please post a screenshot of this to the StarDrive forums ({GlobalStats.ExtendedVersion}):\n\n{e.ToString()}");
             }
         }
 	}

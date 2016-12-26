@@ -110,6 +110,16 @@ namespace Ship_Game
             return new Vector2(p.BackBufferWidth / 2f, p.BackBufferHeight / 2f);
         }
 
+        // True if pos is inside the rectangle
+        public static bool HitTest(this Rectangle r, Vector2 pos)
+        {
+            return pos.X > r.X && pos.Y > r.Y && pos.X < r.X + r.Width && pos.Y < r.Y + r.Height;
+        }
+        public static bool HitTest(this Rectangle r, int x, int y)
+        {
+            return x > r.X && y > r.Y && x < r.X + r.Width && y < r.Y + r.Height;
+        }
+
         // result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
         {
@@ -167,7 +177,28 @@ namespace Ship_Game
         {
             return degrees * ((float)PI / 180.0f);
         }
+        public static Vector2 FindVectorBehindTarget(this GameplayObject ship, float distance)
+        {
+            Vector2 vector2 = new Vector2(0f, 0f);
+            Vector2 forward = new Vector2((float)Math.Sin((double)ship.Rotation), -(float)Math.Cos((double)ship.Rotation));
+            forward = Vector2.Normalize(forward);
+            return ship.Position - (forward * distance);
+        }
+        public static Vector2 FindVectorToTarget(this Vector2 origin, Vector2 target)
+        {
+            return Vector2.Normalize(target - origin);
+        }
 
+        public static Vector2 FindPredictedVectorToTarget(this Vector2 origin, float speedToTarget, Vector2 target, Vector2 targetVelocity)
+        {
+            Vector2 vectorToTarget = target - origin;
+            float distance = vectorToTarget.Length();
+            float time = distance / speedToTarget;
+            Vector2 spaceTraveled = targetVelocity * time;
+            Vector2 predictedVector = target + spaceTraveled;
+            vectorToTarget = predictedVector;
+            return vectorToTarget;
+        }
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
         public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)

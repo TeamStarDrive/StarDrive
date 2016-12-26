@@ -33,7 +33,7 @@ namespace Ship_Game
 		{
 		}
 
-		public void Draw(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection, float Alpha, List<BackgroundItem> bgiList)
+		public void Draw(Ship_Game.ScreenManager ScreenManager, Matrix view, Matrix projection, float Alpha, Array<BackgroundItem> bgiList)
 		{
 			this.quadEffect.View = view;
 			this.quadEffect.Projection = projection;

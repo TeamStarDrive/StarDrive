@@ -8,11 +8,11 @@ namespace Ship_Game
     //Added by McShooterz: add a ship model to the main menu
     public sealed class MainMenuShipList
     {
-        public List<string> ModelPaths;
+        public Array<string> ModelPaths;
 
         public MainMenuShipList()
         {
-            ModelPaths = new List<string>();
+            ModelPaths = new Array<string>();
         }
     }
 }

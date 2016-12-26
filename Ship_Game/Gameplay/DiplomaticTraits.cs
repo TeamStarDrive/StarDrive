@@ -5,9 +5,9 @@ namespace Ship_Game.Gameplay
 {
 	public sealed class DiplomaticTraits
 	{
-		public List<DTrait> DiplomaticTraitsList;
+		public Array<DTrait> DiplomaticTraitsList;
 
-		public List<ETrait> EconomicTraitsList;
+		public Array<ETrait> EconomicTraitsList;
 
 		public DiplomaticTraits()
 		{

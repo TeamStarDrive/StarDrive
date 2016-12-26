@@ -78,13 +78,13 @@ namespace Ship_Game
 
 		private Rectangle ShipLeftGradient; */
 
-		public List<ToolTip> tips = new List<ToolTip>();
+		public Array<ToolTip> tips = new Array<ToolTip>();
 
 		//private Ship_Game.ScreenManager ScreenManager;
 
-		private List<QueueItem> DisplayedConstructionQ = new List<QueueItem>();
+		private Array<QueueItem> DisplayedConstructionQ = new Array<QueueItem>();
 
-		//private List<ShipQueueItem> ShipsList = new List<ShipQueueItem>();
+		//private Array<ShipQueueItem> ShipsList = new Array<ShipQueueItem>();
 
 		//private Rectangle foodIconRect;
 

@@ -133,7 +133,7 @@ namespace Ship_Game
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, this.Status_Text, StatusPos, TextColor);
 
 			Vector2 MainPos = new Vector2((float)(this.MaintRect.X + this.MaintRect.Width / 2), (float)(this.MaintRect.Y + this.MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-			Empire e = EmpireManager.GetEmpireByName(this.screen.empUI.screen.PlayerLoyalty);
+			Empire e = EmpireManager.Player;
             float Maint = 1f;
 			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
@@ -424,8 +424,8 @@ namespace Ship_Game
 								from system in UniverseScreen.SolarSystemList
 								orderby Vector2.Distance(ship.GetAI().MovePosition, system.Position)
 								select system;
-							text = string.Concat(text, Localizer.Token(189), " ", sortedList.First<SolarSystem>().Name);
-							if (sortedList.First<SolarSystem>().ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
+							text = string.Concat(text, Localizer.Token(189), " ", sortedList.First().Name);
+							if (sortedList.First().ExploredDict[EmpireManager.Player])
 							{
 								break;
 							}
@@ -439,7 +439,7 @@ namespace Ship_Game
 								orderby Vector2.Distance(ship.GetAI().MovePosition, system.Position)
 								select system;
 							text = string.Concat(text, sortedList.First<SolarSystem>().Name);
-							if (sortedList.First<SolarSystem>().ExploredDict[EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty)])
+							if (sortedList.First().ExploredDict[EmpireManager.Player])
 							{
 								break;
 							}

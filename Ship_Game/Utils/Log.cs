@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 using SharpRaven;
 using SharpRaven.Data;
 
@@ -22,8 +22,8 @@ namespace Ship_Game
         {
             string init = "\r\n\r\n";
             init +=  " ================================================================== \r\n";
-            init += $" ============ StarDrive {MainMenuScreen.Version} \r\n";
-            init += $" ============ UTC: {DateTime.UtcNow} \r\n";
+            init += $" ========== {GlobalStats.ExtendedVersion,-44} ==========\r\n";
+            init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
             init +=  " ================================================================== \r\n";
             LogFile.Write(init);
 
@@ -33,7 +33,9 @@ namespace Ship_Game
                 // in that case, showing the console is pointless, however if output isn't redirected
                 // we should enable the console window
                 if (Console.IsOutputRedirected == false)
+                {
                     ShowConsoleWindow();
+                }
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(init);
@@ -95,6 +97,32 @@ namespace Ship_Game
             Console.WriteLine(text);
         }
 
+        private static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
+        {
+            var evt = new SentryEvent(ex)
+            {
+                Message = text,
+                Level   = level
+            };
+
+            evt.Tags["Version"] = GlobalStats.Version;
+            if (GlobalStats.HasMod)
+            {
+                evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModPath;
+                evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
+            }
+            else evt.Tags["Mod"] = "Vanilla";
+            if (Empire.Universe != null)
+            {
+                evt.Tags["StarDate"] = Empire.Universe.StarDate.ToString("F1");
+                evt.Tags["Ships"]    = Empire.Universe.MasterShipList.Count.ToString();
+                evt.Tags["Planets"]  = Empire.Universe.PlanetsDict.Count.ToString();
+            }
+            evt.Tags["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
+            evt.Tags["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
+
+            Raven.Capture(evt);
+        }
 
         // write an error to logfile, sentry.io and debug console
         // plus trigger a Debugger.Break
@@ -107,13 +135,9 @@ namespace Ship_Game
             string text = "!! Error: " + error;
             LogFile.WriteLine(text);
 
-            if (!HasDebugger)
+            if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
-                // only log errors to sentry if debugger not attached
-                Raven.Capture(new SentryEvent(text)
-                {
-                    Level = ErrorLevel.Error
-                });
+                CaptureEvent(text, ErrorLevel.Error);
                 return;
             }
             Console.ForegroundColor = ConsoleColor.Red;
@@ -124,23 +148,18 @@ namespace Ship_Game
 
         // write an Exception to logfile, sentry.io and debug console with an error message
         // plus trigger a Debugger.Break
-        public static void Exception(Exception ex, string format, params object[] args)
+        public static void Error(Exception ex, string format, params object[] args)
         {
-            Exception(ex, string.Format(format, args));
+            Error(ex, string.Format(format, args));
         }
-        public static void Exception(Exception ex, string error)
+        public static void Error(Exception ex, string error)
         {
             string text = "!! Exception: " + error;
             LogFile.WriteLine(text);
 
-            if (!HasDebugger)
+            if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
-                // only log errors to sentry if debugger not attached
-                Raven.Capture(new SentryEvent(ex)
-                {
-                    Message = new SentryMessage(text + " | " + ex.Message),
-                    Level = ErrorLevel.Fatal, // this is soooooo serious
-                });
+                CaptureEvent(text + " | " + ex.Message, ErrorLevel.Fatal, ex);
                 return;
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -151,7 +170,18 @@ namespace Ship_Game
 
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
         [DllImport("kernel32.dll")] private static extern IntPtr GetConsoleWindow();
-        [DllImport("user32.dll")]   private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        [DllImport("user32.dll")]   private static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
+        [DllImport("user32.dll")]   private static extern IntPtr SetWindowPos(IntPtr hwnd, int hwndAfter, int x, int y, int cx, int cy, int wFlags);
+        [DllImport("user32.dll")]   private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;        // x position of upper-left corner
+            public int Top;         // y position of upper-left corner
+            public int Right;       // x position of lower-right corner
+            public int Bottom;      // y position of lower-right corner
+        }
 
         public static bool HasActiveConsole => GetConsoleWindow() != IntPtr.Zero;
 
@@ -165,6 +195,22 @@ namespace Ship_Game
                 Console.SetError(new StreamWriter(Console.OpenStandardError()) { AutoFlush = true });
             }
             else ShowWindow(handle, 5/*SW_SHOW*/);
+
+            // Move the console window to a secondary screen if we have multiple monitors
+            if (Screen.AllScreens.Length > 1 && (handle = GetConsoleWindow()) != IntPtr.Zero)
+            {
+                foreach (Screen screen in Screen.AllScreens)
+                {
+                    if (screen.Primary)
+                        continue;
+
+                    GetWindowRect(handle, out RECT rect);
+                    var bounds = screen.Bounds;
+                    const int noResize = 0x0001;
+                    SetWindowPos(handle, 0, bounds.Left + rect.Left, bounds.Top + rect.Top, 0, 0, noResize);
+                    break;
+                }
+            }
         }
 
         public static void HideConsoleWindow()

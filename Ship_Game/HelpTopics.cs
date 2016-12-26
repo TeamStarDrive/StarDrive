@@ -5,7 +5,7 @@ namespace Ship_Game
 {
 	public sealed class HelpTopics
 	{
-		public List<HelpTopic> HelpTopicsList;
+		public Array<HelpTopic> HelpTopicsList;
 
 		public HelpTopics()
 		{

@@ -18,8 +18,8 @@ namespace Ship_Game
 		public float TroopsLost;
 		public int ColoniestWon;
 		public int ColoniesLost;
-		public List<string> AlliesCalled = new List<string>();
-		public List<Guid> ContestedSystemsGUIDs = new List<Guid>();
+		public Array<string> AlliesCalled = new Array<string>();
+		public Array<Guid> ContestedSystemsGUIDs = new Array<Guid>();
 		public float TurnsAtWar;
 		public float EndStarDate;
 		public float StartDate;
@@ -137,7 +137,7 @@ namespace Ship_Game
 			return WarState.LosingSlightly;
 		}
 
-		public WarState GetBorderConflictState(List<Planet> ColoniesOffered)
+		public WarState GetBorderConflictState(Array<Planet> ColoniesOffered)
 		{
 			float strengthKilled = this.StrengthKilled / (this.StrengthLost + 0.01f);
 			if (this.StartingNumContestedSystems == 0)
@@ -163,9 +163,9 @@ namespace Ship_Game
 			return WarState.LosingSlightly;
 		}
 
-		public int GetContestedSystemDifferential(List<Planet> ColoniesOffered)
+		public int GetContestedSystemDifferential(Array<Planet> ColoniesOffered)
 		{
-			List<Guid> guids = this.ContestedSystemsGUIDs;
+			Array<Guid> guids = this.ContestedSystemsGUIDs;
 			foreach (Planet p in ColoniesOffered)
 			{
 				if (guids.Contains(p.system.guid))

@@ -44,7 +44,7 @@ namespace Ship_Game
 			this.SL = new ScrollList(this.ConstructionSubMenu, 40);
 
             //The Doctor: Ensure Subspace Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
-		    var buildables = EmpireManager.GetEmpireByName(screen.PlayerLoyalty).structuresWeCanBuild;
+		    var buildables = EmpireManager.Player.structuresWeCanBuild;
             foreach (string s in buildables)
             {
                 if (s != "Subspace Projector") continue;
@@ -121,16 +121,16 @@ namespace Ship_Game
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
                     
-                    string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
+                    string cost = (e.item as Ship).GetCost(EmpireManager.Player).ToString();
 
                     string upkeep = "Doctor rocks";
 					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
-                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.Player).ToString("F2");
                     }
                     else
                     {
-                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.Player).ToString("F2");
                     }
 
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
@@ -188,16 +188,16 @@ namespace Ship_Game
 
                     // Costs and Upkeeps for the deep space build menu - The Doctor
 
-                    string cost = (e.item as Ship).GetCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString();
+                    string cost = (e.item as Ship).GetCost(EmpireManager.Player).ToString();
 
                     string upkeep = "Doctor rocks";
 					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                     {
-                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                        upkeep = (e.item as Ship).GetMaintCostRealism(EmpireManager.Player).ToString("F2");
                     }
                     else
                     {
-                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty)).ToString("F2");
+                        upkeep = (e.item as Ship).GetMaintCost(EmpireManager.Player).ToString("F2");
                     }
 
                     Rectangle prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
@@ -333,13 +333,13 @@ namespace Ship_Game
 			Ray pickRay = new Ray(nearPoint, direction);
 			float k = -pickRay.Position.Z / pickRay.Direction.Z;
 			Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
-			Goal buildstuff = new Goal(new Vector2(pickedPosition.X, pickedPosition.Y), this.itemToBuild.Name, EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty));
+			Goal buildstuff = new Goal(new Vector2(pickedPosition.X, pickedPosition.Y), this.itemToBuild.Name, EmpireManager.Player);
 			if (this.TargetPlanet != Guid.Empty)
 			{
 				buildstuff.TetherOffset = this.TetherOffset;
 				buildstuff.TetherTarget = this.TargetPlanet;
 			}
-			EmpireManager.GetEmpireByName(this.screen.PlayerLoyalty).GetGSAI().Goals.Add(buildstuff);
+			EmpireManager.Player.GetGSAI().Goals.Add(buildstuff);
 			AudioManager.PlayCue("echo_affirm");
 			lock (GlobalStats.ClickableItemLocker)
 			{

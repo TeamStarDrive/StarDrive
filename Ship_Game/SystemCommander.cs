@@ -28,11 +28,11 @@ namespace Ship_Game
         public float RankImportance;
 		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
-		public Dictionary<Ship, List<Ship>> EnemyClumpsDict = new Dictionary<Ship, List<Ship>>();
+		public Map<Ship, Array<Ship>> EnemyClumpsDict = new Map<Ship, Array<Ship>>();
 
 		private Empire us;
         //public ReaderWriterLockSlim 
-        public Dictionary<Planet, PlanetTracker> planetTracker = new Dictionary<Planet, PlanetTracker>();
+        public Map<Planet, PlanetTracker> planetTracker = new Map<Planet, PlanetTracker>();
 
 		public SystemCommander(Empire e, SolarSystem system)
 		{
@@ -63,7 +63,7 @@ namespace Ship_Game
                 Ship ship = this.system.ShipList[i];
                 if (ship != null && ship.loyalty != this.us && (ship.loyalty.isFaction || this.us.GetRelations(ship.loyalty).AtWar) && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
                 {
-                    this.EnemyClumpsDict.Add(ship, new List<Ship>());
+                    this.EnemyClumpsDict.Add(ship, new Array<Ship>());
                     this.EnemyClumpsDict[ship].Add(ship);
                     ShipsAlreadyConsidered.Add(ship);
                     for (int j = 0; j < this.system.ShipList.Count; j++)
@@ -78,8 +78,8 @@ namespace Ship_Game
             }
             if (this.EnemyClumpsDict.Count != 0)
             {
-                List<Ship> ClumpsList = new List<Ship>();
-                foreach (KeyValuePair<Ship, List<Ship>> entry in this.EnemyClumpsDict)
+                Array<Ship> ClumpsList = new Array<Ship>();
+                foreach (KeyValuePair<Ship, Array<Ship>> entry in this.EnemyClumpsDict)
                 {
                     ClumpsList.Add(entry.Key);
                 }
@@ -114,7 +114,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                List<Ship> UnassignedShips = new List<Ship>();
+                Array<Ship> UnassignedShips = new Array<Ship>();
                 foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
                 {
                     if (AssignedShips.Contains(ship.Value))
@@ -157,9 +157,9 @@ namespace Ship_Game
 			return str;
 		}
 
-		public List<Ship> GetShipList()
+		public Array<Ship> GetShipList()
 		{
-			List<Ship> retlist = new List<Ship>();
+			Array<Ship> retlist = new Array<Ship>();
 			foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
 			{
 				retlist.Add(ship.Value);
@@ -168,7 +168,7 @@ namespace Ship_Game
 		}
         public void updatePlanetTracker()
         {
-            List<Planet> planetsHere = this.system.PlanetList.Where(planet => planet.Owner == this.us).ToList();
+            var planetsHere = system.PlanetList.Where(planet => planet.Owner == us).ToArray();
             foreach(Planet planet in  planetsHere)
             {
                 PlanetTracker currentValue = null;

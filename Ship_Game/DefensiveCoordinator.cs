@@ -14,7 +14,7 @@ namespace Ship_Game
 	{
 		private Empire us;
 
-		public Dictionary<SolarSystem, SystemCommander> DefenseDict = new Dictionary<SolarSystem, SystemCommander>();
+		public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
 
 		public BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
         public float defenseDeficit = 0;
@@ -68,7 +68,7 @@ namespace Ship_Game
 
         }
 
-        public float GetDefensiveThreatFromPlanets(List<Planet> planets)
+        public float GetDefensiveThreatFromPlanets(Array<Planet> planets)
         {
             if (this.DefenseDict.Count == 0)
                 return 0;
@@ -143,7 +143,7 @@ namespace Ship_Game
                 this.DefenseDict.Add(p.system, new SystemCommander(this.us, p.system));
             }
 
-            List<SolarSystem> Keystoremove = new List<SolarSystem>();
+            Array<SolarSystem> Keystoremove = new Array<SolarSystem>();
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
                 if (entry.Key.OwnerList.Contains(this.us))
@@ -165,7 +165,7 @@ namespace Ship_Game
                 this.DefenseDict.Remove(key);
             }
             float TotalValue = 0f;
-            List<SolarSystem> systems = new List<SolarSystem>();
+            Array<SolarSystem> systems = new Array<SolarSystem>();
             foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
             {
                 systems.Add(entry.Key);
@@ -348,8 +348,8 @@ namespace Ship_Game
                 
             }
             
-            Dictionary<Guid, Ship> AssignedShips = new Dictionary<Guid, Ship>();
-            List<Ship> ShipsAvailableForAssignment = new List<Ship>();
+            Map<Guid, Ship> AssignedShips = new Map<Guid, Ship>();
+            Array<Ship> ShipsAvailableForAssignment = new Array<Ship>();
             //Remove excess force:
             foreach (KeyValuePair<SolarSystem, SystemCommander> defenseDict in this.DefenseDict)
             {
@@ -493,56 +493,39 @@ namespace Ship_Game
             float TotalTroopStrength = 0f;
             foreach (Troop t in GroundTroops)
             {
-
-                TotalTroopStrength = TotalTroopStrength + (float)t.Strength;
+                TotalTroopStrength = TotalTroopStrength + t.Strength;
             }
             foreach (Ship ship3 in TroopShips)
             {
-
                 for (int i = 0; i < ship3.TroopList.Count; i++)
                 {
-
-                    if (ship3.TroopList[i].GetOwner() == this.us)
+                    if (ship3.TroopList[i].GetOwner() == us)
                     {
-                        TotalTroopStrength = TotalTroopStrength + (float)ship3.TroopList[i].Strength;
+                        TotalTroopStrength += ship3.TroopList[i].Strength;
                     }
                 }
             }
-            int maxtroops = 0;
-            int currentTroops = 0;
-            List<Planet> planets = new List<Planet>();
-            int planetCount = 0;
-            int developmentlevel = 0;
-            //float maxValue = 0;          //Not referenced in code, removing to save memory
             int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
             int totalTroopWanted = 0;
             int totalCurrentTroops = 0;
-            foreach (KeyValuePair<SolarSystem, SystemCommander> entry in this.DefenseDict)
+            foreach (KeyValuePair<SolarSystem, SystemCommander> entry in DefenseDict)
             {
-
-                //find max number of troops for system.
-                planets = entry.Key.PlanetList.Where(planet => planet.Owner == this.us).ToList();
-                planetCount = planets.Count;
-                developmentlevel = planets.Sum(development => development.developmentLevel);
+                // find max number of troops for system.
+                var planets = entry.Key.PlanetList.Where(planet => planet.Owner == us).ToArray();
+                int planetCount = planets.Length;
+                int developmentlevel = planets.Sum(development => development.developmentLevel);
                 entry.Value.SystemDevelopmentlevel = developmentlevel;
-                maxtroops = entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetPotentialGroundTroops());
-                //maxtroops = (int)(maxtroops * (.1* entry.Value.RankImportance)) / planetCount; // (5 * planetCount);
-                //sum up total number of troops for all planets in system
+                int maxtroops = entry.Key.PlanetList.Where(planet => planet.Owner == us).Sum(planet => planet.GetPotentialGroundTroops());
                 entry.Value.IdealTroopStr = (mintroopLevel + entry.Value.RankImportance) * planetCount;
 
                 if (entry.Value.IdealTroopStr > maxtroops)
                     entry.Value.IdealTroopStr = maxtroops;
                 totalTroopWanted += (int)entry.Value.IdealTroopStr;
-                currentTroops = entry.Key.PlanetList.Where(planet => planet.Owner == this.us).Sum(planet => planet.GetDefendingTroopCount());
+                int currentTroops = entry.Key.PlanetList.Where(planet => planet.Owner == us).Sum(planet => planet.GetDefendingTroopCount());
                 totalCurrentTroops += currentTroops;
 
-                if (planetCount <= 0)
-                    planetCount = 1;
-
                 entry.Value.TroopStrengthNeeded = entry.Value.IdealTroopStr - currentTroops;
-
                 GroundTroops.ApplyPendingRemovals();
-
 
                 for (int i = 0; i < TroopShips.Count; i++)
                 {
@@ -671,81 +654,69 @@ namespace Ship_Game
         }
             #endregion
 		
-        public ConcurrentDictionary<Ship, List<Ship>> EnemyClumpsDict = new ConcurrentDictionary<Ship, List<Ship>>();
+        public ConcurrentDictionary<Ship, Array<Ship>> EnemyClumpsDict = new ConcurrentDictionary<Ship, Array<Ship>>();
 
         public void refreshclumps()
         {
             this.EnemyClumpsDict.Clear();
      
-            //List<Ship> ShipsAlreadyConsidered = new List<Ship>();
+            //Array<Ship> ShipsAlreadyConsidered = new Array<Ship>();
             
 
 
 
   
-            List<Ship> incomingShips = new List<Ship>();
-            incomingShips = Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Hard 
-                ? Empire.Universe.MasterShipList.AsParallel().Where(bases => bases.BaseStrength > 0 && bases.loyalty != us && (bases.loyalty.isFaction || us.GetRelations(bases.loyalty).AtWar || !us.GetRelations(bases.loyalty).Treaty_OpenBorders)).ToList() : this.us.FindShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToList();
+            Ship[] incomingShips = Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Hard 
+                ? Empire.Universe.MasterShipList.AsParallel().Where(
+                    bases => bases.BaseStrength > 0 && bases.loyalty != us && 
+                    (bases.loyalty.isFaction || us.GetRelations(bases.loyalty).AtWar || 
+                    !us.GetRelations(bases.loyalty).Treaty_OpenBorders)).ToArray() 
+                : us.FindShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToArray();
             
 
 
-            if (incomingShips.Count == 0)
+            if (incomingShips.Length == 0)
             {
                 
                 return;
             }
-            var source = incomingShips.ToArray();
 
-            List<Ship> ShipsAlreadyConsidered = new List<Ship>();
-            var   rangePartitioner = Partitioner.Create(0, source.Length);
+            Array<Ship> ShipsAlreadyConsidered = new Array<Ship>();
+            var rangePartitioner = Partitioner.Create(0, incomingShips.Length);
             Parallel.ForEach(rangePartitioner, (range, loopState) =>
-                {
+            {
                     
-                    for (int i = range.Item1; i < range.Item2; i++)
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    //for (int i = 0; i < incomingShips.Count; i++)
                     {
-                        //for (int i = 0; i < incomingShips.Count; i++)
+                        //Ship ship = this.system.ShipList[i];
+                        Ship ship = incomingShips[i];
+
+                        if (ship != null && ship.loyalty != this.us
+                            && (ship.loyalty.isFaction || this.us.GetRelations(ship.loyalty).AtWar || !this.us.GetRelations(ship.loyalty).Treaty_OpenBorders)
+                            && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
                         {
-                            //Ship ship = this.system.ShipList[i];
-                            Ship ship = incomingShips[i];
+                            //lock(this.EnemyClumpsDict)
+                            this.EnemyClumpsDict.TryAdd(ship, new Array<Ship>());
+                            this.EnemyClumpsDict[ship].Add(ship);
+                            lock(ShipsAlreadyConsidered)
+                            ShipsAlreadyConsidered.Add(ship);
 
-                            if (ship != null && ship.loyalty != this.us
-                                && (ship.loyalty.isFaction || this.us.GetRelations(ship.loyalty).AtWar || !this.us.GetRelations(ship.loyalty).Treaty_OpenBorders)
-                                && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
+                            for (int j = range.Item1; j < range.Item2; j++)
                             {
-                                //lock(this.EnemyClumpsDict)
-                                this.EnemyClumpsDict.TryAdd(ship, new List<Ship>());
-                                this.EnemyClumpsDict[ship].Add(ship);
-                                lock(ShipsAlreadyConsidered)
-                                ShipsAlreadyConsidered.Add(ship);
-                                //for (int j = 0; j < this.system.ShipList.Count; j++)
-                                //                             var source = Empire.Universe.MasterShipList.ToArray();
-                                //     var rangePartitioner = Partitioner.Create(0, source.Length);
-
-                                //     //Parallel.For(0, Empire.Universe.MasterShipList.Count, i =>  
-                                //     Parallel.ForEach(rangePartitioner, (range, loopState) =>
-                                //{
-                                //    for (int i = range.Item1; i < range.Item2; i++)
-
-
-                                //for (int j = 0; j < incomingShips.Count; j++)
-                                for (int j = range.Item1; j < range.Item2; j++)
-                                //Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                                Ship otherShip = incomingShips[j];
+                                if (otherShip.loyalty != this.us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f
+                                    && !ShipsAlreadyConsidered.Contains(otherShip))
                                 {
-                                    //for (int j = range.Item1; j < range.Item2; j++)
-                                    {
-                                        Ship otherShip = source[j]; //incomingShips[j];
-                                        if (otherShip.loyalty != this.us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f
-                                            && !ShipsAlreadyConsidered.Contains(otherShip))
-                                        {
-                                            this.EnemyClumpsDict[ship].Add(otherShip);
-                                        }
-                                    }
-                                }//);
+                                    this.EnemyClumpsDict[ship].Add(otherShip);
+                                }
                             }
-
                         }
+
                     }
-                });
+                }
+            });
   
             
         }

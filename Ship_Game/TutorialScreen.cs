@@ -9,7 +9,7 @@ namespace Ship_Game
 {
 	public sealed class TutorialScreen : GameScreen
 	{
-		private Dictionary<string, Texture2D> TexDict = new Dictionary<string, Texture2D>();
+		private Map<string, Texture2D> TexDict = new Map<string, Texture2D>();
 
 		private Rectangle BridgeRect;
 
