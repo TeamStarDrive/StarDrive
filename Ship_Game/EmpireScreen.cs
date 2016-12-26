@@ -236,7 +236,7 @@ namespace Ship_Game
 			MapRect.Width = buildingsRect.Width;
 			int xsize = buildingsRect.Width / 7;
 			int ysize = buildingsRect.Height / 5;
-			List<PlanetGridSquare> localPgsList = new List<PlanetGridSquare>();
+			Array<PlanetGridSquare> localPgsList = new Array<PlanetGridSquare>();
 			foreach (PlanetGridSquare pgs in this.SelectedPlanet.TilesList)
 			{
 				PlanetGridSquare pgnew = new PlanetGridSquare()

@@ -45,7 +45,7 @@ namespace Ship_Game
 
 		private float HoverTimer;
 
-		private List<SystemInfoUIElement.ClickMe> ClickList = new List<SystemInfoUIElement.ClickMe>();
+		private Array<SystemInfoUIElement.ClickMe> ClickList = new Array<SystemInfoUIElement.ClickMe>();
 
 		new private Color tColor = new Color(255, 239, 208);
 

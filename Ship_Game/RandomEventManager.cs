@@ -44,7 +44,7 @@ namespace Ship_Game
 
 		    if (random > 2f && random < 4f)         //Shifted in orbit (+ Fertility)
 		    {
-		        var potentials = new List<Planet>();
+		        var potentials = new Array<Planet>();
 		        foreach (var planet in Empire.Universe.PlanetsDict)
 		        {
 		            if (planet.Value.habitable)
@@ -65,7 +65,7 @@ namespace Ship_Game
 
 		    if (random > 4f && random < 6f)     //Volcano (- Fertility)
 		    {
-		        var potentials = new List<Planet>();
+		        var potentials = new Array<Planet>();
 		        foreach (var planet in Empire.Universe.PlanetsDict)
 		        {
 		            if (planet.Value.habitable)
@@ -90,7 +90,7 @@ namespace Ship_Game
 		    }
 		    if (random > 6 && random < 8)   //Meteor Strike --  Added by Gretman
 		    {
-		        var potentials = new List<Planet>();
+		        var potentials = new Array<Planet>();
 		        foreach (var planet in Empire.Universe.PlanetsDict)
 		        {
 		            if (planet.Value.habitable)

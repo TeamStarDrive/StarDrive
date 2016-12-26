@@ -30,7 +30,7 @@ namespace Ship_Game.Gameplay
 			this.Owner = owner;
 			if (MissileAI.universeScreen != null)
 			{
-				List<GameplayObject> GPO;
+				Array<GameplayObject> GPO;
                 if (this.Owner.Owner == null)
                 {
                     GPO = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);

@@ -135,7 +135,7 @@ namespace Ship_Game.Gameplay
         public float TargetChangeTimer;
         public bool PrimaryTarget = false;
         [XmlIgnore][JsonIgnore]
-        public List<ModuleSlot> AttackerTargetting;// = new List<ModuleSlot>();
+        public Array<ModuleSlot> AttackerTargetting;// = new Array<ModuleSlot>();
 
 		public static AudioListener audioListener { get; set; }
 

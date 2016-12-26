@@ -184,16 +184,21 @@ namespace Ship_Game
             forward = Vector2.Normalize(forward);
             return ship.Position - (forward * distance);
         }
-        public static Vector2 FindVectorToTarget(this Vector2 OwnerPos, Vector2 TargetPos)
+        public static Vector2 FindVectorToTarget(this Vector2 origin, Vector2 target)
         {
-            Vector2 vec2Target = new Vector2(0f, 0f)
-            {
-                X = -(OwnerPos.X - TargetPos.X),
-                Y = OwnerPos.Y - TargetPos.Y
-            };
-            return vec2Target;
+            return Vector2.Normalize(target - origin);
         }
 
+        public static Vector2 FindPredictedVectorToTarget(this Vector2 origin, float speedToTarget, Vector2 target, Vector2 targetVelocity)
+        {
+            Vector2 vectorToTarget = target - origin;
+            float distance = vectorToTarget.Length();
+            float time = distance / speedToTarget;
+            Vector2 spaceTraveled = targetVelocity * time;
+            Vector2 predictedVector = target + spaceTraveled;
+            vectorToTarget = predictedVector;
+            return vectorToTarget;
+        }
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
         public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)

@@ -7,27 +7,27 @@ using System.Linq;
 
 namespace Ship_Game
 {
-    public sealed class BatchRemovalCollection<T> : List<T>,IDisposable //where T : new()
+    public sealed class BatchRemovalCollection<T> : Array<T>,IDisposable //where T : new()
     {
         private ConcurrentStack<T> pendingRemovals;
         private ReaderWriterLockSlim thisLock;
 
         public BatchRemovalCollection()
         {
-            //this.pendingRemovals = new List<T>();
+            //this.pendingRemovals = new Array<T>();
             pendingRemovals = new ConcurrentStack<T>();
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         }
         public BatchRemovalCollection(bool noQueueForRemoval)
         {
-            //this.pendingRemovals = new List<T>();
+            //this.pendingRemovals = new Array<T>();
             //this.pendingRemovals = new ConcurrentStack<T>();
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         }
-        public BatchRemovalCollection(List<T> ListToCopy)
+        public BatchRemovalCollection(Array<T> ListToCopy)
         {
-            //List<T> list = this as List<T>;
-            //list = ListToCopy.ToList<T>();
+            //Array<T> list = this as Array<T>;
+            //list = ListToCopy.ToArray<T>();
             base.AddRange(ListToCopy);
             thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         }
@@ -100,13 +100,13 @@ namespace Ship_Game
             base.Add(item);
             thisLock.ExitWriteLock();
         }
-        //public List<T> Get()
+        //public Array<T> Get()
         //{
-        //    var list = new List<T>();
+        //    var list = new Array<T>();
         //    thisLock.EnterReadLock();
         //    list.AddRange(this);// = base.ToList();
         //    thisLock.ExitReadLock();
-        //    return list;// this as List<T>;
+        //    return list;// this as Array<T>;
         //}
         
         //public new Enumerator GetEnumerator()
@@ -286,10 +286,10 @@ namespace Ship_Game
                 thisLock.ExitReadLock();
             }
         }
-        public List<T> Clone(bool asParallel = true)
+        public Array<T> Clone(bool asParallel = true)
         {
             thisLock.EnterReadLock();
-            var copy = asParallel ? new List<T>(this.AsParallel()) : new List<T>(this);
+            var copy = asParallel ? new Array<T>(this.AsParallel()) : new Array<T>(this);
             thisLock.ExitReadLock();
             return copy;
         }
@@ -313,9 +313,8 @@ namespace Ship_Game
         }
 
         public T RecycleObject()
-        {            
-            T item;
-            if (!pendingRemovals.TryPop(out item))
+        {
+            if (!pendingRemovals.TryPop(out T item))
                 return item;
             (item as Empire.InfluenceNode)?.Wipe();
             return item;

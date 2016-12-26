@@ -8,18 +8,18 @@ namespace Ship_Game
     //Added by McShooterz: class to store names for ships
     public sealed class ShipNames
     {
-        public List<EmpireEntry> EmpireEntries = new List<EmpireEntry>();
+        public Array<EmpireEntry> EmpireEntries = new Array<EmpireEntry>();
 
         public struct EmpireEntry
         {
             public string ShipType;
-            public List<RoleNames> NamesByRoles;
+            public Array<RoleNames> NamesByRoles;
         };
 
         public struct RoleNames
         {
             public ShipData.RoleName Role;
-            public List<string> Names;
+            public Array<string> Names;
         };
 
         // Refactored by RedFox

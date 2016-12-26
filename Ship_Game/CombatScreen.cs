@@ -51,9 +51,9 @@ namespace Ship_Game
 
 		private Rectangle GridRect;
 
-		private List<CombatScreen.PointSet> CenterPoints = new List<CombatScreen.PointSet>();
+		private Array<CombatScreen.PointSet> CenterPoints = new Array<CombatScreen.PointSet>();
 
-		private List<CombatScreen.PointSet> pointsList = new List<CombatScreen.PointSet>();
+		private Array<CombatScreen.PointSet> pointsList = new Array<CombatScreen.PointSet>();
 
 		private bool ResetNextFrame;
 
@@ -67,7 +67,7 @@ namespace Ship_Game
 
 		private ScrollList.Entry draggedTroop;
 
-		private List<PlanetGridSquare> ReversedList = new List<PlanetGridSquare>();
+		private Array<PlanetGridSquare> ReversedList = new Array<PlanetGridSquare>();
 
 		public BatchRemovalCollection<CombatScreen.SmallExplosion> Explosions = new BatchRemovalCollection<CombatScreen.SmallExplosion>();
 

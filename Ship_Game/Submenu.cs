@@ -12,7 +12,7 @@ namespace Ship_Game
 
 		private Ship_Game.ScreenManager ScreenManager;
 
-		public List<Submenu.Tab> Tabs = new List<Submenu.Tab>();
+		public Array<Submenu.Tab> Tabs = new Array<Submenu.Tab>();
 
 		public bool LowRes;
 

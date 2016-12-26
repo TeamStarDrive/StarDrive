@@ -11,7 +11,7 @@ namespace Ship_Game
 
 		private Camera2d cam = new Camera2d();
 
-		private List<Background.Nebula> Nebulas = new List<Background.Nebula>();
+		private Array<Background.Nebula> Nebulas = new Array<Background.Nebula>();
 
 		private int itAmount = 512;
 
