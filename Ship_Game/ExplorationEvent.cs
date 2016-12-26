@@ -6,7 +6,7 @@ namespace Ship_Game
     {
         public string Name;
 
-        public List<Outcome> PotentialOutcomes;
+        public Array<Outcome> PotentialOutcomes;
 
         public void TriggerOutcome(Empire triggerer, Outcome triggeredOutcome)
         {

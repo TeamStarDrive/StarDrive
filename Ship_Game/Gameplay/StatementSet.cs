@@ -7,7 +7,7 @@ namespace Ship_Game.Gameplay
 	{
 		public string Name;
 
-		public List<DialogOption> DialogOptions;
+		public Array<DialogOption> DialogOptions;
 
 		public StatementSet()
 		{

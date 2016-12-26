@@ -32,7 +32,7 @@ namespace Ship_Game
 
 		public Empire SelectedEmpire;
 
-		private List<RaceEntry> Races = new List<RaceEntry>();
+		private Array<RaceEntry> Races = new Array<RaceEntry>();
 
 		//private ProgressBar Penetration;
 
@@ -55,8 +55,8 @@ namespace Ship_Game
 
         //Added by CG: player empire
         Empire PlayerEmpire;
-        List<Empire> Friends;
-        List<Empire> Traders;
+        Array<Empire> Friends;
+        Array<Empire> Traders;
         HashSet<Empire> Moles;
 
 
@@ -265,7 +265,7 @@ namespace Ship_Game
 				ColumnBCursor.X = ColumnBCursor.X + 190f;
 				ColumnBCursor.Y = ColumnBCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
 				TextCursor.Y = TextCursor.Y + (float)(Fonts.Arial12Bold.LineSpacing + 2);
-				List<Empire> Sortlist = new List<Empire>();
+				Array<Empire> Sortlist = new Array<Empire>();
 				foreach (Empire e in EmpireManager.Empires)
 				{
 					if (e.isFaction || e.data.Defeated || e.MinorRace)
@@ -455,7 +455,7 @@ namespace Ship_Game
 						button.Draw(base.ScreenManager);
 					}
 				}
-				List<Empire> Sortlist = new List<Empire>();
+				Array<Empire> Sortlist = new Array<Empire>();
 				foreach (Empire e in EmpireManager.Empires)
 				{
 					if (e.isFaction || e.data.Defeated || e.MinorRace)

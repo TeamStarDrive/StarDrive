@@ -29,7 +29,7 @@ namespace Ship_Game.Gameplay
 
         private BatchRemovalCollection<SolarSystem> MarkedForExploration = new BatchRemovalCollection<SolarSystem>();
 
-		public List<AO> AreasOfOperations = new List<AO>();
+		public Array<AO> AreasOfOperations = new Array<AO>();
 
 		private int DesiredAgentsPerHostile = 2;
 
@@ -39,7 +39,7 @@ namespace Ship_Game.Gameplay
 
 		private int BaseAgents;
 
-        public List<int> UsedFleets = new List<int>();
+        public Array<int> UsedFleets = new Array<int>();
 
 		public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
 
@@ -47,13 +47,13 @@ namespace Ship_Game.Gameplay
 
 		private int numberTroopGoals = 2;
 
-		private Dictionary<Ship, List<Ship>> InterceptorDict = new Dictionary<Ship, List<Ship>>();
+		private Dictionary<Ship, Array<Ship>> InterceptorDict = new Dictionary<Ship, Array<Ship>>();
 
-		public List<MilitaryTask> TasksToAdd = new List<MilitaryTask>();
+		public Array<MilitaryTask> TasksToAdd = new Array<MilitaryTask>();
 
 		public int num_current_invasion_tasks;
 
-		private List<Planet> DesiredPlanets = new List<Planet>();
+		private Array<Planet> DesiredPlanets = new Array<Planet>();
 
 		private int FirstDemand = 20;
 
@@ -371,8 +371,8 @@ namespace Ship_Game.Gameplay
 			}
 			foreach (string planetName in FromUs.ColoniesOffered)
 			{
-				List<Planet> toRemove = new List<Planet>();
-				List<Ship> TroopShips = new List<Ship>();
+				Array<Planet> toRemove = new Array<Planet>();
+				Array<Ship> TroopShips = new Array<Ship>();
 				foreach (Planet p in us.GetPlanets())
 				{
 					if (p.Name != planetName)
@@ -428,8 +428,8 @@ namespace Ship_Game.Gameplay
 			}
 			foreach (string planetName in ToUs.ColoniesOffered)
 			{
-				List<Planet> toRemove = new List<Planet>();
-				List<Ship> TroopShips = new List<Ship>();
+				Array<Planet> toRemove = new Array<Planet>();
+				Array<Ship> TroopShips = new Array<Ship>();
 				foreach (Planet p in Them.GetPlanets())
 				{
 					if (p.Name != planetName)
@@ -740,8 +740,8 @@ namespace Ship_Game.Gameplay
 			}
 			foreach (string planetName in FromUs.ColoniesOffered)
 			{
-				List<Planet> toRemove = new List<Planet>();
-				List<Ship> TroopShips = new List<Ship>();
+				Array<Planet> toRemove = new Array<Planet>();
+				Array<Ship> TroopShips = new Array<Ship>();
 				foreach (Planet p in us.GetPlanets())
 				{
 					if (p.Name != planetName)
@@ -793,8 +793,8 @@ namespace Ship_Game.Gameplay
 			}
 			foreach (string planetName in ToUs.ColoniesOffered)
 			{
-				List<Planet> toRemove = new List<Planet>();
-				List<Ship> TroopShips = new List<Ship>();
+				Array<Planet> toRemove = new Array<Planet>();
+				Array<Ship> TroopShips = new Array<Ship>();
 				foreach (Planet p in Them.GetPlanets())
 				{
 					if (p.Name != planetName)
@@ -1259,7 +1259,7 @@ namespace Ship_Game.Gameplay
 					ValueFromUs = ValueFromUs + (us.data.EconomicPersonality.Name == "Expansionists" ? value + value : value + 0.5f * value);
 				}
 			}
-			List<Planet> PlanetsToUs = new List<Planet>();
+			Array<Planet> PlanetsToUs = new Array<Planet>();
 			foreach (string planetName in ToUs.ColoniesOffered)
 			{
 				foreach (Planet p in them.GetPlanets())
@@ -2420,7 +2420,7 @@ namespace Ship_Game.Gameplay
 
 		public SolarSystem AssignExplorationTargetORIG(Ship queryingShip)
 		{
-			List<SolarSystem> Potentials = new List<SolarSystem>();
+			Array<SolarSystem> Potentials = new Array<SolarSystem>();
 			foreach (SolarSystem s in UniverseScreen.SolarSystemList)
 			{
 				if (s.ExploredDict[this.empire])
@@ -2446,9 +2446,9 @@ namespace Ship_Game.Gameplay
 			return sortedList.First<SolarSystem>();
 		}
 
-	    public List<Planet> GetKnownPlanets()
+	    public Array<Planet> GetKnownPlanets()
 	    {
-            List<Planet> KnownPlanets = new List<Planet>();
+            Array<Planet> KnownPlanets = new Array<Planet>();
             foreach (SolarSystem s in UniverseScreen.SolarSystemList)
             {
                 if (!s.ExploredDict[empire]) continue;
@@ -2459,7 +2459,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin ExplorationTarget
         public SolarSystem AssignExplorationTarget(Ship queryingShip)
         {
-            List<SolarSystem> Potentials = new List<SolarSystem>();
+            Array<SolarSystem> Potentials = new Array<SolarSystem>();
             foreach (SolarSystem s in UniverseScreen.SolarSystemList)
             {
                 if (s.ExploredDict[this.empire])
@@ -2924,7 +2924,7 @@ namespace Ship_Game.Gameplay
 		{
 			
             int numberofWars = 0;
-			List<Empire> PotentialTargets = new List<Empire>();
+			Array<Empire> PotentialTargets = new Array<Empire>();
 			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.AllRelations)
 			{
 				if (Relationship.Key.data.Defeated || !Relationship.Value.AtWar && !Relationship.Value.PreparingForWar)
@@ -3178,7 +3178,7 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-                List<Empire> PotentialTargets = new List<Empire>();
+                Array<Empire> PotentialTargets = new Array<Empire>();
                 foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relation in this.empire.AllRelations)
                 {
                     if (!Relation.Value.Known || Relation.Key.isFaction || Relation.Key.data.Defeated || Relation.Value.Posture != Posture.Neutral && Relation.Value.Posture != Posture.Hostile)
@@ -3385,7 +3385,7 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-                List<Empire> PotentialTargets = new List<Empire>();
+                Array<Empire> PotentialTargets = new Array<Empire>();
                 foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relation in this.empire.AllRelations)
                 {
                     if (!Relation.Value.Known || Relation.Key.isFaction || Relation.Key.data.Defeated || Relation.Value.Posture != Posture.Neutral && Relation.Value.Posture != Posture.Hostile)
@@ -3398,7 +3398,7 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-                List<AgentMission> PotentialMissions = new List<AgentMission>();
+                Array<AgentMission> PotentialMissions = new Array<AgentMission>();
                 Empire Target = PotentialTargets[RandomMath.InRange(PotentialTargets.Count)];
                 if (this.empire.GetRelations(Target).AtWar)
                 {
@@ -3576,7 +3576,7 @@ namespace Ship_Game.Gameplay
                     {
                         case Posture.Friendly:
                             float usedTrust1 = 0.0f;
-                            foreach (TrustEntry trustEntry in (List<TrustEntry>)Relationship.Value.TrustEntries)
+                            foreach (TrustEntry trustEntry in (Array<TrustEntry>)Relationship.Value.TrustEntries)
                                 usedTrust1 += trustEntry.TrustCost;
                             if (Relationship.Value.TurnsKnown > this.SecondDemand && (double)Relationship.Value.Trust - (double)usedTrust1 > (double)this.empire.data.DiplomaticPersonality.Trade && (Relationship.Value.turnsSinceLastContact > this.SecondDemand && !Relationship.Value.Treaty_Trade) && !Relationship.Value.HaveRejected_TRADE)
                             {
@@ -3642,14 +3642,14 @@ namespace Ship_Game.Gameplay
                             else if (Relationship.Value.TurnsKnown > this.FirstDemand && Relationship.Value.HaveRejected_NAPACT)
                                 Relationship.Value.Posture = Posture.Neutral;
                             float usedTrust2 = 0.0f;
-                            foreach (TrustEntry trustEntry in (List<TrustEntry>)Relationship.Value.TrustEntries)
+                            foreach (TrustEntry trustEntry in (Array<TrustEntry>)Relationship.Value.TrustEntries)
                                 usedTrust2 += trustEntry.TrustCost;
                             this.AssessAngerPacifist(Relationship, Posture.Neutral, usedTrust2);
                             continue;
                         case Posture.Hostile:
                             if (Relationship.Value.ActiveWar != null)
                             {
-                                List<Empire> list = new List<Empire>();
+                                Array<Empire> list = new Array<Empire>();
                                 foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.empire.AllRelations)
                                 {
                                     if (keyValuePair.Value.Treaty_Alliance && keyValuePair.Key.GetRelations(Relationship.Key).Known && !keyValuePair.Key.GetRelations(Relationship.Key).AtWar)
@@ -3818,7 +3818,7 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-                List<Empire> PotentialTargets = new List<Empire>();
+                Array<Empire> PotentialTargets = new Array<Empire>();
                 foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relation in this.empire.AllRelations)
                 {
                     if (!Relation.Value.Known || Relation.Key.isFaction || Relation.Key.data.Defeated || 
@@ -3832,7 +3832,7 @@ namespace Ship_Game.Gameplay
                 {
                     continue;
                 }
-                List<AgentMission> PotentialMissions = new List<AgentMission>();
+                Array<AgentMission> PotentialMissions = new Array<AgentMission>();
                 Empire Target = PotentialTargets[RandomMath.InRange(PotentialTargets.Count)];
                 if (this.empire.GetRelations(Target).AtWar)
                 {
@@ -3937,7 +3937,7 @@ namespace Ship_Game.Gameplay
                 if (Relationship.Value.Known && !Relationship.Key.isFaction && !Relationship.Key.data.Defeated)
                 {
                     float usedTrust = 0.0f;
-                    foreach (TrustEntry trustEntry in (List<TrustEntry>)Relationship.Value.TrustEntries)
+                    foreach (TrustEntry trustEntry in (Array<TrustEntry>)Relationship.Value.TrustEntries)
                         usedTrust += trustEntry.TrustCost;
                     switch (Relationship.Value.Posture)
                     {
@@ -4016,7 +4016,7 @@ namespace Ship_Game.Gameplay
                         case Posture.Hostile:
                             if (Relationship.Value.ActiveWar != null)
                             {
-                                List<Empire> list = new List<Empire>();
+                                Array<Empire> list = new Array<Empire>();
                                 foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.empire.AllRelations)
                                 {
                                     if (keyValuePair.Value.Treaty_Alliance && keyValuePair.Key.GetRelations(Relationship.Key).Known && !keyValuePair.Key.GetRelations(Relationship.Key).AtWar)
@@ -4110,7 +4110,7 @@ namespace Ship_Game.Gameplay
 		{
             this.AssessTeritorialConflicts(this.empire.data.DiplomaticPersonality.Territorialism / 5f);
             int numberofWars = 0;
-			List<Empire> PotentialTargets = new List<Empire>();
+			Array<Empire> PotentialTargets = new Array<Empire>();
 			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.AllRelations)
 			{
 				if (!Relationship.Value.AtWar || Relationship.Key.data.Defeated)
@@ -4266,7 +4266,7 @@ namespace Ship_Game.Gameplay
 					{
 						if (Relationship.Value.TurnsKnown >= this.FirstDemand && !Relationship.Value.Treaty_NAPact && !Relationship.Value.HaveRejected_Demand_Tech && !Relationship.Value.XenoDemandedTech)
 						{
-							List<string> PotentialDemands = new List<string>();
+							Array<string> PotentialDemands = new Array<string>();
 							foreach (KeyValuePair<string, TechEntry> tech in Relationship.Key.GetTDict())
 							{
                                 //Added by McShooterz: prevent root nodes from being demanded, and secret but not discovered
@@ -4338,7 +4338,7 @@ namespace Ship_Game.Gameplay
                                 continue;
                             }
                             foundhome = true;
-                            List<Ship>.Enumerator enumerator = this.empire.GetFleetsDict()[task.WhichFleet].Ships.GetEnumerator();
+                            Array<Ship>.Enumerator enumerator = this.empire.GetFleetsDict()[task.WhichFleet].Ships.GetEnumerator();
                             try
                             {
                                 while (enumerator.MoveNext())
@@ -4563,7 +4563,7 @@ namespace Ship_Game.Gameplay
 
 		private void FightBrutalWar(KeyValuePair<Empire, Relationship> r)
 		{
-			List<Planet> InvasionTargets = new List<Planet>();
+			Array<Planet> InvasionTargets = new Array<Planet>();
 			foreach (Planet p in this.empire.GetPlanets())
 			{
 				foreach (Planet toCheck in p.system.PlanetList)
@@ -4601,7 +4601,7 @@ namespace Ship_Game.Gameplay
 					}
 				}
 			}
-			List<Planet> PlanetsWeAreInvading = new List<Planet>();
+			Array<Planet> PlanetsWeAreInvading = new Array<Planet>();
 			//lock (GlobalStats.TaskLocker)
 			{
                 this.TaskList.ForEach(task =>//foreach (MilitaryTask task in this.TaskList)
@@ -4644,7 +4644,7 @@ namespace Ship_Game.Gameplay
         private void FightDefaultWar(KeyValuePair<Empire, Relationship> r)
         {
             float warWeight = 1 +this.empire.getResStrat().ExpansionPriority + this.empire.getResStrat().MilitaryPriority;
-            foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
+            foreach (MilitaryTask item_0 in (Array<MilitaryTask>)this.TaskList)
             {
                 if (item_0.type == MilitaryTask.TaskType.AssaultPlanet)
                 {
@@ -4654,15 +4654,15 @@ namespace Ship_Game.Gameplay
                 if (warWeight < 0)
                     return;
             }
-            List<SolarSystem> s;
+            Array<SolarSystem> s;
             SystemCommander scom;
             switch (r.Value.ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
-                    List<Planet> list1 = new List<Planet>();
+                    Array<Planet> list1 = new Array<Planet>();
                     IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet) / 150000 + (r.Key.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(planet.ParentSystem, out scom) ? scom.RankImportance : 0)));
                         int x = (int)UniverseData.UniverseWidth;
-                    s = new List<SolarSystem>();
+                    s = new Array<SolarSystem>();
                         
                     for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1); ++index)
                     {
@@ -4676,7 +4676,7 @@ namespace Ship_Game.Gameplay
                         //    break;
                         list1.Add(p);
                     }
-                    using (List<Planet>.Enumerator enumerator = list1.GetEnumerator())
+                    using (Array<Planet>.Enumerator enumerator = list1.GetEnumerator())
                     {
                     
                         while (enumerator.MoveNext())
@@ -4686,7 +4686,7 @@ namespace Ship_Game.Gameplay
                            
                             using (TaskList.AcquireReadLock())
                             {
-                                foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
+                                foreach (MilitaryTask item_0 in (Array<MilitaryTask>)this.TaskList)
                                 {
                                     if (item_0.GetTargetPlanet() == current && item_0.type == MilitaryTask.TaskType.AssaultPlanet)
                                     {
@@ -4705,9 +4705,9 @@ namespace Ship_Game.Gameplay
                         break;
                     }
                 case WarType.ImperialistWar:
-                    List<Planet> list2 = new List<Planet>();
+                    Array<Planet> list2 = new Array<Planet>();
                     IOrderedEnumerable<Planet> orderedEnumerable2 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet) / 150000 + (r.Key.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(planet.ParentSystem, out scom) ? scom.RankImportance : 0)));
-                    s = new List<SolarSystem>();
+                    s = new Array<SolarSystem>();
                     for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable2); ++index)
                     {
                         Planet p = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable2, index);
@@ -4721,7 +4721,7 @@ namespace Ship_Game.Gameplay
                         list2.Add(p);
                  
                     }
-                    using (List<Planet>.Enumerator enumerator = list2.GetEnumerator())
+                    using (Array<Planet>.Enumerator enumerator = list2.GetEnumerator())
                     {
                         while (enumerator.MoveNext())
                         {
@@ -4733,7 +4733,7 @@ namespace Ship_Game.Gameplay
                                 continue;
                             using (TaskList.AcquireReadLock())
                             {
-                                foreach (MilitaryTask item_1 in (List<MilitaryTask>)this.TaskList)
+                                foreach (MilitaryTask item_1 in (Array<MilitaryTask>)this.TaskList)
                                 {
                                     if (item_1.GetTargetPlanet() == current )
                                     {
@@ -4796,7 +4796,7 @@ namespace Ship_Game.Gameplay
 		private SolarSystem FindBestRoadOrigin(SolarSystem Origin, SolarSystem Destination)
 		{
 			SolarSystem Closest = Origin;
-			List<SolarSystem> ConnectedToOrigin = new List<SolarSystem>();
+			Array<SolarSystem> ConnectedToOrigin = new Array<SolarSystem>();
 			foreach (SpaceRoad road in this.empire.SpaceRoadsList)
 			{
 				if (road.GetOrigin() != Origin)
@@ -4839,7 +4839,7 @@ namespace Ship_Game.Gameplay
 
 		private string GetAnAssaultShip()
 		{
-			List<Ship> PotentialShips = new List<Ship>();
+			Array<Ship> PotentialShips = new Array<Ship>();
 			foreach (string shipsWeCanBuild in this.empire.ShipsWeCanBuild)
 			{
 				if (ResourceManager.ShipsDict[shipsWeCanBuild].TroopList.Count <= 0)
@@ -5233,7 +5233,7 @@ namespace Ship_Game.Gameplay
             }
             
             #endregion
-            List<Ship> PotentialShips = new List<Ship>();
+            Array<Ship> PotentialShips = new Array<Ship>();
             this.empire.UpdateShipsWeCanBuild();
 
             string buildThis = "";
@@ -5876,7 +5876,7 @@ namespace Ship_Game.Gameplay
             if (RandomMath.RandomBetween(0f, 1f) < 0.5f)
                 ranA = true;
             
-            List<Ship> PotentialShips = new List<Ship>();
+            Array<Ship> PotentialShips = new Array<Ship>();
             Dictionary<ShipData.RoleName, float> PickRoles = new Dictionary<ShipData.RoleName, float>();
             this.empire.UpdateShipsWeCanBuild();
             string buildThis;
@@ -5959,7 +5959,7 @@ namespace Ship_Game.Gameplay
         }
 
         /*
-        public string PickFromCandidates(ShipData.RoleName role, float Capacity, List<Ship> PotentialShips)
+        public string PickFromCandidates(ShipData.RoleName role, float Capacity, Array<Ship> PotentialShips)
         {            
             string name = "";
             Ship ship;
@@ -6016,7 +6016,7 @@ namespace Ship_Game.Gameplay
         */
 
         //fbedard: add TroopsShip(troop), Bomber(drone) and Carrier(prototype) roles
-        public string PickFromCandidates(ShipData.RoleName role, float Capacity, List<Ship> PotentialShips)
+        public string PickFromCandidates(ShipData.RoleName role, float Capacity, Array<Ship> PotentialShips)
         {            
             string name = "";
             Ship ship;
@@ -6112,7 +6112,7 @@ namespace Ship_Game.Gameplay
         //Added by McShooterz: used for AI to get defensive structures to build around planets
         public string GetDefenceSatellite()
         {
-            List<Ship> PotentialSatellites = new List<Ship>();
+            Array<Ship> PotentialSatellites = new Array<Ship>();
             foreach (string platform in this.empire.structuresWeCanBuild)
             {
                 Ship orbitalDefense = ResourceManager.ShipsDict[platform];
@@ -6126,7 +6126,7 @@ namespace Ship_Game.Gameplay
         }
         public string GetStarBase()
         {
-            List<Ship> PotentialSatellites = new List<Ship>();
+            Array<Ship> PotentialSatellites = new Array<Ship>();
             foreach (string platform in this.empire.structuresWeCanBuild)
             {
                 Ship orbitalDefense = ResourceManager.ShipsDict[platform];
@@ -6279,7 +6279,7 @@ namespace Ship_Game.Gameplay
         {
             //Vector2 empireCenter =this.empire.GetWeightedCenter();
             
-            List<AO> aOs = new List<AO>();
+            Array<AO> aOs = new Array<AO>();
             float empireStr = this.empire.currentMilitaryStrength; // / (this.AreasOfOperations.Count*2.5f+1);
             foreach (AO areasOfOperation in this.AreasOfOperations)
             {
@@ -6327,7 +6327,7 @@ namespace Ship_Game.Gameplay
             {
                 this.AreasOfOperations.Remove(aO1);
             }
-            List<Planet> planets = new List<Planet>();
+            Array<Planet> planets = new Array<Planet>();
             foreach (Planet planet1 in this.empire.GetPlanets())
             {
                 if (planet1.GetMaxProductionPotential() <= 5f || !planet1.HasShipyard)
@@ -6494,8 +6494,8 @@ namespace Ship_Game.Gameplay
 			if (empire == Empire.Universe.PlayerEmpire || empire.isFaction || !Them.Value.Known)
 				return;
 
-			List<Planet> OurTargetPlanets = new List<Planet>();
-			List<Planet> TheirTargetPlanets = new List<Planet>();
+			Array<Planet> OurTargetPlanets = new Array<Planet>();
+			Array<Planet> TheirTargetPlanets = new Array<Planet>();
 			foreach (Goal g in this.Goals)
 			{
 				if (g.type == GoalType.Colonize)
@@ -6516,7 +6516,7 @@ namespace Ship_Game.Gameplay
                 }
                 TheirTargetPlanets.Add(ship.GetAI().ColonizeTarget);
             }, false, false, false);
-			List<Planet>.Enumerator enumerator = OurTargetPlanets.GetEnumerator();
+			Array<Planet>.Enumerator enumerator = OurTargetPlanets.GetEnumerator();
 			try
 			{
 				do
@@ -6610,8 +6610,8 @@ namespace Ship_Game.Gameplay
                     }
                 }
                 WeightedCenter = WeightedCenter / (float)numPlanets;
-                List<Goal.PlanetRanker> ranker = new List<Goal.PlanetRanker>();
-                List<Goal.PlanetRanker> allPlanetsRanker = new List<Goal.PlanetRanker>();
+                Array<Goal.PlanetRanker> ranker = new Array<Goal.PlanetRanker>();
+                Array<Goal.PlanetRanker> allPlanetsRanker = new Array<Goal.PlanetRanker>();
                 foreach (SolarSystem s in UniverseScreen.SolarSystemList)
                 {
                     //added by gremlin make non offensive races act like it.
@@ -7032,7 +7032,7 @@ namespace Ship_Game.Gameplay
 			//if (currentStrength < requiredStrength || currentgoals < this.numberTroopGoals)
             //if(wantedStrength >0 || )
 			{
-				List<Planet> Potentials = new List<Planet>();
+				Array<Planet> Potentials = new Array<Planet>();
 				float totalProduction = 0f;
 				foreach (AO area in this.AreasOfOperations)
 				{
@@ -7068,7 +7068,7 @@ namespace Ship_Game.Gameplay
                             selectedPlanet = p;
                             if (selectedPlanet != null)
                             {
-                                List<string> PotentialTroops = new List<string>();
+                                Array<string> PotentialTroops = new Array<string>();
                                 foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
                                 {
                                     if (!this.empire.WeCanBuildTroop(troop.Key))
@@ -7225,7 +7225,7 @@ namespace Ship_Game.Gameplay
                 }//);
             }
             sspBudget = this.empire.data.SSPBudget-roadMaintenance - UnderConstruction;
-			List<SpaceRoad> ToRemove = new List<SpaceRoad>();
+			Array<SpaceRoad> ToRemove = new Array<SpaceRoad>();
             //float income = this.empire.Money +this.empire.GrossTaxes; //this.empire.EstimateIncomeAtTaxRate(0.25f) +
 			foreach (SpaceRoad road in this.empire.SpaceRoadsList.OrderBy(ssps => ssps.NumberOfProjectors))
 			{
@@ -7424,7 +7424,7 @@ namespace Ship_Game.Gameplay
 #region ShipBuilding
             this.nobuild = false;
             int ShipCountLimit = GlobalStats.ShipCountLimit;
-            List<AO>.Enumerator enumerator;
+            Array<AO>.Enumerator enumerator;
             if (!this.empire.MinorRace)
                 this.RunGroundPlanner();
             this.numberOfShipGoals = 0;// 6 + this.empire.data.EconomicPersonality.ShipGoalsPlus;
@@ -7733,7 +7733,7 @@ namespace Ship_Game.Gameplay
                             {
                                 continue;
                             }
-                            List<Goal> tohold = new List<Goal>()
+                            Array<Goal> tohold = new Array<Goal>()
                         {
                             g
                         };
@@ -7800,10 +7800,10 @@ namespace Ship_Game.Gameplay
             //this where the global AI attack stuff happenes.
             using (TaskList.AcquireReadLock())    
             {
-                List<MilitaryTask> ToughNuts = new List<MilitaryTask>();
-                List<MilitaryTask> InOurSystems = new List<MilitaryTask>();
-                List<MilitaryTask> InOurAOs = new List<MilitaryTask>();
-                List<MilitaryTask> Remainder = new List<MilitaryTask>();
+                Array<MilitaryTask> ToughNuts = new Array<MilitaryTask>();
+                Array<MilitaryTask> InOurSystems = new Array<MilitaryTask>();
+                Array<MilitaryTask> InOurAOs = new Array<MilitaryTask>();
+                Array<MilitaryTask> Remainder = new Array<MilitaryTask>();
                 Vector2 EmpireCenter = this.empire.GetWeightedCenter();
                 //var tasksort = from tasks in  this.TaskList
                 //               where tasks.type == MilitaryTask.TaskType.AssaultPlanet
@@ -7914,9 +7914,9 @@ namespace Ship_Game.Gameplay
                     }
                 }
                 //this.TaskList.thisLock.ExitReadLock();
-                List<MilitaryTask> TNInOurSystems = new List<MilitaryTask>();
-                List<MilitaryTask> TNInOurAOs = new List<MilitaryTask>();
-                List<MilitaryTask> TNRemainder = new List<MilitaryTask>();
+                Array<MilitaryTask> TNInOurSystems = new Array<MilitaryTask>();
+                Array<MilitaryTask> TNInOurAOs = new Array<MilitaryTask>();
+                Array<MilitaryTask> TNRemainder = new Array<MilitaryTask>();
                 this.toughnuts = ToughNuts.Count;
                 foreach (MilitaryTask task in ToughNuts)
                 {
@@ -8471,34 +8471,10 @@ namespace Ship_Game.Gameplay
                                                     continue;
                                             }
 
-                                            int X = GlobalStats.ScriptedTechWithin;
-                                            List<TechEntry> unresearched = new List<TechEntry>();
-                                            unresearched = this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && filter.shipDesignsCanuseThis && (!filter.Tech.Secret || !filter.Discovered) && this.empire.HavePreReq(filter.UID) && filter.Tech.Cost > 0).OrderBy(cost => cost.Tech.Cost).ToList();
-                                            //foreach (TechEntry tech2 in unresearched)//this.empire.GetTDict().Values.Where(filter => !filter.Unlocked && !filter.GetTech().Secret&& filter.Discovered  && filter.GetTech().Cost > 0).OrderBy(cost => cost.GetTech().Cost))
-                                            //{
-                                            //    X--;
-                                            //    if (tech2.UID == tech.id || tech2.GetTech().Cost >= ResourceManager.TechTree[tech.id].Cost * .25F)
-                                            //        break;
-                                            //    if (X <= 0)
-                                            //    {
-                                            //        this.res_strat = GSAI.ResearchStrategy.Random;
-                                            //        this.RunResearchPlanner();
-                                            //        this.res_strat = GSAI.ResearchStrategy.Scripted;
-                                            //        ScriptIndex++;
-                                            //        return;
-                                            //    }
-
-
-
-                                            //}
-
-                                                this.empire.ResearchTopic = tech.id;
-                                                ScriptIndex++;
+                                            empire.ResearchTopic = tech.id;
+                                            ScriptIndex++;
                                             if(!string.IsNullOrEmpty(tech.id))
                                                     return;
-
-
-                                            
                                         }
                                         this.res_strat = GSAI.ResearchStrategy.Random;
                                         ScriptIndex++;
@@ -8584,8 +8560,8 @@ namespace Ship_Game.Gameplay
             {
                 return false;
             }
-            List<Technology> AvailableTechs = AvailableTechsbag.ToList();//new List<Technology>();
-            List<string> useableTech = new List<string>();
+            Array<Technology> AvailableTechs = AvailableTechsbag.ToArrayList();//new Array<Technology>();
+            Array<string> useableTech = new Array<string>();
 
 
 
@@ -8613,7 +8589,7 @@ namespace Ship_Game.Gameplay
                 || modifier.Contains("ShipHull")))
             {
                
-                List<string> globalShipTech = new List<string>();
+                Array<string> globalShipTech = new Array<string>();
                 foreach (string purgeRoots in this.empire.ShipTechs)
                 {
                     Technology bestshiptech = null;
@@ -8711,7 +8687,7 @@ namespace Ship_Game.Gameplay
 
                         //try to line focus to main goal but if we cant, line focus as best as possible by what we already have. 
 
-                        //List<string> TechsNeeded =new List<string>(shortTermBest.shipData.techsNeeded.Except(this.empire.ShipTechs));                        
+                        //Array<string> TechsNeeded =new Array<string>(shortTermBest.shipData.techsNeeded.Except(this.empire.ShipTechs));                        
                         //int techdifference = shortTermBest.shipData.techsNeeded.Intersect(this.empire.ShipTechs).Count();
                         int mod = 0;
                         //shortTermBest.shipData.techsNeeded.Intersect(useableTech).Count();
@@ -8732,7 +8708,7 @@ namespace Ship_Game.Gameplay
                                     ).Count() > 0).Sum(tech => tech.Cost);
                         if (!this.empire.canBuildFrigates && shortTermBest.shipData.HullRole == ShipData.RoleName.cruiser)
                             continue;
-                        List<string> currentTechs =new List<string>(shortTermBest.shipData.techsNeeded.Except(this.empire.ShipTechs));
+                        Array<string> currentTechs =new Array<string>(shortTermBest.shipData.techsNeeded.Except(this.empire.ShipTechs));
                         int currentTechCost = (int)ResourceManager.TechTree.Values.Where(tech => currentTechs.Contains(tech.UID)).Sum(tech => tech.Cost);
                         currentTechCost -= mod;
                         //if (shortTermBest.GetMaintCost(this.empire) > this.empire.data.ShipBudget * .05f)
@@ -8803,7 +8779,7 @@ namespace Ship_Game.Gameplay
 
 
             //now that we have a target ship to buiild filter out all the current techs that are not needed to build it. 
-            List<Technology> bestShiptechs = new List<Technology>();
+            Array<Technology> bestShiptechs = new Array<Technology>();
             if ((modifier.Contains("ShipWeapons") || modifier.Contains("ShipDefense") || modifier.Contains("ShipGeneral")
                 || modifier.Contains("ShipHull")))
             {
@@ -8836,7 +8812,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
 
-                    bestShiptechs = AvailableTechs.Intersect(bestShiptechs).ToList();
+                    bestShiptechs = AvailableTechs.Intersect(bestShiptechs).ToArrayList();
                 }
                 else
                     Log.Info(this.empire.data.PortraitName + " : NoShipFound :" + hullScaler + " : " );
@@ -8863,8 +8839,8 @@ namespace Ship_Game.Gameplay
 
             }
             
-            AvailableTechs = AvailableTechs.Except(remove).ToList();
-            List<Technology> workingSetoftechs = AvailableTechs;
+            AvailableTechs = AvailableTechs.Except(remove).ToArrayList();
+            Array<Technology> workingSetoftechs = AvailableTechs;
 #endregion
             float CostNormalizer = .01f;
             switch (command2)
@@ -9252,12 +9228,12 @@ namespace Ship_Game.Gameplay
                         SystemCommander scom;
                         if (r.Value.PreparingForWar)
                         {
-                            List<SolarSystem> s;
+                            Array<SolarSystem> s;
                             switch (r.Value.PreparingForWarType)
                             {
                                 case WarType.BorderConflict:
-                                    List<Planet> list1 = new List<Planet>();
-                                    s = new List<SolarSystem>();
+                                    Array<Planet> list1 = new Array<Planet>();
+                                    s = new Array<SolarSystem>();
 
                                     IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet) / 150000 + (r.Key.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(planet.ParentSystem, out scom) ? scom.RankImportance : 0)));
                                     for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1); ++index)
@@ -9277,7 +9253,7 @@ namespace Ship_Game.Gameplay
                                         //if (index == 2)
                                         //    break;
                                     }
-                                    using (List<Planet>.Enumerator enumerator = list1.GetEnumerator())
+                                    using (Array<Planet>.Enumerator enumerator = list1.GetEnumerator())
                                     {
                                         while (enumerator.MoveNext())
                                         {
@@ -9287,7 +9263,7 @@ namespace Ship_Game.Gameplay
                                             bool claimPresent = false;
                                             //this.TaskList.thisLock.EnterReadLock();
                                             {
-                                                //foreach (MilitaryTask item_0 in (List<MilitaryTask>)this.TaskList)
+                                                //foreach (MilitaryTask item_0 in (Array<MilitaryTask>)this.TaskList)
                                                 this.TaskList.ForEach(item_0 =>
                                                 {
                                                 //if (!assault)
@@ -9336,8 +9312,8 @@ namespace Ship_Game.Gameplay
                                         break;
                                     }
                                 case WarType.ImperialistWar:
-                                    List<Planet> list2 = new List<Planet>();
-                                    s = new List<SolarSystem>();
+                                    Array<Planet> list2 = new Array<Planet>();
+                                    s = new Array<SolarSystem>();
                                     IOrderedEnumerable<Planet> orderedEnumerable2 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)r.Key.GetPlanets(), (Func<Planet, float>)(planet => this.GetDistanceFromOurAO(planet) / 150000 + (r.Key.GetGSAI().DefensiveCoordinator.DefenseDict.TryGetValue(planet.ParentSystem, out scom) ? scom.RankImportance : 0)));
                                     for (int index = 0; index < Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable2); ++index)
                                     {
@@ -9352,7 +9328,7 @@ namespace Ship_Game.Gameplay
                                         list2.Add(p);
 
                                     }
-                                    using (List<Planet>.Enumerator enumerator = list2.GetEnumerator())
+                                    using (Array<Planet>.Enumerator enumerator = list2.GetEnumerator())
                                     {
                                         while (enumerator.MoveNext())
                                         {
@@ -9362,7 +9338,7 @@ namespace Ship_Game.Gameplay
                                             bool claimPresent = false;
                                             //this.TaskList.thisLock.EnterReadLock();
                                             {
-                                                // foreach (MilitaryTask item_1 in (List<MilitaryTask>)this.TaskList)
+                                                // foreach (MilitaryTask item_1 in (Array<MilitaryTask>)this.TaskList)
                                                 this.TaskList.ForEach(item_1 =>
                                                 {
                                                     if (!flag && claim)
@@ -9391,7 +9367,7 @@ namespace Ship_Game.Gameplay
                                             }
                                             if (!claim)
                                             {
-                                                //public MilitaryTask(Vector2 location, float radius, List<Goal> GoalsToHold, Empire Owner)
+                                                //public MilitaryTask(Vector2 location, float radius, Array<Goal> GoalsToHold, Empire Owner)
                                                 MilitaryTask task = new MilitaryTask()
                                                 {
                                                     AO = current.Position
@@ -9529,12 +9505,12 @@ namespace Ship_Game.Gameplay
                 }
             }
             int num5 = 0;
-            foreach (Ship ship in (List<Ship>)this.empire.GetForcePool())
+            foreach (Ship ship in (Array<Ship>)this.empire.GetForcePool())
             {
                 if (num5 < 5)
                 {
                     int techScore = ship.GetTechScore();
-                    List<string> list = new List<string>();
+                    Array<string> list = new Array<string>();
                     foreach (string index in this.empire.ShipsWeCanBuild)
                     {
                         if (ResourceManager.ShipsDict[index].GetShipData().Hull == ship.GetShipData().Hull && ResourceManager.ShipsDict[index].GetTechScore() > techScore)

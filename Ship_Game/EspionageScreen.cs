@@ -30,7 +30,7 @@ namespace Ship_Game
 
 		public Empire SelectedEmpire;
 
-		private List<RaceEntry> Races = new List<RaceEntry>();
+		private Array<RaceEntry> Races = new Array<RaceEntry>();
 
 		private GenericSlider SpyBudgetSlider;
 

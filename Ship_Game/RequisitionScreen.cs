@@ -24,7 +24,7 @@ namespace Ship_Game
 
 		private Rectangle FleetStatsRect;
 
-		private List<Ship> AvailableShips = new List<Ship>();
+		private Array<Ship> AvailableShips = new Array<Ship>();
 
 		private int numThatFit;
 
@@ -55,17 +55,17 @@ namespace Ship_Game
 					ship.RelativeFleetOffset = node.FleetOffset;
 					ship.fleet = this.f;
 					this.f.AddShip(ship);
-					List<List<Fleet.Squad>>.Enumerator enumerator = this.f.AllFlanks.GetEnumerator();
+					Array<Array<Fleet.Squad>>.Enumerator enumerator = this.f.AllFlanks.GetEnumerator();
 					try
 					{
 						while (enumerator.MoveNext())
 						{
-							List<Fleet.Squad>.Enumerator enumerator1 = enumerator.Current.GetEnumerator();
+							Array<Fleet.Squad>.Enumerator enumerator1 = enumerator.Current.GetEnumerator();
 							try
 							{
 								while (enumerator1.MoveNext())
 								{
-									List<FleetDataNode>.Enumerator enumerator2 = enumerator1.Current.DataNodes.GetEnumerator();
+									Array<FleetDataNode>.Enumerator enumerator2 = enumerator1.Current.DataNodes.GetEnumerator();
 									try
 									{
 										while (enumerator2.MoveNext())

@@ -26,10 +26,10 @@ namespace Ship_Game
         public static XmlSerializer WeaponSerializer                     = new XmlSerializer(typeof(Weapon));
         public static Dictionary<string, Ship> ShipsDict                 = new Dictionary<string, Ship>();
         public static Dictionary<string, Technology> TechTree            = new Dictionary<string, Technology>(StringComparer.InvariantCultureIgnoreCase);
-        private static readonly List<Model> RoidsModels                  = new List<Model>();
-        private static readonly List<Model> JunkModels                   = new List<Model>();
-        private static readonly List<ToolTip> ToolTips                   = new List<ToolTip>();
-        public static List<Encounter> Encounters                         = new List<Encounter>();
+        private static readonly Array<Model> RoidsModels                  = new Array<Model>();
+        private static readonly Array<Model> JunkModels                   = new Array<Model>();
+        private static readonly Array<ToolTip> ToolTips                   = new Array<ToolTip>();
+        public static Array<Encounter> Encounters                         = new Array<Encounter>();
         public static Dictionary<string, Building> BuildingsDict         = new Dictionary<string, Building>();
         public static Dictionary<string, Good> GoodsDict                 = new Dictionary<string, Good>();
         public static Dictionary<string, Weapon> WeaponsDict             = new Dictionary<string, Weapon>();
@@ -40,26 +40,26 @@ namespace Ship_Game
         public static bool Initialized                                   = false;
         public static string WhichModPath                                = "";
 
-        public static List<RandomItem> RandomItemsList                   = new List<RandomItem>();
+        public static Array<RandomItem> RandomItemsList                   = new Array<RandomItem>();
         public static Dictionary<string, Troop> TroopsDict               = new Dictionary<string, Troop>();
         public static Dictionary<string, DiplomacyDialog> DDDict         = new Dictionary<string, DiplomacyDialog>();
         public static Dictionary<string, LocalizationFile> LanguageDict  = new Dictionary<string, LocalizationFile>();
 
         public static Dictionary<string, Artifact> ArtifactsDict         = new Dictionary<string, Artifact>();
         public static Dictionary<string, ExplorationEvent> EventsDict    = new Dictionary<string, ExplorationEvent>();
-        public static List<Texture2D> BigNebulas                         = new List<Texture2D>();
-        public static List<Texture2D> MedNebulas                         = new List<Texture2D>();
-        public static List<Texture2D> SmallNebulas                       = new List<Texture2D>();
-        public static List<Texture2D> SmallStars                         = new List<Texture2D>();
-        public static List<Texture2D> MediumStars                        = new List<Texture2D>();
-        public static List<Texture2D> LargeStars                         = new List<Texture2D>();
-        public static List<EmpireData> Empires                           = new List<EmpireData>();
+        public static Array<Texture2D> BigNebulas                         = new Array<Texture2D>();
+        public static Array<Texture2D> MedNebulas                         = new Array<Texture2D>();
+        public static Array<Texture2D> SmallNebulas                       = new Array<Texture2D>();
+        public static Array<Texture2D> SmallStars                         = new Array<Texture2D>();
+        public static Array<Texture2D> MediumStars                        = new Array<Texture2D>();
+        public static Array<Texture2D> LargeStars                         = new Array<Texture2D>();
+        public static Array<EmpireData> Empires                           = new Array<EmpireData>();
         public static XmlSerializer HeaderSerializer                     = new XmlSerializer(typeof(HeaderData));
         public static Dictionary<string, Model> ModelDict                = new Dictionary<string, Model>();
         public static Dictionary<string, SkinnedModel> SkinnedModels     = new Dictionary<string, SkinnedModel>();
         public static Dictionary<string, ShipData> HullsDict             = new Dictionary<string, ShipData>(StringComparer.InvariantCultureIgnoreCase);
 
-        public static List<KeyValuePair<string, Texture2D>> FlagTextures = new List<KeyValuePair<string, Texture2D>>();
+        public static Array<KeyValuePair<string, Texture2D>> FlagTextures = new Array<KeyValuePair<string, Texture2D>>();
         public static Dictionary<string, SoundEffect> SoundEffectDict    = new Dictionary<string, SoundEffect>();
 
         // Added by McShooterz
@@ -86,13 +86,13 @@ namespace Ship_Game
 
         public static void MarkShipDesignsUnlockable()
         {
-            var shipTechs = new Dictionary<Technology, List<string>>();
+            var shipTechs = new Dictionary<Technology, Array<string>>();
             foreach (var techTreeItem in TechTree)
             {
                 Technology tech = techTreeItem.Value;
                 if (tech.ModulesUnlocked.Count <= 0 && tech.HullsUnlocked.Count <= 0)
                     continue;
-                shipTechs.Add(tech, FindPreviousTechs(tech, new List<string>()));
+                shipTechs.Add(tech, FindPreviousTechs(tech, new Array<string>()));
             }
 
             foreach (ShipData hull in HullsDict.Values)
@@ -323,9 +323,9 @@ namespace Ship_Game
             return null;
         }
 
-        private static List<T> LoadEntitiesModOrContent<T>(string dir, string where) where T : class
+        private static Array<T> LoadEntitiesModOrContent<T>(string dir, string where) where T : class
         {
-            var result = new List<T>();
+            var result = new Array<T>();
             string path;
             var f = Dir.GetFiles(path = WhichModPath + dir, "xml");
             if (f.Length == 0)
@@ -732,7 +732,7 @@ namespace Ship_Game
             return DeserializeModOrContent("/SolarSystems/" + homeSystemName + ".xml", 
                                            "LoadSolarSystemData", out SolarSystemData data, reportError:false);
         }
-        public static List<SolarSystemData> LoadRandomSolarSystems()
+        public static Array<SolarSystemData> LoadRandomSolarSystems()
         {
             return LoadEntitiesModOrContent<SolarSystemData>("/SolarSystems/Random", "LoadSolarSystems");
         }
@@ -768,7 +768,7 @@ namespace Ship_Game
         {
             string adviceFile = "/Advice/"+GlobalStats.Language+"/Advice.xml";
 
-            List<string> adviceList = null;
+            Array<string> adviceList = null;
             if (DeserializeIfExists(WhichModPath, adviceFile, ref adviceList)
                 || DeserializeIfExists("Content", adviceFile, ref adviceList))
             {
@@ -779,7 +779,7 @@ namespace Ship_Game
 
         private static void LoadArtifacts() // Refactored by RedFox
         {
-            foreach (var arts in LoadEntities<List<Artifact>>("/Artifacts", "LoadArtifacts"))
+            foreach (var arts in LoadEntities<Array<Artifact>>("/Artifacts", "LoadArtifacts"))
             {
                 foreach (Artifact art in arts)
                 {
@@ -870,9 +870,9 @@ namespace Ship_Game
             return HullsDict.TryGetValue(shipHull, out hullData);
         }
 
-        public static List<ShipData> LoadHullData() // Refactored by RedFox
+        public static Array<ShipData> LoadHullData() // Refactored by RedFox
         {
-            var retList = new List<ShipData>();
+            var retList = new Array<ShipData>();
             Parallel.ForEach(Dir.GetFiles(WhichModPath + "/Hulls", "xml"), info =>
             {
                 try
@@ -909,7 +909,7 @@ namespace Ship_Game
         }
 
         // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
-        private static void LoadNumberedModels(List<Model> models, string modelFolder, string modelPrefix, string id)
+        private static void LoadNumberedModels(Array<Model> models, string modelFolder, string modelPrefix, string id)
         {
             var files = Dir.GetFiles(WhichModPath + modelFolder, "xnb");
             if (files.Length == 0)
@@ -1103,9 +1103,9 @@ namespace Ship_Game
                 entry.Value.SetAttributesNoParent();
         }
 
-        private static List<Ship> LoadShipsFromDirectory(string dir)
+        private static Array<Ship> LoadShipsFromDirectory(string dir)
         {
-            var ships = new List<Ship>();
+            var ships = new Array<Ship>();
             Parallel.ForEach(Dir.GetFiles(dir, "xml"), info => {
             //foreach (var info in Dir.GetFiles(dir, "xml")) { 
                 //added by gremlin support techlevel disabled folder.
@@ -1614,7 +1614,7 @@ namespace Ship_Game
             ProjTextDict.Clear();
         }
 
-        public static List<string> FindPreviousTechs(Technology target, List<string> alreadyFound)
+        public static Array<string> FindPreviousTechs(Technology target, Array<string> alreadyFound)
         {
             //this is supposed to reverse walk through the tech tree.
             foreach (var techTreeItem in TechTree)

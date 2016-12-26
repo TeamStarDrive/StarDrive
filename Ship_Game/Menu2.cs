@@ -27,7 +27,7 @@ namespace Ship_Game
 
 		private Ship_Game.ScreenManager ScreenManager;
 
-		private List<Rectangle> RepeatTops = new List<Rectangle>();
+		private Array<Rectangle> RepeatTops = new Array<Rectangle>();
 
 		private Rectangle extendTopLeft;
 

@@ -15,7 +15,7 @@ namespace Ship_Game.Gameplay
 
 		private Vector2 UpperLeftBound;
 
-		private Dictionary<int, List<Ship>> Buckets;
+		private Dictionary<int, Array<Ship>> Buckets;
 
 		private int SceneWidth;
 
@@ -34,7 +34,7 @@ namespace Ship_Game.Gameplay
 		{
 		}
 
-		private void AddBucket(Vector2 vector, float width, List<int> buckettoaddto)
+		private void AddBucket(Vector2 vector, float width, Array<int> buckettoaddto)
 		{
 			int cellPosition = (int)(Math.Floor((double)(vector.X / (float)this.CellSize)) + Math.Floor((double)(vector.Y / (float)this.CellSize)) * (double)width);
 			if (!buckettoaddto.Contains(cellPosition))
@@ -56,9 +56,9 @@ namespace Ship_Game.Gameplay
 			this.Buckets = null;
 		}
 
-		private List<int> GetIdForObj(GameplayObject obj)
+		private Array<int> GetIdForObj(GameplayObject obj)
 		{
-			List<int> bucketsObjIsIn = new List<int>();
+			Array<int> bucketsObjIsIn = new Array<int>();
 			Vector2 Center = obj.Center - this.UpperLeftBound;
 			Vector2 min = new Vector2(Center.X - 500000f, Center.Y - 500000f);
 			Vector2 max = new Vector2(Center.X + 5000000f, Center.Y + 500000f);
@@ -73,9 +73,9 @@ namespace Ship_Game.Gameplay
 			return bucketsObjIsIn;
 		}
 
-		public List<Ship> GetNearby(Ship obj)
+		public Array<Ship> GetNearby(Ship obj)
 		{
-			List<Ship> objects = new List<Ship>();
+			Array<Ship> objects = new Array<Ship>();
 			foreach (int item in this.GetIdForObj(obj))
 			{
 				if (!this.Buckets.ContainsKey(item))
@@ -108,10 +108,10 @@ namespace Ship_Game.Gameplay
 			this.UpperLeftBound.Y = Pos.Y - (float)(sceneHeight / 2);
 			this.Cols = sceneWidth / cellSize;
 			this.Rows = sceneHeight / cellSize;
-			this.Buckets = new Dictionary<int, List<Ship>>(this.Cols * this.Rows);
+			this.Buckets = new Dictionary<int, Array<Ship>>(this.Cols * this.Rows);
 			for (int i = 0; i < this.Cols * this.Rows; i++)
 			{
-				this.Buckets.Add(i, new List<Ship>());
+				this.Buckets.Add(i, new Array<Ship>());
 			}
 			this.SceneWidth = sceneWidth;
 			this.SceneHeight = sceneHeight;

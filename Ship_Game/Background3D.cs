@@ -10,9 +10,9 @@ namespace Ship_Game
 	{
 		private UniverseScreen screen;
 
-		public List<BackgroundItem> BGItems = new List<BackgroundItem>();
+		public Array<BackgroundItem> BGItems = new Array<BackgroundItem>();
 
-		private List<BackgroundItem> NonAdditiveList = new List<BackgroundItem>();
+		private Array<BackgroundItem> NonAdditiveList = new Array<BackgroundItem>();
 
 		public Background3D(UniverseScreen screen)
 		{

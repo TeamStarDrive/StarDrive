@@ -37,7 +37,7 @@ namespace Ship_Game
         public static bool PlanetViewWindowOpen = false;
         public static SpatialManager DeepSpaceManager = new SpatialManager();
         public static SpatialManager ShipSpatialManager = new SpatialManager();
-        public static List<SolarSystem> SolarSystemList = new List<SolarSystem>();
+        public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         public static bool DisableClicks = false;
         //private static string fmt = "00000.##";
@@ -50,11 +50,11 @@ namespace Ship_Game
         public float StarDateTimer = 5f;
         public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
-        public List<ClickablePlanets> ClickPlanetList = new List<ClickablePlanets>();
+        public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
         public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction>();
-        protected List<ClickableSystem> ClickableSystems = new List<ClickableSystem>();
+        protected Array<ClickableSystem> ClickableSystems = new Array<ClickableSystem>();
         public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
-        protected List<ClickableShip> ClickableShipsList = new List<ClickableShip>();
+        protected Array<ClickableShip> ClickableShipsList = new Array<ClickableShip>();
         protected float PieMenuDelay = 1f;
         protected Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
@@ -66,8 +66,8 @@ namespace Ship_Game
         public UniverseData.GameDifficulty GameDifficulty = UniverseData.GameDifficulty.Normal;
         public Vector3 transitionStartPosition;
         public Vector3 camTransitionPosition;
-        public List<NebulousOverlay> Stars = new List<NebulousOverlay>();
-        public List<NebulousOverlay> NebulousShit = new List<NebulousOverlay>();
+        public Array<NebulousOverlay> Stars = new Array<NebulousOverlay>();
+        public Array<NebulousOverlay> NebulousShit = new Array<NebulousOverlay>();
         private Rectangle ScreenRectangle;
         public Dictionary<Guid, Planet> PlanetsDict = new Dictionary<Guid, Planet>();
         public Dictionary<Guid, SolarSystem> SolarSystemDict = new Dictionary<Guid, SolarSystem>();
@@ -76,12 +76,12 @@ namespace Ship_Game
         private AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
         public float camHeight = 2550f;
         public Vector3 camPos = Vector3.Zero;
-        public List<Ship> ShipsToAdd = new List<Ship>();
+        public Array<Ship> ShipsToAdd = new Array<Ship>();
         protected float TooltipTimer = 0.5f;
         protected float sTooltipTimer = 0.5f;
         protected float TimerDelay = 0.25f;
         protected GameTime zgameTime = new GameTime();
-        public List<ShipModule> ModulesNeedingReset = new List<ShipModule>();
+        public Array<ShipModule> ModulesNeedingReset = new Array<ShipModule>();
         private bool TurnFlip = true;
         private int Auto = 1;
         private AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
@@ -90,22 +90,22 @@ namespace Ship_Game
         private ManualResetEvent DeepSpaceDone          = new ManualResetEvent(false);
         private AutoResetEvent   EmpireGateKeeper       = new AutoResetEvent(false);
         private ManualResetEvent EmpireDone             = new ManualResetEvent(false);
-        //public List<Ship> ShipsToRemove = new List<Ship>();
-        public List<Projectile> DSProjectilesToAdd = new List<Projectile>();
-        private List<Ship> DeepSpaceShips = new List<Ship>();
+        //public Array<Ship> ShipsToRemove = new Array<Ship>();
+        public Array<Projectile> DSProjectilesToAdd = new Array<Projectile>();
+        private Array<Ship> DeepSpaceShips = new Array<Ship>();
         private object thislock = new object();
         public bool ViewingShip = true;
         public float transDuration = 3f;
         protected float SectorMiniMapHeight = 20000f;
         public Vector2 mouseWorldPos;
         public float SelectedSomethingTimer = 3f;
-        private List<FleetButton> FleetButtons = new List<FleetButton>();
+        private Array<FleetButton> FleetButtons = new Array<FleetButton>();
         protected Vector2 startDrag;
         private Vector2 ProjectedPosition;
         protected float desiredSectorZ = 20000f;
-        public List<FogOfWarNode> FogNodes = new List<FogOfWarNode>();
+        public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
         private bool drawBloom = true;
-        private List<ClickableFleet> ClickableFleetsList = new List<ClickableFleet>();
+        private Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
         private bool ShowTacticalCloseup;
         public bool Debug;
         public bool GridOn;
@@ -227,7 +227,7 @@ namespace Ship_Game
         private bool NeedARelease;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
-        private List<Fleet.Squad> SelectedFlank;
+        private Array<Fleet.Squad> SelectedFlank;
         private int FBTimer;
         private bool pickedSomethingThisFrame;
         private Vector2 startDragWorld;
@@ -1471,7 +1471,7 @@ namespace Ship_Game
                         foreach (SolarSystem solarSystem in SolarSystemList)
                             solarSystem.ShipList.Clear();
                         this.shiptimer = 1f;
-                        //foreach (Ship ship in (List<Ship>)this.MasterShipList)
+                        //foreach (Ship ship in (Array<Ship>)this.MasterShipList)
                         var source = Enumerable.Range(0, this.MasterShipList.Count).ToArray();
                         var rangePartitioner = Partitioner.Create(0, source.Length);
 
@@ -1568,8 +1568,8 @@ namespace Ship_Game
             //    });
             //});
             //Task.WaitAll();    //This commented out area was the original stuff here, which I replaced with the simgle ForEach above -Gretman
-            List<SolarSystem> solarsystems = new List<SolarSystem>( this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombatTimer ==15).Count() <5) ); //.ToList();
-            List<SolarSystem> Combatsystems = new List<SolarSystem>( this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombatTimer == 15).Count() >= 5)); //.ToList();
+            Array<SolarSystem> solarsystems = new Array<SolarSystem>( this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombatTimer ==15).Count() <5) ); //.ToList();
+            Array<SolarSystem> Combatsystems = new Array<SolarSystem>( this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombatTimer == 15).Count() >= 5)); //.ToList();
             Task DeepSpaceTask = Task.Factory.StartNew(() =>
             {
                 this.DeepSpaceThread();
@@ -1744,7 +1744,7 @@ namespace Ship_Game
                 }
                 lock (GlobalStats.ExplosionLocker)
                     MuzzleFlashManager.FlashList.ApplyPendingRemovals();
-                foreach (Anomaly anomaly in (List<Anomaly>)this.anomalyManager.AnomaliesList)
+                foreach (Anomaly anomaly in (Array<Anomaly>)this.anomalyManager.AnomaliesList)
                     anomaly.Update(elapsedTime);
                 if (elapsedTime > 0)
                 {
@@ -1793,7 +1793,7 @@ namespace Ship_Game
 
         public void SystemUpdaterTaskBased(SolarSystem system)
         {
-            //List<SolarSystem> list = (List<SolarSystem>)data;
+            //Array<SolarSystem> list = (Array<SolarSystem>)data;
             // while (true)
             {
                 //this.SystemGateKeeper[list[0].IndexOfResetEvent].WaitOne();
@@ -1867,7 +1867,7 @@ namespace Ship_Game
 
                     using (system.ShipList.AcquireReadLock())
                     {
-                        foreach (Ship ship in (List<Ship>)system.ShipList)
+                        foreach (Ship ship in (Array<Ship>)system.ShipList)
                         {
                             if (ship.System == null)
                                 continue;
@@ -1935,8 +1935,8 @@ namespace Ship_Game
 
                         }
                     }
-                    List<Ship> faster = new List<Ship>();
-                    List<Ship> death = new List<Ship>();
+                    Array<Ship> faster = new Array<Ship>();
+                    Array<Ship> death = new Array<Ship>();
                     foreach (Ship deepSpaceShip in this.DeepSpaceShips)
                     //Parallel.ForEach(this.DeepSpaceShips, deepSpaceShip =>
                     {
@@ -2949,7 +2949,7 @@ namespace Ship_Game
                             {
                                 this.pickedSomethingThisFrame = true;
                                 this.SelectedShipList.Add(clickableShip.shipToClick);
-                                using (List<UniverseScreen.ClickableShip>.Enumerator enumerator = this.ClickableShipsList.GetEnumerator())
+                                using (Array<UniverseScreen.ClickableShip>.Enumerator enumerator = this.ClickableShipsList.GetEnumerator())
                                 {
                                     while (enumerator.MoveNext())
                                     {
@@ -3044,7 +3044,7 @@ namespace Ship_Game
                         {
                             this.SelectedFleet = local_32.Fleet;
                             this.SelectedShipList.Clear();
-                            foreach (Ship item_7 in (List<Ship>)this.SelectedFleet.Ships)
+                            foreach (Ship item_7 in (Array<Ship>)this.SelectedFleet.Ships)
                             {
                                 if (item_7.inSensorRange)
                                     this.SelectedShipList.Add(item_7);
@@ -3058,7 +3058,7 @@ namespace Ship_Game
                                 this.SelectedShipList.Clear();
                             }
                             else if (this.SelectedShipList.Count > 1)
-                                this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);
+                                this.shipListInfoUI.SetShipList((Array<Ship>)this.SelectedShipList, true);
                             this.SelectedSomethingTimer = 3f;
 
                             if ((double)this.ClickTimer < (double)this.TimerDelay)
@@ -3153,7 +3153,7 @@ namespace Ship_Game
             {
                 if (this.SelectedShipList.Count > 0)
                 {
-                    foreach (Ship ship in (List<Ship>)this.player.GetFleetsDict()[index].Ships)
+                    foreach (Ship ship in (Array<Ship>)this.player.GetFleetsDict()[index].Ships)
                         ship.fleet = (Fleet)null;
                     this.player.GetFleetsDict()[index] = (Fleet)null;
                     string str = "";
@@ -3187,7 +3187,7 @@ namespace Ship_Game
                             str = "Ninth";
                             break;
                     }
-                    foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                     {
 
                         ship.RemoveFromAllFleets();
@@ -3196,7 +3196,7 @@ namespace Ship_Game
                     this.player.GetFleetsDict()[index] = new Fleet();
                     this.player.GetFleetsDict()[index].Name = str + " Fleet";
                     this.player.GetFleetsDict()[index].Owner = this.player;
-                    foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                     {
                         if (ship.loyalty == this.player && !ship.isConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
@@ -3206,7 +3206,7 @@ namespace Ship_Game
                         this.previousSelection = this.SelectedShip;
                     this.SelectedShip = (Ship)null;
                     this.SelectedShipList.Clear();
-                    this.SelectedFlank = (List<Fleet.Squad>)null;
+                    this.SelectedFlank = (Array<Fleet.Squad>)null;
                     if (this.player.GetFleetsDict()[index].Ships.Count > 0)
                     {
                         this.SelectedFleet = this.player.GetFleetsDict()[index];
@@ -3214,7 +3214,7 @@ namespace Ship_Game
                     }
                     else
                         this.SelectedFleet = (Fleet)null;
-                    foreach (Ship ship in (List<Ship>)this.player.GetFleetsDict()[index].Ships)
+                    foreach (Ship ship in (Array<Ship>)this.player.GetFleetsDict()[index].Ships)
                     {
                         this.SelectedShipList.Add(ship);
                         ship.fleet = this.player.GetFleetsDict()[index];
@@ -3228,7 +3228,7 @@ namespace Ship_Game
             {
                 if (this.SelectedShipList.Count > 0)
                 {
-                    //foreach (Ship ship in (List<Ship>)this.player.GetFleetsDict()[index].Ships)
+                    //foreach (Ship ship in (Array<Ship>)this.player.GetFleetsDict()[index].Ships)
                     //    ship.fleet = (Fleet)null;
                     //this.player.GetFleetsDict()[index] = (Fleet)null;
                     string str = "";
@@ -3262,7 +3262,7 @@ namespace Ship_Game
                             str = "Ninth";
                             break;
                     }
-                    foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                     {
                         if (ship.fleet != null && ship.fleet.Name == str + " Fleet")
                             continue;
@@ -3275,7 +3275,7 @@ namespace Ship_Game
                         this.player.GetFleetsDict()[index].Name = str + " Fleet";
                         this.player.GetFleetsDict()[index].Owner = this.player;
                     }
-                    foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                     {
                         if (ship.loyalty == this.player && !ship.isConstructor && (ship.fleet == null || ship.fleet.Name != str + " Fleet") && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleeet
                             this.player.GetFleetsDict()[index].Ships.Add(ship);
@@ -3285,7 +3285,7 @@ namespace Ship_Game
                         this.previousSelection = this.SelectedShip;
                     this.SelectedShip = (Ship)null;
                     this.SelectedShipList.Clear();
-                    this.SelectedFlank = (List<Fleet.Squad>)null;
+                    this.SelectedFlank = (Array<Fleet.Squad>)null;
                     if (this.player.GetFleetsDict()[index].Ships.Count > 0)
                     {
                         this.SelectedFleet = this.player.GetFleetsDict()[index];
@@ -3293,7 +3293,7 @@ namespace Ship_Game
                     }
                     else
                         this.SelectedFleet = (Fleet)null;
-                    foreach (Ship ship in (List<Ship>)this.player.GetFleetsDict()[index].Ships)
+                    foreach (Ship ship in (Array<Ship>)this.player.GetFleetsDict()[index].Ships)
                     {
                         this.SelectedShipList.Add(ship);
                         ship.fleet = this.player.GetFleetsDict()[index];
@@ -3328,7 +3328,7 @@ namespace Ship_Game
                     if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
                         this.previousSelection = this.SelectedShip;
                     this.SelectedShip = (Ship)null;
-                    this.SelectedFlank = (List<Fleet.Squad>)null;
+                    this.SelectedFlank = (Array<Fleet.Squad>)null;
                     if (this.player.GetFleetsDict()[index].Ships.Count > 0)
                     {
                         this.SelectedFleet = this.player.GetFleetsDict()[index];
@@ -3337,7 +3337,7 @@ namespace Ship_Game
                     else
                         this.SelectedFleet = (Fleet)null;
                     this.SelectedShipList.Clear();
-                    foreach (Ship ship in (List<Ship>)this.player.GetFleetsDict()[index].Ships)
+                    foreach (Ship ship in (Array<Ship>)this.player.GetFleetsDict()[index].Ships)
                     {
                         this.SelectedShipList.Add(ship);
                         this.SelectedSomethingTimer = 3f;
@@ -3350,11 +3350,11 @@ namespace Ship_Game
                         this.ShipInfoUIElement.SetShip(this.SelectedShip);
                     }
                     else if (this.SelectedShipList.Count > 1)
-                        this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);  
+                        this.shipListInfoUI.SetShipList((Array<Ship>)this.SelectedShipList, true);  
                     //if (this.SelectedFleet != null)
                     //{
-                    //    List<Ship> shipList = new List<Ship>();
-                    //    foreach (Ship ship in (List<Ship>)this.SelectedFleet.Ships)
+                    //    Array<Ship> shipList = new Array<Ship>();
+                    //    foreach (Ship ship in (Array<Ship>)this.SelectedFleet.Ships)
                     //        shipList.Add(ship);
                     //    this.shipListInfoUI.SetShipList(shipList, true);
                     //}
@@ -3471,7 +3471,7 @@ namespace Ship_Game
                             this.SelectedSomethingTimer = 3f;
                             float num3 = SelectedFleet.Position.RadiansToTarget(vector2_1);
                             Vector2 vectorToTarget = Vector2.Zero.FindVectorToTarget(SelectedFleet.Position.PointFromRadians(num3, 1f));
-                            foreach (Ship ship in (List<Ship>)this.SelectedFleet.Ships)
+                            foreach (Ship ship in (Array<Ship>)this.SelectedFleet.Ships)
                                 this.player.GetGSAI().DefensiveCoordinator.remove(ship);
                             Ship ship1 = this.CheckShipClick(this.startDrag);
                             Planet planet;
@@ -3481,7 +3481,7 @@ namespace Ship_Game
                             {
                                 this.SelectedFleet.Position = ship1.Center;
                                 this.SelectedFleet.AssignPositions(0.0f);
-                                foreach (Ship ship2 in (List<Ship>)this.SelectedFleet.Ships)
+                                foreach (Ship ship2 in (Array<Ship>)this.SelectedFleet.Ships)
                                 {
                                     if (ship2.shipData.Role == ShipData.RoleName.troop)
                                         ship2.GetAI().OrderTroopToBoardShip(ship1);
@@ -3494,7 +3494,7 @@ namespace Ship_Game
                             else if (planet != null)
                             {
                                 this.SelectedFleet.Position = planet.Position;  //fbedard: center fleet on planet
-                                foreach (Ship ship2 in (List<Ship>)this.SelectedFleet.Ships)
+                                foreach (Ship ship2 in (Array<Ship>)this.SelectedFleet.Ships)
                                 {
                                     RightClickship(ship2, planet,false);
                                 }
@@ -3598,7 +3598,7 @@ namespace Ship_Game
                         else if (this.SelectedShipList.Count > 0)
                         {
                             this.SelectedSomethingTimer = 3f;
-                            foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                            foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                             {
                                 if (ship.loyalty != this.player || ship.isConstructor || ship.shipData.Role == ShipData.RoleName.supply)
                                 {
@@ -3614,7 +3614,7 @@ namespace Ship_Game
                             if (ship1 != null || planet != null)
                             #region Target Planet
                             {
-                                foreach (Ship ship2 in (List<Ship>)this.SelectedShipList)
+                                foreach (Ship ship2 in (Array<Ship>)this.SelectedShipList)
                                 {
                                     this.player.GetGSAI().DefensiveCoordinator.remove(ship2);
                                     if (ship1 != null && ship1 != ship2)
@@ -3649,7 +3649,7 @@ namespace Ship_Game
                             else
                             {
                                 this.SelectedSomethingTimer = 3f;
-                                foreach (Ship ship2 in (List<Ship>)this.SelectedShipList)
+                                foreach (Ship ship2 in (Array<Ship>)this.SelectedShipList)
                                 {
                                     if (ship2.isConstructor || ship2.shipData.Role == ShipData.RoleName.supply)
                                     {
@@ -3697,9 +3697,9 @@ namespace Ship_Game
                                     }
                                 }
                                 fleet.ProjectPos(this.endDragWorld, num2 - 1.570796f, fVec);
-                                foreach (Ship ship2 in (List<Ship>)fleet.Ships)
+                                foreach (Ship ship2 in (Array<Ship>)fleet.Ships)
                                 {
-                                    foreach (Ship ship3 in (List<Ship>)this.SelectedShipList)
+                                    foreach (Ship ship3 in (Array<Ship>)this.SelectedShipList)
                                     {
                                         if (ship2.guid == ship3.guid)
                                         {
@@ -3755,7 +3755,7 @@ namespace Ship_Game
                             else
                                 this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2);
                             AudioManager.PlayCue("echo_affirm1");
-                            foreach (Ship ship in (List<Ship>)this.SelectedFleet.Ships)
+                            foreach (Ship ship in (Array<Ship>)this.SelectedFleet.Ships)
                                 this.player.GetGSAI().DefensiveCoordinator.remove(ship);
                         }
                         else if (this.SelectedShip != null && this.SelectedShip.loyalty == this.player)
@@ -3789,7 +3789,7 @@ namespace Ship_Game
                         else if (this.SelectedShipList.Count > 0)
                         {
                             this.SelectedSomethingTimer = 3f;
-                            foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                            foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                             {
                                 if (ship.loyalty != this.player)
                                     return;
@@ -3839,9 +3839,9 @@ namespace Ship_Game
                                 }
                             }
                             fleet.ProjectPos(this.ProjectedPosition, num2 - 1.570796f, fVec);
-                            foreach (Ship ship1 in (List<Ship>)fleet.Ships)
+                            foreach (Ship ship1 in (Array<Ship>)fleet.Ships)
                             {
-                                foreach (Ship ship2 in (List<Ship>)this.SelectedShipList)
+                                foreach (Ship ship2 in (Array<Ship>)this.SelectedShipList)
                                 {
                                     if (ship1.guid == ship2.guid)
                                     {
@@ -3877,7 +3877,7 @@ namespace Ship_Game
                         ShipGroup shipGroup = new ShipGroup();
                         foreach (Fleet.Squad squad in this.SelectedFlank)
                         {
-                            foreach (Ship ship in (List<Ship>)squad.Ships)
+                            foreach (Ship ship in (Array<Ship>)squad.Ships)
                                 shipGroup.Ships.Add(ship);
                         }
                         shipGroup.ProjectedFacing = facing;
@@ -3910,7 +3910,7 @@ namespace Ship_Game
                     {
                         if (this.SelectedShipList.Count <= 0)
                             return;
-                        foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                        foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                         {
                             if (ship.loyalty != this.player)
                                 return;
@@ -4274,7 +4274,7 @@ namespace Ship_Game
                 this.SelectedShip = (Ship)null;
                 this.SelectedPlanet = (Planet)null;
                 this.SelectedFleet = (Fleet)null;
-                this.SelectedFlank = (List<Fleet.Squad>)null;
+                this.SelectedFlank = (Array<Fleet.Squad>)null;
                 this.SelectedSystem = (SolarSystem)null;
                 this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
                 this.ProjectingPosition = false;
@@ -4309,7 +4309,7 @@ namespace Ship_Game
                             flag2 = true;
                             this.pickedSomethingThisFrame = true;
                             AudioManager.PlayCue("techy_affirm1");
-                            using (List<Ship>.Enumerator enumerator = this.SelectedFleet.Ships.GetEnumerator())
+                            using (Array<Ship>.Enumerator enumerator = this.SelectedFleet.Ships.GetEnumerator())
                             {
                                 while (enumerator.MoveNext())
                                     this.SelectedShipList.Add(enumerator.Current);
@@ -4361,7 +4361,7 @@ namespace Ship_Game
                         if (this.SelectedShip != null && this.SelectedShipList.Count == 1)
                             this.ShipInfoUIElement.SetShip(this.SelectedShip);
                         else if (this.SelectedShipList.Count > 1)
-                            this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, false);
+                            this.shipListInfoUI.SetShipList((Array<Ship>)this.SelectedShipList, false);
                         bool flag3 = false;
                         if (this.SelectedShipList.Count == 1)
                         {
@@ -4458,7 +4458,7 @@ namespace Ship_Game
                 this.SelectionBox.Width = Math.Abs(this.SelectionBox.Width);
                 this.SelectionBox.Height = Math.Abs(this.SelectionBox.Height);
                 bool flag1 = true;
-                List<Ship> list = new List<Ship>();
+                Array<Ship> list = new Array<Ship>();
                 foreach (UniverseScreen.ClickableShip clickableShip in this.ClickableShipsList)
                 {
                     if (this.SelectionBox.Contains(new Point((int)clickableShip.ScreenPos.X, (int)clickableShip.ScreenPos.Y)) && !this.SelectedShipList.Contains(clickableShip.shipToClick))
@@ -4482,7 +4482,7 @@ namespace Ship_Game
                     }
                     if (flag3 && flag2)
                     {
-                        foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                        foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                         {
                             if (ship.shipData.Role <= ShipData.RoleName.supply)
                                 this.SelectedShipList.QueuePendingRemoval(ship);
@@ -4494,7 +4494,7 @@ namespace Ship_Game
                 {
                     bool flag2 = false;
                     bool flag3 = false;
-                    foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                     {
                         if (ship.loyalty == this.player)
                             flag2 = true;
@@ -4503,7 +4503,7 @@ namespace Ship_Game
                     }
                     if (flag2 && flag3)
                     {
-                        foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                        foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                         {
                             if (ship.loyalty != this.player)
                                 this.SelectedShipList.QueuePendingRemoval(ship);
@@ -4513,8 +4513,8 @@ namespace Ship_Game
                     if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
                         this.previousSelection = this.SelectedShip;
                     this.SelectedShip = (Ship)null;
-                    //this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);
-                    this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, false);  //fbedard: this is not a fleet!
+                    //this.shipListInfoUI.SetShipList((Array<Ship>)this.SelectedShipList, true);
+                    this.shipListInfoUI.SetShipList((Array<Ship>)this.SelectedShipList, false);  //fbedard: this is not a fleet!
                 }
                 else if (this.SelectedShipList.Count == 1)
                 {
@@ -4554,7 +4554,7 @@ namespace Ship_Game
                     bool flag3 = false;
                     try
                     {
-                        foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                        foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                         {
                             if (ship.shipData.Role <= ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.GetAI().State ==  AIState.Colonize)
                                 flag2 = true;
@@ -4571,7 +4571,7 @@ namespace Ship_Game
                         {
                             try
                             {
-                                foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                                foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                                 {
                                     if (ship.shipData.Role <= ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.GetAI().State == AIState.Colonize)
                                         this.SelectedShipList.QueuePendingRemoval(ship);
@@ -4588,7 +4588,7 @@ namespace Ship_Game
                 {
                     bool flag2 = false;
                     bool flag3 = false;
-                    foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                     {
                         if (ship.loyalty == this.player)
                             flag2 = true;
@@ -4597,7 +4597,7 @@ namespace Ship_Game
                     }
                     if (flag2 && flag3)
                     {
-                        foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                        foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                         {
                             if (ship.loyalty != this.player)
                                 this.SelectedShipList.QueuePendingRemoval(ship);
@@ -4616,7 +4616,7 @@ namespace Ship_Game
                             {
                                 try
                                 {
-                                    foreach (Ship ship in (List<Ship>)this.SelectedShipList)
+                                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
                                     {
                                         if (ship.fleet == null || ship.fleet != this.SelectedShipList[0].fleet)
                                             flag4 = false;
@@ -4630,9 +4630,9 @@ namespace Ship_Game
                             }
                         }
                         if (this.SelectedFleet != null)
-                            this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, true);
+                            this.shipListInfoUI.SetShipList((Array<Ship>)this.SelectedShipList, true);
                         else
-                            this.shipListInfoUI.SetShipList((List<Ship>)this.SelectedShipList, false);
+                            this.shipListInfoUI.SetShipList((Array<Ship>)this.SelectedShipList, false);
                     }
                     if (this.SelectedFleet == null)
                         this.ShipInfoUIElement.SetShip(this.SelectedShipList[0]);
@@ -4684,7 +4684,7 @@ namespace Ship_Game
                 solarSystem.FiveClosestSystems.Clear();
                 foreach (Planet planet in solarSystem.PlanetList)
                 {
-                    planet.TilesList = new List<PlanetGridSquare>();
+                    planet.TilesList = new Array<PlanetGridSquare>();
                     if (planet.SO != null)
                     {
                         planet.SO.Clear();
@@ -5563,7 +5563,7 @@ namespace Ship_Game
             }
             if (Debug)
             {
-                var lines = new List<string>();
+                var lines = new Array<string>();
                 lines.Add("Comparisons:      " + GlobalStats.Comparisons);
                 lines.Add("Dis Check Avg:    " + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter);
                 lines.Add("Modules Moved:    " + GlobalStats.ModulesMoved);
@@ -5592,7 +5592,7 @@ namespace Ship_Game
             DrawCompletedEvt.Set();
         }
 
-        private void DrawLines(Vector2 position, List<string> lines)
+        private void DrawLines(Vector2 position, Array<string> lines)
         {
             foreach (string line in lines)
             {
@@ -5693,13 +5693,13 @@ namespace Ship_Game
             }
         }
 
-        private void DrawOverlappingCirlcesLite(List<Circle> CircleList, Color color, float Thickness)
+        private void DrawOverlappingCirlcesLite(Array<Circle> CircleList, Color color, float Thickness)
         {
             foreach (Circle circle in CircleList)
                 ;
         }
 
-        private void DrawSelectedShipGroup(List<Circle> CircleList, Color color, float Thickness)
+        private void DrawSelectedShipGroup(Array<Circle> CircleList, Color color, float Thickness)
         {
             for (int index = 0; index < CircleList.Count; ++index)
             {
@@ -5711,7 +5711,7 @@ namespace Ship_Game
             }
         }
 
-        public void DrawOverlappingCirlces(List<Circle> CircleList, Color color, float Thickness)
+        public void DrawOverlappingCirlces(Array<Circle> CircleList, Color color, float Thickness)
         {
             BatchRemovalCollection<UniverseScreen.Intersection> removalCollection = new BatchRemovalCollection<UniverseScreen.Intersection>();
             foreach (Circle A in CircleList)
@@ -5743,13 +5743,13 @@ namespace Ship_Game
                     Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, A.Center, A.Radius, 100, color, Thickness);
             }
             int num1 = 0;
-            foreach (UniverseScreen.Intersection intersection in (List<UniverseScreen.Intersection>)removalCollection)
+            foreach (UniverseScreen.Intersection intersection in (Array<UniverseScreen.Intersection>)removalCollection)
                 ++num1;
-            List<List<Vector2>> list1 = new List<List<Vector2>>();
+            Array<Array<Vector2>> list1 = new Array<Array<Vector2>>();
             foreach (Circle circle in CircleList)
             {
-                List<UniverseScreen.Intersection> list2 = new List<UniverseScreen.Intersection>();
-                foreach (UniverseScreen.Intersection intersection in (List<UniverseScreen.Intersection>)removalCollection)
+                Array<UniverseScreen.Intersection> list2 = new Array<UniverseScreen.Intersection>();
+                foreach (UniverseScreen.Intersection intersection in (Array<UniverseScreen.Intersection>)removalCollection)
                 {
                     if (intersection.C1 == circle || intersection.C2 == circle)
                         list2.Add(intersection);
@@ -5784,12 +5784,12 @@ namespace Ship_Game
                     if (float.IsNaN((double)Vector2.Distance(Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).C1.Center, Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).C2.Center) >= (double)vector2Array[2].Y ? 360f - num2 : num2))
                         //num3 = 180f;
                     Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).AngularDistance = 360f;
-                    List<Vector2> myArc = Primitives2D.CreateMyArc(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 50, Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).Angle, Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).AngularDistance, C0, C1, color, Thickness, CircleList);
+                    Array<Vector2> myArc = Primitives2D.CreateMyArc(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 50, Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).Angle, Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).AngularDistance, C0, C1, color, Thickness, CircleList);
                     list1.Add(myArc);
                 }
             }
-            List<Vector2> list3 = new List<Vector2>();
-            foreach (List<Vector2> list2 in list1)
+            Array<Vector2> list3 = new Array<Vector2>();
+            foreach (Array<Vector2> list2 in list1)
                 list3.AddRange((IEnumerable<Vector2>)list2);
             foreach (Vector2 center in list3)
                 Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, 2f, 10, color, 2f);
@@ -5806,7 +5806,7 @@ namespace Ship_Game
             };
         }
 
-        private void DrawCircleConnections(Circle A, List<Circle> Circles)
+        private void DrawCircleConnections(Circle A, Array<Circle> Circles)
         {
             A.isChecked = true;
             foreach (Circle B in Circles)
@@ -6102,7 +6102,7 @@ namespace Ship_Game
         {
             if (this.projectedGroup == null)
                 return;
-            foreach (Ship ship in (List<Ship>)this.projectedGroup.Ships)
+            foreach (Ship ship in (Array<Ship>)this.projectedGroup.Ships)
             {
                 Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.projectedPosition.X, ship.projectedPosition.Y, 0.0f), this.projection, this.view, Matrix.Identity);
                 Vector2 position = new Vector2(vector3.X, vector3.Y);
@@ -7533,7 +7533,7 @@ namespace Ship_Game
                                 }
                                 if (player.data.MoleList.Count > 0)
                                 {
-                                    foreach (Mole mole in (List<Mole>)player.data.MoleList)
+                                    foreach (Mole mole in (Array<Mole>)player.data.MoleList)
                                     {
                                         if (mole.PlanetGuid == planet.guid)
                                         {

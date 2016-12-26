@@ -28,7 +28,7 @@ namespace Ship_Game
 		private int startingy;
 		private FloatSlider MusicVolumeSlider;
 		private FloatSlider EffectsVolumeSlider;
-		private readonly List<Option> ResolutionOptions = new List<Option>();
+		private readonly Array<Option> ResolutionOptions = new Array<Option>();
 		private Option Resolution;
 		private Option FullScreen;
 		private MouseState currentMouse;

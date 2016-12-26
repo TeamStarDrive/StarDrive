@@ -21,7 +21,7 @@ namespace Ship_Game
 
 		//private GenericButton ShipKills;
 
-		private List<GenericButton> Buttons = new List<GenericButton>();
+		private Array<GenericButton> Buttons = new Array<GenericButton>();
 
 		public Rectangle ElementRect;
 
@@ -43,7 +43,7 @@ namespace Ship_Game
 
 		private float MaxPop;
 
-		public List<string> TextMessages = new List<string>();
+		public Array<string> TextMessages = new Array<string>();
 
 		public float StarDate = 1000.1f;
 
