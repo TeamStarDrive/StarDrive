@@ -61,8 +61,8 @@ namespace Ship_Game
 		[Serialize(10)] public DTrait DiplomaticPersonality;
 		[Serialize(11)] public ETrait EconomicPersonality;
 		[Serialize(12)] public float TaxRate = 0.25f;
-		[Serialize(13)] public List<string> ExcludedDTraits = new List<string>();
-		[Serialize(14)] public List<string> ExcludedETraits = new List<string>();
+		[Serialize(13)] public Array<string> ExcludedDTraits = new Array<string>();
+		[Serialize(14)] public Array<string> ExcludedETraits = new Array<string>();
 		[Serialize(15)] public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
 		[Serialize(16)] public string AbsorbedBy;
 		[Serialize(17)] public string StartingShip;
@@ -79,7 +79,7 @@ namespace Ship_Game
 		[Serialize(28)] public float MilitaryScoreTotal;
 		[Serialize(29)] public int ScoreAverage;
 		[Serialize(30)] public string MusicCue;
-		[Serialize(31)] public List<string> ResearchQueue = new List<string>();
+		[Serialize(31)] public Array<string> ResearchQueue = new Array<string>();
 		[Serialize(32)] public BatchRemovalCollection<Mole> MoleList = new BatchRemovalCollection<Mole>();
 		[Serialize(33)] public float CounterIntelligenceBudget;
 		[Serialize(34)] public string PortraitName;
@@ -113,7 +113,7 @@ namespace Ship_Game
 		[Serialize(62)] public float DefensiveSpyBonus;
 		[Serialize(63)] public float OffensiveSpyBonus;
         [Serialize(64)] public float FTLPowerDrainModifier = 2f;
-        [Serialize(65)] public List<Artifact> OwnedArtifacts = new List<Artifact>();
+        [Serialize(65)] public Array<Artifact> OwnedArtifacts = new Array<Artifact>();
         [Serialize(66)] public int BonusFighterLevels;
         [Serialize(67)] public float MissileDodgeChance;
         [Serialize(68)] public float MissileHPModifier = 1f;
@@ -133,8 +133,8 @@ namespace Ship_Game
         [Serialize(78)] public float DefenseBudget = 0;
 
         //unlock at start
-        [Serialize(79)] public List<string> unlockBuilding = new List<string>();
-        [Serialize(80)] public List<string> unlockShips = new List<string>();
+        [Serialize(79)] public Array<string> unlockBuilding = new Array<string>();
+        [Serialize(80)] public Array<string> unlockShips = new Array<string>();
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;

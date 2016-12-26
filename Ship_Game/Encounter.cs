@@ -17,7 +17,7 @@ namespace Ship_Game
 
 		public string DescriptionText;
 
-		public List<Message> MessageList;
+		public Array<Message> MessageList;
 
 		public int CurrentMessage;
 

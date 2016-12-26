@@ -33,9 +33,9 @@ namespace Ship_Game
             public Rectangle rect;
         }
 
-        public List<GridItem> GridOfUnlocks = new List<GridItem>();
+        public Array<GridItem> GridOfUnlocks = new Array<GridItem>();
 
-        public UnlocksGrid(List<UnlockItem> Unlocks, Rectangle r)
+        public UnlocksGrid(Array<UnlockItem> Unlocks, Rectangle r)
 		{
 			Vector2 Cursor = new Vector2((float)r.X, (float)r.Y);
 			int Column = 0;

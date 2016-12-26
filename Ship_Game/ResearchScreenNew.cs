@@ -11,11 +11,11 @@ namespace Ship_Game
 	{
 		public Camera2d camera;
 
-        private Dictionary<string, Node> TechTree = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
+        private Map<string, Node> TechTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, Node> CompleteSubNodeTree = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
+        public Map<string, Node> CompleteSubNodeTree = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, Node> SubNodes = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
+        public Map<string, Node> SubNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
 
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -37,7 +37,7 @@ namespace Ship_Game
 
 		private int RowOffset = 100;
 
-		private List<Vector2> ClaimedSpots = new List<Vector2>();
+		private Array<Vector2> ClaimedSpots = new Array<Vector2>();
 
 		private Vector2 cameraVelocity = Vector2.Zero;
 
@@ -65,7 +65,7 @@ namespace Ship_Game
 
 		private Color needToBuy = new Color(255, 165, 0, 50);
 
-		private List<ResearchScreenNew.UnlockItem> DetailUnlocks = new List<ResearchScreenNew.UnlockItem>();
+		private Array<ResearchScreenNew.UnlockItem> DetailUnlocks = new Array<ResearchScreenNew.UnlockItem>();
 
 		private ScrollList UnlockSL;
 
@@ -400,7 +400,7 @@ namespace Ship_Game
 					this.qcomponent.SetVisible();
 					AudioManager.PlayCue("sd_ui_research_select");
 					string techToCheck = tech.Key;
-					List<string> TechsToAdd = new List<string>()
+					Array<string> TechsToAdd = new Array<string>()
 					{
 						techToCheck
 					};

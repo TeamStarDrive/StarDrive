@@ -23,28 +23,28 @@ namespace Ship_Game
 
 		public int DescriptionIndex;
 
-		public List<LeadsToTech> LeadsTo = new List<LeadsToTech>();
+		public Array<LeadsToTech> LeadsTo = new Array<LeadsToTech>();
 
-		public List<UnlockedMod> ModulesUnlocked = new List<UnlockedMod>();
+		public Array<UnlockedMod> ModulesUnlocked = new Array<UnlockedMod>();
 
-		public List<UnlockedBuilding> BuildingsUnlocked = new List<UnlockedBuilding>();
+		public Array<UnlockedBuilding> BuildingsUnlocked = new Array<UnlockedBuilding>();
 
-		public List<UnlockedBonus> BonusUnlocked = new List<UnlockedBonus>();
+		public Array<UnlockedBonus> BonusUnlocked = new Array<UnlockedBonus>();
 
-		public List<UnlockedTroop> TroopsUnlocked = new List<UnlockedTroop>();
+		public Array<UnlockedTroop> TroopsUnlocked = new Array<UnlockedTroop>();
 
-		public List<UnlockedHull> HullsUnlocked = new List<UnlockedHull>();
+		public Array<UnlockedHull> HullsUnlocked = new Array<UnlockedHull>();
 
-        public List<TriggeredEvent> EventsTriggered = new List<TriggeredEvent>();
+        public Array<TriggeredEvent> EventsTriggered = new Array<TriggeredEvent>();
 
-        public List<RevealedTech> TechsRevealed = new List<RevealedTech>();
+        public Array<RevealedTech> TechsRevealed = new Array<RevealedTech>();
 
         //Added by McShooterz to allow for techs with more than one level
         public byte MaxLevel = 1;
 
         //added by McShooterz: Racial Tech variables
-        public List<RequiredRace> RaceRestrictions = new List<RequiredRace>();
-        public List<RequiredRace> RaceExclusions = new List<RequiredRace>();
+        public Array<RequiredRace> RaceRestrictions = new Array<RequiredRace>();
+        public Array<RequiredRace> RaceExclusions = new Array<RequiredRace>();
         public struct RequiredRace
         {
             public string ShipType;
@@ -71,7 +71,7 @@ namespace Ship_Game
 			public string Name;
             public string Type;
 			public string BonusType;
-			public List<string> Tags;
+			public Array<string> Tags;
 			public float Bonus;
 			public string Description;
 			public int BonusIndex;

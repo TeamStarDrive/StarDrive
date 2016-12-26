@@ -28,7 +28,7 @@ namespace Ship_Game
 
 		public Camera2d camera;
 
-		public List<ToggleButton> CombatStatusButtons = new List<ToggleButton>();
+		public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
 
 		public bool Debug;
 
@@ -46,7 +46,7 @@ namespace Ship_Game
 
 		private Vector3 cameraPosition = new Vector3(0f, 0f, 1300f);
 
-		public List<SlotStruct> Slots = new List<SlotStruct>();
+		public Array<SlotStruct> Slots = new Array<SlotStruct>();
 
 		private Vector2 offset;
 
@@ -54,7 +54,7 @@ namespace Ship_Game
 
 		private bool ShipSaved = true;
 
-		private List<ShipData> AvailableHulls = new List<ShipData>();
+		private Array<ShipData> AvailableHulls = new Array<ShipData>();
 
 		//private UIButton HullLeft;
 
@@ -124,9 +124,9 @@ namespace Ship_Game
 
 		private Rectangle ModuleSelectionArea = new Rectangle();
 
-		private List<ShipDesignScreen.ModuleCatButton> ModuleCatButtons = new List<ShipDesignScreen.ModuleCatButton>();
+		private Array<ShipDesignScreen.ModuleCatButton> ModuleCatButtons = new Array<ShipDesignScreen.ModuleCatButton>();
 
-		private List<ModuleButton> ModuleButtons = new List<ModuleButton>();
+		private Array<ModuleButton> ModuleButtons = new Array<ModuleButton>();
 
 		private Rectangle upArrow;
 
@@ -251,7 +251,7 @@ namespace Ship_Game
 				ThrusterList = hull.ThrusterList,
                 ShipCategory = hull.ShipCategory,
                 CarrierShip = hull.CarrierShip,
-				ModuleSlotList = new List<ModuleSlotData>(),
+				ModuleSlotList = new Array<ModuleSlotData>(),
 			};
             this.techs.Clear();
             this.AddToTechList(this.ActiveHull.HullData.techsNeeded);
@@ -717,8 +717,8 @@ namespace Ship_Game
 		{
 			this.upArrow = new Rectangle(this.ModuleSelectionArea.X + this.ModuleSelectionArea.Width - 22, this.ModuleSelectionArea.Y, 22, 30);
 			this.downArrow = new Rectangle(this.ModuleSelectionArea.X + this.ModuleSelectionArea.Width - 22, this.ModuleSelectionArea.Y + this.ModuleSelectionArea.Height - 32, 20, 30);
-			List<string> Categories = new List<string>();
-			Dictionary<string, List<ShipModule>> ModuleDict = new Dictionary<string, List<ShipModule>>();
+			Array<string> Categories = new Array<string>();
+			Dictionary<string, Array<ShipModule>> ModuleDict = new Map<string, Array<ShipModule>>();
 			foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
 			{
 				if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
@@ -736,7 +736,7 @@ namespace Ship_Game
 				}
 				else
 				{
-					ModuleDict.Add(cat, new List<ShipModule>());
+					ModuleDict.Add(cat, new Array<ShipModule>());
 					ModuleDict[cat].Add(module.Value);
 				}
 				ModuleButton mb = new ModuleButton()
@@ -2752,7 +2752,7 @@ namespace Ship_Game
 				if (this.Reset)
 				{
 					this.weaponSL.Entries.Clear();
-					List<string> WeaponCategories = new List<string>();
+					Array<string> WeaponCategories = new Array<string>();
 					foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
 					{
 						if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
@@ -2985,7 +2985,7 @@ namespace Ship_Game
 				if (this.Reset)
 				{
 					this.weaponSL.Entries.Clear();
-					List<string> ModuleCategories = new List<string>();
+					Array<string> ModuleCategories = new Array<string>();
 					foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
 					{
 						if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
@@ -3162,7 +3162,7 @@ namespace Ship_Game
 				if (this.Reset)
 				{
 					this.weaponSL.Entries.Clear();
-					List<string> ModuleCategories = new List<string>();
+					Array<string> ModuleCategories = new Array<string>();
 					foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
 					{
 						if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
@@ -3312,7 +3312,7 @@ namespace Ship_Game
 				if (this.Reset)
 				{
 					this.weaponSL.Entries.Clear();
-					List<string> ModuleCategories = new List<string>();
+					Array<string> ModuleCategories = new Array<string>();
 					foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
 					{
 						if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")
@@ -6323,7 +6323,7 @@ namespace Ship_Game
 			this.weaponSL = new ScrollList(this.modSel);
 			this.hullSelectionSub.AddTab(Localizer.Token(107));
 			this.hullSL = new ScrollList(this.hullSelectionSub);
-			List<string> Categories = new List<string>();
+			Array<string> Categories = new Array<string>();
 			foreach (KeyValuePair<string, ShipData> hull in Ship_Game.ResourceManager.HullsDict)
 			{
 				if (!EmpireManager.Player.GetHDict()[hull.Key])
@@ -6620,7 +6620,7 @@ namespace Ship_Game
 				Role = this.ActiveHull.Role,
 				ShipStyle = this.ActiveHull.ShipStyle,
 				ThrusterList = this.ActiveHull.ThrusterList,
-				ModuleSlotList = new List<ModuleSlotData>()
+				ModuleSlotList = new Array<ModuleSlotData>()
 			};
 			foreach (SlotStruct slot in this.Slots)
 			{

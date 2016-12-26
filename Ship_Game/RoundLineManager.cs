@@ -249,7 +249,7 @@ namespace Ship_Game
 			this.effect.End();
 		}
 
-		public void Draw(List<RoundLine> roundLines, float lineRadius, Color lineColor, Matrix viewProjMatrix, float time, string techniqueName)
+		public void Draw(Array<RoundLine> roundLines, float lineRadius, Color lineColor, Matrix viewProjMatrix, float time, string techniqueName)
 		{
 			this.device.VertexDeclaration = this.vdecl;
 			this.device.Vertices[0].SetSource(this.vb, 0, this.bytesPerVertex);

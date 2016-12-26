@@ -21,7 +21,7 @@ namespace Ship_Game
         private bool disposed;
 
         //Added by McShooterz: store sounds instances
-        private List<SoundEffectInstance> SoundEffectInstances;
+        private Array<SoundEffectInstance> SoundEffectInstances;
 
 		static AudioManager()
 		{
@@ -36,7 +36,7 @@ namespace Ship_Game
 	
 		private AudioManager(Microsoft.Xna.Framework.Game game, string settingsFile, string waveBankFile, string soundBankFile) : base(game)
 		{
-            this.SoundEffectInstances = new List<SoundEffectInstance>();
+            this.SoundEffectInstances = new Array<SoundEffectInstance>();
 			try
 			{
 				this.audioEngine = new AudioEngine(settingsFile);

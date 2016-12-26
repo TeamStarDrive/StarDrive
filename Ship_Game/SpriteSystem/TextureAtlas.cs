@@ -24,8 +24,8 @@ namespace Ship_Game
     {
         public string Name { get; private set; }
 
-        public  readonly List<Texture2D> Textures = new List<Texture2D>();
-        private readonly List<SubTexture> Sprites = new List<SubTexture>();
+        public  readonly Array<Texture2D> Textures = new Array<Texture2D>();
+        private readonly Array<SubTexture> Sprites = new Array<SubTexture>();
 
         protected TextureAtlas(string name)
         {
