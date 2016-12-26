@@ -343,7 +343,7 @@
     <Compile Include="Ship_Game\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Ship_Game\Ref_T_.cs">
+    <Compile Include="Ship_Game\Utils\Ref.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
