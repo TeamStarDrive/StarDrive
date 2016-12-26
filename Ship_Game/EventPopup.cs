@@ -18,7 +18,7 @@ namespace Ship_Game
 
 		private Rectangle _blackRect;
 
-        public Dictionary<Packagetypes, List<DrawPackage>> DrawPackages = new Dictionary<Packagetypes, List<DrawPackage>>();
+        public Map<Packagetypes, Array<DrawPackage>> DrawPackages = new Map<Packagetypes, Array<DrawPackage>>();
 
 		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome, bool triggerNow)
 		{
@@ -36,7 +36,7 @@ namespace Ship_Game
 			R = new Rectangle(0, 0, 600, 600);
 		    foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
 		    {
-		        DrawPackages.Add(packagetype,new List<DrawPackage>());
+		        DrawPackages.Add(packagetype,new Array<DrawPackage>());
 		    }
 		}
 

@@ -33,7 +33,7 @@ namespace Ship_Game
 
         protected override void SetSavesSL()        // Set list of files to show
         {
-            var saves = new List<FileData>();
+            var saves = new Array<FileData>();
             foreach (FileInfo fileInfo in Dir.GetFiles(Path))
             {
                 try

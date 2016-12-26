@@ -75,7 +75,7 @@ namespace Ship_Game
 
         private Rectangle MoneyRect;
 
-        private List<ThreeStateButton> ResourceButtons = new List<ThreeStateButton>();
+        private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
 
         private ScrollList CommoditiesSL;
 
@@ -145,7 +145,7 @@ namespace Ship_Game
 
         private Rectangle edit_name_button = new Rectangle();
 
-        private List<Building> BuildingsCanBuild = new List<Building>();
+        private Array<Building> BuildingsCanBuild = new Array<Building>();
 
         private GenericButton ChangeGovernor = new GenericButton(new Rectangle(), Localizer.Token(370), Fonts.Pirulen16);
 
@@ -475,7 +475,7 @@ namespace Ship_Game
             this.queue.Draw();
             if (this.build.Tabs[0].Selected)
             {
-                List<Building> buildingsWeCanBuildHere = this.p.GetBuildingsWeCanBuildHere();
+                Array<Building> buildingsWeCanBuildHere = this.p.GetBuildingsWeCanBuildHere();
                 if (this.p.BuildingList.Count != this.buildingsHereLast || this.buildingsCanBuildLast != buildingsWeCanBuildHere.Count || this.Reset)
                 {
                     this.BuildingsCanBuild = buildingsWeCanBuildHere;
@@ -581,7 +581,7 @@ namespace Ship_Game
             }
             else if (this.p.HasShipyard && this.build.Tabs[1].Selected)
             {
-                List<string> list = new List<string>();
+                Array<string> list = new Array<string>();
                 if (this.shipsCanBuildLast != this.p.Owner.ShipsWeCanBuild.Count || this.Reset)
                 {
                     this.buildSL.Reset();
@@ -938,7 +938,7 @@ namespace Ship_Game
                 }
             }
             this.QSL.Entries.Clear();
-            foreach (object o in (List<QueueItem>)this.p.ConstructionQueue)
+            foreach (object o in (Array<QueueItem>)this.p.ConstructionQueue)
                 this.QSL.AddQItem(o);
             for (int index = this.QSL.indexAtTop; index < this.QSL.Copied.Count && index < this.QSL.indexAtTop + this.QSL.entriesToDisplay; ++index)
             {
@@ -2184,14 +2184,14 @@ namespace Ship_Game
                 this.SendTroops.State = UIButton.PressState.Hover;
                 if (input.InGameSelect)
                 {
-                    List<Ship> troopShips;
+                    Array<Ship> troopShips;
                     using (eui.empire.GetShips().AcquireReadLock())
-                        troopShips = new List<Ship>(this.eui.empire.GetShips()
+                        troopShips = new Array<Ship>(this.eui.empire.GetShips()
                         .Where(troop => troop.TroopList.Count > 0
                             && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
                             && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.p.Position)));
 
-                    List<Planet> planetTroops = new List<Planet>(this.eui.empire.GetPlanets()
+                    Array<Planet> planetTroops = new Array<Planet>(this.eui.empire.GetPlanets()
                         .Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, this.p.Position))
                         .Where(Name => Name.Name != this.p.Name));
 
@@ -2527,18 +2527,9 @@ namespace Ship_Game
                         }
                         else if (i > 0)
                         {
-                            LinkedList<QueueItem> copied = new LinkedList<QueueItem>();
-                            foreach (QueueItem qi in this.p.ConstructionQueue)
-                            {
-                                copied.AddLast(qi);
-                            }
-                            copied.Remove(this.p.ConstructionQueue[i]);
-                            copied.AddFirst(this.p.ConstructionQueue[i]);
-                            this.p.ConstructionQueue.Clear();
-                            foreach (QueueItem qi in copied)
-                            {
-                                this.p.ConstructionQueue.Add(qi);
-                            }
+                            var item = p.ConstructionQueue[i];
+                            p.ConstructionQueue.Remove(item);
+                            p.ConstructionQueue.Insert(0, item);
                             AudioManager.PlayCue("sd_ui_accept_alt3");
                             break;
                         }
@@ -2558,19 +2549,9 @@ namespace Ship_Game
                         }
                         else if (i + 1 < this.QSL.Copied.Count)
                         {
-                            LinkedList<QueueItem> copied = new LinkedList<QueueItem>();
-                            foreach (QueueItem qi in this.p.ConstructionQueue)
-                            {
-                                copied.AddLast(qi);
-                            }
-                            copied.Remove(this.p.ConstructionQueue[i]);
-                            copied.AddLast(this.p.ConstructionQueue[i]);
-                            this.p.ConstructionQueue.Clear();
-                            foreach (QueueItem qi in copied)
-                            {
-                                //qi.IsPlayerAdded = true;
-                                this.p.ConstructionQueue.Add(qi);
-                            }
+                            var item = p.ConstructionQueue[i];
+                            p.ConstructionQueue.Remove(item);
+                            p.ConstructionQueue.Insert(0, item);
                             AudioManager.PlayCue("sd_ui_accept_alt3");
                             break;
                         }

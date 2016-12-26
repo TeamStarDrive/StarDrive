@@ -13,11 +13,11 @@ namespace Ship_Game
 
 		private Artifact _grantedArtifact;
 
-		public List<string> TroopsToSpawn;
+		public Array<string> TroopsToSpawn;
 
-		public List<string> FriendlyShipsToSpawn;
+		public Array<string> FriendlyShipsToSpawn;
 
-		public List<string> RemnantShipsToSpawn;
+		public Array<string> RemnantShipsToSpawn;
 
 		public bool UnlockSecretBranch;
 
@@ -39,7 +39,7 @@ namespace Ship_Game
 
 		public int MoneyGranted;
 
-		public List<string> TroopsGranted;
+		public Array<string> TroopsGranted;
 
 		public float FoodProductionBonus;
 
@@ -141,7 +141,7 @@ namespace Ship_Game
 	    private bool SetRandomPlanet()
 	    {
 	        if (!SelectRandomPlanet) return false;
-            List<Planet> potentials = new List<Planet>();
+            Array<Planet> potentials = new Array<Planet>();
             foreach (SolarSystem s in UniverseScreen.SolarSystemList)
             {
                 foreach (Planet rp in s.PlanetList)
@@ -202,7 +202,7 @@ namespace Ship_Game
             if (GrantArtifact)
 	        {
                 //Find all available artifacts
-                List<Artifact> potentials = new List<Artifact>();
+                Array<Artifact> potentials = new Array<Artifact>();
                 foreach (var kv in ResourceManager.ArtifactsDict)
                 {
                     if (kv.Value.Discovered)

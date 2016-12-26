@@ -28,7 +28,7 @@ namespace Ship_Game
 
 		private Vector3 cameraPosition = new Vector3(0f, 0f, 1300f);
 
-		public List<SlotStruct> Slots = new List<SlotStruct>();
+		public Array<SlotStruct> Slots = new Array<SlotStruct>();
 
 		private Rectangle SearchBar;
 

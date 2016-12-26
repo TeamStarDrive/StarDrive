@@ -29,7 +29,7 @@ namespace Ship_Game.Gameplay
 		public Planet start;
 		public Planet end;
 		private SolarSystem SystemToPatrol;
-		private List<Planet> PatrolRoute = new List<Planet>();
+		private Array<Planet> PatrolRoute = new Array<Planet>();
 		private int stopNumber;
 		private Planet PatrolTarget;
 		public SolarSystem SystemToDefend;
@@ -61,7 +61,7 @@ namespace Ship_Game.Gameplay
 		public string FoodOrProd;
         public bool hasPriorityTarget;
 		public bool Intercepting;
-		public List<Ship> TargetQueue = new List<Ship>();
+		public Array<Ship> TargetQueue = new Array<Ship>();
 		private float TriggerDelay = 0;
 		public Guid TargetGuid;
         public Planet ColonizeTarget;
@@ -76,7 +76,7 @@ namespace Ship_Game.Gameplay
         public object WayPointLocker;
         public Ship TargetShip;
         private bool disposed;
-        public List<Projectile> TrackProjectiles = new List<Projectile>();
+        public Array<Projectile> TrackProjectiles = new Array<Projectile>();
         private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
                 
 		public ArtificialIntelligence(Ship owner)
@@ -225,7 +225,7 @@ namespace Ship_Game.Gameplay
 		    Owner.loyalty.AddPlanet(ColonizeTarget);
 			ColonizeTarget.InitializeSliders(Owner.loyalty);
 			ColonizeTarget.ExploredDict[Owner.loyalty] = true;
-			var BuildingsAdded = new List<string>();
+			var BuildingsAdded = new Array<string>();
 			foreach (ModuleSlot slot in Owner.ModuleSlotList)//@TODO create building placement methods in planet.cs that take into account the below logic. 
 			{
 				if (slot.module == null || slot.module.ModuleType != ShipModuleType.Colony || slot.module.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.module.DeployBuildingOnColonize))
@@ -292,7 +292,7 @@ namespace Ship_Game.Gameplay
             var TroopsRemoved = false;
             var PlayerTroopsRemoved = false;
 
-			var toLaunch = new List<Troop>();
+			var toLaunch = new Array<Troop>();
             foreach (Troop t in TargetPlanet.TroopsHere)
 			{
                 Empire owner = t?.GetOwner();
@@ -857,7 +857,7 @@ namespace Ship_Game.Gameplay
                     var message = new StringBuilder(system.Name);
                     message.Append(" system explored.");
 
-                    var planetsTypesNumber = new Dictionary<string, int>();
+                    var planetsTypesNumber = new Map<string, int>();
                     if (system.PlanetList.Count > 0)
                     {
                         foreach (Planet planet in system.PlanetList)
@@ -1034,7 +1034,7 @@ namespace Ship_Game.Gameplay
 			}
             else if (distCenter < radius)
 			{
-				var ToRemove = new List<Troop>();
+				var ToRemove = new Array<Troop>();
                 //if (Vector2.Distance(goal.TargetPlanet.Position, this.Owner.Center) < 3500f)
 				{
                     //Get limit of troops to land
@@ -1621,8 +1621,7 @@ namespace Ship_Game.Gameplay
                     TrackProjectiles.Clear(); 
                     if (Owner.Mothership != null)
                         TrackProjectiles.AddRange(Owner.Mothership.GetAI().TrackProjectiles);
-                    if (Owner.TrackingPower > 0 && hasPD)                                      
-                    //update projectile list
+                    if (Owner.TrackingPower > 0 && hasPD) //update projectile list                         
                     {
 
                         if (Owner.System!= null)
@@ -1641,9 +1640,7 @@ namespace Ship_Game.Gameplay
                                     continue;
                                 TrackProjectiles.Add(targettrack);
                             }
-
-                        TrackProjectiles = TrackProjectiles.OrderBy(prj =>  Vector2.Distance(Owner.Center, prj.Center)).ToList();
-
+                        TrackProjectiles = TrackProjectiles.OrderBy(prj =>  Vector2.Distance(Owner.Center, prj.Center)).ToArrayList();
                     }
        
                     float lag = Ship.universeScreen.Lag;
@@ -2616,7 +2613,7 @@ namespace Ship_Game.Gameplay
 		{
 			if (ExterminationTarget == null || ExterminationTarget.Owner == null)
 			{
-				var plist = new List<Planet>();
+				var plist = new Array<Planet>();
 				foreach (var planetsDict in universeScreen.PlanetsDict)
 				{
 					if (planetsDict.Value.Owner == null)
@@ -3316,7 +3313,7 @@ namespace Ship_Game.Gameplay
 				OrderReturnToHangar();
 				return;
 			}
-			var shipyards = new List<Planet>();
+			var shipyards = new Array<Planet>();
             if(Owner.loyalty.isFaction)
                 return;
 		    foreach (Planet planet in Owner.loyalty.GetPlanets())
@@ -3459,7 +3456,7 @@ namespace Ship_Game.Gameplay
                 OrbitTarget = (Planet)null;
 				if (SystemToDefend.PlanetList.Count > 0)
 				{
-					var Potentials = new List<Planet>();
+					var Potentials = new Array<Planet>();
 					foreach (Planet p in SystemToDefend.PlanetList)
 					{
 						if (p.Owner == null || p.Owner != Owner.loyalty)
@@ -3637,10 +3634,10 @@ namespace Ship_Game.Gameplay
                 }
             }
             Planet potential = null;//<-unused
-            var planets = new List<Planet>();
+            var planets = new Array<Planet>();
             IOrderedEnumerable<Planet> sortPlanets;
             bool flag;
-            var secondaryPlanets = new List<Planet>();
+            var secondaryPlanets = new Array<Planet>();
             //added by gremlin if fleeing keep fleeing
             if (Math.Abs(Owner.CargoSpace_Max) < 1 || State == AIState.Flee || Owner.isConstructor || Owner.isColonyShip)
                 return;
@@ -4423,7 +4420,7 @@ namespace Ship_Game.Gameplay
         // movement cachelookup
         private bool PathCacheLookup(Point startp, Point endp, Vector2 startv, Vector2 endv)
         {            
-            if (!Owner.loyalty.PathCache.TryGetValue(startp, out Dictionary<Point, Empire.PatchCacheEntry> pathstart)
+            if (!Owner.loyalty.PathCache.TryGetValue(startp, out Map<Point, Empire.PatchCacheEntry> pathstart)
                 || !pathstart.TryGetValue(endp, out Empire.PatchCacheEntry pathend))
                 return false;
 
@@ -4489,7 +4486,7 @@ namespace Ship_Game.Gameplay
                 {
                     if (pathpoints != null)
                     {
-                        var cacheAdd = new List<Vector2>();
+                        var cacheAdd = new Array<Vector2>();
                         //byte lastValue =0;
                         int y = pathpoints.Count() - 1;                                                        
                         for (int x =y; x >= 0; x-=2)                            
@@ -4517,7 +4514,7 @@ namespace Ship_Game.Gameplay
                         {
                             Owner.loyalty.LockPatchCache.EnterWriteLock();
                             var endValue = new Empire.PatchCacheEntry(cacheAdd);
-                            var endkey   = new Dictionary<Point, Empire.PatchCacheEntry>();
+                            var endkey   = new Map<Point, Empire.PatchCacheEntry>();
 
                             endkey.Add(endp, endValue);
                             cache.Add(startp, endkey);
@@ -4550,7 +4547,7 @@ namespace Ship_Game.Gameplay
             ActiveWayPoints.Enqueue(endPos);
 
             #if false
-                List<Vector2> goodpoints = new List<Vector2>();
+                Array<Vector2> goodpoints = new Array<Vector2>();
                 //Grid path = new Grid(this.Owner.loyalty, 36, 10f);
                 if (Empire.Universe != null && this.Owner.loyalty.SensorNodes.Count != 0)
                     goodpoints = this.Owner.loyalty.pathhMap.Pathfind(startPos, endPos, false);
@@ -4590,12 +4587,12 @@ namespace Ship_Game.Gameplay
             #endif
         }
 
-        private List<Vector2> GoodRoad(Vector2 endPos, Vector2 startPos)
+        private Array<Vector2> GoodRoad(Vector2 endPos, Vector2 startPos)
         {
             SpaceRoad targetRoad =null;
-            var StartRoads = new List<SpaceRoad>();
-            var endRoads = new List<SpaceRoad>();
-            var nodePos = new List<Vector2>();
+            var StartRoads = new Array<SpaceRoad>();
+            var endRoads = new Array<SpaceRoad>();
+            var nodePos = new Array<Vector2>();
             foreach (SpaceRoad road in Owner.loyalty.SpaceRoadsList)
             {
                 Vector2 start = road.GetOrigin().Position;
@@ -4630,12 +4627,12 @@ namespace Ship_Game.Gameplay
 
         }
         
-        private List<Vector2> PlotCourseToNewViaRoad(Vector2 endPos, Vector2 startPos)
+        private Array<Vector2> PlotCourseToNewViaRoad(Vector2 endPos, Vector2 startPos)
         {
             //return null;
-            var goodPoints = new List<Vector2>();
-            var potentialEndRoads = new List<SpaceRoad>();
-            var potentialStartRoads = new List<SpaceRoad>();
+            var goodPoints = new Array<Vector2>();
+            var potentialEndRoads = new Array<SpaceRoad>();
+            var potentialStartRoads = new Array<SpaceRoad>();
             RoadNode nearestNode = null;
             var distanceToNearestNode = 0f;
             foreach(SpaceRoad road in Owner.loyalty.SpaceRoadsList)
@@ -4706,7 +4703,7 @@ namespace Ship_Game.Gameplay
                     if(!test)
                     {
                         Log.Info("failed to find road path for {0}", Owner.loyalty.PortraitName);
-                        return new List<Vector2>();
+                        return new Array<Vector2>();
                     }
                 }
                 while (!potentialEndRoads.Contains(potentialStartRoads[0]))
@@ -4732,7 +4729,7 @@ namespace Ship_Game.Gameplay
                     if(!test)
                     {
                         Log.Info("failed to find road path for {0}", Owner.loyalty.PortraitName);
-                        return new List<Vector2>();
+                        return new Array<Vector2>();
                     }
 
 
@@ -6079,7 +6076,7 @@ namespace Ship_Game.Gameplay
 	            awaitClosest = null;
 	            State = AIState.AwaitingOrders;
 	        }
-	        var ToRemove = new List<Ship>();
+	        var ToRemove = new Array<Ship>();
 	        foreach (Ship target in TargetQueue)
 	        {
 	            if (target.Active)
@@ -6240,7 +6237,7 @@ namespace Ship_Game.Gameplay
 	                                        FriendliesNearby.Where(
 	                                            supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() > 0)
 	                                        break;
-	                                    var shipyards = new List<Planet>();
+	                                    var shipyards = new Array<Planet>();
 	                                    for (var i = 0; i < Owner.loyalty.GetPlanets().Count; i++)
 	                                    {
 	                                        Planet item = Owner.loyalty.GetPlanets()[i];
@@ -6440,7 +6437,7 @@ namespace Ship_Game.Gameplay
 	                    }
 	                    else if (Vector2.Distance(Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
 	                    {
-	                        using (List<ShipModule>.Enumerator enumerator = Owner.BombBays.GetEnumerator())
+	                        using (Array<ShipModule>.Enumerator enumerator = Owner.BombBays.GetEnumerator())
 	                        {
 	                            while (enumerator.MoveNext())
 	                            {
@@ -6481,7 +6478,7 @@ namespace Ship_Game.Gameplay
 	                    {
 	                        if (Vector2.Distance(Owner.Center, toEvaluate.TargetPlanet.Position) >= radius)
 	                            break;
-	                        List<ShipModule>.Enumerator enumerator1 = Owner.BombBays.GetEnumerator();
+	                        Array<ShipModule>.Enumerator enumerator1 = Owner.BombBays.GetEnumerator();
 	                        try
 	                        {
 	                            while (enumerator1.MoveNext())

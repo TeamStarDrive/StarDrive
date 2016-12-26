@@ -42,7 +42,7 @@ namespace Ship_Game
 
         public void CheckGrantArtifact(Empire triggerer, Outcome triggeredOutcome, EventPopup popup)
         {           
-            List<Artifact> potentials = new List<Artifact>();
+            Array<Artifact> potentials = new Array<Artifact>();
             foreach (var kv in ResourceManager.ArtifactsDict)
             {
                 if (kv.Value.Discovered)

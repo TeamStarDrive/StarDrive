@@ -41,7 +41,7 @@ namespace Ship_Game.Commands
             {
                 case 0:
                     Planet planet1 = (Planet)null;
-                    List<Planet> list = new List<Planet>();
+                    Array<Planet> list = new Array<Planet>();
                     foreach (Planet planet2 in empire.GetPlanets())
                     {
                         if (planet2.HasShipyard)
@@ -88,7 +88,7 @@ namespace Ship_Game.Commands
                         {
                             int num2 = 0;
                             x++;
-                            foreach (QueueItem queueItem in (List<QueueItem>)planet2.ConstructionQueue)
+                            foreach (QueueItem queueItem in (Array<QueueItem>)planet2.ConstructionQueue)
                                 num2 += (int)(queueItem.Cost - queueItem.productionTowards);
 
 

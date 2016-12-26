@@ -11,11 +11,11 @@ namespace Ship_Game
 {
 	public sealed class ShipInfoUIElement : UIElement
 	{
-		public List<ToggleButton> CombatStatusButtons = new List<ToggleButton>();
+		public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
 
-		public List<OrdersButton> Orders = new List<OrdersButton>();
+		public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
-		private List<ShipInfoUIElement.TippedItem> ToolTipItems = new List<ShipInfoUIElement.TippedItem>();
+		private Array<ShipInfoUIElement.TippedItem> ToolTipItems = new Array<ShipInfoUIElement.TippedItem>();
 
 		private Rectangle SliderRect;
 
