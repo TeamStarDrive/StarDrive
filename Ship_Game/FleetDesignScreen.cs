@@ -1364,9 +1364,9 @@ namespace Ship_Game
 			{
 				dragging = true;
 				this.endDrag = MousePos;
-				if (Vector2.Distance(this.startDrag, this.endDrag) > 10f)
+				if (this.startDrag.OutsideRadius(endDrag, 10f))
 				{
-					this.CamVelocity = HelperFunctions.FindVectorToTarget(this.endDrag, this.startDrag);
+					this.CamVelocity = this.endDrag.FindVectorToTarget(this.startDrag);
 					this.CamVelocity = Vector2.Normalize(this.CamVelocity) * Vector2.Distance(this.startDrag, this.endDrag);
 				}
 			}
@@ -2040,7 +2040,7 @@ namespace Ship_Game
 				}
 			}
 			Vector2 p = MathExt.PointFromRadians(this.fleet.Position, this.fleet.facing, 1f);
-			Vector2 fvec = HelperFunctions.FindVectorToTarget(this.fleet.Position, p);
+			Vector2 fvec = fleet.Position.FindVectorToTarget(p);
 			this.fleet.AssembleFleet(this.fleet.facing, fvec);
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}

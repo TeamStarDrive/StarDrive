@@ -1242,8 +1242,47 @@ namespace Ship_Game.Gameplay
             }
             return false;
         }
-  
- 
+
+
+        public bool CheckIfInsideFireArc(Weapon w, Vector2 pos)
+        {
+            //added by gremlin attackrun compensator
+            
+            if (w.moduleAttachedTo.Center.OutsideRadius(pos, w.GetModifiedRange()))
+            {
+                return false;
+            }
+
+            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            Vector2 toTarget = pos - w.Center;
+            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
+            float facing = w.moduleAttachedTo.facing + MathHelper.ToDegrees(base.Rotation);
+            if (facing > 360f)
+            {
+                facing = facing - 360f;
+            }
+            float difference = Math.Abs(angleToMouse - facing);
+            if (difference > halfArc)
+            {
+                if (angleToMouse > 180f)
+                {
+                    angleToMouse = -1f * (360f - angleToMouse);
+                }
+                if (facing > 180f)
+                {
+                    facing = -1f * (360f - facing);
+                }
+                difference = Math.Abs(angleToMouse - facing);
+            }
+
+            if (difference < halfArc)// && Vector2.Distance(base.Position, pos) < w.GetModifiedRange() + modifyRangeAR)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos )
         {
 
