@@ -11,7 +11,7 @@ namespace Ship_Game
 		public bool IsLoaded;
 	    public bool AlwaysUpdate;
 	    private bool OtherScreenHasFocus;
-        protected readonly List<UIButton> Buttons = new List<UIButton>();
+        protected readonly Array<UIButton> Buttons = new Array<UIButton>();
         protected Texture2D BtnDefault;
         protected Texture2D BtnHovered;
         protected Texture2D BtnPressed;

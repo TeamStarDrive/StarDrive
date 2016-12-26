@@ -28,13 +28,13 @@ namespace Ship_Game
 
 		protected Rectangle FlagRight;
 
-		//protected List<TraitEntry> PhysicalTraits = new List<TraitEntry>();
+		//protected Array<TraitEntry> PhysicalTraits = new Array<TraitEntry>();
 
-		//protected List<TraitEntry> IndustryTraits = new List<TraitEntry>();
+		//protected Array<TraitEntry> IndustryTraits = new Array<TraitEntry>();
 
-		//protected List<TraitEntry> SpecialTraits = new List<TraitEntry>();
+		//protected Array<TraitEntry> SpecialTraits = new Array<TraitEntry>();
 
-        protected List<TraitEntry> AllTraits = new List<TraitEntry>();
+        protected Array<TraitEntry> AllTraits = new Array<TraitEntry>();
 
 		protected Rectangle GalaxySizeRect;
 

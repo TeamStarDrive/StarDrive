@@ -14,7 +14,7 @@ namespace Ship_Game
 
 		public static Mole PlantMole(Empire Owner, Empire Target)
 		{
-			List<Planet> Potentials = new List<Planet>();
+			Array<Planet> Potentials = new Array<Planet>();
 			foreach (Planet p in Target.GetPlanets())
 			{
 				if (!p.ExploredDict[Owner])
@@ -39,7 +39,7 @@ namespace Ship_Game
 			}
 			if (Potentials.Count == 0)
 			{
-				Potentials = new List<Planet>(Target.GetPlanets());
+				Potentials = new Array<Planet>(Target.GetPlanets());
 			}
 			Mole mole = null;
 			if (Potentials.Count > 0)

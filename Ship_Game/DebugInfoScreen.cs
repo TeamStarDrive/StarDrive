@@ -17,7 +17,7 @@ namespace Ship_Game
 
 		private Rectangle win;
 
-		private List<Checkbox> Checkboxes = new List<Checkbox>();
+		private Array<Checkbox> Checkboxes = new Array<Checkbox>();
 
 		public static int ShipsDied;
 

@@ -5,11 +5,11 @@ namespace Ship_Game
 {
 	public sealed class MarkovNameGenerator
 	{
-		private Dictionary<string, List<char>> _chains = new Dictionary<string, List<char>>();
+		private Dictionary<string, Array<char>> _chains = new Dictionary<string, Array<char>>();
 
-		private List<string> _samples = new List<string>();
+		private Array<string> _samples = new Array<string>();
 
-		private List<string> _used = new List<string>();
+		private Array<string> _used = new Array<string>();
 
 		private Random _rnd = new Random();
 
@@ -96,10 +96,10 @@ namespace Ship_Game
 				for (int letter = 0; letter < word.Length - order; letter++)
 				{
 					string token = word.Substring(letter, order);
-					List<char> entry = null;
+					Array<char> entry = null;
 					if (!this._chains.ContainsKey(token))
 					{
-						entry = new List<char>();
+						entry = new Array<char>();
 						this._chains[token] = entry;
 					}
 					else
@@ -117,7 +117,7 @@ namespace Ship_Game
 			{
 				return '?';
 			}
-			List<char> letters = this._chains[token];
+			Array<char> letters = this._chains[token];
 			return letters[this._rnd.Next(letters.Count)];
 		}
 

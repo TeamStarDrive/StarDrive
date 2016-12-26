@@ -16,7 +16,7 @@ namespace Ship_Game
 		public float DangerTimer;
 		public float DangerUpdater = 10f;
 
-		//public List<Empire> OwnerList = new List<Empire>();
+		//public Array<Empire> OwnerList = new Array<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
 		public BatchRemovalCollection<Ship> ShipList = new BatchRemovalCollection<Ship>();
 		public SpatialManager spatialManager = new SpatialManager();
@@ -26,20 +26,20 @@ namespace Ship_Game
 
         //public Vector2 Size = new Vector2(200000f, 200000f);          //Not referenced in code, removing to save memory
 
-        public List<Planet> PlanetList = new List<Planet>();
+        public Array<Planet> PlanetList = new Array<Planet>();
 		public BatchRemovalCollection<Asteroid> AsteroidsList = new BatchRemovalCollection<Asteroid>();
-        public List<Moon> MoonList = new List<Moon>();
+        public Array<Moon> MoonList = new Array<Moon>();
 		public string SunPath;
 		public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
-		public List<Ring> RingList = new List<Ring>();
+		public Array<Ring> RingList = new Array<Ring>();
 		private int numberOfRings;
 		public int StarRadius;
-		public List<SolarSystem> FiveClosestSystems = new List<SolarSystem>();
-		public List<string> ShipsToSpawn = new List<string>();
-		public List<FleetAndPos> FleetsToSpawn = new List<FleetAndPos>();
-		public List<Anomaly> AnomaliesList = new List<Anomaly>();
+		public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>();
+		public Array<string> ShipsToSpawn = new Array<string>();
+		public Array<FleetAndPos> FleetsToSpawn = new Array<FleetAndPos>();
+		public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
 		public bool isStartingSystem;
-		public List<string> DefensiveFleets = new List<string>();
+		public Array<string> DefensiveFleets = new Array<string>();
         public Dictionary<Empire,PredictionTimeout> predictionTimeout =new Dictionary<Empire,PredictionTimeout>();
 
         //adding for thread safe Dispose because class uses unmanaged resources 

@@ -26,9 +26,9 @@ namespace Ship_Game
         private readonly Dictionary<string, bool> UnlockedBuildingsDict = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Dictionary<string, bool> UnlockedModulesDict   = new Dictionary<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         public Dictionary<string, TechEntry> TechnologyDict = new Dictionary<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
-        public List<Ship>      Inhibitors     = new List<Ship>();
-        public List<Ship>      ShipsToAdd     = new List<Ship>();
-        public List<SpaceRoad> SpaceRoadsList = new List<SpaceRoad>();
+        public Array<Ship>      Inhibitors     = new Array<Ship>();
+        public Array<Ship>      ShipsToAdd     = new Array<Ship>();
+        public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
         public float Money = 1000f;
         private readonly BatchRemovalCollection<Planet>      OwnedPlanets      = new BatchRemovalCollection<Planet>();
         private readonly BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
@@ -45,7 +45,7 @@ namespace Ship_Game
         private int numberForAverage = 1;
         //public int ColonizationGoalCount = 2;          //Not referenced in code, removing to save memory
         public string ResearchTopic = "";
-        //private List<War> Wars = new List<War>();          //Not referenced in code, removing to save memory
+        //private Array<War> Wars = new Array<War>();          //Not referenced in code, removing to save memory
         private Fleet DefensiveFleet = new Fleet();
         private BatchRemovalCollection<Ship> ForcePool = new BatchRemovalCollection<Ship>();
         public EmpireData data;
@@ -116,7 +116,7 @@ namespace Ship_Game
         public float averagePLanetStorage;
         [XmlIgnore]
         public Dictionary<Point, Dictionary<Point, PatchCacheEntry>> PathCache = new Dictionary<Point, Dictionary<Point, PatchCacheEntry>>();
-        //public Dictionary<List<Vector2>, int> pathcache = new Dictionary<List<Vector2>, int>();
+        //public Dictionary<Array<Vector2>, int> pathcache = new Dictionary<Array<Vector2>, int>();
         [XmlIgnore]
         public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
         [XmlIgnore]
@@ -133,9 +133,9 @@ namespace Ship_Game
         }
         public class PatchCacheEntry
         {
-            public readonly List<Vector2> Path;
+            public readonly Array<Vector2> Path;
             public int CacheHits;
-            public PatchCacheEntry(List<Vector2> path) { Path = path; }
+            public PatchCacheEntry(Array<Vector2> path) { Path = path; }
         }
         public ConcurrentDictionary<int, Fleet> GetFleetsDict()
         {
@@ -558,8 +558,8 @@ namespace Ship_Game
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
             // clear these lists as they serve no more purpose
-            data.unlockBuilding = new List<string>();
-            data.unlockShips    = new List<string>();
+            data.unlockBuilding = new Array<string>();
+            data.unlockShips    = new Array<string>();
             UpdateShipsWeCanBuild();
 
             if (data.EconomicPersonality == null)
@@ -618,9 +618,9 @@ namespace Ship_Game
             #endif
         }
 
-        public List<Ship> GetOurFactionShips()
+        public Array<Ship> GetOurFactionShips()
         {
-            var ourFactionShips = new List<Ship>();
+            var ourFactionShips = new Array<Ship>();
             foreach (var kv in ResourceManager.ShipsDict)
                 if (kv.Value.shipData.ShipStyle == data.Traits.ShipType)
                     ourFactionShips.Add(kv.Value);
@@ -1104,7 +1104,7 @@ namespace Ship_Game
             }
         }
 
-        public List<Ship> FindShipsInOurBorders()
+        public Array<Ship> FindShipsInOurBorders()
         {
             return GSAI.ThreatMatrix.FindShipsInOurBorders();
         }
@@ -1135,7 +1135,7 @@ namespace Ship_Game
 
             Parallel.ForEach(rangePartitioner, (range) =>
             {
-                var toadd = new List<Ship>();
+                var toadd = new Array<Ship>();
                 for (int i = range.Item1; i < range.Item2; i++)
                 {
                     toadd.Clear();
@@ -1384,7 +1384,7 @@ namespace Ship_Game
                         foreach (SolarSystem key in UniverseScreen.SolarSystemList)
                         {
                             bool flag = false;
-                            foreach (Ship ship in (List<Ship>)key.ShipList)
+                            foreach (Ship ship in (Array<Ship>)key.ShipList)
                             {
                                 if (ship.loyalty != this && (ship.loyalty.isFaction || this.Relationships[ship.loyalty].AtWar))
                                     flag = true;
@@ -1733,7 +1733,7 @@ namespace Ship_Game
             return true;
         }
 
-        public bool WeCanUseThis(Technology tech, List<Ship> ourFactionShips)
+        public bool WeCanUseThis(Technology tech, Array<Ship> ourFactionShips)
         {
             foreach (Ship ship in ourFactionShips)
             {
@@ -1953,7 +1953,7 @@ namespace Ship_Game
             BorderNodes.ClearAndRecycle(); //
             SensorNodes.ClearAndRecycle(); //
 
-            var list = new List<Empire>();
+            var list = new Array<Empire>();
             foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
             {
                 if (keyValuePair.Value.Treaty_Alliance)
@@ -1961,7 +1961,7 @@ namespace Ship_Game
             }
             foreach (Empire empire in list)
             {
-                List<Planet> tempPlanets = new List<Planet>(empire.OwnedPlanets);// new List<Planet>(empire.GetPlanets());
+                Array<Planet> tempPlanets = new Array<Planet>(empire.OwnedPlanets);// new Array<Planet>(empire.GetPlanets());
                 foreach (Planet planet in tempPlanets)
                 {
                     InfluenceNode influenceNode1 = SensorNodes.RecycleObject() ?? new InfluenceNode();
@@ -1988,7 +1988,7 @@ namespace Ship_Game
                     SensorNodes.Add(influenceNode2);
                 }
 
-                //var clonedList = empire.GetShips();// new List<Ship>(empire.GetShips());
+                //var clonedList = empire.GetShips();// new Array<Ship>(empire.GetShips());
                 foreach (Ship ship in empire.GetShips())
                 {
                     InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
@@ -2134,7 +2134,7 @@ namespace Ship_Game
                 return;
             }
 
-            var list1 = new List<Planet>();
+            var list1 = new Array<Planet>();
             foreach (Planet planet in OwnedPlanets)
             {
                 if (planet.Owner == null)
@@ -2190,7 +2190,7 @@ namespace Ship_Game
                     {
                         float num2 = 0.0f;
                         float num3 = 0.0f;
-                        List<Empire> list2 = new List<Empire>();
+                        Array<Empire> list2 = new Array<Empire>();
                         foreach (Empire empire in EmpireManager.Empires)
                         {
                             if (!empire.isFaction && !empire.data.Defeated && empire != EmpireManager.Player)
@@ -2211,7 +2211,7 @@ namespace Ship_Game
                                 if (list2.Count >= 2)
                                 {
                                     Empire biggest = list2.OrderByDescending(emp => emp.TotalScore).First();
-                                    List<Empire> list3 = new List<Empire>();
+                                    Array<Empire> list3 = new Array<Empire>();
                                     foreach (Empire empire in list2)
                                     {
                                         if (empire != biggest && empire.GetRelations(biggest).Known && biggest.TotalScore * 0.660000026226044 > empire.TotalScore)
@@ -2605,14 +2605,14 @@ namespace Ship_Game
                 this.data.difficulty = Difficulty.Brutal;
                 //lock (GlobalStats.TaskLocker)
                 {
-                    this.GSAI.TaskList.ForEach(item_7=>//foreach (MilitaryTask item_7 in (List<MilitaryTask>)this.GSAI.TaskList)
+                    this.GSAI.TaskList.ForEach(item_7=>//foreach (MilitaryTask item_7 in (Array<MilitaryTask>)this.GSAI.TaskList)
                         { item_7.EndTask(); }, false, false, false);
                     this.GSAI.TaskList.ApplyPendingRemovals();
                 }
                 this.GSAI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 this.GSAI.DefensiveCoordinator.DefenseDict.Clear();
                 this.ForcePool.Clear();
-                //foreach (Ship s in (List<Ship>)this.OwnedShips) //.OrderByDescending(experience=> experience.experience).ThenBy(strength=> strength.BaseStrength))
+                //foreach (Ship s in (Array<Ship>)this.OwnedShips) //.OrderByDescending(experience=> experience.experience).ThenBy(strength=> strength.BaseStrength))
                 foreach (Ship s in this.OwnedShips)
                 {
                     //added by gremlin Do not include 0 strength ships in defensive force pool
@@ -2624,7 +2624,7 @@ namespace Ship_Game
                 {
                     foreach (Planet planet in OwnedPlanets)
                     {
-                        List<Building> list = new List<Building>();
+                        Array<Building> list = new Array<Building>();
                         foreach (Building building in planet.BuildingList)
                         {
                             if ((double)building.PlusFlatFoodAmount > 0.0 || (double)building.PlusFoodPerColonist > 0.0 || (double)building.PlusTerraformPoints > 0.0)
@@ -2635,7 +2635,7 @@ namespace Ship_Game
                     }
                 }
             }
-            foreach (Agent agent in (List<Agent>)target.data.AgentList)
+            foreach (Agent agent in (Array<Agent>)target.data.AgentList)
             {
                 this.data.AgentList.Add(agent);
                 agent.Mission = AgentMission.Defending;
@@ -2670,7 +2670,7 @@ namespace Ship_Game
         public float GetForcePoolStrength()
         {
             float num = 0.0f;
-            foreach (Ship ship in (List<Ship>)this.ForcePool)
+            foreach (Ship ship in (Array<Ship>)this.ForcePool)
                 num += ship.GetStrength();
             return num;
         }
@@ -2715,9 +2715,9 @@ namespace Ship_Game
 
             int freighterLimit = GlobalStats.FreighterLimit;
 
-            List<Ship> unusedFreighters = new List<Ship>();
-            List<Ship> assignedShips = new List<Ship>();
-            // List<Ship> scrapCheck = new List<Ship>();
+            Array<Ship> unusedFreighters = new Array<Ship>();
+            Array<Ship> assignedShips = new Array<Ship>();
+            // Array<Ship> scrapCheck = new Array<Ship>();
             for (int x = 0; x < this.OwnedShips.Count; x++)
             {
                 Ship ship;
@@ -2835,7 +2835,7 @@ namespace Ship_Game
             unusedFreighters.AddRange(assignedShips);
             freighters = 0;// unusedFreighters.Count;
             int goalLimt = 1  + this.getResStrat().IndustryPriority;
-            foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
+            foreach (Goal goal in (Array<Goal>)this.GSAI.Goals)
             {
                 if (goal.GoalName == "IncreaseFreighters")
                 {
@@ -2920,7 +2920,7 @@ namespace Ship_Game
             int num = 0;
             if (flag1)
             {
-                foreach (Ship ship in (List<Ship>)this.OwnedShips)
+                foreach (Ship ship in (Array<Ship>)this.OwnedShips)
                 {
                     if (num < 2)
                     {
@@ -2936,7 +2936,7 @@ namespace Ship_Game
                 if (num == 0)
                 {
                     bool flag2 = true;
-                    foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
+                    foreach (Goal goal in (Array<Goal>)this.GSAI.Goals)
                     {
                         if (goal.type == GoalType.BuildScout)
                         {
@@ -2958,7 +2958,7 @@ namespace Ship_Game
                     if (num >= 2 || this.data.DiplomaticPersonality == null)
                         return;
                     bool flag2 = true;
-                    foreach (Goal goal in (List<Goal>)this.GSAI.Goals)
+                    foreach (Goal goal in (Array<Goal>)this.GSAI.Goals)
                     {
                         if (goal.type == GoalType.BuildScout)
                         {
@@ -2985,7 +2985,7 @@ namespace Ship_Game
             }
             else
             {
-                foreach (Ship ship in (List<Ship>)this.OwnedShips)
+                foreach (Ship ship in (Array<Ship>)this.OwnedShips)
                 {
                     if (ship.GetAI().State == AIState.Explore)
                         ship.GetAI().OrderRebaseToNearest();
@@ -3120,7 +3120,7 @@ namespace Ship_Game
 
         }
 
-        //private List<Ship> ShipsInOurBorders()
+        //private Array<Ship> ShipsInOurBorders()
         //{
         //    return this.GetGSAI().ThreatMatrix.GetAllShipsInOurBorders();
         ////}

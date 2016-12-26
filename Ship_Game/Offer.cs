@@ -6,9 +6,9 @@ namespace Ship_Game
 {
 	public sealed class Offer
 	{
-		public List<string> TechnologiesOffered = new List<string>();
+		public Array<string> TechnologiesOffered = new Array<string>();
 
-		public List<string> ArtifactsOffered = new List<string>();
+		public Array<string> ArtifactsOffered = new Array<string>();
 
 		public Ref<bool> ValueToModify;
 
@@ -20,13 +20,13 @@ namespace Ship_Game
 
 		public string RejectDL;
 
-		public List<string> ColoniesOffered = new List<string>();
+		public Array<string> ColoniesOffered = new Array<string>();
 
 		public bool NAPact;
 
-		public List<string> EmpiresToWarOn = new List<string>();
+		public Array<string> EmpiresToWarOn = new Array<string>();
 
-		public List<string> EmpiresToMakePeaceWith = new List<string>();
+		public Array<string> EmpiresToMakePeaceWith = new Array<string>();
 
 		public bool OpenBorders;
 

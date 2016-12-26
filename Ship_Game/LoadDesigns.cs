@@ -53,7 +53,7 @@ namespace Ship_Game
 
 		//private bool FirstRun = true;
 
-		private List<UIButton> ShipsToLoad = new List<UIButton>();
+		private Array<UIButton> ShipsToLoad = new Array<UIButton>();
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
@@ -338,7 +338,7 @@ namespace Ship_Game
 			{
 				Active = this.ShowAllDesigns
 			};
-			List<ShipData> WIPs = new List<ShipData>();
+			Array<ShipData> WIPs = new Array<ShipData>();
 			foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
 			{
 			    ShipData newShipData = ShipData.Parse(info);
@@ -348,7 +348,7 @@ namespace Ship_Game
 			        WIPs.Add(newShipData);
 			    }
 			}
-			List<string> ShipRoles = new List<string>();
+			Array<string> ShipRoles = new Array<string>();
 			if (this.screen != null)
 			{
 				foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)
@@ -454,7 +454,7 @@ namespace Ship_Game
 			this.ShipDesigns.Entries.Clear();
 			this.ShipDesigns.Copied.Clear();
 			string path = Dir.ApplicationData;
-			List<ShipData> WIPs = new List<ShipData>();
+			Array<ShipData> WIPs = new Array<ShipData>();
 			foreach (FileInfo info in Dir.GetFiles(path + "/StarDrive/WIP"))
 			{
 			    ShipData newShipData = ShipData.Parse(info);
@@ -464,7 +464,7 @@ namespace Ship_Game
 			        WIPs.Add(newShipData);
 			    }
 			}
-			List<string> ShipRoles = new List<string>();
+			Array<string> ShipRoles = new Array<string>();
 			if (this.screen != null)
 			{
 				foreach (KeyValuePair<string, Ship_Game.Gameplay.Ship> Ship in ResourceManager.ShipsDict)

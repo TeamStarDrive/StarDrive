@@ -66,7 +66,7 @@ namespace Ship_Game
 
 		private bool draggingSlider3;
 
-		private List<PlanetInfoUIElement.TippedItem> ToolTipItems = new List<PlanetInfoUIElement.TippedItem>();
+		private Array<PlanetInfoUIElement.TippedItem> ToolTipItems = new Array<PlanetInfoUIElement.TippedItem>();
 
 		private float slider1Last;
 
@@ -542,11 +542,11 @@ namespace Ship_Game
 			}
             if (HelperFunctions.CheckIntersection(this.SendTroops, input.CursorPosition) && input.InGameSelect)
             {
-                List<Ship> troopShips = new List<Ship>(this.screen.player.GetShips()
+                Array<Ship> troopShips = new Array<Ship>(this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0
                          && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
                          && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Position)));
-                List<Planet> planetTroops = new List<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
+                Array<Planet> planetTroops = new Array<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
                 if (troopShips.Count > 0)
                 {
                     AudioManager.PlayCue("echo_affirm");

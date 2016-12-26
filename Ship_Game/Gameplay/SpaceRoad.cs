@@ -7,7 +7,7 @@ namespace Ship_Game.Gameplay
 {//subspaceprojector
 	public sealed class SpaceRoad
 	{
-		public List<RoadNode> RoadNodesList = new List<RoadNode>();
+		public Array<RoadNode> RoadNodesList = new Array<RoadNode>();
 
 		private SolarSystem Origin;
 

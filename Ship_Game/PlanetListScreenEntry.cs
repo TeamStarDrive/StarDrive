@@ -343,16 +343,16 @@ namespace Ship_Game
                 this.SendTroops.State = UIButton.PressState.Hover;
                 if (input.InGameSelect)
                 {
-                    List<Ship> troopShips;
+                    Array<Ship> troopShips;
                     using (screen.empUI.empire.GetShips().AcquireReadLock())
                     {
-                        troopShips = new List<Ship>(this.screen.empUI.empire.GetShips()
+                        troopShips = new Array<Ship>(this.screen.empUI.empire.GetShips()
                             .Where(troop => troop.TroopList.Count > 0
                                 && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
                                 && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Position)));
                     }
 
-                    var planetTroops = new List<Planet>(screen.empUI.empire.GetPlanets()
+                    var planetTroops = new Array<Planet>(screen.empUI.empire.GetPlanets()
                         .Where(troops => troops.TroopsHere.Count > 1)
                         .OrderBy(distance => Vector2.Distance(distance.Position, planet.Position))
                         .Where(p => p.Name != planet.Name));

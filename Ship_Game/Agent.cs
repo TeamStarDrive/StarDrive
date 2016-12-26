@@ -402,7 +402,7 @@ namespace Ship_Game
                         this.MissionNameIndex = 2183;
                         if (Target == null)
                             return;
-                        List<string> PotentialUIDs = new List<string>();
+                        Array<string> PotentialUIDs = new Array<string>();
                         foreach (KeyValuePair<string, TechEntry> entry in Target.GetTDict())
                         {
                             //Added by McShooterz: Root nodes cannot be stolen
@@ -1155,7 +1155,7 @@ public void DoMissionorig(Empire Owner)
 				{
 					this.Mission = AgentMission.Defending;
 					this.MissionNameIndex = 2183;
-					List<string> PotentialUIDs = new List<string>();
+					Array<string> PotentialUIDs = new Array<string>();
 					foreach (KeyValuePair<string, TechEntry> entry in Target.GetTDict())
 					{
                         //Added by McShooterz: Racial tech cannot be stolen
@@ -1433,7 +1433,7 @@ public void DoMissionorig(Empire Owner)
 
                 return true;
             }
-            List<string> messageList = new List<string>();
+            Array<string> messageList = new Array<string>();
             messageList.Add(string.Concat(this.Name, " saw unspeakable things... \nThier mind has suffered...\n-", damage, "level"));
             messageList.Add(string.Concat(this.Name, " Took the blue pill...\nand the red one\n-", damage, "level"));
             messageList.Add(string.Concat(this.Name, " feels their pay is too little...\n-", damage, "level"));
@@ -1455,7 +1455,7 @@ public void DoMissionorig(Empire Owner)
             int targetPlanets = 0;
             int effectiveLevel = this.Level;
             int defensiveCoverage = 0;
-            List<Agent> defendingAgents = new List<Agent>();
+            Array<Agent> defendingAgents = new Array<Agent>();
 
             if (Target != null)
             {
