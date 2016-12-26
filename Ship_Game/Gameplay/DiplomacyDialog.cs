@@ -5,9 +5,9 @@ namespace Ship_Game.Gameplay
 {
 	public sealed class DiplomacyDialog
 	{
-		public List<DialogLine> Dialogs;
+		public Array<DialogLine> Dialogs;
 
-		public List<StatementSet> StatementSets;
+		public Array<StatementSet> StatementSets;
 
 		public DiplomacyDialog()
 		{

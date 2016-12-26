@@ -209,7 +209,7 @@ namespace Ship_Game
 				Position = data.Position,
 				SunPath  = data.SunPath,
 				AsteroidsList = new BatchRemovalCollection<Asteroid>(),
-                MoonList = new List<Moon>()
+                MoonList = new Array<Moon>()
 			};
 			foreach (Asteroid roid in data.AsteroidsList)
 			{
@@ -229,7 +229,7 @@ namespace Ship_Game
 			{
 				system.ExploredDict[EmpireManager.GetEmpireByName(empireName)] = true;
 			}
-			system.RingList = new List<SolarSystem.Ring>();
+			system.RingList = new Array<SolarSystem.Ring>();
 			foreach (SavedGame.RingSave ring in data.RingList)
 			{
 				if (ring.Asteroids)
@@ -485,7 +485,7 @@ namespace Ship_Game
 				    r.ActiveWar?.SetCombatants(e, empire);
 				}
 			}
-			this.data.SolarSystemsList = new List<SolarSystem>();
+			this.data.SolarSystemsList = new Array<SolarSystem>();
 			foreach (SavedGame.SolarSystemSaveData sdata in this.savedData.SolarSystemDataList)
 			{
 				SolarSystem system = this.CreateSystemFromData(sdata);
@@ -712,7 +712,7 @@ namespace Ship_Game
 			foreach (SavedGame.EmpireSaveData d in this.savedData.EmpireDataList)
 			{
 				Empire e = EmpireManager.GetEmpireByName(d.Name);
-                e.SpaceRoadsList = new List<SpaceRoad>();
+                e.SpaceRoadsList = new Array<SpaceRoad>();
 				foreach (SavedGame.SpaceRoadSave roadsave in d.SpaceRoadData)
 				{
 					SpaceRoad road = new SpaceRoad();
@@ -1016,7 +1016,7 @@ namespace Ship_Game
             //{
             //    if (empire.data.Defeated && !empire.isFaction)
             //    {
-            //        List<string> shipkill = new List<string>();
+            //        Array<string> shipkill = new Array<string>();
             //        HashSet<string> model =  new HashSet<string>();
             //        foreach (KeyValuePair<string, Ship> ship in ResourceManager.ShipsDict)
             //        {
@@ -1126,7 +1126,7 @@ namespace Ship_Game
 					{
 						foreach (Planet p in s.PlanetList)
 						{
-							List<Ship> toadd = new List<Ship>();
+							Array<Ship> toadd = new Array<Ship>();
 							foreach (KeyValuePair<Guid, Ship> station in p.Shipyards)
 							{
 								if (station.Key != ship.guid || p.Owner !=null && p.Owner == station.Value.loyalty)
@@ -1193,7 +1193,7 @@ namespace Ship_Game
 				}
 				foreach (SolarSystem sys in this.data.SolarSystemsList)
 				{
-					List<LoadUniverseScreen.SysDisPair> dysSys = new List<LoadUniverseScreen.SysDisPair>();
+					Array<LoadUniverseScreen.SysDisPair> dysSys = new Array<LoadUniverseScreen.SysDisPair>();
 					foreach (SolarSystem toCheck in this.data.SolarSystemsList)
 					{
 						if (sys == toCheck)

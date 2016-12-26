@@ -6,7 +6,7 @@ namespace Ship_Game
 {
 	public class EmpireManager
 	{
-		private static readonly List<Empire> EmpireList = new List<Empire>();
+		private static readonly Array<Empire> EmpireList = new Array<Empire>();
         private static readonly Dictionary<string, Empire> EmpireDict = new Dictionary<string, Empire>(); 
 
         private static Empire PlayerEmpire;
@@ -65,9 +65,9 @@ namespace Ship_Game
                     return empire;
             return null;
         }
-        public static List<Empire> GetAllies(Empire e)
+        public static Array<Empire> GetAllies(Empire e)
         {
-            var allies = new List<Empire>();
+            var allies = new Array<Empire>();
             if (e.isFaction || e.MinorRace)
                 return allies;
 
@@ -76,9 +76,9 @@ namespace Ship_Game
                     allies.Add(empire);
             return allies;
         }
-        public static List<Empire> GetTradePartners(Empire e)
+        public static Array<Empire> GetTradePartners(Empire e)
         {
-            var allies = new List<Empire>();
+            var allies = new Array<Empire>();
             if (e.isFaction || e.MinorRace)
                 return allies;
 

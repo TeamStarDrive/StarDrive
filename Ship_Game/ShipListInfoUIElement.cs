@@ -9,9 +9,9 @@ namespace Ship_Game
 {
 	public sealed class ShipListInfoUIElement : UIElement, IDisposable
 	{
-		public List<ToggleButton> CombatStatusButtons = new List<ToggleButton>();
+		public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
 
-		private List<ShipListInfoUIElement.TippedItem> ToolTipItems = new List<ShipListInfoUIElement.TippedItem>();
+		private Array<ShipListInfoUIElement.TippedItem> ToolTipItems = new Array<ShipListInfoUIElement.TippedItem>();
 
 		private Rectangle SliderRect;
 
@@ -19,7 +19,7 @@ namespace Ship_Game
 
 		private UniverseScreen screen;
 
-		private List<Ship> ShipList = new List<Ship>();
+		private Array<Ship> ShipList = new Array<Ship>();
 
 		private Selector sel;
 
@@ -49,7 +49,7 @@ namespace Ship_Game
 
 		private SlidingElement sliding_element;
 
-		public List<OrdersButton> Orders = new List<OrdersButton>();
+		public Array<OrdersButton> Orders = new Array<OrdersButton>();
 
 		private Ship HoveredShip;
 
@@ -324,7 +324,7 @@ namespace Ship_Game
 		{
             if (this.screen.SelectedShipList == null) return false;  //fbedard
 
-            List<Ship> ships = new List<Ship>();
+            Array<Ship> ships = new Array<Ship>();
 			bool reset = false;
 			for (int i = this.SelectedShipsSL.indexAtTop; i < this.SelectedShipsSL.Entries.Count && i < this.SelectedShipsSL.indexAtTop + this.SelectedShipsSL.entriesToDisplay; i++)
 			{
@@ -599,7 +599,7 @@ namespace Ship_Game
                         if (this.screen.SelectedFleet != null && this.screen.SelectedFleet.Ships.Count >0 && this.screen.SelectedFleet.Ships[0] != null)
                         {
                             bool flag = true;                            
-                            foreach (Ship ship2 in (List<Ship>)this.screen.SelectedFleet.Ships)
+                            foreach (Ship ship2 in (Array<Ship>)this.screen.SelectedFleet.Ships)
                                 if (ship2.GetAI().State != AIState.Resupply)
                                     flag = false;
                             
@@ -689,7 +689,7 @@ namespace Ship_Game
 			return false;
 		}
 
-		public void SetShipList(List<Ship> shipList, bool isFleet)
+		public void SetShipList(Array<Ship> shipList, bool isFleet)
 		{
 			this.Orders.Clear();
 			this.isFleet = isFleet;

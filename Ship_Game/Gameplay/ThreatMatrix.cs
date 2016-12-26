@@ -50,7 +50,7 @@ namespace Ship_Game.Gameplay
 
 		public Vector2 GetPositionOfNearestEnemyWithinRadius(Vector2 Position, float Radius, Empire Us)
 		{
-			List<ThreatMatrix.Pin> Enemies = new List<ThreatMatrix.Pin>();
+			Array<ThreatMatrix.Pin> Enemies = new Array<ThreatMatrix.Pin>();
 			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
 			{
 				if (Vector2.Distance(Position, pin.Value.Position) >= Radius || EmpireManager.GetEmpireByName(pin.Value.EmpireName) == Us 
@@ -72,9 +72,9 @@ namespace Ship_Game.Gameplay
 			return sortedList.First<ThreatMatrix.Pin>().Position;
 		}
 
-		public List<ThreatMatrix.Pin> PingRadar(Vector2 Position, float Radius)
+		public Array<ThreatMatrix.Pin> PingRadar(Vector2 Position, float Radius)
 		{
-			List<ThreatMatrix.Pin> retList = new List<ThreatMatrix.Pin>();
+			Array<ThreatMatrix.Pin> retList = new Array<ThreatMatrix.Pin>();
 			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
 			{
 				if (Vector2.Distance(Position, pin.Value.Position) >= Radius)
@@ -86,9 +86,9 @@ namespace Ship_Game.Gameplay
 			return retList;
 		}
       
-        public List<GameplayObject> PingRadarOBJ(Vector2 Position, float Radius)
+        public Array<GameplayObject> PingRadarOBJ(Vector2 Position, float Radius)
         {
-            List<GameplayObject> retList = new List<GameplayObject>();
+            Array<GameplayObject> retList = new Array<GameplayObject>();
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
                 if (Vector2.Distance(Position, pin.Value.Position) >= Radius)
@@ -99,9 +99,9 @@ namespace Ship_Game.Gameplay
             }
             return retList;
         }
-        public List<Ship> PingRadarShip(Vector2 Position, float Radius)
+        public Array<Ship> PingRadarShip(Vector2 Position, float Radius)
         {
-            List<Ship> retList = new List<Ship>();
+            Array<Ship> retList = new Array<Ship>();
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
                 if (Vector2.Distance(Position, pin.Value.Position) >= Radius)
@@ -112,9 +112,9 @@ namespace Ship_Game.Gameplay
             }
             return retList;
         }
-        public List<Ship> PingRadarShip(Vector2 Position, float Radius,Empire empire)
+        public Array<Ship> PingRadarShip(Vector2 Position, float Radius,Empire empire)
         {
-            List<Ship> retList = new List<Ship>();
+            Array<Ship> retList = new Array<Ship>();
             Ship ship;
             Relationship rel;
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
@@ -138,10 +138,10 @@ namespace Ship_Game.Gameplay
             }
             return retList;
         }
-        public Dictionary<Vector2,List<Ship>> PingRadarClusters(Vector2 Position, float Radius, float granularity,Empire empire)
+        public Dictionary<Vector2,Array<Ship>> PingRadarClusters(Vector2 Position, float Radius, float granularity,Empire empire)
         {
-            Dictionary<Vector2, List<Ship>> retList = new Dictionary<Vector2, List<Ship>>();
-            List<Ship> pings = new List<Ship>(PingRadarShip(Position,Radius,empire));
+            Dictionary<Vector2, Array<Ship>> retList = new Dictionary<Vector2, Array<Ship>>();
+            Array<Ship> pings = new Array<Ship>(PingRadarShip(Position,Radius,empire));
             HashSet<Ship > filter = new HashSet<Ship>();
             
             foreach(Ship ship in pings)
@@ -149,7 +149,7 @@ namespace Ship_Game.Gameplay
                 if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
                     continue;
               
-                        List<Ship> cluster = PingRadarShip(ship.Center, granularity,empire);
+                        Array<Ship> cluster = PingRadarShip(ship.Center, granularity,empire);
                 if (cluster.Count == 0)
                     continue;
                 retList.Add(ship.Center, cluster);                
@@ -162,7 +162,7 @@ namespace Ship_Game.Gameplay
         public Dictionary<Vector2, float> PingRadarThreatClusters(Vector2 Position, float Radius, float granularity, Empire empire)
         {
             Dictionary<Vector2, float> retList = new Dictionary<Vector2, float>();
-            List<Ship> pings = new List<Ship>(PingRadarShip(Position, Radius, empire));
+            Array<Ship> pings = new Array<Ship>(PingRadarShip(Position, Radius, empire));
             HashSet<Ship> filter = new HashSet<Ship>();
 
             foreach (Ship ship in pings)
@@ -170,7 +170,7 @@ namespace Ship_Game.Gameplay
                 if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
                     continue;
 
-                List<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
+                Array<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
                 if (cluster.Count == 0)
                     continue;
                 retList.Add(ship.Center, cluster.Sum(str=> str.GetStrength()));
@@ -255,7 +255,7 @@ namespace Ship_Game.Gameplay
         {
 
 
-            // List<Guid> removepin = new List<Guid>();
+            // Array<Guid> removepin = new Array<Guid>();
 
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
@@ -427,7 +427,7 @@ namespace Ship_Game.Gameplay
         }
         public void ScrubMatrix()
         {
-            var pinsToRemove = new List<Guid>();
+            var pinsToRemove = new Array<Guid>();
             foreach (var pin in Pins)
                 if (pin.Value.EmpireName == string.Empty)
                     pinsToRemove.Add(pin.Key);
@@ -439,9 +439,9 @@ namespace Ship_Game.Gameplay
         {
             return Pins.Keys.Contains(s.guid) || Pins[s.guid].InBorders;
         }
-        public List<Ship> FindShipsInOurBorders()
+        public Array<Ship> FindShipsInOurBorders()
         {
-            var temp = new List<Ship>();
+            var temp = new Array<Ship>();
             foreach (Pin p in Pins.Values)
                if (p.InBorders && p.Ship !=null)
                    temp.Add(p.Ship);

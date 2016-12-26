@@ -24,14 +24,14 @@ namespace Ship_Game
         private float Scale = 1f;
         //private Background bg = new Background();
         private int NumSystems = 50;
-        //private List<Texture2D> TextureList = new List<Texture2D>();
+        //private Array<Texture2D> TextureList = new Array<Texture2D>();
         //private Vector2 ShipPosition = new Vector2(340f, 450f);
         private bool firstRun = true;
-        //private List<string> UsedOpponents = new List<string>();
+        //private Array<string> UsedOpponents = new Array<string>();
         private AutoResetEvent WorkerBeginEvent = new AutoResetEvent(false);
         private ManualResetEvent WorkerCompletedEvent = new ManualResetEvent(true);
-        private List<Vector2> stars = new List<Vector2>();
-        private List<Vector2> ClaimedSpots = new List<Vector2>();
+        private Array<Vector2> stars = new Array<Vector2>();
+        private Array<Vector2> ClaimedSpots = new Array<Vector2>();
         //private Vector3 cameraPosition = new Vector3(0.0f, 0.0f, 800f);
         //private const float starsParallaxAmplitude = 2048f;
         //private Matrix view;
@@ -419,7 +419,7 @@ namespace Ship_Game
                 {
                     foreach (SolarSystem solarSystem1 in this.Data.SolarSystemsList)
                     {
-                        List<CreatingNewGameScreen.SysDisPair> list = new List<CreatingNewGameScreen.SysDisPair>();
+                        Array<CreatingNewGameScreen.SysDisPair> list = new Array<CreatingNewGameScreen.SysDisPair>();
                         foreach (SolarSystem solarSystem2 in this.Data.SolarSystemsList)
                         {
                             if (solarSystem1 != solarSystem2)

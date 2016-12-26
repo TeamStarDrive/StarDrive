@@ -36,7 +36,7 @@ namespace Ship_Game
 
 		public PlanetGridSquare pgs;
 
-        private List<TroopInfoUIElement.TippedItem> ToolTipItems = new List<TroopInfoUIElement.TippedItem>();
+        private Array<TroopInfoUIElement.TippedItem> ToolTipItems = new Array<TroopInfoUIElement.TippedItem>();
 
 		new private Color tColor = new Color(255, 239, 208);
 

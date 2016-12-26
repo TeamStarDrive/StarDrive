@@ -25,13 +25,13 @@ namespace Ship_Game
 		private RecTexPair RV;
 		private RecTexPair Top;
 		private RecTexPair Bot;
-		private readonly List<RecTexPair> container = new List<RecTexPair>();
+		private readonly Array<RecTexPair> container = new Array<RecTexPair>();
 
 		public Rectangle r;
 		private Rectangle OpenRect;
 		private Rectangle ClickAbleOpenRect;
 		public int ActiveIndex;
-		public List<Entry> Options = new List<Entry>();
+		public Array<Entry> Options = new Array<Entry>();
 		public bool Open;
 		public Entry Active => Options[ActiveIndex];
 
