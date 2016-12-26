@@ -15,7 +15,7 @@ namespace Ship_Game.Gameplay
 
 		private Vector2 UpperLeftBound;
 
-		private Dictionary<int, Array<Ship>> Buckets;
+		private Map<int, Array<Ship>> Buckets;
 
 		private int SceneWidth;
 
@@ -108,7 +108,7 @@ namespace Ship_Game.Gameplay
 			this.UpperLeftBound.Y = Pos.Y - (float)(sceneHeight / 2);
 			this.Cols = sceneWidth / cellSize;
 			this.Rows = sceneHeight / cellSize;
-			this.Buckets = new Dictionary<int, Array<Ship>>(this.Cols * this.Rows);
+			this.Buckets = new Map<int, Array<Ship>>(this.Cols * this.Rows);
 			for (int i = 0; i < this.Cols * this.Rows; i++)
 			{
 				this.Buckets.Add(i, new Array<Ship>());

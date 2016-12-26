@@ -24,7 +24,7 @@ namespace Ship_Game.Gameplay
         private int Cols;
         private int Rows;
         private Vector2 UpperLeftBound;
-               // private Dictionary<int, Array<GameplayObject>> Buckets;
+               // private Map<int, Array<GameplayObject>> Buckets;
         //private ConcurrentDictionary<int, Array<GameplayObject>> Buckets;
         private ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>> Buckets;
         public int SceneWidth;
@@ -40,7 +40,7 @@ namespace Ship_Game.Gameplay
             this.UpperLeftBound.Y = Pos.Y - (float)(sceneHeight / 2);
             this.Cols = sceneWidth / cellSize;
             this.Rows = sceneHeight / cellSize;
-            //this.Buckets = new Dictionary<int, Array<GameplayObject>>(this.Cols * this.Rows);
+            //this.Buckets = new Map<int, Array<GameplayObject>>(this.Cols * this.Rows);
             this.Buckets = new ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>>();
             for (int key = 0; key < this.Cols * this.Rows; ++key)
                 this.Buckets.TryAdd(key, new BatchRemovalCollection<GameplayObject>());

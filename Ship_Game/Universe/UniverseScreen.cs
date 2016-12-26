@@ -69,8 +69,8 @@ namespace Ship_Game
         public Array<NebulousOverlay> Stars = new Array<NebulousOverlay>();
         public Array<NebulousOverlay> NebulousShit = new Array<NebulousOverlay>();
         private Rectangle ScreenRectangle;
-        public Dictionary<Guid, Planet> PlanetsDict = new Dictionary<Guid, Planet>();
-        public Dictionary<Guid, SolarSystem> SolarSystemDict = new Dictionary<Guid, SolarSystem>();
+        public Map<Guid, Planet> PlanetsDict = new Map<Guid, Planet>();
+        public Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
         public BatchRemovalCollection<Bomb> BombList = new BatchRemovalCollection<Bomb>();
         private AutoResetEvent DrawCompletedEvt         = new AutoResetEvent(false);
         private AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);

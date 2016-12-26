@@ -30,7 +30,7 @@ namespace Ship_Game
 		public BatchRemovalCollection<Asteroid> AsteroidsList = new BatchRemovalCollection<Asteroid>();
         public Array<Moon> MoonList = new Array<Moon>();
 		public string SunPath;
-		public Dictionary<Empire, bool> ExploredDict = new Dictionary<Empire, bool>();
+		public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
 		public Array<Ring> RingList = new Array<Ring>();
 		private int numberOfRings;
 		public int StarRadius;
@@ -40,7 +40,7 @@ namespace Ship_Game
 		public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
 		public bool isStartingSystem;
 		public Array<string> DefensiveFleets = new Array<string>();
-        public Dictionary<Empire,PredictionTimeout> predictionTimeout =new Dictionary<Empire,PredictionTimeout>();
+        public Map<Empire,PredictionTimeout> predictionTimeout =new Map<Empire,PredictionTimeout>();
 
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;

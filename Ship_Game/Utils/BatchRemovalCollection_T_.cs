@@ -313,9 +313,8 @@ namespace Ship_Game
         }
 
         public T RecycleObject()
-        {            
-            T item;
-            if (!pendingRemovals.TryPop(out item))
+        {
+            if (!pendingRemovals.TryPop(out T item))
                 return item;
             (item as Empire.InfluenceNode)?.Wipe();
             return item;

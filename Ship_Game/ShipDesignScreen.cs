@@ -718,7 +718,7 @@ namespace Ship_Game
 			this.upArrow = new Rectangle(this.ModuleSelectionArea.X + this.ModuleSelectionArea.Width - 22, this.ModuleSelectionArea.Y, 22, 30);
 			this.downArrow = new Rectangle(this.ModuleSelectionArea.X + this.ModuleSelectionArea.Width - 22, this.ModuleSelectionArea.Y + this.ModuleSelectionArea.Height - 32, 20, 30);
 			Array<string> Categories = new Array<string>();
-			Dictionary<string, Array<ShipModule>> ModuleDict = new Dictionary<string, Array<ShipModule>>();
+			Dictionary<string, Array<ShipModule>> ModuleDict = new Map<string, Array<ShipModule>>();
 			foreach (KeyValuePair<string, ShipModule> module in Ship_Game.ResourceManager.ShipModulesDict)
 			{
 				if (!EmpireManager.Player.GetMDict()[module.Key] || module.Value.UID == "Dummy")

@@ -138,9 +138,9 @@ namespace Ship_Game.Gameplay
             }
             return retList;
         }
-        public Dictionary<Vector2,Array<Ship>> PingRadarClusters(Vector2 Position, float Radius, float granularity,Empire empire)
+        public Map<Vector2,Array<Ship>> PingRadarClusters(Vector2 Position, float Radius, float granularity,Empire empire)
         {
-            Dictionary<Vector2, Array<Ship>> retList = new Dictionary<Vector2, Array<Ship>>();
+            Map<Vector2, Array<Ship>> retList = new Map<Vector2, Array<Ship>>();
             Array<Ship> pings = new Array<Ship>(PingRadarShip(Position,Radius,empire));
             HashSet<Ship > filter = new HashSet<Ship>();
             
@@ -159,9 +159,9 @@ namespace Ship_Game.Gameplay
             return retList;
 
         }
-        public Dictionary<Vector2, float> PingRadarThreatClusters(Vector2 Position, float Radius, float granularity, Empire empire)
+        public Map<Vector2, float> PingRadarThreatClusters(Vector2 Position, float Radius, float granularity, Empire empire)
         {
-            Dictionary<Vector2, float> retList = new Dictionary<Vector2, float>();
+            Map<Vector2, float> retList = new Map<Vector2, float>();
             Array<Ship> pings = new Array<Ship>(PingRadarShip(Position, Radius, empire));
             HashSet<Ship> filter = new HashSet<Ship>();
 

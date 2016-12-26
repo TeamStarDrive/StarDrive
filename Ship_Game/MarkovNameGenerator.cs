@@ -5,7 +5,7 @@ namespace Ship_Game
 {
 	public sealed class MarkovNameGenerator
 	{
-		private Dictionary<string, Array<char>> _chains = new Dictionary<string, Array<char>>();
+		private Map<string, Array<char>> _chains = new Map<string, Array<char>>();
 
 		private Array<string> _samples = new Array<string>();
 

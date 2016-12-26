@@ -47,7 +47,7 @@ namespace Ship_Game.Gameplay
 
 		private int numberTroopGoals = 2;
 
-		private Dictionary<Ship, Array<Ship>> InterceptorDict = new Dictionary<Ship, Array<Ship>>();
+		private Map<Ship, Array<Ship>> InterceptorDict = new Map<Ship, Array<Ship>>();
 
 		public Array<MilitaryTask> TasksToAdd = new Array<MilitaryTask>();
 
@@ -5877,7 +5877,7 @@ namespace Ship_Game.Gameplay
                 ranA = true;
             
             Array<Ship> PotentialShips = new Array<Ship>();
-            Dictionary<ShipData.RoleName, float> PickRoles = new Dictionary<ShipData.RoleName, float>();
+            Map<ShipData.RoleName, float> PickRoles = new Map<ShipData.RoleName, float>();
             this.empire.UpdateShipsWeCanBuild();
             string buildThis;
 
@@ -8092,7 +8092,7 @@ namespace Ship_Game.Gameplay
 
                         if (true)
                         {
-                            Dictionary<string, int> priority = new Dictionary<string, int>();
+                            Map<string, int> priority = new Map<string, int>();
                             
  
                             priority.Add("SHIPTECH", this.randomizer( this.empire.getResStrat().MilitaryPriority, 4 + ((int)wars+ shipBuildBonus)));

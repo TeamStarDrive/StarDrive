@@ -26,40 +26,20 @@ namespace Ship_Game
             get
             {
                 if ((uint)index >= (uint)Count)
-                    throw new IndexOutOfRangeException($"Index [{index}] out of range (len={Count}) {ToString()}");
+                    throw new IndexOutOfRangeException($"Index [{index}] out of range (len={Count}) in {ToString()}");
                 return base[index];
             }
             set
             {
                 if ((uint)index >= (uint)Count)
-                    throw new IndexOutOfRangeException($"Index [{index}] out of range (len={Count}) {ToString()}");
+                    throw new IndexOutOfRangeException($"Index [{index}] out of range (len={Count}) in {ToString()}");
                 base[index] = value;
             }
         }
 
-        private static void GenericName(StringBuilder sb, Type type)
-        {
-            if (!type.IsGenericType)
-            {
-                sb.Append(type.Name);
-                return;
-            }
-
-            sb.Append(type.Name.Split('`')[0]).Append('<');
-            var args = type.GenericTypeArguments;
-            for (int i = 0; i < args.Length; ++i)
-            {
-                GenericName(sb, args[i]);
-                if (i != args.Length - 1) sb.Append(',');
-            }
-            sb.Append('>');
-        }
-
         public override string ToString()
         {
-            var sb = new StringBuilder();
-            GenericName(sb, GetType());
-            return sb.ToString();
+            return GetType().GenericName();
         }
     }
 }

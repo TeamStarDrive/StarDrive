@@ -30,15 +30,15 @@ namespace Ship_Game.Gameplay
         public Array<Troop> TroopList = new Array<Troop>();
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         public bool RecallFightersBeforeFTL = true;
-        private Dictionary<Vector2, ModuleSlot> ModulesDictionary = new Dictionary<Vector2, ModuleSlot>();
+        private Map<Vector2, ModuleSlot> ModulesDictionary = new Map<Vector2, ModuleSlot>();
         //public float DefaultFTLSpeed = 1000f;    //Not referenced in code, removing to save memory
         public float RepairRate = 1f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
         public float maxBank = 0.5235988f;
-        private Dictionary<string, float> CargoDict = new Dictionary<string, float>();
-        private Dictionary<string, float> MaxGoodStorageDict = new Dictionary<string, float>();
-        private Dictionary<string, float> ResourceDrawDict = new Dictionary<string, float>();
+        private Map<string, float> CargoDict = new Map<string, float>();
+        private Map<string, float> MaxGoodStorageDict = new Map<string, float>();
+        private Map<string, float> ResourceDrawDict = new Map<string, float>();
         public Vector2 projectedPosition = new Vector2();
         protected Array<Thruster> ThrusterList = new Array<Thruster>();
         public bool TradingFood = true;
@@ -193,7 +193,7 @@ namespace Ship_Game.Gameplay
         public float FTLSpoolTime;
         public bool FTLSlowTurnBoost;
 
-        //public Dictionary<Empire, diplomacticSpace> BorderState = new Dictionary<Empire, diplomacticSpace>();
+        //public Map<Empire, diplomacticSpace> BorderState = new Map<Empire, diplomacticSpace>();
         public Array<ShipModule> Transporters = new Array<ShipModule>();
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool hasTransporter;
@@ -880,7 +880,7 @@ namespace Ship_Game.Gameplay
             return speed > 2500f ? 2500 : speed;
         }
 
-        public Dictionary<Vector2, ModuleSlot> GetMD()
+        public Map<Vector2, ModuleSlot> GetMD()
         {
             return this.ModulesDictionary;
         }
@@ -959,17 +959,17 @@ namespace Ship_Game.Gameplay
             this.InCombatTimer = 15f;
         }
 
-        public Dictionary<string, float> GetCargo()
+        public Map<string, float> GetCargo()
         {
             return this.CargoDict;
         }
 
-        public Dictionary<string, float> GetResDrawDict()
+        public Map<string, float> GetResDrawDict()
         {
             return this.ResourceDrawDict;
         }
 
-        public Dictionary<string, float> GetMaxGoods()
+        public Map<string, float> GetMaxGoods()
         {
             return this.MaxGoodStorageDict;
         }
@@ -979,7 +979,7 @@ namespace Ship_Game.Gameplay
             //Log.Info("AddGood {0}: {1}", UID, Amount);
             if (this.CargoDict.ContainsKey(UID))
             {
-                Dictionary<string, float> dictionary;
+                Map<string, float> dictionary;
                 string index;
                 (dictionary = this.CargoDict)[index = UID] = dictionary[index] + (float)Amount;
             }
@@ -2434,8 +2434,8 @@ namespace Ship_Game.Gameplay
                 
                 if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
                 {
-                    Dictionary<string, float> maxGoodStorageDict = this.MaxGoodStorageDict;
-                    Dictionary<string, float> strs = maxGoodStorageDict;
+                    Map<string, float> maxGoodStorageDict = this.MaxGoodStorageDict;
+                    Map<string, float> strs = maxGoodStorageDict;
                     string resourceStored = moduleSlotList.module.ResourceStored;
                     string str = resourceStored;
                     maxGoodStorageDict[resourceStored] = strs[str] + moduleSlotList.module.ResourceStorageAmount;
@@ -4166,7 +4166,7 @@ namespace Ship_Game.Gameplay
             //    //}
             //    foreach (string index1 in Enumerable.ToArray<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
             //    {
-            //        Dictionary<string, float> dictionary;
+            //        Map<string, float> dictionary;
             //        string index2;
             //        (dictionary = this.CargoDict)[index2 = index1] = dictionary[index2] - this.ResourceDrawDict[index1] * elapsedTime;
             //        if ((double)this.CargoDict[index1] <= 0.0)
