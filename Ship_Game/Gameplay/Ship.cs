@@ -27,20 +27,20 @@ namespace Ship_Game.Gameplay
     public class Ship : GameplayObject, IDisposable
     {
         public string VanityName = "";
-        public List<Troop> TroopList = new List<Troop>();
-        public List<Rectangle> AreaOfOperation = new List<Rectangle>();
+        public Array<Troop> TroopList = new Array<Troop>();
+        public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         public bool RecallFightersBeforeFTL = true;
-        private Dictionary<Vector2, ModuleSlot> ModulesDictionary = new Dictionary<Vector2, ModuleSlot>();
+        private Map<Vector2, ModuleSlot> ModulesDictionary = new Map<Vector2, ModuleSlot>();
         //public float DefaultFTLSpeed = 1000f;    //Not referenced in code, removing to save memory
         public float RepairRate = 1f;
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
         public float maxBank = 0.5235988f;
-        private Dictionary<string, float> CargoDict = new Dictionary<string, float>();
-        private Dictionary<string, float> MaxGoodStorageDict = new Dictionary<string, float>();
-        private Dictionary<string, float> ResourceDrawDict = new Dictionary<string, float>();
+        private Map<string, float> CargoDict = new Map<string, float>();
+        private Map<string, float> MaxGoodStorageDict = new Map<string, float>();
+        private Map<string, float> ResourceDrawDict = new Map<string, float>();
         public Vector2 projectedPosition = new Vector2();
-        protected List<Thruster> ThrusterList = new List<Thruster>();
+        protected Array<Thruster> ThrusterList = new Array<Thruster>();
         public bool TradingFood = true;
         public bool TradingProd = true;
         public bool ShieldsUp = true;
@@ -48,12 +48,12 @@ namespace Ship_Game.Gameplay
         //protected Color CloakColor = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue);    //Not referenced in code, removing to save memory
         //public float CloakTime = 5f;    //Not referenced in code, removing to save memory
         //public Vector2 Origin = new Vector2(256f, 256f);        //Not referenced in code, removing to save memory
-        public List<ModuleSlot> ModuleSlotList = new List<ModuleSlot>();
+        public Array<ModuleSlot> ModuleSlotList = new Array<ModuleSlot>();
         private BatchRemovalCollection<Projectile> projectiles = new BatchRemovalCollection<Projectile>();
         private BatchRemovalCollection<Beam> beams = new BatchRemovalCollection<Beam>();
-        public List<Weapon> Weapons = new List<Weapon>();
+        public Array<Weapon> Weapons = new Array<Weapon>();
         //public float fireThresholdSquared = 0.25f;    //Not referenced in code, removing to save memory
-        public List<ModuleSlot> ExternalSlots = new List<ModuleSlot>();
+        public Array<ModuleSlot> ExternalSlots = new Array<ModuleSlot>();
         protected float JumpTimer = 3f;
         public BatchRemovalCollection<ProjectileTracker> ProjectilesFired = new BatchRemovalCollection<ProjectileTracker>();
         public AudioEmitter emitter = new AudioEmitter();
@@ -63,9 +63,9 @@ namespace Ship_Game.Gameplay
         public float ScuttleTimer = -1f;
         public Vector2 FleetOffset = new Vector2();
         public Vector2 RelativeFleetOffset = new Vector2();
-        private List<ShipModule> Shields = new List<ShipModule>();
-        private List<ShipModule> Hangars = new List<ShipModule>();
-        public List<ShipModule> BombBays = new List<ShipModule>();
+        private Array<ShipModule> Shields = new Array<ShipModule>();
+        private Array<ShipModule> Hangars = new Array<ShipModule>();
+        public Array<ShipModule> BombBays = new Array<ShipModule>();
         public bool shipStatusChanged = false;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
@@ -193,9 +193,9 @@ namespace Ship_Game.Gameplay
         public float FTLSpoolTime;
         public bool FTLSlowTurnBoost;
 
-        //public Dictionary<Empire, diplomacticSpace> BorderState = new Dictionary<Empire, diplomacticSpace>();
-        public List<ShipModule> Transporters = new List<ShipModule>();
-        public List<ShipModule> RepairBeams = new List<ShipModule>();
+        //public Map<Empire, diplomacticSpace> BorderState = new Map<Empire, diplomacticSpace>();
+        public Array<ShipModule> Transporters = new Array<ShipModule>();
+        public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool hasTransporter;
         public bool hasOrdnanceTransporter;
         public bool hasAssaultTransporter;
@@ -208,7 +208,7 @@ namespace Ship_Game.Gameplay
         //Random shiprandom = new Random();    //Not referenced in code, removing to save memory
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
-        List<ModuleSlot> AttackerTargetting = new List<ModuleSlot>();
+        Array<ModuleSlot> AttackerTargetting = new Array<ModuleSlot>();
         public sbyte TrackingPower = 0;
         public sbyte FixedTrackingPower = 0;
 
@@ -220,6 +220,8 @@ namespace Ship_Game.Gameplay
         public float maxFTLSpeed;
         public float maxSTLSpeed;
         public float NormalWarpThrust;
+        public float BoardingDefenseTotal => (MechanicalBoardingDefense  +TroopBoardingDefense);
+
         private BatchRemovalCollection<Empire> BorderCheck = new BatchRemovalCollection<Empire>();
         public BatchRemovalCollection<Empire> getBorderCheck
         {
@@ -302,7 +304,7 @@ namespace Ship_Game.Gameplay
         }
         public void CargoClear()
         {
-            List<string> keys = new List<string>(CargoDict.Keys);
+            Array<string> keys = new Array<string>(CargoDict.Keys);
             foreach (string cargo in keys)
             {
                 CargoDict[cargo] = 0;
@@ -691,9 +693,9 @@ namespace Ship_Game.Gameplay
                 //added by gremlin Toggle Ship System Defense.
 
 
-                if (EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
+                if (EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
                 {
-                    EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.remove(this);
+                    EmpireManager.Player.GetGSAI().DefensiveCoordinator.remove(this);
                     this.GetAI().OrderQueue.Clear();
                     this.GetAI().HasPriorityOrder = false;
                     this.GetAI().SystemToDefend = (SolarSystem)null;
@@ -703,7 +705,7 @@ namespace Ship_Game.Gameplay
                     return;
                 }
 
-                EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(this);
+                EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(this);
                 this.GetAI().OrderQueue.Clear();
                 this.GetAI().HasPriorityOrder = false;
                 this.GetAI().SystemToDefend = (SolarSystem)null;
@@ -878,7 +880,7 @@ namespace Ship_Game.Gameplay
             return speed > 2500f ? 2500 : speed;
         }
 
-        public Dictionary<Vector2, ModuleSlot> GetMD()
+        public Map<Vector2, ModuleSlot> GetMD()
         {
             return this.ModulesDictionary;
         }
@@ -957,17 +959,17 @@ namespace Ship_Game.Gameplay
             this.InCombatTimer = 15f;
         }
 
-        public Dictionary<string, float> GetCargo()
+        public Map<string, float> GetCargo()
         {
             return this.CargoDict;
         }
 
-        public Dictionary<string, float> GetResDrawDict()
+        public Map<string, float> GetResDrawDict()
         {
             return this.ResourceDrawDict;
         }
 
-        public Dictionary<string, float> GetMaxGoods()
+        public Map<string, float> GetMaxGoods()
         {
             return this.MaxGoodStorageDict;
         }
@@ -977,7 +979,7 @@ namespace Ship_Game.Gameplay
             //Log.Info("AddGood {0}: {1}", UID, Amount);
             if (this.CargoDict.ContainsKey(UID))
             {
-                Dictionary<string, float> dictionary;
+                Map<string, float> dictionary;
                 string index;
                 (dictionary = this.CargoDict)[index = UID] = dictionary[index] + (float)Amount;
             }
@@ -1240,8 +1242,47 @@ namespace Ship_Game.Gameplay
             }
             return false;
         }
-  
- 
+
+
+        public bool CheckIfInsideFireArc(Weapon w, Vector2 pos)
+        {
+            //added by gremlin attackrun compensator
+            
+            if (w.moduleAttachedTo.Center.OutsideRadius(pos, w.GetModifiedRange()))
+            {
+                return false;
+            }
+
+            float halfArc = w.moduleAttachedTo.FieldOfFire / 2f;
+            Vector2 toTarget = pos - w.Center;
+            float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
+            float angleToMouse = 180f - MathHelper.ToDegrees(radians);
+            float facing = w.moduleAttachedTo.facing + MathHelper.ToDegrees(base.Rotation);
+            if (facing > 360f)
+            {
+                facing = facing - 360f;
+            }
+            float difference = Math.Abs(angleToMouse - facing);
+            if (difference > halfArc)
+            {
+                if (angleToMouse > 180f)
+                {
+                    angleToMouse = -1f * (360f - angleToMouse);
+                }
+                if (facing > 180f)
+                {
+                    facing = -1f * (360f - facing);
+                }
+                difference = Math.Abs(angleToMouse - facing);
+            }
+
+            if (difference < halfArc)// && Vector2.Distance(base.Position, pos) < w.GetModifiedRange() + modifyRangeAR)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public bool CheckIfInsideFireArc(Weapon w, Vector3 PickedPos )
         {
 
@@ -1394,7 +1435,7 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        public List<Thruster> GetTList()
+        public Array<Thruster> GetTList()
         {
             return this.ThrusterList;
         }
@@ -1409,7 +1450,7 @@ namespace Ship_Game.Gameplay
             });
         }
 
-        public void SetTList(List<Thruster> list)
+        public void SetTList(Array<Thruster> list)
         {
             this.ThrusterList = list;
         }
@@ -2393,8 +2434,8 @@ namespace Ship_Game.Gameplay
                 
                 if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
                 {
-                    Dictionary<string, float> maxGoodStorageDict = this.MaxGoodStorageDict;
-                    Dictionary<string, float> strs = maxGoodStorageDict;
+                    Map<string, float> maxGoodStorageDict = this.MaxGoodStorageDict;
+                    Map<string, float> strs = maxGoodStorageDict;
                     string resourceStored = moduleSlotList.module.ResourceStored;
                     string str = resourceStored;
                     maxGoodStorageDict[resourceStored] = strs[str] + moduleSlotList.module.ResourceStorageAmount;
@@ -2760,9 +2801,9 @@ namespace Ship_Game.Gameplay
             return parent;
         }
 
-        public static List<ModuleSlot> LoadSlotDataListToSlotList(List<ModuleSlotData> dataList, Ship parent)
+        public static Array<ModuleSlot> LoadSlotDataListToSlotList(Array<ModuleSlotData> dataList, Ship parent)
         {
-            var list = new List<ModuleSlot>(dataList.Count);
+            var list = new Array<ModuleSlot>(dataList.Count);
             foreach (ModuleSlotData slotData in dataList)
             {
                 ModuleSlot moduleSlot = new ModuleSlot();
@@ -2801,9 +2842,9 @@ namespace Ship_Game.Gameplay
             return parent;
         }
 
-        public static List<ModuleSlot> SlotDataListToSlotList(List<ModuleSlotData> dataList, Ship parent)
+        public static Array<ModuleSlot> SlotDataListToSlotList(Array<ModuleSlotData> dataList, Ship parent)
         {
-            var list = new List<ModuleSlot>();
+            var list = new Array<ModuleSlot>();
             foreach (ModuleSlotData moduleSlotData in dataList)
                 list.Add(new ModuleSlot
                 {
@@ -2834,7 +2875,7 @@ namespace Ship_Game.Gameplay
             this.SetShipData(this.GetShipData());
             this.ModulesInitialized = true;
             this.Weapons.Clear();
-            List<ModuleSlot> list = new List<ModuleSlot>();
+            Array<ModuleSlot> list = new Array<ModuleSlot>();
             if (this.Name == "Left Right Test")
                 this.Weapons.Clear();
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
@@ -3428,7 +3469,7 @@ namespace Ship_Game.Gameplay
             shipData.CombatState = this.GetAI().CombatState;
             shipData.ModelPath = this.GetShipData().ModelPath;
             shipData.ModuleSlotList = this.ConvertToData(ModuleSlotList);
-            shipData.ThrusterList = new List<ShipToolScreen.ThrusterZone>();
+            shipData.ThrusterList = new Array<ShipToolScreen.ThrusterZone>();
             shipData.MechanicalBoardingDefense = this.MechanicalBoardingDefense;
             foreach (Thruster thruster in this.ThrusterList)
                 shipData.ThrusterList.Add(new ShipToolScreen.ThrusterZone()
@@ -3439,9 +3480,9 @@ namespace Ship_Game.Gameplay
             return shipData;
         }
 
-        private List<ModuleSlotData> ConvertToData(List<ModuleSlot> slotList)
+        private Array<ModuleSlotData> ConvertToData(Array<ModuleSlot> slotList)
         {
-            List<ModuleSlotData> list = new List<ModuleSlotData>();
+            Array<ModuleSlotData> list = new Array<ModuleSlotData>();
             foreach (ModuleSlot moduleSlot in slotList)
             {
                 ModuleSlotData moduleSlotData = new ModuleSlotData
@@ -3552,16 +3593,23 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public List<ShipModule> GetShields()
+        public Array<ShipModule> GetShields()
         {
             return this.Shields;
         }
 
-        public List<ShipModule> GetHangars()
+        public Array<ShipModule> GetHangars()
         {
             return this.Hangars;
         }
 
+        public Array<ShipModule> GetTroopHangars()
+        {
+            var returnList = new Array<ShipModule>();
+            foreach (ShipModule s in Hangars)
+                if (s.IsTroopBay) returnList.Add(s);
+            return returnList;
+        }
         public bool DoneRecovering()
         {
             for (int index = 0; index < this.Hangars.Count; ++index)
@@ -3712,7 +3760,7 @@ namespace Ship_Game.Gameplay
                 try
                 {
                     if(this.InhibitedTimer <2f)
-                    foreach (Empire index1 in EmpireManager.EmpireList)
+                    foreach (Empire index1 in EmpireManager.Empires)
                     {
                         if (index1 != this.loyalty && !this.loyalty.GetRelations(index1).Treaty_OpenBorders)
                         {
@@ -3733,14 +3781,14 @@ namespace Ship_Game.Gameplay
                 }
                 catch (Exception ex)
                 {
-                    Log.Exception(ex, "Inhibitor blew up");
+                    Log.Error(ex, "Inhibitor blew up");
                 }
                 this.inSensorRange = false;
                 if (Ship.universeScreen.Debug || this.loyalty == Ship.universeScreen.player || this.loyalty != Ship.universeScreen.player && Ship.universeScreen.player.GetRelations(loyalty).Treaty_Alliance)
                     this.inSensorRange = true;
                 else if (!this.inSensorRange)
                 {
-                    List<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this);
+                    Array<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this);
                     for (int index = 0; index < nearby.Count; ++index)
                     //Parallel.For(0, nearby.Count, (index,status) =>
                     {
@@ -3826,8 +3874,8 @@ namespace Ship_Game.Gameplay
                 {
                     this.shipStatusChanged = false;
                 }
-                List<Troop> OwnTroops = new List<Troop>();
-                List<Troop> EnemyTroops = new List<Troop>();
+                Array<Troop> OwnTroops = new Array<Troop>();
+                Array<Troop> EnemyTroops = new Array<Troop>();
                 foreach (Troop troop in this.TroopList)
                 {
                     if (troop.GetOwner() == this.loyalty)
@@ -4000,8 +4048,8 @@ namespace Ship_Game.Gameplay
                       
                         //int half = this.ModuleSlotList.Count / 2;
 
-                        //List<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
-                        //List<ModuleSlot> Secondhalf = this.ModuleSlotList.Reverse().Skip(this.ModuleSlotList.Count - half).ToList();
+                        //Array<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
+                        //Array<ModuleSlot> Secondhalf = this.ModuleSlotList.Reverse().Skip(this.ModuleSlotList.Count - half).ToList();
 
                         //foreach (ModuleSlot slots in this.ModuleSlotList)
                         //{
@@ -4116,9 +4164,9 @@ namespace Ship_Game.Gameplay
             //    //        store = 0;
             //    //    this.CargoDict[index1] = store;
             //    //}
-            //    foreach (string index1 in Enumerable.ToList<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
+            //    foreach (string index1 in Enumerable.ToArray<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
             //    {
-            //        Dictionary<string, float> dictionary;
+            //        Map<string, float> dictionary;
             //        string index2;
             //        (dictionary = this.CargoDict)[index2 = index1] = dictionary[index2] - this.ResourceDrawDict[index1] * elapsedTime;
             //        if ((double)this.CargoDict[index1] <= 0.0)
@@ -4608,7 +4656,7 @@ namespace Ship_Game.Gameplay
                 else                 dieSoundEffect = "sd_explosion_ship_det_large";
                 AudioManager.PlayCue(dieSoundEffect, universeScreen.listener, emitter);
             }
-            foreach (Empire empire in EmpireManager.EmpireList)
+            foreach (Empire empire in EmpireManager.Empires)
             {
                 empire.GetGSAI().ThreatMatrix.Pins.TryRemove(guid, out ThreatMatrix.Pin pin);
             }
@@ -4709,7 +4757,7 @@ namespace Ship_Game.Gameplay
                 if (hanger.GetHangarShip() != null)
                     hanger.GetHangarShip().Mothership = null;
             }
-            foreach(Empire empire in EmpireManager.EmpireList)
+            foreach(Empire empire in EmpireManager.Empires)
             {
                 empire.GetGSAI().ThreatMatrix.UpdatePin(this);
             }
@@ -4747,18 +4795,18 @@ namespace Ship_Game.Gameplay
             if (this.fleet == null)
                 return;
             this.fleet.Ships.Remove(this);
-            foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)this.fleet.DataNodes)
+            foreach (FleetDataNode fleetDataNode in (Array<FleetDataNode>)this.fleet.DataNodes)
             {
                 if (fleetDataNode.Ship== this)
                     fleetDataNode.Ship = (Ship)null;
             }
-            foreach (List<Fleet.Squad> list in this.fleet.AllFlanks)
+            foreach (Array<Fleet.Squad> list in this.fleet.AllFlanks)
             {
                 foreach (Fleet.Squad squad in list)
                 {
                     if (squad.Ships.Contains(this))
                         squad.Ships.QueuePendingRemoval(this);
-                    foreach (FleetDataNode fleetDataNode in (List<FleetDataNode>)squad.DataNodes)
+                    foreach (FleetDataNode fleetDataNode in (Array<FleetDataNode>)squad.DataNodes)
                     {
                         if (fleetDataNode.Ship== this)
                             fleetDataNode.Ship = (Ship)null;
@@ -4807,7 +4855,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public static ModuleSlot ClosestModuleSlot(List<ModuleSlot> slots, Vector2 center, float maxRange=999999f)
+        public static ModuleSlot ClosestModuleSlot(Array<ModuleSlot> slots, Vector2 center, float maxRange=999999f)
         {
             float nearest = maxRange*maxRange;
             ModuleSlot closestModule = null;
@@ -4826,13 +4874,13 @@ namespace Ship_Game.Gameplay
             return closestModule;
         }
 
-        public List<ModuleSlot> FilterSlotsInDamageRange(List<ModuleSlot> slots, ModuleSlot closestExtSlot)
+        public Array<ModuleSlot> FilterSlotsInDamageRange(Array<ModuleSlot> slots, ModuleSlot closestExtSlot)
         {
             Vector2 extSlotCenter = closestExtSlot.module.Center;
             sbyte quadrant        = closestExtSlot.module.quadrant;
             float sqDamageRadius  = Center.SqDist(extSlotCenter);
 
-            var filtered = new List<ModuleSlot>();
+            var filtered = new Array<ModuleSlot>();
             foreach (ModuleSlot slot in slots)
             {
                 if (slot == null) continue;
@@ -4847,7 +4895,7 @@ namespace Ship_Game.Gameplay
         }
 
         // Refactor by RedFox: Picks a random internal module to target and updates targetting list if needed
-        private ShipModule TargetRandomInternalModule(ref List<ModuleSlot> inAttackerTargetting, 
+        private ShipModule TargetRandomInternalModule(ref Array<ModuleSlot> inAttackerTargetting, 
                                                       Vector2 center, int level, float weaponRange=999999f)
         {
             ModuleSlot closestExtSlot = ClosestModuleSlot(ExternalSlots, center, weaponRange);

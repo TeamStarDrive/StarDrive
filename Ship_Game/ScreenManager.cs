@@ -15,11 +15,11 @@ namespace Ship_Game
 {
 	public sealed class ScreenManager : IDisposable
 	{
-		public List<GameScreen> screens = new List<GameScreen>();
-		private List<GameScreen> screensToUpdate = new List<GameScreen>();
-		private List<GameScreen> screensToDraw = new List<GameScreen>();
+		public Array<GameScreen> screens = new Array<GameScreen>();
+		private readonly Array<GameScreen> screensToUpdate = new Array<GameScreen>();
+		private readonly Array<GameScreen> screensToDraw = new Array<GameScreen>();
 		public InputState input = new InputState();
-		private IGraphicsDeviceService graphicsDeviceService;
+		private readonly IGraphicsDeviceService graphicsDeviceService;
 	    private Texture2D blankTexture;
 	    public LightingSystemManager lightingSystemManager;
 		public LightingSystemEditor editor;
@@ -140,30 +140,27 @@ namespace Ship_Game
 		{
 			if (AudioManager.AudioEngine!= null)
 			{
-				this.musicCategory = AudioManager.AudioEngine.GetCategory("Music");
-				this.racialMusic = AudioManager.AudioEngine.GetCategory("RacialMusic");
-				this.combatMusic = AudioManager.AudioEngine.GetCategory("CombatMusic");
-				this.weaponsCategory = AudioManager.AudioEngine.GetCategory("Weapons");
-				this.weaponsCategory.SetVolume(0.5f);
-                this.defaultCategory = AudioManager.AudioEngine.GetCategory("Default");
-                this.GlobalCategory = AudioManager.AudioEngine.GetCategory("Global");
+				musicCategory   = AudioManager.AudioEngine.GetCategory("Music");
+				racialMusic     = AudioManager.AudioEngine.GetCategory("RacialMusic");
+				combatMusic     = AudioManager.AudioEngine.GetCategory("CombatMusic");
+				weaponsCategory = AudioManager.AudioEngine.GetCategory("Weapons");
+				weaponsCategory.SetVolume(0.5f);
+                defaultCategory = AudioManager.AudioEngine.GetCategory("Default");
+                GlobalCategory  = AudioManager.AudioEngine.GetCategory("Global");
 			}
-			this.SpriteBatch = new Microsoft.Xna.Framework.Graphics.SpriteBatch(this.GraphicsDevice);
-			this.blankTexture = this.Content.Load<Texture2D>("Textures/blank");
-			foreach (GameScreen screen in this.screens)
+			SpriteBatch = new SpriteBatch(GraphicsDevice);
+            blankTexture = ResourceManager.LoadTexture("blank");
+			foreach (GameScreen screen in screens)
 			{
 				screen.LoadContent();
 			}
-			float x = (float)this.GraphicsDevice.Viewport.X;
-			Viewport viewport = this.GraphicsDevice.Viewport;
-			int num = (int)Math.Floor((double)(x + (float)viewport.Width * 0.05f));
-			float y = (float)this.GraphicsDevice.Viewport.Y;
-			Viewport viewport1 = this.GraphicsDevice.Viewport;
-			int num1 = (int)Math.Floor((double)(y + (float)viewport1.Height * 0.05f));
-			Viewport viewport2 = this.GraphicsDevice.Viewport;
-			int num2 = (int)Math.Floor((double)((float)viewport2.Width * 0.9f));
-			Viewport viewport3 = this.GraphicsDevice.Viewport;
-			this.TitleSafeArea = new Rectangle(num, num1, num2, (int)Math.Floor((double)((float)viewport3.Height * 0.9f)));
+
+			Viewport viewport = GraphicsDevice.Viewport;
+			TitleSafeArea = new Rectangle(
+                (int)(viewport.X + viewport.Width  * 0.05f),
+                (int)(viewport.Y + viewport.Height * 0.05f),
+                (int)(viewport.Width  * 0.9f),
+                (int)(viewport.Height * 0.9f));
 		}
 
 		public void RemoveScreen(GameScreen screen)
@@ -181,7 +178,7 @@ namespace Ship_Game
 
 		private void TraceScreens()
 		{
-			var screenNames = new List<string>();
+			var screenNames = new Array<string>();
 			foreach (GameScreen screen in screens)
 				screenNames.Add(screen.GetType().Name);
 			Trace.WriteLine(string.Join(", ", screenNames.ToArray()));

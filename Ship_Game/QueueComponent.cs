@@ -55,13 +55,13 @@ namespace Ship_Game
 		{
 			if (this.CurrentResearch == null)
 			{
-				EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic = researchItem.tech.UID;
+				EmpireManager.Player.ResearchTopic = researchItem.tech.UID;
 				this.CurrentResearch = new ResearchQItem(new Vector2((float)(this.csub.Menu.X + 5), (float)(this.csub.Menu.Y + 30)), researchItem, this.screen);
 				return;
 			}
-			if (!EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Contains(researchItem.tech.UID) && EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic != researchItem.tech.UID)
+			if (!EmpireManager.Player.data.ResearchQueue.Contains(researchItem.tech.UID) && EmpireManager.Player.ResearchTopic != researchItem.tech.UID)
 			{
-				EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).data.ResearchQueue.Add(researchItem.tech.UID);
+				EmpireManager.Player.data.ResearchQueue.Add(researchItem.tech.UID);
 				ResearchQItem qi = new ResearchQItem(new Vector2((float)(this.csub.Menu.X + 5), (float)(this.csub.Menu.Y + 30)), researchItem, this.screen);
 				this.QSL.AddItem(qi);
 			}
@@ -83,8 +83,8 @@ namespace Ship_Game
 				this.CurrentResearch.Draw(this.ScreenManager);
 				this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["ResearchMenu/timeleft"], this.TimeLeft, Color.White);
 				Vector2 Cursor = new Vector2((float)(this.TimeLeft.X + this.TimeLeft.Width - 7), (float)(this.TimeLeft.Y + this.TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2));
-				float cost = ResourceManager.TechTree[this.CurrentResearch.Node.tech.UID].Cost * UniverseScreen.GamePaceStatic - EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetTDict()[EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).ResearchTopic].Progress;
-				int numTurns = (int)(cost / (0.01f + EmpireManager.GetEmpireByName(this.screen.empireUI.screen.PlayerLoyalty).GetProjectedResearchNextTurn()));
+				float cost = ResourceManager.TechTree[this.CurrentResearch.Node.tech.UID].Cost * UniverseScreen.GamePaceStatic - EmpireManager.Player.GetTDict()[EmpireManager.Player.ResearchTopic].Progress;
+				int numTurns = (int)(cost / (0.01f + EmpireManager.Player.GetProjectedResearchNextTurn()));
 				if (cost % (float)numTurns != 0f)
 				{
 					numTurns++;

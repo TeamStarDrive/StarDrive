@@ -45,10 +45,10 @@ namespace Ship_Game
             SaveData.RemnantActivation   = GlobalStats.RemnantActivation;
             SaveData.RemnantArmageddon   = GlobalStats.RemnantArmageddon;
 			SaveData.gameDifficulty      = screenToSave.GameDifficulty;
-			SaveData.AutoColonize        = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoColonize;
-			SaveData.AutoExplore         = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoExplore;
-			SaveData.AutoFreighters      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoFreighters;
-			SaveData.AutoProjectors      = EmpireManager.GetEmpireByName(screenToSave.PlayerLoyalty).AutoBuild;
+			SaveData.AutoColonize        = EmpireManager.Player.AutoColonize;
+			SaveData.AutoExplore         = EmpireManager.Player.AutoExplore;
+			SaveData.AutoFreighters      = EmpireManager.Player.AutoFreighters;
+			SaveData.AutoProjectors      = EmpireManager.Player.AutoBuild;
 			SaveData.GamePacing          = UniverseScreen.GamePaceStatic;
 			SaveData.GameScale           = UniverseScreen.GameScaleStatic;
 			SaveData.StarDate            = screenToSave.StarDate;
@@ -65,8 +65,8 @@ namespace Ship_Game
             SaveData.preventFederations  = GlobalStats.PreventFederations;
             SaveData.GravityWellRange    = GlobalStats.GravityWellRange;
             SaveData.EliminationMode     = GlobalStats.EliminationMode;
-			SaveData.EmpireDataList      = new List<EmpireSaveData>();
-			SaveData.SolarSystemDataList = new List<SolarSystemSaveData>();
+			SaveData.EmpireDataList      = new Array<EmpireSaveData>();
+			SaveData.SolarSystemDataList = new Array<SolarSystemSaveData>();
             SaveData.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             
 
@@ -77,8 +77,8 @@ namespace Ship_Game
 					Name = system.Name,
 					Position = system.Position,
 					SunPath = system.SunPath,
-					AsteroidsList = new List<Asteroid>(),
-                    Moons = new List<Moon>(),
+					AsteroidsList = new Array<Asteroid>(),
+                    Moons = new Array<Moon>(),
 				};
 				foreach (Asteroid roid in system.AsteroidsList)
 				{
@@ -87,7 +87,7 @@ namespace Ship_Game
                 foreach (Moon moon in system.MoonList)
                     sysSave.Moons.Add(moon);
 				sysSave.guid = system.guid;
-				sysSave.RingList = new List<RingSave>();
+				sysSave.RingList = new Array<RingSave>();
 				foreach (SolarSystem.Ring ring in system.RingList)
 				{
 					RingSave rsave = new RingSave
@@ -131,14 +131,14 @@ namespace Ship_Game
 							prodHere             = ring.planet.ProductionHere,
 							GovernorOn           = ring.planet.GovernorOn,
 							ColonyType           = ring.planet.colonyType,
-							StationsList         = new List<Guid>(),
+							StationsList         = new Array<Guid>(),
                             SpecialDescription = ring.planet.SpecialDescription
 						};
 						foreach (var station in ring.planet.Shipyards)
 						{
 							if (station.Value.Active) pdata.StationsList.Add(station.Key);
 						}
-						pdata.QISaveList = new List<SavedGame.QueueItemSave>();
+						pdata.QISaveList = new Array<SavedGame.QueueItemSave>();
 						if (ring.planet.Owner != null)
 						{
 							foreach (QueueItem item in ring.planet.ConstructionQueue)
@@ -180,7 +180,7 @@ namespace Ship_Game
 								pdata.QISaveList.Add(qi);
 							}
 						}
-						pdata.PGSList = new List<SavedGame.PGSData>();
+						pdata.PGSList = new Array<SavedGame.PGSData>();
 						foreach (PlanetGridSquare tile in ring.planet.TilesList)
 						{
 						    PGSData pgs = new PGSData
@@ -197,7 +197,7 @@ namespace Ship_Game
 						    };
 						    pdata.PGSList.Add(pgs);
 						}
-						pdata.EmpiresThatKnowThisPlanet = new List<string>();
+						pdata.EmpiresThatKnowThisPlanet = new Array<string>();
 						foreach (var explored in system.ExploredDict)
 						{
 							if (explored.Value)
@@ -206,7 +206,7 @@ namespace Ship_Game
 						rsave.Planet = pdata;
 						sysSave.RingList.Add(rsave);
 					}
-					sysSave.EmpiresThatKnowThisSystem = new List<string>();
+					sysSave.EmpiresThatKnowThisSystem = new Array<string>();
 					foreach (var explored in system.ExploredDict)
 					{
 						if (explored.Value)
@@ -216,13 +216,13 @@ namespace Ship_Game
 				SaveData.SolarSystemDataList.Add(sysSave);
 			}
 			
-            foreach (Empire e in EmpireManager.EmpireList)
+            foreach (Empire e in EmpireManager.Empires)
 			{
 				EmpireSaveData empireToSave = new EmpireSaveData
 				{
 					IsFaction   = e.isFaction,
                     isMinorRace = e.MinorRace,
-					Relations   = new List<Relationship>()
+					Relations   = new Array<Relationship>()
 				};
 				foreach (KeyValuePair<Empire, Relationship> relation in e.AllRelations)
 				{
@@ -238,14 +238,14 @@ namespace Ship_Game
                 empireToSave.CurrentAutoFreighter = e.data.CurrentAutoFreighter;
                 empireToSave.CurrentAutoColony    = e.data.CurrentAutoColony;
                 empireToSave.CurrentConstructor   = e.data.CurrentConstructor;
-				empireToSave.OwnedShips           = new List<ShipSaveData>();
-				empireToSave.TechTree             = new List<TechEntry>();
+				empireToSave.OwnedShips           = new Array<ShipSaveData>();
+				empireToSave.TechTree             = new Array<TechEntry>();
 				foreach (AO area in e.GetGSAI().AreasOfOperations)
 				{
 					area.PrepareForSave();
 				}
 				empireToSave.AOs = e.GetGSAI().AreasOfOperations;
-				empireToSave.FleetsList = new List<FleetSave>();
+				empireToSave.FleetsList = new Array<FleetSave>();
 				foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
 				{
 					FleetSave fs = new FleetSave()
@@ -257,7 +257,7 @@ namespace Ship_Game
 						facing      = fleet.Value.facing,
 						FleetGuid   = fleet.Value.guid,
 						Position    = fleet.Value.Position,
-						ShipsInFleet = new List<FleetShipSave>()
+						ShipsInFleet = new Array<FleetShipSave>()
 					};
 					foreach (FleetDataNode node in fleet.Value.DataNodes)
 					{
@@ -279,14 +279,14 @@ namespace Ship_Game
 					}
 					empireToSave.FleetsList.Add(fs);
 				}
-				empireToSave.SpaceRoadData = new List<SpaceRoadSave>();
+				empireToSave.SpaceRoadData = new Array<SpaceRoadSave>();
 				foreach (SpaceRoad road in e.SpaceRoadsList)
 				{
 					SpaceRoadSave rdata = new SpaceRoadSave()
 					{
 						OriginGUID = road.GetOrigin().guid,
 						DestGUID = road.GetDestination().guid,
-						RoadNodes = new List<RoadNodeSave>()
+						RoadNodes = new Array<RoadNodeSave>()
 					};
 					foreach (RoadNode node in road.RoadNodesList)
 					{
@@ -305,16 +305,16 @@ namespace Ship_Game
 				GSAISAVE gsaidata = new GSAISAVE()
 				{
 					UsedFleets = e.GetGSAI().UsedFleets,
-					Goals      = new List<GoalSave>(),
-					PinGuids   = new List<Guid>(),
-					PinList    = new List<ThreatMatrix.Pin>()
+					Goals      = new Array<GoalSave>(),
+					PinGuids   = new Array<Guid>(),
+					PinList    = new Array<ThreatMatrix.Pin>()
 				};
 				foreach (KeyValuePair<Guid, ThreatMatrix.Pin> guid in e.GetGSAI().ThreatMatrix.Pins)
 				{
                     gsaidata.PinGuids.Add(guid.Key);
 					gsaidata.PinList.Add(guid.Value);
 				}
-				gsaidata.MilitaryTaskList = new List<MilitaryTask>();
+				gsaidata.MilitaryTaskList = new Array<MilitaryTask>();
 				foreach (MilitaryTask task in e.GetGSAI().TaskList)
 				{
 					gsaidata.MilitaryTaskList.Add(task);
@@ -428,12 +428,12 @@ namespace Ship_Game
 					}
 					sdata.AISave.GoToStep = ship.GetAI().GotoStep;
 					sdata.AISave.MovePosition = ship.GetAI().MovePosition;
-					sdata.AISave.ActiveWayPoints = new List<Vector2>();
+					sdata.AISave.ActiveWayPoints = new Array<Vector2>();
 					foreach (Vector2 waypoint in ship.GetAI().ActiveWayPoints)
 					{
 						sdata.AISave.ActiveWayPoints.Add(waypoint);
 					}
-					sdata.AISave.ShipGoalsList = new List<ShipGoalSave>();
+					sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
 					foreach (ArtificialIntelligence.ShipGoal sgoal in ship.GetAI().OrderQueue)
 					{
 						ShipGoalSave gsave = new ShipGoalSave()
@@ -475,7 +475,7 @@ namespace Ship_Game
 					{
 						sdata.AISave.EscortTarget = ship.GetAI().EscortTarget.guid;
 					}
-					sdata.Projectiles = new List<ProjectileSaveData>();
+					sdata.Projectiles = new Array<ProjectileSaveData>();
 					foreach (Projectile p in ship.Projectiles)
 					{
 					    ProjectileSaveData pdata = new ProjectileSaveData()
@@ -527,10 +527,10 @@ namespace Ship_Game
                         defaultstate    = ship.GetAI().DefaultAIState,
                         GoToStep        = ship.GetAI().GotoStep,
                         MovePosition    = ship.GetAI().MovePosition,
-                        ActiveWayPoints = new List<Vector2>(),
-                        ShipGoalsList   = new List<ShipGoalSave>(),
+                        ActiveWayPoints = new Array<Vector2>(),
+                        ShipGoalsList   = new Array<ShipGoalSave>(),
                     };
-                    sdata.Projectiles = new List<ProjectileSaveData>();
+                    sdata.Projectiles = new Array<ProjectileSaveData>();
                     empireToSave.OwnedShips.Add(sdata);
                 }
 
@@ -660,20 +660,20 @@ namespace Ship_Game
         public struct EmpireSaveData
 		{
 			[Serialize(0)] public string Name;
-			[Serialize(1)] public List<Relationship> Relations;
-			[Serialize(2)] public List<SpaceRoadSave> SpaceRoadData;
+			[Serialize(1)] public Array<Relationship> Relations;
+			[Serialize(2)] public Array<SpaceRoadSave> SpaceRoadData;
 			[Serialize(3)] public bool IsFaction;
             [Serialize(4)] public bool isMinorRace;
 			[Serialize(5)] public RacialTrait Traits;
 			[Serialize(6)] public EmpireData empireData;
-			[Serialize(7)] public List<ShipSaveData> OwnedShips;
+			[Serialize(7)] public Array<ShipSaveData> OwnedShips;
 			[Serialize(8)] public float Research;
 			[Serialize(9)] public float Money;
-			[Serialize(10)] public List<TechEntry> TechTree;
+			[Serialize(10)] public Array<TechEntry> TechTree;
 			[Serialize(11)] public GSAISAVE GSAIData;
 			[Serialize(12)] public string ResearchTopic;
-			[Serialize(13)] public List<AO> AOs;
-			[Serialize(14)] public List<FleetSave> FleetsList;
+			[Serialize(13)] public Array<AO> AOs;
+			[Serialize(14)] public Array<FleetSave> FleetsList;
             [Serialize(15)] public string CurrentAutoFreighter;
             [Serialize(16)] public string CurrentAutoColony;
             [Serialize(17)] public string CurrentAutoScout;
@@ -689,8 +689,8 @@ namespace Ship_Game
             [Serialize(4)] public Guid FleetGuid;
             [Serialize(5)] public float facing;
             [Serialize(6)] public int Key;
-            [Serialize(7)] public List<FleetShipSave> ShipsInFleet;
-            [Serialize(8)] public List<FleetDataNode> DataNodes;
+            [Serialize(7)] public Array<FleetShipSave> ShipsInFleet;
+            [Serialize(8)] public Array<FleetDataNode> DataNodes;
 		}
 
 		public struct FleetShipSave
@@ -716,18 +716,18 @@ namespace Ship_Game
 
 		public class GSAISAVE
 		{
-            [Serialize(0)] public List<int> UsedFleets;
-			[Serialize(1)] public List<GoalSave> Goals;
-			[Serialize(2)] public List<MilitaryTask> MilitaryTaskList;
-			[Serialize(3)] public List<Guid> PinGuids;
-			[Serialize(4)] public List<ThreatMatrix.Pin> PinList;
+            [Serialize(0)] public Array<int> UsedFleets;
+			[Serialize(1)] public Array<GoalSave> Goals;
+			[Serialize(2)] public Array<MilitaryTask> MilitaryTaskList;
+			[Serialize(3)] public Array<Guid> PinGuids;
+			[Serialize(4)] public Array<ThreatMatrix.Pin> PinList;
 		}
 
 		public struct PGSData
 		{
 			[Serialize(0)] public int x;
 			[Serialize(1)] public int y;
-			[Serialize(2)] public List<Troop> TroopsHere;
+			[Serialize(2)] public Array<Troop> TroopsHere;
 			[Serialize(3)] public bool Biosphere;
 			[Serialize(4)] public Building building;
 			[Serialize(5)] public bool Habitable;
@@ -757,16 +757,16 @@ namespace Ship_Game
 			[Serialize(16)] public float researcherPercentage;
 			[Serialize(17)] public float foodHere;
 			[Serialize(18)] public float prodHere;
-			[Serialize(19)] public List<PGSData> PGSList;
+			[Serialize(19)] public Array<PGSData> PGSList;
 			[Serialize(20)] public bool GovernorOn;
-			[Serialize(21)] public List<QueueItemSave> QISaveList;
+			[Serialize(21)] public Array<QueueItemSave> QISaveList;
 			[Serialize(22)] public Planet.ColonyType ColonyType;
 			[Serialize(23)] public Planet.GoodState FoodState;
 			[Serialize(24)] public int Crippled_Turns;
 			[Serialize(25)] public Planet.GoodState ProdState;
-			[Serialize(26)] public List<string> EmpiresThatKnowThisPlanet;
+			[Serialize(26)] public Array<string> EmpiresThatKnowThisPlanet;
 			[Serialize(27)] public float TerraformPoints;
-			[Serialize(28)] public List<Guid> StationsList;
+			[Serialize(28)] public Array<Guid> StationsList;
 			[Serialize(29)] public bool FoodLock;
 			[Serialize(30)] public bool ResLock;
 			[Serialize(31)] public bool ProdLock;
@@ -817,8 +817,8 @@ namespace Ship_Game
 			[Serialize(2)] public int numProd;
 			[Serialize(3)] public string FoodOrProd;
 			[Serialize(4)] public AIState defaultstate;
-			[Serialize(5)] public List<ShipGoalSave> ShipGoalsList;
-			[Serialize(6)] public List<Vector2> ActiveWayPoints;
+			[Serialize(5)] public Array<ShipGoalSave> ShipGoalsList;
+			[Serialize(6)] public Array<Vector2> ActiveWayPoints;
 			[Serialize(7)] public Guid startGuid;
 			[Serialize(8)] public Guid endGuid;
 			[Serialize(9)] public int GoToStep;
@@ -862,14 +862,14 @@ namespace Ship_Game
 			[Serialize(14)] public float InCombatTimer;
 			[Serialize(15)] public float experience;
 			[Serialize(16)] public int kills;
-			[Serialize(17)] public List<Troop> TroopList;
-            [Serialize(18)] public List<Rectangle> AreaOfOperation;
+			[Serialize(17)] public Array<Troop> TroopList;
+            [Serialize(18)] public Array<Rectangle> AreaOfOperation;
 			[Serialize(19)] public float FoodCount;
 			[Serialize(20)] public float ProdCount;
 			[Serialize(21)] public float PopCount;
 			[Serialize(22)] public Guid TetheredTo;
 			[Serialize(23)] public Vector2 TetherOffset;
-			[Serialize(24)] public List<ProjectileSaveData> Projectiles;
+			[Serialize(24)] public Array<ProjectileSaveData> Projectiles;
 		}
 
 		public struct SolarSystemSaveData
@@ -878,15 +878,15 @@ namespace Ship_Game
 			[Serialize(1)] public string SunPath;
 			[Serialize(2)] public string Name;
 			[Serialize(3)] public Vector2 Position;
-			[Serialize(4)] public List<RingSave> RingList;
-			[Serialize(5)] public List<Asteroid> AsteroidsList;
-            [Serialize(6)] public List<Moon> Moons;
-			[Serialize(7)] public List<string> EmpiresThatKnowThisSystem;
+			[Serialize(4)] public Array<RingSave> RingList;
+			[Serialize(5)] public Array<Asteroid> AsteroidsList;
+            [Serialize(6)] public Array<Moon> Moons;
+			[Serialize(7)] public Array<string> EmpiresThatKnowThisSystem;
 		}
 
 		public struct SpaceRoadSave
 		{
-			[Serialize(0)] public List<RoadNodeSave> RoadNodes;
+			[Serialize(0)] public Array<RoadNodeSave> RoadNodes;
 			[Serialize(1)] public Guid OriginGUID;
 			[Serialize(2)] public Guid DestGUID;
 		}
@@ -904,8 +904,8 @@ namespace Ship_Game
 			[Serialize(8)] public float StarDate;
 			[Serialize(9)] public float GameScale;
 			[Serialize(10)] public float GamePacing;
-			[Serialize(11)] public List<SolarSystemSaveData> SolarSystemDataList;
-			[Serialize(12)] public List<EmpireSaveData> EmpireDataList;
+			[Serialize(11)] public Array<SolarSystemSaveData> SolarSystemDataList;
+			[Serialize(12)] public Array<EmpireSaveData> EmpireDataList;
 			[Serialize(13)] public UniverseData.GameDifficulty gameDifficulty;
 			[Serialize(14)] public bool AutoExplore;
 			[Serialize(15)] public bool AutoColonize;

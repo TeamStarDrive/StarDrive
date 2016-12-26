@@ -27,7 +27,7 @@ namespace Ship_Game
 
 		private bool hovering;
 
-		public List<Ship> ShipList = new List<Ship>();
+		public Array<Ship> ShipList = new Array<Ship>();
 
 		public bool Active;
 
@@ -38,7 +38,7 @@ namespace Ship_Game
 			this.clickRect = new Rectangle((int)Location.X, (int)Location.Y, 48, 48);
 		}
 
-		public OrdersButton(List<Ship> shiplist, Vector2 Location, OrderType ot, int tipid)
+		public OrdersButton(Array<Ship> shiplist, Vector2 Location, OrderType ot, int tipid)
 		{
 			this.ID_tip = tipid;
 			this.ShipList = shiplist;
@@ -330,9 +330,9 @@ namespace Ship_Game
 								Ship ship = this.ShipList[i];
 								lock (ship)
 								{
-									if (!EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
+									if (!EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship))
 									{
-										EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
+										EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
 										ship.GetAI().OrderQueue.Clear();
 										ship.GetAI().HasPriorityOrder = false;
 										ship.GetAI().SystemToDefend = null;
@@ -341,7 +341,7 @@ namespace Ship_Game
 									}
                                     else
                                     {
-                                        EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetGSAI().DefensiveCoordinator.remove(ship);
+                                        EmpireManager.Player.GetGSAI().DefensiveCoordinator.remove(ship);
                                         ship.GetAI().OrderQueue.Clear();
                                         ship.GetAI().HasPriorityOrder = false;
                                         ship.GetAI().SystemToDefend = null;

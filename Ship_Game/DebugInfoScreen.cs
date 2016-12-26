@@ -17,7 +17,7 @@ namespace Ship_Game
 
 		private Rectangle win;
 
-		private List<Checkbox> Checkboxes = new List<Checkbox>();
+		private Array<Checkbox> Checkboxes = new Array<Checkbox>();
 
 		public static int ShipsDied;
 
@@ -64,7 +64,7 @@ namespace Ship_Game
 			this.win = new Rectangle(30, 200, 1200, 700);
             try
             {
-                foreach (Empire empire in EmpireManager.EmpireList)
+                foreach (Empire empire in EmpireManager.Empires)
                 {
                     if (empire == Empire.Universe.player || empire.isFaction || empire.MinorRace)
                         continue;
@@ -142,7 +142,7 @@ namespace Ship_Game
 
 			int column = 0;
 			//Primitives2D.FillRectangle(this.ScreenManager.SpriteBatch, this.win, Color.Black);    //by Gretman -- I had to be able to Debug and See the game at the same time...
-			foreach (Empire e in EmpireManager.EmpireList)
+			foreach (Empire e in EmpireManager.Empires)
 			{
 				if (e.isFaction || e.MinorRace)
 				{

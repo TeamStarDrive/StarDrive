@@ -8,7 +8,7 @@ namespace Ship_Game
 	{
 		public PieMenuNode parent;
 
-		private List<PieMenuNode> children;
+		private Array<PieMenuNode> children;
 
 		private Texture2D icon;
 
@@ -16,7 +16,7 @@ namespace Ship_Game
 
 		private SimpleDelegate onSelect;
 
-		public List<PieMenuNode> Children
+		public Array<PieMenuNode> Children
 		{
 			get
 			{
@@ -91,7 +91,7 @@ namespace Ship_Game
 		{
 			if (this.children == null)
 			{
-				this.children = new List<PieMenuNode>();
+				this.children = new Array<PieMenuNode>();
 			}
 			newChild.parent = this;
 			this.children.Add(newChild);

@@ -18,21 +18,12 @@ namespace Ship_Game
 {
 	public sealed class MainMenuScreen : GameScreen, IDisposable
 	{
-		public static readonly string Version = "BlackBox " + GlobalStats.ExtendedVersion;
 		private IWavePlayer WaveOut;
 		private Mp3FileReader Mp3FileReader;
 		private BatchRemovalCollection<Comet> CometList = new BatchRemovalCollection<Comet>();
 		private Rectangle StarFieldRect = new Rectangle(0, 0, 1920, 1080);
 		private Texture2D StarField;
-		private readonly List<Texture2D> LogoAnimation = new List<Texture2D>();
-
-		private UIButton PlayGame;
-        private UIButton Load;
-        //private UIButton Adventure; // @todo Planned feature: Battle Mode
-        private UIButton Tutorials;
-        private UIButton Mods;
-		private UIButton Options;
-		private UIButton Exit;
+		private readonly Array<Texture2D> LogoAnimation = new Array<Texture2D>();
 
 		private SceneObject MoonObj;
 		private Vector3 MoonPosition;
@@ -49,8 +40,6 @@ namespace Ship_Game
         private AnimationController ShipAnim;
         private MouseState CurrentMouse;
 		private MouseState PreviousMouse;
-
-
 
         private Rectangle Portrait;
         private Rectangle LogoRect;
@@ -69,6 +58,11 @@ namespace Ship_Game
 		{
             TransitionOnTime  = TimeSpan.FromSeconds(1);
 			TransitionOffTime = TimeSpan.FromSeconds(0.5);
+        }
+
+        private static Color Alpha(float alpha)
+        {
+            return new Color(255, 255, 255, (byte)alpha);
         }
 
 		public override void Draw(GameTime gameTime)
@@ -90,44 +84,43 @@ namespace Ship_Game
 			Vector2 cometOrigin = new Vector2(TexComet.Width, TexComet.Height) / 2f;
 			if (SplashScreen.DisplayComplete )
 			{
-				base.ScreenManager.splashScreenGameComponent.Visible = false;
-				base.ScreenManager.sceneState.BeginFrameRendering(this.View, this.Projection, gameTime, base.ScreenManager.environment, true);
-				base.ScreenManager.editor.BeginFrameRendering(base.ScreenManager.sceneState);
+				ScreenManager.splashScreenGameComponent.Visible = false;
+				ScreenManager.sceneState.BeginFrameRendering(this.View, this.Projection, gameTime, ScreenManager.environment, true);
+				ScreenManager.editor.BeginFrameRendering(ScreenManager.sceneState);
                 try
                 {
-                    base.ScreenManager.inter.BeginFrameRendering(base.ScreenManager.sceneState);
+                    ScreenManager.inter.BeginFrameRendering(ScreenManager.sceneState);
                 }
                 catch { }
 				this.DrawNew(gameTime);
-				base.ScreenManager.inter.RenderManager.Render();
-				base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
-				base.ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.InverseDestinationColor;
-				base.ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
-				base.ScreenManager.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
-				Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
+				ScreenManager.inter.RenderManager.Render();
+				ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+				ScreenManager.GraphicsDevice.RenderState.SourceBlend = Blend.InverseDestinationColor;
+				ScreenManager.GraphicsDevice.RenderState.DestinationBlend = Blend.One;
+				ScreenManager.GraphicsDevice.RenderState.BlendFunction = BlendFunction.Add;
+				Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
 				Vector3 mp = viewport.Project(this.MoonObj.WorldBoundingSphere.Center, this.Projection, this.View, Matrix.Identity);
 				Vector2 MoonFlarePos = new Vector2(mp.X - 40f - 2f, mp.Y - 40f + 24f);
-				Vector2 Origin = new Vector2(184f, 184f);
-				Rectangle? nullable = null;
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_flare"], MoonFlarePos, nullable, Color.White, 0f, Origin, 0.95f, SpriteEffects.None, 1f);
-				base.ScreenManager.SpriteBatch.End();
-				base.ScreenManager.SpriteBatch.Begin();
-				if (this.AnimationFrame >= 41 && this.AnimationFrame < 52)
+				Vector2 origin = new Vector2(184f, 184f);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_flare"], MoonFlarePos, null, Color.White, 0f, origin, 0.95f, SpriteEffects.None, 1f);
+				ScreenManager.SpriteBatch.End();
+				ScreenManager.SpriteBatch.Begin();
+				if (AnimationFrame >= 41 && AnimationFrame < 52)
 				{
-					float alphaStep = (float)(255 / 12);
-					float Alpha = (float)(this.AnimationFrame - 41) * alphaStep;
-					if (Alpha > 220f)
+					float alphaStep = 255f / 12;
+					float alpha = (AnimationFrame - 41) * alphaStep;
+					if (alpha > 220f)
 					{
-						Alpha = 220f;
+						alpha = 220f;
 					}
 					Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 220, (int)MoonFlarePos.Y - 130, 201, 78);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)Alpha));
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)alpha));
 				}
 				if (this.AnimationFrame >= 52 && this.AnimationFrame <= 67)
 				{
 					float Alpha = 220f;
 					Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 220, (int)MoonFlarePos.Y - 130, 201, 78);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)Alpha));
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)Alpha));
 				}
 				if (this.AnimationFrame > 67 && this.AnimationFrame <= 95)
 				{
@@ -142,7 +135,7 @@ namespace Ship_Game
 						Alpha = 220f;
 					}
 					Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 220, (int)MoonFlarePos.Y - 130, 201, 78);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)Alpha));
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_1"], moon1, new Color(Color.White, (byte)Alpha));
 				}
 				if (this.AnimationFrame >= 161 && this.AnimationFrame < 172)
 				{
@@ -153,13 +146,13 @@ namespace Ship_Game
 						Alpha = 220f;
 					}
 					Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 250, (int)MoonFlarePos.Y + 60, 254, 82);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)Alpha));
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)Alpha));
 				}
 				if (this.AnimationFrame >= 172 && this.AnimationFrame <= 187)
 				{
 					float Alpha = 220f;
 					Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 250, (int)MoonFlarePos.Y + 60, 254, 82);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)Alpha));
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)Alpha));
 				}
 				if (this.AnimationFrame > 187 && this.AnimationFrame <= 215)
 				{
@@ -174,7 +167,7 @@ namespace Ship_Game
 						Alpha = 220f;
 					}
 					Rectangle moon1 = new Rectangle((int)MoonFlarePos.X - 250, (int)MoonFlarePos.Y + 60, 254, 82);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)Alpha));
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_2"], moon1, new Color(Color.White, (byte)Alpha));
 				}
 				if (this.AnimationFrame >= 232 && this.AnimationFrame < 243)
 				{
@@ -185,13 +178,13 @@ namespace Ship_Game
 						Alpha = 220f;
 					}
 					Rectangle moon1 = new Rectangle((int)MoonFlarePos.X + 60, (int)MoonFlarePos.Y + 80, 156, 93);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)Alpha));
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)Alpha));
 				}
 				if (this.AnimationFrame >= 243 && this.AnimationFrame <= 258)
 				{
 					float Alpha = 220f;
 					Rectangle moon1 = new Rectangle((int)MoonFlarePos.X + 60, (int)MoonFlarePos.Y + 80, 156, 93);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)Alpha));
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)Alpha));
 				}
 				if (this.AnimationFrame > 258 && this.AnimationFrame <= 286)
 				{
@@ -206,10 +199,10 @@ namespace Ship_Game
 						Alpha = 220f;
 					}
 					Rectangle moon1 = new Rectangle((int)MoonFlarePos.X + 60, (int)MoonFlarePos.Y + 80, 156, 93);
-					base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)Alpha));
+					ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/moon_3"], moon1, new Color(Color.White, (byte)Alpha));
 				}
-				base.ScreenManager.SpriteBatch.End();
-				base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
+				ScreenManager.SpriteBatch.End();
+				ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
 				foreach (Comet c in this.CometList)
 				{
 					float alpha = 255f;
@@ -230,16 +223,16 @@ namespace Ship_Game
 					this.CometList.QueuePendingRemoval(c);
 				}
 				this.CometList.ApplyPendingRemovals();
-				base.ScreenManager.SpriteBatch.End();
-				base.ScreenManager.SpriteBatch.Begin();
+				ScreenManager.SpriteBatch.End();
+				ScreenManager.SpriteBatch.Begin();
 				int numEntries = 5;
 				int k = 5;
 				foreach (UIButton b in this.Buttons)
 				{
 					Rectangle r = b.Rect;
-					float transitionOffset = MathHelper.Clamp((base.TransitionPosition - 0.5f * (float)k / (float)numEntries) / 0.5f, 0f, 1f);
+					float transitionOffset = MathHelper.Clamp((TransitionPosition - 0.5f * (float)k / (float)numEntries) / 0.5f, 0f, 1f);
 					k--;
-					if (base.ScreenState != Ship_Game.ScreenState.TransitionOn)
+					if (ScreenState != ScreenState.TransitionOn)
 					{
 						r.X = r.X + (int)transitionOffset * 512;
 					}
@@ -251,132 +244,122 @@ namespace Ship_Game
 							AudioManager.PlayCue("blip_click");
 						}
 					}
-					b.Draw(base.ScreenManager.SpriteBatch, r);
+					b.Draw(ScreenManager.SpriteBatch, r);
 				}
-				if (GlobalStats.ActiveMod != null)
+
+                GlobalStats.ActiveMod?.DrawMainMenuOverlay(ScreenManager, Portrait);
+
+				ScreenManager.SpriteBatch.Draw(LogoAnimation[0], LogoRect, Color.White);
+				if (LogoAnimation.Count > 1)
 				{
-					base.ScreenManager.SpriteBatch.Draw(GlobalStats.ActiveMod.MainMenuTex, this.Portrait, Color.White);
+					LogoAnimation.RemoveAt(0);
 				}
-				base.ScreenManager.SpriteBatch.Draw(this.LogoAnimation[0], this.LogoRect, Color.White);
-				if (this.LogoAnimation.Count > 1)
-				{
-					this.LogoAnimation.RemoveAt(0);
-				}
-				base.ScreenManager.SpriteBatch.End();
-				base.ScreenManager.inter.EndFrameRendering();
-				base.ScreenManager.editor.EndFrameRendering();
-				base.ScreenManager.sceneState.EndFrameRendering();
+				ScreenManager.SpriteBatch.End();
+				ScreenManager.inter.EndFrameRendering();
+				ScreenManager.editor.EndFrameRendering();
+				ScreenManager.sceneState.EndFrameRendering();
 			}
 		}
 
 		public void DrawNew(GameTime gameTime)
 		{
-			if (!this.Flip)
-			{
-				this.Flip = true;
-			}
-			else
-			{
-				MainMenuScreen animationFrame = this;
-				animationFrame.AnimationFrame = animationFrame.AnimationFrame + 1;
-				this.Flip = false;
-			}
+            Flip = !Flip;
+			if (Flip) AnimationFrame += 1;
 
             // @todo What the hell is this bloody thing?? REFACTOR
-			double totalSeconds = gameTime.ElapsedGameTime.TotalSeconds;
-			base.ScreenManager.SpriteBatch.Begin();
-			Rectangle screenRect = new Rectangle(0, 0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-			base.ScreenManager.SpriteBatch.Draw(this.StarField, this.StarFieldRect, Color.White);
-			Rectangle PlanetRect = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 680, 1016, 680);
-			base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet"], PlanetRect, Color.White);
-			if (this.AnimationFrame >= 127 && this.AnimationFrame < 145)
+            int width  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            int height = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+
+            ScreenManager.SpriteBatch.Begin();
+			Rectangle screenRect = new Rectangle(0, 0, width, height);
+			ScreenManager.SpriteBatch.Draw(StarField, StarFieldRect, Color.White);
+			Rectangle planetRect = new Rectangle(0, height - 680, 1016, 680);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet"], planetRect, Color.White);
+			if (AnimationFrame >= 127 && AnimationFrame < 145)
 			{
-				float alphaStep = (float)(255 / 18);
-				float Alpha = (float)(this.AnimationFrame - 127) * alphaStep;
-				Rectangle PlanetGridRect = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 640, 972, 640);
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid"], PlanetGridRect, new Color(Color.White, (byte)Alpha));
+				float alphaStep = 255f / 18;
+				float alpha = (AnimationFrame - 127) * alphaStep;
+				Rectangle planetGridRect = new Rectangle(0, height - 640, 972, 640);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid"], planetGridRect, new Color(Color.White, (byte)alpha));
 			}
-			if (this.AnimationFrame >= 145 && this.AnimationFrame <= 148)
+			if (AnimationFrame >= 145 && AnimationFrame <= 148)
 			{
-				Rectangle PlanetGridRect = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 640, 972, 640);
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid"], PlanetGridRect, Color.White);
+				Rectangle planetGridRect = new Rectangle(0, height - 640, 972, 640);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid"], planetGridRect, Color.White);
 			}
-			if (this.AnimationFrame > 148 && this.AnimationFrame <= 180)
+			if (AnimationFrame > 148 && AnimationFrame <= 180)
 			{
-				float alphaStep = (float)(255 / 31);
-				float Alpha = 255f - (float)(this.AnimationFrame - 148) * alphaStep;
-				if (Alpha < 0f)
-				{
-					Alpha = 0f;
-				}
-				Rectangle PlanetGridRect = new Rectangle(0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 640, 972, 640);
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid"], PlanetGridRect, new Color(Color.White, (byte)Alpha));
+				float alphaStep = 255f / 31;
+				float alpha = 255f - (AnimationFrame - 148) * alphaStep;
+				if (alpha < 0f) alpha = 0f;
+				Rectangle planetGridRect = new Rectangle(0, height - 640, 972, 640);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid"], planetGridRect, new Color(Color.White, (byte)alpha));
 			}
-			if (this.AnimationFrame >= 141 && this.AnimationFrame <= 149)
+			if (AnimationFrame >= 141 && AnimationFrame <= 149)
 			{
 				float alphaStep = 255f / 9;
-				float Alpha = (float)(this.AnimationFrame - 141) * alphaStep;
-				Rectangle Grid1Hex = new Rectangle(277, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 592, 77, 33);
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], Grid1Hex, new Color(Color.White, (byte)Alpha));
+				float alpha = (AnimationFrame - 141) * alphaStep;
+				Rectangle grid1Hex = new Rectangle(277, height - 592, 77, 33);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], grid1Hex, new Color(Color.White, (byte)alpha));
 			}
-			if (this.AnimationFrame > 149 && this.AnimationFrame <= 165)
+			if (AnimationFrame > 149 && AnimationFrame <= 165)
 			{
 				float alphaStep = 255f / 16;
-				float Alpha = 255f - (float)(this.AnimationFrame - 149) * alphaStep;
-				Rectangle Grid1Hex = new Rectangle(277, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 592, 77, 33);
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], Grid1Hex, new Color(Color.White, (byte)Alpha));
+				float alpha = 255f - (AnimationFrame - 149) * alphaStep;
+				Rectangle grid1Hex = new Rectangle(277, height - 592, 77, 33);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_1"], grid1Hex, new Color(Color.White, (byte)alpha));
 			}
-			if (this.AnimationFrame >= 159 && this.AnimationFrame <= 168)
+			if (AnimationFrame >= 159 && AnimationFrame <= 168)
 			{
 				float alphaStep = 255f / 10;
-				float Alpha = (float)(this.AnimationFrame - 159) * alphaStep;
-				Rectangle Grid1Hex = new Rectangle(392, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 418, 79, 60);
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_2"], Grid1Hex, new Color(Color.White, (byte)Alpha));
+				float alpha = (AnimationFrame - 159) * alphaStep;
+				Rectangle grid1Hex = new Rectangle(392, height - 418, 79, 60);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_2"], grid1Hex, new Color(Color.White, (byte)alpha));
 			}
-			if (this.AnimationFrame > 168 && this.AnimationFrame <= 183)
+			if (AnimationFrame > 168 && AnimationFrame <= 183)
 			{
-				float alphaStep = (float)(255 / 15);
-				float Alpha = 255f - (float)(this.AnimationFrame - 168) * alphaStep;
-				Rectangle Grid1Hex = new Rectangle(392, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 418, 79, 60);
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_2"], Grid1Hex, new Color(Color.White, (byte)Alpha));
+				float alphaStep = 255f / 15;
+				float alpha = 255f - (AnimationFrame - 168) * alphaStep;
+				Rectangle grid1Hex = new Rectangle(392, height - 418, 79, 60);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_2"], grid1Hex, new Color(Color.White, (byte)alpha));
 			}
-			if (this.AnimationFrame >= 150 && this.AnimationFrame <= 158)
+			if (AnimationFrame >= 150 && AnimationFrame <= 158)
 			{
-				float alphaStep = (float)(255 / 9);
-				float Alpha = (float)(this.AnimationFrame - 150) * alphaStep;
-				Rectangle Grid1Hex = new Rectangle(682, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 295, 63, 67);
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_3"], Grid1Hex, new Color(Color.White, (byte)Alpha));
+				float alphaStep = 255f / 9;
+				float alpha = (AnimationFrame - 150) * alphaStep;
+				Rectangle grid1Hex = new Rectangle(682, height - 295, 63, 67);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_3"], grid1Hex, new Color(Color.White, (byte)alpha));
 			}
-			if (this.AnimationFrame > 158 && this.AnimationFrame <= 174)
+			if (AnimationFrame > 158 && AnimationFrame <= 174)
 			{
-				float alphaStep = (float)(255 / 16);
-				float Alpha = 255f - (float)(this.AnimationFrame - 158) * alphaStep;
-				Rectangle Grid1Hex = new Rectangle(682, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 295, 63, 67);
-				base.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["MainMenu/planet_grid_hex_3"], Grid1Hex, new Color(Color.White, (byte)Alpha));
+				float alphaStep = 255f / 16;
+				float alpha = 255f - (AnimationFrame - 158) * alphaStep;
+				Rectangle grid1Hex = new Rectangle(682, height - 295, 63, 67);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_grid_hex_3"], grid1Hex, new Color(Color.White, (byte)alpha));
 			}
-			if (this.AnimationFrame >= 7 || this.StayOn)
+			if (AnimationFrame >= 7 || StayOn)
 			{
-				float alphaStep = (float)(255 / 30);
-				float Alpha = (float)(this.AnimationFrame - 7) * alphaStep;
-				Alpha = MathHelper.SmoothStep((float)(this.AnimationFrame - 1 - 7) * alphaStep, (float)(this.AnimationFrame - 7) * alphaStep, 0.9f);
-				if (Alpha > 225f || this.StayOn)
+				float alphaStep = 255f / 30;
+			    float alpha = MathHelper.SmoothStep((AnimationFrame - 1 - 7) * alphaStep, (AnimationFrame - 7) * alphaStep, 0.9f);
+				if (alpha > 225f || StayOn)
 				{
-					Alpha = 225f;
-					this.StayOn = true;
+					alpha = 225f;
+					StayOn = true;
 				}
-				Rectangle CornerTL = new Rectangle(31, 30, 608, 340);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/corner_TL"], CornerTL, new Color(Color.White, (byte)Alpha));
-				Rectangle CornerBR = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 551, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 562, 520, 532);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/corner_BR"], CornerBR, new Color(Color.White, (byte)Alpha));
-				Rectangle Version = new Rectangle(205, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 37, 318, 12);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
-				Vector2 TextPos = new Vector2(20f, Version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
-				ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "StarDrive 15B", TextPos, Color.White);
+				Rectangle cornerTl = new Rectangle(31, 30, 608, 340);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/corner_TL"], cornerTl, new Color(Color.White, (byte)alpha));
+				Rectangle cornerBr = new Rectangle(width - 551, height - 562, 520, 532);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/corner_BR"], cornerBr, new Color(Color.White, (byte)alpha));
+                
+                Rectangle version = new Rectangle(205, height - 37, 318, 12);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/version_bar"], version, new Color(Color.White, (byte)alpha));
+				Vector2 textPos = new Vector2(20f, version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
+				ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "StarDrive 15B", textPos, Color.White);
 
-                Version = new Rectangle(20+ (int)Fonts.Pirulen12.MeasureString(MainMenuScreen.Version).X , ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 85, 318, 12);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
-                TextPos = new Vector2(20f, Version.Y  +6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, MainMenuScreen.Version, TextPos, Color.White);
+                version = new Rectangle(20+ (int)Fonts.Pirulen12.MeasureString(GlobalStats.ExtendedVersion).X , height - 85, 318, 12);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/version_bar"], version, new Color(Color.White, (byte)alpha));
+                textPos = new Vector2(20f, version.Y  +6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, GlobalStats.ExtendedVersion, textPos, Color.White);
 
 				if (GlobalStats.ActiveModInfo != null)
                 {
@@ -384,10 +367,12 @@ namespace Ship_Game
                     //if (GlobalStats.ActiveModInfo.Version != null && GlobalStats.ActiveModInfo.Version != "" && !title.Contains(GlobalStats.ActiveModInfo.Version))
                     if (!string.IsNullOrEmpty(GlobalStats.ActiveModInfo.Version) && !title.Contains(GlobalStats.ActiveModInfo.Version))
                         title = string.Concat(title, " - ", GlobalStats.ActiveModInfo.Version);
-                    Version = new Rectangle(20 + (int)Fonts.Pirulen12.MeasureString(title).X, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 60, 318, 12);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/version_bar"], Version, new Color(Color.White, (byte)Alpha));
-                    TextPos = new Vector2(20f, Version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, title, TextPos, Color.White);
+
+                    version = new Rectangle(20 + (int)Fonts.Pirulen12.MeasureString(title).X, height - 60, 318, 12);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/version_bar"], version, new Color(Color.White, (byte)alpha));
+
+                    textPos = new Vector2(20f, version.Y + 6 - Fonts.Pirulen12.LineSpacing / 2 - 1);
+                    ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, title, textPos, Color.White);
                 }
 			}
 			if (AnimationFrame > 300)
@@ -405,15 +390,15 @@ namespace Ship_Game
 			if (FlareFrames >= 0 && FlareFrames <= 31)
 			{
 				float alphaStep = 35f / 32f;
-				float Alpha = 255f - FlareFrames * alphaStep;
-				Rectangle SolarFlare = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 784, 1024, 784);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_solarflare"], SolarFlare, new Color((byte)Alpha, (byte)Alpha, (byte)Alpha, 255));
+				float alpha = 255f - FlareFrames * alphaStep;
+				Rectangle solarFlare = new Rectangle(0, height - 784, 1024, 784);
+				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_solarflare"], solarFlare, new Color((byte)alpha, (byte)alpha, (byte)alpha, 255));
 			}
 			if (FlareFrames > 31 && FlareFrames <= 62)
 			{
 				float alphaStep = 35f / 31f;
 				float Alpha = 220f + (FlareFrames - 31) * alphaStep;
-				Rectangle SolarFlare = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 784, 1024, 784);
+				Rectangle SolarFlare = new Rectangle(0, height - 784, 1024, 784);
 				ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["MainMenu/planet_solarflare"], SolarFlare, new Color((byte)Alpha, (byte)Alpha, (byte)Alpha, 255));
 			}
 			if (Flip)
@@ -459,9 +444,9 @@ namespace Ship_Game
 
             if (input.InGameSelect)
 			{
-				Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
+				Viewport viewport = ScreenManager.GraphicsDevice.Viewport;
 				Vector3 nearPoint = viewport.Unproject(new Vector3(input.CursorPosition, 0f), this.Projection, this.View, Matrix.Identity);
-				Viewport viewport1 = base.ScreenManager.GraphicsDevice.Viewport;
+				Viewport viewport1 = ScreenManager.GraphicsDevice.Viewport;
 				Vector3 farPoint = viewport1.Unproject(new Vector3(input.CursorPosition, 1f), this.Projection, this.View, Matrix.Identity);
 				Vector3 direction = farPoint - nearPoint;
 				direction.Normalize();
@@ -476,12 +461,11 @@ namespace Ship_Game
 					VectorToCenter = this.MoonObj.WorldBoundingSphere.Center + (VectorToCenter * this.MoonObj.WorldBoundingSphere.Radius);
 				}
 			}
-			this.CurrentMouse = input.CurrentMouseState;
-			Vector2 MousePos = new Vector2(CurrentMouse.X, CurrentMouse.Y);
+			CurrentMouse = input.CurrentMouseState;
 			bool okcomet = true;
-			foreach (UIButton b in this.Buttons)
+			foreach (UIButton b in Buttons)
 			{
-				if (!HelperFunctions.CheckIntersection(b.Rect, MousePos))
+				if (!b.Rect.HitTest(CurrentMouse.X, CurrentMouse.Y))
 				{
 					b.State = UIButton.PressState.Default;
 				}
@@ -541,7 +525,7 @@ namespace Ship_Game
 			        Position = new Vector2(RandomMath.RandomBetween(-100f,
 			                    ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 100), 0f)
 			    };
-			    c.Velocity = Vector2.Normalize(HelperFunctions.FindVectorToTarget(c.Position, input.CursorPosition));
+			    c.Velocity = c.Position.FindVectorToTarget(input.CursorPosition);
 				c.Rotation = c.Position.RadiansToTarget(c.Position + c.Velocity);
 				CometList.Add(c);
 			}
@@ -554,29 +538,9 @@ namespace Ship_Game
 		{
             base.LoadContent();
 
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            if (!string.IsNullOrEmpty(config.AppSettings.Settings["ActiveMod"].Value))
-			{
-                if (!File.Exists("Mods/" + config.AppSettings.Settings["ActiveMod"].Value + ".xml"))
-				{
-					config.AppSettings.Settings["ActiveMod"].Value = "";
-					config.Save();
-					ResourceManager.WhichModPath = "Content";
-					ResourceManager.Reset();
-					ResourceManager.LoadItAll();
-				}
-				else
-				{
-                    FileInfo info = new FileInfo("Mods/" + config.AppSettings.Settings["ActiveMod"].Value + ".xml");
-                    ModInformation data = ResourceManager.ModSerializer.Deserialize<ModInformation>(info);
+            Log.Info("MainMenuScreen LoadContent");
 
-					ModEntry me = new ModEntry(ScreenManager, data, info.NameNoExt());
-					GlobalStats.ActiveMod = me;
-					GlobalStats.ActiveModInfo = me.mi;
-					ResourceManager.LoadMods("Mods/" + config.AppSettings.Settings["ActiveMod"].Value);
-				}
-			}
-			ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
+            ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
             ScreenManager.racialMusic.SetVolume(GlobalStats.MusicVolume);
             ScreenManager.combatMusic.SetVolume(GlobalStats.MusicVolume);
 			ScreenManager.weaponsCategory.SetVolume(GlobalStats.EffectsVolume);
@@ -599,18 +563,18 @@ namespace Ship_Game
 			}
 
 		    StarField = ScreenManager.Content.Load<Texture2D>(size.Y <= 1080 
-                                                                ? "MainMenu/nebula_stars_bg" 
-                                                                : "MainMenu/HR_nebula_stars_bg");
+                        ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg");
 		    StarFieldRect = new Rectangle(0, 0, (int)size.X, (int)size.Y);
 
             Vector2 pos = new Vector2(size.X - 200, size.Y / 2 - 100);
-            PlayGame  = Button(ref pos, "New Campaign", localization: 1);
-            //Adventure = Button(ref pos, "", "Battle Mode");
-            Tutorials = Button(ref pos, "Tutorials", localization: 3);
-            Load      = Button(ref pos, "Load Game", localization: 2);
-            Options   = Button(ref pos, "Options", localization: 4);
-            Mods      = Button(ref pos, "Mods", "Mods");
-            Exit      = Button(ref pos, "Exit", localization: 5);
+            Buttons.Clear();
+            Button(ref pos, "New Campaign", localization: 1);
+            //Button(ref pos, "", "Battle Mode");
+            Button(ref pos, "Tutorials", localization: 3);
+            Button(ref pos, "Load Game", localization: 2);
+            Button(ref pos, "Options", localization: 4);
+            Button(ref pos, "Mods", "Mods");
+            Button(ref pos, "Exit", localization: 5);
 
 			ScreenManager.inter.ObjectManager.Clear();
 			ScreenManager.inter.LightManager.Clear();
@@ -666,13 +630,6 @@ namespace Ship_Game
         private void LoadTestContent()
         {
             //var atlas = TextureAtlas.Load(ScreenManager.Content, "Explosions/smaller/shipExplosion");
-
-        }
-
-        public void ReloadContent()
-        {
-            Buttons.Clear();
-            LoadContent();
         }
 
 		public void OnPlaybackStopped(object sender, EventArgs e)
@@ -694,9 +651,9 @@ namespace Ship_Game
 			try
 			{
 				WaveOut.Init(Mp3FileReader);
-#pragma warning disable CS0618 // Type or member is obsolete
+                #pragma warning disable CS0618 // Type or member is obsolete
                 WaveOut.Volume = GlobalStats.MusicVolume;
-#pragma warning restore CS0618 // Type or member is obsolete
+                #pragma warning restore CS0618 // Type or member is obsolete
                 WaveOut.Play();
 				WaveOut.PlaybackStopped += OnPlaybackStopped;
 			}

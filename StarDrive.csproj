@@ -140,7 +140,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'RedFox-Release|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -157,8 +158,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>stardrive\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM xPLAYERONLY AUTOTIME PERF</DefineConstants>
+    <OutputPath>StarDrive\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;STEAM xPLAYERONLY xAUTOTIME PERF</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
@@ -197,11 +198,11 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Crunchies-LocalRelease|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Crunchies-LocalRelease\</OutputPath>
+    <OutputPath>StarDrive\</OutputPath>
     <DefineConstants>STEAM ALTERTHREAD PERF  AUTOTIME</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -209,6 +210,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Gretman%27s Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -288,12 +290,17 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Ship_Game\ExtensionMethods\CollectionExtensions.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\FileSystemExtensions.cs" />
+    <Compile Include="Ship_Game\Commands\MilitaryTasks\CohesiveClearAreaOfEnemies.cs" />
+    <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\FileSystemExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MeshUtil.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SceneExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\StringExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
     <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />
@@ -338,7 +345,9 @@
     <Compile Include="Ship_Game\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Ship_Game\Ref_T_.cs">
+    <Compile Include="Ship_Game\Utils\Array.cs" />
+    <Compile Include="Ship_Game\Utils\Map.cs" />
+    <Compile Include="Ship_Game\Utils\Ref.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1449,10 +1458,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\EventScreen.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\ColonyScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -1700,6 +1705,9 @@
     <None Include="Content\Textures\SelectionBox\icon_formation_bright_active.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Deploy\Config\Deploy.cmd" />
+    <None Include="Deploy\Config\include_Crunchies cleanup" />
+    <None Include="Deploy\Config\include_Unstable_Texas_Refactor" />
     <None Include="packages.config" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>

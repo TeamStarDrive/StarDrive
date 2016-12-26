@@ -106,9 +106,9 @@ namespace Ship_Game
 			}
 			this.ShipSubMenu = new Submenu(ScreenManager, this.eRect);
 			this.ShipSL = new ScrollList(this.ShipSubMenu, 30);
-			if (EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetShips().Count > 0)
+			if (EmpireManager.Player.GetShips().Count > 0)
 			{
-				foreach (Ship ship in EmpireManager.GetEmpireByName(empUI.screen.PlayerLoyalty).GetShips())
+				foreach (Ship ship in EmpireManager.Player.GetShips())
 				{
                     if (!ship.IsPlayerDesign && this.HidePlatforms)
 					{
@@ -119,11 +119,13 @@ namespace Ship_Game
 				}
                 this.SelectedShip = null;
 			}
-			Ref<bool> aeRef = new Ref<bool>(() => this.HidePlatforms, (bool x) => {
-				this.HidePlatforms = x;
-               this.ResetList(this.ShowRoles.Options[this.ShowRoles.ActiveIndex].@value);
-			});
-			this.cb_hide_proj = new Checkbox(new Vector2((float)(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 10), (float)(this.TitleBar.Menu.Y + 15)), Localizer.Token(191), aeRef, Fonts.Arial12Bold);
+
+			cb_hide_proj = new Checkbox(TitleBar.Menu.X + TitleBar.Menu.Width + 10, TitleBar.Menu.Y + 15,
+                () => HidePlatforms, x => {
+                    HidePlatforms = x;
+                    ResetList(ShowRoles.Options[ShowRoles.ActiveIndex].@value);
+                }, Fonts.Arial12Bold, title: 191, tooltip:0);
+
 			this.ShowRoles = new DropOptions(new Rectangle(this.TitleBar.Menu.X + this.TitleBar.Menu.Width + 175, this.TitleBar.Menu.Y + 15, 175, 18));
 			this.ShowRoles.AddOption("All Ships", 1);
             this.ShowRoles.AddOption("Not in Fleets", 11);
@@ -624,7 +626,7 @@ namespace Ship_Game
                         this.empUI.screen.SelectedShipList.Clear();
                     }
                     else if (this.empUI.screen.SelectedShipList.Count > 1)
-                        this.empUI.screen.shipListInfoUI.SetShipList((List<Ship>)this.empUI.screen.SelectedShipList, false);
+                        this.empUI.screen.shipListInfoUI.SetShipList((Array<Ship>)this.empUI.screen.SelectedShipList, false);
                 }
                 return;
             }
@@ -655,7 +657,7 @@ namespace Ship_Game
                         this.empUI.screen.SelectedShipList.Clear();
                     }
                     else if (this.empUI.screen.SelectedShipList.Count > 1)
-                        this.empUI.screen.shipListInfoUI.SetShipList((List<Ship>)this.empUI.screen.SelectedShipList, false);
+                        this.empUI.screen.shipListInfoUI.SetShipList((Array<Ship>)this.empUI.screen.SelectedShipList, false);
                 }
 			}
 		}
@@ -665,9 +667,9 @@ namespace Ship_Game
 			this.ShipSL.Copied.Clear();
 			this.ShipSL.Entries.Clear();
 			this.ShipSL.indexAtTop = 0;
-			if (EmpireManager.GetEmpireByName(this.empUI.screen.PlayerLoyalty).GetShips().Count > 0)
+			if (EmpireManager.Player.GetShips().Count > 0)
 			{
-				foreach (Ship ship in EmpireManager.GetEmpireByName(this.empUI.screen.PlayerLoyalty).GetShips())
+				foreach (Ship ship in EmpireManager.Player.GetShips())
 				{
 					if (!ship.IsPlayerDesign && this.HidePlatforms)
 					{
@@ -687,9 +689,9 @@ namespace Ship_Game
 			this.ShipSL.Entries.Clear();
 			this.ShipSL.Copied.Clear();
 			this.ShipSL.indexAtTop = 0;
-			if (EmpireManager.GetEmpireByName(this.empUI.screen.PlayerLoyalty).GetShips().Count > 0)
+			if (EmpireManager.Player.GetShips().Count > 0)
 			{
-				foreach (Ship ship in EmpireManager.GetEmpireByName(this.empUI.screen.PlayerLoyalty).GetShips())
+				foreach (Ship ship in EmpireManager.Player.GetShips())
 				{
                     if ((!ship.IsPlayerDesign && this.HidePlatforms) || ship.Mothership != null || ship.isConstructor)  //fbedard: never list ships created from hangar or constructor
 					{
@@ -822,7 +824,7 @@ namespace Ship_Game
 		public void ResetListSorted(IOrderedEnumerable<ScrollList.Entry> SortedList)
 		{
 			this.ShipSL.Copied.Clear();
-			List<ShipListScreenEntry> shipslist = new List<ShipListScreenEntry>();
+			Array<ShipListScreenEntry> shipslist = new Array<ShipListScreenEntry>();
 			foreach (ScrollList.Entry e in SortedList)
 			{
 				shipslist.Add(e.item as ShipListScreenEntry);

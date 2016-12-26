@@ -177,7 +177,7 @@ namespace Ship_Game
 					ToolTip.CreateTooltip(Localizer.Token(2268), base.ScreenManager);
 					if (input.InGameSelect)
 					{
-						foreach (Ship ship in EmpireManager.GetEmpireByName(Ship.universeScreen.PlayerLoyalty).GetShips())
+						foreach (Ship ship in EmpireManager.Player.GetShips())
 						{
 							if (ship.Name != this.shiptorefit.Name)
 							{
