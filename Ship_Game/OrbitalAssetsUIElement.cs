@@ -37,7 +37,7 @@ namespace Ship_Game
 
 		public DanButton LandTroops;
 
-		private List<OrbitalAssetsUIElement.TippedItem> ToolTipItems = new List<OrbitalAssetsUIElement.TippedItem>();
+		private Array<OrbitalAssetsUIElement.TippedItem> ToolTipItems = new Array<OrbitalAssetsUIElement.TippedItem>();
 
 		new private Color tColor = new Color(255, 239, 208);
 

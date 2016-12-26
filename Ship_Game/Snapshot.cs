@@ -14,11 +14,11 @@ namespace Ship_Game
 
     public sealed class Snapshot
 	{
-		[Serialize(0)] public List<NRO> EmpireNodes = new List<NRO>();
+		[Serialize(0)] public Array<NRO> EmpireNodes = new Array<NRO>();
         [Serialize(1)] public int ShipCount;
         [Serialize(2)] public float MilitaryStrength;
         [Serialize(3)] public float Population;
-        [Serialize(4)] public List<string> Events = new List<string>();
+        [Serialize(4)] public Array<string> Events = new Array<string>();
         [Serialize(5)] public float TaxRate;
         [Serialize(6)] public float StarDate;
         [Serialize(7)] public int TotalShips;

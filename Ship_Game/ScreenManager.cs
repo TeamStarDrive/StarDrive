@@ -15,9 +15,9 @@ namespace Ship_Game
 {
 	public sealed class ScreenManager : IDisposable
 	{
-		public List<GameScreen> screens = new List<GameScreen>();
-		private readonly List<GameScreen> screensToUpdate = new List<GameScreen>();
-		private readonly List<GameScreen> screensToDraw = new List<GameScreen>();
+		public Array<GameScreen> screens = new Array<GameScreen>();
+		private readonly Array<GameScreen> screensToUpdate = new Array<GameScreen>();
+		private readonly Array<GameScreen> screensToDraw = new Array<GameScreen>();
 		public InputState input = new InputState();
 		private readonly IGraphicsDeviceService graphicsDeviceService;
 	    private Texture2D blankTexture;
@@ -178,7 +178,7 @@ namespace Ship_Game
 
 		private void TraceScreens()
 		{
-			var screenNames = new List<string>();
+			var screenNames = new Array<string>();
 			foreach (GameScreen screen in screens)
 				screenNames.Add(screen.GetType().Name);
 			Trace.WriteLine(string.Join(", ", screenNames.ToArray()));

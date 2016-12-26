@@ -27,7 +27,7 @@ namespace Ship_Game
 
 		private bool hovering;
 
-		public List<Ship> ShipList = new List<Ship>();
+		public Array<Ship> ShipList = new Array<Ship>();
 
 		public bool Active;
 
@@ -38,7 +38,7 @@ namespace Ship_Game
 			this.clickRect = new Rectangle((int)Location.X, (int)Location.Y, 48, 48);
 		}
 
-		public OrdersButton(List<Ship> shiplist, Vector2 Location, OrderType ot, int tipid)
+		public OrdersButton(Array<Ship> shiplist, Vector2 Location, OrderType ot, int tipid)
 		{
 			this.ID_tip = tipid;
 			this.ShipList = shiplist;

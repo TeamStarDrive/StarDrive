@@ -140,7 +140,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'RedFox-Release|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -299,6 +300,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\SceneExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\StringExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
     <Compile Include="Ship_Game\FGPathing\AuthorAttribute.cs" />
     <Compile Include="Ship_Game\FGPathing\HighResolutionTime.cs" />
     <Compile Include="Ship_Game\FGPathing\IPathFinder.cs" />
@@ -343,7 +345,9 @@
     <Compile Include="Ship_Game\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Ship_Game\Ref_T_.cs">
+    <Compile Include="Ship_Game\Utils\Array.cs" />
+    <Compile Include="Ship_Game\Utils\Map.cs" />
+    <Compile Include="Ship_Game\Utils\Ref.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

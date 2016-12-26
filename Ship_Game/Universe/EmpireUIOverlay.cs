@@ -21,9 +21,9 @@ namespace Ship_Game
 
 		private Rectangle res5;
 
-		private List<ToolTip> ToolTips = new List<ToolTip>();
+		private Array<ToolTip> ToolTips = new Array<ToolTip>();
 
-		private List<Button> Buttons = new List<Button>();
+		private Array<Button> Buttons = new Array<Button>();
 
 		public UniverseScreen screen;
 

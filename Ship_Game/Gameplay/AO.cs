@@ -15,15 +15,15 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
         [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
         [XmlIgnore][JsonIgnore] private Fleet CoreFleet = new Fleet();
-        [XmlIgnore][JsonIgnore] private readonly List<Ship> ShipsWaitingForCoreFleet = new List<Ship>();
-        [XmlIgnore][JsonIgnore] private List<Planet> PlanetsInAO = new List<Planet>();
+        [XmlIgnore][JsonIgnore] private readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
+        [XmlIgnore][JsonIgnore] private Array<Planet> PlanetsInAO = new Array<Planet>();
         [XmlIgnore][JsonIgnore] private bool disposed;
         [XmlIgnore][JsonIgnore] public Vector2 Position => CoreWorld.Position;
 
         [Serialize(0)] public int ThreatLevel;
         [Serialize(1)] public Guid CoreWorldGuid;
-        [Serialize(2)] public List<Guid> OffensiveForceGuids = new List<Guid>();
-        [Serialize(3)] public List<Guid> ShipsWaitingGuids = new List<Guid>();
+        [Serialize(2)] public Array<Guid> OffensiveForceGuids = new Array<Guid>();
+        [Serialize(3)] public Array<Guid> ShipsWaitingGuids = new Array<Guid>();
         [Serialize(4)] public Guid fleetGuid;
         [Serialize(5)] public int WhichFleet = -1;
         [Serialize(6)] private bool Flip;
@@ -123,12 +123,12 @@ namespace Ship_Game.Gameplay
 			return CoreWorld;
 		}
 
-		public List<Planet> GetPlanets()
+		public Array<Planet> GetPlanets()
 		{
 			return PlanetsInAO;
 		}
 
-		public List<Ship> GetWaitingShips()
+		public Array<Ship> GetWaitingShips()
 		{
 			return ShipsWaitingForCoreFleet;
 		}

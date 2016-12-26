@@ -16,7 +16,7 @@ namespace Ship_Game
 		private Submenu ConstructionSubMenu;
 		private UniverseScreen Universe;
 		private Rectangle win;
-		private List<Checkbox> Checkboxes = new List<Checkbox>();
+		private Array<Checkbox> Checkboxes = new Array<Checkbox>();
 		private DropOptions AutoFreighterDropDown;
 		private DropOptions ColonyShipDropDown;
 		private DropOptions ScoutDropDown;
@@ -222,9 +222,14 @@ namespace Ship_Game
                     ConstructorDropDown.AddOption(ship.Name, 0);
                 }
             }
-            if (string.IsNullOrEmpty(empire.data.CurrentConstructor) || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentConstructor))
+            if (string.IsNullOrEmpty(empire.data.CurrentConstructor) 
+                || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentConstructor))
             {
-                empire.data.CurrentConstructor = ConstructorDropDown.Options[ConstructorDropDown.ActiveIndex].Name;
+                // @todo This is just a temporary measure. It does not fix the problem with ActiveIndex being invalid at times
+                if (ConstructorDropDown.ActiveIndex < ConstructorDropDown.Options.Count)
+                    empire.data.CurrentConstructor = ConstructorDropDown.Options[ConstructorDropDown.ActiveIndex].Name;
+                else
+                    Log.Warning("ConstructorDropDown.ActiveIndex was invalid, check AutomationWindow.cs");
             }
             else
             {

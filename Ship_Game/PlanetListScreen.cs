@@ -55,7 +55,7 @@ namespace Ship_Game
 
 		private bool HideUninhab = true;
 
-		private List<Planet> planets = new List<Planet>();
+		private Array<Planet> planets = new Array<Planet>();
 
 		private Rectangle eRect;
 
@@ -550,7 +550,7 @@ namespace Ship_Game
 		public void ResetList()
 		{
             
-            List<Planet> pList = new List<Planet>();
+            Array<Planet> pList = new Array<Planet>();
 			foreach (ScrollList.Entry entry in this.PlanetSL.Entries)
 			{
 				pList.Add((entry.item as PlanetListScreenEntry).planet);

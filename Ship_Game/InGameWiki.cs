@@ -260,7 +260,7 @@ namespace Ship_Game
 			};
 			HelperFunctions.parseTextToSL(this.ActiveTopic.Text, (float)(this.TextRect.Width - 40), Fonts.Arial12Bold, ref this.TextSL);
 			this.TitlePosition = new Vector2((float)(this.TextRect.X + this.TextRect.Width / 2) - Fonts.Arial20Bold.MeasureString(this.ActiveTopic.Title).X / 2f - 15f, (float)(this.TextRect.Y + 10));
-			List<string> Categories = new List<string>();
+			Array<string> Categories = new Array<string>();
 			foreach (HelpTopic halp in this.ht.HelpTopicsList)
 			{
 				if (Categories.Contains(halp.Category))
