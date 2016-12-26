@@ -711,7 +711,7 @@ namespace Ship_Game
 			this.ScrollDown = new Rectangle(p.Menu.X + p.Menu.Width - 20, p.Menu.Y + p.Menu.Height - 14, ResourceManager.TextureDict["NewUI/scrollbar_arrow_down"].Width, ResourceManager.TextureDict["NewUI/scrollbar_arrow_down"].Height);
 			this.ScrollBarHousing = new Rectangle(this.ScrollUp.X + 1, this.ScrollUp.Y + this.ScrollUp.Height + 3, ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, this.ScrollDown.Y - this.ScrollUp.Y - this.ScrollUp.Height - 6);
 			this.ScrollBar = new Rectangle(this.ScrollBarHousing.X, 0, ResourceManager.TextureDict["NewUI/scrollbar_bar_mid"].Width, 0);
-			List<ScrollList.Entry> copy = new List<ScrollList.Entry>();
+			Array<ScrollList.Entry> copy = new Array<ScrollList.Entry>();
 			foreach (ScrollList.Entry e in this.Entries)
 			{
 				copy.Add(e);
@@ -933,7 +933,7 @@ namespace Ship_Game
 
 			public int ah;
             //moved this here for consistency
-			public List<ScrollList.Entry> SubEntries = new List<ScrollList.Entry>();
+			public Array<ScrollList.Entry> SubEntries = new Array<ScrollList.Entry>();
 
 			public Entry()
 			{

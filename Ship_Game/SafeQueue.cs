@@ -9,7 +9,7 @@ namespace Ship_Game
 {
     public sealed class SafeQueue<T> : LinkedList<T>, IDisposable //where T : new()
     {
-        //public LinkedList<T> pendingRemovals;
+        //public LinkedArray<T> pendingRemovals;
         public ConcurrentStack<T> pendingRemovals;
         public ReaderWriterLockSlim thisLock;
 
@@ -18,22 +18,22 @@ namespace Ship_Game
 
         public SafeQueue()
         {
-            //this.pendingRemovals = new LinkedList<T>();
+            //this.pendingRemovals = new LinkedArray<T>();
             this.pendingRemovals = new ConcurrentStack<T>();
             this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         }
         public SafeQueue(bool noQueueForRemoval)
         {
-            //this.pendingRemovals = new LinkedList<T>();
+            //this.pendingRemovals = new LinkedArray<T>();
             //this.pendingRemovals = new ConcurrentStack<T>();
             this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         }
-        //public OrderQueue(List<T> ListToCopy)
+        //public OrderQueue(Array<T> ListToCopy)
         //{
-        //    LinkedList<T> list = this as LinkedList<T>;
-        //    list = ListToCopy.ToList<T>();
+        //    LinkedArray<T> list = this as LinkedArray<T>;
+        //    list = ListToCopy.ToArray<T>();
         //    this.AddRange(list);
         //    this.thisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
@@ -68,10 +68,10 @@ namespace Ship_Game
 
             }
             //this.thisLock.EnterWriteLock();
-            //removes = (this as LinkedList<T>).Except(removes).ToList();
+            //removes = (this as LinkedArray<T>).Except(removes).ToList();
 
-            //(this as LinkedList<T>).Clear();
-            //(this as LinkedList<T>).AddRange(removes);
+            //(this as LinkedArray<T>).Clear();
+            //(this as LinkedArray<T>).AddRange(removes);
             //this.thisLock.ExitWriteLock();
         }
         public void QueuePendingRemoval(T item)
@@ -172,7 +172,7 @@ namespace Ship_Game
         public void ClearAndRecycle()
         {
             thisLock.EnterWriteLock();
-           LinkedList<T> test = (this as LinkedList<T>);
+            LinkedList<T> test = (this as LinkedList<T>);
             this.pendingRemovals = new ConcurrentStack<T>(test);
             (this as LinkedList<T>).Clear();
             thisLock.ExitWriteLock();

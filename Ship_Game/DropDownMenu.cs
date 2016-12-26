@@ -24,13 +24,13 @@ namespace Ship_Game
 
 		private DropDownMenu.RecTexPair Bot;
 
-		private List<DropDownMenu.RecTexPair> container = new List<DropDownMenu.RecTexPair>();
+		private Array<DropDownMenu.RecTexPair> container = new Array<DropDownMenu.RecTexPair>();
 
 		public Rectangle r;
 
 		public int ActiveIndex;
 
-		private List<string> Options = new List<string>();
+		private Array<string> Options = new Array<string>();
 
 		public DropDownMenu(Rectangle r)
 		{

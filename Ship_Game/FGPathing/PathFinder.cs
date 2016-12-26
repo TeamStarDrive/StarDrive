@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Ship_Game;
 
 namespace Algorithms
 {
@@ -73,7 +74,7 @@ namespace Algorithms
         #region Variables Declaration
         private byte[,]                         mGrid                   = null;
         private PriorityQueueB<PathFinderNode>  mOpen                   = new PriorityQueueB<PathFinderNode>(new ComparePFNode());
-        private List<PathFinderNode>            mClose                  = new List<PathFinderNode>();
+        private Array<PathFinderNode>            mClose                  = new Array<PathFinderNode>();
         private bool                            mStop                   = false;
         private bool                            mStopped                = true;
         private int                             mHoriz                  = 0;
@@ -179,7 +180,7 @@ namespace Algorithms
             mStop = true;
         }
 
-        public List<PathFinderNode> FindPath(Point start, Point end)
+        public Array<PathFinderNode> FindPath(Point start, Point end)
         {
             HighResolutionTime.Start();
 

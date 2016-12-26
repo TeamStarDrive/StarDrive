@@ -6,7 +6,7 @@ namespace Ship_Game.Gameplay
 {
 	public sealed  class RacialTraits
 	{
-		public List<RacialTrait> TraitList;
+		public Array<RacialTrait> TraitList;
 
 		public RacialTraits()
 		{

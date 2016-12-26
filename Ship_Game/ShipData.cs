@@ -32,7 +32,7 @@ namespace Ship_Game
         public float MechanicalBoardingDefense;
         public string Hull;
         public RoleName Role = RoleName.fighter;
-        public List<ShipToolScreen.ThrusterZone> ThrusterList;
+        public Array<ShipToolScreen.ThrusterZone> ThrusterList;
         public string ModelPath;
         public AIState DefaultAIState;
         // The Doctor: intending to use this for 'Civilian', 'Recon', 'Fighter', 'Bomber' etc.
@@ -46,7 +46,7 @@ namespace Ship_Game
         public bool CarrierShip;
         public float BaseStrength;
         public bool BaseCanWarp;
-        public List<ModuleSlotData> ModuleSlotList;
+        public Array<ModuleSlotData> ModuleSlotList;
         public bool hullUnlockable;
         public bool allModulesUnlocakable = true;
         public bool unLockable;
@@ -54,7 +54,7 @@ namespace Ship_Game
         public HashSet<string> techsNeeded = new HashSet<string>();
         public int TechScore;
 
-        //public Dictionary<string, HashSet<string>> EmpiresThatCanUseThis = new Dictionary<string, HashSet<string>>();
+        //public Map<string, HashSet<string>> EmpiresThatCanUseThis = new Map<string, HashSet<string>>();
         private static readonly string[] RoleArray     = typeof(RoleName).GetEnumNames();
         private static readonly string[] CategoryArray = typeof(Category).GetEnumNames();
 
@@ -184,7 +184,7 @@ namespace Ship_Game
 
                 // @todo Remove conversion to List
                 // @todo Remove SDNative.ModuleSlotData conversion
-                ship.ModuleSlotList = new List<ModuleSlotData>(s->ModuleSlotsLen);
+                ship.ModuleSlotList = new Array<ModuleSlotData>(s->ModuleSlotsLen);
                 for (int i = 0; i < s->ModuleSlotsLen; ++i)
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
@@ -202,7 +202,7 @@ namespace Ship_Game
                 }
 
                 // @todo Remove conversion to List
-                ship.ThrusterList = new List<ShipToolScreen.ThrusterZone>(s->ThrustersLen);
+                ship.ThrusterList = new Array<ShipToolScreen.ThrusterZone>(s->ThrustersLen);
                 for (int i = 0; i < s->ThrustersLen; ++i)
                 {
                     CThrusterZone* zone = &s->Thrusters[i];

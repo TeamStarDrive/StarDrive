@@ -409,7 +409,7 @@
     </Token>
     <Token>
       <Index>104</Index>
-      <Text>Ships List</Text>
+      <Text>Ships Array</Text>
     </Token>
     <Token>
       <Index>105</Index>
@@ -777,7 +777,7 @@
     </Token>
     <Token>
       <Index>190</Index>
-      <Text>Ship List</Text>
+      <Text>Ship Array</Text>
     </Token>
     <Token>
       <Index>191</Index>
@@ -3776,7 +3776,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1402</Index>
-      <Text>Planet List</Text>
+      <Text>Planet Array</Text>
     </Token>
     <Token>
       <Index>1403</Index>
