@@ -269,7 +269,7 @@ namespace Ship_Game.Gameplay
         public void AttackMoveTo(Vector2 movePosition)
         {
             this.GoalStack.Clear();
-            Vector2 fVec = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.findAveragePosition(), movePosition));
+            Vector2 fVec = this.findAveragePosition().FindVectorToTarget(movePosition);
             this.Position = this.findAveragePosition() + fVec * 3500f;
             this.GoalStack.Push(new FleetGoal(this, movePosition, findAveragePosition().RadiansToTarget(movePosition), fVec, FleetGoalType.AttackMoveTo));
         }
@@ -2563,7 +2563,7 @@ namespace Ship_Game.Gameplay
 
             private void DoAttackMove(float elapsedTime)
             {
-                this.fleet.Position += Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.fleet.Position, this.MovePosition)) * this.fleet.speed * elapsedTime;
+                this.fleet.Position += this.fleet.Position.FindVectorToTarget(this.MovePosition) * this.fleet.speed * elapsedTime;
                 this.fleet.AssembleFleet(this.FinalFacing, this.FinalFacingVector);
                 if ((double)Vector2.Distance(this.fleet.Position, this.MovePosition) >= 100.0)
                     return;
@@ -2573,7 +2573,7 @@ namespace Ship_Game.Gameplay
 
             private void DoMove(float elapsedTime)
             {
-                Vector2 vector2 = Vector2.Normalize(HelperFunctions.FindVectorToTarget(this.fleet.Position, this.MovePosition));
+                Vector2 vector2 = this.fleet.Position.FindVectorToTarget(this.MovePosition);
                 float num1 = 0.0f;
                 int num2 = 0;
                 foreach (Ship ship in (List<Ship>)this.fleet.Ships)
