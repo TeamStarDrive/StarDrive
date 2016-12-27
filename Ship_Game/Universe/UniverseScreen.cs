@@ -3500,7 +3500,7 @@ namespace Ship_Game
                                 }
                             }
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                this.SelectedFleet.FormationWarpTo(vector2_1, num3, vectorToTarget);
+                                this.SelectedFleet.FormationWarpTo(vector2_1, num3, vectorToTarget, true);
                             else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftAlt))
                                 this.SelectedFleet.MoveToDirectly(vector2_1, num3, vectorToTarget);
                             else
@@ -3751,7 +3751,7 @@ namespace Ship_Game
                         {
                             this.SelectedSomethingTimer = 3f;
                             if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift))
-                                this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2);
+                                this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2, true);
                             else
                                 this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2);
                             AudioManager.PlayCue("echo_affirm1");
@@ -3871,19 +3871,7 @@ namespace Ship_Game
                     if ((double)input.RightMouseTimer > 0.0)
                         return;
                     this.ProjectingPosition = true;
-                    if (this.SelectedFlank != null)
-                    {
-                        this.SelectedFleet.ProjectPos(this.ProjectedPosition, facing, this.SelectedFlank);
-                        ShipGroup shipGroup = new ShipGroup();
-                        foreach (Fleet.Squad squad in this.SelectedFlank)
-                        {
-                            foreach (Ship ship in (Array<Ship>)squad.Ships)
-                                shipGroup.Ships.Add(ship);
-                        }
-                        shipGroup.ProjectedFacing = facing;
-                        this.projectedGroup = shipGroup;
-                    }
-                    else if (this.SelectedFleet != null && this.SelectedFleet.Owner == this.player)
+                    if (this.SelectedFleet != null && this.SelectedFleet.Owner == this.player)
                     {
                         this.ProjectingPosition = true;
                         this.SelectedFleet.ProjectPos(this.ProjectedPosition, facing, fVec1);
