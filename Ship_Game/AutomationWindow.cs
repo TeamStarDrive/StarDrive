@@ -26,11 +26,11 @@ namespace Ship_Game
 
         private void Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
         {
-            Checkboxes.Add(new Checkbox(win.X, win.Y + 25, binding, Fonts.Arial12Bold, title, tooltip));
+            Checkboxes.Add(new Checkbox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
         }
         private void Checkbox(float x, float y, Expression<Func<bool>> binding, string title, int tooltip)
         {
-            Checkboxes.Add(new Checkbox(win.X, win.Y + 25, binding, Fonts.Arial12Bold, title, tooltip));
+            Checkboxes.Add(new Checkbox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
         }
 
         public AutomationWindow(ScreenManager screenManager, UniverseScreen universe)
