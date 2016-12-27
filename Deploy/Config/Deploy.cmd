@@ -4,7 +4,7 @@ set year=%date:~-2%
 set month=%date:~4,2%
 set day=%date:~7,2%
 
-for /f %%r in ('hg id -n') do set hgrev=%%r
+for /f %%r in ('hg id -n -r .') do set hgrev=%%r
 
 for /f "delims=" %%i in (..\..\.hg\branch) do (
 set name=%%i
