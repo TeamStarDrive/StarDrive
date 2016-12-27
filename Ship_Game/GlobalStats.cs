@@ -27,8 +27,9 @@ namespace Ship_Game
 
     public static class GlobalStats
 	{
-        public static readonly string Version = "Texas_Refactor";
-	    public static string ExtendedVersion ="17";
+        public static string Version = "";
+        public static string Branch = "";
+        public static string ExtendedVersion ="";
 
         public static int ComparisonCounter = 1;
 		public static int Comparisons = 0;
@@ -150,7 +151,9 @@ namespace Ship_Game
             {
                 return; // configuration file is missing
             }
-            ExtendedVersion +=String.Format("{0} : {1} ",Version, GetSetting("ExtendedVersion"));
+		    Branch = GetSetting("Branch");
+		    Version = GetSetting("Version");
+            ExtendedVersion +=String.Format("{0} : {1}_{2}","BlackBox Texas",Branch,Version);
             GetSetting("GravityWellRange",       ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf",                   ref perf);

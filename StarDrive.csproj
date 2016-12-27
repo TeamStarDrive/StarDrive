@@ -1708,6 +1708,7 @@
     <None Include="Deploy\Config\Deploy.cmd" />
     <None Include="Deploy\Config\include_Crunchies cleanup" />
     <None Include="Deploy\Config\include_Unstable_Texas_Refactor" />
+    <None Include="Deploy\Config\Prebuild.cmd" />
     <None Include="packages.config" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
@@ -3175,6 +3176,7 @@
     <Content Include="Deploy\Config\config.txt" />
     <Content Include="Deploy\Config\include.txt" />
     <Content Include="Deploy\Config\include_mods.txt" />
+    <Content Include="Deploy\Config\xml.exe" />
     <Content Include="Game.ico" />
     <Content Include="Icons\blackbox drop.ico" />
     <Content Include="Icons\blackbox.ico" />
@@ -3243,5 +3245,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>$(ProjectDir)deploy\Config\Deploy.cmd</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>$(ProjectDir)Deploy\Config\Prebuild.cmd $(ProjectDir)</PreBuildEvent>
   </PropertyGroup>
 </Project>
