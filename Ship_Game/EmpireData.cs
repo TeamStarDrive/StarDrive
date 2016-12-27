@@ -136,9 +136,6 @@ namespace Ship_Game
         [Serialize(79)] public Array<string> unlockBuilding = new Array<string>();
         [Serialize(80)] public Array<string> unlockShips = new Array<string>();
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
         //designsWeHave our techTree has techs for.
         //sortsaves
         [Serialize(81)] public SortButton PLSort = new SortButton();
@@ -196,15 +193,8 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (disposed) return;
-            disposed = true;
-            if (disposing)
-            {
-                AgentList?.Dispose();
-                MoleList?.Dispose();
-            }
-            AgentList = null;
-            MoleList = null;
+            AgentList?.Dispose(ref AgentList);
+            MoleList?.Dispose(ref MoleList);
         }
 	}
 } 
