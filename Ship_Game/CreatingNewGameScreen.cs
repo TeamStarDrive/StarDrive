@@ -848,11 +848,11 @@ namespace Ship_Game
             ScreenManager.musicCategory.Stop(AudioStopOptions.AsAuthored);
             us = new UniverseScreen(Data)
             {
-                player = PlayerEmpire,
-                ScreenManager = ScreenManager,
-                camPos = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
+                player         = PlayerEmpire,
+                ScreenManager  = ScreenManager,
+                camPos         = new Vector3(-playerShip.Center.X, playerShip.Center.Y, 5000f),
                 GameDifficulty = Difficulty,
-                GameScale = Scale
+                GameScale      = Scale
             };
             UniverseScreen.GameScaleStatic = Scale;
             WorkerThread.Abort();
@@ -870,48 +870,44 @@ namespace Ship_Game
 
         public override void Draw(GameTime gameTime)
         {
-            this.ScreenManager.GraphicsDevice.Clear(Color.Black);
-            this.ScreenManager.SpriteBatch.Begin();
-            this.ScreenManager.SpriteBatch.Draw(LoadingScreenTexture, new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080), Color.White);
-            Rectangle r = new Rectangle(this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 150, this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 25, 300, 25);
+            ScreenManager.GraphicsDevice.Clear(Color.Black);
+            ScreenManager.SpriteBatch.Begin();
+            int width  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+            int height = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            ScreenManager.SpriteBatch.Draw(LoadingScreenTexture, new Rectangle(width / 2 - 960, height / 2 - 540, 1920, 1080), Color.White);
+            Rectangle r = new Rectangle(width / 2 - 150, height - 25, 300, 25);
             new ProgressBar(r)
             {
                 Max = 100f,
                 Progress = PercentLoaded * 100f
-            }.Draw(this.ScreenManager.SpriteBatch);
-            Vector2 position = new Vector2(this.ScreenCenter.X - 250f, (float)((double)r.Y - (double)Fonts.Arial12Bold.MeasureString(this.text).Y - 5.0));
-            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.text, position, Color.White);
-            if (this.ready)
+            }.Draw(ScreenManager.SpriteBatch);
+            Vector2 position = new Vector2(ScreenCenter.X - 250f, (float)(r.Y - Fonts.Arial12Bold.MeasureString(text).Y - 5.0));
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, position, Color.White);
+            if (ready)
             {
-                this.PercentLoaded = 1f;
-                position.Y = (float)((double)position.Y - (double)Fonts.Pirulen16.LineSpacing - 10.0);
-                string text = Localizer.Token(2108);
-                position.X = this.ScreenCenter.X - Fonts.Pirulen16.MeasureString(text).X / 2f;
-                Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)(Math.Abs((float)Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * (float)byte.MaxValue));
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, text, position, color);
+                PercentLoaded = 1f;
+                position.Y = (float)(position.Y - Fonts.Pirulen16.LineSpacing - 10.0);
+                string token = Localizer.Token(2108);
+                position.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(token).X / 2f;
+                Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)(Math.Abs(Math.Sin(gameTime.TotalGameTime.TotalSeconds)) * byte.MaxValue));
+                ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, token, position, color);
             }
-            this.ScreenManager.SpriteBatch.End();
+            ScreenManager.SpriteBatch.End();
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         private void Dispose(bool disposing)
         {
-            if (!disposing)
-                return;
             lock (this) {
-                WorkerBeginEvent?.Dispose();
-                WorkerCompletedEvent?.Dispose();
-                LoadingScreenTexture?.Dispose();;
-                us?.Dispose();
-
-                WorkerBeginEvent = null;
-                WorkerCompletedEvent = null;
-                us = null;
+                WorkerBeginEvent?.Dispose(ref WorkerBeginEvent);
+                WorkerCompletedEvent?.Dispose(ref WorkerCompletedEvent);
+                LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);
+                us?.Dispose(ref us);
             }
         }
 

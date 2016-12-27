@@ -17,7 +17,6 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] private Fleet CoreFleet = new Fleet();
         [XmlIgnore][JsonIgnore] private readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
         [XmlIgnore][JsonIgnore] private Array<Planet> PlanetsInAO = new Array<Planet>();
-        [XmlIgnore][JsonIgnore] private bool disposed;
         [XmlIgnore][JsonIgnore] public Vector2 Position => CoreWorld.Position;
 
         [Serialize(0)] public int ThreatLevel;
@@ -220,19 +219,9 @@ namespace Ship_Game.Gameplay
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    OffensiveForcePool?.Dispose();
-                    DefensiveForcePool?.Dispose();
-                    CoreFleet?.Dispose();
-                }
-                OffensiveForcePool = null;
-                DefensiveForcePool = null;
-                CoreFleet = null;
-                disposed = true;
-            }
+            OffensiveForcePool?.Dispose(ref OffensiveForcePool);
+            DefensiveForcePool?.Dispose(ref DefensiveForcePool);
+            CoreFleet?.Dispose(ref CoreFleet);
         }
        
 	}
