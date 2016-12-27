@@ -3,10 +3,11 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using Ship_Game;
 
 namespace Particle3DSample
 {
-	public class ParticleSystem: IDisposable
+	public sealed class ParticleSystem : IDisposable
 	{
 		private string settingsName;
 
@@ -46,10 +47,7 @@ namespace Particle3DSample
 
 		private static Random randomB;
 
-		private Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+		private GraphicsDevice GraphicsDevice;
 
 
 		static ParticleSystem()
@@ -309,23 +307,15 @@ namespace Particle3DSample
 
         public void Dispose()
         {
-            Dispose(true);
+            vertexBuffer?.Dispose(ref vertexBuffer);
+            vertexDeclaration?.Dispose(ref vertexDeclaration);
             GC.SuppressFinalize(this);
         }
 
-        ~ParticleSystem() { Dispose(false);  }
-
-        protected virtual void Dispose(bool disposing)
+        ~ParticleSystem()
         {
-            if (disposed) return;
-            if (disposing)
-            {
-                vertexBuffer?.Dispose();
-                vertexDeclaration?.Dispose();
-            }
-            vertexDeclaration = null;
-            vertexBuffer = null;
-            disposed = true;
+            vertexBuffer?.Dispose(ref vertexBuffer);
+            vertexDeclaration?.Dispose(ref vertexDeclaration);
         }
 	}
 }

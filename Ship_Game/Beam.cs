@@ -40,7 +40,6 @@ namespace Ship_Game
 		private bool DamageToggleOn;
 		private VertexDeclaration quadVertexDecl;
 		private float displacement = 1f;
-        private bool disposed;
 
 		public Beam()
 		{
@@ -441,17 +440,9 @@ namespace Ship_Game
 		}
 
 
-        ~Beam() { Dispose(false); }
-
         protected override void Dispose(bool disposing)
         {
-            if (disposed) return;
-            if (disposing)
-            {
-                quadVertexDecl?.Dispose();
-            }
-            this.quadVertexDecl = null;
-            this.disposed = true;
+            quadVertexDecl?.Dispose(ref quadVertexDecl);
             base.Dispose(disposing);
         }
 	}
