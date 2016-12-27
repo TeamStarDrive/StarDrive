@@ -1,9 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using System;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using NAudio.Wave;
 using Cue = Microsoft.Xna.Framework.Audio.Cue;
 
 namespace Ship_Game
@@ -11,72 +8,46 @@ namespace Ship_Game
 	public sealed class AudioManager : GameComponent
 	{
 		private static AudioManager audioManager;
-
 		private AudioEngine audioEngine;
-
 		private SoundBank soundBank;
-
 		private WaveBank waveBank;
 
-        private bool disposed;
-
         //Added by McShooterz: store sounds instances
-        private Array<SoundEffectInstance> SoundEffectInstances;
+        private readonly Array<SoundEffectInstance> SoundEffectInstances;
 
-		static AudioManager()
-		{
-		}
-        
+	    public static bool LimitOk => audioManager.SoundEffectInstances.Count < 7;
 
-	static public bool limitOK
-	{
-        get { return AudioManager.audioManager.SoundEffectInstances.Count <7 ; }
-		
-	}
-	
-		private AudioManager(Microsoft.Xna.Framework.Game game, string settingsFile, string waveBankFile, string soundBankFile) : base(game)
+	    private AudioManager(Game game, string settingsFile, string waveBankFile, string soundBankFile) : base(game)
 		{
-            this.SoundEffectInstances = new Array<SoundEffectInstance>();
+            SoundEffectInstances = new Array<SoundEffectInstance>();
 			try
 			{
-				this.audioEngine = new AudioEngine(settingsFile);
-				this.waveBank = new WaveBank(this.audioEngine, waveBankFile, 0, 16);
-				this.soundBank = new SoundBank(this.audioEngine, soundBankFile);
-			}
-			catch (NoAudioHardwareException)
+				audioEngine = new AudioEngine(settingsFile);
+				waveBank = new WaveBank(audioEngine, waveBankFile, 0, 16);
+				soundBank = new SoundBank(audioEngine, soundBankFile);
+
+                while (!waveBank.IsPrepared)
+                {
+                    audioEngine.Update();
+                }
+            }
+			catch (NoAudioHardwareException)  {}
+			catch (InvalidOperationException) {}
+            finally
 			{
-				this.audioEngine = null;
-				this.waveBank = null;
-				this.soundBank = null;
-			}
-			catch (InvalidOperationException)
-			{
-				this.audioEngine = null;
-				this.waveBank = null;
-				this.soundBank = null;
-			}
-			while (!this.waveBank.IsPrepared)
-			{
-				this.audioEngine.Update();
-			}
+                audioEngine = null;
+                waveBank    = null;
+                soundBank   = null;
+            }
 		}
 
-        ~AudioManager() { Dispose(false); }
-
+        // Dispose called by GameComponent Dispose() or finalizer
 		protected override void Dispose(bool disposing)
 		{
-		    if (disposed) return;
-		    if (disposing)
-		    {
-		        soundBank?.Dispose();
-		        waveBank?.Dispose();
-		        audioEngine?.Dispose();
-		    }
-		    soundBank   = null;
-		    waveBank    = null;
-		    audioEngine = null;
-		    disposed    = true;
-		    base.Dispose(disposing);
+            soundBank?.Dispose(ref soundBank);
+            waveBank?.Dispose(ref waveBank);
+            audioEngine?.Dispose(ref audioEngine);
+            base.Dispose(disposing);
 		}
 
 	    public static AudioManager Manager
@@ -151,14 +122,14 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: Play 3d sound effect
-        public static void PlaySoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae, float VolumeMod)
+        public static void PlaySoundEffect(SoundEffect se, AudioListener al, AudioEmitter ae, float volumeMod)
         {
-            if (AudioManager.audioManager.SoundEffectInstances.Count > 6)
+            if (audioManager.SoundEffectInstances.Count > 6)
                 return;
             SoundEffectInstance sei = se.CreateInstance();
-            AudioManager.audioManager.SoundEffectInstances.Add(sei);
+            audioManager.SoundEffectInstances.Add(sei);
             sei.Apply3D(al, ae);
-            sei.Volume = GlobalStats.EffectsVolume * VolumeMod;
+            sei.Volume = GlobalStats.EffectsVolume * volumeMod;
             sei.Play();
         }
 

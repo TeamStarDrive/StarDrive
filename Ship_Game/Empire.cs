@@ -30,9 +30,9 @@ namespace Ship_Game
         public Array<Ship>      ShipsToAdd     = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
         public float Money = 1000f;
-        private readonly BatchRemovalCollection<Planet>      OwnedPlanets      = new BatchRemovalCollection<Planet>();
-        private readonly BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
-        private readonly BatchRemovalCollection<Ship>        OwnedProjectors   = new BatchRemovalCollection<Ship>();
+        private BatchRemovalCollection<Planet>      OwnedPlanets      = new BatchRemovalCollection<Planet>();
+        private BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
+        private BatchRemovalCollection<Ship>        OwnedProjectors   = new BatchRemovalCollection<Ship>();
         private BatchRemovalCollection<Ship>          OwnedShips  = new BatchRemovalCollection<Ship>();
         public  BatchRemovalCollection<Ship>          KnownShips  = new BatchRemovalCollection<Ship>();
         public  BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
@@ -125,8 +125,6 @@ namespace Ship_Game
         public byte[,] grid;
         [XmlIgnore]
         public int granularity = 0;
-
-        private bool disposed;
 
         public Empire()
         {
@@ -3099,31 +3097,23 @@ namespace Ship_Game
 
         public void RemoveShip(Ship ship)
         {
-            if (ship.Name == "Subspace Projector")
+            if (ship.Name == "Subspace Projector") // @todo Really??? Haha..
             {
-                this.OwnedProjectors.Remove(ship);// QueuePendingRemoval(ship);
-                //this.OwnedProjectors.ApplyPendingRemovals();
+                OwnedProjectors.Remove(ship);
             }
             else
             {
-                this.OwnedShips.Remove(ship);// QueuePendingRemoval(ship);
-                //this.OwnedShips.ApplyPendingRemovals();
+                OwnedShips.Remove(ship);
             }
             ship.fleet = null;
-            this.GetGSAI().DefensiveCoordinator.remove(ship);
+            GetGSAI().DefensiveCoordinator.remove(ship);
             
             ship.GetAI().OrderQueue.Clear();
            
             ship.GetAI().State = AIState.AwaitingOrders;
             ship.RemoveFromAllFleets();
-
-
         }
 
-        //private Array<Ship> ShipsInOurBorders()
-        //{
-        //    return this.GetGSAI().ThreatMatrix.GetAllShipsInOurBorders();
-        ////}
         public class InfluenceNode
         {
             public Vector2 Position;
@@ -3133,11 +3123,10 @@ namespace Ship_Game
 
             public void Wipe()
             {
-                this.Position = Vector2.Zero;
-                this.KeyedObject = null;
-                this.DrewThisTurn =false;
-                this.Radius =0;
-
+                Position     = Vector2.Zero;
+                KeyedObject  = null;
+                DrewThisTurn = false;
+                Radius       = 0;
             }
         }
 
@@ -3151,25 +3140,18 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (disposed)
-                return;
-            disposed = true;
+            ForcePool?.Dispose(ref ForcePool);
+            BorderNodes?.Dispose(ref BorderNodes);
+            SensorNodes?.Dispose(ref SensorNodes);
+            KnownShips?.Dispose(ref KnownShips);
+            OwnedShips?.Dispose(ref OwnedShips);
+            DefensiveFleet?.Dispose(ref DefensiveFleet);
+            GSAI?.Dispose(ref GSAI);
 
-            if (disposing)
-            {
-                ForcePool?.Dispose();
-                BorderNodes?.Dispose();
-                SensorNodes?.Dispose();
-                OwnedShips?.Dispose();
-                DefensiveFleet?.Dispose();
-                GSAI?.Dispose();
-            }
-            ForcePool      = null;
-            BorderNodes    = null;
-            SensorNodes    = null;
-            OwnedShips     = null;
-            DefensiveFleet = null;
-            GSAI           = null;
+            LockPatchCache?.Dispose(ref LockPatchCache);
+            OwnedPlanets?.Dispose(ref OwnedPlanets);
+            OwnedProjectors?.Dispose(ref OwnedProjectors);
+            OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
         }
     }
 }
