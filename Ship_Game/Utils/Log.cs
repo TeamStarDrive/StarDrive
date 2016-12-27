@@ -28,7 +28,8 @@ namespace Ship_Game
             init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
             init +=  " ================================================================== \r\n";
             LogFile.Write(init);
-
+            Raven.Release = GlobalStats.Version;
+            Raven.Environment = GlobalStats.Branch;            
             if (HasDebugger)
             {
                 // if Console output is redirected, all console text is sent to VS Output instead
@@ -105,17 +106,13 @@ namespace Ship_Game
             {
                 Message = text,
                 Level   = level
-            };
-            evt.Tags["Version"] = GlobalStats.ExtendedVersion;
+            };           
             if (GlobalStats.HasMod)
             {
                 evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModPath;
                 evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
             }
             else evt.Tags["Mod"] = "Vanilla";            
-            Raven.Release= GlobalStats.ExtendedVersion;
-            Raven.Environment = GlobalStats.Version;
-            Raven.LogScrubber.Scrub("Username");
             Raven.CaptureAsync(evt);
             
         }
@@ -167,6 +164,7 @@ namespace Ship_Game
         private static void AddDataToException(Exception ex)
         {
             var evt = ex.Data;
+            evt.Add("Version", GlobalStats.ExtendedVersion);
             if (GlobalStats.HasMod)
             {
                 evt.Add("Mod", GlobalStats.ActiveMod.ModPath);
