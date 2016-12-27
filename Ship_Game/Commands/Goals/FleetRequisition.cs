@@ -9,7 +9,7 @@ namespace Ship_Game.Commands
 {
     class FleetRequisition : Goal
     {
-        public FleetRequisition(ArtificialIntelligence.ShipGoal goal,ArtificialIntelligence ai)
+        public FleetRequisition(ArtificialIntelligence.ShipGoal goal, ArtificialIntelligence ai)
         {
             FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
             beingBuilt = ResourceManager.ShipsDict[goal.VariableString];

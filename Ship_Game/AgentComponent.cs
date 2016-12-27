@@ -223,28 +223,28 @@ namespace Ship_Game
                         Rectangle levelRect = new Rectangle(e.clickRect.X + e.clickRect.Width - 18 - 12 * j, e.clickRect.Y, 12, 11);
                         this.ScreenManager.SpriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["UI/icon_star"], levelRect, Color.White);
                     }
-                    if ((e.item as Agent).Mission != AgentMission.Defending)
+                    if (agent.Mission != AgentMission.Defending)
                     {
-                        if (!string.IsNullOrEmpty((e.item as Agent).TargetEmpire) && (e.item as Agent).Mission != AgentMission.Training && (e.item as Agent).Mission != AgentMission.Undercover)
+                        if (!string.IsNullOrEmpty(agent.TargetEmpire) && agent.Mission != AgentMission.Training && agent.Mission != AgentMission.Undercover)
                         {
                             Vector2 targetCursor = namecursor;
-                            targetCursor.X = targetCursor.X + 75f;
-                            missionstring = string.Concat(Localizer.Token(2199), ": ", EmpireManager.GetEmpireByName((e.item as Agent).TargetEmpire).data.Traits.Plural);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
+                            targetCursor.X += 75f;
+                            missionstring = Localizer.Token(2199) + ": " + EmpireManager.GetEmpireByName(agent.TargetEmpire).data.Traits.Plural;
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
                         }
-                        else if ((e.item as Agent).TargetGUID != Guid.Empty && (e.item as Agent).Mission == AgentMission.Undercover)
+                        else if (agent.TargetGUID != Guid.Empty && agent.Mission == AgentMission.Undercover)
                         {
                             Vector2 targetCursor = namecursor;
-                            targetCursor.X = targetCursor.X + 75f;
-                            missionstring = string.Concat(Localizer.Token(2199), ": ", Ship.universeScreen.PlanetsDict[(e.item as Agent).TargetGUID].Name);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
+                            targetCursor.X += 75f;
+                            missionstring = Localizer.Token(2199) + ": " + Ship.universeScreen.PlanetsDict[agent.TargetGUID].Name;
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
                         }
-                        if ((e.item as Agent).Mission != AgentMission.Undercover)
+                        if (agent.Mission != AgentMission.Undercover)
                         {
                             Vector2 turnsCursor = namecursor;
-                            turnsCursor.X = turnsCursor.X + 193f;
-                            missionstring = string.Concat(Localizer.Token(2200), ": ", (e.item as Agent).TurnsRemaining);
-                            this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, turnsCursor, Color.Gray);
+                            turnsCursor.X += 193f;
+                            missionstring = Localizer.Token(2200) + ": " + agent.TurnsRemaining;
+                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, turnsCursor, Color.Gray);
                         }
                     }
                 }

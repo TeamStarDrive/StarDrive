@@ -6760,17 +6760,10 @@ namespace Ship_Game.Gameplay
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    NearbyShips?.Dispose();
-                    FriendliesNearby?.Dispose();
-                }
-                NearbyShips = null;
-                FriendliesNearby = null;
-                disposed = true;
-            }
+            NearbyShips?.Dispose(ref NearbyShips);
+            FriendliesNearby?.Dispose(ref FriendliesNearby);
+            OrderQueue?.Dispose(ref OrderQueue);
+            PotentialTargets?.Dispose(ref PotentialTargets);
         }        
     }
 }
