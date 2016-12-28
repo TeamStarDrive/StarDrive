@@ -41,8 +41,8 @@ namespace Ship_Game
                 }
             }
             catch (Exception e)
-            {
-                MessageBox.Show($"Whoops! Please post a screenshot of this to the StarDrive forums ({GlobalStats.ExtendedVersion}):\n\n{e.ToString()}");
+            {                                
+                MessageBox.Show($"Whoops! Please press Ctrl-c or take a screenshot and create issue on BitBucket \n ({GlobalStats.ExtendedVersion}):\n {Log.AddDataToException(e)}\n\n {e.ToString()}","Whoops",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
         }
 	}

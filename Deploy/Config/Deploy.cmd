@@ -4,6 +4,7 @@ set year=%date:~-2%
 set month=%date:~4,2%
 set day=%date:~7,2%
 
+for /f %%r in ('hg id -n -r .') do set hgrev=%%r
 
 for /f "delims=" %%i in (..\..\.hg\branch) do (
 set name=%%i
@@ -15,9 +16,9 @@ copy "..\config\include.txt" "..\config\include_%name%"
 )
 echo %name%
 echo ..\7-Zip\7z A sd.7z @"..\Config\include_%name%"
-echo copy /b "..\7-Zip\7ZSD.sfx" + "..\Config\config_%name%" + sd.7z "%name% %month%%day%.exe"
+echo copy /b "..\7-Zip\7ZSD.sfx" + "..\Config\config_%name%" + sd.7z "%name% %hgrev%.exe"
 
 ..\7-Zip\7z A sd.7z @"..\Config\include_%name%"
-copy /b "..\7-Zip\7ZSD.sfx" + "..\Config\config_%name%" + sd.7z "%name%%month%%day%.exe"
+copy /b "..\7-Zip\7ZSD.sfx" + "..\Config\config_%name%" + sd.7z "%name% %hgrev%.exe"
 )
 

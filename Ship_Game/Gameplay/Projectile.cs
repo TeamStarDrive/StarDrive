@@ -73,26 +73,11 @@ namespace Ship_Game.Gameplay
         public bool ErrorSet = false;
         public bool flashExplode;
         public bool isSecondary;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
-		public Ship Owner
-		{
-			get
-			{
-				return this.owner;
-			}
-		}
+		public Ship   Owner  => owner;
+	    public Planet Planet => planet;
 
-		public Ship_Game.Planet Planet
-		{
-			get
-			{
-				return this.planet;
-			}
-		}
-
-		public Projectile(Ship owner, Vector2 direction, ShipModule moduleAttachedTo)
+	    public Projectile(Ship owner, Vector2 direction, ShipModule moduleAttachedTo)
 		{
 			this.loyalty = owner.loyalty;
 			this.owner = owner;
@@ -1066,13 +1051,7 @@ namespace Ship_Game.Gameplay
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed) return;
-            if (disposing)
-            {
-                droneAI?.Dispose();
-            }
-            this.droneAI = null;
-            this.disposed = true;
+            droneAI?.Dispose(ref droneAI);
         }
 	}
 }
