@@ -135,7 +135,7 @@ namespace Ship_Game
             catch (Exception)
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
-                //Log.Error(ex, "Blocking Exception with log.error failure");
+                Log.Error(ex, "Blocking Exception with log.error failure");
             }
             Visible = false;
         }
