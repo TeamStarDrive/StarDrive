@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -26,7 +28,8 @@ namespace Ship_Game
             init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
             init +=  " ================================================================== \r\n";
             LogFile.Write(init);
-
+            Raven.Release = GlobalStats.Version;
+            Raven.Environment = GlobalStats.Branch;            
             if (HasDebugger)
             {
                 // if Console output is redirected, all console text is sent to VS Output instead
@@ -96,32 +99,22 @@ namespace Ship_Game
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(text);
         }
-
+        //@todo change this to read the added data from the exception. So the logic isnt repeated
         private static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
         {
             var evt = new SentryEvent(ex)
             {
                 Message = text,
                 Level   = level
-            };
-
-            evt.Tags["Version"] = GlobalStats.Version;
+            };           
             if (GlobalStats.HasMod)
             {
                 evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModPath;
                 evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
             }
-            else evt.Tags["Mod"] = "Vanilla";
-            if (Empire.Universe != null)
-            {
-                evt.Tags["StarDate"] = Empire.Universe.StarDate.ToString("F1");
-                evt.Tags["Ships"]    = Empire.Universe.MasterShipList.Count.ToString();
-                evt.Tags["Planets"]  = Empire.Universe.PlanetsDict.Count.ToString();
-            }
-            evt.Tags["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
-            evt.Tags["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
-
-            Raven.Capture(evt);
+            else evt.Tags["Mod"] = "Vanilla";                        
+            Raven.CaptureAsync(evt);
+            
         }
 
         // write an error to logfile, sentry.io and debug console
@@ -155,8 +148,9 @@ namespace Ship_Game
         public static void Error(Exception ex, string error)
         {
             string text = "!! Exception: " + error;
+            text += AddDataToException(ex);        
             LogFile.WriteLine(text);
-
+            
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text + " | " + ex.Message, ErrorLevel.Fatal, ex);
@@ -167,7 +161,33 @@ namespace Ship_Game
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }
+        public static string AddDataToException(Exception ex)
+        {
+            var evt = ex.Data;
+            evt.Add("Version", GlobalStats.ExtendedVersion);
+            if (GlobalStats.HasMod)
+            {
+                evt.Add("Mod", GlobalStats.ActiveMod.ModPath);
+                evt.Add("ModVersion", GlobalStats.ActiveModInfo.Version);
+            }
+            else evt.Add("Mod","Vanilla");
+            if (Empire.Universe != null)
+            {
+                evt.Add("StarDate", Empire.Universe.StarDate.ToString("F1"));
+                evt.Add("Ships", Empire.Universe.MasterShipList.Count.ToString());
+                evt.Add("Planets", Empire.Universe.PlanetsDict.Count.ToString());
+            }
+            evt.Add("Memory" , (GC.GetTotalMemory(false) / 1024).ToString());
+            evt.Add("ShipLimit" , GlobalStats.ShipCountLimit.ToString());
 
+            if (ex.Data.Count == 0) return string.Empty;
+            string text = string.Empty;
+            text += "\nExtra Data Recorded :\n";
+            foreach (DictionaryEntry pair in ex.Data)
+                text = String.Format("{0}\n {1} = {2}", text, pair.Key, pair.Value);               // MsgBuilder(pair.Key.ToString(), pair.Value.ToString());
+
+            return text;
+        }
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
         [DllImport("kernel32.dll")] private static extern IntPtr GetConsoleWindow();
         [DllImport("user32.dll")]   private static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);

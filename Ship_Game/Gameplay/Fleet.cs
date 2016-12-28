@@ -121,7 +121,7 @@ namespace Ship_Game.Gameplay
 
             BatchRemovalCollection<Ship> mainShipList = new BatchRemovalCollection<Ship>();
             mainShipList.AddRange(this.Ships);
-            foreach (Ship ship in (Array<Ship>)mainShipList)
+            foreach (Ship ship in mainShipList)
             {
                 if (ship.shipData.Role == ShipData.RoleName.scout || ship.shipData.ShipCategory == ShipData.Category.Recon)
                 {
@@ -174,16 +174,16 @@ namespace Ship_Game.Gameplay
 
             for (int index = 0; index < this.LeftFlank.Count; ++index)
             {
-                this.LeftFlank[index].Offset = new Vector2((float)(-this.CenterFlank.Count * 1400 - (this.LeftFlank.Count == 1 ? 1400 : index * 1400)), 0.0f);
+                this.LeftFlank[index].Offset = new Vector2(-this.CenterFlank.Count * 1400 - (this.LeftFlank.Count == 1 ? 1400 : index * 1400), 0.0f);
             }
 
             for (int index = 0; index < this.RightFlank.Count; ++index)
             {
-                this.RightFlank[index].Offset = new Vector2((float)(this.CenterFlank.Count * 1400 + (this.RightFlank.Count == 1 ? 1400 : index * 1400)), 0.0f);
+                this.RightFlank[index].Offset = new Vector2(this.CenterFlank.Count * 1400 + (this.RightFlank.Count == 1 ? 1400 : index * 1400), 0.0f);
             }
 
             this.AutoAssembleFleet(0.0f, new Vector2(0.0f, -1f));
-            foreach (Ship s in (Array<Ship>)this.Ships)
+            foreach (Ship s in this.Ships)
             {
                 if (!s.InCombat)
                 {
@@ -254,7 +254,7 @@ namespace Ship_Game.Gameplay
             this.Position = MovePosition;
             this.facing = facing;
             this.AssembleFleet(facing, fvec);
-            foreach (Ship ship in (Array<Ship>)this.Ships)
+            foreach (Ship ship in this.Ships)
             {
                 ship.GetAI().SetPriorityOrder();
                 if (queueOrder) ship.GetAI().OrderFormationWarpQ(MovePosition + ship.FleetOffset, facing, fvec);
@@ -275,7 +275,7 @@ namespace Ship_Game.Gameplay
             this.Position = MovePosition;
             this.facing = facing;
             this.AssembleFleet(facing, fVec);
-            foreach (Ship ship in (Array<Ship>)this.Ships)
+            foreach (Ship ship in this.Ships)
             {
                 ship.GetAI().SetPriorityOrder();
                 ship.GetAI().OrderMoveTowardsPosition(MovePosition + ship.FleetOffset, facing, fVec, true, null);
@@ -287,7 +287,7 @@ namespace Ship_Game.Gameplay
             this.Position = MovePosition;
             this.facing = facing;
             this.AssembleFleet(facing, fVec);
-            foreach (Ship ship in (Array<Ship>)this.Ships)
+            foreach (Ship ship in this.Ships)
             {
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
                 if (this.Owner.isPlayer || ship.GetAI().State == AIState.AwaitingOrders || ship.GetAI().State == AIState.AwaitingOffenseOrders)
@@ -570,7 +570,7 @@ namespace Ship_Game.Gameplay
                             if (ship1 != null)
                             {
                                 ship1.GetAI().HasPriorityOrder = false;
-                                if (ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                                if (ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
                                 {
                                     this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
                                     this.EnemyClumpsDict[ship1.Center].Add(ship1);
@@ -579,7 +579,7 @@ namespace Ship_Game.Gameplay
                                     for (int index2 = 0; index2 < nearby2.Count; ++index2)
                                     {
                                         Ship ship2 = nearby2[index2] as Ship;
-                                        if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
+                                        if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
                                             this.EnemyClumpsDict[ship1.Center].Add(ship2);
                                     }
                                 }
@@ -600,9 +600,9 @@ namespace Ship_Game.Gameplay
                             foreach (Ship toAttack in this.EnemyClumpsDict[Enumerable.First(orderedEnumerable2)])
                             {
                                 float num = 0.0f;
-                                foreach (Ship ship in (Array<Ship>)this.Ships)
+                                foreach (Ship ship in this.Ships)
                                 {
-                                    if (!list4.Contains(ship) && ((double)num == 0.0 || (double)num < toAttack.GetStrength()))
+                                    if (!list4.Contains(ship) && (num == 0.0 || (double)num < toAttack.GetStrength()))
                                     {
                                         ship.GetAI().Intercepting = true;
                                         ship.GetAI().OrderAttackSpecificTarget(toAttack);
@@ -823,7 +823,6 @@ namespace Ship_Game.Gameplay
                             }
                             else
                             {
-
                                 foreach (Ship key in Task.GetTargetPlanet().system.ShipList)
                                 {
                                     if (key.loyalty != this.Owner && (key.loyalty.isFaction || this.Owner.GetRelations(key.loyalty).AtWar) && (Vector2.Distance(key.Center, Task.GetTargetPlanet().Position) < 15000 && !this.InterceptorDict.ContainsKey(key)))
@@ -996,12 +995,12 @@ namespace Ship_Game.Gameplay
                                 if (planet.HasShipyard)
                                     list5.Add(planet);
                             }
-                            IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list5, (Func<Planet, float>)(p => Vector2.Distance(this.Position, p.Position)));
+                            IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>(list5, p => Vector2.Distance(this.Position, p.Position));
                             if (Enumerable.Count<Planet>(orderedEnumerable3) > 0)
                             {
-                                this.Position = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable3).Position;
-                                foreach (Ship ship in (Array<Ship>)this.Ships)
-                                    ship.GetAI().OrderResupply(Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable3), true);
+                                this.Position = Enumerable.First<Planet>(orderedEnumerable3).Position;
+                                foreach (Ship ship in this.Ships)
+                                    ship.GetAI().OrderResupply(Enumerable.First<Planet>(orderedEnumerable3), true);
                                 this.TaskStep = 6;
                                 break;
                             }
@@ -1115,9 +1114,9 @@ namespace Ship_Game.Gameplay
                         break;
                     case 2:
                         bool flag3 = false;
-                        if ((double)Vector2.Distance(this.findAveragePosition(), Task.AO) < 15000.0)
+                        if (Vector2.Distance(this.findAveragePosition(), Task.AO) < 15000.0)
                         {
-                            foreach (Ship ship in (Array<Ship>)this.Ships)
+                            foreach (Ship ship in this.Ships)
                             {
                                 lock (ship)
                                 {
@@ -1131,7 +1130,7 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                         }
-                        if (!flag3 && (double)Vector2.Distance(this.findAveragePosition(), Task.AO) >= 5000.0)
+                        if (!flag3 && Vector2.Distance(this.findAveragePosition(), Task.AO) >= 5000.0)
                             break;
                         this.TaskStep = 3;
                         break;
@@ -1142,7 +1141,7 @@ namespace Ship_Game.Gameplay
                         for (int index1 = 0; index1 < nearby1.Count; ++index1)
                         {
                             Ship ship1 = nearby1[index1] as Ship;
-                            if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                            if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
                             {
                                 this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
                                 this.EnemyClumpsDict[ship1.Center].Add(ship1);
@@ -1151,14 +1150,14 @@ namespace Ship_Game.Gameplay
                                 for (int index2 = 0; index2 < nearby2.Count; ++index2)
                                 {
                                     Ship ship2 = nearby2[index2] as Ship;
-                                    if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
+                                    if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
                                         this.EnemyClumpsDict[ship1.Center].Add(ship2);
                                 }
                             }
                         }
                         if (this.EnemyClumpsDict.Count == 0)
                         {
-                            if ((double)Vector2.Distance(this.findAveragePosition(), Task.AO) <= 10000.0)
+                            if (Vector2.Distance(this.findAveragePosition(), Task.AO) <= 10000.0)
                                 break;
                             this.FormationWarpTo(Task.AO, 0.0f, new Vector2(0.0f, -1f));
                             break;
@@ -1168,14 +1167,14 @@ namespace Ship_Game.Gameplay
                             Array<Vector2> list3 = new Array<Vector2>();
                             foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
                                 list3.Add(keyValuePair.Key);
-                            IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
+                            IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy(list3, clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos));
                             Array<Ship> list4 = new Array<Ship>();
-                            foreach (Ship toAttack in (IEnumerable<Ship>)Enumerable.OrderByDescending<Ship, int>((IEnumerable<Ship>)this.EnemyClumpsDict[Enumerable.First<Vector2>((IEnumerable<Vector2>)orderedEnumerable2)], (Func<Ship, int>)(ship => ship.Size)))
+                            foreach (Ship toAttack in Enumerable.OrderByDescending(this.EnemyClumpsDict[Enumerable.First<Vector2>(orderedEnumerable2)], ship => ship.Size))
                             {
                                 float num = 0.0f;
-                                foreach (Ship ship in (IEnumerable<Ship>)Enumerable.OrderByDescending<Ship, int>((IEnumerable<Ship>)this.Ships, (Func<Ship, int>)(ship => ship.Size)))
+                                foreach (Ship ship in Enumerable.OrderByDescending(this.Ships, ship => ship.Size))
                                 {
-                                    if (!list4.Contains(ship) && ((double)num == 0.0 || (double)num < (double)toAttack.GetStrength()))
+                                    if (!list4.Contains(ship) && (num == 0.0 || num < (double)toAttack.GetStrength()))
                                     {
                                         ship.GetAI().OrderAttackSpecificTarget(toAttack);
                                         ship.GetAI().Intercepting = true;
@@ -1185,7 +1184,7 @@ namespace Ship_Game.Gameplay
                                 }
                             }
                             Array<Ship> list5 = new Array<Ship>();
-                            foreach (Ship ship in (Array<Ship>)this.Ships)
+                            foreach (Ship ship in this.Ships)
                             {
                                 if (!list4.Contains(ship))
                                     list5.Add(ship);
@@ -1218,12 +1217,12 @@ namespace Ship_Game.Gameplay
                             if (planet.HasShipyard)
                                 list6.Add(planet);
                         }
-                        IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list6, (Func<Planet, float>)(p => Vector2.Distance(this.Position, p.Position)));
-                        if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable3) <= 0)
+                        IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>(list6, p => Vector2.Distance(this.Position, p.Position));
+                        if (Enumerable.Count<Planet>(orderedEnumerable3) <= 0)
                             break;
-                        this.Position = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable3).Position;
-                        foreach (Ship ship in (Array<Ship>)this.Ships)
-                            ship.GetAI().OrderResupply(Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable3), true);
+                        this.Position = Enumerable.First<Planet>(orderedEnumerable3).Position;
+                        foreach (Ship ship in this.Ships)
+                            ship.GetAI().OrderResupply(Enumerable.First<Planet>(orderedEnumerable3), true);
                         this.TaskStep = 6;
                         break;
                     case 6:
@@ -1253,11 +1252,11 @@ namespace Ship_Game.Gameplay
                         if (planet.HasShipyard)
                             list1.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list1, (Func<Planet, float>)(planet => Vector2.Distance(Task.AO, planet.Position)));
-                    if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1) <= 0)
+                    IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>(list1, planet => Vector2.Distance(Task.AO, planet.Position));
+                    if (Enumerable.Count<Planet>(orderedEnumerable1) <= 0)
                         break;
-                    Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
-                    Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
+                    Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>(orderedEnumerable1).Position);
+                    Vector2 vector2 = Enumerable.First<Planet>(orderedEnumerable1).Position;
                     this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
                     this.TaskStep = 1;
                     break;
@@ -1270,9 +1269,9 @@ namespace Ship_Game.Gameplay
                     break;
                 case 2:
                     bool flag3 = false;
-                    if ((double)Vector2.Distance(this.findAveragePosition(), Task.AO) < 15000.0)
+                    if (Vector2.Distance(this.findAveragePosition(), Task.AO) < 15000.0)
                     {
-                        foreach (Ship ship in (Array<Ship>)this.Ships)
+                        foreach (Ship ship in this.Ships)
                         {
                             lock (ship)
                             {
@@ -1286,7 +1285,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
-                    if (!flag3 && (double)Vector2.Distance(this.findAveragePosition(), Task.AO) >= 5000.0)
+                    if (!flag3 && Vector2.Distance(this.findAveragePosition(), Task.AO) >= 5000.0)
                         break;
                     this.TaskStep = 3;
                     break;
@@ -1297,7 +1296,7 @@ namespace Ship_Game.Gameplay
                     for (int index1 = 0; index1 < nearby1.Count; ++index1)
                     {
                         Ship ship1 = nearby1[index1] as Ship;
-                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
                         {
                             this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
                             this.EnemyClumpsDict[ship1.Center].Add(ship1);
@@ -1306,14 +1305,14 @@ namespace Ship_Game.Gameplay
                             for (int index2 = 0; index2 < nearby2.Count; ++index2)
                             {
                                 Ship ship2 = nearby2[index2] as Ship;
-                                if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
+                                if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
                                     this.EnemyClumpsDict[ship1.Center].Add(ship2);
                             }
                         }
                     }
                     if (this.EnemyClumpsDict.Count == 0)
                     {
-                        if ((double)Vector2.Distance(this.findAveragePosition(), Task.AO) <= 10000.0)
+                        if (Vector2.Distance(this.findAveragePosition(), Task.AO) <= 10000.0)
                             break;
                         this.FormationWarpTo(Task.AO, 0.0f, new Vector2(0.0f, -1f));
                         break;
@@ -1323,14 +1322,14 @@ namespace Ship_Game.Gameplay
                         Array<Vector2> list3 = new Array<Vector2>();
                         foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
                             list3.Add(keyValuePair.Key);
-                        IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
+                        IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy(list3, clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos));
                         Array<Ship> list4 = new Array<Ship>();
-                        foreach (Ship toAttack in (IEnumerable<Ship>)Enumerable.OrderByDescending<Ship, int>((IEnumerable<Ship>)this.EnemyClumpsDict[Enumerable.First<Vector2>((IEnumerable<Vector2>)orderedEnumerable2)], (Func<Ship, int>)(ship => ship.Size)))
+                        foreach (Ship toAttack in Enumerable.OrderByDescending(this.EnemyClumpsDict[Enumerable.First<Vector2>(orderedEnumerable2)], ship => ship.Size))
                         {
                             float num = 0.0f;
-                            foreach (Ship ship in (IEnumerable<Ship>)Enumerable.OrderByDescending<Ship, int>((IEnumerable<Ship>)this.Ships, (Func<Ship, int>)(ship => ship.Size)))
+                            foreach (Ship ship in Enumerable.OrderByDescending(this.Ships, ship => ship.Size))
                             {
-                                if (!list4.Contains(ship) && ((double)num == 0.0 || (double)num < (double)toAttack.GetStrength()))
+                                if (!list4.Contains(ship) && (num == 0.0 || num < (double)toAttack.GetStrength()))
                                 {
                                     ship.GetAI().OrderAttackSpecificTarget(toAttack);
                                     ship.GetAI().Intercepting = true;
@@ -1340,7 +1339,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                         Array<Ship> list5 = new Array<Ship>();
-                        foreach (Ship ship in (Array<Ship>)this.Ships)
+                        foreach (Ship ship in this.Ships)
                         {
                             if (!list4.Contains(ship))
                                 list5.Add(ship);
@@ -1373,12 +1372,12 @@ namespace Ship_Game.Gameplay
                         if (planet.HasShipyard)
                             list6.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list6, (Func<Planet, float>)(p => Vector2.Distance(this.Position, p.Position)));
-                    if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable3) <= 0)
+                    IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>(list6, p => Vector2.Distance(this.Position, p.Position));
+                    if (Enumerable.Count<Planet>(orderedEnumerable3) <= 0)
                         break;
-                    this.Position = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable3).Position;
-                    foreach (Ship ship in (Array<Ship>)this.Ships)
-                        ship.GetAI().OrderResupply(Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable3), true);
+                    this.Position = Enumerable.First<Planet>(orderedEnumerable3).Position;
+                    foreach (Ship ship in this.Ships)
+                        ship.GetAI().OrderResupply(Enumerable.First<Planet>(orderedEnumerable3), true);
                     this.TaskStep = 6;
                     break;
                 case 6:
@@ -1401,7 +1400,7 @@ namespace Ship_Game.Gameplay
                             list1.Add(planet);
                     }
                     IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>(list1, planet => Vector2.Distance(Task.AO, planet.Position));
-                    if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1) <= 0)
+                    if (Enumerable.Count<Planet>(orderedEnumerable1) <= 0)
                         break;
                     Vector2 fVec = Vector2.Normalize(Task.GetTargetPlanet().Position - Enumerable.First<Planet>(orderedEnumerable1).Position);
                     Vector2 vector2 = Enumerable.First<Planet>(orderedEnumerable1).Position;
@@ -1419,7 +1418,7 @@ namespace Ship_Game.Gameplay
                     bool flag2 = false;
                     if (Vector2.Distance(this.findAveragePosition(), Task.GetTargetPlanet().Position) < 15000f)
                     {
-                        foreach (Ship ship in (Array<Ship>)this.Ships)
+                        foreach (Ship ship in this.Ships)
                         {
                             lock (ship)
                             {
@@ -1468,14 +1467,14 @@ namespace Ship_Game.Gameplay
                         Array<Vector2> list3 = new Array<Vector2>();
                         foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
                             list3.Add(keyValuePair.Key);
-                        IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>(list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
+                        IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy(list3, clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos));
                         Array<Ship> list4 = new Array<Ship>();
-                        foreach (Ship toAttack in this.EnemyClumpsDict[Enumerable.First<Vector2>((IEnumerable<Vector2>)orderedEnumerable2)])
+                        foreach (Ship toAttack in this.EnemyClumpsDict[Enumerable.First<Vector2>(orderedEnumerable2)])
                         {
                             float num = 0.0f;
-                            foreach (Ship ship in (Array<Ship>)this.Ships)
+                            foreach (Ship ship in this.Ships)
                             {
-                                if (!list4.Contains(ship) && ((double)num == 0.0 || (double)num < (double)toAttack.GetStrength()))
+                                if (!list4.Contains(ship) && (num == 0.0 || num < (double)toAttack.GetStrength()))
                                 {
                                     ship.GetAI().Intercepting = true;
                                     ship.GetAI().OrderAttackSpecificTarget(toAttack);
@@ -1485,7 +1484,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                         Array<Ship> list5 = new Array<Ship>();
-                        foreach (Ship ship in (Array<Ship>)this.Ships)
+                        foreach (Ship ship in this.Ships)
                         {
                             if (!list4.Contains(ship))
                                 list5.Add(ship);
@@ -1503,7 +1502,7 @@ namespace Ship_Game.Gameplay
                     float num2 = 0.0f;
                     float num3 = 0.0f;
                     float num4 = 0.0f;                    
-                    foreach (Ship ship in (Array<Ship>)this.Ships)
+                    foreach (Ship ship in this.Ships)
                     {
                         if (Vector2.Distance(ship.Center, this.Task.GetTargetPlanet().ParentSystem.Position) > 150000f)
                         {
@@ -1543,12 +1542,12 @@ namespace Ship_Game.Gameplay
                         if (planet.HasShipyard)
                             list6.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list6, (Func<Planet, float>)(p => Vector2.Distance(this.Position, p.Position)));
-                    if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable3) <= 0)
+                    IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>(list6, p => Vector2.Distance(this.Position, p.Position));
+                    if (Enumerable.Count<Planet>(orderedEnumerable3) <= 0)
                         break;
-                    this.Position = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable3).Position;
-                    foreach (Ship ship in (Array<Ship>)this.Ships)
-                        ship.GetAI().OrderResupply(Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable3), true);
+                    this.Position = Enumerable.First<Planet>(orderedEnumerable3).Position;
+                    foreach (Ship ship in this.Ships)
+                        ship.GetAI().OrderResupply(Enumerable.First<Planet>(orderedEnumerable3), true);
                     this.TaskStep = 6;
                     break;
                 case 6:
@@ -1621,12 +1620,12 @@ namespace Ship_Game.Gameplay
                         Array<Vector2> list3 = new Array<Vector2>();
                         foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
                             list3.Add(keyValuePair.Key);
-                        IOrderedEnumerable<Vector2> orderedEnumerable = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
+                        IOrderedEnumerable<Vector2> orderedEnumerable = Enumerable.OrderBy(list3, clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos));
                         Array<Ship> list4 = new Array<Ship>();
-                        foreach (Ship toAttack in this.EnemyClumpsDict[Enumerable.First<Vector2>((IEnumerable<Vector2>)orderedEnumerable)])
+                        foreach (Ship toAttack in this.EnemyClumpsDict[Enumerable.First<Vector2>(orderedEnumerable)])
                         {
                             float num = 0.0f;
-                            foreach (Ship ship in (Array<Ship>)this.Ships)
+                            foreach (Ship ship in this.Ships)
                             {
                                 if (!list4.Contains(ship) && (num == 0 || num < toAttack.GetStrength()))
                                 {
@@ -1638,7 +1637,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                         Array<Ship> list5 = new Array<Ship>();
-                        foreach (Ship ship in (Array<Ship>)this.Ships)
+                        foreach (Ship ship in this.Ships)
                         {
                             if (!list4.Contains(ship))
                                 list5.Add(ship);
@@ -1660,7 +1659,7 @@ namespace Ship_Game.Gameplay
                     }
 
                     bool AllInCombat = true;
-                    foreach (Ship ship in (Array<Ship>)this.Ships)
+                    foreach (Ship ship in this.Ships)
                     {
                         if (ship.GetAI().BadGuysNear && !ship.isInDeepSpace)
                         {
@@ -1688,12 +1687,12 @@ namespace Ship_Game.Gameplay
                     
                     
                 case 5:
-                    foreach (Ship ship in (Array<Ship>)this.Ships)
+                    foreach (Ship ship in this.Ships)
                         ship.GetAI().OrderResupplyNearest(true);
                     this.TaskStep = 6;
                     break;
                 case 6:
-                    foreach (Ship ship in (Array<Ship>)this.Ships)
+                    foreach (Ship ship in this.Ships)
                     {
                         if (ship.GetAI().State != AIState.Resupply)
                         {
@@ -1727,11 +1726,11 @@ namespace Ship_Game.Gameplay
                             if (planet.HasShipyard)
                                 list1.Add(planet);
                         }
-                        IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list1, (Func<Planet, float>)(planet => Vector2.Distance(Task.AO, planet.Position)));
-                        if (Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable1) <= 0)
+                        IOrderedEnumerable<Planet> orderedEnumerable1 = Enumerable.OrderBy<Planet, float>(list1, planet => Vector2.Distance(Task.AO, planet.Position));
+                        if (Enumerable.Count<Planet>(orderedEnumerable1) <= 0)
                             break;
-                        Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position);
-                        Vector2 vector2 = Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable1).Position;
+                        Vector2 fVec = Vector2.Normalize(Task.AO - Enumerable.First<Planet>(orderedEnumerable1).Position);
+                        Vector2 vector2 = Enumerable.First<Planet>(orderedEnumerable1).Position;
                         this.MoveToNow(vector2, vector2.RadiansToTarget(Task.AO), fVec);
                         this.TaskStep = 1;
                         break;
@@ -1745,9 +1744,9 @@ namespace Ship_Game.Gameplay
                         this.TaskStep = 2;
                         break;
                     case 2:
-                        if (Task.WaitForCommand && (double)this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(Task.GetTargetPlanet().Position, 30000f, this.Owner) > 250.0)
+                        if (Task.WaitForCommand && this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(Task.GetTargetPlanet().Position, 30000f, this.Owner) > 250.0)
                             break;
-                        foreach (Ship ship in (Array<Ship>)this.Ships)
+                        foreach (Ship ship in this.Ships)
                             ship.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
                         this.TaskStep = 4;
                         break;
@@ -1778,7 +1777,7 @@ namespace Ship_Game.Gameplay
                         this.TaskStep = 6;
                         break;
                     case 6:
-                        foreach (Ship ship in (Array<Ship>)this.Ships)
+                        foreach (Ship ship in this.Ships)
                         {
                             if (ship.GetAI().State != AIState.Resupply)
                             {
@@ -1815,7 +1814,7 @@ namespace Ship_Game.Gameplay
                     break;
                 case 1:
                     bool flag1 = true;
-                    foreach (Ship ship in (Array<Ship>)this.Ships)
+                    foreach (Ship ship in this.Ships)
                     {
                         if (!ship.disabled && ship.hasCommand && ship.Active)
                         {
@@ -1847,7 +1846,7 @@ namespace Ship_Game.Gameplay
                         bool flag2 = false;
                         if (Vector2.Distance(this.findAveragePosition(), Task.AO) < 15000.0)
                         {
-                            foreach (Ship ship in (Array<Ship>)this.Ships)
+                            foreach (Ship ship in this.Ships)
                             {
                                 lock (ship)
                                 {
@@ -1869,25 +1868,25 @@ namespace Ship_Game.Gameplay
                 case 3:
                     this.EnemyClumpsDict.Clear();
                     Array<Ship> list2 = new Array<Ship>();
-                    Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this.Ships[0]);
+                    Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Ships[0]);
                     for (int index1 = 0; index1 < nearby1.Count; ++index1)
                     {
                         Ship ship1 = nearby1[index1] as Ship;
-                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
                         {
                             this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
                             this.EnemyClumpsDict[ship1.Center].Add(ship1);
                             list2.Add(ship1);
-                            Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this.Ships[0]);
+                            Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Ships[0]);
                             for (int index2 = 0; index2 < nearby2.Count; ++index2)
                             {
                                 Ship ship2 = nearby2[index2] as Ship;
-                                if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
+                                if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
                                     this.EnemyClumpsDict[ship1.Center].Add(ship2);
                             }
                         }
                     }
-                    if (this.EnemyClumpsDict.Count == 0 || (double)Vector2.Distance(this.findAveragePosition(), Task.AO) > 25000.0)
+                    if (this.EnemyClumpsDict.Count == 0 || Vector2.Distance(this.findAveragePosition(), Task.AO) > 25000.0)
                     {
                         Vector2 enemyWithinRadius = this.Owner.GetGSAI().ThreatMatrix.GetPositionOfNearestEnemyWithinRadius(this.Position, Task.AORadius, this.Owner);
                         if (enemyWithinRadius == Vector2.Zero)
@@ -1907,14 +1906,14 @@ namespace Ship_Game.Gameplay
                         Array<Vector2> list3 = new Array<Vector2>();
                         foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
                             list3.Add(keyValuePair.Key);
-                        IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>(list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
+                        IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy(list3, clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos));
                         Array<Ship> list4 = new Array<Ship>();
                         foreach (Ship toAttack in this.EnemyClumpsDict[Enumerable.First<Vector2>(orderedEnumerable2)])
                         {
                             float num6 = 0.0f;
-                            foreach (Ship ship in (Array<Ship>)this.Ships)
+                            foreach (Ship ship in this.Ships)
                             {
-                                if (!list4.Contains(ship) && ((double)num6 == 0.0 || (double)num6 < (double)toAttack.GetStrength()))
+                                if (!list4.Contains(ship) && (num6 == 0.0 || num6 < (double)toAttack.GetStrength()))
                                 {
                                     ship.GetAI().Intercepting = true;
                                     ship.GetAI().OrderAttackSpecificTarget(toAttack);
@@ -1924,7 +1923,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                         Array<Ship> list5 = new Array<Ship>();
-                        foreach (Ship ship in (Array<Ship>)this.Ships)
+                        foreach (Ship ship in this.Ships)
                         {
                             if (!list4.Contains(ship))
                                 list5.Add(ship);
@@ -1951,22 +1950,22 @@ namespace Ship_Game.Gameplay
                         break;
                     }
                 case 5:
-                    Array<Planet> list6 = new Array<Planet>();
+                    Array<Planet> planetsWithShipyards = new Array<Planet>();
                     foreach (Planet planet in this.Owner.GetPlanets())
                     {
                         if (planet.HasShipyard)
-                            list6.Add(planet);
+                            planetsWithShipyards.Add(planet);
                     }
-                    IOrderedEnumerable<Planet> orderedEnumerable3 = Enumerable.OrderBy<Planet, float>(list6, p => Vector2.Distance(this.Position, p.Position));
-                    if (Enumerable.Count<Planet>(orderedEnumerable3) <= 0)
+                    Planet nearestPlanet = planetsWithShipyards.FindMin(p => Vector2.Distance(this.Position, p.Position));
+                    if (nearestPlanet == null)
                         break;
-                    this.Position = Enumerable.First<Planet>(orderedEnumerable3).Position;
-                    foreach (Ship ship in (Array<Ship>)this.Ships)
-                        ship.GetAI().OrderResupply(Enumerable.First<Planet>(orderedEnumerable3), true);
+                    this.Position = nearestPlanet.Position;
+                    foreach (Ship ship in this.Ships)
+                        ship.GetAI().OrderResupply(nearestPlanet, true);
                     this.TaskStep = 6;
                     break;
                 case 6:
-                    foreach (Ship ship in (Array<Ship>)this.Ships)
+                    foreach (Ship ship in this.Ships)
                     {
                         if (ship.GetAI().State != AIState.Resupply)
                         {
@@ -1981,10 +1980,15 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        private void AssignTargetToAll()
+        {
+
+        }
+
         public float GetStrength()
         {
             float num = 0.0f;
-            foreach (Ship ship in (Array<Ship>)this.Ships)
+            foreach (Ship ship in this.Ships)
             {
                 if (ship.Active)
                     num += ship.GetStrength();
@@ -2021,32 +2025,20 @@ namespace Ship_Game.Gameplay
 
         public void Update(float elapsedTime)
         {
-            Array<Ship> list = new Array<Ship>();
             this.HasRepair = false;
 
             foreach(Ship ship in this.Ships)
             {
                 if (!ship.Active)
                 {
-                    ship.fleet = (Fleet)null;
+                    ship.fleet = null;
                     this.Ships.QueuePendingRemoval(ship);
                 }
-                else
-                               if (ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0))
+                else if (ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0))
                     this.HasRepair = true;
             }
-            //this.Ships.ForEach(ship =>
-            //{
-              
-            //});
 
             this.Ships.ApplyPendingRemovals();
-            //foreach (Ship ship in list)
-            //{
-            //    ship.fleet = (Fleet)null;
-            //    this.Ships.Remove(ship);
-            //}
-            //this.Ships.thisLock.ExitWriteLock();
             if (this.Ships.Count <= 0 || this.GoalStack.Count <= 0)
                 return;
             this.GoalStack.Peek().Evaluate(elapsedTime);
@@ -2140,7 +2132,7 @@ namespace Ship_Game.Gameplay
             {
                 this.fleet.Position += this.fleet.Position.FindVectorToTarget(this.MovePosition) * this.fleet.speed * elapsedTime;
                 this.fleet.AssembleFleet(this.FinalFacing, this.FinalFacingVector);
-                if ((double)Vector2.Distance(this.fleet.Position, this.MovePosition) >= 100.0)
+                if (Vector2.Distance(this.fleet.Position, this.MovePosition) >= 100.0)
                     return;
                 this.fleet.Position = this.MovePosition;
                 this.fleet.GoalStack.Pop();
@@ -2149,21 +2141,9 @@ namespace Ship_Game.Gameplay
             private void DoMove(float elapsedTime)
             {
                 Vector2 vector2 = this.fleet.Position.FindVectorToTarget(this.MovePosition);
-                float num1 = 0.0f;
-                int num2 = 0;
-                foreach (Ship ship in (Array<Ship>)this.fleet.Ships)
-                {
-                    if (ship.FleetCombatStatus != Fleet.FleetCombatStatus.Free && !ship.EnginesKnockedOut)
-                    {
-                        float num3 = Vector2.Distance(this.fleet.Position + ship.FleetOffset, ship.Center);
-                        num1 += num3;
-                        ++num2;
-                    }
-                }
-                float num4 = num1 / (float)num2;
                 this.fleet.Position += vector2 * (this.fleet.speed + 75f) * elapsedTime;
                 this.fleet.AssembleFleet(this.FinalFacing, this.FinalFacingVector);
-                if ((double)Vector2.Distance(this.fleet.Position, this.MovePosition) >= 100.0)
+                if (Vector2.Distance(this.fleet.Position, this.MovePosition) >= 100.0)
                     return;
                 this.fleet.Position = this.MovePosition;
                 this.fleet.GoalStack.Pop();
