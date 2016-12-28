@@ -115,25 +115,27 @@ namespace Ship_Game
 
         public static void DisplayException(Exception ex)
         {
-            #if DEBUG
-                if (!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
-                    return;
-            #endif
+            //#if DEBUG
+            //    if (!(ex.Message == "Manual Report" || ex.Message =="Kudos"))
+            //        return;
+            //#endif
             
-            if (Game1.Instance?.Window != null)
-            {
-                Form form = (Form)Control.FromHandle(Game1.Instance.Window.Handle);
-                form.WindowState = FormWindowState.Minimized;
-                form.Update();
-            }
+            //if (Game1.Instance?.Window != null)
+            //{
+            //    Form form = (Form)Control.FromHandle(Game1.Instance.Window.Handle);
+            //    form.WindowState = FormWindowState.Minimized;
+            //    form.Update();
+            //}
             try
             {
-                ExceptionViewer exviewer = new ExceptionViewer();
-                exviewer.ShowDialog(GenerateErrorLines_withWhoops(ex));
+                Log.Error(ex,"Blocking Exception");
+                //xceptionViewer exviewer = new ExceptionViewer();
+                //exviewer.ShowDialog(GenerateErrorLines_withWhoops(ex));
             }
             catch (Exception)
             {
                 MessageBox.Show(GenerateErrorLines_withWhoops(ex));
+                Log.Error(ex, "Blocking Exception with log.error failure");
             }
             Visible = false;
         }

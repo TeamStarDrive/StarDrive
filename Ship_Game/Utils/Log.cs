@@ -179,7 +179,7 @@ namespace Ship_Game
             }
             evt.Add("Memory" , (GC.GetTotalMemory(false) / 1024).ToString());
             evt.Add("ShipLimit" , GlobalStats.ShipCountLimit.ToString());
-
+            evt.Add("Commit", String.Format("https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/{0}", GlobalStats.Version));
             if (ex.Data.Count == 0) return string.Empty;
             string text = string.Empty;
             text += "\nExtra Data Recorded :\n";
