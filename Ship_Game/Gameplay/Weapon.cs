@@ -336,84 +336,81 @@ namespace Ship_Game.Gameplay
 
 
 
-            if ( !beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection))
+            if (!beam.LoadContent(universeScreen.ScreenManager, universeScreen.view, universeScreen.projection))
             {
                 beam.Die(null, true);
                 return;
             }
-            this.moduleAttachedTo.GetParent().Beams.Add(beam);
-            this.ToggleSoundOn = false;
-            if (Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && this.moduleAttachedTo.GetParent().InFrustum)
+            moduleAttachedTo.GetParent().Beams.Add(beam);
+            ToggleSoundOn = false;
+            if (universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && moduleAttachedTo.GetParent().InFrustum)
             {
                 //Added by McShooterz: Use sounds from new sound dictionary
-                SoundEffect beamsound = null;
-                if ( ResourceManager.SoundEffectDict.TryGetValue(this.fireCueName,out beamsound))
+                if ( ResourceManager.SoundEffectDict.TryGetValue(fireCueName, out SoundEffect beamsound))
                 {
-                    AudioManager.PlaySoundEffect(beamsound, Weapon.audioListener, this.owner.emitter, 0.5f);
+                    AudioManager.PlaySoundEffect(beamsound, audioListener, owner.emitter, 0.5f);
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(this.fireCueName) && AudioManager.limitOK)
+                    if (!string.IsNullOrEmpty(fireCueName) && AudioManager.LimitOk)
                     {
-                        this.fireCue = AudioManager.GetCue(this.fireCueName);
-                        if (!this.owner.isPlayerShip())
+                        fireCue = AudioManager.GetCue(fireCueName);
+                        if (!owner.isPlayerShip())
                         {                            
-                            this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                            fireCue.Apply3D(audioListener, owner.emitter);
                         }
-                        this.fireCue.Play();
+                        fireCue.Play();
                     }
                 }
-                if (!string.IsNullOrEmpty(this.ToggleSoundName))
+                if (!string.IsNullOrEmpty(ToggleSoundName))
                 {
-                    this.ToggleSoundOn = true;
-                    this.ToggleCue = AudioManager.GetCue(this.ToggleSoundName);
-                    this.ToggleCue.Apply3D(Weapon.audioListener, this.owner.emitter);
-                    this.ToggleCue.Play();
+                    ToggleSoundOn = true;
+                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    ToggleCue.Apply3D(audioListener, owner.emitter);
+                    ToggleCue.Play();
                 }
             }
         }
 
 		protected virtual void CreateMouseBeam(Vector2 destination)
 		{
-			
-            Beam beam = new Beam(this.moduleAttachedTo.Center, destination, this.BeamThickness, this.moduleAttachedTo.GetParent())
+            Beam beam = new Beam(moduleAttachedTo.Center, destination, BeamThickness, moduleAttachedTo.GetParent())
 			{
-				moduleAttachedTo = this.moduleAttachedTo,
-				range = this.Range,
-				followMouse = true,
-				thickness = this.BeamThickness,
-                Duration = (float)this.BeamDuration > 0 ? this.BeamDuration : 2f,
-				PowerCost = (float)this.BeamPowerCostPerSecond,
-				damageAmount = this.DamageAmount,
-				weapon = this
+				moduleAttachedTo = moduleAttachedTo,
+				range            = Range,
+				followMouse      = true,
+				thickness        = BeamThickness,
+                Duration         = BeamDuration > 0 ? BeamDuration : 2f,
+				PowerCost        = BeamPowerCostPerSecond,
+				damageAmount     = DamageAmount,
+				weapon           = this
 			};
 			
-			beam.LoadContent(Weapon.universeScreen.ScreenManager, Weapon.universeScreen.view, Weapon.universeScreen.projection);
-            if (beam == null || !beam.Active)
+			beam.LoadContent(universeScreen.ScreenManager, universeScreen.view, universeScreen.projection);
+            if (!beam.Active)
             {
                 beam.Die(null, true);
-
                 return;
             }
-            this.moduleAttachedTo.GetParent().Beams.Add(beam);
-			this.ToggleSoundOn = false;
-			if ((this.owner.System!= null && this.owner.System.isVisible || this.owner.isInDeepSpace) && Weapon.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            moduleAttachedTo.GetParent().Beams.Add(beam);
+			ToggleSoundOn = false;
+			if ((owner.System!= null && owner.System.isVisible || owner.isInDeepSpace) && universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
                 //Added by McShooterz: Use sounds from new sound dictionary
-                if (ResourceManager.SoundEffectDict.ContainsKey(this.fireCueName))
+                if (ResourceManager.SoundEffectDict.ContainsKey(fireCueName))
                 {
-                    AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], Weapon.audioListener, this.owner.emitter, 0.5f);
+                    AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict[fireCueName], audioListener, owner.emitter, 0.5f);
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(this.fireCueName))
+                    if (!string.IsNullOrEmpty(fireCueName))
                     {
-                        this.fireCue = AudioManager.GetCue(this.fireCueName);
-                        if (!this.owner.isPlayerShip())
+                        fireCue = AudioManager.GetCue(fireCueName);
+                        if (!owner.isPlayerShip())
                         {
-                            this.fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
+                            fireCue.Apply3D(Weapon.audioListener, this.owner.emitter);
                         }
-                        this.fireCue.Play();
+                        fireCue.Play();
                     }
                 }
                 if (!string.IsNullOrEmpty(this.ToggleSoundName) && !this.ToggleSoundOn)

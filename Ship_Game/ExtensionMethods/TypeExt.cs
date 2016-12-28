@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Ship_Game
@@ -27,6 +28,23 @@ namespace Ship_Game
             var sb = new StringBuilder();
             GenericName(type, sb);
             return sb.ToString();
+        }
+
+        // Helps to make manual disposing of objects safe and brief
+        // Always call as: myDisposable?.Dispose(ref myDisposable);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // ReSharper disable once RedundantAssignment
+        public static void Dispose<T>(this IDisposable obj, ref T self) where T : class, IDisposable
+        {
+            obj.Dispose();
+            self = null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Dispose<T>(ref T self) where T : class, IDisposable
+        {
+            self.Dispose();
+            self = null;
         }
     }
 }
