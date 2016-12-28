@@ -41,8 +41,9 @@ namespace Ship_Game
                 }
             }
             catch (Exception e)
-            {                                
-                MessageBox.Show($"Whoops! Please press Ctrl-c or take a screenshot and create issue on BitBucket \n ({GlobalStats.ExtendedVersion}):\n {Log.AddDataToException(e)}\n\n {e.ToString()}","Whoops",MessageBoxButtons.OK,MessageBoxIcon.Error);
+            {
+                Log.Error(e, $"Whoops! Please press Ctrl-c or take a screenshot\n Then create an issue on BitBucket \n ");
+                //MessageBox.Show($"Whoops! Please press Ctrl-c or take a screenshot and create issue on BitBucket \n ({GlobalStats.ExtendedVersion}):\n {Log.AddDataToException(e)}\n\n {e.ToString()}","Whoops",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
         }
 	}
