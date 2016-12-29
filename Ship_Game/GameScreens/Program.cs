@@ -12,11 +12,11 @@ namespace Ship_Game
 
             try
             {
-                Exception ex = e.ExceptionObject as Exception;
-                #if RELEASE //only log exception on release build
-                  ExceptionTracker.TrackException(ex);
-                #endif
-                ExceptionTracker.DisplayException(ex);
+               // Exception ex = e.ExceptionObject as Exception;
+                //#if RELEASE //only log exception on release build
+                //  ExceptionTracker.TrackException(ex);
+                //#endif
+                //ExceptionTracker.DisplayException(ex);
             }
 			finally
 			{
