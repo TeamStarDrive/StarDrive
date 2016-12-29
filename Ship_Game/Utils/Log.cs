@@ -105,16 +105,15 @@ namespace Ship_Game
             var evt = new SentryEvent(ex)
             {
                 Message = text,
-                Level   = level
+                Level   = level                
             };           
             if (GlobalStats.HasMod)
             {
                 evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModPath;
                 evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
             }
-            else evt.Tags["Mod"] = "Vanilla";                        
-            Raven.CaptureAsync(evt);
-            
+            else evt.Tags["Mod"] = "Vanilla";                                    
+            Raven.CaptureAsync(evt);                         
         }
 
         // write an error to logfile, sentry.io and debug console
@@ -163,29 +162,36 @@ namespace Ship_Game
         }
         public static string AddDataToException(Exception ex)
         {
-            var evt = ex.Data;
-            evt.Add("Version", GlobalStats.ExtendedVersion);
-            if (GlobalStats.HasMod)
+            if (ex.Data.Count == 0)
             {
-                evt.Add("Mod", GlobalStats.ActiveMod.ModPath);
-                evt.Add("ModVersion", GlobalStats.ActiveModInfo.Version);
+                var evt = ex.Data;
+                evt.Add("Version", GlobalStats.ExtendedVersion);
+                if (GlobalStats.HasMod)
+                {
+                    evt.Add("Mod", GlobalStats.ActiveMod?.ModPath ?? "NULL");
+                    evt.Add("ModVersion", GlobalStats.ActiveModInfo?.Version ?? "NULL");
+                }
+                else evt.Add("Mod", "Vanilla");
+              //  if (Empire.Universe != null)
+                {
+                    evt.Add("StarDate", Empire.Universe?.StarDate.ToString("F1") ?? "NULL") ;
+                    evt.Add("Ships", Empire.Universe?.MasterShipList?.Count.ToString() ?? "NULL");
+                    evt.Add("Planets", Empire.Universe?.PlanetsDict?.Count.ToString() ?? "NULL");
+                }
+                evt.Add("Memory", (GC.GetTotalMemory(false) / 1024).ToString());
+                evt.Add("ShipLimit", GlobalStats.ShipCountLimit.ToString());
+                evt.Add("Commit",
+                    String.Format("https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/{0}", GlobalStats.Version));
             }
-            else evt.Add("Mod","Vanilla");
-            if (Empire.Universe != null)
-            {
-                evt.Add("StarDate", Empire.Universe.StarDate.ToString("F1"));
-                evt.Add("Ships", Empire.Universe.MasterShipList.Count.ToString());
-                evt.Add("Planets", Empire.Universe.PlanetsDict.Count.ToString());
-            }
-            evt.Add("Memory" , (GC.GetTotalMemory(false) / 1024).ToString());
-            evt.Add("ShipLimit" , GlobalStats.ShipCountLimit.ToString());
-            evt.Add("Commit", String.Format("https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/{0}", GlobalStats.Version));
             if (ex.Data.Count == 0) return string.Empty;
             string text = string.Empty;
-            text += "\nExtra Data Recorded :\n";
+            StringBuilder test = new StringBuilder("\nExtra Data Recorded :\n");
+            //text += "\nExtra Data Recorded :\n";
             foreach (DictionaryEntry pair in ex.Data)
-                text = String.Format("{0}\n {1} = {2}", text, pair.Key, pair.Value);               // MsgBuilder(pair.Key.ToString(), pair.Value.ToString());
-
+                test.AppendFormat("{0}\n {1} = {2}", text, pair.Key, pair.Value);
+                //text = String.Format("{0}\n {1} = {2}", text, pair.Key, pair.Value); 
+            
+            return test.ToString();
             return text;
         }
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
