@@ -66,6 +66,7 @@ namespace Ship_Game
 			return Manager?.soundBank.GetCue(cueName);
 		}
 
+        // @todo Why is this class a singleton? Singletons suck.
 		public static void Initialize(Game game, string settingsFile, string waveBankFile, string soundBankFile)
 		{
 			audioManager = new AudioManager(game, settingsFile, waveBankFile, soundBankFile);
