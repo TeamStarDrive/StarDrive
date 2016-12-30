@@ -9,6 +9,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -177,11 +178,10 @@ namespace Ship_Game
                 width  = 800;
                 height = 600;
             }
-			Form form = (Form)Control.FromHandle(Window.Handle);
-        #if DEBUG
-            if (mode == WindowMode.Fullscreen)
-                mode = WindowMode.Borderless;
-        #endif
+			Form form = (Form)Control.FromHandle(Window.Handle);        
+            if(Debugger.IsAttached)
+                if (mode == WindowMode.Fullscreen)
+                    mode = WindowMode.Borderless;
             GlobalStats.WindowMode = mode;
             Graphics.PreferredBackBufferWidth  = width;
             Graphics.PreferredBackBufferHeight = height;
