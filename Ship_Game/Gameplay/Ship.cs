@@ -713,8 +713,56 @@ namespace Ship_Game.Gameplay
                 this.GetAI().State = AIState.SystemDefender;
             }
         }
-
+        //added by gremlin : troops out property        
         public bool TroopsOut
+        {
+            get
+            {
+                //this.troopsout = false;
+                if (TroopsOut)
+                {
+                    troopsOut = true;
+                    return true;
+                }
+
+                if (TroopList.Count == 0)
+                {
+                    troopsOut = true;
+                    return true;
+                }
+                if (!Hangars.Any(troopbay => troopbay.IsTroopBay))
+                {
+                    troopsOut = true;
+                    return true;
+                }
+                if (TroopList.Any(loyal => loyal.GetOwner() != loyalty))
+                {
+                    troopsOut = true;
+                    return true;
+                }
+
+                if (troopsOut == true)
+                    foreach (ShipModule hangar in Hangars)
+                        if (hangar.IsTroopBay && (hangar.GetHangarShip() == null || hangar.GetHangarShip() != null && !hangar.GetHangarShip().Active) && hangar.hangarTimer <= 0)
+                        {
+                            troopsOut = false;
+                            break;
+
+                        }
+                return troopsOut;
+            }
+            set
+            {
+                troopsOut = value;
+                if (troopsOut)
+                {
+                    ScrambleAssaultShips(0);
+                    return;
+                }
+                RecoverAssaultShips();
+            }
+        }
+        public bool TroopsOutold
         {
             get
             {
