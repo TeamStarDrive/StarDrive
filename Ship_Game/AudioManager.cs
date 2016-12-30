@@ -12,7 +12,6 @@ namespace Ship_Game
 		private SoundBank soundBank;
 		private WaveBank waveBank;
 
-        //Added by McShooterz: store sounds instances
         private readonly Array<SoundEffectInstance> SoundEffectInstances;
 
 	    public static bool LimitOk => audioManager.SoundEffectInstances.Count < 7;
@@ -23,21 +22,20 @@ namespace Ship_Game
 			try
 			{
 				audioEngine = new AudioEngine(settingsFile);
-				waveBank = new WaveBank(audioEngine, waveBankFile, 0, 16);
-				soundBank = new SoundBank(audioEngine, soundBankFile);
+				waveBank    = new WaveBank(audioEngine, waveBankFile, 0, 16);
+				soundBank   = new SoundBank(audioEngine, soundBankFile);
 
                 while (!waveBank.IsPrepared)
                 {
                     audioEngine.Update();
                 }
             }
-			catch (NoAudioHardwareException)  {}
-			catch (InvalidOperationException) {}
-            finally
+			catch (Exception ex)
 			{
-                //audioEngine = null;
-                //waveBank    = null;
-                //soundBank   = null;
+                audioEngine = null;
+                waveBank    = null;
+                soundBank   = null;
+                Log.Error(ex, "AudioEngine init failed");
             }
 		}
 
