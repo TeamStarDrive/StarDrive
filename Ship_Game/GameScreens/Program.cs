@@ -12,11 +12,9 @@ namespace Ship_Game
 
             try
             {
-               // Exception ex = e.ExceptionObject as Exception;
-                //#if RELEASE //only log exception on release build
-                //  ExceptionTracker.TrackException(ex);
-                //#endif
-                //ExceptionTracker.DisplayException(ex);
+                Exception ex = e.ExceptionObject as Exception;
+                Log.Error(ex, "Unhandled Exception");
+                ExceptionViewer.ShowExceptionDialog(ex);
             }
 			finally
 			{
@@ -40,11 +38,10 @@ namespace Ship_Game
                     new Game1().Run();
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                MessageBox.Show($"Whoops! Please press Ctrl-c or take a screenshot and create issue on BitBucket \n ({GlobalStats.ExtendedVersion}):\n {Log.AddDataToException(e)}\n\n {e.ToString()}", "Whoops", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Log.Error(e,
-                    $"Whoops! Please press Ctrl-c or take a screenshot\n Then create an issue on BitBucket \n ");
+                Log.Error(ex, "Fatal main loop failure");
+                ExceptionViewer.ShowExceptionDialog(ex);
             }
         }
 	}
