@@ -28,14 +28,23 @@ namespace Ship_Game
 		public GameplayMMScreen(UniverseScreen screen) : this()
 		{
 			this.screen = screen;
+		    screen.Paused = true;
 		}
 		public GameplayMMScreen(UniverseScreen screen, GameScreen caller) : this()
 		{
 			this.caller = caller;
 			this.screen = screen;
+            screen.Paused = true;
         }
 
-		public override void Draw(GameTime gameTime)
+	    public override void ExitScreen()
+	    {
+	        if (caller == null)
+	            screen.Paused = false;
+            base.ExitScreen();
+	    }
+
+	    public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
@@ -144,8 +153,7 @@ namespace Ship_Game
 			}
 			previousMouse = input.LastMouseState;
 			base.HandleInput(input);
-		}
-
+		} 
         public override void LoadContent()
 		{
             base.LoadContent();
@@ -161,9 +169,9 @@ namespace Ship_Game
             Return     = Button(ref pos, "Return to Game",    localization: 301);
             ExitToMain = Button(ref pos, "Exit to Main Menu", localization: 302);
             Exit       = Button(ref pos, "Exit to Windows",   localization: 303);
-		}
+		}  
 
-		public void LoadGraphics()
+        public void LoadGraphics()
 		{
             var para = ScreenManager.GraphicsDevice.PresentationParameters;
             var size = new Vector2(para.BackBufferWidth / 2f, para.BackBufferHeight / 2f);

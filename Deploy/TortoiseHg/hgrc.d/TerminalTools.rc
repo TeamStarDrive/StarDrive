@@ -1,0 +1,78 @@
+# Terminal tool descriptions
+#
+# tool.regkey, tool.regname specify a registry key with the editor path
+# tool.executable specifies the editor executable name or full path
+# Failing those two, TortoiseHg will search for the tool name in $PATH,
+# with appropriate file extensions (*.exe) on Windows.
+#
+# You can also set tool.args to set the arguments that will be passed
+# to the terminal.
+#
+# You can use environment variables, which will be expanded before execution.
+#
+# In addition, you can use the following special strings (without the quotes):
+#
+# - "%(root)s" : will be replaced by the path where the terminal will be open.
+# - "%(reponame)s" : will be replaced by the name of the repository (note that
+#                    sometimes the "repository name" is in fact the repository
+#                    path.
+
+[terminal-tools]
+
+# Windows specific terminals
+windows_command_prompt.priority = -1
+windows_command_prompt.executable = cmd
+windows_command_prompt.args = /K title %(reponame)s
+
+powershell.priority = -2
+powershell.executable-win = powershell
+powershell.args = -NoExit -Command "$Host.UI.RawUI.WindowTitle = 'Windows PowerShell - %(reponame)s'"
+
+rxvt_native.priority = -3
+rxvt_native.executable-win = C:\cygwin\bin\rxvt.exe
+rxvt_native.args = -display :0 -fn "Lucida Console-14" -tn rxvt-cygwin-native -e /bin/bash
+
+cygwin_terminal.priority = -4
+cygwin_terminal.executable-win = C:\cygwin\bin\mintty.exe
+cygwin_termimal.args = -i /Cygwin-Terminal.ico -
+
+bash_prompt.priority = -5
+bash_prompt.executable-win = c:\cygwin\bin\bash
+
+# Linux specific terminals
+gnome-terminal.priority = -1
+gnome-terminal.executable-linux = gnome-terminal
+
+xterm.priority = -10
+xterm.executable-unix = xterm
+xterm.args = -T "%(reponame)s"
+
+# OSX specific terminals
+terminal_app.priority = -1
+terminal_app.executable-osx = open
+terminal_app.args = -a Terminal "%(root)s"
+
+# Generic terminals
+IPython27_QT.priority = -20
+IPython27_QT.executable-win = c:\Python27\Scripts\ipython.bat
+IPython27_QT.executable = ipython
+IPython27_QT.args = qtconsole
+
+IPython27.priority = -20
+IPython27.executable-win = c:\Python27\Scripts\ipython.bat
+IPython27.executable = ipython
+
+IPython26_QT.priority = -21
+IPython26_QT.executable-win = c:\Python26\Scripts\ipython.bat
+IPython26_QT.executable = ipython
+IPython26_QT.args = qtconsole
+
+IPython26.priority = -21
+IPython26.executable-win = c:\Python26\Scripts\ipython.bat
+IPython26.executable = ipython
+
+IPython25.priority = -22
+IPython25.executable-win = c:\Python25\Scripts\ipython.bat
+IPython25.executable = ipython
+
+tchlsh.priority = -30

@@ -35,9 +35,9 @@ namespace Ship_Game
 			catch (InvalidOperationException) {}
             finally
 			{
-                audioEngine = null;
-                waveBank    = null;
-                soundBank   = null;
+                //audioEngine = null;
+                //waveBank    = null;
+                //soundBank   = null;
             }
 		}
 
