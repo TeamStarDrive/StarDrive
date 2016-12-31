@@ -34,7 +34,7 @@ This is a mercurial repository
 * Any missing references should be in the stardrive directory.
 * please install [Tortoise HG](http://tortoisehg.bitbucket.org/). 
 * Please install [JetBrains resharper](https://www.jetbrains.com/resharper/download/)
-* Please join the discord discussion.
+* Please join the [discord discussion](https://discord.gg/nrMKaWr).
 * Please join the [BlackBox Google Group](https://groups.google.com/forum/#!forum/blackboxmod) for automated bug reports. 
 * Please NOTE: if the default release and debug configurations do not work for you then your setup is incorrect. Contact us. 
 
