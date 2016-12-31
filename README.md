@@ -32,6 +32,8 @@ This is a mercurial repository
 * Copy the game installation to the repository root. The code versioning should ignore the folder. 
 * Set the output directory to the stardrive directory in the repository.
 * Any missing references should be in the stardrive directory.
+* please install [Tortoise HG](http://tortoisehg.bitbucket.org/). 
+* Please install [JetBrains resharper](https://www.jetbrains.com/resharper/download/)
 
 
 ### Contribution guidelines ###
