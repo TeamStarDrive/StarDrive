@@ -817,34 +817,33 @@ namespace Ship_Game.Gameplay
 		}
 
 		private void DoHoldPositionCombat(float elapsedTime)
-		{
-			if (Owner.Velocity.Length() > 0f)
-			{
-                if (Owner.engineState == Ship.MoveState.Warp)
-                    Owner.HyperspaceReturn();
-                var forward = new Vector2((float)Math.Sin(Owner.Rotation), -(float)Math.Cos(Owner.Rotation));
-				var right = new Vector2(-forward.Y, forward.X);
-				var angleDiff = (float)Math.Acos((double)Vector2.Dot(Vector2.Normalize(Owner.Velocity), forward));
-				float facing = Vector2.Dot(Vector2.Normalize(Owner.Velocity), right) > 0f ? 1f : -1f;
-                if (angleDiff <= 0.2f)
-				{
-					Stop(elapsedTime);
-					return;
-				}
-				RotateToFacing(elapsedTime, angleDiff, facing);
-				return;
-			}
-			Owner.Center.FindVectorToTarget(Target.Center);
-			var forward2 = new Vector2((float)Math.Sin(Owner.Rotation), -(float)Math.Cos(Owner.Rotation));
-			var right2 = new Vector2(-forward2.Y, forward2.X);
-			Vector2 VectorToTarget = Owner.Center.FindVectorToTarget(Target.Center);
-			var angleDiff2 = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward2));
-			if (angleDiff2 <= 0.02f)
-			{
-				DeRotate();
-				return;
-			}
-			RotateToFacing(elapsedTime, angleDiff2, Vector2.Dot(VectorToTarget, right2) > 0f ? 1f : -1f);
+		{		  
+            
+            if (Owner.Velocity.Length() > 0f)
+		    {
+		        if (Owner.engineState == Ship.MoveState.Warp)
+		            Owner.HyperspaceReturn();
+                var angleDiff = Owner.AngleDiffTo(Owner.Velocity, out Vector2 right);
+                var facing = Owner.Facing(right);
+		        if (angleDiff <= 0.2f)
+		        {
+		            Stop(elapsedTime);
+		            return;
+		        }
+		        RotateToFacing(elapsedTime, angleDiff, facing);
+		        return;
+		    }
+		    else
+		    {
+		        Vector2 VectorToTarget = Owner.Center.FindVectorToTarget(Target.Center);
+                var angleDiff = Owner.AngleDiffTo(VectorToTarget, out Vector2 right);
+		        if (angleDiff <= 0.02f)
+		        {
+		            DeRotate();
+		            return;
+		        }
+		        RotateToFacing(elapsedTime, angleDiff, Vector2.Dot(VectorToTarget, right) > 0f ? 1f : -1f);
+		    }
 		}
 
         

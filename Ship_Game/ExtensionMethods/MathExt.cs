@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Net.NetworkInformation;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -82,9 +83,6 @@ namespace Ship_Game
             return frustrum.Contains(new BoundingSphere(center, radius))
                 != ContainmentType.Disjoint; // Disjoint: no intersection at all
         }
-
-
-
 
         // Widens this Vector2 to a Vector3, the new Z component will have a value of 0f
         public static Vector3 ToVec3(this Vector2 a) => new Vector3(a.X, a.Y, 0f);
@@ -227,7 +225,17 @@ namespace Ship_Game
             double rads = degrees * (PI / 180.0);
             return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
         }
+        public static float AngleDiffTo(this GameplayObject origin, Vector2 target, out Vector2 right)
+        {
+            var forward = new Vector2((float)Math.Sin(origin.Rotation), -(float)Math.Cos(origin.Rotation));
+            right = new Vector2(-forward.Y, forward.X);
+            return (float)Math.Acos(Vector2.Dot(target, forward));
+        }
 
+        public static float Facing(this GameplayObject origin, Vector2 right)
+        {
+            return Vector2.Dot(Vector2.Normalize(origin.Velocity), right) > 0f ? 1f : -1f;
+        }
 
         // Creates a 3D Forward vector from XYZ RADIANS rotation
         // X = Yaw;  Y = Pitch;  Z = Roll
