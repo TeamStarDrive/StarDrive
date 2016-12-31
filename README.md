@@ -34,15 +34,21 @@ This is a mercurial repository
 * Any missing references should be in the stardrive directory.
 * please install [Tortoise HG](http://tortoisehg.bitbucket.org/). 
 * Please install [JetBrains resharper](https://www.jetbrains.com/resharper/download/)
-
+* Please join the discord discussion.
+* Please join the [BlackBox Google Group](https://groups.google.com/forum/#!forum/blackboxmod) for automated bug reports. 
+* Please NOTE: if the default release and debug configurations do not work for you then your setup is incorrect. Contact us. 
 
 ### Contribution guidelines ###
 
-* Code in your branch. Make sure SD compiles and loads.
+* Utilize discord for chat discussions on ideas. 
+* Use [BitBucket issues](https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new) to propose ideas. 
+* Check [BitBucket Cards](http://www.bitbucketcards.com/CrunchyGremlin/sd-blackbox#)  for current projects and needs
+* Code in the guest branch at first.
+* When given the OK use HG flow to create Feature branches for your goal. 
 * Comment your code so people can see what you are changing
 * Prefix areas of change by \\Added by <your Alias> <whatever changes>
 * use clean code as much as possible.
-* jetBrains resharper currently recommended. 
+* 
 
 ### Who do I talk to? ###
 
