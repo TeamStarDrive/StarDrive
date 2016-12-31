@@ -719,7 +719,7 @@ namespace Ship_Game.Gameplay
             get
             {
                 //this.troopsout = false;
-                if (TroopsOut)
+                if (troopsOut)
                 {
                     troopsOut = true;
                     return true;
@@ -741,7 +741,7 @@ namespace Ship_Game.Gameplay
                     return true;
                 }
 
-                if (troopsOut == true)
+                if (troopsOut)
                     foreach (ShipModule hangar in Hangars)
                         if (hangar.IsTroopBay && (hangar.GetHangarShip() == null || hangar.GetHangarShip() != null && !hangar.GetHangarShip().Active) && hangar.hangarTimer <= 0)
                         {

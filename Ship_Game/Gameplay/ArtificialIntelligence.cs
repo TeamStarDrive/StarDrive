@@ -686,10 +686,10 @@ namespace Ship_Game.Gameplay
 	        }
 	        if (count != 0)
 	        {
-	            AverageDirection = AverageDirection / (float) count;
+	            AverageDirection = AverageDirection / count;
 	            AverageDirection = Vector2.Normalize(AverageDirection);
 	            AverageDirection = Vector2.Negate(AverageDirection);
-	            AverageDirection = AverageDirection * 7500f;
+	            AverageDirection = AverageDirection * 7500f; //@WHY 7500?
 	            ThrustTowardsPosition(AverageDirection + Owner.Center, elapsedTime, Owner.speed);
 	        }
 	    }
@@ -710,11 +710,11 @@ namespace Ship_Game.Gameplay
 			}
 			else if (DoExploreSystem(elapsedTime)) //@Notification
 			{
-                if (Owner.loyalty == universeScreen.player)
+                if (Owner.loyalty.isPlayer)
                 {
                     //added by gremlin  add shamatts notification here
                     SolarSystem system = ExplorationTarget;
-                    var message = new StringBuilder(system.Name);
+                    var message = new StringBuilder(system.Name);//@todo create global string builder
                     message.Append(" system explored.");
 
                     var planetsTypesNumber = new Map<string, int>();
@@ -722,14 +722,9 @@ namespace Ship_Game.Gameplay
                     {
                         foreach (Planet planet in system.PlanetList)
                         {
-                            // some planets don't have Type set and it is null
-                            if (planet.Type == null)
-                                planet.Type = "Other";
-
-                            if (!planetsTypesNumber.ContainsKey(planet.Type))
-                                planetsTypesNumber.Add(planet.Type, 1);
-                            else
-                                planetsTypesNumber[planet.Type] += 1;
+                            //some planets don't have Type set and it is null
+                            planet.Type = planet.Type ?? "Other";
+                            planetsTypesNumber.AddOrUpdate(planet.Type,i=>i++,()=>1);
                         }
 
                         foreach (var pair in planetsTypesNumber)
@@ -758,48 +753,40 @@ namespace Ship_Game.Gameplay
                         Action = "SnapToExpandSystem"
                     }, "sd_ui_notification_warning");
                 }
-                ExplorationTarget = null;
-                            
+                ExplorationTarget = null;                            
 			}
 		}
 
 		private bool DoExploreSystem(float elapsedTime)
 		{
 			SystemToPatrol = ExplorationTarget;
-			if (PatrolRoute == null || PatrolRoute.Count == 0)
-			{
-				foreach (Planet p in SystemToPatrol.PlanetList)
-				{
-				    var patrolRoute = PatrolRoute;
-				    patrolRoute?.Add(p);
-				}
-				if (SystemToPatrol.PlanetList.Count == 0)
-				    return ExploreEmptySystem(elapsedTime, SystemToPatrol);
+			if (PatrolRoute.Count == 0) 
+			{                
+                foreach (Planet p in SystemToPatrol.PlanetList) PatrolRoute.Add(p);
+                                                
+				if (SystemToPatrol.PlanetList.Count == 0) return ExploreEmptySystem(elapsedTime, SystemToPatrol);
 			}
 			else
 			{
 				PatrolTarget = PatrolRoute[stopNumber];
 				if (PatrolTarget.ExploredDict[Owner.loyalty])
 				{
-					ArtificialIntelligence artificialIntelligence = this;
-					artificialIntelligence.stopNumber = artificialIntelligence.stopNumber + 1;
+					stopNumber += 1;
 					if (stopNumber == PatrolRoute.Count)
 					{
 						stopNumber = 0;
-						PatrolRoute.Clear();
-                       
+						PatrolRoute.Clear();                       
 						return true;
 					}
 				}
 				else
 				{
 					MovePosition = PatrolTarget.Position;
-					float Distance = Vector2.Distance(Owner.Center, MovePosition);
-					if (Distance < 75000f)
-					    PatrolTarget.system.ExploredDict[Owner.loyalty] = true;
+					float Distance = Owner.Center.Distance(MovePosition);
+					if (Distance < 75000f) PatrolTarget.system.ExploredDict[Owner.loyalty] = true;
 				    if (Distance > 15000f)
-					{
-                        if (Owner.velocityMaximum > Distance && Owner.speed >= Owner.velocityMaximum)
+					{//@todo this should take longer to explore any planet. the explore speed should be based on sensors and such. 
+                        if (Owner.velocityMaximum > Distance && Owner.speed >= Owner.velocityMaximum)//@todo fix this speed limiter. it makes little sense as i think it would limit the speed by a very small aoumt. 
                             Owner.speed = Distance;
                         ThrustTowardsPosition(MovePosition, elapsedTime, Owner.speed);
 					}
@@ -814,9 +801,8 @@ namespace Ship_Game.Gameplay
 						ThrustTowardsPosition(MovePosition, elapsedTime, Owner.speed);
 						if (Distance < 500f)
 						{
-							PatrolTarget.ExploredDict[Owner.loyalty] = true;
-							ArtificialIntelligence artificialIntelligence1 = this;
-							artificialIntelligence1.stopNumber = artificialIntelligence1.stopNumber + 1;
+							PatrolTarget.ExploredDict[Owner.loyalty] = true;							
+							stopNumber += stopNumber + 1;
 							if (stopNumber == PatrolRoute.Count)
 							{
 								stopNumber = 0;
@@ -836,11 +822,11 @@ namespace Ship_Game.Gameplay
 			{
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
-                var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
+                var forward = new Vector2((float)Math.Sin(Owner.Rotation), -(float)Math.Cos(Owner.Rotation));
 				var right = new Vector2(-forward.Y, forward.X);
 				var angleDiff = (float)Math.Acos((double)Vector2.Dot(Vector2.Normalize(Owner.Velocity), forward));
 				float facing = Vector2.Dot(Vector2.Normalize(Owner.Velocity), right) > 0f ? 1f : -1f;
-				if (angleDiff <= 0.2f)
+                if (angleDiff <= 0.2f)
 				{
 					Stop(elapsedTime);
 					return;
@@ -849,8 +835,7 @@ namespace Ship_Game.Gameplay
 				return;
 			}
 			Owner.Center.FindVectorToTarget(Target.Center);
-            //renamed forward, right and anglediff
-			var forward2 = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
+			var forward2 = new Vector2((float)Math.Sin(Owner.Rotation), -(float)Math.Cos(Owner.Rotation));
 			var right2 = new Vector2(-forward2.Y, forward2.X);
 			Vector2 VectorToTarget = Owner.Center.FindVectorToTarget(Target.Center);
 			var angleDiff2 = (float)Math.Acos((double)Vector2.Dot(VectorToTarget, forward2));
