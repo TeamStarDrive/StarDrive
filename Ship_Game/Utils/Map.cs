@@ -48,6 +48,13 @@ namespace Ship_Game
         public override string ToString()
         {
             return GetType().GenericName();
+        }        
+
+        public void AddOrUpdate(TKey key, Func<TValue,TValue> update, Func<TValue> Default)
+        {
+            if (TryGetValue(key, out TValue val))
+                this[key] = update(val);                    
+            Add(key,Default());            
         }
     }
 }
