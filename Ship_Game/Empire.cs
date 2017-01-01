@@ -476,7 +476,8 @@ namespace Ship_Game
                 {
                     foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceExclusions)
                     {
-                        if (raceTech.ShipType == data.Traits.ShipType || (data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
+                        if (raceTech.ShipType == data.Traits.ShipType ||
+                            (data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
                         {
                             techEntry.Discovered = false;
                             techEntry.Unlocked = false;
@@ -820,9 +821,9 @@ namespace Ship_Game
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
                     if (ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID, out ShipModule checkmod))
                     {
-                        canBuildTroopShips = checkmod.IsTroopBay;
-                        canBuildCarriers   = checkmod.MaximumHangarShipSize > 0;
-                        canBuildBombers    = checkmod.ModuleType == ShipModuleType.Bomb;
+                        canBuildTroopShips = canBuildTroopShips || checkmod.IsTroopBay;
+                        canBuildCarriers   = canBuildCarriers || checkmod.MaximumHangarShipSize > 0;
+                        canBuildBombers    = canBuildBombers || checkmod.ModuleType == ShipModuleType.Bomb;
                     }
                 }
 
