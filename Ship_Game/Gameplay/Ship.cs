@@ -64,7 +64,7 @@ namespace Ship_Game.Gameplay
         public Vector2 FleetOffset = new Vector2();
         public Vector2 RelativeFleetOffset = new Vector2();
         private Array<ShipModule> Shields = new Array<ShipModule>();
-        private Array<ShipModule> Hangars = new Array<ShipModule>();
+        private BatchRemovalCollection<ShipModule> Hangars = new BatchRemovalCollection<ShipModule>();
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public bool shipStatusChanged = false;
         public Guid guid = Guid.NewGuid();
