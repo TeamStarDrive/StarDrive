@@ -48,14 +48,15 @@ namespace Ship_Game
         public override string ToString()
         {
             return GetType().GenericName();
-        }        
+        }
 
-        public void AddOrUpdate(TKey key, Func<TValue,TValue> update, Func<TValue> Default)
+        // map[key] = map[key] + valueToAdd;
+        // Starting value is default(TValue): 0 for numeric types
+        // TValue must have operator + defined
+        public void AddToValue(TKey key, dynamic valueToAdd)
         {
-            if (TryGetValue(key, out TValue val))
-                this[key] = update(val);  
-            else                  
-            Add(key,Default());            
+            TryGetValue(key, out TValue old);
+            base[key] = (dynamic)old + valueToAdd;
         }
     }
 }
