@@ -53,7 +53,8 @@ namespace Ship_Game
         public void AddOrUpdate(TKey key, Func<TValue,TValue> update, Func<TValue> Default)
         {
             if (TryGetValue(key, out TValue val))
-                this[key] = update(val);                    
+                this[key] = update(val);  
+            else                  
             Add(key,Default());            
         }
     }
