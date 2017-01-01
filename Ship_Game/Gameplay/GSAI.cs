@@ -8020,10 +8020,10 @@ namespace Ship_Game.Gameplay
         private int randomizer(int priority, int bonus)
         {
             int index=0;
-            index=RandomMath.InRange(priority + bonus);
-            index = RandomMath.InRange(priority + bonus);
-            index = RandomMath.InRange(priority + bonus);
-            return index;
+            index +=RandomMath.InRange(priority + bonus);
+            index += RandomMath.InRange(priority + bonus);
+            index += RandomMath.InRange(priority + bonus);
+            return index / 3;
         }
         private void RunResearchPlanner()
 		{
@@ -8134,7 +8134,7 @@ namespace Ship_Game.Gameplay
                             
                         }
 
-
+					    return;
 
                         //changed by gremlin exclude module tech that we dont have any ships that use it.
                         ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
@@ -8513,55 +8513,27 @@ namespace Ship_Game.Gameplay
         private bool ScriptedResearch(string command1, string command2, string modifier)
         {
 
-            ConcurrentBag<Technology> AvailableTechsbag = new ConcurrentBag<Technology>();
-
-
-            foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
+            List<Technology> AvailableTechs = new Array<Technology>();
+           
+            foreach (var kv in empire.TechnologyDict)
             {
-
-
-                TechEntry tech = null;// new TechEntry();
-                bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);
-                if (!techexists || tech == null)
+                if ( !kv.Value.Discovered || !kv.Value.shipDesignsCanuseThis || kv.Value.Unlocked || !empire.HavePreReq(kv.Key))
                     continue;
-                bool flag = false;
-                if (Technology.Value.RaceExclusions.Count != 0)
+                if (kv.Value.Tech.RootNode == 1)
                 {
-                    foreach (Technology.RequiredRace raceTech in Technology.Value.RaceExclusions)
-                    {
-                        if (raceTech.ShipType == this.empire.data.Traits.ShipType || (this.empire.data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
-                        {
-                            flag = true;
-                        }
-                    }
+                    kv.Value.Unlocked = true;
+                    continue;                    
                 }
-                if (flag)
-                    continue;
-                Technology technology = tech.Tech;
-                if (tech.Unlocked
-                    || !this.empire.HavePreReq(Technology.Key)
-                    || (Technology.Value.Secret && !tech.Discovered)
-                    || technology.BuildingsUnlocked.Where(winsgame => ResourceManager.BuildingsDict[winsgame.Name].WinsGame == true).Count() > 0
-                    //|| !tech.shipDesignsCanuseThis
-                    //|| (tech.shipDesignsCanuseThis && technology.ModulesUnlocked.Count > 0 && tech.shipDesignsCanuseThis && technology.HullsUnlocked.Count ==0 
-                    //&& !this.empire.WeCanUseThisNow(tech.GetTech()))
-                    )
-                {
-
-                    continue;
-                }
-
-
-                AvailableTechsbag.Add(Technology.Value);
+                ;
+                AvailableTechs.Add(kv.Value.Tech);
             }
 
-
-            if (AvailableTechsbag.Count <= 0)
+            if (AvailableTechs.Count <= 0)
             {
                 return false;
             }
-            Array<Technology> AvailableTechs = AvailableTechsbag.ToArrayList();//new Array<Technology>();
-            Array<string> useableTech = new Array<string>();
+            
+            List<string> useableTech = new List<string>();
 
 
 
@@ -8589,7 +8561,7 @@ namespace Ship_Game.Gameplay
                 || modifier.Contains("ShipHull")))
             {
                
-                Array<string> globalShipTech = new Array<string>();
+                List<string> globalShipTech = new List<string>();
                 foreach (string purgeRoots in this.empire.ShipTechs)
                 {
                     Technology bestshiptech = null;
@@ -8779,7 +8751,7 @@ namespace Ship_Game.Gameplay
 
 
             //now that we have a target ship to buiild filter out all the current techs that are not needed to build it. 
-            Array<Technology> bestShiptechs = new Array<Technology>();
+            List<Technology> bestShiptechs = new List<Technology>();
             if ((modifier.Contains("ShipWeapons") || modifier.Contains("ShipDefense") || modifier.Contains("ShipGeneral")
                 || modifier.Contains("ShipHull")))
             {
@@ -8812,7 +8784,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
 
-                    bestShiptechs = AvailableTechs.Intersect(bestShiptechs).ToArrayList();
+                    bestShiptechs = AvailableTechs.Intersect(bestShiptechs).ToList();
                 }
                 else
                     Log.Info(this.empire.data.PortraitName + " : NoShipFound :" + hullScaler + " : " );
@@ -8839,8 +8811,8 @@ namespace Ship_Game.Gameplay
 
             }
             
-            AvailableTechs = AvailableTechs.Except(remove).ToArrayList();
-            Array<Technology> workingSetoftechs = AvailableTechs;
+            AvailableTechs = AvailableTechs.Except(remove).ToList();
+            List<Technology> workingSetoftechs = AvailableTechs;
 #endregion
             float CostNormalizer = .01f;
             switch (command2)
