@@ -75,7 +75,6 @@ namespace Ship_Game.Gameplay
         private float UtilityModuleCheckTimer;
         public object WayPointLocker;
         public Ship TargetShip;
-        private bool disposed;
         public Array<Projectile> TrackProjectiles = new Array<Projectile>();
         private static float[] DmgLevel = { 0.25f, 0.85f, 0.65f, 0.45f, 0.45f, 0.45f, 0.0f };  //fbedard: dmg level for repair
                 
@@ -724,7 +723,7 @@ namespace Ship_Game.Gameplay
                         {
                             //some planets don't have Type set and it is null
                             planet.Type = planet.Type ?? "Other";
-                            planetsTypesNumber.AddOrUpdate(planet.Type,i=>i++,()=>1);
+                            planetsTypesNumber.AddToValue(planet.Type, 1);
                         }
 
                         foreach (var pair in planetsTypesNumber)
