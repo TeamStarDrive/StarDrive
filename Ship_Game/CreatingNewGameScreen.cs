@@ -906,8 +906,7 @@ namespace Ship_Game
             lock (this) {
                 WorkerBeginEvent?.Dispose(ref WorkerBeginEvent);
                 WorkerCompletedEvent?.Dispose(ref WorkerCompletedEvent);
-                LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);
-                us?.Dispose(ref us);
+                LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);                
             }
         }
 
