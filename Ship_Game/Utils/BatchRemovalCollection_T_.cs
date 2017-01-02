@@ -52,12 +52,13 @@ namespace Ship_Game
 
         public void ApplyPendingRemovals()
         {
+            if (pendingRemovals.IsEmpty) return;
             using (AcquireWriteLock())
             {
                 while (!pendingRemovals.IsEmpty)
                 {
                     pendingRemovals.TryPop(out var result);
-                    Remove(result);
+                    base.Remove(result);
                 }
             }
         }
