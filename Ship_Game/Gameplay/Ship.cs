@@ -64,7 +64,7 @@ namespace Ship_Game.Gameplay
         public Vector2 FleetOffset = new Vector2();
         public Vector2 RelativeFleetOffset = new Vector2();
         private Array<ShipModule> Shields = new Array<ShipModule>();
-        private Array<ShipModule> Hangars = new Array<ShipModule>();
+        private BatchRemovalCollection<ShipModule> Hangars = new BatchRemovalCollection<ShipModule>();
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public bool shipStatusChanged = false;
         public Guid guid = Guid.NewGuid();
@@ -713,8 +713,56 @@ namespace Ship_Game.Gameplay
                 this.GetAI().State = AIState.SystemDefender;
             }
         }
-
+        //added by gremlin : troops out property        
         public bool TroopsOut
+        {
+            get
+            {
+                //this.troopsout = false;
+                if (troopsOut)
+                {
+                    troopsOut = true;
+                    return true;
+                }
+
+                if (TroopList.Count == 0)
+                {
+                    troopsOut = true;
+                    return true;
+                }
+                if (!Hangars.Any(troopbay => troopbay.IsTroopBay))
+                {
+                    troopsOut = true;
+                    return true;
+                }
+                if (TroopList.Any(loyal => loyal.GetOwner() != loyalty))
+                {
+                    troopsOut = true;
+                    return true;
+                }
+
+                if (troopsOut)
+                    foreach (ShipModule hangar in Hangars)
+                        if (hangar.IsTroopBay && (hangar.GetHangarShip() == null || hangar.GetHangarShip() != null && !hangar.GetHangarShip().Active) && hangar.hangarTimer <= 0)
+                        {
+                            troopsOut = false;
+                            break;
+
+                        }
+                return troopsOut;
+            }
+            set
+            {
+                troopsOut = value;
+                if (troopsOut)
+                {
+                    ScrambleAssaultShips(0);
+                    return;
+                }
+                RecoverAssaultShips();
+            }
+        }
+        public bool TroopsOutold
         {
             get
             {

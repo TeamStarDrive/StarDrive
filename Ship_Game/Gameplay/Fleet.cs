@@ -2438,10 +2438,12 @@ namespace Ship_Game.Gameplay
                 {
                     if (this.DataNodes != null)
                         this.DataNodes.Dispose();
+                    if (this.Ships != null)
+                        this.Ships.Dispose();
 
                 }
                 this.DataNodes = null;
-                this.disposed = true;
+                this.disposed = true;                
                 base.Dispose(disposing);
                 
             }
