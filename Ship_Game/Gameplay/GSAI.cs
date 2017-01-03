@@ -5953,8 +5953,8 @@ namespace Ship_Game.Gameplay
                         return buildThis;
                     }
                 }
-            if(Empire.Universe.viewState == UniverseScreen.UnivScreenState.GalaxyView )
-                Log.Info("Chosen: Nothing");
+            //if(Empire.Universe.viewState == UniverseScreen.UnivScreenState.GalaxyView )
+            //    Log.Info("Chosen: Nothing");
             this.nobuild = true;
             return null;  //Find nothing to build !
         }
@@ -8554,7 +8554,7 @@ namespace Ship_Game.Gameplay
 
             if (this.BestCombatShip !=null)
             {
-                this.empire.UpdateShipsWeCanBuild();
+                //this.empire.UpdateShipsWeCanBuild();
                 if (this.empire.ShipsWeCanBuild.Contains(this.BestCombatShip.Name))
                     this.BestCombatShip = null;
             }
