@@ -49,5 +49,14 @@ namespace Ship_Game
         {
             return GetType().GenericName();
         }
+
+        // map[key] = map[key] + valueToAdd;
+        // Starting value is default(TValue): 0 for numeric types
+        // TValue must have operator + defined
+        public void AddToValue(TKey key, dynamic valueToAdd)
+        {
+            TryGetValue(key, out TValue old);
+            base[key] = (dynamic)old + valueToAdd;
+        }
     }
 }

@@ -8,3 +8,6 @@
 "..\..\StarDrive\SDNative.pdb"
 "..\..\StarDrive\SDNative.dll"
 "..\..\StarDrive\SDNative.exp"
+"..\..\StarDrive\SharpRaven.pdb"
+"..\..\StarDrive\SharpRaven.xml"
+"..\..\StarDrive\SharpRaven.dll"
