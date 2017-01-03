@@ -505,7 +505,7 @@ namespace Ship_Game
                     // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
                     if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
                     {
-                        techEntry.Unlocked = techEntry.UID == "HeavyFighterHull" || techEntry.UID == "Military" || techEntry.UID == "ArmorTheory";
+                        techEntry.Unlocked = techEntry.Unlocked || techEntry.UID == "HeavyFighterHull" || techEntry.UID == "Military" || techEntry.UID == "ArmorTheory";
                     }
                 }
                 if (data.Traits.Cybernetic > 0)
@@ -528,7 +528,6 @@ namespace Ship_Game
                 UnlockedBuildingsDict[building] = true;
 
 
-
             //Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
             foreach (KeyValuePair<string, TechEntry> entry in TechnologyDict)
@@ -549,6 +548,7 @@ namespace Ship_Game
                 kv.Value.Unlocked = false;
                 UnlockTech(kv.Key);
             }
+
             //unlock ships from empire data
             foreach (string ship in data.unlockShips)
                 ShipsWeCanBuild.Add(ship);
@@ -838,7 +838,7 @@ namespace Ship_Game
             {
                 if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == techEntry.AcquiredFrom)
                 {
-                    UnlockedHullsDict[unlockedHull.Name] = true;
+                   UnlockedHullsDict[unlockedHull.Name] = true;
                 }
 
             }
@@ -1662,7 +1662,7 @@ namespace Ship_Game
                 canBuildCruisers  = canBuildCruisers ||  r == ShipData.RoleName.cruiser;
                 canBuildCapitals  = canBuildCapitals || (r == ShipData.RoleName.capital || r == ShipData.RoleName.carrier );
             }
-            if (Universe == null || this != Universe.PlayerEmpire)
+            if (Universe == null || !isPlayer)
                 return;
             Universe.aw.SetDropDowns();
         }

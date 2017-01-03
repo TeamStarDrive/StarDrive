@@ -334,20 +334,31 @@ namespace Ship_Game
 
         public virtual void ReportShipComplete(Ship ship)
         {
-            if (this.GoalName == "BuildDefensiveShips")
+            switch (GoalName)
             {
-                this.beingBuilt = ship;
-                ++this.Step;
+                case "BuildDefensiveShips":
+                    {
+                        this.beingBuilt = ship;
+                        ++this.Step;
+                        break;
+                    }
+
+                case "BuildOffensiveShips":
+                    {
+                        this.beingBuilt = ship;
+                        ++this.Step;
+                        break;
+                    }
+                case "FleetRequisition":
+                    {
+                        this.beingBuilt = ship;
+                        ++this.Step;
+                        break;
+                    }
+                default: return;
+                    
             }
-            if (this.GoalName == "BuildOffensiveShips")
-            {
-                this.beingBuilt = ship;
-                ++this.Step;
-            }
-            //if (!(this.GoalName == "FleetRequisition"))
-            //    return;
-            this.beingBuilt = ship;
-            ++this.Step;
+
         }
 
         public Ship GetColonyShip()
