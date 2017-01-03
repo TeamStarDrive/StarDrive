@@ -46,11 +46,12 @@ namespace Ship_Game
             {
                 if (disposing)
                 {
-                    if (this.Ships != null)
+                    if (!(this is Fleet) && this.Ships != null)
                         this.Ships.Dispose();
 
                 }
-                this.Ships = null;
+                if (!(this is Fleet))
+                    this.Ships = null;
                 this.disposed = true;
             }
         }

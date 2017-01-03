@@ -109,6 +109,29 @@ namespace Ship_Game
             return (elem = FindMinFiltered(list, filter, selector)) != null;
         }
 
+        public static bool FindAny<T>(this Array<T> list, Func<T, bool> filter)
+        {
+            int n = list.Count;
+            bool found = false;
+            for (int i = 0; i < n; ++i)
+            {
+                if (!filter(list[i])) continue;
+                found = true;
+                break;
+            }
+            return found;
+        }
+        public static int CountFilter<T>(this Array<T> list, Func<T, bool> filter)
+        {
+            int n = list.Count;
+            int found = 0;
+            for (int i = 0; i < n; ++i)
+            {
+                if (!filter(list[i])) continue;
+                found++;                
+            }
+            return found;
+        }
         public static T[] ToArray<T>(this Array<T> source)
         {
             int count = source.Count;
