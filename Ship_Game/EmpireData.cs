@@ -193,8 +193,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            AgentList?.Dispose(ref AgentList);
-            MoleList?.Dispose(ref MoleList);
+
         }
 	}
 } 

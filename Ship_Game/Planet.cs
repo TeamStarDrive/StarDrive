@@ -20,6 +20,13 @@ using System.Threading;
 
 namespace Ship_Game
 {
+    public enum PlanetType
+    {
+        Other,
+        Barren,
+        Terran,
+    }
+
     public sealed class Planet: IDisposable
     {
         public bool GovBuildings = true;
