@@ -4770,9 +4770,7 @@ namespace Ship_Game
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
             ScreenManager.inter.Unload();
-            GC.Collect();            
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+            HelperFunctions.CollectMemory();
             Dispose();
             base.ExitScreen();
         }

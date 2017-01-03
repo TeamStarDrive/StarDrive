@@ -105,16 +105,15 @@ namespace Ship_Game
             var evt = new SentryEvent(ex)
             {
                 Message = text,
-                Level   = level
+                Level   = level                
             };           
             if (GlobalStats.HasMod)
             {
                 evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModPath;
                 evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
             }
-            else evt.Tags["Mod"] = "Vanilla";                        
-            Raven.CaptureAsync(evt);
-            
+            else evt.Tags["Mod"] = "Vanilla";                                    
+            Raven.CaptureAsync(evt);                         
         }
 
         // write an error to logfile, sentry.io and debug console
@@ -147,13 +146,12 @@ namespace Ship_Game
         }
         public static void Error(Exception ex, string error)
         {
-            string text = "!! Exception: " + error;
-            text += AddDataToException(ex);        
+            string text = CurryExceptionMessage(ex);
             LogFile.WriteLine(text);
             
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
-                CaptureEvent(text + " | " + ex.Message, ErrorLevel.Fatal, ex);
+                CaptureEvent(text, ErrorLevel.Fatal, ex);
                 return;
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
@@ -161,33 +159,61 @@ namespace Ship_Game
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }
-        public static string AddDataToException(Exception ex)
+
+        public static string CurryExceptionMessage(Exception ex)
         {
-            var evt = ex.Data;
-            evt.Add("Version", GlobalStats.ExtendedVersion);
-            if (GlobalStats.HasMod)
+            if (ex.Data.Count == 0)
             {
-                evt.Add("Mod", GlobalStats.ActiveMod.ModPath);
-                evt.Add("ModVersion", GlobalStats.ActiveModInfo.Version);
-            }
-            else evt.Add("Mod","Vanilla");
-            if (Empire.Universe != null)
-            {
-                evt.Add("StarDate", Empire.Universe.StarDate.ToString("F1"));
-                evt.Add("Ships", Empire.Universe.MasterShipList.Count.ToString());
-                evt.Add("Planets", Empire.Universe.PlanetsDict.Count.ToString());
-            }
-            evt.Add("Memory" , (GC.GetTotalMemory(false) / 1024).ToString());
-            evt.Add("ShipLimit" , GlobalStats.ShipCountLimit.ToString());
+                var evt = ex.Data;
+                evt["Version"] = GlobalStats.ExtendedVersion;
+                if (GlobalStats.HasMod)
+                {
+                    evt["Mod"]        = GlobalStats.ActiveMod?.ModPath ?? "NULL";
+                    evt["ModVersion"] = GlobalStats.ActiveModInfo?.Version ?? "NULL";
+                }
+                else evt["Mod"] = "Vanilla";
 
-            if (ex.Data.Count == 0) return string.Empty;
-            string text = string.Empty;
-            text += "\nExtra Data Recorded :\n";
-            foreach (DictionaryEntry pair in ex.Data)
-                text = String.Format("{0}\n {1} = {2}", text, pair.Key, pair.Value);               // MsgBuilder(pair.Key.ToString(), pair.Value.ToString());
+                evt["StarDate"]  = Empire.Universe?.StarDate.ToString("F1") ?? "NULL";
+                evt["Ships"]     = Empire.Universe?.MasterShipList?.Count.ToString() ?? "NULL";
+                evt["Planets"]   = Empire.Universe?.PlanetsDict?.Count.ToString() ?? "NULL";
 
-            return text;
+                evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
+                evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
+                evt["Commit"]    = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/" + GlobalStats.Version;
+            }
+            return ExceptionMessage(ex);
         }
+
+        private static string ExceptionMessage(Exception ex)
+        {
+            var sb = new StringBuilder("!! Exception: ");
+            sb.Append(ex.Message);
+
+            if (ex.Data.Count != 0)
+            {
+                foreach (DictionaryEntry pair in ex.Data)
+                    sb.Append('\n').Append(pair.Key).Append(" = ").Append(pair.Value);
+            }
+            return sb.ToString();
+        }
+
+        public static string CleanStackTrace(Exception ex)
+        {
+            var sb = new StringBuilder("StackTrace:\r\n");
+            var lines = ex.StackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string line in lines)
+            {
+                var parts = line.Split(new[] { " in " }, StringSplitOptions.RemoveEmptyEntries);
+
+                string method = parts[0].Replace("Ship_Game.", "");
+                int idx       = parts[1].IndexOf("Ship_Game\\", StringComparison.Ordinal);
+                string file   = parts[1].Substring(idx + "Ship_Game\\".Length);
+
+                sb.Append(method).Append(" in ").Append(file).AppendLine();
+            }
+            return sb.ToString();
+        }
+
         [DllImport("kernel32.dll")] private static extern bool AllocConsole();
         [DllImport("kernel32.dll")] private static extern IntPtr GetConsoleWindow();
         [DllImport("user32.dll")]   private static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
@@ -237,6 +263,5 @@ namespace Ship_Game
         {
             ShowWindow(GetConsoleWindow(), 0/*SW_HIDE*/);
         }
-
     }
 }
