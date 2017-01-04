@@ -235,7 +235,7 @@ namespace Ship_Game.AI
                         ship.fleet.Ships.Remove(ship);
 
                     ship.GetAI().OrderQueue.Clear();
-                    this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                    this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                     ship.fleet = null;
 
                     ClosestAO.GetCoreFleet().AddShip(ship);
@@ -279,7 +279,7 @@ namespace Ship_Game.AI
                             ship.fleet.Ships.Remove(ship);
 
                         ship.GetAI().OrderQueue.Clear();
-                        this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                        this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                         ship.fleet = null;
 
                         bomberFleet.AddShip(ship);
@@ -984,7 +984,7 @@ namespace Ship_Game.AI
                         }
                         tfstrength = tfstrength + ship.GetStrength();
                         elTaskForce.Add(ship);
-                        this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                        this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                     }
                 }
             }
@@ -1019,7 +1019,7 @@ namespace Ship_Game.AI
 
                     newFleet.AddShip(ship);
                     ForceStrength += ship.PlanetAssaultStrength;
-                    this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                    this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                     landingSpots -= ship.PlanetAssaultCount;
                 }
 
@@ -1050,7 +1050,7 @@ namespace Ship_Game.AI
                     ship.GetAI().State = AIState.AwaitingOrders;
                     closestAO.GetOffensiveForcePool().Remove(ship);
                     closestAO.GetWaitingShips().Remove(ship);
-                    this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                    this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                 }
                 newFleet.AutoArrange();
                 this.Step = 1;
@@ -1128,7 +1128,7 @@ namespace Ship_Game.AI
                     ship.GetAI().State = AIState.AwaitingOrders;
                     closestAO.GetOffensiveForcePool().Remove(ship);
                     closestAO.GetWaitingShips().Remove(ship);
-                    this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                    this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                 }
 
                 newFleet.AutoArrange();
@@ -1228,7 +1228,7 @@ namespace Ship_Game.AI
             {
                 ClosestAO.GetOffensiveForcePool().Remove(ship);
                 ClosestAO.GetWaitingShips().Remove(ship);
-                this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
             }
             this.Step = 1;
         }
