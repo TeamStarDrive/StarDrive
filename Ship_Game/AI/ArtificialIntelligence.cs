@@ -510,14 +510,14 @@ namespace Ship_Game.AI
 
 	        if (State != AIState.Resupply && Owner.OrdinanceMax > 0f && Owner.OrdinanceMax * 0.05 > Owner.Ordinance &&
 	            !hasPriorityTarget)
-	            if (!FriendliesNearby.FindAny(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
+	            if (!FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
 	            {
 	                OrderResupplyNearest(false);
 	                return;
 	            }
 	        if (State != AIState.Resupply && !Owner.loyalty.isFaction && State == AIState.AwaitingOrders &&
 	            Owner.TroopCapacity > 0 &&
-	            Owner.TroopList.Count < Owner.GetHangars().CountFilter(hangar => hangar.IsTroopBay) * .5f)
+	            Owner.TroopList.Count < Owner.GetHangars().Count(hangar => hangar.IsTroopBay) * .5f)
 	        {
 	            OrderResupplyNearest(false);
 	            return;
@@ -546,7 +546,7 @@ namespace Ship_Game.AI
 	            CombatState = CombatState.Evade;
 	        if (!Owner.loyalty.isFaction && Owner.System != null && Owner.TroopsOut == false &&
 	            Owner.GetHangars().Any(troops => troops.IsTroopBay) || Owner.hasTransporter)
-	            if (Owner.TroopList.CountFilter(troop => troop.GetOwner() == Owner.loyalty) == Owner.TroopList.Count)
+	            if (Owner.TroopList.Count(troop => troop.GetOwner() == Owner.loyalty) == Owner.TroopList.Count)
 	            {
 	                Planet invadeThis =
 	                    Owner.System.PlanetList.FindMinFiltered(
@@ -868,7 +868,7 @@ namespace Ship_Game.AI
 			}
             else if (Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0
                      || Owner.TroopList.Count <= 0 || Owner.shipData.Role != ShipData.RoleName.troop
-                     && !Owner.GetHangars().FindAny(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0)
+                     && !Owner.GetHangars().Any(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0)
                      && !Owner.hasTransporter)
 		    {
 		        if (Owner.loyalty.isPlayer)
@@ -883,7 +883,7 @@ namespace Ship_Game.AI
 		        var toRemove = new Array<Troop>();
 		        {
 		            //Get limit of troops to land
-		            int landLimit = Owner.GetHangars().CountFilter(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0);
+		            int landLimit = Owner.GetHangars().Count(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0);
 		            foreach (ShipModule module in Owner.Transporters.Where(module => module.TransporterTimer <= 1f))
 		                landLimit += module.TransporterTroopLanding;
 		            //Land troops
