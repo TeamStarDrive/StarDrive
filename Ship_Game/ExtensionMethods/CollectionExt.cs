@@ -47,7 +47,7 @@ namespace Ship_Game
         }
 
 
-        public static T FindMaxFiltered<T>(this Array<T> list, Func<T, bool> filter, Func<T, float> selector) where T : class
+        public static T FindMaxFiltered<T>(this Array<T> list, Predicate<T> filter, Func<T, float> selector) where T : class
         {
             T found = null;
             float max = float.MinValue;
@@ -63,7 +63,7 @@ namespace Ship_Game
             }
             return found;
         }
-        public static bool FindMaxFiltered<T>(this Array<T> list, out T elem, Func<T, bool> filter, Func<T, float> selector) where T : class
+        public static bool FindMaxFiltered<T>(this Array<T> list, out T elem, Predicate<T> filter, Func<T, float> selector) where T : class
         {
             return (elem = FindMaxFiltered(list, filter, selector)) != null;
         }
@@ -91,7 +91,7 @@ namespace Ship_Game
         }
 
 
-        public static T FindMinFiltered<T>(this Array<T> list, Func<T, bool> filter, Func<T, float> selector) where T : class
+        public static T FindMinFiltered<T>(this Array<T> list, Predicate<T> filter, Func<T, float> selector) where T : class
         {
             T found = null;
             float min = float.MaxValue;
@@ -108,26 +108,26 @@ namespace Ship_Game
             }
             return found;
         }
-        public static bool FindMinFiltered<T>(this Array<T> list, out T elem, Func<T, bool> filter, Func<T, float> selector) where T : class
+        public static bool FindMinFiltered<T>(this Array<T> list, out T elem, Predicate<T> filter, Func<T, float> selector) where T : class
         {
             return (elem = FindMinFiltered(list, filter, selector)) != null;
         }
 
-        public static bool Any<T>(this Array<T> list, Func<T, bool> predicate)
+        public static bool Any<T>(this Array<T> list, Predicate<T> match)
         {
             int n = list.Count;
             for (int i = 0; i < n; ++i)
-                if (predicate(list[i]))
+                if (match(list[i]))
                     return true;
             return false;
         }
 
-        public static int Count<T>(this Array<T> list, Func<T, bool> filter)
+        public static int Count<T>(this Array<T> list, Predicate<T> match)
         {
             int count = 0;
             int n = list.Count;
             for (int i = 0; i < n; ++i)
-                if (filter(list[i]))
+                if (match(list[i]))
                     ++count;
             return count;
         }
