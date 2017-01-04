@@ -476,7 +476,8 @@ namespace Ship_Game
                 {
                     foreach (Technology.RequiredRace raceTech in keyValuePair.Value.RaceExclusions)
                     {
-                        if (raceTech.ShipType == data.Traits.ShipType || (data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
+                        if (raceTech.ShipType == data.Traits.ShipType ||
+                            (data.Traits.Cybernetic > 0 && raceTech.ShipType == "Opteris"))
                         {
                             techEntry.Discovered = false;
                             techEntry.Unlocked = false;
@@ -489,6 +490,7 @@ namespace Ship_Game
                 else //not racial tech
                 {
                     techEntry.Unlocked = keyValuePair.Value.RootNode == 1;
+                    techEntry.Discovered = true;
                 }
                 if (isFaction || data.Traits.Prewarp == 1)
                 {
@@ -503,7 +505,7 @@ namespace Ship_Game
                     // If using the customMilTraitsTech option in ModInformation, default traits will NOT be automatically unlocked. Allows for totally custom militaristic traits.
                     if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.customMilTraitTechs)
                     {
-                        techEntry.Unlocked = techEntry.UID == "HeavyFighterHull" || techEntry.UID == "Military" || techEntry.UID == "ArmorTheory";
+                        techEntry.Unlocked = techEntry.Unlocked || techEntry.UID == "HeavyFighterHull" || techEntry.UID == "Military" || techEntry.UID == "ArmorTheory";
                     }
                 }
                 if (data.Traits.Cybernetic > 0)
@@ -525,13 +527,6 @@ namespace Ship_Game
             foreach (string building in data.unlockBuilding)
                 UnlockedBuildingsDict[building] = true;
 
-            foreach (KeyValuePair<string, TechEntry> kv in TechnologyDict)
-            {
-                if (!kv.Value.Unlocked)
-                    continue;
-                kv.Value.Unlocked = false;
-                UnlockTech(kv.Key);
-            }
 
             //Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
@@ -545,6 +540,13 @@ namespace Ship_Game
             {
                 if (!tech.Value.shipDesignsCanuseThis)
                     tech.Value.shipDesignsCanuseThis = WeCanUseThisLater(tech.Value);
+            }
+            foreach (var kv in TechnologyDict)
+            {
+                if (!kv.Value.Unlocked)
+                    continue;
+                kv.Value.Unlocked = false;
+                UnlockTech(kv.Key);
             }
 
             //unlock ships from empire data
@@ -747,7 +749,7 @@ namespace Ship_Game
             return this.UnlockedTroopDict.ContainsKey(ID) && this.UnlockedTroopDict[ID];
         }
 
-        public void UnlockTech(string techID)
+        public void UnlockTech(string techID) //@todo rewrite. the empire tech dictionary is made of techentries which have a reference to the technology.
         {
             var techEntry = TechnologyDict[techID];
             if (techEntry.Unlocked)
@@ -820,9 +822,9 @@ namespace Ship_Game
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
                     if (ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID, out ShipModule checkmod))
                     {
-                        canBuildTroopShips = checkmod.IsTroopBay;
-                        canBuildCarriers   = checkmod.MaximumHangarShipSize > 0;
-                        canBuildBombers    = checkmod.ModuleType == ShipModuleType.Bomb;
+                        canBuildTroopShips = canBuildTroopShips || checkmod.IsTroopBay;
+                        canBuildCarriers   = canBuildCarriers || checkmod.MaximumHangarShipSize > 0;
+                        canBuildBombers    = canBuildBombers || checkmod.ModuleType == ShipModuleType.Bomb;
                     }
                 }
 
@@ -836,7 +838,7 @@ namespace Ship_Game
             {
                 if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == techEntry.AcquiredFrom)
                 {
-                    UnlockedHullsDict[unlockedHull.Name] = true;
+                   UnlockedHullsDict[unlockedHull.Name] = true;
                 }
 
             }
@@ -989,11 +991,11 @@ namespace Ship_Game
             //update ship stats if a bonus was unlocked
             if (ResourceManager.TechTree[techID].BonusUnlocked.Count > 0)
             {
-                foreach (Ship ship in OwnedShips)
+                foreach (Ship ship in OwnedShips)//@todo can make a global ship unlock flag. 
                     ship.shipStatusChanged = true;
             }
             UpdateShipsWeCanBuild();
-            if (Universe?.PlayerEmpire != this)
+            if (!isPlayer)
                 GSAI.TriggerRefit();
             data.ResearchQueue.Remove(techID);
         }
@@ -1660,7 +1662,7 @@ namespace Ship_Game
                 canBuildCruisers  = canBuildCruisers ||  r == ShipData.RoleName.cruiser;
                 canBuildCapitals  = canBuildCapitals || (r == ShipData.RoleName.capital || r == ShipData.RoleName.carrier );
             }
-            if (Universe == null || this != Universe.PlayerEmpire)
+            if (Universe == null || !isPlayer)
                 return;
             Universe.aw.SetDropDowns();
         }
@@ -3147,11 +3149,13 @@ namespace Ship_Game
             OwnedShips?.Dispose(ref OwnedShips);
             DefensiveFleet?.Dispose(ref DefensiveFleet);
             GSAI?.Dispose(ref GSAI);
-
+            data.AgentList?.Dispose(ref data.AgentList);
+            data.MoleList?.Dispose(ref data.MoleList);
             LockPatchCache?.Dispose(ref LockPatchCache);
             OwnedPlanets?.Dispose(ref OwnedPlanets);
             OwnedProjectors?.Dispose(ref OwnedProjectors);
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
+
         }
     }
 }
