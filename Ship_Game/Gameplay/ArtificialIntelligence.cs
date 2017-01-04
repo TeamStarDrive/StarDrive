@@ -801,7 +801,7 @@ namespace Ship_Game.Gameplay
 						if (Distance < 500f)
 						{
 							PatrolTarget.ExploredDict[Owner.loyalty] = true;							
-							stopNumber += stopNumber + 1;
+							stopNumber += 1;
 							if (stopNumber == PatrolRoute.Count)
 							{
 								stopNumber = 0;

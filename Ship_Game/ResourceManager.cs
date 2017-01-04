@@ -491,8 +491,8 @@ namespace Ship_Game
                 ship.DoOrbit(p);
 
             ship.SetSystem(p.system);
-            p.system.ShipList.Add(ship);
-            p.system.spatialManager.CollidableObjects.Add(ship);
+            //p.system.ShipList.Add(ship);
+            //p.system.spatialManager.CollidableObjects.Add(ship);
             return ship;
         }
 
