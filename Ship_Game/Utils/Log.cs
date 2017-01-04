@@ -28,10 +28,11 @@ namespace Ship_Game
             init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
             init +=  " ================================================================== \r\n";
             LogFile.Write(init);
-            Raven.Release = GlobalStats.Version;
-            Raven.Environment = GlobalStats.Branch;            
+            Raven.Release     = GlobalStats.ExtendedVersion;
             if (HasDebugger)
             {
+                Raven.Environment = "Staging";
+
                 // if Console output is redirected, all console text is sent to VS Output instead
                 // in that case, showing the console is pointless, however if output isn't redirected
                 // we should enable the console window
@@ -45,6 +46,11 @@ namespace Ship_Game
             }
             else
             {
+            #if DEBUG
+                Raven.Environment = "Staging";
+            #else
+                Raven.Environment = "Release";
+            #endif
                 HideConsoleWindow();
             }
         }
@@ -179,7 +185,7 @@ namespace Ship_Game
 
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
                 evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
-                evt["Commit"]    = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/" + GlobalStats.Version;
+                evt["Commit"]    = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/" + GlobalStats.Commit;
             }
             return ExceptionMessage(ex);
         }
