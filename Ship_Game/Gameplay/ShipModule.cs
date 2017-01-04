@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
 using System;
 using System.Collections.Generic;
+using Ship_Game.AI;
 
 namespace Ship_Game.Gameplay
 {

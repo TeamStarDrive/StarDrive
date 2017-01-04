@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Ship_Game.AI;
 
 namespace Ship_Game.Gameplay
 {
