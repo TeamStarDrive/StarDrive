@@ -1,15 +1,15 @@
-using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Algorithms;
+using Microsoft.Xna.Framework;
 using Ship_Game.Commands;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
 	public sealed class ArtificialIntelligence : IDisposable
 	{       

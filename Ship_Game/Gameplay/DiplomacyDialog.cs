@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Ship_Game.Gameplay
 {
 	public sealed class DiplomacyDialog
@@ -9,8 +6,5 @@ namespace Ship_Game.Gameplay
 
 		public Array<StatementSet> StatementSets;
 
-		public DiplomacyDialog()
-		{
-		}
 	}
 }

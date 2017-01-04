@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -642,7 +643,7 @@ namespace Ship_Game
 				Empire e = EmpireManager.GetEmpireByName(d.Name);
 				foreach (SavedGame.FleetSave fleetsave in d.FleetsList)
 				{
-					Ship_Game.Gameplay.Fleet fleet = new Ship_Game.Gameplay.Fleet()
+					Fleet fleet = new Fleet()
 					{
 						guid = fleetsave.FleetGuid,
 						IsCoreFleet = fleetsave.IsCoreFleet,
@@ -762,7 +763,7 @@ namespace Ship_Game
 					g.BuildPosition = gsave.BuildPosition;
 					if (gsave.fleetGuid != Guid.Empty)
 					{
-						foreach (KeyValuePair<int, Ship_Game.Gameplay.Fleet> Fleet in e.GetFleetsDict())
+						foreach (KeyValuePair<int, Fleet> Fleet in e.GetFleetsDict())
 						{
 							if (Fleet.Value.guid != gsave.fleetGuid)
 							{
@@ -883,7 +884,7 @@ namespace Ship_Game
 							}
 							if (sg.fleetGuid != Guid.Empty)
 							{
-								foreach (KeyValuePair<int, Ship_Game.Gameplay.Fleet> fleet in e.GetFleetsDict())
+								foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
 								{
 									if (fleet.Value.guid != sg.fleetGuid)
 									{

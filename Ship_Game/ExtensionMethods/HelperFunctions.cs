@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Xml.Serialization;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {

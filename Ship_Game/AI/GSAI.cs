@@ -1,17 +1,14 @@
-using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Configuration;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
-using System.Threading;
+using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
 	public sealed class GSAI : IDisposable
 	{
@@ -21,9 +18,9 @@ namespace Ship_Game.Gameplay
 
 		public BatchRemovalCollection<Goal> Goals = new BatchRemovalCollection<Goal>();
 
-		public Ship_Game.Gameplay.ThreatMatrix ThreatMatrix = new Ship_Game.Gameplay.ThreatMatrix();
+		public ThreatMatrix ThreatMatrix = new ThreatMatrix();
 
-		public Ship_Game.DefensiveCoordinator DefensiveCoordinator;
+		public DefensiveCoordinator DefensiveCoordinator;
 
 		private int desired_ColonyGoals = 2;
 
@@ -87,7 +84,7 @@ namespace Ship_Game.Gameplay
 		{
 			this.EmpireName = e.data.Traits.Name;
 			this.empire = e;
-			this.DefensiveCoordinator = new Ship_Game.DefensiveCoordinator(e);
+			this.DefensiveCoordinator = new DefensiveCoordinator(e);
 			if (this.empire.data.EconomicPersonality != null)
 			{
 				this.numberOfShipGoals = this.numberOfShipGoals + this.empire.data.EconomicPersonality.ShipGoalsPlus;

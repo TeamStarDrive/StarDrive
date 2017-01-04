@@ -6,7 +6,10 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using System.Runtime.CompilerServices;
-using System.Linq; //fbedard: used for .where
+using System.Linq;
+using Ship_Game.AI;
+
+//fbedard: used for .where
 
 
 namespace Ship_Game

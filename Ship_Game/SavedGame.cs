@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System.Globalization;
 using System.Configuration;
 using Newtonsoft.Json;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {

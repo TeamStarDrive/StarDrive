@@ -1,15 +1,13 @@
-using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
 	public sealed class ThreatMatrix
 	{

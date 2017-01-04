@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -960,7 +961,7 @@ namespace Ship_Game
             FTLManager.LoadContent(content);
             Projectile.contentManager             = content;
             MuzzleFlashManager.universeScreen     = this;
-            DroneAI.universeScreen                = this;
+            DroneAI.UniverseScreen                = this;
             ExplosionManager.Universe       = this;
             ShipDesignScreen.screen               = this;
             Fleet.screen                          = this;
@@ -4766,7 +4767,7 @@ namespace Ship_Game
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
             ExplosionManager.Universe       = null;
-            DroneAI.universeScreen                = null;
+            DroneAI.UniverseScreen                = null;
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
             ScreenManager.inter.Unload();
@@ -5702,7 +5703,7 @@ namespace Ship_Game
             BatchRemovalCollection<UniverseScreen.Intersection> removalCollection = new BatchRemovalCollection<UniverseScreen.Intersection>();
             foreach (Circle A in CircleList)
             {
-                A.isChecked = true;
+                A.IsChecked = true;
                 bool flag = false;
                 foreach (Circle B in CircleList)
                 {
@@ -5718,7 +5719,7 @@ namespace Ship_Game
                         intersection2.C2 = B;
                         intersection2.inter = vector2Array[1];
                         flag = true;
-                        if (!B.isChecked)
+                        if (!B.IsChecked)
                         {
                             removalCollection.Add(intersection1);
                             removalCollection.Add(intersection2);
@@ -5794,10 +5795,10 @@ namespace Ship_Game
 
         private void DrawCircleConnections(Circle A, Array<Circle> Circles)
         {
-            A.isChecked = true;
+            A.IsChecked = true;
             foreach (Circle B in Circles)
             {
-                if (!B.isChecked)
+                if (!B.IsChecked)
                 {
                     Vector2[] vector2Array = HelperFunctions.CircleIntersection(A, B);
                     if (vector2Array != null)

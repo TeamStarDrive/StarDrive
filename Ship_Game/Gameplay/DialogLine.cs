@@ -8,7 +8,7 @@ namespace Ship_Game.Gameplay
 
 		public string Friendly;
 
-		public string Default = "";
+	    public string Default = string.Empty;
 
 		public string Neutral;
 
@@ -36,16 +36,12 @@ namespace Ship_Game.Gameplay
 
 		public string DL_Gen;
 
-		public string misc1;
+		public string Misc1;
 
-		public string misc2;
+		public string Misc2;
 
-		public string misc3;
+		public string Misc3;
 
-		public string misc4;
-
-		public DialogLine()
-		{
-		}
+		public string Misc4;
 	}
 }
