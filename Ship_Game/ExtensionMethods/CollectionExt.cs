@@ -15,8 +15,7 @@ namespace Ship_Game
 
         public static int IndexOf<T>(this IReadOnlyList<T> list, T item) where T : class
         {
-            var arrayList = list as Array<T>;
-            if (arrayList != null)
+            if (list is Array<T> arrayList)
                 return arrayList.IndexOf(item);
 
             for (int i = 0, n = list.Count; i < n; ++i)
@@ -34,10 +33,11 @@ namespace Ship_Game
             float max = float.MinValue;
             for (int i = 0; i < n; ++i)
             {
-                float value = selector(list[i]);
+                T item = list[i];
+                float value = selector(item);
                 if (value <= max) continue;
-                max  = value;
-                found = list[i];
+                max   = value;
+                found = item;
             }
             return found;
         }
@@ -49,16 +49,17 @@ namespace Ship_Game
 
         public static T FindMaxFiltered<T>(this Array<T> list, Func<T, bool> filter, Func<T, float> selector) where T : class
         {
-            int n = list.Count;
             T found = null;
             float max = float.MinValue;
+            int n = list.Count;
             for (int i = 0; i < n; ++i)
             {
-                if (!filter(list[i])) continue;
-                float value = selector(list[i]);
+                T item = list[i];
+                if (!filter(item)) continue;
+                float value = selector(item);
                 if (value <= max) continue;
-                max = value;
-                found = list[i];
+                max   = value;
+                found = item;
             }
             return found;
         }
@@ -71,15 +72,16 @@ namespace Ship_Game
         // Return the element with the smallest selector value, or null if list empty
         public static T FindMin<T>(this Array<T> list, Func<T, float> selector) where T : class
         {
-            int n = list.Count;
             T found = null;
             float min = float.MaxValue;
+            int n = list.Count;
             for (int i = 0; i < n; ++i)
             {
-                float value = selector(list[i]);
+                T item = list[i];
+                float value = selector(item);
                 if (value > min) continue;
-                min  = value;
-                found = list[i];
+                min   = value;
+                found = item;
             }
             return found;
         }
@@ -91,16 +93,18 @@ namespace Ship_Game
 
         public static T FindMinFiltered<T>(this Array<T> list, Func<T, bool> filter, Func<T, float> selector) where T : class
         {
-            int n = list.Count;
             T found = null;
             float min = float.MaxValue;
+            int n = list.Count;
             for (int i = 0; i < n; ++i)
             {
-                if (!filter(list[i])) continue;                
-                float value = selector(list[i]);
+                T item = list[i];
+                if (!filter(item)) continue;     
+                
+                float value = selector(item);
                 if (value > min) continue;
-                min = value;
-                found = list[i];
+                min   = value;
+                found = item;
             }
             return found;
         }
@@ -109,36 +113,23 @@ namespace Ship_Game
             return (elem = FindMinFiltered(list, filter, selector)) != null;
         }
 
-        public static bool FindAny<T>(this Array<T> list, Func<T, bool> filter)
+        public static bool Any<T>(this Array<T> list, Func<T, bool> predicate)
         {
             int n = list.Count;
-            bool found = false;
             for (int i = 0; i < n; ++i)
-            {
-                if (!filter(list[i])) continue;
-                found = true;
-                break;
-            }
-            return found;
+                if (predicate(list[i]))
+                    return true;
+            return false;
         }
-        public static int CountFilter<T>(this Array<T> list, Func<T, bool> filter)
+
+        public static int Count<T>(this Array<T> list, Func<T, bool> filter)
         {
+            int count = 0;
             int n = list.Count;
-            int found = 0;
             for (int i = 0; i < n; ++i)
-            {
-                if (!filter(list[i])) continue;
-                found++;                
-            }
-            return found;
-        }
-        public static T[] ToArray<T>(this Array<T> source)
-        {
-            int count = source.Count;
-            var items = new T[count];
-            for (int i = 0; i < count; ++i)
-                items[i] = source[i];
-            return items;
+                if (filter(list[i]))
+                    ++count;
+            return count;
         }
 
         public static Array<T> ToArrayList<T>(this IEnumerable<T> source)
