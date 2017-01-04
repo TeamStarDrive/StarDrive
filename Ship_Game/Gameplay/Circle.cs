@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 
 namespace Ship_Game.Gameplay
 {
@@ -12,14 +11,14 @@ namespace Ship_Game.Gameplay
 
 		public string ID;
 
-		public Color c;
+		public Color C;
 
-		public bool isChecked;
+		public bool IsChecked;
 
-		public Circle(Vector2 Center, float Radius)
+		public Circle(Vector2 center, float radius)
 		{
-			this.Radius = Radius;
-			this.Center = Center;
+			this.Radius = radius;
+			this.Center = center;
 		}
 	}
 }

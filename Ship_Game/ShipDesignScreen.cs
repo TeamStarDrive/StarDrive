@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -50,7 +51,7 @@ namespace Ship_Game
 
 		private Vector2 offset;
 
-		private Ship_Game.Gameplay.CombatState CombatState = Ship_Game.Gameplay.CombatState.AttackRuns;
+		private CombatState CombatState = CombatState.AttackRuns;
 
 		private bool ShipSaved = true;
 
@@ -317,7 +318,7 @@ namespace Ship_Game
 				}
 				if (str == "attack")
 				{
-					if (this.CombatState != Ship_Game.Gameplay.CombatState.AttackRuns)
+					if (this.CombatState != CombatState.AttackRuns)
 					{
 						button.Active = false;
 					}
@@ -328,7 +329,7 @@ namespace Ship_Game
 				}
 				else if (str == "arty")
 				{
-					if (this.CombatState != Ship_Game.Gameplay.CombatState.Artillery)
+					if (this.CombatState != CombatState.Artillery)
 					{
 						button.Active = false;
 					}
@@ -339,7 +340,7 @@ namespace Ship_Game
 				}
 				else if (str == "hold")
 				{
-					if (this.CombatState != Ship_Game.Gameplay.CombatState.HoldPosition)
+					if (this.CombatState != CombatState.HoldPosition)
 					{
 						button.Active = false;
 					}
@@ -350,7 +351,7 @@ namespace Ship_Game
 				}
 				else if (str == "orbit_left")
 				{
-					if (this.CombatState != Ship_Game.Gameplay.CombatState.OrbitLeft)
+					if (this.CombatState != CombatState.OrbitLeft)
 					{
 						button.Active = false;
 					}
@@ -361,7 +362,7 @@ namespace Ship_Game
 				}
                 else if (str == "broadside_left")
                 {
-                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideLeft)
+                    if (this.CombatState != CombatState.BroadsideLeft)
                     {
                         button.Active = false;
                     }
@@ -374,7 +375,7 @@ namespace Ship_Game
 				{
 					if (str == "evade")
 					{
-						if (this.CombatState != Ship_Game.Gameplay.CombatState.Evade)
+						if (this.CombatState != CombatState.Evade)
 						{
 							button.Active = false;
 						}
@@ -386,7 +387,7 @@ namespace Ship_Game
 				}
                 else if (str == "broadside_right")
                 {
-                    if (this.CombatState != Ship_Game.Gameplay.CombatState.BroadsideRight)
+                    if (this.CombatState != CombatState.BroadsideRight)
                     {
                         button.Active = false;
                     }
@@ -397,7 +398,7 @@ namespace Ship_Game
                 }
                 else if (str == "short")
                 {
-                    if (this.CombatState != Ship_Game.Gameplay.CombatState.ShortRange)
+                    if (this.CombatState != CombatState.ShortRange)
                     {
                         button.Active = false;
                     }
@@ -406,7 +407,7 @@ namespace Ship_Game
                         button.Active = true;
                     }
                 }
-				else if (this.CombatState != Ship_Game.Gameplay.CombatState.OrbitRight)
+				else if (this.CombatState != CombatState.OrbitRight)
 				{
 					button.Active = false;
 				}
@@ -6666,7 +6667,7 @@ namespace Ship_Game
 				}
 			}
 			string path = Dir.ApplicationData;
-			Ship_Game.Gameplay.CombatState defaultstate = this.ActiveHull.CombatState;
+			CombatState defaultstate = this.ActiveHull.CombatState;
 			savedShip.CombatState = this.CombatState;
 			string filename = string.Format("{0:yyyy-MM-dd}__{1}", DateTime.Now, this.ActiveHull.Name);
 			savedShip.Name = filename;

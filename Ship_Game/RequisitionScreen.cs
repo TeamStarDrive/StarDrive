@@ -5,6 +5,7 @@ using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
