@@ -342,7 +342,7 @@ namespace Ship_Game
 									}
                                     else
                                     {
-                                        EmpireManager.Player.GetGSAI().DefensiveCoordinator.remove(ship);
+                                        EmpireManager.Player.GetGSAI().DefensiveCoordinator.Remove(ship);
                                         ship.GetAI().OrderQueue.Clear();
                                         ship.GetAI().HasPriorityOrder = false;
                                         ship.GetAI().SystemToDefend = null;
