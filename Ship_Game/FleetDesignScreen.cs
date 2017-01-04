@@ -1460,20 +1460,11 @@ namespace Ship_Game
 				}
 				this.HoveredSquad = squad.squad;
 				hovering = true;
-				Array<FleetDataNode>.Enumerator enumerator = this.HoveredSquad.DataNodes.GetEnumerator();
-				try
-				{
-					while (enumerator.MoveNext())
-					{
-						FleetDataNode node = enumerator.Current;
-						this.HoveredNodeList.Add(node);
-					}
-					break;
-				}
-				finally
-				{
-					((IDisposable)enumerator).Dispose();
-				}
+                foreach (FleetDataNode node in HoveredSquad.DataNodes)
+                {
+				    HoveredNodeList.Add(node);
+                }
+                break;
 			}
 			if (!hovering)
 			{

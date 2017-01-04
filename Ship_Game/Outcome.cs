@@ -134,7 +134,7 @@ namespace Ship_Game
             }
             if (!string.IsNullOrEmpty(ReplaceWith))
             {
-                eventLocation.building = ResourceManager.GetBuilding(ReplaceWith);
+                eventLocation.building = ResourceManager.CreateBuilding(ReplaceWith);
                 p.BuildingList.Add(eventLocation.building);
             }
         }
