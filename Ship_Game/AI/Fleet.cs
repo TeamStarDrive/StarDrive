@@ -3,15 +3,14 @@
 // MVID: C34284EE-F947-460F-BF1D-3C6685B19387
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
-using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
     public sealed class Fleet : ShipGroup
     {

@@ -10,6 +10,7 @@ using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -207,7 +208,7 @@ namespace Ship_Game
 				EmpireManager.Player.GetFleetsDict()[FleetToEdit].DataNodes.Remove(node);
 				foreach (Array<Fleet.Squad> flanks in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].AllFlanks)
 				{
-					foreach (Ship_Game.Gameplay.Fleet.Squad Squad in flanks)
+					foreach (Fleet.Squad Squad in flanks)
 					{
 						if (Squad.DataNodes.Contains(node))
 						{
@@ -1764,7 +1765,7 @@ namespace Ship_Game
 			this.LeftMenu = new Menu1(base.ScreenManager, leftRect, true);
 			this.FleetSL = new ScrollList(this.LeftMenu.subMenu, 40);
 			int i = 0;
-			foreach (KeyValuePair<int, Ship_Game.Gameplay.Fleet> Fleet in EmpireManager.Player.GetFleetsDict())
+			foreach (KeyValuePair<int, Fleet> Fleet in EmpireManager.Player.GetFleetsDict())
 			{
 				this.FleetsRects.Add(Fleet.Key, new Rectangle(leftRect.X + 2, leftRect.Y + i * 53, 52, 48));
 				i++;

@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {

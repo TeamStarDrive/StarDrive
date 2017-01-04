@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -41,7 +42,7 @@ namespace Ship_Game
 
 		public float Cost;
 
-		public Ship_Game.Goal Goal;
+		public Goal Goal;
 
 		public Color PromoteColor = Color.White;
 

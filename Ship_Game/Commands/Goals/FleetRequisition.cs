@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.Gameplay;
 using Microsoft.Xna.Framework;
+using Ship_Game.AI;
+
 namespace Ship_Game.Commands
 {
     class FleetRequisition : Goal
