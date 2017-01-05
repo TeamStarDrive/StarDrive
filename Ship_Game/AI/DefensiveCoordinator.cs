@@ -1,14 +1,13 @@
-using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Collections.Concurrent;
-namespace Ship_Game
+using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
+
+namespace Ship_Game.AI
 {
 	public sealed class DefensiveCoordinator: IDisposable
 	{

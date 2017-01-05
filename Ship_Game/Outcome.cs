@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -133,7 +134,7 @@ namespace Ship_Game
             }
             if (!string.IsNullOrEmpty(ReplaceWith))
             {
-                eventLocation.building = ResourceManager.GetBuilding(ReplaceWith);
+                eventLocation.building = ResourceManager.CreateBuilding(ReplaceWith);
                 p.BuildingList.Add(eventLocation.building);
             }
         }

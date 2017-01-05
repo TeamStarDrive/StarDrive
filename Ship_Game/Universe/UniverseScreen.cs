@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -960,7 +961,7 @@ namespace Ship_Game
             FTLManager.LoadContent(content);
             Projectile.contentManager             = content;
             MuzzleFlashManager.universeScreen     = this;
-            DroneAI.universeScreen                = this;
+            DroneAI.UniverseScreen                = this;
             ExplosionManager.Universe       = this;
             ShipDesignScreen.screen               = this;
             Fleet.screen                          = this;
@@ -1545,18 +1546,18 @@ namespace Ship_Game
             #region Ships
             //this.DeepSpaceGateKeeper.Set();
 
-//#if !ALTERTHREAD
-//            this.SystemGateKeeper[0].Set();
-//            this.SystemGateKeeper[1].Set();
-//            this.SystemGateKeeper[2].Set();
-//            this.SystemGateKeeper[3].Set();  
-//#endif
+            //#if !ALTERTHREAD
+            //            this.SystemGateKeeper[0].Set();
+            //            this.SystemGateKeeper[1].Set();
+            //            this.SystemGateKeeper[2].Set();
+            //            this.SystemGateKeeper[3].Set();  
+            //#endif
 
 
 
 
 #if !PLAYERONLY
-  
+
             //Task.Run(() => 
             //if(Task.CurrentId == null)
             //Task.Run(() =>
@@ -1568,30 +1569,41 @@ namespace Ship_Game
             //    });
             //});
             //Task.WaitAll();    //This commented out area was the original stuff here, which I replaced with the simgle ForEach above -Gretman
-            Array<SolarSystem> solarsystems = new Array<SolarSystem>( this.SolarSystemDict.Values.Where(nocombat =>  nocombat.ShipList.Where(ship=> ship.InCombatTimer ==15).Count() <5) ); //.ToList();
-            Array<SolarSystem> Combatsystems = new Array<SolarSystem>( this.SolarSystemDict.Values.Where(nocombat => nocombat.ShipList.Where(ship => ship.InCombatTimer == 15).Count() >= 5)); //.ToList();
+
+            Array<SolarSystem> peacefulSystems = new Array<SolarSystem>(SolarSystemList.Count / 2);
+            Array<SolarSystem> combatSystems   = new Array<SolarSystem>(SolarSystemList.Count / 2);
+
+            foreach (SolarSystem system in SolarSystemList)
+            {
+                int shipsInCombat = 0;
+                foreach (Ship ship in system.ShipList)
+                    if (ship.InCombatTimer == 15 && ++shipsInCombat >= 5)
+                        break;
+                (shipsInCombat < 5 ? peacefulSystems : combatSystems).Add(system);
+            }
+
             Task DeepSpaceTask = Task.Factory.StartNew(() =>
             {
-                this.DeepSpaceThread();
-                foreach (SolarSystem combatsystem in Combatsystems)
-                { SystemUpdaterTaskBased(combatsystem); }
+                DeepSpaceThread();
+                foreach (SolarSystem system in combatSystems)
+                {
+                    SystemUpdaterTaskBased(system);
+                }
             });
 
             #if true // use multithreaded update loop
-                var source1 = Enumerable.Range(0, solarsystems.Count).ToArray();
+                var source1 = Enumerable.Range(0, peacefulSystems.Count).ToArray();
                 var normalsystems = Partitioner.Create(0, source1.Length);
-                //ParallelOptions parOpts = new ParallelOptions();
-                //parOpts.MaxDegreeOfParallelism = 2;               
                 Parallel.ForEach(normalsystems, (range, loopState) =>
                 {
                     //standard for loop through each weapon group.
                     for (int T = range.Item1; T < range.Item2; T++)
                     {
-                        SystemUpdaterTaskBased(solarsystems[T]);
+                        SystemUpdaterTaskBased(peacefulSystems[T]);
                     }
                 });
             #else
-                foreach(SolarSystem s in solarsystems)
+                foreach(SolarSystem s in peacefulSystems)
                 {
                     SystemUpdaterTaskBased(s);
                 }
@@ -1601,24 +1613,6 @@ namespace Ship_Game
 
             if (DeepSpaceTask != null)
                 DeepSpaceTask.Wait();
-
-
-            //if (Combatsystems.Count > 0)                                      //This was my first attempt at helping this out a little, with a second ForEach for the systems with 
-            //{
-            //    var source2 = Enumerable.Range(0, Combatsystems.Count).ToArray();
-            //    var SystemsWithCombat = Partitioner.Create(0, source2.Length);
-
-            //    Parallel.ForEach(SystemsWithCombat, (AnotherRange, loopState) =>       //More threading! Yay!  -Gretman
-            //    {
-            //        for (int NotT = AnotherRange.Item1; NotT < AnotherRange.Item2; NotT++)
-            //        {
-            //            SystemUpdaterTaskBased(Combatsystems[NotT]);
-            //        }
-            //    });
-            //}
-
-
-
 #endif
 #if PLAYERONLY
             Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);
@@ -1630,32 +1624,6 @@ namespace Ship_Game
                 DeepSpaceTask.Wait();
 #endif
 
-
-
-//#if !ALTERTHREAD
-//            this.SystemResetEvents[0].WaitOne();
-//            this.SystemResetEvents[1].WaitOne();
-//            this.SystemResetEvents[2].WaitOne();
-//            this.SystemResetEvents[3].WaitOne();
-
-
-
-//            this.SystemResetEvents[0].Reset();
-//            this.SystemResetEvents[1].Reset();
-//            this.SystemResetEvents[2].Reset();
-//            this.SystemResetEvents[3].Reset();  
-//#endif
-
-
-
-            //this.DeepSpaceDone.Reset();
-            //foreach(Ship ship in this.MasterShipList)
-            //{
-            //    if (ship.GetAI().fireTask != null && !ship.GetAI().fireTask.IsCompleted)
-            //    {
-            //        ship.GetAI().fireTask.Start();
-            //    }
-            //}
 #endregion
 
             Perfavg2.Stop();
@@ -2943,22 +2911,23 @@ namespace Ship_Game
                                 }
                             }
                         }
-                        foreach (UniverseScreen.ClickableShip clickableShip in this.ClickableShipsList)
+                        foreach (ClickableShip clickableShip in this.ClickableShipsList)
                         {
-                            if ((double)Vector2.Distance(input.CursorPosition, clickableShip.ScreenPos) <= (double)clickableShip.Radius)
+                            if (input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
                             {
-                                this.pickedSomethingThisFrame = true;
-                                this.SelectedShipList.Add(clickableShip.shipToClick);
-                                using (Array<UniverseScreen.ClickableShip>.Enumerator enumerator = this.ClickableShipsList.GetEnumerator())
+                                pickedSomethingThisFrame = true;
+                                SelectedShipList.Add(clickableShip.shipToClick);
+
+                                foreach (ClickableShip ship in ClickableShipsList)
                                 {
-                                    while (enumerator.MoveNext())
+                                    if (clickableShip.shipToClick != ship.shipToClick && 
+                                        ship.shipToClick.loyalty == clickableShip.shipToClick.loyalty &&
+                                        ship.shipToClick.shipData.Role == clickableShip.shipToClick.shipData.Role)
                                     {
-                                        UniverseScreen.ClickableShip current = enumerator.Current;
-                                        if (clickableShip.shipToClick != current.shipToClick && current.shipToClick.loyalty == clickableShip.shipToClick.loyalty && current.shipToClick.shipData.Role == clickableShip.shipToClick.shipData.Role)
-                                            this.SelectedShipList.Add(current.shipToClick);
+                                        SelectedShipList.Add(ship.shipToClick);
                                     }
-                                    break;
                                 }
+                                break;
                             }
                         }
                         if (this.viewState > UniverseScreen.UnivScreenState.SystemView)
@@ -4297,12 +4266,8 @@ namespace Ship_Game
                             flag2 = true;
                             this.pickedSomethingThisFrame = true;
                             AudioManager.PlayCue("techy_affirm1");
-                            using (Array<Ship>.Enumerator enumerator = this.SelectedFleet.Ships.GetEnumerator())
-                            {
-                                while (enumerator.MoveNext())
-                                    this.SelectedShipList.Add(enumerator.Current);
-                                break;
-                            }
+                            SelectedShipList.AddRange(SelectedFleet.Ships);
+                            break;
                         }
                     }
                     if (!flag2)
@@ -4766,7 +4731,7 @@ namespace Ship_Game
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
             ExplosionManager.Universe       = null;
-            DroneAI.universeScreen                = null;
+            DroneAI.UniverseScreen                = null;
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
             ScreenManager.inter.Unload();
@@ -5702,7 +5667,7 @@ namespace Ship_Game
             BatchRemovalCollection<UniverseScreen.Intersection> removalCollection = new BatchRemovalCollection<UniverseScreen.Intersection>();
             foreach (Circle A in CircleList)
             {
-                A.isChecked = true;
+                A.IsChecked = true;
                 bool flag = false;
                 foreach (Circle B in CircleList)
                 {
@@ -5718,7 +5683,7 @@ namespace Ship_Game
                         intersection2.C2 = B;
                         intersection2.inter = vector2Array[1];
                         flag = true;
-                        if (!B.isChecked)
+                        if (!B.IsChecked)
                         {
                             removalCollection.Add(intersection1);
                             removalCollection.Add(intersection2);
@@ -5794,10 +5759,10 @@ namespace Ship_Game
 
         private void DrawCircleConnections(Circle A, Array<Circle> Circles)
         {
-            A.isChecked = true;
+            A.IsChecked = true;
             foreach (Circle B in Circles)
             {
-                if (!B.isChecked)
+                if (!B.IsChecked)
                 {
                     Vector2[] vector2Array = HelperFunctions.CircleIntersection(A, B);
                     if (vector2Array != null)

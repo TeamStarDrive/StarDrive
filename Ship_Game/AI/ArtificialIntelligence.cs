@@ -1,15 +1,15 @@
-using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Algorithms;
+using Microsoft.Xna.Framework;
 using Ship_Game.Commands;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
 	public sealed class ArtificialIntelligence : IDisposable
 	{       
@@ -234,7 +234,7 @@ namespace Ship_Game.Gameplay
 			{
 				if (slot.module == null || slot.module.ModuleType != ShipModuleType.Colony || slot.module.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.module.DeployBuildingOnColonize))
 				    continue;
-			    Building building = ResourceManager.GetBuilding(slot.module.DeployBuildingOnColonize);
+			    Building building = ResourceManager.CreateBuilding(slot.module.DeployBuildingOnColonize);
 				var ok = true;
 				if (building.Unique)
 				    foreach (Building b in ColonizeTarget.BuildingList)
@@ -510,14 +510,14 @@ namespace Ship_Game.Gameplay
 
 	        if (State != AIState.Resupply && Owner.OrdinanceMax > 0f && Owner.OrdinanceMax * 0.05 > Owner.Ordinance &&
 	            !hasPriorityTarget)
-	            if (!FriendliesNearby.FindAny(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
+	            if (!FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
 	            {
 	                OrderResupplyNearest(false);
 	                return;
 	            }
 	        if (State != AIState.Resupply && !Owner.loyalty.isFaction && State == AIState.AwaitingOrders &&
 	            Owner.TroopCapacity > 0 &&
-	            Owner.TroopList.Count < Owner.GetHangars().CountFilter(hangar => hangar.IsTroopBay) * .5f)
+	            Owner.TroopList.Count < Owner.GetHangars().Count(hangar => hangar.IsTroopBay) * .5f)
 	        {
 	            OrderResupplyNearest(false);
 	            return;
@@ -546,7 +546,7 @@ namespace Ship_Game.Gameplay
 	            CombatState = CombatState.Evade;
 	        if (!Owner.loyalty.isFaction && Owner.System != null && Owner.TroopsOut == false &&
 	            Owner.GetHangars().Any(troops => troops.IsTroopBay) || Owner.hasTransporter)
-	            if (Owner.TroopList.CountFilter(troop => troop.GetOwner() == Owner.loyalty) == Owner.TroopList.Count)
+	            if (Owner.TroopList.Count(troop => troop.GetOwner() == Owner.loyalty) == Owner.TroopList.Count)
 	            {
 	                Planet invadeThis =
 	                    Owner.System.PlanetList.FindMinFiltered(
@@ -868,7 +868,7 @@ namespace Ship_Game.Gameplay
 			}
             else if (Owner.loyalty == goal.TargetPlanet.Owner || goal.TargetPlanet.GetGroundLandingSpots() == 0
                      || Owner.TroopList.Count <= 0 || Owner.shipData.Role != ShipData.RoleName.troop
-                     && !Owner.GetHangars().FindAny(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0)
+                     && !Owner.GetHangars().Any(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0)
                      && !Owner.hasTransporter)
 		    {
 		        if (Owner.loyalty.isPlayer)
@@ -883,7 +883,7 @@ namespace Ship_Game.Gameplay
 		        var toRemove = new Array<Troop>();
 		        {
 		            //Get limit of troops to land
-		            int landLimit = Owner.GetHangars().CountFilter(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0);
+		            int landLimit = Owner.GetHangars().Count(hangar => hangar.IsTroopBay && hangar.hangarTimer <= 0);
 		            foreach (ShipModule module in Owner.Transporters.Where(module => module.TransporterTimer <= 1f))
 		                landLimit += module.TransporterTroopLanding;
 		            //Land troops
@@ -5928,14 +5928,11 @@ namespace Ship_Game.Gameplay
 	                                        break;
 
 	                                    if (Owner.OrdinanceMax < 1 || Owner.Ordinance / Owner.OrdinanceMax >= 0.2f)
-
 	                                        break;
-	                                    if (
-	                                        FriendliesNearby.Where(
-	                                            supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() > 0)
+	                                    if (FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100))
 	                                        break;
 	                                    var shipyards = new Array<Planet>();
-	                                    for (var i = 0; i < Owner.loyalty.GetPlanets().Count; i++)
+	                                    for (int i = 0; i < Owner.loyalty.GetPlanets().Count; i++)
 	                                    {
 	                                        Planet item = Owner.loyalty.GetPlanets()[i];
 	                                        if (item.HasShipyard)
@@ -5945,9 +5942,9 @@ namespace Ship_Game.Gameplay
 	                                        from p in shipyards
 	                                        orderby Vector2.Distance(Owner.Center, p.Position)
 	                                        select p;
-	                                    if (sortedList.Count<Planet>() <= 0)
+	                                    if (!sortedList.Any())
 	                                        break;
-	                                    OrderResupply(sortedList.First<Planet>(), true);
+	                                    OrderResupply(sortedList.First(), true);
 	                                    break;
 	                                }
 	                                case AIState.Escort:
@@ -6132,77 +6129,21 @@ namespace Ship_Game.Gameplay
 	                        OrderQueue.Clear();
 	                        return;
 	                    }
-	                    else if (Vector2.Distance(Owner.Center, toEvaluate.TargetPlanet.Position) < radius)
-	                    {
-	                        using (Array<ShipModule>.Enumerator enumerator = Owner.BombBays.GetEnumerator())
-	                        {
-	                            while (enumerator.MoveNext())
-	                            {
-	                                ShipModule current = enumerator.Current;
-	                                if (current.BombTimer <= 0f)
-	                                {
-	                                    var bomb = new Bomb(new Vector3(Owner.Center, 0.0f), Owner.loyalty);
-	                                    bomb.WeaponName = current.BombType;
-	                                    if (Owner.Ordinance >
-	                                        ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire)
-	                                    {
-	                                        Owner.Ordinance -=
-	                                            ResourceManager.WeaponsDict[current.BombType].OrdinanceRequiredToFire;
-	                                        bomb.SetTarget(toEvaluate.TargetPlanet);
-	                                        universeScreen.BombList.Add(bomb);
-	                                        current.BombTimer = ResourceManager.WeaponsDict[current.BombType].fireDelay;
-	                                    }
-	                                }
-	                            }
-	                            break;
-	                        }
-	                    }
-	                    else
-	                    {
-	                        break;
-	                    }
+                        DropBombsAtGoal(toEvaluate, radius);
+	                    break;
 	                case Plan.Exterminate:
-	                {
-	                    DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
-	                    radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
-	                    if (toEvaluate.TargetPlanet.Owner == Owner.loyalty || toEvaluate.TargetPlanet.Owner == null)
-	                    {
-	                        OrderQueue.Clear();
-	                        OrderFindExterminationTarget(true);
-	                        return;
-	                    }
-	                    else
-	                    {
-	                        if (Vector2.Distance(Owner.Center, toEvaluate.TargetPlanet.Position) >= radius)
-	                            break;
-	                        Array<ShipModule>.Enumerator enumerator1 = Owner.BombBays.GetEnumerator();
-	                        try
-	                        {
-	                            while (enumerator1.MoveNext())
-	                            {
-	                                ShipModule mod = enumerator1.Current;
-	                                if (mod.BombTimer > 0f)
-	                                    continue;
-	                                var b = new Bomb(new Vector3(Owner.Center, 0f), Owner.loyalty)
-	                                {
-	                                    WeaponName = mod.BombType
-	                                };
-	                                if (Owner.Ordinance <= ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire)
-	                                    continue;
-	                                Ship owner1 = Owner;
-	                                owner1.Ordinance = owner1.Ordinance - ResourceManager.WeaponsDict[mod.BombType].OrdinanceRequiredToFire;
-	                                b.SetTarget(toEvaluate.TargetPlanet);
-	                                universeScreen.BombList.Add(b);	                                
-	                                mod.BombTimer = ResourceManager.WeaponsDict[mod.BombType].fireDelay;
-	                            }
-	                            break;
-	                        }
-	                        finally
-	                        {
-	                            ((IDisposable) enumerator1).Dispose();
-	                        }
-	                    }
-	                }
+                        {
+                            DoOrbit(toEvaluate.TargetPlanet, elapsedTime);
+                            radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
+                            if (toEvaluate.TargetPlanet.Owner == Owner.loyalty || toEvaluate.TargetPlanet.Owner == null)
+                            {
+                                OrderQueue.Clear();
+                                OrderFindExterminationTarget(true);
+                                return;
+                            }
+                            DropBombsAtGoal(toEvaluate, radius);
+                            break;
+                        }
 	                case Plan.RotateToFaceMovePosition:    RotateToFaceMovePosition(elapsedTime, toEvaluate);break;                                                
 	                case Plan.RotateToDesiredFacing:	   RotateToDesiredFacing(elapsedTime, toEvaluate); break;
                     case Plan.MoveToWithin1000:            MoveToWithin1000(elapsedTime, toEvaluate);break;	                
@@ -6352,6 +6293,31 @@ namespace Ship_Game.Gameplay
 	            return;
 	        }
 	    }
+
+        public void DropBombsAtGoal(ShipGoal goal, float radius)
+        {
+            if (Owner.Center.InRadius(goal.TargetPlanet.Position, radius))
+            {
+                foreach (ShipModule bombBay in Owner.BombBays)
+                {
+                    if (bombBay.BombTimer > 0f)
+                        continue;
+                    var bomb = new Bomb(new Vector3(Owner.Center, 0f), Owner.loyalty)
+                    {
+                        WeaponName = bombBay.BombType
+                    };
+                    var wepTemplate = ResourceManager.WeaponsDict[bombBay.BombType];
+
+                    if (Owner.Ordinance > wepTemplate.OrdinanceRequiredToFire)
+                    {
+                        Owner.Ordinance -= wepTemplate.OrdinanceRequiredToFire;
+                        bomb.SetTarget(goal.TargetPlanet);
+                        universeScreen.BombList.Add(bomb);
+                        bombBay.BombTimer = wepTemplate.fireDelay;
+                    }
+                }
+            }
+        }
 
 	    public enum Plan
 		{

@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using System.Configuration;
 using System.Threading;
 using System.Collections.Concurrent;
+using Ship_Game.AI;
 
 namespace Ship_Game.Gameplay
 {
