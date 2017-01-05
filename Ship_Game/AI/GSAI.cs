@@ -8632,7 +8632,6 @@ namespace Ship_Game.AI
                             continue;
                         }
                         
-                        bool empirehulldict;
                         if (shortTermBest.shipData.ShipStyle != this.empire.data.Traits.ShipType) // && (!this.empire.GetHDict().TryGetValue(shortTermBest.shipData.Hull, out empirehulldict) || !empirehulldict))
                         {
                             continue;
