@@ -573,14 +573,14 @@ namespace Ship_Game
 					newOrbital.ProductionHere = 100f;
 					newOrbital.HasShipyard = true;
 					newOrbital.AddGood("ReactorFuel", 1000);
-					ResourceManager.GetBuilding("Capital City").SetPlanet(newOrbital);
-					ResourceManager.GetBuilding("Space Port").SetPlanet(newOrbital);
+					ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
+					ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
 					if (GlobalStats.HardcoreRuleset)
 					{
-						ResourceManager.GetBuilding("Fissionables").SetPlanet(newOrbital);
-						ResourceManager.GetBuilding("Fissionables").SetPlanet(newOrbital);
-						ResourceManager.GetBuilding("Mine Fissionables").SetPlanet(newOrbital);
-						ResourceManager.GetBuilding("Fuel Refinery").SetPlanet(newOrbital);
+						ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
+						ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
+						ResourceManager.CreateBuilding("Mine Fissionables").SetPlanet(newOrbital);
+						ResourceManager.CreateBuilding("Fuel Refinery").SetPlanet(newOrbital);
 					}
 					newOrbital.Position = planetCenter;
 					newOrbital.scale = scale;
@@ -705,14 +705,14 @@ namespace Ship_Game
 						}
 						newOrbital.HasShipyard = true;
 						newOrbital.AddGood("ReactorFuel", 1000);
-						ResourceManager.GetBuilding("Capital City").SetPlanet(newOrbital);
-						ResourceManager.GetBuilding("Space Port").SetPlanet(newOrbital);
+						ResourceManager.CreateBuilding("Capital City").SetPlanet(newOrbital);
+						ResourceManager.CreateBuilding("Space Port").SetPlanet(newOrbital);
 						if (GlobalStats.HardcoreRuleset)
 						{
-							ResourceManager.GetBuilding("Fissionables").SetPlanet(newOrbital);
-							ResourceManager.GetBuilding("Fissionables").SetPlanet(newOrbital);
-							ResourceManager.GetBuilding("Mine Fissionables").SetPlanet(newOrbital);
-							ResourceManager.GetBuilding("Fuel Refinery").SetPlanet(newOrbital);
+							ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
+							ResourceManager.CreateBuilding("Fissionables").SetPlanet(newOrbital);
+							ResourceManager.CreateBuilding("Mine Fissionables").SetPlanet(newOrbital);
+							ResourceManager.CreateBuilding("Fuel Refinery").SetPlanet(newOrbital);
 						}
 					}
 					if (ringData.HasRings != null)
@@ -723,7 +723,7 @@ namespace Ship_Game
                     //Add buildings to planet
                     if (ringData.BuildingList.Count > 0)
                         foreach (string building in ringData.BuildingList)
-                            ResourceManager.GetBuilding(building).SetPlanet(newOrbital);
+                            ResourceManager.CreateBuilding(building).SetPlanet(newOrbital);
                     //Add ships to orbit
                     if (ringData.Guardians.Count > 0)
                         foreach (string ship in ringData.Guardians)

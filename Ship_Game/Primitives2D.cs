@@ -44,7 +44,7 @@ namespace Ship_Game
 		private static Array<Vector2> CreateArc(float radius, int sides, float startingAngle, float degrees)
 		{
 			Array<Vector2> points = new Array<Vector2>();
-			points.AddRange(Primitives2D.CreateCircle((double)radius, sides));
+			points.AddRange(CreateCircle((double)radius, sides));
 			points.RemoveAt(points.Count - 1);
 			double curAngle = 0;
 			double anglePerSide = 360 / (double)sides;
@@ -65,9 +65,9 @@ namespace Ship_Game
 			double theta;
 			object[] objArray = new object[] { radius, "x", sides, "x", startingAngle, "x", endingAngle };
 			string arcKey = string.Concat(objArray);
-			if (Primitives2D.m_arcCache.ContainsKey(arcKey))
+			if (m_arcCache.ContainsKey(arcKey))
 			{
-				return Primitives2D.m_arcCache[arcKey];
+				return m_arcCache[arcKey];
 			}
 			Array<Vector2> points = new Array<Vector2>();
 			double startRadians = 3.14159265358979 * (double)startingAngle / 180;
