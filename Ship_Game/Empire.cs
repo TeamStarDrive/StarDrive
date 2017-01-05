@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -2383,7 +2384,7 @@ namespace Ship_Game
                             {
                                 foreach (Technology.UnlockedBuilding buildingName in tech.Tech.BuildingsUnlocked)
                                 {
-                                    Building building = ResourceManager.GetBuilding(buildingName.Name);
+                                    Building building = ResourceManager.CreateBuilding(buildingName.Name);
                                     if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0 || building.PlusTerraformPoints > 0)
                                     {
                                         cyberneticMultiplier = .5f;

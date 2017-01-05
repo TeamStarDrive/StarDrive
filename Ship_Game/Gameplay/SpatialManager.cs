@@ -269,7 +269,7 @@ namespace Ship_Game.Gameplay
             this.Collide(gameplayObject);
             if (this.collisionResults.Count > 0)
             {
-                this.collisionResults.Sort(new Comparison<SpatialManager.CollisionResult>(SpatialManager.CollisionResult.Compare));
+                collisionResults.Sort(CollisionResult.Compare);
                 foreach (SpatialManager.CollisionResult collisionResult in this.collisionResults)
                 {
                     if (gameplayObject.Touch(collisionResult.GameplayObject) || collisionResult.GameplayObject.Touch(gameplayObject))
@@ -1426,7 +1426,7 @@ namespace Ship_Game.Gameplay
             public Vector2 Normal;
             public GameplayObject GameplayObject;
 
-            public static int Compare(SpatialManager.CollisionResult a, SpatialManager.CollisionResult b)
+            public static int Compare(CollisionResult a, CollisionResult b)
             {
                 return a.Distance.CompareTo(b.Distance);
             }

@@ -1,14 +1,11 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
-using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Threading;
 
-namespace Ship_Game
+namespace Ship_Game.AI
 {
 	public sealed class SystemCommander
 	{

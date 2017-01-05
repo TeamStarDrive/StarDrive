@@ -1,6 +1,4 @@
-using System;
-
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
 	public enum GoalType
 	{
