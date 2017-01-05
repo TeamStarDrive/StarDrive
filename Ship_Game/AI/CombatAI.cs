@@ -1,7 +1,6 @@
-using System;
 using Ship_Game.Gameplay;
 
-namespace Ship_Game
+namespace Ship_Game.AI
 {
     public sealed class CombatAI
     {
