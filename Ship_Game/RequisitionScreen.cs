@@ -54,48 +54,21 @@ namespace Ship_Game
 					}
 					node.Ship = ship;
 					ship.RelativeFleetOffset = node.FleetOffset;
-					ship.fleet = this.f;
-					this.f.AddShip(ship);
-					Array<Array<Fleet.Squad>>.Enumerator enumerator = this.f.AllFlanks.GetEnumerator();
-					try
-					{
-						while (enumerator.MoveNext())
-						{
-							Array<Fleet.Squad>.Enumerator enumerator1 = enumerator.Current.GetEnumerator();
-							try
-							{
-								while (enumerator1.MoveNext())
-								{
-									Array<FleetDataNode>.Enumerator enumerator2 = enumerator1.Current.DataNodes.GetEnumerator();
-									try
-									{
-										while (enumerator2.MoveNext())
-										{
-											FleetDataNode sqnode = enumerator2.Current;
-											if (sqnode.Ship!= null || !(sqnode.ShipName == ship.Name))
-											{
-												continue;
-											}
-											sqnode.Ship = ship;
-										}
-									}
-									finally
-									{
-										((IDisposable)enumerator2).Dispose();
-									}
-								}
-							}
-							finally
-							{
-								((IDisposable)enumerator1).Dispose();
-							}
-						}
-						break;
-					}
-					finally
-					{
-						((IDisposable)enumerator).Dispose();
-					}
+					ship.fleet = f;
+					f.AddShip(ship);
+
+                    foreach (Array<Fleet.Squad> flank in f.AllFlanks)
+                    {
+                        foreach (Fleet.Squad squad in flank)
+                        {
+                            foreach (FleetDataNode sqnode in squad.DataNodes)
+                            {
+                                if (sqnode.Ship != null || sqnode.ShipName != ship.Name)
+                                    continue;
+                                sqnode.Ship = ship;
+                            }
+                        }
+                    }
 				}
 			}
 			foreach (Ship ship in this.f.Ships)

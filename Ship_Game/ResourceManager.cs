@@ -590,7 +590,7 @@ namespace Ship_Game
                 e.UpdateShipsWeCanBuild();
         }
 
-        public static Building GetBuilding(string whichBuilding)
+        public static Building CreateBuilding(string whichBuilding)
         {
             Building template = BuildingsDict[whichBuilding];
             Building newB = template.Clone();

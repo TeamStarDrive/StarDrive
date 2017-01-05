@@ -176,7 +176,7 @@ namespace Ship_Game
 				};
 				if (pgs.Biosphere)
 				{
-					p.BuildingList.Add(ResourceManager.GetBuilding("Biospheres"));
+					p.BuildingList.Add(ResourceManager.CreateBuilding("Biospheres"));
 				}
 				p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
