@@ -104,6 +104,10 @@ namespace Ship_Game
 
         private void Grow(int newCapacity)
         {
+            // align newCapacity to a multiple of 4
+            int rem = newCapacity % 4;
+            if (rem != 0) newCapacity += 4 - rem;
+
             var newArray = new T[newCapacity];
             Array.Copy(Items, 0, newArray, 0, Items.Length);
             Items = newArray;
@@ -127,7 +131,7 @@ namespace Ship_Game
                 if (Count == capacity)
                 {
                     // Grow by 1.5x to reduce memory usage
-                    Grow(capacity == 0 ? 4 : (capacity * 3) / 2);
+                    Grow(capacity < 4 ? 4 : (capacity * 3) / 2);
                 }
                 Items[Count++] = item;
             }
@@ -141,7 +145,7 @@ namespace Ship_Game
                 if (Count == capacity)
                 {
                     // Grow by 1.5x to reduce memory usage
-                    Grow(capacity == 0 ? 4 : (capacity * 3) / 2);
+                    Grow(capacity < 4 ? 4 : (capacity * 3) / 2);
                 }
                 if (index < Count) Array.Copy(Items, index, Items, index + 1, Count - index);
                 Items[index] = item;
