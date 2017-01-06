@@ -209,13 +209,18 @@ namespace Ship_Game
             var lines = ex.StackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in lines)
             {
-                var parts = line.Split(new[] { " in " }, StringSplitOptions.RemoveEmptyEntries);
+                if (line.Contains(" in "))
+                {
+                    var parts = line.Split(new[] { " in " }, StringSplitOptions.RemoveEmptyEntries);
+                    string method = parts[0].Replace("Ship_Game.", "");
+                    int idx       = parts[1].IndexOf("Ship_Game\\", StringComparison.Ordinal);
+                    string file   = parts[1].Substring(idx + "Ship_Game\\".Length);
 
-                string method = parts[0].Replace("Ship_Game.", "");
-                int idx       = parts[1].IndexOf("Ship_Game\\", StringComparison.Ordinal);
-                string file   = parts[1].Substring(idx + "Ship_Game\\".Length);
-
-                sb.Append(method).Append(" in ").Append(file).AppendLine();
+                    sb.Append(method).Append(" in ").Append(file).AppendLine();
+                }
+                else if (line.Contains("Microsoft.Xna.Framework")) sb.AppendLine(line.Replace("Microsoft.Xna.Framework", "XNA"));
+                else if (line.Contains("System.Windows.Forms"))    continue; // ignore winforms
+                else sb.AppendLine(line);
             }
             return sb.ToString();
         }
