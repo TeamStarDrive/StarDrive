@@ -12,8 +12,9 @@ namespace Ship_Game
         // to avoid double loading resources into memory
         private readonly GameContentManager Parent;
         private Dictionary<string, object> LoadedAssets;
+        public string Name { get; set; } = "";
 
-        public GameContentManager(IServiceProvider service) : base(service, "")
+        public GameContentManager(IServiceProvider service) : base(service, "Content")
         {
             LoadedAssets = (Dictionary<string, object>)
                 typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
@@ -50,6 +51,7 @@ namespace Ship_Game
 
         protected override void Dispose(bool disposing)
         {
+            Log.Info("Disposing '{0}' Content", Name);
             base.Dispose(disposing);
             LoadedAssets = null;
         }
