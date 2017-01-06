@@ -34,7 +34,7 @@ namespace Ship_Game
          //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-		public RefitToWindow(ShipListScreenEntry entry, ShipListScreen screen)
+		public RefitToWindow(ShipListScreen screen, ShipListScreenEntry entry) : base(screen)
 		{
 			this.screen = screen;
 			this.shiptorefit = entry.ship;
@@ -43,7 +43,7 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public RefitToWindow(Ship ship)
+		public RefitToWindow(GameScreen parent, Ship ship) : base(parent)
 		{
 			this.shiptorefit = ship;
 			base.IsPopup = true;

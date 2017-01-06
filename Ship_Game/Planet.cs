@@ -73,7 +73,6 @@ namespace Ship_Game
         public bool isSelected;
         public Vector2 Position;
         public string SpecialDescription;
-        public static UniverseScreen universeScreen;
         public bool HasShipyard;
         public SolarSystem system;
         public Matrix cloudMatrix;
@@ -187,10 +186,10 @@ namespace Ship_Game
             {
                 AudioEmitter emitter = new AudioEmitter();
                 emitter.Position = this.shield.Center;
-                if (Planet.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
                     Cue cue = AudioManager.GetCue("sd_impact_shield_01");
-                    cue.Apply3D(Planet.universeScreen.listener, emitter);
+                    cue.Apply3D(Empire.Universe.listener, emitter);
                     cue.Play();
                 }
                 this.shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
@@ -207,11 +206,11 @@ namespace Ship_Game
                 this.shield.pointLight.Intensity = 8f;
                 this.shield.pointLight.Enabled = true;
                 Vector3 vector3 = Vector3.Normalize(bomb.Position - this.shield.Center);
-                if (Planet.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    Planet.universeScreen.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
+                    Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     for (int index = 0; index < 200; ++index)
-                        Planet.universeScreen.sparks.AddParticleThreadB(bomb.Position, vector3 * new Vector3(RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f)));
+                        Empire.Universe.sparks.AddParticleThreadB(bomb.Position, vector3 * new Vector3(RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f)));
                 }
                 this.ShieldStrengthCurrent -= (float)ResourceManager.WeaponsDict[bomb.WeaponName].BombTroopDamage_Max;
                 if ((double)this.ShieldStrengthCurrent >= 0.0)
@@ -227,15 +226,15 @@ namespace Ship_Game
                 this.Population -= 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
                 AudioEmitter emitter = new AudioEmitter();
                 emitter.Position = bomb.Position;
-                if (Planet.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
                 {
                     Cue cue = AudioManager.GetCue("sd_bomb_impact_01");
-                    cue.Apply3D(Planet.universeScreen.listener, emitter);
+                    cue.Apply3D(Empire.Universe.listener, emitter);
                     cue.Play();
                     ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
-                    Planet.universeScreen.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
+                    Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     for (int index = 0; index < 50; ++index)
-                        Planet.universeScreen.explosionParticles.AddParticleThreadB(bomb.Position, Vector3.Zero);
+                        Empire.Universe.explosionParticles.AddParticleThreadB(bomb.Position, Vector3.Zero);
                 }
                 Planet.OrbitalDrop orbitalDrop = new Planet.OrbitalDrop();
                 Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
@@ -293,13 +292,13 @@ namespace Ship_Game
                         orbitalDrop.Target.building = (Building)null;
                     }
                 }
-                if (Planet.universeScreen.workersPanel is CombatScreen && Planet.universeScreen.LookingAtPlanet && (Planet.universeScreen.workersPanel as CombatScreen).p == this)
+                if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == this)
                 {
                     AudioManager.PlayCue("Explo1");
                     CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(4);
                     smallExplosion.grid = orbitalDrop.Target.ClickRect;
                     lock (GlobalStats.ExplosionLocker)
-                        (Planet.universeScreen.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
+                        (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
                 }
                 if ((double)this.Population <= 0.0)
                 {
@@ -309,7 +308,7 @@ namespace Ship_Game
                         this.Owner.RemovePlanet(this);
                         if (this.ExploredDict[Empire.Universe.PlayerEmpire])
                         {
-                            Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
+                            Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
                             bool flag2 = true;
                             if (this.Owner != null)
                             {
@@ -375,16 +374,16 @@ namespace Ship_Game
                 population.Population = population.Population - 1000f * ResourceManager.WeaponsDict[bomb.WeaponName].BombPopulationKillPerHit;
                 AudioEmitter e = new AudioEmitter();
                 e.Position = bomb.Position;
-                if (Planet.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && this.system.isVisible)
                 {
                     Cue Explode = AudioManager.GetCue("sd_bomb_impact_01");
-                    Explode.Apply3D(Planet.universeScreen.listener, e);
+                    Explode.Apply3D(Empire.Universe.listener, e);
                     Explode.Play();
                     ExplosionManager.AddExplosionNoFlames(bomb.Position, 200f, 7.5f, 0.6f);
-                    Planet.universeScreen.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
+                    Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     for (int i = 0; i < 50; i++)
                     {
-                        Planet.universeScreen.explosionParticles.AddParticleThreadB(bomb.Position, Vector3.Zero);
+                        Empire.Universe.explosionParticles.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     }
                 }
                 Planet.OrbitalDrop od = new Planet.OrbitalDrop();
@@ -499,14 +498,14 @@ namespace Ship_Game
 
                     }
                 }
-                if (Planet.universeScreen.workersPanel is CombatScreen && Planet.universeScreen.LookingAtPlanet && (Planet.universeScreen.workersPanel as CombatScreen).p == this)
+                if (Empire.Universe.workersPanel is CombatScreen && Empire.Universe.LookingAtPlanet && (Empire.Universe.workersPanel as CombatScreen).p == this)
                 {
                     AudioManager.PlayCue("Explo1");
                     CombatScreen.SmallExplosion exp1 = new CombatScreen.SmallExplosion(4);
                     exp1.grid = od.Target.ClickRect;
                     lock (GlobalStats.ExplosionLocker)
                     {
-                        (Planet.universeScreen.workersPanel as CombatScreen).Explosions.Add(exp1);
+                        (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(exp1);
                     }
                 }
                 if (this.Population <= 0f)
@@ -517,7 +516,7 @@ namespace Ship_Game
                         this.Owner.RemovePlanet(this);
                         if (this.ExploredDict[Empire.Universe.PlayerEmpire])
                         {
-                            Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
+                            Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
                         }
                         bool removeowner = true;
                         if (this.Owner != null)
@@ -573,10 +572,10 @@ namespace Ship_Game
             {
                 AudioEmitter emitter = new AudioEmitter();
                 emitter.Position = this.shield.Center;
-                if (Planet.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
                     Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
-                    shieldcue.Apply3D(Planet.universeScreen.listener, emitter);
+                    shieldcue.Apply3D(Empire.Universe.listener, emitter);
                     shieldcue.Play();
                 }
                 this.shield.Rotation = Position.RadiansToTarget(new Vector2(bomb.Position.X, bomb.Position.Y));
@@ -593,12 +592,12 @@ namespace Ship_Game
                 this.shield.pointLight.Intensity = 8f;
                 this.shield.pointLight.Enabled = true;
                 Vector3 vel = Vector3.Normalize(bomb.Position - this.shield.Center);
-                if (Planet.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
-                    Planet.universeScreen.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
+                    Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
                     for (int i = 0; i < 200; i++)
                     {
-                        Planet.universeScreen.sparks.AddParticleThreadB(bomb.Position, vel * new Vector3(RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f)));
+                        Empire.Universe.sparks.AddParticleThreadB(bomb.Position, vel * new Vector3(RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f), RandomMath.RandomBetween(-25f, 25f)));
                     }
                 }
                 Planet shieldStrengthCurrent = this;
@@ -1417,7 +1416,7 @@ namespace Ship_Game
             }
             this.UpdateDescription();
             lock (GlobalStats.ObjectManagerLocker)
-                Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
             this.SO = new SceneObject(((ReadOnlyCollection<ModelMesh>)ResourceManager.GetModel("Model/SpaceObjects/planet_" + (object)this.planetType).Meshes)[0]);
             this.SO.ObjectType = ObjectType.Dynamic;
             this.SO.World = Matrix.Identity * Matrix.CreateScale(3f) 
@@ -1427,7 +1426,7 @@ namespace Ship_Game
                 * Matrix.CreateRotationX(ringTilt.ToRadians()) 
                 * Matrix.CreateScale(5f) * Matrix.CreateTranslation(new Vector3(this.Position, 2500f));
             lock (GlobalStats.ObjectManagerLocker)
-                Planet.universeScreen.ScreenManager.inter.ObjectManager.Submit((ISceneObject)this.SO);
+                Empire.Universe.ScreenManager.inter.ObjectManager.Submit((ISceneObject)this.SO);
         }
 
         public void LoadAttributes()
@@ -1630,7 +1629,7 @@ namespace Ship_Game
                         t.SetPlanet(this);
                         if (eventLocation.building == null || string.IsNullOrEmpty(eventLocation.building.EventTriggerUID) || (eventLocation.TroopsHere.Count <= 0 || eventLocation.TroopsHere[0].GetOwner().isFaction))
                             return true;
-                        ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Planet.universeScreen);
+                        ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe);
                     }
                 }
             }
@@ -1948,7 +1947,7 @@ namespace Ship_Game
                                 CombatScreen.SmallExplosion smallExplosion = new CombatScreen.SmallExplosion(1);
                                 smallExplosion.grid = combat.Defender.TroopClickRect;
                                 lock (GlobalStats.ExplosionLocker)
-                                    (Planet.universeScreen.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
+                                    (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(smallExplosion);
                                 if (combat.Defender.TroopsHere.Count > 0)
                                 {
                                     combat.Defender.TroopsHere[0].Strength -= num4;
@@ -1959,7 +1958,7 @@ namespace Ship_Game
                                         this.ActiveCombats.QueuePendingRemoval(combat);
                                         AudioManager.PlayCue("Explo1");
                                         lock (GlobalStats.ExplosionLocker)
-                                            (Planet.universeScreen.workersPanel as CombatScreen).Explosions.Add(new CombatScreen.SmallExplosion(4)
+                                            (Empire.Universe.workersPanel as CombatScreen).Explosions.Add(new CombatScreen.SmallExplosion(4)
                                             {
                                                 grid = combat.Defender.TroopClickRect
                                             });
@@ -2099,11 +2098,11 @@ namespace Ship_Game
 
         public void DoCombats(float elapsedTime)
         {
-            if (Planet.universeScreen.LookingAtPlanet)
+            if (Empire.Universe.LookingAtPlanet)
             {
-                if (Planet.universeScreen.workersPanel is CombatScreen)
+                if (Empire.Universe.workersPanel is CombatScreen)
                 {
-                    if ((Planet.universeScreen.workersPanel as CombatScreen).p == this)
+                    if ((Empire.Universe.workersPanel as CombatScreen).p == this)
                         this.DoViewedCombat(elapsedTime);
                 }
                 else
@@ -2148,19 +2147,19 @@ namespace Ship_Game
             if (num2 > this.numInvadersLast && this.numInvadersLast == 0)
             {
                 if (Empire.Universe.PlayerEmpire == this.Owner)
-                    Planet.universeScreen.NotificationManager.AddEnemyTroopsLandedNotification(this, index, this.Owner);
+                    Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(this, index, this.Owner);
                 else if (index == Empire.Universe.PlayerEmpire && !this.Owner.isFaction && !Empire.Universe.PlayerEmpire.GetRelations(this.Owner).AtWar)
                 {
                     if (Empire.Universe.PlayerEmpire.GetRelations(this.Owner).Treaty_NAPact)
                     {
-                        Planet.universeScreen.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.Owner, Empire.Universe.PlayerEmpire, "Invaded NA Pact", this.system));
+                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.Owner, Empire.Universe.PlayerEmpire, "Invaded NA Pact", this.system));
                         Empire.Universe.PlayerEmpire.GetGSAI().DeclareWarOn(this.Owner, WarType.ImperialistWar);
                         this.Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 50f;
                         this.Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 50f;
                     }
                     else
                     {
-                        Planet.universeScreen.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.Owner, Empire.Universe.PlayerEmpire, "Invaded Start War", this.system));
+                        Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(Empire.Universe, this.Owner, Empire.Universe.PlayerEmpire, "Invaded Start War", this.system));
                         Empire.Universe.PlayerEmpire.GetGSAI().DeclareWarOn(this.Owner, WarType.ImperialistWar);
                         this.Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 25f;
                         this.Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 25f;
@@ -2184,12 +2183,12 @@ namespace Ship_Game
             if (index == Empire.Universe.PlayerEmpire && this.Owner == EmpireManager.Cordrazine)
                 GlobalStats.IncrementCordrazineCapture();
             if (this.ExploredDict[Empire.Universe.PlayerEmpire] && !flag)
-                Planet.universeScreen.NotificationManager.AddConqueredNotification(this, index, this.Owner);
+                Empire.Universe.NotificationManager.AddConqueredNotification(this, index, this.Owner);
             else if (this.ExploredDict[Empire.Universe.PlayerEmpire])
             {
                 lock (GlobalStats.OwnedPlanetsLock)
                 {
-                    Planet.universeScreen.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
+                    Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
                     bool local_7 = true;
                     
                     if (this.Owner != null)
@@ -2346,7 +2345,7 @@ namespace Ship_Game
                 {
                     if (pgs.TroopsHere[0].AvailableAttackActions > 0)
                     {
-                        if (pgs.TroopsHere[0].GetOwner() != Empire.Universe.PlayerEmpire || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat)
+                        if (pgs.TroopsHere[0].GetOwner() != Empire.Universe.PlayerEmpire || !Empire.Universe.LookingAtPlanet || (!(Empire.Universe.workersPanel is CombatScreen) || (Empire.Universe.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat)
                         {
                             {
                                 foreach (PlanetGridSquare planetGridSquare in this.TilesList)
@@ -2547,7 +2546,7 @@ namespace Ship_Game
                     catch { }
                 }
                     
-                else if (pgs.building != null && pgs.building.CombatStrength > 0 && (this.Owner != Empire.Universe.PlayerEmpire || !Planet.universeScreen.LookingAtPlanet || (!(Planet.universeScreen.workersPanel is CombatScreen) || (Planet.universeScreen.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat) && pgs.building.AvailableAttackActions > 0)
+                else if (pgs.building != null && pgs.building.CombatStrength > 0 && (this.Owner != Empire.Universe.PlayerEmpire || !Empire.Universe.LookingAtPlanet || (!(Empire.Universe.workersPanel is CombatScreen) || (Empire.Universe.workersPanel as CombatScreen).p != this) || GlobalStats.AutoCombat) && pgs.building.AvailableAttackActions > 0)
                 {
                     foreach (PlanetGridSquare planetGridSquare in this.TilesList)
                     {
@@ -2598,7 +2597,7 @@ namespace Ship_Game
                         return true;
                 }
 
-                ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Planet.universeScreen);
+                ResourceManager.EventsDict[eventLocation.building.EventTriggerUID].TriggerPlanetEvent(this, eventLocation.TroopsHere[0].GetOwner(), eventLocation, Empire.Universe);
             }
             return false;
         }
@@ -2896,42 +2895,42 @@ namespace Ship_Game
             {
                 this.Fertility = 0.0f;
                 lock (GlobalStats.ObjectManagerLocker)
-                    Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                    Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                 this.planetType = 7;
                 this.Terraform();
             }
             else if (this.Type == "Barren" && (double)this.Fertility > 0.01)
             {
                 lock (GlobalStats.ObjectManagerLocker)
-                    Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                    Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                 this.planetType = 14;
                 this.Terraform();
             }
             else if (this.Type == "Desert" && (double)this.Fertility > 0.35)
             {
                 lock (GlobalStats.ObjectManagerLocker)
-                    Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                    Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                 this.planetType = 18;
                 this.Terraform();
             }
             else if (this.Type == "Ice" && (double)this.Fertility > 0.35)
             {
                 lock (GlobalStats.ObjectManagerLocker)
-                    Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                    Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                 this.planetType = 19;
                 this.Terraform();
             }
             else if (this.Type == "Swamp" && (double)this.Fertility > 0.75)
             {
                 lock (GlobalStats.ObjectManagerLocker)
-                    Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                    Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                 this.planetType = 21;
                 this.Terraform();
             }
             else if (this.Type == "Steppe" && (double)this.Fertility > 0.6)
             {
                 lock (GlobalStats.ObjectManagerLocker)
-                    Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                    Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                 this.planetType = 11;
                 this.Terraform();
             }
@@ -2940,7 +2939,7 @@ namespace Ship_Game
                 if (!(this.Type == "Tundra") || (double)this.Fertility <= 0.95)
                     return;
                 lock (GlobalStats.ObjectManagerLocker)
-                    Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                    Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                 this.planetType = 22;
                 this.Terraform();
             }
@@ -2963,42 +2962,42 @@ namespace Ship_Game
                 if (this.Type == "Barren" &&  this.Fertility > 0.01)
                 {
                     lock (GlobalStats.ObjectManagerLocker)
-                        Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                        Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                     this.planetType = 14;
                     this.Terraform();
                 }
                 else if (this.Type == "Desert" &&  this.Fertility > 0.35)
                 {
                     lock (GlobalStats.ObjectManagerLocker)
-                        Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                        Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                     this.planetType = 18;
                     this.Terraform();
                 }
                 else if (this.Type == "Ice" &&  this.Fertility > 0.35)
                 {
                     lock (GlobalStats.ObjectManagerLocker)
-                        Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                        Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                     this.planetType = 19;
                     this.Terraform();
                 }
                 else if (this.Type == "Swamp" &&  this.Fertility > 0.75)
                 {
                     lock (GlobalStats.ObjectManagerLocker)
-                        Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                        Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                     this.planetType = 21;
                     this.Terraform();
                 }
                 else if (this.Type == "Steppe" &&  this.Fertility > 0.6)
                 {
                     lock (GlobalStats.ObjectManagerLocker)
-                        Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                        Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                     this.planetType = 11;
                     this.Terraform();
                 }
                 else if (this.Type == "Tundra" &&  this.Fertility > 0.95)
                 {
                     lock (GlobalStats.ObjectManagerLocker)
-                        Planet.universeScreen.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
+                        Empire.Universe.ScreenManager.inter.ObjectManager.Remove((ISceneObject)this.SO);
                     this.planetType = 22;
                     this.Terraform();
                 }
@@ -3017,7 +3016,7 @@ namespace Ship_Game
                     if (colonyType == ColonyType.Colony || colonyType == ColonyType.Core || colonyType == ColonyType.Industrial || !GovernorOn)
                     {
                         queueEmptySent = true;
-                        universeScreen.NotificationManager.AddEmptyQueueNotification(this);
+                        Empire.Universe.NotificationManager.AddEmptyQueueNotification(this);
                     }
                 }
                 else if (ConstructionQueue.Count > 0)
@@ -5715,13 +5714,13 @@ output = maxp * take10 = 5
                     {
                         this.Station.planet = this;
                         this.Station.ParentSystem = this.system;
-                        this.Station.LoadContent(Planet.universeScreen.ScreenManager);
+                        this.Station.LoadContent(Empire.Universe.ScreenManager);
                         this.HasShipyard = true;
                     }
                     if (queueItem.Building.AllowShipBuilding)
                         this.HasShipyard = true;
                     if (building.EventOnBuild != null && this.Owner != null && this.Owner == Empire.Universe.PlayerEmpire)
-                        Planet.universeScreen.ScreenManager.AddScreen((GameScreen)new EventPopup(Planet.universeScreen, Empire.Universe.PlayerEmpire, ResourceManager.EventsDict[building.EventOnBuild], ResourceManager.EventsDict[building.EventOnBuild].PotentialOutcomes[0], true));
+                        Empire.Universe.ScreenManager.AddScreen((GameScreen)new EventPopup(Empire.Universe, Empire.Universe.PlayerEmpire, ResourceManager.EventsDict[building.EventOnBuild], ResourceManager.EventsDict[building.EventOnBuild].PotentialOutcomes[0], true));
                     this.ConstructionQueue.QueuePendingRemoval(queueItem);
                 }
                 else if (queueItem.isShip && !ResourceManager.ShipsDict.ContainsKey(queueItem.sData.Name))
@@ -5993,9 +5992,9 @@ output = maxp * take10 = 5
             if (this.Station != null && !LoadUniverse)
             {
                 if (!this.HasShipyard)
-                    this.Station.SetVisibility(false, Planet.universeScreen.ScreenManager, this);
+                    this.Station.SetVisibility(false, Empire.Universe.ScreenManager, this);
                 else
-                    this.Station.SetVisibility(true, Planet.universeScreen.ScreenManager, this);
+                    this.Station.SetVisibility(true, Empire.Universe.ScreenManager, this);
             }
             
             this.consumption =  ( this.Population / 1000 +  this.Owner.data.Traits.ConsumptionModifier * this.Population / 1000);

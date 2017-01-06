@@ -31,7 +31,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-		public ModManager(MainMenuScreen mmscreen)
+		public ModManager(MainMenuScreen mmscreen) : base(mmscreen)
 		{
 			this.mmscreen = mmscreen;
 			IsPopup = true;

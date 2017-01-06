@@ -1,8 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {
@@ -31,8 +29,15 @@ namespace Ship_Game
 
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
-        protected GameScreen()
+
+        // This should be used for content that gets unloaded once this GameScreen disappears
+        public readonly GameContentManager TransientContent;
+
+        protected GameScreen(GameScreen parent)
 		{
+            // hook the content chain to parent screen if possible
+            TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content);
+            ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
         }
 
 		public abstract void Draw(GameTime gameTime);
@@ -61,7 +66,8 @@ namespace Ship_Game
 
 		public virtual void UnloadContent()
 		{
-		}
+            TransientContent.Unload();
+        }
 
 		public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{

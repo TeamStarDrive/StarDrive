@@ -11,7 +11,6 @@ namespace Ship_Game
 {
 	public sealed class LoadModelScreen : GameScreen, IDisposable
 	{
-		private Vector2 Cursor = Vector2.Zero;
 		private ShipToolScreen screen;
 		//private MainMenuScreen mmscreen;
 		//private Submenu subSave;
@@ -21,7 +20,7 @@ namespace Ship_Game
 		private Vector2 EnternamePos;
 		private Vector2 TitlePosition;
 		private ScrollList SavesSL;
-		private ContentManager LocalContent;
+		private GameContentManager LocalContent;
 		private Selector selector;
 		private FileInfo activeFile;
 		private MouseState currentMouse;
@@ -29,7 +28,7 @@ namespace Ship_Game
 
 		//private float transitionElapsedTime;
 
-		public LoadModelScreen(ShipToolScreen screen)
+		public LoadModelScreen(ShipToolScreen screen) : base(screen)
 		{
 			this.screen = screen;
 			base.IsPopup = true;
@@ -170,7 +169,7 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			LocalContent         = new ContentManager(Game1.Instance.Services, "");
+			LocalContent         = new GameContentManager(Game1.Instance.Content);
 			Window               = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 400, 600);
 			SaveMenu             = new Menu1(ScreenManager, Window);
 			Rectangle sub        = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);

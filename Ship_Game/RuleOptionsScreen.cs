@@ -42,7 +42,7 @@ namespace Ship_Game
 
         //public static float StartingPlanetRichness;
 
-		public RuleOptionsScreen()
+		public RuleOptionsScreen(GameScreen parent) : base(parent)
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);

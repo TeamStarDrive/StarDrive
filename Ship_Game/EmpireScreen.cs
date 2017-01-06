@@ -57,14 +57,13 @@ namespace Ship_Game
         private bool disposed;
         //private bool firstSort = true;
 
-		public EmpireScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
+		public EmpireScreen(GameScreen parent, EmpireUIOverlay empUI) : base(parent)
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			base.IsPopup = true;
 			this.eui = empUI;
-			base.ScreenManager = ScreenManager;
-			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+			if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				//this.LowRes = true;
 			}
@@ -733,8 +732,8 @@ namespace Ship_Game
 					else
 					{
 						
-                        this.eui.screen.SelectedPlanet = this.SelectedPlanet;
-						this.eui.screen.ViewPlanet(null);
+                        Empire.Universe.SelectedPlanet = this.SelectedPlanet;
+                        Empire.Universe.ViewPlanet(null);
 						this.ExitScreen();
 					}
 				}

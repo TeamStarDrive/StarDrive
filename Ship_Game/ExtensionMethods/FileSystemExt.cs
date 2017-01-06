@@ -76,6 +76,8 @@ namespace Ship_Game
 
     public static class FileSystemExtensions
     {
+        private static string AppRoot = Path.GetFullPath(".");
+
         public static T Deserialize<T>(this FileInfo info)
         {
             return Deserialize<T>(new XmlSerializer(typeof(T)), info);
@@ -99,6 +101,18 @@ namespace Ship_Game
         public static string PathNoExt(this FileInfo info)
         {
             return (info.DirectoryName??"") + "/" + info.NameNoExt();
+        }
+
+        public static string RelPath(this FileInfo info)
+        {
+            return info.FullName.Substring(AppRoot.Length + 1);
+        }
+
+        public static string RelPathNoExt(this FileInfo info)
+        {
+            string filePath = info.FullName.Substring(AppRoot.Length + 1);
+            int i = filePath.LastIndexOf('.');
+            return i == -1 ? filePath : filePath.Substring(0, i);
         }
     }
 }

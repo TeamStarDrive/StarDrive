@@ -68,13 +68,13 @@ namespace Ship_Game
 
 		//private bool AutoButtonHover;
 
-		public PlanetListScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
+		public PlanetListScreen(GameScreen parent, EmpireUIOverlay empUI)
+            : base(parent)
 		{
 			this.empUI = empUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			base.IsPopup = true;
-			base.ScreenManager = ScreenManager;
 			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				//this.LowRes = true;
@@ -526,10 +526,10 @@ namespace Ship_Game
                     {
                         this.ExitScreen();
                         AudioManager.PlayCue("sd_ui_accept_alt3");
-                        this.empUI.screen.SelectedPlanet = entry.planet;
-                        this.empUI.screen.ViewingShip = false;
-                        this.empUI.screen.returnToShip = false;
-                        this.empUI.screen.transitionDestination = new Vector3(entry.planet.Position.X, entry.planet.Position.Y, 10000f);
+                        Empire.Universe.SelectedPlanet = entry.planet;
+                        Empire.Universe.ViewingShip = false;
+                        Empire.Universe.returnToShip = false;
+                        Empire.Universe.transitionDestination = new Vector3(entry.planet.Position.X, entry.planet.Position.Y, 10000f);
                     }
 				}
 			}

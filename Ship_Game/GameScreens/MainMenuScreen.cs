@@ -54,7 +54,7 @@ namespace Ship_Game
 
         private readonly Texture2D TexComet = ResourceManager.TextureDict["GameScreens/comet"];
 
-		public MainMenuScreen()
+		public MainMenuScreen() : base(null /*no parent*/)
 		{
             TransitionOnTime  = TimeSpan.FromSeconds(1);
 			TransitionOffTime = TimeSpan.FromSeconds(0.5);
@@ -491,7 +491,7 @@ namespace Ship_Game
 					        break;
 					    case "Tutorials":
 					        AudioManager.PlayCue("sd_ui_tactical_pause");
-					        ScreenManager.AddScreen(new TutorialScreen());
+					        ScreenManager.AddScreen(new TutorialScreen(this));
 					        break;
 					    case "Load Game":
 					        AudioManager.PlayCue("sd_ui_tactical_pause");
@@ -557,12 +557,12 @@ namespace Ship_Game
 			for (int i = 0; i < 81; i++)
 			{
 				string remainder = i.ToString("00000.##");
-				Texture2D logo = ScreenManager.Content.Load<Texture2D>(
+				Texture2D logo = TransientContent.Load<Texture2D>(
                     "MainMenu/Stardrive logo/" + basepath + remainder);
 				LogoAnimation.Add(logo);
 			}
 
-		    StarField = ScreenManager.Content.Load<Texture2D>(size.Y <= 1080 
+		    StarField = TransientContent.Load<Texture2D>(size.Y <= 1080 
                         ? "MainMenu/nebula_stars_bg" : "MainMenu/HR_nebula_stars_bg");
 		    StarFieldRect = new Rectangle(0, 0, (int)size.X, (int)size.Y);
 
@@ -578,8 +578,11 @@ namespace Ship_Game
 
 			ScreenManager.inter.ObjectManager.Clear();
 			ScreenManager.inter.LightManager.Clear();
-            ShieldManager.LoadContent(ScreenManager.Content);
-			Beam.BeamEffect = ScreenManager.Content.Load<Effect>("Effects/BeamFX");
+
+            // @todo Why are these global inits here??
+            ShieldManager.LoadContent(Game1.GameContent);
+			Beam.BeamEffect = Game1.GameContent.Load<Effect>("Effects/BeamFX");
+
 			Portrait = new Rectangle((int)size.X / 2 - 960, (int)size.Y / 2 - 540, 1920, 1080);
 
 			while (Portrait.Width < size.X && Portrait.Height < size.Y)
@@ -605,15 +608,15 @@ namespace Ship_Game
             ShipPosition = new Vector3(size.X / 2 - 1200, LogoRect.Y + 400 - size.Y / 2, 0f);
 
             string planet = "Model/SpaceObjects/planet_" + RandomMath.IntBetween(1, 29);
-            MoonObj = new SceneObject(ScreenManager.Content.Load<Model>(planet).Meshes[0]) { ObjectType = ObjectType.Dynamic };
+            MoonObj = new SceneObject(TransientContent.Load<Model>(planet).Meshes[0]) { ObjectType = ObjectType.Dynamic };
             MoonObj.AffineTransform(MoonPosition, MoonRotation.DegsToRad(), MoonScale);
             ScreenManager.inter.ObjectManager.Submit(MoonObj);
 
             InitRandomShip();
 
-            LightRig rig = ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
+            LightRig rig = TransientContent.Load<LightRig>("example/ShipyardLightrig");
             rig.AssignTo(this);
-			ScreenManager.environment = ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
+			ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
 			Vector3 camPos = new Vector3(0f, 0f, 1500f) * new Vector3(-1f, 1f, 1f);
 			View = Matrix.CreateTranslation(0f, 0f, 0f) 

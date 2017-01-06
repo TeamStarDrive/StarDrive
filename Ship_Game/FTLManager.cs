@@ -9,7 +9,7 @@ namespace Ship_Game
 		private static readonly BatchRemovalCollection<FTL> FTLList = new BatchRemovalCollection<FTL>();
         private static Texture2D FTLTexture;
 
-        public static void LoadContent(ContentManager content)
+        public static void LoadContent(GameContentManager content)
         {
             if (FTLTexture == null)
                 FTLTexture = content.Load<Texture2D>("Textures/Ships/FTL");

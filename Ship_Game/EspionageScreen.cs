@@ -51,7 +51,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-		public EspionageScreen(UniverseScreen screen)
+		public EspionageScreen(UniverseScreen screen) : base(screen)
 		{
 			this.screen = screen;
 			base.IsPopup = true;
