@@ -258,11 +258,11 @@ namespace Ship_Game
         public int reducer = 1;
         public float screenDelay = 0f;
 
-        public UniverseScreen()
+        public UniverseScreen() : base(null)
         {
         }
 
-        public UniverseScreen(UniverseData data)
+        public UniverseScreen(UniverseData data) : base(null)
         {
             Size                        = data.Size;
             FTLModifier                 = data.FTLSpeedModifier;
@@ -278,7 +278,7 @@ namespace Ship_Game
 
         }
         
-        public UniverseScreen(UniverseData data, string loyalty)
+        public UniverseScreen(UniverseData data, string loyalty) : base(null)
         {
             Size                  = data.Size;
             FTLModifier           = data.FTLSpeedModifier;
@@ -295,7 +295,7 @@ namespace Ship_Game
             loading               = true;
         }
 
-        public UniverseScreen(int numsys, float size)
+        public UniverseScreen(int numsys, float size) : base(null)
         {
             Size.X = size;
             Size.Y = size;
@@ -318,7 +318,7 @@ namespace Ship_Game
                 return;
             }
 
-            LightRig rig = ScreenManager.Content.Load<LightRig>("example/NewGamelight_rig");
+            LightRig rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
             lock (GlobalStats.ObjectManagerLocker)
                 ScreenManager.inter.LightManager.Submit(rig);
         }
@@ -405,7 +405,7 @@ namespace Ship_Game
         public void RefitTo(object sender)
         {
             if (SelectedShip != null)
-                ScreenManager.AddScreen(new RefitToWindow(SelectedShip));
+                ScreenManager.AddScreen(new RefitToWindow(this, SelectedShip));
         }
 
         public void OrderScrap(object sender)
@@ -468,13 +468,13 @@ namespace Ship_Game
                 {
                     if (this.SelectedShip.loyalty.data.Traits.Name == e.Faction && this.player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
                     {
-                        this.ScreenManager.AddScreen((GameScreen)new EncounterPopup(this, this.player, this.SelectedShip.loyalty, (SolarSystem)null, e));
+                        this.ScreenManager.AddScreen(new EncounterPopup(this, player, this.SelectedShip.loyalty, (SolarSystem)null, e));
                         break;
                     }
                 }
             }
             else
-                this.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.SelectedShip.loyalty, this.player, "Greeting"));
+                this.ScreenManager.AddScreen(new DiplomacyScreen(this, SelectedShip.loyalty, this.player, "Greeting"));
         }
 
         public void DoHoldPosition(object sender)
@@ -725,7 +725,7 @@ namespace Ship_Game
             UniverseScreen.ShipSpatialManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));
             this.DoParticleLoad();
             this.bg3d = new Background3D(this);
-            this.starfield = new Starfield(Vector2.Zero, this.ScreenManager.GraphicsDevice, this.ScreenManager.Content);
+            this.starfield = new Starfield(Vector2.Zero, this.ScreenManager.GraphicsDevice, TransientContent);
             this.starfield.LoadContent();
             GameplayObject.audioListener = this.listener;
             Weapon.audioListener = this.listener;
@@ -873,7 +873,7 @@ namespace Ship_Game
 
         private void DoParticleLoad()
         {
-            var content = ScreenManager.Content;
+            var content = TransientContent;
             var device = ScreenManager.GraphicsDevice;
             beamflashes              = new ParticleSystem(Game1.Instance, content, "3DParticles/BeamFlash", device);
             explosionParticles       = new ParticleSystem(Game1.Instance, content, "3DParticles/ExplosionSettings", device);
@@ -896,7 +896,7 @@ namespace Ship_Game
         {
             const int minimapOffSet = 14;
 
-            var content = ScreenManager.Content;
+            var content = TransientContent;
             var device  = ScreenManager.GraphicsDevice;
             int width   = device.PresentationParameters.BackBufferWidth;
             int height  = device.PresentationParameters.BackBufferHeight;
@@ -921,7 +921,7 @@ namespace Ship_Game
             shipListInfoUI     = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
             vuiElement         = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
             SectorSourceRect   = new Rectangle((width - 720) / 2, (height - 720) / 2, 720, 720);
-            EmpireUI           = new EmpireUIOverlay(player, device, this);
+            EmpireUI           = new EmpireUIOverlay(player, device);
             bloomComponent     = new BloomComponent(ScreenManager);
             bloomComponent.LoadContent();
             aw = new AutomationWindow(ScreenManager, this);
@@ -962,8 +962,7 @@ namespace Ship_Game
             Projectile.contentManager             = content;
             MuzzleFlashManager.universeScreen     = this;
             DroneAI.UniverseScreen                = this;
-            ExplosionManager.Universe       = this;
-            ShipDesignScreen.screen               = this;
+            ExplosionManager.Universe             = this;
             Fleet.screen                          = this;
             Bomb.Screen                           = this;
             Anomaly.screen                        = this;
@@ -973,7 +972,6 @@ namespace Ship_Game
             ShipModule.universeScreen             = this;
             Empire.Universe                       = this;
             ResourceManager.UniverseScreen        = this;
-            Planet.universeScreen                 = this;
             Weapon.universeScreen                 = this;
             Ship.universeScreen                   = this;
             ArtificialIntelligence.universeScreen = this;
@@ -2669,7 +2667,7 @@ namespace Ship_Game
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.L) && !input.LastKeyboardState.IsKeyDown(Keys.L))
                 {
                     AudioManager.PlayCue("sd_ui_accept_alt3");
-                    this.ScreenManager.AddScreen((GameScreen)new PlanetListScreen(this.ScreenManager, this.EmpireUI));
+                    this.ScreenManager.AddScreen(new PlanetListScreen(this, this.EmpireUI));
                 }
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.F1) && !input.LastKeyboardState.IsKeyDown(Keys.F1))
                 {
@@ -2694,12 +2692,12 @@ namespace Ship_Game
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.K) && !input.LastKeyboardState.IsKeyDown(Keys.K))
                 {
                     AudioManager.PlayCue("sd_ui_accept_alt3");
-                    this.ScreenManager.AddScreen((GameScreen)new ShipListScreen(this.ScreenManager, this.EmpireUI));
+                    this.ScreenManager.AddScreen(new ShipListScreen(this, EmpireUI));
                 }
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.J) && !input.LastKeyboardState.IsKeyDown(Keys.J))
                 {
                     AudioManager.PlayCue("sd_ui_accept_alt3");
-                    this.ScreenManager.AddScreen((GameScreen)new FleetDesignScreen(this.EmpireUI));
+                    this.ScreenManager.AddScreen(new FleetDesignScreen(this, EmpireUI));
                     FleetDesignScreen.Open = true;
                 }
                 if (input.CurrentKeyboardState.IsKeyDown(Keys.H) && !input.LastKeyboardState.IsKeyDown(Keys.H))
@@ -4711,18 +4709,16 @@ namespace Ship_Game
             star_particles.UnloadContent();
             neb_particles.UnloadContent();
             SolarSystemDict.Clear();
-            ShipDesignScreen.screen               = null;
             Fleet.screen                          = null;
             Bomb.Screen                           = null;
             Anomaly.screen                        = null;
             PlanetScreen.screen                   = null;
             MinimapButtons.screen                 = null;
-            Projectile.contentManager             = ScreenManager.Content;
+            Projectile.contentManager             = null;
             Projectile.universeScreen             = null;
             ShipModule.universeScreen             = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
-            Planet.universeScreen                 = null;
             Weapon.universeScreen                 = null;
             Ship.universeScreen                   = null;
             ArtificialIntelligence.universeScreen = null;
@@ -4730,7 +4726,7 @@ namespace Ship_Game
             CombatScreen.universeScreen           = null;
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
-            ExplosionManager.Universe       = null;
+            ExplosionManager.Universe             = null;
             DroneAI.UniverseScreen                = null;
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();            
@@ -6908,7 +6904,7 @@ namespace Ship_Game
                                 item_0.draw(ref this.view, ref this.projection, this.ThrusterEffect);
                             }
                             else
-                                item_0.load_and_assign_effects(this.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
+                                item_0.load_and_assign_effects(TransientContent, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
                         }
                     }
                 }
@@ -6921,10 +6917,10 @@ namespace Ship_Game
                 this.Frustum = new BoundingFrustum(this.view * this.projection);
             else
                 this.Frustum.Matrix = this.view * this.projection;
-            this.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, (ISceneEnvironment)this.ScreenManager.environment, true);
-            this.ScreenManager.editor.BeginFrameRendering((ISceneState)this.ScreenManager.sceneState);
+            this.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, ScreenManager.environment, true);
+            this.ScreenManager.editor.BeginFrameRendering(ScreenManager.sceneState);
             lock (GlobalStats.ObjectManagerLocker)
-                this.ScreenManager.inter.BeginFrameRendering((ISceneState)this.ScreenManager.sceneState);
+                this.ScreenManager.inter.BeginFrameRendering(ScreenManager.sceneState);
             this.RenderBackdrop();
             this.ScreenManager.SpriteBatch.Begin();
             if (this.DefiningAO && Mouse.GetState().LeftButton == ButtonState.Pressed)

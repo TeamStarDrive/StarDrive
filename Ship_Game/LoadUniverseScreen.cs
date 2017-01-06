@@ -25,6 +25,8 @@ namespace Ship_Game
 		private string text;
         private Texture2D LoadingImage;
 		private Effect ThrusterEffect;
+        private Model ThrusterModel;
+        private Texture3D ThrusterTexture;
 		private int systemToMake;
 		private ManualResetEvent GateKeeper = new ManualResetEvent(false);
 		private bool Loaded;
@@ -33,7 +35,7 @@ namespace Ship_Game
 		private float percentloaded;
 		private bool ready;
 
-		public LoadUniverseScreen(FileInfo activeFile)
+		public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/)
 		{
             GlobalStats.RemnantKills = 0;
 			GlobalStats.RemnantArmageddon = false;
@@ -416,7 +418,7 @@ namespace Ship_Game
 			ScreenCenter = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth  / 2f, 
                                        ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2f);
 
-            LoadingImage = ResourceManager.LoadRandomLoadingScreen(ScreenManager.Content);
+            LoadingImage = ResourceManager.LoadRandomLoadingScreen(TransientContent);
             text = HelperFunctions.ParseText(Fonts.Arial12Bold, ResourceManager.LoadRandomAdvice(), 500f);
 			base.LoadContent();
 		}
@@ -428,8 +430,10 @@ namespace Ship_Game
 			this.data = new UniverseData();
 			RandomEventManager.ActiveEvent = this.savedData.RandomEvent;
 			UniverseScreen.DeepSpaceManager = new SpatialManager();
-			this.ThrusterEffect = base.ScreenManager.Content.Load<Effect>("Effects/Thrust");
-			this.data.loadFogPath           = this.savedData.FogMapName;
+			ThrusterEffect  = Game1.GameContent.Load<Effect>("Effects/Thrust");
+            ThrusterModel   = Game1.GameContent.Load<Model>("Effects/ThrustCylinderB");
+            ThrusterTexture = Game1.GameContent.Load<Texture3D>("Effects/NoiseVolume");
+            this.data.loadFogPath           = this.savedData.FogMapName;
 			this.data.difficulty            = UniverseData.GameDifficulty.Normal;
 			this.data.difficulty            = this.savedData.gameDifficulty;
 			this.data.Size                  = this.savedData.Size;
@@ -1184,7 +1188,7 @@ namespace Ship_Game
 					base.ScreenManager.inter.ObjectManager.Submit(ship.GetSO());
 					foreach (Thruster t in ship.GetTList())
 					{
-						t.load_and_assign_effects(base.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
+						t.load_and_assign_effects(Game1.GameContent, ThrusterModel, ThrusterTexture, ThrusterEffect);
 						t.InitializeForViewing();
 					}
 					foreach (Projectile p in ship.Projectiles)

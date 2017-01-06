@@ -57,7 +57,7 @@ namespace Ship_Game
             public bool highlighted;
         }
 
-        public OptionsScreen(MainMenuScreen s, Rectangle dimensions)
+        public OptionsScreen(MainMenuScreen s, Rectangle dimensions) : base(s)
 		{
 			R = dimensions;
 			mmscreen = s;
@@ -66,7 +66,7 @@ namespace Ship_Game
 			TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public OptionsScreen(UniverseScreen s, GameplayMMScreen universeMainMenuScreen, Rectangle dimensions)
+		public OptionsScreen(UniverseScreen s, GameplayMMScreen universeMainMenuScreen, Rectangle dimensions) : base(s)
 		{
 			gpmmscreen = universeMainMenuScreen;
 			uScreen = s;
@@ -186,7 +186,7 @@ namespace Ship_Game
 				Apply.Text = Localizer.Token(13);
 				if (StartingMode != GlobalStats.WindowMode || startingx != xtoApply || startingy != ytoApply)
 				{
-					MessageBoxScreen messageBox = new MessageBoxScreen(Localizer.Token(14), 10f);
+					MessageBoxScreen messageBox = new MessageBoxScreen(this, Localizer.Token(14), 10f);
 					messageBox.Accepted  += AcceptChanges;
 					messageBox.Cancelled += CancelChanges;
 					ScreenManager.AddScreen(messageBox);

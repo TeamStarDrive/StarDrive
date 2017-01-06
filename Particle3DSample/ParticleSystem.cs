@@ -13,7 +13,7 @@ namespace Particle3DSample
 
 		private ParticleSettings settings;
 
-		private ContentManager content;
+		private GameContentManager content;
 
 		private Effect particleEffect;
 
@@ -56,7 +56,7 @@ namespace Particle3DSample
 			ParticleSystem.randomB = new Random();
 		}
 
-		public ParticleSystem(Game game, ContentManager content, string settingsName, Microsoft.Xna.Framework.Graphics.GraphicsDevice gd)
+		public ParticleSystem(Game1 game, GameContentManager content, string settingsName, Microsoft.Xna.Framework.Graphics.GraphicsDevice gd)
 		{
 			this.GraphicsDevice = gd;
 			this.content = content;
@@ -223,11 +223,11 @@ namespace Particle3DSample
 			parameters["RotateSpeed"].SetValue(new Vector2(this.settings.MinRotateSpeed, this.settings.MaxRotateSpeed));
 			parameters["StartSize"].SetValue(new Vector2(this.settings.MinStartSize, this.settings.MaxStartSize));
 			parameters["EndSize"].SetValue(new Vector2(this.settings.MinEndSize, this.settings.MaxEndSize));
-			Texture2D texture = this.content.Load<Texture2D>(string.Concat("3DParticles/", this.settings.TextureName));
+			Texture2D texture = content.Load<Texture2D>("3DParticles/" + settings.TextureName);
 			parameters["Texture"].SetValue(texture);
-			if ((float)this.settings.Duration.TotalSeconds != 6.66f)
+			if (settings.Duration.TotalSeconds != 6.66)
 			{
-				techniqueName = (this.settings.MinRotateSpeed != 0f || this.settings.MaxRotateSpeed != 0f ? "RotatingParticles" : "NonRotatingParticles");
+				techniqueName = (settings.MinRotateSpeed != 0f || settings.MaxRotateSpeed != 0f ? "RotatingParticles" : "NonRotatingParticles");
 			}
 			else
 			{

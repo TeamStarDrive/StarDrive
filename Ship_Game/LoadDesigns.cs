@@ -59,7 +59,7 @@ namespace Ship_Game
         private bool disposed;
 
 
-		public LoadDesigns(ShipDesignScreen screen)
+		public LoadDesigns(ShipDesignScreen screen) : base(screen)
 		{
 			this.screen = screen;
 			base.IsPopup = true;
@@ -256,7 +256,7 @@ namespace Ship_Game
 						if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && input.InGameSelect)
 						{
 							this.ShipToDelete = (e.item as ShipData).Name;
-							MessageBoxScreen messageBox = new MessageBoxScreen("Confirm Delete:");
+							MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
 							messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteDataAccepted);
 							base.ScreenManager.AddScreen(messageBox);
 						}
@@ -283,8 +283,8 @@ namespace Ship_Game
 					if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && !(e.item as Ship).reserved && !(e.item as Ship).FromSave && input.InGameSelect)
 					{
 						this.ShipToDelete = (e.item as Ship).Name;
-						MessageBoxScreen messageBox = new MessageBoxScreen("Confirm Delete:");
-						messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteAccepted);
+						MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+						messageBox.Accepted += DeleteAccepted;
 						base.ScreenManager.AddScreen(messageBox);
 					}
 					this.selector = new Selector(base.ScreenManager, e.clickRect);

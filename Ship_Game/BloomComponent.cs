@@ -172,9 +172,9 @@ namespace Ship_Game
 
 		public void LoadContent()
 		{
-			this.bloomExtractEffect = this.ScreenManager.Content.Load<Effect>("Effects/BloomExtract");
-			this.bloomCombineEffect = this.ScreenManager.Content.Load<Effect>("Effects/BloomCombine");
-			this.gaussianBlurEffect = this.ScreenManager.Content.Load<Effect>("Effects/GaussianBlur");
+			this.bloomExtractEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomExtract");
+			this.bloomCombineEffect = Game1.Instance.Content.Load<Effect>("Effects/BloomCombine");
+			this.gaussianBlurEffect = Game1.Instance.Content.Load<Effect>("Effects/GaussianBlur");
 			PresentationParameters pp = this.GraphicsDevice.PresentationParameters;
 			int width = pp.BackBufferWidth;
 			int height = pp.BackBufferHeight;

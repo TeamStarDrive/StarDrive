@@ -333,7 +333,7 @@ namespace Ship_Game
 				if (input.RightMouseClick)
 				{
 					this.screen.RightClicked = true;
-					ScreenManager.AddScreen(new ResearchPopup(this.screen.empireUI.screen, new Rectangle(0, 0, 600, 600), this.tech.UID));
+					ScreenManager.AddScreen(new ResearchPopup(Empire.Universe, new Rectangle(0, 0, 600, 600), this.tech.UID));
 					return false;
 				}
 			}

@@ -74,7 +74,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-		public ResearchScreenNew(EmpireUIOverlay empireUI)
+		public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUI) : base(parent)
 		{
 			this.empireUI = empireUI;
 			base.IsPopup = true;

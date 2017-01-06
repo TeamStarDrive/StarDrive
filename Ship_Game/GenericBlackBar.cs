@@ -64,7 +64,7 @@ namespace Ship_Game
 
 		//private Selector selector;
 
-		public GenericBlackBar()
+		public GenericBlackBar(GameScreen parent) : base(parent)
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);

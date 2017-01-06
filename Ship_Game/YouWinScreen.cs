@@ -51,19 +51,15 @@ namespace Ship_Game
 
 		private bool ShowingReplay;
 
-		//private string RememberedAs = "A footnote in a treatise on failed governance.";
-
-		//private float transitionElapsedTime;
-
-		public YouWinScreen()
+		public YouWinScreen(GameScreen parent) : base(parent)
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(30);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public YouWinScreen(string text)
-		{
+		public YouWinScreen(GameScreen parent, string text) : base(parent)
+        {
 			this.txt = text;
 			this.txt = HelperFunctions.ParseText(Fonts.Arial20Bold, this.txt, 500f);
 			base.IsPopup = true;
@@ -152,10 +148,10 @@ namespace Ship_Game
 				this.LowRes = true;
 			}
 			Vector2 vector2 = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 84), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 100));
-			this.LoseTexture = base.ScreenManager.Content.Load<Texture2D>("WinLose/launch");
-			this.Reason = base.ScreenManager.Content.Load<Texture2D>("WinLose/YouWin");
+			this.LoseTexture = TransientContent.Load<Texture2D>("WinLose/launch");
+			this.Reason = TransientContent.Load<Texture2D>("WinLose/YouWin");
 			this.ReasonRect = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - this.Reason.Width / 2, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - this.Reason.Height / 2 - 200, this.Reason.Width, this.Reason.Height);
-			this.desaturateEffect = base.ScreenManager.Content.Load<Effect>("Effects/desaturate");
+			this.desaturateEffect = TransientContent.Load<Effect>("Effects/desaturate");
 			this.Portrait = new Rectangle(0, 0, 1920, 1080);
 			this.SourceRect = new Rectangle(864, 486, 192, 108);
 			while (this.Portrait.Width < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth && this.Portrait.Height < base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)

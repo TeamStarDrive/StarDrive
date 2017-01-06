@@ -1290,7 +1290,7 @@ namespace Ship_Game
             {
                 if (Universe.PlayerEmpire == this && !e.isFaction && !e.MinorRace)
                 {
-                    Universe.ScreenManager.AddScreen(new DiplomacyScreen(e, Universe.PlayerEmpire, "First Contact"));
+                    Universe.ScreenManager.AddScreen(new DiplomacyScreen(Universe, e, Universe.PlayerEmpire, "First Contact"));
                 }
                 else
                 {
@@ -2126,7 +2126,7 @@ namespace Ship_Game
                     }
                     Universe.Paused = true;
                     HelperFunctions.CollectMemory();
-                    Universe.ScreenManager.AddScreen(new YouLoseScreen());
+                    Universe.ScreenManager.AddScreen(new YouLoseScreen(Empire.Universe));
                     Universe.Paused = false;
                     return;
                 }
@@ -2252,7 +2252,7 @@ namespace Ship_Game
                 }
                 if (allEmpiresDead)
                 {
-                    Universe.ScreenManager.AddScreen((GameScreen)new YouWinScreen());
+                    Universe.ScreenManager.AddScreen(new YouWinScreen(Empire.Universe));
                     return;
                 }
                 else
@@ -2263,7 +2263,7 @@ namespace Ship_Game
                             StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                         if (planet.HasWinBuilding)
                         {
-                            Universe.ScreenManager.AddScreen((GameScreen)new YouWinScreen(Localizer.Token(5085)));
+                            Universe.ScreenManager.AddScreen(new YouWinScreen(Empire.Universe, Localizer.Token(5085)));
                             return;
                         }
                     }

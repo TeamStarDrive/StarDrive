@@ -17,7 +17,7 @@ namespace Ship_Game
 
 		private CloseButton close;
 
-		public TutorialScreen()
+		public TutorialScreen(GameScreen parent) : base(parent)
 		{
 			base.IsPopup = true;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);

@@ -79,11 +79,12 @@ namespace Ship_Game
         public static bool HasMod => ActiveMod != null;
 		public static ModInformation ActiveModInfo;
         public static string ModName = "";
+        public static string ModPath = ""; // "Mods/MyMod/"
 		public static string ResearchRootUIDToDisplay = "Colonization";
-		public static int RemnantKills = 0;
-        public static int RemnantActivation = 0;
+        public static int RemnantKills;
+        public static int RemnantActivation;
 		public static bool RemnantArmageddon = false;
-		public static int CordrazinePlanetsCaptured = 0;
+		public static int CordrazinePlanetsCaptured;
 
         public static bool ExtraNotifications;
         public static bool PauseOnNotification;
@@ -192,6 +193,7 @@ namespace Ship_Game
         public static void LoadModInfo(string modName)
         {
             ModName = modName;
+            ModPath = "";
             if (modName == "")
             {
                 ActiveMod     = null;
@@ -203,6 +205,7 @@ namespace Ship_Game
             FileInfo info = new FileInfo($"Mods/{modName}.xml");
             if (info.Exists)
             {
+                ModPath = "Mods/" + ModName + "/";
                 ActiveModInfo = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(info);
                 ActiveMod     = new ModEntry(ActiveModInfo);
             }

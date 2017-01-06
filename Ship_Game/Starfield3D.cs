@@ -27,7 +27,7 @@ namespace Ship_Game
 
 		private GraphicsDevice graphicsDevice;
 
-		private ContentManager contentManager;
+		private GameContentManager contentManager;
 
 		private SpriteBatch spriteBatch;
 
@@ -42,24 +42,16 @@ namespace Ship_Game
 
 		static Starfield3D()
 		{
-			Color[] color = new Color[] { new Color(255, 255, 255, 192), new Color(255, 255, 255, 192), new Color(255, 255, 255, 192), new Color(255, 255, 255, 160), new Color(255, 255, 255, 128), new Color(255, 255, 255, 96), new Color(255, 255, 255, 64), new Color(255, 255, 255, 32) };
-			Starfield3D.layerColors = color;
-			Starfield3D.movementFactors = new float[] { 0.1f, 0.09f, 0.08f, 0.06f, 0.04f, 0.02f, 0.01f, 0.005f };
+			Color[] color = { new Color(255, 255, 255, 192), new Color(255, 255, 255, 192), new Color(255, 255, 255, 192), new Color(255, 255, 255, 160), new Color(255, 255, 255, 128), new Color(255, 255, 255, 96), new Color(255, 255, 255, 64), new Color(255, 255, 255, 32) };
+			layerColors = color;
+			movementFactors = new [] { 0.1f, 0.09f, 0.08f, 0.06f, 0.04f, 0.02f, 0.01f, 0.005f };
 		}
 
-		public Starfield3D(Vector2 position, GraphicsDevice graphicsDevice, ContentManager contentManager)
+		public Starfield3D(Vector2 position, GraphicsDevice graphicsDevice, GameContentManager contentManager)
 		{
-			if (graphicsDevice == null)
-			{
-				throw new ArgumentNullException("graphicsDevice");
-			}
-			if (contentManager == null)
-			{
-				throw new ArgumentNullException("contentManager");
-			}
 			this.graphicsDevice = graphicsDevice;
 			this.contentManager = contentManager;
-			this.stars = new Starfield3D.Star[1000];
+			stars = new Star[1000];
 		}
 
 		public void InitializeStars()

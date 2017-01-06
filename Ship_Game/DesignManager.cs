@@ -49,7 +49,7 @@ namespace Ship_Game
         private bool disposed;
 
 
-		public DesignManager(ShipDesignScreen screen, string txt)
+		public DesignManager(ShipDesignScreen screen, string txt) : base(screen)
 		{
 			this.ShipName = txt;
 			this.screen = screen;
@@ -339,10 +339,10 @@ namespace Ship_Game
 				}
 				Reserved = true;
 			}
-			if (Reserved && !this.screen.EmpireUI.screen.Debug)
+			if (Reserved && !Empire.Universe.Debug)
 			{
 				AudioManager.PlayCue("UI_Misc20");
-				MessageBoxScreen messageBox = new MessageBoxScreen(string.Concat(this.EnterNameArea.Text, " is a reserved ship name and you cannot overwrite this design"));
+				MessageBoxScreen messageBox = new MessageBoxScreen(this, EnterNameArea.Text + " is a reserved ship name and you cannot overwrite this design");
 				base.ScreenManager.AddScreen(messageBox);
 				return;
 			}
@@ -350,9 +350,9 @@ namespace Ship_Game
 			{
 				if (needOverWriteConfirmation)
 				{
-					MessageBoxScreen messageBox = new MessageBoxScreen("Design name already exists.  Overwrite?");
-					messageBox.Accepted += new EventHandler<EventArgs>(this.OverWriteAccepted);
-					base.ScreenManager.AddScreen(messageBox);
+					MessageBoxScreen messageBox = new MessageBoxScreen(this, "Design name already exists.  Overwrite?");
+					messageBox.Accepted += OverWriteAccepted;
+					ScreenManager.AddScreen(messageBox);
 				}
 				return;
 			}
@@ -362,11 +362,6 @@ namespace Ship_Game
 				this.screen.SaveShipDesign(this.EnterNameArea.Text);
 			}
 			this.ExitScreen();
-		}
-
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-		{
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}
 }

@@ -311,7 +311,7 @@ namespace Ship_Game
 			this.effect.End();
 		}
 
-		public void Init(GraphicsDevice device, ContentManager content)
+		public void Init(GraphicsDevice device, GameContentManager content)
 		{
 			this.device = device;
 			this.effect = content.Load<Effect>("RoundLine");

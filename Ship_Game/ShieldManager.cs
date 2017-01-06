@@ -24,7 +24,7 @@ namespace Ship_Game
 		private const float Y = 0.0f;
 		private const float Z = 2.8f;
 
-        public static void LoadContent(ContentManager content)
+        public static void LoadContent(GameContentManager content)
         {
             ShieldModel     = content.Load<Model>("Model/Projectiles/shield");
 			ShieldTexture   = content.Load<Texture2D>("Model/Projectiles/shield_d");

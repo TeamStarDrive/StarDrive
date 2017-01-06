@@ -119,7 +119,7 @@ namespace Ship_Game
 			return base.Initialize(availableformats);
 		}
 
-		public void LoadContent(ContentManager manager)
+		public void LoadContent(GameContentManager manager)
 		{
 			this.spriteRenderer = new SpriteBatch(base.GraphicsDeviceManager.GraphicsDevice);
 			this.bloomExtractEffect = manager.Load<Effect>("Effects/BloomExtract");
