@@ -275,9 +275,8 @@ namespace Ship_Game
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             playerShip.loyalty.isPlayer = true;
             ShipToView                  = playerShip;
-
         }
-        
+
         public UniverseScreen(UniverseData data, string loyalty) : base(null)
         {
             Size                  = data.Size;

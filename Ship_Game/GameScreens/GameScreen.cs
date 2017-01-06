@@ -66,7 +66,7 @@ namespace Ship_Game
 
 		public virtual void UnloadContent()
 		{
-            TransientContent.Unload();
+            TransientContent?.Unload();
         }
 
 		public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
