@@ -10,7 +10,7 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class ShipListScreen : GameScreen, IDisposable
+	public sealed class ShipListScreen : GameScreen
 	{
 		private EmpireUIOverlay eui;
 
@@ -74,9 +74,6 @@ namespace Ship_Game
         private SortButton SB_STL;
 
 		private Rectangle AutoButton;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		//private bool AutoButtonHover;
 
@@ -156,30 +153,13 @@ namespace Ship_Game
             this.ResetList(this.ShowRoles.Options[indexLast].@value);
 		}
 
-
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            ShipSL?.Dispose(ref ShipSL);
+            base.Dispose(disposing);
         }
 
-        ~ShipListScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ShipSL != null)
-                        this.ShipSL.Dispose();
-          
-                }
-                this.ShipSL = null;
-                this.disposed = true;
-            }
-        }
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();

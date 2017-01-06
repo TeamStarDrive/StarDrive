@@ -65,13 +65,8 @@ namespace Ship_Game
 		private bool ShowModules = true;
 
 		private Ship HoveredShipLast;
-
 		private float HoverOff;
-
 		private string fmt = "0";
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		public ShipListInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
 		{
@@ -827,18 +822,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.SelectedShipsSL != null)
-                        this.SelectedShipsSL.Dispose();
-             
-
-                }
-                this.SelectedShipsSL = null;
-                this.disposed = true;
-            }
+            SelectedShipsSL?.Dispose(ref SelectedShipsSL);
         }
 	}
 }

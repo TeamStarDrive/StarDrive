@@ -15,30 +15,16 @@ namespace Ship_Game
 
 		public Model star;
 
-		private readonly static Color[] layerColors;
-
-		private readonly static float[] movementFactors;
-
-		//private Vector2 lastPosition;
-
-		//private Vector2 position;
-
-		public Starfield3D.Star[] stars;
-
+		private static readonly Color[] layerColors;
+		private static readonly float[] movementFactors;
+		public Star[] stars;
 		private GraphicsDevice graphicsDevice;
-
 		private GameContentManager contentManager;
-
 		private SpriteBatch spriteBatch;
-
 		private Texture2D starTexture;
-
 		public Model starModel;
-
 		private Rectangle starfieldRectangle;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		static Starfield3D()
 		{
@@ -103,20 +89,8 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.starTexture != null)
-                        this.starTexture.Dispose();
-                    if (this.spriteBatch != null)
-                        this.spriteBatch.Dispose();
-
-                }
-                this.starTexture = null;
-                this.spriteBatch = null;
-                this.disposed = true;
-            }
+            starTexture?.Dispose(ref starTexture);
+            spriteBatch?.Dispose(ref spriteBatch);
         }
 	}
 }

@@ -42,9 +42,6 @@ namespace Ship_Game
 		public Array<string> DefensiveFleets = new Array<string>();
         public Map<Empire,PredictionTimeout> predictionTimeout =new Map<Empire,PredictionTimeout>();
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
         public class PredictionTimeout
         {
             public float prediction;
@@ -860,18 +857,9 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (disposed)
-                return;
-            if (disposing)
-            {
-                ShipList?.Dispose();
-                AsteroidsList?.Dispose();
-                spatialManager?.Dispose();
-            }
-            ShipList       = null;
-            AsteroidsList  = null;
-            spatialManager = null;
-            disposed       = true;
+            ShipList?.Dispose(ref ShipList);
+            AsteroidsList?.Dispose(ref AsteroidsList);
+            spatialManager?.Dispose(ref spatialManager);
         }
 	}
 }

@@ -7,25 +7,15 @@ namespace Ship_Game
 	public sealed class PrimitiveQuad: IDisposable
 	{
 		public static GraphicsDevice graphicsDevice;
-
 		private Texture2D blankTex;
-
 		private Rectangle[] primitiveQuad = new Rectangle[4];
-
 		public Rectangle enclosingRect;
-
 		public bool isFilled;
 
 		public int X;
-
 		public int Y;
-
 		public int W;
-
 		public int H;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 
 		public PrimitiveQuad(float x, float y, float w, float h)
 		{
@@ -102,9 +92,9 @@ namespace Ship_Game
 
 		public void LoadContent()
 		{
-			this.blankTex = new Texture2D(PrimitiveQuad.graphicsDevice, 1, 1);
-			Color[] texcol = new Color[] { Color.White };
-			this.blankTex.SetData<Color>(texcol);
+			blankTex = new Texture2D(graphicsDevice, 1, 1);
+			Color[] texcol = { Color.White };
+			blankTex.SetData(texcol);
 		}
 
         public void Dispose()
@@ -117,17 +107,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.blankTex != null)
-                        this.blankTex.Dispose();
-
-                }
-                this.blankTex = null;
-                this.disposed = true;
-            }
+            blankTex?.Dispose(ref blankTex);
         }
 	}
 }

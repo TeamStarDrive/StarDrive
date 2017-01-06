@@ -29,9 +29,6 @@ namespace Ship_Game
 		public Array<Empire> EmpireList = new Array<Empire>();
         public static float UniverseWidth;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;        
-
 		public UniverseData()
 		{
             UniverseWidth = this.Size.X;
@@ -54,17 +51,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.MasterShipList != null)
-                        this.MasterShipList.Dispose();
-
-                }
-                this.MasterShipList = null;
-                this.disposed = true;
-            }
+            MasterShipList?.Dispose(ref MasterShipList);
         }
-	}
+    }
 }

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class ResearchScreenNew : GameScreen, IDisposable
+	public sealed class ResearchScreenNew : GameScreen
 	{
 		public Camera2d camera;
 
@@ -71,9 +71,6 @@ namespace Ship_Game
 
 		private Submenu UnlocksSubMenu;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 		public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUI) : base(parent)
 		{
 			this.empireUI = empireUI;
@@ -83,27 +80,10 @@ namespace Ship_Game
 			this.camera = new Camera2d();
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~ResearchScreenNew() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.qcomponent != null)
-                        this.qcomponent.Dispose();
-
-                }
-                this.qcomponent = null;
-                this.disposed = true;
-            }
+            qcomponent?.Dispose(ref qcomponent);
+            base.Dispose(disposing);
         }
 
         public override void Draw(GameTime gameTime)

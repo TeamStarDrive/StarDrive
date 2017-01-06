@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class LoadDesigns : GameScreen, IDisposable
+	public sealed class LoadDesigns : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -55,10 +55,6 @@ namespace Ship_Game
 
 		private Array<UIButton> ShipsToLoad = new Array<UIButton>();
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-
 		public LoadDesigns(ShipDesignScreen screen) : base(screen)
 		{
 			this.screen = screen;
@@ -88,27 +84,10 @@ namespace Ship_Game
 			this.LoadContent();
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~LoadDesigns() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ShipDesigns != null)
-                        this.ShipDesigns.Dispose();
-
-                }
-                this.ShipDesigns = null;
-                this.disposed = true;
-            }
+            ShipDesigns?.Dispose(ref ShipDesigns);
+            base.Dispose(disposing);
         }
 
 		public override void Draw(GameTime gameTime)

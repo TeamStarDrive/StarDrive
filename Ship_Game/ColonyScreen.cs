@@ -18,7 +18,7 @@ namespace Ship_Game
     {
         public Planet p;
 
-        private Ship_Game.ScreenManager ScreenManager;
+        private ScreenManager ScreenManager;
 
         public ToggleButton playerDesignsToggle;
 
@@ -56,18 +56,15 @@ namespace Ship_Game
 
         private bool LowRes;
 
-        private ColonyScreen.Lock FoodLock;
-
-        private ColonyScreen.Lock ProdLock;
-
-        private ColonyScreen.Lock ResLock;
+        private Lock FoodLock;
+        private Lock ProdLock;
+        private Lock ResLock;
 
         private float ClickTimer;
 
         private float TimerDelay = 0.25f;
 
         private ToggleButton LeftColony;
-
         private ToggleButton RightColony;
 
         private UIButton launchTroops;
@@ -102,11 +99,9 @@ namespace Ship_Game
 
         private Rectangle profStorageIcon;
 
-        private ColonyScreen.Slider SliderFood;
-
-        private ColonyScreen.Slider SliderProd;
-
-        private ColonyScreen.Slider SliderRes;
+        private Slider SliderFood;
+        private Slider SliderProd;
+        private Slider SliderRes;
 
         private object detailInfo;
 
@@ -117,9 +112,7 @@ namespace Ship_Game
         public bool ClickedTroop;
 
         private float fPercentLast;
-
         private float pPercentLast;
-
         private float rPercentLast;
 
         private bool draggingSlider1;
@@ -156,8 +149,6 @@ namespace Ship_Game
 
         private MouseState previousMouse;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
         private bool rmouse = false;
         private static bool popup = false;  //fbedard
 
@@ -3275,23 +3266,9 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing) 
-                {
-                    if (this.buildSL != null)
-                        this.buildSL.Dispose();
-                    if (this.QSL != null)
-                        this.QSL.Dispose();
-                    if (this.CommoditiesSL != null)
-                        this.CommoditiesSL.Dispose();
-
-                }
-                this.buildSL = null;
-                this.QSL = null;
-                this.CommoditiesSL = null;
-                this.disposed = true;
-            }
+            buildSL?.Dispose(ref buildSL);
+            QSL?.Dispose(ref QSL);
+            CommoditiesSL?.Dispose(ref CommoditiesSL);
         }
     }
 }

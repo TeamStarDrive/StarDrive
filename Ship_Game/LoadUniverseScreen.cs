@@ -11,7 +11,7 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class LoadUniverseScreen : GameScreen, IDisposable
+	public sealed class LoadUniverseScreen : GameScreen
 	{
 		private Vector2 ScreenCenter;
 		private UniverseData data;
@@ -320,26 +320,14 @@ namespace Ship_Game
 			GateKeeper.Set();
 		}
 
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-        ~LoadUniverseScreen() { Dispose(false); }
-
-		private void Dispose(bool disposing)
-		{
-            if (disposing)
+            lock (this)
             {
-                lock (this)
-                {
-                    GateKeeper?.Dispose();
-                    data?.Dispose();
-                }
+                GateKeeper?.Dispose(ref GateKeeper);
+                data?.Dispose(ref data);
             }
-            GateKeeper = null;
-            data = null;
+            base.Dispose(disposing);
         }
 
 		public override void Draw(GameTime gameTime)

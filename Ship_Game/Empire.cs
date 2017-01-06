@@ -105,9 +105,6 @@ namespace Ship_Game
         public float freighterBudget;
         public bool RecalculateMaxHP;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
         public float cargoNeed = 0;
-        //[XmlIgnore][ScriptIgnore]
-        //private Map<string, bool> UnlockAbleDesigns = new Map<string, bool>
-        //adding for thread safe Dispose because class uses unmanaged resources 
 
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin

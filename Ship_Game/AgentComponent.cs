@@ -12,17 +12,17 @@ namespace Ship_Game
 	{
 		public Agent SelectedAgent;
 
-		public Rectangle ComponentRect = new Rectangle();
+		public Rectangle ComponentRect;
 
-		public Rectangle SubRect = new Rectangle();
+		public Rectangle SubRect;
 
-		public Rectangle OpsSubRect = new Rectangle();
+		public Rectangle OpsSubRect;
 
 		public ScrollList AgentSL;
 
 		public ScrollList OpsSL;
 
-		private Ship_Game.ScreenManager ScreenManager;
+		private ScreenManager ScreenManager;
 
 		public DanButton RecruitButton;
 
@@ -43,14 +43,12 @@ namespace Ship_Game
 		private MissionEntry InciteRebellion;
 
 		private Selector selector;
-        private int spyLimitCount = 0;
-        private bool AutoTrain = false;
+        private int spyLimitCount;
+        private bool AutoTrain;
         private Checkbox CBAutoRepeat;
-        private bool SpyMute = false;
+        private bool SpyMute;
         private Checkbox cbSpyMute;
-        private int empirePlanetSpys = 0;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+        private int empirePlanetSpys;
 
 
         public AgentComponent(Rectangle r, EspionageScreen Escreen)
@@ -499,20 +497,8 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.AgentSL != null)
-                        this.AgentSL.Dispose();
-                    if (this.OpsSL != null)
-                        this.OpsSL.Dispose();
-
-                }
-                this.AgentSL = null;
-                this.OpsSL = null;
-                this.disposed = true;
-            }
+            AgentSL?.Dispose(ref AgentSL);
+            OpsSL?.Dispose(ref OpsSL);
         }
 	}
 }
