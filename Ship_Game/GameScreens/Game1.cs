@@ -1,14 +1,7 @@
-#if DEBUG
-#define UNSAFE
-#endif
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -26,8 +19,14 @@ namespace Ship_Game
 		public ScreenManager ScreenManager;
 		public bool IsLoaded;
 
+        public new GameContentManager Content { get; }
+        public static GameContentManager GameContent => Instance.Content;
+
 		public Game1()
 		{
+            // need to set base Content, to ensure proper content disposal
+            base.Content = this.Content = new GameContentManager(Services);
+
         #if STEAM
             if (SteamManager.SteamInitialize())
 			{
@@ -39,7 +38,7 @@ namespace Ship_Game
 
             Exiting += GameExiting;
 
-        #if UNSAFE && DEBUG
+        #if DEBUG
             MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("Update2"), typeof(SplashScreen).GetMethod("Update"));
             foreach (var method in from type in Assembly.GetAssembly(typeof(SplashScreen)).GetTypes() where type.Name == "a" select type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic) into methods from method in methods where method.Name == "k" select method)
             {
@@ -120,7 +119,6 @@ namespace Ship_Game
 		protected override void Initialize()
 		{
 			Window.Title = "StarDrive";
-			Content.RootDirectory = "Content";
 			ScreenManager = new ScreenManager(this, Graphics)
 			{
 				splashScreenGameComponent = new SplashScreenGameComponent(this, Graphics)

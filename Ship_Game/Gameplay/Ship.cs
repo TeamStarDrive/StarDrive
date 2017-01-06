@@ -799,14 +799,13 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                //this.GetAI().OrderScrapShip();
-                Ship.universeScreen.ScreenManager.AddScreen((GameScreen)new RefitToWindow(this));
+                universeScreen.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
             }
         }
 
         public Ship()
         {
-            foreach (KeyValuePair<string, Good> keyValuePair in Ship_Game.ResourceManager.GoodsDict)
+            foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
             {
                 this.AddGood(keyValuePair.Key, 0);
                 if (!keyValuePair.Value.IsCargo)

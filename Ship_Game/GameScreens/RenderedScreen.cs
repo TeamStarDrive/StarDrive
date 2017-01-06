@@ -28,7 +28,7 @@ namespace Ship_Game
 
 		private Vector3 cameraPosition = new Vector3(0f, 0f, 1600f);
 
-		public RenderedScreen()
+		public RenderedScreen() : base(null)
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.5);
@@ -52,9 +52,9 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			ScreenManager.inter.ObjectManager.Clear();
-			model = ScreenManager.Content.Load<Model>("Model/SpaceObjects/planet_22");
-			ScreenManager.Content.Load<LightRig>("example/light_rig").AssignTo(this);
-			ScreenManager.environment = ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
+			model = TransientContent.Load<Model>("Model/SpaceObjects/planet_22");
+            TransientContent.Load<LightRig>("example/light_rig").AssignTo(this);
+			ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 			shipSO = new SceneObject(model.Meshes[0])
 			{
 				ObjectType = ObjectType.Dynamic,

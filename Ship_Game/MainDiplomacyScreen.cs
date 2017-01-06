@@ -61,7 +61,7 @@ namespace Ship_Game
         HashSet<Empire> Moles;
 
 
-		public MainDiplomacyScreen(UniverseScreen screen)
+		public MainDiplomacyScreen(UniverseScreen screen) : base(screen)
 		{			
             this.screen = screen;
 			base.IsPopup = true;
@@ -1009,7 +1009,7 @@ namespace Ship_Game
 			//this.showExecuteButton = false;
 			if (this.SelectedEmpire != EmpireManager.Player && !this.SelectedEmpire.data.Defeated && this.Contact.HandleInput(input))
 			{
-				base.ScreenManager.AddScreen(new DiplomacyScreen(this.SelectedEmpire, EmpireManager.Player, "Greeting"));
+				base.ScreenManager.AddScreen(new DiplomacyScreen(this, this.SelectedEmpire, EmpireManager.Player, "Greeting"));
 			}
 			foreach (RaceEntry race in this.Races)
 			{

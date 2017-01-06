@@ -27,7 +27,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-        public InGameWiki()
+        public InGameWiki(GameScreen parent) : base(parent)
         {
             IsPopup = true;
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
@@ -37,7 +37,7 @@ namespace Ship_Game
             if (help.Length != 0)
                 ht = help[0].Deserialize<HelpTopics>();
         }
-        public InGameWiki(Rectangle r) : this()
+        public InGameWiki(GameScreen parent, Rectangle r) : this(parent)
 		{
             R = r;
 		}
@@ -228,8 +228,8 @@ namespace Ship_Game
 						else
 						{
 							this.TextSL.Copied.Clear();
-							this.VideoPlayer = new Microsoft.Xna.Framework.Media.VideoPlayer();
-							this.ActiveVideo = base.ScreenManager.Content.Load<Video>(string.Concat("Video/", this.ActiveTopic.VideoPath));
+							this.VideoPlayer = new VideoPlayer();
+							this.ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", this.ActiveTopic.VideoPath));
 							this.VideoPlayer.Play(this.ActiveVideo);
 							this.VideoPlayer.Pause();
 						}

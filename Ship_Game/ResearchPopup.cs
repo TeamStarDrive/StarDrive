@@ -23,7 +23,7 @@ namespace Ship_Game
         //adding for thread safe Dispose because class uses unmanaged resources 
         private bool disposed;
 
-		public ResearchPopup(UniverseScreen s, Rectangle dimensions, string uid)
+		public ResearchPopup(UniverseScreen s, Rectangle dimensions, string uid) : base(s)
 		{
 			if (!GlobalStats.IsEnglish)
 			{

@@ -65,7 +65,8 @@ namespace Ship_Game
 
         protected int eHeight = 55;      // element height
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText)
+        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText)
+            : base(parent)
         {
             this.mode = mode;
             this.InitText = InitText;
@@ -76,17 +77,20 @@ namespace Ship_Game
             base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText) : this(mode, InitText, TitleText, TabText)
+        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText) 
+            : this(parent, mode, InitText, TitleText, TabText)
         {
             this.OverWriteText = OverWriteText;
         }
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, int eHeight) : this(mode, InitText, TitleText, TabText)
+        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, int eHeight) 
+            : this(parent, mode, InitText, TitleText, TabText)
         {
             this.eHeight = eHeight;
         }
 
-        public GenericLoadSaveScreen(SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText, int eHeight) : this(mode, InitText, TitleText, TabText, OverWriteText)
+        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText, int eHeight) 
+            : this(parent, mode, InitText, TitleText, TabText, OverWriteText)
         {
             this.eHeight = eHeight;
         }
@@ -231,8 +235,8 @@ namespace Ship_Game
                     if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && input.InGameSelect)        // handle file delete
                     {
                         this.fileToDel = (e.item as FileData).FileLink;
-                        MessageBoxScreen messageBox = new MessageBoxScreen("Confirm Delete:");
-                        messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteFile);
+                        MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+                        messageBox.Accepted += DeleteFile;
                         base.ScreenManager.AddScreen(messageBox);
                     } else if (input.InGameSelect)
                     {
@@ -372,8 +376,8 @@ namespace Ship_Game
             }
             else
             {
-                MessageBoxScreen messageBox = new MessageBoxScreen(this.OverWriteText);
-                messageBox.Accepted += new EventHandler<EventArgs>(this.OverWriteAccepted);
+                MessageBoxScreen messageBox = new MessageBoxScreen(this, OverWriteText);
+                messageBox.Accepted += OverWriteAccepted;
                 base.ScreenManager.AddScreen(messageBox);
             }
         }

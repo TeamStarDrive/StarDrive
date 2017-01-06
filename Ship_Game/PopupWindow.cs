@@ -36,10 +36,10 @@ namespace Ship_Game
 		private Vector2 MiddleTextPos;
 		private CloseButton close;
 
-        protected PopupWindow()
+        protected PopupWindow(GameScreen parent) : base(parent)
         {
         }
-		public PopupWindow(Rectangle r)
+		public PopupWindow(GameScreen parent, Rectangle r) : base(parent)
 		{
 			IsPopup = true;
 			if (!GlobalStats.IsEnglish)
