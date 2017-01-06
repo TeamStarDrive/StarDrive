@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -353,5 +354,7 @@ namespace Ship_Game
             GC.WaitForPendingFinalizers();
             GC.Collect();
         }
+
+        public static float ProcessMemoryMb => Process.GetCurrentProcess().WorkingSet64 / (1024f * 1024f);
     }
 }
