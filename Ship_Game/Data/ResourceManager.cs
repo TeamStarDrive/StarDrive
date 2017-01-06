@@ -770,7 +770,7 @@ namespace Ship_Game
             var files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
 
             FileInfo file = files[RandomMath.InRange(0, files.Length)];
-            return content.Load<Texture2D>(file.PathNoExt());
+            return content.Load<Texture2D>(file.CleanResPath());
         }
 
         // advice is temporary and only sticks around while loading
