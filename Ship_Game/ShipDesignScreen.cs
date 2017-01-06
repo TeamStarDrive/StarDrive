@@ -19,7 +19,7 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class ShipDesignScreen : GameScreen, IDisposable
+	public sealed class ShipDesignScreen : GameScreen
 	{
 		private Matrix worldMatrix = Matrix.Identity;
 
@@ -193,9 +193,6 @@ namespace Ship_Game
         private ShipData.Category LoadCategory;
 
         public string HangarShipUIDLast = "Undefined";
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
         private float HoldTimer = .50f;
         private HashSet<string> techs = new HashSet<string>();
@@ -932,37 +929,16 @@ namespace Ship_Game
 			}
 		}
 
-		public void Dispose()
-		{
-
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-        ~ShipDesignScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.hullSL != null)
-                        this.hullSL.Dispose();
-                    if (this.weaponSL != null)
-                        this.weaponSL.Dispose();
-                    if (this.ChooseFighterSL != null)
-                        this.ChooseFighterSL.Dispose();
-
-                }
-                this.hullSL = null;
-                this.weaponSL = null;
-                this.ChooseFighterSL = null;
-                this.disposed = true;
-            }
+            hullSL?.Dispose(ref hullSL);
+            weaponSL?.Dispose(ref weaponSL);
+            ChooseFighterSL?.Dispose(ref ChooseFighterSL);
+            base.Dispose(disposing);
         }
 
-		private void DoExit(object sender, EventArgs e)
+
+        private void DoExit(object sender, EventArgs e)
 		{
 			this.ReallyExit();
 		}

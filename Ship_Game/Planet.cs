@@ -141,8 +141,6 @@ namespace Ship_Game
         public bool queueEmptySent =true ;
         public float RepairPerTurn = 50;
         public Array<string> PlanetFleets = new Array<string>();
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
         private ReaderWriterLockSlim planetLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private bool PSexport = false;
         //private bool FSexport = false;
@@ -6758,29 +6756,11 @@ output = maxp * take10 = 5
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ActiveCombats != null)
-                        this.ActiveCombats.Dispose();
-                    if (this.OrbitalDropList != null)
-                        this.OrbitalDropList.Dispose();
-                    if (this.ConstructionQueue != null)
-                        this.ConstructionQueue.Dispose();
-                    if (this.BasedShips != null)
-                        this.BasedShips.Dispose();
-                    if (this.Projectiles != null)
-                        this.Projectiles.Dispose();
-
-                }
-                this.ActiveCombats = null;
-                this.OrbitalDropList = null;
-                this.ConstructionQueue = null;
-                this.BasedShips = null;
-                this.Projectiles = null;
-                this.disposed = true;
-            }
+            ActiveCombats?.Dispose(ref ActiveCombats);
+            OrbitalDropList?.Dispose(ref OrbitalDropList);
+            ConstructionQueue?.Dispose(ref ConstructionQueue);
+            BasedShips?.Dispose(ref BasedShips);
+            Projectiles?.Dispose(ref Projectiles);
         }
     }
 }

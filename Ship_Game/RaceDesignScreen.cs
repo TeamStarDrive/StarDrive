@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public class RaceDesignScreen : GameScreen, IDisposable
+	public class RaceDesignScreen : GameScreen
 	{
 		protected RacialTrait RaceSummary = new RacialTrait();
 
@@ -161,9 +161,6 @@ namespace Ship_Game
 		protected string HomeWorldName = "Earth";
 
 		protected string HomeSystemName = "Sol";
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
         private Rectangle ExtraRemnantRect; //Added by Gretman
         public RaceDesignScreen.ExtraRemnantPresence ExtraRemnant = RaceDesignScreen.ExtraRemnantPresence.Normal;
@@ -444,30 +441,15 @@ namespace Ship_Game
 		    return lastKeyboardState.IsKeyDown(theKey) && this.currentKeyboardState.IsKeyUp(theKey);
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            traitsSL?.Dispose(ref traitsSL);
+            RaceArchetypeSL?.Dispose(ref RaceArchetypeSL);
+            DescriptionSL?.Dispose(ref DescriptionSL);
+            base.Dispose(disposing);
         }
 
-        ~RaceDesignScreen() { Dispose(false); }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed) return;
-            if (disposing)
-            {
-                traitsSL?.Dispose();
-                RaceArchetypeSL?.Dispose();
-                DescriptionSL?.Dispose();
-            }
-            this.traitsSL = null;
-            this.RaceArchetypeSL = null;
-            this.DescriptionSL = null;
-            this.disposed = true;
-        }
-
-		protected void DoRaceDescription()
+        protected void DoRaceDescription()
 		{
 			this.UpdateSummary();
 			this.rd = "";

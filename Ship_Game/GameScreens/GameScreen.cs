@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public abstract class GameScreen
+	public abstract class GameScreen : IDisposable
 	{
 		public bool IsLoaded;
 	    public bool AlwaysUpdate;
@@ -31,13 +31,12 @@ namespace Ship_Game
 
 
         // This should be used for content that gets unloaded once this GameScreen disappears
-        public readonly GameContentManager TransientContent;
+        public GameContentManager TransientContent;
 
         protected GameScreen(GameScreen parent)
 		{
             // hook the content chain to parent screen if possible
-            TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content);
-            TransientContent.Name = GetType().Name;
+            TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
             ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
         }
 
@@ -131,5 +130,18 @@ namespace Ship_Game
             button.Rect = new Rectangle((int)pos.X, (int)pos.Y, BtnDefault.Width, BtnDefault.Height);
             pos.Y += BtnDefault.Height + 15;
         }
-    }
+
+        ~GameScreen() { Dispose(false); }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+	    protected virtual void Dispose(bool disposing)
+	    {
+	        TransientContent?.Dispose(ref TransientContent);
+	    }
+	}
 }

@@ -6,13 +6,10 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public class ShipGroup: IDisposable
+	public class ShipGroup : IDisposable
 	{
 		public BatchRemovalCollection<Ship> Ships = new BatchRemovalCollection<Ship>();
-
 		public float ProjectedFacing;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		public ShipGroup()
 		{
@@ -43,18 +40,7 @@ namespace Ship_Game
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (!(this is Fleet) && this.Ships != null)
-                        this.Ships.Dispose();
-
-                }
-                if (!(this is Fleet))
-                    this.Ships = null;
-                this.disposed = true;
-            }
+            Ships?.Dispose(ref Ships);
         }
 	}
 }

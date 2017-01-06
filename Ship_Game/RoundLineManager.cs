@@ -48,9 +48,6 @@ namespace Ship_Game
 
 		public float BlurThreshold = 0.97f;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 		public string[] TechniqueNames
 		{
 			get
@@ -333,23 +330,9 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.vb != null)
-                        this.vb.Dispose();
-                    if (this.vdecl != null)
-                        this.vdecl.Dispose();
-                    if (this.ib != null)
-                        this.ib.Dispose();
-
-                }
-                this.vb = null;
-                this.vdecl = null;
-                this.ib = null;
-                this.disposed = true;
-            }
+            vb?.Dispose(ref vb);
+            vdecl?.Dispose(ref vdecl);
+            ib?.Dispose(ref ib);
         }
 	}
 }

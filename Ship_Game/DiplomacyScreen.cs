@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public sealed class DiplomacyScreen : GameScreen, IDisposable
+	public sealed class DiplomacyScreen : GameScreen
 	{
 		private Empire them;
 
@@ -124,10 +124,6 @@ namespace Ship_Game
 		//private int cNum;
 
 		private string TheirText;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 
 		public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which) : base(parent)
 		{
@@ -424,36 +420,13 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~DiplomacyScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.OurItemsSL != null)
-                        this.OurItemsSL.Dispose();
-                    if (this.TheirItemsSL != null)
-                        this.TheirItemsSL.Dispose();
-                    if (this.StatementsSL != null)
-                        this.StatementsSL.Dispose();
-                    if (this.OfferTextSL != null)
-                        this.OfferTextSL.Dispose();
-
-                }
-                this.OurItemsSL = null;
-                this.TheirItemsSL = null;
-                this.StatementsSL = null;
-                this.OfferTextSL = null;
-                this.disposed = true;
-            }
+            OurItemsSL?.Dispose(ref OurItemsSL);
+            TheirItemsSL?.Dispose(ref TheirItemsSL);
+            StatementsSL?.Dispose(ref StatementsSL);
+            OfferTextSL?.Dispose(ref OfferTextSL);
+            base.Dispose(disposing);
 		}
 
 		private void DoNegotiationResponse(string answer)

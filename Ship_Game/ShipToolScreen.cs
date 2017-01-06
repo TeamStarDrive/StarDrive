@@ -13,7 +13,7 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class ShipToolScreen : GameScreen, IDisposable
+	public sealed class ShipToolScreen : GameScreen
 	{
 		private Matrix worldMatrix = Matrix.Identity;
 		private Matrix view;
@@ -95,9 +95,6 @@ namespace Ship_Game
 
 		private ShipModule ActiveModule;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 		public ShipToolScreen() : base(null /*no parent*/)
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(0);
@@ -124,33 +121,14 @@ namespace Ship_Game
 			}
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            spriteBatch?.Dispose(ref spriteBatch);
+            border?.Dispose(ref border);
+            base.Dispose(disposing);
         }
 
-        ~ShipToolScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.spriteBatch != null)
-                        this.spriteBatch.Dispose();
-                    if (this.border != null)
-                        this.border.Dispose();
-
-                }
-                this.spriteBatch = null;
-                this.border = null;
-                this.disposed = true;
-            }
-        }
-
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
 			this.spriteBatch = base.ScreenManager.SpriteBatch;
 			base.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, base.ScreenManager.environment, true);

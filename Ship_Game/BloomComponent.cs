@@ -20,44 +20,18 @@ namespace Ship_Game
 
 		private RenderTarget2D renderTarget2;
 
-		private BloomSettings settings = BloomSettings.PresetSettings[0];
+	    private ScreenManager ScreenManager;
 
-		private BloomComponent.IntermediateBuffer showBuffer = BloomComponent.IntermediateBuffer.FinalResult;
-
-		private Ship_Game.ScreenManager ScreenManager;
-
-		private Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
+		private GraphicsDevice GraphicsDevice;
 
 		private DepthStencilBuffer buffer;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
-		public BloomSettings Settings
-		{
-			get
-			{
-				return this.settings;
-			}
-			set
-			{
-				this.settings = value;
-			}
-		}
+		public BloomSettings Settings { get; set; } = BloomSettings.PresetSettings[0];
 
-		public BloomComponent.IntermediateBuffer ShowBuffer
-		{
-			get
-			{
-				return this.showBuffer;
-			}
-			set
-			{
-				this.showBuffer = value;
-			}
-		}
+	    public IntermediateBuffer ShowBuffer { get; set; } = IntermediateBuffer.FinalResult;
 
-		public BloomComponent(Ship_Game.ScreenManager screenManager)
+	    public BloomComponent(ScreenManager screenManager)
 		{
 			this.ScreenManager = screenManager;
 			this.GraphicsDevice = screenManager.GraphicsDevice;
@@ -156,14 +130,14 @@ namespace Ship_Game
 		private void DrawFullscreenQuad(Texture2D texture, int width, int height, Effect effect, BloomComponent.IntermediateBuffer currentBuffer)
 		{
 			Ship.universeScreen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
-			if (this.showBuffer >= currentBuffer)
+			if (this.ShowBuffer >= currentBuffer)
 			{
 				effect.Begin();
 				effect.CurrentTechnique.Passes[0].Begin();
 			}
 			Ship.universeScreen.ScreenManager.SpriteBatch.Draw(texture, new Rectangle(0, 0, width, height), Color.White);
 			Ship.universeScreen.ScreenManager.SpriteBatch.End();
-			if (this.showBuffer >= currentBuffer)
+			if (this.ShowBuffer >= currentBuffer)
 			{
 				effect.CurrentTechnique.Passes[0].End();
 				effect.End();
@@ -236,22 +210,9 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.resolveTarget != null)
-                        this.resolveTarget.Dispose();
-                    if (this.renderTarget1 != null)
-                        this.renderTarget1.Dispose();
-                    if (this.renderTarget2 != null)
-                        this.renderTarget2.Dispose();
-                }
-                this.resolveTarget = null;
-                this.renderTarget1 = null;
-                this.renderTarget2 = null;
-                this.disposed = true;
-            }
+            resolveTarget?.Dispose(ref resolveTarget);
+            renderTarget1?.Dispose(ref renderTarget1);
+            renderTarget2?.Dispose(ref renderTarget2);
         }
     }
 }

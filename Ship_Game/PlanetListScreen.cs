@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public sealed class PlanetListScreen : GameScreen, IDisposable
+	public sealed class PlanetListScreen : GameScreen
 	{
 		//private bool LowRes;
 
@@ -62,9 +62,6 @@ namespace Ship_Game
 		private SortButton LastSorted;
 
 		private Rectangle AutoButton;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		//private bool AutoButtonHover;
 
@@ -127,29 +124,13 @@ namespace Ship_Game
             
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            PlanetSL?.Dispose(ref PlanetSL);
+            base.Dispose(disposing);
         }
 
-        ~PlanetListScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.PlanetSL != null)
-                        this.PlanetSL.Dispose();
-                }
-                this.PlanetSL = null;
-                this.disposed = true;
-            }
-        }
-
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();

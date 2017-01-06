@@ -25,7 +25,7 @@ namespace Ship_Game
 		public Game1()
 		{
             // need to set base Content, to ensure proper content disposal
-            base.Content = this.Content = new GameContentManager(Services);
+            base.Content = this.Content = new GameContentManager(Services, "Game");
 
         #if STEAM
             if (SteamManager.SteamInitialize())
