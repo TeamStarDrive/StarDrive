@@ -2527,7 +2527,7 @@ namespace Ship_Game.AI
 			}
 			//added by gremlin dont add zero strength ships to defensive force pool
             //if (this.DefensiveCoordinator.GetForcePoolStrength() / EntireStrength <= baseDefensePct 
-            if ((this.DefensiveCoordinator.defenseDeficit > 0  && this.DefensiveCoordinator.GetForcePoolStrength() < EntireStrength * baseDefensePct)
+            if ((this.DefensiveCoordinator.DefenseDeficit > 0  && this.DefensiveCoordinator.GetForcePoolStrength() < EntireStrength * baseDefensePct)
                 && (toAdd.BombBays.Count == 0 || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
             {
                 this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
@@ -2535,7 +2535,7 @@ namespace Ship_Game.AI
                 toAdd.GetAI().SystemToDefendGuid = Guid.Empty;
                 toAdd.GetAI().HasPriorityOrder = false;
                 toAdd.GetAI().State = AIState.SystemDefender;
-                this.DefensiveCoordinator.defenseDeficit-=toAdd.BaseStrength;
+                this.DefensiveCoordinator.DefenseDeficit-=toAdd.BaseStrength;
                 return;
             }
             IOrderedEnumerable<AO> sorted =
