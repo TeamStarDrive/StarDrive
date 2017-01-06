@@ -3614,6 +3614,7 @@
     <PostBuildEvent>$(ProjectDir)deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>$(ProjectDir)deploy\Config\prebuild.cmd $(ProjectDir)</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>
