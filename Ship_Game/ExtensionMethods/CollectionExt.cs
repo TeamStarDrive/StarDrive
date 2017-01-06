@@ -135,7 +135,7 @@ namespace Ship_Game
         public static Array<T> ToArrayList<T>(this IEnumerable<T> source)
         {
             var list = new Array<T>();
-            foreach (T item in list)
+            foreach (T item in source)
                 list.Add(item);
             return list;
         }
