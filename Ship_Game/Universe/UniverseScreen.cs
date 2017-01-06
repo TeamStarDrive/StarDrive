@@ -3439,7 +3439,7 @@ namespace Ship_Game
                             float num3 = SelectedFleet.Position.RadiansToTarget(vector2_1);
                             Vector2 vectorToTarget = Vector2.Zero.FindVectorToTarget(SelectedFleet.Position.PointFromRadians(num3, 1f));
                             foreach (Ship ship in (Array<Ship>)this.SelectedFleet.Ships)
-                                this.player.GetGSAI().DefensiveCoordinator.remove(ship);
+                                this.player.GetGSAI().DefensiveCoordinator.Remove(ship);
                             Ship ship1 = this.CheckShipClick(this.startDrag);
                             Planet planet;
                             lock (GlobalStats.ClickableSystemsLock)
@@ -3583,7 +3583,7 @@ namespace Ship_Game
                             {
                                 foreach (Ship ship2 in (Array<Ship>)this.SelectedShipList)
                                 {
-                                    this.player.GetGSAI().DefensiveCoordinator.remove(ship2);
+                                    this.player.GetGSAI().DefensiveCoordinator.Remove(ship2);
                                     if (ship1 != null && ship1 != ship2)
                                     {
                                         if (ship1.loyalty == this.player)
@@ -3635,7 +3635,7 @@ namespace Ship_Game
                                 float num6 = 0.0f;
                                 for (int index = 0; index < this.SelectedShipList.Count; ++index)
                                 {
-                                    this.player.GetGSAI().DefensiveCoordinator.remove(this.SelectedShipList[index]);
+                                    this.player.GetGSAI().DefensiveCoordinator.Remove(this.SelectedShipList[index]);
                                     if ((double)this.SelectedShipList[index].GetSO().WorldBoundingSphere.Radius > (double)num6)
                                         num6 = this.SelectedShipList[index].GetSO().WorldBoundingSphere.Radius;
                                 }
@@ -3723,11 +3723,11 @@ namespace Ship_Game
                                 this.SelectedFleet.FormationWarpTo(this.ProjectedPosition, num2, vector2_2);
                             AudioManager.PlayCue("echo_affirm1");
                             foreach (Ship ship in (Array<Ship>)this.SelectedFleet.Ships)
-                                this.player.GetGSAI().DefensiveCoordinator.remove(ship);
+                                this.player.GetGSAI().DefensiveCoordinator.Remove(ship);
                         }
                         else if (this.SelectedShip != null && this.SelectedShip.loyalty == this.player)
                         {
-                            this.player.GetGSAI().DefensiveCoordinator.remove(this.SelectedShip);
+                            this.player.GetGSAI().DefensiveCoordinator.Remove(this.SelectedShip);
                             this.SelectedSomethingTimer = 3f;
                             if (this.SelectedShip.isConstructor || this.SelectedShip.shipData.Role == ShipData.RoleName.supply)
                             {
@@ -3777,7 +3777,7 @@ namespace Ship_Game
                             float num6 = 0.0f;
                             for (int index = 0; index < this.SelectedShipList.Count; ++index)
                             {
-                                this.player.GetGSAI().DefensiveCoordinator.remove(this.SelectedShipList[index]);
+                                this.player.GetGSAI().DefensiveCoordinator.Remove(this.SelectedShipList[index]);
                                 if ((double)this.SelectedShipList[index].GetSO().WorldBoundingSphere.Radius > (double)num6)
                                     num6 = this.SelectedShipList[index].GetSO().WorldBoundingSphere.Radius;
                             }
