@@ -119,10 +119,15 @@ namespace Ship_Game
         public override void Unload()
         {
             float totalMemSaved = GetLoadedAssetMegabytes();
+            int count = LoadedAssets.Count;
+            float memBefore = HelperFunctions.ProcessMemoryMb;
             base.Unload();
+
             if (totalMemSaved > 0f)
             {
-                Log.Info("Unloaded '{0}' ({1} assets, {2:0.0}MB)", Name, LoadedAssets.Count, totalMemSaved);
+                float memAfter = HelperFunctions.ProcessMemoryMb;
+                Log.Info("Unloaded '{0}' ({1} assets, {2:0.0}MB), MemDelta {3:0.0}MB", 
+                    Name, count, totalMemSaved, memAfter - memBefore);
             }
         }
 
