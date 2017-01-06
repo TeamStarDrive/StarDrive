@@ -845,7 +845,7 @@ namespace Ship_Game
         {
             foreach (FileInfo info in GatherFilesUnified("Flags", "xnb"))
             {
-                Texture2D tex = ContentManager.Load<Texture2D>(info.RelPathNoExt());
+                Texture2D tex = ContentManager.Load<Texture2D>(info.CleanResPath());
                 FlagTextures.Add(new KeyValuePair<string, Texture2D>(info.NameNoExt(), tex));
             }
         }
@@ -926,7 +926,7 @@ namespace Ship_Game
                     // only accept "prefixNN" format, because there are a bunch of textures in the asteroids folder
                     if (!nameNoExt.StartsWith(modelPrefix) || !int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
                         continue;
-                    models.Add(ContentManager.Load<Model>(info.RelPathNoExt()));
+                    models.Add(ContentManager.Load<Model>(info.CleanResPath()));
                 }
                 catch (Exception e)
                 {
@@ -963,7 +963,7 @@ namespace Ship_Game
             {
                 try
                 {
-                    LargeStars.Add(ContentManager.Load<Texture2D>(info.RelPath()));
+                    LargeStars.Add(ContentManager.Load<Texture2D>(info.CleanResPath()));
                 }
                 catch (Exception e)
                 {
@@ -978,7 +978,7 @@ namespace Ship_Game
             {
                 try
                 {
-                    MediumStars.Add(ContentManager.Load<Texture2D>(info.RelPath()));
+                    MediumStars.Add(ContentManager.Load<Texture2D>(info.CleanResPath()));
                 }
                 catch (Exception e)
                 {
@@ -1034,7 +1034,7 @@ namespace Ship_Game
         {
             foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb"))
             {
-                Texture2D tex = ContentManager.Load<Texture2D>(info.RelPath());
+                Texture2D tex = ContentManager.Load<Texture2D>(info.CleanResPath());
                 ProjTextDict[info.NameNoExt()] = tex;
             }
         }
@@ -1264,7 +1264,7 @@ namespace Ship_Game
         {
             foreach (FileInfo info in GatherFilesModOrVanilla("SmallStars", "xnb"))
             {
-                Texture2D tex = ContentManager.Load<Texture2D>(info.RelPath());
+                Texture2D tex = ContentManager.Load<Texture2D>(info.CleanResPath());
                 SmallStars.Add(tex);
             }
         }
@@ -1384,9 +1384,10 @@ namespace Ship_Game
         {
             GameContentManager content = ContentManager;
 
-            Parallel.ForEach(GatherFilesUnified("Textures", "xnb"), info =>
+            //Parallel.ForEach(GatherFilesUnified("Textures", "xnb"), info =>
+            foreach (FileInfo info in GatherFilesUnified("Textures", "xnb"))
             {
-                string relPath = info.RelPath();
+                string relPath = info.CleanResPath();
                 var tex = content.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
 
                 string texName = relPath.Substring("Textures/".Length);
@@ -1394,7 +1395,8 @@ namespace Ship_Game
                 {
                     TextureDict[texName] = tex;
                 }
-            });
+            }
+            //);
 
             // check for any duplicate loads:
             var field = typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -1527,7 +1529,7 @@ namespace Ship_Game
 
             foreach (FileInfo info in GatherFilesUnified("SoundEffects", "xnb"))
             {
-                SoundEffect se = ContentManager.Load<SoundEffect>(info.RelPathNoExt());
+                SoundEffect se = ContentManager.Load<SoundEffect>(info.CleanResPath());
                 SoundEffectDict[info.NameNoExt()] = se;
             }
         }
