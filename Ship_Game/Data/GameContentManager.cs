@@ -120,14 +120,11 @@ namespace Ship_Game
         {
             float totalMemSaved = GetLoadedAssetMegabytes();
             int count = LoadedAssets.Count;
-            float memBefore = HelperFunctions.ProcessMemoryMb;
             base.Unload();
 
             if (totalMemSaved > 0f)
             {
-                float memAfter = HelperFunctions.ProcessMemoryMb;
-                Log.Info("Unloaded '{0}' ({1} assets, {2:0.0}MB), MemDelta {3:0.0}MB", 
-                    Name, count, totalMemSaved, memAfter - memBefore);
+                Log.Info("Unloaded '{0}' ({1} assets, {2:0.0}MB)", Name, count, totalMemSaved);
             }
         }
 
