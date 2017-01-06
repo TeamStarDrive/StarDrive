@@ -51,9 +51,14 @@ namespace Ship_Game
 
         protected override void Dispose(bool disposing)
         {
-            Log.Info("Disposing '{0}' Content", Name);
             base.Dispose(disposing);
             LoadedAssets = null;
+        }
+
+        public override void Unload()
+        {
+            Log.Info("Unloading '{0}' Content", Name);
+            base.Unload();
         }
 
         // Load the asset with the given name or path
