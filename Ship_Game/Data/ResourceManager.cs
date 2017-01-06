@@ -1524,8 +1524,10 @@ namespace Ship_Game
 
             DeserializeModOrVanilla("HostileFleets/HostileFleets.xml",    "HostileFleets",    out HostileFleets,    reportError: false);
             DeserializeModOrVanilla("ShipNames/ShipNames.xml",            "ShipNames",        out ShipNames,        reportError: false);
-            DeserializeModOrVanilla("AgentMissions/AgentMissionData.xml", "AgentMissionData", out AgentMissionData, reportError: false);
             DeserializeModOrVanilla("MainMenu/MainMenuShipList.xml",      "MainMenuShipList", out MainMenuShipList, reportError: false);
+            DeserializeModOrVanilla("AgentMissions/AgentMissionData.xml", "AgentMissionData", out AgentMissionData missionData, reportError: false);
+            if (missionData != null)
+                AgentMissionData = missionData;
 
             foreach (FileInfo info in GatherFilesUnified("SoundEffects", "xnb"))
             {

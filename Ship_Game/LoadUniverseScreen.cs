@@ -325,7 +325,7 @@ namespace Ship_Game
             lock (this)
             {
                 GateKeeper?.Dispose(ref GateKeeper);
-                data?.Dispose(ref data);
+                data = null;
             }
             base.Dispose(disposing);
         }
