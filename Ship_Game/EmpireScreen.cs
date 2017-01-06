@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public sealed class EmpireScreen : GameScreen, IDisposable
+	public sealed class EmpireScreen : GameScreen
 	{
 		private EmpireUIOverlay eui;
 
@@ -49,13 +49,8 @@ namespace Ship_Game
 
 		private Rectangle AutoButton;
 
-		//private bool AutoButtonHover;
-
 		private Planet SelectedPlanet;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-        //private bool firstSort = true;
 
 		public EmpireScreen(GameScreen parent, EmpireUIOverlay empUI) : base(parent)
 		{
@@ -126,33 +121,16 @@ namespace Ship_Game
             //this.firstSort = true;
 		}
 
-		       public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            ColoniesList?.Dispose(ref ColoniesList);
+            base.Dispose(disposing);
         }
-
-               ~EmpireScreen() { Dispose(false); }
-
-               private void Dispose(bool disposing)
-               {
-                   if (!disposed)
-                   {
-                       if (disposing)
-                       {
-                           if (this.ColoniesList != null)
-                               this.ColoniesList.Dispose();
-
-                       }
-                       this.ColoniesList = null;
-                       this.disposed = true;
-                   }
-               }
 
 		public override void Draw(GameTime gameTime)
 		{
 			Rectangle buildingsRect;
-			float x = (float)Mouse.GetState().X;
+			float x = Mouse.GetState().X;
 			MouseState state = Mouse.GetState();
 			Vector2 MousePos = new Vector2(x, (float)state.Y);
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);

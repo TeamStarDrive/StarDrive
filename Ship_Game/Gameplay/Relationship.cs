@@ -100,9 +100,6 @@ namespace Ship_Game.Gameplay
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 		public bool HaveRejected_Demand_Tech
 		{
 			get { return haveRejectedDemandTech; }
@@ -686,15 +683,8 @@ namespace Ship_Game.Gameplay
 
         private void Dispose(bool disposing)
         {
-            if (disposed) return;
-            if (disposing)
-            {
-                TrustEntries?.Dispose();
-                FearEntries?.Dispose();
-            }
-            TrustEntries = null;
-            FearEntries = null;
-            disposed = true;
+            TrustEntries?.Dispose(ref TrustEntries);
+            FearEntries?.Dispose(ref FearEntries);
         }
 	}
 }

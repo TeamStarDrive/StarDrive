@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class GenericLoadSaveScreen : GameScreen, IDisposable
+    public class GenericLoadSaveScreen : GameScreen
     {
         protected Vector2 Cursor = Vector2.Zero;
 
@@ -54,11 +54,6 @@ namespace Ship_Game
 
         protected Selector selector;
 
-        //private float transitionElapsedTime;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        protected bool disposed;
-
         protected FileInfo fileToDel;
 
         protected FileData selectedFile;
@@ -95,27 +90,10 @@ namespace Ship_Game
             this.eHeight = eHeight;
         }
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~GenericLoadSaveScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.SavesSL != null)
-                        this.SavesSL.Dispose();
-
-                }
-                this.SavesSL = null;
-                this.disposed = true;
-            }
+            SavesSL?.Dispose(ref SavesSL);
+            base.Dispose(disposing);
         }
 
         public virtual void DoSave()

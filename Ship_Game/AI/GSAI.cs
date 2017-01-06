@@ -72,8 +72,6 @@ namespace Ship_Game.AI
 
         public int recyclepool =0;
         private float buildCapacity = 0;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
         //added by gremlin: Smart Ship research
         Ship BestCombatShip;
@@ -9470,22 +9468,9 @@ namespace Ship_Game.AI
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.TaskList != null)
-                        this.TaskList.Dispose();
-                    if (this.DefensiveCoordinator != null)
-                        this.DefensiveCoordinator.Dispose();
-                    if (this.Goals != null)
-                        this.Goals.Dispose();
-                }
-                this.TaskList = null;
-                this.DefensiveCoordinator = null;
-                this.Goals = null;
-                this.disposed = true;
-            }
+            TaskList?.Dispose(ref TaskList);
+            DefensiveCoordinator?.Dispose(ref DefensiveCoordinator);
+            Goals?.Dispose(ref Goals);
         }
 	}
 }

@@ -23,7 +23,7 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-    public class UniverseScreen : GameScreen, IDisposable
+    public class UniverseScreen : GameScreen
     {
         private readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
         private readonly PerfTimer Perfavg2 = new PerfTimer();
@@ -300,8 +300,6 @@ namespace Ship_Game
             Size.X = size;
             Size.Y = size;
         }
-
-        ~UniverseScreen() { Destroy(); }
 
         public void SetLighting(bool real)
         {
@@ -7654,82 +7652,43 @@ namespace Ship_Game
             return new DirectoryInfo(DirPath).GetFiles("*.*", SearchOption.AllDirectories);
         }
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Destroy()
-        {
-            starfield?.Dispose();
-            DeepSpaceDone?.Dispose();
-            EmpireDone?.Dispose();
-            DeepSpaceGateKeeper?.Dispose();
-            ItemsToBuild?.Dispose();
-            anomalyManager?.Dispose();
-            bloomComponent?.Dispose();
-            ShipGateKeeper?.Dispose();
-            SystemThreadGateKeeper?.Dispose();
-            FogMap?.Dispose();
-            MasterShipList?.Dispose();
-            EmpireGateKeeper?.Dispose();
-            BombList?.Dispose();
-            flash?.Dispose();
-            lightning?.Dispose();
-            neb_particles?.Dispose();
-            photonExplosionParticles?.Dispose();
-            projectileTrailParticles?.Dispose();
-            sceneMap?.Dispose();
-            shipListInfoUI?.Dispose();
-            smokePlumeParticles?.Dispose();
-            sparks?.Dispose();
-            star_particles?.Dispose();
-            engineTrailParticles?.Dispose();
-            explosionParticles?.Dispose();
-            explosionSmokeParticles?.Dispose();
-            fireTrailParticles?.Dispose();
-            fireParticles?.Dispose();
-            flameParticles?.Dispose();
-            beamflashes?.Dispose();
-            dsbw?.Dispose();
-            SelectedShipList?.Dispose();
-            NotificationManager?.Dispose();
-            FogMapTarget?.Dispose();
-            starfield = null;
-            DeepSpaceDone = null;
-            EmpireDone = null;
-            DeepSpaceGateKeeper = null;
-            ItemsToBuild = null;
-            anomalyManager = null;
-            bloomComponent = null;
-            ShipGateKeeper = null;
-            SystemThreadGateKeeper = null;
-            FogMap = null;
-            MasterShipList = null;
-            EmpireGateKeeper = null;
-            BombList = null;
-            flash = null;
-            lightning = null;
-            neb_particles = null;
-            photonExplosionParticles = null;
-            projectileTrailParticles = null;
-            sceneMap = null;
-            shipListInfoUI = null;
-            smokePlumeParticles = null;
-            sparks = null;
-            star_particles = null;
-            engineTrailParticles = null;
-            explosionParticles = null;
-            explosionSmokeParticles = null;
-            fireTrailParticles = null;
-            fireParticles = null;
-            flameParticles = null;
-            beamflashes = null;
-            dsbw = null;
-            SelectedShipList = null;
-            NotificationManager = null;
-            FogMapTarget = null;
+            starfield               ?.Dispose(ref starfield);
+            DeepSpaceDone           ?.Dispose(ref DeepSpaceDone);
+            EmpireDone              ?.Dispose(ref EmpireDone);
+            DeepSpaceGateKeeper     ?.Dispose(ref DeepSpaceGateKeeper);
+            ItemsToBuild            ?.Dispose(ref ItemsToBuild);
+            anomalyManager          ?.Dispose(ref anomalyManager);
+            bloomComponent          ?.Dispose(ref bloomComponent);
+            ShipGateKeeper          ?.Dispose(ref ShipGateKeeper);
+            SystemThreadGateKeeper  ?.Dispose(ref SystemThreadGateKeeper);
+            FogMap                  ?.Dispose(ref FogMap);
+            MasterShipList          ?.Dispose(ref MasterShipList);
+            EmpireGateKeeper        ?.Dispose(ref EmpireGateKeeper);
+            BombList                ?.Dispose(ref BombList);
+            flash                   ?.Dispose(ref flash);
+            lightning               ?.Dispose(ref lightning);
+            neb_particles           ?.Dispose(ref neb_particles);
+            photonExplosionParticles?.Dispose(ref photonExplosionParticles);
+            projectileTrailParticles?.Dispose(ref projectileTrailParticles);
+            sceneMap                ?.Dispose(ref sceneMap);
+            shipListInfoUI          ?.Dispose(ref shipListInfoUI);
+            smokePlumeParticles     ?.Dispose(ref smokePlumeParticles);
+            sparks                  ?.Dispose(ref sparks);
+            star_particles          ?.Dispose(ref star_particles);
+            engineTrailParticles    ?.Dispose(ref engineTrailParticles);
+            explosionParticles      ?.Dispose(ref explosionParticles);
+            explosionSmokeParticles ?.Dispose(ref explosionSmokeParticles);
+            fireTrailParticles      ?.Dispose(ref fireTrailParticles);
+            fireParticles           ?.Dispose(ref fireParticles);
+            flameParticles          ?.Dispose(ref flameParticles);
+            beamflashes             ?.Dispose(ref beamflashes);
+            dsbw                    ?.Dispose(ref dsbw);
+            SelectedShipList        ?.Dispose(ref SelectedShipList);
+            NotificationManager     ?.Dispose(ref NotificationManager);
+            FogMapTarget            ?.Dispose(ref FogMapTarget);
+            base.Dispose(true);
         }
 
         public struct ClickablePlanets

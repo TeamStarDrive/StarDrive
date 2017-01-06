@@ -18,7 +18,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public sealed class CreatingNewGameScreen : GameScreen, IDisposable
+    public sealed class CreatingNewGameScreen : GameScreen
     {
         //private Matrix worldMatrix = Matrix.Identity;
         private float Scale = 1f;
@@ -895,19 +895,14 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             lock (this) {
                 WorkerBeginEvent?.Dispose(ref WorkerBeginEvent);
                 WorkerCompletedEvent?.Dispose(ref WorkerCompletedEvent);
                 LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);                
             }
+            base.Dispose(disposing);
         }
 
         private struct SysDisPair

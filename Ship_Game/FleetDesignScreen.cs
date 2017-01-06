@@ -14,7 +14,7 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class FleetDesignScreen : GameScreen, IDisposable
+	public sealed class FleetDesignScreen : GameScreen
 	{
 		public static bool Open = false;
 
@@ -232,38 +232,18 @@ namespace Ship_Game
             }
 		}
 
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-        ~FleetDesignScreen() { Dispose(false);  }
-
-		private void Dispose(bool disposing)
-		{
-			if (disposing)
+			lock (this)
 			{
-				lock (this)
-				{
-                    if (this.starfield != null)
-                        this.starfield.Dispose();
-                    if (this.fleet != null)
-                        this.fleet.Dispose();
-                    if (this.AvailableShips != null)
-                        this.AvailableShips.Dispose();
-                    if (this.ShipSL != null)
-                        this.ShipSL.Dispose();
-                    if (this.FleetSL != null)
-                        this.FleetSL.Dispose();
-				}
-                this.starfield = null;
-                this.fleet = null;
-                this.ShipSL = null;
-                this.FleetSL = null;
-                this.AvailableShips = null;
+				starfield?.Dispose(ref starfield);
+				fleet?.Dispose(ref fleet);
+				AvailableShips?.Dispose(ref AvailableShips);
+				ShipSL?.Dispose(ref ShipSL);
+				FleetSL?.Dispose(ref FleetSL);
 			}
-		}
+            base.Dispose(disposing);
+        }
 
 		public override void Draw(GameTime gameTime)
 		{

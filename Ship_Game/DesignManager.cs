@@ -7,47 +7,24 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class DesignManager : GameScreen, IDisposable
+	public sealed class DesignManager : GameScreen
 	{
-		private Vector2 Cursor = Vector2.Zero;
-
 		private ShipDesignScreen screen;
-
 		private string ShipName;
-
 		private Selector selector;
-
 		private Submenu SaveShips;
-
 		private Menu1 SaveMenu;
-
-		private Rectangle Window = new Rectangle();
-
-		private Vector2 TitlePosition = new Vector2();
-
-		private Vector2 EnternamePos = new Vector2();
+		private Rectangle Window;
+		private Vector2 TitlePosition;
+		private Vector2 EnternamePos;
 
 		private UITextEntry EnterNameArea = new UITextEntry();
-
 		private UIButton Save;
 
-		//private UIButton Load;
-
-		//private UIButton Options;
-
-		//private UIButton Exit;
-
 		private Submenu subAllDesigns;
-
 		private ScrollList ShipDesigns;
-
 		private MouseState currentMouse;
-
 		private MouseState previousMouse;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 
 		public DesignManager(ShipDesignScreen screen, string txt) : base(screen)
 		{
@@ -58,26 +35,10 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~DesignManager() { Dispose(false); }
-        
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ShipDesigns != null)
-                        this.ShipDesigns.Dispose();
-                }
-                this.ShipDesigns = null;
-                this.disposed = true;
-            }
+            ShipDesigns?.Dispose(ref ShipDesigns);
+            base.Dispose(disposing);
         }
 
 		public override void Draw(GameTime gameTime)

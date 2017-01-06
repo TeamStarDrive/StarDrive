@@ -16,7 +16,7 @@ using SgMotion.Controllers;
 
 namespace Ship_Game
 {
-	public sealed class MainMenuScreen : GameScreen, IDisposable
+	public sealed class MainMenuScreen : GameScreen
 	{
 		private IWavePlayer WaveOut;
 		private Mp3FileReader Mp3FileReader;
@@ -49,8 +49,6 @@ namespace Ship_Game
 		private bool Flip;
 		private bool StayOn;
 		private int FlareFrames;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool Disposed;
 
         private readonly Texture2D TexComet = ResourceManager.TextureDict["GameScreens/comet"];
 
@@ -538,8 +536,6 @@ namespace Ship_Game
 		{
             base.LoadContent();
 
-            Log.Info("MainMenuScreen LoadContent");
-
             ScreenManager.musicCategory.SetVolume(GlobalStats.MusicVolume);
             ScreenManager.racialMusic.SetVolume(GlobalStats.MusicVolume);
             ScreenManager.combatMusic.SetVolume(GlobalStats.MusicVolume);
@@ -627,6 +623,8 @@ namespace Ship_Game
             Projection = Matrix.CreateOrthographic(size.X, size.Y, 1f, 80000f);
 
             LoadTestContent();
+
+            Log.Info("MainMenuScreen GameContent {0:0.0}MB", TransientContent.GetLoadedAssetMegabytes());
         }
 
         // for quick feature testing in the main menu
@@ -797,27 +795,12 @@ namespace Ship_Game
 			public float Rotation;
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~MainMenuScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (Disposed) return;
-            Disposed = true;
-            if (disposing)
-            {
-                CometList?.Dispose();
-                WaveOut?.Dispose();
-                Mp3FileReader?.Dispose();
-            }
-            CometList = null;
-            WaveOut = null;
-            Mp3FileReader = null;
+            CometList?.Dispose(ref CometList);
+            WaveOut?.Dispose(ref WaveOut);
+            Mp3FileReader?.Dispose(ref Mp3FileReader);
+            base.Dispose(disposing);
         }
 	}
 }

@@ -11,7 +11,7 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class MainDiplomacyScreen : GameScreen, IDisposable
+	public sealed class MainDiplomacyScreen : GameScreen
 	{
 		private UniverseScreen screen;
 
@@ -44,15 +44,6 @@ namespace Ship_Game
 		private CloseButton close;
 
 		private float TransitionElapsedTime;
-
-		//private bool showExecuteButton;
-
-		//private string fmt = "0.#";
-
-		//private Rectangle PenRect;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
         //Added by CG: player empire
         Empire PlayerEmpire;
@@ -114,27 +105,12 @@ namespace Ship_Game
             this.Moles = empires;
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            ArtifactsSL?.Dispose(ref ArtifactsSL);
+            base.Dispose(disposing);
         }
 
-        ~MainDiplomacyScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ArtifactsSL != null)
-                        this.ArtifactsSL.Dispose();
-                }
-                this.ArtifactsSL = null;
-                this.disposed = true;
-            }
-        }
         private int IntelligenceLevel(Empire e)
         {
             int intelligence = 0;

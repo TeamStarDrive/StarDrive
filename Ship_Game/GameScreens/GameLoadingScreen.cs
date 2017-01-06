@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Ship_Game
 {
-	public sealed class GameLoadingScreen : GameScreen, IDisposable
+	public sealed class GameLoadingScreen : GameScreen
 	{
 		//private Texture2D BGTexture;
 		private Video LoadingVideo;
@@ -114,6 +114,8 @@ namespace Ship_Game
             // Initialize all game resources
 		    ResourceManager.LoadItAll();
 
+            Log.Info("Loaded 'Root' Assets {0:0.0}MB", Game1.GameContent.GetLoadedAssetMegabytes());
+
             base.LoadContent();
             Ready = true;
         }
@@ -150,18 +152,11 @@ namespace Ship_Game
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 
-        ~GameLoadingScreen() { Dispose(false); }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             LoadingPlayer?.Dispose(ref LoadingPlayer);
             SplashPlayer?.Dispose(ref SplashPlayer);
+            base.Dispose(disposing);
         }
 	}
 }

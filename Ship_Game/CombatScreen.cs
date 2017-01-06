@@ -69,18 +69,14 @@ namespace Ship_Game
 
 		private Array<PlanetGridSquare> ReversedList = new Array<PlanetGridSquare>();
 
-		public BatchRemovalCollection<CombatScreen.SmallExplosion> Explosions = new BatchRemovalCollection<CombatScreen.SmallExplosion>();
+		public BatchRemovalCollection<SmallExplosion> Explosions = new BatchRemovalCollection<SmallExplosion>();
 
-		private float[] anglesByColumn = new float[] { (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0) };
+		private float[] anglesByColumn = { (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0), (float)Math.Atan(0) };
+		private float[] distancesByRow = { 437f, 379f, 311f, 229f, 128f, 0f };
+		private float[] widthByRow = { 110f, 120f, 132f, 144f, 162f, 183f };
+		private float[] startXByRow =  { 254f, 222f, 181f, 133f, 74f, 0f };
 
-		private float[] distancesByRow = new float[] { 437f, 379f, 311f, 229f, 128f, 0f };
 
-		private float[] widthByRow = new float[] { 110f, 120f, 132f, 144f, 162f, 183f };
-
-		private float[] startXByRow = new float[] { 254f, 222f, 181f, 133f, 74f, 0f };
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
         private static bool popup = false;  //fbedard
 
 		public CombatScreen(Ship_Game.ScreenManager sm, Planet p)
@@ -1282,26 +1278,10 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.Explosions != null)
-                        this.Explosions.Dispose();
-                    if (this.OrbitSL != null)
-                        this.OrbitSL.Dispose();
-                    if (this.tInfo != null)
-                        this.tInfo.Dispose();
-                    if (this.hInfo != null)
-                        this.hInfo.Dispose();
-
-                }
-                this.Explosions = null;
-                this.OrbitSL = null;
-                this.tInfo = null;
-                this.hInfo = null;
-                this.disposed = true;
-            }
+            Explosions?.Dispose(ref Explosions);
+            OrbitSL?.Dispose(ref OrbitSL);
+            tInfo?.Dispose(ref tInfo);
+            hInfo?.Dispose(ref hInfo);
         }
 	}
 }

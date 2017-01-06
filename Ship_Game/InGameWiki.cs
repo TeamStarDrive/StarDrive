@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class InGameWiki : PopupWindow, IDisposable
+	public sealed class InGameWiki : PopupWindow
 	{
 		private HelpTopics ht;
 		private ScrollList CategoriesSL;
@@ -24,9 +24,6 @@ namespace Ship_Game
 		private bool HoverSmallVideo;
 		public bool PlayingVideo;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
         public InGameWiki(GameScreen parent) : base(parent)
         {
             IsPopup = true;
@@ -42,27 +39,12 @@ namespace Ship_Game
             R = r;
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~InGameWiki() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposed) return;
-            if (disposing)
-            {
-                VideoPlayer?.Dispose();
-                CategoriesSL?.Dispose();
-                TextSL?.Dispose();
-            }
-            VideoPlayer = null;
-            CategoriesSL = null;
-            TextSL = null;
-            disposed = true;
+            VideoPlayer?.Dispose(ref VideoPlayer);
+            CategoriesSL?.Dispose(ref CategoriesSL);
+            TextSL?.Dispose(ref TextSL);
+            base.Dispose(disposing);
         } 
 		 
 

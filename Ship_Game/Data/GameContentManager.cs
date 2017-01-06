@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 
 namespace Ship_Game
 {
@@ -12,15 +15,16 @@ namespace Ship_Game
         // to avoid double loading resources into memory
         private readonly GameContentManager Parent;
         private Dictionary<string, object> LoadedAssets;
-        public string Name { get; set; } = "";
+        public string Name { get; }
 
-        public GameContentManager(IServiceProvider service) : base(service, "Content")
+        public GameContentManager(IServiceProvider service, string name) : base(service, "Content")
         {
+            Name = name;
             LoadedAssets = (Dictionary<string, object>)
                 typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
         }
 
-        public GameContentManager(GameContentManager parent) : this(parent.ServiceProvider)
+        public GameContentManager(GameContentManager parent, string name) : this(parent.ServiceProvider, name)
         {
             Parent = parent;
         }
@@ -55,10 +59,71 @@ namespace Ship_Game
             LoadedAssets = null;
         }
 
+        private static T GetField<T>(object obj, string name)
+        {
+            return (T)obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(obj);
+        }
+
+        private static int TextureSize(Texture2D tex)
+        {
+            if (tex.IsDisposed)
+                return 0;
+            float mul = 1f;
+            switch (tex.Format)
+            {
+                case SurfaceFormat.Dxt1: mul = 0.5f; break;
+                case SurfaceFormat.Dxt3: mul = 1.0f; break;
+                case SurfaceFormat.Dxt5: mul = 1.0f; break;
+            }
+            if (tex.LevelCount > 1) mul *= 1.75f; // mipmaps
+
+            return (int)(tex.Width * tex.Height * mul) + 4096/*all the crap that manages this texture*/;
+        }
+
+        // Calculates the approximate size of the raw data in assets
+        public int GetLoadedAssetBytes()
+        {
+            int numBytes = 0;
+            foreach (object asset in LoadedAssets.Values)
+            {
+                if (asset is Texture2D tex)
+                {
+                    numBytes += TextureSize(tex);
+                }
+                else if (asset is Video vid)
+                {
+                    numBytes += vid.Width * vid.Height * 3/*RGB*/ * 2/*doublebuffered*/;
+                }
+                else if (asset is Model mod)
+                {
+                    numBytes += mod.Bones.Count * 256;
+                    foreach (var mesh in mod.Meshes)
+                        numBytes += mesh.IndexBuffer.SizeInBytes + mesh.VertexBuffer.SizeInBytes;
+                }
+                else if (asset is SpriteFont font)
+                {
+                    var fontTex = GetField<Texture2D>(font, "textureValue");
+                    numBytes += TextureSize(fontTex);
+                    numBytes += font.Characters.Count * 64;
+                }
+                else
+                {
+                    //Debugger.Break();
+                }
+            }
+            return numBytes;
+        }
+
+        public float GetLoadedAssetMegabytes() => GetLoadedAssetBytes() / (1024f * 1024f);
+
         public override void Unload()
         {
-            Log.Info("Unloading '{0}' Content", Name);
+            float totalMemSaved = GetLoadedAssetMegabytes();
             base.Unload();
+            if (totalMemSaved > 0f)
+            {
+                Log.Info("Unloaded '{0}' ({1} assets, {2:0.0}MB)", Name, LoadedAssets.Count, totalMemSaved);
+            }
         }
 
         // Load the asset with the given name or path
