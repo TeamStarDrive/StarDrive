@@ -37,6 +37,7 @@ namespace Ship_Game
 		{
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content);
+            TransientContent.Name = GetType().Name;
             ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
         }
 
