@@ -114,5 +114,23 @@ namespace Ship_Game
             int i = filePath.LastIndexOf('.');
             return i == -1 ? filePath : filePath.Substring(0, i);
         }
+
+        // Creates a clean relative file path, useful for resource loading
+        // Ex: "Content\\Textures\\blank.xnb"    --> "Textures/blank"
+        // Ex: "Mods/MyMod/Textures\\blank.xnb"  --> "Textures/blank"
+        public static string CleanResPath(this FileInfo info)
+        {
+            string filePath = info.FullName.Substring(AppRoot.Length + 1);
+
+            if (filePath.StartsWith("Content", StringComparison.OrdinalIgnoreCase))
+                filePath = filePath.Substring("Content/".Length);
+            else if (filePath.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase))
+                filePath = filePath.Substring(GlobalStats.ModPath.Length);
+
+            filePath = filePath.Replace('\\', '/');
+
+            int i = filePath.LastIndexOf('.');
+            return i == -1 ? filePath : filePath.Substring(0, i);
+        }
     }
 }

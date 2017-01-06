@@ -69,8 +69,8 @@ namespace Ship_Game
             if (assetNoExt.StartsWith("./"))
                 assetNoExt = assetNoExt.Substring(2);
 
-            if (assetNoExt.StartsWith("Content/", StringComparison.OrdinalIgnoreCase))
-                assetNoExt = assetNoExt.Substring("Content/".Length);
+            //if (assetNoExt.StartsWith("Content/", StringComparison.OrdinalIgnoreCase))
+            //    assetNoExt = assetNoExt.Substring("Content/".Length);
 
         #if DEBUG
             // if we forbid relative paths, we can streamline our resource manager and eliminate almost all duplicate loading
