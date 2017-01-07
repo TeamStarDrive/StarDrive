@@ -37,7 +37,7 @@ namespace Ship_Game.Gameplay
 		public void UpdatePosition(float elapsedTime)
 		{
             Zrotate += 0.05f * elapsedTime;
-            if (!Planet.universeScreen.Paused)
+            if (!Empire.Universe.Paused)
             {
                 OrbitalAngle += (float)Math.Asin(15.0 / OrbitRadius);
                 if (OrbitalAngle >= 360.0f) OrbitalAngle -= 360f;

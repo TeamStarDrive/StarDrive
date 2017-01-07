@@ -159,7 +159,16 @@ namespace Ship_Game
 
         public bool Contains(T item)
         {
-            return Array.IndexOf(Items, item) >= 0;
+            if (item == null)
+            {
+                for (int i = 0; i < Count; i++)
+                    if (Items[i] == null) return true;
+                return false;
+            }
+            var c = EqualityComparer<T>.Default;
+            for (int i = 0; i < Count; i++)
+                if (c.Equals(Items[i], item)) return true;
+            return false;
         }
 
         public void CopyTo(T[] array, int arrayIndex = 0)

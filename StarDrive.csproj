@@ -294,6 +294,7 @@
     <Compile Include="Ship_Game\Commands\MilitaryTasks\CohesiveClearAreaOfEnemies.cs" />
     <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
+    <Compile Include="Ship_Game\Data\GameContentManager.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\FileSystemExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
@@ -591,7 +592,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\ResourceManager.cs">
+    <Compile Include="Ship_Game\Data\ResourceManager.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

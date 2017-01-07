@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class RefitToWindow : GameScreen, IDisposable
+	public sealed class RefitToWindow : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -31,10 +31,7 @@ namespace Ship_Game
 
 		private Selector selector;
 
-         //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public RefitToWindow(ShipListScreenEntry entry, ShipListScreen screen)
+		public RefitToWindow(ShipListScreen screen, ShipListScreenEntry entry) : base(screen)
 		{
 			this.screen = screen;
 			this.shiptorefit = entry.ship;
@@ -43,7 +40,7 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-		public RefitToWindow(Ship ship)
+		public RefitToWindow(GameScreen parent, Ship ship) : base(parent)
 		{
 			this.shiptorefit = ship;
 			base.IsPopup = true;
@@ -51,30 +48,13 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-	        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            ShipSL?.Dispose(ref ShipSL);
+            base.Dispose(disposing);
         }
 
-            ~RefitToWindow() { Dispose(false); }
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ShipSL != null)
-                        this.ShipSL.Dispose();
-               
-                }
-                this.ShipSL = null;
-                this.disposed = true;
-            }
-        }
-		
-
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();

@@ -33,7 +33,7 @@ namespace Ship_Game
 
 		private MouseState previousMouse;
 
-		public RequisitionScreen(FleetDesignScreen fds)
+		public RequisitionScreen(FleetDesignScreen fds) : base(fds)
 		{
 			this.fds = fds;
 			this.f = fds.fleet;

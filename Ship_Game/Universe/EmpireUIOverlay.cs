@@ -25,8 +25,6 @@ namespace Ship_Game
 
 		private Array<Button> Buttons = new Array<Button>();
 
-		public UniverseScreen screen;
-
 		private bool LowRes;
 
 		private MouseState currentMouse;
@@ -37,9 +35,8 @@ namespace Ship_Game
 
 		//private bool FirstRun = true;
 
-		public EmpireUIOverlay(Ship_Game.Empire playerEmpire, GraphicsDevice device, UniverseScreen screen)
+		public EmpireUIOverlay(Empire playerEmpire, GraphicsDevice device)
 		{
-			this.screen = screen;
 			this.empire = playerEmpire;
 			if (device.PresentationParameters.BackBufferWidth > 1366)
 			{
@@ -52,7 +49,7 @@ namespace Ship_Game
 				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res3"].Width;
 				this.res4 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res4"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res4"].Height);
 				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res4"].Width;
-				Cursor.X = (float)(screen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"].Width);
+				Cursor.X = (float)(Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"].Width);
 				this.res5 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res5"].Height);
 				Button r1 = new Button();
 				
@@ -104,7 +101,7 @@ namespace Ship_Game
 				Cursor.X = (float)(r4.Rect.X + r4.Rect.Width) + roomoneitherside;
 
 
-                if (this.screen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth >= 1920)
+                if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth >= 1920)
                 {
                     float saveY = Cursor.Y;
                     
@@ -154,16 +151,15 @@ namespace Ship_Game
 				
 				this.Buttons.Add(Shipyard);
 				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 40;
-				Button Empire = new Button();
-
-                Empire.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
-				Empire.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
-				Empire.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
-				Empire.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
-				Empire.launches = "Empire";
-				Empire.Text = Localizer.Token(99);
+				Button empire = new Button();
+                empire.Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"].Height);
+                empire.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
+                empire.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
+                empire.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
+                empire.launches = "Empire";
+                empire.Text = Localizer.Token(99);
 				
-				this.Buttons.Add(Empire);
+				this.Buttons.Add(empire);
 				Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"].Width + 40;
                 Button Espionage = new Button();
 
@@ -220,7 +216,7 @@ namespace Ship_Game
 			Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"].Width;
 			this.res4 = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Height);
 			Cursor0.X = Cursor0.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Width;
-			Cursor0.X = (float)(screen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width);
+			Cursor0.X = (float)(Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width);
 			this.res5 = new Rectangle((int)Cursor0.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Height);
 			Button r1n = new Button()
 			{
@@ -370,7 +366,7 @@ namespace Ship_Game
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			if (this.screen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 && !this.LowRes)
+			if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 && !this.LowRes)
 			{
 				this.Buttons.Clear();
 				this.ResetLowRes();
@@ -452,7 +448,7 @@ namespace Ship_Game
 			}
 			EspionageBudget = EspionageBudget + EmpireManager.Player.data.CounterIntelligenceBudget;
 			plusMoney = plusMoney - (this.empire.GetTotalBuildingMaintenance() + this.empire.GetTotalShipMaintenance() + EspionageBudget);
-			float damoney = this.screen.player.EstimateIncomeAtTaxRate(this.screen.player.data.TaxRate);
+			float damoney = Empire.Universe.player.EstimateIncomeAtTaxRate(Empire.Universe.player.data.TaxRate);
 			if (damoney <= 0f)
 			{
 				textCursor.X = (float)(this.res4.X + this.res2.Width - 30) - Fonts.Arial12Bold.MeasureString(string.Concat(Money.ToString(), " (", damoney.ToString("#.0"), ")")).X;
@@ -466,7 +462,7 @@ namespace Ship_Game
 				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Money.ToString(), " (+", damoney.ToString("#.0"), ")"), textCursor, new Color(255, 240, 189));
 			}
 			Vector2 StarDateCursor = new Vector2((float)(this.res5.X + 75), textCursor.Y);
-			spriteBatch.DrawString(Fonts.Arial12Bold, (this.LowRes ? this.screen.StarDate.ToString(this.screen.StarDateFmt) : string.Concat("StarDate: ", this.screen.StarDate.ToString(this.screen.StarDateFmt))), StarDateCursor, new Color(255, 240, 189));
+			spriteBatch.DrawString(Fonts.Arial12Bold, (this.LowRes ? Empire.Universe.StarDate.ToString(Empire.Universe.StarDateFmt) : string.Concat("StarDate: ", Empire.Universe.StarDate.ToString(Empire.Universe.StarDateFmt))), StarDateCursor, new Color(255, 240, 189));
 			//this.FirstRun = false;
 			if (!this.LowRes)
 			{
@@ -481,8 +477,8 @@ namespace Ship_Game
 				int xOffset = (int)(percentResearch * (float)this.res2.Width);
 				Rectangle gradientSourceRect = this.res2;
 				gradientSourceRect.X = 159 - xOffset;
-				this.screen.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_gradient"], new Rectangle(this.res2.X, this.res2.Y, this.res2.Width, this.res2.Height), new Rectangle?(gradientSourceRect), Color.White);
-				this.screen.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_over"], this.res2, Color.White);
+                Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_gradient"], new Rectangle(this.res2.X, this.res2.Y, this.res2.Width, this.res2.Height), new Rectangle?(gradientSourceRect), Color.White);
+                Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_over"], this.res2, Color.White);
 				int research = (int)this.empire.GetTDict()[this.empire.ResearchTopic].Progress;
 				float plusRes = this.empire.GetProjectedResearchNextTurn();
 				float x = (float)(this.res2.X + this.res2.Width - 30);
@@ -503,8 +499,8 @@ namespace Ship_Game
 					int xOffset = (int)(percentResearch * (float)this.res2.Width);
 					Rectangle gradientSourceRect = this.res2;
 					gradientSourceRect.X = 159 - xOffset;
-					this.screen.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_gradient"], new Rectangle(this.res2.X, this.res2.Y, this.res2.Width, this.res2.Height), new Rectangle?(gradientSourceRect), Color.White);
-					this.screen.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_over"], this.res2, Color.White);
+                    Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_gradient"], new Rectangle(this.res2.X, this.res2.Y, this.res2.Width, this.res2.Height), new Rectangle?(gradientSourceRect), Color.White);
+                    Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_res2_over"], this.res2, Color.White);
 					int research = (int)this.empire.GetTDict()[this.empire.ResearchTopic].Progress;
 					float plusRes = this.empire.GetProjectedResearchNextTurn();
 					float single = (float)(this.res2.X + this.res2.Width - 20);
@@ -542,47 +538,47 @@ namespace Ship_Game
             if (input.CurrentKeyboardState.IsKeyDown(Keys.R) && !input.LastKeyboardState.IsKeyDown(Keys.R) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
-				this.screen.ScreenManager.AddScreen(new ResearchScreenNew(this));
+                Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
-				this.screen.ScreenManager.AddScreen(new BudgetScreen(Ship.universeScreen));
+                Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.Y) && !input.LastKeyboardState.IsKeyDown(Keys.Y) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
-				this.screen.ScreenManager.AddScreen(new ShipDesignScreen(this));
+                Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.U) && !input.LastKeyboardState.IsKeyDown(Keys.U) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
-				this.screen.ScreenManager.AddScreen(new EmpireScreen(Ship.universeScreen.ScreenManager, this));
+                Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.I) && !input.LastKeyboardState.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
-				this.screen.ScreenManager.AddScreen(new MainDiplomacyScreen(Ship.universeScreen));
+                Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.O) && !input.LastKeyboardState.IsKeyDown(Keys.O) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("echo_affirm");
-				this.screen.ScreenManager.AddScreen(new GameplayMMScreen(Ship.universeScreen));
+                Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
 			}
             if (input.CurrentKeyboardState.IsKeyDown(Keys.E) && !input.LastKeyboardState.IsKeyDown(Keys.E) && !GlobalStats.TakingInput)
             {
                 AudioManager.PlayCue("echo_affirm");
-                this.screen.ScreenManager.AddScreen(new EspionageScreen(Ship.universeScreen));
+                Empire.Universe.ScreenManager.AddScreen(new EspionageScreen(Empire.Universe));
             }
 			if (input.CurrentKeyboardState.IsKeyDown(Keys.P) && !input.LastKeyboardState.IsKeyDown(Keys.P) && !GlobalStats.TakingInput)
 			{
 				AudioManager.PlayCue("sd_ui_tactical_pause");
-				InGameWiki wiki = new InGameWiki(new Rectangle(0, 0, 750, 600))
+				InGameWiki wiki = new InGameWiki(Empire.Universe, new Rectangle(0, 0, 750, 600))
 				{
 					TitleText = Localizer.Token(2304),
 					MiddleText = Localizer.Token(2303)
 				};
-				this.screen.ScreenManager.AddScreen(wiki);
+                Empire.Universe.ScreenManager.AddScreen(wiki);
 			}
 			foreach (Button b in this.Buttons)
 			{
@@ -672,12 +668,12 @@ namespace Ship_Game
 						if (str3 == "Research")
 						{
 							AudioManager.PlayCue("echo_affirm");
-							this.screen.ScreenManager.AddScreen(new ResearchScreenNew(this));
+                            Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
 						}
 						else if (str3 == "Budget")
 						{
 							AudioManager.PlayCue("echo_affirm");
-							this.screen.ScreenManager.AddScreen(new BudgetScreen(this.screen));
+                            Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
 						}
 					}
 					string str4 = b.launches;
@@ -689,47 +685,47 @@ namespace Ship_Game
 					if (str5 == "Main Menu")
 					{
 						AudioManager.PlayCue("echo_affirm");
-						this.screen.ScreenManager.AddScreen(new GameplayMMScreen(this.screen));
+						Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
 					}
 					else if (str5 == "Shipyard")
 					{
 						AudioManager.PlayCue("echo_affirm");
-						this.screen.ScreenManager.AddScreen(new ShipDesignScreen(this));
+                        Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
 					}
                     else if (str5 == "Fleets")
                     {
                         AudioManager.PlayCue("echo_affirm");
-                        this.screen.ScreenManager.AddScreen(new FleetDesignScreen(this));
+                        Empire.Universe.ScreenManager.AddScreen(new FleetDesignScreen(Empire.Universe, this));
                     }
                     else if (str5 == "ShipList")
                     {
                         AudioManager.PlayCue("echo_affirm");
-                        this.screen.ScreenManager.AddScreen(new ShipListScreen(this.screen.ScreenManager, this));
+                        Empire.Universe.ScreenManager.AddScreen(new ShipListScreen(Empire.Universe, this));
                     }
 					else if (str5 == "Empire")
 					{
-						this.screen.ScreenManager.AddScreen(new EmpireScreen(this.screen.ScreenManager, this));
+                        Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
 						AudioManager.PlayCue("echo_affirm");
 					}
 					else if (str5 == "Diplomacy")
 					{
-						this.screen.ScreenManager.AddScreen(new MainDiplomacyScreen(this.screen));
+                        Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
 						AudioManager.PlayCue("echo_affirm");
 					}
                     else if (str5 == "Espionage")
                     {
-                        this.screen.ScreenManager.AddScreen(new EspionageScreen(this.screen));
+                        Empire.Universe.ScreenManager.AddScreen(new EspionageScreen(Empire.Universe));
                         AudioManager.PlayCue("echo_affirm");
                     }
 					else if (str5 == "?")
 					{
 						AudioManager.PlayCue("sd_ui_tactical_pause");
-						InGameWiki wiki = new InGameWiki(new Rectangle(0, 0, 750, 600))
+						InGameWiki wiki = new InGameWiki(Empire.Universe, new Rectangle(0, 0, 750, 600))
 						{
 							TitleText = Localizer.Token(2304),
 							MiddleText = Localizer.Token(2303)
 						};
-						this.screen.ScreenManager.AddScreen(wiki);
+                        Empire.Universe.ScreenManager.AddScreen(wiki);
 					}
 				}
 			}
@@ -792,7 +788,7 @@ namespace Ship_Game
 							AudioManager.PlayCue("echo_affirm");
 							if (!(caller is ResearchScreenNew))
 							{
-								this.screen.ScreenManager.AddScreen(new ResearchScreenNew(this));
+                                Empire.Universe.ScreenManager.AddScreen(new ResearchScreenNew(Empire.Universe, this));
 							}
 						}
 						else if (str1 == "Budget")
@@ -800,7 +796,7 @@ namespace Ship_Game
 							AudioManager.PlayCue("echo_affirm");
 							if (!(caller is BudgetScreen))
 							{
-								this.screen.ScreenManager.AddScreen(new BudgetScreen(this.screen));
+                                Empire.Universe.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
 							}
 						}
 					}
@@ -813,7 +809,7 @@ namespace Ship_Game
 					if (str3 == "Main Menu")
 					{
 						AudioManager.PlayCue("echo_affirm");
-						this.screen.ScreenManager.AddScreen(new GameplayMMScreen(this.screen, caller));
+                        Empire.Universe.ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe, caller));
 					}
 					else if (str3 == "Shipyard")
 					{
@@ -822,7 +818,7 @@ namespace Ship_Game
 							continue;
 						}
 						AudioManager.PlayCue("echo_affirm");
-						this.screen.ScreenManager.AddScreen(new ShipDesignScreen(this));
+                        Empire.Universe.ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, this));
 					}
                     else if (str3 == "Fleets")
                     {
@@ -831,22 +827,22 @@ namespace Ship_Game
                             continue;
                         }
                         AudioManager.PlayCue("echo_affirm");
-                        this.screen.ScreenManager.AddScreen(new FleetDesignScreen(this));
+                        Empire.Universe.ScreenManager.AddScreen(new FleetDesignScreen(Empire.Universe, this));
                     }
 					else if (str3 == "Empire")
 					{
-						this.screen.ScreenManager.AddScreen(new EmpireScreen(this.screen.ScreenManager, this));
+                        Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
 						AudioManager.PlayCue("echo_affirm");
 					}
 					else if (str3 == "Diplomacy")
 					{
-						this.screen.ScreenManager.AddScreen(new MainDiplomacyScreen(this.screen));
+                        Empire.Universe.ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
 						AudioManager.PlayCue("echo_affirm");
 					}
 					else if (str3 == "?")
 					{
 						AudioManager.PlayCue("sd_ui_tactical_pause");
-						InGameWiki wiki = new InGameWiki(new Rectangle(0, 0, 750, 600))
+						InGameWiki wiki = new InGameWiki(Empire.Universe, new Rectangle(0, 0, 750, 600))
 						{
 							TitleText = "StarDrive Help",
 							MiddleText = "This help menu contains information on all of the gameplay systems contained in StarDrive. You can also watch one of several tutorial videos for a developer-guided introduction to StarDrive."
@@ -869,7 +865,7 @@ namespace Ship_Game
 			Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res3"].Width;
 			this.res4 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Height);
 			Cursor.X = Cursor.X + (float)ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res4"].Width;
-			Cursor.X = (float)(this.screen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width);
+			Cursor.X = (float)(Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width);
 			this.res5 = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_res5"].Height);
 			Button r1 = new Button()
 			{
@@ -928,7 +924,7 @@ namespace Ship_Game
 			};
 			this.Buttons.Add(Shipyard);
 			Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 18);
-			Button Empire = new Button()
+			Button empire = new Button()
 			{
 				Rect = new Rectangle((int)Cursor.X, 2, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Width, ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"].Height),
 				NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px"],
@@ -937,7 +933,7 @@ namespace Ship_Game
 				launches = "Empire",
 				Text = Localizer.Token(99)
 			};
-			this.Buttons.Add(Empire);
+			this.Buttons.Add(empire);
             Cursor.X = Cursor.X + (float)(ResourceManager.TextureDict["EmpireTopBar/empiretopbar_low_btn_124px_hover"].Width + 18);
             Button Espionage = new Button()
             {

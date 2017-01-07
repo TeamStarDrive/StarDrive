@@ -42,20 +42,17 @@ namespace Ship_Game
 
 		public int indexAtTop;
 
-		public BatchRemovalCollection<ScrollList.Entry> Entries = new BatchRemovalCollection<ScrollList.Entry>();
+		public BatchRemovalCollection<Entry> Entries = new BatchRemovalCollection<Entry>();
 
 		public bool IsDraggable;
 
-		public ScrollList.Entry DraggedEntry;
+		public Entry DraggedEntry;
 
-		public BatchRemovalCollection<ScrollList.Entry> Copied = new BatchRemovalCollection<ScrollList.Entry>();
+		public BatchRemovalCollection<Entry> Copied = new BatchRemovalCollection<Entry>();
 
 		public Rectangle DraggableArea = new Rectangle();
 
-		private Vector2 DraggedOffset = new Vector2();
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+		private Vector2 DraggedOffset;
 
         // Added by EVWeb to not waste space when a list won't use certain buttons
         private bool CancelCol = true;
@@ -873,27 +870,15 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.Entries != null)
-                        this.Entries.Dispose();
-                    if (this.Copied != null)
-                        this.Copied.Dispose();
-
-                }
-                this.Entries = null;
-                this.Copied = null;
-                this.disposed = true;
-            }
+            Entries?.Dispose(ref Entries);
+            Copied?.Dispose(ref Copied);
         }
 
 		public class Entry
 		{
 			public bool ShowingSub;
 
-			public Rectangle clickRect = new Rectangle();
+			public Rectangle clickRect;
 
 			public object item;
 

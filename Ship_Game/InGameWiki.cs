@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class InGameWiki : PopupWindow, IDisposable
+	public sealed class InGameWiki : PopupWindow
 	{
 		private HelpTopics ht;
 		private ScrollList CategoriesSL;
@@ -24,10 +24,7 @@ namespace Ship_Game
 		private bool HoverSmallVideo;
 		public bool PlayingVideo;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-        public InGameWiki()
+        public InGameWiki(GameScreen parent) : base(parent)
         {
             IsPopup = true;
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
@@ -37,32 +34,17 @@ namespace Ship_Game
             if (help.Length != 0)
                 ht = help[0].Deserialize<HelpTopics>();
         }
-        public InGameWiki(Rectangle r) : this()
+        public InGameWiki(GameScreen parent, Rectangle r) : this(parent)
 		{
             R = r;
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~InGameWiki() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposed) return;
-            if (disposing)
-            {
-                VideoPlayer?.Dispose();
-                CategoriesSL?.Dispose();
-                TextSL?.Dispose();
-            }
-            VideoPlayer = null;
-            CategoriesSL = null;
-            TextSL = null;
-            disposed = true;
+            VideoPlayer?.Dispose(ref VideoPlayer);
+            CategoriesSL?.Dispose(ref CategoriesSL);
+            TextSL?.Dispose(ref TextSL);
+            base.Dispose(disposing);
         } 
 		 
 
@@ -228,8 +210,8 @@ namespace Ship_Game
 						else
 						{
 							this.TextSL.Copied.Clear();
-							this.VideoPlayer = new Microsoft.Xna.Framework.Media.VideoPlayer();
-							this.ActiveVideo = base.ScreenManager.Content.Load<Video>(string.Concat("Video/", this.ActiveTopic.VideoPath));
+							this.VideoPlayer = new VideoPlayer();
+							this.ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", this.ActiveTopic.VideoPath));
 							this.VideoPlayer.Play(this.ActiveVideo);
 							this.VideoPlayer.Pause();
 						}

@@ -24,40 +24,13 @@ namespace Ship_Game
 
 		private SpriteBatch spriteRenderer;
 
-		private BloomPostProcessor.BloomSettings settings = BloomPostProcessor.BloomSettings.PresetSettings[5];
+	    public BloomSettings Settings { get; set; } = BloomSettings.PresetSettings[5];
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+	    public override SurfaceFormat[] SupportedSourceFormats => this.supportedSourceFormats.ToArray();
 
-		public BloomPostProcessor.BloomSettings Settings
-		{
-			get
-			{
-				return this.settings;
-			}
-			set
-			{
-				this.settings = value;
-			}
-		}
+	    public override SurfaceFormat[] SupportedTargetFormats => this.supportedSourceFormats.ToArray();
 
-		public override SurfaceFormat[] SupportedSourceFormats
-		{
-			get
-			{
-				return this.supportedSourceFormats.ToArray();
-			}
-		}
-
-		public override SurfaceFormat[] SupportedTargetFormats
-		{
-			get
-			{
-				return this.supportedSourceFormats.ToArray();
-			}
-		}
-
-		public BloomPostProcessor(Microsoft.Xna.Framework.GraphicsDeviceManager deviceManager) : base(deviceManager)
+	    public BloomPostProcessor(GraphicsDeviceManager deviceManager) : base(deviceManager)
 		{
 		}
 
@@ -119,7 +92,7 @@ namespace Ship_Game
 			return base.Initialize(availableformats);
 		}
 
-		public void LoadContent(ContentManager manager)
+		public void LoadContent(GameContentManager manager)
 		{
 			this.spriteRenderer = new SpriteBatch(base.GraphicsDeviceManager.GraphicsDevice);
 			this.bloomExtractEffect = manager.Load<Effect>("Effects/BloomExtract");
@@ -212,22 +185,9 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.spriteRenderer != null)
-                        this.spriteRenderer.Dispose();
-                    if (this.renderTarget1 != null)
-                        this.renderTarget1.Dispose();
-                    if (this.renderTarget2 != null)
-                        this.renderTarget2.Dispose();
-                }
-                this.renderTarget2 = null;
-                this.spriteRenderer = null;
-                this.renderTarget1 = null;
-                this.disposed = true;
-            }
+            spriteRenderer?.Dispose(ref spriteRenderer);
+            renderTarget1?.Dispose(ref renderTarget1);
+            renderTarget2?.Dispose(ref renderTarget2);
         }
 	}
 }

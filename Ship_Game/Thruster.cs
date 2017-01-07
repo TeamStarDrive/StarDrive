@@ -94,12 +94,12 @@ namespace Ship_Game
 			this.SetPosition();
 		}
 
-		public void load_and_assign_effects(ContentManager content, string filename, string noisefilename, Effect effect)
+		public void load_and_assign_effects(GameContentManager content, string filename, string noisefilename, Effect effect)
 		{
 		    load_and_assign_effects(content, content.Load<Model>(filename), content.Load<Texture3D>(noisefilename), effect);
 		}
 
-	    public void load_and_assign_effects(ContentManager content, Model model, Texture3D noiseTexture, Effect effect)
+	    public void load_and_assign_effects(GameContentManager content, Model model, Texture3D noiseTexture, Effect effect)
 	    {
             this.model = model;
             this.Noise = noiseTexture;
