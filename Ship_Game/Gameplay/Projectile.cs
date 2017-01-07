@@ -18,7 +18,7 @@ namespace Ship_Game.Gameplay
 		public float ShieldDamageBonus;
 		public float ArmorDamageBonus;
 		public byte ArmorPiercing;
-		public static ContentManager contentManager;
+		public static GameContentManager contentManager;
 		public Ship owner;
 		public bool IgnoresShields;
 		public string WeaponType;

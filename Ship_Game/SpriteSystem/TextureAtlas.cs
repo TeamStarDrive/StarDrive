@@ -63,14 +63,8 @@ namespace Ship_Game
         // @todo Make this fit into ResourceManager?
         private static bool GetAtlasDescr(string textureName, out FileInfo outInfo)
         {
-            string descr = "/Textures/" + textureName + ".xml";
-            FileInfo info = new FileInfo(ResourceManager.WhichModPath + descr);
-
-            if (!info.Exists)
-                info = new FileInfo("Content" + descr); // try falling back to main Content folder
-
-            outInfo = info.Exists ? info : null;
-            return info.Exists;
+            outInfo = ResourceManager.GetModOrVanillaFile("Textures/" + textureName + ".xml");
+            return outInfo != null;
         }
 
         // Since we do binary search by Sprite name, we need to sort them
@@ -79,7 +73,7 @@ namespace Ship_Game
             Sprites.Sort((a, b) => string.CompareOrdinal(a.Name, b.Name));
         }
 
-        public static TextureAtlas Load(ContentManager content, string textureName)
+        public static TextureAtlas Load(GameContentManager content, string textureName)
         {
             if (GetAtlasDescr(textureName, out FileInfo info))
             {

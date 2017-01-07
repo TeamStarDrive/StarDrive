@@ -25,7 +25,7 @@ namespace Ship_Game
 
 		private Texture2D videoTexture;
 
-		public ZeroSplash()
+		public ZeroSplash() : base(null/*no parent*/)
 		{
 		}
 
@@ -73,7 +73,7 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			this.video = base.ScreenManager.Content.Load<Video>("Video/zerosplash");
+			this.video = TransientContent.Load<Video>("Video/zerosplash");
 			this.player = new VideoPlayer()
 			{
 				IsLooped = false

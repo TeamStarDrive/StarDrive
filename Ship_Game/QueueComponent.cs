@@ -8,31 +8,17 @@ namespace Ship_Game
 	public sealed class QueueComponent: IDisposable
 	{
 		private Rectangle Current;
-
 		private Rectangle Queue;
-
 		public ScrollList QSL;
-
-		private Ship_Game.ScreenManager ScreenManager;
-
+		private ScreenManager ScreenManager;
 		private Submenu qsub;
-
 		public Submenu csub;
-
 		private ResearchScreenNew screen;
-
 		public bool Visible = true;
-
 		private Rectangle TimeLeft;
-
 		public Rectangle container;
-
 		private DanButton ShowQueue;
-
 		public ResearchQItem CurrentResearch;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 
 		public QueueComponent(Ship_Game.ScreenManager ScreenManager, Rectangle container, ResearchScreenNew screen)
@@ -181,17 +167,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.QSL != null)
-                        this.QSL.Dispose();
-            
-                }
-                this.QSL = null;
-                this.disposed = true;
-            }
+            QSL?.Dispose(ref QSL);
         }
 	}
 }

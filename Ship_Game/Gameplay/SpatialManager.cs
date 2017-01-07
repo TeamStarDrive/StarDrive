@@ -31,8 +31,6 @@ namespace Ship_Game.Gameplay
         public int SceneHeight;
         public int CellSize;
         public bool FineDetail;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
         public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 Pos)
         {
@@ -1442,26 +1440,10 @@ namespace Ship_Game.Gameplay
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.CollidableObjects != null)
-                        this.CollidableObjects.Dispose();
-                    if (this.CollidableProjectiles != null)
-                        this.CollidableProjectiles.Dispose();
-                    if (this.Asteroids != null)
-                        this.Asteroids.Dispose();
-                    if (this.BeamList != null)
-                        this.BeamList.Dispose();
-
-                }
-                this.CollidableObjects = null;
-                this.CollidableProjectiles = null;
-                this.Asteroids = null;
-                this.BeamList = null;
-                this.disposed = true;
-            }
+            CollidableObjects?.Dispose(ref CollidableObjects);
+            CollidableProjectiles?.Dispose(ref CollidableProjectiles);
+            Asteroids?.Dispose(ref Asteroids);
+            BeamList?.Dispose(ref BeamList);
         }
     }
 }

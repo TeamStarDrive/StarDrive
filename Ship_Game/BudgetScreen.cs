@@ -34,7 +34,7 @@ namespace Ship_Game
 
 		//private float transitionElapsedTime;
 
-		public BudgetScreen(UniverseScreen screen)
+		public BudgetScreen(UniverseScreen screen) : base(screen)
 		{
 			this.screen = screen;
 			base.IsPopup = true;

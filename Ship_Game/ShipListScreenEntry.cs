@@ -611,7 +611,7 @@ namespace Ship_Game
             if (this.RefitButton.HandleInput(input))
             {
                 AudioManager.PlayCue("echo_affirm");
-                this.screen.ScreenManager.AddScreen(new RefitToWindow(this, this.screen));
+                this.screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
             }
 
 			if (this.ScrapButton.HandleInput(input))

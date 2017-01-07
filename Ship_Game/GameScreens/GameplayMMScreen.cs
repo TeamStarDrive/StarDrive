@@ -19,18 +19,18 @@ namespace Ship_Game
 		private MouseState currentMouse;
 		private MouseState previousMouse;
 
-        private GameplayMMScreen()
+        private GameplayMMScreen(GameScreen parent) : base(parent)
         {
             IsPopup = true;
             TransitionOnTime  = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
         }
-		public GameplayMMScreen(UniverseScreen screen) : this()
+		public GameplayMMScreen(UniverseScreen screen) : this((GameScreen)screen)
 		{
 			this.screen = screen;
 		    screen.Paused = true;
 		}
-		public GameplayMMScreen(UniverseScreen screen, GameScreen caller) : this()
+		public GameplayMMScreen(UniverseScreen screen, GameScreen caller) : this(screen)
 		{
 			this.caller = caller;
 			this.screen = screen;

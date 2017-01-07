@@ -32,7 +32,7 @@ namespace Ship_Game
 
 		private string toappend;
 
-		public MessageBoxScreen(string message)
+		public MessageBoxScreen(GameScreen parent, string message) : base(parent)
 		{
 			this.message = message;
 			this.message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
@@ -61,7 +61,7 @@ namespace Ship_Game
 			this.Buttons.Add(this.Cancel);
 		}
 
-		public MessageBoxScreen(string message, string oktext, string canceltext)
+		public MessageBoxScreen(GameScreen parent, string message, string oktext, string canceltext) : base(parent)
 		{
 			this.message = message;
 			this.message = HelperFunctions.ParseText(Fonts.Arial12Bold, message, 250f);
@@ -90,8 +90,8 @@ namespace Ship_Game
 			this.Buttons.Add(this.Cancel);
 		}
 
-		public MessageBoxScreen(string message, float Timer)
-		{
+		public MessageBoxScreen(GameScreen parent, string message, float Timer) : base(parent)
+        {
 			this.timed = true;
 			this.timer = Timer;
 			this.original = message;
@@ -121,7 +121,7 @@ namespace Ship_Game
 			this.Buttons.Add(this.Cancel);
 		}
 
-		public MessageBoxScreen(string message, bool pauseMenu) : this(message)
+		public MessageBoxScreen(GameScreen parent, string message, bool pauseMenu) : this(parent, message)
 		{
 			this.pauseMenu = pauseMenu;
 		}

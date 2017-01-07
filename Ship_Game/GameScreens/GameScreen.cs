@@ -1,12 +1,10 @@
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {
-	public abstract class GameScreen
+	public abstract class GameScreen : IDisposable
 	{
 		public bool IsLoaded;
 	    public bool AlwaysUpdate;
@@ -31,8 +29,15 @@ namespace Ship_Game
 
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
-        protected GameScreen()
+
+        // This should be used for content that gets unloaded once this GameScreen disappears
+        public GameContentManager TransientContent;
+
+        protected GameScreen(GameScreen parent)
 		{
+            // hook the content chain to parent screen if possible
+            TransientContent = new GameContentManager(parent?.TransientContent ?? Game1.Instance.Content, GetType().Name);
+            ScreenManager    = parent?.ScreenManager ?? Game1.Instance.ScreenManager;
         }
 
 		public abstract void Draw(GameTime gameTime);
@@ -61,7 +66,8 @@ namespace Ship_Game
 
 		public virtual void UnloadContent()
 		{
-		}
+            TransientContent?.Unload();
+        }
 
 		public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
@@ -124,5 +130,18 @@ namespace Ship_Game
             button.Rect = new Rectangle((int)pos.X, (int)pos.Y, BtnDefault.Width, BtnDefault.Height);
             pos.Y += BtnDefault.Height + 15;
         }
-    }
+
+        ~GameScreen() { Dispose(false); }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+	    protected virtual void Dispose(bool disposing)
+	    {
+	        TransientContent?.Dispose(ref TransientContent);
+	    }
+	}
 }
