@@ -1,13 +1,12 @@
-using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
 	public class MilitaryTask : IDisposable
 	{
@@ -236,7 +235,7 @@ namespace Ship_Game.Gameplay
                         ship.fleet.Ships.Remove(ship);
 
                     ship.GetAI().OrderQueue.Clear();
-                    this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                    this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                     ship.fleet = null;
 
                     ClosestAO.GetCoreFleet().AddShip(ship);
@@ -280,7 +279,7 @@ namespace Ship_Game.Gameplay
                             ship.fleet.Ships.Remove(ship);
 
                         ship.GetAI().OrderQueue.Clear();
-                        this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                        this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                         ship.fleet = null;
 
                         bomberFleet.AddShip(ship);
@@ -985,7 +984,7 @@ namespace Ship_Game.Gameplay
                         }
                         tfstrength = tfstrength + ship.GetStrength();
                         elTaskForce.Add(ship);
-                        this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                        this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                     }
                 }
             }
@@ -1020,7 +1019,7 @@ namespace Ship_Game.Gameplay
 
                     newFleet.AddShip(ship);
                     ForceStrength += ship.PlanetAssaultStrength;
-                    this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                    this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                     landingSpots -= ship.PlanetAssaultCount;
                 }
 
@@ -1051,7 +1050,7 @@ namespace Ship_Game.Gameplay
                     ship.GetAI().State = AIState.AwaitingOrders;
                     closestAO.GetOffensiveForcePool().Remove(ship);
                     closestAO.GetWaitingShips().Remove(ship);
-                    this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                    this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                 }
                 newFleet.AutoArrange();
                 this.Step = 1;
@@ -1129,7 +1128,7 @@ namespace Ship_Game.Gameplay
                     ship.GetAI().State = AIState.AwaitingOrders;
                     closestAO.GetOffensiveForcePool().Remove(ship);
                     closestAO.GetWaitingShips().Remove(ship);
-                    this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                    this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                 }
 
                 newFleet.AutoArrange();
@@ -1229,7 +1228,7 @@ namespace Ship_Game.Gameplay
             {
                 ClosestAO.GetOffensiveForcePool().Remove(ship);
                 ClosestAO.GetWaitingShips().Remove(ship);
-                this.empire.GetGSAI().DefensiveCoordinator.remove(ship);
+                this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
             }
             this.Step = 1;
         }
@@ -1446,14 +1445,14 @@ namespace Ship_Game.Gameplay
 
 		private void RequisitionForces()
 		{
-            IOrderedEnumerable<Ship_Game.Gameplay.AO> sorted = this.empire.GetGSAI().AreasOfOperations
+            IOrderedEnumerable<AO> sorted = this.empire.GetGSAI().AreasOfOperations
                 .OrderByDescending(ao => ao.GetOffensiveForcePool().Sum(strength => strength.GetStrength()) >= this.MinimumTaskForceStrength)
                 .ThenBy(ao => Vector2.Distance(this.AO, ao.Position));
 
-			if (sorted.Count<Ship_Game.Gameplay.AO>() == 0)
+			if (sorted.Count<AO>() == 0)
                 return;
 
-			Ship_Game.Gameplay.AO ClosestAO = sorted.First<Ship_Game.Gameplay.AO>();
+			AO ClosestAO = sorted.First<AO>();
             this.EnemyStrength = this.empire.GetGSAI().ThreatMatrix.PingRadarStr(this.AO, this.AORadius,this.empire);
 
             this.MinimumTaskForceStrength = this.EnemyStrength;

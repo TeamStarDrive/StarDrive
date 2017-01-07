@@ -25,3 +25,5 @@ using System.Runtime.InteropServices;
 #endif
 [assembly: Guid("b38aad3b-18b8-41a8-b758-0e5614dafc49")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows=true)]
+
+[assembly: AssemblyInformationalVersion("Crunchies cleanup_3418")]

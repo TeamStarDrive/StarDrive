@@ -1,11 +1,8 @@
-using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
 	public sealed class MissileAI
 	{

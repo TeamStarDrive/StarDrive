@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using System.Configuration;
 using System.Threading;
 using System.Collections.Concurrent;
+using Ship_Game.AI;
 
 namespace Ship_Game.Gameplay
 {
@@ -695,7 +696,7 @@ namespace Ship_Game.Gameplay
 
                 if (EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
                 {
-                    EmpireManager.Player.GetGSAI().DefensiveCoordinator.remove(this);
+                    EmpireManager.Player.GetGSAI().DefensiveCoordinator.Remove(this);
                     this.GetAI().OrderQueue.Clear();
                     this.GetAI().HasPriorityOrder = false;
                     this.GetAI().SystemToDefend = (SolarSystem)null;

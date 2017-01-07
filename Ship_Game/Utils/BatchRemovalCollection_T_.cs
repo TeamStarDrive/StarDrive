@@ -182,7 +182,7 @@ namespace Ship_Game
         {
             if (action == null)
             {
-                throw new ArgumentNullException("action");
+                throw new ArgumentNullException(nameof(action));
             }
             var wrapper = new Action<T>(obj =>
             {
