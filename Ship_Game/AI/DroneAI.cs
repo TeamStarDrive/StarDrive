@@ -54,13 +54,11 @@ namespace Ship_Game.AI
 
 		private void MoveTowardsPosition(float elapsedTime)
 		{
-			if (elapsedTime == 0f)
-			{
-				return;
-			}
-			Vector2.Distance(this.Owner.Center, this._orbitPos);
-			Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-			Vector2 right = new Vector2(-forward.Y, forward.X);
+			if (elapsedTime <= 0f) return;
+            
+            Vector2.Distance(Owner.Center, _orbitPos);
+			var forward = new Vector2((float)Math.Sin(Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
+			var right = new Vector2(-forward.Y, forward.X);
             
             
 			if (_target == null)
