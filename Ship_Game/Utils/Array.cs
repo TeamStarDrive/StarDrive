@@ -17,7 +17,10 @@ namespace Ship_Game
         protected static readonly T[] Empty = new T[0];
         protected T[] Items;
         public int Count { get; protected set; }
+
         public bool IsReadOnly => false;
+        public bool IsEmpty    => Count == 0;
+        public bool NotEmpty   => Count != 0;
 
         public Array()
         {
@@ -153,6 +156,17 @@ namespace Ship_Game
 
         public void Clear()
         {
+            Array.Clear(Items, 0, Count);
+            Count = 0;
+        }
+
+        public void ClearAndDispose()
+        {
+            if (Count <= 0)
+                return;
+            if (typeof(IDisposable).IsAssignableFrom(typeof(T)))
+                for (int i = 0; i < Count; ++i)
+                    (Items[i] as IDisposable)?.Dispose();
             Array.Clear(Items, 0, Count);
             Count = 0;
         }

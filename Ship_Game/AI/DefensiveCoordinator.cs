@@ -505,7 +505,7 @@ namespace Ship_Game.AI
                         continue;
                     }
                     if (troopAI.State == AIState.Rebase
-                        && troopAI.OrderQueue.Count > 0
+                        && troopAI.OrderQueue.NotEmpty
                         && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && entry.Key == goal.TargetPlanet.system))
                     {
                         currentTroops++;
