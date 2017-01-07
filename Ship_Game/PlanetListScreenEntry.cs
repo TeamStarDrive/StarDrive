@@ -287,13 +287,11 @@ namespace Ship_Game
             if (this.planet.Owner ==null && this.planet.habitable)  //fbedard: can send troop anywhere
             {
                 int troopsInvading = this.screen.empUI.empire.GetShips()
-         .Where(troop => troop.TroopList.Count > 0)
-         .Where(ai => ai.GetAI().State != AIState.Resupply)
-         .Where(troopAI => troopAI.GetAI().OrderQueue
-             .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet).Count() > 0).Count();
+                 .Where(troop => troop.TroopList.Count > 0)
+                 .Where(ai => ai.GetAI().State != AIState.Resupply).Count(troopAI => troopAI.GetAI().OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet));
                 if (troopsInvading > 0)
                 {
-                    this.SendTroops.Text = "Invading: " + troopsInvading.ToString();
+                    this.SendTroops.Text = "Invading: " + troopsInvading;
                     this.SendTroops.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
                     this.SendTroops.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
                     this.SendTroops.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_pressed"];
@@ -308,13 +306,11 @@ namespace Ship_Game
                 this.SendTroops.Draw(ScreenManager.SpriteBatch);
             }
             //fbedard : Add Send Button for your planets
-            if (this.planet.Owner == this.screen.empUI.screen.player)
+            if (this.planet.Owner == Empire.Universe.player)
             {
                 int troopsInvading = this.screen.empUI.empire.GetShips()
-         .Where(troop => troop.TroopList.Count > 0)
-         .Where(ai => ai.GetAI().State != AIState.Resupply)
-         .Where(troopAI => troopAI.GetAI().OrderQueue
-             .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet).Count() > 0).Count();
+                 .Where(troop => troop.TroopList.Count > 0)
+                 .Where(ai => ai.GetAI().State != AIState.Resupply).Count(troopAI => troopAI.GetAI().OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet));
                 if (troopsInvading > 0)
                 {
                     this.SendTroops.Text = "Landing: " + troopsInvading.ToString();

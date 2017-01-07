@@ -19,7 +19,7 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class ShipDesignScreen : GameScreen, IDisposable
+	public sealed class ShipDesignScreen : GameScreen
 	{
 		private Matrix worldMatrix = Matrix.Identity;
 
@@ -36,8 +36,6 @@ namespace Ship_Game
 		public ShipData ActiveHull;
 
 		public EmpireUIOverlay EmpireUI;
-
-		public static UniverseScreen screen;
 
 		private Menu1 ModuleSelectionMenu;
 
@@ -196,9 +194,6 @@ namespace Ship_Game
 
         public string HangarShipUIDLast = "Undefined";
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
         private float HoldTimer = .50f;
         private HashSet<string> techs = new HashSet<string>();
 
@@ -207,7 +202,7 @@ namespace Ship_Game
 #endif
 
 
-        public ShipDesignScreen(EmpireUIOverlay EmpireUI)
+        public ShipDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI) : base(parent)
 		{
 			this.EmpireUI = EmpireUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(2);
@@ -934,44 +929,23 @@ namespace Ship_Game
 			}
 		}
 
-		public void Dispose()
-		{
-
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-        ~ShipDesignScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.hullSL != null)
-                        this.hullSL.Dispose();
-                    if (this.weaponSL != null)
-                        this.weaponSL.Dispose();
-                    if (this.ChooseFighterSL != null)
-                        this.ChooseFighterSL.Dispose();
-
-                }
-                this.hullSL = null;
-                this.weaponSL = null;
-                this.ChooseFighterSL = null;
-                this.disposed = true;
-            }
+            hullSL?.Dispose(ref hullSL);
+            weaponSL?.Dispose(ref weaponSL);
+            ChooseFighterSL?.Dispose(ref ChooseFighterSL);
+            base.Dispose(disposing);
         }
 
-		private void DoExit(object sender, EventArgs e)
+
+        private void DoExit(object sender, EventArgs e)
 		{
 			this.ReallyExit();
 		}
 
 		private void DoExitToFleetsList(object sender, EventArgs e)
 		{
-			base.ScreenManager.AddScreen(new FleetDesignScreen(this.EmpireUI));
+			base.ScreenManager.AddScreen(new FleetDesignScreen(this, EmpireUI));
 			this.ReallyExit();
 		}
 
@@ -982,7 +956,7 @@ namespace Ship_Game
 
 		private void DoExitToShipsList(object sender, EventArgs e)
 		{
-			base.ScreenManager.AddScreen(new ShipListScreen(base.ScreenManager, this.EmpireUI));
+			base.ScreenManager.AddScreen(new ShipListScreen(this, EmpireUI));
 			this.ReallyExit();
 		}
 
@@ -999,7 +973,7 @@ namespace Ship_Game
 				base.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, base.ScreenManager.environment, true);
 				base.ScreenManager.editor.BeginFrameRendering(base.ScreenManager.sceneState);
 				base.ScreenManager.inter.BeginFrameRendering(base.ScreenManager.sceneState);
-				ShipDesignScreen.screen.bg.Draw(ShipDesignScreen.screen, ShipDesignScreen.screen.starfield);
+				Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.starfield);
 				base.ScreenManager.inter.RenderManager.Render();
 			}
 			base.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, this.camera.get_transformation(base.ScreenManager.GraphicsDevice));
@@ -4931,7 +4905,7 @@ namespace Ship_Game
 		{
 			if (!this.ShipSaved && !this.CheckDesign())
 			{
-				MessageBoxScreen message = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
+				MessageBoxScreen message = new MessageBoxScreen(this, Localizer.Token(2121), "Save", "Exit");
 				message.Cancelled += new EventHandler<EventArgs>(this.DoExit);
 				message.Accepted += new EventHandler<EventArgs>(this.SaveWIP);
 				base.ScreenManager.AddScreen(message);
@@ -4942,7 +4916,7 @@ namespace Ship_Game
 				this.ReallyExit();
 				return;
 			}
-			MessageBoxScreen message0 = new MessageBoxScreen(Localizer.Token(2137), "Save", "Exit");
+			MessageBoxScreen message0 = new MessageBoxScreen(this, Localizer.Token(2137), "Save", "Exit");
 			message0.Cancelled += new EventHandler<EventArgs>(this.DoExit);
 			message0.Accepted += new EventHandler<EventArgs>(this.SaveChanges);
 			base.ScreenManager.AddScreen(message0);
@@ -4960,14 +4934,14 @@ namespace Ship_Game
 			}
             else if(!this.ShipSaved && this.CheckDesign())
             {
-                 message = new MessageBoxScreen(Localizer.Token(2137), "Save", "Exit");
+                 message = new MessageBoxScreen(this, Localizer.Token(2137), "Save", "Exit");
                 message.Cancelled += new EventHandler<EventArgs>(this.LaunchScreen);
 			message.Accepted += new EventHandler<EventArgs>(this.SaveChanges);
             base.ScreenManager.AddScreen(message);
                 return;
 
             }
-			 message = new MessageBoxScreen(Localizer.Token(2121), "Save", "Exit");
+			 message = new MessageBoxScreen(this, Localizer.Token(2121), "Save", "Exit");
 			message.Cancelled += new EventHandler<EventArgs>(this.LaunchScreen);
 			message.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenLaunchScreen);
 			base.ScreenManager.AddScreen(message);
@@ -5302,7 +5276,7 @@ namespace Ship_Game
                             AudioManager.PlayCue("sd_ui_accept_alt3");
                             if (!this.ShipSaved && !this.CheckDesign())
                             {
-                                MessageBoxScreen messageBoxScreen = new MessageBoxScreen(Localizer.Token(2121), "Save", "No");
+                                MessageBoxScreen messageBoxScreen = new MessageBoxScreen(this, Localizer.Token(2121), "Save", "No");
                                 messageBoxScreen.Accepted += new EventHandler<EventArgs>(this.SaveWIPThenChangeHull);
                                 messageBoxScreen.Cancelled += new EventHandler<EventArgs>(this.JustChangeHull);
                                 this.changeto = e.item as ShipData;
@@ -5620,13 +5594,13 @@ namespace Ship_Game
                                 case "Save As...":
                                     if (this.CheckDesign())
                                     {
-                                        this.ScreenManager.AddScreen((GameScreen)new DesignManager(this, this.ActiveHull.Name));
+                                        this.ScreenManager.AddScreen(new DesignManager(this, this.ActiveHull.Name));
                                         continue;
                                     }
                                     else
                                     {
                                         AudioManager.PlayCue("UI_Misc20");
-                                        this.ScreenManager.AddScreen((GameScreen)new MessageBoxScreen(Localizer.Token(2049)));
+                                        this.ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
                                         continue;
                                     }
                                 case "Load":
@@ -6010,12 +5984,12 @@ namespace Ship_Game
 				if (str1 == "Research")
 				{
 					AudioManager.PlayCue("echo_affirm");
-					base.ScreenManager.AddScreen(new ResearchScreenNew(this.EmpireUI));
+					ScreenManager.AddScreen(new ResearchScreenNew(this, EmpireUI));
 				}
 				else if (str1 == "Budget")
 				{
 					AudioManager.PlayCue("echo_affirm");
-					base.ScreenManager.AddScreen(new BudgetScreen(ShipDesignScreen.screen));
+					ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
 				}
 			}
 			string str2 = this.screenToLaunch;
@@ -6025,7 +5999,7 @@ namespace Ship_Game
 				if (str3 == "Main Menu")
 				{
 					AudioManager.PlayCue("echo_affirm");
-					ShipDesignScreen.screen.ScreenManager.AddScreen(new GameplayMMScreen(ShipDesignScreen.screen));
+                    ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
 				}
 				else if (str3 == "Shipyard")
 				{
@@ -6033,18 +6007,18 @@ namespace Ship_Game
 				}
 				else if (str3 == "Empire")
 				{
-					ShipDesignScreen.screen.ScreenManager.AddScreen(new EmpireScreen(ShipDesignScreen.screen.ScreenManager, this.EmpireUI));
+					ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this.EmpireUI));
 					AudioManager.PlayCue("echo_affirm");
 				}
 				else if (str3 == "Diplomacy")
 				{
-					ShipDesignScreen.screen.ScreenManager.AddScreen(new MainDiplomacyScreen(ShipDesignScreen.screen));
+					ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
 					AudioManager.PlayCue("echo_affirm");
 				}
 				else if (str3 == "?")
 				{
 					AudioManager.PlayCue("sd_ui_tactical_pause");
-					InGameWiki wiki = new InGameWiki(new Rectangle(0, 0, 750, 600))
+					InGameWiki wiki = new InGameWiki(this, new Rectangle(0, 0, 750, 600))
 					{
 						TitleText = "StarDrive Help",
 						MiddleText = "This help menu contains information on all of the gameplay systems contained in StarDrive. You can also watch one of several tutorial videos for a developer-guided introduction to StarDrive."
@@ -6056,7 +6030,7 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
+			LightRig rig = TransientContent.Load<LightRig>("example/ShipyardLightrig");
             rig.AssignTo(this);
 			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280 || base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 768)
 			{
@@ -6120,15 +6094,15 @@ namespace Ship_Game
 			this.ChangeHull(this.AvailableHulls[0]);
 			lock (GlobalStats.ObjectManagerLocker)
 			{
-				if (!this.ActiveHull.Animated)
+				if (!ActiveHull.Animated)
 				{
-					this.ActiveModel = base.ScreenManager.Content.Load<Model>(this.ActiveHull.ModelPath);
-					this.CreateSOFromHull();
+					ActiveModel = TransientContent.Load<Model>(ActiveHull.ModelPath);
+					CreateSOFromHull();
 				}
 				else
 				{
 					base.ScreenManager.inter.ObjectManager.Remove(this.shipSO);
-					SkinnedModel sm = Ship_Game.ResourceManager.GetSkinnedModel(this.ActiveHull.ModelPath);
+					SkinnedModel sm = ResourceManager.GetSkinnedModel(this.ActiveHull.ModelPath);
 					this.shipSO = new SceneObject(sm.Model)
 					{
 						ObjectType = ObjectType.Dynamic,
@@ -6411,7 +6385,7 @@ namespace Ship_Game
 
 		private void ReallyExit()
 		{
-			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/NewGamelight_rig");
+			LightRig rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
             rig.AssignTo(this);
 
             lock (GlobalStats.ObjectManagerLocker)
@@ -6688,14 +6662,14 @@ namespace Ship_Game
 		private void SaveWIPThenExitToFleets(object sender, EventArgs e)
 		{
 			this.SaveWIP(sender, e);
-			base.ScreenManager.AddScreen(new FleetDesignScreen(this.EmpireUI));
+			base.ScreenManager.AddScreen(new FleetDesignScreen(this, EmpireUI));
 			this.ReallyExit();
 		}
 
 		private void SaveWIPThenExitToShipsList(object sender, EventArgs e)
 		{
 			this.SaveWIP(sender, e);
-			base.ScreenManager.AddScreen(new ShipListScreen(base.ScreenManager, this.EmpireUI));
+			base.ScreenManager.AddScreen(new ShipListScreen(this, EmpireUI));
 			this.ReallyExit();
 		}
 
@@ -6709,12 +6683,12 @@ namespace Ship_Game
 				if (str1 == "Research")
 				{
 					AudioManager.PlayCue("echo_affirm");
-					base.ScreenManager.AddScreen(new ResearchScreenNew(this.EmpireUI));
+					base.ScreenManager.AddScreen(new ResearchScreenNew(this, EmpireUI));
 				}
 				else if (str1 == "Budget")
 				{
 					AudioManager.PlayCue("echo_affirm");
-					base.ScreenManager.AddScreen(new BudgetScreen(ShipDesignScreen.screen));
+					base.ScreenManager.AddScreen(new BudgetScreen(Empire.Universe));
 				}
 			}
 			string str2 = this.screenToLaunch;
@@ -6724,7 +6698,7 @@ namespace Ship_Game
 				if (str3 == "Main Menu")
 				{
 					AudioManager.PlayCue("echo_affirm");
-					ShipDesignScreen.screen.ScreenManager.AddScreen(new GameplayMMScreen(ShipDesignScreen.screen));
+					ScreenManager.AddScreen(new GameplayMMScreen(Empire.Universe));
 				}
 				else if (str3 == "Shipyard")
 				{
@@ -6732,18 +6706,18 @@ namespace Ship_Game
 				}
 				else if (str3 == "Empire")
 				{
-					ShipDesignScreen.screen.ScreenManager.AddScreen(new EmpireScreen(ShipDesignScreen.screen.ScreenManager, this.EmpireUI));
+					ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, EmpireUI));
 					AudioManager.PlayCue("echo_affirm");
 				}
 				else if (str3 == "Diplomacy")
 				{
-					ShipDesignScreen.screen.ScreenManager.AddScreen(new MainDiplomacyScreen(ShipDesignScreen.screen));
+					ScreenManager.AddScreen(new MainDiplomacyScreen(Empire.Universe));
 					AudioManager.PlayCue("echo_affirm");
 				}
 				else if (str3 == "?")
 				{
 					AudioManager.PlayCue("sd_ui_tactical_pause");
-					InGameWiki wiki = new InGameWiki(new Rectangle(0, 0, 750, 600))
+					InGameWiki wiki = new InGameWiki(this, new Rectangle(0, 0, 750, 600))
 					{
 						TitleText = "StarDrive Help",
 						MiddleText = "This help menu contains information on all of the gameplay systems contained in StarDrive. You can also watch one of several tutorial videos for a developer-guided introduction to StarDrive."
@@ -6811,11 +6785,11 @@ namespace Ship_Game
                 this.ChooseFighterSL.Copied.Clear();
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                 {
-                    if (!mod.PermittedHangarRoles.Contains(Ship_Game.ResourceManager.ShipsDict[shipname].shipData.GetRole()) || Ship_Game.ResourceManager.ShipsDict[shipname].Size >= mod.MaximumHangarShipSize)
+                    if (!mod.PermittedHangarRoles.Contains(ResourceManager.ShipsDict[shipname].shipData.GetRole()) || ResourceManager.ShipsDict[shipname].Size >= mod.MaximumHangarShipSize)
                     {
                         continue;
                     }
-                    this.ChooseFighterSL.AddItem(Ship_Game.ResourceManager.ShipsDict[shipname]);
+                    ChooseFighterSL.AddItem(ResourceManager.ShipsDict[shipname]);
                 }
             }
         }

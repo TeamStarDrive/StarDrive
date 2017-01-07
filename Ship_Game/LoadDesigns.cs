@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-	public sealed class LoadDesigns : GameScreen, IDisposable
+	public sealed class LoadDesigns : GameScreen
 	{
 		private Vector2 Cursor = Vector2.Zero;
 
@@ -55,11 +55,7 @@ namespace Ship_Game
 
 		private Array<UIButton> ShipsToLoad = new Array<UIButton>();
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-
-		public LoadDesigns(ShipDesignScreen screen)
+		public LoadDesigns(ShipDesignScreen screen) : base(screen)
 		{
 			this.screen = screen;
 			base.IsPopup = true;
@@ -88,27 +84,10 @@ namespace Ship_Game
 			this.LoadContent();
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~LoadDesigns() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.ShipDesigns != null)
-                        this.ShipDesigns.Dispose();
-
-                }
-                this.ShipDesigns = null;
-                this.disposed = true;
-            }
+            ShipDesigns?.Dispose(ref ShipDesigns);
+            base.Dispose(disposing);
         }
 
 		public override void Draw(GameTime gameTime)
@@ -256,7 +235,7 @@ namespace Ship_Game
 						if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && input.InGameSelect)
 						{
 							this.ShipToDelete = (e.item as ShipData).Name;
-							MessageBoxScreen messageBox = new MessageBoxScreen("Confirm Delete:");
+							MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
 							messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteDataAccepted);
 							base.ScreenManager.AddScreen(messageBox);
 						}
@@ -283,8 +262,8 @@ namespace Ship_Game
 					if (HelperFunctions.CheckIntersection(e.cancel, MousePos) && !(e.item as Ship).reserved && !(e.item as Ship).FromSave && input.InGameSelect)
 					{
 						this.ShipToDelete = (e.item as Ship).Name;
-						MessageBoxScreen messageBox = new MessageBoxScreen("Confirm Delete:");
-						messageBox.Accepted += new EventHandler<EventArgs>(this.DeleteAccepted);
+						MessageBoxScreen messageBox = new MessageBoxScreen(this, "Confirm Delete:");
+						messageBox.Accepted += DeleteAccepted;
 						base.ScreenManager.AddScreen(messageBox);
 					}
 					this.selector = new Selector(base.ScreenManager, e.clickRect);

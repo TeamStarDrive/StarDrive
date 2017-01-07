@@ -18,7 +18,7 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public sealed class CreatingNewGameScreen : GameScreen, IDisposable
+    public sealed class CreatingNewGameScreen : GameScreen
     {
         //private Matrix worldMatrix = Matrix.Identity;
         private float Scale = 1f;
@@ -67,7 +67,7 @@ namespace Ship_Game
         public CreatingNewGameScreen(Empire empire, string universeSize, 
                 float starNumModifier, string empireToRemoveName, 
                 int numOpponents, RaceDesignScreen.GameMode gamemode, 
-                int gameScale, UniverseData.GameDifficulty difficulty, MainMenuScreen mmscreen)
+                int gameScale, UniverseData.GameDifficulty difficulty, MainMenuScreen mmscreen) : base(mmscreen)
         {
             GlobalStats.RemnantArmageddon = false;
             GlobalStats.RemnantKills = 0;
@@ -148,7 +148,7 @@ namespace Ship_Game
             ScreenManager.inter.ObjectManager.Clear();
             ScreenManager.inter.LightManager.Clear();
 
-            LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(ScreenManager.Content);
+            LoadingScreenTexture = ResourceManager.LoadRandomLoadingScreen(TransientContent);
             string adviceString  = ResourceManager.LoadRandomAdvice();
             text = HelperFunctions.ParseText(Fonts.Arial12Bold, adviceString, 500f);
 
@@ -374,7 +374,7 @@ namespace Ship_Game
                         }
                     }// Done breaking stuff -- Gretman
 
-                    ThrusterEffect = ScreenManager.Content.Load<Effect>("Effects/Thrust");
+                    ThrusterEffect = TransientContent.Load<Effect>("Effects/Thrust");
                     firstRun = false;
                 }
                 Data.SolarSystemsList[systemToMake].spatialManager.Setup((int)(200000.0 * (double)this.Scale), (int)(200000.0 * (double)this.Scale), (int)(100000.0 * (double)this.Scale), this.Data.SolarSystemsList[this.systemToMake].Position);
@@ -410,7 +410,7 @@ namespace Ship_Game
                     ScreenManager.inter.ObjectManager.Submit(ship.GetSO());
                     foreach (Thruster thruster in ship.GetTList())
                     {
-                        thruster.load_and_assign_effects(ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
+                        thruster.load_and_assign_effects(TransientContent, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
                         thruster.InitializeForViewing();
                     }
                 }
@@ -895,19 +895,14 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             lock (this) {
                 WorkerBeginEvent?.Dispose(ref WorkerBeginEvent);
                 WorkerCompletedEvent?.Dispose(ref WorkerCompletedEvent);
                 LoadingScreenTexture?.Dispose(ref LoadingScreenTexture);                
             }
+            base.Dispose(disposing);
         }
 
         private struct SysDisPair

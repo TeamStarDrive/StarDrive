@@ -27,9 +27,6 @@ namespace Ship_Game.Gameplay
 
 		private float bucketUpdateTimer;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 		public ShipSpatialManager()
 		{
 		}
@@ -151,17 +148,7 @@ namespace Ship_Game.Gameplay
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.CollidableObjects != null)
-                        this.CollidableObjects.Dispose();
-
-                }
-                this.CollidableObjects = null;
-                this.disposed = true;
-            }
+            CollidableObjects?.Dispose(ref CollidableObjects);
         }
-	}
+    }
 }

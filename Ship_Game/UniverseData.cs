@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class UniverseData : IDisposable
+	public sealed class UniverseData
 	{
 		public string loadFogPath;
 
@@ -13,7 +13,7 @@ namespace Ship_Game
 
 		public Vector2 Size;
 
-		public UniverseData.GameDifficulty difficulty = UniverseData.GameDifficulty.Normal;
+		public GameDifficulty difficulty = GameDifficulty.Normal;
 
 		public float FTLSpeedModifier = 1f;
         public float EnemyFTLSpeedModifier = 1f;
@@ -29,12 +29,9 @@ namespace Ship_Game
 		public Array<Empire> EmpireList = new Array<Empire>();
         public static float UniverseWidth;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;        
-
 		public UniverseData()
 		{
-            UniverseWidth = this.Size.X;
+            UniverseWidth = Size.X;
 		}
 
 		public enum GameDifficulty
@@ -44,27 +41,5 @@ namespace Ship_Game
 			Hard,
 			Brutal
 		}
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~UniverseData() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.MasterShipList != null)
-                        this.MasterShipList.Dispose();
-
-                }
-                this.MasterShipList = null;
-                this.disposed = true;
-            }
-        }
-	}
+    }
 }

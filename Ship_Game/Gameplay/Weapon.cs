@@ -123,12 +123,7 @@ namespace Ship_Game.Gameplay
         public bool AltFireTriggerFighter;
         public float OffPowerMod = 1f;
 
-        //public bool ExplosionFlash;          //Not referenced in code, removing to save memory
-
         public bool RangeVariance;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
         public GameplayObject SalvoTarget;
         public float ExplosionRadiusVisual = 4.5f;
@@ -1515,17 +1510,7 @@ namespace Ship_Game.Gameplay
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.SalvoList != null)
-                        this.SalvoList.Dispose();
-
-                }
-                this.SalvoList = null;
-                this.disposed = true;
-            }
+            SalvoList?.Dispose(ref SalvoList);
         }
-	}
+    }
 }

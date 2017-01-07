@@ -17,7 +17,7 @@ namespace Ship_Game
 
 		private Matrix Projection;
 
-		public HaloTestScreen()
+		public HaloTestScreen(GameScreen parent) : base(parent)
 		{
 		}
 
@@ -46,8 +46,8 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			this.Mesh = base.ScreenManager.Content.Load<Model>("Model/sphere");
-			this.effect = base.ScreenManager.Content.Load<Effect>("Effects/PlanetHalo");
+			this.Mesh = TransientContent.Load<Model>("Model/sphere");
+			this.effect = TransientContent.Load<Effect>("Effects/PlanetHalo");
 			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
 			float aspectRatio = width / (float)viewport.Height;
