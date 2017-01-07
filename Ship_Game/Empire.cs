@@ -3147,8 +3147,8 @@ namespace Ship_Game
             OwnedShips?.Dispose(ref OwnedShips);
             DefensiveFleet?.Dispose(ref DefensiveFleet);
             GSAI?.Dispose(ref GSAI);
-            data.AgentList?.Dispose(ref data.AgentList);
-            data.MoleList?.Dispose(ref data.MoleList);
+            data.AgentList = new BatchRemovalCollection<Agent>();
+            data.MoleList = new BatchRemovalCollection<Mole>();
             LockPatchCache?.Dispose(ref LockPatchCache);
             OwnedPlanets?.Dispose(ref OwnedPlanets);
             OwnedProjectors?.Dispose(ref OwnedProjectors);
