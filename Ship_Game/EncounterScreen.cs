@@ -14,7 +14,7 @@ namespace Ship_Game
 
 		//private float transitionElapsedTime;
 
-		public EncounterScreen(UniverseScreen screen, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e)
+		public EncounterScreen(UniverseScreen screen, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e) : base(screen)
 		{
 			this.encounter = e;
 			this.encounter.CurrentMessage = 0;

@@ -15,7 +15,6 @@ namespace Ship_Game.AI
 		public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
 		public BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
         public float DefenseDeficit;        
-        private bool disposed;
         public float EmpireTroopRatio;
         public float UniverseWants;
 		public DefensiveCoordinator(Empire e)
@@ -702,17 +701,7 @@ namespace Ship_Game.AI
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.DefensiveForcePool != null)
-                        this.DefensiveForcePool.Dispose();
-
-                }
-                this.DefensiveForcePool = null;
-                this.disposed = true;
-            }
+            DefensiveForcePool?.Dispose(ref DefensiveForcePool);
         }
 	}
 }

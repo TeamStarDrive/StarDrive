@@ -16,7 +16,7 @@ namespace Ship_Game
         private readonly RaceSave RaceSave;
 
         public SaveRaceScreen(RaceDesignScreen screen, RacialTrait data) 
-            : base(SLMode.Save, data.Name, "Save Race", "Saved Races", "Saved Race already exists.  Overwrite?")
+            : base(screen, SLMode.Save, data.Name, "Save Race", "Saved Races", "Saved Race already exists.  Overwrite?")
         {
             Screen = screen;
             Path = Dir.ApplicationData +"/StarDrive/Saved Races/";

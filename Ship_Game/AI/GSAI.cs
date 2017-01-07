@@ -72,8 +72,6 @@ namespace Ship_Game.AI
 
         public int recyclepool =0;
         private float buildCapacity = 0;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
         //added by gremlin: Smart Ship research
         Ship BestCombatShip;
@@ -2225,7 +2223,7 @@ namespace Ship_Game.AI
 						Relationship.Key.GetGSAI().AnalyzeOffer(OurOffer, NAPactOffer, this.empire, Offer.Attitude.Pleading);
 						return;
 					}
-					Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer Open Borders Friends", OurOffer, NAPactOffer));
+					Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, Empire.Universe.PlayerEmpire, "Offer Open Borders Friends", OurOffer, NAPactOffer));
 					return;
 				}
 			}
@@ -2250,7 +2248,7 @@ namespace Ship_Game.AI
 						Relationship.Key.GetGSAI().AnalyzeOffer(OurOffer, NAPactOffer, this.empire, Offer.Attitude.Pleading);
 						return;
 					}
-					Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer Open Borders", OurOffer, NAPactOffer));
+					Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, Empire.Universe.PlayerEmpire, "Offer Open Borders", OurOffer, NAPactOffer));
 					return;
 				}
 			}
@@ -2262,11 +2260,11 @@ namespace Ship_Game.AI
                     this.ThreatMatrix.ClearBorders();
                     if (!r.WarnedAboutColonizing)
 					{
-						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Relationship.Key, "Warning Ships"));
+						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, Relationship.Key, "Warning Ships"));
 					}
 					else
 					{
-						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem()));
+						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem()));
 					}
 					r.WarnedAboutShips = true;
 					return;
@@ -2303,7 +2301,7 @@ namespace Ship_Game.AI
 							Relationship.Key.GetGSAI().AnalyzeOffer(OurOffer, NAPactOffer, this.empire, Offer.Attitude.Pleading);
 							return;
 						}
-						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer Open Borders Friends", OurOffer, NAPactOffer));
+						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, Empire.Universe.PlayerEmpire, "Offer Open Borders Friends", OurOffer, NAPactOffer));
 						return;
 					}
 				}
@@ -2326,7 +2324,7 @@ namespace Ship_Game.AI
 						Relationship.Key.GetGSAI().AnalyzeOffer(OurOffer, NAPactOffer, this.empire, Offer.Attitude.Pleading);
 						return;
 					}
-					Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer Open Borders", OurOffer, NAPactOffer));
+					Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, Empire.Universe.PlayerEmpire, "Offer Open Borders", OurOffer, NAPactOffer));
 					return;
 				}
 			}
@@ -2340,11 +2338,11 @@ namespace Ship_Game.AI
                         this.ThreatMatrix.ClearBorders();
                         if (!r.WarnedAboutColonizing)
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Relationship.Key, "Warning Ships"));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, Relationship.Key, "Warning Ships"));
 						}
 						else
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem()));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem()));
 						}
 						r.WarnedAboutShips = true;
 						return;
@@ -2372,11 +2370,11 @@ namespace Ship_Game.AI
 				{
 					if (!r.WarnedAboutColonizing)
 					{
-						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, them, "Warning Ships"));
+						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, them, "Warning Ships"));
 					}
 					else
 					{
-						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, them, "Warning Colonized then Ships", r.GetContestedSystem()));
+						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, them, "Warning Colonized then Ships", r.GetContestedSystem()));
 					}
 					r.turnsSinceLastContact = 0;
 					r.WarnedAboutShips = true;
@@ -2585,7 +2583,7 @@ namespace Ship_Game.AI
 			};
 			if (Ally == Empire.Universe.PlayerEmpire)
 			{
-				Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, dialogue, OurOffer, offer, Enemy));
+				Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, this.empire, Empire.Universe.PlayerEmpire, dialogue, OurOffer, offer, Enemy));
 			}
 		}
 
@@ -2623,16 +2621,16 @@ namespace Ship_Game.AI
 					numberStolenClaims.NumberStolenClaims = numberStolenClaims.NumberStolenClaims + 1;
 					if (empire.GetRelations(Them.Key).NumberStolenClaims == 1 && !empire.GetRelations(Them.Key).StolenSystems.Contains(claimedPlanet.guid))
 					{
-						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Stole Claim", claimedPlanet.system));
+						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Stole Claim", claimedPlanet.system));
 					}
 					else if (empire.GetRelations(Them.Key).NumberStolenClaims == 2 && !empire.GetRelations(Them.Key).HaveWarnedTwice && !empire.GetRelations(Them.Key).StolenSystems.Contains(claimedPlanet.system.guid))
 					{
-						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Stole Claim 2", claimedPlanet.system));
+						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Stole Claim 2", claimedPlanet.system));
 						empire.GetRelations(Them.Key).HaveWarnedTwice = true;
 					}
 					else if (empire.GetRelations(Them.Key).NumberStolenClaims >= 3 && !empire.GetRelations(Them.Key).HaveWarnedThrice && !empire.GetRelations(Them.Key).StolenSystems.Contains(claimedPlanet.system.guid))
 					{
-						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Stole Claim 3", claimedPlanet.system));
+						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Stole Claim 3", claimedPlanet.system));
 						empire.GetRelations(Them.Key).HaveWarnedThrice = true;
 					}
 					empire.GetRelations(Them.Key).StolenSystems.Add(claimedPlanet.system.guid);
@@ -2689,18 +2687,18 @@ namespace Ship_Game.AI
                     case WarType.BorderConflict:
                         if (empire.GetRelations(them).contestedSystemGuid != Guid.Empty)
                         {
-                            Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, them, "Declare War BC TarSys", empire.GetRelations(them).GetContestedSystem()));
+                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War BC TarSys", empire.GetRelations(them).GetContestedSystem()));
                             break;
                         }
                         else
                         {
-                            Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, them, "Declare War BC"));
+                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War BC"));
                             break;
                         }
                     case WarType.ImperialistWar:
                         if (empire.GetRelations(them).Treaty_NAPact)
                         {
-                            Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, them, "Declare War Imperialism Break NA"));
+                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War Imperialism Break NA"));
                             using (var enumerator = this.empire.AllRelations.GetEnumerator())
                             {
                                 while (enumerator.MoveNext())
@@ -2717,20 +2715,20 @@ namespace Ship_Game.AI
                         }
                         else
                         {
-                            Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, them, "Declare War Imperialism"));
+                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War Imperialism"));
                             break;
                         }
                     case WarType.DefensiveWar:
                         if (!empire.GetRelations(them).Treaty_NAPact)
                         {
-                            Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, them, "Declare War Defense"));
+                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War Defense"));
                             empire.GetRelations(them).Anger_DiplomaticConflict += 25f;
                             empire.GetRelations(them).Trust -= 25f;
                             break;
                         }
                         else if (empire.GetRelations(them).Treaty_NAPact)
                         {
-                            Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, them, "Declare War Defense BrokenNA"));
+                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War Defense BrokenNA"));
                             empire.GetRelations(them).Treaty_NAPact = false;
                             foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.empire.AllRelations)
                             {
@@ -2792,12 +2790,12 @@ namespace Ship_Game.AI
 					{
 						if (empire.GetRelations(them).contestedSystemGuid == Guid.Empty)
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, them, "Declare War BC"));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War BC"));
 							break;
 						}
 						else
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, them, "Declare War BC Tarsys", empire.GetRelations(them).GetContestedSystem()));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War BC Tarsys", empire.GetRelations(them).GetContestedSystem()));
 							break;
 						}
 					}
@@ -2805,12 +2803,12 @@ namespace Ship_Game.AI
 					{
 						if (!empire.GetRelations(them).Treaty_NAPact)
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, them, "Declare War Imperialism"));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War Imperialism"));
 							break;
 						}
 						else
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, them, "Declare War Imperialism Break NA"));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War Imperialism Break NA"));
 							break;
 						}
 					}
@@ -2822,7 +2820,7 @@ namespace Ship_Game.AI
 							{
 								break;
 							}
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, them, "Declare War Defense BrokenNA"));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War Defense BrokenNA"));
 							empire.GetRelations(them).Treaty_NAPact = false;
 							Relationship trust = empire.GetRelations(them);
 							trust.Trust = trust.Trust - 50f;
@@ -2832,7 +2830,7 @@ namespace Ship_Game.AI
 						}
 						else
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, them, "Declare War Defense"));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, them, "Declare War Defense"));
 							Relationship item1 = empire.GetRelations(them);
 							item1.Anger_DiplomaticConflict = item1.Anger_DiplomaticConflict + 25f;
 							Relationship trust1 = empire.GetRelations(them);
@@ -2968,7 +2966,7 @@ namespace Ship_Game.AI
 						Relationship.Value.HaveInsulted_Military = true;
 						if (Relationship.Key == Empire.Universe.PlayerEmpire)
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Insult Military"));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Insult Military"));
 						}
 					}
 					Relationship.Value.Posture = Posture.Hostile;
@@ -2980,11 +2978,11 @@ namespace Ship_Game.AI
 						Relationship.Value.HaveComplimented_Military = true;
 						if (!Relationship.Value.HaveInsulted_Military || Relationship.Value.TurnsKnown <= this.SecondDemand)
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Compliment Military"));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Compliment Military"));
 						}
 						else
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Compliment Military Better"));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Compliment Military Better"));
 						}
 					}
 					Relationship.Value.Posture = Posture.Friendly;
@@ -3013,7 +3011,7 @@ namespace Ship_Game.AI
 							}
 							else
 							{
-								Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer Trade", OurOffer, NAPactOffer));
+								Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Offer Trade", OurOffer, NAPactOffer));
 							}
 						}
 						this.AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
@@ -3040,7 +3038,7 @@ namespace Ship_Game.AI
 						}
 						else
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", OurOffer0, OfferAlliance));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", OurOffer0, OfferAlliance));
 							continue;
 						}
 					}
@@ -3582,11 +3580,11 @@ namespace Ship_Game.AI
                                 offer1.AcceptDL = "Trade Accepted";
                                 offer1.RejectDL = "Trade Rejected";
                                 Relationship r = Relationship.Value;
-                                offer1.ValueToModify = new Ref<bool>((Func<bool>)(() => r.HaveRejected_TRADE), (Action<bool>)(x => r.HaveRejected_TRADE = x));
+                                offer1.ValueToModify = new Ref<bool>(() => r.HaveRejected_TRADE, x => r.HaveRejected_TRADE = x);
                                 Offer offer2 = new Offer();
                                 offer2.TradeTreaty = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
-                                    Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
+                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
                                 else
                                     Relationship.Key.GetGSAI().AnalyzeOffer(offer2, offer1, this.empire, Offer.Attitude.Respectful);
                             }
@@ -3606,7 +3604,7 @@ namespace Ship_Game.AI
                                 Offer offer2 = new Offer();
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
                                 {
-                                    Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", offer2, offer1));
+                                    Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", offer2, offer1));
                                     continue;
                                 }
                                 else
@@ -3630,7 +3628,7 @@ namespace Ship_Game.AI
                                 Offer offer2 = new Offer();
                                 offer2.NAPact = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
-                                    Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer NAPact", offer2, offer1));
+                                    Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Offer NAPact", offer2, offer1));
                                 else
                                     Relationship.Key.GetGSAI().AnalyzeOffer(offer2, offer1, this.empire, Offer.Attitude.Respectful);
                             }
@@ -3950,7 +3948,7 @@ namespace Ship_Game.AI
                                 Offer offer2 = new Offer();
                                 offer2.TradeTreaty = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
-                                    Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
+                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
                                 else
                                     Relationship.Key.GetGSAI().AnalyzeOffer(offer2, offer1, this.empire, Offer.Attitude.Respectful);
                             }
@@ -3970,7 +3968,7 @@ namespace Ship_Game.AI
                                 Offer offer2 = new Offer();
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
                                 {
-                                    Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", offer2, offer1));
+                                    Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", offer2, offer1));
                                     continue;
                                 }
                                 else
@@ -3989,12 +3987,12 @@ namespace Ship_Game.AI
                                 offer1.AcceptDL = "NAPact Accepted";
                                 offer1.RejectDL = "NAPact Rejected";
                                 Relationship r = Relationship.Value;
-                                offer1.ValueToModify = new Ref<bool>((Func<bool>)(() => r.HaveRejected_NAPACT), (Action<bool>)(x => r.HaveRejected_NAPACT = x));
+                                offer1.ValueToModify = new Ref<bool>(() => r.HaveRejected_NAPACT, x => r.HaveRejected_NAPACT = x);
                                 Relationship.Value.turnsSinceLastContact = 0;
                                 Offer offer2 = new Offer();
                                 offer2.NAPact = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
-                                    Empire.Universe.ScreenManager.AddScreen((GameScreen)new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer NAPact", offer2, offer1));
+                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Offer NAPact", offer2, offer1));
                                 else
                                     Relationship.Key.GetGSAI().AnalyzeOffer(offer2, offer1, this.empire, Offer.Attitude.Respectful);
                             }
@@ -4155,7 +4153,7 @@ namespace Ship_Game.AI
 				if (Relationship.Key == Empire.Universe.PlayerEmpire && Relationship.Value.Threat <= -15f && !Relationship.Value.HaveInsulted_Military && Relationship.Value.TurnsKnown > this.FirstDemand)
 				{
 					Relationship.Value.HaveInsulted_Military = true;
-					Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Insult Military"));
+					Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Insult Military"));
 				}
 				if (Relationship.Value.Threat > 0f || Relationship.Value.TurnsKnown <= this.SecondDemand || Relationship.Value.Treaty_Alliance)
 				{
@@ -4216,7 +4214,7 @@ namespace Ship_Game.AI
 		private void DoXenophobicRelations()
 		{
             this.AssessTeritorialConflicts(this.empire.data.DiplomaticPersonality.Territorialism / 10f);
-            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.AllRelations)
+            foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in empire.AllRelations)
 			{
 				if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
 				{
@@ -4232,7 +4230,7 @@ namespace Ship_Game.AI
 				{
 					case Posture.Friendly:
 					{
-						if (Relationship.Value.TurnsKnown <= this.SecondDemand || Relationship.Value.Trust - usedTrust <= (float)this.empire.data.DiplomaticPersonality.Trade || Relationship.Value.Treaty_Trade || Relationship.Value.HaveRejected_TRADE || Relationship.Value.turnsSinceLastContact <= this.SecondDemand || Relationship.Value.HaveRejected_TRADE)
+						if (Relationship.Value.TurnsKnown <= SecondDemand || Relationship.Value.Trust - usedTrust <= empire.data.DiplomaticPersonality.Trade || Relationship.Value.Treaty_Trade || Relationship.Value.HaveRejected_TRADE || Relationship.Value.turnsSinceLastContact <= this.SecondDemand || Relationship.Value.HaveRejected_TRADE)
 						{
 							continue;
 						}
@@ -4255,7 +4253,7 @@ namespace Ship_Game.AI
 						}
 						else
 						{
-							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Offer Trade", new Offer(), NAPactOffer));
+							Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Offer Trade", new Offer(), NAPactOffer));
 							continue;
 						}
 					}
@@ -4298,7 +4296,7 @@ namespace Ship_Game.AI
 								}
 								else
 								{
-									Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Xeno Demand Tech", DemandTech, TheirDemand));
+									Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Xeno Demand Tech", DemandTech, TheirDemand));
 								}
 							}
 						}
@@ -6381,7 +6379,7 @@ namespace Ship_Game.AI
 				relationship.Key.GetGSAI().AnalyzeOffer(ourOffer, offerPeace, empire, Offer.Attitude.Respectful);
 				return;
 			}
-			Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(empire, Empire.Universe.PlayerEmpire, dialogue, new Offer(), offerPeace));
+			Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, dialogue, new Offer(), offerPeace));
 		}
 
 		private void RunAgentManager()
@@ -6521,7 +6519,7 @@ namespace Ship_Game.AI
 				{
 					if (Them.Key == Empire.Universe.PlayerEmpire)
 					{
-						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(this.empire, Empire.Universe.PlayerEmpire, "Claim System", sharedSystem));
+						Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, empire, Empire.Universe.PlayerEmpire, "Claim System", sharedSystem));
 					}
 					Them.Value.WarnedSystemsList.Add(sharedSystem.guid);
 				}
@@ -9470,22 +9468,9 @@ namespace Ship_Game.AI
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.TaskList != null)
-                        this.TaskList.Dispose();
-                    if (this.DefensiveCoordinator != null)
-                        this.DefensiveCoordinator.Dispose();
-                    if (this.Goals != null)
-                        this.Goals.Dispose();
-                }
-                this.TaskList = null;
-                this.DefensiveCoordinator = null;
-                this.Goals = null;
-                this.disposed = true;
-            }
+            TaskList?.Dispose(ref TaskList);
+            DefensiveCoordinator?.Dispose(ref DefensiveCoordinator);
+            Goals?.Dispose(ref Goals);
         }
 	}
 }

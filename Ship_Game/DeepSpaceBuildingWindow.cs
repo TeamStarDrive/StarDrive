@@ -8,7 +8,7 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class DeepSpaceBuildingWindow: IDisposable
+	public sealed class DeepSpaceBuildingWindow : IDisposable
 	{
 		private Ship_Game.ScreenManager ScreenManager;
 
@@ -29,8 +29,6 @@ namespace Ship_Game
 		private Vector2 TetherOffset = new Vector2();
 
 		private Guid TargetPlanet = Guid.Empty;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 
 		public DeepSpaceBuildingWindow(Ship_Game.ScreenManager ScreenManager, UniverseScreen screen)
@@ -70,20 +68,10 @@ namespace Ship_Game
 
        private void Dispose(bool disposing)
        {
-           if (!disposed)
-           {
-               if (disposing)
-               {
-                   if (this.SL != null)
-                       this.SL.Dispose();
+            SL?.Dispose(ref SL);
+        }
 
-               }
-               this.SL = null;
-               this.disposed = true;
-           }
-       }
-
-		public void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime)
 		{
 			Rectangle r = this.ConstructionSubMenu.Menu;
 			r.Y = r.Y + 25;

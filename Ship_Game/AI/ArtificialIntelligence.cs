@@ -743,7 +743,7 @@ namespace Ship_Game.AI
                     if (system.OwnerList.Count > 0 && !system.OwnerList.Contains(Owner.loyalty))
                         message.Append("\nContested system!!!");
 
-                    Planet.universeScreen.NotificationManager.AddNotification(new Notification
+                    Empire.Universe.NotificationManager.AddNotification(new Notification
                     {
                         Pause = false,
                         Message = message.ToString(),

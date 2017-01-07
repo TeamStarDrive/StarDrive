@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public sealed class DiplomacyScreen : GameScreen, IDisposable
+	public sealed class DiplomacyScreen : GameScreen
 	{
 		private Empire them;
 
@@ -125,11 +125,7 @@ namespace Ship_Game
 
 		private string TheirText;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-
-		public DiplomacyScreen(Empire e, Empire us, string which)
+		public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which) : base(parent)
 		{
 			float TheirOpinionOfUs;
 			e.GetRelations(us).turnsSinceLastContact = 0;
@@ -229,7 +225,7 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-		public DiplomacyScreen(Empire e, Empire us, string which, bool EndOnly)
+		public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, bool EndOnly) : base(parent)
 		{
 			e.GetRelations(us).turnsSinceLastContact = 0;
 			this.them = e;
@@ -241,7 +237,7 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-		public DiplomacyScreen(Empire e, Empire us, string which, Offer OurOffer, Offer TheirOffer)
+		public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer OurOffer, Offer TheirOffer) : base(parent)
 		{
 			e.GetRelations(us).turnsSinceLastContact = 0;
 			this.them = e;
@@ -255,7 +251,7 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-		public DiplomacyScreen(Empire e, Empire us, string which, Offer OurOffer, Offer TheirOffer, Empire taremp)
+		public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer OurOffer, Offer TheirOffer, Empire taremp) : base(parent)
 		{
 			e.GetRelations(us).turnsSinceLastContact = 0;
 			this.them = e;
@@ -270,8 +266,8 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-		public DiplomacyScreen(Empire e, Empire us, string which, Planet p)
-		{
+		public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Planet p) : base(parent)
+        {
 			float TheirOpinionOfUs;
 			e.GetRelations(us).turnsSinceLastContact = 0;
 			this.pToDiscuss = p;
@@ -329,8 +325,8 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-		public DiplomacyScreen(Empire e, Empire us, string which, SolarSystem s)
-		{
+		public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, SolarSystem s) : base(parent)
+        {
 			float TheirOpinionOfUs;
 			e.GetRelations(us).turnsSinceLastContact = 0;
 			this.sysToDiscuss = s;
@@ -424,36 +420,13 @@ namespace Ship_Game
 			base.TransitionOnTime = TimeSpan.FromSeconds(1);
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~DiplomacyScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.OurItemsSL != null)
-                        this.OurItemsSL.Dispose();
-                    if (this.TheirItemsSL != null)
-                        this.TheirItemsSL.Dispose();
-                    if (this.StatementsSL != null)
-                        this.StatementsSL.Dispose();
-                    if (this.OfferTextSL != null)
-                        this.OfferTextSL.Dispose();
-
-                }
-                this.OurItemsSL = null;
-                this.TheirItemsSL = null;
-                this.StatementsSL = null;
-                this.OfferTextSL = null;
-                this.disposed = true;
-            }
+            OurItemsSL?.Dispose(ref OurItemsSL);
+            TheirItemsSL?.Dispose(ref TheirItemsSL);
+            StatementsSL?.Dispose(ref StatementsSL);
+            OfferTextSL?.Dispose(ref OfferTextSL);
+            base.Dispose(disposing);
 		}
 
 		private void DoNegotiationResponse(string answer)
@@ -1501,7 +1474,7 @@ namespace Ship_Game
 			this.StatementsSL = new ScrollList(sub, Fonts.Consolas18.LineSpacing + 2, true);
 			if (!string.IsNullOrEmpty(them.data.Traits.VideoPath))
 			{
-                video = ResourceManager.LoadVideo(ScreenManager.Content, them.data.Traits.VideoPath);
+                video = ResourceManager.LoadVideo(TransientContent, them.data.Traits.VideoPath);
 				player = new VideoPlayer()
 				{
                     Volume = GlobalStats.MusicVolume,

@@ -161,7 +161,7 @@
     <OutputPath>StarDrive\</OutputPath>
     <DefineConstants>TRACE;DEBUG;STEAM xPLAYERONLY xAUTOTIME PERF</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -294,6 +294,7 @@
     <Compile Include="Ship_Game\Commands\MilitaryTasks\CohesiveClearAreaOfEnemies.cs" />
     <Compile Include="Ship_Game\Commands\QueueItems\BuildShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\FleetRequisition.cs" />
+    <Compile Include="Ship_Game\Data\GameContentManager.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\FileSystemExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
@@ -591,7 +592,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\ResourceManager.cs">
+    <Compile Include="Ship_Game\Data\ResourceManager.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
