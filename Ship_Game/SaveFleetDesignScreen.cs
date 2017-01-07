@@ -14,7 +14,8 @@ namespace Ship_Game
 	{
         private Fleet f;
 
-		public SaveFleetDesignScreen(Fleet f) : base(SLMode.Save, f.Name, "Save Fleet As...", "Saved Fleets", "Saved Fleet already exists.  Overwrite?", 40)
+		public SaveFleetDesignScreen(GameScreen parent, Fleet f) 
+            : base(parent, SLMode.Save, f.Name, "Save Fleet As...", "Saved Fleets", "Saved Fleet already exists.  Overwrite?", 40)
         {
 			this.f = f;        // set save file data and starting name
             this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Fleet Designs/");

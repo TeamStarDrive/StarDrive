@@ -194,7 +194,6 @@ namespace Ship_Game.Gameplay
         public float FTLSpoolTime;
         public bool FTLSlowTurnBoost;
 
-        //public Map<Empire, diplomacticSpace> BorderState = new Map<Empire, diplomacticSpace>();
         public Array<ShipModule> Transporters = new Array<ShipModule>();
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool hasTransporter;
@@ -206,14 +205,9 @@ namespace Ship_Game.Gameplay
 
         public float RangeForOverlay;
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
-        //Random shiprandom = new Random();    //Not referenced in code, removing to save memory
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
         Array<ModuleSlot> AttackerTargetting = new Array<ModuleSlot>();
         public sbyte TrackingPower = 0;
         public sbyte FixedTrackingPower = 0;
-
-        //public ushort purgeCount =0;    //Not referenced in code, removing to save memory
         public Ship lastAttacker = null;
         private bool LowHealth = false; //fbedard: recalculate strength after repair
         public float TradeTimer;
@@ -799,14 +793,13 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                //this.GetAI().OrderScrapShip();
-                Ship.universeScreen.ScreenManager.AddScreen((GameScreen)new RefitToWindow(this));
+                universeScreen.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
             }
         }
 
         public Ship()
         {
-            foreach (KeyValuePair<string, Good> keyValuePair in Ship_Game.ResourceManager.GoodsDict)
+            foreach (KeyValuePair<string, Good> keyValuePair in ResourceManager.GoodsDict)
             {
                 this.AddGood(keyValuePair.Key, 0);
                 if (!keyValuePair.Value.IsCargo)
@@ -4874,23 +4867,11 @@ namespace Ship_Game.Gameplay
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    this.projectiles?.Dispose();
-                    this.beams?.Dispose();
-                    this.supplyLock?.Dispose();
-                    this.AI?.Dispose();
-                    this.ProjectilesFired?.Dispose();
-                }
-                this.projectiles = null;
-                this.beams = null;
-                this.supplyLock = null;
-                this.AI = null;
-                this.ProjectilesFired = null;
-                this.disposed = true;
-            }
+            projectiles     ?.Dispose(ref projectiles);
+            beams           ?.Dispose(ref beams);
+            supplyLock      ?.Dispose(ref supplyLock);
+            AI              ?.Dispose(ref AI);
+            ProjectilesFired?.Dispose(ref ProjectilesFired);
         }
         
         public class target

@@ -8,7 +8,7 @@ namespace Ship_Game
 {
 	public sealed class Shield
 	{
-		public static ContentManager content;
+		public static GameContentManager content;
 
 		public float texscale;
 

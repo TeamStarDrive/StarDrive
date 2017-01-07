@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -70,23 +71,13 @@ namespace Ship_Game
         private static FleetDesign LoadFleetDesign(string fleetUid)
         {
             string designPath = fleetUid + ".xml";
-            FileInfo info;
-            if (GlobalStats.ActiveMod != null && Directory.Exists(ResourceManager.WhichModPath + "/FleetDesigns") 
-                && File.Exists(ResourceManager.WhichModPath + "/FleetDesigns/" + designPath))
+            FileInfo info = ResourceManager.GetModOrVanillaFile(designPath);
+
+            if (info == null)
             {
-                info = new FileInfo(ResourceManager.WhichModPath + "/FleetDesigns/" + designPath);
+                info = new FileInfo(Dir.ApplicationData + "/StarDrive/Fleet Designs/" + designPath);
             }
-			else if (File.Exists("Content/FleetDesigns/" + designPath))
-			{
-				info = new FileInfo("Content/FleetDesigns/" + designPath);
-			}
-			else
-			{
-				string appData = Dir.ApplicationData;
-				info = new FileInfo(appData + "/StarDrive/Fleet Designs/" + designPath);
-			}
-			var serializer1 = new XmlSerializer(typeof(FleetDesign));
-			return (FleetDesign)serializer1.Deserialize(info.OpenRead());
+			return info.Deserialize<FleetDesign>();
         }
 
         private static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position)
@@ -363,5 +354,7 @@ namespace Ship_Game
             GC.WaitForPendingFinalizers();
             GC.Collect();
         }
+
+        public static float ProcessMemoryMb => Process.GetCurrentProcess().WorkingSet64 / (1024f * 1024f);
     }
 }

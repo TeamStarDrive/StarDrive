@@ -14,9 +14,9 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class FleetDesignScreen : GameScreen, IDisposable
+	public sealed class FleetDesignScreen : GameScreen
 	{
-		public static bool Open;
+		public static bool Open = false;
 
 		private Matrix worldMatrix = Matrix.Identity;
 
@@ -148,24 +148,15 @@ namespace Ship_Game
 
 		private Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
 
-		private Vector2 starfieldPos = Vector2.Zero;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        //private bool disposed;
-
-		static FleetDesignScreen()
-		{
-			FleetDesignScreen.Open = false;
-		}
-
-		public FleetDesignScreen(EmpireUIOverlay EmpireUI, Fleet f)
+		public FleetDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI, Fleet f) : base(parent)
 		{
 			this.fleet = f;
 			this.EmpireUI = EmpireUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.75);
 		}
 
-		public FleetDesignScreen(EmpireUIOverlay EmpireUI)
+		public FleetDesignScreen(GameScreen parent, EmpireUIOverlay EmpireUI) : base(parent)
 		{
 			this.fleet = new Fleet();
 			this.EmpireUI = EmpireUI;
@@ -241,38 +232,18 @@ namespace Ship_Game
             }
 		}
 
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-        ~FleetDesignScreen() { Dispose(false);  }
-
-		private void Dispose(bool disposing)
-		{
-			if (disposing)
+			lock (this)
 			{
-				lock (this)
-				{
-                    if (this.starfield != null)
-                        this.starfield.Dispose();
-                    if (this.fleet != null)
-                        this.fleet.Dispose();
-                    if (this.AvailableShips != null)
-                        this.AvailableShips.Dispose();
-                    if (this.ShipSL != null)
-                        this.ShipSL.Dispose();
-                    if (this.FleetSL != null)
-                        this.FleetSL.Dispose();
-				}
-                this.starfield = null;
-                this.fleet = null;
-                this.ShipSL = null;
-                this.FleetSL = null;
-                this.AvailableShips = null;
+				starfield?.Dispose(ref starfield);
+				fleet?.Dispose(ref fleet);
+				AvailableShips?.Dispose(ref AvailableShips);
+				ShipSL?.Dispose(ref ShipSL);
+				FleetSL?.Dispose(ref FleetSL);
 			}
-		}
+            base.Dispose(disposing);
+        }
 
 		public override void Draw(GameTime gameTime)
 		{
@@ -882,9 +853,9 @@ namespace Ship_Game
 
 		public override void ExitScreen()
 		{
-			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/NewGamelight_rig");
+			LightRig rig = TransientContent.Load<LightRig>("example/NewGamelight_rig");
             rig.AssignTo(this);
-			this.EmpireUI.screen.RecomputeFleetButtons(true);
+            Empire.Universe.RecomputeFleetButtons(true);
 			this.starfield.UnloadContent();
 			base.ExitScreen();
 		}
@@ -1242,7 +1213,7 @@ namespace Ship_Game
 				}
 				if (this.SaveDesign.HandleInput(input))
 				{
-					base.ScreenManager.AddScreen(new SaveFleetDesignScreen(this.fleet));
+					base.ScreenManager.AddScreen(new SaveFleetDesignScreen(this, fleet));
 				}
 				if (this.LoadDesign.HandleInput(input))
 				{
@@ -1745,9 +1716,9 @@ namespace Ship_Game
 		public override void LoadContent()
 		{
 			this.close = new CloseButton(new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
-			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
+			LightRig rig = TransientContent.Load<LightRig>("example/ShipyardLightrig");
             rig.AssignTo(this);
-			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, base.ScreenManager.Content);
+			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
 			this.starfield.LoadContent();
 			Rectangle titleRect = new Rectangle(2, 44, 250, 80);
 			this.TitleBar = new Menu2(base.ScreenManager, titleRect);
@@ -1892,7 +1863,7 @@ namespace Ship_Game
 			this.Slider_Size = new SizeSlider(sizerect, "Target Size Preference");
 			this.Slider_Size.SetAmount(0.5f);
 			this.Slider_Size.Tip_ID = 14;
-			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, base.ScreenManager.Content);
+			this.starfield = new Starfield(Vector2.Zero, base.ScreenManager.GraphicsDevice, TransientContent);
 			this.starfield.LoadContent();
 			this.bg = new Background();
 			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;

@@ -18,7 +18,7 @@ namespace Ship_Game
     {
         public Planet p;
 
-        private Ship_Game.ScreenManager ScreenManager;
+        private ScreenManager ScreenManager;
 
         public ToggleButton playerDesignsToggle;
 
@@ -56,18 +56,15 @@ namespace Ship_Game
 
         private bool LowRes;
 
-        private ColonyScreen.Lock FoodLock;
-
-        private ColonyScreen.Lock ProdLock;
-
-        private ColonyScreen.Lock ResLock;
+        private Lock FoodLock;
+        private Lock ProdLock;
+        private Lock ResLock;
 
         private float ClickTimer;
 
         private float TimerDelay = 0.25f;
 
         private ToggleButton LeftColony;
-
         private ToggleButton RightColony;
 
         private UIButton launchTroops;
@@ -102,11 +99,9 @@ namespace Ship_Game
 
         private Rectangle profStorageIcon;
 
-        private ColonyScreen.Slider SliderFood;
-
-        private ColonyScreen.Slider SliderProd;
-
-        private ColonyScreen.Slider SliderRes;
+        private Slider SliderFood;
+        private Slider SliderProd;
+        private Slider SliderRes;
 
         private object detailInfo;
 
@@ -117,9 +112,7 @@ namespace Ship_Game
         public bool ClickedTroop;
 
         private float fPercentLast;
-
         private float pPercentLast;
-
         private float rPercentLast;
 
         private bool draggingSlider1;
@@ -156,8 +149,6 @@ namespace Ship_Game
 
         private MouseState previousMouse;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
         private bool rmouse = false;
         private static bool popup = false;  //fbedard
 
@@ -219,8 +210,8 @@ namespace Ship_Game
             Rectangle theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + theMenu6.Height + 40, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
             this.pStorage = new Submenu(ScreenManager, theMenu7);
             this.pStorage.AddTab(Localizer.Token(328));
-            this.eui.screen.ShipsInCombat.Active = false;
-            this.eui.screen.PlanetsInCombat.Active = false;
+            Empire.Universe.ShipsInCombat.Active = false;
+            Empire.Universe.PlanetsInCombat.Active = false;
 
             if (GlobalStats.HardcoreRuleset)
             {
@@ -2106,8 +2097,8 @@ namespace Ship_Game
                 }
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
-                    this.eui.screen.ShipsInCombat.Active = true;
-                    this.eui.screen.PlanetsInCombat.Active = true;
+                    Empire.Universe.ShipsInCombat.Active = true;
+                    Empire.Universe.PlanetsInCombat.Active = true;
                 }
                 return;
             }
@@ -2122,8 +2113,8 @@ namespace Ship_Game
                 }
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
-                    this.eui.screen.ShipsInCombat.Active = true;
-                    this.eui.screen.PlanetsInCombat.Active = true;
+                    Empire.Universe.ShipsInCombat.Active = true;
+                    Empire.Universe.PlanetsInCombat.Active = true;
                 }
                 return;
             }
@@ -2139,8 +2130,8 @@ namespace Ship_Game
                 this.HandleDetailInfo(input);
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
-                    this.eui.screen.ShipsInCombat.Active = true;
-                    this.eui.screen.PlanetsInCombat.Active = true;
+                    Empire.Universe.ShipsInCombat.Active = true;
+                    Empire.Universe.PlanetsInCombat.Active = true;
                 }
                 return;
             }
@@ -2450,7 +2441,7 @@ namespace Ship_Game
                         {
                             this.toScrap = pgs.building;
                             string message = string.Concat("Do you wish to scrap ", Localizer.Token(pgs.building.NameTranslationIndex), "? Half of the building's construction cost will be recovered to your storage.");
-                            MessageBoxScreen messageBox = new MessageBoxScreen(message);
+                            MessageBoxScreen messageBox = new MessageBoxScreen(Empire.Universe, message);
                             messageBox.Accepted += new EventHandler<EventArgs>(this.ScrapAccepted);
                             this.ScreenManager.AddScreen(messageBox);
                             this.ClickedTroop = true;
@@ -2804,7 +2795,7 @@ namespace Ship_Game
                     ToolTip.CreateTooltip(52, this.ScreenManager);
                     if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released)
                     {
-                        ShipDesignScreen sdScreen = new ShipDesignScreen(this.eui);
+                        ShipDesignScreen sdScreen = new ShipDesignScreen(Empire.Universe, this.eui);
                         this.ScreenManager.AddScreen(sdScreen);
                         sdScreen.ChangeHull((e.item as Ship).GetShipData());
                     }
@@ -2825,8 +2816,8 @@ namespace Ship_Game
                 if (input.RightMouseClick && !this.ClickedTroop) rmouse = false;
                 if (!rmouse && (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released))
                 {
-                    this.eui.screen.ShipsInCombat.Active = true;
-                    this.eui.screen.PlanetsInCombat.Active = true;
+                    Empire.Universe.ShipsInCombat.Active = true;
+                    Empire.Universe.PlanetsInCombat.Active = true;
                 }
                 this.previousMouse = this.currentMouse;
                 }
@@ -2834,8 +2825,8 @@ namespace Ship_Game
             if (input.RightMouseClick && !this.ClickedTroop) rmouse = false;
             if (!rmouse && (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released))
             {
-                this.eui.screen.ShipsInCombat.Active = true;
-                this.eui.screen.PlanetsInCombat.Active = true;
+                Empire.Universe.ShipsInCombat.Active = true;
+                Empire.Universe.PlanetsInCombat.Active = true;
             }
             this.previousMouse = this.currentMouse; 
             */
@@ -3275,23 +3266,9 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing) 
-                {
-                    if (this.buildSL != null)
-                        this.buildSL.Dispose();
-                    if (this.QSL != null)
-                        this.QSL.Dispose();
-                    if (this.CommoditiesSL != null)
-                        this.CommoditiesSL.Dispose();
-
-                }
-                this.buildSL = null;
-                this.QSL = null;
-                this.CommoditiesSL = null;
-                this.disposed = true;
-            }
+            buildSL?.Dispose(ref buildSL);
+            QSL?.Dispose(ref QSL);
+            CommoditiesSL?.Dispose(ref CommoditiesSL);
         }
     }
 }

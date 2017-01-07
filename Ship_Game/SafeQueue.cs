@@ -13,9 +13,6 @@ namespace Ship_Game
         public ConcurrentStack<T> pendingRemovals;
         public ReaderWriterLockSlim thisLock;
 
-        //adding for thread safe Dispose because class uses unmanaged resources
-        private bool disposed;
-
         public SafeQueue()
         {
             //this.pendingRemovals = new LinkedArray<T>();
@@ -240,17 +237,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.thisLock != null)
-                        this.thisLock.Dispose();
-
-                }
-                this.thisLock = null;
-                this.disposed = true;
-            }
+            thisLock?.Dispose(ref thisLock);
         }
 
 
