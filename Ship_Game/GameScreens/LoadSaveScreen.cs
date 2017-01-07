@@ -15,12 +15,12 @@ namespace Ship_Game
         private UniverseScreen screen;
 		private MainMenuScreen mmscreen;
 
-        public LoadSaveScreen(UniverseScreen screen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
+        public LoadSaveScreen(UniverseScreen screen) : base(screen, SLMode.Load, "", Localizer.Token(6), "Saved Games")
 		{
 			this.screen = screen;
             Path = Dir.ApplicationData +  "/StarDrive/Saved Games/";
         }
-		public LoadSaveScreen(MainMenuScreen mmscreen) : base(SLMode.Load, "", Localizer.Token(6), "Saved Games")
+		public LoadSaveScreen(MainMenuScreen mmscreen) : base(mmscreen, SLMode.Load, "", Localizer.Token(6), "Saved Games")
         {
             this.mmscreen = mmscreen;
             Path = Dir.ApplicationData + "/StarDrive/Saved Games/";

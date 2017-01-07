@@ -10,7 +10,7 @@ namespace Ship_Game
 		private readonly bool LoadingIsSlow;
 		private bool OtherScreensAreGone;
 
-		private LoadingScreen(bool loadingIsSlow, GameScreen[] screensToLoad)
+		private LoadingScreen(bool loadingIsSlow, GameScreen[] screensToLoad) : base(null/*no parent*/)
 		{
 			ScreensToLoad = screensToLoad;
             LoadingIsSlow = loadingIsSlow;

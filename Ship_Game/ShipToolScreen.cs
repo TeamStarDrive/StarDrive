@@ -1,50 +1,29 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SgMotion.Controllers;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml.Serialization;
 using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public sealed class ShipToolScreen : GameScreen, IDisposable
+	public sealed class ShipToolScreen : GameScreen
 	{
-		//private int activeAnimationClip;
-
-		//private AnimationController animationController;
-
-		//private float boneRotation;
-
 		private Matrix worldMatrix = Matrix.Identity;
-
 		private Matrix view;
-
 		private Matrix projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, 1f, 1f, 10000f);
-
 		private SceneObject shipSO;
-
 		private Model model;
 
 		private Effect ThrusterEffect;
-
 		private InputState designInputState;
-
 		private SpriteBatch spriteBatch;
-
-		private Array<Rectangle> AABBList = new Array<Rectangle>();
-
-		private Array<Rectangle> DrawList = new Array<Rectangle>();
 
 		private Texture2D DottedLine;
 
@@ -72,39 +51,21 @@ namespace Ship_Game
 
 		private MouseState mouseStatePrevious;
 
-		private Array<PrimitiveQuad> cellQuads = new Array<PrimitiveQuad>();
-
 		private Cue click;
 
 		public string TestTexture = "Textures/Modules/Armor";
 
 		private Array<Ship> StartingShipList = new Array<Ship>();
 
-		//private float starpos;
-
-		private Texture2D ModuleSlotTexture;
-
 		private bool ShowOverlay = true;
-
-		//private PrimitiveQuad selectBox;
-
-		//private ShipModule selectedModule;
-
-		//private Texture2D RightShoulder;
-
-		//private Texture2D AButtonTexture;
 
 		private Vector3 cameraPosition = new Vector3(0f, 0f, 1300f);
 
 		private UITextEntry ShipNameBox;
 
-		private Array<SceneObject> ShipSOList = new Array<SceneObject>();
-
 		private Array<ToggleButton> DesignStateButtons = new Array<ToggleButton>();
 
-		private Rectangle ScreenRect = new Rectangle();
-
-		private Vector2 Center = new Vector2();
+		private Vector2 Center;
 
 		private string ModelPath;
 
@@ -116,9 +77,7 @@ namespace Ship_Game
 
 		private Array<SlotStruct> SlotList = new Array<SlotStruct>();
 
-		private Array<SlotStruct> tempSlotList = new Array<SlotStruct>();
-
-		private Rectangle what = new Rectangle();
+		private Rectangle what;
 
 		private Vector2 tPos = Vector2.Zero;
 
@@ -136,10 +95,7 @@ namespace Ship_Game
 
 		private ShipModule ActiveModule;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public ShipToolScreen()
+		public ShipToolScreen() : base(null /*no parent*/)
 		{
 			base.TransitionOnTime = TimeSpan.FromSeconds(0);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0);
@@ -165,33 +121,14 @@ namespace Ship_Game
 			}
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            spriteBatch?.Dispose(ref spriteBatch);
+            border?.Dispose(ref border);
+            base.Dispose(disposing);
         }
 
-        ~ShipToolScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.spriteBatch != null)
-                        this.spriteBatch.Dispose();
-                    if (this.border != null)
-                        this.border.Dispose();
-
-                }
-                this.spriteBatch = null;
-                this.border = null;
-                this.disposed = true;
-            }
-        }
-
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
 			this.spriteBatch = base.ScreenManager.SpriteBatch;
 			base.ScreenManager.sceneState.BeginFrameRendering(this.view, this.projection, gameTime, base.ScreenManager.environment, true);
@@ -596,7 +533,6 @@ namespace Ship_Game
 			ToggleButton Engines = new ToggleButton(new Rectangle(this.what.X - 32, this.what.Y + 5 + 87, 24, 24), "SelectionBox/button_formation_active", "SelectionBox/button_formation_inactive", "SelectionBox/button_formation_hover", "SelectionBox/button_formation_press", "E");
 			this.DesignStateButtons.Add(Engines);
 			Engines.Action = "E";
-			this.ModuleSlotTexture = base.ScreenManager.Content.Load<Texture2D>("Textures/Ships/singlebox");
 			this.LoadModelButton = new DanButton(new Vector2(20f, (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 50)), "Load Model");
 			this.SaveHullButton = new DanButton(new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 200), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 50)), "Save Hull");
 			this.ShipNameBox = new UITextEntry()
@@ -604,30 +540,29 @@ namespace Ship_Game
 				ClickableArea = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 200, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 115, 180, 20),
 				Text = this.HullName
 			};
-			LightRig rig = base.ScreenManager.Content.Load<LightRig>("example/ShipyardLightrig");
+			LightRig rig = TransientContent.Load<LightRig>("example/ShipyardLightrig");
             rig.AssignTo(this);
-			base.ScreenManager.environment = base.ScreenManager.Content.Load<SceneEnvironment>("example/scene_environment");
+			base.ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 			float width = (float)base.ScreenManager.GraphicsDevice.Viewport.Width;
 			Viewport viewport = base.ScreenManager.GraphicsDevice.Viewport;
 			float aspectRatio = width / (float)viewport.Height;
 			Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
 			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 10000f);
-			this.moduleSlot = base.ScreenManager.Content.Load<Texture2D>("Textures/Ships/singlebox");
-			this.DottedLine = base.ScreenManager.Content.Load<Texture2D>("Textures/UI/DottedLine");
+			this.moduleSlot = TransientContent.Load<Texture2D>("Textures/Ships/singlebox");
+			this.DottedLine = TransientContent.Load<Texture2D>("Textures/UI/DottedLine");
 			this.Center = new Vector2((float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2), (float)(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2));
 			this.ConfigureSlots();
-			this.ThrusterEffect = base.ScreenManager.Content.Load<Effect>("Effects/Thrust");
+			this.ThrusterEffect = TransientContent.Load<Effect>("Effects/Thrust");
 			this.thruster = new Thruster();
-			this.ScreenRect = new Rectangle(0, 0, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight);
-			this.thruster.load_and_assign_effects(base.ScreenManager.Content, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
+			this.thruster.load_and_assign_effects(TransientContent, "Effects/ThrustCylinderB", "Effects/NoiseVolume", this.ThrusterEffect);
 			base.LoadContent();
 		}
 
 		public void LoadModel(string ModelPath)
 		{
 			this.ModelPath = ModelPath;
-			this.model = base.ScreenManager.Content.Load<Model>(ModelPath);
+			this.model = TransientContent.Load<Model>(ModelPath);
 			ModelMesh mesh = this.model.Meshes[0];
 			this.shipSO = new SceneObject(mesh)
 			{
@@ -767,15 +702,9 @@ namespace Ship_Game
 			}
 		}
 
-		public override void UnloadContent()
-		{
-			base.UnloadContent();
-		}
-
 		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
 			base.ScreenManager.editor.Update(gameTime);
-			double totalSeconds = gameTime.ElapsedGameTime.TotalSeconds;
 			Vector3 camPos = this.cameraPosition * new Vector3(-1f, 1f, 1f);
 			this.view = ((Matrix.CreateTranslation(0f, 0f, 0f) * Matrix.CreateRotationY(180f.ToRadians())) * Matrix.CreateRotationX(0f.ToRadians())) * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
 			this.designInputState.Update(gameTime);

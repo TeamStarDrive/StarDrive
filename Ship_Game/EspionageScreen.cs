@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-    public sealed class EspionageScreen : GameScreen, IDisposable
+    public sealed class EspionageScreen : GameScreen
     {
         private UniverseScreen screen;
 
@@ -48,10 +48,7 @@ namespace Ship_Game
 
 		private float TransitionElapsedTime;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public EspionageScreen(UniverseScreen screen)
+		public EspionageScreen(UniverseScreen screen) : base(screen)
 		{
 			this.screen = screen;
 			base.IsPopup = true;
@@ -59,30 +56,11 @@ namespace Ship_Game
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~EspionageScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.OperationsSL != null)
-                        this.OperationsSL.Dispose();
-                    if (this.AgentComponent != null)
-                        this.AgentComponent.Dispose();
-
-                }
-                this.OperationsSL = null;
-                this.AgentComponent = null;
-                this.disposed = true;
-            }
+            OperationsSL?.Dispose(ref OperationsSL);
+            AgentComponent?.Dispose(ref AgentComponent);
+            base.Dispose(disposing);
         }
 
 		public override void Draw(GameTime gameTime)

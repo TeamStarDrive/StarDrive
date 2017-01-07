@@ -30,7 +30,6 @@ namespace Ship_Game.AI
         [XmlIgnore][JsonIgnore] private Planet TargetPlanet;
         [XmlIgnore][JsonIgnore] private Empire empire;
         [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> TaskForce = new BatchRemovalCollection<Ship>();
-        [XmlIgnore][JsonIgnore] private bool disposed;      //adding for thread safe Dispose because class uses unmanaged resources 
 
         //This file Refactored by Gretman
 
@@ -1507,17 +1506,7 @@ namespace Ship_Game.AI
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.TaskForce != null)
-                        this.TaskForce.Dispose();
-
-                }
-                this.TaskForce = null;
-                this.disposed = true;
-            }
+            TaskForce?.Dispose(ref TaskForce);
         }
 
         private int FindFleetNumber()

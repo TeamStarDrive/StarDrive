@@ -25,15 +25,10 @@ namespace Ship_Game
 		private BackgroundItem Prison;
 
 		private Beam b1;
-
 		private Beam b2;
-
 		private Beam b3;
-
 		private Ship s1;
-
 		private Ship s2;
-
 		private Ship s3;
 
 		private int numCreated;
@@ -42,8 +37,6 @@ namespace Ship_Game
 
 		private float timer;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		public DimensionalPrison(Vector2 Position)
 		{
@@ -161,17 +154,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.Prison != null)
-                        this.Prison.Dispose();
-
-                }
-                this.Prison = null;
-                this.disposed = true;
-            }
+            Prison?.Dispose(ref Prison);
         }
 	}
 }

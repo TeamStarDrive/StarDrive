@@ -25,9 +25,6 @@ namespace Ship_Game
 		public int[] Indexes = new int[6];
 
 		public BasicEffect quadEffect;
-        
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		public BackgroundItem()
 		{
@@ -117,17 +114,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.quadVertexDecl != null)
-                        this.quadVertexDecl.Dispose();
-                  
-                }
-                this.quadVertexDecl = null;
-                this.disposed = true;
-            }
+            quadVertexDecl?.Dispose(ref quadVertexDecl);
         }
     }
 }

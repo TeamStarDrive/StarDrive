@@ -20,7 +20,7 @@ namespace Ship_Game
 
         public Map<Packagetypes, Array<DrawPackage>> DrawPackages = new Map<Packagetypes, Array<DrawPackage>>();
 
-		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome, bool triggerNow)
+		public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome, bool triggerNow) : base(s)
 		{
 			if (triggerNow)
 			{
