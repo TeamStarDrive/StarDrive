@@ -249,7 +249,8 @@ namespace Ship_Game
 				empireToSave.FleetsList = new Array<FleetSave>();
 				foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
 				{
-					FleetSave fs = new FleetSave()
+				    if (fleet.Value.DataNodes == null) continue;
+                    FleetSave fs = new FleetSave()
 					{
 						Name        = fleet.Value.Name,
 						IsCoreFleet = fleet.Value.IsCoreFleet,
@@ -259,8 +260,8 @@ namespace Ship_Game
 						FleetGuid   = fleet.Value.guid,
 						Position    = fleet.Value.Position,
 						ShipsInFleet = new Array<FleetShipSave>()
-					};
-					foreach (FleetDataNode node in fleet.Value.DataNodes)
+					};                    
+                    foreach (FleetDataNode node in fleet.Value.DataNodes)
 					{
 						if (node.Ship== null)
 						{
