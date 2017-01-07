@@ -1,13 +1,12 @@
-using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Commands.MilitaryTasks;
+using Ship_Game.Gameplay;
 
-
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
 	public sealed class AO : IDisposable
 	{

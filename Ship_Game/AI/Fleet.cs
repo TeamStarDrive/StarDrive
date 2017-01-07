@@ -3,15 +3,14 @@
 // MVID: C34284EE-F947-460F-BF1D-3C6685B19387
 // Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
 
-using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
 
-namespace Ship_Game.Gameplay
+namespace Ship_Game.AI
 {
     public sealed class Fleet : ShipGroup
     {
@@ -935,15 +934,11 @@ namespace Ship_Game.Gameplay
                                     this.TaskStep = 4;
 
                                 using (Owner.GetGSAI().TaskList.AcquireReadLock())
-                                using (Array<MilitaryTask>.Enumerator resource_0 = this.Owner.GetGSAI().TaskList.GetEnumerator())
-                                {
-                                    while (resource_0.MoveNext())
+                                    foreach(MilitaryTask task in Owner.GetGSAI().TaskList)
                                     {
-                                        MilitaryTask local_43 = resource_0.Current;
-                                        if (local_43.WaitForCommand && local_43.GetTargetPlanet() != null && local_43.GetTargetPlanet() == Task.GetTargetPlanet())
-                                            local_43.WaitForCommand = false;
+                                        if (task.WaitForCommand && task.GetTargetPlanet() != null && task.GetTargetPlanet() == Task.GetTargetPlanet())
+                                            task.WaitForCommand = false;
                                     }
-                                }
                             } 
                             break;
                         case 4:
@@ -972,18 +967,18 @@ namespace Ship_Game.Gameplay
                                 int availableBombs = 0;
                                 int availableBombers = 0;
                                 float num4 = 0.0f;                                
-                                foreach (Ship ship in (Array<Ship>)this.Ships)
+                                foreach (Ship ship in Ships)
                                 {
-                                    num4 +=ship.PlanetAssaultStrength;
+                                    num4 += ship.PlanetAssaultStrength;
                                 }
                                 num4 += ourGroundStrength;
-                                if (ourGroundStrength >0 || num4 > groundStrength && Task.GetTargetPlanet().GetGroundLandingSpots() >8)
+                                if (ourGroundStrength > 0 || num4 > groundStrength && Task.GetTargetPlanet().GetGroundLandingSpots() > 8)
                                 {
                                     flag3 = true;
                                 }
                                 else
                                 {                                    
-                                    foreach (Ship ship in (Array<Ship>)this.Ships)
+                                    foreach (Ship ship in Ships)
                                     {
                                         int bombs = ship.BombCount;
                                         availableBombs += ship.BombCount;
@@ -993,7 +988,7 @@ namespace Ship_Game.Gameplay
                                 }
                                 if (flag3)
                                 {
-                                    foreach (Ship ship in (Array<Ship>)this.Ships)
+                                    foreach (Ship ship in Ships)
                                     {
                                         if ( ship.GetAI().State == AIState.Bombard && ship.BombBays.Count > 0 )
                                         {
@@ -1001,35 +996,27 @@ namespace Ship_Game.Gameplay
                                             ship.GetAI().OrderQueue.Clear();
                                         }
                                     }
-                                    this.Position = Task.GetTargetPlanet().Position;                                    
-                                    this.AssembleFleet(this.facing, Vector2.Normalize(this.Position - this.findAveragePosition()));
-                                    using (Array<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
+                                    Position = Task.GetTargetPlanet().Position;                                    
+                                    AssembleFleet(facing, Vector2.Normalize(Position - findAveragePosition()));
+
+                                    foreach (Ship ship in Ships)
                                     {
-                                        while (enumerator.MoveNext())
+                                        if (!ship.GetAI().HasPriorityOrder && ship.ReadyPlanetAssaulttTroops > 0)
                                         {
-                                            if (!enumerator.Current.GetAI().HasPriorityOrder && enumerator.Current.ReadyPlanetAssaulttTroops > 0)
-                                            {
-                                                enumerator.Current.GetAI().OrderLandAllTroops(Task.GetTargetPlanet());
-                                                enumerator.Current.GetAI().HasPriorityOrder = true;
-                                            }
+                                            ship.GetAI().OrderLandAllTroops(Task.GetTargetPlanet());
+                                            ship.GetAI().HasPriorityOrder = true;
                                         }
                                     }
                                 }
                                 else if (availableBombs > 0)
                                 {
-                                    using (Ships.AcquireReadLock())
-                                    using (Array<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
+                                    foreach (Ship ship in Ships)
                                     {
-                                        while (enumerator.MoveNext())
+                                        if (ship.BombBays.Count > 0)
                                         {
-                                            Ship current = enumerator.Current;
-                                            if (current.BombBays.Count > 0)
-                                            {
-                                                current.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
-                                                //enumerator.Current.GetAI().HasPriorityOrder = true;
-                                            }
+                                            ship.GetAI().OrderBombardPlanet(Task.GetTargetPlanet());
+                                            //ship.GetAI().HasPriorityOrder = true;
                                         }
-                                        
                                     }
                                 }
                                 else if(availableBombers > 0)
@@ -1138,14 +1125,12 @@ namespace Ship_Game.Gameplay
                         }
                         if (!flag1)
                             break;
-                        this.TaskStep = 2;
-                        this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
-                        using (Array<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
-                        {
-                            while (enumerator.MoveNext())
-                                enumerator.Current.GetAI().HasPriorityOrder = true;
-                            break;
-                        }
+                        TaskStep = 2;
+                        FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - findAveragePosition()));
+
+                        foreach (Ship ship in Ships)
+                            ship.GetAI().HasPriorityOrder = true;
+                        break;
                     case 0:
                         Array<Planet> list1 = new Array<Planet>();
                         foreach (Planet planet in this.Owner.GetPlanets())
@@ -1176,14 +1161,13 @@ namespace Ship_Game.Gameplay
                         }
                         if (!flag2)
                             break;
-                        this.TaskStep = 2;
-                        this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
-                        using (Array<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
-                        {
-                            while (enumerator.MoveNext())
-                                enumerator.Current.GetAI().HasPriorityOrder = true;
-                            break;
-                        }
+                        TaskStep = 2;
+                        FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - findAveragePosition()));
+
+                        foreach (Ship ship in Ships)
+                            ship.GetAI().HasPriorityOrder = true;
+
+                        break;
                     case 2:
                         bool flag3 = false;
                         if ((double)Vector2.Distance(this.findAveragePosition(), Task.AO) < 15000.0)
@@ -1344,12 +1328,9 @@ namespace Ship_Game.Gameplay
                         break;
                     this.TaskStep = 2;
                     this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
-                    using (Array<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                            enumerator.Current.GetAI().HasPriorityOrder = true;
-                        break;
-                    }
+                    foreach (Ship ship in Ships)
+                        ship.GetAI().HasPriorityOrder = true;
+                    break;
                 case 0:
                     Array<Planet> list1 = new Array<Planet>();
                     foreach (Planet planet in this.Owner.GetPlanets())
@@ -1382,12 +1363,9 @@ namespace Ship_Game.Gameplay
                         break;
                     this.TaskStep = 2;
                     this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
-                    using (Array<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                            enumerator.Current.GetAI().HasPriorityOrder = true;
-                        break;
-                    }
+                    foreach (Ship ship in Ships)
+                        ship.GetAI().HasPriorityOrder = true;
+                    break;
                 case 2:
                     bool flag3 = false;
                     if ((double)Vector2.Distance(this.findAveragePosition(), Task.AO) < 15000.0)
@@ -1562,12 +1540,9 @@ namespace Ship_Game.Gameplay
                         break;
                     this.TaskStep = 2;
                     this.FormationWarpTo(Task.GetTargetPlanet().Position, findAveragePosition().RadiansToTarget(Task.GetTargetPlanet().Position), Vector2.Normalize(Task.GetTargetPlanet().Position - this.findAveragePosition()));
-                    using (Array<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                            enumerator.Current.GetAI().HasPriorityOrder = true;
-                        break;
-                    }
+                    foreach (Ship ship in Ships)
+                        ship.GetAI().HasPriorityOrder = true;
+                    break;
                 case 2:
                     bool flag2 = false;
                     if (Vector2.Distance(this.findAveragePosition(), Task.GetTargetPlanet().Position) < 15000f)
@@ -1630,29 +1605,24 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     #endif
-                    if (this.EnemyClumpsDict.Count == 0)
+                    if (EnemyClumpsDict.Count == 0)
                     {
-                        using (Array<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
+                        foreach (Ship ship in Ships)
                         {
-                            while (enumerator.MoveNext())
+                            var ai = ship.GetAI();
+                            var target = Task.GetTargetPlanet();
+                            if (!ship.InCombat)
                             {
-                                Ship current = enumerator.Current;
-                                if (!current.InCombat)
-                                {
-                                    if (!(current.GetAI().State == AIState.Orbit))
-                                        current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());
-                                    else if (current.GetAI().State == AIState.Orbit && (current.GetAI().OrbitTarget == null || current.GetAI().OrbitTarget != null && current.GetAI().OrbitTarget != Task.GetTargetPlanet()))
-                                        current.GetAI().OrderOrbitPlanet(Task.GetTargetPlanet());
-                                }
-                                else // if (current.GetAI().TargetQueue.Count == 0)
-                                {
-                                    current.GetAI().OrderMoveDirectlyTowardsPosition(this.Task.GetTargetPlanet().ParentSystem.Position, 0, Vector2.Zero, true);
-                                    current.GetAI().HasPriorityOrder = true;
-                                }
-
+                                if (ai.State != AIState.Orbit || ai.OrbitTarget == null || ai.OrbitTarget != target)
+                                    ai.OrderOrbitPlanet(target);
                             }
-                            break;
+                            else // if (current.GetAI().TargetQueue.Count == 0)
+                            {
+                                ai.OrderMoveDirectlyTowardsPosition(target.ParentSystem.Position, 0, Vector2.Zero, true);
+                                ai.HasPriorityOrder = true;
+                            }
                         }
+                        break;
                     }
                     else
                     {
@@ -2069,14 +2039,11 @@ namespace Ship_Game.Gameplay
                     }
                     if (!flag1)
                         break;
-                    this.TaskStep = 2;
-                    this.FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - this.findAveragePosition()));
-                    using (Array<Ship>.Enumerator enumerator = this.Ships.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                            enumerator.Current.GetAI().HasPriorityOrder = true;
-                        break;
-                    }
+                    TaskStep = 2;
+                    FormationWarpTo(Task.AO, findAveragePosition().RadiansToTarget(Task.AO), Vector2.Normalize(Task.AO - findAveragePosition()));
+                    foreach (Ship ship in Ships)
+                        ship.GetAI().HasPriorityOrder = true;
+                    break;
                 case 2:
                     if (FleetReadyCheck())
                     {
