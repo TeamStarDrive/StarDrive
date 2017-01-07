@@ -611,11 +611,11 @@ namespace Ship_Game
 			{
 				return;
 			}
-			if (this.ship.GetAI().OrderQueue.Count<ArtificialIntelligence.ShipGoal>() > 0)
+			if (ship.GetAI().OrderQueue.NotEmpty)
 			{
 				try
 				{
-					if (this.ship.GetAI().OrderQueue.Last<ArtificialIntelligence.ShipGoal>().Plan == ArtificialIntelligence.Plan.DeployStructure)
+					if (ship.GetAI().OrderQueue.PeekLast.Plan == ArtificialIntelligence.Plan.DeployStructure)
 					{
 						return;
 					}

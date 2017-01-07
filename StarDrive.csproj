@@ -341,7 +341,7 @@
     <Compile Include="Ship_Game\HullBonus.cs" />
     <Compile Include="Ship_Game\LoadRaceScreen.cs" />
     <Compile Include="Ship_Game\Moon.cs" />
-    <Compile Include="Ship_Game\HostileFleets.cs" />
+    <Compile Include="Ship_Game\Data\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
     <Compile Include="Ship_Game\MethodUtil.cs" />
     <Compile Include="Ship_Game\PlanetEdict.cs">
@@ -380,7 +380,7 @@
     <Compile Include="Ship_Game\SafeQueue.cs" />
     <Compile Include="Ship_Game\SaveSetupScreen.cs" />
     <Compile Include="Ship_Game\SetupSave.cs" />
-    <Compile Include="Ship_Game\ShipNames.cs" />
+    <Compile Include="Ship_Game\Data\ShipNames.cs" />
     <Compile Include="Ship_Game\ShipRole.cs" />
     <Compile Include="Ship_Game\SpriteSystem\TextureAtlas.cs" />
     <Compile Include="Ship_Game\SubClasses.cs" />
@@ -664,7 +664,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\RacialTrait.cs">
+    <Compile Include="Ship_Game\Data\RacialTrait.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
