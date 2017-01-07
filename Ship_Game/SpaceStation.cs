@@ -36,19 +36,19 @@ namespace Ship_Game
 		{
 		}
 
-		public void LoadContent(Ship_Game.ScreenManager ScreenManager)
+		public void LoadContent(ScreenManager screenManager)
 		{
-			Model InnerModel = ScreenManager.Content.Load<Model>("Model/Stations/spacestation01_inner");
-			Model OuterModel = ScreenManager.Content.Load<Model>("Model/Stations/spacestation01_outer");
+			Model innerModel = Game1.Instance.Content.Load<Model>("Model/Stations/spacestation01_inner");
+			Model outerModel = Game1.Instance.Content.Load<Model>("Model/Stations/spacestation01_outer");
 
-			ModelMesh mesh = InnerModel.Meshes[0];
+			ModelMesh mesh = innerModel.Meshes[0];
 			this.InnerSO = new SceneObject(mesh)
 			{
 				ObjectType = ObjectType.Dynamic,
 				World = Matrix.Identity
 			};
 
-			ModelMesh mesh1 = OuterModel.Meshes[0];
+			ModelMesh mesh1 = outerModel.Meshes[0];
 			this.OuterSO = new SceneObject(mesh1)
 			{
 				ObjectType = ObjectType.Dynamic,
@@ -83,17 +83,17 @@ namespace Ship_Game
 			}
 			lock (GlobalStats.ObjectManagerLocker)
 			{
-				ScreenManager.inter.ObjectManager.Submit(this.InnerSO);
-				ScreenManager.inter.ObjectManager.Submit(this.OuterSO);
+				screenManager.inter.ObjectManager.Submit(this.InnerSO);
+				screenManager.inter.ObjectManager.Submit(this.OuterSO);
 			}
 		}
 
-		public void SetVisibility(bool vis, Ship_Game.ScreenManager ScreenManager, Planet p)
+		public void SetVisibility(bool vis, ScreenManager screenManager, Planet p)
 		{
 			this.planet = p;
 			if (this.InnerSO == null || this.OuterSO == null)
 			{
-				this.LoadContent(ScreenManager);
+				this.LoadContent(screenManager);
 			}
 			if (vis)
 			{

@@ -9,43 +9,22 @@ namespace Ship_Game
 	public sealed class TroopInfoUIElement : UIElement, IDisposable
 	{
 		private Rectangle SliderRect;
-
 		private Rectangle clickRect;
-
 		private UniverseScreen screen;
-
 		private Rectangle LeftRect;
-
 		private Rectangle RightRect;
-
 		private Rectangle flagRect;
-
 		private Rectangle DefenseRect;
-
 		private Rectangle SoftAttackRect;
-
 		private Rectangle HardAttackRect;
-
 		private Rectangle ItemDisplayRect;
-
 		private DanButton LaunchTroop;
-
 		private Selector sel;
-
 		private ScrollList DescriptionSL;
-
 		public PlanetGridSquare pgs;
-
-        private Array<TroopInfoUIElement.TippedItem> ToolTipItems = new Array<TroopInfoUIElement.TippedItem>();
-
-		new private Color tColor = new Color(255, 239, 208);
-
+        private Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+        private new Color tColor = new Color(255, 239, 208);
 		private string fmt = "0.#";
-
-		//private Rectangle Mark;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
 
 		public TroopInfoUIElement(Rectangle r, Ship_Game.ScreenManager sm, UniverseScreen screen)
 		{
@@ -265,17 +244,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.DescriptionSL != null)
-                        this.DescriptionSL.Dispose();
-
-                }
-                this.DescriptionSL = null;
-                this.disposed = true;
-            }
+            DescriptionSL?.Dispose(ref DescriptionSL);
         }
-	}
+    }
 }

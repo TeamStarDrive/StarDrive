@@ -16,7 +16,7 @@ namespace Ship_Game
 
 		public Encounter encounter;
 
-		public EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e)
+		public EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e) : base(s)
 		{
 			this.screen = s;
 			this.encounter = e;

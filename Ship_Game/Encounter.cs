@@ -37,10 +37,6 @@ namespace Ship_Game
 
 		private Empire empToDiscuss;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-
 		public Encounter()
 		{
 		}
@@ -336,26 +332,17 @@ namespace Ship_Game
 			this.empToDiscuss = e;
 		}
 
-               public void Dispose()
+        public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-               ~Encounter() { Dispose(false); }
+        ~Encounter() { Dispose(false); }
 
-               private void Dispose(bool disposing)
-               {
-                   if (!disposed)
-                   {
-                       if (disposing)
-                       {
-                           if (this.ResponseSL != null)
-                               this.ResponseSL.Dispose();
-                       }
-                       this.ResponseSL = null;
-                       this.disposed = true;
-                   }
-               }
+        private void Dispose(bool disposing)
+        {
+            ResponseSL?.Dispose(ref ResponseSL);
+        }
 	}
 }

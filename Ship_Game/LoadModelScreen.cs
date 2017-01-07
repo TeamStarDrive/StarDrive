@@ -9,19 +9,16 @@ using System.IO;
 
 namespace Ship_Game
 {
-	public sealed class LoadModelScreen : GameScreen, IDisposable
+	public sealed class LoadModelScreen : GameScreen
 	{
-		private Vector2 Cursor = Vector2.Zero;
 		private ShipToolScreen screen;
 		//private MainMenuScreen mmscreen;
 		//private Submenu subSave;
 		private Rectangle Window;
 		private Menu1 SaveMenu;
 		private Submenu AllSaves;
-		private Vector2 EnternamePos;
 		private Vector2 TitlePosition;
 		private ScrollList SavesSL;
-		private ContentManager LocalContent;
 		private Selector selector;
 		private FileInfo activeFile;
 		private MouseState currentMouse;
@@ -29,33 +26,19 @@ namespace Ship_Game
 
 		//private float transitionElapsedTime;
 
-		public LoadModelScreen(ShipToolScreen screen)
+		public LoadModelScreen(ShipToolScreen screen) : base(screen)
 		{
 			this.screen = screen;
 			base.IsPopup = true;
 		}
 
-		public void Dispose()
-		{
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        protected override void Dispose(bool disposing)
+        {
+            SavesSL?.Dispose(ref SavesSL);
+            base.Dispose(disposing);
+        }
 
-        ~LoadModelScreen() { Dispose(false); }
-
-		private void Dispose(bool disposing)
-		{
-		    if (!disposing) return;
-		    lock (this)
-		    {
-		        LocalContent?.Dispose();
-		        SavesSL?.Dispose();
-		    }
-		    LocalContent = null;
-		    SavesSL = null;
-		}
-         
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.SpriteBatch.Begin();
 			this.SaveMenu.Draw();
@@ -170,7 +153,6 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-			LocalContent         = new ContentManager(Game1.Instance.Services, "");
 			Window               = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 400, 600);
 			SaveMenu             = new Menu1(ScreenManager, Window);
 			Rectangle sub        = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
@@ -204,7 +186,7 @@ namespace Ship_Game
 
 			        ModelData data = new ModelData();
 			        data.Name     = Path.GetFileNameWithoutExtension(info.FullName);
-			        data.model    = LocalContent.Load<Model>(fullFile.Substring(fullDirectory.Length + 1));
+			        data.model    = TransientContent.Load<Model>(fullFile.Substring(fullDirectory.Length + 1));
 			        data.FileInfo = info;
 			        SavesSL.Entries[0].AddItem(data);
 			    }
@@ -237,7 +219,7 @@ namespace Ship_Game
 			        }
 			        ModelData data = new ModelData();
 			        data.Name     = Path.GetFileNameWithoutExtension(info.FullName);
-			        data.model    = LocalContent.Load<Model>(fullFile.Substring(fullDirectory.Length + 1));
+			        data.model    = TransientContent.Load<Model>(fullFile.Substring(fullDirectory.Length + 1));
 			        data.FileInfo = info;
 			        SavesSL.Entries[1].AddItem(data);
 			    }
@@ -245,7 +227,6 @@ namespace Ship_Game
 			    {
 			    }
 			}
-			EnternamePos = TitlePosition;
 			base.LoadContent();
 		}
 	}

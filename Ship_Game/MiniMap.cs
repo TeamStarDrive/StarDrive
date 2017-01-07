@@ -220,7 +220,7 @@ namespace Ship_Game
 			if (this.pList.HandleInput(input))
 			{
                 AudioManager.PlayCue("sd_ui_accept_alt3");
-                screen.ScreenManager.AddScreen(new PlanetListScreen(screen.ScreenManager, screen.EmpireUI));
+                screen.ScreenManager.AddScreen(new PlanetListScreen(screen, screen.EmpireUI));
                 return true;
 			}
 			if (HelperFunctions.CheckIntersection(this.sList.r, input.CursorPosition))

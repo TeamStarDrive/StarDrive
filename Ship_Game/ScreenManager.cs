@@ -41,18 +41,14 @@ namespace Ship_Game
 		public GraphicsDevice GraphicsDevice;
 		public SpriteBatch SpriteBatch;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
         public float exitScreenTimer;
 
-		public ContentManager Content { get; private set; }
+		//public GameContentManager Content { get; private set; }
 	    public Rectangle TitleSafeArea { get; private set; }
 	    public bool TraceEnabled { get; set; }
 
-	    public ScreenManager(Game game, GraphicsDeviceManager graphics)
+	    public ScreenManager(Game1 game, GraphicsDeviceManager graphics)
 		{
-			this.Content = new ContentManager(game.Services, "Content");
 			this.GraphicsDevice = graphics.GraphicsDevice;
 			this.graphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
 			if (this.graphicsDeviceService == null)
@@ -77,7 +73,6 @@ namespace Ship_Game
 				if (gs is DiplomacyScreen)
 				    return;
 			}
-			screen.ScreenManager = this;
 			if (graphicsDeviceService?.GraphicsDevice != null)
 				screen.LoadContent();
 			screens.Add(screen);
@@ -90,7 +85,6 @@ namespace Ship_Game
 				if (gs is DiplomacyScreen)
 			    	return;
 			}
-			screen.ScreenManager = this;
 			screens.Add(screen);
 		}
 
@@ -184,13 +178,6 @@ namespace Ship_Game
 			Trace.WriteLine(string.Join(", ", screenNames.ToArray()));
 		}
 
-        private void UnloadContent()
-		{
-			Content.Unload();
-			foreach (GameScreen screen in screens)
-				screen.UnloadContent();
-		}
-
 		public void Update(GameTime gameTime)
 		{
 			input.Update(gameTime);
@@ -230,15 +217,7 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            if (disposed) return;
-            if (disposing)
-            {
-                Content?.Dispose();
-                SpriteBatch?.Dispose();
-            }
-            Content     = null;
-            SpriteBatch = null;
-            disposed    = true;
+            SpriteBatch?.Dispose(ref SpriteBatch);
         }
 	}
 }
