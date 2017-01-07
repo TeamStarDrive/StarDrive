@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Ship_Game
 {
-	public sealed class ModManager : GameScreen, IDisposable
+	public sealed class ModManager : GameScreen
 	{
 		private MainMenuScreen mmscreen;
 		private Rectangle Window;
@@ -28,10 +28,7 @@ namespace Ship_Game
         private ScrollList ModsSL;
         private ModEntry SelectedMod;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public ModManager(MainMenuScreen mmscreen)
+		public ModManager(MainMenuScreen mmscreen) : base(mmscreen)
 		{
 			this.mmscreen = mmscreen;
 			IsPopup = true;
@@ -39,26 +36,13 @@ namespace Ship_Game
 			TransitionOffTime = TimeSpan.FromSeconds(0.25);
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            ModsSL?.Dispose(ref ModsSL);
+            base.Dispose(disposing);
         }
 
-        ~ModManager() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposed) return;
-            if (disposing)
-            {
-                ModsSL?.Dispose();
-            }
-            ModsSL = null;
-            disposed = true;
-        }
-
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
             if (IsExiting)
                 return;

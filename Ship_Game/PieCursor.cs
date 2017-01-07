@@ -22,7 +22,7 @@ namespace Ship_Game
 
 		private SpriteFont spriteFont;
 
-		private ContentManager content;
+		private GameContentManager content;
 
 		private CursorMode cursorMode;
 
@@ -48,7 +48,7 @@ namespace Ship_Game
 			}
 		}
 
-		public PieCursor(Microsoft.Xna.Framework.Game game, ContentManager content) : base(game)
+		public PieCursor(Game1 game, GameContentManager content) : base(game)
 		{
 			this.pieMenu = new PieMenu();
 			this.content = content;
