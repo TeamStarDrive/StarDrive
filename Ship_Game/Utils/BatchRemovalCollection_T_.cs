@@ -322,7 +322,10 @@ namespace Ship_Game
 
         private void Destroy()
         {
-            ThisLock?.Dispose();
+            PendingRemovals?.Clear();
+            PendingRemovals = null;
+            base.Clear();
+            ThisLock?.Dispose(ref ThisLock);            
             ThisLock = null;
         }
     }
