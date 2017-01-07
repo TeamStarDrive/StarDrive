@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -341,7 +342,7 @@ namespace Ship_Game
 									}
                                     else
                                     {
-                                        EmpireManager.Player.GetGSAI().DefensiveCoordinator.remove(ship);
+                                        EmpireManager.Player.GetGSAI().DefensiveCoordinator.Remove(ship);
                                         ship.GetAI().OrderQueue.Clear();
                                         ship.GetAI().HasPriorityOrder = false;
                                         ship.GetAI().SystemToDefend = null;

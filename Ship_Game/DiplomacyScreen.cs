@@ -1134,11 +1134,11 @@ namespace Ship_Game
                             Vector2 Cursor = this.TextCursor;
                             foreach (DialogOption dialogOption1 in statementSet.DialogOptions)
                             {
-                                string str = dialogOption1.words;
+                                string str = dialogOption1.Words;
                                 if (!string.IsNullOrEmpty(dialogOption1.SpecialInquiry))
                                     str = this.GetDialogueByName(dialogOption1.SpecialInquiry);
                                 DialogOption dialogOption2 = new DialogOption(n, str, Cursor, Fonts.Consolas18);
-                                dialogOption2.words = this.parseText(str, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
+                                dialogOption2.Words = this.parseText(str, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
                                 this.StatementsSL.AddItem((object)dialogOption2);
                                 dialogOption2.Response = dialogOption1.Response;
                                 Cursor.Y += (float)(Fonts.Consolas18.LineSpacing + 5);
@@ -1176,57 +1176,41 @@ namespace Ship_Game
                         switch ((e.item as ItemToOffer).HandleInput(input, e))
                         {
                             case "NAPact":
-                                this.OurOffer.NAPact = !this.OurOffer.NAPact;
-                                this.TheirOffer.NAPact = this.OurOffer.NAPact;
-                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                OurOffer.NAPact   = !OurOffer.NAPact;
+                                TheirOffer.NAPact = OurOffer.NAPact;
+                                foreach (ScrollList.Entry entry in TheirItemsSL.Copied)
                                 {
-                                    while (enumerator.MoveNext())
-                                    {
-                                        ScrollList.Entry current = enumerator.Current;
-                                        if ((current.item as ItemToOffer).Response == "NAPact")
-                                            (current.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
-                                    }
-                                    continue;
+                                    if ((entry.item as ItemToOffer).Response == "NAPact")
+                                        (entry.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
                                 }
+                                continue;
                             case "We Declare War":
-                                this.OurOffer.NAPact = !this.OurOffer.NAPact;
-                                this.TheirOffer.NAPact = this.OurOffer.NAPact;
-                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                OurOffer.NAPact   = !OurOffer.NAPact;
+                                TheirOffer.NAPact = OurOffer.NAPact;
+                                foreach (ScrollList.Entry entry in TheirItemsSL.Copied)
                                 {
-                                    while (enumerator.MoveNext())
-                                    {
-                                        ScrollList.Entry current = enumerator.Current;
-                                        if ((current.item as ItemToOffer).Response == "NAPact")
-                                            (current.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
-                                    }
-                                    continue;
+                                    if ((entry.item as ItemToOffer).Response == "NAPact")
+                                        (entry.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
                                 }
+                                continue;
                             case "Peace Treaty":
-                                this.OurOffer.PeaceTreaty = !this.OurOffer.PeaceTreaty;
-                                this.TheirOffer.PeaceTreaty = this.OurOffer.PeaceTreaty;
-                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                OurOffer.PeaceTreaty   = !OurOffer.PeaceTreaty;
+                                TheirOffer.PeaceTreaty = OurOffer.PeaceTreaty;
+                                foreach (ScrollList.Entry entry in TheirItemsSL.Copied)
                                 {
-                                    while (enumerator.MoveNext())
-                                    {
-                                        ScrollList.Entry current = enumerator.Current;
-                                        if ((current.item as ItemToOffer).Response == "Peace Treaty")
-                                            (current.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
-                                    }
-                                    continue;
+                                    if ((entry.item as ItemToOffer).Response == "Peace Treaty")
+                                        (entry.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
                                 }
+                                continue;
                             case "OfferAlliance":
-                                this.OurOffer.Alliance = !this.OurOffer.Alliance;
-                                this.TheirOffer.Alliance = this.OurOffer.Alliance;
-                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                OurOffer.Alliance   = !OurOffer.Alliance;
+                                TheirOffer.Alliance = OurOffer.Alliance;
+                                foreach (ScrollList.Entry entry in TheirItemsSL.Copied)
                                 {
-                                    while (enumerator.MoveNext())
-                                    {
-                                        ScrollList.Entry current = enumerator.Current;
-                                        if ((current.item as ItemToOffer).Response == "OfferAlliance")
-                                            (current.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
-                                    }
-                                    continue;
+                                    if ((entry.item as ItemToOffer).Response == "OfferAlliance")
+                                        (entry.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
                                 }
+                                continue;
                             case "OpenBorders":
                                 this.OurOffer.OpenBorders = !this.OurOffer.OpenBorders;
                                 continue;
@@ -1264,18 +1248,14 @@ namespace Ship_Game
                                     continue;
                                 }
                             case "TradeTreaty":
-                                this.OurOffer.TradeTreaty = !this.OurOffer.TradeTreaty;
-                                this.TheirOffer.TradeTreaty = this.OurOffer.TradeTreaty;
-                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.TheirItemsSL.Copied.GetEnumerator())
+                                OurOffer.TradeTreaty   = !OurOffer.TradeTreaty;
+                                TheirOffer.TradeTreaty = OurOffer.TradeTreaty;
+                                foreach (ScrollList.Entry entry in TheirItemsSL.Copied)
                                 {
-                                    while (enumerator.MoveNext())
-                                    {
-                                        ScrollList.Entry current = enumerator.Current;
-                                        if ((current.item as ItemToOffer).Response == "TradeTreaty")
-                                            (current.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
-                                    }
-                                    continue;
+                                    if ((entry.item as ItemToOffer).Response == "TradeTreaty")
+                                        (entry.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
                                 }
+                                continue;
                             default:
                                 continue;
                         }
@@ -1283,23 +1263,19 @@ namespace Ship_Game
                     this.OurItemsSL.Update();
                     this.TheirItemsSL.HandleInput(input);
                     //str = (string)null;
-                    foreach (ScrollList.Entry e in (Array<ScrollList.Entry>)this.TheirItemsSL.Copied)
+                    foreach (ScrollList.Entry e in TheirItemsSL.Copied)
                     {
                         switch ((e.item as ItemToOffer).HandleInput(input, e))
                         {
                             case "NAPact":
-                                this.TheirOffer.NAPact = !this.TheirOffer.NAPact;
-                                this.OurOffer.NAPact = this.TheirOffer.NAPact;
-                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
+                                TheirOffer.NAPact = !TheirOffer.NAPact;
+                                OurOffer.NAPact   = TheirOffer.NAPact;
+                                foreach (ScrollList.Entry entry in OurItemsSL.Copied)
                                 {
-                                    while (enumerator.MoveNext())
-                                    {
-                                        ScrollList.Entry current = enumerator.Current;
-                                        if ((current.item as ItemToOffer).Response == "NAPact")
-                                            (current.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
-                                    }
-                                    continue;
+                                    if ((entry.item as ItemToOffer).Response == "NAPact")
+                                        (entry.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
                                 }
+                                continue;
                             case "Declare War":
                                 if ((e.item as ItemToOffer).Selected)
                                 {
@@ -1312,31 +1288,23 @@ namespace Ship_Game
                                     continue;
                                 }
                             case "Peace Treaty":
-                                this.TheirOffer.PeaceTreaty = !this.TheirOffer.PeaceTreaty;
-                                this.OurOffer.PeaceTreaty = this.TheirOffer.PeaceTreaty;
-                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
+                                TheirOffer.PeaceTreaty = !TheirOffer.PeaceTreaty;
+                                OurOffer.PeaceTreaty   = TheirOffer.PeaceTreaty;
+                                foreach (ScrollList.Entry entry in OurItemsSL.Copied)
                                 {
-                                    while (enumerator.MoveNext())
-                                    {
-                                        ScrollList.Entry current = enumerator.Current;
-                                        if ((current.item as ItemToOffer).Response == "Peace Treaty")
-                                            (current.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
-                                    }
-                                    continue;
+                                    if ((entry.item as ItemToOffer).Response == "Peace Treaty")
+                                        (entry.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
                                 }
+                                continue;
                             case "OfferAlliance":
-                                this.TheirOffer.Alliance = !this.TheirOffer.Alliance;
-                                this.OurOffer.Alliance = this.TheirOffer.Alliance;
-                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
+                                TheirOffer.Alliance = !TheirOffer.Alliance;
+                                OurOffer.Alliance   = TheirOffer.Alliance;
+                                foreach (ScrollList.Entry entry in OurItemsSL.Copied)
                                 {
-                                    while (enumerator.MoveNext())
-                                    {
-                                        ScrollList.Entry current = enumerator.Current;
-                                        if ((current.item as ItemToOffer).Response == "OfferAlliance")
-                                            (current.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
-                                    }
-                                    continue;
+                                    if ((entry.item as ItemToOffer).Response == "OfferAlliance")
+                                        (entry.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
                                 }
+                                continue;
                             case "Colony":
                                 if ((e.item as ItemToOffer).Selected)
                                 {
@@ -1374,18 +1342,14 @@ namespace Ship_Game
                                 this.TheirOffer.OpenBorders = !this.TheirOffer.OpenBorders;
                                 continue;
                             case "TradeTreaty":
-                                this.TheirOffer.TradeTreaty = !this.TheirOffer.TradeTreaty;
-                                this.OurOffer.TradeTreaty = this.TheirOffer.TradeTreaty;
-                                using (Array<ScrollList.Entry>.Enumerator enumerator = this.OurItemsSL.Copied.GetEnumerator())
+                                TheirOffer.TradeTreaty = !TheirOffer.TradeTreaty;
+                                OurOffer.TradeTreaty   = TheirOffer.TradeTreaty;
+                                foreach (ScrollList.Entry entry in OurItemsSL.Copied)
                                 {
-                                    while (enumerator.MoveNext())
-                                    {
-                                        ScrollList.Entry current = enumerator.Current;
-                                        if ((current.item as ItemToOffer).Response == "TradeTreaty")
-                                            (current.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
-                                    }
-                                    continue;
+                                    if ((entry.item as ItemToOffer).Response == "TradeTreaty")
+                                        (entry.item as ItemToOffer).Selected = (e.item as ItemToOffer).Selected;
                                 }
+                                continue;
                             default:
                                 continue;
                         }
@@ -1834,30 +1798,26 @@ namespace Ship_Game
                     this.dState = DiplomacyScreen.DialogState.Them;
                     break;
                 case "EmpireDiscuss":
-                    using (Array<StatementSet>.Enumerator enumerator = ResourceManager.DDDict["SharedDiplomacy"].StatementSets.GetEnumerator())
+                    foreach (StatementSet set in ResourceManager.DDDict["SharedDiplomacy"].StatementSets)
                     {
-                        while (enumerator.MoveNext())
+                        if (set.Name == "EmpireDiscuss")
                         {
-                            StatementSet current = enumerator.Current;
-                            if (current.Name == "EmpireDiscuss")
+                            this.StatementsSL.Reset();
+                            int n = 1;
+                            Vector2 Cursor = this.TextCursor;
+                            foreach (DialogOption dialogOption1 in set.DialogOptions)
                             {
-                                this.StatementsSL.Reset();
-                                int n = 1;
-                                Vector2 Cursor = this.TextCursor;
-                                foreach (DialogOption dialogOption1 in current.DialogOptions)
-                                {
-                                    DialogOption dialogOption2 = new DialogOption(n, dialogOption1.words, Cursor, Fonts.Consolas18);
-                                    dialogOption2.words = this.parseText(dialogOption1.words, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
-                                    this.StatementsSL.AddItem((object)dialogOption2);
-                                    dialogOption2.Response = dialogOption1.Response;
-                                    dialogOption2.Target = (object)this.empToDiscuss;
-                                    Cursor.Y += (float)(Fonts.Consolas18.LineSpacing + 5);
-                                    ++n;
-                                }
+                                DialogOption dialogOption2 = new DialogOption(n, dialogOption1.Words, Cursor, Fonts.Consolas18);
+                                dialogOption2.Words = this.parseText(dialogOption1.Words, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
+                                this.StatementsSL.AddItem((object)dialogOption2);
+                                dialogOption2.Response = dialogOption1.Response;
+                                dialogOption2.Target = (object)this.empToDiscuss;
+                                Cursor.Y += (float)(Fonts.Consolas18.LineSpacing + 5);
+                                ++n;
                             }
                         }
-                        break;
                     }
+                    break;
                 case "Hardcoded_EmpireChoose":
                     this.StatementsSL.Entries.Clear();
                     Vector2 Cursor1 = this.TextCursor;
@@ -1868,7 +1828,7 @@ namespace Ship_Game
                         {
                             DialogOption dialogOption = new DialogOption(n1, Localizer.Token(2220) + " " + keyValuePair.Key.data.Traits.Name, Cursor1, Fonts.Consolas18);
                             dialogOption.Target = (object)keyValuePair.Key;
-                            dialogOption.words = this.parseText(dialogOption.words, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
+                            dialogOption.Words = this.parseText(dialogOption.Words, (float)(this.DialogRect.Width - 20), Fonts.Consolas18);
                             dialogOption.Response = "EmpireDiscuss";
                             Cursor1.Y += (float)(Fonts.Consolas18.LineSpacing + 5);
                             this.StatementsSL.AddItem((object)dialogOption);

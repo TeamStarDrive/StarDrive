@@ -16,6 +16,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using Ship_Game.AI;
 
 
 namespace Ship_Game
@@ -992,154 +993,48 @@ namespace Ship_Game
                 int index = (int)RandomMath.RandomBetween(0.0f, (float)list.Count + 0.85f);
                 if (index >= list.Count)
                     index = list.Count - 1;
-                this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(list[index]));
+                AssignBuildingToRandomTile(ResourceManager.CreateBuilding(list[index]));
             }
-            switch (this.Type)
+
+            switch (Type)
             {
                 case "Terran":
-                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                        {
-                            RandomItem current = enumerator.Current;
-                            if ((GlobalStats.HardcoreRuleset || !current.HardCoreOnly) && (double)RandomMath.RandomBetween(0.0f, 100f) < (double)current.TerranChance)
-                            {
-                                int num3 = (int)RandomMath.RandomBetween(1f, current.TerranInstanceMax + 0.95f);
-                                for (int index = 0; index < num3; ++index)
-                                {
-                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
-                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
-                                }
-                            }
-                        }
-                        break;
-                    }
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.TerranChance, item.TerranInstanceMax);
+                    break;
                 case "Steppe":
-                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                        {
-                            RandomItem current = enumerator.Current;
-                            if ((GlobalStats.HardcoreRuleset || !current.HardCoreOnly) && (double)RandomMath.RandomBetween(0.0f, 100f) < (double)current.SteppeChance)
-                            {
-                                int num3 = (int)RandomMath.RandomBetween(1f, current.SteppeInstanceMax + 0.95f);
-                                for (int index = 0; index < num3; ++index)
-                                {
-                                    if(ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
-                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
-                                }
-                            }
-                        }
-                        break;
-                    }
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.SteppeChance, item.SteppeInstanceMax);
+                    break;
                 case "Ice":
-                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                        {
-                            RandomItem current = enumerator.Current;
-                            if ((GlobalStats.HardcoreRuleset || !current.HardCoreOnly) && (double)RandomMath.RandomBetween(0.0f, 100f) < (double)current.IceChance)
-                            {
-                                int num3 = (int)RandomMath.RandomBetween(1f, current.IceInstanceMax + 0.95f);
-                                for (int index = 0; index < num3; ++index)
-                                {
-                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
-                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
-                                }
-                            }
-                        }
-                        break;
-                    }
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.IceChance, item.IceInstanceMax);
+                    break;
                 case "Barren":
-                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                        {
-                            RandomItem current = enumerator.Current;
-                            if ((GlobalStats.HardcoreRuleset || !current.HardCoreOnly) && (double)RandomMath.RandomBetween(0.0f, 100f) < (double)current.BarrenChance)
-                            {
-                                int num3 = (int)RandomMath.RandomBetween(1f, current.BarrenInstanceMax + 0.95f);
-                                for (int index = 0; index < num3; ++index)
-                                {
-                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
-                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
-                                }
-                            }
-                        }
-                        break;
-                    }
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.BarrenChance, item.BarrenInstanceMax);
+                    break;
                 case "Tundra":
-                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                        {
-                            RandomItem current = enumerator.Current;
-                            if ((GlobalStats.HardcoreRuleset || !current.HardCoreOnly) && (double)RandomMath.RandomBetween(0.0f, 100f) < (double)current.TundraChance)
-                            {
-                                int num3 = (int)RandomMath.RandomBetween(1f, current.TundraInstanceMax + 0.95f);
-                                for (int index = 0; index < num3; ++index)
-                                {
-                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
-                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
-                                }
-                            }
-                        }
-                        break;
-                    }
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.TundraChance, item.TundraInstanceMax);
+                    break;
                 case "Desert":
-                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                        {
-                            RandomItem current = enumerator.Current;
-                            if ((GlobalStats.HardcoreRuleset || !current.HardCoreOnly) && (double)RandomMath.RandomBetween(0.0f, 100f) < (double)current.DesertChance)
-                            {
-                                int num3 = (int)RandomMath.RandomBetween(1f, current.DesertInstanceMax + 0.95f);
-                                for (int index = 0; index < num3; ++index)
-                                {
-                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
-                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
-                                }
-                            }
-                        }
-                        break;
-                    }
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.DesertChance, item.DesertInstanceMax);
+                    break;
                 case "Oceanic":
-                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                        {
-                            RandomItem current = enumerator.Current;
-                            if ((GlobalStats.HardcoreRuleset || !current.HardCoreOnly) && (double)RandomMath.RandomBetween(0.0f, 100f) < (double)current.OceanicChance)
-                            {
-                                int num3 = (int)RandomMath.RandomBetween(1f, current.OceanicInstanceMax + 0.95f);
-                                for (int index = 0; index < num3; ++index)
-                                {
-                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
-                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
-                                }
-                            }
-                        }
-                        break;
-                    }
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.OceanicChance, item.OceanicInstanceMax);
+                    break;
                 case "Swamp":
-                    using (Array<RandomItem>.Enumerator enumerator = ResourceManager.RandomItemsList.GetEnumerator())
-                    {
-                        while (enumerator.MoveNext())
-                        {
-                            RandomItem current = enumerator.Current;
-                            if ((GlobalStats.HardcoreRuleset || !current.HardCoreOnly) && (double)RandomMath.RandomBetween(0.0f, 100f) < (double)current.SwampChance)
-                            {
-                                int num3 = (int)RandomMath.RandomBetween(1f, current.SwampInstanceMax + 0.95f);
-                                for (int index = 0; index < num3; ++index)
-                                {
-                                    if (ResourceManager.BuildingsDict.ContainsKey(current.BuildingID))
-                                        this.AssignBuildingToRandomTile(ResourceManager.GetBuilding(current.BuildingID)).Habitable = true;
-                                }
-                            }
-                        }
-                        break;
-                    }
+                    foreach (RandomItem item in ResourceManager.RandomItemsList) SpawnRandomItem(item, item.SwampChance, item.SwampInstanceMax);
+                    break;
+            }
+        }
+
+        public void SpawnRandomItem(RandomItem randItem, float chance, float instanceMax)
+        {
+            if ((GlobalStats.HardcoreRuleset || !randItem.HardCoreOnly) && RandomMath.RandomBetween(0.0f, 100f) < randItem.SwampChance)
+            {
+                int spawnCount = (int)RandomMath.RandomBetween(1f, randItem.SwampInstanceMax + 0.95f);
+                for (int i = 0; i < spawnCount; ++i)
+                {
+                    if (ResourceManager.BuildingsDict.ContainsKey(randItem.BuildingID))
+                        AssignBuildingToRandomTile(ResourceManager.CreateBuilding(randItem.BuildingID)).Habitable = true;
+                }
             }
         }
 
@@ -3427,13 +3322,13 @@ namespace Ship_Game
                 }
                 if (!flag)
                     return;
-                this.AddBuildingToCQ(ResourceManager.GetBuilding(terraformer.Name),false);
+                this.AddBuildingToCQ(ResourceManager.CreateBuilding(terraformer.Name),false);
             }
             else
             {
                 if (!this.Owner.GetBDict()["Biospheres"])
                     return;
-                this.TryBiosphereBuild(ResourceManager.GetBuilding("Biospheres"), qi);
+                this.TryBiosphereBuild(ResourceManager.CreateBuilding("Biospheres"), qi);
             }
         }
 
@@ -4102,7 +3997,7 @@ namespace Ship_Game
                         }
                     }
                     if (!flag2)
-                        this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"),false);
+                        this.AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"),false);
                 }
                 bool flag3 = false;
                 foreach (Building building1 in this.BuildingsCanBuild)
@@ -4372,7 +4267,7 @@ namespace Ship_Game
                                     }
                                 }
                                 if (!flag1)
-                                    this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"),false);
+                                    this.AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"),false);
                             }
                             if (num5 < 2)
                             {
@@ -4590,7 +4485,7 @@ namespace Ship_Game
                                 }
                             }
                             if (!flag1)
-                                this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
+                                this.AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
                         }
 
                         bool flag8 = false;
@@ -4851,7 +4746,7 @@ namespace Ship_Game
                                 }
                             }
                             if (!flag1)
-                                this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
+                                this.AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
                         }
                         if (num8 < 2.0)
                         {
@@ -5031,7 +4926,7 @@ namespace Ship_Game
                                 }
                             }
                             if (!flag1)
-                                this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
+                                this.AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
                         }
                         if ( num9 < 2 )
                         {
@@ -5179,7 +5074,7 @@ namespace Ship_Game
                                 }
                             }
                             if (!hasOutpost)
-                                this.AddBuildingToCQ(ResourceManager.GetBuilding("Outpost"));
+                                this.AddBuildingToCQ(ResourceManager.CreateBuilding("Outpost"));
                         }
                         if (this.Owner != EmpireManager.Player
                             && this.Shipyards.Where(ship => ship.Value.GetShipData().IsShipyard).Count() == 0
@@ -5794,11 +5689,11 @@ output = maxp * take10 = 5
 
                 if (queueItem.isBuilding &&  queueItem.productionTowards >= queueItem.Cost)
                 {
-                    Building building = ResourceManager.GetBuilding(queueItem.Building.Name);
+                    Building building = ResourceManager.CreateBuilding(queueItem.Building.Name);
                     if(queueItem.IsPlayerAdded)
                     building.IsPlayerAdded = queueItem.IsPlayerAdded;
                     this.BuildingList.Add(building);
-                    this.Fertility -= ResourceManager.GetBuilding(queueItem.Building.Name).MinusFertilityOnBuild;
+                    this.Fertility -= ResourceManager.CreateBuilding(queueItem.Building.Name).MinusFertilityOnBuild;
                     if (this.Fertility < 0.0)
                         this.Fertility = 0.0f;
                     if (queueItem.pgs != null)

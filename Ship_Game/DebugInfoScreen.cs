@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -77,7 +78,7 @@ namespace Ship_Game
                             foreach (AO ao in empire.GetGSAI().AreasOfOperations)
                             {
                                 if (ao.GetOffensiveForcePool().Contains(ship))
-                                    if (ship.shipData.Role != ShipData.RoleName.troop && ship.BaseStrength > 0)
+                                    if (ship?.shipData.Role != ShipData.RoleName.troop && ship?.BaseStrength > 0)
 
                                         flag = true;
                             }
