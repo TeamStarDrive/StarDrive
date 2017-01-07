@@ -65,17 +65,17 @@ namespace Ship_Game
 			Starfield.movementFactors = new float[] { 0.1f, 0.07f, 7E-05f, 0.0006f, 0.001f, 0.014f, 0.002f, 0.0001f };
 		}
 
-		public Starfield(Vector2 position, GraphicsDevice graphicsDevice, ContentManager contentManager, int numstars)
+		public Starfield(Vector2 position, GraphicsDevice graphicsDevice, GameContentManager contentManager, int numstars)
 		{
-			this.numberOfStars = numstars;
-			this.stars = new Starfield.Star[this.numberOfStars];
-			this.Reset(position);
+			numberOfStars = numstars;
+			stars = new Star[numberOfStars];
+			Reset(position);
 		}
 
-		public Starfield(Vector2 position, GraphicsDevice graphicsDevice, ContentManager contentManager)
+		public Starfield(Vector2 position, GraphicsDevice graphicsDevice, GameContentManager contentManager)
 		{
-			this.stars = new Starfield.Star[this.numberOfStars];
-			this.Reset(position);
+			stars = new Star[numberOfStars];
+			Reset(position);
 		}
 
 		public void Dispose()
@@ -395,7 +395,7 @@ namespace Ship_Game
 		public void LoadContent()
 		{
 			this.cloudTexture = ResourceManager.TextureDict["clouds"];
-			this.cloudEffect = Ship.universeScreen.ScreenManager.Content.Load<Effect>("Effects/Clouds");
+			this.cloudEffect = Empire.Universe.TransientContent.Load<Effect>("Effects/Clouds");
 			this.cloudEffectPosition = this.cloudEffect.Parameters["Position"];
 			int width = Ship.universeScreen.ScreenManager.GraphicsDevice.Viewport.Width;
 			Viewport viewport = Ship.universeScreen.ScreenManager.GraphicsDevice.Viewport;

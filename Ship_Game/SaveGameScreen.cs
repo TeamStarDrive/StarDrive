@@ -14,7 +14,8 @@ namespace Ship_Game
 	{
         private UniverseScreen screen;
 
-        public SaveGameScreen(UniverseScreen screen) : base(SLMode.Save, string.Concat(screen.PlayerLoyalty, ", Star Date ", screen.StarDate.ToString(screen.StarDateFmt)), "Save Game", "Saved Games", "Saved Game already exists.  Overwrite?")
+        public SaveGameScreen(UniverseScreen screen) 
+            : base(screen, SLMode.Save, screen.PlayerLoyalty + ", Star Date " + screen.StarDate.ToString(screen.StarDateFmt), "Save Game", "Saved Games", "Saved Game already exists.  Overwrite?")
 		{
 			this.screen = screen;
             this.Path = string.Concat(Dir.ApplicationData, "/StarDrive/Saved Games/");

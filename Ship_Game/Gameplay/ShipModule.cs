@@ -2026,7 +2026,7 @@ namespace Ship_Game.Gameplay
         }
 
 
-		public void LoadContent(ContentManager contentManager)
+		public void LoadContent(GameContentManager contentManager)
 		{
 		}
 

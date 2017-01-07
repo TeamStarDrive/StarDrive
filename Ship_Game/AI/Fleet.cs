@@ -50,8 +50,7 @@ namespace Ship_Game.AI
         public Vector2 StoredFleetPosition;
         [XmlIgnore]
         public float StoredFleetDistancetoMove;
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
+
         public bool HasRepair;  //fbedard: ships in fleet with repair capability will not return for repair.
 
         //This file refactored by Gretman
@@ -2291,8 +2290,6 @@ namespace Ship_Game.AI
             public BatchRemovalCollection<Ship> Ships = new BatchRemovalCollection<Ship>();
             public Fleet Fleet;
             public Vector2 Offset;
-            //adding for thread safe Dispose because class uses unmanaged resources 
-            private bool disposed;
 
             public Fleet.FleetCombatStatus FleetCombatStatus;
 
@@ -2305,20 +2302,8 @@ namespace Ship_Game.AI
 
             private void Dispose(bool disposing)
             {
-                if (!disposed)
-                {
-                    if (disposing)
-                    {
-                        if (this.DataNodes != null)
-                            this.DataNodes.Dispose();
-                        if (this.Ships != null)
-                            this.Ships.Dispose();
-
-                    }
-                    this.DataNodes = null;
-                    this.Ships = null;
-                    this.disposed = true;
-                }
+                DataNodes?.Dispose(ref DataNodes);
+                Ships?.Dispose(ref Ships);
             }
         }
 
@@ -2399,21 +2384,8 @@ namespace Ship_Game.AI
 
         protected override void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.DataNodes != null)
-                        this.DataNodes.Dispose();
-                    if (this.Ships != null)
-                        this.Ships.Dispose();
-
-                }
-                this.DataNodes = null;
-                this.disposed = true;                
-                base.Dispose(disposing);
-                
-            }
+            DataNodes?.Dispose(ref DataNodes);
+            base.Dispose(disposing);
         }
     }
 }

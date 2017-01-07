@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public sealed class PlanetListScreen : GameScreen, IDisposable
+	public sealed class PlanetListScreen : GameScreen
 	{
 		//private bool LowRes;
 
@@ -63,18 +63,15 @@ namespace Ship_Game
 
 		private Rectangle AutoButton;
 
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
 		//private bool AutoButtonHover;
 
-		public PlanetListScreen(Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
+		public PlanetListScreen(GameScreen parent, EmpireUIOverlay empUI)
+            : base(parent)
 		{
 			this.empUI = empUI;
 			base.TransitionOnTime = TimeSpan.FromSeconds(0.25);
 			base.TransitionOffTime = TimeSpan.FromSeconds(0.25);
 			base.IsPopup = true;
-			base.ScreenManager = ScreenManager;
 			if (base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
 			{
 				//this.LowRes = true;
@@ -127,29 +124,13 @@ namespace Ship_Game
             
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            PlanetSL?.Dispose(ref PlanetSL);
+            base.Dispose(disposing);
         }
 
-        ~PlanetListScreen() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.PlanetSL != null)
-                        this.PlanetSL.Dispose();
-                }
-                this.PlanetSL = null;
-                this.disposed = true;
-            }
-        }
-
-		public override void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
 		{
 			base.ScreenManager.FadeBackBufferToBlack(base.TransitionAlpha * 2 / 3);
 			base.ScreenManager.SpriteBatch.Begin();
@@ -526,10 +507,10 @@ namespace Ship_Game
                     {
                         this.ExitScreen();
                         AudioManager.PlayCue("sd_ui_accept_alt3");
-                        this.empUI.screen.SelectedPlanet = entry.planet;
-                        this.empUI.screen.ViewingShip = false;
-                        this.empUI.screen.returnToShip = false;
-                        this.empUI.screen.transitionDestination = new Vector3(entry.planet.Position.X, entry.planet.Position.Y, 10000f);
+                        Empire.Universe.SelectedPlanet = entry.planet;
+                        Empire.Universe.ViewingShip = false;
+                        Empire.Universe.returnToShip = false;
+                        Empire.Universe.transitionDestination = new Vector3(entry.planet.Position.X, entry.planet.Position.Y, 10000f);
                     }
 				}
 			}

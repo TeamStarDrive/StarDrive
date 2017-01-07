@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Ship_Game
 {
-	public sealed class ResearchPopup : PopupWindow, IDisposable
+	public sealed class ResearchPopup : PopupWindow
 	{
 		public bool fade = true;
 
@@ -19,11 +19,8 @@ namespace Ship_Game
 		private ScrollList UnlockSL;
 
 		private Rectangle UnlocksRect;
-
-        //adding for thread safe Dispose because class uses unmanaged resources 
-        private bool disposed;
-
-		public ResearchPopup(UniverseScreen s, Rectangle dimensions, string uid)
+        
+		public ResearchPopup(UniverseScreen s, Rectangle dimensions, string uid) : base(s)
 		{
 			if (!GlobalStats.IsEnglish)
 			{
@@ -239,27 +236,10 @@ namespace Ship_Game
 			}
 		}
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            UnlockSL?.Dispose(ref UnlockSL);
+            base.Dispose(disposing);
         }
-
-        ~ResearchPopup() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (this.UnlockSL != null)
-                        this.UnlockSL.Dispose();
-
-                }
-                this.UnlockSL = null;
-                this.disposed = true;
-            }
-        }
-	}
+    }
 }

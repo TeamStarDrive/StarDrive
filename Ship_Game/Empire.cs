@@ -105,9 +105,6 @@ namespace Ship_Game
         public float freighterBudget;
         public bool RecalculateMaxHP;       //Added by Gretman, since the +ModHpModifier stuff wasn't retroactive.
         public float cargoNeed = 0;
-        //[XmlIgnore][ScriptIgnore]
-        //private Map<string, bool> UnlockAbleDesigns = new Map<string, bool>
-        //adding for thread safe Dispose because class uses unmanaged resources 
 
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
@@ -1290,7 +1287,7 @@ namespace Ship_Game
             {
                 if (Universe.PlayerEmpire == this && !e.isFaction && !e.MinorRace)
                 {
-                    Universe.ScreenManager.AddScreen(new DiplomacyScreen(e, Universe.PlayerEmpire, "First Contact"));
+                    Universe.ScreenManager.AddScreen(new DiplomacyScreen(Universe, e, Universe.PlayerEmpire, "First Contact"));
                 }
                 else
                 {
@@ -2126,7 +2123,7 @@ namespace Ship_Game
                     }
                     Universe.Paused = true;
                     HelperFunctions.CollectMemory();
-                    Universe.ScreenManager.AddScreen(new YouLoseScreen());
+                    Universe.ScreenManager.AddScreen(new YouLoseScreen(Empire.Universe));
                     Universe.Paused = false;
                     return;
                 }
@@ -2252,7 +2249,7 @@ namespace Ship_Game
                 }
                 if (allEmpiresDead)
                 {
-                    Universe.ScreenManager.AddScreen((GameScreen)new YouWinScreen());
+                    Universe.ScreenManager.AddScreen(new YouWinScreen(Empire.Universe));
                     return;
                 }
                 else
@@ -2263,7 +2260,7 @@ namespace Ship_Game
                             StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                         if (planet.HasWinBuilding)
                         {
-                            Universe.ScreenManager.AddScreen((GameScreen)new YouWinScreen(Localizer.Token(5085)));
+                            Universe.ScreenManager.AddScreen(new YouWinScreen(Empire.Universe, Localizer.Token(5085)));
                             return;
                         }
                     }
@@ -3150,8 +3147,8 @@ namespace Ship_Game
             OwnedShips?.Dispose(ref OwnedShips);
             DefensiveFleet?.Dispose(ref DefensiveFleet);
             GSAI?.Dispose(ref GSAI);
-            data.AgentList?.Dispose(ref data.AgentList);
-            data.MoleList?.Dispose(ref data.MoleList);
+            data.AgentList = new BatchRemovalCollection<Agent>();
+            data.MoleList = new BatchRemovalCollection<Mole>();
             LockPatchCache?.Dispose(ref LockPatchCache);
             OwnedPlanets?.Dispose(ref OwnedPlanets);
             OwnedProjectors?.Dispose(ref OwnedProjectors);
