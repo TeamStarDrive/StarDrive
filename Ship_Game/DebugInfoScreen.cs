@@ -419,7 +419,7 @@ namespace Ship_Game
 				this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("AI State: ", ship.GetAI().State.ToString()), Cursor, Color.White);
 				Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
                
-                if (ship.GetAI().OrderQueue.Count <= 0)
+                if (ship.GetAI().OrderQueue.IsEmpty)
 				{
 					Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Nothing in the Order queue", Cursor, Color.White);

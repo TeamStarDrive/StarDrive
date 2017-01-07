@@ -2743,7 +2743,7 @@ namespace Ship_Game
                 if (ship.GetAI().State != AIState.AwaitingOrders && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader)
                     continue;
                     
-                if ((ship.GetAI().start == null || ship.GetAI().end == null) ||  ship.GetAI().OrderQueue.Count ==0) // && //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
+                if ((ship.GetAI().start == null || ship.GetAI().end == null) ||  ship.GetAI().OrderQueue.IsEmpty) // && //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
                 {
                     // if ()  //fbedard: dont scrap loaded ship
                     if (ship.TradeTimer != 0 && ship.TradeTimer < 1)
@@ -3153,7 +3153,6 @@ namespace Ship_Game
             OwnedPlanets?.Dispose(ref OwnedPlanets);
             OwnedProjectors?.Dispose(ref OwnedProjectors);
             OwnedSolarSystems?.Dispose(ref OwnedSolarSystems);
-
         }
     }
 }

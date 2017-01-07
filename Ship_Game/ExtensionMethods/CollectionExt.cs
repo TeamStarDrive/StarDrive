@@ -144,7 +144,7 @@ namespace Ship_Game
         {
             var items = new T[source.Count];
             int i = 0;
-            foreach (var item in source)
+            foreach (T item in source)
                 items[i++] = item;
             return items;
         }
@@ -153,7 +153,7 @@ namespace Ship_Game
         {
             var items = new Array<T>(source.Count);
             int i = 0;
-            foreach (var item in source)
+            foreach (T item in source)
                 items[i++] = item;
             return items;
         }
