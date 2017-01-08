@@ -43,28 +43,28 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        protected override void SetSavesSL()        // Set list of files to show
+        protected override void SetSavesSL() // Set list of files to show
         {
             var saves = new Array<FileData>();
             foreach (FileInfo fileInfo in Dir.GetFiles(Path))
             {
                 try
                 {
-                    SetupSave data = fileInfo.Deserialize<SetupSave>();
-                    if (string.IsNullOrEmpty(data.Name) || data.Version < 308)
+                    var save = fileInfo.Deserialize<SetupSave>();
+                    if (string.IsNullOrEmpty(save.Name) || save.Version < 308)
                         continue;
 
-                    if (GlobalStats.ActiveMod != null)
+                    if (GlobalStats.HasMod)
                     {
-                        if (data.ModPath != GlobalStats.ActiveMod.ModPath)
+                        if (save.ModPath != GlobalStats.ActiveMod.ModName)
                             continue;
                     }
-                    else if (!string.IsNullOrEmpty(data.ModPath))
+                    else if (!string.IsNullOrEmpty(save.ModPath))
                         continue;
 
-                    string info = data.Date;
-                    string extraInfo = data.ModName != "" ? "Mod: "+data.ModName : "Default";
-                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo));
+                    string info = save.Date;
+                    string extraInfo = save.ModName != "" ? "Mod: "+save.ModName : "Default";
+                    saves.Add(new FileData(fileInfo, save, save.Name, info, extraInfo));
                 }
                 catch
                 {
