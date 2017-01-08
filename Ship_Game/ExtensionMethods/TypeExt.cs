@@ -39,12 +39,5 @@ namespace Ship_Game
             obj.Dispose();
             self = null;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Dispose<T>(ref T self) where T : class, IDisposable
-        {
-            self.Dispose();
-            self = null;
-        }
     }
 }

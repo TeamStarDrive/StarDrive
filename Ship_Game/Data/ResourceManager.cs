@@ -298,13 +298,21 @@ namespace Ship_Game
         }
 
         // This first tries to deserialize from Mod folder and then from Content folder
-        private static T DeserializeModOrVanilla<T>(string file, string where, out T entity, bool reportError=true) where T : class
+        // The entity value is assigned only if this functions succeeds
+        private static bool DeserializeIfModOrVanillaExists<T>(string file, ref T entity) where T : class
         {
-            entity = null;
-            if (GlobalStats.HasMod && DeserializeIfExists(GlobalStats.ModPath, file, ref entity) || 
-                DeserializeIfExists("Content/", file, ref entity))
+            return GlobalStats.HasMod 
+                && DeserializeIfExists(GlobalStats.ModPath, file, ref entity)
+                || DeserializeIfExists("Content/", file, ref entity);
+        }
+
+        // This first tries to deserialize from Mod folder and then from Content folder
+        private static T DeserializeModOrVanilla<T>(string file, string where, ref T entity) where T : class
+        {
+            if (DeserializeIfModOrVanillaExists(file, ref entity))
                 return entity;
-            if (reportError) ReportLoadingError(file, @where); // this throws only if !IgnoreLoadingErrors
+            entity = null;
+            ReportLoadingError(file, @where); // this throws only if !IgnoreLoadingErrors
             return null;
         }
 
@@ -345,6 +353,7 @@ namespace Ship_Game
             return Dir.GetFiles("Content/" + dir, ext);
         }
 
+        // Loads a list of entities in a folder
         public static Array<T> LoadEntitiesModOrVanilla<T>(string dir, string where) where T : class
         {
             var result = new Array<T>();
@@ -727,7 +736,7 @@ namespace Ship_Game
         public static RacialTraits RaceTraits => RacialTraits ?? LoadRaceTraits();
         private static RacialTraits LoadRaceTraits()
         {
-            return DeserializeModOrVanilla("RacialTraits/RacialTraits.xml", "GetRaceTraits", out RacialTraits);
+            return DeserializeModOrVanilla("RacialTraits/RacialTraits.xml", "GetRaceTraits", ref RacialTraits);
         }
 
 
@@ -735,14 +744,14 @@ namespace Ship_Game
         public static DiplomaticTraits DiplomaticTraits => DiplomacyTraits ?? LoadDiplomaticTraits();
         private static DiplomaticTraits LoadDiplomaticTraits()
         {
-            return DeserializeModOrVanilla("Diplomacy/DiplomaticTraits.xml", "LoadDiplomaticTraits", out DiplomacyTraits);
+            return DeserializeModOrVanilla("Diplomacy/DiplomaticTraits.xml", "LoadDiplomaticTraits", ref DiplomacyTraits);
         }
 
         // Added by RedFox
         public static SolarSystemData LoadSolarSystemData(string homeSystemName)
         {
-            return DeserializeModOrVanilla("SolarSystems/" + homeSystemName + ".xml", 
-                                           "LoadSolarSystemData", out SolarSystemData data, reportError:false);
+            SolarSystemData solar = null;
+            return DeserializeModOrVanilla("SolarSystems/" + homeSystemName + ".xml", "LoadSolarSystemData", ref solar);
         }
         public static Array<SolarSystemData> LoadRandomSolarSystems()
         {
@@ -776,9 +785,10 @@ namespace Ship_Game
         // advice is temporary and only sticks around while loading
         public static string LoadRandomAdvice()
         {
-            string adviceFile = "Advice/"+GlobalStats.Language+"/Advice.xml";
+            string adviceFile = "Advice/" + GlobalStats.Language + "/Advice.xml";
 
-            DeserializeModOrVanilla(adviceFile, "RandomAdvice", out Array<string> adviceList, reportError: false);
+            Array<string> adviceList = null;
+            DeserializeIfModOrVanillaExists(adviceFile, ref adviceList);
             return adviceList?[RandomMath.InRange(adviceList.Count)] ?? "Advice.xml missing";
         }
 
@@ -1522,12 +1532,10 @@ namespace Ship_Game
                 GlobalStats.ActiveModInfo.useHullBonuses = HullBonuses.Count != 0;
             }
 
-            DeserializeModOrVanilla("HostileFleets/HostileFleets.xml",    "HostileFleets",    out HostileFleets,    reportError: false);
-            DeserializeModOrVanilla("ShipNames/ShipNames.xml",            "ShipNames",        out ShipNames,        reportError: false);
-            DeserializeModOrVanilla("MainMenu/MainMenuShipList.xml",      "MainMenuShipList", out MainMenuShipList, reportError: false);
-            DeserializeModOrVanilla("AgentMissions/AgentMissionData.xml", "AgentMissionData", out AgentMissionData missionData, reportError: false);
-            if (missionData != null)
-                AgentMissionData = missionData;
+            DeserializeIfModOrVanillaExists("HostileFleets/HostileFleets.xml",    ref HostileFleets);
+            DeserializeIfModOrVanillaExists("ShipNames/ShipNames.xml",            ref ShipNames);
+            DeserializeIfModOrVanillaExists("MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
+            DeserializeIfModOrVanillaExists("AgentMissions/AgentMissionData.xml", ref AgentMissionData);
 
             foreach (FileInfo info in GatherFilesUnified("SoundEffects", "xnb"))
             {
@@ -1547,8 +1555,6 @@ namespace Ship_Game
             TechTree.Clear();
             ArtifactsDict.Clear();
             ShipsDict.Clear();
-            HostileFleets = new HostileFleets();
-            ShipNames = new ShipNames();
             SoundEffectDict.Clear();
             TextureDict.Clear();
             ToolTips.Clear();
@@ -1558,6 +1564,11 @@ namespace Ship_Game
             RandomItemsList.Clear();
             ProjectileMeshDict.Clear();
             ProjTextDict.Clear();
+
+            HostileFleets.Fleets.Clear();
+            ShipNames.EmpireEntries.Clear();
+            MainMenuShipList.ModelPaths.Clear();
+            AgentMissionData = new AgentMissionData();
 
             // @todo Make this work properly:
             // Game1.GameContent.Unload();

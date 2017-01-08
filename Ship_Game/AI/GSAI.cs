@@ -7306,17 +7306,12 @@ namespace Ship_Game.AI
                             using (empire.GetShips().AcquireReadLock())                               
                             foreach (Ship ship in this.empire.GetShips())
                             {
-                                ship.GetAI().OrderQueue.thisLock.EnterReadLock();
-                                bool flag = false;
-                                ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.LastOrDefault();
+                                ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.PeekLast;
                                 
-                                if (goal == null || goal.goal == null || goal.goal.type != GoalType.DeepSpaceConstruction || goal.goal.BuildPosition != node.Position)
+                                if (goal?.goal == null || goal.goal.type != GoalType.DeepSpaceConstruction || goal.goal.BuildPosition != node.Position)
                                 {
-                                    flag = true;
-                                }
-                                ship.GetAI().OrderQueue.thisLock.ExitReadLock();
-                                if (flag)
                                     continue;
+                                }
                                 ship.GetAI().OrderScrapShip();
                                 
                                 break;
