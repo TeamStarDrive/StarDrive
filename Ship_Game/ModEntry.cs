@@ -5,7 +5,7 @@ namespace Ship_Game
 {
 	public sealed class ModEntry
 	{
-		public string ModPath;
+		public string ModName;
 		public Rectangle Container;
 		public Rectangle Portrait;
 		public ModInformation mi;
@@ -16,7 +16,7 @@ namespace Ship_Game
 
         public ModEntry(ModInformation modInfo)
 		{
-			ModPath       = modInfo.ModName;
+			ModName       = modInfo.ModName;
 			mi            = modInfo;
 			MainMenuMusic = mi.CustomMenuMusic;
             Version       = mi.Version;
@@ -51,7 +51,7 @@ namespace Ship_Game
             screenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HelperFunctions.ParseText(Fonts.Arial12Bold, description, 450f), titlePos, Color.White);
 
             if (PortraitTex == null)
-                PortraitTex = ResourceManager.LoadModTexture(ModPath, mi.PortraitPath);
+                PortraitTex = ResourceManager.LoadModTexture(ModName, mi.PortraitPath);
             if (PortraitTex != null)
                 screenManager.SpriteBatch.Draw(PortraitTex, Portrait, Color.White);
 
@@ -61,7 +61,7 @@ namespace Ship_Game
         public void DrawMainMenuOverlay(ScreenManager screenManager, Rectangle portrait)
         {
             if (MainMenuTex == null)
-                MainMenuTex = ResourceManager.LoadModTexture(ModPath, mi.ModImagePath_1920x1280);
+                MainMenuTex = ResourceManager.LoadModTexture(ModName, mi.ModImagePath_1920x1280);
             if (MainMenuTex != null)
                 screenManager.SpriteBatch.Draw(MainMenuTex, portrait, Color.White);
         }

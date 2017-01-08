@@ -81,8 +81,8 @@ namespace Ship_Game
                     if (GlobalStats.ActiveMod != null)
                     {
                         // check mod and check version of save file since format changed
-                        if (data.Version  > 0 && data.ModPath != GlobalStats.ActiveMod.ModPath || 
-                            data.Version == 0 && data.ModName != GlobalStats.ActiveMod.ModPath)   
+                        if (data.Version  > 0 && data.ModPath != GlobalStats.ActiveMod.ModName || 
+                            data.Version == 0 && data.ModName != GlobalStats.ActiveMod.ModName)   
                             continue;
                     }
                     else if (data.Version  > 0 && !string.IsNullOrEmpty(data.ModPath) || 

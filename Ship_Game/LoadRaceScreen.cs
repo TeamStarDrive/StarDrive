@@ -47,7 +47,7 @@ namespace Ship_Game
 
                     if (GlobalStats.ActiveMod != null)
                     {
-                        if (data.ModPath != GlobalStats.ActiveMod.ModPath)
+                        if (data.ModPath != GlobalStats.ActiveMod.ModName)
                             continue;
                     }
                     else if (!string.IsNullOrEmpty(data.ModPath))

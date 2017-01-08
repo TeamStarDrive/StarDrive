@@ -94,32 +94,10 @@ namespace Ship_Game
             string text = "Warning: " + warning;
             LogFile.WriteLine(text);
 
-            // @todo Should we turn on logging for warnings?
-            //Raven.Capture(new SentryEvent(text)
-            //{
-            //    Level = ErrorLevel.Warning
-            //});
-
             if (!HasDebugger)
                 return;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(text);
-        }
-        //@todo change this to read the added data from the exception. So the logic isnt repeated
-        private static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
-        {
-            var evt = new SentryEvent(ex)
-            {
-                Message = text,
-                Level   = level                
-            };           
-            if (GlobalStats.HasMod)
-            {
-                evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModPath;
-                evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
-            }
-            else evt.Tags["Mod"] = "Vanilla";                                    
-            Raven.CaptureAsync(evt);                         
         }
 
         // write an error to logfile, sentry.io and debug console
@@ -150,9 +128,9 @@ namespace Ship_Game
         {
             Error(ex, string.Format(format, args));
         }
-        public static void Error(Exception ex, string error)
+        public static void Error(Exception ex, string error = null)
         {
-            string text = CurryExceptionMessage(ex);
+            string text = CurryExceptionMessage(ex, error);
             LogFile.WriteLine(text);
             
             if (!HasDebugger) // only log errors to sentry if debugger not attached
@@ -166,16 +144,33 @@ namespace Ship_Game
             Debugger.Break();
         }
 
-        public static string CurryExceptionMessage(Exception ex)
+
+        private static void CaptureEvent(string text, ErrorLevel level, Exception ex = null)
         {
-            if (ex.Data.Count == 0)
+            var evt = new SentryEvent(ex)
             {
-                var evt = ex.Data;
+                Message = text,
+                Level = level
+            };
+            if (GlobalStats.HasMod)
+            {
+                evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModName;
+                evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
+            }
+            Raven.CaptureAsync(evt);
+        }
+
+
+        public static string CurryExceptionMessage(Exception ex, string moreInfo = null)
+        {
+            IDictionary evt = ex.Data;
+            if (evt.Count == 0)
+            {
                 evt["Version"] = GlobalStats.ExtendedVersion;
                 if (GlobalStats.HasMod)
                 {
-                    evt["Mod"]        = GlobalStats.ActiveMod?.ModPath ?? "NULL";
-                    evt["ModVersion"] = GlobalStats.ActiveModInfo?.Version ?? "NULL";
+                    evt["Mod"]        = GlobalStats.ActiveMod.ModName;
+                    evt["ModVersion"] = GlobalStats.ActiveModInfo.Version;
                 }
                 else evt["Mod"] = "Vanilla";
 
@@ -184,20 +179,17 @@ namespace Ship_Game
                 evt["Planets"]   = Empire.Universe?.PlanetsDict?.Count.ToString() ?? "NULL";
 
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
+                evt["XnaMemory"] = Game1.Instance != null ? (Game1.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
                 evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
                 evt["Commit"]    = "https://bitbucket.org/CrunchyGremlin/sd-blackbox/commits/" + GlobalStats.Commit;
             }
-            return ExceptionMessage(ex);
-        }
-
-        private static string ExceptionMessage(Exception ex)
-        {
             var sb = new StringBuilder("!! Exception: ");
             sb.Append(ex.Message);
+            if (moreInfo.NotEmpty()) sb.Append(" | ").Append(moreInfo);
 
-            if (ex.Data.Count != 0)
+            if (evt.Count != 0)
             {
-                foreach (DictionaryEntry pair in ex.Data)
+                foreach (DictionaryEntry pair in evt)
                     sb.Append('\n').Append(pair.Key).Append(" = ").Append(pair.Value);
             }
             return sb.ToString();
@@ -206,12 +198,12 @@ namespace Ship_Game
         public static string CleanStackTrace(Exception ex)
         {
             var sb = new StringBuilder("StackTrace:\r\n");
-            var lines = ex.StackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = ex.StackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in lines)
             {
                 if (line.Contains(" in "))
                 {
-                    var parts = line.Split(new[] { " in " }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] parts = line.Split(new[] { " in " }, StringSplitOptions.RemoveEmptyEntries);
                     string method = parts[0].Replace("Ship_Game.", "");
                     int idx       = parts[1].IndexOf("Ship_Game\\", StringComparison.Ordinal);
                     string file   = parts[1].Substring(idx + "Ship_Game\\".Length);
