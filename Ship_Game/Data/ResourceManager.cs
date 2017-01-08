@@ -205,10 +205,10 @@ namespace Ship_Game
         // Used for reporting resource loading errors.
         public static void ReportLoadingError(string fileName, string where)
         {
-        #if DEBUG // for easier debugging with a Debugger attached
-            if (Debugger.IsAttached) Debugger.Break();
-        #endif
             if (IgnoreLoadingErrors) return;
+#if DEBUG // for easier debugging with a Debugger attached
+            if (Debugger.IsAttached) Debugger.Break();
+#endif
             throw new FileNotFoundException($"ResourceManager ${where} failed to load {fileName}");
         }
         public static void ReportLoadingError(FileInfo info, string where, Exception e)
