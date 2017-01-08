@@ -2574,12 +2574,12 @@ namespace Ship_Game.AI
             DistanceLast = 0f;
             Target = null;
 			hasPriorityTarget = false;
-		    Vector2 wantedForward = Owner.Center.FindVectorToTarget(position);
-            Vector2 forward       = Owner.Rotation.RotationToForwardVec();
-			float angleDiff = (float)Math.Acos(Vector2.Dot(wantedForward, forward));
+		 //   Vector2 wantedForward = Owner.Center.FindVectorToTarget(position);
+   //         Vector2 forward       = Owner.Rotation.RotationToForwardVec();
+			//float angleDiff = (float)Math.Acos(Vector2.Dot(wantedForward, forward));
 
-			if (angleDiff > 0.2f)
-			    Owner.HyperspaceReturn();
+			//if (angleDiff > 0.2f)
+			//    Owner.HyperspaceReturn();
 		    OrderQueue.Clear();
             if (clearOrders)
                 lock (WayPointLocker)
