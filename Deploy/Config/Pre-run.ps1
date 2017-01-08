@@ -3,7 +3,7 @@ $updatefile = $true
 $ver = .\Deploy\TortoiseHg\hg.exe id -n -r .
 $branch = .\Deploy\TortoiseHg\hg.exe id -b
 $newline = "`[assembly`: AssemblyInformationalVersion(`"" + $branch + "_" + $ver + "`")`]"
-Get-Content "D:\codemod\Properties\AssemblyInfo.cs" | ForEach-Object {
+Get-Content ".\Properties\AssemblyInfo.cs" | ForEach-Object {
 
     $currentline = $_
 

@@ -3614,7 +3614,6 @@
     <PostBuildEvent>$(ProjectDir)deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>powershell -ExecutionPolicy UnRestricted  -file Deploy\Config\Pre-run.ps1</PreBuildEvent>
   </PropertyGroup>
 </Project>
