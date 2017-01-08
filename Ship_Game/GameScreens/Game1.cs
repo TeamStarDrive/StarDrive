@@ -215,5 +215,12 @@ namespace Ship_Game
 			ScreenManager.Update(gameTime);
 			base.Update(gameTime);
 		}
-	}
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            Instance = null;
+            Log.Info("Game Instance Disposed");
+        }
+    }
 }

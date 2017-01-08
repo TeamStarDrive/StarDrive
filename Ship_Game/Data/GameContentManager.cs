@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 
@@ -64,6 +65,8 @@ namespace Ship_Game
             return (T)obj.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(obj);
         }
 
+        public GraphicsDeviceManager Manager => (GraphicsDeviceManager)ServiceProvider.GetService(typeof(IGraphicsDeviceManager));
+
         private static int TextureSize(Texture2D tex)
         {
             if (tex.IsDisposed)
@@ -75,14 +78,18 @@ namespace Ship_Game
                 case SurfaceFormat.Dxt3: mul = 1.0f; break;
                 case SurfaceFormat.Dxt5: mul = 1.0f; break;
             }
-            if (tex.LevelCount > 1) mul *= 1.75f; // mipmaps
-
+            try { if (tex.LevelCount > 1) mul *= 1.75f; } // mipmaps 
+            catch (Exception) {}
             return (int)(tex.Width * tex.Height * mul) + 4096/*all the crap that manages this texture*/;
         }
 
         // Calculates the approximate size of the raw data in assets
         public int GetLoadedAssetBytes()
         {
+            GraphicsDevice device = Manager.GraphicsDevice;
+            if (device == null || device.IsDisposed)
+                return 0;
+
             int numBytes = 0;
             foreach (object asset in LoadedAssets.Values)
             {
@@ -97,7 +104,7 @@ namespace Ship_Game
                 else if (asset is Model mod)
                 {
                     numBytes += mod.Bones.Count * 256;
-                    foreach (var mesh in mod.Meshes)
+                    foreach (ModelMesh mesh in mod.Meshes)
                         numBytes += mesh.IndexBuffer.SizeInBytes + mesh.VertexBuffer.SizeInBytes;
                 }
                 else if (asset is SpriteFont font)
@@ -175,8 +182,12 @@ namespace Ship_Game
                 if (GlobalStats.HasMod)
                 {
                     var info = new FileInfo(GlobalStats.ModPath + assetName + ".xnb");
-                    if (info.Exists)
-                        return info.OpenRead();
+                    if (info.Exists) return info.OpenRead();
+                }
+                if (assetName.StartsWith("Mods/")) // trying to do a direct Mod asset load 
+                {
+                    var info = new FileInfo(assetName + ".xnb");
+                    if (info.Exists) return info.OpenRead();
                 }
                 return File.OpenRead("Content/" + assetName + ".xnb");
             }

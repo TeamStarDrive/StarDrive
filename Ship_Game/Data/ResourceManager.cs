@@ -9,7 +9,6 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
@@ -198,46 +197,10 @@ namespace Ship_Game
             //    Log.Info("These are Designs" + purger);
         }
 
-
-
-        public static bool IgnoreLoadingErrors = false;
-
-        // Used for reporting resource loading errors.
-        public static void ReportLoadingError(string fileName, string where)
-        {
-
-            #if DEBUG // for easier debugging with a Debugger attached
-            if (Debugger.IsAttached) Debugger.Break();
-            #endif
-            if (IgnoreLoadingErrors) return;
-            throw new FileNotFoundException($"ResourceManager ${where} failed to load {fileName}");
-        }
-        public static void ReportLoadingError(FileInfo info, string where, Exception e)
-        {
-        #if DEBUG // for easier debugging with a Debugger attached
-            if (Debugger.IsAttached) Debugger.Break();
-        #endif
-            if (IgnoreLoadingErrors || e == null) return;
-            e.Data.Add("Failing File: ", info.FullName);
-            e.Data.Add("Fail Info: ", e.InnerException?.Message);
-            throw e;
-        }
-        public static void ReportLoadingError(string fileName, string where, Exception e)
-        {
-        #if DEBUG // for easier debugging with a Debugger attached
-            if (Debugger.IsAttached) Debugger.Break();
-        #endif
-            if (IgnoreLoadingErrors || e == null) return;
-            e.Data.Add("Failing File: ", fileName);
-            e.Data.Add("Fail Info: ", e.InnerException?.Message);
-            throw e;
-        }
-
         public static void LoadItAll()
         {
             Reset();
             Log.Info("Load {0}", GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla");
-
             LoadLanguage();
             LoadTroops();
             LoadTextures();
@@ -272,17 +235,6 @@ namespace Ship_Game
             HelperFunctions.CollectMemory();
         }
 
-        // Added by RedFox: only deseralize to ref entity IF the file exists
-        private static bool DeserializeIfExists<T>(string contentFolder, string file, ref T entity) where T : class
-        {
-            var info = new FileInfo(contentFolder + file);
-            if (!info.Exists)
-                return false;
-            using (Stream stream = info.OpenRead())
-                entity = (T)new XmlSerializer(typeof(T)).Deserialize(stream);
-            return true;
-        }
-
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
         // Example relativePath: "Textures/myatlas.xml"
         public static FileInfo GetModOrVanillaFile(string relativePath)
@@ -299,22 +251,22 @@ namespace Ship_Game
         }
 
         // This first tries to deserialize from Mod folder and then from Content folder
-        // The entity value is assigned only if this functions succeeds
-        private static bool DeserializeIfModOrVanillaExists<T>(string file, ref T entity) where T : class
+        private static T TryDeserialize<T>(string file) where T : class
         {
-            return GlobalStats.HasMod 
-                && DeserializeIfExists(GlobalStats.ModPath, file, ref entity)
-                || DeserializeIfExists("Content/", file, ref entity);
+            FileInfo info = null;
+            if (GlobalStats.HasMod) info = new FileInfo(GlobalStats.ModPath + file);
+            if (info == null || !info.Exists) info = new FileInfo("Content/" + file);
+            if (!info.Exists)
+                return null;
+            using (Stream stream = info.OpenRead())
+                return (T)new XmlSerializer(typeof(T)).Deserialize(stream);
         }
 
-        // This first tries to deserialize from Mod folder and then from Content folder
-        private static T DeserializeModOrVanilla<T>(string file, string where, ref T entity) where T : class
+        // The entity value is assigned only IF file exists and Deserialize succeeds
+        private static void TryDeserialize<T>(string file, ref T entity) where T : class
         {
-            if (DeserializeIfModOrVanillaExists(file, ref entity))
-                return entity;
-            entity = null;
-            ReportLoadingError(file, @where); // this throws only if !IgnoreLoadingErrors
-            return null;
+            var result = TryDeserialize<T>(file);
+            if (result != null) entity = result;
         }
 
         // This gathers an union of Mod and Vanilla files. Any vanilla file is replaced by mod files.
@@ -326,7 +278,7 @@ namespace Ship_Game
             var infos = new Map<string, FileInfo>();
 
             string contentPath = Path.GetFullPath("Content/");
-            foreach (var file in Dir.GetFiles("Content/" + dir, ext))
+            foreach (FileInfo file in Dir.GetFiles("Content/" + dir, ext))
             {
                 infos[file.FullName.Substring(contentPath.Length)] = file;
             }
@@ -358,15 +310,15 @@ namespace Ship_Game
         public static Array<T> LoadEntitiesModOrVanilla<T>(string dir, string where) where T : class
         {
             var result = new Array<T>();
-            var f = GatherFilesModOrVanilla(dir, "xml");
-            if (f.Length != 0)
+            var files = GatherFilesModOrVanilla(dir, "xml");
+            if (files.Length != 0)
             {
                 var s = new XmlSerializer(typeof(T));
-                foreach (var info in f)
+                foreach (FileInfo info in files)
                     if (LoadEntity(s, info, where, out T entity))
                         result.Add(entity);
             }
-            else ReportLoadingError(dir, where);
+            else Log.Error($"{where}: No files in '{dir}'");
             return result;
         }
 
@@ -381,35 +333,53 @@ namespace Ship_Game
             }
             catch (Exception e)
             {
-                ReportLoadingError(info, id, e);
+                Log.Error(e, $"Deserialize {id} failed");
                 entity = null;
                 return false;
             }
         }
-        private static IEnumerable<T> LoadEntities<T>(string dir, string id) where T : class
+
+        private static Array<T> LoadEntities<T>(FileInfo[] files, string id) where T : class
         {
+            var list = new Array<T>(files.Length);
             var s = new XmlSerializer(typeof(T));
-            foreach (FileInfo info in GatherFilesUnified(dir, "xml")) {
+            foreach (FileInfo info in files)
                 if (LoadEntity(s, info, id, out T entity))
-                    yield return entity;
-            }
+                    list.Add(entity);
+            return list;
         }
-        private static IEnumerable<T> LoadModEntities<T>(string dir, string id) where T : class
+
+        private static Array<T> LoadEntities<T>(string dir, string id) where T : class
         {
-            var s = new XmlSerializer(typeof(T));
-            foreach (FileInfo info in Dir.GetFiles(GlobalStats.ModPath + dir, "xml"))
-            {
-                if (LoadEntity(s, info, id, out T entity))
-                    yield return entity;
-            }
+            return LoadEntities<T>(GatherFilesUnified(dir, "xml"), id);
         }
-        private static IEnumerable<KeyValuePair<FileInfo, T>> LoadEntitiesWithInfo<T>(string dir, string id) where T : class
+
+        private static Array<T> LoadVanillaEntities<T>(string dir, string id) where T : class
         {
+            return LoadEntities<T>(Dir.GetFiles("Content/" + dir, "xml"), id);
+        }
+
+        private static Array<T> LoadModEntities<T>(string dir, string id) where T : class
+        {
+            return LoadEntities<T>(Dir.GetFiles(GlobalStats.ModPath + dir, "xml"), id);
+        }
+
+        private class InfoPair<T> where T : class
+        {
+            public readonly FileInfo Info;
+            public readonly T Entity;
+            public InfoPair(FileInfo info, T entity) { Info = info; Entity = entity; }
+        }
+
+        private static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
+        {
+            var files = modOnly ? Dir.GetFiles(GlobalStats.ModPath + dir, "xml") : GatherFilesUnified(dir, "xml");
+            var list = new Array<InfoPair<T>>(files.Length);
             var s = new XmlSerializer(typeof(T));
-            foreach (FileInfo info in GatherFilesUnified(dir, "xml")) {
+            foreach (FileInfo info in files)
                 if (LoadEntity(s, info, id, out T entity))
-                    yield return new KeyValuePair<FileInfo, T>(info, entity);
-            }
+                    list.Add(new InfoPair<T>(info, entity));
+            return list;
         }
 
 
@@ -732,33 +702,17 @@ namespace Ship_Game
             return module;
         }
 
+        public static RacialTraits RaceTraits
+            => RacialTraits ?? (RacialTraits = TryDeserialize<RacialTraits>("RacialTraits/RacialTraits.xml")); 
 
-        // Refactored by RedFox
-        public static RacialTraits RaceTraits => RacialTraits ?? LoadRaceTraits();
-        private static RacialTraits LoadRaceTraits()
-        {
-            return DeserializeModOrVanilla("RacialTraits/RacialTraits.xml", "GetRaceTraits", ref RacialTraits);
-        }
+        public static DiplomaticTraits DiplomaticTraits
+            => DiplomacyTraits ?? (DiplomacyTraits = TryDeserialize<DiplomaticTraits>("Diplomacy/DiplomaticTraits.xml"));
 
-
-        // Added/Refactored by RedFox
-        public static DiplomaticTraits DiplomaticTraits => DiplomacyTraits ?? LoadDiplomaticTraits();
-        private static DiplomaticTraits LoadDiplomaticTraits()
-        {
-            return DeserializeModOrVanilla("Diplomacy/DiplomaticTraits.xml", "LoadDiplomaticTraits", ref DiplomacyTraits);
-        }
-
-        // Added by RedFox
         public static SolarSystemData LoadSolarSystemData(string homeSystemName)
-        {
-            SolarSystemData solar = null;
-            DeserializeIfModOrVanillaExists("SolarSystems/" + homeSystemName + ".xml", ref solar);                
-            return solar;
-        }
+            => TryDeserialize<SolarSystemData>("SolarSystems/" + homeSystemName + ".xml");                
+
         public static Array<SolarSystemData> LoadRandomSolarSystems()
-        {
-            return LoadEntitiesModOrVanilla<SolarSystemData>("SolarSystems/Random", "LoadSolarSystems");
-        }
+            => LoadEntitiesModOrVanilla<SolarSystemData>("SolarSystems/Random", "LoadSolarSystems");
 
         public static SkinnedModel GetSkinnedModel(string path)
         {
@@ -772,8 +726,7 @@ namespace Ship_Game
         public static Weapon GetWeapon(string uid)
         {
             Weapon template = WeaponsDict[uid];
-            Weapon wep = template.Clone();
-            return wep;
+            return template.Clone();
         }
 
         public static Texture2D LoadRandomLoadingScreen(GameContentManager content)
@@ -789,8 +742,7 @@ namespace Ship_Game
         {
             string adviceFile = "Advice/" + GlobalStats.Language + "/Advice.xml";
 
-            Array<string> adviceList = null;
-            DeserializeIfModOrVanillaExists(adviceFile, ref adviceList);
+            var adviceList = TryDeserialize<Array<string>>(adviceFile);
             return adviceList?[RandomMath.InRange(adviceList.Count)] ?? "Advice.xml missing";
         }
 
@@ -808,9 +760,8 @@ namespace Ship_Game
 
         private static void LoadBuildings() // Refactored by RedFox
         {
-            foreach (var kv in LoadEntitiesWithInfo<Building>("Buildings", "LoadBuildings"))
+            foreach (Building newB in LoadEntities<Building>("Buildings", "LoadBuildings"))
             {
-                Building newB = kv.Value;
                 BuildingsDict[string.Intern(newB.Name)] = newB;
             }
         }
@@ -818,14 +769,14 @@ namespace Ship_Game
         private static void LoadDialogs() // Refactored by RedFox
         {
             string dir = "DiplomacyDialogs/" + GlobalStats.Language + "/";
-            foreach (var kv in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
+            foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
             {
-                string nameNoExt = kv.Key.NameNoExt();
-                DDDict[nameNoExt] = kv.Value;
+                string nameNoExt = pair.Info.NameNoExt();
+                DDDict[nameNoExt] = pair.Entity;
             }
         }
 
-        public static void LoadEmpires() // Refactored by RedFox
+        private static void LoadEmpires() // Refactored by RedFox
         {
             Empires.Clear();
 
@@ -841,33 +792,30 @@ namespace Ship_Game
 
         public static void LoadEncounters() // Refactored by RedFox
         {
-            Encounters.Clear();
-            Encounters.AddRange(LoadEntities<Encounter>("Encounter Dialogs", "LoadEncounters"));
+            Encounters = LoadEntities<Encounter>("Encounter Dialogs", "LoadEncounters");
         }
 
         private static void LoadExpEvents() // Refactored by RedFox
         {
-            foreach (var kv in LoadEntitiesWithInfo<ExplorationEvent>("Exploration Events", "LoadExpEvents"))
-            {
-                EventsDict[kv.Key.NameNoExt()] = kv.Value;
-            }
+            foreach (var pair in LoadEntitiesWithInfo<ExplorationEvent>("Exploration Events", "LoadExpEvents"))
+                EventsDict[pair.Info.NameNoExt()] = pair.Entity;
         }
 
         private static void LoadFlagTextures() // Refactored by RedFox
         {
             foreach (FileInfo info in GatherFilesUnified("Flags", "xnb"))
             {
-                Texture2D tex = ContentManager.Load<Texture2D>(info.CleanResPath());
+                var tex = ContentManager.Load<Texture2D>(info.CleanResPath());
                 FlagTextures.Add(new KeyValuePair<string, Texture2D>(info.NameNoExt(), tex));
             }
         }
 
         private static void LoadGoods() // Refactored by RedFox
         {
-            foreach (var kv in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
+            foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))
             {
-                Good good = kv.Value;
-                good.UID = string.Intern(kv.Key.NameNoExt());
+                Good good = pair.Entity;
+                good.UID = string.Intern(pair.Info.NameNoExt());
                 GoodsDict[good.UID] = good;
             }
         }
@@ -875,9 +823,9 @@ namespace Ship_Game
         public static void LoadHardcoreTechTree() // Refactored by RedFox
         {
             TechTree.Clear();
-            foreach (var kv in LoadEntitiesWithInfo<Technology>("Technology_HardCore", "LoadTechnologyHardcore"))
+            foreach (var pair in LoadEntitiesWithInfo<Technology>("Technology_HardCore", "LoadTechnologyHardcore"))
             {
-                TechTree[kv.Key.NameNoExt()] = kv.Value;
+                TechTree[pair.Info.NameNoExt()] = pair.Entity;
             }
         }
 
@@ -906,7 +854,7 @@ namespace Ship_Game
                 }
                 catch (Exception e)
                 {
-                    ReportLoadingError(info, "LoadHullData", e);
+                    Log.Error(e, $"LoadHullData {info.Name} failed");
                 }
             });
             return retList;
@@ -927,10 +875,8 @@ namespace Ship_Game
         // loads models from a model folder that match "modelPrefixNNN.xnb" format, where N is an integer
         private static void LoadNumberedModels(Array<Model> models, string modelFolder, string modelPrefix, string id)
         {
-            var files = GatherFilesModOrVanilla(modelFolder, "xnb");
-
             models.Clear();
-            foreach (FileInfo info in files)
+            foreach (FileInfo info in GatherFilesModOrVanilla(modelFolder, "xnb"))
             {
                 string nameNoExt = info.NameNoExt();
                 try
@@ -942,7 +888,7 @@ namespace Ship_Game
                 }
                 catch (Exception e)
                 {
-                    ReportLoadingError(info, id, e);
+                    Log.Error(e, $"LoadNumberedModels {modelFolder} {nameNoExt} failed");
                 }
             }
         }
@@ -958,15 +904,28 @@ namespace Ship_Game
 
         private static void LoadLanguage() // Refactored by RedFox
         {
-            foreach (var localization in LoadEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
-                Localizer.AddTokens(localization.TokenList);
+            foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
+                Localizer.AddTokens(loc.TokenList);
 
-            // load extra tokens from Config Language
             if (GlobalStats.NotEnglish)
             {
-                foreach (var localization in LoadEntities<LocalizationFile>("Localization/" + GlobalStats.Language + "/", "LoadLanguage"))
-                    Localizer.AddTokens(localization.TokenList);
+                foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{GlobalStats.Language}/", "LoadLanguage"))
+                    Localizer.AddTokens(loc.TokenList);
             }
+
+            // Now replace any vanilla tokens with mod tokens
+            if (GlobalStats.HasMod)
+            {
+                foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
+                    Localizer.AddTokens(loc.TokenList);
+
+                if (GlobalStats.NotEnglish)
+                {
+                    foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{GlobalStats.Language}/", "LoadLanguage"))
+                        Localizer.AddTokens(loc.TokenList);
+                }
+            }
+
         }
 
         private static void LoadLargeStars() // Refactored by RedFox
@@ -979,7 +938,7 @@ namespace Ship_Game
                 }
                 catch (Exception e)
                 {
-                    ReportLoadingError(info, "LoadLargeStars", e);
+                    Log.Error(e, "LoadLargerStars failed");
                 }
             }
         }
@@ -994,7 +953,7 @@ namespace Ship_Game
                 }
                 catch (Exception e)
                 {
-                    ReportLoadingError(info, "LoadMediumStars", e);
+                    Log.Error(e, "LoadMediumStars failed");
                 }
             }
         }
@@ -1005,7 +964,7 @@ namespace Ship_Game
             foreach (FileInfo info in Dir.GetFiles("Content/Nebulas", "xnb"))
             {
                 string nameNoExt = info.NameNoExt();
-                Texture2D tex = ContentManager.Load<Texture2D>("Nebulas/" + nameNoExt);
+                var tex = ContentManager.Load<Texture2D>("Nebulas/" + nameNoExt);
                 if      (tex.Width == 2048) BigNebulas.Add(tex);
                 else if (tex.Width == 1024) MedNebulas.Add(tex);
                 else                        SmallNebulas.Add(tex);
@@ -1018,7 +977,7 @@ namespace Ship_Game
             string path = projectileDir + nameNoExt;
             try
             {
-                Model projModel = ContentManager.Load<Model>(path);
+                var projModel = ContentManager.Load<Model>(path);
                 ProjectileMeshDict[nameNoExt]  = projModel.Meshes[0];
                 ProjectileModelDict[nameNoExt] = projModel;
             }
@@ -1026,7 +985,7 @@ namespace Ship_Game
             {
                 if (e.HResult == -2146233088)
                     return;
-                ReportLoadingError(path, "LoadProjectile", e);
+                Log.Error(e, $"LoadProjectile {path} failed");
             }
         }
 
@@ -1046,7 +1005,7 @@ namespace Ship_Game
         {
             foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb"))
             {
-                Texture2D tex = ContentManager.Load<Texture2D>(info.CleanResPath());
+                var tex = ContentManager.Load<Texture2D>(info.CleanResPath());
                 ProjTextDict[info.NameNoExt()] = tex;
             }
         }
@@ -1054,21 +1013,19 @@ namespace Ship_Game
 
         private static void LoadRandomItems()
         {
-            RandomItemsList.Clear();
-            foreach (var kv in LoadEntitiesWithInfo<RandomItem>("RandomStuff", "LoadRandomItems"))
-                RandomItemsList.Add(kv.Value);
+            RandomItemsList = LoadEntities<RandomItem>("RandomStuff", "LoadRandomItems");
         }
 
         private static void LoadShipModules()
         {
-            foreach (var kv in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules"))
+            foreach (var pair in LoadEntitiesWithInfo<ShipModule_Deserialize>("ShipModules", "LoadShipModules"))
             {
                 // Added by gremlin support techlevel disabled folder.
-                if (kv.Key.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
+                if (pair.Info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) > 0)
                     continue;
-                ShipModule_Deserialize data = kv.Value;
+                ShipModule_Deserialize data = pair.Entity;
 
-                data.UID = string.Intern(kv.Key.NameNoExt());
+                data.UID = string.Intern(pair.Info.NameNoExt());
                 data.IconTexturePath = string.Intern(data.IconTexturePath);
                 if (data.WeaponType != null)
                     data.WeaponType = string.Intern(data.WeaponType);
@@ -1092,16 +1049,14 @@ namespace Ship_Game
         private static Array<Ship> LoadShips(FileInfo[] shipDescriptors)
         {
             var ships = new Array<Ship>();
-            Parallel.ForEach(shipDescriptors, info => {
-            //foreach (var info in shipDescriptors) { 
-                //added by gremlin support techlevel disabled folder.
+            Parallel.ForEach(shipDescriptors, info => 
+            {
                 if (info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
                     return; // continue PFor
 
                 try
                 {
                     ShipData shipData = ShipData.Parse(info);
-                    //ShipData shipData = ShipDataSerializer.Deserialize<ShipData>(info);
                     if (shipData.Role == ShipData.RoleName.disabled)
                         return; // continue PFor
 
@@ -1120,7 +1075,7 @@ namespace Ship_Game
                 }
                 catch (Exception e)
                 {
-                    ReportLoadingError(info, "LoadShips", e);
+                    Log.Error(e, $"LoadShip {info.Name} failed");
                 }
             });
 
@@ -1283,13 +1238,13 @@ namespace Ship_Game
 
         private static void LoadTechTree()
         {
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.clearVanillaTechs)
-                TechTree.Clear();
+            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaTechs;
+            var techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
 
-            foreach (var kv in LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree"))
+            foreach (var pair in techs)
             {
-                var tech = kv.Value;
-                tech.UID = string.Intern(kv.Key.NameNoExt());
+                Technology tech = pair.Entity;
+                tech.UID = string.Intern(pair.Info.NameNoExt());
                 TechTree[tech.UID] = tech;
 
                 // categorize uncategorized techs
@@ -1480,10 +1435,10 @@ namespace Ship_Game
 
         private static void LoadTroops()
         {
-            foreach (var kv in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops"))
+            foreach (var pair in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops"))
             {
-                Troop troop = kv.Value;
-                troop.Name = string.Intern(kv.Key.NameNoExt());
+                Troop troop = pair.Entity;
+                troop.Name = string.Intern(pair.Info.NameNoExt());
                 TroopsDict[troop.Name] = troop;
 
                 if (troop.StrengthMax <= 0)
@@ -1494,10 +1449,10 @@ namespace Ship_Game
         
         private static void LoadWeapons() // Refactored by RedFox
         {
-            foreach (var kv in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons"))
+            foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons"))
             {
-                Weapon wep = kv.Value;
-                wep.UID = string.Intern(kv.Key.NameNoExt());
+                Weapon wep = pair.Entity;
+                wep.UID = string.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
             }
         }
@@ -1534,10 +1489,10 @@ namespace Ship_Game
                 GlobalStats.ActiveModInfo.useHullBonuses = HullBonuses.Count != 0;
             }
 
-            DeserializeIfModOrVanillaExists("HostileFleets/HostileFleets.xml",    ref HostileFleets);
-            DeserializeIfModOrVanillaExists("ShipNames/ShipNames.xml",            ref ShipNames);
-            DeserializeIfModOrVanillaExists("MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
-            DeserializeIfModOrVanillaExists("AgentMissions/AgentMissionData.xml", ref AgentMissionData);
+            TryDeserialize("HostileFleets/HostileFleets.xml",    ref HostileFleets);
+            TryDeserialize("ShipNames/ShipNames.xml",            ref ShipNames);
+            TryDeserialize("MainMenu/MainMenuShipList.xml",      ref MainMenuShipList);
+            TryDeserialize("AgentMissions/AgentMissionData.xml", ref AgentMissionData);
 
             foreach (FileInfo info in GatherFilesUnified("SoundEffects", "xnb"))
             {
@@ -1560,7 +1515,8 @@ namespace Ship_Game
             SoundEffectDict.Clear();
             TextureDict.Clear();
             ToolTips.Clear();
-            GoodsDict.Clear();         
+            GoodsDict.Clear();
+            Empires.Clear();       
             Encounters.Clear();
             EventsDict.Clear();
             RandomItemsList.Clear();
