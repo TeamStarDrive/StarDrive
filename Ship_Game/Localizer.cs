@@ -16,13 +16,14 @@ namespace Ship_Game
 
     public static class Localizer
     {
-        private static string[] Strings;
+        private static string[] Strings = new string[0];
 
-        public static bool Contains(int locIndex) //@bug issue #1003
+        public static bool Contains(int locIndex)
         {
             return 0 < locIndex && locIndex <= Strings.Length && Strings[locIndex - 1] != null;
         }
-        public static string Token(int locIndex) //
+
+        public static string Token(int locIndex)
         {
             return Contains(locIndex) ? Strings[locIndex - 1] : "<localization missing>";
         }
@@ -34,15 +35,14 @@ namespace Ship_Game
             int limit = tokens.Max(t => t.Index);
 
             // Fill sparse map with empty entries
-            if (Strings == null || Strings.Length < limit)
+            if (Strings.Length < limit)
                 Array.Resize(ref Strings, limit);
 
             foreach (Token t in tokens)
             {
-                int locIndex = t.Index;
                 string text = t.Text.Replace("\\n", "\n"); // only creates new string if \\n is found
 
-                Strings[locIndex - 1] = text;
+                Strings[t.Index - 1] = text;
             }
         }
 
@@ -61,7 +61,7 @@ namespace Ship_Game
         // statistic for amount of memory used for storing strings
         public static int CountBytesUsed()
         {
-            if (Strings == null)
+            if (Strings.Length == 0)
                 return 0;
 
             int bytes = Strings.Length  * 4 + 8;
