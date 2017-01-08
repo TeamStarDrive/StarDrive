@@ -205,10 +205,11 @@ namespace Ship_Game
         // Used for reporting resource loading errors.
         public static void ReportLoadingError(string fileName, string where)
         {
-            if (IgnoreLoadingErrors) return;
-#if DEBUG // for easier debugging with a Debugger attached
+
+            #if DEBUG // for easier debugging with a Debugger attached
             if (Debugger.IsAttached) Debugger.Break();
-#endif
+            #endif
+            if (IgnoreLoadingErrors) return;
             throw new FileNotFoundException($"ResourceManager ${where} failed to load {fileName}");
         }
         public static void ReportLoadingError(FileInfo info, string where, Exception e)
@@ -751,7 +752,8 @@ namespace Ship_Game
         public static SolarSystemData LoadSolarSystemData(string homeSystemName)
         {
             SolarSystemData solar = null;
-            return DeserializeModOrVanilla("SolarSystems/" + homeSystemName + ".xml", "LoadSolarSystemData", ref solar);
+            DeserializeIfModOrVanillaExists("SolarSystems/" + homeSystemName + ".xml", ref solar);                
+            return solar;
         }
         public static Array<SolarSystemData> LoadRandomSolarSystems()
         {
