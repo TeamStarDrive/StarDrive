@@ -1115,7 +1115,7 @@ namespace Ship_Game.AI
 		    {
 		        foreach (Ship ship in FriendliesNearby)
 		        {
-                    if (!ship.Active || ship.HealthMax * 0.95f < ship.Health 
+                    if (!ship.Active || ship.Health > ship.HealthMax * 0.95f
                         || !Owner.Center.InRadius(ship.Center, 20000f))
                         continue;
                     friendliesNearby = ship;
@@ -1141,7 +1141,7 @@ namespace Ship_Game.AI
         //do ordinance transporter @TODO move to module and cleanup. this is a mod only method. Low priority
         private void DoOrdinanceTransporterLogic(ShipModule module)
         {
-            var repairMe =
+            Ship repairMe =
                 module.GetParent()
                     .loyalty.GetShips()
                     .FindMinFiltered(
