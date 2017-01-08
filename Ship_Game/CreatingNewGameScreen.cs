@@ -249,8 +249,7 @@ namespace Ship_Game
                     foreach (Empire empire in Data.EmpireList)
                     {
                         if (empire.isFaction || empire.MinorRace)
-                            continue;
-                        ResourceManager.IgnoreLoadingErrors = true;
+                            continue;                    
                         SolarSystem solarSystem;
                         SolarSystemData systemData = ResourceManager.LoadSolarSystemData(empire.data.Traits.HomeSystemName);
                         if (systemData == null)
@@ -258,8 +257,7 @@ namespace Ship_Game
                             solarSystem = new SolarSystem();
                             solarSystem.GenerateStartingSystem(empire.data.Traits.HomeSystemName, empire, Scale);
                         }
-                        else solarSystem = SolarSystem.GenerateSystemFromData(systemData, empire);
-                        ResourceManager.IgnoreLoadingErrors = false;
+                        else solarSystem = SolarSystem.GenerateSystemFromData(systemData, empire);                        
                         solarSystem.isStartingSystem = true;
                         Data.SolarSystemsList.Add(solarSystem);
                         if (empire == PlayerEmpire)
