@@ -220,7 +220,8 @@ namespace Ship_Game
 
         public static void LoadModInfo(ModEntry me)
         {
-            ModName       = me.ModPath;
+            ModName       = me.ModName;
+            ModPath       = "Mods/" + ModName + "/";
             ActiveModInfo = me.mi;
             ActiveMod     = me;
             SaveActiveMod();
