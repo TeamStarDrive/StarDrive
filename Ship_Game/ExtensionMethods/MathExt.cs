@@ -175,13 +175,21 @@ namespace Ship_Game
         {
             return degrees * ((float)PI / 180.0f);
         }
+
+        // Converts rotation radians into a 2D direction vector
+        public static Vector2 RotationToForwardVec(this float radians)
+        {
+            return new Vector2((float)Sin(radians), -(float)Cos(radians));
+        }
+
         public static Vector2 FindVectorBehindTarget(this GameplayObject ship, float distance)
         {
             Vector2 vector2 = new Vector2(0f, 0f);
-            Vector2 forward = new Vector2((float)Math.Sin((double)ship.Rotation), -(float)Math.Cos((double)ship.Rotation));
+            Vector2 forward = new Vector2((float)Sin(ship.Rotation), -(float)Cos(ship.Rotation));
             forward = Vector2.Normalize(forward);
             return ship.Position - (forward * distance);
         }
+
         public static Vector2 FindVectorToTarget(this Vector2 origin, Vector2 target)
         {
             return Vector2.Normalize(target - origin);
@@ -197,6 +205,7 @@ namespace Ship_Game
             vectorToTarget = predictedVector;
             return vectorToTarget;
         }
+
         // Generates a new point on a circular radius from position
         // Input angle is given in degrees
         public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)
@@ -225,11 +234,13 @@ namespace Ship_Game
             double rads = degrees * (PI / 180.0);
             return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
         }
+
+        // @todo AngleDiffTo to ?What? 
         public static float AngleDiffTo(this GameplayObject origin, Vector2 target, out Vector2 right, out Vector2 forward)
         {
-            forward = new Vector2((float)Math.Sin(origin.Rotation), -(float)Math.Cos(origin.Rotation));
+            forward = new Vector2((float)Sin(origin.Rotation), -(float)Cos(origin.Rotation));
             right = new Vector2(-forward.Y, forward.X);
-            return (float)Math.Acos(Vector2.Dot(target, forward));
+            return (float)Acos(Vector2.Dot(target, forward));
         }
 
         public static float Facing(this Vector2 facingTo, Vector2 right)
