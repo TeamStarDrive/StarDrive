@@ -839,7 +839,6 @@ namespace Ship_Game.AI
 		        RotateToFacing(elapsedTime, angleDiff, VectorToTarget.Facing(right));
 		    }
 		}
-
         
 		private void DoLandTroop(float elapsedTime, ShipGoal goal)
 		{
@@ -925,38 +924,36 @@ namespace Ship_Game.AI
 		        }
 		    }
 		}
+
         private void DoNonFleetArtillery(float elapsedTime)
         {
-            DoNonFleetArtillery(elapsedTime, Target.Center);
+            //Heavily modified by Gretman
+            Vector2 vectorToTarget = Owner.Center.FindVectorToTarget(Target.Center);
+            var angleDiff = Owner.AngleDiffTo(vectorToTarget, out Vector2 right, out Vector2 forward);
+            float distanceToTarget = Owner.Center.Distance(Target.Center);
+            float adjustedRange = (Owner.maxWeaponsRange - Owner.Radius) * 0.85f;
+
+            if (distanceToTarget > adjustedRange)
+            {
+                ThrustTowardsPosition(Target.Center, elapsedTime, Owner.speed);
+                return;
+            }
+            else if (distanceToTarget < Owner.Radius)
+            {
+                Owner.Velocity = Owner.Velocity + Vector2.Normalize(-forward) * (elapsedTime * Owner.GetSTLSpeed());
+            }
+            else
+            {
+                Owner.Velocity *= 0.995f;        //Small propensity to not drift
+            }
+
+            if (angleDiff <= 0.02f)
+            {
+                DeRotate();
+                return;
+            }
+            RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(right));
         }
-
-	    private void DoNonFleetArtillery(float elapsedTime, Vector2 target)
-	    {
-	        //Heavily modified by Gretman
-	        Vector2 vectorToTarget = Owner.Center.FindVectorToTarget(target);
-	        var angleDiff = Owner.AngleDiffTo(vectorToTarget, out Vector2 right, out Vector2 forward);
-	        float distanceToTarget = Owner.Center.Distance(target) * .75f;
-	        float adjustedRange = Owner.maxWeaponsRange - Owner.Radius;
-
-	        if (distanceToTarget > adjustedRange)
-	        {
-	            ThrustTowardsPosition(target, elapsedTime, Owner.speed);
-	            return;
-	        }
-	        if (distanceToTarget < adjustedRange
-	            && (Owner.Center + Owner.Velocity * elapsedTime).InRadius(target , distanceToTarget)
-	            || distanceToTarget < Owner.Radius)
-	        {
-	            Owner.Velocity = Owner.Velocity + Vector2.Normalize(-forward) * (elapsedTime * Owner.GetSTLSpeed());
-	        }
-
-	        if (angleDiff <= 0.02f)
-	        {
-	            DeRotate();
-	            return;
-	        }
-	        RotateToFacing(elapsedTime, angleDiff, vectorToTarget.Facing(right));
-	    }
 
 	    private void DoNonFleetBroadsideRight(float elapsedTime)
         {   
@@ -968,7 +965,6 @@ namespace Ship_Game.AI
             }
             if (distanceToTarget < Owner.maxWeaponsRange * 0.70f && Vector2.Distance(Owner.Center + Owner.Velocity * elapsedTime, Target.Center) < distanceToTarget)
             {
-                Ship owner = Owner;
                 Owner.Velocity = Vector2.Zero;
             }
             Vector2 vectorToTarget = Owner.Center.FindVectorToTarget(Target.Center);
@@ -1119,7 +1115,7 @@ namespace Ship_Game.AI
 		    {
 		        foreach (Ship ship in FriendliesNearby)
 		        {
-                    if (!ship.Active || ship.HealthMax * 0.95f < ship.Health 
+                    if (!ship.Active || ship.Health > ship.HealthMax * 0.95f
                         || !Owner.Center.InRadius(ship.Center, 20000f))
                         continue;
                     friendliesNearby = ship;
@@ -1145,7 +1141,7 @@ namespace Ship_Game.AI
         //do ordinance transporter @TODO move to module and cleanup. this is a mod only method. Low priority
         private void DoOrdinanceTransporterLogic(ShipModule module)
         {
-            var repairMe =
+            Ship repairMe =
                 module.GetParent()
                     .loyalty.GetShips()
                     .FindMinFiltered(
