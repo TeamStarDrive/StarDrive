@@ -2561,11 +2561,11 @@ namespace Ship_Game
                 bool flag = false;
                 foreach (Ship ship in player.GetShips())
                 {
-                    if (ship.isConstructor && ship.GetAI().OrderQueue.Count > 0)
+                    if (ship.isConstructor && ship.GetAI().OrderQueue.NotEmpty)
                     {
                         for (int index = 0; index < ship.GetAI().OrderQueue.Count; ++index)
                         {
-                            if (Enumerable.ElementAt(ship.GetAI().OrderQueue, index).goal == SelectedItem.AssociatedGoal)
+                            if (ship.GetAI().OrderQueue[index].goal == SelectedItem.AssociatedGoal)
                             {
                                 flag = true;
                                 ship.GetAI().OrderScrapShip();
@@ -3552,7 +3552,7 @@ namespace Ship_Game
                                 else if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl))
                                 {
                                     this.SelectedShip.GetAI().OrderMoveTowardsPosition(vector2_1, num2, vector2_2, true,null);
-                                    this.SelectedShip.GetAI().OrderQueue.AddLast(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.HoldPosition, vector2_1, num2));
+                                    this.SelectedShip.GetAI().OrderQueue.Enqueue(new ArtificialIntelligence.ShipGoal(ArtificialIntelligence.Plan.HoldPosition, vector2_1, num2));
                                     this.SelectedShip.GetAI().HasPriorityOrder = true;
                                     this.SelectedShip.GetAI().IgnoreCombat = true;
                                 }
@@ -6992,7 +6992,7 @@ namespace Ship_Game
                         Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.GetAI().ColonizeTarget.Position, 2500f), this.projection, this.view, Matrix.Identity);
                         Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y), new Color((byte)0, byte.MaxValue, byte.MaxValue, (byte)num));
                     }
-                    if (this.SelectedShip.GetAI().State == AIState.Bombard && this.SelectedShip.GetAI().OrderQueue.Count > 0 && Enumerable.First<ArtificialIntelligence.ShipGoal>((IEnumerable<ArtificialIntelligence.ShipGoal>)this.SelectedShip.GetAI().OrderQueue).TargetPlanet != null)
+                    if (this.SelectedShip.GetAI().State == AIState.Bombard && this.SelectedShip.GetAI().OrderQueue.NotEmpty && Enumerable.First<ArtificialIntelligence.ShipGoal>((IEnumerable<ArtificialIntelligence.ShipGoal>)this.SelectedShip.GetAI().OrderQueue).TargetPlanet != null)
                     {
                         Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(Enumerable.First<ArtificialIntelligence.ShipGoal>((IEnumerable<ArtificialIntelligence.ShipGoal>)this.SelectedShip.GetAI().OrderQueue).TargetPlanet.Position, 2500f), this.projection, this.view, Matrix.Identity);
@@ -7021,7 +7021,7 @@ namespace Ship_Game
                             }
                             if(!waydpoint )
                             {
-                                ArtificialIntelligence.ShipGoal goal = this.SelectedShip.GetAI().OrderQueue.FirstOrDefault();
+                                ArtificialIntelligence.ShipGoal goal = this.SelectedShip.GetAI().OrderQueue.PeekFirst;
                                 if (goal != null && goal.TargetPlanet != null)
                                 {
                                     Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);

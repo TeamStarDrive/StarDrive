@@ -444,40 +444,37 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (this.ActiveBuildingEntry.item as Building).Icon + "_48x48"], destinationRectangle2, Color.White);
             }
             this.pFacilities.Draw();
-            if (this.p.Owner == PlanetScreen.screen.player && this.p.TroopsHere.Count > 0)
+            if (this.p.Owner == Empire.Universe.player && this.p.TroopsHere.Count > 0)
                 this.launchTroops.Draw(this.ScreenManager.SpriteBatch);
             //fbedard: Display button
-            if (this.p.Owner == PlanetScreen.screen.player)
+            if (this.p.Owner == Empire.Universe.player)
             {
                
-                int troopsInvading = this.eui.empire.GetShips()
-         .Where(troop => troop.TroopList.Count > 0)
-         .Where(ai => ai.GetAI().State != AIState.Resupply)
-         .Where(troopAI => troopAI.GetAI().OrderQueue
-             .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.p).Count() > 0).Count();
+                int troopsInvading = eui.empire.GetShips()
+                    .Where(troop => troop.TroopList.Count > 0)
+                    .Where(ai => ai.GetAI().State != AIState.Resupply)
+                    .Count(troopAI => troopAI.GetAI().OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
                 if (troopsInvading > 0)
-                    this.SendTroops.Text = "Landing: " + troopsInvading.ToString();
+                    SendTroops.Text = "Landing: " + troopsInvading;
                 else
-                {
-                    this.SendTroops.Text = "Send Troops";
-                }
-                this.SendTroops.Draw(ScreenManager.SpriteBatch);
+                    SendTroops.Text = "Send Troops";
+                SendTroops.Draw(ScreenManager.SpriteBatch);
             }
-            Vector2 vector2_1 = new Vector2((float)(this.pFacilities.Menu.X + 15), (float)(this.pFacilities.Menu.Y + 35));
-            this.DrawDetailInfo(vector2_1);
-            this.build.Draw();
-            this.queue.Draw();
-            if (this.build.Tabs[0].Selected)
+            var vector2_1 = new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35);
+            DrawDetailInfo(vector2_1);
+            build.Draw();
+            queue.Draw();
+            if (build.Tabs[0].Selected)
             {
                 Array<Building> buildingsWeCanBuildHere = this.p.GetBuildingsWeCanBuildHere();
                 if (this.p.BuildingList.Count != this.buildingsHereLast || this.buildingsCanBuildLast != buildingsWeCanBuildHere.Count || this.Reset)
                 {
-                    this.BuildingsCanBuild = buildingsWeCanBuildHere;
-                    this.buildSL.Reset();
-                    this.buildSL.indexAtTop = 0;
-                    foreach (object o in this.BuildingsCanBuild)
-                        this.buildSL.AddItem(o, 0, 0);
-                    this.Reset = false;
+                    BuildingsCanBuild = buildingsWeCanBuildHere;
+                    buildSL.Reset();
+                    buildSL.indexAtTop = 0;
+                    foreach (Building building in BuildingsCanBuild)
+                        buildSL.AddItem(building, 0, 0);
+                    Reset = false;
                 }
                 vector2_1 = new Vector2((float)(this.build.Menu.X + 20), (float)(this.build.Menu.Y + 45));
                 for (int index = this.buildSL.indexAtTop; index < this.buildSL.Copied.Count; ++index)
@@ -493,12 +490,8 @@ namespace Ship_Game
                         {
                             if (entry.clickRectHover == 0)
                             {
-                                bool wontbuild = false;
-                                if(!this.p.WeCanAffordThis(entry.item as Building,this.p.colonyType))
-                                {
-                                    wontbuild = true;
-                                }
-                                vector2_1.Y = (float)entry.clickRect.Y;
+                                bool wontbuild = !p.WeCanAffordThis(entry.item as Building, p.colonyType);
+                                vector2_1.Y = entry.clickRect.Y;
                                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as Building).Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), wontbuild ? Color.SlateGray : Color.White);
                                 Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y - 4f);
                                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((entry.item as Building).NameTranslationIndex), position,  wontbuild ? Color.SlateGray : Color.White);
