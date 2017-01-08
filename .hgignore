@@ -10,7 +10,6 @@ UpgradeLog2.htm
 *.vspx
 StarDrive/
 Backup\Backup\StarDrive.sln
-Deploy/
 *.suo
 StarDrive.VC.db
 StarDrive.sdf
