@@ -896,7 +896,7 @@ namespace Ship_Game
 								}
 								g.goal = goal;
 							}
-							ship.GetAI().OrderQueue.AddLast(g);
+							ship.GetAI().OrderQueue.Enqueue(g);
                             if (g.Plan == ArtificialIntelligence.Plan.DeployStructure)
                                 ship.isConstructor = true;
 						}
