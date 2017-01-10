@@ -2,6 +2,7 @@
 using Particle3DSample;
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
@@ -131,11 +132,9 @@ namespace Ship_Game.Gameplay
         }
     }
 
-    [System.Xml.Serialization.XmlType("ShipModule")]
+    [XmlType("ShipModule")]
     public sealed class ShipModule_Deserialize : GameplayObject
     {
-
-        //This is for the Deserialization process, when reading the XML files.  -Gretman
         public float FTLSpeed;
         public string DeployBuildingOnColonize;
         public byte XSIZE = 1;
@@ -171,20 +170,18 @@ namespace Ship_Game.Gameplay
         public byte TechLevel;
         public float OrdnanceAddedPerSecond;
         public bool isDummy;
-        //public Array<ShipModule> LinkedModulesList = new Array<ShipModule>();       //Caused Deserialization issue
         public string BombType;
         public float WarpMassCapacity;
         public float FieldOfFire;
         public float facing;
         public Vector2 XMLPosition;
-        //public ShipModule ParentOfDummy;       //Caused Deserialization issue
         public float BonusRepairRate;
         public float Cargo_Capacity;
         public float HealthMax;
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
-        public Ship_Game.Gameplay.Restrictions Restrictions;
+        public Restrictions Restrictions;
         public float shield_power;
         public bool shieldsOff = false;
         public float shield_radius;
@@ -221,7 +218,6 @@ namespace Ship_Game.Gameplay
         public float PowerStoreMax;
         public float HealPerTurn;
         public bool isWeapon;
-        //public Weapon InstalledWeapon;       //Caused Deserialization issue
         public bool MountLeft;
         public bool MountRight;
         public bool MountRear;
@@ -235,7 +231,6 @@ namespace Ship_Game.Gameplay
         public Vector2 ModuleCenter;
         public string IconTexturePath;
         public string UID;
-        //public ModuleSlot installedSlot;       //Caused Deserialization issue
         public bool isExternal;
         public bool TrulyExternal;
         public float InhibitionRadius;
@@ -283,148 +278,142 @@ namespace Ship_Game.Gameplay
             //This functions translates from the old ShipModule (eg the XML files)
             //to the new ShipModule, sorting out the variables that now live in the
             //'Advanced' object.        -Gretman
-            ShipModule ReturnModule = new ShipModule();
-            ReturnModule.Advanced = new ShipModule_Advanced();
+            var module = new ShipModule
+            {
+                Advanced = new ShipModule_Advanced(),
+                XSIZE                = XSIZE,
+                YSIZE                = YSIZE,
+                Mass                 = Mass,
+                PermittedHangarRoles = PermittedHangarRoles,
+                Powered              = Powered,
+                isDummy              = isDummy,
+                FieldOfFire          = FieldOfFire,
+                facing               = facing,
+                XMLPosition          = XMLPosition,
+                HealthMax            = HealthMax,
+                WeaponType           = WeaponType,
+                NameIndex            = NameIndex,
+                DescriptionIndex     = DescriptionIndex,
+                Restrictions         = Restrictions,
+                shield_power         = shield_power,
+                shieldsOff           = shieldsOff,
+                hangarShipUID        = hangarShipUID,
+                hangarTimer          = hangarTimer,
+                isWeapon             = isWeapon,
+                OrdinanceCapacity    = OrdinanceCapacity,
+                BombTimer            = BombTimer,
+                ModuleType           = ModuleType,
+                moduleCenter         = moduleCenter,
+                ModuleCenter         = ModuleCenter,
+                IconTexturePath      = IconTexturePath,
+                UID                  = UID,
+                isExternal           = isExternal,
+                TargetValue          = TargetValue,
+                quadrant             = quadrant
+            };
 
-            ReturnModule.XSIZE = XSIZE;
-            ReturnModule.YSIZE = YSIZE;
-            ReturnModule.Mass = Mass;
-            ReturnModule.PermittedHangarRoles = PermittedHangarRoles;
-            ReturnModule.Powered = Powered;
-            ReturnModule.isDummy = isDummy;
-            //ReturnModule.LinkedModulesList = LinkedModulesList;
-            ReturnModule.FieldOfFire = FieldOfFire;
-            ReturnModule.facing = facing;
-            ReturnModule.XMLPosition = XMLPosition;
-            //ReturnModule.Parent = Parent;
-            //ReturnModule.ParentOfDummy = ParentOfDummy;
-            ReturnModule.HealthMax = HealthMax;
-            ReturnModule.WeaponType = WeaponType;
-            ReturnModule.NameIndex = NameIndex;
-            ReturnModule.DescriptionIndex = DescriptionIndex;
-            ReturnModule.Restrictions = Restrictions;
-            ReturnModule.shield_power = shield_power;
-            ReturnModule.shieldsOff = shieldsOff;
-            //ReturnModule.shield = shield;
-            ReturnModule.hangarShipUID = hangarShipUID;
-            //ReturnModule.hangarShip = hangarShip;
-            ReturnModule.hangarTimer = hangarTimer;
-            ReturnModule.isWeapon = isWeapon;
-            //ReturnModule.InstalledWeapon = InstalledWeapon;
-            ReturnModule.OrdinanceCapacity = OrdinanceCapacity;
-            //ReturnModule.Center3D = Center3D;
-            ReturnModule.BombTimer = BombTimer;
-            ReturnModule.ModuleType = ModuleType;
-            ReturnModule.moduleCenter = moduleCenter;
-            ReturnModule.ModuleCenter = ModuleCenter;
-            ReturnModule.IconTexturePath = IconTexturePath;
-            ReturnModule.UID = UID;
-            //ReturnModule.installedSlot = installedSlot;
-            ReturnModule.isExternal = isExternal;
-            ReturnModule.TargetValue = TargetValue;
-            ReturnModule.quadrant = quadrant;
 
-            ReturnModule.Advanced.FTLSpeed = FTLSpeed;
-            ReturnModule.Advanced.DeployBuildingOnColonize = DeployBuildingOnColonize;
-            ReturnModule.Advanced.ResourceStored = ResourceStored;
-            ReturnModule.Advanced.ResourceStorageAmount = ResourceStorageAmount;
-            ReturnModule.Advanced.IsCommandModule = IsCommandModule;
-            ReturnModule.Advanced.IsRepairModule = IsRepairModule;
-            ReturnModule.Advanced.MaximumHangarShipSize = MaximumHangarShipSize;
-            ReturnModule.Advanced.FightersOnly = FightersOnly;
-            ReturnModule.Advanced.DroneModule = DroneModule;
-            ReturnModule.Advanced.FighterModule = FighterModule;
-            ReturnModule.Advanced.CorvetteModule = CorvetteModule;
-            ReturnModule.Advanced.FrigateModule = FrigateModule;
-            ReturnModule.Advanced.DestroyerModule = DestroyerModule;
-            ReturnModule.Advanced.CruiserModule = CruiserModule;
-            ReturnModule.Advanced.CarrierModule = CarrierModule;
-            ReturnModule.Advanced.CapitalModule = CapitalModule;
-            ReturnModule.Advanced.FreighterModule = FreighterModule;
-            ReturnModule.Advanced.PlatformModule = PlatformModule;
-            ReturnModule.Advanced.StationModule = StationModule;
-            ReturnModule.Advanced.explodes = explodes;
-            ReturnModule.Advanced.SensorRange = SensorRange;
-            ReturnModule.Advanced.MechanicalBoardingDefense = MechanicalBoardingDefense;
-            ReturnModule.Advanced.EMP_Protection = EMP_Protection;
-            ReturnModule.Advanced.PowerRadius = PowerRadius;
-            ReturnModule.Advanced.TechLevel = TechLevel;
-            ReturnModule.Advanced.OrdnanceAddedPerSecond = OrdnanceAddedPerSecond;
-            ReturnModule.Advanced.BombType = BombType;
-            ReturnModule.Advanced.WarpMassCapacity = WarpMassCapacity;
-            ReturnModule.Advanced.BonusRepairRate = BonusRepairRate;
-            ReturnModule.Advanced.Cargo_Capacity = Cargo_Capacity;
-            ReturnModule.Advanced.shield_radius = shield_radius;
-            ReturnModule.Advanced.shield_power_max = shield_power_max;
-            ReturnModule.Advanced.shield_recharge_rate = shield_recharge_rate;
-            ReturnModule.Advanced.shield_recharge_combat_rate = shield_recharge_combat_rate;
-            ReturnModule.Advanced.shield_recharge_delay = shield_recharge_delay;
-            ReturnModule.Advanced.shield_threshold = shield_threshold;
-            ReturnModule.Advanced.shield_kinetic_resist = shield_kinetic_resist;
-            ReturnModule.Advanced.shield_energy_resist = shield_energy_resist;
-            ReturnModule.Advanced.shield_explosive_resist = shield_explosive_resist;
-            ReturnModule.Advanced.shield_missile_resist = shield_missile_resist;
-            ReturnModule.Advanced.shield_flak_resist = shield_flak_resist;
-            ReturnModule.Advanced.shield_hybrid_resist = shield_hybrid_resist;
-            ReturnModule.Advanced.shield_railgun_resist = shield_railgun_resist;
-            ReturnModule.Advanced.shield_subspace_resist = shield_subspace_resist;
-            ReturnModule.Advanced.shield_warp_resist = shield_warp_resist;
-            ReturnModule.Advanced.shield_beam_resist = shield_beam_resist;
-            ReturnModule.Advanced.numberOfColonists = numberOfColonists;
-            ReturnModule.Advanced.numberOfEquipment = numberOfEquipment;
-            ReturnModule.Advanced.numberOfFood = numberOfFood;
-            ReturnModule.Advanced.IsSupplyBay = IsSupplyBay;
-            ReturnModule.Advanced.IsTroopBay = IsTroopBay;
-            ReturnModule.Advanced.hangarTimerConstant = hangarTimerConstant;
-            ReturnModule.Advanced.thrust = thrust;
-            ReturnModule.Advanced.WarpThrust = WarpThrust;
-            ReturnModule.Advanced.TurnThrust = TurnThrust;
-            ReturnModule.Advanced.PowerFlowMax = PowerFlowMax;
-            ReturnModule.Advanced.PowerDraw = PowerDraw;
-            ReturnModule.Advanced.PowerDrawAtWarp = PowerDrawAtWarp;
-            ReturnModule.Advanced.PowerStoreMax = PowerStoreMax;
-            ReturnModule.Advanced.HealPerTurn = HealPerTurn;
-            ReturnModule.Advanced.TroopCapacity = TroopCapacity;
-            ReturnModule.Advanced.TroopsSupplied = TroopsSupplied;
-            ReturnModule.Advanced.Cost = Cost;
-            ReturnModule.Advanced.InhibitionRadius = InhibitionRadius;
-            ReturnModule.Advanced.FTLSpoolTime = FTLSpoolTime;
-            ReturnModule.Advanced.ECM = ECM;
-            ReturnModule.Advanced.SensorBonus = SensorBonus;
-            ReturnModule.Advanced.TransporterTimerConstant = TransporterTimerConstant;
-            ReturnModule.Advanced.TransporterRange = TransporterRange;
-            ReturnModule.Advanced.TransporterPower = TransporterPower;
-            ReturnModule.Advanced.TransporterOrdnance = TransporterOrdnance;
-            ReturnModule.Advanced.TransporterTroopLanding = TransporterTroopLanding;
-            ReturnModule.Advanced.TransporterTroopAssault = TransporterTroopAssault;
-            ReturnModule.Advanced.KineticResist = KineticResist;
-            ReturnModule.Advanced.EnergyResist = EnergyResist;
-            ReturnModule.Advanced.GuidedResist = GuidedResist;
-            ReturnModule.Advanced.MissileResist = MissileResist;
-            ReturnModule.Advanced.HybridResist = HybridResist;
-            ReturnModule.Advanced.BeamResist = BeamResist;
-            ReturnModule.Advanced.ExplosiveResist = ExplosiveResist;
-            ReturnModule.Advanced.InterceptResist = InterceptResist;
-            ReturnModule.Advanced.RailgunResist = RailgunResist;
-            ReturnModule.Advanced.SpaceBombResist = SpaceBombResist;
-            ReturnModule.Advanced.BombResist = BombResist;
-            ReturnModule.Advanced.BioWeaponResist = BioWeaponResist;
-            ReturnModule.Advanced.DroneResist = DroneResist;
-            ReturnModule.Advanced.WarpResist = WarpResist;
-            ReturnModule.Advanced.TorpedoResist = TorpedoResist;
-            ReturnModule.Advanced.CannonResist = CannonResist;
-            ReturnModule.Advanced.SubspaceResist = SubspaceResist;
-            ReturnModule.Advanced.PDResist = PDResist;
-            ReturnModule.Advanced.FlakResist = FlakResist;
-            ReturnModule.Advanced.DamageThreshold = DamageThreshold;
-            ReturnModule.Advanced.APResist = APResist;
-            ReturnModule.Advanced.IndirectPower = IndirectPower;
-            ReturnModule.Advanced.isPowerArmour = isPowerArmour;
-            ReturnModule.Advanced.isBulkhead = isBulkhead;
-            ReturnModule.Advanced.TargetTracking = TargetTracking;
-            ReturnModule.Advanced.FixedTracking = FixedTracking;
+            module.Advanced.FTLSpeed                    = FTLSpeed;
+            module.Advanced.DeployBuildingOnColonize    = DeployBuildingOnColonize;
+            module.Advanced.ResourceStored              = ResourceStored;
+            module.Advanced.ResourceStorageAmount       = ResourceStorageAmount;
+            module.Advanced.IsCommandModule             = IsCommandModule;
+            module.Advanced.IsRepairModule              = IsRepairModule;
+            module.Advanced.MaximumHangarShipSize       = MaximumHangarShipSize;
+            module.Advanced.FightersOnly                = FightersOnly;
+            module.Advanced.DroneModule                 = DroneModule;
+            module.Advanced.FighterModule               = FighterModule;
+            module.Advanced.CorvetteModule              = CorvetteModule;
+            module.Advanced.FrigateModule               = FrigateModule;
+            module.Advanced.DestroyerModule             = DestroyerModule;
+            module.Advanced.CruiserModule               = CruiserModule;
+            module.Advanced.CarrierModule               = CarrierModule;
+            module.Advanced.CapitalModule               = CapitalModule;
+            module.Advanced.FreighterModule             = FreighterModule;
+            module.Advanced.PlatformModule              = PlatformModule;
+            module.Advanced.StationModule               = StationModule;
+            module.Advanced.explodes                    = explodes;
+            module.Advanced.SensorRange                 = SensorRange;
+            module.Advanced.MechanicalBoardingDefense   = MechanicalBoardingDefense;
+            module.Advanced.EMP_Protection              = EMP_Protection;
+            module.Advanced.PowerRadius                 = PowerRadius;
+            module.Advanced.TechLevel                   = TechLevel;
+            module.Advanced.OrdnanceAddedPerSecond      = OrdnanceAddedPerSecond;
+            module.Advanced.BombType                    = BombType;
+            module.Advanced.WarpMassCapacity            = WarpMassCapacity;
+            module.Advanced.BonusRepairRate             = BonusRepairRate;
+            module.Advanced.Cargo_Capacity              = Cargo_Capacity;
+            module.Advanced.shield_radius               = shield_radius;
+            module.Advanced.shield_power_max            = shield_power_max;
+            module.Advanced.shield_recharge_rate        = shield_recharge_rate;
+            module.Advanced.shield_recharge_combat_rate = shield_recharge_combat_rate;
+            module.Advanced.shield_recharge_delay       = shield_recharge_delay;
+            module.Advanced.shield_threshold            = shield_threshold;
+            module.Advanced.shield_kinetic_resist       = shield_kinetic_resist;
+            module.Advanced.shield_energy_resist        = shield_energy_resist;
+            module.Advanced.shield_explosive_resist     = shield_explosive_resist;
+            module.Advanced.shield_missile_resist       = shield_missile_resist;
+            module.Advanced.shield_flak_resist          = shield_flak_resist;
+            module.Advanced.shield_hybrid_resist        = shield_hybrid_resist;
+            module.Advanced.shield_railgun_resist       = shield_railgun_resist;
+            module.Advanced.shield_subspace_resist      = shield_subspace_resist;
+            module.Advanced.shield_warp_resist          = shield_warp_resist;
+            module.Advanced.shield_beam_resist          = shield_beam_resist;
+            module.Advanced.numberOfColonists           = numberOfColonists;
+            module.Advanced.numberOfEquipment           = numberOfEquipment;
+            module.Advanced.numberOfFood                = numberOfFood;
+            module.Advanced.IsSupplyBay                 = IsSupplyBay;
+            module.Advanced.IsTroopBay                  = IsTroopBay;
+            module.Advanced.hangarTimerConstant         = hangarTimerConstant;
+            module.Advanced.thrust                      = thrust;
+            module.Advanced.WarpThrust                  = WarpThrust;
+            module.Advanced.TurnThrust                  = TurnThrust;
+            module.Advanced.PowerFlowMax                = PowerFlowMax;
+            module.Advanced.PowerDraw                   = PowerDraw;
+            module.Advanced.PowerDrawAtWarp             = PowerDrawAtWarp;
+            module.Advanced.PowerStoreMax               = PowerStoreMax;
+            module.Advanced.HealPerTurn                 = HealPerTurn;
+            module.Advanced.TroopCapacity               = TroopCapacity;
+            module.Advanced.TroopsSupplied              = TroopsSupplied;
+            module.Advanced.Cost                        = Cost;
+            module.Advanced.InhibitionRadius            = InhibitionRadius;
+            module.Advanced.FTLSpoolTime                = FTLSpoolTime;
+            module.Advanced.ECM                         = ECM;
+            module.Advanced.SensorBonus                 = SensorBonus;
+            module.Advanced.TransporterTimerConstant    = TransporterTimerConstant;
+            module.Advanced.TransporterRange            = TransporterRange;
+            module.Advanced.TransporterPower            = TransporterPower;
+            module.Advanced.TransporterOrdnance         = TransporterOrdnance;
+            module.Advanced.TransporterTroopLanding     = TransporterTroopLanding;
+            module.Advanced.TransporterTroopAssault     = TransporterTroopAssault;
+            module.Advanced.KineticResist               = KineticResist;
+            module.Advanced.EnergyResist                = EnergyResist;
+            module.Advanced.GuidedResist                = GuidedResist;
+            module.Advanced.MissileResist               = MissileResist;
+            module.Advanced.HybridResist                = HybridResist;
+            module.Advanced.BeamResist                  = BeamResist;
+            module.Advanced.ExplosiveResist             = ExplosiveResist;
+            module.Advanced.InterceptResist             = InterceptResist;
+            module.Advanced.RailgunResist               = RailgunResist;
+            module.Advanced.SpaceBombResist             = SpaceBombResist;
+            module.Advanced.BombResist                  = BombResist;
+            module.Advanced.BioWeaponResist             = BioWeaponResist;
+            module.Advanced.DroneResist                 = DroneResist;
+            module.Advanced.WarpResist                  = WarpResist;
+            module.Advanced.TorpedoResist               = TorpedoResist;
+            module.Advanced.CannonResist                = CannonResist;
+            module.Advanced.SubspaceResist              = SubspaceResist;
+            module.Advanced.PDResist                    = PDResist;
+            module.Advanced.FlakResist                  = FlakResist;
+            module.Advanced.DamageThreshold             = DamageThreshold;
+            module.Advanced.APResist                    = APResist;
+            module.Advanced.IndirectPower               = IndirectPower;
+            module.Advanced.isPowerArmour               = isPowerArmour;
+            module.Advanced.isBulkhead                  = isBulkhead;
+            module.Advanced.TargetTracking              = TargetTracking;
+            module.Advanced.FixedTracking               = FixedTracking;
 
-            return ReturnModule;
+            return module;
         }
-    }//class
-}//namespace
+    }
+}

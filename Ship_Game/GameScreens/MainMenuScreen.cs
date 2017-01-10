@@ -27,7 +27,7 @@ namespace Ship_Game
 
 		private SceneObject MoonObj;
 		private Vector3 MoonPosition;
-        private Vector3 MoonRotation = new Vector3(22f, 198, 10f);
+        private Vector3 MoonRotation = new Vector3(264f, 198, 15f);
         private const float MoonScale = 0.7f;
         private SceneObject ShipObj;
         private Vector3 ShipPosition;
@@ -417,7 +417,7 @@ namespace Ship_Game
 		{
             // Use these controls to reorient the ship and planet in the menu. The new rotation
             // is logged into debug console and can be set as default values later
-        #if false
+        #if true
             if (input.CurrentKeyboardState.IsKeyDown(Keys.W)) ShipRotation.X += 0.5f;
             if (input.CurrentKeyboardState.IsKeyDown(Keys.S)) ShipRotation.X -= 0.5f;
             if (input.CurrentKeyboardState.IsKeyDown(Keys.A)) ShipRotation.Y += 0.5f;
@@ -590,7 +590,7 @@ namespace Ship_Game
 			}
 			if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
-				PlayMp3("Mods/" + GlobalStats.ActiveMod.ModPath + "/" + GlobalStats.ActiveMod.MainMenuMusic);
+				PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
 			}
 			else if (ScreenManager.Music == null || ScreenManager.Music != null && ScreenManager.Music.IsStopped)
 			{
@@ -667,7 +667,7 @@ namespace Ship_Game
 		{
 			if (GlobalStats.ActiveMod != null && !string.IsNullOrEmpty(GlobalStats.ActiveMod.MainMenuMusic))
 			{
-				PlayMp3("Mods/" + GlobalStats.ActiveMod.ModPath + "/" + GlobalStats.ActiveMod.MainMenuMusic);
+				PlayMp3(GlobalStats.ModPath + GlobalStats.ActiveMod.MainMenuMusic);
 				ScreenManager.musicCategory.Stop(AudioStopOptions.Immediate);
 				return;
 			}

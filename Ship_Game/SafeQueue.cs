@@ -8,8 +8,12 @@ namespace Ship_Game
 {
     /// <summary>
     /// A thread-safe Queue, optimized for Enqueue and Dequeue operations
+    /// Some of the code has been manually inlined for better optimization,
+    /// since this SafeQueue is used heavily in ShipAI
+    /// 
+    /// For Unit Tests, check SDUnitTests/TestSafeQueueT.cs
     /// </summary>
-    [DebuggerTypeProxy(typeof(CollectionDebugView<>))]
+    [DebuggerTypeProxy(typeof(SafeQueueDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     public sealed class SafeQueue<T> : IDisposable, IReadOnlyCollection<T>
@@ -318,5 +322,32 @@ namespace Ship_Game
                 throw new NotImplementedException();
             }
         }
+    }
+
+    internal sealed class ReadOnlyCollectionDebugView<T>
+    {
+        private readonly IReadOnlyCollection<T> Collection;
+
+        public ReadOnlyCollectionDebugView(IReadOnlyCollection<T> collection)
+        {
+            Collection = collection;
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public T[] Items => Collection.ToArray();
+    }
+
+    internal sealed class SafeQueueDebugView<T>
+    {
+        private readonly SafeQueue<T> Queue;
+
+        public SafeQueueDebugView(SafeQueue<T> queue)
+        {
+            Queue = queue;
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public T[] Items => Queue.ToArray();
+        public T FirstToDequeue => Queue.PeekFirst;
     }
 }

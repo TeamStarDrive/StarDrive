@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Configuration;
 using System.Globalization;
 
@@ -46,7 +42,7 @@ namespace Ship_Game
             if (GlobalStats.ActiveMod != null)
             {
                 ModName = GlobalStats.ActiveMod.mi.ModName;
-                ModPath = GlobalStats.ActiveMod.ModPath;
+                ModPath = GlobalStats.ActiveMod.ModName;
             }
             this.Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
             this.GameDifficulty                = gameDifficulty;

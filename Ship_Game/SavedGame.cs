@@ -598,7 +598,7 @@ namespace Ship_Game
 				Time       = now,
                 SaveName   = data.SaveAs,
                 RealDate   = now.ToString("M/d/yyyy") + " " + now.ToString("t", CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat),
-                ModPath    = GlobalStats.ActiveMod?.ModPath ?? "",
+                ModPath    = GlobalStats.ActiveMod?.ModName    ?? "",
                 ModName    = GlobalStats.ActiveMod?.mi.ModName ?? "",
                 Version    = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"])
 			};
