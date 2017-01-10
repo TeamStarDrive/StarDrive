@@ -1,18 +1,20 @@
 using System;
 using System.Windows.Forms;
+using Microsoft.Xna.Framework;
+
 namespace Ship_Game
 {
 	internal static class Program
 	{
 		private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-            var graphicsMgr = Game1.Instance?.Graphics;
+            GraphicsDeviceManager graphicsMgr = Game1.Instance?.Graphics;
             if (graphicsMgr != null && graphicsMgr.IsFullScreen)
                 graphicsMgr.ToggleFullScreen();
 
             try
             {
-                Exception ex = e.ExceptionObject as Exception;
+                var ex = e.ExceptionObject as Exception;
                 Log.Error(ex, "Unhandled Exception");
                 ExceptionViewer.ShowExceptionDialog(ex);
             }
@@ -35,7 +37,9 @@ namespace Ship_Game
                         MessageBox.Show("Another instance of SD-BlackBox is already running!");
                         return;
                     }
-                    new Game1().Run();
+
+                    using (var game = new Game1())
+                        game.Run();
                 }
             }
             catch (Exception ex)

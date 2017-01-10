@@ -39,5 +39,19 @@ namespace Ship_Game
             obj.Dispose();
             self = null;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool NotEmpty(this string str)
+        {
+            // ReSharper disable once ReplaceWithStringIsNullOrEmpty
+            return str != null && str.Length > 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEmpty(this string str)
+        {
+            // ReSharper disable once ReplaceWithStringIsNullOrEmpty
+            return str == null || str.Length == 0;
+        }
     }
 }
