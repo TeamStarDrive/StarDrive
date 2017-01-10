@@ -81,9 +81,10 @@ namespace Ship_Game.AI
             if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
                 return;
             this.Ships.Add(shiptoadd);
-            shiptoadd.fleet = this;
+            shiptoadd.fleet = this;            
             this.SetSpeed();
             this.AssignPositions(this.facing);
+            //shiptoadd.GetAI().FleetNode = figure out how to set the ships datanode
         }
 
         public void SetSpeed()

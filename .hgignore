@@ -8,6 +8,7 @@ bin/
 StarDrive.v12.suo
 UpgradeLog2.htm
 *.vspx
+Deploy/Upload/
 StarDrive/
 Backup\Backup\StarDrive.sln
 *.suo

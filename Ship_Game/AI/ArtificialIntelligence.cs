@@ -2385,10 +2385,13 @@ namespace Ship_Game.AI
         {
             OrderQueue.Enqueue(new ShipGoal(plan, waypoint, desiredFacing));
         }
-
-        public void AddShipGoal(Plan plan, Vector2 waypoint, float desiredFacing, Planet p)
+        public void AddShipGoal(Plan plan, Vector2 waypoint, float desiredFacing, Planet targetPlanet)
         {
-
+            OrderQueue.Enqueue(new ShipGoal(plan, waypoint, desiredFacing, targetPlanet));
+        }
+        public void AddShipGoal(Plan plan, Vector2 waypoint, float desiredFacing, Planet targetPlanet, float speedLimit)
+        {
+            OrderQueue.Enqueue(new ShipGoal(plan, waypoint, desiredFacing, targetPlanet){SpeedLimit = speedLimit});
         }
 
         //order movement no pathing
@@ -2458,6 +2461,7 @@ namespace Ship_Game.AI
 				}
 			}
 		}
+
         //order movement no pathing
 		public void OrderMoveDirectlyTowardsPosition(Vector2 position, float desiredFacing, Vector2 fVec, bool ClearOrders, float speedLimit)
 		{
@@ -2486,42 +2490,43 @@ namespace Ship_Game.AI
 			}
 			FinalFacingVector = fVec;
 			DesiredFacing = desiredFacing;
-			lock (WayPointLocker)
+
+            Vector2[] waypoints;
+            lock (WayPointLocker) waypoints = ActiveWayPoints.ToArray();
+
+			for (int i = 0; i < waypoints.Length; i++)
 			{
-				for (var i = 0; i < ActiveWayPoints.Count; i++)
+				Vector2 waypoint = waypoints[i];
+				if (i != 0)
 				{
-					Vector2 waypoint = ActiveWayPoints.ToArray()[i];
-					if (i != 0)
+					var to1K = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
 					{
-						var to1k = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
-						{
-							SpeedLimit = speedLimit
-						};
-						OrderQueue.Enqueue(to1k);
-					}
-					else
+						SpeedLimit = speedLimit
+					};
+					OrderQueue.Enqueue(to1K);
+				}
+				else
+				{
+					AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
+					var to1K = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
 					{
-						AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
-						var to1k = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
-						{
-							SpeedLimit = speedLimit
-						};
-						OrderQueue.Enqueue(to1k);
-					}
-					if (i == ActiveWayPoints.Count - 1)
+						SpeedLimit = speedLimit
+					};
+					OrderQueue.Enqueue(to1K);
+				}
+				if (i == waypoints.Length - 1)
+				{
+					var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
 					{
-						var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
-						{
-							SpeedLimit = speedLimit
-						};
-						OrderQueue.Enqueue(finalApproach);
-						var slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
-						{
-							SpeedLimit = speedLimit
-						};
-						OrderQueue.Enqueue(slow);
-						AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
-					}
+						SpeedLimit = speedLimit
+					};
+					OrderQueue.Enqueue(finalApproach);
+					var slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
+					{
+						SpeedLimit = speedLimit
+					};
+					OrderQueue.Enqueue(slow);
+					AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
 				}
 			}
 		}
@@ -2564,21 +2569,19 @@ namespace Ship_Game.AI
 			AddShipGoal(Plan.RotateToDesiredFacing, MovePosition, desiredFacing);
 		}
         // order movement to posiston
-		public void OrderMoveTowardsPosition( Vector2  position , float desiredFacing, Vector2 fVec, bool ClearOrders, Planet TargetPlanet)
+		public void OrderMoveTowardsPosition( Vector2  position , float desiredFacing, Vector2 fVec, bool clearOrders, Planet targetPlanet)
 		{
             DistanceLast = 0f;
             Target = null;
 			hasPriorityTarget = false;
-		    Vector2 wantedForward = Owner.Center.FindVectorToTarget(position);
+		 //   Vector2 wantedForward = Owner.Center.FindVectorToTarget(position);
+   //         Vector2 forward       = Owner.Rotation.RotationToForwardVec();
+			//float angleDiff = (float)Math.Acos(Vector2.Dot(wantedForward, forward));
 
-            var forward = new Vector2((float)Math.Sin((double)Owner.Rotation), -(float)Math.Cos((double)Owner.Rotation));
-			var right = new Vector2(-forward.Y, forward.X);
-			var angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
-			Vector2.Dot(wantedForward, right);
-			if (angleDiff > 0.2f)
-			    Owner.HyperspaceReturn();
+			//if (angleDiff > 0.2f)
+			//    Owner.HyperspaceReturn();
 		    OrderQueue.Clear();
-            if (ClearOrders)
+            if (clearOrders)
                 lock (WayPointLocker)
                 {
                     ActiveWayPoints.Clear();
@@ -2588,57 +2591,34 @@ namespace Ship_Game.AI
 		    State = AIState.MoveTo;
 			MovePosition = position;
 
-            PlotCourseToNew(position, ActiveWayPoints.Count > 0 ? ActiveWayPoints.Last<Vector2>() : Owner.Center);
+            PlotCourseToNew(position, ActiveWayPoints.Count > 0 ? ActiveWayPoints.Last() : Owner.Center);
 
             FinalFacingVector = fVec;
 			DesiredFacing = desiredFacing;
 
-			lock (WayPointLocker)
+            Vector2[] waypoints;
+            lock (WayPointLocker) waypoints = ActiveWayPoints.ToArray();
+
+            for (int i = 0; i < waypoints.Length; ++i)
 			{
-                var waypoints = ActiveWayPoints.ToArray();
-                for (int i = 0; i < waypoints.Length; ++i)
+                Vector2 waypoint = waypoints[i];
+                bool isLast = waypoints.Length - 1 == i;
+                Planet p = isLast ? targetPlanet : null;
+
+                if (i != 0)
 				{
-					Planet p = null;
-                    Vector2 waypoint = waypoints[i];
-					if (i != 0)
-					{
-                        if (waypoints.Length - 1 == i)
-                            p = TargetPlanet;
-                        var to1K = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
-						{
-							TargetPlanet = p,
-                            SpeedLimit = Owner.speed
-						};
-						OrderQueue.Enqueue(to1K);
-					}
-					else
-					{
-						if (waypoints.Length - 1 == i)
-                            p = TargetPlanet;
-                        AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
-						var to1K = new ShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing)
-						{
-                            TargetPlanet = p,
-                            SpeedLimit = Owner.speed
-						};
-						OrderQueue.Enqueue(to1K);
-					}
-                    if (waypoints.Length - 1 == i)
-					{
-						var finalApproach = new ShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing)
-						{
-							TargetPlanet=p,
-                            SpeedLimit = Owner.speed
-						};
-						OrderQueue.Enqueue(finalApproach);
-						var slow = new ShipGoal(Plan.StopWithBackThrust, waypoint, 0f)
-						{
-                            TargetPlanet = TargetPlanet,
-                            SpeedLimit = Owner.speed
-						};
-						OrderQueue.Enqueue(slow);
-						AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
-					}
+                    AddShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing, p, Owner.speed);
+				}
+				else
+				{
+                    AddShipGoal(Plan.RotateToFaceMovePosition, waypoint, 0f);
+                    AddShipGoal(Plan.MoveToWithin1000, waypoint, desiredFacing, p, Owner.speed);
+				}
+                if (isLast)
+				{
+                    AddShipGoal(Plan.MakeFinalApproach, waypoint, desiredFacing, p, Owner.speed);
+                    AddShipGoal(Plan.StopWithBackThrust, waypoint, 0f, targetPlanet, Owner.speed);
+					AddShipGoal(Plan.RotateToDesiredFacing, waypoint, desiredFacing);
 				}
 			}
 		}

@@ -165,7 +165,7 @@ namespace Ship_Game
 
 					AudioManager.PlayCue("sd_ui_accept_alt3");
                     SelectedMod = e.item as ModEntry;
-					EnterNameArea.Text = SelectedMod.ModPath;
+					EnterNameArea.Text = SelectedMod.ModName;
 
                     foreach (UIButton button in Buttons)
                     {
@@ -195,7 +195,7 @@ namespace Ship_Game
         }
         private void LoadModTask()
         {
-            Log.Info("ModManager.LoadMod {0}", SelectedMod.ModPath);
+            Log.Info("ModManager.LoadMod {0}", SelectedMod.ModName);
             GlobalStats.LoadModInfo(SelectedMod);
             ResourceManager.LoadItAll();
             mmscreen.LoadContent();
