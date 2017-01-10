@@ -1459,27 +1459,19 @@ namespace Ship_Game
 
         public void UpdateFleets(float elapsedTime)
         {
-            this.updateContactsTimer -= elapsedTime;
-            this.FleetUpdateTimer -= elapsedTime;
-            //try
+            updateContactsTimer -= elapsedTime;
+            FleetUpdateTimer -= elapsedTime;
+            foreach (KeyValuePair<int, Fleet> kv in FleetsDict)
             {
-                foreach (KeyValuePair<int, Fleet> keyValuePair in this.FleetsDict)
+                kv.Value.Update(elapsedTime);
+                if (FleetUpdateTimer <= 0f)
                 {
-                    keyValuePair.Value.Update(elapsedTime);
-                    if ((double)this.FleetUpdateTimer <= 0.0)
-                    {
-                        
-                        
-                        keyValuePair.Value.UpdateAI(elapsedTime, keyValuePair.Key);
-                    }
+                    kv.Value.UpdateAI(elapsedTime, kv.Key);
                 }
             }
-            //catch
-            //{
-            //}
-            if ((double)this.FleetUpdateTimer < 0.0)
-                this.FleetUpdateTimer = 5f;
-            this.OwnedShips.ApplyPendingRemovals();
+            if (FleetUpdateTimer < 0.0)
+                FleetUpdateTimer = 5f;
+            OwnedShips.ApplyPendingRemovals();
         }
 
         public float GetPlanetIncomes()
@@ -1488,7 +1480,7 @@ namespace Ship_Game
             foreach (Planet planet in OwnedPlanets)
             {
                 planet.UpdateIncomes(false);
-                income += (planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod) * this.data.TaxRate;
+                income += (planet.GrossMoneyPT + planet.GrossMoneyPT * data.Traits.TaxMod) * data.TaxRate;
                 income += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
             }
             return income;
@@ -1496,93 +1488,85 @@ namespace Ship_Game
 
         private void DoMoney()
         {
-            this.MoneyLastTurn = this.Money;
-            ++this.numberForAverage;
-            this.GrossTaxes = 0f;
-            this.OtherIncome = 0f;
+            MoneyLastTurn = Money;
+            ++numberForAverage;
+            GrossTaxes = 0f;
+            OtherIncome = 0f;
 
             using (OwnedPlanets.AcquireReadLock())
+            foreach (Planet planet in OwnedPlanets)
             {
-                foreach (Planet planet in this.OwnedPlanets)
-                {
-                    planet.UpdateIncomes(false);
-                    this.GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * this.data.Traits.TaxMod;
-                    this.OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
-                }
+                planet.UpdateIncomes(false);
+                GrossTaxes += planet.GrossMoneyPT + planet.GrossMoneyPT * data.Traits.TaxMod;
+                OtherIncome += planet.PlusFlatMoneyPerTurn + (planet.Population / 1000f * planet.PlusCreditsPerColonist);
             }
-            this.TradeMoneyAddedThisTurn = 0.0f;
-            foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
+
+            TradeMoneyAddedThisTurn = 0.0f;
+            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
             {
-                if (keyValuePair.Value.Treaty_Trade)
+                if (kv.Value.Treaty_Trade)
                 {
-                    float num = (float)(0.25 * (double)keyValuePair.Value.Treaty_Trade_TurnsExisted - 3.0);
-                    if ((double)num > 3.0)
+                    float num = (float)(0.25 * kv.Value.Treaty_Trade_TurnsExisted - 3.0);
+                    if (num > 3.0)
                         num = 3f;
-                    this.TradeMoneyAddedThisTurn += num;
+                    TradeMoneyAddedThisTurn += num;
                 }
             }
-            {
-                this.totalShipMaintenance = 0.0f;
+
+            totalShipMaintenance = 0.0f;
                 
-                using (OwnedShips.AcquireReadLock())
-                foreach (Ship ship in OwnedShips)
+            using (OwnedShips.AcquireReadLock())
+            foreach (Ship ship in OwnedShips)
+            {
+                if (data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
+                    || (ship.shipData.Role == ShipData.RoleName.station && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                 {
-                    if (data.DefenseBudget > 0 && ((ship.shipData.Role == ShipData.RoleName.platform && ship.BaseStrength > 0)
-                        || (ship.shipData.Role == ShipData.RoleName.station && (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
+                    data.DefenseBudget -= ship.GetMaintCost();
+                    continue;
+                }
+                totalShipMaintenance += ship.GetMaintCost();
+            }
+
+            using (OwnedProjectors.AcquireReadLock())
+            foreach (Ship ship in OwnedProjectors)
+            {
+                    if (data.SSPBudget > 0)
                     {
-                        data.DefenseBudget -= ship.GetMaintCost();
+                        data.SSPBudget -= ship.GetMaintCost();
                         continue;
                     }
                     totalShipMaintenance += ship.GetMaintCost();
-                }
-
-                using (OwnedProjectors.AcquireReadLock())
-                foreach (Ship ship in OwnedProjectors)
-                {
-                        if (data.SSPBudget > 0)
-                        {
-                            data.SSPBudget -= ship.GetMaintCost();
-                            continue;
-                        }
-                        totalShipMaintenance += ship.GetMaintCost();
-                }
-
-            }//,
-           // () =>
-            {
-                using (OwnedPlanets.AcquireReadLock())
-                {
-                    float newBuildM = 0f;
-                    int planetcount = this.GetPlanets().Count;
-                    this.exportFTrack = 0;
-                    this.exportPTrack = 0;
-                    this.averagePLanetStorage =0;
-                    foreach (Planet planet in this.OwnedPlanets)
-                    {
-
-                        this.exportFTrack += planet.ExportFSWeight;
-                        this.exportPTrack += planet.ExportPSWeight;
-                        this.averagePLanetStorage += (int)planet.MAX_STORAGE;
-                    }
-                    this.averagePLanetStorage /= planetcount;
-                
-                    foreach (Planet planet in this.OwnedPlanets)// .OrderBy(weight => (int)(weight.ExportFSWeight) + (int)(weight.ExportPSWeight)))
-                    {
-                    
-                        planet.UpdateOwnedPlanet();
-
-                        newBuildM += planet.TotalMaintenanceCostsPerTurn;
-                    }
-                    totalBuildingMaintenance = newBuildM;
-                }
             }
-           // );
-            this.totalMaint = this.GetTotalBuildingMaintenance() + this.GetTotalShipMaintenance();
-            this.AllTimeMaintTotal += this.totalMaint;
-            this.Money += (this.GrossTaxes * this.data.TaxRate) + this.OtherIncome;
-            this.Money += this.data.FlatMoneyBonus;
-            this.Money += this.TradeMoneyAddedThisTurn;
-            this.Money -= this.totalMaint;
+
+            using (OwnedPlanets.AcquireReadLock())
+            {
+                float newBuildM = 0f;
+                int planetcount = GetPlanets().Count;
+                exportFTrack = 0;
+                exportPTrack = 0;
+                averagePLanetStorage = 0;
+                foreach (Planet planet in OwnedPlanets)
+                {
+                    exportFTrack += planet.ExportFSWeight;
+                    exportPTrack += planet.ExportPSWeight;
+                    averagePLanetStorage += (int)planet.MAX_STORAGE;
+                }
+                averagePLanetStorage /= planetcount;
+                
+                foreach (Planet planet in OwnedPlanets)
+                {
+                    planet.UpdateOwnedPlanet();
+                    newBuildM += planet.TotalMaintenanceCostsPerTurn;
+                }
+                totalBuildingMaintenance = newBuildM;
+            }
+
+            totalMaint = GetTotalBuildingMaintenance() + GetTotalShipMaintenance();
+            AllTimeMaintTotal += totalMaint;
+            Money += (GrossTaxes * data.TaxRate) + OtherIncome;
+            Money += data.FlatMoneyBonus;
+            Money += TradeMoneyAddedThisTurn;
+            Money -= totalMaint;
         }
 
         public float EstimateIncomeAtTaxRate(float rate)

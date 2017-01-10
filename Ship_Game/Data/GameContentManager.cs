@@ -16,19 +16,24 @@ namespace Ship_Game
         // to avoid double loading resources into memory
         private readonly GameContentManager Parent;
         private Dictionary<string, object> LoadedAssets;
+        private List<IDisposable> DisposableAssets;
         public string Name { get; }
 
         public GameContentManager(IServiceProvider service, string name) : base(service, "Content")
         {
             Name = name;
-            LoadedAssets = (Dictionary<string, object>)
-                typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
+            LoadedAssets     = (Dictionary<string, object>)GetField("loadedAssets");
+            DisposableAssets = (List<IDisposable>)GetField("disposableAssets");
         }
 
         public GameContentManager(GameContentManager parent, string name) : this(parent.ServiceProvider, name)
         {
             Parent = parent;
         }
+
+        private object GetField(string field) => typeof(ContentManager).GetField(field, BindingFlags.Instance|BindingFlags.NonPublic)?.GetValue(this);
+
+        public bool EnableLoadInfoLog { get; set; }
 
         private bool TryGetAsset(string assetNameNoExt, out object asset)
         {
@@ -57,7 +62,8 @@ namespace Ship_Game
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            LoadedAssets = null;
+            LoadedAssets     = null;
+            DisposableAssets = null;
         }
 
         private static T GetField<T>(object obj, string name)
@@ -125,14 +131,31 @@ namespace Ship_Game
 
         public override void Unload()
         {
+            if (LoadedAssets == null)
+                throw new ObjectDisposedException(ToString());
+
             float totalMemSaved = GetLoadedAssetMegabytes();
             int count = LoadedAssets.Count;
-            base.Unload();
+            try
+            {
+                foreach (IDisposable asset in DisposableAssets)
+                    asset?.Dispose();
+            }
+            finally
+            {
+                LoadedAssets.Clear();
+                DisposableAssets.Clear();
+            }
 
             if (totalMemSaved > 0f)
             {
                 Log.Info("Unloaded '{0}' ({1} assets, {2:0.0}MB)", Name, count, totalMemSaved);
             }
+        }
+
+        private void RecordDisposableObject(IDisposable disposable)
+        {
+            DisposableAssets.Add(disposable);
         }
 
         // Load the asset with the given name or path
@@ -163,6 +186,12 @@ namespace Ship_Game
                 throw new ArgumentException($"Asset name cannot contain absolute paths: '{assetNoExt}'");
         #endif
 
+            if (assetNoExt.StartsWith("Mods"))
+                Debugger.Break();
+
+            if (EnableLoadInfoLog)
+                Log.Info(ConsoleColor.Cyan, "Load<{0}> {1}", typeof(T).Name, assetNoExt);
+
             if (TryGetAsset(assetNoExt, out object existing))
             {
                 if (existing is T assetObj)
@@ -170,7 +199,7 @@ namespace Ship_Game
                 throw new ContentLoadException($"Asset '{assetNoExt}' already loaded as '{existing.GetType()}' while Load requested type '{typeof(T)}");
             }
 
-            T asset = ReadAsset<T>(assetNoExt, null);
+            var asset = ReadAsset<T>(assetNoExt, RecordDisposableObject);
             LoadedAssets.Add(assetNoExt, asset);
             return asset;
         }

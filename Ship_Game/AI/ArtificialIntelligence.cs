@@ -4053,17 +4053,13 @@ namespace Ship_Game.AI
                 endp.Y /= reducer;
                 endp.Y += granularity;
                 endp.X += granularity;
-                //@Bug Add sanity correct to prevent start and end from getting posistions off the map
-                PathFinderFast path;
-                Owner.loyalty.LockPatchCache.EnterReadLock();
-                if (PathCacheLookup(startp, endp, startPos, endPos))
-                {
-                    Owner.loyalty.LockPatchCache.ExitReadLock();
-                    return;
-                }
-                Owner.loyalty.LockPatchCache.ExitReadLock();
 
-                path = new PathFinderFast(Owner.loyalty.grid)
+                //@Bug Add sanity correct to prevent start and end from getting posistions off the map
+                using (Owner.loyalty.LockPatchCache.AcquireReadLock())
+                    if (PathCacheLookup(startp, endp, startPos, endPos))
+                        return;
+
+                var path = new PathFinderFast(Owner.loyalty.grid)
                 {
                     Diagonals = true,
                     HeavyDiagonals = false,
@@ -4104,30 +4100,28 @@ namespace Ship_Game.AI
                         var cache = Owner.loyalty.PathCache;
                         if (!cache.ContainsKey(startp))
                         {
-                            Owner.loyalty.LockPatchCache.EnterWriteLock();
-                            var endValue = new Empire.PatchCacheEntry(cacheAdd);
-                            var endkey   = new Map<Point, Empire.PatchCacheEntry>();
-
-                            endkey.Add(endp, endValue);
-                            cache.Add(startp, endkey);
-                            Owner.loyalty.pathcacheMiss++;
-                            Owner.loyalty.LockPatchCache.ExitWriteLock();
-
+                            using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
+                            {
+                                var endValue = new Empire.PatchCacheEntry(cacheAdd);
+                                cache[startp] = new Map<Point, Empire.PatchCacheEntry> { { endp, endValue } };
+                                Owner.loyalty.pathcacheMiss++;
+                            }
                         }
                         else if (!cache[startp].ContainsKey(endp))
                         {
-                            Owner.loyalty.LockPatchCache.EnterWriteLock();
-                                
-                            var endValue = new Empire.PatchCacheEntry(cacheAdd);
-                            cache[startp].Add(endp, endValue);
-                            Owner.loyalty.pathcacheMiss++;
-                            Owner.loyalty.LockPatchCache.ExitWriteLock();
+                            using (Owner.loyalty.LockPatchCache.AcquireWriteLock())
+                            {
+                                var endValue = new Empire.PatchCacheEntry(cacheAdd);
+                                cache[startp].Add(endp, endValue);
+                                Owner.loyalty.pathcacheMiss++;
+                            }
                         }
                         else
                         {
-                            Owner.loyalty.LockPatchCache.EnterReadLock();
-                            PathCacheLookup(startp, endp, startPos, endPos);
-                            Owner.loyalty.LockPatchCache.ExitReadLock();
+                            using (Owner.loyalty.LockPatchCache.AcquireReadLock())
+                            {
+                                PathCacheLookup(startp, endp, startPos, endPos);
+                            }
                         }
                     }
                     ActiveWayPoints.Enqueue(endPos);

@@ -2406,13 +2406,13 @@ namespace Ship_Game
             }
 
             //fbedard: Click button to Cycle through ships in Combat
-            if (!HelperFunctions.CheckIntersection(this.ShipsInCombat.Rect, input.CursorPosition))
+            if (!ShipsInCombat.Rect.HitTest(input.CursorPosition))
             {
-                this.ShipsInCombat.State = UIButton.PressState.Default;
+                ShipsInCombat.State = UIButton.PressState.Default;
             }
             else
             {
-                this.ShipsInCombat.State = UIButton.PressState.Hover;
+                ShipsInCombat.State = UIButton.PressState.Hover;
                 ToolTip.CreateTooltip("Cycle through ships not in fleet that are in combat", this.ScreenManager);
                 if (input.InGameSelect)
                 {
@@ -2595,7 +2595,7 @@ namespace Ship_Game
                 {
                     for (int local_10 = 0; local_10 < this.ItemsToBuild.Count; ++local_10)
                     {
-                        UniverseScreen.ClickableItemUnderConstruction local_11 = this.ItemsToBuild[local_10];
+                        ClickableItemUnderConstruction local_11 = this.ItemsToBuild[local_10];
                         if (local_11.BuildPos == this.SelectedItem.BuildPos)
                         {
                             this.ItemsToBuild.QueuePendingRemoval(local_11);
@@ -2605,7 +2605,7 @@ namespace Ship_Game
                     this.ItemsToBuild.ApplyPendingRemovals();
                 }
                 this.player.GetGSAI().Goals.ApplyPendingRemovals();
-                this.SelectedItem = (UniverseScreen.ClickableItemUnderConstruction)null;
+                this.SelectedItem = null;
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.H) && !input.LastKeyboardState.IsKeyDown(Keys.H) && this.Debug)
             {
