@@ -24,12 +24,12 @@ namespace Ship_Game
 	    public static SpriteFont Arial20Bold   { get; private set; }
 	    public static SpriteFont Arial8Bold    { get; private set; }
 	    public static SpriteFont Consolas18    { get; private set; }
-	    public static SpriteFont Corbel14      { get; private set; }
+	    //public static SpriteFont Corbel14      { get; private set; }
 	    public static SpriteFont Laserian14    { get; private set; }
 	    public static SpriteFont Pirulen12     { get; private set; }
 	    public static SpriteFont Pirulen16     { get; private set; }
 	    public static SpriteFont Pirulen20     { get; private set; }
-	    public static SpriteFont Stratum72     { get; private set; }
+	    //public static SpriteFont Stratum72     { get; private set; }
 	    public static SpriteFont Tahoma10      { get; private set; }
 	    public static SpriteFont Tahoma11      { get; private set; }
 	    public static SpriteFont TahomaBold9   { get; private set; }
@@ -38,7 +38,7 @@ namespace Ship_Game
 	    public static SpriteFont Verdana10     { get; private set; }
 	    public static SpriteFont Verdana14Bold { get; private set; }
 	    public static SpriteFont Visitor10     { get; private set; }
-	    public static SpriteFont Visitor12     { get; private set; }
+	    //public static SpriteFont Visitor12     { get; private set; }
 
 	    public static string GetGoldString(int gold) => $"{gold:n0}";
 
@@ -72,8 +72,8 @@ namespace Ship_Game
 			Arial10       = LoadFont(c, "Arial10", -2);
 			Arial8Bold    = LoadFont(c, "Arial8Bold");
 			Arial12       = LoadFont(c, "Arial12", -2);
-			Stratum72     = LoadFont(c, "stratum72");
-			Corbel14      = LoadFont(c, "Corbel14");
+			//Stratum72     = LoadFont(c, "stratum72");
+			//Corbel14      = LoadFont(c, "Corbel14");
 			Laserian14    = LoadFont(c, "Laserian14");
 			Pirulen16     = LoadFont(c, "Pirulen16");
             Pirulen20     = LoadFont(c, "Pirulen20");
@@ -82,16 +82,16 @@ namespace Ship_Game
             Tahoma11      = LoadFont(c, "Tahoma11");
             TahomaBold9   = LoadFont(c, "TahomaBold9");
             Visitor10     = LoadFont(c, "Visitor10");
-            Visitor12     = LoadFont(c, "Visitor12");
+            //Visitor12     = LoadFont(c, "Visitor12");
             Verdana14Bold = LoadFont(c, "Verdana14Bold");
             Verdana12     = LoadFont(c, "Verdana12");
             Verdana12Bold = LoadFont(c, "Verdana12Bold");
             Verdana10     = LoadFont(c, "Verdana10");
 
             Consolas18.Spacing -= 2f;
-            Stratum72.Spacing = 1f;
+            //Stratum72.Spacing = 1f;
             Visitor10.Spacing = 1f;
-            Visitor12.Spacing = 1f;
+            //Visitor12.Spacing = 1f;
 
             if (GlobalStats.IsRussian || GlobalStats.IsPolish)
 			{

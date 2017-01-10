@@ -9,6 +9,7 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using System.Linq;
@@ -408,14 +409,14 @@ namespace Ship_Game
         {
             if (!ShipsDict.TryGetValue(shipName, out Ship template))
             {
-                Exception stackTrace = new Exception();
+                var stackTrace = new Exception();
                 MessageBox.Show($"Failed to create new ship '{shipName}'. " +
                                 $"This is a bug caused by mismatched or missing ship designs\n\n{stackTrace.StackTrace}",
                     "Ship spawn failed!", MessageBoxButtons.OK);
                 return null;
             }
 
-            Ship ship = new Ship
+            var ship = new Ship
             {
                 shipData     = template.shipData,
                 Name         = template.Name,
@@ -640,13 +641,106 @@ namespace Ship_Game
             // try to get cached value
             lock (ModelDict) if (ModelDict.TryGetValue(path, out item)) return item;
 
-            try { item = ContentManager.Load<Model>(path); }
-            catch (ContentLoadException) { if (throwOnFailure) throw; }
+            try
+            {
+                ContentManager.EnableLoadInfoLog = true;
+                item = ContentManager.Load<Model>(path);
+            }
+            catch (ContentLoadException)
+            {
+                if (throwOnFailure) throw;
+            }
+            finally
+            {
+                ContentManager.EnableLoadInfoLog = false;
+            }
 
             // stick it into Model cache, even if null (prevents further loading)
             lock (ModelDict) ModelDict.Add(path, item);
             return item;
         }
+
+        
+
+        // Gets a loaded texture using the given abstract texture path
+        public static Texture2D Texture(string texturePath)
+        {
+            return TextureDict[texturePath];
+        }
+
+        private static void LoadTexture(FileInfo info)
+        {
+            string relPath = info.CleanResPath();
+            var tex = ContentManager.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
+
+            string texName = relPath.Substring("Textures/".Length);
+            lock (TextureDict)
+            {
+                TextureDict[texName] = tex;
+            }
+        }
+
+        // This method is a hot path during Loading and accounts for ~25% of time spent
+        private static void LoadTextures()
+        {
+        #if true //parallel texture load
+            Parallel.ForEach(GatherFilesUnified("Textures", "xnb"), LoadTexture);
+        #else
+            foreach (FileInfo info in GatherFilesUnified("Textures", "xnb"))
+                LoadTexture(info);
+        #endif
+
+            // check for any duplicate loads:
+            var field = typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance | BindingFlags.NonPublic);
+            var assets = field?.GetValue(ContentManager) as Map<string, object>;
+            if (assets != null && assets.Count != 0)
+            {
+                var keys = assets.Keys.Where(key => key != null).ToArray();
+                var names = keys.Select(key => Path.GetDirectoryName(key) + "\\" + Path.GetFileName(key)).ToArray();
+                for (int i = 0; i < names.Length; ++i)
+                {
+                    for (int j = 0; j < names.Length; ++j)
+                    {
+                        if (i != j && names[i] == names[j])
+                        {
+                            Log.Warning("!! Duplicate texture load: \n    {0}\n    {1}", keys[i], keys[j]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Load texture with its abstract path such as
+        // "Explosions/smaller/shipExplosion"
+        public static Texture2D LoadTexture(string textureName)
+        {
+            if (TextureDict.TryGetValue(textureName, out Texture2D tex))
+                return tex;
+            try
+            {
+                tex = ContentManager.Load<Texture2D>("Textures/" + textureName);
+                TextureDict[textureName] = tex;
+            }
+            catch (Exception)
+            {
+            }
+            return tex;
+        }
+
+        // Load texture for a specific mod, such as modName="Overdrive"
+        public static Texture2D LoadModTexture(string modName, string textureName)
+        {
+            if (TextureDict.TryGetValue(textureName, out Texture2D tex))
+                return tex;
+
+            string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
+            if (File.Exists(modTexPath + ".xnb"))
+                return TextureDict[textureName] = ContentManager.Load<Texture2D>(modTexPath);
+
+            return null;
+        }
+
+
 
         public static float GetModuleCost(string uid)
         {
@@ -1329,90 +1423,6 @@ namespace Ship_Game
 
                 }
             }
-        }
-
-
-        // Gets a loaded texture using the given abstract texture path
-        public static Texture2D Texture(string texturePath)
-        {
-            return TextureDict[texturePath];
-        }
-        private static void AddTexture(string relativePath, Texture2D tex)
-        {
-            string texName = relativePath.Substring("Textures/".Length);
-            lock (TextureDict)
-            {
-                TextureDict[texName] = tex;
-            }
-        }
-
-        // This method is a hot path during Loading and accounts for ~25% of time spent
-        private static void LoadTextures()
-        {
-            GameContentManager content = ContentManager;
-
-            //Parallel.ForEach(GatherFilesUnified("Textures", "xnb"), info =>
-            foreach (FileInfo info in GatherFilesUnified("Textures", "xnb"))
-            {
-                string relPath = info.CleanResPath();
-                var tex = content.Load<Texture2D>(relPath); // 90% of this methods time is spent inside content::Load
-
-                string texName = relPath.Substring("Textures/".Length);
-                lock (TextureDict)
-                {
-                    TextureDict[texName] = tex;
-                }
-            }
-            //);
-
-            // check for any duplicate loads:
-            var field = typeof(ContentManager).GetField("loadedAssets", BindingFlags.Instance | BindingFlags.NonPublic);
-            var assets = field?.GetValue(ContentManager) as Map<string, object>;
-            if (assets != null && assets.Count != 0)
-            {
-                var keys = assets.Keys.Where(key => key != null).ToArray();
-                var names = keys.Select(key => Path.GetDirectoryName(key) + "\\" + Path.GetFileName(key)).ToArray();
-                for (int i = 0; i < names.Length; ++i)
-                {
-                    for (int j = 0; j < names.Length; ++j)
-                    {
-                        if (i != j && names[i] == names[j])
-                        {
-                            Log.Warning("!! Duplicate texture load: \n    {0}\n    {1}", keys[i], keys[j]);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Load texture with its abstract path such as
-        // "Explosions/smaller/shipExplosion"
-        public static Texture2D LoadTexture(string textureName)
-        {
-            if (TextureDict.TryGetValue(textureName, out Texture2D tex))
-                return tex;
-            try
-            {
-                tex = ContentManager.Load<Texture2D>("Textures/" + textureName);
-                TextureDict[textureName] = tex;
-            }
-            catch (Exception)
-            {
-            }
-            return tex;
-        }
-
-        // Load texture for a specific mod, such as modName="Overdrive"
-        public static Texture2D LoadModTexture(string modName, string textureName)
-        {
-            if (TextureDict.TryGetValue(textureName, out Texture2D tex))
-                return tex;
-
-            string modTexPath = "Mods/" + modName + "/Textures/" + textureName;
-            if (File.Exists(modTexPath + ".xnb"))
-                return TextureDict[textureName] = ContentManager.Load<Texture2D>(modTexPath);
-
-            return null;
         }
 
         private static void LoadToolTips()
