@@ -7,9 +7,6 @@ using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
 using System.Linq;
 using SgMotion;
 using SgMotion.Controllers;
@@ -417,7 +414,7 @@ namespace Ship_Game
 		{
             // Use these controls to reorient the ship and planet in the menu. The new rotation
             // is logged into debug console and can be set as default values later
-        #if true
+        #if false
             if (input.CurrentKeyboardState.IsKeyDown(Keys.W)) ShipRotation.X += 0.5f;
             if (input.CurrentKeyboardState.IsKeyDown(Keys.S)) ShipRotation.X -= 0.5f;
             if (input.CurrentKeyboardState.IsKeyDown(Keys.A)) ShipRotation.Y += 0.5f;

@@ -355,12 +355,10 @@ namespace Ship_Game.Gameplay
 
                 if (nearby.Count == 0)
                     return;
-                var source = Enumerable.Range(0, nearby.Count).ToArray();
-                var rangePartitioner = Partitioner.Create(0, source.Length);
                 //handle each weapon group in parallel
-                Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                Parallel.For(0, nearby.Count, (start, end) =>
                 {
-                    for (int T = range.Item1; T < range.Item2; T++)
+                    for (int T = start; T < end; T++)
                     {
 
                         Ship shipObject2 = nearby[T] as Ship;
@@ -739,17 +737,14 @@ namespace Ship_Game.Gameplay
             Array<GameplayObject> nearbythings = this.GetNearby(gameplayObject);
             if (nearbythings.Count == 0)
                 return;
-            var source = Enumerable.Range(0, nearbythings.Count).ToArray();
-            var rangePartitioner = Partitioner.Create(0, source.Length);
             //handle each weapon group in parallel
-            Parallel.ForEach(rangePartitioner, (range, loopState) =>
+            Parallel.For(0, nearbythings.Count, (start, end) =>
             {
                 //standard for loop through each weapon group.
-                for (int T = range.Item1; T < range.Item2; T++)
+                for (int T = start; T < end; T++)
                 {
                     GameplayObject gameplayObject1 = nearbythings[T];
-                    Vector3 object1position;
-                        BoundingSphere object1;
+                    BoundingSphere object1;
 
                     //float minHit = 0f;          //Not referenced in code, removing to save memory
                     // foreach (GameplayObject gameplayObject1 in this.GetNearby(gameplayObject))
@@ -764,7 +759,7 @@ namespace Ship_Game.Gameplay
                             {
                                 if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) < GO1Projectile.weapon.ProjectileRadius + GOShip.GetSO().WorldBoundingSphere.Radius + 575)
                                 {
-                                    object1position = new Vector3(gameplayObject1.Center.X, gameplayObject1.Center.Y, 0);
+                                    var object1position = new Vector3(gameplayObject1.Center.X, gameplayObject1.Center.Y, 0);
                                     object1 = new BoundingSphere(object1position, gameplayObject1.Radius);
                                     ++GlobalStats.Comparisons;
 
@@ -809,8 +804,7 @@ namespace Ship_Game.Gameplay
                                         if (damaged != null && GO1Projectile.Touch(damaged))
                                         {
                                             GO1Projectile.CollidedThisFrame = damaged.CollidedThisFrame = true;
-                                            (gameplayObject as Ship).MoveModulesTimer = 2f;
-                                            loopState.Break();
+                                            ((Ship)gameplayObject).MoveModulesTimer = 2f;
                                             return;
                                         }
                                         if (GOShip.GetSO().WorldBoundingSphere.Intersects(object1))
@@ -831,8 +825,7 @@ namespace Ship_Game.Gameplay
                                                     if (damaged != null && GO1Projectile.Touch(damaged))
                                                     {
                                                         GO1Projectile.CollidedThisFrame = damaged.CollidedThisFrame = true;
-                                                        (gameplayObject as Ship).MoveModulesTimer = 2f;
-                                                        loopState.Break();
+                                                        ((Ship)gameplayObject).MoveModulesTimer = 2f;
                                                         return;
                                                     }
                                                     //break;
@@ -863,7 +856,6 @@ namespace Ship_Game.Gameplay
                                             Normal = Vector2.Normalize(Vector2.Zero),
                                             GameplayObject = gameplayObject1
                                         });
-                                    loopState.Break();
                                     return;
                                 }
                             }
@@ -878,7 +870,6 @@ namespace Ship_Game.Gameplay
                                             Normal = Vector2.Normalize(Vector2.Zero),
                                             GameplayObject = gameplayObject1
                                         });
-                                    loopState.Break();
                                     return;
                                 }
                             }

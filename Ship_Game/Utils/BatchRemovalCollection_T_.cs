@@ -181,7 +181,7 @@ namespace Ship_Game
                 }
                 else if (inParallel)
                 {
-                    Parallel.ForEach(clones, wrapper);
+                    System.Threading.Tasks.Parallel.ForEach(clones, wrapper);
                 }
                 else
                 {
@@ -199,7 +199,7 @@ namespace Ship_Game
                     }
                     else if (inParallel)
                     {
-                        Parallel.ForEach(this, wrapper);
+                        System.Threading.Tasks.Parallel.ForEach(this, wrapper);
                     }
                     else
                     {
@@ -236,7 +236,7 @@ namespace Ship_Game
                 }
                 else if (inParallel)
                 {
-                    Parallel.ForEach(clones, wrapper);
+                    System.Threading.Tasks.Parallel.ForEach(clones, wrapper);
                 }
                 else
                 {
@@ -253,7 +253,7 @@ namespace Ship_Game
                     }
                     else if (inParallel)
                     {
-                        Parallel.ForEach(this, wrapper);
+                        System.Threading.Tasks.Parallel.ForEach(this, wrapper);
                     }
                     else
                     {
