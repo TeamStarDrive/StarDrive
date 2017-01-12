@@ -28,7 +28,7 @@ namespace Ship_Game
 
         public static PerfTimer StartNew()
         {
-            PerfTimer t = new PerfTimer();
+            var t = new PerfTimer();
             t.Start();
             return t;
         }
@@ -40,6 +40,7 @@ namespace Ship_Game
         }
 
         // Get intermediate sampling value that isn't stored
+        // (in seconds)
         public float Elapsed
         {
             get
