@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Ship_Game
 {
@@ -15,8 +14,8 @@ namespace Ship_Game
 
         public static int IndexOf<T>(this IReadOnlyList<T> list, T item) where T : class
         {
-            if (list is Array<T> arrayList)
-                return arrayList.IndexOf(item);
+            if (list is IList<T> ilist)
+                return ilist.IndexOf(item);
 
             for (int i = 0, n = list.Count; i < n; ++i)
                 if (item == list[i])
@@ -158,6 +157,4 @@ namespace Ship_Game
             return items;
         }
     }
-
-
 }
