@@ -19,6 +19,8 @@ namespace Ship_Game
         private List<IDisposable> DisposableAssets;
         public string Name { get; }
 
+        public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
+
         public GameContentManager(IServiceProvider service, string name) : base(service, "Content")
         {
             Name = name;

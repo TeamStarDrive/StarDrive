@@ -1483,7 +1483,7 @@ namespace Ship_Game.AI
                     var source = Enumerable.Range(0, Owner.Weapons.Count).ToArray();
                             var rangePartitioner = Partitioner.Create(0, source.Length);
                     //handle each weapon group in parallel
-                            Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                            System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
                                            {
                                                //standard for loop through each weapon group.
                                                for (int T = range.Item1; T < range.Item2; T++)
