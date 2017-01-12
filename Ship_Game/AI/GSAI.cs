@@ -8072,7 +8072,7 @@ namespace Ship_Game.AI
                         ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
 						//foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
 
-                        Parallel.ForEach(ResourceManager.TechTree, Technology =>
+                        System.Threading.Tasks.Parallel.ForEach(ResourceManager.TechTree, Technology =>
                         {
                             TechEntry tech = null;// new TechEntry();
                             bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);

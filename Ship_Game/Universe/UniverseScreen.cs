@@ -1296,7 +1296,7 @@ namespace Ship_Game
             if (!Paused)
             {
                 bool rebuild = false;
-                Parallel.ForEach(EmpireManager.Empires, empire =>
+                System.Threading.Tasks.Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
                     foreach (Ship s in empire.ShipsToAdd)
                     {
@@ -1364,7 +1364,7 @@ namespace Ship_Game
                         if (x < 0) x = 0;
                         grid[x, y] = 200;
                     }
-                    Parallel.ForEach(EmpireManager.Empires, empire =>
+                    System.Threading.Tasks.Parallel.ForEach(EmpireManager.Empires, empire =>
                     {
                         byte[,] grid1 = (byte[,]) grid.Clone();
                         PathGridtranslateBordernode(empire, 1, grid1);
@@ -1461,7 +1461,7 @@ namespace Ship_Game
             #region Mid
 
 
-            Parallel.Invoke(() =>
+            System.Threading.Tasks.Parallel.Invoke(() =>
                 {
                     if (elapsedTime > 0.0 && shiptimer <= 0.0)
                     {
@@ -1472,7 +1472,7 @@ namespace Ship_Game
                         var source = Enumerable.Range(0, this.MasterShipList.Count).ToArray();
                         var rangePartitioner = Partitioner.Create(0, source.Length);
 
-                        Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                        System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
                                        { //Parallel.ForEach(this.MasterShipList, ship =>
                                            for (int i = range.Item1; i < range.Item2; i++)
                                            {                                               
@@ -1510,7 +1510,7 @@ namespace Ship_Game
                 },
             () =>
             {
-                Parallel.ForEach(EmpireManager.Empires, empire =>
+                System.Threading.Tasks.Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
                     foreach (var kv in empire.GetFleetsDict())
                     {
@@ -1590,7 +1590,7 @@ namespace Ship_Game
             #if true // use multithreaded update loop
                 var source1 = Enumerable.Range(0, peacefulSystems.Count).ToArray();
                 var normalsystems = Partitioner.Create(0, source1.Length);
-                Parallel.ForEach(normalsystems, (range, loopState) =>
+                System.Threading.Tasks.Parallel.ForEach(normalsystems, (range, loopState) =>
                 {
                     //standard for loop through each weapon group.
                     for (int T = range.Item1; T < range.Item2; T++)
@@ -1627,7 +1627,7 @@ namespace Ship_Game
             #region end
 
             //Log.Info(this.zgameTime.TotalGameTime.Seconds - elapsedTime);
-            Parallel.Invoke(() =>
+            System.Threading.Tasks.Parallel.Invoke(() =>
             {
                 if (elapsedTime > 0)
                 {
@@ -1941,14 +1941,14 @@ namespace Ship_Game
                     }//);
                     var source1 = Enumerable.Range(0, faster.Count).ToArray();
                     Partitioner<int> rangePartitioner1 = Partitioner.Create(source1, true);
-                    Parallel.ForEach(rangePartitioner1, (range, loopState) =>
+                    System.Threading.Tasks.Parallel.ForEach(rangePartitioner1, (range, loopState) =>
                     {
                         faster[range].Update(elapsedTime);
 
                     });
                      source1 = Enumerable.Range(0, death.Count).ToArray();
                     rangePartitioner1 = Partitioner.Create(source1, true);
-                    Parallel.ForEach(rangePartitioner1, (range, loopState) =>
+                    System.Threading.Tasks.Parallel.ForEach(rangePartitioner1, (range, loopState) =>
                     {
                         death[range].Update(elapsedTime);
 

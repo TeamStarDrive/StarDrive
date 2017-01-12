@@ -3322,7 +3322,7 @@ namespace Ship_Game.Gameplay
                           source = Enumerable.Range(0, this.projectiles.Count).ToArray();
                           rangePartitioner = Partitioner.Create(0, source.Length);
                         //handle each weapon group in parallel
-                        Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                        global::System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
                         {
                             //standard for loop through each weapon group.
                             for (int T = range.Item1; T < range.Item2; T++)
@@ -3346,7 +3346,7 @@ namespace Ship_Game.Gameplay
                         source = Enumerable.Range(0, this.beams.Count).ToArray();
                         rangePartitioner = Partitioner.Create(0, source.Length);
                         //handle each weapon group in parallel
-                        Parallel.ForEach(rangePartitioner, (range, loopState) =>
+                        global::System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
                         {
                             //standard for loop through each weapon group.
                             for (int T = range.Item1; T < range.Item2; T++)
@@ -3423,7 +3423,7 @@ namespace Ship_Game.Gameplay
                     moduleSlot.module.Powered = false;
             }
             //added by Gremlin Parallel recalculate power.
-            Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
+            global::System.Threading.Tasks.Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
             //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 if (moduleSlot.module != null && moduleSlot.module.ModuleType == ShipModuleType.PowerPlant && moduleSlot.module.Active)
@@ -3445,7 +3445,7 @@ namespace Ship_Game.Gameplay
             });
             
             //foreach (ModuleSlot moduleSlot1 in this.ModuleSlotList)
-            Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot1 =>
+            global::System.Threading.Tasks.Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot1 =>
             {
                 if (!moduleSlot1.isDummy && moduleSlot1.module != null && ((int)moduleSlot1.module.PowerRadius > 0 && moduleSlot1.module.Active) && (moduleSlot1.module.ModuleType != ShipModuleType.PowerConduit || moduleSlot1.module.Powered))
                 {
