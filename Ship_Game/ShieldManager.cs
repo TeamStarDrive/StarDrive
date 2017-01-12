@@ -164,13 +164,10 @@ namespace Ship_Game
 				shield.displacement += 0.085f;
 				shield.texscale     -= 0.185f;
 			}
-			var source = Enumerable.Range(0, ShieldList.Count).ToArray();
-            var rangePartitioner = Partitioner.Create(0, source.Length);
             //handle each weapon group in parallel
-            Parallel.ForEach(rangePartitioner, (range, loopState) =>
+            Parallel.For(0, ShieldList.Count, (start, end) =>
             {
-                //standard for loop through each weapon group.
-                for (int i = range.Item1; i < range.Item2; i++)
+                for (int i = start; i < end; i++)
                 {
                     Shield shield = ShieldList[i];
                     PointLight pointLight = shield.pointLight;

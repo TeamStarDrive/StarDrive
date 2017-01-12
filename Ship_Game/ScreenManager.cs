@@ -101,20 +101,13 @@ namespace Ship_Game
 			}
 		}
 
-		public void DrawRectangle(Rectangle rectangle, Color color)
-		{
-			this.SpriteBatch.Begin();
-			this.SpriteBatch.Draw(this.blankTexture, rectangle, color);
-			this.SpriteBatch.End();
-		}
-
 		public void ExitAll()
 		{
 		    foreach (GameScreen screen in screens.ToArray())
 		        screen.ExitScreen();
 		}
 
-		public void FadeBackBufferToBlack(int alpha, Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
+		public void FadeBackBufferToBlack(int alpha, SpriteBatch spriteBatch)
 		{
 			Viewport viewport = GraphicsDevice.Viewport;
 			spriteBatch.Draw(blankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));

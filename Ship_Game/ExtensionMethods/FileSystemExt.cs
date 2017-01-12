@@ -124,7 +124,7 @@ namespace Ship_Game
 
             if (filePath.StartsWith("Content", StringComparison.OrdinalIgnoreCase))
                 filePath = filePath.Substring("Content/".Length);
-            else if (filePath.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase))
+            else if (filePath.StartsWith("Mods", StringComparison.OrdinalIgnoreCase))
                 filePath = filePath.Substring(GlobalStats.ModPath.Length);
 
             filePath = filePath.Replace('\\', '/');

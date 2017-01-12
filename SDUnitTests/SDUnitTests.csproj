@@ -82,10 +82,12 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestCollectionExt.cs" />
     <Compile Include="TestMathExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestArrayT.cs" />
     <Compile Include="TestSafeQueueT.cs" />
+    <Compile Include="TestThreadExt.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
