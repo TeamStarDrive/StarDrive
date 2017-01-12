@@ -1144,6 +1144,8 @@ namespace Ship_Game
                     // Notify Draw() that taketurns has finished and another frame can be drawn now
                     ProcessTurnsCompletedEvt.Set();
                 }
+
+                TimerStuff();
             }
         }
 
@@ -1540,32 +1542,9 @@ namespace Ship_Game
 
             Perfavg2.Start();
             #region Ships
-            //this.DeepSpaceGateKeeper.Set();
-
-            //#if !ALTERTHREAD
-            //            this.SystemGateKeeper[0].Set();
-            //            this.SystemGateKeeper[1].Set();
-            //            this.SystemGateKeeper[2].Set();
-            //            this.SystemGateKeeper[3].Set();  
-            //#endif
-
-
-
 
 #if !PLAYERONLY
-
-            //Task.Run(() => 
-            //if(Task.CurrentId == null)
-            //Task.Run(() =>
-            //{
-            //
-            //    Parallel.ForEach(this.SolarSystemDict, TheSystem =>
-            //    {                                                               //Lets try simplifing this a lot, and go with just one clean Parallel.ForEach  -Gretman
-            //        SystemUpdaterTaskBased(TheSystem.Value);
-            //    });
-            //});
-            //Task.WaitAll();    //This commented out area was the original stuff here, which I replaced with the simgle ForEach above -Gretman
-
+            StopWatch.Start();
             Array<SolarSystem> peacefulSystems = new Array<SolarSystem>(SolarSystemList.Count / 2);
             Array<SolarSystem> combatSystems   = new Array<SolarSystem>(SolarSystemList.Count / 2);
 
@@ -1598,12 +1577,13 @@ namespace Ship_Game
                         SystemUpdaterTaskBased(peacefulSystems[T]);
                     }
                 });
-            #else
+#else
                 foreach(SolarSystem s in peacefulSystems)
                 {
                     SystemUpdaterTaskBased(s);
                 }
-            #endif
+#endif
+            StopWatch.Stop();
 
             //The two above were the originals
 
@@ -1644,11 +1624,11 @@ namespace Ship_Game
                 bool flag1 = false;
                 lock (GlobalStats.ClickableSystemsLock)
                 {
-                    for (int local_11 = 0; local_11 < this.ClickPlanetList.Count; ++local_11)
+                    for (int i = 0; i < this.ClickPlanetList.Count; ++i)
                     {
                         try
                         {
-                            UniverseScreen.ClickablePlanets local_12 = this.ClickPlanetList[local_11];
+                            UniverseScreen.ClickablePlanets local_12 = this.ClickPlanetList[i];
                             if (Vector2.Distance(new Vector2((float)Mouse.GetState().X, (float)Mouse.GetState().Y), local_12.ScreenPos) <= local_12.Radius)
                             {
                                 flag1 = true;
@@ -1692,11 +1672,8 @@ namespace Ship_Game
                     this.ShowingSysTooltip = false;
                 this.Zrotate += 0.03f * elapsedTime;
 
-
                 JunkList.ApplyPendingRemovals();
-            //},
-            //() =>
-            //{
+
                 if (elapsedTime > 0)
                 {
                     lock (GlobalStats.ExplosionLocker)
@@ -1874,90 +1851,55 @@ namespace Ship_Game
 
         private void DeepSpaceThread()
         {
-            //while (true)
+            float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
+
+            this.DeepSpaceShips.Clear();
+
+            using (DeepSpaceManager.CollidableObjects)
             {
-                
-                //this.DeepSpaceGateKeeper.WaitOne();
-                float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
-
-                
-                
-                this.DeepSpaceShips.Clear();
-
-                lock (GlobalStats.DeepSpaceLock)
+                Parallel.For(0, DeepSpaceManager.CollidableObjects.Count, (start, end) =>
                 {
-                    for (int i = 0; i < DeepSpaceManager.CollidableObjects.Count; i++)
+                    for (int i = start; i < end; i++)
                     {
                         GameplayObject item = DeepSpaceManager.CollidableObjects[i];
                         if (item is Ship)
                         {
                             Ship ship = item as Ship;
-                            if (ship.Active && ship.isInDeepSpace && ship.System== null)
+                            if (ship.Active && ship.isInDeepSpace && ship.System == null)
                             {
                                 this.DeepSpaceShips.Add(ship);
                             }
 
                         }
                     }
-                    Array<Ship> faster = new Array<Ship>();
-                    Array<Ship> death = new Array<Ship>();
-                    foreach (Ship deepSpaceShip in this.DeepSpaceShips)
-                    //Parallel.ForEach(this.DeepSpaceShips, deepSpaceShip =>
-                    {
-                        if (!deepSpaceShip.shipInitialized)
-                            continue;
-                        if (deepSpaceShip.Active)
-                        {
-                            if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-                            {
-                                deepSpaceShip.Inhibited = true;
-                                deepSpaceShip.InhibitedTimer = 10f;
-                            }
-                            //try
-                            {
-                                //deepSpaceShip.PauseUpdate = true;
-                                if (deepSpaceShip.InCombat || deepSpaceShip.PlayerShip)
-                                    deepSpaceShip.Update(elapsedTime);
-                                else
-                                    faster.Add(deepSpaceShip);
-                                if (!deepSpaceShip.PlayerShip)
-                                {
-                                    continue;
-                                }
-                                deepSpaceShip.ProcessInput(elapsedTime);
-                            }
-                            if (deepSpaceShip.ModuleSlotList.Count == 0)
-                            {
-                                death.Add(deepSpaceShip);
-                                //deepSpaceShip.Die(null, true);
-                            }
-                        }
-                        else
-                        {
-                            death.Add(deepSpaceShip);
-                            deepSpaceShip.Die(null,true);
-                            //this.MasterShipList.QueuePendingRemoval(deepSpaceShip);
-                        }
-                    }//);
-                    var source1 = Enumerable.Range(0, faster.Count).ToArray();
-                    Partitioner<int> rangePartitioner1 = Partitioner.Create(source1, true);
-                    System.Threading.Tasks.Parallel.ForEach(rangePartitioner1, (range, loopState) =>
-                    {
-                        faster[range].Update(elapsedTime);
-
-                    });
-                     source1 = Enumerable.Range(0, death.Count).ToArray();
-                    rangePartitioner1 = Partitioner.Create(source1, true);
-                    System.Threading.Tasks.Parallel.ForEach(rangePartitioner1, (range, loopState) =>
-                    {
-                        death[range].Update(elapsedTime);
-
-                    });
-
-                }
-                
-                //this.DeepSpaceDone.Set();
+                });
             }
+
+            Parallel.For(0, DeepSpaceShips.Count, (start, end) =>
+            {
+                for (int i = start; i < end; i++)
+                {
+                    if (!DeepSpaceShips[i].shipInitialized)
+                        continue;
+
+                    if (DeepSpaceShips[i].Active && DeepSpaceShips[i].ModuleSlotList.Count != 0)
+                    {
+                        if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+                        {
+                            DeepSpaceShips[i].Inhibited = true;
+                            DeepSpaceShips[i].InhibitedTimer = 10f;
+                        }
+
+                        if (DeepSpaceShips[i].PlayerShip)
+                            DeepSpaceShips[i].ProcessInput(elapsedTime);
+                    }
+                    else
+                    {
+                        DeepSpaceShips[i].Die(null, true);
+                    }
+                    DeepSpaceShips[i].Update(elapsedTime);
+                }
+            });
         }
 
         public virtual void UpdateAllSystems(float elapsedTime)
@@ -7799,6 +7741,46 @@ namespace Ship_Game
             Attack,
             Orbit,
         }
+
+        static public long[] Stop_WatchResults = new long[50];
+        static public int Stop_WatchCurrent = 0;
+        static public long[] Stop_WatchResultsAvg = new long[10];
+        static public int Stop_WatchCurrentAvg = 0;
+        static public System.Diagnostics.Stopwatch StopWatch = new System.Diagnostics.Stopwatch();      //This allows me to simply use 'StopWatch.Start()' and 'StopWatch.Stop()'
+
+        void TimerStuff()       //I'm sorry, RedFox. I couldn't figure out how to use your new timer, so I am going back to what I know works.
+        {
+            if (StopWatch.ElapsedTicks == 0) return;
+            int NumberofMeasurements = 5;
+            UniverseScreen.Stop_WatchResults[UniverseScreen.Stop_WatchCurrent] = StopWatch.ElapsedTicks;
+            UniverseScreen.Stop_WatchCurrent++;
+            UniverseScreen.StopWatch.Reset();
+            if (UniverseScreen.Stop_WatchCurrent >= NumberofMeasurements)
+            {
+                long AverageMe = 0;
+                UniverseScreen.Stop_WatchCurrent = 0;                                   //For those who enjoy these sorts of details, 1 tick is rougly 100 nanoseconds.
+                for (int i = 0; i < NumberofMeasurements; i++)                          //100 nanoseconds is about 0.0001 miliseconds, or 0.0000001 seconds.
+                {                                                                       //At 60 frames per second, 1 frame happens every  0.01666667 seconds
+                    AverageMe += UniverseScreen.Stop_WatchResults[i];                   //-Gretman
+                }
+                AverageMe = AverageMe / NumberofMeasurements;
+                System.Diagnostics.Debug.WriteLine("Average of " + NumberofMeasurements + " loops (in Ticks): " + AverageMe);
+
+                UniverseScreen.Stop_WatchResultsAvg[UniverseScreen.Stop_WatchCurrentAvg] = AverageMe;
+                UniverseScreen.Stop_WatchCurrentAvg++;
+                if (UniverseScreen.Stop_WatchCurrentAvg >= 10)
+                {
+                    long AverageAverage = 0;
+                    UniverseScreen.Stop_WatchCurrentAvg = 0;
+                    for (int i = 0; i < 10; i++)
+                    {
+                        AverageAverage += UniverseScreen.Stop_WatchResultsAvg[i];
+                    }
+                    AverageAverage = AverageAverage / 10;
+                    System.Diagnostics.Debug.WriteLine("Average of the last " + (NumberofMeasurements * 10) + " loops (in Ticks): " + AverageAverage);
+                }
+            }
+        }//End of Timer stuff
     }
 }
 
