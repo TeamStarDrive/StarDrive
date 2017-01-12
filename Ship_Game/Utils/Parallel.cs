@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Ship_Game
@@ -61,6 +62,8 @@ namespace Ship_Game
                     Error = ex;
                 }
                 Task = null;
+                if (Killed)
+                    break;
                 EvtEndTask.Set();
             }
         }
@@ -90,6 +93,16 @@ namespace Ship_Game
 
     public static class Parallel
     {
+        static Parallel()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
+        }
+
+        public static void ClearPool()
+        {
+            lock (Pool) Pool.ClearAndDispose();
+        }
+
         private static readonly Array<ParallelTask> Pool = new Array<ParallelTask>();
 
         /// <summary>TRUE if another Parallel.For loop is already running </summary>

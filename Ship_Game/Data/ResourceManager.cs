@@ -683,10 +683,14 @@ namespace Ship_Game
         // This method is a hot path during Loading and accounts for ~25% of time spent
         private static void LoadTextures()
         {
+            FileInfo[] files = GatherFilesUnified("Textures", "xnb");
         #if true // parallel texture load
-            System.Threading.Tasks.Parallel.ForEach(GatherFilesUnified("Textures", "xnb"), LoadTexture);
+            Parallel.For(files.Length, (start, end) => {
+                for (int i = start; i < end; ++i)
+                    LoadTexture(files[i]);
+            });
         #else
-            foreach (FileInfo info in GatherFilesUnified("Textures", "xnb"))
+            foreach (FileInfo info in files)
                 LoadTexture(info);
         #endif
 
@@ -695,8 +699,8 @@ namespace Ship_Game
             var assets = field?.GetValue(ContentManager) as Map<string, object>;
             if (assets != null && assets.Count != 0)
             {
-                var keys = assets.Keys.Where(key => key != null).ToArray();
-                var names = keys.Select(key => Path.GetDirectoryName(key) + "\\" + Path.GetFileName(key)).ToArray();
+                string[] keys = assets.Keys.Where(key => key != null).ToArray();
+                string[] names = keys.Select(key => Path.GetDirectoryName(key) + "\\" + Path.GetFileName(key)).ToArray();
                 for (int i = 0; i < names.Length; ++i)
                 {
                     for (int j = 0; j < names.Length; ++j)
