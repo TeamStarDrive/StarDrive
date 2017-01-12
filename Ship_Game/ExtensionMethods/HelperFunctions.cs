@@ -71,18 +71,22 @@ namespace Ship_Game
         private static FleetDesign LoadFleetDesign(string fleetUid)
         {
             string designPath = fleetUid + ".xml";
-            FileInfo info = ResourceManager.GetModOrVanillaFile(designPath);
+            FileInfo info = ResourceManager.GetModOrVanillaFile(designPath) ??
+                            new FileInfo(Dir.ApplicationData + "/StarDrive/Fleet Designs/" + designPath);
 
-            if (info == null)
-            {
-                info = new FileInfo(Dir.ApplicationData + "/StarDrive/Fleet Designs/" + designPath);
-            }
-			return info.Deserialize<FleetDesign>();
+            if (info.Exists)
+                return info.Deserialize<FleetDesign>();
+
+            Log.Warning("Failed to load fleet design '{0}'", designPath);
+            return null;
         }
 
         private static Fleet CreateFleetFromData(FleetDesign data, Empire owner, Vector2 position)
         {
-            Fleet fleet = new Fleet
+            if (data == null)
+                return null;
+
+            var fleet = new Fleet
 			{
 				Position  = position,
 				Owner     = owner,
@@ -114,7 +118,9 @@ namespace Ship_Game
 		}
 		public static void CreateFleetAt(string fleetUid, Empire owner, Vector2 position)
 		{
-			owner.FirstFleet = CreateDefensiveFleetAt(fleetUid, owner, position);
+            Fleet fleet = CreateDefensiveFleetAt(fleetUid, owner, position);
+            if (fleet != null)
+                owner.FirstFleet = fleet;
 		}
 
 		public static void Compress(FileInfo fi)
