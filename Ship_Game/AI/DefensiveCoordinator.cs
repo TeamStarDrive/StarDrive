@@ -260,7 +260,7 @@ namespace Ship_Game.AI
             int StrToAssign = (int)this.GetForcePoolStrength();
             float StartingStr = StrToAssign;
             //float minimumStrength = 0;
-            Parallel.ForEach(SComs, dd=>
+            System.Threading.Tasks.Parallel.ForEach(SComs, dd=>
                 {
                     SolarSystem solarSystem  = dd.Key;
                     {
@@ -644,7 +644,7 @@ namespace Ship_Game.AI
 
             Array<Ship> ShipsAlreadyConsidered = new Array<Ship>();
             var rangePartitioner = Partitioner.Create(0, incomingShips.Length);
-            Parallel.ForEach(rangePartitioner, (range, loopState) =>
+            System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
             {
                     
                 for (int i = range.Item1; i < range.Item2; i++)

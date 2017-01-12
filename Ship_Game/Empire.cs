@@ -1131,7 +1131,7 @@ namespace Ship_Game
             ConcurrentBag<Ship> shipbag = new ConcurrentBag<Ship>();
             var influenceNodes = SensorNodes.AtomicCopy();
 
-            Parallel.ForEach(rangePartitioner, (range) =>
+            System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range) =>
             {
                 var toadd = new Array<Ship>();
                 for (int i = range.Item1; i < range.Item2; i++)

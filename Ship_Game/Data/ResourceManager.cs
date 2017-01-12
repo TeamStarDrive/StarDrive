@@ -683,8 +683,8 @@ namespace Ship_Game
         // This method is a hot path during Loading and accounts for ~25% of time spent
         private static void LoadTextures()
         {
-        #if true //parallel texture load
-            Parallel.ForEach(GatherFilesUnified("Textures", "xnb"), LoadTexture);
+        #if true // parallel texture load
+            System.Threading.Tasks.Parallel.ForEach(GatherFilesUnified("Textures", "xnb"), LoadTexture);
         #else
             foreach (FileInfo info in GatherFilesUnified("Textures", "xnb"))
                 LoadTexture(info);
@@ -931,7 +931,7 @@ namespace Ship_Game
         public static Array<ShipData> LoadHullData() // Refactored by RedFox
         {
             var retList = new Array<ShipData>();
-            Parallel.ForEach(GatherFilesUnified("Hulls", "xml"), info =>
+            System.Threading.Tasks.Parallel.ForEach(GatherFilesUnified("Hulls", "xml"), info =>
             {
                 try
                 {
@@ -1143,7 +1143,7 @@ namespace Ship_Game
         private static Array<Ship> LoadShips(FileInfo[] shipDescriptors)
         {
             var ships = new Array<Ship>();
-            Parallel.ForEach(shipDescriptors, info => 
+            System.Threading.Tasks.Parallel.ForEach(shipDescriptors, info => 
             {
                 if (info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
                     return; // continue PFor
