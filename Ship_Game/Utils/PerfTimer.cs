@@ -49,6 +49,7 @@ namespace Ship_Game
                 return (float)((double)(end - Time) / Frequency);
             }
         }
+        public float ElapsedMillis => Elapsed * 1000f;
 
         // stop and gather performance sample
         public void Stop()
