@@ -634,17 +634,28 @@ namespace Ship_Game
             return null;
         }
 
-        public static Model GetModel(string path, bool throwOnFailure = false)
+        public static Model GetModel(string modelName, bool throwOnFailure = false)
         {
             Model item;
 
             // try to get cached value
-            lock (ModelDict) if (ModelDict.TryGetValue(path, out item)) return item;
+            lock (ModelDict) if (ModelDict.TryGetValue(modelName, out item)) return item;
 
             try
             {
                 ContentManager.EnableLoadInfoLog = true;
-                item = ContentManager.Load<Model>(path);
+
+                // special backwards compatibility with mods...
+                // basically, all old mods put their models into "Mod Models/" folder because
+                // the old model loading system didn't handle Unified resource paths...
+                if (GlobalStats.HasMod && !modelName.StartsWith("Model"))
+                {
+                    string modModelPath = GlobalStats.ModPath + "Mod Models/" + modelName + ".xnb";
+                    if (File.Exists(modModelPath))
+                        item = ContentManager.Load<Model>(modModelPath);
+                }
+                if (item == null)
+                    item = ContentManager.Load<Model>(modelName);
             }
             catch (ContentLoadException)
             {
@@ -656,7 +667,7 @@ namespace Ship_Game
             }
 
             // stick it into Model cache, even if null (prevents further loading)
-            lock (ModelDict) ModelDict.Add(path, item);
+            lock (ModelDict) ModelDict.Add(modelName, item);
             return item;
         }
 
