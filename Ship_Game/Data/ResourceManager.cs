@@ -1500,8 +1500,12 @@ namespace Ship_Game
 
         private static void LoadEconomicResearchStrats()
         {
-            foreach (var strat in LoadEntities<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
-                EconStrats[strat.Name] = strat;
+            foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
+            {
+                // the story here: some mods have bugged <Name> refs, so we do manual handholding to fix their bugs...
+                pair.Entity.Name = pair.Info.NameNoExt();
+                EconStrats[pair.Entity.Name] = pair.Entity;
+            }
         }
 
         // Added by RedFox
