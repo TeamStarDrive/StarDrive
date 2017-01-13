@@ -8,7 +8,7 @@ namespace Ship_Game
 {
 	public static class Primitives2D
 	{
-		private readonly static Map<string, Array<Vector2>> m_arcCache;
+		private static readonly Map<string, Array<Vector2>> m_arcCache;
 
 		private static Texture2D m_pixel;
 
