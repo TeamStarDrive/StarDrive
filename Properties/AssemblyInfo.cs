@@ -1,15 +1,15 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("Zero Sum Games")]
-[assembly: AssemblyCopyright("Copyright © Zero Sum Games 2012")]
+[assembly: AssemblyCopyright("Copyright � Zero Sum Games 2012")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyProduct("StarDrive")]
 
 #if !STEAM
-[assembly: AssemblyTitle("StarDrive Test")] 
+[assembly: AssemblyTitle("StarDrive")] 
 #endif
 #if STEAM
 [assembly: AssemblyTitle("StarDrive")]
@@ -26,4 +26,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("b38aad3b-18b8-41a8-b758-0e5614dafc49")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows=true)]
 
-[assembly: AssemblyInformationalVersion("Crunchies cleanup_3418")]
+[assembly: AssemblyInformationalVersion("Gretman_3495")]

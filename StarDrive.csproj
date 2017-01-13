@@ -1709,7 +1709,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Deploy\Config\Deploy.cmd" />
-    <None Include="Deploy\Config\Prebuild.cmd" />
+    <None Include="Deploy\Config\Pre-run.ps1" />
     <None Include="Deploy\TortoiseHg\contrib\bash_completion" />
     <None Include="Deploy\TortoiseHg\contrib\hgk" />
     <None Include="Deploy\TortoiseHg\contrib\hgweb.fcgi" />
@@ -3431,7 +3431,6 @@
     <Content Include="Deploy\7-Zip\License.txt" />
     <Content Include="Deploy\7-Zip\readme.txt" />
     <Content Include="Deploy\Config\config.txt" />
-    <Content Include="Deploy\Config\hg.exe" />
     <Content Include="Deploy\Config\include.txt" />
     <Content Include="Deploy\Config\include_mods.txt" />
     <Content Include="Deploy\Config\xml.exe" />
@@ -3615,7 +3614,6 @@
     <PostBuildEvent>$(ProjectDir)deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>cd  $(ProjectDir) &amp;&amp;   powershell -ExecutionPolicy UnRestricted  -file Deploy\Config\Pre-run.ps1</PreBuildEvent>
   </PropertyGroup>
 </Project>
