@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Ship_Game
@@ -7,57 +8,65 @@ namespace Ship_Game
 
     public class ParallelTask : IDisposable
     {
-        public AutoResetEvent Event = new AutoResetEvent(true);
+        private AutoResetEvent EvtNewTask = new AutoResetEvent(false);
+        private AutoResetEvent EvtEndTask = new AutoResetEvent(false);
         private Thread Thread;
         private RangeAction Task;
         private int LoopStart;
         private int LoopEnd;
-        public bool Running { get; private set; }
+        public bool Running => Task != null;
+        private Exception Error;
         private volatile bool Killed;
 
         public ParallelTask(int index)
         {
-            Thread = new Thread(Run){ Name = "ParallelTask_"+index };
+            Thread = new Thread(Run){ Name = "ParallelTask_"+(index+1) };
         }
-
         public void Start(int start, int end, RangeAction taskBody)
         {
+            if (Task != null)
+                throw new InvalidOperationException("ParallelTask is still running");
             Task      = taskBody;
             LoopStart = start;
             LoopEnd   = end;
-            Running   = true;
-            Event.Set();
+            EvtNewTask.Set();
             if (!Thread.IsAlive)
                 Thread.Start();
         }
-
-        public void Wait()
+        public Exception Wait()
         {
-            while (Running) Event.WaitOne();
+            while (Task != null)
+            {
+                EvtEndTask.WaitOne();
+            }
+            if (Error == null)
+                return null;
+            Exception ex = Error; // propagate captured exceptions
+            Error = null;
+            return ex;
         }
-
         private void Run()
         {
             while (!Killed)
             {
-                Event.WaitOne();
+                EvtNewTask.WaitOne();
                 if (Task == null)
                     continue;
                 try
                 {
-                    RangeAction task = Task;
-                    Task = null;
-                    task(LoopStart, LoopEnd);
+                    Error = null;
+                    Task(LoopStart, LoopEnd);
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "ParallelTask unhandled exception");
+                    Error = ex;
                 }
-                Running = false;
-                Event.Set();
+                Task = null;
+                if (Killed)
+                    break;
+                EvtEndTask.Set();
             }
         }
-
         public void Dispose()
         {
             Destructor();
@@ -65,23 +74,40 @@ namespace Ship_Game
         }
         private void Destructor()
         {
-            if (Event == null)
+            if (EvtNewTask == null)
                 return;
             Killed = true;
-            Event.Set();
+            Task   = null;
+            EvtNewTask.Set();
             Thread.Join(100);
 
-            Event?.Dispose();
-            Event  = null;
-            Thread = null;
-            Task   = null;
+            EvtNewTask.Dispose();
+            EvtEndTask.Dispose();
+            EvtNewTask = null;
+            EvtEndTask = null;
+            Thread     = null;
+            Error      = null;
         }
         ~ParallelTask() { Destructor(); }
     }
 
     public static class Parallel
     {
+        static Parallel()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
+        }
+
+        public static void ClearPool()
+        {
+            lock (Pool) Pool.ClearAndDispose();
+        }
+
         private static readonly Array<ParallelTask> Pool = new Array<ParallelTask>();
+
+        /// <summary>TRUE if another Parallel.For loop is already running </summary>
+        public static bool Running { get; private set; }
+        public static int PoolSize => Pool.Count;
 
         private static ParallelTask NextTask(ref int poolIndex)
         {
@@ -95,28 +121,71 @@ namespace Ship_Game
             return newTask;
         }
 
+        /// <summary>
+        /// Several times faster than System.Threading.Tasks.Parallel.For,
+        /// will utilize all cores of the CPU at default affinity.
+        /// Ranges are properly partitioned to avoid false sharing
+        /// and process the items in batched to avoid delegate callback overhead
+        /// 
+        /// Parallel.For loops are forbidden (ThreadStateException)
+        /// 
+        /// In case of ParallelTasks encountering an exception, the first captured exception
+        /// will be thrown once ALL loop branches are complete.
+        /// </summary>
+        /// <exception cref="ThreadStateException">NESTED Parallel.For loops are forbidden!</exception>
+        /// <param name="rangeStart">Start of the range (inclusive)</param>
+        /// <param name="rangeEnd">End of the range (exclusive)</param>
+        /// <param name="body">delegate void RangeAction(int start, int end)</param>
         public static void For(int rangeStart, int rangeEnd, RangeAction body)
         {
+            if (rangeStart >= rangeEnd)
+                return; // no work done on empty ranges
+
             int range = rangeEnd - rangeStart;
             int cores = Math.Min(range, Environment.ProcessorCount);
             int len = range / cores;
 
+            // this can happen if the target CPU only has 1 core, or if the list has 1 item
+            if (cores == 1)
+            {
+                body(rangeStart, rangeEnd);
+                return;
+            }
+
             var tasks = new ParallelTask[cores];
             lock (Pool)
             {
+                if (Running)
+                    throw new ThreadStateException("Another Parallel.For loop is already running. Nested Parallel.For loops are forbidden");
+                Running = true;
                 int poolIndex = 0;
-                for (int i = 0; i < cores; ++i)
+                int start = rangeStart;
+                for (int i = 0; i < cores; ++i, start += len)
                 {
-                    int start = i * len;
-                    int end = i == cores - 1 ? rangeEnd : start + len;
+                    int end = (i == cores - 1) ? rangeEnd : start + len;
 
                     ParallelTask task = NextTask(ref poolIndex);
                     tasks[i] = task;
                     task.Start(start, end, body);
                 }
             }
+
+            Exception ex = null; // only store a single exception
             for (int i = 0; i < tasks.Length; ++i)
-                tasks[i].Wait();
+            {
+                Exception e = tasks[i].Wait();
+                if (e != null && ex == null) ex = e;
+            }
+            lock (Pool) Running = false;
+
+            // from the first ParallelTask that threw an exception:
+            if (ex != null)
+                throw ex;
+        }
+
+        public static void For(int rangeLength, RangeAction body)
+        {
+            For(0, rangeLength, body);
         }
     }
 }

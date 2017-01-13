@@ -218,6 +218,14 @@ namespace Ship_Game
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
         public IEnumerator<T> GetEnumerator()   => new Enumerator(this);
 
+        // Get a subslice enumerator from this Array<T>
+        public SubrangeEnumerator<T> SubRange(int start, int end)
+        {
+            if (end > Count)
+                throw new IndexOutOfRangeException($"SubRange end [{end}] out of range({Count}) {ToString()}");
+            return new SubrangeEnumerator<T>(start, end, Items);
+        }
+
         public override string ToString()
         {
             return GetType().GenericName();
@@ -410,4 +418,55 @@ namespace Ship_Game
             }
         }
     }
+
+    public struct SubrangeEnumerator<T> : IEnumerable<T>
+    {
+        private readonly int Start;
+        private readonly int End;
+        private readonly T[] Items;
+        public SubrangeEnumerator(int start, int end, T[] items)
+        {
+            Start = start;
+            End   = end;
+            Items = items;
+        }
+        public IEnumerator<T> GetEnumerator()   => new Enumerator(Start, End, Items);
+        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(Start, End, Items);
+
+        public struct Enumerator : IEnumerator<T>
+        {
+            private int Index;
+            private readonly int End;
+            private readonly T[] Items;
+            public T Current { get; private set; }
+            object IEnumerator.Current => Current;
+
+            public Enumerator(int start, int end, T[] arr)
+            {
+                Index = start;
+                End   = end;
+                Items = arr;
+                Current = default(T);
+            }
+            public void Dispose()
+            {
+            }
+            public bool MoveNext()
+            {
+                unchecked
+                {
+                    if (Index >= End)
+                        return false;
+                    Current = Items[Index++];
+                    return true;
+                }
+            }
+            public void Reset()
+            {
+                throw new InvalidOperationException();
+            }
+        }
+    }
+
+
 }

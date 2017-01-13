@@ -47,6 +47,11 @@ namespace Ship_Game
                 Log.Error(ex, "Fatal main loop failure");
                 ExceptionViewer.ShowExceptionDialog(ex);
             }
+            finally
+            {
+                Parallel.ClearPool();
+                Environment.Exit(0);
+            }
         }
 	}
 }
