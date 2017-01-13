@@ -1126,18 +1126,18 @@ namespace Ship_Game
             }
             //added by gremlin ships in border search
             //for (int i = 0; i < Empire.Universe.MasterShipList.Count; i++)            
-            var source = Universe.MasterShipList.ToArray();
-            var rangePartitioner = Partitioner.Create(0, source.Length);
+            //var source = Universe.MasterShipList.ToArray();
+            //var rangePartitioner = Partitioner.Create(0, source.Length);
             ConcurrentBag<Ship> shipbag = new ConcurrentBag<Ship>();
             var influenceNodes = SensorNodes.AtomicCopy();
 
-            System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range) =>
+            //System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range) =>
             {
                 var toadd = new Array<Ship>();
-                for (int i = range.Item1; i < range.Item2; i++)
+                for (int i = 0; i < Universe.MasterShipList.Count; i++)
                 {
                     toadd.Clear();
-                    Ship nearby = source[i];
+                    Ship nearby = Universe.MasterShipList[i];
                     if (nearby == null || !nearby.Active)
                         continue;
                     nearby.getBorderCheck.Remove(this);                        
@@ -1227,7 +1227,7 @@ namespace Ship_Game
                         }
                     }
                 }
-            });
+            }//);
 
             foreach (Ship ship in shipbag)
                 KnownShips.Add(ship);
