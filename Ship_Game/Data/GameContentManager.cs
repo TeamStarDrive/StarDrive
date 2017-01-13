@@ -175,6 +175,12 @@ namespace Ship_Game
             if (assetNoExt.StartsWith("./"))
                 assetNoExt = assetNoExt.Substring(2);
 
+            // starts with active mod, eg: "Mods/MyMod/" ?
+            if (GlobalStats.HasMod && assetNoExt.StartsWith(GlobalStats.ModPath))
+            {
+                // We only remove the Mod prefix for the active mod
+                assetNoExt = assetNoExt.Substring(GlobalStats.ModPath.Length);
+            }
             //if (assetNoExt.StartsWith("Content/", StringComparison.OrdinalIgnoreCase))
             //    assetNoExt = assetNoExt.Substring("Content/".Length);
 
@@ -187,9 +193,6 @@ namespace Ship_Game
             if (assetNoExt.Contains(":/"))
                 throw new ArgumentException($"Asset name cannot contain absolute paths: '{assetNoExt}'");
         #endif
-
-            if (assetNoExt.StartsWith("Mods"))
-                Debugger.Break();
 
             if (EnableLoadInfoLog)
                 Log.Info(ConsoleColor.Cyan, "Load<{0}> {1}", typeof(T).Name, assetNoExt);
@@ -210,14 +213,15 @@ namespace Ship_Game
         {
             try
             {
+                // trying to do a direct Mod asset load, this may be different from currently active mod
+                if (assetName.StartsWith("Mods/")) 
+                {
+                    var info = new FileInfo(assetName + ".xnb");
+                    if (info.Exists) return info.OpenRead();
+                }
                 if (GlobalStats.HasMod)
                 {
                     var info = new FileInfo(GlobalStats.ModPath + assetName + ".xnb");
-                    if (info.Exists) return info.OpenRead();
-                }
-                if (assetName.StartsWith("Mods/")) // trying to do a direct Mod asset load 
-                {
-                    var info = new FileInfo(assetName + ".xnb");
                     if (info.Exists) return info.OpenRead();
                 }
                 return File.OpenRead("Content/" + assetName + ".xnb");
