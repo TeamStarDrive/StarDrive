@@ -218,7 +218,7 @@ namespace Ship_Game
 
         public DeepSpaceBuildingWindow dsbw;
         private DebugInfoScreen debugwin;
-        private bool ShowShipNames;
+        public bool ShowShipNames;
         public InputState input;
         private float Memory;
         public bool Paused;
@@ -1297,9 +1297,10 @@ namespace Ship_Game
             {
                 bool rebuild = false;
                 //System.Threading.Tasks.Parallel.ForEach(EmpireManager.Empires, empire =>
-                Parallel.For(EmpireManager.Empires.Count, (start, end) =>
+                //Parallel.For(EmpireManager.Empires.Count, (start, end) =>
                 {
-                    for (int i = start; i < end; i++)
+                    //for (int i = start; i < end; i++)
+                    for (int i = 0; i < EmpireManager.Empires.Count; i++)
                     {
                         foreach (Ship s in EmpireManager.Empires[i].ShipsToAdd)
                         {
@@ -1338,7 +1339,7 @@ namespace Ship_Game
                         }
                     }
                     
-                });
+                }//);
                 if (rebuild)
                 {
                     this.reducer = (int) (Empire.ProjectorRadius*.75f);
@@ -1369,9 +1370,10 @@ namespace Ship_Game
                         grid[x, y] = 200;
                     }
                     //System.Threading.Tasks.Parallel.ForEach(EmpireManager.Empires, empire =>
-                    Parallel.For(EmpireManager.Empires.Count, (start, end) =>
+                    //Parallel.For(EmpireManager.Empires.Count, (start, end) =>
                     {
-                        for (int i = start; i < end; i++)
+                        //for (int i = start; i < end; i++)
+                        for (int i = 0; i < EmpireManager.Empires.Count; i++)
                         {
                             byte[,] grid1 = (byte[,])grid.Clone();
                             PathGridtranslateBordernode(EmpireManager.Empires[i], 1, grid1);
@@ -1431,7 +1433,7 @@ namespace Ship_Game
                         }
 #endif
                         }
-                    });
+                    }//);
                 }
 
                 #endregion
@@ -1477,9 +1479,10 @@ namespace Ship_Game
                 //var rangePartitioner = Partitioner.Create(0, source.Length);
 
                 //System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
-                Parallel.For(this.MasterShipList.Count, (start, end) =>
+                //Parallel.For(this.MasterShipList.Count, (start, end) =>
                 {
-                    for (int i = start; i < end; i++)
+                    //for (int i = start; i < end; i++)
+                    for (int i = 0; i < this.MasterShipList.Count; i++)
                     {                                               
                         Ship ship = this.MasterShipList[i];
                         ship.isInDeepSpace = false;
@@ -1506,13 +1509,14 @@ namespace Ship_Game
                                 DeepSpaceManager.CollidableObjects.Add((GameplayObject)ship);
                         }
                     }
-                });
+                }//);
             }
 
             //System.Threading.Tasks.Parallel.ForEach(EmpireManager.Empires, empire =>
-            Parallel.For(EmpireManager.Empires.Count, (start, end) =>
+            //Parallel.For(EmpireManager.Empires.Count, (start, end) =>
             {
-                for (int i = start; i < end; i++)
+                //for (int i = start; i < end; i++)
+                for (int i = 0; i < EmpireManager.Empires.Count; i++)
                 {
                     foreach (var kv in EmpireManager.Empires[i].GetFleetsDict())
                     {
@@ -1527,7 +1531,7 @@ namespace Ship_Game
                         }
                     }
                 }
-            });
+            }//);
 
             GlobalStats.BeamTests = 0;
             GlobalStats.Comparisons = 0;
@@ -1545,14 +1549,15 @@ namespace Ship_Game
 
             DeepSpaceThread();
 
-            Parallel.For(SolarSystemList.Count, (first, last) =>
+            //Parallel.For(SolarSystemList.Count, (first, last) =>
             {
-                for (int i = first; i < last; i++)
+                //for (int i = first; i < last; i++)
+                for (int i = 0; i < SolarSystemList.Count; i++)
                 {
                     SystemUpdaterTaskBased(SolarSystemList[i]);
                 }
 
-            });
+            }//);
 
             /*
             Array<SolarSystem> peacefulSystems = new Array<SolarSystem>(SolarSystemList.Count / 2);
@@ -1868,9 +1873,9 @@ namespace Ship_Game
 
             using (DeepSpaceManager.CollidableObjects.AcquireReadLock())
             {
-                Parallel.For(0, DeepSpaceManager.CollidableObjects.Count, (start, end) =>
+                //Parallel.For(0, DeepSpaceManager.CollidableObjects.Count, (start, end) =>
                 {
-                    for (int i = start; i < end; i++)
+                    for (int i = 0; i < DeepSpaceManager.CollidableObjects.Count; i++)
                     {
                         GameplayObject item = DeepSpaceManager.CollidableObjects[i];
                         if (item is Ship)
@@ -1882,12 +1887,13 @@ namespace Ship_Game
                             }
                         }
                     }
-                });
+                }//);
             }
 
-            Parallel.For(0, DeepSpaceShips.Count, (start, end) =>
+            //Parallel.For(0, DeepSpaceShips.Count, (start, end) =>
             {
-                for (int i = start; i < end; i++)
+                //for (int i = start; i < end; i++)
+                for (int i = 0; i < DeepSpaceShips.Count; i++)
                 {
                     if (!DeepSpaceShips[i].shipInitialized)
                         continue;
@@ -1909,7 +1915,7 @@ namespace Ship_Game
                     }
                     DeepSpaceShips[i].Update(elapsedTime);
                 }
-            });
+            }//);
         }
 
         public virtual void UpdateAllSystems(float elapsedTime)
@@ -2717,6 +2723,9 @@ namespace Ship_Game
                     //This little sections added to stress-test the resource manager, and load lots of models into memory.      -Gretman
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.B) && !input.LastKeyboardState.IsKeyDown(Keys.B))
                     {
+                        if (DebugInfoScreen.loadmodels == 5)    //Repeat
+                            DebugInfoScreen.loadmodels = 0;
+
                         if (DebugInfoScreen.loadmodels == 4)    //Capital and Carrier
                         {
                             ResourceManager.CreateShipAtPoint("Mordaving L", this.player, this.mouseWorldPos);    //Cordrazine
@@ -2755,7 +2764,6 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Scythe Torpedo", this.player, this.mouseWorldPos);    //Draylock
                             ResourceManager.CreateShipAtPoint("Laser Frigate", this.player, this.mouseWorldPos);    //Human
                             ResourceManager.CreateShipAtPoint("Missile Corvette", this.player, this.mouseWorldPos);    //Human
-                            ResourceManager.CreateShipAtPoint("Razorclaw", this.player, this.mouseWorldPos);    //Kulrathi
                             ResourceManager.CreateShipAtPoint("Kulrathi Railer", this.player, this.mouseWorldPos);    //Kulrathi
                             ResourceManager.CreateShipAtPoint("Stormsoldier", this.player, this.mouseWorldPos);    //Opteris
                             ResourceManager.CreateShipAtPoint("Fern Artillery", this.player, this.mouseWorldPos);    //Pollops
@@ -2804,7 +2812,7 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Seeder Transport", this.player, this.mouseWorldPos);    //Pollops
                             ResourceManager.CreateShipAtPoint("Sower Transport", this.player, this.mouseWorldPos);    //Pollops
                             ResourceManager.CreateShipAtPoint("Grower Transport", this.player, this.mouseWorldPos);    //Pollops
-                            ResourceManager.CreateShipAtPoint("Ralyeh Inquisitor", this.player, this.mouseWorldPos);    //Rayleh
+                            ResourceManager.CreateShipAtPoint("Ralyeh Interceptor", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Vessel S", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Vessel M", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Vessel L", this.player, this.mouseWorldPos);    //Rayleh
