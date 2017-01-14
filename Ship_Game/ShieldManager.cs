@@ -169,19 +169,15 @@ namespace Ship_Game
             {
                 for (int i = start; i < end; i++)
                 {
-                    Shield shield = ShieldList[i];
-                    PointLight pointLight = shield.pointLight;
-                    pointLight.Intensity = pointLight.Intensity - 2.45f;
-                    if (shield.pointLight.Intensity <= 0f)
+                    ShieldList[i].pointLight.Intensity -= 2.45f;
+                    if (ShieldList[i].pointLight.Intensity <= 0f)
                     {
-                        shield.pointLight.Enabled = false;
+                        ShieldList[i].pointLight.Enabled = false;
                     }
-                    if (shield.texscale > 0f)
+                    if (ShieldList[i].texscale > 0f)
                     {
-                        Shield shield3 = shield;
-                        shield3.displacement = shield3.displacement + 0.085f;
-                        Shield shield4 = shield;
-                        shield4.texscale = shield4.texscale - 0.185f;
+                        ShieldList[i].displacement += 0.085f;
+                        ShieldList[i].texscale -= 0.185f;
                     }
                 }
             });
