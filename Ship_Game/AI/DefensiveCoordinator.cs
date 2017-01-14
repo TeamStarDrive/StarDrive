@@ -330,11 +330,17 @@ namespace Ship_Game.AI
             #endregion
             #region Manage Troops
             if (Us.isPlayer)
-            {                
-                foreach(Planet planet in Us.GetPlanets())                
-                    if(planet.colonyType == Planet.ColonyType.Military)
-                        return;
+            {
+                bool haveMilGov = false;
+                foreach (Planet planet in Us.GetPlanets())
+                {
+                    if (planet.colonyType != Planet.ColonyType.Military)
+                        continue;
 
+                    haveMilGov = true;
+                    break;                        
+                }
+                if (!haveMilGov) return;
             }
             BatchRemovalCollection<Ship> TroopShips = new BatchRemovalCollection<Ship>();
             BatchRemovalCollection<Troop> GroundTroops = new BatchRemovalCollection<Troop>();
