@@ -8072,7 +8072,8 @@ namespace Ship_Game.AI
                         ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
 						//foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
 
-                        System.Threading.Tasks.Parallel.ForEach(ResourceManager.TechTree, Technology =>
+                        //System.Threading.Tasks.Parallel.ForEach(ResourceManager.TechTree, Technology =>
+                        foreach(var Technology in ResourceManager.TechTree)
                         {
                             TechEntry tech = null;// new TechEntry();
                             bool techexists = this.empire.GetTDict().TryGetValue(Technology.Key, out tech);
@@ -8092,7 +8093,7 @@ namespace Ship_Game.AI
                                 return;
                             }
                             AvailableTechs.Add(Technology.Value);
-                        });
+                        }//);
                         if (AvailableTechs.Count == 0)
 							break;
                         foreach(Technology tech in AvailableTechs.OrderBy(tech => tech.Cost))
