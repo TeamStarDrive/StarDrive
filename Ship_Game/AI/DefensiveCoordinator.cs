@@ -260,7 +260,8 @@ namespace Ship_Game.AI
             int StrToAssign = (int)this.GetForcePoolStrength();
             float StartingStr = StrToAssign;
             //float minimumStrength = 0;
-            System.Threading.Tasks.Parallel.ForEach(SComs, dd=>
+            //System.Threading.Tasks.Parallel.ForEach(SComs, dd=>
+            foreach(var dd in SComs)
                 {
                     SolarSystem solarSystem  = dd.Key;
                     {
@@ -279,7 +280,7 @@ namespace Ship_Game.AI
 
                         }
                     }
-                });
+                }//);
             
             //foreach (SolarSystem solarSystem in sortedList)
             //{
@@ -644,10 +645,10 @@ namespace Ship_Game.AI
 
             Array<Ship> ShipsAlreadyConsidered = new Array<Ship>();
             var rangePartitioner = Partitioner.Create(0, incomingShips.Length);
-            System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
+            //System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
             {
                     
-                for (int i = range.Item1; i < range.Item2; i++)
+                for (int i = 0; i < incomingShips.Length; i++)
                 {
                     //for (int i = 0; i < incomingShips.Count; i++)
                     {
@@ -664,7 +665,7 @@ namespace Ship_Game.AI
                             lock(ShipsAlreadyConsidered)
                             ShipsAlreadyConsidered.Add(ship);
 
-                            for (int j = range.Item1; j < range.Item2; j++)
+                            for (int j = 0; j < incomingShips.Length; j++)
                             {
                                 Ship otherShip = incomingShips[j];
                                 if (otherShip.loyalty != this._us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f
@@ -677,7 +678,7 @@ namespace Ship_Game.AI
 
                     }
                 }
-            });
+            }//);
   
             
         }
