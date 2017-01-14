@@ -34,7 +34,7 @@ namespace Ship_Game
 		public Array<Ring> RingList = new Array<Ring>();
 		private int numberOfRings;
 		public int StarRadius;
-		public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>();
+		public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>(5);
 		public Array<string> ShipsToSpawn = new Array<string>();
 		public Array<FleetAndPos> FleetsToSpawn = new Array<FleetAndPos>();
 		public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
