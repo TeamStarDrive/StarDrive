@@ -3323,10 +3323,11 @@ namespace Ship_Game.Gameplay
                         //rangePartitioner = Partitioner.Create(0, source.Length);
                         //handle each weapon group in parallel
                         //global::System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
-                        Parallel.For(this.projectiles.Count, (start, end) =>
+                        //Parallel.For(this.projectiles.Count, (start, end) =>
                         {
                             //standard for loop through each weapon group.
-                            for (int T = start; T < end; T++)
+                            //for (int T = start; T < end; T++)
+                            for (int T = 0; T < projectiles.Count; T++)
                             {
                                 if (this.projectiles[T] != null && this.projectiles[T].Active)
                                     this.projectiles[T].Update(elapsedTime);
@@ -3335,7 +3336,7 @@ namespace Ship_Game.Gameplay
                                     this.Projectiles.QueuePendingRemoval(this.projectiles[T]);
                                 }
                             }
-                        }); 
+                        }//); 
                     }
 
                     if (this.beams.Count > 0)
@@ -3344,10 +3345,11 @@ namespace Ship_Game.Gameplay
                         //rangePartitioner = Partitioner.Create(0, source.Length);
                         //handle each weapon group in parallel
                         //global::System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
-                        Parallel.For(this.beams.Count, (start, end) =>
+                        //Parallel.For(this.beams.Count, (start, end) =>
                         {
                             //standard for loop through each weapon group.
-                            for (int T = start; T < end; T++)
+                            //for (int T = start; T < end; T++)
+                            for (int T = 0; T < this.beams.Count; T++)
                             {
                                 Beam beam = this.beams[T];
                                 Vector2 origin = new Vector2();
@@ -3385,7 +3387,7 @@ namespace Ship_Game.Gameplay
                                 }
                             }
 
-                        }); 
+                        }//); 
                     }
                     //this.beams.thisLock.ExitReadLock();
 
@@ -3415,18 +3417,24 @@ namespace Ship_Game.Gameplay
             //added by Gremlin Parallel recalculate power.
             //global::System.Threading.Tasks.Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
             ModuleSlot module;
+
+            for (int i = 0; i < this.ModuleSlotList.Count; i++)
+            {
+                module = ModuleSlotList[i];
+
+                module.Powered = false;
+                module.module.Powered = false;
+                module.CheckedConduits = false;
+                if (module.module != null)
+                    module.module.Powered = false;
+            }
+
             //Parallel.For(this.ModuleSlotList.Count, (start, end) =>
             //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 for (int i = 0; i < this.ModuleSlotList.Count; i++)
                 {
                     module = ModuleSlotList[i];
-
-                    module.Powered = false;
-                    module.module.Powered = false;
-                    module.CheckedConduits = false;
-                    if (module.module != null)
-                        module.module.Powered = false;
 
                     if (module.module != null && module.module.ModuleType == ShipModuleType.PowerPlant && module.module.Active)
                     {
@@ -4084,7 +4092,7 @@ namespace Ship_Game.Gameplay
                     if (this.GetAI().BadGuysNear ||  this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null || this.shipData.Role <= ShipData.RoleName.station)
                     {
                         this.UpdatedModulesOnce = false;
-                      
+
                         //int half = this.ModuleSlotList.Count / 2;
 
                         //Array<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
@@ -4122,7 +4130,8 @@ namespace Ship_Game.Gameplay
 
                         //if I am not mistaken, this is being run completely twice. The two Parallel foreach loops above are derived from 'this.ModuleSlotList' which
                         //is processed in its entirety again here. I think this is redundant, and likely a reasonable performance hit.    -Gretman
-                        Task modules = new Task(() =>
+                        //Task modules = new Task(() =>
+                        if (universeScreen.ShowShipNames || this.AI.BadGuysNear)
                         {
                             float cos = (float)Math.Cos((double)this.Rotation);
                             float sin = (float)Math.Sin((double)this.Rotation);
@@ -4135,12 +4144,13 @@ namespace Ship_Game.Gameplay
                                     break;
                             }
                         }
-                        );
-                        modules.Start();
+                        //);
+                        //modules.Start();
                     }
-                    else if( !this.UpdatedModulesOnce)
+                    if (universeScreen.ShowShipNames || this.AI.BadGuysNear)
                     {
-                        Task modules = new Task(() =>
+                        //Task modules = new Task(() =>
+                        if (this.AI.BadGuysNear)
                         {
 
                             float cos = (float)Math.Cos((double)this.Rotation);
@@ -4153,14 +4163,15 @@ namespace Ship_Game.Gameplay
                                 if (!this.Active)
                                     break;
                             }
-                        }); modules.Start();
+                        }//); modules.Start();
                         this.UpdatedModulesOnce = true;
                     }
                 }
                 else if (elapsedTime < 0.0 && !this.UpdatedModulesOnce)
                 {
-                   
-                    Task modules = new Task(() =>
+
+                    //Task modules = new Task(() =>
+                    if (universeScreen.ShowShipNames || this.AI.BadGuysNear)
                     {
                         float cos = (float)Math.Cos((double)this.Rotation);
                         float sin = (float)Math.Sin((double)this.Rotation);
@@ -4172,7 +4183,7 @@ namespace Ship_Game.Gameplay
                             if (!this.Active)
                                 break;
                         }
-                    }); modules.Start();
+                    }//); modules.Start();
                     this.UpdatedModulesOnce = true;
                 }
             }
