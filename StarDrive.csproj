@@ -159,7 +159,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>StarDrive\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM xPLAYERONLY xAUTOTIME PERF</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STEAM ALTERTHREAD</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
@@ -240,7 +240,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'RedFox-Release|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\RedFox-Release\</OutputPath>
+    <OutputPath>StarDrive\</OutputPath>
     <DefineConstants>DEBUG;STEAM ALTERTHREAD</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>

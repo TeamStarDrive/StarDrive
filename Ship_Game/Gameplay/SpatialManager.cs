@@ -356,9 +356,10 @@ namespace Ship_Game.Gameplay
                 if (nearby.Count == 0)
                     return;
                 //handle each weapon group in parallel
-                Parallel.For(0, nearby.Count, (start, end) =>
+                //Parallel.For(0, nearby.Count, (start, end) =>
                 {
-                    for (int T = start; T < end; T++)
+                    //for (int T = start; T < end; T++)
+                    for (int T = 0; T < nearby.Count; T++)
                     {
 
                         Ship shipObject2 = nearby[T] as Ship;
@@ -431,7 +432,7 @@ namespace Ship_Game.Gameplay
                             }
                         }
                     }
-                });
+                }//);
                 //flag = shieldTarget == null;
                 //if (!flag)
                 //{
@@ -738,12 +739,13 @@ namespace Ship_Game.Gameplay
             if (nearbythings.Count == 0)
                 return;
             //handle each weapon group in parallel
-            Parallel.For(0, nearbythings.Count, (start, end) =>
+            //Parallel.For(0, nearbythings.Count, (start, end) =>
             {
                 //standard for loop through each weapon group.
-                for (int T = start; T < end; T++)
+                //for (int T = start; T < end; T++)
+                for (int i = 0; i < nearbythings.Count; i++)
                 {
-                    GameplayObject gameplayObject1 = nearbythings[T];
+                    GameplayObject gameplayObject1 = nearbythings[i];
                     BoundingSphere object1;
 
                     //float minHit = 0f;          //Not referenced in code, removing to save memory
@@ -955,7 +957,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
                 }
-            });
+            }//);
         }
 
 
