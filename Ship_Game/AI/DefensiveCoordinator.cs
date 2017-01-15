@@ -321,8 +321,8 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                var ships = defenseDict.Value.GetShipList();
-                ships.Sort((x,y) => x.GetStrength().CompareTo(y.GetStrength()));
+                Ship[] ships = defenseDict.Value.GetShipList().ToArray();
+                Array.Sort(ships, (x, y) => x.GetStrength().CompareTo(y.GetStrength()));
                 foreach (Ship current in ships)
                 {
                     defenseDict.Value.ShipsDict.TryRemove(current.guid, out Ship remove);
