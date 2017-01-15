@@ -23,15 +23,7 @@ namespace Ship_Game
         {
             base.AddRange(listToCopy);
         }
-        public Array<T> GetPendingRemovals()
-        {
-            Array<T> items = new Array<T>();
-            foreach (T item in PendingRemovals)
-            {
-                items.Add(item);
-            }
-            return items;
-        }
+
         // Acquires a deterministic Read Lock on this Collection
         // You must use the C# using block to ensure deterministic release of the lock
         // using (list.AcquireReadLock())
@@ -81,6 +73,7 @@ namespace Ship_Game
                 }
             }
         }
+
         public void QueuePendingRemoval(T item)
         {
             PendingRemovals.Push(item);
