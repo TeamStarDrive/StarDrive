@@ -154,15 +154,8 @@ namespace Ship_Game.AI
 			return str;
 		}
 
-		public Array<Ship> GetShipList()
-		{
-			Array<Ship> retlist = new Array<Ship>();
-			foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
-			{
-				retlist.Add(ship.Value);
-			}
-			return retlist;
-		}
+        public IEnumerable<Ship> GetShipList() => ShipsDict.Values;
+
         public void updatePlanetTracker()
         {
             var planetsHere = system.PlanetList.Where(planet => planet.Owner == us).ToArray();
