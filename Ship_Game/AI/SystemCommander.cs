@@ -17,12 +17,12 @@ namespace Ship_Game.AI
 
 		public float TroopStrengthNeeded;
 
-		public float IdealShipStrength;
+		public int IdealShipStrength;
 
 		public float PercentageOfValue;
         public float incomingThreatTime;
         public float SystemDevelopmentlevel;
-        public float RankImportance;
+        public int RankImportance;
 		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
 		public Map<Ship, Array<Ship>> EnemyClumpsDict = new Map<Ship, Array<Ship>>();
@@ -37,6 +37,21 @@ namespace Ship_Game.AI
 			this.us = e;
 		}
 
+        public bool RemoveShip(Ship shipToRemove)
+        {
+            if (ShipsDict.TryRemove(shipToRemove.guid, out Ship ship))
+            {
+                ship.GetAI().SystemToDefend = null;
+                return true;
+            }
+            return false;
+        }
+        private void Clear()
+        {
+            foreach (Ship ship in ShipsDict.Values)
+                ship.GetAI().SystemToDefend = null;
+            ShipsDict.Clear();
+        }
         public void AssignTargets()
         {
             this.EnemyClumpsDict.Clear();
@@ -177,7 +192,24 @@ namespace Ship_Game.AI
                 }
             }
         }
-	}
+        public void Dispose()
+        {
+            Destroy();
+            GC.SuppressFinalize(this);
+        }
+        ~SystemCommander() { Destroy(); }
+
+        private void Destroy()
+        {
+            Clear();            
+            ShipsDict = null;
+            EnemyClumpsDict?.Clear();
+            EnemyClumpsDict = null;
+            planetTracker?.Clear();
+            planetTracker = null;
+            system = null;          
+        }
+    }
     public class PlanetTracker
     {
         public float value;
@@ -189,6 +221,7 @@ namespace Ship_Game.AI
             this.planet = toTrack;
 
         }
+       
     }
 
 }

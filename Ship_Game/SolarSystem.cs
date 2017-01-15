@@ -772,7 +772,7 @@ namespace Ship_Game
 			return strength;
 		}
 
-        public float GetPredictedEnemyPresence(float time, Empire us)
+        public int GetPredictedEnemyPresence(float time, Empire us)
         {
             float prediction = 0f;
             foreach (Ship ship in ShipList)
@@ -794,7 +794,7 @@ namespace Ship_Game
                     prediction = prediction + ship.GetStrength();
                 }
             }
-            return prediction;
+            return (int)prediction;
         }
 
 		private bool NoAsteroidProximity(Vector2 pos)
