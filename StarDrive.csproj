@@ -311,6 +311,7 @@
     <Compile Include="Ship_Game\FGPathing\PriorityQueueB.cs" />
     <Compile Include="Ship_Game\GameScreens\GameLoadingScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\GameScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\RuleOptionsScreen.cs" />
     <Compile Include="Ship_Game\GenericLoadSaveScreen.cs" />
     <Compile Include="Ship_Game\LoadSetupScreen.cs" />
     <Compile Include="Ship_Game\RaceSave.cs" />
@@ -570,10 +571,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Utils\SteamManager.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\GameScreens\RuleOptionsScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -3610,6 +3607,6 @@
     <PostBuildEvent>$(ProjectDir)deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>cd  $(ProjectDir) &amp;&amp;   powershell -ExecutionPolicy UnRestricted  -file Deploy\Config\Pre-run.ps1</PreBuildEvent>
+    <PreBuildEvent>cd  $(ProjectDir) &amp;&amp;   powershell -ExecutionPolicy ByPass  -file Deploy\Config\Pre-run.ps1</PreBuildEvent>
   </PropertyGroup>
 </Project>
