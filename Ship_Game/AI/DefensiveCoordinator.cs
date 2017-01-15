@@ -63,15 +63,25 @@ namespace Ship_Game.AI
         {
             return DefenseDict[ship.GetAI().SystemToDefend].AssignIdleDuties(ship);
         }
-        public void Remove(Ship ship)
+        public void Remove(Ship ship, bool queueRemoval = false)
         {
-            DefensiveForcePool.Remove(ship);
+            if (queueRemoval)
+                DefensiveForcePool.QueuePendingRemoval(ship);
+            else
+                DefensiveForcePool.Remove(ship);
             if (ship.GetAI().SystemToDefend != null)
             {
-                if (ship.Active && !DefenseDict[ship.GetAI().SystemToDefend].RemoveShip(ship))
+                if (!DefenseDict[ship.GetAI().SystemToDefend].RemoveShip(ship) && ship.Active)
                     Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : Not in SystemCommander");
                 return;
             }
+            bool found = false;
+            foreach(var kv in DefenseDict)
+            {
+                if (!kv.Value.RemoveShip(ship)) continue;
+                found = true;
+            }
+            if(!found)
             Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
         }
         private void CalculateSystemImportance()
@@ -100,7 +110,7 @@ namespace Ship_Game.AI
             {
                 if (kv.Key.OwnerList.Contains(Us))
                 {
-                    kv.Value.updatePlanetTracker();
+                    kv.Value.UpdatePlanetTracker();
                     continue;
                 }
                 Keystoremove.Add(kv.Key);
@@ -116,62 +126,7 @@ namespace Ship_Game.AI
             foreach (var kv in DefenseDict)
             {
                 systems.Add(kv.Key);
-                kv.Value.ValueToUs = 0f;
-                kv.Value.IdealShipStrength = 0;
-                kv.Value.PercentageOfValue = 0f;
-                foreach (Planet p in kv.Key.PlanetList)
-                {
-                    if (p.Owner != null && p.Owner == this.Us)
-                    {
-                        float cummulator = 0;
-                        cummulator += p.Population / 10000f;
-                        cummulator += (p.MaxPopulation / 10000f);
-                        cummulator += p.Fertility;
-                        cummulator += p.MineralRichness;
-                        cummulator += p.CommoditiesPresent.Count;
-                        cummulator += p.developmentLevel;
-                        cummulator += p.GovBuildings ? 1 : 0;
-                        cummulator += kv.Value.system.combatTimer > 0 ? 5 : 0;  //fbedard: DangerTimer is in relation to the player only !
-                        cummulator += p.HasShipyard ? 5 : 0;
-
-                        kv.Value.ValueToUs = cummulator;
-                        kv.Value.planetTracker[p].value = cummulator;
-
-                        if (Us.data.Traits.Cybernetic > 0) cummulator += p.MineralRichness;
-                    }
-                    foreach (Planet other in kv.Key.PlanetList)
-                    {
-                        if (other == p || other.Owner == null || other.Owner == Us)
-                            continue;
-                        Relationship them = Us.GetRelations(other.Owner);
-                        if (them.Trust < 50f) kv.Value.ValueToUs += 2.5f;
-                        if (them.Trust < 10f) kv.Value.ValueToUs += 2.5f;
-                        if (them.TotalAnger > 2.5f) kv.Value.ValueToUs += 2.5f;
-                        if (them.TotalAnger <= 30f) continue;
-                        kv.Value.ValueToUs += 2.5f;
-
-                    }
-                }
-                foreach (SolarSystem fiveClosestSystem in kv.Key.FiveClosestSystems)
-                {
-                    bool noEnemies = true;
-                    if (!fiveClosestSystem.ExploredDict[Us]) continue;
-                    foreach (Empire e in fiveClosestSystem.OwnerList)
-                    {
-                        if (e == Us) continue;
-                        Relationship rel = Us.GetRelations(e);
-                        if (!rel.Known) continue;
-                        if (rel.AtWar) kv.Value.ValueToUs += 5f;
-                        else if (rel.Treaty_OpenBorders) kv.Value.ValueToUs += 1f;
-                        noEnemies = false;
-                    }
-                    if (noEnemies)
-                    {
-                        kv.Value.ValueToUs *= 2;
-                        kv.Value.ValueToUs /= 3;
-                    }
-                }
-
+                kv.Value.UpdateSystemValue(Us);
             }
             int ranker = 0;
             int split = DefenseDict.Count / 10;
@@ -244,15 +199,16 @@ namespace Ship_Game.AI
                         break;
                 }
             }
-            //Add available force to pool:
-            foreach (Ship ship in DefensiveForcePool)
+            //Add available force to pool:            
+            for(int x = 0; x< DefensiveForcePool.Count;x++)
             {
+                Ship ship = DefensiveForcePool[x];
                 if (ship.Active && !(ship.GetAI().HasPriorityOrder || ship.GetAI().State == AIState.Resupply)
                     && ship.loyalty == Us && ship.GetAI().SystemToDefend == null)
                 {
                     ShipsAvailableForAssignment.Add(ship);
                 }
-                else DefensiveForcePool.QueuePendingRemoval(ship);
+                else Remove(ship);
             }
             //Assign available force:
             foreach (var kv in DefenseDict)
@@ -275,7 +231,7 @@ namespace Ship_Game.AI
                             continue;
                         if (!ship.Active)
                         {
-                            DefensiveForcePool.QueuePendingRemoval(ship);
+                            Remove(ship);                            
                             continue;
                         }
 
@@ -291,7 +247,7 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            ApplyDefensePoolRemovals();
+            DefensiveForcePool.ApplyPendingRemovals();
 
         }
         private void ManageTroops()
@@ -409,10 +365,10 @@ namespace Ship_Game.AI
                 var sortedSystems =
                     from sComs in DefenseDict.Values
                     orderby sComs.TroopStrengthNeeded / sComs.IdealTroopStr descending
-                    orderby (int)(Vector2.Distance(sComs.system.Position, ship4.Center) / (UniverseData.UniverseWidth / 5f))
+                    orderby (int)(Vector2.Distance(sComs.System.Position, ship4.Center) / (UniverseData.UniverseWidth / 5f))
                     orderby sComs.ValueToUs descending
 
-                    select sComs.system;
+                    select sComs.System;
                 foreach (SolarSystem solarSystem2 in sortedSystems)
                 {
 
@@ -497,15 +453,6 @@ namespace Ship_Game.AI
             ManageTroops();
         }
 
-        private void ApplyDefensePoolRemovals()
-        {
-            foreach (Ship ship in DefensiveForcePool.GetPendingRemovals())
-                foreach (var kv in DefenseDict)
-                {
-                    kv.Value.RemoveShip(ship);
-                }
-            DefensiveForcePool.ApplyPendingRemovals();
-        }
         public ConcurrentDictionary<Ship, Array<Ship>> EnemyClumpsDict = new ConcurrentDictionary<Ship, Array<Ship>>();
 
         public void refreshclumps()

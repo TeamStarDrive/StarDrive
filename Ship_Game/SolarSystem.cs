@@ -774,27 +774,10 @@ namespace Ship_Game
 
         public int GetPredictedEnemyPresence(float time, Empire us)
         {
-            float prediction = 0f;
-            foreach (Ship ship in ShipList)
-            {
-                if (ship == null || ship.loyalty == us || us.TryGetRelations(ship.loyalty, out Relationship war) && war.Treaty_Alliance)
-                    continue;
-
-                float trustPrediction = war.Trust > 25f ? (125f - war.Trust) / 100f : 0f;
-                prediction += ship.GetStrength() + trustPrediction;
-            }
-            var nearbyShips = UniverseScreen.ShipSpatialManager.GetNearby<Ship>(Position);
-            foreach (Ship ship in nearbyShips)
-            {
-                if (ship.loyalty != us && !ShipList.Contains(ship) 
-                    && (ship.loyalty.isFaction || us.GetRelations(ship.loyalty).AtWar) 
-                    && HelperFunctions.IntersectCircleSegment(Position, 100000f * UniverseScreen.GameScaleStatic, 
-                                                              ship.Center, ship.Center + ship.Velocity*time))
-                {
-                    prediction = prediction + ship.GetStrength();
-                }
-            }
+             
+            float prediction =us.GetGSAI().ThreatMatrix.PingRadarStr(Position, RingList[RingsCount - 1].Distance *2,us);
             return (int)prediction;
+
         }
 
 		private bool NoAsteroidProximity(Vector2 pos)
