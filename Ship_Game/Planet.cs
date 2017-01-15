@@ -148,8 +148,6 @@ namespace Ship_Game
         public int uniqueHabPercent;
         public float ExportPSWeight =0;
         public float ExportFSWeight = 0;
-       
-
         public float ObjectRadius
         {
             get
@@ -157,7 +155,7 @@ namespace Ship_Game
                 if (this.SO == null)
                     return this.Objectradius;                
                 return this.SO.WorldBoundingSphere.Radius;
-                ; }
+                 }
             set { if (this.SO == null)
                     this.Objectradius =value;                
             else
