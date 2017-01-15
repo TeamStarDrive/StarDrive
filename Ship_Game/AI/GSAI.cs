@@ -2528,12 +2528,7 @@ namespace Ship_Game.AI
             if ((this.DefensiveCoordinator.DefenseDeficit > 0  && this.DefensiveCoordinator.GetForcePoolStrength() < EntireStrength * baseDefensePct)
                 && (toAdd.BombBays.Count == 0 || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
             {
-                this.DefensiveCoordinator.DefensiveForcePool.Add(toAdd);
-                toAdd.GetAI().SystemToDefend = null;
-                toAdd.GetAI().SystemToDefendGuid = Guid.Empty;
-                toAdd.GetAI().HasPriorityOrder = false;
-                toAdd.GetAI().State = AIState.SystemDefender;
-                this.DefensiveCoordinator.DefenseDeficit-=toAdd.BaseStrength;
+                DefensiveCoordinator.AddShip(toAdd);
                 return;
             }
             IOrderedEnumerable<AO> sorted =

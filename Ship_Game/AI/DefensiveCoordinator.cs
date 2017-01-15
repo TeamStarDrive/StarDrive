@@ -24,7 +24,14 @@ namespace Ship_Game.AI
 		{
             Us = e;
 		}
-
+        public void AddShip(Ship ship)
+        {
+            ship.GetAI().SystemToDefend = null;
+            ship.GetAI().SystemToDefendGuid = Guid.Empty;
+            ship.GetAI().HasPriorityOrder = false;
+            ship.GetAI().State = AIState.SystemDefender;
+            DefenseDeficit -= ship.GetStrength();
+        }
         //added by gremlin parallel forcepool
         public float GetForcePoolStrength()
         {            
@@ -52,13 +59,16 @@ namespace Ship_Game.AI
 	        }
             return str / count;
         }
-
+        public Planet AssignIdleShips(Ship ship)
+        {
+            return DefenseDict[ship.GetAI().SystemToDefend].AssignIdleDuties(ship);
+        }
         public void Remove(Ship ship)
         {
             DefensiveForcePool.Remove(ship);
             if (ship.GetAI().SystemToDefend != null)
             {
-                if (!DefenseDict[ship.GetAI().SystemToDefend].RemoveShip(ship))
+                if (ship.Active && !DefenseDict[ship.GetAI().SystemToDefend].RemoveShip(ship))
                     Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : Not in SystemCommander");
                 return;
             }
@@ -84,7 +94,7 @@ namespace Ship_Game.AI
                     DefenseDict.Add(p.system, new SystemCommander(Us, p.system));
                 }
             }
-
+            TotalValue = 0;
             Array<SolarSystem> Keystoremove = new Array<SolarSystem>();
             foreach (var kv in DefenseDict)
             {
@@ -156,7 +166,10 @@ namespace Ship_Game.AI
                         noEnemies = false;
                     }
                     if (noEnemies)
-                        kv.Value.ValueToUs *= 2 / 3;
+                    {
+                        kv.Value.ValueToUs *= 2;
+                        kv.Value.ValueToUs /= 3;
+                    }
                 }
 
             }
@@ -179,7 +192,7 @@ namespace Ship_Game.AI
             }
             foreach (var kv in sComs)
             {
-                kv.Value.RankImportance = 10 * (kv.Value.RankImportance / ranker);
+                kv.Value.RankImportance = (int)(10 * (kv.Value.RankImportance / ranker));
                 TotalValue += (int)kv.Value.ValueToUs;
             }
         }
@@ -196,8 +209,8 @@ namespace Ship_Game.AI
                     if (Predicted <= 0f) kv.Value.IdealShipStrength = 0;
                     else
                     {
-                        kv.Value.IdealShipStrength = Predicted * kv.Value.RankImportance / 10;
-                        int min = (int)Math.Pow(kv.Value.ValueToUs, 3) * kv.Value.RankImportance;
+                        kv.Value.IdealShipStrength = (int)(Predicted * kv.Value.RankImportance / 10);
+                        int min = (int)(Math.Pow(kv.Value.ValueToUs, 3) * kv.Value.RankImportance);
                         kv.Value.IdealShipStrength += min;
                         StrToAssign -= kv.Value.IdealShipStrength;
                     }

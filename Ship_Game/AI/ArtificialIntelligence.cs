@@ -168,10 +168,12 @@ namespace Ship_Game.AI
 	        {
 	            if (SystemToDefend != null)
 	            {
-	                DoOrbit(SystemToDefend.PlanetList[0], elapsedTime);
-	                awaitClosest = SystemToDefend.PlanetList[0]; //@TASK change this to use the highest value planet from the sys def ai. 
+                    Planet p = Owner.loyalty.GetGSAI().DefensiveCoordinator.AssignIdleShips(Owner);
+                    DoOrbit(p, elapsedTime);
+                    awaitClosest = p;
 	                return;
 	            }
+                else
 	            if (awaitClosest != null)
 	            {
 	                DoOrbit(awaitClosest, elapsedTime);
