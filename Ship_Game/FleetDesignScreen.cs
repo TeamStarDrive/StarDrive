@@ -761,7 +761,7 @@ namespace Ship_Game
 				this.priorityselector.Draw();
 				Cursor = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Priorities", Cursor, new Color(255, 239, 208));
-				this.OperationalRadius.Draw(base.ScreenManager);
+				this.OperationalRadius.DrawDecimal(base.ScreenManager);
 				this.Slider_Size.Draw(base.ScreenManager);
 				return;
 			}
@@ -804,7 +804,7 @@ namespace Ship_Game
 				this.priorityselector.Draw();
 				Cursor = new Vector2((float)(this.PrioritiesRect.X + 20), (float)(this.PrioritiesRect.Y + 10));
 				base.ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, "Group Priorities", Cursor, new Color(255, 239, 208));
-				this.OperationalRadius.Draw(base.ScreenManager);
+				this.OperationalRadius.DrawDecimal(base.ScreenManager);
 				this.Slider_Size.Draw(base.ScreenManager);
 				return;
 			}

@@ -176,10 +176,9 @@ namespace Ship_Game
                 width  = 800;
                 height = 600;
             }
-			Form form = (Form)Control.FromHandle(Window.Handle);        
-            if(Debugger.IsAttached)
-                if (mode == WindowMode.Fullscreen)
-                    mode = WindowMode.Borderless;
+			var form = (Form)Control.FromHandle(Window.Handle);        
+            if (Debugger.IsAttached && mode == WindowMode.Fullscreen)
+                mode = WindowMode.Borderless;
             GlobalStats.WindowMode = mode;
             Graphics.PreferredBackBufferWidth  = width;
             Graphics.PreferredBackBufferHeight = height;
@@ -201,7 +200,7 @@ namespace Ship_Game
                 form.ClientSize = new Size(width, height);
 
                 // set form to the center of the primary screen
-                Size size = Screen.PrimaryScreen.Bounds.Size;
+                var size = Screen.PrimaryScreen.Bounds.Size;
                 form.Location = new System.Drawing.Point(size.Width / 2 - width / 2, size.Height / 2 - height / 2);
             }
 		}
