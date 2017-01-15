@@ -794,7 +794,7 @@ namespace Ship_Game.AI
             float importance = 1;
 
             if (scom != null)
-                importance = 1 + (int)scom.RankImportance * .01f;
+                importance = 1 + scom.RankImportance * .01f;
 
             float distance = 250000 * importance;            
             MinimumEscortStrength = this.empire.GetGSAI().ThreatMatrix.PingRadarStr(this.AO, distance,this.empire);
