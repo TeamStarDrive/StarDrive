@@ -22,7 +22,7 @@ namespace Ship_Game.AI
         public float PercentageOfValue;
         public float incomingThreatTime;
         public float SystemDevelopmentlevel;
-        public int RankImportance;
+        public float RankImportance;
 		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
 		public Map<Ship, Array<Ship>> EnemyClumpsDict = new Map<Ship, Array<Ship>>();
@@ -51,6 +51,14 @@ namespace Ship_Game.AI
             foreach (Ship ship in ShipsDict.Values)
                 ship.GetAI().SystemToDefend = null;
             ShipsDict.Clear();
+        }
+        public Planet AssignIdleDuties(Ship ship)
+        {
+            Array<PlanetTracker> planets = planetTracker.Values.ToArrayList();
+            Planet p = planets.FindMax(value => value.value).planet;
+            
+            return p ;
+            
         }
         public void AssignTargets()
         {
