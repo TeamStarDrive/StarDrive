@@ -9,7 +9,7 @@ namespace Ship_Game
 	public sealed class FloatSlider
 	{
 		public Rectangle rect;
-		public Rectangle ContainerRect;
+		private Rectangle ContainerRect;
 		public bool Hover;
 		public string Text = "";
 		public float amount = 0.5f;
@@ -72,6 +72,8 @@ namespace Ship_Game
             cursor = new Rectangle(rect.X + (int)(rect.Width * amount), rect.Y + rect.Height / 2 - SliderKnob.Height / 2, SliderKnob.Width, SliderKnob.Height);
         }
 
+        public bool HitTest(Vector2 pos) => ContainerRect.HitTest(pos);
+
         private void Draw(ScreenManager screenManager, string valueIndicator)
         {
             SpriteBatch sb = screenManager.SpriteBatch;
@@ -100,7 +102,7 @@ namespace Ship_Game
             }
         }
 
-	    public void Draw(ScreenManager screenManager)
+	    public void DrawPercent(ScreenManager screenManager)
 		{
             int num = (int)(amount * 100f);
             Draw(screenManager, num.ToString("00") + "%");

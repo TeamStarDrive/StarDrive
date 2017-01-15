@@ -622,6 +622,8 @@ namespace Ship_Game
             LoadTestContent();
 
             Log.Info("MainMenuScreen GameContent {0:0.0}MB", TransientContent.GetLoadedAssetMegabytes());
+
+            Log.Info("StackTrace: \n{0}", Log.CleanStackTrace(Environment.StackTrace));
         }
 
         // for quick feature testing in the main menu

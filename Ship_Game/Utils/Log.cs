@@ -195,10 +195,10 @@ namespace Ship_Game
             return sb.ToString();
         }
 
-        public static string CleanStackTrace(Exception ex)
+        public static string CleanStackTrace(string stackTrace)
         {
             var sb = new StringBuilder("StackTrace:\r\n");
-            string[] lines = ex.StackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = stackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in lines)
             {
                 if (line.Contains(" in "))

@@ -118,7 +118,7 @@ namespace Ship_Game
             return x > r.X && y > r.Y && x < r.X + r.Width && y < r.Y + r.Height;
         }
 
-        // result between [0, 360)
+        // Angle degrees from origin to tgt; result between [0, 360)
         public static float AngleToTarget(this Vector2 origin, Vector2 target)
         {
             return (float)(180 - Atan2(target.X - origin.X, target.Y - origin.Y) * 180.0 / PI);
@@ -177,14 +177,20 @@ namespace Ship_Game
         }
 
         // Converts rotation radians into a 2D direction vector
-        public static Vector2 RotationToForwardVec(this float radians)
+        public static Vector2 RadiansToDirection(this float radians)
         {
             return new Vector2((float)Sin(radians), -(float)Cos(radians));
         }
 
+        // Converts an angle value to a 2D direction vector
+        public static Vector2 AngleToDirection(this float degrees)
+        {
+            double rads = degrees * (PI / 180.0);
+            return new Vector2((float)Sin(rads), -(float)Cos(rads));
+        }
+
         public static Vector2 FindVectorBehindTarget(this GameplayObject ship, float distance)
         {
-            Vector2 vector2 = new Vector2(0f, 0f);
             Vector2 forward = new Vector2((float)Sin(ship.Rotation), -(float)Cos(ship.Rotation));
             forward = Vector2.Normalize(forward);
             return ship.Position - (forward * distance);
