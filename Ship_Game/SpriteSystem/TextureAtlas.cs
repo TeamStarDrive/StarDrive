@@ -12,7 +12,7 @@ namespace Ship_Game
         // name="sprite1" x="461" y="1317" rotated="true" width="28" height="41" frameX="-237" frameY="-116" frameWidth="512" frameHeight="264"
         public string Name;        // name of the sprite for name-based lookup
         public int X, Y;           // position in sprite sheet
-        public int Width, Height;  // actual size in sprite sheet
+        public int Width, Height;  // actual size of subtexture in sprite sheet
         public int FrameX, FrameY; // trimmed offset from the original frame
         public int FrameWidth, FrameHeight; // original size of the frame before trimming
         public bool Rotated;       // rotated -90 ?

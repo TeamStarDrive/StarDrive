@@ -917,7 +917,6 @@ namespace Ship_Game
             ShipModule.universeScreen             = this;
             Empire.Universe                       = this;
             ResourceManager.UniverseScreen        = this;
-            Weapon.universeScreen                 = this;
             Ship.universeScreen                   = this;
             ArtificialIntelligence.universeScreen = this;
             MissileAI.universeScreen              = this;
@@ -4683,7 +4682,6 @@ namespace Ship_Game
             ShipModule.universeScreen             = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
-            Weapon.universeScreen                 = null;
             Ship.universeScreen                   = null;
             ArtificialIntelligence.universeScreen = null;
             MissileAI.universeScreen              = null;

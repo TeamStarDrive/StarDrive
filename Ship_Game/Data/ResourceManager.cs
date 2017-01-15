@@ -838,6 +838,12 @@ namespace Ship_Game
             return template.Clone();
         }
 
+        // WARNING: DO NOT MODIFY this Weapon instace! (wish C# has const refs like C++)
+        public static Weapon GetWeaponTemplate(string uid)
+        {
+            return WeaponsDict[uid];
+        }
+
         public static Texture2D LoadRandomLoadingScreen(GameContentManager content)
         {
             var files = GatherFilesModOrVanilla("LoadingScreen", "xnb");
