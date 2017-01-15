@@ -2869,7 +2869,7 @@ namespace Ship_Game.AI
                 
                 if (CheckBorders.RankImportance > 5)
                 {
-                    foreach (SolarSystem closeenemies in CheckBorders.system.FiveClosestSystems)
+                    foreach (SolarSystem closeenemies in CheckBorders.System.FiveClosestSystems)
                     {
                         foreach (Empire enemy in closeenemies.OwnerList)
                         {
