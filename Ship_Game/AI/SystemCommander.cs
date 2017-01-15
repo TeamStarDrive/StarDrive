@@ -18,8 +18,8 @@ namespace Ship_Game.AI
 		public float TroopStrengthNeeded;
 
 		public int IdealShipStrength;
-
-		public float PercentageOfValue;
+        public bool IsEnoughStrength => GetOurStrength() >= IdealShipStrength;
+        public float PercentageOfValue;
         public float incomingThreatTime;
         public float SystemDevelopmentlevel;
         public int RankImportance;
