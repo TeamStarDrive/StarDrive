@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Ship_Game.AI;
+using Ship_Game.Debug;
 
 namespace Ship_Game
 {
@@ -2575,7 +2576,11 @@ namespace Ship_Game
                 this.debugwin = new DebugInfoScreen(this.ScreenManager, this);
                 this.showdebugwindow = !this.showdebugwindow;
             }
-            
+            if (input.CurrentKeyboardState.IsKeyDown(Keys.S) && !input.LastKeyboardState.IsKeyDown(Keys.S) && this.Debug)
+            {
+                this.debugwin = new DebugInfoScreen(this.ScreenManager, this);
+                this.showdebugwindow = !this.showdebugwindow;
+            }
             if (this.DefiningAO)
             {
                 if (this.NeedARelease)
@@ -2728,10 +2733,10 @@ namespace Ship_Game
                     //This little sections added to stress-test the resource manager, and load lots of models into memory.      -Gretman
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.B) && !input.LastKeyboardState.IsKeyDown(Keys.B))
                     {
-                        if (DebugInfoScreen.loadmodels == 5)    //Repeat
-                            DebugInfoScreen.loadmodels = 0;
+                        if (DebugInfoScreen.Loadmodels == 5)    //Repeat
+                            DebugInfoScreen.Loadmodels = 0;
 
-                        if (DebugInfoScreen.loadmodels == 4)    //Capital and Carrier
+                        if (DebugInfoScreen.Loadmodels == 4)    //Capital and Carrier
                         {
                             ResourceManager.CreateShipAtPoint("Mordaving L", this.player, this.mouseWorldPos);    //Cordrazine
                             ResourceManager.CreateShipAtPoint("Revenant-Class Dreadnought", this.player, this.mouseWorldPos);    //Draylock
@@ -2745,10 +2750,10 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Sceptre Torp", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Devourer-Class Mk V Battleship", this.player, this.mouseWorldPos);    //Vulfen
                             ResourceManager.CreateShipAtPoint("SS-Fighter Base Alpha", this.player, this.mouseWorldPos);    //Station
-                            ++DebugInfoScreen.loadmodels;
+                            ++DebugInfoScreen.Loadmodels;
                         }
 
-                        if (DebugInfoScreen.loadmodels == 3)    //Cruiser
+                        if (DebugInfoScreen.Loadmodels == 3)    //Cruiser
                         {
                             ResourceManager.CreateShipAtPoint("Storving Laser", this.player, this.mouseWorldPos);    //Cordrazine
                             ResourceManager.CreateShipAtPoint("Draylok Bird of Prey", this.player, this.mouseWorldPos);    //Draylock
@@ -2760,10 +2765,10 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Missile Acolyte II", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Ancient Torpedo Cruiser", this.player, this.mouseWorldPos);    //Remnant
                             ResourceManager.CreateShipAtPoint("Type X Artillery", this.player, this.mouseWorldPos);    //Vulfen
-                            ++DebugInfoScreen.loadmodels;
+                            ++DebugInfoScreen.Loadmodels;
                         }
 
-                        if (DebugInfoScreen.loadmodels == 2)    //Frigate
+                        if (DebugInfoScreen.Loadmodels == 2)    //Frigate
                         {
                             ResourceManager.CreateShipAtPoint("Owlwok Beamer", this.player, this.mouseWorldPos);    //Cordrazine
                             ResourceManager.CreateShipAtPoint("Scythe Torpedo", this.player, this.mouseWorldPos);    //Draylock
@@ -2775,10 +2780,10 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Adv Zion Railer", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Corsair", this.player, this.mouseWorldPos);    //Remnant
                             ResourceManager.CreateShipAtPoint("Type VII Laser", this.player, this.mouseWorldPos);    //Vulfen
-                            ++DebugInfoScreen.loadmodels;
+                            ++DebugInfoScreen.Loadmodels;
                         }
 
-                        if (DebugInfoScreen.loadmodels == 1)    //Corvette
+                        if (DebugInfoScreen.Loadmodels == 1)    //Corvette
                         {
                             ResourceManager.CreateShipAtPoint("Laserlitving I", this.player, this.mouseWorldPos);    //Cordrazine
                             ResourceManager.CreateShipAtPoint("Crescent Rocket", this.player, this.mouseWorldPos);    //Draylock
@@ -2791,10 +2796,10 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Grinder", this.player, this.mouseWorldPos);    //Vulfen
                             ResourceManager.CreateShipAtPoint("Stalker III Hvy Laser", this.player, this.mouseWorldPos);    //Vulfen
                             ResourceManager.CreateShipAtPoint("Listening Post", this.player, this.mouseWorldPos);    //Platform
-                            ++DebugInfoScreen.loadmodels;
+                            ++DebugInfoScreen.Loadmodels;
                         }
 
-                        if (DebugInfoScreen.loadmodels == 0)    //Fighters and freighters
+                        if (DebugInfoScreen.Loadmodels == 0)    //Fighters and freighters
                         {
                             ResourceManager.CreateShipAtPoint("Laserving", this.player, this.mouseWorldPos);    //Cordrazine
                             ResourceManager.CreateShipAtPoint("Owlwok Freighter S", this.player, this.mouseWorldPos);    //Cordrazine
@@ -2823,7 +2828,7 @@ namespace Ship_Game
                             ResourceManager.CreateShipAtPoint("Vessel L", this.player, this.mouseWorldPos);    //Rayleh
                             ResourceManager.CreateShipAtPoint("Xeno Fighter", this.player, this.mouseWorldPos);    //Remnant
                             ResourceManager.CreateShipAtPoint("Type I Vulcan", this.player, this.mouseWorldPos);    //Vulfen
-                            ++DebugInfoScreen.loadmodels;
+                            ++DebugInfoScreen.Loadmodels;
                         }
                     }
                 }
