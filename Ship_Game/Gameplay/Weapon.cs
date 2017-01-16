@@ -10,49 +10,65 @@ namespace Ship_Game.Gameplay
 {
     public enum WeaponTag
     {
-        Kinetic = (1 << 0),
-        Energy  = (1 << 1),
-        Guided  = (1 << 2),
+        Kinetic   = (1 << 0),
+        Energy    = (1 << 1),
+        Guided    = (1 << 2),
+        Missile   = (1 << 3),
+        Hybrid    = (1 << 4),
+        Beam      = (1 << 5),
+        Explosive = (1 << 6),
+        Intercept = (1 << 7),
+        Railgun   = (1 << 8),
+        Bomb      = (1 << 9),
+        SpaceBomb = (1 << 10),
+        BioWeapon = (1 << 11),
+        Drone     = (1 << 12),
+        Warp      = (1 << 13),
+        Torpedo   = (1 << 14),
+        Cannon    = (1 << 15),
+        Subspace  = (1 << 16),
+        PD        = (1 << 17),
+        Flak      = (1 << 18),
+        Array     = (1 << 19),
+        Tractor   = (1 << 20),
     }
 
 	public class Weapon : IDisposable
 	{
-		public bool Tag_Kinetic;
-		public bool Tag_Energy;
-		public bool Tag_Guided;
-		public bool Tag_Missile;
-		public bool Tag_Hybrid;
-		public bool Tag_Beam;
-		public bool Tag_Explosive;
-		public bool Tag_Intercept;
-		public bool Tag_Railgun;
-		public bool Tag_Bomb;
-		public bool Tag_SpaceBomb;
-		public bool Tag_BioWeapon;
-		public bool Tag_Drone;
-		public bool Tag_Warp;
-		public bool Tag_Torpedo;
-		public bool Tag_Cannon;
-		public bool Tag_Subspace;
-		public bool Tag_PD;
-        public bool Tag_Flak;
-        public bool Tag_Array;
-        public bool Tag_Tractor;
-
-        // @todo Implement bit packing. Will require a custom serializer
-        //private int TagBits;
-        //public bool this[WeaponTag tag]
-        //{
-        //    get
-        //    {
-        //        return (TagBits & (int)tag) != 0;
-        //    }
-        //    set
-        //    {
-        //        if (value) TagBits |= (int)tag;
-        //        else       TagBits &= ~(int)tag;
-        //    }
-        //}
+        private int TagBits;
+        public bool this[WeaponTag tag]
+        {
+            get
+            {
+                return (TagBits & (int)tag) != 0;
+            }
+            set
+            {
+                if (value) TagBits |= (int)tag;
+                else TagBits &= ~(int)tag;
+            }
+        }
+        public bool Tag_Kinetic   => this[WeaponTag.Kinetic];
+        public bool Tag_Energy    => this[WeaponTag.Energy];
+        public bool Tag_Guided    => this[WeaponTag.Guided];
+        public bool Tag_Missile   => this[WeaponTag.Missile];
+        public bool Tag_Hybrid    => this[WeaponTag.Hybrid];
+        public bool Tag_Beam      => this[WeaponTag.Beam];
+        public bool Tag_Explosive => this[WeaponTag.Explosive];
+        public bool Tag_Intercept => this[WeaponTag.Intercept];
+        public bool Tag_Railgun   => this[WeaponTag.Railgun];
+        public bool Tag_Bomb      => this[WeaponTag.Bomb];
+        public bool Tag_SpaceBomb => this[WeaponTag.SpaceBomb];
+        public bool Tag_BioWeapon => this[WeaponTag.BioWeapon];
+        public bool Tag_Drone     => this[WeaponTag.Drone];
+        public bool Tag_Warp      => this[WeaponTag.Warp];
+        public bool Tag_Torpedo   => this[WeaponTag.Torpedo];
+        public bool Tag_Cannon    => this[WeaponTag.Cannon];
+        public bool Tag_Subspace  => this[WeaponTag.Subspace];
+        public bool Tag_PD        => this[WeaponTag.PD];
+        public bool Tag_Flak      => this[WeaponTag.Flak];
+        public bool Tag_Array     => this[WeaponTag.Array];
+        public bool Tag_Tractor   => this[WeaponTag.Tractor];
 
         [XmlIgnore][JsonIgnore]
         public Ship Owner { get; set; }

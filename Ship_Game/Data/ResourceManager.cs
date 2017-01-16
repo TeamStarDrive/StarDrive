@@ -643,7 +643,7 @@ namespace Ship_Game
 
             try
             {
-                ContentManager.EnableLoadInfoLog = true;
+                //ContentManager.EnableLoadInfoLog = true;
 
                 // special backwards compatibility with mods...
                 // basically, all old mods put their models into "Mod Models/" folder because
