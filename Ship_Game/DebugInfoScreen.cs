@@ -455,7 +455,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, entry.Value.system.Name, Cursor, Color.White);
+						this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, entry.Value.System.Name, Cursor, Color.White);
 						Cursor.Y = Cursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					}
 				}
