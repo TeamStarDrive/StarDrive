@@ -53,8 +53,6 @@ namespace Ship_Game.Gameplay
         public Vector2 moduleCenter = new Vector2(0f, 0f);
         public Vector2 ModuleCenter;
         public string IconTexturePath;
-        //public string UID;
-        
 
         public string UID
         {
@@ -186,11 +184,6 @@ namespace Ship_Game.Gameplay
 		{
             Advanced = ShipModule_Advanced.Empty;
         }
-
-		public ShipModule(ShipModuleType type)  //Constructor that is not called anywhere
-		{
-			this.ModuleType = type;
-		}
 
 		public void Clear()
 		{
@@ -2284,6 +2277,7 @@ namespace Ship_Game.Gameplay
 		public void SetNewExternals()
 		{
             this.quadrant = -1;
+            //this.isExternal = false;
             ModuleSlot module;
             Vector2 up = new Vector2(this.XMLPosition.X, this.XMLPosition.Y - 16f);
             
