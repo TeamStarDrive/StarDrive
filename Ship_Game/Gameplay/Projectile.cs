@@ -1,14 +1,11 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
-using Ship_Game;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
-using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 
@@ -62,7 +59,7 @@ namespace Ship_Game.Gameplay
 		private float flashTimer = 0.142f;
 		public float Scale = 1f;
 		private int AnimationFrame;
-		private string fmt = "00000.##";
+		private const string fmt = "00000.##";
 		private float TimeElapsed;
 		private bool DieNextFrame;
 		public bool DieSound;
@@ -79,67 +76,45 @@ namespace Ship_Game.Gameplay
 		public Ship   Owner  => owner;
 	    public Planet Planet => planet;
 
-	    public Projectile(Ship owner, Vector2 direction, ShipModule moduleAttachedTo)
-		{
-			this.loyalty = owner.loyalty;
-			this.owner = owner;
-			if (!owner.isInDeepSpace)
-			{
-				this.System = owner.System;
-			}
-			else
-			{
-				this.isInDeepSpace = true;
-			}
-			base.Position = moduleAttachedTo.Center;
-			this.moduleAttachedTo = moduleAttachedTo;
-			this.Center = moduleAttachedTo.Center;
-			this.emitter.Position = new Vector3(moduleAttachedTo.Center, 0f);
-		}
-        public void ProjectileRecreate(Ship owner, Vector2 direction, ShipModule moduleAttachedTo)
+        public Projectile()
         {
-            this.loyalty = owner.loyalty;
-            this.owner = owner;
-            if (!owner.isInDeepSpace)
-            {
-                this.System = owner.System;
-            }
-            else
-            {
-                this.isInDeepSpace = true;
-            }
-            base.Position = moduleAttachedTo.Center;
-            this.moduleAttachedTo = moduleAttachedTo;
-            this.Center = moduleAttachedTo.Center;
-            this.emitter.Position = new Vector3(moduleAttachedTo.Center, 0f);
         }
 
-		public Projectile(Ship_Game.Planet p, Vector2 direction)
+        public Projectile(Ship owner, Vector2 direction, ShipModule moduleAttachedTo)
 		{
-			this.System = p.system;
-			base.Position = p.Position;
-			this.loyalty = p.Owner;
-			this.Velocity = direction;
-			this.Rotation = p.Position.RadiansToTarget(p.Position + Velocity);
-			this.Center = p.Position;
-			this.emitter.Position = new Vector3(p.Position, 0f);
+            Init(owner, direction, moduleAttachedTo);
+		}
+        public void Init(Ship owner, Vector2 direction, ShipModule moduleAttachedTo)
+        {
+            loyalty = owner.loyalty;
+            this.owner = owner;
+            isInDeepSpace = owner.isInDeepSpace;
+            if (!isInDeepSpace)
+                System = owner.System;
+            this.moduleAttachedTo = moduleAttachedTo;
+            Center = Position = moduleAttachedTo.Center;
+            emitter.Position = new Vector3(Position, 0f);
+        }
+
+		public Projectile(Planet p, Vector2 direction)
+		{
+			System   = p.system;
+			Position = p.Position;
+			loyalty  = p.Owner;
+			Velocity = direction;
+			Rotation = p.Position.RadiansToTarget(p.Position + Velocity);
+			Center   = p.Position;
+			emitter.Position = new Vector3(p.Position, 0f);
 		}
 
 		public Projectile(Ship owner, Vector2 direction)
 		{
 			this.owner = owner;
-			this.loyalty = owner.loyalty;
-			this.Rotation = (float)Math.Acos((double)Vector2.Dot(Vector2.UnitY, direction)) - 3.14159274f;
-			if (direction.X > 0f)
-			{
-				Projectile projectile = this;
-				projectile.Rotation = projectile.Rotation * -1f;
-			}
+			loyalty = owner.loyalty;
+			Rotation = (float)Math.Acos(Vector2.Dot(Vector2.UnitY, direction)) - 3.14159274f;
+			if (direction.X > 0f) Rotation = -Rotation;
 		}
 
-		public Projectile()
-		{
-		}
 
 		public void DamageMissile(GameplayObject source, float damageAmount)
 		{
@@ -646,7 +621,7 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.weapon.Animated == 1 && this.ProjSO !=null)
 			{
-				string remainder = this.AnimationFrame.ToString(this.fmt);
+				string remainder = this.AnimationFrame.ToString(fmt);
 				this.texturePath = string.Concat(this.weapon.AnimationPath, remainder);
 			}
 		}
@@ -875,7 +850,6 @@ namespace Ship_Game.Gameplay
                 if (!this.Active)
                     return;
                 this.TimeElapsed += elapsedTime;
-                //Projectile projectile = this;
                 Vector2 vector2 = this.Position + this.Velocity * elapsedTime;
                 this.Position = vector2;
                 this.Scale = this.weapon.Scale;
@@ -895,7 +869,7 @@ namespace Ship_Game.Gameplay
                         if (this.AnimationFrame >= this.weapon.Frames)
                             this.AnimationFrame = 0;
                     }
-                    this.texturePath = this.weapon.AnimationPath + this.AnimationFrame.ToString(this.fmt);
+                    this.texturePath = this.weapon.AnimationPath + this.AnimationFrame.ToString(fmt);
                 }
                 if (!string.IsNullOrEmpty(this.InFlightCue) && this.inFlight == null)
                 {
@@ -914,10 +888,8 @@ namespace Ship_Game.Gameplay
                         return;
                     }
                 }
-                if (this.missileAI != null)
-                    this.missileAI.Think(elapsedTime);
-                if (this.droneAI != null)
-                    this.droneAI.Think(elapsedTime);
+                missileAI?.Think(elapsedTime);
+                droneAI?.Think(elapsedTime);
                 if (this.ProjSO != null && (this.WeaponType == "Rocket" || this.WeaponType == "Drone" || this.WeaponType == "Missile") && (this.System != null && this.System.isVisible && (!this.wasAddedToSceneGraph && Projectile.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)))
                 {
                     this.wasAddedToSceneGraph = true;
