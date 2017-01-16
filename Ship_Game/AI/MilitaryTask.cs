@@ -1049,6 +1049,7 @@ namespace Ship_Game.AI
                     ship.GetAI().State = AIState.AwaitingOrders;
                     closestAO.GetOffensiveForcePool().Remove(ship);
                     closestAO.GetWaitingShips().Remove(ship);
+                    if(ship.GetAI().SystemToDefend != null)                    
                     this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                 }
                 newFleet.AutoArrange();
@@ -1127,6 +1128,7 @@ namespace Ship_Game.AI
                     ship.GetAI().State = AIState.AwaitingOrders;
                     closestAO.GetOffensiveForcePool().Remove(ship);
                     closestAO.GetWaitingShips().Remove(ship);
+                    if(ship.GetAI().SystemToDefend != null)
                     this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                 }
 
@@ -1227,6 +1229,7 @@ namespace Ship_Game.AI
             {
                 ClosestAO.GetOffensiveForcePool().Remove(ship);
                 ClosestAO.GetWaitingShips().Remove(ship);
+               // if(ship.GetAI().SystemToDefend != null)
                 this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
             }
             this.Step = 1;

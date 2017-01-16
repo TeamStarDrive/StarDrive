@@ -100,11 +100,9 @@ namespace Ship_Game.AI
         }
         public bool RemoveShip(Ship shipToRemove)
         {
+            shipToRemove.GetAI().SystemToDefend = null;                        
             if (ShipsDict.TryRemove(shipToRemove.guid, out Ship ship))
-            {
-                ship.GetAI().SystemToDefend = null;
-                return true;
-            }
+                return true;            
             return false;
         }
         private void Clear()
@@ -241,8 +239,8 @@ namespace Ship_Game.AI
         public IEnumerable<Ship> GetShipList() => ShipsDict.Values;
         public void CalculateTroopNeeds(Empire Us)
         {
-            int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;            
-            int totalCurrentTroops = 0;
+            int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
+            TroopCount = 0;
             //foreach (KeyValuePair<SolarSystem, SystemCommander> entry in DefenseDict)
             {
                 // find max number of troops for system.
@@ -256,7 +254,7 @@ namespace Ship_Game.AI
                 if (IdealTroopCount > maxtroops)
                     IdealTroopCount = maxtroops;
                 int currentTroops = System.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetDefendingTroopCount());
-                totalCurrentTroops += currentTroops;
+                TroopCount += currentTroops;
 
                 TroopStrengthNeeded = IdealTroopCount - currentTroops;
 

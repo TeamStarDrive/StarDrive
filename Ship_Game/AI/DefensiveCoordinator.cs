@@ -67,22 +67,29 @@ namespace Ship_Game.AI
         {
             if (queueRemoval)
                 DefensiveForcePool.QueuePendingRemoval(ship);
-            else
-                DefensiveForcePool.Remove(ship);
-            if (ship.GetAI().SystemToDefend != null)
+            else if (!DefensiveForcePool.Remove(ship))
             {
-                if (!DefenseDict[ship.GetAI().SystemToDefend].RemoveShip(ship) && ship.Active)
-                    Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : Not in SystemCommander");
-                return;
+                if(ship.Active && ship.GetAI().SystemToDefend != null)
+                    Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : Not in DefensePool");
+            }
+            else if (ship.Active && ship.GetAI().SystemToDefend == null)
+                Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
+
+
+            if (!DefenseDict[ship.GetAI().SystemToDefend].RemoveShip(ship) )
+            {
+                if (ship.Active && ship.GetAI().SystemToDefend != null)
+                    Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Not in SystemCommander");
+               // return;
             }
             bool found = false;
             foreach(var kv in DefenseDict)
             {
-                if (!kv.Value.RemoveShip(ship)) continue;
+                if (!kv.Value.RemoveShip(ship) ) continue;
                 found = true;
             }
-            if(!found)
-            Log.Info(color: ConsoleColor.Yellow, text: "DefensiveCoordinator: Remove : SystemToDefend Was Null");
+            if(!found && ship.Active)
+            Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : SystemToDefend Was Null");
         }
         private void CalculateSystemImportance()
         {
@@ -105,23 +112,18 @@ namespace Ship_Game.AI
                 }
             }
             TotalValue = 0;
-            Array<SolarSystem> Keystoremove = new Array<SolarSystem>();
-            foreach (var kv in DefenseDict)
+            
+            foreach (var kv in DefenseDict.ToArray())
             {
                 if (kv.Key.OwnerList.Contains(Us))
                 {
                     kv.Value.UpdatePlanetTracker();
                     continue;
                 }
-                Keystoremove.Add(kv.Key);
+                kv.Value.Dispose();
+                DefenseDict.Remove(kv.Key);                
             }
-
-            foreach (SolarSystem key in Keystoremove)
-            {
-                SystemCommander scom = DefenseDict[key];
-                scom.Dispose();
-                DefenseDict.Remove(key);
-            }
+            
             Array<SolarSystem> systems = new Array<SolarSystem>();
             foreach (var kv in DefenseDict)
             {
