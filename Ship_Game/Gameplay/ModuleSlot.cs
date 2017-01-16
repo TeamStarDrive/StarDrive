@@ -10,31 +10,18 @@ namespace Ship_Game.Gameplay
 	public sealed class ModuleSlot
 	{
 		public Vector2 Position;
-
 		public float facing;
-
 		public Guid HangarshipGuid;
-
 		public Restrictions Restrictions;
-
 		public bool Powered;
-
 		public bool CheckedConduits;
-
 		public string SlotOptions;
-
 		public ShipDesignScreen.ActiveModuleState state;
-
 		public float ModuleHealth;
-
 		public float Shield_Power;
-
 		public bool isDummy;
-
 		public string InstalledModuleUID;
-
 		private Ship Parent;
-
         public ShipModule module;
 
 		public ModuleSlot()
