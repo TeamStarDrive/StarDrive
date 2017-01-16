@@ -1391,7 +1391,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             
-            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.GetOwner().speed) //&& this.maxWeaponsRange < 2000
+            if (!w.isBeam && this.GetAI().CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.Owner.speed) //&& this.maxWeaponsRange < 2000
             {
                 
                 
@@ -4967,8 +4967,8 @@ namespace Ship_Game.Gameplay
         public ShipModule GetRandomInternalModule(Weapon source)
         {
             float searchRange = source.Range + 100;
-            Vector2 center    = source.GetOwner()?.Center ?? source.Center;
-            int level         = source.GetOwner()?.Level ?? 0;
+            Vector2 center    = source.Owner?.Center ?? source.Center;
+            int level         = source.Owner?.Level ?? 0;
             return TargetRandomInternalModule(ref source.AttackerTargetting, center, level, searchRange);
         }
 

@@ -34,7 +34,7 @@ namespace Ship_Game
         public bool GovSliders = true;
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public Guid guid = Guid.NewGuid();
-        public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>();
+        public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
         public string Special = "None";
         public BatchRemovalCollection<Planet.OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<Planet.OrbitalDrop>();
         public Planet.GoodState fs = Planet.GoodState.STORE;
