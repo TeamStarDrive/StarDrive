@@ -8,6 +8,13 @@ using Ship_Game.AI;
 
 namespace Ship_Game.Gameplay
 {
+    public enum WeaponTag
+    {
+        Kinetic = (1 << 0),
+        Energy  = (1 << 1),
+        Guided  = (1 << 2),
+    }
+
 	public class Weapon : IDisposable
 	{
 		public bool Tag_Kinetic;
@@ -32,8 +39,23 @@ namespace Ship_Game.Gameplay
         public bool Tag_Array;
         public bool Tag_Tractor;
 
+        // @todo Implement bit packing. Will require a custom serializer
+        //private int TagBits;
+        //public bool this[WeaponTag tag]
+        //{
+        //    get
+        //    {
+        //        return (TagBits & (int)tag) != 0;
+        //    }
+        //    set
+        //    {
+        //        if (value) TagBits |= (int)tag;
+        //        else       TagBits &= ~(int)tag;
+        //    }
+        //}
+
         [XmlIgnore][JsonIgnore]
-        private Ship Owner;
+        public Ship Owner { get; set; }
 		public GameplayObject drowner;
 		public float HitPoints;
 		public bool isBeam;
@@ -41,7 +63,7 @@ namespace Ship_Game.Gameplay
 		public float EffectVSShields = 1f;
 		public bool PlaySoundOncePerSalvo;
 		public int SalvoCount = 1;
-		public float SalvoTimer;
+		public readonly float SalvoTimer;
 		public bool TruePD;
 		public float TroopDamageChance;
 		public float MassDamage;
@@ -94,7 +116,6 @@ namespace Ship_Game.Gameplay
 		public string fireCueName;
 		public string MuzzleFlash;
 		public bool IsRepairDrone;
-		private BatchRemovalCollection<Salvo> SalvoList = new BatchRemovalCollection<Salvo>();
 		public bool FakeExplode;
 		public float ProjectileRadius = 4f;
 		public string Name;
@@ -122,7 +143,6 @@ namespace Ship_Game.Gameplay
 
         public bool RangeVariance;
 
-        public GameplayObject SalvoTarget;
         public float ExplosionRadiusVisual = 4.5f;
         public GameplayObject fireTarget;
         public float TargetChangeTimer;
@@ -130,7 +150,13 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore]
         public Array<ModuleSlot> AttackerTargetting;// = new Array<ModuleSlot>();
 
-		public static AudioListener audioListener { get; set; }
+        [XmlIgnore][JsonIgnore]
+        private int SalvosToFire;
+        private Vector2 SalvoDirection;
+        private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
+        public GameplayObject SalvoTarget;
+
+        public static AudioListener audioListener { get; set; }
 
 		public Weapon(Ship owner, ShipModule moduleAttachedTo)
 		{
@@ -140,9 +166,9 @@ namespace Ship_Game.Gameplay
 
 		public Weapon()
 		{
-            if (GlobalStats.ActiveMod != null && GlobalStats.ActiveMod.mi !=null)
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo != null)
             {
-                ExplosionRadiusVisual *= GlobalStats.ActiveMod.mi.GlobalExplosionVisualIncreaser;
+                ExplosionRadiusVisual *= GlobalStats.ActiveModInfo.GlobalExplosionVisualIncreaser;
             }
 		}
 
@@ -150,7 +176,6 @@ namespace Ship_Game.Gameplay
         {
             Weapon wep = (Weapon)MemberwiseClone();
             // @todo Remove SalvoList
-            wep.SalvoList        = new BatchRemovalCollection<Salvo>();
             wep.SalvoTarget      = null;
             wep.fireTarget       = null;
             wep.planetEmitter    = null;
@@ -647,19 +672,11 @@ namespace Ship_Game.Gameplay
                     for (int i = 0; i < ProjectileCount; ++i)
                         CreateProjectiles(GetFireConeVector(direction), target, true);
                 }
-
 				if (SalvoCount > 1)
 				{
-					float timeBetweenShots = SalvoTimer / SalvoCount;
-					for (int j = 1; j < SalvoCount; ++j)
-					{
-						var sal = new Salvo
-						{
-							Timing    = j * timeBetweenShots,
-                            Direction = direction
-						};
-						SalvoList.Add(sal);
-					}
+                    SalvosToFire   = SalvoCount - 1;
+                    SalvoDirection = direction;
+                    SalvoFireTimer = 0f;
                     SalvoTarget = target;
 				}
 			}
@@ -812,26 +829,15 @@ namespace Ship_Game.Gameplay
 
                 if (SalvoCount > 1) // queue the rest of the salvo to follow later
                 {
-                    float timeBetweenShots = SalvoTimer / SalvoCount;
-                    for (int j = 1; j < SalvoCount; j++)
-                    {
-                        var sal = new Salvo
-                        {
-                            Timing = j * timeBetweenShots,
-                            Direction = direction
-                        };
-                        SalvoList.Add(sal);
-                    }
+                    SalvosToFire   = SalvoCount - 1;
+                    SalvoDirection = direction;
+                    SalvoFireTimer = 0f;
+                    SalvoTarget    = null; // untargeted salvo... well whatever
                 }
             }
         }
 
-		public Ship GetOwner()
-		{
-			return Owner;
-		}
-
-		public Projectile LoadProjectiles(Vector2 direction, Ship owner)
+	    public Projectile LoadProjectiles(Vector2 direction, Ship owner)
 		{
 			Projectile projectile = new Projectile(owner, direction)
 			{
@@ -906,11 +912,6 @@ namespace Ship_Game.Gameplay
             ToggleSoundOn = false;
 		}
 
-		public void SetOwner(Ship newOwner)
-		{
-			Owner = newOwner;
-		}
-
 		public virtual void Update(float elapsedTime)
 		{
 			if (timeToNextFire > 0f)
@@ -918,41 +919,39 @@ namespace Ship_Game.Gameplay
                 if (WeaponType != "Drone") timeToNextFire = MathHelper.Max(timeToNextFire - elapsedTime, 0f);
                 //Gretman -- To fix broken Repair Drones, I moved updating the cooldown for drone weapons to the ArtificialIntelligence update function.
             }
-			foreach (Salvo salvo in SalvoList)
-			{
-                salvo.Timing -= elapsedTime;
-				if (salvo.Timing > 0f)
-					continue;
-                
-                if (SalvoTarget != null && Owner.CheckIfInsideFireArc(this,SalvoTarget))
-                {
-                    if (Tag_Guided)
-                        FireSalvo(salvo.Direction, SalvoTarget);
-                    else
-                        GetOwner().GetAI().CalculateAndFire(this, SalvoTarget, true);
-                }
-                else if (SalvoTarget != null)
-                    FireSalvo(salvo.Direction, null);
-                SalvoList.QueuePendingRemoval(salvo);
-			}
-            SalvoList.ApplyPendingRemovals();
-            if (SalvoList.Count == 0)
-                SalvoTarget = null;
-            Center = moduleAttachedTo.Center;
-		}
 
-		private class Salvo
-		{
-			public float Timing;
-            public Vector2 Direction;
+            if (SalvosToFire > 0)
+            {
+                float timeBetweenShots = SalvoTimer / SalvoCount;
+                SalvoFireTimer += elapsedTime;
+                if (SalvoFireTimer >= timeBetweenShots)
+                {
+                    SalvoFireTimer -= timeBetweenShots;
+                    --SalvosToFire;
+
+                    if (SalvoTarget == null)
+                    {
+                        FireSalvo(SalvoDirection, null);
+                    }
+                    else if (Owner.CheckIfInsideFireArc(this, SalvoTarget))
+                    {
+                        if (Tag_Guided)
+                            FireSalvo(SalvoDirection, SalvoTarget);
+                        else
+                            Owner.GetAI().CalculateAndFire(this, SalvoTarget, true);
+                    }
+                }
+            }
+            else SalvoTarget = null;
+            Center = moduleAttachedTo.Center;
 		}
 
         public float GetModifiedRange()
         {
-			if (GetOwner() == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
+			if (Owner == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
                 return Range;
             float modifiedRange = Range;
-            EmpireData loyaltyData = GetOwner().loyalty.data;
+            EmpireData loyaltyData = Owner.loyalty.data;
             if (Tag_Beam)      modifiedRange += Range * loyaltyData.WeaponTags["Beam"].Range;
             if (Tag_Energy)    modifiedRange += Range * loyaltyData.WeaponTags["Energy"].Range;
             if (Tag_Explosive) modifiedRange += Range * loyaltyData.WeaponTags["Explosive"].Range;
@@ -990,15 +989,14 @@ namespace Ship_Game.Gameplay
 
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        ~Weapon() { Dispose(false); }
+        ~Weapon() { Destroy(); }
 
-        protected virtual void Dispose(bool disposing)
+        protected virtual void Destroy()
         {
-            SalvoList?.Dispose(ref SalvoList);
         }
     }
 
