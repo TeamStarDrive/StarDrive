@@ -2142,7 +2142,7 @@ namespace Ship_Game.Gameplay
                 case ShipModuleType.Turret:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
                     this.InstalledWeapon.isTurret = true;
@@ -2151,7 +2151,7 @@ namespace Ship_Game.Gameplay
                 case ShipModuleType.MainGun:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.isMainGun = true;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
@@ -2160,7 +2160,7 @@ namespace Ship_Game.Gameplay
                 case ShipModuleType.MissileLauncher:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
                     this.Parent.Weapons.Add(this.InstalledWeapon);
@@ -2174,7 +2174,7 @@ namespace Ship_Game.Gameplay
                 case ShipModuleType.Drone:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
                     this.Parent.Weapons.Add(this.InstalledWeapon);
@@ -2182,7 +2182,7 @@ namespace Ship_Game.Gameplay
                 case ShipModuleType.Spacebomb:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
                     this.Parent.Weapons.Add(this.InstalledWeapon);
@@ -2210,7 +2210,7 @@ namespace Ship_Game.Gameplay
                 case ShipModuleType.Turret:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
                     this.InstalledWeapon.isTurret = true;
@@ -2218,7 +2218,7 @@ namespace Ship_Game.Gameplay
                 case ShipModuleType.MainGun:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.isMainGun = true;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
@@ -2226,21 +2226,21 @@ namespace Ship_Game.Gameplay
                 case ShipModuleType.MissileLauncher:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
                     break;
                 case ShipModuleType.Drone:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
                     break;
                 case ShipModuleType.Spacebomb:
                     this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
                     this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.SetOwner(this.Parent);
+                    this.InstalledWeapon.Owner = Parent;
                     this.InstalledWeapon.Center = this.Center;
                     this.isWeapon = true;
                     break;
