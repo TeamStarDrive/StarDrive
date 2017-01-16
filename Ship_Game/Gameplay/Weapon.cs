@@ -48,27 +48,27 @@ namespace Ship_Game.Gameplay
                 else TagBits &= ~(int)tag;
             }
         }
-        public bool Tag_Kinetic   => this[WeaponTag.Kinetic];
-        public bool Tag_Energy    => this[WeaponTag.Energy];
-        public bool Tag_Guided    => this[WeaponTag.Guided];
-        public bool Tag_Missile   => this[WeaponTag.Missile];
-        public bool Tag_Hybrid    => this[WeaponTag.Hybrid];
-        public bool Tag_Beam      => this[WeaponTag.Beam];
-        public bool Tag_Explosive => this[WeaponTag.Explosive];
-        public bool Tag_Intercept => this[WeaponTag.Intercept];
-        public bool Tag_Railgun   => this[WeaponTag.Railgun];
-        public bool Tag_Bomb      => this[WeaponTag.Bomb];
-        public bool Tag_SpaceBomb => this[WeaponTag.SpaceBomb];
-        public bool Tag_BioWeapon => this[WeaponTag.BioWeapon];
-        public bool Tag_Drone     => this[WeaponTag.Drone];
-        public bool Tag_Warp      => this[WeaponTag.Warp];
-        public bool Tag_Torpedo   => this[WeaponTag.Torpedo];
-        public bool Tag_Cannon    => this[WeaponTag.Cannon];
-        public bool Tag_Subspace  => this[WeaponTag.Subspace];
-        public bool Tag_PD        => this[WeaponTag.PD];
-        public bool Tag_Flak      => this[WeaponTag.Flak];
-        public bool Tag_Array     => this[WeaponTag.Array];
-        public bool Tag_Tractor   => this[WeaponTag.Tractor];
+        public bool Tag_Kinetic   { get { return this[WeaponTag.Kinetic]; }   set { this[WeaponTag.Kinetic]   = value; }}
+        public bool Tag_Energy    { get { return this[WeaponTag.Energy]; }    set { this[WeaponTag.Energy]    = value; }}
+        public bool Tag_Guided    { get { return this[WeaponTag.Guided]; }    set { this[WeaponTag.Guided]    = value; }}
+        public bool Tag_Missile   { get { return this[WeaponTag.Missile]; }   set { this[WeaponTag.Missile]   = value; }}
+        public bool Tag_Hybrid    { get { return this[WeaponTag.Hybrid]; }    set { this[WeaponTag.Hybrid]    = value; }}
+        public bool Tag_Beam      { get { return this[WeaponTag.Beam]; }      set { this[WeaponTag.Beam]      = value; }}
+        public bool Tag_Explosive { get { return this[WeaponTag.Explosive]; } set { this[WeaponTag.Explosive] = value; }}
+        public bool Tag_Intercept { get { return this[WeaponTag.Intercept]; } set { this[WeaponTag.Intercept] = value; }}
+        public bool Tag_Railgun   { get { return this[WeaponTag.Railgun]; }   set { this[WeaponTag.Railgun]   = value; }}
+        public bool Tag_Bomb      { get { return this[WeaponTag.Bomb]; }      set { this[WeaponTag.Bomb]      = value; }}
+        public bool Tag_SpaceBomb { get { return this[WeaponTag.SpaceBomb]; } set { this[WeaponTag.SpaceBomb] = value; }}
+        public bool Tag_BioWeapon { get { return this[WeaponTag.BioWeapon]; } set { this[WeaponTag.BioWeapon] = value; }}
+        public bool Tag_Drone     { get { return this[WeaponTag.Drone]; }     set { this[WeaponTag.Drone]     = value; }}
+        public bool Tag_Warp      { get { return this[WeaponTag.Warp]; }      set { this[WeaponTag.Warp]      = value; }}
+        public bool Tag_Torpedo   { get { return this[WeaponTag.Torpedo]; }   set { this[WeaponTag.Torpedo]   = value; }}
+        public bool Tag_Cannon    { get { return this[WeaponTag.Cannon]; }    set { this[WeaponTag.Cannon]    = value; }}
+        public bool Tag_Subspace  { get { return this[WeaponTag.Subspace]; }  set { this[WeaponTag.Subspace]  = value; }}
+        public bool Tag_PD        { get { return this[WeaponTag.PD]; }        set { this[WeaponTag.PD]        = value; }}
+        public bool Tag_Flak      { get { return this[WeaponTag.Flak]; }      set { this[WeaponTag.Flak]      = value; }}
+        public bool Tag_Array     { get { return this[WeaponTag.Array]; }     set { this[WeaponTag.Array]     = value; }}
+        public bool Tag_Tractor   { get { return this[WeaponTag.Tractor]; }   set { this[WeaponTag.Tractor]   = value; }}
 
         [XmlIgnore][JsonIgnore]
         public Ship Owner { get; set; }
