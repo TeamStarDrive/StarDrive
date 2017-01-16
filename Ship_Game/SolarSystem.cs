@@ -23,9 +23,6 @@ namespace Ship_Game
 		public bool isVisible;
 		public Vector2 Position;
 		public int RingsCount;
-
-        //public Vector2 Size = new Vector2(200000f, 200000f);          //Not referenced in code, removing to save memory
-
         public Array<Planet> PlanetList = new Array<Planet>();
 		public BatchRemovalCollection<Asteroid> AsteroidsList = new BatchRemovalCollection<Asteroid>();
         public Array<Moon> MoonList = new Array<Moon>();
@@ -401,18 +398,24 @@ namespace Ship_Game
             SetSunPath(RandomMath.IntBetween(0, 100) < 3 ? (6) : RandomMath.IntBetween(1, 5));
 
 			Name = name;
-			numberOfRings = RandomMath.IntBetween(1, 6);
+
             if (GlobalStats.ExtraPlanets > 0) // ADDED BY SHAHMATT (more planets in system)
             {   
                 //Edited by Gretman, so if lots of extra planets are selected, there will definitely be extra
-                if      (GlobalStats.ExtraPlanets < 2)  numberOfRings += RandomMath.IntBetween(1, GlobalStats.ExtraPlanets);
-                else if (GlobalStats.ExtraPlanets < 4)  numberOfRings += RandomMath.IntBetween(2, GlobalStats.ExtraPlanets);
-                else if (GlobalStats.ExtraPlanets == 6) numberOfRings += RandomMath.IntBetween(3, GlobalStats.ExtraPlanets);
-                else                                    numberOfRings += RandomMath.IntBetween(0, GlobalStats.ExtraPlanets);
+                if      (GlobalStats.ExtraPlanets <= 2)  numberOfRings = RandomMath.IntBetween(1, 6 + GlobalStats.ExtraPlanets);
+                else if (GlobalStats.ExtraPlanets <= 4)  numberOfRings = RandomMath.IntBetween(2, 6 + GlobalStats.ExtraPlanets);
+                else if (GlobalStats.ExtraPlanets <= 6)  numberOfRings = RandomMath.IntBetween(3, 6 + GlobalStats.ExtraPlanets);
+                else                                     numberOfRings = RandomMath.IntBetween((int)(GlobalStats.ExtraPlanets * 0.5f), 6 + GlobalStats.ExtraPlanets);
 
                 if (numberOfRings == 0) numberOfRings = 1; // If "Extra Planets" was selected at all, there will always be at least 1 in each system. - Gretman
             }
-			RingsCount = numberOfRings;
+            else
+            {
+			    numberOfRings = RandomMath.IntBetween(1, 6);
+            }
+
+            this.RingList.Capacity = numberOfRings;
+            RingsCount = numberOfRings;
 			StarRadius = RandomMath.IntBetween(250, 500);
             float ringbase = 10500f;
             float ringmax = RingsCount > 0 ? (95000f - StarRadius) / numberOfRings : 0f;
@@ -493,6 +496,7 @@ namespace Ship_Game
             numberOfRings += RandomMath.IntBetween(0, 1) + RandomMath.IntBetween(0, 1) + RandomMath.IntBetween(0, 1);
             if (numberOfRings > 6)
                 numberOfRings = 6;
+            RingList.Capacity = numberOfRings;
 			RingsCount = numberOfRings;
 			StarRadius = RandomMath.IntBetween(250, 500);
 			for (int i = 1; i < numberOfRings + 1; i++)
@@ -609,7 +613,8 @@ namespace Ship_Game
 				SunPath = data.SunPath,
 				Name = data.Name
 			};
-			int numberOfRings = data.RingList.Count;
+            newSys.RingList.Capacity = data.RingList.Count;
+            int numberOfRings = data.RingList.Count;
 			int randomBetween = RandomMath.IntBetween(50, 500);
 			for (int i = 0; i < numberOfRings; i++)
 			{
@@ -819,6 +824,7 @@ namespace Ship_Game
         private void GenerateAsteroidRing(float ringRadius, float spread, float scaleMin=0.75f, float scaleMax=1.6f)
         {
             int numberOfAsteroids = RandomMath.IntBetween(150, 250);
+            AsteroidsList.Capacity += numberOfAsteroids;
 			for (int i = 0; i < numberOfAsteroids; ++i)
 			{
 				AsteroidsList.Add(new Asteroid
