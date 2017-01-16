@@ -32,7 +32,7 @@ namespace Ship_Game.AI
         public float GetForcePoolStrength()
         {            
             float strength = 0;
-            for (var index = 0; index < DefensiveForcePool.Count; index++)
+            for (int index = 0; index < DefensiveForcePool.Count; index++)
             {
                 Ship ship = DefensiveForcePool[index];
                 if (!ship.Active || ship.dying) continue;
@@ -263,7 +263,7 @@ namespace Ship_Game.AI
 
         }
         private void ManageTroops()
-        {           
+        {
             if (Us.isPlayer)
             {
                 bool flag = false;
@@ -277,12 +277,9 @@ namespace Ship_Game.AI
                 if (!flag)
                     return;
             }
-            Array<Troop> groundTroops = new Array<Troop>();
-            float totalTroopStrength = 0f;
-            groundTroops = Us.GetTroopUnits(ref totalTroopStrength);
-            var troopShips = Us.GetTroopShips(ref totalTroopStrength);
 
-                    
+            float totalTroopStrength = 0f;
+            var troopShips = Us.GetTroopShips(ref totalTroopStrength);
             int totalTroopWanted = 0;
             int totalCurrentTroops = 0;
             foreach (var kv in DefenseDict)
@@ -317,7 +314,7 @@ namespace Ship_Game.AI
                 }
                 kv.Value.TroopCount = currentTroops;
                 totalCurrentTroops += currentTroops;
-                totalTroopWanted += kv.Value.TroopsWanted;          
+                totalTroopWanted += kv.Value.TroopsWanted;
             }
             UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
 
@@ -334,8 +331,8 @@ namespace Ship_Game.AI
                 foreach (SolarSystem solarSystem2 in sortedSystems)
                 {
 
-                    if (solarSystem2.PlanetList.Count <= 0) continue; 
-                    
+                    if (solarSystem2.PlanetList.Count <= 0) continue;
+
                     SystemCommander defenseSystem = DefenseDict[solarSystem2];
 
                     if (defenseSystem.TroopStrengthNeeded <= 0) continue;
@@ -356,22 +353,20 @@ namespace Ship_Game.AI
                 }
             }
             EmpireTroopRatio = UniverseWants;
-            if (UniverseWants < .8f)
-            {
-                foreach (var kv in DefenseDict)
-                    foreach (Planet p in kv.Key.PlanetList)
-                    {
-                        if (Us.isPlayer && p.colonyType != Planet.ColonyType.Military) continue;
-                        float devratio = (p.developmentLevel + 1) / (kv.Value.SystemDevelopmentlevel + 1);
-                        if (!kv.Key.CombatInSystem
-                            && p.GetDefendingTroopCount() > kv.Value.IdealTroopCount * devratio)
-                        {
-                            Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.GetOwner() == Us);
-                            l?.Launch();
-                        }
-                    }
+            if (UniverseWants > .8f) return;
 
-            }
+            foreach (var kv in DefenseDict)
+                foreach (Planet p in kv.Key.PlanetList)
+                {
+                    if (Us.isPlayer && p.colonyType != Planet.ColonyType.Military) continue;
+                    float devratio = (p.developmentLevel + 1) / (kv.Value.SystemDevelopmentlevel + 1);
+                    if (!kv.Key.CombatInSystem
+                        && p.GetDefendingTroopCount() > kv.Value.IdealTroopCount * devratio)
+                    {
+                        Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.GetOwner() == Us);
+                        l?.Launch();
+                    }
+                }
         }
         public void ManageForcePool()
         {            
@@ -379,22 +374,22 @@ namespace Ship_Game.AI
             ManageShips();
             ManageTroops();
         }        
+
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
+        ~DefensiveCoordinator() { Destroy(); }
 
-        ~DefensiveCoordinator() { Dispose(false); }
-
-        private void Dispose(bool disposing)
+        private void Destroy()
         {
-            DefensiveForcePool?.Dispose(ref DefensiveForcePool); 
-            foreach(var kv in DefenseDict)
+            DefensiveForcePool?.Dispose(ref DefensiveForcePool);
+            foreach (var kv in DefenseDict)
             {
                 kv.Value?.Dispose();
             }
             DefenseDict = null;
         }
-	}
+    }
 }
