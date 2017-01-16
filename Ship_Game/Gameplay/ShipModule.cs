@@ -190,47 +190,72 @@ namespace Ship_Game.Gameplay
 			this.LinkedModulesList.Clear();
 		}
 
+        private float ApplyShieldResistances(Weapon weapon, float damage)
+        {
+            if (weapon.Tag_Kinetic)
+                damage -= damage * this.shield_kinetic_resist;
+            if (weapon.Tag_Energy)
+                damage -= damage * this.shield_energy_resist;
+            if (weapon.Tag_Explosive)
+                damage -= damage * this.shield_explosive_resist;
+            if (weapon.Tag_Missile)
+                damage -= damage * this.shield_missile_resist;
+            if (weapon.Tag_Flak)
+                damage -= damage * this.shield_flak_resist;
+            if (weapon.Tag_Hybrid)
+                damage -= damage * this.shield_hybrid_resist;
+            if (weapon.Tag_Railgun)
+                damage -= damage * this.shield_railgun_resist;
+            if (weapon.Tag_Subspace)
+                damage -= damage * this.shield_subspace_resist;
+            if (weapon.Tag_Warp)
+                damage -= damage * this.shield_warp_resist;
+            if (weapon.Tag_Beam)
+                damage -= damage * this.shield_beam_resist;
+
+            return damage;
+        }
+
         private float ApplyResistances(Weapon weapon, float damage)
         {
             if (weapon.Tag_Beam)
-                damage -= (damage * this.BeamResist);
-
+                damage -= damage * this.BeamResist;
             if (weapon.Tag_Kinetic)
-                damage -= (damage * this.KineticResist);
+                damage -= damage * this.KineticResist;
             if (weapon.Tag_Energy)
-                damage -= (damage * this.EnergyResist);
+                damage -= damage * this.EnergyResist;
             if (weapon.Tag_Guided)
-                damage -= (damage * this.GuidedResist);
+                damage -= damage * this.GuidedResist;
             if (weapon.Tag_Missile)
-                damage -= (damage * this.MissileResist);
+                damage -= damage * this.MissileResist;
             if (weapon.Tag_Hybrid)
-                damage -= (damage * this.HybridResist);
+                damage -= damage * this.HybridResist;
             if (weapon.Tag_Intercept)
-                damage -= (damage * this.InterceptResist);
+                damage -= damage * this.InterceptResist;
             if (weapon.Tag_Explosive)
-                damage -= (damage * this.ExplosiveResist);
+                damage -= damage * this.ExplosiveResist;
             if (weapon.Tag_Railgun)
-                damage -= (damage * this.RailgunResist);
+                damage -= damage * this.RailgunResist;
             if (weapon.Tag_SpaceBomb)
-                damage -= (damage * this.SpaceBombResist);
+                damage -= damage * this.SpaceBombResist;
             if (weapon.Tag_Bomb)
-                damage -= (damage * this.BombResist);
+                damage -= damage * this.BombResist;
             if (weapon.Tag_BioWeapon)
-                damage -= (damage * this.BioWeaponResist);
+                damage -= damage * this.BioWeaponResist;
             if (weapon.Tag_Drone)
-                damage -= (damage * this.DroneResist);
+                damage -= damage * this.DroneResist;
             if (weapon.Tag_Warp)
-                damage -= (damage * this.WarpResist);
+                damage -= damage * this.WarpResist;
             if (weapon.Tag_Torpedo)
-                damage -= (damage * this.TorpedoResist);
+                damage -= damage * this.TorpedoResist;
             if (weapon.Tag_Cannon)
-                damage -= (damage * this.CannonResist);
+                damage -= damage * this.CannonResist;
             if (weapon.Tag_Subspace)
-                damage -= (damage * this.SubspaceResist);
+                damage -= damage * this.SubspaceResist;
             if (weapon.Tag_PD)
-                damage -= (damage * this.PDResist);
+                damage -= damage * this.PDResist;
             if (weapon.Tag_Flak)
-                damage -= (damage * this.FlakResist);
+                damage -= damage * this.FlakResist;
 
             return damage;
         }
@@ -351,9 +376,9 @@ namespace Ship_Game.Gameplay
                 }
 
                 if (psource !=null)
-                    damageAmountvsShields = ApplyResistances(psource.weapon, damageAmountvsShields);
+                    damageAmountvsShields = ApplyShieldResistances(psource.weapon, damageAmountvsShields);
                 else if (bsource != null)
-                    damageAmountvsShields = ApplyResistances(psource.weapon, damageAmountvsShields);
+                    damageAmountvsShields = ApplyShieldResistances(psource.weapon, damageAmountvsShields);
 
                 if (damageAmountvsShields <= this.shield_threshold)
                     damageAmountvsShields = 0f;
@@ -870,9 +895,9 @@ namespace Ship_Game.Gameplay
                 }
 
                 if (source is Projectile)
-                    damageAmount = ApplyResistances((source as Projectile).weapon, damageAmount);
+                    damageAmount = ApplyShieldResistances((source as Projectile).weapon, damageAmount);
                 else if (source is Beam)
-                    damageAmount = ApplyResistances((source as Beam).weapon, damageAmount);
+                    damageAmount = ApplyShieldResistances((source as Beam).weapon, damageAmount);
 
                 if (damageAmount <= this.shield_threshold)
                     damageAmount = 0f;
