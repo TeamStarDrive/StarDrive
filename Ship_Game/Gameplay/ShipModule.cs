@@ -190,6 +190,51 @@ namespace Ship_Game.Gameplay
 			this.LinkedModulesList.Clear();
 		}
 
+        private float ApplyResistances(Weapon weapon, float damage)
+        {
+            if (weapon.Tag_Beam)
+                damage -= (damage * this.BeamResist);
+
+            if (weapon.Tag_Kinetic)
+                damage -= (damage * this.KineticResist);
+            if (weapon.Tag_Energy)
+                damage -= (damage * this.EnergyResist);
+            if (weapon.Tag_Guided)
+                damage -= (damage * this.GuidedResist);
+            if (weapon.Tag_Missile)
+                damage -= (damage * this.MissileResist);
+            if (weapon.Tag_Hybrid)
+                damage -= (damage * this.HybridResist);
+            if (weapon.Tag_Intercept)
+                damage -= (damage * this.InterceptResist);
+            if (weapon.Tag_Explosive)
+                damage -= (damage * this.ExplosiveResist);
+            if (weapon.Tag_Railgun)
+                damage -= (damage * this.RailgunResist);
+            if (weapon.Tag_SpaceBomb)
+                damage -= (damage * this.SpaceBombResist);
+            if (weapon.Tag_Bomb)
+                damage -= (damage * this.BombResist);
+            if (weapon.Tag_BioWeapon)
+                damage -= (damage * this.BioWeaponResist);
+            if (weapon.Tag_Drone)
+                damage -= (damage * this.DroneResist);
+            if (weapon.Tag_Warp)
+                damage -= (damage * this.WarpResist);
+            if (weapon.Tag_Torpedo)
+                damage -= (damage * this.TorpedoResist);
+            if (weapon.Tag_Cannon)
+                damage -= (damage * this.CannonResist);
+            if (weapon.Tag_Subspace)
+                damage -= (damage * this.SubspaceResist);
+            if (weapon.Tag_PD)
+                damage -= (damage * this.PDResist);
+            if (weapon.Tag_Flak)
+                damage -= (damage * this.FlakResist);
+
+            return damage;
+        }
+
 		public bool Damage(GameplayObject source, float damageAmount, ref float damageRemainder)
 		{
             if (this.ModuleType == ShipModuleType.Dummy)
@@ -216,163 +261,10 @@ namespace Ship_Game.Gameplay
 			}
 
             if (psource != null)
-            {
+                damageAmount = ApplyResistances(psource.weapon, damageAmount);
 
-                if (psource.weapon.Tag_Kinetic)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.KineticResist);
-                }
-                if (psource.weapon.Tag_Energy)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.EnergyResist);
-                }
-                if (psource.weapon.Tag_Guided)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.GuidedResist);
-                }
-                if (psource.weapon.Tag_Missile)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.MissileResist);
-                }
-                if (psource.weapon.Tag_Hybrid)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.HybridResist);
-                }
-                if (psource.weapon.Tag_Intercept)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.InterceptResist);
-                }
-                if (psource.weapon.Tag_Explosive)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
-                }
-                if (psource.weapon.Tag_Railgun)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.RailgunResist);
-                }
-                if (psource.weapon.Tag_SpaceBomb)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
-                }
-                if (psource.weapon.Tag_Bomb)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.BombResist);
-                }
-                if (psource.weapon.Tag_BioWeapon)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
-                }
-                if (psource.weapon.Tag_Drone)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.DroneResist);
-                }
-                if (psource.weapon.Tag_Warp)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.WarpResist);
-                }
-                if (psource.weapon.Tag_Torpedo)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
-                }
-                if (psource.weapon.Tag_Cannon)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.CannonResist);
-                }
-                if (psource.weapon.Tag_Subspace)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
-                }
-                if (psource.weapon.Tag_PD)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.PDResist);
-                }
-                if (psource.weapon.Tag_Flak)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.FlakResist);
-                } 
-            }
-
-
-            if (bsource !=null && bsource.weapon.Tag_Beam)
-            {
-                damageAmount = damageAmount - (damageAmount * this.BeamResist);
-
-                // most of these simply don't apply to beam weapons, but calculated within this if to ensure different beam types also have resistances/vulnerabilities applied
-
-                if (bsource.weapon.Tag_Kinetic)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.KineticResist);
-                }
-                if (bsource.weapon.Tag_Energy)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.EnergyResist);
-                }
-                if (bsource.weapon.Tag_Guided)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.GuidedResist);
-                }
-                if (bsource.weapon.Tag_Missile)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.MissileResist);
-                }
-                if (bsource.weapon.Tag_Hybrid)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.HybridResist);
-                }
-                if (bsource.weapon.Tag_Intercept)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.InterceptResist);
-                }
-                if (bsource.weapon.Tag_Explosive)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
-                }
-                if (bsource.weapon.Tag_Railgun)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.RailgunResist);
-                }
-                if (bsource.weapon.Tag_SpaceBomb)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
-                }
-                if (bsource.weapon.Tag_Bomb)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.BombResist);
-                }
-                if (bsource.weapon.Tag_BioWeapon)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
-                }
-                if (bsource.weapon.Tag_Drone)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.DroneResist);
-                }
-                if (bsource.weapon.Tag_Warp)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.WarpResist);
-                }
-                if (bsource.weapon.Tag_Torpedo)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
-                }
-                if (bsource.weapon.Tag_Cannon)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.CannonResist);
-                }
-                if (bsource.weapon.Tag_Subspace)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
-                }
-                if (bsource.weapon.Tag_PD)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.PDResist);
-                }
-                if (bsource.weapon.Tag_Flak)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.FlakResist);
-                }
-
-            }
+            if (bsource !=null)
+                damageAmount = ApplyResistances(psource.weapon, damageAmount);
 
             //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
             if (damageAmount <= this.DamageThreshold)
@@ -459,83 +351,9 @@ namespace Ship_Game.Gameplay
                 }
 
                 if (psource !=null)
-                {
-                    if (psource.weapon.Tag_Kinetic)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_kinetic_resist);
-                    }
-                    if (psource.weapon.Tag_Energy)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_energy_resist);
-                    }
-                    if (psource.weapon.Tag_Explosive)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_explosive_resist);
-                    }
-                    if (psource.weapon.Tag_Missile)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_missile_resist);
-                    }
-                    if (psource.weapon.Tag_Flak)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_flak_resist);
-                    }
-                    if (psource.weapon.Tag_Hybrid)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_hybrid_resist);
-                    }
-                    if (psource.weapon.Tag_Railgun)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_railgun_resist);
-                    }
-                    if (psource.weapon.Tag_Subspace)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_subspace_resist);
-                    }
-                    if (psource.weapon.Tag_Warp)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_warp_resist);
-                    }
-                }
+                    damageAmountvsShields = ApplyResistances(psource.weapon, damageAmountvsShields);
                 else if (bsource != null)
-                {
-                    if (bsource.weapon.Tag_Kinetic)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_kinetic_resist);
-                    }
-                    if (bsource.weapon.Tag_Energy)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_energy_resist);
-                    }
-                    if (bsource.weapon.Tag_Explosive)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_explosive_resist);
-                    }
-                    if (bsource.weapon.Tag_Missile)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_missile_resist);
-                    }
-                    if (bsource.weapon.Tag_Flak)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_flak_resist);
-                    }
-                    if (bsource.weapon.Tag_Hybrid)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_hybrid_resist);
-                    }
-                    if (bsource.weapon.Tag_Railgun)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_railgun_resist);
-                    }
-                    if (bsource.weapon.Tag_Subspace)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_subspace_resist);
-                    }
-                    if (bsource.weapon.Tag_Warp)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_warp_resist);
-                    }
-                }
+                    damageAmountvsShields = ApplyResistances(psource.weapon, damageAmountvsShields);
 
                 if (damageAmountvsShields <= this.shield_threshold)
                     damageAmountvsShields = 0f;
@@ -625,168 +443,14 @@ namespace Ship_Game.Gameplay
 
                 // Vulnerabilities and resistances for modules, XML-defined.
                 if (source is Projectile)
-                {
-                    Weapon weapon = (source as Projectile).weapon;
-                    if (weapon.Tag_Kinetic)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.KineticResist);
-                    }
-                    if (weapon.Tag_Energy)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.EnergyResist);
-                    }
-                    if (weapon.Tag_Guided)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.GuidedResist);
-                    }
-                    if (weapon.Tag_Missile)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.MissileResist);
-                    }
-                    if (weapon.Tag_Hybrid)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.HybridResist);
-                    }
-                    if (weapon.Tag_Intercept)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.InterceptResist);
-                    }
-                    if (weapon.Tag_Explosive)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
-                    }
-                    if (weapon.Tag_Railgun)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.RailgunResist);
-                    }
-                    if (weapon.Tag_SpaceBomb)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
-                    }
-                    if (weapon.Tag_Bomb)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.BombResist);
-                    }
-                    if (weapon.Tag_BioWeapon)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
-                    }
-                    if (weapon.Tag_Drone)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.DroneResist);
-                    }
-                    if (weapon.Tag_Warp)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.WarpResist);
-                    }
-                    if (weapon.Tag_Torpedo)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
-                    }
-                    if (weapon.Tag_Cannon)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.CannonResist);
-                    }
-                    if (weapon.Tag_Subspace)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
-                    }
-                    if (weapon.Tag_PD)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.PDResist);
-                    }
-                    if (weapon.Tag_Flak)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.FlakResist);
-                    }
-                }
+                    damageAmount = ApplyResistances((source as Projectile).weapon, damageAmount);
 
-
-                if (source is Beam && (source as Beam).weapon.Tag_Beam)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.BeamResist);
-                    Weapon weapon = (source as Beam).weapon;
-                    // most of these simply don't apply to beam weapons, but calculated within this if to ensure different beam types also have resistances/vulnerabilities applied
-
-                    if (weapon.Tag_Kinetic)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.KineticResist);
-                    }
-                    if (weapon.Tag_Energy)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.EnergyResist);
-                    }
-                    if (weapon.Tag_Guided)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.GuidedResist);
-                    }
-                    if (weapon.Tag_Missile)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.MissileResist);
-                    }
-                    if (weapon.Tag_Hybrid)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.HybridResist);
-                    }
-                    if (weapon.Tag_Intercept)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.InterceptResist);
-                    }
-                    if (weapon.Tag_Explosive)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
-                    }
-                    if (weapon.Tag_Railgun)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.RailgunResist);
-                    }
-                    if (weapon.Tag_SpaceBomb)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
-                    }
-                    if (weapon.Tag_Bomb)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.BombResist);
-                    }
-                    if (weapon.Tag_BioWeapon)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
-                    }
-                    if (weapon.Tag_Drone)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.DroneResist);
-                    }
-                    if (weapon.Tag_Warp)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.WarpResist);
-                    }
-                    if (weapon.Tag_Torpedo)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
-                    }
-                    if (weapon.Tag_Cannon)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.CannonResist);
-                    }
-                    if (weapon.Tag_Subspace)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
-                    }
-                    if (weapon.Tag_PD)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.PDResist);
-                    }
-                    if (weapon.Tag_Flak)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.FlakResist);
-                    }
-
-                }
+                if (source is Beam)
+                    damageAmount = ApplyResistances((source as Beam).weapon, damageAmount);
 
                 //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
                 if (damageAmount <= this.DamageThreshold)
                     damageAmount = 0f;
-
 
                 //Added by McShooterz: ArmorBonus Hull Bonus
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
@@ -932,85 +596,9 @@ namespace Ship_Game.Gameplay
 
 
                 if (source is Projectile)
-                {
-                    Weapon weapon = (source as Projectile).weapon;
-                    if (weapon.Tag_Kinetic)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_kinetic_resist);
-                    }
-                    if (weapon.Tag_Energy)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_energy_resist);
-                    }
-                    if (weapon.Tag_Explosive)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_explosive_resist);
-                    }
-                    if (weapon.Tag_Missile)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_missile_resist);
-                    }
-                    if (weapon.Tag_Flak)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_flak_resist);
-                    }
-                    if (weapon.Tag_Hybrid)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_hybrid_resist);
-                    }
-                    if (weapon.Tag_Railgun)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_railgun_resist);
-                    }
-                    if (weapon.Tag_Subspace)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_subspace_resist);
-                    }
-                    if (weapon.Tag_Warp)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_warp_resist);
-                    }
-                }
+                    damageAmount = ApplyResistances((source as Projectile).weapon, damageAmount);
                 else if (source is Beam)
-                {
-                    Weapon weapon = (source as Beam).weapon;
-                    if (weapon.Tag_Kinetic)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_kinetic_resist);
-                    }
-                    if (weapon.Tag_Energy)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_energy_resist);
-                    }
-                    if (weapon.Tag_Explosive)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_explosive_resist);
-                    }
-                    if (weapon.Tag_Missile)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_missile_resist);
-                    }
-                    if (weapon.Tag_Flak)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_flak_resist);
-                    }
-                    if (weapon.Tag_Hybrid)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_hybrid_resist);
-                    }
-                    if (weapon.Tag_Railgun)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_railgun_resist);
-                    }
-                    if (weapon.Tag_Subspace)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_subspace_resist);
-                    }
-                    if (weapon.Tag_Warp)
-                    {
-                        damageAmountvsShields = damageAmountvsShields - (damageAmountvsShields * this.shield_warp_resist);
-                    }
-                }
+                    damageAmount = ApplyResistances((source as Beam).weapon, damageAmount);
 
                 if (damageAmountvsShields <= this.shield_threshold)
                     damageAmountvsShields = 0f;
@@ -1136,7 +724,6 @@ namespace Ship_Game.Gameplay
 			{
 				damageAmount = damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
 			}
-
             
 			this.Parent.InCombatTimer = 15f;
 			if (this.ModuleType == ShipModuleType.Dummy)
@@ -1147,160 +734,11 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: shields keep charge when manually turned off
 			if (this.shield_power <= 0f || shieldsOff)
 			{
+                if (source is Projectile)
+                    damageAmount = ApplyResistances((source as Projectile).weapon, damageAmount);
 
-                if (source is Projectile && (source as Projectile).weapon.Tag_Kinetic)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.KineticResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Energy)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.EnergyResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Guided)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.GuidedResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Missile)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.MissileResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Hybrid)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.HybridResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Intercept)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.InterceptResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Explosive)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Railgun)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.RailgunResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_SpaceBomb)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Bomb)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.BombResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_BioWeapon)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Drone)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.DroneResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Warp)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.WarpResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Torpedo)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Cannon)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.CannonResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Subspace)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_PD)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.PDResist);
-                }
-                if (source is Projectile && (source as Projectile).weapon.Tag_Flak)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.FlakResist);
-                }
-
-
-                if (source is Beam && (source as Beam).weapon.Tag_Beam)
-                {
-                    damageAmount = damageAmount - (damageAmount * this.BeamResist);
-
-                    // most of these simply don't apply to beam weapons, but calculated within this if to ensure different beam types also have resistances/vulnerabilities applied
-
-                    if ((source as Beam).weapon.Tag_Kinetic)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.KineticResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Energy)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.EnergyResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Guided)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.GuidedResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Missile)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.MissileResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Hybrid)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.HybridResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Intercept)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.InterceptResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Explosive)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.ExplosiveResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Railgun)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.RailgunResist);
-                    }
-                    if ((source as Beam).weapon.Tag_SpaceBomb)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.SpaceBombResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Bomb)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.BombResist);
-                    }
-                    if ((source as Beam).weapon.Tag_BioWeapon)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.BioWeaponResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Drone)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.DroneResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Warp)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.WarpResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Torpedo)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.TorpedoResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Cannon)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.CannonResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Subspace)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.SubspaceResist);
-                    }
-                    if ((source as Beam).weapon.Tag_PD)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.PDResist);
-                    }
-                    if ((source as Beam).weapon.Tag_Flak)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.FlakResist);
-                    }
-                }
+                if (source is Beam)
+                    damageAmount = ApplyResistances((source as Beam).weapon, damageAmount);
 
                 //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
                 if (damageAmount <= this.DamageThreshold)
@@ -1432,83 +870,9 @@ namespace Ship_Game.Gameplay
                 }
 
                 if (source is Projectile)
-                {
-                    if ((source as Projectile).weapon.Tag_Kinetic)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_kinetic_resist);
-                    }
-                    if ((source as Projectile).weapon.Tag_Energy)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_energy_resist);
-                    }
-                    if ((source as Projectile).weapon.Tag_Explosive)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_explosive_resist);
-                    }
-                    if ((source as Projectile).weapon.Tag_Missile)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_missile_resist);
-                    }
-                    if ((source as Projectile).weapon.Tag_Flak)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_flak_resist);
-                    }
-                    if ((source as Projectile).weapon.Tag_Hybrid)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_hybrid_resist);
-                    }
-                    if ((source as Projectile).weapon.Tag_Railgun)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_railgun_resist);
-                    }
-                    if ((source as Projectile).weapon.Tag_Subspace)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_subspace_resist);
-                    }
-                    if ((source as Projectile).weapon.Tag_Warp)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_warp_resist);
-                    }
-                }
+                    damageAmount = ApplyResistances((source as Projectile).weapon, damageAmount);
                 else if (source is Beam)
-                {
-                    if ((source as Beam).weapon.Tag_Kinetic)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_kinetic_resist);
-                    }
-                    if ((source as Beam).weapon.Tag_Energy)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_energy_resist);
-                    }
-                    if ((source as Beam).weapon.Tag_Explosive)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_explosive_resist);
-                    }
-                    if ((source as Beam).weapon.Tag_Missile)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_missile_resist);
-                    }
-                    if ((source as Beam).weapon.Tag_Flak)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_flak_resist);
-                    }
-                    if ((source as Beam).weapon.Tag_Hybrid)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_hybrid_resist);
-                    }
-                    if ((source as Beam).weapon.Tag_Railgun)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_railgun_resist);
-                    }
-                    if ((source as Beam).weapon.Tag_Subspace)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_subspace_resist);
-                    }
-                    if ((source as Beam).weapon.Tag_Warp)
-                    {
-                        damageAmount = damageAmount - (damageAmount * this.shield_warp_resist);
-                    }
-                }
+                    damageAmount = ApplyResistances((source as Beam).weapon, damageAmount);
 
                 if (damageAmount <= this.shield_threshold)
                     damageAmount = 0f;
@@ -1926,61 +1290,7 @@ namespace Ship_Game.Gameplay
                 }              
             }
         }
-		public void InitializeLite(Vector2 pos)
-		{
-			this.XMLPosition = pos;
-			this.Radius = 8f;
-			base.Position = pos;
-			base.Dimensions = new Vector2(16f, 16f);
-			Vector2 RelativeShipCenter = new Vector2(512f, 512f);
-			this.moduleCenter.X = base.Position.X + 256f;
-			this.moduleCenter.Y = base.Position.Y + 256f;
-			this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
-			float scaleFactor = 1f;
-			//ShipModule shipModule = this;
-			this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
-			this.offsetAngle = RelativeShipCenter.AngleToTarget(moduleCenter);
-			//this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
-			this.SetInitialPosition();
-			this.SetAttributesByType();
-			base.Initialize();
-            if (this.ModuleType == ShipModuleType.Hangar && !this.IsSupplyBay)
-            {
-                if (this.OrdinanceCapacity == 0)
-                {
-                    this.OrdinanceCapacity = (short)(this.MaximumHangarShipSize / 2);                    
-                    if(this.OrdinanceCapacity <50)
-                    this.OrdinanceCapacity = 50;
-                }
 
-            }
-		}   //Not called anywhere
-
-		public void LaunchBoardingPartyORIG(Troop troop)
-		{
-			if (this.IsTroopBay && this.Powered)
-			{
-				if (this.hangarShip != null)
-				{
-					this.hangarShip.DoEscort(this.Parent);
-					return;
-				}
-				if (this.hangarTimer <= 0f && this.hangarShip == null)
-				{
-                    this.hangarShip = Ship_Game.ResourceManager.CreateTroopShipAtPoint("Assault_Shuttle", this.Parent.loyalty, this.Center, troop);
-					this.hangarShip.VanityName = "Assault Shuttle";
-					this.hangarShip.Mothership = this.Parent;
-					this.hangarShip.DoEscort(this.Parent);
-					this.hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.speed + Parent.Velocity;
-					if (this.hangarShip.Velocity.Length() > this.hangarShip.velocityMaximum)
-					{
-						this.hangarShip.Velocity = Vector2.Normalize(this.hangarShip.Velocity) * this.hangarShip.speed;
-					}
-					this.installedSlot.HangarshipGuid = this.hangarShip.guid;
-					this.hangarTimer = this.hangarTimerConstant;
-				}
-			}
-		}
         //added by gremlin boarding parties
         public void LaunchBoardingParty(Troop troop)
         {
@@ -2023,33 +1333,6 @@ namespace Ship_Game.Gameplay
 		{
 		}
 
-		public void ScrambleFightersORIG()
-		{
-			if (!this.IsTroopBay && this.Powered && !this.IsSupplyBay)
-			{
-				if (this.hangarShip != null && this.hangarShip.Active)
-				{
-					this.hangarShip.DoEscort(this.Parent);
-					return;
-				}
-				if (this.hangarTimer <= 0f && (this.hangarShip == null || this.hangarShip != null && !this.hangarShip.Active))
-				{
-					this.hangarShip = Ship_Game.ResourceManager.CreateShipFromHangar(this.hangarShipUID, this.Parent.loyalty, this.Center, this.Parent);
-					if (this.hangarShip != null)
-					{
-						hangarShip.DoEscort(this.Parent);
-						hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.speed + Parent.Velocity;
-						if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-						{
-							hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.speed;
-						}
-						hangarShip.Mothership = Parent;
-						installedSlot.HangarshipGuid = hangarShip.guid;
-						hangarTimer = hangarTimerConstant;
-					}
-				}
-			}
-		}
         //added by gremlin fighter rearm fix
         public void ScrambleFighters()
         {
@@ -2277,7 +1560,6 @@ namespace Ship_Game.Gameplay
 		public void SetNewExternals()
 		{
             this.quadrant = -1;
-            //this.isExternal = false;
             ModuleSlot module;
             Vector2 up = new Vector2(this.XMLPosition.X, this.XMLPosition.Y - 16f);
             
@@ -2313,21 +1595,6 @@ namespace Ship_Game.Gameplay
 		public void SetParent(Ship p)
 		{
 			this.Parent = p;
-		}
-
-		private Color[,] TextureTo2DArray(Texture2D texture)
-		{
-			Color[] colors1D = new Color[texture.Width * texture.Height];
-			texture.GetData<Color>(colors1D);
-			Color[,] colors2D = new Color[texture.Width, texture.Height];
-			for (int x = 0; x < texture.Width; x++)
-			{
-				for (int y = 0; y < texture.Height; y++)
-				{
-					colors2D[x, y] = colors1D[x + y * texture.Width];
-				}
-			}
-			return colors2D;
 		}
 
         public override void Update(float elapsedTime)
