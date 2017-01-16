@@ -38,15 +38,8 @@ namespace Ship_Game.Gameplay
         private int TagBits;
         public bool this[WeaponTag tag]
         {
-            get
-            {
-                return (TagBits & (int)tag) != 0;
-            }
-            set
-            {
-                if (value) TagBits |= (int)tag;
-                else TagBits &= ~(int)tag;
-            }
+            get { return (TagBits & (int)tag) != 0; }
+            set { TagBits = value ? TagBits|(int)tag : TagBits & ~(int)tag; }
         }
         public bool Tag_Kinetic   { get { return this[WeaponTag.Kinetic]; }   set { this[WeaponTag.Kinetic]   = value; }}
         public bool Tag_Energy    { get { return this[WeaponTag.Energy]; }    set { this[WeaponTag.Energy]    = value; }}
@@ -201,30 +194,6 @@ namespace Ship_Game.Gameplay
             return wep;
         }
 
-        private void AddModifiers(string tag, Projectile projectile)
-        {
-            var wepTags = Owner.loyalty.data.WeaponTags;
-            projectile.damageAmount      += wepTags[tag].Damage * projectile.damageAmount;
-            projectile.ShieldDamageBonus += wepTags[tag].ShieldDamage;
-            projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
-            //Shield Penetration
-            float actualShieldPenChance = moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
-            actualShieldPenChance += wepTags[tag].ShieldPenetration;
-            actualShieldPenChance += ShieldPenChance;
-            if (actualShieldPenChance > 0f && RandomMath2.InRange(100) < actualShieldPenChance)
-            {
-                projectile.IgnoresShields = true;
-            }
-            if (!isBeam)
-            {
-                projectile.ArmorPiercing         += (byte)wepTags[tag].ArmourPenetration;
-                projectile.Health                += HitPoints * wepTags[tag].HitPoints;
-                projectile.RotationRadsPerSecond += wepTags[tag].Turn * RotationRadsPerSecond;
-                projectile.speed                 += wepTags[tag].Speed * ProjectileSpeed;
-                projectile.damageRadius          += wepTags[tag].ExplosionRadius * DamageRadius;
-            }
-        }
-
 		protected virtual void CreateDrone(Vector2 direction)
 		{
 			var projectile = new Projectile(Owner, direction, moduleAttachedTo)
@@ -331,7 +300,7 @@ namespace Ship_Game.Gameplay
             //damage increase by level
             if (Owner.Level > 0)
             {
-                beam.damageAmount += beam.damageAmount * (float)Owner.Level * 0.05f;
+                beam.damageAmount += beam.damageAmount * Owner.Level * 0.05f;
             }
             //Hull bonus damage increase
 			if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
@@ -397,190 +366,87 @@ namespace Ship_Game.Gameplay
 			}
 		}
 
+        private Projectile CreateProjectile(Ship owner, Vector2 direction, ShipModule attachedTo, GameplayObject target, bool playSound = true)
+        {
+            if (!owner.Projectiles.TryReuseItem(out Projectile projectile))
+                projectile = new Projectile(owner, direction, attachedTo);
+            else
+                projectile.Init(owner, direction, attachedTo);
+
+            projectile.range                 = Range;
+            projectile.weapon                = this;
+            projectile.explodes              = explodes;
+            projectile.damageAmount          = DamageAmount;
+            projectile.damageRadius          = DamageRadius;
+            projectile.explosionradiusmod    = ExplosionRadiusVisual;
+            projectile.Health                = HitPoints;
+            projectile.speed                 = ProjectileSpeed;
+            projectile.WeaponEffectType      = WeaponEffectType;
+            projectile.WeaponType            = WeaponType;
+            projectile.RotationRadsPerSecond = RotationRadsPerSecond;
+            projectile.ArmorPiercing         = (byte)ArmourPen;
+
+            if (owner.Level > 0)
+                projectile.damageAmount += projectile.damageAmount * owner.Level * 0.05f;
+            if (RangeVariance)
+                projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
+
+            //Hull bonus damage increase
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
+            {
+                if (ResourceManager.HullBonuses.TryGetValue(Owner.shipData.Hull, out HullBonus mod))
+                    projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
+            }
+            projectile.LoadContent(ProjectileTexturePath, ModelPath);
+            ModifyProjectile(projectile);
+
+            if (Tag_Guided) projectile.InitializeMissile(projectile.speed, direction, target);
+            else            projectile.Initialize(projectile.speed, direction, attachedTo.Center);
+            projectile.Radius = ProjectileRadius;
+
+            if (Animated == 1)
+                projectile.texturePath = AnimationPath + 0.ToString("00000.##");
+
+            if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && Owner.InFrustum && playSound)
+            {
+                projectile.DieSound = true;
+                if (!string.IsNullOrEmpty(ToggleSoundName) && (ToggleCue == null || ToggleCue != null && !ToggleCue.IsPlaying))
+                {
+                    ToggleSoundOn = true;
+                    ToggleCue = AudioManager.GetCue(ToggleSoundName);
+                    ToggleCue.Apply3D(audioListener, Owner.emitter);
+                    ToggleCue.Play();
+                    PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
+                }
+
+                string dieCueName = ResourceManager.WeaponsDict[UID].dieCue;
+                if (dieCueName.NotEmpty())  projectile.dieCueName  = dieCueName;
+                if (InFlightCue.NotEmpty()) projectile.InFlightCue = InFlightCue;
+                if (ToggleCue == null && Owner.ProjectilesFired.Count < 30)
+                {
+                    // @todo This is horrible, we must remove it ASAP
+                    //  seems to be used for calculating "Projectiles Fired Per Second" or something?
+                    Owner.ProjectilesFired.Add(new ProjectileTracker());
+                    PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
+                }
+            }
+
+            Owner.Projectiles.Add(projectile);
+            return projectile;
+        }
+
 		protected virtual void CreateProjectiles(Vector2 direction, GameplayObject target, bool playSound)
 		{
 		    if (SecondaryFire != null && AltFireTriggerFighter && AltFireMode &&
                 target is ShipModule shipModule && shipModule.GetParent().shipData.Role == ShipData.RoleName.fighter)
             {
                 Weapon altFire = ResourceManager.GetWeapon(SecondaryFire);
-                Projectile projectile;
-                if (Owner.Projectiles.TryReuseItem(out projectile))
-                {
-                    projectile.ProjectileRecreate(Owner, direction, moduleAttachedTo);
-                    projectile.range                 = altFire.Range;
-                    projectile.weapon                = this;
-                    projectile.explodes              = altFire.explodes;
-                    projectile.damageAmount          = altFire.DamageAmount;
-                    projectile.damageRadius          = altFire.DamageRadius;
-                    projectile.explosionradiusmod    = altFire.ExplosionRadiusVisual;
-                    projectile.Health                = altFire.HitPoints;
-                    projectile.speed                 = altFire.ProjectileSpeed;
-                    projectile.WeaponEffectType      = altFire.WeaponEffectType;
-                    projectile.WeaponType            = altFire.WeaponType;
-                    projectile.RotationRadsPerSecond = altFire.RotationRadsPerSecond;
-                    projectile.ArmorPiercing         = (byte)altFire.ArmourPen;
-                }
-                else
-                    projectile = new Projectile(Owner, direction, moduleAttachedTo)
-                    {
-                        range                 = altFire.Range,
-                        weapon                = this,
-                        explodes              = altFire.explodes,
-                        damageAmount          = altFire.DamageAmount,
-                        damageRadius          = altFire.DamageRadius,
-                        explosionradiusmod    = altFire.ExplosionRadiusVisual,
-                        Health                = altFire.HitPoints,
-                        speed                 = altFire.ProjectileSpeed,
-                        WeaponEffectType      = altFire.WeaponEffectType,
-                        WeaponType            = altFire.WeaponType,
-                        RotationRadsPerSecond = altFire.RotationRadsPerSecond,
-                        ArmorPiercing         = (byte)altFire.ArmourPen,
-                    };
-                //damage increase by level
-                if (Owner.Level > 0)
-                {
-                    projectile.damageAmount += projectile.damageAmount * Owner.Level * 0.05f;
-                }
-                if (altFire.RangeVariance)
-                {
-                    projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
-                }
-                //Hull bonus damage increase
-				if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
-                {
-                    if (ResourceManager.HullBonuses.TryGetValue(Owner.shipData.Hull, out HullBonus mod))
-                        projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
-                }
-                projectile.LoadContent(altFire.ProjectileTexturePath, altFire.ModelPath);
-                altFire.ModifyProjectile(projectile);
-                if (altFire.Tag_Guided)
-                    projectile.InitializeMissile(projectile.speed, direction, shipModule);
-                else
-                    projectile.Initialize(projectile.speed, direction, moduleAttachedTo.Center);
-                projectile.Radius = ProjectileRadius;
-                if (altFire.Animated == 1)
-                {
-                    string remainder = 0.ToString("00000.##");
-                    projectile.texturePath = string.Concat(altFire.AnimationPath, remainder);
-                }
-                if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && Owner.InFrustum && playSound)
-                {
-                    projectile.DieSound = true;
-                    if (!string.IsNullOrEmpty(ToggleSoundName) && (ToggleCue == null || ToggleCue != null && !ToggleCue.IsPlaying))
-                    {
-                        ToggleSoundOn = true;
-                        ToggleCue = AudioManager.GetCue(altFire.ToggleSoundName);
-                        ToggleCue.Apply3D(audioListener, Owner.emitter);
-                        ToggleCue.Play();
-                        PlayFireCue(altFire.fireCueName, Owner.emitter, !Owner.isPlayerShip());
-                    }
-                    if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[altFire.UID].dieCue))
-                    {
-                        projectile.dieCueName = ResourceManager.WeaponsDict[altFire.UID].dieCue;
-                    }
-                    if (!string.IsNullOrEmpty(InFlightCue))
-                    {
-                        projectile.InFlightCue = altFire.InFlightCue;
-                    }
-                    if (ToggleCue == null && Owner.ProjectilesFired.Count < 30)
-                    {
-                        Owner.ProjectilesFired.Add(new ProjectileTracker());
-                        PlayFireCue(altFire.fireCueName, Owner.emitter, !Owner.isPlayerShip());
-                    }
-                }
+                Projectile projectile = altFire.CreateProjectile(Owner, direction, moduleAttachedTo, shipModule, playSound);
                 projectile.isSecondary = true;
-                Owner.Projectiles.Add(projectile);
             }
             else
             {
-                Projectile projectile;
-                if (Owner.Projectiles.TryReuseItem(out projectile))
-                {
-                    projectile.ProjectileRecreate(Owner, direction, moduleAttachedTo);
-                    projectile.range = Range;
-                    projectile.weapon = this;
-                    projectile.explodes = explodes;
-                    projectile.damageAmount = DamageAmount;
-                    projectile.damageRadius = DamageRadius;
-                    projectile.explosionradiusmod = ExplosionRadiusVisual;
-                    projectile.Health = HitPoints;
-                    projectile.speed = ProjectileSpeed;
-                    projectile.WeaponEffectType = WeaponEffectType;
-                    projectile.WeaponType = WeaponType;
-                    projectile.RotationRadsPerSecond = RotationRadsPerSecond;
-                    projectile.ArmorPiercing = (byte)ArmourPen;
-                }
-                projectile = new Projectile(Owner, direction, moduleAttachedTo)
-                {
-                    range = Range,
-                    weapon = this,
-                    explodes = explodes,
-                    damageAmount = DamageAmount,
-                    damageRadius = DamageRadius,
-                    explosionradiusmod = ExplosionRadiusVisual,
-                    Health = HitPoints,
-                    speed = ProjectileSpeed,
-                    WeaponEffectType = WeaponEffectType,
-                    WeaponType = WeaponType,
-                    RotationRadsPerSecond = RotationRadsPerSecond,
-                    ArmorPiercing = (byte)ArmourPen,
-                };
-                //damage increase by level
-                if (Owner.Level > 0)
-                {
-                    projectile.damageAmount += projectile.damageAmount * (float)Owner.Level * 0.05f;
-                }
-                if (RangeVariance)
-                {
-                    projectile.range *= RandomMath.RandomBetween(0.9f, 1.1f);
-                }
-                //Hull bonus damage increase
-				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
-                {
-                    HullBonus mod;
-                    if (ResourceManager.HullBonuses.TryGetValue(Owner.shipData.Hull, out mod))
-                        projectile.damageAmount += projectile.damageAmount * mod.DamageBonus;
-                }
-                projectile.LoadContent(ProjectileTexturePath, ModelPath);
-                ModifyProjectile(projectile);
-                if (Tag_Guided)
-                    projectile.InitializeMissile(projectile.speed, direction, target);
-                else
-                    projectile.Initialize(projectile.speed, direction, moduleAttachedTo.Center);
-                projectile.Radius = ProjectileRadius;
-                if (Animated == 1)
-                {
-                    string remainder = 0.ToString("00000.##");
-                    projectile.texturePath = string.Concat(AnimationPath, remainder);
-                }
-                if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && Owner.InFrustum && playSound)
-                {
-                    projectile.DieSound = true;
-                    if (!string.IsNullOrEmpty(ToggleSoundName) && (ToggleCue == null || ToggleCue != null && !ToggleCue.IsPlaying))
-                    {
-                        ToggleSoundOn = true;
-                        ToggleCue = AudioManager.GetCue(ToggleSoundName);
-                        ToggleCue.Apply3D(audioListener, Owner.emitter);
-                        ToggleCue.Play();
-                        PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
-                    }
-                    if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[UID].dieCue))
-                    {
-                        projectile.dieCueName = ResourceManager.WeaponsDict[UID].dieCue;
-                    }
-                    if (!string.IsNullOrEmpty(InFlightCue))
-                    {
-                        projectile.InFlightCue = InFlightCue;
-                    }
-                    if (ToggleCue == null && Owner.ProjectilesFired.Count < 30)
-                    {
-                        // @todo This is horrible, we must remove it ASAP
-                        //  seems to be used for calculating "Projectiles Fired Per Second" or something?
-                        Owner.ProjectilesFired.Add(new ProjectileTracker());
-                        PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
-                    }
-                }
-                Owner.Projectiles.Add(projectile);
+                CreateProjectile(Owner, direction, moduleAttachedTo, target);
             }
 		}
 
@@ -666,7 +532,6 @@ namespace Ship_Game.Gameplay
 
 		public virtual void Fire(Vector2 direction, GameplayObject target)
 		{
-            
             if (Owner.engineState == Ship.MoveState.Warp || timeToNextFire > 0f || !Owner.CheckRangeToTarget(this, target))
 				return;
 			Owner.InCombatTimer = 15f;
@@ -696,7 +561,6 @@ namespace Ship_Game.Gameplay
                     SalvoTarget = target;
 				}
 			}
-
 		}
 
 		public virtual void FireDrone(Vector2 direction)
@@ -862,12 +726,12 @@ namespace Ship_Game.Gameplay
 				explodes = explodes,
 				damageAmount = DamageAmount
             };
-			projectile.explodes = explodes;
-			projectile.damageRadius = DamageRadius;
+			projectile.explodes           = explodes;
+			projectile.damageRadius       = DamageRadius;
             projectile.explosionradiusmod = ExplosionRadiusVisual;
-			projectile.speed = ProjectileSpeed;
-			projectile.WeaponEffectType = WeaponEffectType;
-			projectile.WeaponType = WeaponType;
+			projectile.speed              = ProjectileSpeed;
+			projectile.WeaponEffectType   = WeaponEffectType;
+			projectile.WeaponType         = WeaponType;
 			projectile.Initialize(ProjectileSpeed, direction, owner.Center);
 			projectile.Radius = ProjectileRadius;
 			projectile.LoadContent(ProjectileTexturePath, ModelPath);
@@ -885,9 +749,7 @@ namespace Ship_Game.Gameplay
 		private void ModifyProjectile(Projectile projectile)
 		{
             if (Owner == null)
-			{
 				return;
-			}
             if (Owner.loyalty.data.Traits.Pack)
             {
                 projectile.damageAmount += projectile.damageAmount * Owner.DamageModifier;
@@ -917,6 +779,30 @@ namespace Ship_Game.Gameplay
             if (Tag_Flak)      AddModifiers("Flak", projectile);
             if (Tag_Tractor)   AddModifiers("Tractor", projectile);
 		}
+        
+        private void AddModifiers(string tag, Projectile projectile)
+        {
+            var wepTags = Owner.loyalty.data.WeaponTags;
+            projectile.damageAmount      += wepTags[tag].Damage * projectile.damageAmount;
+            projectile.ShieldDamageBonus += wepTags[tag].ShieldDamage;
+            projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
+            //Shield Penetration
+            float actualShieldPenChance = moduleAttachedTo.GetParent().loyalty.data.ShieldPenBonusChance;
+            actualShieldPenChance += wepTags[tag].ShieldPenetration;
+            actualShieldPenChance += ShieldPenChance;
+            if (actualShieldPenChance > 0f && RandomMath2.InRange(100) < actualShieldPenChance)
+            {
+                projectile.IgnoresShields = true;
+            }
+            if (!isBeam)
+            {
+                projectile.ArmorPiercing         += (byte)wepTags[tag].ArmourPenetration;
+                projectile.Health                += HitPoints * wepTags[tag].HitPoints;
+                projectile.RotationRadsPerSecond += wepTags[tag].Turn * RotationRadsPerSecond;
+                projectile.speed                 += wepTags[tag].Speed * ProjectileSpeed;
+                projectile.damageRadius          += wepTags[tag].ExplosionRadius * DamageRadius;
+            }
+        }
 
 		public void ResetToggleSound()
 		{
