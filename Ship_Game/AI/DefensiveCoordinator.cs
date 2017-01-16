@@ -323,22 +323,20 @@ namespace Ship_Game.AI
                 foreach (SolarSystem solarSystem2 in sortedSystems)
                 {
 
-                    if (solarSystem2.PlanetList.Count <= 0)
-                    {
-                        continue;
-                    }
-                    SystemCommander defenseSystem = this.DefenseDict[solarSystem2];
+                    if (solarSystem2.PlanetList.Count <= 0) continue; 
+                    
+                    SystemCommander defenseSystem = DefenseDict[solarSystem2];
 
-                    if (defenseSystem.TroopStrengthNeeded <= 0)
-                        continue;
+                    if (defenseSystem.TroopStrengthNeeded <= 0) continue;
+
                     defenseSystem.TroopStrengthNeeded--;
                     troopShips.Remove(troopShip);
 
                     Planet target = null;
                     foreach (Planet lowTroops in solarSystem2.PlanetList)
                     {
-                        if (lowTroops.Owner != troopShip.loyalty)
-                            continue;
+                        if (lowTroops.Owner != troopShip.loyalty) continue;
+
                         if (target == null || lowTroops.TroopsHere.Count < target.TroopsHere.Count)
                             target = lowTroops;
                     }
@@ -346,39 +344,22 @@ namespace Ship_Game.AI
                     troopShip.GetAI().OrderRebase(target, true);
                 }
             }
-            //foreach (Ship Scraptroop in TroopShips)
-            //{
-            //    Scraptroop.GetAI().OrderScrapShip();
-            //}
-
-            //TroopShips.ApplyPendingRemovals();
-            //Troop management is horked.
-            // Since it doesnt keep track troop needs per planet the troops can not decide which planet to defend and so constantly launch and land.
-            // so for now i am disabling the launch code when there are too many troops.
-            // Troops will still rebase after they sit idle from fleet activity. 
-
-            //float want = 0;          //Not referenced in code, removing to save memory
-            //float ideal = 0;          //Not referenced in code, removing to save memory
-            this.EmpireTroopRatio = UniverseWants;
+            EmpireTroopRatio = UniverseWants;
             if (UniverseWants < .8f)
             {
-
-                foreach (KeyValuePair<SolarSystem, SystemCommander> defenseSystem in this.DefenseDict)
-                {
-                    foreach (Planet p in defenseSystem.Key.PlanetList)
+                foreach (var kv in DefenseDict)
+                    foreach (Planet p in kv.Key.PlanetList)
                     {
-                        if (this.Us.isPlayer && p.colonyType != Planet.ColonyType.Military)
-                            continue;
-                        float devratio = (float)(p.developmentLevel + 1) / (defenseSystem.Value.SystemDevelopmentlevel + 1);
-                        if (!defenseSystem.Key.CombatInSystem
-                            && p.GetDefendingTroopCount() > defenseSystem.Value.IdealTroopCount * devratio)// + (int)Ship.universeScreen.GameDifficulty)
+                        if (Us.isPlayer && p.colonyType != Planet.ColonyType.Military) continue;
+                        float devratio = (p.developmentLevel + 1) / (kv.Value.SystemDevelopmentlevel + 1);
+                        if (!kv.Key.CombatInSystem
+                            && p.GetDefendingTroopCount() > kv.Value.IdealTroopCount * devratio)
                         {
-
-                            Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.GetOwner() == this.Us);
+                            Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.GetOwner() == Us);
                             l?.Launch();
                         }
                     }
-                }
+
             }
         }
         public void ManageForcePool()
@@ -386,73 +367,7 @@ namespace Ship_Game.AI
             CalculateSystemImportance();
             ManageShips();
             ManageTroops();
-        }
-
-        public ConcurrentDictionary<Ship, Array<Ship>> EnemyClumpsDict = new ConcurrentDictionary<Ship, Array<Ship>>();
-
-        public void refreshclumps()
-        {
-            this.EnemyClumpsDict.Clear();
-     
-            //Array<Ship> ShipsAlreadyConsidered = new Array<Ship>();
-            
-
-
-
-  
-            Ship[] incomingShips = Empire.Universe.GameDifficulty > UniverseData.GameDifficulty.Hard 
-                ? Empire.Universe.MasterShipList.AsParallel().Where(
-                    bases => bases.BaseStrength > 0 && bases.loyalty != Us && 
-                    (bases.loyalty.isFaction || Us.GetRelations(bases.loyalty).AtWar || 
-                    !Us.GetRelations(bases.loyalty).Treaty_OpenBorders)).ToArray() 
-                : Us.FindShipsInOurBorders().Where(bases=> bases.BaseStrength >0).ToArray();
-            
-
-
-            if (incomingShips.Length == 0)
-            {
-                
-                return;
-            }
-
-            Array<Ship> ShipsAlreadyConsidered = new Array<Ship>();
-            var rangePartitioner = Partitioner.Create(0, incomingShips.Length);
-            //System.Threading.Tasks.Parallel.ForEach(rangePartitioner, (range, loopState) =>
-            {
-                    
-                for (int i = 0; i < incomingShips.Length; i++)
-                {
-                    //for (int i = 0; i < incomingShips.Count; i++)
-                    {
-                        //Ship ship = this.system.ShipList[i];
-                        Ship ship = incomingShips[i];
-
-                        if (ship != null && ship.loyalty != this.Us
-                            && (ship.loyalty.isFaction || this.Us.GetRelations(ship.loyalty).AtWar || !this.Us.GetRelations(ship.loyalty).Treaty_OpenBorders)
-                            && !ShipsAlreadyConsidered.Contains(ship) && !this.EnemyClumpsDict.ContainsKey(ship))
-                        {
-                            //lock(this.EnemyClumpsDict)
-                            this.EnemyClumpsDict.TryAdd(ship, new Array<Ship>());
-                            this.EnemyClumpsDict[ship].Add(ship);
-                            lock(ShipsAlreadyConsidered)
-                            ShipsAlreadyConsidered.Add(ship);
-
-                            for (int j = 0; j < incomingShips.Length; j++)
-                            {
-                                Ship otherShip = incomingShips[j];
-                                if (otherShip.loyalty != this.Us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f
-                                    && !ShipsAlreadyConsidered.Contains(otherShip))
-                                {
-                                    this.EnemyClumpsDict[ship].Add(otherShip);
-                                }
-                            }
-                        }
-                    }
-                }
-            }            
-        }
-
-
+        }        
         public void Dispose()
         {
             Dispose(true);
