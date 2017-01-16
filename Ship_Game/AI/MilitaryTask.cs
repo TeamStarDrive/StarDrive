@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
@@ -292,32 +293,32 @@ namespace Ship_Game.AI
 
         public void EndTask()
 		{
-            DebugInfoScreen.canceledMtasksCount++;
+            DebugInfoScreen.CanceledMtasksCount++;
 
             switch (this.type)
             {
                 case TaskType.Exploration:
                     {
-                        DebugInfoScreen.canceledMtask1Count++;
-                        DebugInfoScreen.canceledMTask1Name = TaskType.Exploration.ToString();
+                        DebugInfoScreen.CanceledMtask1Count++;
+                        DebugInfoScreen.CanceledMTask1Name = TaskType.Exploration.ToString();
                         break;
                     }
                 case TaskType.AssaultPlanet:
                     {
-                        DebugInfoScreen.canceledMtask2Count++;
-                        DebugInfoScreen.canceledMTask2Name = TaskType.AssaultPlanet.ToString();
+                        DebugInfoScreen.CanceledMtask2Count++;
+                        DebugInfoScreen.CanceledMTask2Name = TaskType.AssaultPlanet.ToString();
                         break;
                     }
                 case TaskType.CohesiveClearAreaOfEnemies:
                     {
-                        DebugInfoScreen.canceledMtask3Count++;
-                        DebugInfoScreen.canceledMTask3Name = TaskType.CohesiveClearAreaOfEnemies.ToString();
+                        DebugInfoScreen.CanceledMtask3Count++;
+                        DebugInfoScreen.CanceledMTask3Name = TaskType.CohesiveClearAreaOfEnemies.ToString();
                         break;
                     }
                     default:
                     {
-                        DebugInfoScreen.canceledMtask4Count++;
-                        DebugInfoScreen.canceledMTask4Name = this.type.ToString();
+                        DebugInfoScreen.CanceledMtask4Count++;
+                        DebugInfoScreen.CanceledMTask4Name = this.type.ToString();
                         break;
                     }
             }
