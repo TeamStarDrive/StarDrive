@@ -1133,7 +1133,7 @@ namespace Ship_Game.AI
         private void DoRepairBeamLogic(Weapon w)
         {
             var repairMe = FriendliesNearby.FindMinFiltered
-            (filter: ship => ship.Active && ship != w.GetOwner()
+            (filter: ship => ship.Active && ship != w.Owner
                              && ship.Health / ship.HealthMax < .9f
                              && Owner.Center.Distance(ship.Center) <= w.Range + 500f,
                 selector: ship => ship.Health);
@@ -1714,7 +1714,7 @@ namespace Ship_Game.AI
             Owner.InCombatTimer = 15f;
             if (fireTarget is Projectile)
             {
-                fireTarget.Damage(w.GetOwner(), w.DamageAmount);
+                fireTarget.Damage(w.Owner, w.DamageAmount);
                 return;
             }
             if (!(fireTarget is Ship))
