@@ -6895,7 +6895,7 @@ namespace Ship_Game.AI
                     continue;
                 }
                 totalwanted += defenseSystem.TroopStrengthNeeded;// >0 ?defenseSystem.TroopStrengthNeeded : 1;
-                totalideal += defenseSystem.IdealTroopStr;// >0 ? defenseSystem.IdealTroopStr : 1;
+                totalideal += defenseSystem.IdealTroopCount;// >0 ? defenseSystem.IdealTroopStr : 1;
             }
             if (totalwanted / totalideal > .5f)
             {
@@ -6930,7 +6930,7 @@ namespace Ship_Game.AI
             //requiredStrength *= 10;
             foreach(KeyValuePair<SolarSystem,SystemCommander> defensiveStrength in this.DefensiveCoordinator.DefenseDict)
             {
-                requiredStrength += defensiveStrength.Value.IdealTroopStr ;
+                requiredStrength += defensiveStrength.Value.IdealTroopCount ;
             }
             
 
