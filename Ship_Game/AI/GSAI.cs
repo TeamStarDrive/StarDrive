@@ -6055,7 +6055,7 @@ namespace Ship_Game.AI
                     ran = sortedList.Count();
                 ship = sortedList.Skip(ran).First();
                 name = ship.Name;
-            #if DEBUG
+            #if TRACE
                 Log.Info("Chosen Role: {0}  Chosen Hull: {1}  Strength: {2}", 
                     ship.GetShipData().Role, ship.GetShipData().Hull, ship.BaseStrength); 
             #endif

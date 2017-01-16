@@ -115,11 +115,13 @@ namespace Ship_Game
             ThisLock.ExitWriteLock();
             PendingRemovals?.Clear();
         }
-        public new void Remove(T item)
+        public new bool Remove(T item)
         {
+            bool found = false;
             ThisLock.EnterWriteLock();
-            base.Remove(item);
+            found = base.Remove(item);
             ThisLock.ExitWriteLock();
+            return found;
         }
         public void ClearAdd(IEnumerable<T> item)
         {
