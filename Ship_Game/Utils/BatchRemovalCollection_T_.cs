@@ -117,9 +117,8 @@ namespace Ship_Game
         }
         public new bool Remove(T item)
         {
-            bool found = false;
             ThisLock.EnterWriteLock();
-            found = base.Remove(item);
+            bool found = base.Remove(item);
             ThisLock.ExitWriteLock();
             return found;
         }
