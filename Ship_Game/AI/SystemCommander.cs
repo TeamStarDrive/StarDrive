@@ -13,7 +13,7 @@ namespace Ship_Game.AI
 
 		public float ValueToUs;
 
-		public float IdealTroopStr;
+		public int IdealTroopCount;
 
 		public float TroopStrengthNeeded;
 
@@ -23,6 +23,8 @@ namespace Ship_Game.AI
         public float incomingThreatTime;
         public float SystemDevelopmentlevel;
         public float RankImportance;
+        public int TroopCount = 0;
+        public int TroopsWanted => IdealTroopCount - TroopCount;
 		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
 
 		public Map<Ship, Array<Ship>> EnemyClumpsDict = new Map<Ship, Array<Ship>>();
@@ -237,7 +239,31 @@ namespace Ship_Game.AI
 		}
 
         public IEnumerable<Ship> GetShipList() => ShipsDict.Values;
+        public void CalculateTroopNeeds(Empire Us)
+        {
+            int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;            
+            int totalCurrentTroops = 0;
+            //foreach (KeyValuePair<SolarSystem, SystemCommander> entry in DefenseDict)
+            {
+                // find max number of troops for system.
+                var planets = System.PlanetList.Where(planet => planet.Owner == Us).ToArray();
+                int planetCount = planets.Length;
+                int developmentlevel = planets.Sum(development => development.developmentLevel);
+                SystemDevelopmentlevel = developmentlevel;
+                int maxtroops = System.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetPotentialGroundTroops());
+                IdealTroopCount = (mintroopLevel + (int)RankImportance) * planetCount;
 
+                if (IdealTroopCount > maxtroops)
+                    IdealTroopCount = maxtroops;
+                int currentTroops = System.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetDefendingTroopCount());
+                totalCurrentTroops += currentTroops;
+
+                TroopStrengthNeeded = IdealTroopCount - currentTroops;
+
+                
+            }
+
+        }
         public void UpdatePlanetTracker()
         {
             var planetsHere = System.PlanetList.Where(planet => planet.Owner == us).ToArray();

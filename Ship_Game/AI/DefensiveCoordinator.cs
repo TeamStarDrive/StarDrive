@@ -265,110 +265,61 @@ namespace Ship_Game.AI
                 if (!flag)
                     return;
             }
-            BatchRemovalCollection<Ship> TroopShips = new BatchRemovalCollection<Ship>();
-            BatchRemovalCollection<Troop> GroundTroops = new BatchRemovalCollection<Troop>();
-            foreach (Planet p in this.Us.GetPlanets())
-            {
-                for (int i = 0; i < p.TroopsHere.Count; i++)
-                {
-                    if (p.TroopsHere[i].Strength > 0 && p.TroopsHere[i].GetOwner() == this.Us)//&& !p.RecentCombat && p.ParentSystem.combatTimer <=0)
-                    {
-                        GroundTroops.Add(p.TroopsHere[i]);
-                    }
-                }
-            }
-            foreach (Ship ship2 in this.Us.GetShips())
-            {
-                if (ship2.shipData.Role != ShipData.RoleName.troop || ship2.fleet != null || ship2.Mothership != null || ship2.GetAI().HasPriorityOrder) //|| ship2.GetAI().State != AIState.AwaitingOrders)
-                {
-                    continue;
-                }
-                TroopShips.Add(ship2);
-
-            }
+            Array<Ship> troopShips = new Array<Ship>();
+            Array<Troop> groundTroops = new Array<Troop>();
             float TotalTroopStrength = 0f;
-            foreach (Troop t in GroundTroops)
-            {
-                TotalTroopStrength = TotalTroopStrength + t.Strength;
-            }
-            foreach (Ship ship3 in TroopShips)
-            {
-                for (int i = 0; i < ship3.TroopList.Count; i++)
-                {
-                    if (ship3.TroopList[i].GetOwner() == Us)
-                    {
-                        TotalTroopStrength += ship3.TroopList[i].Strength;
-                    }
-                }
-            }
-            int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
+            groundTroops = Us.GetTroopUnits(ref TotalTroopStrength);
+            troopShips = Us.GetTroopShips(ref TotalTroopStrength);
+
+                    
             int totalTroopWanted = 0;
             int totalCurrentTroops = 0;
-            foreach (KeyValuePair<SolarSystem, SystemCommander> entry in DefenseDict)
+            foreach (var kv in DefenseDict)
             {
                 // find max number of troops for system.
-                var planets = entry.Key.PlanetList.Where(planet => planet.Owner == Us).ToArray();
-                int planetCount = planets.Length;
-                int developmentlevel = planets.Sum(development => development.developmentLevel);
-                entry.Value.SystemDevelopmentlevel = developmentlevel;
-                int maxtroops = entry.Key.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetPotentialGroundTroops());
-                entry.Value.IdealTroopStr = (mintroopLevel + entry.Value.RankImportance) * planetCount;
-
-                if (entry.Value.IdealTroopStr > maxtroops)
-                    entry.Value.IdealTroopStr = maxtroops;
-                totalTroopWanted += (int)entry.Value.IdealTroopStr;
-                int currentTroops = entry.Key.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetDefendingTroopCount());
-                totalCurrentTroops += currentTroops;
-
-                entry.Value.TroopStrengthNeeded = entry.Value.IdealTroopStr - currentTroops;
-                GroundTroops.ApplyPendingRemovals();
-
-                for (int i = 0; i < TroopShips.Count; i++)
+                kv.Value.CalculateTroopNeeds(Us);
+                int currentTroops = kv.Value.TroopCount;
+                for (int i = 0; i < troopShips.Count; i++)
                 {
-                    Ship troop = TroopShips[i];
+                    Ship troop = troopShips[i];
 
                     if (troop == null || troop.TroopList.Count <= 0)
                     {
-                        TroopShips.QueuePendingRemoval(troop);
+                        troopShips.Remove(troop);
                         continue;
                     }
 
                     ArtificialIntelligence troopAI = troop.GetAI();
                     if (troopAI == null)
                     {
-                        TroopShips.QueuePendingRemoval(troop);
+                        troopShips.Remove(troop);
                         continue;
                     }
                     if (troopAI.State == AIState.Rebase
                         && troopAI.OrderQueue.NotEmpty
-                        && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && entry.Key == goal.TargetPlanet.system))
+                        && troopAI.OrderQueue.Any(goal => goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.system))
                     {
                         currentTroops++;
-                        entry.Value.TroopStrengthNeeded--;
-                        TroopShips.QueuePendingRemoval(troop);
-                    }
-
-                    if (entry.Value.TroopStrengthNeeded < 0)
-                    {
-
+                        kv.Value.TroopStrengthNeeded--;
+                        troopShips.Remove(troop);
                     }
                 }
-                TroopShips.ApplyPendingRemovals();
+                kv.Value.TroopCount = currentTroops;
+                totalCurrentTroops += currentTroops;
+                totalTroopWanted += kv.Value.TroopsWanted;          
             }
-            this.UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
-            //Planet tempPlanet = null;          //Not referenced in code, removing to save memory
-            //int TroopsSent = 0;          //Not referenced in code, removing to save memory
-            foreach (Ship ship4 in TroopShips)
+            UniverseWants = totalCurrentTroops / (float)totalTroopWanted;
+
+
+            for (int x = 0; x < troopShips.Count; x++)
             {
-
-
+                Ship troopShip = troopShips[x];
                 var sortedSystems =
-                    from sComs in DefenseDict.Values
-                    orderby sComs.TroopStrengthNeeded / sComs.IdealTroopStr descending
-                    orderby (int)(Vector2.Distance(sComs.System.Position, ship4.Center) / (UniverseData.UniverseWidth / 5f))
-                    orderby sComs.ValueToUs descending
-
-                    select sComs.System;
+                from sComs in DefenseDict.Values
+                orderby sComs.TroopStrengthNeeded / sComs.IdealTroopCount descending
+                orderby (int)(Vector2.Distance(sComs.System.Position, troopShip.Center) / (UniverseData.UniverseWidth / 5f))
+                orderby sComs.ValueToUs descending
+                select sComs.System;
                 foreach (SolarSystem solarSystem2 in sortedSystems)
                 {
 
@@ -381,36 +332,20 @@ namespace Ship_Game.AI
                     if (defenseSystem.TroopStrengthNeeded <= 0)
                         continue;
                     defenseSystem.TroopStrengthNeeded--;
-                    TroopShips.QueuePendingRemoval(ship4);
+                    troopShips.Remove(troopShip);
 
-
-                    //send troops to the first planet in the system with the lowest troop count.
-                    //Planet target = solarSystem2.PlanetList.Where(planet => planet.Owner == ship4.loyalty)
-                    //.OrderBy(planet => planet.GetDefendingTroopCount() < defenseSystem.IdealTroopStr / solarSystem2.PlanetList.Count * (planet.developmentLevel / defenseSystem.SystemDevelopmentlevel))
-                    //.FirstOrDefault();
                     Planet target = null;
                     foreach (Planet lowTroops in solarSystem2.PlanetList)
                     {
-                        if (lowTroops.Owner != ship4.loyalty)
+                        if (lowTroops.Owner != troopShip.loyalty)
                             continue;
                         if (target == null || lowTroops.TroopsHere.Count < target.TroopsHere.Count)
                             target = lowTroops;
                     }
-                    if (target == null)
-                        continue;
-                    //if (target != tempPlanet)
-                    //{
-                    //    tempPlanet = target;
-                    //    TroopsSent = 0;
-                    //}
-
-                    ship4.GetAI().OrderRebase(target, true);
-                    //TroopShips.QueuePendingRemoval(ship4);
-
-
+                    if (target == null) continue;
+                    troopShip.GetAI().OrderRebase(target, true);
                 }
             }
-            TroopShips.ApplyPendingRemovals();
             //foreach (Ship Scraptroop in TroopShips)
             //{
             //    Scraptroop.GetAI().OrderScrapShip();
@@ -436,7 +371,7 @@ namespace Ship_Game.AI
                             continue;
                         float devratio = (float)(p.developmentLevel + 1) / (defenseSystem.Value.SystemDevelopmentlevel + 1);
                         if (!defenseSystem.Key.CombatInSystem
-                            && p.GetDefendingTroopCount() > defenseSystem.Value.IdealTroopStr * devratio)// + (int)Ship.universeScreen.GameDifficulty)
+                            && p.GetDefendingTroopCount() > defenseSystem.Value.IdealTroopCount * devratio)// + (int)Ship.universeScreen.GameDifficulty)
                         {
 
                             Troop l = p.TroopsHere.FirstOrDefault(loyalty => loyalty.GetOwner() == this.Us);
