@@ -22,14 +22,13 @@ namespace Ship_Game
 		public SpatialManager spatialManager = new SpatialManager();
 		public bool isVisible;
 		public Vector2 Position;
-		public int RingsCount;
         public Array<Planet> PlanetList = new Array<Planet>();
 		public BatchRemovalCollection<Asteroid> AsteroidsList = new BatchRemovalCollection<Asteroid>();
         public Array<Moon> MoonList = new Array<Moon>();
 		public string SunPath;
 		public Map<Empire, bool> ExploredDict = new Map<Empire, bool>();
 		public Array<Ring> RingList = new Array<Ring>();
-		private int numberOfRings;
+		private int NumberOfRings;
 		public int StarRadius;
 		public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>(5);
 		public Array<string> ShipsToSpawn = new Array<string>();
@@ -334,10 +333,9 @@ namespace Ship_Game
 		{
             SetSunPath(RandomMath.IntBetween(1, 3));
 			Name = name;
-			numberOfRings = 2;
-			RingsCount = numberOfRings;
+            NumberOfRings = 2;
 			StarRadius = RandomMath.IntBetween(250, 500);
-			for (int i = 1; i < numberOfRings + 1; i++)
+			for (int i = 1; i < NumberOfRings + 1; i++)
 			{
 				float ringRadius = i * (StarRadius + RandomMath.RandomBetween(10500f, 12000f));
 				if (i != 1)
@@ -402,25 +400,24 @@ namespace Ship_Game
             if (GlobalStats.ExtraPlanets > 0) // ADDED BY SHAHMATT (more planets in system)
             {   
                 //Edited by Gretman, so if lots of extra planets are selected, there will definitely be extra
-                if      (GlobalStats.ExtraPlanets <= 2)  numberOfRings = RandomMath.IntBetween(1, 6 + GlobalStats.ExtraPlanets);
-                else if (GlobalStats.ExtraPlanets <= 4)  numberOfRings = RandomMath.IntBetween(2, 6 + GlobalStats.ExtraPlanets);
-                else if (GlobalStats.ExtraPlanets <= 6)  numberOfRings = RandomMath.IntBetween(3, 6 + GlobalStats.ExtraPlanets);
-                else                                     numberOfRings = RandomMath.IntBetween((int)(GlobalStats.ExtraPlanets * 0.5f), 6 + GlobalStats.ExtraPlanets);
+                if      (GlobalStats.ExtraPlanets <= 2) NumberOfRings = RandomMath.IntBetween(1, 6 + GlobalStats.ExtraPlanets);
+                else if (GlobalStats.ExtraPlanets <= 4) NumberOfRings = RandomMath.IntBetween(2, 6 + GlobalStats.ExtraPlanets);
+                else if (GlobalStats.ExtraPlanets <= 6) NumberOfRings = RandomMath.IntBetween(3, 6 + GlobalStats.ExtraPlanets);
+                else                                    NumberOfRings = RandomMath.IntBetween((int)(GlobalStats.ExtraPlanets * 0.5f), 6 + GlobalStats.ExtraPlanets);
 
-                if (numberOfRings == 0) numberOfRings = 1; // If "Extra Planets" was selected at all, there will always be at least 1 in each system. - Gretman
+                if (NumberOfRings == 0) NumberOfRings = 1; // If "Extra Planets" was selected at all, there will always be at least 1 in each system. - Gretman
             }
             else
             {
-			    numberOfRings = RandomMath.IntBetween(1, 6);
+                NumberOfRings = RandomMath.IntBetween(1, 6);
             }
 
-            this.RingList.Capacity = numberOfRings;
-            RingsCount = numberOfRings;
+            this.RingList.Capacity = NumberOfRings;
 			StarRadius = RandomMath.IntBetween(250, 500);
             float ringbase = 10500f;
-            float ringmax = RingsCount > 0 ? (95000f - StarRadius) / numberOfRings : 0f;
+            float ringmax = NumberOfRings > 0 ? (95000f - StarRadius) / NumberOfRings : 0f;
 
-			for (int i = 1; i < numberOfRings + 1; i++)
+			for (int i = 1; i < NumberOfRings + 1; i++)
 			{
                 if (RingList.Count > 1)
                 {
@@ -492,14 +489,13 @@ namespace Ship_Game
             SetSunPath(RandomMath.IntBetween(1, 6));
 
 			Name = name;
-            numberOfRings = GlobalStats.ExtraPlanets > 3 ? GlobalStats.ExtraPlanets : 3;
-            numberOfRings += RandomMath.IntBetween(0, 1) + RandomMath.IntBetween(0, 1) + RandomMath.IntBetween(0, 1);
-            if (numberOfRings > 6)
-                numberOfRings = 6;
-            RingList.Capacity = numberOfRings;
-			RingsCount = numberOfRings;
+            NumberOfRings = GlobalStats.ExtraPlanets > 3 ? GlobalStats.ExtraPlanets : 3;
+            NumberOfRings += RandomMath.IntBetween(0, 1) + RandomMath.IntBetween(0, 1) + RandomMath.IntBetween(0, 1);
+            if (NumberOfRings > 6)
+                NumberOfRings = 6;
+            RingList.Capacity = NumberOfRings;
 			StarRadius = RandomMath.IntBetween(250, 500);
-			for (int i = 1; i < numberOfRings + 1; i++)
+			for (int i = 1; i < NumberOfRings + 1; i++)
 			{
 				float ringRadius = i * (StarRadius +  RandomMath.RandomBetween(500f, 3500f) + 10000f);
 				ringRadius = ringRadius * systemScale;
