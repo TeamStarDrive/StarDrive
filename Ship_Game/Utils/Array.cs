@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
@@ -83,6 +84,17 @@ namespace Ship_Game
                     Add(e.Current);
         }
 
+        // If you KNOW what you are doing, I will allow you to access internal items for optimized looping
+        // But don't blame me if you mess something up
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T[] GetInternalArrayItems() => Items;
+
+        // Separated throw from this[] to enable MSIL inlining
+        private void ThrowIndexOutOfBounds(int index)
+        {
+            throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
+        }
+
         public T this[int index]
         {
             get
@@ -90,7 +102,7 @@ namespace Ship_Game
                 unchecked
                 {
                     if ((uint)index >= (uint)Count)
-                        throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
+                        ThrowIndexOutOfBounds(index);
                     return Items[index];
                 }
             }
@@ -99,11 +111,17 @@ namespace Ship_Game
                 unchecked
                 {
                     if ((uint)index >= (uint)Count)
-                        throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
+                        ThrowIndexOutOfBounds(index);
                     Items[index] = value;
                 }
             }
         }
+
+        // First element in the list
+        public T First => this[0];
+
+        // Last element in the list
+        public T Last  => this[Count - 1];
 
         // Get/Set the exact capacity of this Array<T>
         public int Capacity
@@ -126,27 +144,32 @@ namespace Ship_Game
         // This should be tested to measure memory usage and GC pressure
         private const bool AgressiveGrowth = false;
 
+        private void Grow(int capacity)
+        {
+            if (capacity >= 4)
+            {
+                capacity = AgressiveGrowth ? capacity * 2 : (capacity * 3) / 2;
+
+                int rem = capacity & 3; // align capacity to a multiple of 4
+                if (rem != 0) capacity += 4 - rem;
+            }
+            else capacity = 4;
+
+            var newArray = new T[capacity];
+            Array.Copy(Items, 0, newArray, 0, Items.Length);
+            Items = newArray;
+        }
+
         public void Add(T item)
         {
             unchecked
             {
                 int capacity = Items.Length;
-                if (Count == capacity) // manually inlined to improve performance (AggressiveInlining had no effect)
-                {
-                    if (capacity >= 4)
-                    {
-                        capacity = AgressiveGrowth ? capacity * 2 : (capacity * 3) / 2;
-
-                        int rem = capacity & 3; // align capacity to a multiple of 4
-                        if (rem != 0) capacity += 4 - rem;
-                    }
-                    else capacity = 4;
-
-                    var newArray = new T[capacity];
-                    Array.Copy(Items, 0, newArray, 0, Items.Length);
-                    Items = newArray;
-                }
-                Items[Count++] = item;
+                int count    = Count;
+                if (count == capacity)
+                    Grow(capacity);
+                Items[count] = item;
+                Count = count + 1;
             }
         }
 
@@ -155,24 +178,12 @@ namespace Ship_Game
             unchecked
             {
                 int capacity = Items.Length;
-                if (Count == capacity) // manually inlined to improve performance (AggressiveInlining had no effect)
-                {
-                    if (capacity >= 4)
-                    {
-                        capacity = AgressiveGrowth ? capacity * 2 : (capacity * 3) / 2;
-
-                        int rem = capacity & 3; // align capacity to a multiple of 4
-                        if (rem != 0) capacity += 4 - rem;
-                    }
-                    else capacity = 4;
-
-                    var newArray = new T[capacity];
-                    Array.Copy(Items, 0, newArray, 0, Items.Length);
-                    Items = newArray;
-                }
-                if (index < Count) Array.Copy(Items, index, Items, index + 1, Count - index);
+                int count    = Count;
+                if (count == capacity)
+                    Grow(capacity);
+                if (index < count) Array.Copy(Items, index, Items, index + 1, count - index);
                 Items[index] = item;
-                ++Count;
+                Count = count + 1;
             }
         }
 
@@ -230,7 +241,7 @@ namespace Ship_Game
             unchecked
             {
                 if ((uint)index >= (uint)Count)
-                    throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
+                    ThrowIndexOutOfBounds(index);
                 --Count;
                 if (index < Count) Array.Copy(Items, index + 1, Items, index, Count - index);
                 Items[Count] = default(T);
@@ -243,9 +254,12 @@ namespace Ship_Game
         // Get a subslice enumerator from this Array<T>
         public SubrangeEnumerator<T> SubRange(int start, int end)
         {
-            if (end > Count)
-                throw new IndexOutOfRangeException($"SubRange end [{end}] out of range({Count}) {ToString()}");
-            return new SubrangeEnumerator<T>(start, end, Items);
+            unchecked
+            {
+                if ((uint)start >= (uint)Count) ThrowIndexOutOfBounds(start);
+                if ((uint)end >= (uint)Count)   ThrowIndexOutOfBounds(end);
+                return new SubrangeEnumerator<T>(start, end, Items);
+            }
         }
 
         public override string ToString()
