@@ -276,6 +276,7 @@ namespace Ship_Game
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             playerShip.loyalty.isPlayer = true;
             ShipToView                  = playerShip;
+            DrawRoutines.Init(ScreenManager, this);
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null)
@@ -293,6 +294,8 @@ namespace Ship_Game
             PlayerEmpire.isPlayer = true;
             ShipToView            = playerShip;
             loading               = true;
+            DrawRoutines.Init(ScreenManager, this);
+        
         }
 
         public UniverseScreen(int numsys, float size) : base(null)
@@ -2576,10 +2579,11 @@ namespace Ship_Game
                 this.debugwin = new DebugInfoScreen(this.ScreenManager, this);
                 this.showdebugwindow = !this.showdebugwindow;
             }
-            if (input.CurrentKeyboardState.IsKeyDown(Keys.S) && !input.LastKeyboardState.IsKeyDown(Keys.S) && this.Debug)
             {
-                this.debugwin = new DebugInfoScreen(this.ScreenManager, this);
-                this.showdebugwindow = !this.showdebugwindow;
+                if (Debug && showdebugwindow)
+                {
+                    this.debugwin.HandleInput(input);
+                }
             }
             if (this.DefiningAO)
             {
@@ -7656,6 +7660,8 @@ namespace Ship_Game
             SelectedShipList        ?.Dispose(ref SelectedShipList);
             NotificationManager     ?.Dispose(ref NotificationManager);
             FogMapTarget            ?.Dispose(ref FogMapTarget);
+
+            DrawRoutines.Clear();
             base.Dispose(true);
         }
 
