@@ -148,72 +148,63 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            if (this.EnemyClumpsDict.Count != 0)
+            if (EnemyClumpsDict.Count != 0)
             {
-                Array<Ship> ClumpsList = new Array<Ship>();
-                foreach (KeyValuePair<Ship, Array<Ship>> entry in this.EnemyClumpsDict)
+                int i = 0;
+                var clumpsList = new Ship[EnemyClumpsDict.Count];
+                foreach (KeyValuePair<Ship, Array<Ship>> kv in EnemyClumpsDict)
+                    clumpsList[i++] = kv.Key;
+
+                Ship closest = clumpsList.FindMin(ship => System.Position.SqDist(ship.Center));
+
+                var assignedShips = new Array<Ship>();
+                foreach (Ship enemy in EnemyClumpsDict[closest])
                 {
-                    ClumpsList.Add(entry.Key);
-                }
-                IOrderedEnumerable<Ship> distanceSorted =
-                    from clumpPos in ClumpsList
-                    orderby Vector2.Distance(this.System.Position, clumpPos.Center)
-                    select clumpPos;
-                HashSet<Ship> AssignedShips = new HashSet<Ship>();
-                foreach (Ship enemy in this.EnemyClumpsDict[distanceSorted.First<Ship>()])
-                {
-                    float AssignedStr = 0f;
-                    foreach (KeyValuePair<Guid, Ship> friendly in this.ShipsDict)
+                    float assignedStr = 0f;
+                    foreach (KeyValuePair<Guid, Ship> friendly in ShipsDict)
                     {
-                        if (!friendly.Value.InCombat && friendly.Value.System==this.System)
+                        if (!friendly.Value.InCombat && friendly.Value.System == System)
                         {
-                            if (AssignedShips.Contains(friendly.Value) || AssignedStr != 0f && AssignedStr >= enemy.GetStrength() || friendly.Value.GetAI().State == AIState.Resupply)
+                            if (assignedShips.Contains(friendly.Value) || assignedStr > 0f && assignedStr >= enemy.GetStrength() || friendly.Value.GetAI().State == AIState.Resupply)
                             {
                                 continue;
                             }
                             friendly.Value.GetAI().Intercepting = true;
                             friendly.Value.GetAI().OrderAttackSpecificTarget(enemy);
-                            AssignedShips.Add(friendly.Value);
-                            AssignedStr = AssignedStr + friendly.Value.GetStrength();
+                            assignedShips.Add(friendly.Value);
+                            assignedStr = assignedStr + friendly.Value.GetStrength();
                         }
                         else
                         {
-                            if (AssignedShips.Contains(friendly.Value))
+                            if (assignedShips.Contains(friendly.Value))
                             {
                                 continue;
                             }
-                            AssignedShips.Add(friendly.Value);
+                            assignedShips.Add(friendly.Value);
                         }
                     }
                 }
-                Array<Ship> UnassignedShips = new Array<Ship>();
-                foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
+                foreach (var kv in ShipsDict)
                 {
-                    if (AssignedShips.Contains(ship.Value))
-                    {
+                    Ship ship = kv.Value;
+                    if (!assignedShips.Contains(ship))
                         continue;
-                    }
-                    UnassignedShips.Add(ship.Value);
-                }
-                foreach (Ship ship in UnassignedShips)
-                {
-                    if (ship.GetAI().State == AIState.Resupply ||ship.System!=this.System)
-                    {
+                    if (ship.GetAI().State == AIState.Resupply || ship.System != System)
                         continue;
-                    }
+
                     ship.GetAI().Intercepting = true;
-                    ship.GetAI().OrderAttackSpecificTarget(AssignedShips.First().GetAI().Target as Ship);
+                    ship.GetAI().OrderAttackSpecificTarget(assignedShips.First.GetAI().Target as Ship);
                 }
             }
             else
             {
-                foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
+                foreach (KeyValuePair<Guid, Ship> ship in ShipsDict)
                 {
                     if (ship.Value.GetAI().State == AIState.Resupply )
                     {
                         continue; 
                     }
-                    ship.Value.GetAI().OrderSystemDefense(this.System);
+                    ship.Value.GetAI().OrderSystemDefense(System);
                 }
             }
         }
@@ -221,7 +212,7 @@ namespace Ship_Game.AI
 		public float GetOurStrength()
 		{
 			float str = 0f;
-			foreach (KeyValuePair<Guid, Ship> ship in this.ShipsDict)
+			foreach (KeyValuePair<Guid, Ship> ship in ShipsDict)
 			{
 				str = str + ship.Value.BaseStrength;//.GetStrength();
 			}
@@ -230,28 +221,26 @@ namespace Ship_Game.AI
 		}
 
         public IEnumerable<Ship> GetShipList() => ShipsDict.Values;
-        public void CalculateTroopNeeds(Empire Us)
+        public void CalculateTroopNeeds(Empire us)
         {
             int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
             TroopCount = 0;
             //foreach (KeyValuePair<SolarSystem, SystemCommander> entry in DefenseDict)
             {
                 // find max number of troops for system.
-                var planets = System.PlanetList.Where(planet => planet.Owner == Us).ToArray();
+                var planets = System.PlanetList.Where(planet => planet.Owner == us).ToArray();
                 int planetCount = planets.Length;
                 int developmentlevel = planets.Sum(development => development.developmentLevel);
                 SystemDevelopmentlevel = developmentlevel;
-                int maxtroops = System.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetPotentialGroundTroops());
+                int maxtroops = System.PlanetList.Where(planet => planet.Owner == us).Sum(planet => planet.GetPotentialGroundTroops());
                 IdealTroopCount = (mintroopLevel + (int)RankImportance) * planetCount;
 
                 if (IdealTroopCount > maxtroops)
                     IdealTroopCount = maxtroops;
-                int currentTroops = System.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetDefendingTroopCount());
+                int currentTroops = System.PlanetList.Where(planet => planet.Owner == us).Sum(planet => planet.GetDefendingTroopCount());
                 TroopCount += currentTroops;
 
                 TroopStrengthNeeded = IdealTroopCount - currentTroops;
-
-                
             }
 
         }
@@ -260,19 +249,15 @@ namespace Ship_Game.AI
             var planetsHere = System.PlanetList.Where(planet => planet.Owner == Us).ToArray();
             foreach(Planet planet in  planetsHere)
             {
-                PlanetTracker currentValue = null;
-                if(!planetTracker.TryGetValue(planet, out currentValue))
+                if (!planetTracker.TryGetValue(planet, out PlanetTracker currentValue))
                 {
                     PlanetTracker newEntry = new PlanetTracker(planet);
-                    
-
                     planetTracker.Add(planet, newEntry);
                     continue;
                 }
-                if(currentValue.planet.Owner != this.Us)
+                if (currentValue.planet.Owner != Us)
                 {
                     planetTracker.Remove(currentValue.planet);
-
                 }
             }
         }
@@ -302,7 +287,7 @@ namespace Ship_Game.AI
         public Planet planet;
         public PlanetTracker(Planet toTrack)
         {
-            this.planet = toTrack;
+            planet = toTrack;
 
         }
        
