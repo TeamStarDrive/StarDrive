@@ -308,8 +308,7 @@ namespace Ship_Game.Gameplay
                 }
 				if (psource !=null && psource.weapon.EMPDamage > 0f)
 				{
-					Ship parent = this.Parent;
-					parent.EMPDamage = parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
+                    this.Parent.EMPDamage = this.Parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
 				}
 				if (this.shield_power_max > 0f && (!this.isExternal || this.quadrant <=0))
 				{
@@ -458,7 +457,6 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-
             if (source is Ship && (source as Ship).shipData.Role == ShipData.RoleName.fighter && this.Parent.loyalty.data.Traits.DodgeMod < 0f)
             {
                 damageAmount += damageAmount * Math.Abs(this.Parent.loyalty.data.Traits.DodgeMod);
@@ -466,7 +464,6 @@ namespace Ship_Game.Gameplay
             //Added by McShooterz: shields keep charge when manually turned off
             if (this.shield_power <= 0f || shieldsOff || source is Projectile && (source as Projectile).IgnoresShields)
             {
-
                 // Vulnerabilities and resistances for modules, XML-defined.
                 if (source is Projectile)
                     damageAmount = ApplyResistances((source as Projectile).weapon, damageAmount);
@@ -487,8 +484,7 @@ namespace Ship_Game.Gameplay
                 }
                 if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
                 {
-                    Ship parent = this.Parent;
-                    parent.EMPDamage = parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
+                    this.Parent.EMPDamage = this.Parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
                 }
                 if (source is Beam)
                 {
@@ -518,12 +514,9 @@ namespace Ship_Game.Gameplay
                         {
                             if (UniverseRandom.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
                             {
-                                Troop item = this.Parent.TroopList[0];
-                                item.Strength = item.Strength - 1;
+                                this.Parent.TroopList[0].Strength = this.Parent.TroopList[0].Strength - 1;
                                 if (this.Parent.TroopList[0].Strength <= 0)
-                                {
                                     this.Parent.TroopList.RemoveAt(0);
-                                }
                             }
                         }
                         else if (this.Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
@@ -540,9 +533,7 @@ namespace Ship_Game.Gameplay
                     }
                     if ((source as Beam).weapon.RepulsionDamage > 0f && !this.Parent.IsTethered() && !this.Parent.EnginesKnockedOut)
                     {
-                        Vector2 vtt = this.Center - (source as Beam).Owner.Center;
-                        Ship velocity = this.Parent;
-                        this.Parent.Velocity += (vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass;
+                        this.Parent.Velocity += ((this.Center - (source as Beam).Owner.Center) * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass;
                     }
                 }
                 if (this.shield_power_max > 0f && (!this.isExternal || this.quadrant <=0))
@@ -690,9 +681,7 @@ namespace Ship_Game.Gameplay
                         {
                             this.shield_power -= (source as Beam).weapon.SiphonDamage;
                             if (this.shield_power < 0f)
-                            {
                                 this.shield_power = 0f;
-                            }
                         }
                     }
                     else if (source is Projectile && !(source as Projectile).IgnoresShields && this.Parent.InFrustum)
@@ -772,8 +761,7 @@ namespace Ship_Game.Gameplay
 
 				if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
 				{
-					Ship parent = this.Parent;
-					parent.EMPDamage = parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
+                    this.Parent.EMPDamage = this.Parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
 				}
 				if (source is Beam)
 				{
@@ -792,8 +780,7 @@ namespace Ship_Game.Gameplay
 					}
 					if ((source as Beam).weapon.PowerDamage > 0f)
 					{
-						Ship powerCurrent = this.Parent;
-						powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - (source as Beam).weapon.PowerDamage;
+                        this.Parent.PowerCurrent = this.Parent.PowerCurrent - (source as Beam).weapon.PowerDamage;
 						if (this.Parent.PowerCurrent < 0f)
 						{
 							this.Parent.PowerCurrent = 0f;
@@ -805,8 +792,7 @@ namespace Ship_Game.Gameplay
 						{
 							if (UniverseRandom.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
 							{
-								Troop item = this.Parent.TroopList[0];
-								item.Strength = item.Strength - 1;
+                                this.Parent.TroopList[0].Strength = this.Parent.TroopList[0].Strength - 1;
 								if (this.Parent.TroopList[0].Strength <= 0)
 								{
 									this.Parent.TroopList.RemoveAt(0);
@@ -820,17 +806,14 @@ namespace Ship_Game.Gameplay
 					}
                     if ((source as Beam).weapon.MassDamage > 0f && !this.Parent.IsTethered() && !this.Parent.EnginesKnockedOut)
 					{
-						Ship mass = this.Parent;
-						mass.Mass = mass.Mass + (source as Beam).weapon.MassDamage;
+                        this.Parent.Mass = this.Parent.Mass + (source as Beam).weapon.MassDamage;
 						this.Parent.velocityMaximum = this.Parent.Thrust / this.Parent.Mass;
 						this.Parent.speed = this.Parent.velocityMaximum;
 						this.Parent.rotationRadiansPerSecond = this.Parent.speed / 700f;
 					}
 					if ((source as Beam).weapon.RepulsionDamage > 0f && !this.Parent.IsTethered() && !this.Parent.EnginesKnockedOut)
 					{
-						Vector2 vtt = this.Center - (source as Beam).Owner.Center;
-						Ship velocity = this.Parent;
-						velocity.Velocity = velocity.Velocity + ((vtt * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass);
+                        this.Parent.Velocity = this.Parent.Velocity + (((this.Center - (source as Beam).Owner.Center) * (source as Beam).weapon.RepulsionDamage) / this.Parent.Mass);
 					}
 				}
                 //Added by McShooterz: shields keep charge when manually turned off
@@ -945,8 +928,7 @@ namespace Ship_Game.Gameplay
 							{
 								this.shield_power = 0f;
 							}
-							Ship ship = (source as Beam).owner;
-							ship.PowerCurrent = ship.PowerCurrent + (source as Beam).weapon.SiphonDamage;
+                            (source as Beam).owner.PowerCurrent += (source as Beam).weapon.SiphonDamage;
 						}
 					}
 					else if (source is Projectile && !(source as Projectile).IgnoresShields && this.Parent.InFrustum)
@@ -1041,8 +1023,6 @@ namespace Ship_Game.Gameplay
                 float debriScale = size * 0.1f;
 			    SpaceJunk.SpawnJunk(debriCount, Center, inSystem, this, 1.0f, debriScale);
             }
-
-            //this.SetNewExternals();
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
@@ -1061,8 +1041,9 @@ namespace Ship_Game.Gameplay
 
 		public void Initialize(Vector2 pos)
 		{
-            DebugInfoScreen.ModulesCreated = DebugInfoScreen.ModulesCreated + 1;
-			XMLPosition = pos;
+            DebugInfoScreen.ModulesCreated++;
+            LinkedModulesList.Capacity = XSIZE * YSIZE;
+            XMLPosition = pos;
 			Radius = 8f;
 			Position = pos;
 			Dimensions = new Vector2(16f, 16f);
@@ -1084,16 +1065,9 @@ namespace Ship_Game.Gameplay
                 HealthMax = test + test * Parent.loyalty.data.Traits.ModHpModifier;
                 Health = HealthMax;     //Gretman (Health bug fix)
 			}
-			if (!isDummy && (installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
-			{
-				byte ysize = YSIZE;
-				byte xsize = XSIZE;
-				XSIZE = ysize;
-				YSIZE = xsize;
-			}
 			if (XSIZE > 1)
 			{
-				for (int xs = XSIZE; xs > 1; xs--)
+                for (int xs = XSIZE; xs > 1; xs--)
 				{
 					ShipModule dummy = new ShipModule()
 					{
@@ -1200,30 +1174,12 @@ namespace Ship_Game.Gameplay
             this.moduleCenter.Y = base.Position.Y + 256f;
             this.distanceToParentCenter = (float)Math.Sqrt((double)((this.moduleCenter.X - RelativeShipCenter.X) * (this.moduleCenter.X - RelativeShipCenter.X) + (this.moduleCenter.Y - RelativeShipCenter.Y) * (this.moduleCenter.Y - RelativeShipCenter.Y)));
             float scaleFactor = 1f;
-            //ShipModule shipModule = this;
             this.distanceToParentCenter = this.distanceToParentCenter * scaleFactor;
             this.offsetAngle = RelativeShipCenter.AngleToTarget(moduleCenter);
-            //this.offsetAngleRadians = MathHelper.ToRadians(this.offsetAngle);
             this.SetInitialPosition();
             this.SetAttributesByType();
-            //if (this.Parent != null && this.Parent.loyalty != null)
-            //{
-            //    //bool flag = false;
-            //    //if (this.HealthMax == base.Health)
-            //    //    flag = true;
-            //    this.HealthMax = this.HealthMax + this.HealthMax * this.Parent.loyalty.data.Traits.ModHpModifier;
-            //    base.Health = base.Health + base.Health * this.Parent.loyalty.data.Traits.ModHpModifier;
-            //    this.Health = base.Health;
-            //    //if (flag)
-            //    //    this.Health = this.HealthMax;
-            //}
-            if (!this.isDummy && (this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Left || this.installedSlot.state == ShipDesignScreen.ActiveModuleState.Right))
-            {
-                byte xsize = this.YSIZE;
-                byte ysize = this.XSIZE;
-                this.XSIZE = xsize;
-                this.YSIZE = ysize;
-            }
+            LinkedModulesList.Capacity = XSIZE * YSIZE;
+
             if (this.XSIZE > 1)
             {
                 for (int xs = this.XSIZE; xs > 1; xs--)
@@ -1346,10 +1302,6 @@ namespace Ship_Game.Gameplay
                     this.installedSlot.HangarshipGuid = this.hangarShip.guid;
                     this.hangarTimer = this.hangarTimerConstant;
                     this.Parent.Ordinance -= this.hangarShip.Mass / 5f;
-                    //if (this.Parent.GetAI().Target != null && this.Parent.GetAI().Target is Ship && (this.Parent.GetAI().Target as Ship).loyalty != this.Parent.loyalty)
-                    //{
-                    //    this.hangarShip.GetAI().OrderTroopToBoardShip(this.Parent.GetAI().Target as Ship);
-                    //}
                 }
             }
         }
@@ -1397,17 +1349,9 @@ namespace Ship_Game.Gameplay
                         continue;
                     }
                     Ship tempship =ResourceManager.ShipsDict[shipsWeCanBuild];
-                    //fighters.Add(ResourceManager.ShipsDict[shipsWeCanBuild]);
-
-                    //if (temphangarship == null)
-                    //{
-                    //    temphangarship = tempship;
-                    //    continue;
-                    //}
                     if(temphangarship.BaseStrength  < tempship.BaseStrength || temphangarship.Size < tempship .Size)
                         temphangarship = tempship;
                 }
-                //temphangarship = fighters.OrderByDescending(fighter => fighter.BaseStrength).FirstOrDefault();
                 this.hangarShipUID = temphangarship.Name;
                 hangarship = this.hangarShipUID;
             }
@@ -1442,30 +1386,15 @@ namespace Ship_Game.Gameplay
             switch (this.ModuleType)
             {
                 case ShipModuleType.Turret:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
+                    ConfigWeapon(true);
                     this.InstalledWeapon.isTurret = true;
-                    this.Parent.Weapons.Add(this.InstalledWeapon);
                     break;
                 case ShipModuleType.MainGun:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
+                    ConfigWeapon(true);
                     this.InstalledWeapon.isMainGun = true;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
-                    this.Parent.Weapons.Add(this.InstalledWeapon);
                     break;
                 case ShipModuleType.MissileLauncher:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
-                    this.Parent.Weapons.Add(this.InstalledWeapon);
+                    ConfigWeapon(true);
                     break;
                 case ShipModuleType.Colony:
                     this.Parent.isColonyShip = true;
@@ -1474,35 +1403,18 @@ namespace Ship_Game.Gameplay
                     this.Parent.BombBays.Add(this);
                     break;
                 case ShipModuleType.Drone:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
-                    this.Parent.Weapons.Add(this.InstalledWeapon);
+                    ConfigWeapon(true);
                     break;
                 case ShipModuleType.Spacebomb:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
-                    this.Parent.Weapons.Add(this.InstalledWeapon);
+                    ConfigWeapon(true);
                     break;
-                //case ShipModuleType.Command:
-                //    this.TargetTracking = Convert.ToSByte((this.XSIZE*this.YSIZE) / 3);
-                //    break;
             }
             this.Health = this.HealthMax;
             if (this.isDummy) return;
             if (this.shield_power_max > 0.0)
-            {
                 shield = ShieldManager.AddShield(this, Rotation, Center);
-            }
             if (this.IsSupplyBay)
-            {
                 this.Parent.IsSupplyShip = true;
-            }
         }
 
         public void SetAttributesNoParent()
@@ -1510,47 +1422,35 @@ namespace Ship_Game.Gameplay
             switch (this.ModuleType)
             {
                 case ShipModuleType.Turret:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
+                    ConfigWeapon(false);
                     this.InstalledWeapon.isTurret = true;
                     break;
                 case ShipModuleType.MainGun:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
+                    ConfigWeapon(false);
                     this.InstalledWeapon.isMainGun = true;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
                     break;
                 case ShipModuleType.MissileLauncher:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
+                    ConfigWeapon(false);
                     break;
                 case ShipModuleType.Drone:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
+                    ConfigWeapon(false);
                     break;
                 case ShipModuleType.Spacebomb:
-                    this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
-                    this.InstalledWeapon.moduleAttachedTo = this;
-                    this.InstalledWeapon.Owner = Parent;
-                    this.InstalledWeapon.Center = this.Center;
-                    this.isWeapon = true;
+                    ConfigWeapon(false);
                     break;
-                //case ShipModuleType.Command:
-                //    this.TargetTracking =  //   Convert.ToSByte((this.XSIZE * this.YSIZE) / 3);
-                //    break;
             }
             Health = HealthMax;
+        }
+
+        private void ConfigWeapon(bool addToParent)
+        {
+            this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
+            this.InstalledWeapon.moduleAttachedTo = this;
+            this.InstalledWeapon.Owner = Parent;
+            this.InstalledWeapon.Center = this.Center;
+            this.isWeapon = true;
+            if (addToParent)
+                this.Parent.Weapons.Add(this.InstalledWeapon);
         }
 
 		public void SetHangarShip(Ship ship)
