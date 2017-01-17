@@ -120,6 +120,22 @@ namespace Ship_Game
             }
         }
 
+        private void Grow(int capacity)
+        {
+            if (capacity >= 4)
+            {
+                capacity = AgressiveGrowth ? capacity * 2 : (capacity * 3) / 2;
+
+                int rem = capacity % 4; // align capacity to a multiple of 4
+                if (rem != 0) capacity += 4 - rem;
+            }
+            else capacity = 4;
+
+            var newArray = new T[capacity];
+            Array.Copy(Items, 0, newArray, 0, Items.Length);
+            Items = newArray;
+        }
+
         // If TRUE, Array<T> will grow by 2.0x during Add/Insert
         // else, growth is 1.5x
         // 1.5x may use less memory, but can potentially cause more reallocations
@@ -133,18 +149,7 @@ namespace Ship_Game
                 int capacity = Items.Length;
                 if (Count == capacity) // manually inlined to improve performance
                 {
-                    if (capacity >= 4)
-                    {
-                        capacity = AgressiveGrowth ? capacity*2 : (capacity * 3) / 2;
-
-                        int rem = capacity % 4; // align capacity to a multiple of 4
-                        if (rem != 0) capacity += 4 - rem;
-                    }
-                    else capacity = 4;
-
-                    var newArray = new T[capacity];
-                    Array.Copy(Items, 0, newArray, 0, Items.Length);
-                    Items = newArray;
+                    Grow(capacity);
                 }
                 Items[Count++] = item;
             }
@@ -157,18 +162,7 @@ namespace Ship_Game
                 int capacity = Items.Length;
                 if (Count == capacity) // manually inlined to improve performance
                 {
-                    if (capacity >= 4)
-                    {
-                        capacity = AgressiveGrowth ? capacity * 2 : (capacity * 3) / 2;
-
-                        int rem = capacity % 4; // align capacity to a multiple of 4
-                        if (rem != 0) capacity += 4 - rem;
-                    }
-                    else capacity = 4;
-
-                    var newArray = new T[capacity];
-                    Array.Copy(Items, 0, newArray, 0, Items.Length);
-                    Items = newArray;
+                    Grow(capacity);
                 }
                 if (index < Count) Array.Copy(Items, index, Items, index + 1, Count - index);
                 Items[index] = item;
