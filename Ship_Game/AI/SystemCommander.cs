@@ -99,6 +99,7 @@ namespace Ship_Game.AI
         }
         private void Clear()
         {
+            if (ShipsDict == null) return;
             foreach (Ship ship in ShipsDict.Values)
                 ship.GetAI().SystemToDefend = null;
             ShipsDict.Clear();
