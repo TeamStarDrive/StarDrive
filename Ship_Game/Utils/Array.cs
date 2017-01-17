@@ -240,10 +240,11 @@ namespace Ship_Game
         {
             unchecked
             {
-                if ((uint)index >= (uint)Count)
+                int count = Count;
+                if ((uint)index >= (uint)count)
                     ThrowIndexOutOfBounds(index);
-                --Count;
-                if (index < Count) Array.Copy(Items, index + 1, Items, index, Count - index);
+                Count = --count;
+                if (index < count) Array.Copy(Items, index + 1, Items, index, count - index);
                 Items[Count] = default(T);
             }
         }
@@ -256,8 +257,9 @@ namespace Ship_Game
         {
             unchecked
             {
-                if ((uint)start >= (uint)Count) ThrowIndexOutOfBounds(start);
-                if ((uint)end >= (uint)Count)   ThrowIndexOutOfBounds(end);
+                int count = Count;
+                if ((uint)start >= (uint)count) ThrowIndexOutOfBounds(start);
+                if ((uint)end >= (uint)count)   ThrowIndexOutOfBounds(end);
                 return new SubrangeEnumerator<T>(start, end, Items);
             }
         }
