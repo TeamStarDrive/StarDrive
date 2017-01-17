@@ -385,10 +385,11 @@ namespace Ship_Game.AI
         private void Destroy()
         {
             DefensiveForcePool?.Dispose(ref DefensiveForcePool);
-            foreach (var kv in DefenseDict)
-            {
-                kv.Value?.Dispose();
-            }
+            if (DefenseDict != null)
+                foreach (var kv in DefenseDict)
+                {
+                    kv.Value?.Dispose();
+                }
             DefenseDict = null;
         }
     }
