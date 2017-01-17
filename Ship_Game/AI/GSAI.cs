@@ -8062,6 +8062,7 @@ namespace Ship_Game.AI
 
 					    return;
 
+#if false // All of this was disabled by Crunchy gremlin:
                         //changed by gremlin exclude module tech that we dont have any ships that use it.
                         ConcurrentBag<Technology> AvailableTechs = new ConcurrentBag<Technology>();
 						//foreach (KeyValuePair<string, Ship_Game.Technology> Technology in ResourceManager.TechTree)
@@ -8159,7 +8160,8 @@ namespace Ship_Game.AI
                         if (string.IsNullOrEmpty(this.empire.ResearchTopic))
                             this.empire.ResearchTopic = AvailableTechs.OrderBy(tech => tech.Cost).First().UID;
                         break;
-					}
+#endif
+                        }
                     //case GSAI.ResearchStrategy.Scripted:
                     default:
                     {

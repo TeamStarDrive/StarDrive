@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using NUnit.Framework;
 using Ship_Game;
 
@@ -44,6 +45,16 @@ namespace SDUnitTests
             arr = new Array<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
             arr.RemoveAll(x => x % 2 == 1);
             Assert.AreEqual(4, arr.Count, "RemoveAll odd should remove half the elements");
+        }
+
+        [Test]
+        public void TestDecompiledOutput()
+        {
+            var arr = new Array<int>();
+
+            arr.Add(1337);
+
+            Assert.AreEqual(1337, arr[0]);
         }
     }
 }
