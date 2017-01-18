@@ -23,7 +23,7 @@ namespace Ship_Game
             Screen = null;
             ScreenManager = null;
         }
-        public static Circle DrawSelectionCircles(Vector2 worldPos, float worldRadius)
+        public static Circle ProjectCircleWorldToScreen(Vector2 worldPos, float worldRadius)
         {
             float radius = worldRadius;
             Vector3 project = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(worldPos, 0.0f), Screen.projection, Screen.view, Matrix.Identity);

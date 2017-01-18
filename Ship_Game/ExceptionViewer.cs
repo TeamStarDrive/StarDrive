@@ -27,7 +27,7 @@ namespace Ship_Game
                 tbError.Select(0, 0);
             }
         }
-
+        [STAThread]
         private void btClip_Click(object sender, EventArgs e)
         {
             string all = tbError.Text + "\n\nUser Comment: " + tbComment.Text;

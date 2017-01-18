@@ -230,11 +230,10 @@ namespace Ship_Game.AI
 		}
 
         public IEnumerable<Ship> GetShipList() => ShipsDict.Values;
-        public void CalculateTroopNeeds(Empire Us)
+        public void CalculateTroopNeeds()
         {
             int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
             TroopCount = 0;
-            //foreach (KeyValuePair<SolarSystem, SystemCommander> entry in DefenseDict)
             {
                 // find max number of troops for system.
                 var planets = System.PlanetList.Where(planet => planet.Owner == Us).ToArray();
@@ -254,6 +253,22 @@ namespace Ship_Game.AI
                 
             }
 
+        }
+        public void CalculateShipneeds()
+        {
+            float predicted = Us.GetGSAI().ThreatMatrix.PingRadarStr(System.Position, 150000 * 2, Us);
+            int min = (int)(Math.Pow(ValueToUs, 3) * RankImportance);
+            foreach (var system in System.FiveClosestSystems)
+            {
+             predicted += Us.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 150000 * 2, Us);
+            }
+            if (predicted <= 0f) IdealShipStrength = min;
+            else
+            {
+                IdealShipStrength = (int)(predicted * RankImportance / 10);
+                
+                IdealShipStrength += min;
+            }
         }
         public void UpdatePlanetTracker()
         {
