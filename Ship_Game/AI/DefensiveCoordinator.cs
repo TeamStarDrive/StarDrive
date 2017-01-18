@@ -161,6 +161,8 @@ namespace Ship_Game.AI
             {
                 kv.Value.RankImportance = (int)(10 * (kv.Value.RankImportance / ranker));
                 TotalValue += (int)kv.Value.ValueToUs;
+                kv.Value.CalculateShipneeds();
+                kv.Value.CalculateTroopNeeds();
             }
         }
         private void ManageShips()
@@ -169,19 +171,8 @@ namespace Ship_Game.AI
             int strToAssign = (int)GetForcePoolStrength();
             float startingStr = strToAssign;
             foreach (var kv in sComs)
-            {
-                SolarSystem solarSystem = kv.Key;
-                {
-                    int predicted = solarSystem.GetPredictedEnemyPresence(120f, Us);
-                    if (predicted <= 0f) kv.Value.IdealShipStrength = 0;
-                    else
-                    {
-                        kv.Value.IdealShipStrength = (int)(predicted * kv.Value.RankImportance / 10);
-                        int min = (int)(Math.Pow(kv.Value.ValueToUs, 3) * kv.Value.RankImportance);
-                        kv.Value.IdealShipStrength += min;
-                        strToAssign -= kv.Value.IdealShipStrength;
-                    }
-                }
+            {                
+                strToAssign -= kv.Value.IdealShipStrength;                
             }
             DefenseDeficit = strToAssign * -1;
             if (strToAssign < 0f) strToAssign = 0;
@@ -285,7 +276,7 @@ namespace Ship_Game.AI
             foreach (var kv in DefenseDict)
             {
                 // find max number of troops for system.
-                kv.Value.CalculateTroopNeeds(Us);
+                
                 int currentTroops = kv.Value.TroopCount;
                 for (int i = 0; i < troopShips.Count; i++)
                 {

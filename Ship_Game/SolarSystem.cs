@@ -776,7 +776,7 @@ namespace Ship_Game
         public int GetPredictedEnemyPresence(float time, Empire us)
         {
              
-            float prediction =us.GetGSAI().ThreatMatrix.PingRadarStr(Position, RingList[RingList.Count - 1].Distance *2,us);
+            float prediction =us.GetGSAI().ThreatMatrix.PingRadarStr(Position, 150000 *2,us);
             return (int)prediction;
 
         }
