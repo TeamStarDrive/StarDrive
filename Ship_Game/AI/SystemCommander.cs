@@ -227,16 +227,16 @@ namespace Ship_Game.AI
             TroopCount = 0;
             {
                 // find max number of troops for system.
-                var planets = System.PlanetList.Where(planet => planet.Owner == us).ToArray();
+                var planets = System.PlanetList.Where(planet => planet.Owner == Us).ToArray();
                 int planetCount = planets.Length;
                 int developmentlevel = planets.Sum(development => development.developmentLevel);
                 SystemDevelopmentlevel = developmentlevel;
-                int maxtroops = System.PlanetList.Where(planet => planet.Owner == us).Sum(planet => planet.GetPotentialGroundTroops());
+                int maxtroops = System.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetPotentialGroundTroops());
                 IdealTroopCount = (mintroopLevel + (int)RankImportance) * planetCount;
 
                 if (IdealTroopCount > maxtroops)
                     IdealTroopCount = maxtroops;
-                int currentTroops = System.PlanetList.Where(planet => planet.Owner == us).Sum(planet => planet.GetDefendingTroopCount());
+                int currentTroops = System.PlanetList.Where(planet => planet.Owner == Us).Sum(planet => planet.GetDefendingTroopCount());
                 TroopCount += currentTroops;
 
                 TroopStrengthNeeded = IdealTroopCount - currentTroops;
