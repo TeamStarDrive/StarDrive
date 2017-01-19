@@ -14,15 +14,16 @@ namespace Ship_Game.AI
 		public int IdealTroopCount;
 		public float TroopStrengthNeeded;
 		public int IdealShipStrength;
-        public bool IsEnoughStrength => GetOurStrength() >= IdealShipStrength;
+        public bool IsEnoughShipStrength => GetOurStrength() >= IdealShipStrength;
+        public bool IsEnoughTroopStrength => IdealTroopCount >= TroopCount;
         public float PercentageOfValue;
         public float SystemDevelopmentlevel;
         public float RankImportance;
         public int TroopCount = 0;
         public int TroopsWanted => IdealTroopCount - TroopCount;
-		public ConcurrentDictionary<Guid, Ship> ShipsDict = new ConcurrentDictionary<Guid, Ship>();
+		public Map<Guid, Ship> ShipsDict = new Map<Guid, Ship>();
 		public Map<Ship, Array<Ship>> EnemyClumpsDict = new Map<Ship, Array<Ship>>();
-		private Empire Us;
+		private readonly Empire Us;
         public Map<Planet, PlanetTracker> planetTracker = new Map<Planet, PlanetTracker>();
 
 		public SystemCommander(Empire e, SolarSystem system)
@@ -30,9 +31,8 @@ namespace Ship_Game.AI
 			System = system;
 			Us = e;
 		}
-        public float UpdateSystemValue(Empire owner)
-        {
-            Empire Us = owner;
+        public float UpdateSystemValue()
+        {            
             ValueToUs = 0f;
             IdealShipStrength = 0;
             PercentageOfValue = 0f;
@@ -93,7 +93,7 @@ namespace Ship_Game.AI
         public bool RemoveShip(Ship shipToRemove)
         {
             shipToRemove.GetAI().SystemToDefend = null;                        
-            if (ShipsDict.TryRemove(shipToRemove.guid, out Ship ship))
+            if (ShipsDict.Remove(shipToRemove.guid))
                 return true;            
             return false;
         }
@@ -114,10 +114,10 @@ namespace Ship_Game.AI
         public void AssignTargets()
         {
             EnemyClumpsDict.Clear();
-            HashSet<Ship> ShipsAlreadyConsidered = new HashSet<Ship>();
-            foreach (KeyValuePair<Guid, Ship> entry in ShipsDict)
+            HashSet<Ship> shipsAlreadyConsidered = new HashSet<Ship>();
+            foreach (var kv in ShipsDict)
             {
-                Ship ship = entry.Value;
+                Ship ship = kv.Value;
                 
                 if (ship == null || ship.GetAI().BadGuysNear 
                     || ship.GetAI().SystemToDefend == System)                
@@ -131,20 +131,21 @@ namespace Ship_Game.AI
             for (int i = 0; i < System.ShipList.Count; i++)
             {
                 Ship ship = System.ShipList[i];
-                if (ship != null && ship.loyalty != Us && (ship.loyalty.isFaction 
-                    || Us.GetRelations(ship.loyalty).AtWar) && !ShipsAlreadyConsidered.Contains(ship) 
+                if (ship != null && Us.IsEmpireAttackable(ship.loyalty,ship)
+                    &&!shipsAlreadyConsidered.Contains(ship) 
                     && !EnemyClumpsDict.ContainsKey(ship))
                 {
                     EnemyClumpsDict.Add(ship, new Array<Ship>());
                     EnemyClumpsDict[ship].Add(ship);
-                    ShipsAlreadyConsidered.Add(ship);
+                    shipsAlreadyConsidered.Add(ship);
                     for (int j = 0; j < System.ShipList.Count; j++)
                     {
                         Ship otherShip = System.ShipList[j];
-                        if (otherShip.loyalty != Us && otherShip.loyalty == ship.loyalty && Vector2.Distance(ship.Center, otherShip.Center) < 15000f && !ShipsAlreadyConsidered.Contains(otherShip))
+                        if (otherShip.loyalty != Us && otherShip.loyalty == ship.loyalty 
+                            && ship.Center.InRadius(otherShip.Center, 15000f )
+                            && !shipsAlreadyConsidered.Contains(otherShip))
                         
-                            EnemyClumpsDict[ship].Add(otherShip);
-                        
+                            EnemyClumpsDict[ship].Add(otherShip);                        
                     }
                 }
             }
@@ -161,26 +162,26 @@ namespace Ship_Game.AI
                 foreach (Ship enemy in EnemyClumpsDict[closest])
                 {
                     float assignedStr = 0f;
-                    foreach (KeyValuePair<Guid, Ship> friendly in ShipsDict)
+                    foreach (var kv in ShipsDict)
                     {
-                        if (!friendly.Value.InCombat && friendly.Value.System == System)
+                        if (!kv.Value.InCombat && kv.Value.System == System)
                         {
-                            if (assignedShips.Contains(friendly.Value) || assignedStr > 0f && assignedStr >= enemy.GetStrength() || friendly.Value.GetAI().State == AIState.Resupply)
+                            if (assignedShips.Contains(kv.Value) || assignedStr > 0f && assignedStr >= enemy.GetStrength() || kv.Value.GetAI().State == AIState.Resupply)
                             {
                                 continue;
                             }
-                            friendly.Value.GetAI().Intercepting = true;
-                            friendly.Value.GetAI().OrderAttackSpecificTarget(enemy);
-                            assignedShips.Add(friendly.Value);
-                            assignedStr = assignedStr + friendly.Value.GetStrength();
+                            kv.Value.GetAI().Intercepting = true;
+                            kv.Value.GetAI().OrderAttackSpecificTarget(enemy);
+                            assignedShips.Add(kv.Value);
+                            assignedStr = assignedStr + kv.Value.GetStrength();
                         }
                         else
                         {
-                            if (assignedShips.Contains(friendly.Value))
+                            if (assignedShips.Contains(kv.Value))
                             {
                                 continue;
                             }
-                            assignedShips.Add(friendly.Value);
+                            assignedShips.Add(kv.Value);
                         }
                     }
                 }
@@ -198,13 +199,11 @@ namespace Ship_Game.AI
             }
             else
             {
-                foreach (KeyValuePair<Guid, Ship> ship in ShipsDict)
+                foreach (var kv in ShipsDict)
                 {
-                    if (ship.Value.GetAI().State == AIState.Resupply )
-                    {
-                        continue; 
-                    }
-                    ship.Value.GetAI().OrderSystemDefense(System);
+                    if (kv.Value.GetAI().State == AIState.Resupply ) continue;
+   
+                    kv.Value.GetAI().OrderSystemDefense(System);
                 }
             }
         }
@@ -212,10 +211,8 @@ namespace Ship_Game.AI
 		public float GetOurStrength()
 		{
 			float str = 0f;
-			foreach (KeyValuePair<Guid, Ship> ship in ShipsDict)
-			{
-				str = str + ship.Value.BaseStrength;//.GetStrength();
-			}
+            foreach (var kv in ShipsDict)
+                str = str + kv.Value.GetStrength();
             
 			return str;
 		}
@@ -249,7 +246,7 @@ namespace Ship_Game.AI
             int min = (int)(Math.Pow(ValueToUs, 3) * RankImportance);
             foreach (var system in System.FiveClosestSystems)
             {
-             predicted += Us.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 150000 * 2, Us);
+                predicted += Us.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 150000 * 2, Us);
             }
             if (predicted <= 0f) IdealShipStrength = min;
             else

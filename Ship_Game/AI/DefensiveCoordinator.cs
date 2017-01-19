@@ -189,7 +189,7 @@ namespace Ship_Game.AI
             //Remove excess force:
             foreach (var kv in DefenseDict)
             {
-                if (!kv.Value.IsEnoughStrength) continue;
+                if (!kv.Value.IsEnoughShipStrength) continue;
 
                 Ship[] ships = kv.Value.GetShipList().ToArray();
                 Array.Sort(ships, (x, y) => x.GetStrength().CompareTo(y.GetStrength()));
@@ -198,7 +198,7 @@ namespace Ship_Game.AI
                     kv.Value.RemoveShip(current);
                     shipsAvailableForAssignment.Add(current);
 
-                    if (!kv.Value.IsEnoughStrength)
+                    if (!kv.Value.IsEnoughShipStrength)
                         break;
                 }
             }
@@ -239,7 +239,7 @@ namespace Ship_Game.AI
                         }
 
                         if (assignedShips.ContainsKey(ship.guid)) continue;
-                        if (startingStr <= 0f || kv.Value.IsEnoughStrength) break;
+                        if (startingStr <= 0f || kv.Value.IsEnoughShipStrength) break;
 
                         assignedShips.Add(ship.guid, ship);
                         if (kv.Value.ShipsDict.ContainsKey(ship.guid)) continue;
