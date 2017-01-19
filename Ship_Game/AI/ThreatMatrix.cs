@@ -124,7 +124,7 @@ namespace Ship_Game.AI
                 ship = pin.Value.Ship;
                 if (ship == null)
                     continue;                
-                if (!empire.TryGetRelations(ship.loyalty, out rel) ||  ship.loyalty != empire
+                if (!empire.IsEmpireAttackable(ship.loyalty) .TryGetRelations(ship.loyalty, out rel) ||  ship.loyalty != empire
                              && (ship.loyalty.isFaction || rel.AtWar)
                              || (pin.Value.InBorders && !rel.Treaty_OpenBorders)
                              || (ship.isColonyShip && 
@@ -147,7 +147,7 @@ namespace Ship_Game.AI
                 if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
                     continue;
               
-                        Array<Ship> cluster = PingRadarShip(ship.Center, granularity,empire);
+                        Ship[] cluster = PingRadarShip(ship.Center, granularity,empire);
                 if (cluster.Count == 0)
                     continue;
                 retList.Add(ship.Center, cluster);                
@@ -435,7 +435,8 @@ namespace Ship_Game.AI
 
         public bool ShipInOurBorders(Ship s)
         {
-            return Pins.Keys.Contains(s.guid) || Pins[s.guid].InBorders;
+            if (!Pins.TryGetValue(s.guid ,out Pin pin)) return false;
+            return pin.InBorders;
         }
         public Array<Ship> FindShipsInOurBorders()
         {
