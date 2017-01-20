@@ -98,12 +98,15 @@
     <ClInclude Include="rapidxml\rapidxml_print.hpp" />
     <ClInclude Include="rapidxml\rapidxml_utils.hpp" />
     <ClInclude Include="ShipDataSerializer.h" />
+    <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="util\file_io.h" />
     <ClInclude Include="util\strview.h" />
     <ClInclude Include="node_parser.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="MemoryUtils.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
+    <ClCompile Include="util\apex_memmove.cpp" />
     <ClCompile Include="util\file_io.cpp" />
     <ClCompile Include="util\strview.cpp" />
   </ItemGroup>

@@ -7,6 +7,15 @@ using System.Runtime.CompilerServices;
 namespace Ship_Game
 {
     /// <summary>
+    /// The empty object pattern. Provides safe to use immutable empty objects
+    /// </summary>
+    public static class Empty<T>
+    {
+        /// <summary>This is safe to reference everywhere, because an empty array is fully immutable</summary>
+        public static readonly T[] Array = new T[0];
+    }
+
+    /// <summary>
     /// This is a custom version of List, to make debugging easier
     /// and optimize for game relate performance requirements
     /// </summary>
@@ -15,7 +24,7 @@ namespace Ship_Game
     [Serializable]
     public class Array<T> : IList<T>, IReadOnlyList<T>
     {
-        protected static readonly T[] Empty = new T[0];
+        protected static readonly int SizeOf = typeof(T).SizeOfRef();
         protected T[] Items;
         public int Count { get; protected set; }
 
@@ -25,64 +34,107 @@ namespace Ship_Game
 
         public Array()
         {
-            Items = Empty;
+            Items = Empty<T>.Array;
         }
-
         public Array(int capacity)
         {
             Items = new T[capacity];
         }
-
+        /// <summary> Fastest method to copying an ArrayT.</summary>
+        public Array(Array<T> list)
+        {
+            Items = Empty<T>.Array;
+            if ((Count = list.Count) > 0)
+                list.CopyTo(Items = new T[Count], 0);
+        }
+        /// <summary>Array capacity is reserved exactly, CopyTo is used so the speed will vary
+        /// on the container implementation. ArrayT CopyTo uses an extremly fast internal C++ copy routine
+        /// which is the best case scenario. Lists that use Array.Copy() are about 2 times slower.</summary>
+        public Array(ICollection<T> collection)
+        {
+            Items = Empty<T>.Array;
+            if ((Count = collection.Count) > 0)
+                collection.CopyTo(Items = new T[Count], 0);
+        }
+        /// <summary>Array capacity is reserved exactly, CopyTo is used if list is ICollection and indexing operator is used for element access (kinda slow, but ok)</summary>
         public Array(IReadOnlyList<T> list)
         {
             unchecked
             {
+                Items = Empty<T>.Array;
                 int count = list.Count;
-                Count = count;
-                Items = new T[count];
-                for (int i = 0; i < count; ++i)
-                    Items[i] = list[i];
-            }
-        }
-
-        public Array(Array<T> list)
-        {
-            unchecked
-            {
-                int count = list.Count;
-                Count = count;
-                Items = new T[count];
-                for (int i = 0; i < count; ++i)
-                    Items[i] = list[i];
-            }
-        }
-
-        public Array(ICollection<T> collection)
-        {
-            unchecked
-            {
-                int count = collection.Count;
-                Count = count;
-                Items = new T[count];
-
-                using (var e = collection.GetEnumerator())
+                if ((Count = count) > 0)
                 {
-                    for (int i = 0; i < count; ++i)
-                    {
-                        e.MoveNext();
-                        Items[i] = e.Current;
+                    Items = new T[count];
+                    if (list is ICollection<T> c)
+                        c.CopyTo(Items, 0);
+                    else for (int i = 0; i < count; ++i)
+                        Items[i] = list[i];
+                }
+            }
+        }
+        /// <summary>Array capacity is reserved exactly, but dynamic enumeration is used if collection is not an ICollection (very slow)</summary>
+        public Array(IReadOnlyCollection<T> collection)
+        {
+            unchecked
+            {
+                Items = Empty<T>.Array;
+                int count = collection.Count;
+                if ((Count = count) > 0)
+                {
+                    Items = new T[count];
+                    if (collection is ICollection<T> c)
+                        c.CopyTo(Items, 0);
+                    else using (var e = collection.GetEnumerator())
+                        for (int i = 0; i < count && e.MoveNext(); ++i)
+                            Items[i] = e.Current;
+                }
+            }
+        }
+        /// <summary>The slowest way to construct an new ArrayT.
+        /// This will check for multiple subtypes to try and optimize creation, dynamic enumeration would be too slow
+        /// Going from fastest implementations to the slowest:
+        /// ICollection, IReadOnlyList, IReadOnlyCollection, IEnumerable
+        /// If </summary>
+        public Array(IEnumerable<T> sequence)
+        {
+            unchecked
+            {
+                Items = Empty<T>.Array;
+                if (sequence is ICollection<T> c) // might also call this.CopyTo(), best case scenario
+                {
+                    if ((Count = c.Count) > 0)
+                        c.CopyTo(Items = new T[Count], 0);
+                }
+                else if (sequence is IReadOnlyList<T> rl)
+                {
+                    int count = rl.Count;
+                    if ((Count = count) > 0) {
+                        Items = new T[count];
+                        for (int i = 0; i < count; ++i)
+                            Items[i] = rl[i];
                     }
+                }
+                else if (sequence is IReadOnlyCollection<T> rc)
+                {
+                    int count = rc.Count;
+                    if ((Count = count) > 0) {
+                        Items = new T[count];
+                        using (var e = rc.GetEnumerator())
+                            for (int i = 0; i < count && e.MoveNext(); ++i)
+                                Items[i] = e.Current;
+                    }
+                }
+                else // fall back to epicly slow enumeration
+                {
+                    using (var e = sequence.GetEnumerator())
+                        while (e.MoveNext()) Add(e.Current);
                 }
             }
         }
 
-        public Array(IEnumerable<T> sequence)
-        {
-            Items = Empty;
-            using (var e = sequence.GetEnumerator())
-                while (e.MoveNext())
-                    Add(e.Current);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Array<T> Clone() => new Array<T>(this);
 
         // If you KNOW what you are doing, I will allow you to access internal items for optimized looping
         // But don't blame me if you mess something up
@@ -220,6 +272,12 @@ namespace Ship_Game
 
         public void CopyTo(T[] array, int arrayIndex = 0)
         {
+            //if (arrayIndex == 0)
+            //    Memory.CopyBytes(array, Items, Count * SizeOf);
+            //else
+            //    Memory.CopyBytes(array, arrayIndex, Items, Count, SizeOf);
+
+            // if we get crashes, we should fall back to this implementation:
             Array.Copy(Items, 0, array, arrayIndex, Count);
         }
 
@@ -430,8 +488,18 @@ namespace Ship_Game
         public T[] ToArray()
         {
             var arr = new T[Count];
-            Array.Copy(Items, arr, Count);
+            CopyTo(arr);
+
+            // if we get errors with this, restore to Array.Copy
+            //Memory.CopyBytes(arr, Items, arr.Length * SizeOf);
+            //Array.Copy(Items, arr, Count);
             return arr;
+        }
+
+        // So you accidentally called ToArrayList() which is an Array<T> as well, are you trying to clone the Array<T> ?
+        public Array<T> ToArrayList()
+        {
+            throw new InvalidOperationException("You are trying to convert Array<T> to Array<T>. Are you trying to Clone() the Array<T>?");
         }
     }
 

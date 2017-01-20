@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Ship_Game;
 
@@ -48,13 +48,86 @@ namespace SDUnitTests
         }
 
         [Test]
-        public void TestDecompiledOutput()
+        public void TestToArrayList()
         {
-            var arr = new Array<int>();
+            var arr = new[] { "a", "b", "c" };
+            Array<string> arr1 = new Array<string>();
+            arr1.AddRange(arr);
+            Assert.AreEqual(arr, arr1);
+            Assert.Throws<InvalidOperationException>(() => arr1.ToArrayList());
 
-            arr.Add(1337);
+            var arr2 = ((ICollection<string>)arr1).ToArrayList();
+            Assert.AreEqual(arr, arr2);
 
-            Assert.AreEqual(1337, arr[0]);
+            arr2 = ((IReadOnlyList<string>)arr1).ToArrayList();
+            Assert.AreEqual(arr, arr2);
+
+            arr2 = ((IReadOnlyCollection<string>)arr1).ToArrayList();
+            Assert.AreEqual(arr, arr2);
+
+            arr2 = ((IEnumerable<string>)arr1).ToArrayList();
+            Assert.AreEqual(arr, arr2);
+        }
+
+        [Test]
+        public void TestToArray()
+        {
+            var arr = new[] { "a", "b", "c" };
+            Array<string> arr1 = new Array<string>();
+            arr1.AddRange(arr);
+            Assert.AreEqual(arr, arr1);
+
+            var arr2 = ((ICollection<string>)arr1).ToArray();
+            Assert.AreEqual(arr, arr2);
+
+            arr2 = ((IReadOnlyList<string>)arr1).ToArray();
+            Assert.AreEqual(arr, arr2);
+
+            arr2 = ((IReadOnlyCollection<string>)arr1).ToArray();
+            Assert.AreEqual(arr, arr2);
+
+            arr2 = ((IEnumerable<string>)arr1).ToArray();
+            Assert.AreEqual(arr, arr2);
+        }
+
+        [Test]
+        public void TestArrayCopyPerformance()
+        {
+            string[] strings = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
+            string[] arr = new string[1333337];
+            for (int i = 0; i < arr.Length; ++i)
+                arr[i] = strings[i % strings.Length];
+
+            string[] copy = new string[arr.Length];
+
+            PerfTimer t = PerfTimer.StartNew();
+            for (int i = 0; i < 20; ++i)
+            {
+                for (int j = 0; j < arr.Length; ++j)
+                    copy[j] = arr[j];
+            }
+            float e1 = t.ElapsedMillis;
+            Console.WriteLine("T[] copy for-loop: {0:0.00}ms", e1);
+            Assert.AreEqual(arr, copy);
+
+            t.Start();
+            for (int i = 0; i < 20; ++i)
+            {
+                Array.Copy(arr, 0, copy, 0, arr.Length);
+            }
+            float e2 = t.ElapsedMillis;
+            Console.WriteLine("T[] copy Array.Copy: {0:0.00}ms", e2);
+            Assert.AreEqual(arr, copy);
+
+            int sizeOf = typeof(string).SizeOfRef();
+            t.Start();
+            for (int i = 0; i < 20; ++i)
+            {
+                Memory.CopyBytes(copy, arr, arr.Length * sizeOf);
+            }
+            float e3 = t.ElapsedMillis;
+            Console.WriteLine("T[] copy ApexMemCopy: {0:0.00}ms", e3);
+            Assert.AreEqual(arr, copy);
         }
     }
 }

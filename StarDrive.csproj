@@ -238,6 +238,7 @@
     </Compile>
     <Compile Include="Ship_Game\Utils\Array.cs" />
     <Compile Include="Ship_Game\Utils\Map.cs" />
+    <Compile Include="Ship_Game\Utils\Memory.cs" />
     <Compile Include="Ship_Game\Utils\Parallel.cs" />
     <Compile Include="Ship_Game\Utils\Ref.cs">
       <AutoGen>false</AutoGen>
