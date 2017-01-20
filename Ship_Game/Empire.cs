@@ -178,7 +178,7 @@ namespace Ship_Game
             BorderNodes.Clear();
             TechnologyDict.Clear();
             SpaceRoadsList.Clear();
-            foreach (var kv in FleetsDict) kv.Value.Ships.Clear();
+            foreach (var kv in FleetsDict) kv.Value.Dispose();
             FleetsDict.Clear();
             UnlockedBuildingsDict.Clear();
             UnlockedHullsDict.Clear();

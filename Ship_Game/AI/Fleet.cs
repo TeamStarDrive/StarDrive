@@ -30,7 +30,7 @@ namespace Ship_Game.AI
         public Array<Squad> RearFlank   = new Array<Squad>();
         public Array<Array<Squad>> AllFlanks = new Array<Array<Squad>>();
         public Vector2 GoalMovePosition = new Vector2();
-        private Map<Vector2, Array<Ship>> EnemyClumpsDict = new Map<Vector2, Array<Ship>>();
+        private Map<Vector2, Ship[]> EnemyClumpsDict = new Map<Vector2, Ship[]>();
         private Map<Ship, Array<Ship>> InterceptorDict = new Map<Ship, Array<Ship>>();
         private int defenseTurns = 50;
         private Vector2 targetPosition = Vector2.Zero;
@@ -41,8 +41,6 @@ namespace Ship_Game.AI
         public float facing;
         public float speed;
         public int FleetIconIndex;
-        //private bool HasPriorityOrder;
-        //private bool InCombat;
         public static UniverseScreen screen;
         public int TaskStep;
         public bool IsCoreFleet;
@@ -591,30 +589,30 @@ namespace Ship_Game.AI
                         this.TaskStep = 3;
                         break;
                     case 3:
-                        this.EnemyClumpsDict.Clear();
-                        Array<Ship> list2 = new Array<Ship>();
-                        Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-                        for (int index1 = 0; index1 < nearby1.Count; ++index1)
-                        {
-                            Ship ship1 = nearby1[index1] as Ship;
-                            if (ship1 != null)
-                            {
-                                ship1.GetAI().HasPriorityOrder = false;
-                                if (ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
-                                {
-                                    this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
-                                    this.EnemyClumpsDict[ship1.Center].Add(ship1);
-                                    list2.Add(ship1);
-                                    Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-                                    for (int index2 = 0; index2 < nearby2.Count; ++index2)
-                                    {
-                                        Ship ship2 = nearby2[index2] as Ship;
-                                        if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
-                                            this.EnemyClumpsDict[ship1.Center].Add(ship2);
-                                    }
-                                }
-                            }
-                        }
+                        this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(Position, 150000, 10000, this.Owner);
+                        //Array<Ship> list2 = new Array<Ship>();
+                        //Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                        //for (int index1 = 0; index1 < nearby1.Count; ++index1)
+                        //{
+                        //    Ship ship1 = nearby1[index1] as Ship;
+                        //    if (ship1 != null)
+                        //    {
+                        //        ship1.GetAI().HasPriorityOrder = false;
+                        //        if (ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                        //        {
+                        //            this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
+                        //            this.EnemyClumpsDict[ship1.Center].Add(ship1);
+                        //            list2.Add(ship1);
+                        //            Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                        //            for (int index2 = 0; index2 < nearby2.Count; ++index2)
+                        //            {
+                        //                Ship ship2 = nearby2[index2] as Ship;
+                        //                if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
+                        //                    this.EnemyClumpsDict[ship1.Center].Add(ship2);
+                        //            }
+                        //        }
+                        //    }
+                        //}
                         if (this.EnemyClumpsDict.Count == 0)
                         {
                             this.TaskStep = 5;
@@ -623,7 +621,7 @@ namespace Ship_Game.AI
                         else
                         {
                             Array<Vector2> list3 = new Array<Vector2>();
-                            foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
+                            foreach (var keyValuePair in this.EnemyClumpsDict)
                                 list3.Add(keyValuePair.Key);
                             IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
                             Array<Ship> list4 = new Array<Ship>();
@@ -1191,26 +1189,26 @@ namespace Ship_Game.AI
                         this.TaskStep = 3;
                         break;
                     case 3:
-                        this.EnemyClumpsDict.Clear();
-                        Array<Ship> list2 = new Array<Ship>();
-                        Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-                        for (int index1 = 0; index1 < nearby1.Count; ++index1)
-                        {
-                            Ship ship1 = nearby1[index1] as Ship;
-                            if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
-                            {
-                                this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
-                                this.EnemyClumpsDict[ship1.Center].Add(ship1);
-                                list2.Add(ship1);
-                                Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-                                for (int index2 = 0; index2 < nearby2.Count; ++index2)
-                                {
-                                    Ship ship2 = nearby2[index2] as Ship;
-                                    if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
-                                        this.EnemyClumpsDict[ship1.Center].Add(ship2);
-                                }
-                            }
-                        }
+                        this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(Position, 150000, 10000, this.Owner);
+                        //Array<Ship> list2 = new Array<Ship>();
+                        //Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                        //for (int index1 = 0; index1 < nearby1.Count; ++index1)
+                        //{
+                        //    Ship ship1 = nearby1[index1] as Ship;
+                        //    if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                        //    {
+                        //        this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
+                        //        this.EnemyClumpsDict[ship1.Center].Add(ship1);
+                        //        list2.Add(ship1);
+                        //        Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                        //        for (int index2 = 0; index2 < nearby2.Count; ++index2)
+                        //        {
+                        //            Ship ship2 = nearby2[index2] as Ship;
+                        //            if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
+                        //                this.EnemyClumpsDict[ship1.Center].Add(ship2);
+                        //        }
+                        //    }
+                        //}
                         if (this.EnemyClumpsDict.Count == 0)
                         {
                             if ((double)Vector2.Distance(this.findAveragePosition(), Task.AO) <= 10000.0)
@@ -1221,7 +1219,7 @@ namespace Ship_Game.AI
                         else
                         {
                             Array<Vector2> list3 = new Array<Vector2>();
-                            foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
+                            foreach (var keyValuePair in this.EnemyClumpsDict)
                                 list3.Add(keyValuePair.Key);
                             IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
                             Array<Ship> list4 = new Array<Ship>();
@@ -1389,26 +1387,26 @@ namespace Ship_Game.AI
                     this.TaskStep = 3;
                     break;
                 case 3:
-                    this.EnemyClumpsDict.Clear();
-                    Array<Ship> list2 = new Array<Ship>();
-                    Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-                    for (int index1 = 0; index1 < nearby1.Count; ++index1)
-                    {
-                        Ship ship1 = nearby1[index1] as Ship;
-                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
-                        {
-                            this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
-                            this.EnemyClumpsDict[ship1.Center].Add(ship1);
-                            list2.Add(ship1);
-                            Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
-                            for (int index2 = 0; index2 < nearby2.Count; ++index2)
-                            {
-                                Ship ship2 = nearby2[index2] as Ship;
-                                if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
-                                    this.EnemyClumpsDict[ship1.Center].Add(ship2);
-                            }
-                        }
-                    }
+                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(Position, 150000, 10000, this.Owner);
+                    //Array<Ship> list2 = new Array<Ship>();
+                    //Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                    //for (int index1 = 0; index1 < nearby1.Count; ++index1)
+                    //{
+                    //    Ship ship1 = nearby1[index1] as Ship;
+                    //    if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar || this.Owner.isFaction) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                    //    {
+                    //        this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
+                    //        this.EnemyClumpsDict[ship1.Center].Add(ship1);
+                    //        list2.Add(ship1);
+                    //        Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
+                    //        for (int index2 = 0; index2 < nearby2.Count; ++index2)
+                    //        {
+                    //            Ship ship2 = nearby2[index2] as Ship;
+                    //            if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
+                    //                this.EnemyClumpsDict[ship1.Center].Add(ship2);
+                    //        }
+                    //    }
+                    //}
                     if (this.EnemyClumpsDict.Count == 0)
                     {
                         if ((double)Vector2.Distance(this.findAveragePosition(), Task.AO) <= 10000.0)
@@ -1419,7 +1417,7 @@ namespace Ship_Game.AI
                     else
                     {
                         Array<Vector2> list3 = new Array<Vector2>();
-                        foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
+                        foreach (var keyValuePair in this.EnemyClumpsDict)
                             list3.Add(keyValuePair.Key);
                         IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
                         Array<Ship> list4 = new Array<Ship>();
@@ -1566,7 +1564,7 @@ namespace Ship_Game.AI
                     this.TaskStep = 3;
                     break;
                 case 3:                    
-                    this.EnemyClumpsDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarClusters(this.Task.GetTargetPlanet().Position, 150000,10000,this.Owner);
+                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(this.Task.GetTargetPlanet().Position, 150000,10000,this.Owner);
                     #if false
                         this.EnemyClumpsDict.Clear();
                         Array<Ship> list2 = new Array<Ship>();
@@ -1627,7 +1625,7 @@ namespace Ship_Game.AI
                     else
                     {
                         Array<Vector2> list3 = new Array<Vector2>();
-                        foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
+                        foreach (var keyValuePair in this.EnemyClumpsDict)
                             list3.Add(keyValuePair.Key);
                         IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
                         Array<Ship> list4 = new Array<Ship>();
@@ -1797,7 +1795,7 @@ namespace Ship_Game.AI
                     else
                     {
                         Array<Vector2> list3 = new Array<Vector2>();
-                        foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
+                        foreach (var keyValuePair in this.EnemyClumpsDict)
                             list3.Add(keyValuePair.Key);
                         IOrderedEnumerable<Vector2> orderedEnumerable = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
                         Array<Ship> list4 = new Array<Ship>();
@@ -2075,26 +2073,26 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 3:
-                    this.EnemyClumpsDict.Clear();
-                    Array<Ship> list2 = new Array<Ship>();
-                    Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this.Ships[0]);
-                    for (int index1 = 0; index1 < nearby1.Count; ++index1)
-                    {
-                        Ship ship1 = nearby1[index1] as Ship;
-                        if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
-                        {
-                            this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
-                            this.EnemyClumpsDict[ship1.Center].Add(ship1);
-                            list2.Add(ship1);
-                            Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this.Ships[0]);
-                            for (int index2 = 0; index2 < nearby2.Count; ++index2)
-                            {
-                                Ship ship2 = nearby2[index2] as Ship;
-                                if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
-                                    this.EnemyClumpsDict[ship1.Center].Add(ship2);
-                            }
-                        }
-                    }
+                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(Ships[0].Center, 150000, 10000, this.Owner);
+                    //Array<Ship> list2 = new Array<Ship>();
+                    //Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this.Ships[0]);
+                    //for (int index1 = 0; index1 < nearby1.Count; ++index1)
+                    //{
+                    //    Ship ship1 = nearby1[index1] as Ship;
+                    //    if (ship1 != null && ship1.loyalty != this.Owner && (ship1.loyalty.isFaction || this.Owner.GetRelations(ship1.loyalty).AtWar) && (!list2.Contains(ship1) && (double)Vector2.Distance(ship1.Center, Task.AO) < (double)Task.AORadius && !this.EnemyClumpsDict.ContainsKey(ship1.Center)))
+                    //    {
+                    //        this.EnemyClumpsDict.Add(ship1.Center, new Array<Ship>());
+                    //        this.EnemyClumpsDict[ship1.Center].Add(ship1);
+                    //        list2.Add(ship1);
+                    //        Array<GameplayObject> nearby2 = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this.Ships[0]);
+                    //        for (int index2 = 0; index2 < nearby2.Count; ++index2)
+                    //        {
+                    //            Ship ship2 = nearby2[index2] as Ship;
+                    //            if (ship2 != null && ship2.loyalty != this.Owner && (ship2.loyalty == ship1.loyalty && (double)Vector2.Distance(ship1.Center, ship2.Center) < 10000.0) && !list2.Contains(ship2))
+                    //                this.EnemyClumpsDict[ship1.Center].Add(ship2);
+                    //        }
+                    //    }
+                    //}
                     if (this.EnemyClumpsDict.Count == 0 || (double)Vector2.Distance(this.findAveragePosition(), Task.AO) > 25000.0)
                     {
                         Vector2 enemyWithinRadius = this.Owner.GetGSAI().ThreatMatrix.GetPositionOfNearestEnemyWithinRadius(this.Position, Task.AORadius, this.Owner);
@@ -2113,7 +2111,7 @@ namespace Ship_Game.AI
                     else
                     {
                         Array<Vector2> list3 = new Array<Vector2>();
-                        foreach (KeyValuePair<Vector2, Array<Ship>> keyValuePair in this.EnemyClumpsDict)
+                        foreach (var keyValuePair in this.EnemyClumpsDict)
                             list3.Add(keyValuePair.Key);
                         IOrderedEnumerable<Vector2> orderedEnumerable2 = Enumerable.OrderBy<Vector2, float>((IEnumerable<Vector2>)list3, (Func<Vector2, float>)(clumpPos => Vector2.Distance(this.findAveragePosition(), clumpPos)));
                         Array<Ship> list4 = new Array<Ship>();
@@ -2227,7 +2225,7 @@ namespace Ship_Game.AI
             {
                 if (EmpireManager.Player == Owner || IsCoreFleet || Ships.Count <= 0)
                     return;
-                foreach (Ship s in Owner.GetFleetsDict()[which].Ships)
+                foreach (Ship s in Ships)
                 {                    
                     s.GetAI().OrderQueue.Clear();
                     s.GetAI().State = AIState.AwaitingOrders;
@@ -2246,7 +2244,6 @@ namespace Ship_Game.AI
 
         public void Update(float elapsedTime)
         {
-            Array<Ship> list = new Array<Ship>();
             this.HasRepair = false;
 
             foreach(Ship ship in this.Ships)
@@ -2260,18 +2257,9 @@ namespace Ship_Game.AI
                                if (ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0))
                     this.HasRepair = true;
             }
-            //this.Ships.ForEach(ship =>
-            //{
-              
-            //});
 
             this.Ships.ApplyPendingRemovals();
-            //foreach (Ship ship in list)
-            //{
-            //    ship.fleet = (Fleet)null;
-            //    this.Ships.Remove(ship);
-            //}
-            //this.Ships.thisLock.ExitWriteLock();
+
             if (this.Ships.Count <= 0 || this.GoalStack.Count <= 0)
                 return;
             this.GoalStack.Peek().Evaluate(elapsedTime);
@@ -2381,12 +2369,41 @@ namespace Ship_Game.AI
             }
         }
 
-        ~Fleet() { Dispose(false); }
+        //~Fleet() { Dispose(false); }
 
-        protected override void Dispose(bool disposing)
+        //protected override void Dispose(bool disposing)
+        //{
+        //    DataNodes?.Dispose(ref DataNodes);
+        //    base.Dispose(disposing);
+        //}
+
+
+        public void Dispose()
+        {
+            Destroy();
+            GC.SuppressFinalize(this);
+        }
+        ~Fleet() { Destroy(); }
+
+        private void Destroy()
         {
             DataNodes?.Dispose(ref DataNodes);
-            base.Dispose(disposing);
+            GoalStack = null;
+            CenterShips = null;
+            LeftShips = null;
+            RightShips = null;
+            RearShips = null;
+            ScreenShips = null;
+            CenterFlank = null;
+            LeftFlank = null;
+            RightFlank = null;
+            ScreenFlank = null;
+            RearFlank = null;
+            AllFlanks = null;
+            EnemyClumpsDict = null;
+            InterceptorDict = null;
+            Task = null;
+            base.Dispose();
         }
     }
 }
