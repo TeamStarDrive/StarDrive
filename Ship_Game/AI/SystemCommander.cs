@@ -20,11 +20,12 @@ namespace Ship_Game.AI
         public int TroopCount;
         public int TroopsWanted => IdealTroopCount - TroopCount;
 		public Map<Guid, Ship> ShipsDict = new Map<Guid, Ship>();
-		public Map<Ship, Array<Ship>> EnemyClumpsDict = new Map<Ship, Array<Ship>>();
+		public Map<Ship, Ship[]> EnemyClumpsDict = new Map<Ship, Ship[]>();
 		private readonly Empire Us;
         public Map<Planet, PlanetTracker> PlanetTracker = new Map<Planet, PlanetTracker>();
+        public IEnumerable<Ship> GetShipList => ShipsDict.Values;
 
-		public SystemCommander(Empire e, SolarSystem system)
+        public SystemCommander(Empire e, SolarSystem system)
 		{
 			System = system;
 			Us = e;
@@ -103,60 +104,29 @@ namespace Ship_Game.AI
         }
         public Planet AssignIdleDuties(Ship ship)
         {
-            PlanetTracker[] planets = PlanetTracker.Values.ToArray();
-            Planet p = planets.FindMax(value => value.value).Planet;            
-            return p ;
-            
+            var planets = PlanetTracker.Values;
+            PlanetTracker best = null;
+            foreach(PlanetTracker pl in planets)
+            {
+                if (best == null || best.value < pl.value)
+                    best = pl;
+            }
+            return best.Planet;                        
         }
         public void AssignTargets()
         {
-            EnemyClumpsDict.Clear();
-            HashSet<Ship> shipsAlreadyConsidered = new HashSet<Ship>();
-        
-            foreach (var kv in ShipsDict)
-            {
-                Ship ship = kv.Value;
-                
-                if (ship == null || ship.GetAI().BadGuysNear 
-                    || ship.GetAI().SystemToDefend == System)                
-                    continue;
-                
-                ship.GetAI().Target = null;
-                ship.GetAI().hasPriorityTarget = false;
-                ship.GetAI().Intercepting = false;
-                ship.GetAI().SystemToDefend = null;
-            }
-            for (int i = 0; i < System.ShipList.Count; i++)
-            {
-                Ship ship = System.ShipList[i];
-                if (ship != null && Us.IsEmpireAttackable(ship.loyalty,ship)
-                    &&!shipsAlreadyConsidered.Contains(ship) 
-                    && !EnemyClumpsDict.ContainsKey(ship))
-                {
-                    EnemyClumpsDict.Add(ship, new Array<Ship>());
-                    EnemyClumpsDict[ship].Add(ship);
-                    shipsAlreadyConsidered.Add(ship);
-                    for (int j = 0; j < System.ShipList.Count; j++)
-                    {
-                        Ship otherShip = System.ShipList[j];
-                        if (otherShip.loyalty != Us && otherShip.loyalty == ship.loyalty 
-                            && ship.Center.InRadius(otherShip.Center, 15000f )
-                            && !shipsAlreadyConsidered.Contains(otherShip))
-                        
-                            EnemyClumpsDict[ship].Add(otherShip);                        
-                    }
-                }
-            }
+            EnemyClumpsDict = Us.GetGSAI().ThreatMatrix.PingRadarShipClustersByShip(System.Position, 150000, 15000, Us);
+            
             if (EnemyClumpsDict.Count != 0)
             {
                 int i = 0;
                 var clumpsList = new Ship[EnemyClumpsDict.Count];
-                foreach (KeyValuePair<Ship, Array<Ship>> kv in EnemyClumpsDict)
+                foreach (var kv in EnemyClumpsDict)
                     clumpsList[i++] = kv.Key;
 
                 Ship closest = clumpsList.FindMin(ship => System.Position.SqDist(ship.Center));
-
-                var assignedShips = new Array<Ship>();
+                i = 0;
+                var assignedShips = new Ship[ShipsDict.Count];
                 foreach (Ship enemy in EnemyClumpsDict[closest])
                 {
                     float assignedStr = 0f;
@@ -164,22 +134,20 @@ namespace Ship_Game.AI
                     {
                         if (!kv.Value.InCombat && kv.Value.System == System)
                         {
-                            if (assignedShips.Contains(kv.Value) || assignedStr > 0f && assignedStr >= enemy.GetStrength() || kv.Value.GetAI().State == AIState.Resupply)
-                            {
+                            if ((assignedStr > 0f && assignedStr >= enemy.GetStrength())
+                                || kv.Value.GetAI().State == AIState.Resupply
+                                ||assignedShips.Contains(kv.Value))
                                 continue;
-                            }
+
                             kv.Value.GetAI().Intercepting = true;
                             kv.Value.GetAI().OrderAttackSpecificTarget(enemy);
-                            assignedShips.Add(kv.Value);
-                            assignedStr = assignedStr + kv.Value.GetStrength();
+                            assignedShips[i++]=kv.Value;
+                            assignedStr += kv.Value.GetStrength();
                         }
                         else
                         {
-                            if (assignedShips.Contains(kv.Value))
-                            {
-                                continue;
-                            }
-                            assignedShips.Add(kv.Value);
+                            if (assignedShips.Contains(kv.Value)) continue;
+                            assignedStr += kv.Value.GetStrength();
                         }
                     }
                 }
@@ -192,7 +160,7 @@ namespace Ship_Game.AI
                         continue;
 
                     ship.GetAI().Intercepting = true;
-                    ship.GetAI().OrderAttackSpecificTarget(assignedShips.First.GetAI().Target as Ship);
+                    ship.GetAI().OrderAttackSpecificTarget(assignedShips[0]?.GetAI().Target as Ship);
                 }
             }
             else
@@ -215,7 +183,7 @@ namespace Ship_Game.AI
 			return str;
 		}
 
-        public IEnumerable<Ship> GetShipList() => ShipsDict.Values;
+        
         public void CalculateTroopNeeds()
         {
             int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
