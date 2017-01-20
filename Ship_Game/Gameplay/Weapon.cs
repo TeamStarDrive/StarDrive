@@ -34,7 +34,8 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore][JsonIgnore]
         private Ship Owner;
-		public GameplayObject drowner;
+        [XmlIgnore][JsonIgnore]
+		public GameplayObject drowner; // drone owner
 		public float HitPoints;
 		public bool isBeam;
 		public float EffectVsArmor = 1f;
@@ -65,9 +66,11 @@ namespace Ship_Game.Gameplay
 		public string AnimationPath;
 		public string ExpColor;
 		public string dieCue;
+        [XmlIgnore][JsonIgnore]
 		protected Cue fireCue;
 		public string ToggleSoundName = "";
 		private bool ToggleSoundOn;
+        [XmlIgnore][JsonIgnore]
 		private Cue ToggleCue;
 		public string Light;
 		public bool isTurret;
@@ -85,7 +88,8 @@ namespace Ship_Game.Gameplay
 		public string WeaponType;
 		public string WeaponEffectType;
 		public string UID;
-		public ShipModule moduleAttachedTo;
+        [XmlIgnore][JsonIgnore]
+        public ShipModule moduleAttachedTo;
 		public float timeToNextFire;
 		public float fireDelay;
 		public float PowerRequiredToFire;
@@ -94,14 +98,16 @@ namespace Ship_Game.Gameplay
 		public string fireCueName;
 		public string MuzzleFlash;
 		public bool IsRepairDrone;
-		private BatchRemovalCollection<Salvo> SalvoList = new BatchRemovalCollection<Salvo>();
+        [XmlIgnore][JsonIgnore]
+        private BatchRemovalCollection<Salvo> SalvoList = new BatchRemovalCollection<Salvo>();
 		public bool FakeExplode;
 		public float ProjectileRadius = 4f;
 		public string Name;
 		public byte LoopAnimation;
 		public float Scale = 1f;
 		public float RotationRadsPerSecond = 2f;
-		private AudioEmitter planetEmitter;
+        [XmlIgnore][JsonIgnore]
+        private AudioEmitter planetEmitter;
 		public bool HitsFriendlies;
 		public string InFlightCue = "";
 		public float particleDelay;
@@ -122,15 +128,18 @@ namespace Ship_Game.Gameplay
 
         public bool RangeVariance;
 
+        [XmlIgnore][JsonIgnore]
         public GameplayObject SalvoTarget;
         public float ExplosionRadiusVisual = 4.5f;
+        [XmlIgnore][JsonIgnore]
         public GameplayObject fireTarget;
         public float TargetChangeTimer;
         public bool PrimaryTarget = false;
         [XmlIgnore][JsonIgnore]
         public Array<ModuleSlot> AttackerTargetting;// = new Array<ModuleSlot>();
 
-		public static AudioListener audioListener { get; set; }
+        [XmlIgnore][JsonIgnore]
+        public static AudioListener audioListener { get; set; }
 
 		public Weapon(Ship owner, ShipModule moduleAttachedTo)
 		{
