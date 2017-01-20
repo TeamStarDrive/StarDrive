@@ -388,8 +388,7 @@ namespace Ship_Game
         public void AddRange(IEnumerable<T> enumerable)
         {
             using (var en = enumerable.GetEnumerator())
-                while (en.MoveNext())
-                    Add(en.Current);
+                while (en.MoveNext()) Add(en.Current);
         }
 
         public void Sort()

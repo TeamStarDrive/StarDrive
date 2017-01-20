@@ -216,10 +216,23 @@ namespace Ship_Game
             if (source is IReadOnlyCollection<T> rc) return rc.ToArray();
 
             // fall back to epicly slow enumeration
-            var list = new Array<T>();
+            T[] items = Empty<T>.Array;
+            int count = 0;
             using (var e = source.GetEnumerator())
-                while (e.MoveNext()) list.Add(e.Current);
-            return list.ToArray();
+            {
+                while (e.MoveNext())
+                {
+                    if (items.Length == count)
+                    {
+                        int len = count == 0 ? 4 : count * 2; // aggressive growth
+                        Array.Resize(ref items, len);
+                    }
+                    items[count++] = e.Current;
+                }
+            }
+            if (items.Length != count)
+                Array.Resize(ref items, count);
+            return items;
         }
     }
 }
