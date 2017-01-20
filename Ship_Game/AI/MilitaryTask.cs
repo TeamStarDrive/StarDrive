@@ -973,7 +973,7 @@ namespace Ship_Game.AI
 
     )
                 {
-                    foreach (Ship ship in entry.Value.GetShipList())
+                    foreach (Ship ship in entry.Value.GetShipList)
                     {
                         if (ship.GetAI().BadGuysNear|| ship.fleet != null || tfstrength >= MinimumEscortStrength || ship.GetStrength() <= 0f
                             || ship.shipData.Role == ShipData.RoleName.troop || ship.hasAssaultTransporter || ship.HasTroopBay

@@ -589,7 +589,7 @@ namespace Ship_Game.AI
                         this.TaskStep = 3;
                         break;
                     case 3:
-                        this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(Position, 150000, 10000, this.Owner);
+                        this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(Position, 150000, 10000, this.Owner);
                         //Array<Ship> list2 = new Array<Ship>();
                         //Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
                         //for (int index1 = 0; index1 < nearby1.Count; ++index1)
@@ -1189,7 +1189,7 @@ namespace Ship_Game.AI
                         this.TaskStep = 3;
                         break;
                     case 3:
-                        this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(Position, 150000, 10000, this.Owner);
+                        this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(Position, 150000, 10000, this.Owner);
                         //Array<Ship> list2 = new Array<Ship>();
                         //Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
                         //for (int index1 = 0; index1 < nearby1.Count; ++index1)
@@ -1387,7 +1387,7 @@ namespace Ship_Game.AI
                     this.TaskStep = 3;
                     break;
                 case 3:
-                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(Position, 150000, 10000, this.Owner);
+                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(Position, 150000, 10000, this.Owner);
                     //Array<Ship> list2 = new Array<Ship>();
                     //Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby(this.Position);
                     //for (int index1 = 0; index1 < nearby1.Count; ++index1)
@@ -1564,7 +1564,7 @@ namespace Ship_Game.AI
                     this.TaskStep = 3;
                     break;
                 case 3:                    
-                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(this.Task.GetTargetPlanet().Position, 150000,10000,this.Owner);
+                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(this.Task.GetTargetPlanet().Position, 150000,10000,this.Owner);
                     #if false
                         this.EnemyClumpsDict.Clear();
                         Array<Ship> list2 = new Array<Ship>();
@@ -1745,7 +1745,7 @@ namespace Ship_Game.AI
                     break;
                 case 1:
                    // Array<ThreatMatrix.Pin> list1 = new Array<ThreatMatrix.Pin>();
-                    Map<Vector2, float> threatDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarThreatClusters(this.Task.AO, this.Task.AORadius, 10000f, this.Owner);
+                    Map<Vector2, float> threatDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarStrengthClusters(this.Task.AO, this.Task.AORadius, 10000f, this.Owner);
                     float strength = this.GetStrength();
                     this.targetPosition = Vector2.Zero;
                     
@@ -1785,7 +1785,7 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 3:
-                    this.EnemyClumpsDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarClusters(this.Position, 150000, 10000, this.Owner);
+                    this.EnemyClumpsDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(this.Position, 150000, 10000, this.Owner);
                    
                     if (this.EnemyClumpsDict.Count == 0)
                     {
@@ -2073,7 +2073,7 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 3:
-                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarClusters(Ships[0].Center, 150000, 10000, this.Owner);
+                    this.EnemyClumpsDict = Owner.GetGSAI().ThreatMatrix.PingRadarShipClustersByVector(Ships[0].Center, 150000, 10000, this.Owner);
                     //Array<Ship> list2 = new Array<Ship>();
                     //Array<GameplayObject> nearby1 = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this.Ships[0]);
                     //for (int index1 = 0; index1 < nearby1.Count; ++index1)
@@ -2387,7 +2387,7 @@ namespace Ship_Game.AI
             EnemyClumpsDict = null;
             InterceptorDict = null;
             Task            = null;
-            base.Dispose();
+            base.Destroy();
         }
     }
 }
