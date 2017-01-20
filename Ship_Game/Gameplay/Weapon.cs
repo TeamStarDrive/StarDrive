@@ -65,7 +65,8 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore][JsonIgnore]
         public Ship Owner { get; set; }
-		public GameplayObject drowner;
+        [XmlIgnore][JsonIgnore]
+		public GameplayObject drowner; // drone owner
 		public float HitPoints;
 		public bool isBeam;
 		public float EffectVsArmor = 1f;
@@ -96,9 +97,11 @@ namespace Ship_Game.Gameplay
 		public string AnimationPath;
 		public string ExpColor;
 		public string dieCue;
+        [XmlIgnore][JsonIgnore]
 		protected Cue fireCue;
 		public string ToggleSoundName = "";
 		private bool ToggleSoundOn;
+        [XmlIgnore][JsonIgnore]
 		private Cue ToggleCue;
 		public string Light;
 		public bool isTurret;
@@ -116,7 +119,8 @@ namespace Ship_Game.Gameplay
 		public string WeaponType;
 		public string WeaponEffectType;
 		public string UID;
-		public ShipModule moduleAttachedTo;
+        [XmlIgnore][JsonIgnore]
+        public ShipModule moduleAttachedTo;
 		public float timeToNextFire;
 		public float fireDelay;
 		public float PowerRequiredToFire;
@@ -131,7 +135,8 @@ namespace Ship_Game.Gameplay
 		public byte LoopAnimation;
 		public float Scale = 1f;
 		public float RotationRadsPerSecond = 2f;
-		private AudioEmitter planetEmitter;
+        [XmlIgnore][JsonIgnore]
+        private AudioEmitter planetEmitter;
 		public bool HitsFriendlies;
 		public string InFlightCue = "";
 		public float particleDelay;
@@ -151,8 +156,8 @@ namespace Ship_Game.Gameplay
         public float OffPowerMod = 1f;
 
         public bool RangeVariance;
-
         public float ExplosionRadiusVisual = 4.5f;
+        [XmlIgnore][JsonIgnore]
         public GameplayObject fireTarget;
         public float TargetChangeTimer;
         public bool PrimaryTarget = false;
@@ -165,6 +170,7 @@ namespace Ship_Game.Gameplay
         private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
         public GameplayObject SalvoTarget;
 
+        [XmlIgnore][JsonIgnore]
         public static AudioListener audioListener { get; set; }
 
 		public Weapon(Ship owner, ShipModule moduleAttachedTo)
