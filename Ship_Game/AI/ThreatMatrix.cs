@@ -12,7 +12,7 @@ namespace Ship_Game.AI
 	public sealed class ThreatMatrix
 	{
         public ConcurrentDictionary<Guid, Pin> Pins = new ConcurrentDictionary<Guid, Pin>();
-        public ConcurrentDictionary<Guid, Ship> ship = new ConcurrentDictionary<Guid, Ship>();
+        public ConcurrentDictionary<Guid, Ship> Ship = new ConcurrentDictionary<Guid, Ship>();
 
         public float StrengthOfAllEmpireShipsInBorders(Empire them)
         {
@@ -110,57 +110,48 @@ namespace Ship_Game.AI
             }
             return retList;
         }
-        public Array<Ship> PingRadarShip(Vector2 Position, float Radius,Empire empire)
+        public Array<Ship> PingRadarShip(Vector2 position, float radius,Empire empire)
         {
             Array<Ship> retList = new Array<Ship>();
             Ship ship;
-            Relationship rel;
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
-                if (Vector2.Distance(Position, pin.Value.Position) >= Radius)
-                {
-                    continue;
-                }              
+                if (position.OutsideRadius(pin.Value.Position , radius)) continue;
+                
                 ship = pin.Value.Ship;
-                if (ship == null)
-                    continue;                
-                if (!empire.IsEmpireAttackable(ship.loyalty) .TryGetRelations(ship.loyalty, out rel) ||  ship.loyalty != empire
-                             && (ship.loyalty.isFaction || rel.AtWar)
-                             || (pin.Value.InBorders && !rel.Treaty_OpenBorders)
-                             || (ship.isColonyShip && 
-                             ( ship.System!= null && rel.WarnedSystemsList.Contains(ship.System.guid )))
-                    
-                             )
-                    
+                if (ship == null) continue;
+
+                if (empire.IsEmpireAttackable(ship.loyalty,ship))
                     retList.Add(pin.Value.Ship);
             }
             return retList;
         }
-        public Map<Vector2,Array<Ship>> PingRadarClusters(Vector2 Position, float Radius, float granularity,Empire empire)
+        public Map<Vector2, Array<Ship>> PingRadarClusters(Vector2 position, float Radius, float granularity,Empire empire)
         {
             Map<Vector2, Array<Ship>> retList = new Map<Vector2, Array<Ship>>();
-            Array<Ship> pings = new Array<Ship>(PingRadarShip(Position,Radius,empire));
+            Array<Ship> pings = PingRadarShip(position,Radius,empire);
             HashSet<Ship > filter = new HashSet<Ship>();
             
             foreach(Ship ship in pings)
             {
                 if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
                     continue;
-              
-                        Ship[] cluster = PingRadarShip(ship.Center, granularity,empire);
+
+                Array<Ship> cluster = PingRadarShip(ship.Center, granularity,empire);
                 if (cluster.Count == 0)
                     continue;
-                retList.Add(ship.Center, cluster);                
+                retList.Add(ship.Center, cluster.ToArrayList());                
                 filter.UnionWith(cluster);
 
             }
             return retList;
 
         }
+       
         public Map<Vector2, float> PingRadarThreatClusters(Vector2 Position, float Radius, float granularity, Empire empire)
         {
             Map<Vector2, float> retList = new Map<Vector2, float>();
-            Array<Ship> pings = new Array<Ship>(PingRadarShip(Position, Radius, empire));
+            Array<Ship> pings = PingRadarShip(Position, Radius, empire);
             HashSet<Ship> filter = new HashSet<Ship>();
 
             foreach (Ship ship in pings)
@@ -178,13 +169,13 @@ namespace Ship_Game.AI
             return retList;
 
         }
-        public Vector2 PingRadarAvgPos(Vector2 Position, float Radius, Empire Us)
+        public Vector2 PingRadarAvgPos(Vector2 position, float radius, Empire Us)
 		{
 			Vector2 pos = new Vector2();
 			int num = 0;
 			foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
 			{
-                if (string.Equals(Us.data.Traits.Name, pin.Value.EmpireName) || Vector2.Distance(Position, pin.Value.Position) >= Radius)
+                if (string.Equals(Us.data.Traits.Name, pin.Value.EmpireName) || Vector2.Distance(position, pin.Value.Position) >= radius)
                     continue;
                 Empire them = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
                 if (!Us.isFaction && !them.isFaction && !Us.GetRelations(them).AtWar)
@@ -201,55 +192,8 @@ namespace Ship_Game.AI
 			return pos;
 		}
 
-        public void ClearPinsInSensorRange2(Vector2 Position, float Radius)
-        {
-            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
-            {
 
-                if (pin.Value.InBorders || pin.Value.Position == Vector2.Zero || Vector2.Distance(Position, pin.Value.Position) > Radius)
-                    continue;
-
-                //lock (pin.Value)
-                {
-                    if (false && pin.Value.Ship == null)
-                    {
-
-                        foreach (Ship ship in Ship.universeScreen.MasterShipList)
-                        {
-                            if (ship.guid == pin.Key)
-                            {
-                                pin.Value.Ship = ship;
-                                break;
-                            }
-                        }
-                        if (pin.Value.Ship == null)
-                        {
-                            pin.Value.Position = Vector2.Zero;
-                            pin.Value.Ship = null;
-                            pin.Value.Strength = 0;
-                            pin.Value.InBorders = false;
-                            pin.Value.EmpireName = string.Empty;
-                            continue;
-                        }
-                    }
-
-                    if (false & pin.Value.Ship != null && Vector2.Distance(Position, pin.Value.Ship.Center) <= Radius)
-                        continue;
-                }
-
-            #if false // disabled for now
-                pin.Value.Position = Vector2.Zero;
-                pin.Value.ship = null;
-                pin.Value.Strength = 0;
-                pin.Value.InBorders = false;
-                pin.Value.EmpireName = string.Empty;
-            #endif
-
-            }
-
-
-        }
-        public void ClearPinsInSensorRange(Vector2 Position, float Radius)
+        public void ClearPinsInSensorRange(Vector2 position, float radius)
         {
 
 
@@ -258,9 +202,9 @@ namespace Ship_Game.AI
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
 
-                if (pin.Value.Ship == null || Vector2.Distance(Position, pin.Value.Position) > Radius)
+                if (pin.Value.Ship == null || Vector2.Distance(position, pin.Value.Position) > radius)
                     continue;
-                bool insensor = Vector2.Distance(pin.Value.Ship.Center, Position) <= Radius;
+                bool insensor = Vector2.Distance(pin.Value.Ship.Center, position) <= radius;
                 this.UpdatePin(pin.Value.Ship, pin.Value.InBorders, insensor);
                 if (insensor)
                     continue;
