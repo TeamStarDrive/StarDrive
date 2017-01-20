@@ -50,7 +50,7 @@ namespace Ship_Game
         }
         ~ShipGroup() { Destroy(); }
 
-        private void Destroy()
+        protected virtual void Destroy()
         {
             Ships?.Dispose(ref Ships);
         }

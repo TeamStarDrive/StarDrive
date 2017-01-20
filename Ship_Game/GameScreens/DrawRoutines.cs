@@ -1,37 +1,20 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
     public static class DrawRoutines
     {
-        static ScreenManager ScreenManager;
-        private static UniverseScreen Screen;
-
-        public static void Init(ScreenManager screenManager, UniverseScreen screen)
-        {
-            ScreenManager = screenManager;
-            Screen = screen;
-        }
-        public static void Clear()
-        {
-            Screen = null;
-            ScreenManager = null;
-        }
         public static Circle ProjectCircleWorldToScreen(Vector2 worldPos, float worldRadius)
         {
-            float radius = worldRadius;
-            Vector3 project = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(worldPos, 0.0f), Screen.projection, Screen.view, Matrix.Identity);
-            Vector2 center = new Vector2(project.X, project.Y);
-            Vector3 projectPoint = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(worldPos.PointOnCircle(90f, radius), 0.0f), Screen.projection, Screen.view, Matrix.Identity);
-            float Radius = Vector2.Distance(new Vector2(projectPoint.X, projectPoint.Y), center) + 10f;
-            return new Circle(center, Radius);
-        }
+            UniverseScreen screen = Empire.Universe;
+            Viewport viewport = screen.ScreenManager.GraphicsDevice.Viewport;
 
+            Vector2 center    = viewport.Project(worldPos.ToVec3(), screen.projection, screen.view, Matrix.Identity).ToVec2();
+            Vector2 projected = viewport.Project(worldPos.PointOnCircle(90f, worldRadius).ToVec3(), screen.projection, screen.view, Matrix.Identity).ToVec2();
+            float screenRadius = Vector2.Distance(projected, center) + 10f;
+            return new Circle(center, screenRadius);
+        }
     }
 }
