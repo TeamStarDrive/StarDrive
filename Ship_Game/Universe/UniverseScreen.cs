@@ -1208,6 +1208,10 @@ namespace Ship_Game
                 int ocy = (int)((node.Position.Y / this.reducer)+ yround);                
                 int cx = ocx + granularity;
                 int cy = ocy + granularity;
+                cy = cy < 0 ? 0 : cy;
+                cy = cy > granularity*2 ? granularity*2 : cy;
+                cx = cx < 0 ? 0 : cx;
+                cx = cx > granularity*2 ? granularity*2 : cx;
                 Vector2 upscale = new Vector2((float)(ocx * this.reducer),
                                     (float)(ocy * this.reducer));
                 if (Vector2.Distance(upscale, node.Position) < node.Radius )

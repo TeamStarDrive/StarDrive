@@ -191,7 +191,7 @@ namespace Ship_Game.AI
             {
                 if (!kv.Value.IsEnoughShipStrength) continue;
 
-                Ship[] ships = kv.Value.GetShipList().ToArray();
+                Ship[] ships = kv.Value.GetShipList.ToArray();
                 Array.Sort(ships, (x, y) => x.GetStrength().CompareTo(y.GetStrength()));
                 foreach (Ship current in ships)
                 {
