@@ -112,8 +112,8 @@ namespace Ship_Game.AI
         }
         public Ship[] PingRadarShip(Vector2 position, float radius,Empire empire)
         {
-            Array<Ship> retList = new Array<Ship>();
-            Ship ship;
+            Array<Ship> retList = new Array<Ship>();            
+            Ship ship;            
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in this.Pins)
             {
                 if (position.OutsideRadius(pin.Value.Position , radius)) continue;
@@ -121,12 +121,13 @@ namespace Ship_Game.AI
                 ship = pin.Value.Ship;
                 if (ship == null) continue;
 
-                if (empire.IsEmpireAttackable(ship.loyalty,ship))
-                    retList.Add(pin.Value.Ship);
+                if (!empire.IsEmpireAttackable(ship.loyalty, ship)) continue;
+                retList.Add(pin.Value.Ship);
+                
             }
             return retList.ToArray();
         }
-        public Map<Vector2, Ship[]> PingRadarClusters(Vector2 position, float radius, float granularity,Empire empire)
+        public Map<Vector2, Ship[]> PingRadarShipClustersByVector(Vector2 position, float radius, float granularity,Empire empire)
         {
             var retList = new Map<Vector2, Ship[]>();
             Ship[] pings = PingRadarShip(position,radius,empire);
@@ -147,8 +148,28 @@ namespace Ship_Game.AI
             return retList;
 
         }
-       
-        public Map<Vector2, float> PingRadarThreatClusters(Vector2 Position, float Radius, float granularity, Empire empire)
+        public Map<Ship, Ship[]> PingRadarShipClustersByShip(Vector2 position, float radius, float granularity, Empire empire)
+        {
+            var retList = new Map<Ship, Ship[]>();
+            Ship[] pings = PingRadarShip(position, radius, empire);
+            HashSet<Ship> filter = new HashSet<Ship>();
+
+            foreach (Ship ship in pings)
+            {
+                if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship))
+                    continue;
+
+                Ship[] cluster = PingRadarShip(ship.Center, granularity, empire);
+                if (cluster.Length == 0)
+                    continue;
+                retList.Add(ship, cluster);
+                filter.UnionWith(cluster);
+
+            }
+            return retList;
+
+        }
+        public Map<Vector2, float> PingRadarStrengthClusters(Vector2 Position, float Radius, float granularity, Empire empire)
         {
             Map<Vector2, float> retList = new Map<Vector2, float>();
             Ship[] pings = PingRadarShip(Position, Radius, empire);

@@ -30,18 +30,7 @@ namespace Ship_Game
 			}
 		}
 
-        //public void Dispose()
-        //{
-        //    Dispose(true);
-        //    GC.SuppressFinalize(this);
-        //}
 
-        //~ShipGroup() { Dispose(false); }
-
-        //protected virtual void Dispose()
-        //{
-        //    Ships?.Dispose(ref Ships);
-        //}
 
         public void Dispose()
         {
