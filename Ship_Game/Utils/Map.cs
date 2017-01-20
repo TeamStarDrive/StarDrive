@@ -64,5 +64,10 @@ namespace Ship_Game
             TryGetValue(key, out TValue old);
             base[key] = (dynamic)old + valueToAdd;
         }
+
+        public KeyValuePair<TKey, TValue>[] ToArray()
+        {
+            return (this as ICollection<KeyValuePair<TKey, TValue>>).ToArray();
+        }
     }
 }

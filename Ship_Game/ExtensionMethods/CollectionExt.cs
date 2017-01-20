@@ -155,30 +155,71 @@ namespace Ship_Game
             return count;
         }
 
-        public static Array<T> ToArrayList<T>(this IEnumerable<T> source)
+        // The following methods are all specific implementations
+        // of ToArray() and ToList() as ToArrayList(); Main goal is to improve performance
+        // compared to generic .NET ToList() which doesn't reserve capacity etc.
+        // ToArrayList() will return an Array<T> as opposed to .NET ToList() which returns List<T>
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Array<T> ToArrayList<T>(this ICollection<T> source) => new Array<T>(source);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Array<T> ToArrayList<T>(this IReadOnlyList<T> source) => new Array<T>(source);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Array<T> ToArrayList<T>(this IReadOnlyCollection<T> source) => new Array<T>(source);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Array<T> ToArrayList<T>(this IEnumerable<T> source) => new Array<T>(source);
+
+        public static T[] ToArray<T>(this ICollection<T> source)
         {
-            var list = new Array<T>();
-            foreach (T item in source)
-                list.Add(item);
-            return list;
+            int count = source.Count;
+            if (count == 0) return Empty<T>.Array;
+            var items = new T[count];
+            source.CopyTo(items, 0);
+            return items;
+        }
+
+        public static T[] ToArray<T>(this IReadOnlyList<T> source)
+        {
+            int count = source.Count;
+            if (count == 0) return Empty<T>.Array;
+            var items = new T[count];
+            if (source is ICollection<T> c)
+                c.CopyTo(items, 0);
+            else for (int i = 0; i < count; ++i)
+                items[i] = source[i];
+            return items;
         }
 
         public static T[] ToArray<T>(this IReadOnlyCollection<T> source)
         {
-            var items = new T[source.Count];
-            int i = 0;
-            foreach (T item in source)
-                items[i++] = item;
-            return items;
+            unchecked
+            {
+                int count = source.Count;
+                if (count == 0) return Empty<T>.Array;
+                var items = new T[count];
+                if (source is ICollection<T> c)
+                    c.CopyTo(items, 0);
+                else using (var e = source.GetEnumerator())
+                    for (int i = 0; i < count && e.MoveNext(); ++i)
+                        items[i] = e.Current;
+                return items;
+            }
         }
 
-        public static Array<T> ToArrayList<T>(this IReadOnlyCollection<T> source)
+        public static T[] ToArray<T>(this IEnumerable<T> source)
         {
-            var items = new Array<T>(source.Count);
-            int i = 0;
-            foreach (T item in source)
-                items[i++] = item;
-            return items;
+            if (source is ICollection<T> c)          return c.ToArray();
+            if (source is IReadOnlyList<T> rl)       return rl.ToArray();
+            if (source is IReadOnlyCollection<T> rc) return rc.ToArray();
+
+            // fall back to epicly slow enumeration
+            var list = new Array<T>();
+            using (var e = source.GetEnumerator())
+                while (e.MoveNext()) list.Add(e.Current);
+            return list.ToArray();
         }
     }
 }

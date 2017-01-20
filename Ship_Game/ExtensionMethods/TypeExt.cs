@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Ship_Game
@@ -52,6 +53,13 @@ namespace Ship_Game
         {
             // ReSharper disable once ReplaceWithStringIsNullOrEmpty
             return str == null || str.Length == 0;
+        }
+
+        /// <summary>For value types, returns sizeof structure. 
+        /// For reference types, returns sizeof pointer</summary> 
+        public static int SizeOfRef(this Type type)
+        {
+            return type.IsValueType ? Marshal.SizeOf(type) : IntPtr.Size;
         }
     }
 }

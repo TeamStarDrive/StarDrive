@@ -22,6 +22,12 @@
     <ClCompile Include="util\file_io.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="MemoryUtils.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="util\apex_memmove.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
@@ -47,6 +53,9 @@
     </ClInclude>
     <ClInclude Include="node_parser.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="util\apex_memmove.h">
+      <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
