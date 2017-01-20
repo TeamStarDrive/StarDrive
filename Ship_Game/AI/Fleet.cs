@@ -2369,40 +2369,24 @@ namespace Ship_Game.AI
             }
         }
 
-        //~Fleet() { Dispose(false); }
-
-        //protected override void Dispose(bool disposing)
-        //{
-        //    DataNodes?.Dispose(ref DataNodes);
-        //    base.Dispose(disposing);
-        //}
-
-
-        public void Dispose()
-        {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-        ~Fleet() { Destroy(); }
-
-        private void Destroy()
+        protected override void Destroy()
         {
             DataNodes?.Dispose(ref DataNodes);
-            GoalStack = null;
-            CenterShips = null;
-            LeftShips = null;
-            RightShips = null;
-            RearShips = null;
-            ScreenShips = null;
-            CenterFlank = null;
-            LeftFlank = null;
-            RightFlank = null;
-            ScreenFlank = null;
-            RearFlank = null;
-            AllFlanks = null;
+            GoalStack       = null;
+            CenterShips     = null;
+            LeftShips       = null;
+            RightShips      = null;
+            RearShips       = null;
+            ScreenShips     = null;
+            CenterFlank     = null;
+            LeftFlank       = null;
+            RightFlank      = null;
+            ScreenFlank     = null;
+            RearFlank       = null;
+            AllFlanks       = null;
             EnemyClumpsDict = null;
             InterceptorDict = null;
-            Task = null;
+            Task            = null;
             base.Dispose();
         }
     }

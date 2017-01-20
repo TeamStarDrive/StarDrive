@@ -276,7 +276,6 @@ namespace Ship_Game
             PlayerLoyalty               = playerShip.loyalty.data.Traits.Name;
             playerShip.loyalty.isPlayer = true;
             ShipToView                  = playerShip;
-            DrawRoutines.Init(ScreenManager, this);
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null)
@@ -294,7 +293,6 @@ namespace Ship_Game
             PlayerEmpire.isPlayer = true;
             ShipToView            = playerShip;
             loading               = true;
-            DrawRoutines.Init(ScreenManager, this);
         
         }
 
@@ -7661,7 +7659,6 @@ namespace Ship_Game
             NotificationManager     ?.Dispose(ref NotificationManager);
             FogMapTarget            ?.Dispose(ref FogMapTarget);
 
-            DrawRoutines.Clear();
             base.Dispose(true);
         }
 
