@@ -4051,12 +4051,19 @@ namespace Ship_Game.AI
                 startp.Y /= reducer;
                 startp.X += granularity;
                 startp.Y += granularity;
+                startp.X = startp.X < 0 ? 0 : startp.X;
+                startp.Y = startp.Y < 0 ? 0 : startp.Y;
+                startp.X = startp.X > granularity * 2 ? granularity * 2 : startp.X;
+                startp.Y = startp.Y > granularity *2 ? granularity *2 : startp.Y;
                 var endp = new Point((int)endPos.X, (int)endPos.Y);
                 endp.X /= reducer;
                 endp.Y /= reducer;
                 endp.Y += granularity;
                 endp.X += granularity;
-
+                endp.X = endp.X < 0 ? 0 : endp.X;
+                endp.Y = endp.Y < 0 ? 0 : endp.Y;
+                endp.X = endp.X > granularity * 2 ? granularity * 2 : endp.X;
+                endp.Y = endp.Y > granularity * 2 ? granularity * 2 : endp.Y;
                 //@Bug Add sanity correct to prevent start and end from getting posistions off the map
                 using (Owner.loyalty.LockPatchCache.AcquireReadLock())
                     if (PathCacheLookup(startp, endp, startPos, endPos))
