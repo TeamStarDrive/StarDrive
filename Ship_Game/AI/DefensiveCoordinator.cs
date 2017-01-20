@@ -138,7 +138,7 @@ namespace Ship_Game.AI
             }
 
             foreach (var kv in DefenseDict)
-                kv.Value.UpdateSystemValue(Us);
+                kv.Value.UpdateSystemValue();
        
             int ranker = 0;
             int split = DefenseDict.Count / 10;
@@ -244,7 +244,7 @@ namespace Ship_Game.AI
                         assignedShips.Add(ship.guid, ship);
                         if (kv.Value.ShipsDict.ContainsKey(ship.guid)) continue;
 
-                        kv.Value.ShipsDict.TryAdd(ship.guid, ship);
+                        kv.Value.ShipsDict.Add(ship.guid, ship);
                         startingStr = startingStr - ship.GetStrength();
                         ship.GetAI().OrderSystemDefense(kv.Key);
                     }
