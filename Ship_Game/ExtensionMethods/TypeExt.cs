@@ -59,7 +59,8 @@ namespace Ship_Game
         /// For reference types, returns sizeof pointer</summary> 
         public static int SizeOfRef(this Type type)
         {
-            return type.IsValueType ? Marshal.SizeOf(type) : IntPtr.Size;
+            bool reftype = type.IsClass || type.IsSealed;
+            return reftype ? IntPtr.Size : Marshal.SizeOf(type);
         }
     }
 }
