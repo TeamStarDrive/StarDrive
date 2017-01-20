@@ -2530,17 +2530,11 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.AddShip(toAdd);
                 return;
             }
-            IOrderedEnumerable<AO> sorted =
-                from ao in this.empire.GetGSAI().AreasOfOperations
-                orderby Vector2.Distance(toAdd.Position, ao.Position)
-                select ao;
-            if (sorted.Count<AO>() <= 0)
-            {
-                this.empire.GetForcePool().Add(toAdd);
-                return;
-            }
-            //sorted.First().AddShip(toAdd);//   First<AO>().AddShip(toAdd);
-            sorted.ElementAt(0).AddShip(toAdd);
+
+            if (empire.GetGSAI().AreasOfOperations.FindMin(out AO ao, a => toAdd.Position.SqDist(a.Position)))
+                ao.AddShip(toAdd);
+            else
+                empire.GetForcePool().Add(toAdd);
 		}
 
 		public void CallAllyToWar(Empire Ally, Empire Enemy)
@@ -6825,15 +6819,13 @@ namespace Ship_Game.AI
                 }
                 if (allPlanetsRanker.Count > 0)
                 {
-                    this.DesiredPlanets.Clear();
+                    DesiredPlanets.Clear();
                     IOrderedEnumerable<Goal.PlanetRanker> sortedList =
                         from ran in allPlanetsRanker
                         orderby ran.PV descending
                         select ran;
-                    for (int i = 0; i < allPlanetsRanker.Count; i++)
-                    {
-                        this.DesiredPlanets.Add(sortedList.ElementAt<Goal.PlanetRanker>(i).planet);
-                    }
+                    foreach (Goal.PlanetRanker planetRanker in sortedList)
+                        DesiredPlanets.Add(planetRanker.planet);
                 }
                 if (toMark != null)
                 {
