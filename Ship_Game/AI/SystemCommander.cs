@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
@@ -19,12 +17,12 @@ namespace Ship_Game.AI
         public float PercentageOfValue;
         public float SystemDevelopmentlevel;
         public float RankImportance;
-        public int TroopCount = 0;
+        public int TroopCount;
         public int TroopsWanted => IdealTroopCount - TroopCount;
 		public Map<Guid, Ship> ShipsDict = new Map<Guid, Ship>();
 		public Map<Ship, Array<Ship>> EnemyClumpsDict = new Map<Ship, Array<Ship>>();
 		private readonly Empire Us;
-        public Map<Planet, PlanetTracker> planetTracker = new Map<Planet, PlanetTracker>();
+        public Map<Planet, PlanetTracker> PlanetTracker = new Map<Planet, PlanetTracker>();
 
 		public SystemCommander(Empire e, SolarSystem system)
 		{
@@ -51,10 +49,9 @@ namespace Ship_Game.AI
                     cummulator += System.combatTimer > 0 ? 5 : 0;  //fbedard: DangerTimer is in relation to the player only !
                     cummulator += p.HasShipyard ? 5 : 0;
 
-                    ValueToUs = cummulator;
-                    planetTracker[p].value = cummulator;
-
                     if (Us.data.Traits.Cybernetic > 0) cummulator += p.MineralRichness;
+                    ValueToUs = cummulator;
+                    PlanetTracker[p].value = cummulator;
                 }
                 foreach (Planet other in System.PlanetList)
                 {
@@ -106,8 +103,8 @@ namespace Ship_Game.AI
         }
         public Planet AssignIdleDuties(Ship ship)
         {
-            Array<PlanetTracker> planets = planetTracker.Values.ToArrayList();
-            Planet p = planets.FindMax(value => value.value).planet;            
+            PlanetTracker[] planets = PlanetTracker.Values.ToArray();
+            Planet p = planets.FindMax(value => value.value).Planet;            
             return p ;
             
         }
@@ -115,6 +112,7 @@ namespace Ship_Game.AI
         {
             EnemyClumpsDict.Clear();
             HashSet<Ship> shipsAlreadyConsidered = new HashSet<Ship>();
+        
             foreach (var kv in ShipsDict)
             {
                 Ship ship = kv.Value;
@@ -251,8 +249,7 @@ namespace Ship_Game.AI
             if (predicted <= 0f) IdealShipStrength = min;
             else
             {
-                IdealShipStrength = (int)(predicted * RankImportance / 10);
-                
+                IdealShipStrength = (int)(predicted * RankImportance / 10);                
                 IdealShipStrength += min;
             }
         }
@@ -261,15 +258,15 @@ namespace Ship_Game.AI
             var planetsHere = System.PlanetList.Where(planet => planet.Owner == Us).ToArray();
             foreach(Planet planet in  planetsHere)
             {
-                if (!planetTracker.TryGetValue(planet, out PlanetTracker currentValue))
+                if (!PlanetTracker.TryGetValue(planet, out PlanetTracker currentValue))
                 {
                     PlanetTracker newEntry = new PlanetTracker(planet);
-                    planetTracker.Add(planet, newEntry);
+                    PlanetTracker.Add(planet, newEntry);
                     continue;
                 }
-                if (currentValue.planet.Owner != Us)
+                if (currentValue.Planet.Owner != Us)
                 {
-                    planetTracker.Remove(currentValue.planet);
+                    PlanetTracker.Remove(currentValue.Planet);
                 }
             }
         }
@@ -286,20 +283,20 @@ namespace Ship_Game.AI
             ShipsDict = null;
             EnemyClumpsDict?.Clear();
             EnemyClumpsDict = null;
-            planetTracker?.Clear();
-            planetTracker = null;
+            PlanetTracker?.Clear();
+            PlanetTracker = null;
             System = null;          
         }
     }
     public class PlanetTracker
     {
         public float value;
-        public int troopsWanted;
-        public int troopsHere ;
-        public Planet planet;
+        public int TroopsWanted;
+        public int TroopsHere ;
+        public Planet Planet;
         public PlanetTracker(Planet toTrack)
         {
-            planet = toTrack;
+            Planet = toTrack;
 
         }
        
