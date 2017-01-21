@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using NUnit.Framework;
 using Ship_Game;
+using Ship_Game.Gameplay;
 
 namespace SDUnitTests
 {
@@ -73,11 +75,11 @@ namespace SDUnitTests
         public void TestToArray()
         {
             var arr = new[] { "a", "b", "c" };
-            Array<string> arr1 = new Array<string>();
+            var arr1 = new Array<string>();
             arr1.AddRange(arr);
             Assert.AreEqual(arr, arr1);
 
-            var arr2 = ((ICollection<string>)arr1).ToArray();
+            string[] arr2 = ((ICollection<string>)arr1).ToArray();
             Assert.AreEqual(arr, arr2);
 
             arr2 = ((IReadOnlyList<string>)arr1).ToArray();
@@ -90,44 +92,101 @@ namespace SDUnitTests
             Assert.AreEqual(arr, arr2);
         }
 
-        [Test]
-        public void TestArrayCopyPerformance()
+        private static void ReportPerf<T>(float e1, float e2, float e3, float e4)
         {
-            string[] strings = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
-            string[] arr = new string[1333337];
-            for (int i = 0; i < arr.Length; ++i)
-                arr[i] = strings[i % strings.Length];
+            Console.WriteLine("{0} for:{1,3}ms  .NET:{2,3}ms  APEX:{3,3}ms  Hybrid:{4,3}ms", 
+                typeof(T).Name.PadLeft(7), 
+                (int)e1, (int)e2, (int)e3, (int)e4);
+        }
 
-            string[] copy = new string[arr.Length];
+        // We are testing multiple types because Array.Copy performance varies
+        // depending on the type
+        public void ArrayCopyPerf<T>(T[] values, int count, int timesToRun)
+        {
+            var arr = new T[count];
+            for (int i = 0; i < arr.Length; ++i)
+                arr[i] = values[i % values.Length];
+
+            // warmup loop
+            var copy = new T[arr.Length];
+            for (int j = 0; j < 5; ++j)
+            {
+                Memory.ForCopy(copy, 0, arr, arr.Length);
+                Array.Copy(arr, 0, copy, 0, arr.Length);
+                Memory.ApexCopy(copy, 0, arr, arr.Length);
+                Memory.HybridCopy(copy, 0, arr, arr.Length);
+            }
 
             PerfTimer t = PerfTimer.StartNew();
-            for (int i = 0; i < 20; ++i)
-            {
-                for (int j = 0; j < arr.Length; ++j)
-                    copy[j] = arr[j];
-            }
+            for (int i = 0; i < timesToRun; ++i)
+                Memory.ForCopy(copy, 0, arr, arr.Length);
             float e1 = t.ElapsedMillis;
-            Console.WriteLine("T[] copy for-loop: {0:0.00}ms", e1);
             Assert.AreEqual(arr, copy);
 
             t.Start();
-            for (int i = 0; i < 20; ++i)
-            {
+            for (int i = 0; i < timesToRun; ++i)
                 Array.Copy(arr, 0, copy, 0, arr.Length);
-            }
             float e2 = t.ElapsedMillis;
-            Console.WriteLine("T[] copy Array.Copy: {0:0.00}ms", e2);
             Assert.AreEqual(arr, copy);
 
-            int sizeOf = typeof(string).SizeOfRef();
             t.Start();
-            for (int i = 0; i < 20; ++i)
-            {
-                Memory.CopyBytes(copy, arr, arr.Length * sizeOf);
-            }
+            for (int i = 0; i < timesToRun; ++i)
+                Memory.ApexCopy(copy, 0, arr, arr.Length);
             float e3 = t.ElapsedMillis;
-            Console.WriteLine("T[] copy ApexMemCopy: {0:0.00}ms", e3);
             Assert.AreEqual(arr, copy);
+
+            t.Start();
+            for (int i = 0; i < timesToRun; ++i)
+                Memory.HybridCopy(copy, 0, arr, arr.Length);
+            float e4 = t.ElapsedMillis;
+            Assert.AreEqual(arr, copy);
+
+            ReportPerf<T>(e1, e2, e3, e4);
         }
+
+
+        [Test]
+        public void TestArrayRefTypeCopy()
+        {
+            string[] strings  = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
+            Weapon[] weapons = { new Weapon(), new Weapon(), new Weapon(), new Weapon() };
+
+            int[] sizes = { 2, 4, 6, 8, 10, 12, 16, 20, 32, 64, 128, 512, 8192, 32768, 262144, 1333337 };
+            const int elementsToProcess = 10000000;
+
+            foreach (int size in sizes)
+            {
+                int iterations = elementsToProcess / size;
+                Console.WriteLine("array[{0}] iterations {1}:", size, iterations);
+                ArrayCopyPerf(strings, size, timesToRun: iterations);
+                ArrayCopyPerf(weapons, size, timesToRun: iterations);
+                Console.WriteLine("===============================");
+            }
+        }
+
+        [Test]
+        public void TestArrayValueTypeCopy()
+        {
+            // struct types
+            int[] integers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            float[] singles = { 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f };
+            double[] doubles = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
+            Vector2[] vectors = { new Vector2(0f), new Vector2(0.5f), new Vector2(1f), new Vector2(1.33f), new Vector2(2.66f), new Vector2(-3.33f) };
+
+            int[] sizes = { 2, 4, 6, 8, 10, 12, 16, 20, 32, 64, 128, 512, 8192, 32768, 262144, 1333337 };
+            const int elementsToProcess = 10000000;
+
+            foreach (int size in sizes)
+            {
+                int iterations = elementsToProcess / size;
+                Console.WriteLine("array[{0}] iterations {1}:", size, iterations);
+                ArrayCopyPerf(integers, size, timesToRun: iterations);
+                ArrayCopyPerf(singles,  size, timesToRun: iterations);
+                ArrayCopyPerf(doubles,  size, timesToRun: iterations);
+                ArrayCopyPerf(vectors,  size, timesToRun: iterations);
+                Console.WriteLine("===============================");
+            }
+        }
+
     }
 }
