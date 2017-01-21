@@ -241,44 +241,48 @@ namespace Ship_Game
 
         public void Clear()
         {
-            Array.Clear(Items, 0, Count);
+            int count = Count;
+            if (count == 0)
+                return;
+            // nulls all references/structfields to avoid GC leaks
+            Array.Clear(Items, 0, count); 
             Count = 0;
         }
 
         public void ClearAndDispose()
         {
-            if (Count <= 0)
+            int count = Count;
+            if (count == 0)
                 return;
             if (typeof(IDisposable).IsAssignableFrom(typeof(T)))
-                for (int i = 0; i < Count; ++i)
+                for (int i = 0; i < count; ++i)
                     (Items[i] as IDisposable)?.Dispose();
-            Array.Clear(Items, 0, Count);
+            Array.Clear(Items, 0, count);
             Count = 0;
         }
 
         public bool Contains(T item)
         {
+            int count = Count;
+            if (count == 0)
+                return false;
             if (item == null)
             {
-                for (int i = 0; i < Count; i++)
+                for (int i = 0; i < count; i++)
                     if (Items[i] == null) return true;
                 return false;
             }
             var c = EqualityComparer<T>.Default;
-            for (int i = 0; i < Count; i++)
-                if (c.Equals(Items[i], item)) return true;
+            for (int i = 0; i < count; i++)
+                if (c.Equals(Items[i], item))
+                    return true;
             return false;
         }
 
         public void CopyTo(T[] array, int arrayIndex = 0)
         {
-            //if (arrayIndex == 0)
-            //    Memory.CopyBytes(array, Items, Count * SizeOf);
-            //else
-            //    Memory.CopyBytes(array, arrayIndex, Items, Count, SizeOf);
-
-            // if we get crashes, we should fall back to this implementation:
-            Array.Copy(Items, 0, array, arrayIndex, Count);
+            int count = Count;
+            if (count != 0) Memory.HybridCopy(array, arrayIndex, Items, count);
         }
 
         public bool Remove(T item)
@@ -469,29 +473,35 @@ namespace Ship_Game
 
         public void Reverse()
         {
-            for (int i = 0, j = Count - 1; i < j; ++i, --j)
+            unchecked
             {
-                T temp   = Items[i];
-                Items[i] = Items[j];
-                Items[j] = temp;
+                for (int i = 0, j = Count - 1; i < j; ++i, --j)
+                {
+                    T temp = Items[i];
+                    Items[i] = Items[j];
+                    Items[j] = temp;
+                }
             }
         }
 
         public void ForEach(Action<T> action)
         {
-            int n = Count;
-            for (int i = 0; i < n; ++i)
-                action(Items[i]);
+            unchecked
+            {
+                int count = Count;
+                for (int i = 0; i < count; ++i)
+                    action(Items[i]);
+            }
         }
 
         public T[] ToArray()
         {
-            var arr = new T[Count];
-            CopyTo(arr);
+            int count = Count;
+            if (count == 0)
+                return Empty<T>.Array;
 
-            // if we get errors with this, restore to Array.Copy
-            //Memory.CopyBytes(arr, Items, arr.Length * SizeOf);
-            //Array.Copy(Items, arr, Count);
+            var arr = new T[count];
+            Memory.HybridCopy(arr, 0, Items, count);
             return arr;
         }
 

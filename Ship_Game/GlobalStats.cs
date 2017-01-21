@@ -154,7 +154,7 @@ namespace Ship_Game
                 return; // configuration file is missing
             }
 
-            var ver = (Assembly.GetEntryAssembly()
+            string[] ver = (Assembly.GetEntryAssembly()?
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
                 as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion.Split('_');
             if (ver?.Length > 1)
