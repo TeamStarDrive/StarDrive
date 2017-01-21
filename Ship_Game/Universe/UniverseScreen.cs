@@ -1143,7 +1143,7 @@ namespace Ship_Game
                 catch (Exception ex)
                 {
                     if (++failedLoops > 1)
-                        throw ex; // the loop is having a cyclic crash, no way to recover
+                        throw; // the loop is having a cyclic crash, no way to recover
                     Log.Error(ex, "ProcessTurns crashed");
                 }
                 finally
