@@ -52,7 +52,7 @@ namespace Ship_Game.AI
 
                     if (Us.data.Traits.Cybernetic > 0) cummulator += p.MineralRichness;
                     ValueToUs = cummulator;
-                    PlanetTracker[p].value = cummulator;
+                    PlanetTracker[p].Value = cummulator;
                 }
                 foreach (Planet other in System.PlanetList)
                 {
@@ -108,7 +108,7 @@ namespace Ship_Game.AI
             PlanetTracker best = null;
             foreach(PlanetTracker pl in planets)
             {
-                if (best == null || best.value < pl.value)
+                if (best == null || best.Value < pl.Value)
                     best = pl;
             }
             return best.Planet;                        
@@ -179,11 +179,9 @@ namespace Ship_Game.AI
 			float str = 0f;
             foreach (var kv in ShipsDict)
                 str = str + kv.Value.GetStrength();
-            
 			return str;
 		}
 
-        
         public void CalculateTroopNeeds()
         {
             int mintroopLevel = (int)(Ship.universeScreen.GameDifficulty + 1) * 2;
@@ -258,7 +256,7 @@ namespace Ship_Game.AI
     }
     public class PlanetTracker
     {
-        public float value;
+        public float Value;
         public int TroopsWanted;
         public int TroopsHere ;
         public Planet Planet;
