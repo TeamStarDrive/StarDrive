@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq.Expressions;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection;
 using Microsoft.Xna.Framework;
@@ -20,6 +21,11 @@ namespace Ship_Game
         public string Name { get; }
 
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
+
+        static GameContentManager()
+        {
+            FixSunBurnTypeLoader();
+        }
 
         public GameContentManager(IServiceProvider service, string name) : base(service, "Content")
         {
@@ -232,6 +238,65 @@ namespace Ship_Game
                     throw new ContentLoadException($"Asset '{assetName}' was not found", ex);
                 if (ex is ArgumentException || ex is NotSupportedException || ex is IOException || ex is UnauthorizedAccessException)
                     throw new ContentLoadException($"Asset '{assetName}' could not be opened", ex);
+                throw;
+            }
+        }
+
+        private static void FixSunBurnTypeLoader()
+        {
+            Type readerMgrType  = typeof(ContentTypeReaderManager);
+            Type contentMgrType = typeof(GameContentManager);
+
+            FieldInfo readerType = readerMgrType.GetField("readerTypeToReader", BindingFlags.NonPublic | BindingFlags.Static);
+            FieldInfo nameTo     = readerMgrType.GetField("nameToReader", BindingFlags.NonPublic | BindingFlags.Static);
+            ReaderTypeToReader = readerType?.GetValue(null) as Dictionary<Type, ContentTypeReader>;
+            NameToReader       = nameTo?.GetValue(null) as Dictionary<string, ContentTypeReader>;
+
+            MethodInfo oldMethod = readerMgrType.GetMethod("InstantiateTypeReader", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodInfo newMethod = contentMgrType.GetMethod("InstantiateTypeReader", BindingFlags.NonPublic | BindingFlags.Static);
+            MethodUtil.ReplaceMethod(newMethod, oldMethod);
+
+            XnaAssembly = readerMgrType.Assembly;
+            SunburnAssemblyName = typeof(SynapseGaming.LightingSystem.Core.SceneInterface).Assembly.FullName;
+        }
+
+        private static Dictionary<Type, ContentTypeReader> ReaderTypeToReader;
+        private static Dictionary<string, ContentTypeReader> NameToReader;
+        private static Assembly XnaAssembly;
+        private static string SunburnAssemblyName;
+
+        private static bool InstantiateTypeReader(string readerTypeName, ContentReader contentReader, out ContentTypeReader reader)
+        {
+            try
+            {
+                Type type;
+                if (readerTypeName.StartsWith("SynapseGaming."))
+                {
+                    string typeName = readerTypeName.Substring(0, readerTypeName.IndexOf(','));
+                    string reroutedFullName = typeName + ", " + SunburnAssemblyName;
+                    type = Type.GetType(reroutedFullName);
+                }
+                else
+                {
+                    type = XnaAssembly.GetType(readerTypeName) ?? Type.GetType(readerTypeName);
+                }
+
+                if (type == null)
+                {
+                    throw new ContentLoadException($"{contentReader.AssetName} load failed: TypeReader not found for {readerTypeName}");
+                }
+                if (ReaderTypeToReader.TryGetValue(type, out reader))
+                {
+                    NameToReader.Add(readerTypeName, reader);
+                    return false;
+                }
+                reader = (ContentTypeReader)Activator.CreateInstance(type);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (ex is ArgumentException || ex is TargetInvocationException || (ex is TypeLoadException || ex is NotSupportedException) || (ex is MemberAccessException || ex is InvalidCastException))
+                    throw new ContentLoadException($"{contentReader.AssetName} load failed: TypeReader {readerTypeName} is invalid", ex);
                 throw;
             }
         }
