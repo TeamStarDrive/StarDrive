@@ -4707,9 +4707,9 @@ namespace Ship_Game.Gameplay
                 else                 dieSoundEffect = "sd_explosion_ship_det_large";
                 AudioManager.PlayCue(dieSoundEffect, universeScreen.listener, emitter);
             }
-            foreach (Empire empire in EmpireManager.Empires)
+            for (int index = 0; index < EmpireManager.Empires.Count; index++)
             {
-                empire.GetGSAI().ThreatMatrix.Pins.TryRemove(guid, out ThreatMatrix.Pin pin);
+                EmpireManager.Empires[index].GetGSAI().ThreatMatrix.RemovePin(this);                 
             }
             BorderCheck.Clear();
             ModuleSlotList.Clear();
