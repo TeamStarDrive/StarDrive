@@ -38,15 +38,15 @@ namespace Ship_Game
 
             Exiting += GameExiting;
 
-        #if DEBUG
-            MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("Update2"), typeof(SplashScreen).GetMethod("Update"));
-            foreach (var method in from type in Assembly.GetAssembly(typeof(SplashScreen)).GetTypes() where type.Name == "a" select type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic) into methods from method in methods where method.Name == "k" select method)
-            {
-                MethodUtil.ReplaceMethod(typeof(DevekSplash).GetMethod("k2", BindingFlags.Static | BindingFlags.Public), method);
-            }
-        #endif
+//#if DEBUG
+//            MethodUtil.ReplaceMethod(typeof(ZeroSplash).GetMethod("Update"), typeof(SplashScreen).GetMethod("Update"));
+//            foreach (var method in from type in Assembly.GetAssembly(typeof(SplashScreen)).GetTypes() where type.Name == "a" select type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic) into methods from method in methods where method.Name == "k" select method)
+//            {
+//                MethodUtil.ReplaceMethod(typeof(ZeroSplash).GetMethod("k2", BindingFlags.Static | BindingFlags.Public), method);
+//            }
+//#endif
 
-			Graphics = new GraphicsDeviceManager(this)
+            Graphics = new GraphicsDeviceManager(this)
 			{
 				MinimumPixelShaderProfile  = ShaderProfile.PS_2_0,
 				MinimumVertexShaderProfile = ShaderProfile.VS_2_0
@@ -110,8 +110,8 @@ namespace Ship_Game
 		    GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Black);
 		    if (!SplashScreen.DisplayComplete)
 		    {
-		        ScreenManager.splashScreenGameComponent.Draw(gameTime);
-		    }
+                ScreenManager.splashScreenGameComponent.Draw(gameTime);
+            }
 		    ScreenManager.Draw(gameTime);
 		    base.Draw(gameTime);
 		}
@@ -119,12 +119,12 @@ namespace Ship_Game
 		protected override void Initialize()
 		{
 			Window.Title = "StarDrive";
-			ScreenManager = new ScreenManager(this, Graphics)
+            ScreenManager = new ScreenManager(this, Graphics)
 			{
 				splashScreenGameComponent = new SplashScreenGameComponent(this, Graphics)
 			};
-			Components.Add(ScreenManager.splashScreenGameComponent);
-			AudioManager.Initialize(this, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
+            Components.Add(ScreenManager.splashScreenGameComponent);
+            AudioManager.Initialize(this, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
             
 			Instance = this;
 			base.Initialize();
