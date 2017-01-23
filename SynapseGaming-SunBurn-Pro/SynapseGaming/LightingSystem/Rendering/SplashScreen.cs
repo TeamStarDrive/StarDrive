@@ -28,15 +28,14 @@ namespace SynapseGaming.LightingSystem.Rendering
         private FullFrameQuad fullFrameQuad_0;
         private IGraphicsDeviceService igraphicsDeviceService_0;
 
-        // force the splash to finish immediately:
-        private const double SplashTime = 0.0;
-        private const double ClickTime = 0.0;
+        private const double SplashTime = 2.5;
+        private const double ClickTime = 0.5;
 
         /// <summary>
         /// Used to determine when the SunBurn splash screen is finished displaying
         /// and it's safe to begin game rendering.
         /// </summary>
-        public static bool DisplayComplete { get; private set; }
+        public static bool DisplayComplete { get; private set; } = true /*true: force immediate start of the game, skip the splash*/;
 
         /// <summary>
         /// Used to enable or disable the SunBurn splash screen during development. Enabling the splash
