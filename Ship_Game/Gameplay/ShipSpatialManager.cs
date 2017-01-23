@@ -1,154 +1,117 @@
-using Microsoft.Xna.Framework;
-using Ship_Game;
 using System;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game.Gameplay
 {
-	public sealed class ShipSpatialManager: IDisposable
-	{
-		private const float speedDamageRatio = 0.5f;
+    public sealed class ShipSpatialManager 
+    {
+        private int Cols;
+        private int Rows;
+        private Vector2 UpperLeftBound;
+        private Map<int, Array<Ship>> Buckets;
+        private int SceneWidth;
+        private int CellSize;
+        public Array<Ship> CollidableObjects = new Array<Ship>();
+        private float BucketUpdateTimer;
 
-		private int Cols;
-
-		private int Rows;
-
-		private Vector2 UpperLeftBound;
-
-		private Map<int, Array<Ship>> Buckets;
-
-		private int SceneWidth;
-
-		private int SceneHeight;
-
-		private int CellSize;
-
-		public BatchRemovalCollection<Ship> CollidableObjects = new BatchRemovalCollection<Ship>();
-
-		private float bucketUpdateTimer;
-
-		public ShipSpatialManager()
-		{
-		}
-
-		private void AddBucket(Vector2 vector, float width, Array<int> buckettoaddto)
-		{
-			int cellPosition = (int)(Math.Floor((double)(vector.X / (float)this.CellSize)) + Math.Floor((double)(vector.Y / (float)this.CellSize)) * (double)width);
-			if (!buckettoaddto.Contains(cellPosition))
-			{
-				buckettoaddto.Add(cellPosition);
-			}
-		}
-
-		internal void ClearBuckets()
-		{
-			for (int i = 0; i < this.Cols * this.Rows; i++)
-			{
-				this.Buckets[i].Clear();
-			}
-		}
-
-		public void Destroy()
-		{
-			this.Buckets = null;
-		}
-
-		private Array<int> GetIdForObj(GameplayObject obj)
-		{
-			Array<int> bucketsObjIsIn = new Array<int>();
-			Vector2 Center = obj.Center - this.UpperLeftBound;
-			Vector2 min = new Vector2(Center.X - 500000f, Center.Y - 500000f);
-			Vector2 max = new Vector2(Center.X + 5000000f, Center.Y + 500000f);
-			float width = (float)(this.SceneWidth / this.CellSize);
-			this.AddBucket(min, width, bucketsObjIsIn);
-			Vector2 m1 = new Vector2(max.X, min.Y);
-			this.AddBucket(m1, width, bucketsObjIsIn);
-			Vector2 m2 = new Vector2(max.X, max.Y);
-			this.AddBucket(m2, width, bucketsObjIsIn);
-			Vector2 m3 = new Vector2(min.X, max.Y);
-			this.AddBucket(m3, width, bucketsObjIsIn);
-			return bucketsObjIsIn;
-		}
-
-		public Array<Ship> GetNearby(Ship obj)
-		{
-			Array<Ship> objects = new Array<Ship>();
-			foreach (int item in this.GetIdForObj(obj))
-			{
-				if (!this.Buckets.ContainsKey(item))
-				{
-					continue;
-				}
-				objects.AddRange(this.Buckets[item]);
-			}
-			return objects;
-		}
-
-		internal void RegisterObject(Ship obj)
-		{
-			foreach (int item in this.GetIdForObj(obj))
-			{
-				if (!this.Buckets.ContainsKey(item))
-				{
-					this.Buckets[1].Add(obj);
-				}
-				else
-				{
-					this.Buckets[item].Add(obj);
-				}
-			}
-		}
-
-		public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 Pos)
-		{
-			this.UpperLeftBound.X = Pos.X - (float)(sceneWidth / 2);
-			this.UpperLeftBound.Y = Pos.Y - (float)(sceneHeight / 2);
-			this.Cols = sceneWidth / cellSize;
-			this.Rows = sceneHeight / cellSize;
-			this.Buckets = new Map<int, Array<Ship>>(this.Cols * this.Rows);
-			for (int i = 0; i < this.Cols * this.Rows; i++)
-			{
-				this.Buckets.Add(i, new Array<Ship>());
-			}
-			this.SceneWidth = sceneWidth;
-			this.SceneHeight = sceneHeight;
-			this.CellSize = cellSize;
-		}
-
-		public void Update(float elapsedTime)
-		{
-			ShipSpatialManager shipSpatialManager = this;
-			shipSpatialManager.bucketUpdateTimer = shipSpatialManager.bucketUpdateTimer - elapsedTime;
-			if (this.bucketUpdateTimer <= 0f)
-			{
-				this.ClearBuckets();
-				foreach (Ship obj in this.CollidableObjects)
-				{
-					if (!obj.Active)
-					{
-						this.CollidableObjects.QueuePendingRemoval(obj);
-					}
-					else
-					{
-						this.RegisterObject(obj);
-					}
-				}
-				this.bucketUpdateTimer = 0.25f;
-			}
-			this.CollidableObjects.ApplyPendingRemovals();
-		}
-
-        public void Dispose()
+        private void AddBucket(Vector2 vector, float width, Array<int> buckettoaddto)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            int cellPosition = (int)(Math.Floor(vector.X / CellSize) + Math.Floor(vector.Y / CellSize) * width);
+            if (!buckettoaddto.Contains(cellPosition)) buckettoaddto.Add(cellPosition);     
         }
 
-        ~ShipSpatialManager() { Dispose(false); }
-
-        private void Dispose(bool disposing)
+        internal void ClearBuckets()
         {
-            CollidableObjects?.Dispose(ref CollidableObjects);
+            for (int i = 0; i < Cols * Rows; i++)
+            {
+                Buckets[i].Clear();
+            }
         }
+
+        public void Destroy()
+        {
+            Buckets = null;
+        }
+
+        private Array<int> GetIdForObj(GameplayObject obj)
+        {
+            Array<int> bucketsObjIsIn = new Array<int>();
+            Vector2 Center = obj.Center - UpperLeftBound;
+            Vector2 min = new Vector2(Center.X - 500000f, Center.Y - 500000f);
+            Vector2 max = new Vector2(Center.X + 5000000f, Center.Y + 500000f);
+            float width = SceneWidth / CellSize;
+            AddBucket(min, width, bucketsObjIsIn);
+            Vector2 m1 = new Vector2(max.X, min.Y);
+            AddBucket(m1, width, bucketsObjIsIn);
+            Vector2 m2 = new Vector2(max.X, max.Y);
+            AddBucket(m2, width, bucketsObjIsIn);
+            Vector2 m3 = new Vector2(min.X, max.Y);
+            AddBucket(m3, width, bucketsObjIsIn);
+            return bucketsObjIsIn;
+        }
+
+        public Array<Ship> GetNearby(Ship obj)
+        {
+            Array<Ship> objects = new Array<Ship>();
+            foreach (int item in GetIdForObj(obj))
+            {
+                if (!Buckets.ContainsKey(item))
+                {
+                    continue;
+                }
+                objects.AddRange(Buckets[item]);
+            }
+            return objects;
+        }
+
+        internal void RegisterObject(Ship obj)
+        {
+            foreach (int item in GetIdForObj(obj))
+            {
+                if (!Buckets.ContainsKey(item))
+                {
+                    Buckets[1].Add(obj);
+                }
+                else
+                {
+                    Buckets[item].Add(obj);
+                }
+            }
+        }
+
+        public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 Pos)
+        {
+            UpperLeftBound.X = Pos.X - sceneWidth / 2;
+            UpperLeftBound.Y = Pos.Y - sceneHeight / 2;
+            Cols = sceneWidth / cellSize;
+            Rows = sceneHeight / cellSize;
+            Buckets = new Map<int, Array<Ship>>(Cols * Rows);
+            for (int i = 0; i < Cols * Rows; i++)
+            {
+                Buckets.Add(i, new Array<Ship>());
+            }
+            SceneWidth = sceneWidth;
+            CellSize = cellSize;
+        }
+
+        public void Update(float elapsedTime)
+        {
+            BucketUpdateTimer -= elapsedTime;
+            if (BucketUpdateTimer <= 0f)
+            {
+                ClearBuckets();
+
+                for (int index = 0; index < CollidableObjects.Count; index++)
+                {
+                    Ship obj = CollidableObjects[index];
+                    if (!obj.Active) CollidableObjects.Remove(obj);
+                    else
+                        RegisterObject(obj);
+                }
+                BucketUpdateTimer = 0.25f;
+            }
+        }
+
+
     }
 }

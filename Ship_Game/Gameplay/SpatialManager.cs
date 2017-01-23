@@ -14,12 +14,12 @@ namespace Ship_Game.Gameplay
 {
     public sealed class SpatialManager: IDisposable
     {
-        public BatchRemovalCollection<GameplayObject> CollidableObjects = new BatchRemovalCollection<GameplayObject>();
-        public BatchRemovalCollection<Projectile> CollidableProjectiles = new BatchRemovalCollection<Projectile>();
-        public BatchRemovalCollection<Asteroid> Asteroids = new BatchRemovalCollection<Asteroid>();
-        public BatchRemovalCollection<Beam> BeamList = new BatchRemovalCollection<Beam>();
+        public Array<GameplayObject> CollidableObjects = new Array<GameplayObject>();
+        public Array<Projectile> CollidableProjectiles = new Array<Projectile>();
+        public Array<Asteroid> Asteroids = new Array<Asteroid>();
+        public Array<Beam> BeamList = new Array<Beam>();
         private float bucketUpdateTimer = 0.5f;
-        private Array<SpatialManager.CollisionResult> collisionResults = new Array<SpatialManager.CollisionResult>();
+        private Array<CollisionResult> collisionResults = new Array<CollisionResult>();
         private const float speedDamageRatio = 0.25f;
         private int Cols;
         private int Rows;
@@ -30,112 +30,105 @@ namespace Ship_Game.Gameplay
         public int SceneWidth;
         public int SceneHeight;
         public int CellSize;
-        public bool FineDetail;
-
+        public bool FineDetail;        
         public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 Pos)
         {
-            this.UpperLeftBound.X = Pos.X - (float)(sceneWidth / 2);
-            this.UpperLeftBound.Y = Pos.Y - (float)(sceneHeight / 2);
-            this.Cols = sceneWidth / cellSize;
-            this.Rows = sceneHeight / cellSize;
-            //this.Buckets = new Map<int, Array<GameplayObject>>(this.Cols * this.Rows);
-            this.Buckets = new ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>>();
-            for (int key = 0; key < this.Cols * this.Rows; ++key)
-                this.Buckets.TryAdd(key, new BatchRemovalCollection<GameplayObject>());
-            this.SceneWidth = sceneWidth;
-            this.SceneHeight = sceneHeight;
-            this.CellSize = cellSize;
+            UpperLeftBound.X = Pos.X - (float)(sceneWidth / 2);
+            UpperLeftBound.Y = Pos.Y - (float)(sceneHeight / 2);
+            Cols = sceneWidth / cellSize;
+            Rows = sceneHeight / cellSize;
+            //Buckets = new Map<int, Array<GameplayObject>>(Cols * Rows);
+            Buckets = new ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>>();
+            for (int key = 0; key < Cols * Rows; ++key)
+                Buckets.TryAdd(key, new BatchRemovalCollection<GameplayObject>());
+            SceneWidth = sceneWidth;
+            SceneHeight = sceneHeight;
+            CellSize = cellSize;
         }
 
         public void Update(float elapsedTime, SolarSystem system)
         {
-            this.BeamList.ApplyPendingRemovals();
-            this.bucketUpdateTimer -= elapsedTime;
-            if (this.bucketUpdateTimer <= 0.0)
+            //BeamList.ApplyPendingRemovals();
+            bucketUpdateTimer -= elapsedTime;
+            if (bucketUpdateTimer <= 0.0)
             {
-                this.ClearBuckets();
+                ClearBuckets();
                 if (system != null)
                 {
                     if (system.CombatInSystem && system.ShipList.Count > 10)
                     {
-                        if (!this.FineDetail || this.Buckets.Count < 20 && this.CollidableProjectiles.Count > 0)
+                        if (!FineDetail || Buckets.Count < 20 && CollidableProjectiles.Count > 0)
                         {
-                            this.Setup(200000, 200000, 6000, system.Position);
-                            this.FineDetail = true;
+                            Setup(200000, 200000, 6000, system.Position);
+                            FineDetail = true;
                         }
                     }
-                    else if (this.FineDetail || this.Buckets.Count > 20 || this.CollidableProjectiles.Count == 0)
-                        this.Setup(200000, 200000, 50000, system.Position);
+                    else if (FineDetail || Buckets.Count > 20 || CollidableProjectiles.Count == 0)
+                        Setup(200000, 200000, 50000, system.Position);
                 }
-                GameplayObject gameplayObject = null;
-                for (int index = 0; index < this.CollidableObjects.Count; ++index)
+                for (int index = 0; index < CollidableObjects.Count; ++index)
                 {
-                    gameplayObject = this.CollidableObjects[index];
+                    GameplayObject gameplayObject = CollidableObjects[index];
                     if (gameplayObject != null)
                     {
-                        if (gameplayObject.System!= null && system == null)
-                            this.CollidableObjects.QueuePendingRemoval(gameplayObject);
-                        else if (gameplayObject != null)
-                        {
-                            if (gameplayObject.Active)
-                                this.RegisterObject(gameplayObject);
-                            else
-                                this.CollidableObjects.QueuePendingRemoval(gameplayObject);
-                        }
+                        if (gameplayObject.System != null && system == null)
+                            CollidableObjects.Remove(gameplayObject);
+
+                        if (gameplayObject.Active)
+                            RegisterObject(gameplayObject);
+                        else
+                            CollidableObjects.Remove(gameplayObject);
+
                     }
                 }
-                for (int index = 0; index < this.CollidableProjectiles.Count; ++index)
+                for (int index = 0; index < CollidableProjectiles.Count; ++index)
                 {
-                    Projectile projectile = this.CollidableProjectiles[index];
-                    if (projectile.System!= null && system == null)
-                        this.CollidableProjectiles.QueuePendingRemoval(projectile);
-                    else if (projectile != null && projectile.Active)
-                        this.RegisterObject((GameplayObject)projectile);
+                    Projectile gameplayObject = CollidableProjectiles[index];
+                    if (gameplayObject.System!= null && system == null)
+                        CollidableObjects.Remove(gameplayObject); 
+                    else if (gameplayObject.Active)
+                        RegisterObject(gameplayObject);
                 }
-                this.bucketUpdateTimer = 0.5f;
+                bucketUpdateTimer = 0.5f;
             }
-            if (this.CollidableProjectiles.Count > 0)
+            if (CollidableProjectiles.Count > 0)
             {
-                for (int index = 0; index < this.CollidableObjects.Count; ++index)
+                for (int index = 0; index < CollidableObjects.Count; ++index)
                 {
-                    GameplayObject gameplayObject = this.CollidableObjects[index];
-                    Ship oShip = gameplayObject as Ship;
-                    //if (gameplayObject != null &&!(gameplayObject.GetSystem() != null & system == null) &&  (!(gameplayObject is Ship) || system != null || (gameplayObject as Ship).GetAI().BadGuysNear))
-                    if (gameplayObject != null && !(gameplayObject.System!= null & system == null) && (oShip == null || system != null || oShip.GetAI().BadGuysNear))
-                        this.MoveAndCollide(gameplayObject);
+                    GameplayObject gameplayObject = CollidableObjects[index];
+                    Ship oShip = gameplayObject as Ship;                    
+                    if (gameplayObject != null && !(gameplayObject.System!= null & system == null) 
+                        && (oShip == null || system != null || oShip.GetAI().BadGuysNear))
+                        MoveAndCollide(gameplayObject);
                 }
             }
-            for (int index = 0; index < this.BeamList.Count; ++index)
+            for (int index = 0; index < BeamList.Count; ++index)
             {
-                Beam beam = this.BeamList[index];
+                Beam beam = BeamList[index];
                 if (beam != null)
-                    this.CollideBeam(beam);
+                    CollideBeam(beam);
             }
-            this.CollidableObjects.ApplyPendingRemovals();
-            this.CollidableProjectiles.ApplyPendingRemovals();
         }
 
         public void UpdateBucketsOnly(float elapsedTime)
         {
-            this.bucketUpdateTimer -= elapsedTime;
-            if (this.bucketUpdateTimer <= 0f)
+            bucketUpdateTimer -= elapsedTime;
+            if (bucketUpdateTimer <= 0f)
             {
-                this.ClearBuckets();
-                for (int index = 0; index < this.CollidableObjects.Count; ++index)
+                ClearBuckets();
+                for (int index = 0; index < CollidableObjects.Count; ++index)
                 {
-                    GameplayObject gameplayObject = this.CollidableObjects[index];
+                    GameplayObject gameplayObject = CollidableObjects[index];
                     if (gameplayObject != null)
                     {
                         if (gameplayObject.Active)
-                            this.RegisterObject(gameplayObject);
+                            RegisterObject(gameplayObject);
                         else
-                            this.CollidableObjects.QueuePendingRemoval(gameplayObject);
+                            CollidableObjects.Remove(gameplayObject);
                     }
                 }
-                this.bucketUpdateTimer = 0.5f;
+                bucketUpdateTimer = 0.5f;
             }
-            this.CollidableObjects.ApplyPendingRemovals();
-            this.CollidableProjectiles.ApplyPendingRemovals();
         }
 
         internal Array<GameplayObject> GetNearby(GameplayObject obj)
@@ -153,7 +146,7 @@ namespace Ship_Game.Gameplay
         internal Array<GameplayObject> GetNearby(Vector2 position)
         {
             Array<GameplayObject> list = new Array<GameplayObject>();
-            foreach (int key in this.GetIdForPos(position))
+            foreach (int key in GetIdForPos(position))
             {
                 BatchRemovalCollection<GameplayObject> test;
                 if (Buckets.TryGetValue(key, out test))
@@ -185,19 +178,19 @@ namespace Ship_Game.Gameplay
             //try
             {
                 BatchRemovalCollection<GameplayObject> test;
-                foreach (int key in this.GetIdForObj(obj))
+                foreach (int key in GetIdForObj(obj))
                 {
                     
 
-                    if (this.Buckets.TryGetValue(key, out test))
+                    if (Buckets.TryGetValue(key, out test))
                         test.Add(obj);
                     else
-                        this.Buckets[1].Add(obj);
+                        Buckets[1].Add(obj);
 
-                    //if (this.Buckets.ContainsKey(key))
-                    //    this.Buckets[key].Add(obj);
+                    //if (Buckets.ContainsKey(key))
+                    //    Buckets[key].Add(obj);
                     //else
-                    //    this.Buckets[1].Add(obj);
+                    //    Buckets[1].Add(obj);
                 }
             }
             //catch
@@ -208,28 +201,28 @@ namespace Ship_Game.Gameplay
         public Array<int> GetIdForObj(GameplayObject obj)
         {
             Array<int> buckettoaddto = new Array<int>();
-            Vector2 vector2_1 = obj.Center - this.UpperLeftBound;
+            Vector2 vector2_1 = obj.Center - UpperLeftBound;
             Vector2 vector = new Vector2(vector2_1.X - obj.Radius, vector2_1.Y - obj.Radius);
             Vector2 vector2_2 = new Vector2(vector2_1.X + obj.Radius, vector2_1.Y + obj.Radius);
-            float width = (float)(this.SceneWidth / this.CellSize);
-            this.AddBucket(vector, width, buckettoaddto);
-            this.AddBucket(new Vector2(vector2_2.X, vector.Y), width, buckettoaddto);
-            this.AddBucket(new Vector2(vector2_2.X, vector2_2.Y), width, buckettoaddto);
-            this.AddBucket(new Vector2(vector.X, vector2_2.Y), width, buckettoaddto);
+            float width = (float)(SceneWidth / CellSize);
+            AddBucket(vector, width, buckettoaddto);
+            AddBucket(new Vector2(vector2_2.X, vector.Y), width, buckettoaddto);
+            AddBucket(new Vector2(vector2_2.X, vector2_2.Y), width, buckettoaddto);
+            AddBucket(new Vector2(vector.X, vector2_2.Y), width, buckettoaddto);
             return buckettoaddto;
         }
 
         public Array<int> GetIdForPos(Vector2 Position)
         {
             Array<int> buckettoaddto = new Array<int>();
-            Vector2 vector2_1 = Position - this.UpperLeftBound;
+            Vector2 vector2_1 = Position - UpperLeftBound;
             Vector2 vector = new Vector2(vector2_1.X - 100f, vector2_1.Y - 100f);
             Vector2 vector2_2 = new Vector2(vector2_1.X + 100f, vector2_1.Y + 100f);
-            float width = (float)(this.SceneWidth / this.CellSize);
-            this.AddBucket(vector, width, buckettoaddto);
-            this.AddBucket(new Vector2(vector2_2.X, vector.Y), width, buckettoaddto);
-            this.AddBucket(new Vector2(vector2_2.X, vector2_2.Y), width, buckettoaddto);
-            this.AddBucket(new Vector2(vector.X, vector2_2.Y), width, buckettoaddto);
+            float width = (float)(SceneWidth / CellSize);
+            AddBucket(vector, width, buckettoaddto);
+            AddBucket(new Vector2(vector2_2.X, vector.Y), width, buckettoaddto);
+            AddBucket(new Vector2(vector2_2.X, vector2_2.Y), width, buckettoaddto);
+            AddBucket(new Vector2(vector.X, vector2_2.Y), width, buckettoaddto);
             return buckettoaddto;
         }
 
@@ -239,7 +232,7 @@ namespace Ship_Game.Gameplay
 
         private void AddBucket(Vector2 vector, float width, Array<int> buckettoaddto)
         {
-            int num = (int)(Math.Floor((double)vector.X / (double)this.CellSize) + Math.Floor((double)vector.Y / (double)this.CellSize) * (double)width);
+            int num = (int)(Math.Floor((double)vector.X / (double)CellSize) + Math.Floor((double)vector.Y / (double)CellSize) * (double)width);
             if (buckettoaddto.Contains(num))
                 return;
             buckettoaddto.Add(num);
@@ -247,15 +240,15 @@ namespace Ship_Game.Gameplay
 
         public void Destroy()
         {
-            this.Buckets = null;// (Dictionary<int, Array<GameplayObject>>)null;
+            Buckets = null;// (Dictionary<int, Array<GameplayObject>>)null;
         }
 
         internal void ClearBuckets()
         {
-            for (int index = 0; index < this.Cols * this.Rows; ++index)
+            for (int index = 0; index < Cols * Rows; ++index)
             {
                 BatchRemovalCollection<GameplayObject> test;
-                if(this.Buckets.TryGetValue(index, out test))
+                if(Buckets.TryGetValue(index, out test))
                 {
                     test.Clear();
                 }
@@ -264,11 +257,11 @@ namespace Ship_Game.Gameplay
 
         private Vector2 MoveAndCollide(GameplayObject gameplayObject)
         {
-            this.Collide(gameplayObject);
-            if (this.collisionResults.Count > 0)
+            Collide(gameplayObject);
+            if (collisionResults.Count > 0)
             {
                 collisionResults.Sort(CollisionResult.Compare);
-                foreach (SpatialManager.CollisionResult collisionResult in this.collisionResults)
+                foreach (SpatialManager.CollisionResult collisionResult in collisionResults)
                 {
                     if (gameplayObject.Touch(collisionResult.GameplayObject) || collisionResult.GameplayObject.Touch(gameplayObject))
                         return Vector2.Zero;
@@ -280,7 +273,7 @@ namespace Ship_Game.Gameplay
         // @todo This method is a complete mess, like all other decompiled parts. It needs a lot of cleanup.
         private void CollideBeam(Beam beam)
         {
-            this.collisionResults.Clear();
+            collisionResults.Clear();
             beam.CollidedThisFrame = false;
             Vector2 vector2_1 = Vector2.Normalize(beam.Destination - beam.Source);
             float num1 = Vector2.Distance(beam.Destination, beam.Source);
@@ -337,7 +330,7 @@ namespace Ship_Game.Gameplay
                 Log.Info("CollideBeam gameplayObject1 null");
             }
 
-            Array<GameplayObject> nearby = new Array<GameplayObject>(this.GetNearby(gameplayObject1).OrderBy(distance => Vector2.Distance(beam.Source, distance.Center)));
+            Array<GameplayObject> nearby = new Array<GameplayObject>(GetNearby(gameplayObject1).OrderBy(distance => Vector2.Distance(beam.Source, distance.Center)));
             Array<GameplayObject> AlliedShips = new Array<GameplayObject>();
             object locker = new object();
             //bool flag = false;          //Not referenced in code, removing to save memory
@@ -443,7 +436,7 @@ namespace Ship_Game.Gameplay
                 //            beam.ActualHitDestination = vector2_2;
 
                 //            beam.hitLast = shieldTarget;
-                //            this.collisionResults.Add(new SpatialManager.CollisionResult()
+                //            collisionResults.Add(new SpatialManager.CollisionResult()
                 //            {
                 //                Distance = shieldTarget.Radius + 8f,
                 //                Normal = Vector2.Normalize(Vector2.Zero),
@@ -506,10 +499,10 @@ namespace Ship_Game.Gameplay
         }
         public void Collide(GameplayObject gameplayObject)
         {
-            this.collisionResults.Clear();
+            collisionResults.Clear();
             if (!gameplayObject.Active)
                 return;
-            foreach (GameplayObject gameplayObject1 in this.GetNearby(gameplayObject))
+            foreach (GameplayObject gameplayObject1 in GetNearby(gameplayObject))
             {
                 if (gameplayObject1 != null && gameplayObject != gameplayObject1 && (gameplayObject1.Active && !gameplayObject1.CollidedThisFrame))
                 {
@@ -627,7 +620,7 @@ namespace Ship_Game.Gameplay
                         {
                             if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + (gameplayObject1 as Projectile).weapon.ProjectileRadius)
                             {
-                                this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                collisionResults.Add(new SpatialManager.CollisionResult()
                                 {
                                     Distance = 0.0f,
                                     Normal = Vector2.Normalize(Vector2.Zero),
@@ -640,7 +633,7 @@ namespace Ship_Game.Gameplay
                         {
                             if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + gameplayObject1.Radius)
                             {
-                                this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                collisionResults.Add(new SpatialManager.CollisionResult()
                                 {
                                     Distance = 0.0f,
                                     Normal = Vector2.Normalize(Vector2.Zero),
@@ -671,7 +664,7 @@ namespace Ship_Game.Gameplay
                                             {
                                                 gameplayObject.Center = gameplayObject.Center + vector2 * num1;
                                                 gameplayObject.Position = gameplayObject.Center;
-                                                this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                                collisionResults.Add(new SpatialManager.CollisionResult()
                                                 {
                                                     Distance = gameplayObject.Radius + moduleSlot.module.Radius,
                                                     Normal = Vector2.Zero,
@@ -697,7 +690,7 @@ namespace Ship_Game.Gameplay
                                     ModuleSlot moduleSlot = (gameplayObject1 as Ship).ExternalSlots.ElementAt(index);
                                     if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
                                     {
-                                        this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                        collisionResults.Add(new SpatialManager.CollisionResult()
                                         {
                                             Distance = gameplayObject.Radius + moduleSlot.module.Radius,
                                             Normal = Vector2.Normalize(Vector2.Zero),
@@ -718,7 +711,7 @@ namespace Ship_Game.Gameplay
                         if (num3 > 0.0)
                         {
                             float num4 = MathHelper.Max(num3 - (gameplayObject1.Radius + gameplayObject.Radius), 0.0f);
-                            this.collisionResults.Add(new SpatialManager.CollisionResult()
+                            collisionResults.Add(new SpatialManager.CollisionResult()
                             {
                                 Distance = num4,
                                 Normal = Vector2.Normalize(vector2),
@@ -731,11 +724,11 @@ namespace Ship_Game.Gameplay
         }
         public void Collidenew(GameplayObject gameplayObject)
         {
-            this.collisionResults.Clear();
+            collisionResults.Clear();
             if (!gameplayObject.Active)
                 return;
             object locker = new object();
-            Array<GameplayObject> nearbythings = this.GetNearby(gameplayObject);
+            Array<GameplayObject> nearbythings = GetNearby(gameplayObject);
             if (nearbythings.Count == 0)
                 return;
             //handle each weapon group in parallel
@@ -749,7 +742,7 @@ namespace Ship_Game.Gameplay
                     BoundingSphere object1;
 
                     //float minHit = 0f;          //Not referenced in code, removing to save memory
-                    // foreach (GameplayObject gameplayObject1 in this.GetNearby(gameplayObject))
+                    // foreach (GameplayObject gameplayObject1 in GetNearby(gameplayObject))
                     //{
                     if (gameplayObject1 != null && gameplayObject != gameplayObject1 && (gameplayObject1.Active && !gameplayObject1.CollidedThisFrame))
                     {
@@ -852,7 +845,7 @@ namespace Ship_Game.Gameplay
                                 {
                                     //gameplayObject.Touch(gameplayObject1);
                                     lock (locker)
-                                        this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                        collisionResults.Add(new SpatialManager.CollisionResult()
                                         {
                                             Distance = 0.0f,
                                             Normal = Vector2.Normalize(Vector2.Zero),
@@ -866,7 +859,7 @@ namespace Ship_Game.Gameplay
                                 if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + gameplayObject1.Radius)
                                 {
                                     lock (locker)
-                                        this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                        collisionResults.Add(new SpatialManager.CollisionResult()
                                         {
                                             Distance = 0.0f,
                                             Normal = Vector2.Normalize(Vector2.Zero),
@@ -898,7 +891,7 @@ namespace Ship_Game.Gameplay
                                                     gameplayObject.Center = gameplayObject.Center + vector2 * num1;
                                                     gameplayObject.Position = gameplayObject.Center;
                                                     lock (locker)
-                                                        this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                                        collisionResults.Add(new SpatialManager.CollisionResult()
                                                         {
                                                             Distance = gameplayObject.Radius + moduleSlot.module.Radius,
                                                             Normal = Vector2.Zero,
@@ -925,7 +918,7 @@ namespace Ship_Game.Gameplay
                                         if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
                                         {
                                             lock (locker)
-                                                this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                                collisionResults.Add(new SpatialManager.CollisionResult()
                                                 {
                                                     Distance = gameplayObject.Radius + moduleSlot.module.Radius,
                                                     Normal = Vector2.Normalize(Vector2.Zero),
@@ -947,7 +940,7 @@ namespace Ship_Game.Gameplay
                             {
                                 float num4 = MathHelper.Max(num3 - (gameplayObject1.Radius + gameplayObject.Radius), 0.0f);
                                 lock (locker)
-                                    this.collisionResults.Add(new SpatialManager.CollisionResult()
+                                    collisionResults.Add(new SpatialManager.CollisionResult()
                                     {
                                         Distance = num4,
                                         Normal = Vector2.Normalize(vector2),
@@ -992,7 +985,7 @@ namespace Ship_Game.Gameplay
                 });
             Array<ShipModule> list; //= new Array<ShipModule>();
             Array<ModuleSlot> list1; //= new Array<ModuleSlot>();
-            foreach (GameplayObject gameplayObject1 in this.GetNearby(source))
+            foreach (GameplayObject gameplayObject1 in GetNearby(source))
             {
                 try
                 {
@@ -1433,10 +1426,10 @@ namespace Ship_Game.Gameplay
 
         private void Dispose(bool disposing)
         {
-            CollidableObjects?.Dispose(ref CollidableObjects);
-            CollidableProjectiles?.Dispose(ref CollidableProjectiles);
-            Asteroids?.Dispose(ref Asteroids);
-            BeamList?.Dispose(ref BeamList);
+            CollidableObjects = null;
+            CollidableProjectiles = null;
+            Asteroids = null;
+            BeamList = null;
         }
     }
 }
