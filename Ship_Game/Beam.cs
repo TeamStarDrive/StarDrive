@@ -206,10 +206,10 @@ namespace Ship_Game
                 if (this.owner.System!= null)
                 {
                     this.System = this.owner.System;
-                    this.System.spatialManager.BeamList.QueuePendingRemoval(this);
+                    this.System.spatialManager.BeamList.Remove(this);
                 }
                 else
-                    UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
+                    UniverseScreen.DeepSpaceManager.BeamList.Remove(this);
             }
             else if (this.weapon.drowner != null)
             {
@@ -217,10 +217,10 @@ namespace Ship_Game
                 if (this.weapon.drowner.System!= null)
                 {
                     this.System = this.weapon.drowner.System;
-                    this.System.spatialManager.BeamList.QueuePendingRemoval(this);
+                    this.System.spatialManager.BeamList.Remove(this);
                 }
                 else
-                    UniverseScreen.DeepSpaceManager.BeamList.QueuePendingRemoval(this);
+                    UniverseScreen.DeepSpaceManager.BeamList.Remove(this);
             }
             this.weapon.ResetToggleSound();
             //if(this.quadVertexDecl !=null)
