@@ -17,6 +17,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDSunBurn", "SynapseGaming-SunBurn-Pro\SDSunBurn.csproj", "{BB003976-4764-4F4E-9A98-DDFB8449ECCD}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - Auto Fast|Any CPU = Debug - Auto Fast|Any CPU
 		Debug - Auto Fast|LAAx86 = Debug - Auto Fast|LAAx86
