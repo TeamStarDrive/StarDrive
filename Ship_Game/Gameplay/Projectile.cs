@@ -246,12 +246,12 @@ namespace Ship_Game.Gameplay
 			}
 			if (this.System == null)
 			{
-				UniverseScreen.DeepSpaceManager.CollidableProjectiles.QueuePendingRemoval(this);
-			}
+				UniverseScreen.DeepSpaceManager.CollidableProjectiles.Remove(this);
+            }
 			else
 			{
-				this.System.spatialManager.CollidableProjectiles.QueuePendingRemoval(this);
-			}
+				this.System.spatialManager.CollidableProjectiles.Remove(this);
+            }
 			base.Die(source, cleanupOnly);
 		}
 

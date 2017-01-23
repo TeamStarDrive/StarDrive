@@ -1300,8 +1300,6 @@ namespace Ship_Game
                 ShipsToRemove.TryTake(out Ship remove);
                 remove.TotallyRemove();
             }
-            ShipSpatialManager.CollidableObjects.ApplyPendingRemovals();
-            DeepSpaceManager.CollidableObjects.ApplyPendingRemovals();
             MasterShipList.ApplyPendingRemovals();
             
             if (!Paused)
@@ -1740,7 +1738,6 @@ namespace Ship_Game
             }
             this.SelectedShipList.ApplyPendingRemovals();
             this.MasterShipList.ApplyPendingRemovals();
-            UniverseScreen.ShipSpatialManager.CollidableObjects.ApplyPendingRemovals();
             if (this.perStarDateTimer <= this.StarDate)
             {
                 this.perStarDateTimer = this.StarDate + .1f;
@@ -1882,7 +1879,7 @@ namespace Ship_Game
 
             this.DeepSpaceShips.Clear();
 
-            using (DeepSpaceManager.CollidableObjects.AcquireReadLock())
+            
             {
                 //Parallel.For(0, DeepSpaceManager.CollidableObjects.Count, (start, end) =>
                 {
