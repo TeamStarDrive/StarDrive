@@ -9405,30 +9405,30 @@ namespace Ship_Game.AI
         }
 
         // @todo Why is this usage commented out? What does it actually do?
-        private void UpdateThreatMatrix()
-        {
-            foreach (var kv in ThreatMatrix.Pins)
-            {
-                bool shouldRemove = true;
-                bool insideEmpireSensors = empire.IsPointInSensors(kv.Value.Position);
-                if (insideEmpireSensors)
-                {
-                    using (Empire.Universe.MasterShipList.AcquireReadLock())
-                    foreach (Ship ship in Empire.Universe.MasterShipList)
-                    {
-                        if (kv.Key != ship.guid)
-                            continue;
-                        shouldRemove = !ship.Active;
-                        break;
-                    }
-                }
-                else shouldRemove = false;
+        //private void UpdateThreatMatrix()
+        //{
+        //    foreach (var kv in ThreatMatrix.Pins)
+        //    {
+        //        bool shouldRemove = true;
+        //        bool insideEmpireSensors = empire.IsPointInSensors(kv.Value.Position);
+        //        if (insideEmpireSensors)
+        //        {
+        //            using (Empire.Universe.MasterShipList.AcquireReadLock())
+        //            foreach (Ship ship in Empire.Universe.MasterShipList)
+        //            {
+        //                if (kv.Key != ship.guid)
+        //                    continue;
+        //                shouldRemove = !ship.Active;
+        //                break;
+        //            }
+        //        }
+        //        else shouldRemove = false;
 
-                if (!shouldRemove)
-                    continue;
-                ThreatMatrix.Pins.TryRemove(kv.Key, out ThreatMatrix.Pin pin);
-            }
-        }
+        //        if (!shouldRemove)
+        //            continue;
+        //        ThreatMatrix.Pins.TryRemove(kv.Key, out ThreatMatrix.Pin pin);
+        //    }
+        //}
 
 		public struct PeaceAnswer
 		{
