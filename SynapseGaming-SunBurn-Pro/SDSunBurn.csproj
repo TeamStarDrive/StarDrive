@@ -56,16 +56,16 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>sd-sunburn.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\StarDrive\Microsoft.Xna.Framework.dll</HintPath>
-    </Reference>
+    <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System" />
     <Reference Include="System.Management" />
@@ -104,8 +104,8 @@
     <Compile Include="SynapseGaming\LightingSystem\Core\IUpdatableManager.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\IManagerService.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\IManagerServiceProvider.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Core\ISubmit`1.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Core\IQuery`1.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ISubmit.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IQuery.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\IMovableObject.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\INamedObject.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\IEditorObject.cs" />
@@ -121,9 +121,9 @@
     <Compile Include="SynapseGaming\LightingSystem\Core\LightingSystemStatistic.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\LightingSystemStatistics.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\LightingSystemPerformance.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Core\ObjectGraph`1.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Core\OcclusionQueryHelper`1.cs" />
-    <Compile Include="SynapseGaming\LightingSystem\Core\PooledObjectFactory`1.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ObjectGraph.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\OcclusionQueryHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\PooledObjectFactory.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\BasePrimitiveRenderHelper.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\LineRenderHelper.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\TriangleRenderHelper.cs" />
@@ -261,7 +261,7 @@
     <Compile Include="ns0\Class80.cs" />
     <Compile Include="ns2\Class7.cs" />
     <Compile Include="ns2\Class8.cs" />
-    <Compile Include="ns3\Class9`1.cs" />
+    <Compile Include="ns3\Class9.cs" />
     <Compile Include="ns3\Class10.cs" />
     <Compile Include="ns3\Class11.cs" />
     <Compile Include="ns3\Class12.cs" />
@@ -270,9 +270,7 @@
     <Compile Include="ns3\Interface0.cs" />
     <Compile Include="ns3\Class16.cs" />
     <Compile Include="ns3\Class17.cs" />
-    <Compile Include="ns3\Class18`2.cs" />
-    <Compile Include="ns3\Class21`1.cs" />
-    <Compile Include="ns3\Class22`1.cs" />
+    <Compile Include="ns3\Class18.cs" />
     <Compile Include="ns3\Class26.cs" />
     <Compile Include="ns3\Class27.cs" />
     <Compile Include="ns3\Class28.cs" />
