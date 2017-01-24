@@ -51,13 +51,13 @@ namespace Ship_Game.Gameplay
         //public float CloakTime = 5f;    //Not referenced in code, removing to save memory
         //public Vector2 Origin = new Vector2(256f, 256f);        //Not referenced in code, removing to save memory
         public Array<ModuleSlot> ModuleSlotList = new Array<ModuleSlot>();
-        private BatchRemovalCollection<Projectile> projectiles = new BatchRemovalCollection<Projectile>();
-        private BatchRemovalCollection<Beam> beams = new BatchRemovalCollection<Beam>();
+        private Array<Projectile> projectiles = new Array<Projectile>();
+        private Array<Beam> beams = new Array<Beam>();
         public Array<Weapon> Weapons = new Array<Weapon>();
         //public float fireThresholdSquared = 0.25f;    //Not referenced in code, removing to save memory
         public Array<ModuleSlot> ExternalSlots = new Array<ModuleSlot>();
         protected float JumpTimer = 3f;
-        public BatchRemovalCollection<ProjectileTracker> ProjectilesFired = new BatchRemovalCollection<ProjectileTracker>();
+        public Array<ProjectileTracker> ProjectilesFired = new Array<ProjectileTracker>();
         public AudioEmitter emitter = new AudioEmitter();
         public float ClickTimer = 10f;
         public Vector2 VelocityLast = new Vector2();
@@ -66,7 +66,7 @@ namespace Ship_Game.Gameplay
         public Vector2 FleetOffset = new Vector2();
         public Vector2 RelativeFleetOffset = new Vector2();
         private Array<ShipModule> Shields = new Array<ShipModule>();
-        private BatchRemovalCollection<ShipModule> Hangars = new BatchRemovalCollection<ShipModule>();
+        private Array<ShipModule> Hangars = new Array<ShipModule>();
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public bool shipStatusChanged = false;
         public Guid guid = Guid.NewGuid();
@@ -218,8 +218,8 @@ namespace Ship_Game.Gameplay
         public float NormalWarpThrust;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense  +TroopBoardingDefense);
 
-        private BatchRemovalCollection<Empire> BorderCheck = new BatchRemovalCollection<Empire>();
-        public BatchRemovalCollection<Empire> getBorderCheck
+        private Array<Empire> BorderCheck = new Array<Empire>();
+        public Array<Empire> getBorderCheck
         {
             get {
                 return BorderCheck; }
@@ -314,7 +314,7 @@ namespace Ship_Game.Gameplay
                 return this.FTLmodifier;
             }
         }
-        public BatchRemovalCollection<Projectile> Projectiles
+        public Array<Projectile> Projectiles
         {
             get
             {
@@ -322,7 +322,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public BatchRemovalCollection<Beam> Beams
+        public Array<Beam> Beams
         {
             get
             {
@@ -1444,10 +1444,8 @@ namespace Ship_Game.Gameplay
         //Added by McShooterz
         public bool CheckIfInsideFireArc(Weapon w, Vector2 PickedPos, float Rotation)
         {
-            if(Vector2.Distance(w.moduleAttachedTo.Center, PickedPos) > w.GetModifiedRange() + 50f)
-            {
-                return false;
-            }
+            if(w.moduleAttachedTo.Center.OutsideRadius(PickedPos, w.GetModifiedRange() + 50f)) return false;
+            
             float halfArc = w.moduleAttachedTo.FieldOfFire / 2f + 1; //Gretman - Slight allowance for check (This version of CheckArc seems to only be called by the beam updater)
             Vector2 toTarget = PickedPos - w.Center;
             float radians = (float)Math.Atan2((double)toTarget.X, (double)toTarget.Y);
@@ -2982,14 +2980,7 @@ namespace Ship_Game.Gameplay
         {
             if (!Active)
                 return;
-            //if (!GlobalStats.WarpInSystem && this.system != null)
-            //    this.InhibitedTimer = 1f;
-            //else 
-            //if (this.FTLmodifier < 1.0 && this.system != null && (this.engineState == Ship.MoveState.Warp && this.velocityMaximum < this.GetSTLSpeed() - 1 ))
-            //{
-            //    if (this.VanityName == "MerCraft") Log.Info("Break Hyperspace because of FTL Mod.  " + this.velocityMaximum + "  :  " + this.GetSTLSpeed());
-            //    this.HyperspaceReturn();      //This section commented out because it was causing ships ot not be able ot warp at all if the FTL modifier was anything less than 1.0 -Gretman
-            //}
+
             if (ScuttleTimer > -1.0 || ScuttleTimer <-1.0)
             {
                 ScuttleTimer -= elapsedTime;
@@ -2999,6 +2990,7 @@ namespace Ship_Game.Gameplay
             if (System == null || System.isVisible)
             {
                 BoundingSphere sphere = new BoundingSphere(new Vector3(this.Position, 0.0f), 2000f);
+                
                 if (universeScreen.Frustum.Contains(sphere) != ContainmentType.Disjoint && universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
                     InFrustum = true;
@@ -3015,13 +3007,14 @@ namespace Ship_Game.Gameplay
                 InFrustum = false;
                 ShipSO.Visibility = ObjectVisibility.None;
             }
-            foreach (ProjectileTracker projectileTracker in ProjectilesFired)
+            for (int index = 0; index < ProjectilesFired.Count; index++)
             {
+                ProjectileTracker projectileTracker = ProjectilesFired[index];
                 projectileTracker.Timer -= elapsedTime;
                 if (projectileTracker.Timer <= 0.0)
-                    ProjectilesFired.QueuePendingRemoval(projectileTracker);
+                    ProjectilesFired.Remove(projectileTracker);
             }
-            ProjectilesFired.ApplyPendingRemovals();
+            
             ShieldRechargeTimer += elapsedTime;
             InhibitedTimer -= elapsedTime;
             Inhibited = InhibitedTimer > 0.0f;//|| this.maxFTLSpeed < 2500f;
@@ -3104,13 +3097,12 @@ namespace Ship_Game.Gameplay
                     if (projectile.Active)
                         projectile.Update(elapsedTime);
                     else
-                        Projectiles.QueuePendingRemoval(projectile);
+                        Projectiles.Remove(projectile);
                 }
-                projectiles.ApplyPendingRemovals();
-                beams.ApplyPendingRemovals();
                 emitter.Position = new Vector3(Center, 0);
-                foreach (ModuleSlot moduleSlot in ModuleSlotList)
+                for (int index = 0; index < ModuleSlotList.Count; index++)
                 {
+                    ModuleSlot moduleSlot = ModuleSlotList[index];
                     moduleSlot.module.UpdateWhileDying(elapsedTime);
                 }
             }
@@ -3120,28 +3112,32 @@ namespace Ship_Game.Gameplay
                 {
                     foreach (Planet p in System.PlanetList)
                     {
-                        if (p.Position.SqDist(Center) >= 3000f * 3000f)
+                        if (p.Position.OutsideRadius(Center, 3000f * 3000f))
                             continue;
                         if (p.ExploredDict[loyalty]) // already explored
                             continue;
 
                         if (loyalty == universeScreen.player)
                         {
-                            foreach (Building building in p.BuildingList)
+                            for (int index = 0; index < p.BuildingList.Count; index++)
+                            {
+                                Building building = p.BuildingList[index];
                                 if (!string.IsNullOrEmpty(building.EventTriggerUID))
                                     universeScreen.NotificationManager.AddFoundSomethingInteresting(p);
+                            }
                         }
                         p.ExploredDict[loyalty] = true;
-                        foreach (Building building in p.BuildingList)
+                        for (int index = 0; index < p.BuildingList.Count; index++)
                         {
-                            if (string.IsNullOrEmpty(building.EventTriggerUID) || 
+                            Building building = p.BuildingList[index];
+                            if (string.IsNullOrEmpty(building.EventTriggerUID) ||
                                 loyalty == universeScreen.player || p.Owner != null) continue;
 
                             MilitaryTask militaryTask = new MilitaryTask
                             {
-                                AO       = p.Position,
+                                AO = p.Position,
                                 AORadius = 50000f,
-                                type     = MilitaryTask.TaskType.Exploration
+                                type = MilitaryTask.TaskType.Exploration
                             };
                             militaryTask.SetTargetPlanet(p);
                             militaryTask.SetEmpire(loyalty);
@@ -3157,7 +3153,7 @@ namespace Ship_Game.Gameplay
                 if (disabled)
                 {
                     float third = Radius / 3f;
-                    for (int i = 0; i < 5; ++i)
+                    for (int i = 5 - 1; i >= 0; --i)
                     {
                         Vector3 randPos = UniverseRandom.Vector32D(third);
                         universeScreen.lightning.AddParticleThreadA(Center.ToVec3() + randPos, Vector3.Zero);
@@ -3334,7 +3330,7 @@ namespace Ship_Game.Gameplay
                                     this.projectiles[T].Update(elapsedTime);
                                 else
                                 {
-                                    this.Projectiles.QueuePendingRemoval(this.projectiles[T]);
+                                    this.Projectiles.Remove(this.projectiles[T]);
                                 }
                             }
                         }//); 
@@ -3378,24 +3374,18 @@ namespace Ship_Game.Gameplay
                                     if (beam.duration < 0f && !beam.infinite)
                                     {
                                         beam.Die(null, false);
-                                        this.beams.QueuePendingRemoval(beam);
+                                        this.beams.Remove(beam);
                                     }
                                 }
                                 else
                                 {
                                     beam.Die(null, false);
-                                    this.beams.QueuePendingRemoval(beam);
                                 }
                             }
 
                         }//); 
                     }
-                    //this.beams.thisLock.ExitReadLock();
-
-                    this.beams.ApplyPendingRemovals() ; //this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
-                    //foreach (Projectile projectile in this.projectiles.pendingRemovals)
-                    //    projectile.Die(null,false);
-                    this.Projectiles.ApplyPendingRemovals(GetAI().BadGuysNear && (InFrustum || GlobalStats.ForceFullSim));//this.GetAI().BadGuysNear && (this.InFrustum || GlobalStats.ForceFullSim));
+                   
                 }
             }
         }
@@ -4665,9 +4655,13 @@ namespace Ship_Game.Gameplay
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            foreach (Beam beam in beams)
+            for (int index = 0; index < beams.Count; index++)
+            {
+                Beam beam = beams[index];
                 beam.Die(this, true);
-            beams.ClearAll();
+                beams.Remove(beam);
+            }
+            
             
             ++DebugInfoScreen.ShipsDied;
             Projectile psource = source as Projectile;
@@ -4810,7 +4804,7 @@ namespace Ship_Game.Gameplay
             }
             foreach(Empire empire in EmpireManager.Empires)
             {
-                empire.GetGSAI().ThreatMatrix.UpdatePin(this);
+                empire.GetGSAI().ThreatMatrix.RemovePin(this);
             }
 
             foreach (Projectile projectile in projectiles)
@@ -4876,11 +4870,11 @@ namespace Ship_Game.Gameplay
 
         protected virtual void Dispose(bool disposing)
         {
-            projectiles     ?.Dispose(ref projectiles);
-            beams           ?.Dispose(ref beams);
+            projectiles = null;
+            beams = null;
             supplyLock      ?.Dispose(ref supplyLock);
             AI              ?.Dispose(ref AI);
-            ProjectilesFired?.Dispose(ref ProjectilesFired);
+            ProjectilesFired = null;
         }
         
         public class target
@@ -4983,8 +4977,10 @@ namespace Ship_Game.Gameplay
         public void UpdateShields()
         {
             float shieldPower = 0.0f;
-            foreach (ShipModule shield in Shields)
-                shieldPower += shield.shield_power;
+            for (int index = 0; index < Shields.Count; index++)
+            {                
+                shieldPower += Shields[index].shield_power;
+            }
             if (shieldPower > shield_max)
                 shieldPower = shield_max;
 
