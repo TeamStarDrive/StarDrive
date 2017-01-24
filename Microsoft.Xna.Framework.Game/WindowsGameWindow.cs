@@ -314,10 +314,10 @@ namespace Microsoft.Xna.Framework
       {
         return Path.GetFileNameWithoutExtension(new Uri(Application.ExecutablePath).LocalPath);
       }
-      catch (ArgumentNullException ex)
+      catch (ArgumentNullException)
       {
       }
-      catch (UriFormatException ex)
+      catch (UriFormatException)
       {
       }
       return Microsoft.Xna.Framework.Resources.DefaultTitleName;

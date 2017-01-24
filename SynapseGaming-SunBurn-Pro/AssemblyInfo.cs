@@ -12,4 +12,6 @@ using System.Security.Permissions;
 [assembly: AssemblyCompany("StarBurn")]
 [assembly: AssemblyProduct("StarBurn")]
 [assembly: AssemblyVersion("0.1.0.0")]
+#pragma warning disable 618
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+#pragma warning restore 618

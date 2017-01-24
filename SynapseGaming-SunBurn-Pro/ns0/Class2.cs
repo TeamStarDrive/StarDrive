@@ -12,7 +12,7 @@ namespace ns0
   {
     public static Class2.Class3[] class3_0 = new Class2.Class3[4]{ new Class2.Class3("SunBurn Indie", "SunBurn-Indie.auth"), new Class2.Class3("SunBurn Pro", "SunBurn-Pro.auth"), new Class2.Class3("SunBurn Community", "SunBurn-Community.auth"), new Class2.Class3("SunBurn Studio", "SunBurn-Studio.auth") };
 
-    public static string smethod_0()
+    public static string GetActivationPath()
     {
       return Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "\\Synapse Gaming\\Activation\\";
     }

@@ -9,140 +9,99 @@ using System.Diagnostics;
 
 namespace Microsoft.Xna.Framework
 {
-  internal class GameClock
-  {
-    private long baseRealTime;
-    private long lastRealTime;
-    private bool lastRealTimeValid;
-    private int suspendCount;
-    private long suspendStartTime;
-    private long timeLostToSuspension;
-    private TimeSpan currentTimeOffset;
-    private TimeSpan currentTimeBase;
-    private TimeSpan elapsedTime;
-    private TimeSpan elapsedAdjustedTime;
-
-    internal TimeSpan CurrentTime
+    internal class GameClock
     {
-      get
-      {
-        return this.currentTimeBase + this.currentTimeOffset;
-      }
-    }
+        private long baseRealTime;
+        private long lastRealTime;
+        private bool lastRealTimeValid;
+        private int suspendCount;
+        private long suspendStartTime;
+        private long timeLostToSuspension;
+        private TimeSpan currentTimeOffset;
+        private TimeSpan currentTimeBase;
+        private TimeSpan elapsedTime;
+        private TimeSpan elapsedAdjustedTime;
 
-    internal TimeSpan ElapsedTime
-    {
-      get
-      {
-        return this.elapsedTime;
-      }
-    }
+        internal TimeSpan CurrentTime => currentTimeBase + currentTimeOffset;
+        internal TimeSpan ElapsedTime => elapsedTime;
+        internal TimeSpan ElapsedAdjustedTime => elapsedAdjustedTime;
 
-    internal TimeSpan ElapsedAdjustedTime
-    {
-      get
-      {
-        return this.elapsedAdjustedTime;
-      }
-    }
+        internal static long Counter => Stopwatch.GetTimestamp();
+        internal static readonly long Frequency = Stopwatch.Frequency; // frequency is fixed at boot, so it only has to be queried once
 
-    internal static long Counter
-    {
-      get
-      {
-        return Stopwatch.GetTimestamp();
-      }
-    }
-
-    internal static long Frequency
-    {
-      get
-      {
-        return Stopwatch.Frequency;
-      }
-    }
-
-    public GameClock()
-    {
-      this.Reset();
-    }
-
-    internal void Reset()
-    {
-      this.currentTimeBase = TimeSpan.Zero;
-      this.currentTimeOffset = TimeSpan.Zero;
-      this.baseRealTime = GameClock.Counter;
-      this.lastRealTimeValid = false;
-    }
-
-    internal void Step()
-    {
-      long counter = GameClock.Counter;
-      if (!this.lastRealTimeValid)
-      {
-        this.lastRealTime = counter;
-        this.lastRealTimeValid = true;
-      }
-      try
-      {
-        this.currentTimeOffset = GameClock.CounterToTimeSpan(counter - this.baseRealTime);
-      }
-      catch (OverflowException ex1)
-      {
-        this.currentTimeBase += this.currentTimeOffset;
-        this.baseRealTime = this.lastRealTime;
-        try
+        public GameClock()
         {
-          this.currentTimeOffset = GameClock.CounterToTimeSpan(counter - this.baseRealTime);
+            Reset();
         }
-        catch (OverflowException ex2)
+
+        internal void Reset()
         {
-          this.baseRealTime = counter;
-          this.currentTimeOffset = TimeSpan.Zero;
+            currentTimeBase = TimeSpan.Zero;
+            currentTimeOffset = TimeSpan.Zero;
+            baseRealTime = Stopwatch.GetTimestamp();
+            lastRealTimeValid = false;
         }
-      }
-      try
-      {
-        this.elapsedTime = GameClock.CounterToTimeSpan(counter - this.lastRealTime);
-      }
-      catch (OverflowException ex)
-      {
-        this.elapsedTime = TimeSpan.Zero;
-      }
-      try
-      {
-        long num = this.lastRealTime + this.timeLostToSuspension;
-        this.elapsedAdjustedTime = GameClock.CounterToTimeSpan(counter - num);
-        this.timeLostToSuspension = 0L;
-      }
-      catch (OverflowException ex)
-      {
-        this.elapsedAdjustedTime = TimeSpan.Zero;
-      }
-      this.lastRealTime = counter;
-    }
 
-    internal void Suspend()
-    {
-      ++this.suspendCount;
-      if (this.suspendCount != 1)
-        return;
-      this.suspendStartTime = GameClock.Counter;
-    }
+        internal void Step()
+        {
+            long counter = Stopwatch.GetTimestamp();
+            if (!lastRealTimeValid)
+            {
+                lastRealTime = counter;
+                lastRealTimeValid = true;
+            }
 
-    internal void Resume()
-    {
-      --this.suspendCount;
-      if (this.suspendCount > 0)
-        return;
-      this.timeLostToSuspension += GameClock.Counter - this.suspendStartTime;
-      this.suspendStartTime = 0L;
-    }
+            if (!TryConvertToTimeSpan(counter - baseRealTime, ref currentTimeOffset))
+            {
+                currentTimeBase += currentTimeOffset;
+                baseRealTime = lastRealTime;
 
-    private static TimeSpan CounterToTimeSpan(long delta)
-    {
-      long num = 10000000;
-      return TimeSpan.FromTicks(checked (delta * num) / GameClock.Frequency);
+                if (!TryConvertToTimeSpan(counter - baseRealTime, ref currentTimeOffset))
+                {
+                    baseRealTime = counter;
+                    currentTimeOffset = TimeSpan.Zero;
+                }
+            }
+
+            if (!TryConvertToTimeSpan(counter - lastRealTime, ref elapsedTime))
+                elapsedTime = TimeSpan.Zero;
+
+
+            if (!TryConvertToTimeSpan(counter - lastRealTime - timeLostToSuspension, ref elapsedAdjustedTime))
+            {
+                elapsedAdjustedTime = TimeSpan.Zero;
+            }
+            else timeLostToSuspension = 0L;
+
+            lastRealTime = counter;
+        }
+
+        internal void Suspend()
+        {
+            ++suspendCount;
+            if (suspendCount != 1)
+                return;
+            suspendStartTime = Stopwatch.GetTimestamp();
+        }
+
+        internal void Resume()
+        {
+            --suspendCount;
+            if (suspendCount > 0)
+                return;
+            timeLostToSuspension += Stopwatch.GetTimestamp() - suspendStartTime;
+            suspendStartTime = 0L;
+        }
+
+        private static bool TryConvertToTimeSpan(long delta, ref TimeSpan outValue)
+        {
+            const long num = 10000000;
+            if (delta > 922337203685) // will it overflow?
+            {
+                return false; // failed
+            }
+            outValue = new TimeSpan(unchecked((delta * num) / Stopwatch.Frequency));
+            return true;
+        }
     }
-  }
 }

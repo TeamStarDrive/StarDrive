@@ -118,6 +118,6 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// <summary>
     /// Removes all objects from the container. Commonly used while clearing the scene.
     /// </summary>
-    void Clear();
+    new void Clear();
   }
 }

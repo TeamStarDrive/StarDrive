@@ -45,7 +45,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
     private Vector3[] vector3_0 = new Vector3[8];
     private bool[] bool_5 = new bool[6];
     private bool bool_3;
-    private bool bool_4;
+    private const bool bool_4 = false;
     private FogEffect fogEffect_0;
 
     /// <summary>
@@ -219,7 +219,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
               ObjectFilter objectfilter = shadowGroup.ShadowSource.ShadowType != ShadowType.AllObjects ? ObjectFilter.Static : ObjectFilter.DynamicAndStatic;
               manager1.Find(this.list_9, shadowGroup.BoundingBox, objectfilter);
               this.list_9.Sort((IComparer<RenderableMesh>) RenderManager.class61_0);
-              RenderManager.class64_0.method_1(this.list_10, this.list_9, false, this.bool_4);
+              RenderManager.class64_0.method_1(this.list_10, this.list_9, false, bool_4);
               if (manager2 != null)
                 manager2.BeginShadowGroupRendering(shadowGroup);
               Vector3 shadowPosition = shadowGroup.ShadowSource.ShadowPosition;
@@ -322,7 +322,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         this.fogEffect_0.StartDistance = this.SceneState.Environment.FogStartDistance;
         this.fogEffect_0.EndDistance = this.SceneState.Environment.FogEndDistance;
         this.fogEffect_0.Color = this.SceneState.Environment.FogColor;
-        RenderManager.class64_0.method_1(this.list_12, this.list_3, false, this.bool_4);
+        RenderManager.class64_0.method_1(this.list_12, this.list_3, false, bool_4);
         foreach (Class63 class63 in this.list_12)
         {
           EffectHelper.SyncObjectAndShadowEffects(class63.Effect, (Effect) this.fogEffect_0);
@@ -407,7 +407,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
       {
         IShadowMap shadow = shadowGroup_0.Shadow as IShadowMap;
         this.list_11.Clear();
-        RenderManager.class64_0.method_1(this.list_11, this.list_3, true, this.bool_4);
+        RenderManager.class64_0.method_1(this.list_11, this.list_3, true, bool_4);
         graphicsDevice.RenderState.AlphaBlendEnable = false;
         graphicsDevice.RenderState.SourceBlend = Blend.One;
         graphicsDevice.RenderState.DestinationBlend = Blend.Zero;
