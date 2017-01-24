@@ -18,8 +18,8 @@ namespace SynapseGaming.LightingSystem.Rendering
   public class SpriteManager : IUnloadable, IManager, IManagerService
   {
     private int int_0 = 100;
-    private Class21<RenderableMesh> class21_0 = new Class21<RenderableMesh>();
-    private Class22<Class69> class22_0 = new Class22<Class69>();
+    private TrackingPool<RenderableMesh> TrackingPool0 = new TrackingPool<RenderableMesh>();
+    private DisposablePool<Class69> DisposablePool0 = new DisposablePool<Class69>();
     private IGraphicsDeviceService igraphicsDeviceService_0;
 
     /// <summary>
@@ -69,7 +69,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// <returns></returns>
     public SpriteContainer CreateSpriteContainer()
     {
-      SpriteContainer spriteContainer = new SpriteContainer(this.igraphicsDeviceService_0.GraphicsDevice, this.class21_0, this.class22_0);
+      SpriteContainer spriteContainer = new SpriteContainer(this.igraphicsDeviceService_0.GraphicsDevice, this.TrackingPool0, this.DisposablePool0);
       spriteContainer.ObjectType = ObjectType.Dynamic;
       return spriteContainer;
     }
@@ -87,8 +87,8 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// </summary>
     public void Clear()
     {
-      this.class21_0.method_0();
-      this.class22_0.method_0();
+      this.TrackingPool0.RecycleAllTracked();
+      this.DisposablePool0.RecycleAllTracked();
     }
 
     /// <summary>
@@ -97,8 +97,8 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// </summary>
     public void Unload()
     {
-      this.class21_0.Clear();
-      this.class22_0.method_1();
+      this.TrackingPool0.Clear();
+      this.DisposablePool0.Clear();
     }
   }
 }
