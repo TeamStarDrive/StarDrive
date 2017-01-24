@@ -2241,7 +2241,10 @@ namespace Ship_Game.AI
                 Reset();
             }
         }
-
+        public bool RemoveShip(Ship ship)
+        {
+            return Ships.Remove(ship);
+        }
         public void Update(float elapsedTime)
         {
             this.HasRepair = false;
