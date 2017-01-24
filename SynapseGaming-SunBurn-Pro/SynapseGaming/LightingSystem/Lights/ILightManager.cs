@@ -15,7 +15,7 @@ namespace SynapseGaming.LightingSystem.Lights
   /// Interface that provides access to the scene's light manager. The light manager
   /// provides methods for storing and querying scene lights.
   /// </summary>
-  public interface ILightManager : IQuery<ILight>, ISubmit<ILight>, ISubmit<ILightRig>, IUnloadable, IManager, IRenderableManager, IWorldRenderableManager, IManagerService, ILightQuery
+  public interface ILightManager : ISubmit<ILight>, ISubmit<ILightRig>, IWorldRenderableManager, IManagerService, ILightQuery
   {
     /// <summary>
     /// Helper method that creates and submits a static light
@@ -91,11 +91,11 @@ namespace SynapseGaming.LightingSystem.Lights
     /// This method is used when the container implements a tree or graph, and relocates all
     /// dynamic objects within that structure often due to a change in object world position.
     /// </summary>
-    void MoveDynamicObjects();
+    new void MoveDynamicObjects();
 
     /// <summary>
     /// Removes all objects from the container. Commonly used while clearing the scene.
     /// </summary>
-    void Clear();
+    new void Clear();
   }
 }

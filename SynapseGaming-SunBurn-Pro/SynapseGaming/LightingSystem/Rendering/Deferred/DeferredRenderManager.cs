@@ -47,7 +47,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
     private const float float_1 = 1.2f;
     private bool bool_3;
     private float float_2;
-    private bool bool_5;
+    private const bool bool_5 = false;
     private BasicEffect basicEffect_0;
     private DeferredBuffers deferredBuffers_0;
     private Class38 class38_0;
@@ -290,7 +290,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       }
       else
       {
-        DeferredRenderManager.class64_0.method_1(this.list_6, this.list_4, false, this.bool_5);
+        DeferredRenderManager.class64_0.method_1(this.list_6, this.list_4, false, bool_5);
         graphicsDevice.RenderState.ColorWriteChannels = ColorWriteChannels.None;
         this.method_5(this.list_6, (ShadowGroup) null, false, DeferredEffectOutput.Depth, false, true, 0);
         graphicsDevice.RenderState.DepthBufferWriteEnable = false;
@@ -666,7 +666,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
       ObjectFilter objectfilter = shadowGroup_0.ShadowSource.ShadowType != ShadowType.AllObjects ? ObjectFilter.Static : ObjectFilter.DynamicAndStatic;
       iobjectManager_0.Find(this.list_8, shadowGroup_0.BoundingBox, objectfilter);
       this.list_8.Sort((IComparer<RenderableMesh>) DeferredRenderManager.class61_0);
-      DeferredRenderManager.class64_0.method_1(this.list_9, this.list_8, false, this.bool_5);
+      DeferredRenderManager.class64_0.method_1(this.list_9, this.list_8, false, bool_5);
       if (iavatarManager_0 != null)
         iavatarManager_0.BeginShadowGroupRendering(shadowGroup_0);
       Vector3 shadowPosition = shadowGroup_0.ShadowSource.ShadowPosition;

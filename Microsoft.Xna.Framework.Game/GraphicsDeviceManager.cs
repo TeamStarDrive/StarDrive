@@ -584,16 +584,16 @@ namespace Microsoft.Xna.Framework
       {
         this.device.Present();
       }
-      catch (InvalidOperationException ex)
+      catch (InvalidOperationException)
       {
       }
-      catch (DeviceLostException ex)
+      catch (DeviceLostException)
       {
       }
-      catch (DeviceNotResetException ex)
+      catch (DeviceNotResetException)
       {
       }
-      catch (DriverInternalErrorException ex)
+      catch (DriverInternalErrorException)
       {
       }
     }
@@ -711,7 +711,7 @@ namespace Microsoft.Xna.Framework
                 }
               }
             }
-            catch (DeviceNotSupportedException ex)
+            catch (DeviceNotSupportedException)
             {
             }
           }
@@ -824,7 +824,7 @@ namespace Microsoft.Xna.Framework
             this.ChangeDevice(false);
             break;
           }
-          catch (DeviceLostException ex)
+          catch (DeviceLostException)
           {
             return false;
           }

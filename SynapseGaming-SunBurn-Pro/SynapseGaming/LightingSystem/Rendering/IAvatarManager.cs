@@ -12,7 +12,7 @@ namespace SynapseGaming.LightingSystem.Rendering
   /// Interface that provides access to the scene's avatar manager. The avatar manager
   /// provides methods for storing, querying, and rendering scene avatars.
   /// </summary>
-  public interface IAvatarManager : IQuery<IAvatar>, ISubmit<IAvatar>, IUnloadable, IManager, IRenderableManager, IManagerService, IShadowRenderer
+  public interface IAvatarManager : IQuery<IAvatar>, ISubmit<IAvatar>, IRenderableManager, IManagerService, IShadowRenderer
   {
     /// <summary>
     /// Controls avatar lighting by blending between approximate directional
@@ -33,6 +33,6 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// <summary>
     /// Removes all objects from the container. Commonly used while clearing the scene.
     /// </summary>
-    void Clear();
+    new void Clear();
   }
 }
