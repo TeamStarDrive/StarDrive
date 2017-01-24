@@ -202,7 +202,7 @@ namespace Ship_Game
             }
             if (this.owner != null)
             {
-                this.owner.Beams.QueuePendingRemoval(this);
+                this.owner.Beams.Remove(this);
                 if (this.owner.System!= null)
                 {
                     this.System = this.owner.System;

@@ -6435,22 +6435,22 @@ namespace Ship_Game
         {
             if (viewState > UnivScreenState.SystemView)
                 return;
-            using (ship.Projectiles.AcquireReadLock())
-            {
-                foreach (Projectile projectile in ship.Projectiles)
-                {
-                    if (Frustum.Contains(projectile.Center.ToVec3()) != ContainmentType.Disjoint 
-                        && projectile.WeaponType != "Missile" 
-                        && projectile.WeaponType != "Rocket" 
-                        && projectile.WeaponType != "Drone")
 
-                    {
-                        DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath], 
-                            projectile.GetWorld(), this.view, this.projection, 
-                            projectile.weapon.Animated != 0 
-                            ? ResourceManager.TextureDict[projectile.texturePath] 
+
+            for (int index = 0; index < ship.Projectiles.Count; index++)
+            {
+                Projectile projectile = ship.Projectiles[index];
+                if (Frustum.Contains(projectile.Center.ToVec3()) != ContainmentType.Disjoint
+                    && projectile.WeaponType != "Missile"
+                    && projectile.WeaponType != "Rocket"
+                    && projectile.WeaponType != "Drone")
+
+                {
+                    DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath],
+                        projectile.GetWorld(), this.view, this.projection,
+                        projectile.weapon.Animated != 0
+                            ? ResourceManager.TextureDict[projectile.texturePath]
                             : ResourceManager.ProjTextDict[projectile.texturePath], projectile.Scale);
-                    }
                 }
             }
         }
@@ -7293,29 +7293,30 @@ namespace Ship_Game
                 this.ScreenManager.inter.RenderManager.Render();
 
             using (player.KnownShips.AcquireReadLock())
-            foreach (Ship ship in player.KnownShips)
-            {
-                using (ship.Projectiles.AcquireReadLock())
-                foreach (Projectile projectile in ship.Projectiles)
+                for (int index = 0; index < player.KnownShips.Count; index++)
                 {
-                    if (projectile.weapon.IsRepairDrone && projectile.GetDroneAI() != null)
+                    Ship ship = player.KnownShips[index];
+                    for (int i = 0; i < ship.Projectiles.Count; i++)
                     {
-                        for (int j = 0; j < projectile.GetDroneAI().Beams.Count; ++j)
-                            projectile.GetDroneAI().Beams[j].Draw(this.ScreenManager);
+                        Projectile projectile = ship.Projectiles[i];
+                        if (projectile.weapon.IsRepairDrone && projectile.GetDroneAI() != null)
+                        {
+                            for (int j = 0; j < projectile.GetDroneAI().Beams.Count; ++j)
+                                projectile.GetDroneAI().Beams[j].Draw(this.ScreenManager);
+                        }
+                    }
+                    if (viewState < UnivScreenState.SectorView)
+                    {
+                        for (int i = 0; i < ship.Beams.Count; ++i) // regular FOR to mitigate multi-threading issues
+                        {
+                            Beam beam = ship.Beams[i];
+                            if (beam.Source.InRadius(beam.ActualHitDestination, beam.range + 10.0f))
+                                beam.Draw(ScreenManager);
+                            else
+                                beam.Die(null, true);
+                        }
                     }
                 }
-                if (viewState < UnivScreenState.SectorView)
-                {
-                    for (int i = 0; i < ship.Beams.Count; ++i) // regular FOR to mitigate multi-threading issues
-                    {
-                        Beam beam = ship.Beams[i];
-                        if (beam.Source.InRadius(beam.ActualHitDestination, beam.range + 10.0f))
-                            beam.Draw(ScreenManager);
-                        else
-                            beam.Die(null, true);
-                    }
-                }
-            }
 
             var renderState = ScreenManager.GraphicsDevice.RenderState;
 
