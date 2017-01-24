@@ -1155,6 +1155,8 @@ namespace Ship_Game
                 ShipModulesDict[data.UID] = data.ConvertToShipModule();
             }
 
+            Log.Info("Num ShipModule_Advanced: {0}", ShipModule_Advanced.TotalNumModules);
+
             foreach (var entry in ShipModulesDict)
                 entry.Value.SetAttributesNoParent();
         }

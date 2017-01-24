@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll-->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BB003976-4764-4F4E-9A98-DDFB8449ECCD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SDSunBurn</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.3.2.8</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\StarDrive\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\StarDrive\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>sd-sunburn.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Class31.cs" />
+    <Compile Include="Class32.cs" />
+    <Compile Include="Class33.cs" />
+    <Compile Include="Class34.cs" />
+    <Compile Include="Class35.cs" />
+    <Compile Include="Class36.cs" />
+    <Compile Include="Class55.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\ApertureAuthorityService.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\VerifyAuthorizationCodeCompletedEventArgs.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\VerifyAuthorizationCodeCompletedEventHandler.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\GenerateAuthorizationFileCompletedEventArgs.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\GenerateAuthorizationFileCompletedEventHandler.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\GetQueueStatsCompletedEventArgs.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\GetQueueStatsCompletedEventHandler.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\ApertureAuthorityService.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\VerifyAuthorizationCodeCompletedEventArgs.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\VerifyAuthorizationCodeCompletedEventHandler.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\GenerateAuthorizationFileCompletedEventArgs.cs" />
+    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\GenerateAuthorizationFileCompletedEventHandler.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\FullFrameQuad.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\TransparencyMode.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ObjectType.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ObjectVisibility.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ObjectFilter.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IUnloadable.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IRenderableManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IWorldRenderableManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IUpdatableManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IManagerService.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IManagerServiceProvider.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ISubmit.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IQuery.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IMovableObject.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\INamedObject.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IEditorObject.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\SafeSingletonBeginableObject.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\GraphicsDeviceSupport.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\LightingSystemManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\DetailPreference.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\SamplingPreference.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IPreferences.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ILightingSystemPreferences.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\LightingSystemPreferences.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\LightingSystemStatisticCategory.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\LightingSystemStatistic.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\LightingSystemStatistics.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\LightingSystemPerformance.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ObjectGraph.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\OcclusionQueryHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\PooledObjectFactory.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\BasePrimitiveRenderHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\LineRenderHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\TriangleRenderHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\RenderTargetHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\IResourceManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ResourceManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ISceneState.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\ISceneEnvironment.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\SceneState.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\SceneEnvironment.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\SceneInterface.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\VertexPositionNormalTextureBump.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\VertexPositionNormalTextureBumpSkin.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\VideoHardwareHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Core\SerializeTypeDictionary.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Editor\ControlType.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Editor\LightingSystemEditor.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\IRenderableEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\BaseRenderableEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\ISkinnedEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\BaseSkinnedEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\ISamplerEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\IAddressableEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\ITextureAccessEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\ITransparentEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\BaseMaterialEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\ParameteredEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\BaseSasBindEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\BaseSasEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\ITerrainEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\BaseTerrainEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\ILightingEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\IShadowGenerateEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\IDeferredObjectEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\EffectHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\DeferredEffectOutput.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\EffectBatchHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\Deferred\DeferredObjectEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\Deferred\DeferredSasEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\Deferred\DeferredTerrainEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\Forward\LightingEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\Forward\FogEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\Forward\SasEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\Forward\SasLightingEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\Forward\TerrainEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Effects\Forward\XSIEffect.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\ILightQuery.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\BaseLightManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\ILight.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\IPointSource.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\IDirectionalSource.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\ISpotSource.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\IAmbientSource.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\PointLight.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\SpotLight.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\DirectionalLight.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\AmbientLight.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\ILightManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\CompositeLighting.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\LightManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\ILightRig.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\ILightGroup.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\ILightFactory.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\LightGroup.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Lights\LightRig.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\IShadowSource.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowSource.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowMapSurface.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\IShadowMapVisibility.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\IShadow.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\IShadowMap.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\BaseShadowMap.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\BaseShadowEffectShadowMap.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\BaseShadowCubeMap.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\BaseShadowDirectionalMap.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\IShadowMapManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\BaseShadowManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\BaseShadowMapManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowType.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowGroup.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowMapCache.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\ShadowRenderTargetGroup.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\Deferred\DeferredShadowCubeMap.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\Deferred\DeferredShadowDirectionalMap.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\Deferred\DeferredShadowMapManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\Forward\ShadowCubeMap.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\Forward\ShadowDirectionalMap.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Shadows\Forward\ShadowMapManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Models\ModelRenderHelper.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\LightRigReader_Pro.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\SceneEnvironmentReader_Pro.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\TerrainMaterialReader_Pro.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\Deferred\DeferredObjectMaterialReader_Pro.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\Deferred\DeferredSasMaterialReader_Pro.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\Forward\LightingMaterialReader_Pro.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\Forward\SasMaterialReader_Pro.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Processors\Forward\XSIMaterialReader_Pro.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\IShadowRenderer.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\IAvatarManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\IAvatar.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\Avatar.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\AvatarManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\IRenderManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\BaseRenderManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\DebugRenderManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\IPostProcessor.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\BaseRenderTargetPostProcessor.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\HighDynamicRangePostProcessor.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\IPostProcessManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\BaseOverlayPostProcessor.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\PostProcessManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\RenderableMesh.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\IObjectManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\ObjectManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\MeshData.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\RenderableMeshCollection.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\ISceneObject.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\SceneObject.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\SplashScreen.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\SplashScreenGameComponent.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\SpriteContainer.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\SpriteManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\Deferred\DeferredBufferType.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\Deferred\DeferredBufferSizing.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\Deferred\DeferredBuffers.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\Deferred\DeferredRenderManager.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\Forward\LightingSystemGameComponent.cs" />
+    <Compile Include="SynapseGaming\LightingSystem\Rendering\Forward\RenderManager.cs" />
+    <Compile Include="ns1\Class5.cs" />
+    <Compile Include="ns1\Class6.cs" />
+    <Compile Include="ns0\Class0.cs" />
+    <Compile Include="ns0\Class1.cs" />
+    <Compile Include="ns0\Class2.cs" />
+    <Compile Include="ns0\Class4.cs" />
+    <Compile Include="ns2\Class7.cs" />
+    <Compile Include="ns2\Class8.cs" />
+    <Compile Include="ns3\Class9.cs" />
+    <Compile Include="ns3\Class10.cs" />
+    <Compile Include="ns3\Class11.cs" />
+    <Compile Include="ns3\Class12.cs" />
+    <Compile Include="ns3\Class13.cs" />
+    <Compile Include="ns3\Class14.cs" />
+    <Compile Include="ns3\Interface0.cs" />
+    <Compile Include="ns3\Class16.cs" />
+    <Compile Include="ns3\Class17.cs" />
+    <Compile Include="ns3\Class18.cs" />
+    <Compile Include="ns3\Class26.cs" />
+    <Compile Include="ns3\Class27.cs" />
+    <Compile Include="ns3\Class28.cs" />
+    <Compile Include="ns3\Class29.cs" />
+    <Compile Include="ns4\Attribute0.cs" />
+    <Compile Include="ns4\Attribute1.cs" />
+    <Compile Include="ns4\Attribute2.cs" />
+    <Compile Include="ns4\Attribute3.cs" />
+    <Compile Include="ns4\Attribute4.cs" />
+    <Compile Include="ns4\Attribute5.cs" />
+    <Compile Include="ns4\Attribute6.cs" />
+    <Compile Include="ns4\Attribute7.cs" />
+    <Compile Include="ns4\Class30.cs" />
+    <Compile Include="ns6\Interface1.cs" />
+    <Compile Include="ns6\Interface2.cs" />
+    <Compile Include="ns6\Interface3.cs" />
+    <Compile Include="ns6\Class48.cs" />
+    <Compile Include="ns6\Class39.cs" />
+    <Compile Include="ns6\Class40.cs" />
+    <Compile Include="ns6\Class41.cs" />
+    <Compile Include="ns6\Class42.cs" />
+    <Compile Include="ns6\Class43.cs" />
+    <Compile Include="ns6\Class44.cs" />
+    <Compile Include="ns6\Enum5.cs" />
+    <Compile Include="ns6\Class51.cs" />
+    <Compile Include="ns6\Class45.cs" />
+    <Compile Include="ns5\Class37.cs" />
+    <Compile Include="ns5\Class38.cs" />
+    <Compile Include="ns7\Class53.cs" />
+    <Compile Include="ns7\Class54.cs" />
+    <Compile Include="ns8\Class58.cs" />
+    <Compile Include="ns8\Class59.cs" />
+    <Compile Include="ns9\Enum7.cs" />
+    <Compile Include="ns9\Enum8.cs" />
+    <Compile Include="ns9\Class61.cs" />
+    <Compile Include="ns9\Class62.cs" />
+    <Compile Include="ns9\Class63.cs" />
+    <Compile Include="ns9\Class64.cs" />
+    <Compile Include="ns9\Class65.cs" />
+    <Compile Include="ns9\Class67.cs" />
+    <Compile Include="ns9\Struct1.cs" />
+    <Compile Include="ns9\Buffer.cs" />
+    <Compile Include="ns9\Class70.cs" />
+    <Compile Include="ns10\Class71.cs" />
+    <Compile Include="ns10\Class72.cs" />
+    <Compile Include="ns11\Disposable.cs" />
+    <Compile Include="ns11\Class77.cs" />
+    <Compile Include="ns11\Class78.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Microsoft\Xna\Framework.RuntimeProfile" />
+    <EmbeddedResource Include="SynapseGaming\LightingSystem\Editor\EditorResources.resx" />
+    <EmbeddedResource Include="SynapseGaming\LightingSystem\Editor\UI\ColorSelectWindow.resx" />
+    <EmbeddedResource Include="SynapseGaming\LightingSystem\Editor\UI\EditorWindow.resx" />
+    <EmbeddedResource Include="SynapseGaming\LightingSystem\Editor\UI\TextureWindow.resx" />
+    <EmbeddedResource Include="SynapseGaming\LightingSystem\Effects\Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj">
+      <Project>{dd32a813-1393-421a-baf8-455f02167be3}</Project>
+      <Name>Microsoft.Xna.Framework.Game</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sd-sunburn.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
