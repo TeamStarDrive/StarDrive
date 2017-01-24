@@ -140,16 +140,11 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.9.0.2-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SharpRaven, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\SharpRaven.2.1.0\lib\net45\SharpRaven.dll</HintPath>
-    </Reference>
-    <Reference Include="SynapseGaming-SunBurn-Pro">
-      <HintPath>StarDrive\SynapseGaming-SunBurn-Pro.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
@@ -221,7 +216,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Ship_Game\AgentMissionData.cs" />
-    <Compile Include="Ship_Game\DevekSplash.cs" />
     <Compile Include="Ship_Game\EspionageScreen.cs" />
     <Compile Include="Ship_Game\EventTypes.cs">
       <AutoGen>false</AutoGen>
@@ -232,7 +226,7 @@
     <Compile Include="Ship_Game\Moon.cs" />
     <Compile Include="Ship_Game\Data\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
-    <Compile Include="Ship_Game\MethodUtil.cs" />
+    <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
@@ -1067,7 +1061,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\ZeroSplash.cs">
+    <Compile Include="Ship_Game\GameScreens\ZeroSplash.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -3490,6 +3484,16 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj">
+      <Project>{dd32a813-1393-421a-baf8-455f02167be3}</Project>
+      <Name>Microsoft.Xna.Framework.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="SynapseGaming-SunBurn-Pro\SDSunBurn.csproj">
+      <Project>{bb003976-4764-4f4e-9a98-ddfb8449eccd}</Project>
+      <Name>SDSunBurn</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

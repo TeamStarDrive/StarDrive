@@ -42,14 +42,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
-    <Reference Include="Microsoft.Xna.Framework.Game, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
     <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="SynapseGaming-SunBurn-Pro">
-      <HintPath>..\StarDrive\SynapseGaming-SunBurn-Pro.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Web.Extensions" />
@@ -85,9 +80,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Xna.Framework.Game\Microsoft.Xna.Framework.Game.csproj">
+      <Project>{dd32a813-1393-421a-baf8-455f02167be3}</Project>
+      <Name>Microsoft.Xna.Framework.Game</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StarDrive.csproj">
       <Project>{8071e07a-300e-485d-b139-066e15e82178}</Project>
       <Name>StarDrive</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SynapseGaming-SunBurn-Pro\SDSunBurn.csproj">
+      <Project>{bb003976-4764-4f4e-9a98-ddfb8449eccd}</Project>
+      <Name>SDSunBurn</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
