@@ -13,7 +13,7 @@ namespace Ship_Game.Gameplay
 
     public sealed class ShipModule_Advanced
     {
-        private static int TotalNumModules; //To track how many advanced modules are being created.
+        public static int TotalNumModules { get; private set; } //To track how many advanced modules are being created.
 
         public float FTLSpeed;
         public string DeployBuildingOnColonize;
@@ -128,7 +128,6 @@ namespace Ship_Game.Gameplay
         {
             //This should only be called once per module XML file -Gretman
             ++TotalNumModules;
-            Log.Info("ShipModule_Advanced Created. Total so far: {0}", TotalNumModules);
         }
     }
 
