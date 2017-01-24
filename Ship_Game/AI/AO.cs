@@ -1,10 +1,7 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Ship_Game.Commands.MilitaryTasks;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
@@ -17,7 +14,9 @@ namespace Ship_Game.AI
         [XmlIgnore][JsonIgnore] private Fleet CoreFleet = new Fleet();
         [XmlIgnore][JsonIgnore] private readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
         [XmlIgnore] [JsonIgnore] private Planet[] PlanetsInAo;
+        [XmlIgnore] [JsonIgnore] private Planet[] OurPlanetsInAo;
         [XmlIgnore][JsonIgnore] public Vector2 Position => CoreWorld.Position;
+        [XmlIgnore] [JsonIgnore] private Empire Owner => CoreWorld.Owner;
 
         [Serialize(0)] public int ThreatLevel;
         [Serialize(1)] public Guid CoreWorldGuid;
@@ -28,6 +27,7 @@ namespace Ship_Game.AI
         [Serialize(6)] private bool Flip;
         [Serialize(7)] public float Radius;
         [Serialize(8)] public int TurnsToRelax;
+        
 
 	    public AO()
 		{
@@ -56,7 +56,7 @@ namespace Ship_Game.AI
             CoreFleet.Owner = p.Owner;
             CoreFleet.IsCoreFleet = true;
             Array<Planet> tempPlanet = new Array<Planet>();
-			foreach (Planet planet in p.Owner.GetPlanets())
+			foreach (Planet planet in Empire.Universe.PlanetsDict.Values)
 			{
 				if (!planet.Position.InRadius(CoreWorld.Position,radius)) continue;
     
@@ -108,7 +108,8 @@ namespace Ship_Game.AI
 		}
         public bool RemoveShip(Ship ship)
         {
-            ShipsWaitingForCoreFleet.Remove(ship);
+            CoreFleet.RemoveShip(ship);
+            ShipsWaitingForCoreFleet.Remove(ship);            
             return OffensiveForcePool.Remove(ship);
         }
         public Fleet GetCoreFleet() => CoreFleet;
@@ -117,7 +118,7 @@ namespace Ship_Game.AI
 		
 		public Planet GetPlanet() => CoreWorld;
 
-        public Planet[] GetPlanets() => PlanetsInAo;
+        public Planet[] GetPlanets() => OurPlanetsInAo;        
 
         public Ship[] GetWaitingShips() => ShipsWaitingForCoreFleet.ToArray();
 		
@@ -189,6 +190,13 @@ namespace Ship_Game.AI
 
 		public void Update()
 		{
+            Array<Planet> tempP = new Array<Planet>();
+            foreach (Planet p in PlanetsInAo)
+            {
+                if (p.Owner != Owner) continue;
+                tempP.Add(p);
+            }
+            OurPlanetsInAo = tempP.ToArray();
             for (int index = 0; index < OffensiveForcePool.Count; index++)
             {
                 Ship ship = OffensiveForcePool[index];
@@ -201,26 +209,26 @@ namespace Ship_Game.AI
 		    
             if (CoreFleet.speed > 4000) //@again arbitrary core fleet speed
                 return;
-            if (ShipsWaitingForCoreFleet.Any() && !CoreFleetFull()
-                && (!CoreFleet.Ships.Any() || CoreFleet.Task == null))
+            if (ShipsWaitingForCoreFleet.Count >0 && !CoreFleetFull()
+                && (CoreFleet.Ships.Count ==0 || CoreFleet.Task == null))
 			{
-				foreach (Ship waiting in ShipsWaitingForCoreFleet)
-				{
-					if (waiting.fleet == null)
-					{
-                        CoreFleetAddShip(waiting);
-                    }
-                    OffensiveForcePool.Remove(waiting);
-				}
-                ShipsWaitingForCoreFleet.Clear();
+			    for (int index = 0; index < ShipsWaitingForCoreFleet.Count; index++)
+			    {
+			        Ship waiting = ShipsWaitingForCoreFleet[index];
+			        if (waiting.fleet == null)
+			        {
+			            CoreFleetAddShip(waiting);
+			        }
+			        OffensiveForcePool.Remove(waiting);
+			    }
+			    ShipsWaitingForCoreFleet.Clear();
                 CoreFleet.Position = CoreWorld.Position;
                 CoreFleet.AutoArrange();
                 CoreFleet.MoveToNow(Position, 0f, new Vector2(0f, -1f));
 			}
 			if (CoreFleet.Task == null)
 			{
-				AO turnsToRelax = this;
-				turnsToRelax.TurnsToRelax = turnsToRelax.TurnsToRelax + 1;
+				TurnsToRelax += TurnsToRelax + 1;
 			}
 			if (ThreatLevel * ( 1-(TurnsToRelax / 10)) < CoreFleet.GetStrength())
 			{
