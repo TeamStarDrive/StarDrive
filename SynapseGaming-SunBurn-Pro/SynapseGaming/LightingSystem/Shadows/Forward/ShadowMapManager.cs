@@ -6,6 +6,7 @@
 
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
+using SynapseGaming.LightingSystem.Core;
 
 namespace SynapseGaming.LightingSystem.Shadows.Forward
 {
@@ -16,8 +17,8 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
   /// </summary>
   public class ShadowMapManager : BaseShadowMapManager
   {
-    private Class22<ShadowCubeMap> class22_1 = new Class22<ShadowCubeMap>();
-    private Class22<ShadowDirectionalMap> class22_2 = new Class22<ShadowDirectionalMap>();
+    private DisposablePool<ShadowCubeMap> class22_1 = new DisposablePool<ShadowCubeMap>();
+    private DisposablePool<ShadowDirectionalMap> class22_2 = new DisposablePool<ShadowDirectionalMap>();
 
     /// <summary>Creates a new ShadowMapManager instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
@@ -92,8 +93,8 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     public override void EndFrameRendering()
     {
       base.EndFrameRendering();
-      this.class22_1.method_0();
-      this.class22_2.method_0();
+      this.class22_1.Clear();
+      this.class22_2.Clear();
     }
 
     /// <summary>
@@ -103,8 +104,8 @@ namespace SynapseGaming.LightingSystem.Shadows.Forward
     public override void Unload()
     {
       base.Unload();
-      this.class22_1.method_1();
-      this.class22_2.method_1();
+      this.class22_1.Clear();
+      this.class22_2.Clear();
     }
   }
 }
