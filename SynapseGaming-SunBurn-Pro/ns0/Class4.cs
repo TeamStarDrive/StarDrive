@@ -24,13 +24,13 @@ namespace ns0
       this.class6_0 = new Class6(Class4.byte_0, Class4.byte_1);
     }
 
-    public Class4.Enum1 method_0(string string_0, string string_1, string string_2, uint uint_0)
+    public Class4.Enum1 method_0(string licenseFile, string string_1, string string_2, uint uint_0)
     {
       try
       {
-        string path1 = Class2.smethod_0();
+        string path1 = Class2.GetActivationPath();
         Directory.CreateDirectory(path1);
-        string path2 = path1 + string_0;
+        string path2 = path1 + licenseFile;
         byte[] authorizationFile = new ApertureAuthorityService().GenerateAuthorizationFile(this.method_3(string_1, string_2, uint_0));
         if (authorizationFile != null && authorizationFile.Length >= 1)
         {
@@ -49,16 +49,16 @@ namespace ns0
       }
     }
 
-    public bool method_1(string string_0, string string_1, uint uint_0)
+    public bool CheckLicense(string licenseFile, string string_1, uint uint_0)
     {
       TimeSpan timeSpan_0;
-      if (this.method_4(string_0, string_1, uint_0, out timeSpan_0))
+      if (this.CheckLicense(licenseFile, string_1, uint_0, out timeSpan_0))
         return true;
-      this.method_2(string_0, string_1);
-      return this.method_4(string_0, string_1, uint_0, out timeSpan_0) || timeSpan_0.TotalDays > 0.0 && timeSpan_0.TotalDays < 45.0;
+      this.method_2(licenseFile, string_1);
+      return this.CheckLicense(licenseFile, string_1, uint_0, out timeSpan_0) || timeSpan_0.TotalDays > 0.0 && timeSpan_0.TotalDays < 45.0;
     }
 
-    private void method_2(string string_0, string string_1)
+    private void method_2(string licenseFile, string string_1)
     {
       try
       {
@@ -66,8 +66,8 @@ namespace ns0
         uint uint_0;
         uint uint_1;
         DateTime dateTime_0;
-        this.method_6(string_0, out string_1_1, out uint_0, out uint_1, out dateTime_0);
-        int num = (int) this.method_0(string_0, string_1_1, string_1, uint_1);
+        this.ReadLicense(licenseFile, out string_1_1, out uint_0, out uint_1, out dateTime_0);
+        int num = (int) this.method_0(licenseFile, string_1_1, string_1, uint_1);
       }
       catch
       {
@@ -79,17 +79,17 @@ namespace ns0
       return new Class7(this.class6_0).method_2(string_0, (uint) Class4.smethod_0(string_1), uint_0, DateTime.Now);
     }
 
-    private bool method_4(string string_0, string string_1, uint uint_0, out TimeSpan timeSpan_0)
+    private bool CheckLicense(string licenseFile, string string_1, uint uint_0, out TimeSpan validFor)
     {
-      timeSpan_0 = TimeSpan.MaxValue;
+      validFor = TimeSpan.MaxValue;
       try
       {
         string string_1_1;
         uint uint_0_1;
         uint uint_1;
         DateTime dateTime_0;
-        this.method_6(string_0, out string_1_1, out uint_0_1, out uint_1, out dateTime_0);
-        if (string_1_1 == "" || !this.method_5(uint_0_1, uint_1, dateTime_0, string_1, uint_0, ref timeSpan_0))
+        this.ReadLicense(licenseFile, out string_1_1, out uint_0_1, out uint_1, out dateTime_0);
+        if (string_1_1 == "" || !this.method_5(uint_0_1, uint_1, dateTime_0, string_1, uint_0, ref validFor))
           return false;
         string[] strArray = string_1_1.Split(this.char_0);
         Class0.string_0 = strArray == null || strArray.Length < 5 ? "-unlicensed-" : "****-" + strArray[4];
@@ -137,11 +137,11 @@ namespace ns0
       return num1 + num2 * 1566083941;
     }
 
-    private void method_6(string string_0, out string string_1, out uint uint_0, out uint uint_1, out DateTime dateTime_0)
+    private void ReadLicense(string licenseFile, out string string_1, out uint uint_0, out uint uint_1, out DateTime dateTime_0)
     {
       try
       {
-        FileStream fileStream = File.OpenRead(Class2.smethod_0() + string_0);
+        FileStream fileStream = File.OpenRead(Class2.GetActivationPath() + licenseFile);
         byte[] numArray = new byte[fileStream.Length];
         fileStream.Read(numArray, 0, numArray.Length);
         fileStream.Close();

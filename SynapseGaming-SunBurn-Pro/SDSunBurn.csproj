@@ -258,7 +258,6 @@
     <Compile Include="ns0\Class1.cs" />
     <Compile Include="ns0\Class2.cs" />
     <Compile Include="ns0\Class4.cs" />
-    <Compile Include="ns0\Class80.cs" />
     <Compile Include="ns2\Class7.cs" />
     <Compile Include="ns2\Class8.cs" />
     <Compile Include="ns3\Class9.cs" />
@@ -312,14 +311,13 @@
     <Compile Include="ns9\Class65.cs" />
     <Compile Include="ns9\Class67.cs" />
     <Compile Include="ns9\Struct1.cs" />
-    <Compile Include="ns9\Class69.cs" />
+    <Compile Include="ns9\Buffer.cs" />
     <Compile Include="ns9\Class70.cs" />
     <Compile Include="ns10\Class71.cs" />
     <Compile Include="ns10\Class72.cs" />
     <Compile Include="ns11\Disposable.cs" />
     <Compile Include="ns11\Class77.cs" />
     <Compile Include="ns11\Class78.cs" />
-    <Compile Include="ns11\Class79.cs" />
     <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
