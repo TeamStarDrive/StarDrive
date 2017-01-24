@@ -6208,44 +6208,20 @@ namespace Ship_Game.AI
             float empireStr = this.empire.currentMilitaryStrength; // / (this.AreasOfOperations.Count*2.5f+1);
             foreach (AO areasOfOperation in this.AreasOfOperations)
             {
-                areasOfOperation.ThreatLevel = 0;
+                
                 if (areasOfOperation.GetPlanet().Owner != empire)
                 {
                     aOs.Add(areasOfOperation);
+                    continue;
                 }
+                areasOfOperation.ThreatLevel = 0;
                 areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStr(areasOfOperation.Position, areasOfOperation.Radius, empire);
                 
-                //this.empire.KnownShips.thisLock.EnterReadLock();
 
-
-                //foreach (Ship ship in this.empire.KnownShips)
-                //{
-                //    if (ship.loyalty == this.empire || Vector2.Distance(areasOfOperation.GetPlanet().Position, ship.Center) > areasOfOperation.Radius)
-                //        continue;
-                //    areasOfOperation.ThreatLevel += (int)ship.GetStrength();
-                //}
-                //this.empire.KnownShips.thisLock.ExitReadLock();
 
                 int min = (int)(empireStr * ((DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets())+1) * .01f));
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
-                //foreach (Empire empireList in EmpireManager.Empires)
-                //{                                        
-                //    if (empireList == this.empire || empireList.data.Defeated || !this.empire.GetRelations()[empireList].AtWar)
-                //    {
-                //        continue;
-                //    }
-                //    foreach (AO aO in empireList.GetGSAI().AreasOfOperations)
-                //    {
-                //        if (Vector2.Distance(areasOfOperation.Position, aO.Position) >= areasOfOperation.Radius * 2f)
-                //        {
-                //            continue;
-                //        }
-                //        AO threatLevel = areasOfOperation; //try to make threatlevel usefull. still not very usefull
-                //        threatLevel.ThreatLevel = threatLevel.ThreatLevel + aO
-                        
-                //    }
-                //}
                 
             }
             foreach (AO aO1 in aOs)
