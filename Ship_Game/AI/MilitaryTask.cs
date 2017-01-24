@@ -37,8 +37,16 @@ namespace Ship_Game.AI
         public MilitaryTask()
 		{
 		}
-
-		public MilitaryTask(Vector2 location, float radius, Array<Goal> GoalsToHold, Empire Owner)
+        public MilitaryTask(AO ao)
+        {
+            AO = ao.Position;
+            AORadius = ao.Radius;
+            type = TaskType.CohesiveClearAreaOfEnemies;
+            WhichFleet = ao.WhichFleet;
+            IsCoreFleetTask = true;
+            SetEmpire(ao.GetCoreFleet().Owner);
+        }
+        public MilitaryTask(Vector2 location, float radius, Array<Goal> GoalsToHold, Empire Owner)
 		{
 			this.type = MilitaryTask.TaskType.ClearAreaOfEnemies;
 			this.AO = location;
@@ -385,7 +393,7 @@ namespace Ship_Game.AI
 						ship.isSpooling = false;
                         if (ship.shipData.Role != ShipData.RoleName.troop)
 						{
-                            closestAO.GetOffensiveForcePool().Add(ship);
+                            closestAO.AddShip(ship);
 							ship.GetAI().OrderResupplyNearest(false);
 						}
 						else
@@ -1048,8 +1056,7 @@ namespace Ship_Game.AI
                     newFleet.AddShip(ship);                            
                     ship.GetAI().OrderQueue.Clear();
                     ship.GetAI().State = AIState.AwaitingOrders;
-                    closestAO.GetOffensiveForcePool().Remove(ship);
-                    closestAO.GetWaitingShips().Remove(ship);
+                    closestAO.RemoveShip(ship);
                     if(ship.GetAI().SystemToDefend != null)                    
                     this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                 }
@@ -1127,10 +1134,9 @@ namespace Ship_Game.AI
                     newFleet.AddShip(ship);
                     ship.GetAI().OrderQueue.Clear();
                     ship.GetAI().State = AIState.AwaitingOrders;
-                    closestAO.GetOffensiveForcePool().Remove(ship);
-                    closestAO.GetWaitingShips().Remove(ship);
+                    closestAO.RemoveShip(ship);
                     if(ship.GetAI().SystemToDefend != null)
-                    this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
+                        empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                 }
 
                 newFleet.AutoArrange();
@@ -1228,9 +1234,7 @@ namespace Ship_Game.AI
 
             foreach (Ship ship in this.TaskForce)
             {
-                ClosestAO.GetOffensiveForcePool().Remove(ship);
-                ClosestAO.GetWaitingShips().Remove(ship);
-               // if(ship.GetAI().SystemToDefend != null)
+                ClosestAO.RemoveShip(ship);               
                 this.empire.GetGSAI().DefensiveCoordinator.Remove(ship);
             }
             this.Step = 1;
@@ -1428,8 +1432,7 @@ namespace Ship_Game.AI
                         ship.GetAI().OrderQueue.Clear();
                         ship.GetAI().State = AIState.AwaitingOrders;
                         newFleet.AddShip(ship);
-                        closestAO.GetOffensiveForcePool().Remove(ship);
-                        closestAO.GetWaitingShips().Remove(ship);
+                        closestAO.RemoveShip(ship);
                     }
 
                     newFleet.Owner = this.empire;
