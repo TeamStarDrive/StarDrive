@@ -1843,6 +1843,7 @@
     <None Include="Deploy\TortoiseHg\templates\spartan\shortlogentry.tmpl" />
     <None Include="Deploy\TortoiseHg\templates\spartan\tags.tmpl" />
     <None Include="packages.config" />
+    <None Include="README.md" />
     <None Include="StarDrive.sln.DotSettings" />
   </ItemGroup>
   <ItemGroup>
