@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ns3;
 using System;
 using System.Collections.Generic;
+using SynapseGaming.LightingSystem.Core;
 
 namespace ns9
 {
@@ -25,7 +26,7 @@ namespace ns9
     private GraphicsDevice graphicsDevice_0;
     private int int_3;
     private Class69 class69_0;
-    private Class22<Class69> class22_0;
+    private DisposablePool<Class69> class22_0;
 
     public Effect Effect
     {
@@ -88,7 +89,7 @@ namespace ns9
       }
     }
 
-    public Class70(GraphicsDevice device, Class22<Class69> bufferfactory, Effect effect)
+    public Class70(GraphicsDevice device, DisposablePool<Class69> bufferfactory, Effect effect)
     {
       this.graphicsDevice_0 = device;
       this.class22_0 = bufferfactory;

@@ -6,6 +6,7 @@
 
 using Microsoft.Xna.Framework.Graphics;
 using ns3;
+using SynapseGaming.LightingSystem.Core;
 
 namespace SynapseGaming.LightingSystem.Shadows.Deferred
 {
@@ -15,8 +16,8 @@ namespace SynapseGaming.LightingSystem.Shadows.Deferred
   /// </summary>
   public class DeferredShadowMapManager : BaseShadowMapManager
   {
-    private Class22<DeferredShadowCubeMap> class22_1 = new Class22<DeferredShadowCubeMap>();
-    private Class22<DeferredShadowDirectionalMap> class22_2 = new Class22<DeferredShadowDirectionalMap>();
+    private DisposablePool<DeferredShadowCubeMap> class22_1 = new DisposablePool<DeferredShadowCubeMap>();
+    private DisposablePool<DeferredShadowDirectionalMap> class22_2 = new DisposablePool<DeferredShadowDirectionalMap>();
 
     /// <summary>Creates a new DeferredShadowMapManager instance.</summary>
     /// <param name="graphicsdevicemanager"></param>
@@ -91,8 +92,8 @@ namespace SynapseGaming.LightingSystem.Shadows.Deferred
     public override void EndFrameRendering()
     {
       base.EndFrameRendering();
-      this.class22_1.method_0();
-      this.class22_2.method_0();
+      this.class22_1.RecycleAllTracked();
+      this.class22_2.RecycleAllTracked();
     }
 
     /// <summary>
@@ -102,8 +103,8 @@ namespace SynapseGaming.LightingSystem.Shadows.Deferred
     public override void Unload()
     {
       base.Unload();
-      this.class22_1.method_1();
-      this.class22_2.method_1();
+      this.class22_1.Clear();
+      this.class22_2.Clear();
     }
   }
 }

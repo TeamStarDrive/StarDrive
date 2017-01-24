@@ -10,6 +10,7 @@ using ns3;
 using ns9;
 using System;
 using System.Collections.Generic;
+using SynapseGaming.LightingSystem.Core;
 
 namespace SynapseGaming.LightingSystem.Rendering
 {
@@ -27,11 +28,11 @@ namespace SynapseGaming.LightingSystem.Rendering
     private Dictionary<int, Class70> dictionary_0 = new Dictionary<int, Class70>(16);
     private bool bool_3;
     private GraphicsDevice graphicsDevice_0;
-    private Class21<RenderableMesh> class21_0;
-    private Class22<Class69> class22_0;
+    private TrackingPool<RenderableMesh> class21_0;
+    private DisposablePool<Class69> class22_0;
     private Class70 class70_0;
 
-    internal SpriteContainer(GraphicsDevice graphicsDevice_1, Class21<RenderableMesh> class21_1, Class22<Class69> class22_1)
+    internal SpriteContainer(GraphicsDevice graphicsDevice_1, TrackingPool<RenderableMesh> class21_1, DisposablePool<Class69> class22_1)
     {
       this.graphicsDevice_0 = graphicsDevice_1;
       this.class21_0 = class21_1;
