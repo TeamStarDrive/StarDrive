@@ -30,7 +30,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     private float float_1 = 1f;
     private BaseShadowMapManager.Enum9 enum9_0 = BaseShadowMapManager.Enum9.const_1;
     private float float_2 = 1f;
-    private Class22<ShadowRenderTargetGroup> class22_0 = new Class22<ShadowRenderTargetGroup>();
+    private DisposablePool<ShadowRenderTargetGroup> DisposablePool0 = new DisposablePool<ShadowRenderTargetGroup>();
     private const int int_0 = 67108864;
     private const int int_1 = 2048;
     private const int int_2 = 32;
@@ -302,7 +302,7 @@ namespace SynapseGaming.LightingSystem.Shadows
         }
         if (!BaseShadowMapManager.dictionary_1.ContainsKey((RenderTarget) renderTarget2D))
         {
-          ShadowRenderTargetGroup renderTargetGroup = this.class22_0.New();
+          ShadowRenderTargetGroup renderTargetGroup = this.DisposablePool0.New();
           renderTargetGroup.ShadowGroups.Clear();
           renderTargetGroup.ShadowGroups.Add(shadowgroup);
           BaseShadowMapManager.dictionary_1.Add((RenderTarget) renderTarget2D, renderTargetGroup);
@@ -342,13 +342,13 @@ namespace SynapseGaming.LightingSystem.Shadows
         this.float_2 *= 0.75f;
         this.enum9_0 = BaseShadowMapManager.Enum9.const_1;
       }
-      else if ((double) this.float_2 < 1.0 && (this.enum9_0 == BaseShadowMapManager.Enum9.const_2 || (double) this.shadowMapCache_0.method_1() < 0.330000013113022))
+      else if ((double) this.float_2 < 1.0 && (this.enum9_0 == BaseShadowMapManager.Enum9.const_2 || shadowMapCache_0.method_1() < 0.330000013113022))
       {
         this.float_2 = Math.Min(this.float_2 * 1.33f, 1f);
         this.enum9_0 = BaseShadowMapManager.Enum9.const_2;
       }
       this.shadowMapCache_0.ClearReserves();
-      this.class22_0.method_0();
+      this.DisposablePool0.RecycleAllTracked();
       base.EndFrameRendering();
     }
 
@@ -364,8 +364,8 @@ namespace SynapseGaming.LightingSystem.Shadows
     public override void Unload()
     {
       this.shadowMapCache_0.Unload();
-      this.class22_0.method_1();
-      Disposable.Free<RenderTarget2D>(ref this.renderTarget2D_0);
+      this.DisposablePool0.Clear();
+      Disposable.Free(ref renderTarget2D_0);
     }
 
     private enum Enum9

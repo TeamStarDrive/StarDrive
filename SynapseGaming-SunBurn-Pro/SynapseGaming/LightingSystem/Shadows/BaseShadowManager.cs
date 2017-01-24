@@ -22,7 +22,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     private static ShadowGroup shadowGroup_1 = new ShadowGroup();
     private static Dictionary<IShadowSource, ShadowGroup> dictionary_0 = new Dictionary<IShadowSource, ShadowGroup>(32);
     private ISceneState isceneState_0 = (ISceneState) new SynapseGaming.LightingSystem.Core.SceneState();
-    private Class21<ShadowGroup> class21_0 = new Class21<ShadowGroup>();
+    private TrackingPool<ShadowGroup> TrackingPool0 = new TrackingPool<ShadowGroup>();
     private IGraphicsDeviceService igraphicsDeviceService_0;
 
     /// <summary>
@@ -72,7 +72,7 @@ namespace SynapseGaming.LightingSystem.Shadows
     /// <summary>Cleans up frame information.</summary>
     public virtual void EndFrameRendering()
     {
-      this.class21_0.method_0();
+      this.TrackingPool0.RecycleAllTracked();
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ namespace SynapseGaming.LightingSystem.Shadows
           ShadowGroup shadowGroup;
           if (!BaseShadowManager.dictionary_0.TryGetValue(shadowSource, out shadowGroup))
           {
-            shadowGroup = this.class21_0.New();
+            shadowGroup = this.TrackingPool0.New();
             shadowGroup.Shadow = (IShadow) null;
             shadowGroup.Lights.Clear();
             BaseShadowManager.dictionary_0.Add(shadowSource, shadowGroup);

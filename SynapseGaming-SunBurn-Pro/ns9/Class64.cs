@@ -10,12 +10,13 @@ using ns3;
 using SynapseGaming.LightingSystem.Effects;
 using SynapseGaming.LightingSystem.Rendering;
 using System.Collections.Generic;
+using SynapseGaming.LightingSystem.Core;
 
 namespace ns9
 {
   internal class Class64
   {
-    private static Class21<Class63> class21_0 = new Class21<Class63>();
+    private static TrackingPool<Class63> class21_0 = new TrackingPool<Class63>();
 
     public void method_0(Matrix matrix_0, Matrix matrix_1, Matrix matrix_2, Matrix matrix_3, List<Class63> list_0, List<RenderableMesh> list_1, Enum7 enum7_0)
     {
@@ -117,7 +118,7 @@ namespace ns9
 
     public void method_2()
     {
-      Class64.class21_0.method_0();
+      Class64.class21_0.RecycleAllTracked();
     }
   }
 }
