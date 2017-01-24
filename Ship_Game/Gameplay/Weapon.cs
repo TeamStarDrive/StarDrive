@@ -374,10 +374,9 @@ namespace Ship_Game.Gameplay
 
         private Projectile CreateProjectile(Ship owner, Vector2 direction, ShipModule attachedTo, GameplayObject target, bool playSound = true)
         {
-            if (!owner.Projectiles.TryReuseItem(out Projectile projectile))
-                projectile = new Projectile(owner, direction, attachedTo);
-            else
-                projectile.Init(owner, direction, attachedTo);
+            
+              var  projectile = new Projectile(owner, direction, attachedTo);
+            
 
             projectile.range                 = Range;
             projectile.weapon                = this;
