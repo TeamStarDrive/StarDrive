@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
@@ -7,22 +8,22 @@ using Ship_Game.Commands.MilitaryTasks;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
-{
+{	
+    // ReSharper disable once InconsistentNaming
 	public sealed class AO : IDisposable
 	{
         [XmlIgnore][JsonIgnore] private Planet CoreWorld;
-        [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> OffensiveForcePool = new BatchRemovalCollection<Ship>();
-        [XmlIgnore][JsonIgnore] private BatchRemovalCollection<Ship> DefensiveForcePool = new BatchRemovalCollection<Ship>();
+        [XmlIgnore][JsonIgnore] private Array<Ship> OffensiveForcePool = new Array<Ship>();
         [XmlIgnore][JsonIgnore] private Fleet CoreFleet = new Fleet();
         [XmlIgnore][JsonIgnore] private readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] private Array<Planet> PlanetsInAO = new Array<Planet>();
+        [XmlIgnore] [JsonIgnore] private Planet[] PlanetsInAo;
         [XmlIgnore][JsonIgnore] public Vector2 Position => CoreWorld.Position;
 
         [Serialize(0)] public int ThreatLevel;
         [Serialize(1)] public Guid CoreWorldGuid;
         [Serialize(2)] public Array<Guid> OffensiveForceGuids = new Array<Guid>();
         [Serialize(3)] public Array<Guid> ShipsWaitingGuids = new Array<Guid>();
-        [Serialize(4)] public Guid fleetGuid;
+        [Serialize(4)] public Guid FleetGuid;
         [Serialize(5)] public int WhichFleet = -1;
         [Serialize(6)] private bool Flip;
         [Serialize(7)] public float Radius;
@@ -54,14 +55,14 @@ namespace Ship_Game.AI
             CoreFleet.Position = p.Position;
             CoreFleet.Owner = p.Owner;
             CoreFleet.IsCoreFleet = true;
+            Array<Planet> tempPlanet = new Array<Planet>();
 			foreach (Planet planet in p.Owner.GetPlanets())
 			{
-				if (!planet.Position.InRadius(CoreWorld.Position,radius))
-				{
-					continue;
-				}
-                PlanetsInAO.Add(planet);
+				if (!planet.Position.InRadius(CoreWorld.Position,radius)) continue;
+    
+                tempPlanet.Add(planet);
 			}
+            PlanetsInAo = tempPlanet.ToArray();
 		}
 
 		public void AddShip(Ship ship)
@@ -105,31 +106,61 @@ namespace Ship_Game.AI
 		    }
 		    Flip = !Flip;
 		}
+        public bool RemoveShip(Ship ship)
+        {
+            ShipsWaitingForCoreFleet.Remove(ship);
+            return OffensiveForcePool.Remove(ship);
+        }
+        public Fleet GetCoreFleet() => CoreFleet;
+		
+		public Ship[] GetOffensiveForcePool() => OffensiveForcePool.ToArray();
+		
+		public Planet GetPlanet() => CoreWorld;
 
-		public Fleet GetCoreFleet()
-		{
-			return CoreFleet;
-		}
+        public Planet[] GetPlanets() => PlanetsInAo;
 
-		public BatchRemovalCollection<Ship> GetOffensiveForcePool()
-		{
-			return OffensiveForcePool;
-		}
-
-		public Planet GetPlanet()
-		{
-			return CoreWorld;
-		}
-
-		public Array<Planet> GetPlanets()
-		{
-			return PlanetsInAO;
-		}
-
-		public Array<Ship> GetWaitingShips()
-		{
-			return ShipsWaitingForCoreFleet;
-		}
+        public Ship[] GetWaitingShips() => ShipsWaitingForCoreFleet.ToArray();
+		
+        public void InitFromSave(UniverseData data, Empire owner)
+        {
+            foreach (SolarSystem sys in data.SolarSystemsList)
+            {
+                foreach (Planet p in sys.PlanetList)
+                    if (p.guid == CoreWorldGuid)
+                        SetPlanet(p);
+            }
+            Array<Planet> tempPlanet = new Array<Planet>();
+            foreach (SolarSystem sys in data.SolarSystemsList)
+            {
+                foreach (Planet p in sys.PlanetList)
+                    if (p.Position.InRadius(Position, Radius))
+                        tempPlanet.Add(p);
+            }
+            PlanetsInAo = tempPlanet.ToArray();            
+            foreach (Guid guid in OffensiveForceGuids)
+            {
+                foreach (Ship ship in data.MasterShipList)
+                {
+                    if (ship.guid != guid) continue;
+                    OffensiveForcePool.Add(ship);
+                    ship.AddedOnLoad = true;
+                }
+            }
+            foreach (Guid guid in ShipsWaitingGuids)
+            {
+                foreach (Ship ship in data.MasterShipList)
+                {
+                    if (ship.guid != guid) continue;
+                    ShipsWaitingForCoreFleet.Add(ship);
+                    ship.AddedOnLoad = true;
+                }
+            }
+            foreach (var kv in owner.GetFleetsDict())
+            {
+                if (kv.Value.guid == FleetGuid)
+                    SetFleet(kv.Value);
+            }
+        }
 
 		public void PrepareForSave()
 		{
@@ -143,7 +174,7 @@ namespace Ship_Game.AI
 			{
                 ShipsWaitingGuids.Add(ship.guid);
 			}
-            fleetGuid = CoreFleet.guid;
+            FleetGuid = CoreFleet.guid;
 		}
 
 		public void SetFleet(Fleet f)
@@ -158,16 +189,16 @@ namespace Ship_Game.AI
 
 		public void Update()
 		{
-			
-            foreach (Ship ship in OffensiveForcePool)
-			{
-                if (ship.Active && ship.fleet == null && ship.shipData.Role != ShipData.RoleName.troop && ship.GetStrength() >0)
-				{
-					continue;
-				}                
-                OffensiveForcePool.QueuePendingRemoval(ship);
-			}
-            OffensiveForcePool.ApplyPendingRemovals();
+            for (int index = 0; index < OffensiveForcePool.Count; index++)
+            {
+                Ship ship = OffensiveForcePool[index];
+                if (ship.Active && ship.fleet == null && ship.shipData.Role != ShipData.RoleName.troop &&
+                    ship.GetStrength() > 0)
+                    continue;
+
+                OffensiveForcePool.Remove(ship);
+            }
+		    
             if (CoreFleet.speed > 4000) //@again arbitrary core fleet speed
                 return;
             if (ShipsWaitingForCoreFleet.Any() && !CoreFleetFull()
@@ -195,7 +226,7 @@ namespace Ship_Game.AI
 			{
 				if (CoreFleet.Task == null && !CoreWorld.Owner.isPlayer)
 				{
-					var clearArea = new CohesiveClearAreaOfEnemies(this);
+					var clearArea = new MilitaryTask(this);
                     CoreFleet.Task = clearArea;
                     CoreFleet.TaskStep = 1;
 				    if (CoreFleet.Owner == null)
@@ -218,8 +249,7 @@ namespace Ship_Game.AI
 
         private void Dispose(bool disposing)
         {
-            OffensiveForcePool?.Dispose(ref OffensiveForcePool);
-            DefensiveForcePool?.Dispose(ref DefensiveForcePool);
+            OffensiveForcePool = null;
             CoreFleet?.Dispose(ref CoreFleet);
         }
        

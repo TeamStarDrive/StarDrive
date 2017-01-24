@@ -41,12 +41,12 @@ namespace Ship_Game.AI
             return strength;
         }
 
-	    public float GetDefensiveThreatFromPlanets(Array<Planet> planets)
+	    public float GetDefensiveThreatFromPlanets(Planet[] planets)
 	    {
 	        if (DefenseDict.Count == 0) return 0;
             int count = 0;
             float str = 0;            
-	        for (var index = 0; index < planets.Count; index++)
+	        for (int index = 0; index < planets.Length; index++)
 	        {
 	            Planet planet = planets[index];	      
                 if (!DefenseDict.TryGetValue(planet.system, out SystemCommander scom)) continue;

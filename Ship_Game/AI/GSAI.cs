@@ -6195,41 +6195,7 @@ namespace Ship_Game.AI
 		{
 			foreach (AO area in this.AreasOfOperations)
 			{
-				foreach (SolarSystem sys in data.SolarSystemsList)
-				{
-					foreach (Planet p in sys.PlanetList)
-						if (p.guid == area.CoreWorldGuid)
-						    area.SetPlanet(p);
-				}
-				foreach (SolarSystem sys in data.SolarSystemsList)
-				{
-					foreach (Planet p in sys.PlanetList)
-                        if (p.Position.InRadius(area.Position, area.Radius))
-						    area.GetPlanets().Add(p);
-				}
-				foreach (Guid guid in area.OffensiveForceGuids)
-				{
-					foreach (Ship ship in data.MasterShipList)
-					{
-					    if (ship.guid != guid) continue;
-					    area.GetOffensiveForcePool().Add(ship);
-					    ship.AddedOnLoad = true;
-					}
-				}
-				foreach (Guid guid in area.ShipsWaitingGuids)
-				{
-					foreach (Ship ship in data.MasterShipList)
-					{
-						if (ship.guid != guid) continue;
-						area.GetWaitingShips().Add(ship);
-						ship.AddedOnLoad = true;
-					}
-				}
-				foreach (var fleet in this.empire.GetFleetsDict())
-				{
-					if (fleet.Value.guid == area.fleetGuid)
-					    area.SetFleet(fleet.Value);
-				}
+                area.InitFromSave(data, this.empire);                
 			}
 		}
 

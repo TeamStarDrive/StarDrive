@@ -26,7 +26,7 @@ The current goals of the texas version is code clean up and refactoring.
 This is a mercurial repository
 
 * It is currently made with [VS 2017 Community](https://www.visualstudio.com/downloads/)
-
+* It requires an installation of [stardrive 15b](http://store.steampowered.com/app/220660/)
 * If you're new to coding, download SourceTree and clone this repository to your local drive.
 * Install Visual Studio 2017 community. 
 * Copy the game installation to the repository root. The code versioning should ignore the folder. 
