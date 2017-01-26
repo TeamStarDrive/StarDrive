@@ -70,7 +70,7 @@ namespace SDUnitTests
             arr2 = ((IEnumerable<string>)arr1).ToArrayList();
             Assert.AreEqual(arr, arr2);
         }
-
+        
         [Test]
         public void TestToArray()
         {

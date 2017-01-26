@@ -2519,13 +2519,13 @@ namespace Ship_Game.AI
                 baseDefensePct = 0.35f;
 			}
 			float EntireStrength = 0f;
-			foreach (Ship ship in this.empire.GetShips())
-			{
-				EntireStrength = EntireStrength + ship.GetStrength();
-			}
+			//foreach (Ship ship in this.empire.GetShips())
+			//{
+			//	EntireStrength = EntireStrength + ship.GetStrength();
+			//}
 			//added by gremlin dont add zero strength ships to defensive force pool
-            if ((this.DefensiveCoordinator.DefenseDeficit > 0  && this.DefensiveCoordinator.GetForcePoolStrength() < EntireStrength * baseDefensePct)
-                && (toAdd.BombBays.Count == 0 || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp)  //
+            if ((this.DefensiveCoordinator.DefenseDeficit > 0  //&& this.DefensiveCoordinator.GetForcePoolStrength() < EntireStrength * baseDefensePct)
+                && (toAdd.BombBays.Count == 0 || toAdd.WarpThrust <= 0f) &&toAdd.GetStrength()>0 && toAdd.BaseCanWarp))  //
             {
                 DefensiveCoordinator.AddShip(toAdd);
                 return;
