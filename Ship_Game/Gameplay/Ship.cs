@@ -682,7 +682,7 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                return this.AI.State == AIState.SystemDefender;
+                return  loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this);
             }
             set
             {
@@ -693,19 +693,12 @@ namespace Ship_Game.Gameplay
                 {
                     EmpireManager.Player.GetGSAI().DefensiveCoordinator.Remove(this);
                     this.GetAI().OrderQueue.Clear();
-                    this.GetAI().HasPriorityOrder = false;
-                    this.GetAI().SystemToDefend = (SolarSystem)null;
-                    this.GetAI().SystemToDefendGuid = Guid.Empty;
+                    this.GetAI().HasPriorityOrder = false;                    
                     this.GetAI().State = AIState.AwaitingOrders;
 
                     return;
-                }
-
-                EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(this);
-                this.GetAI().OrderQueue.Clear();
-                this.GetAI().HasPriorityOrder = false;
-                this.GetAI().SystemToDefend = (SolarSystem)null;
-                this.GetAI().SystemToDefendGuid = Guid.Empty;
+                }                
+                EmpireManager.Player.GetGSAI().DefensiveCoordinator.AddShip(this);                
                 this.GetAI().State = AIState.SystemDefender;
             }
         }
@@ -4058,8 +4051,8 @@ namespace Ship_Game.Gameplay
                         if (this.fleet != null)
                         {
                             this.fleet.Ships.Remove(this);
-                            this.RemoveFromAllFleets();                                                        
-                            this.fleet = (Fleet)null;
+                            this.RemoveFromAllFleets();
+                            fleet?.RemoveShip(this); 
                         }
                         this.AI.ClearOrdersNext = true;
                         this.AI.State = AIState.AwaitingOrders;

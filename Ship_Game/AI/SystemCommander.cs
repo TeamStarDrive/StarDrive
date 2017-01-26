@@ -15,6 +15,7 @@ namespace Ship_Game.AI
         public bool IsEnoughShipStrength => GetOurStrength() >= IdealShipStrength;
         public bool IsEnoughTroopStrength => IdealTroopCount >= TroopCount;
         public float PercentageOfValue;
+        public int CurrentShipStr =0;
         public float SystemDevelopmentlevel;
         public float RankImportance;
         public int TroopCount;
@@ -23,7 +24,7 @@ namespace Ship_Game.AI
 		public Map<Ship, Ship[]> EnemyClumpsDict = new Map<Ship, Ship[]>();
 		private readonly Empire Us;
         public Map<Planet, PlanetTracker> PlanetTracker = new Map<Planet, PlanetTracker>();
-        public IEnumerable<Ship> GetShipList => ShipsDict.Values;
+        public Ship[] GetShipList => ShipsDict.Values.ToArray();
 
         public SystemCommander(Empire e, SolarSystem system)
 		{
@@ -88,12 +89,48 @@ namespace Ship_Game.AI
             }
             return ValueToUs;
         }
-        public bool RemoveShip(Ship shipToRemove)
+        
+        public Array<Ship> RemoveExtraShips()
         {
-            shipToRemove.GetAI().SystemToDefend = null;                        
+            var ships = new Array<Ship>();            
+            if (CurrentShipStr < IdealShipStrength) return ships;             
+            var ships2 = ShipsDict.Values.ToArray();
+            for (int index = 0; index < ships2.Length; index++)
+            {
+                Ship ship = ships2[index];
+                float str = ship.BaseStrength;
+                if (CurrentShipStr - str > IdealShipStrength)
+                {
+                    RemoveShip(ship);
+                    ships.Add(ship);
+                    CurrentShipStr -= (int) str;
+                }
+            }
+            return ships;
+            
+        }
+        public bool RemoveShip(Ship shipToRemove)
+        {                                   
             if (ShipsDict.Remove(shipToRemove.guid))
-                return true;            
+            {
+                CurrentShipStr -= (int)shipToRemove.BaseStrength;
+                shipToRemove.GetAI().SystemToDefend = null;
+                shipToRemove.GetAI().SystemToDefendGuid = Guid.Empty;
+                return true;                
+            }            
             return false;
+        }
+        public bool AddShip(Ship ship)
+        {
+            if (CurrentShipStr  > IdealShipStrength ) return false;
+            if (!ShipsDict.ContainsValue(ship))
+            {
+                ShipsDict.Add(ship.guid, ship);
+                CurrentShipStr += (int)ship.BaseStrength;                                
+            }
+            if (ship.GetAI().SystemToDefend != System)
+                ship.GetAI().OrderSystemDefense(System);            
+            return true;
         }
         private void Clear()
         {
@@ -101,6 +138,7 @@ namespace Ship_Game.AI
             foreach (Ship ship in ShipsDict.Values)
                 ship.GetAI().SystemToDefend = null;
             ShipsDict.Clear();
+            CurrentShipStr = 0;
         }
         public Planet AssignIdleDuties(Ship ship)
         {

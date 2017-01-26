@@ -1398,7 +1398,7 @@ namespace Ship_Game
 						}
 						node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
 						this.fleet.Ships.Remove(node.Ship);
-						node.Ship.fleet = null;
+						node.Ship.fleet?.RemoveShip(node.Ship); ;
 					}
 					this.SelectedNodeList.Clear();
 					this.PopulateShipSL();
@@ -1883,8 +1883,9 @@ namespace Ship_Game
 			foreach (Ship ship in EmpireManager.Player.GetFleetsDict()[this.FleetToEdit].Ships)
 			{
 				ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-				ship.fleet = null;
-			}
+				ship.fleet?.RemoveShip(ship);
+                EmpireManager.Player.GetFleetsDict()[FleetToEdit].RemoveShip(ship);
+            }
 			this.fleet.DataNodes.Clear();
 			this.fleet.Ships.Clear();
 			foreach (Array<Fleet.Squad> Flank in this.fleet.AllFlanks)

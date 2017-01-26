@@ -65,17 +65,17 @@ namespace Ship_Game.AI
             PlanetsInAo = tempPlanet.ToArray();
 		}
 
-		public void AddShip(Ship ship)
+		public bool AddShip(Ship ship)
 		{
             if (ship.BaseStrength <1)
-                return;
+                return false;
             //@check for arbitraty comarison threatlevel
-            if (CoreFleetFull() || ship.BombBays.Count >0 || ship.hasAssaultTransporter || ship.HasTroopBay)
-			{
+            if (CoreFleetFull() || ship.BombBays.Count > 0 || ship.hasAssaultTransporter || ship.HasTroopBay)
+            {
                 OffensiveForcePool.Add(ship);
-                Flip = !Flip;
-				return;
-			}
+
+            }
+            
             //@corefleet speed less than 4k arbitrary logic means a likely problem 
 		    if (CoreFleet.Task == null && ship.fleet == null && CoreFleet.speed < 4000 && !CoreFleetFull())
 		    {
@@ -103,12 +103,14 @@ namespace Ship_Game.AI
 		    {
 		        ShipsWaitingForCoreFleet.Add(ship);
 		        OffensiveForcePool.Add(ship);
+                return true;
 		    }
-		    Flip = !Flip;
+            return false;
 		}
         public bool RemoveShip(Ship ship)
         {
-            CoreFleet.RemoveShip(ship);
+            if (ship.fleet?.IsCoreFleet ?? false)
+                CoreFleet.RemoveShip(ship);
             ShipsWaitingForCoreFleet.Remove(ship);            
             return OffensiveForcePool.Remove(ship);
         }

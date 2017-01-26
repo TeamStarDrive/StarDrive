@@ -2979,12 +2979,10 @@ namespace Ship_Game.AI
 			}
             Owner.loyalty.ForcePoolRemove(Owner);
 
-            if (Owner.fleet != null)
-            {
-                Owner.fleet.Ships.Remove(Owner);
-                Owner.fleet = null;
-            }
-            HasPriorityOrder = true;
+		    Owner.fleet?.RemoveShip(Owner);
+
+
+		    HasPriorityOrder = true;
             IgnoreCombat = true;
 			OrderQueue.Clear();
 			var sortedList = 
