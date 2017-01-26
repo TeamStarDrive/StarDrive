@@ -142,7 +142,7 @@ namespace Ship_Game
             get { return FleetsDict[1]; }
             set
             {
-                foreach (Ship s in FleetsDict[1].Ships) s.fleet = null;
+                foreach (Ship s in FleetsDict[1].Ships) s.fleet?.RemoveShip(s);
                 FleetsDict[1] = value;
             }
         }
@@ -2539,7 +2539,7 @@ namespace Ship_Game
             {
                 this.OwnedShips.Add(ship);
                 ship.loyalty = this;
-                ship.fleet = null;
+                ship.fleet?.RemoveShip(ship);
                 ship.GetAI().State = AIState.AwaitingOrders;
                 ship.GetAI().OrderQueue.Clear();
             }
@@ -2547,7 +2547,7 @@ namespace Ship_Game
             {
                 this.OwnedProjectors.Add(ship);
                 ship.loyalty = this;
-                ship.fleet = null;
+                ship.fleet?.RemoveShip(ship);
                 ship.GetAI().State = AIState.AwaitingOrders;
                 ship.GetAI().OrderQueue.Clear();
             }
@@ -3089,7 +3089,7 @@ namespace Ship_Game
             {
                 OwnedShips.Remove(ship);
             }
-            ship.fleet = null;
+            ship.fleet?.RemoveShip(ship);
             GetGSAI().DefensiveCoordinator.Remove(ship);
             
             ship.GetAI().OrderQueue.Clear();

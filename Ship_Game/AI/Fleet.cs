@@ -2243,6 +2243,7 @@ namespace Ship_Game.AI
         }
         public bool RemoveShip(Ship ship)
         {
+            ship.fleet = null;
             return Ships.Remove(ship);
         }
         public void Update(float elapsedTime)
