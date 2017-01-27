@@ -19,7 +19,6 @@ namespace Microsoft.Xna.Framework
     {
         private readonly TimeSpan maximumElapsedTime = TimeSpan.FromMilliseconds(500.0);
         private GameTime gameTime = new GameTime();
-        private bool isFixedTimeStep = true;
         private int updatesSinceRunningSlowly1 = int.MaxValue;
         private int updatesSinceRunningSlowly2 = int.MaxValue;
         private readonly List<IUpdateable> updateableComponents = new List<IUpdateable>();
@@ -27,12 +26,9 @@ namespace Microsoft.Xna.Framework
         private readonly List<IDrawable> drawableComponents = new List<IDrawable>();
         private readonly List<IDrawable> currentlyDrawingComponents = new List<IDrawable>();
         private readonly List<IGameComponent> notYetInitialized = new List<IGameComponent>();
-        private readonly GameServiceContainer gameServices = new GameServiceContainer();
         private IGraphicsDeviceManager graphicsDeviceManager;
         private IGraphicsDeviceService graphicsDeviceService;
         private GameHost host;
-        private bool isActive;
-        private bool exitRequested;
         private TimeSpan inactiveSleepTime;
         private bool isMouseVisible;
         private bool inRun;
@@ -47,24 +43,21 @@ namespace Microsoft.Xna.Framework
         private bool doneFirstDraw;
         private bool forceElapsedTimeToZero;
         private bool suppressDraw;
-        private readonly GameComponentCollection gameComponents;
-        private ContentManager content;
 
-        public GameComponentCollection Components => this.gameComponents;
-
-        public GameServiceContainer Services => this.gameServices;
+        public GameComponentCollection Components { get; }
+        public GameServiceContainer Services { get; } = new GameServiceContainer();
 
         public TimeSpan InactiveSleepTime
         {
             get
             {
-                return this.inactiveSleepTime;
+                return inactiveSleepTime;
             }
             set
             {
                 if (value < TimeSpan.Zero)
                     throw new ArgumentOutOfRangeException(nameof(value), Resources.InactiveSleepTimeCannotBeZero);
-                this.inactiveSleepTime = value;
+                inactiveSleepTime = value;
             }
         }
 
@@ -72,14 +65,14 @@ namespace Microsoft.Xna.Framework
         {
             get
             {
-                return this.isMouseVisible;
+                return isMouseVisible;
             }
             set
             {
-                this.isMouseVisible = value;
-                if (this.Window == null)
+                isMouseVisible = value;
+                if (Window == null)
                     return;
-                this.Window.IsMouseVisible = value;
+                Window.IsMouseVisible = value;
             }
         }
 
@@ -87,27 +80,17 @@ namespace Microsoft.Xna.Framework
         {
             get
             {
-                return this.targetElapsedTime;
+                return targetElapsedTime;
             }
             set
             {
                 if (value <= TimeSpan.Zero)
                     throw new ArgumentOutOfRangeException(nameof(value), Resources.TargetElaspedCannotBeZero);
-                this.targetElapsedTime = value;
+                targetElapsedTime = value;
             }
         }
 
-        public bool IsFixedTimeStep
-        {
-            get
-            {
-                return this.isFixedTimeStep;
-            }
-            set
-            {
-                this.isFixedTimeStep = value;
-            }
-        }
+        public bool IsFixedTimeStep { get; set; } = true;
 
         public GameWindow Window => host?.Window;
 
@@ -118,7 +101,7 @@ namespace Microsoft.Xna.Framework
                 bool flag = false;
                 if (GamerServicesDispatcher.IsInitialized)
                     flag = Guide.IsVisible;
-                if (isActive)
+                if (IsActiveIgnoringGuide)
                     return !flag;
                 return false;
             }
@@ -138,23 +121,9 @@ namespace Microsoft.Xna.Framework
             }
         }
 
-        public ContentManager Content
-        {
-            get
-            {
-                return content;
-            }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException();
-                content = value;
-            }
-        }
-
-        internal bool IsActiveIgnoringGuide => isActive;
-
-        private bool ShouldExit => exitRequested;
+        public ContentManager Content { get; set; }
+        internal bool IsActiveIgnoringGuide { get; private set; }
+        private bool ShouldExit { get; set; }
 
         public event EventHandler Activated;
         public event EventHandler Deactivated;
@@ -164,10 +133,10 @@ namespace Microsoft.Xna.Framework
         public Game()
         {
             EnsureHost();
-            gameComponents             = new GameComponentCollection();
-            gameComponents.ComponentAdded += GameComponentAdded;
-            gameComponents.ComponentRemoved += GameComponentRemoved;
-            content                    = new ContentManager(gameServices);
+            Components             = new GameComponentCollection();
+            Components.ComponentAdded += GameComponentAdded;
+            Components.ComponentRemoved += GameComponentRemoved;
+            Content                    = new ContentManager(Services);
             host.Window.Paint += Paint;
             clock                      = new GameClock();
             totalGameTime              = TimeSpan.Zero;
@@ -223,7 +192,7 @@ namespace Microsoft.Xna.Framework
         {
             if (ShouldExit)
                 return;
-            if (!isActive)
+            if (!IsActiveIgnoringGuide)
             {
                 Thread.Sleep((int)inactiveSleepTime.TotalMilliseconds);
             }
@@ -246,17 +215,17 @@ namespace Microsoft.Xna.Framework
             }
             if (timeSpan1 > maximumElapsedTime)
                 timeSpan1 = maximumElapsedTime;
-            if (isFixedTimeStep)
+            if (IsFixedTimeStep)
             {
-                if (Math.Abs(timeSpan1.Ticks - this.targetElapsedTime.Ticks) < this.targetElapsedTime.Ticks >> 6)
-                    timeSpan1 = this.targetElapsedTime;
+                if (Math.Abs(timeSpan1.Ticks - targetElapsedTime.Ticks) < targetElapsedTime.Ticks >> 6)
+                    timeSpan1 = targetElapsedTime;
                 accumulatedElapsedGameTime += timeSpan1;
-                long num = accumulatedElapsedGameTime.Ticks / this.targetElapsedTime.Ticks;
-                accumulatedElapsedGameTime = new TimeSpan(accumulatedElapsedGameTime.Ticks % this.targetElapsedTime.Ticks);
+                long num = accumulatedElapsedGameTime.Ticks / targetElapsedTime.Ticks;
+                accumulatedElapsedGameTime = new TimeSpan(accumulatedElapsedGameTime.Ticks % targetElapsedTime.Ticks);
                 lastFrameElapsedGameTime = TimeSpan.Zero;
                 if (num == 0L)
                     return;
-                TimeSpan targetElapsed = this.targetElapsedTime;
+                TimeSpan targetElapsed = targetElapsedTime;
                 if (num > 1L)
                 {
                     updatesSinceRunningSlowly2 = updatesSinceRunningSlowly1;
@@ -321,7 +290,7 @@ namespace Microsoft.Xna.Framework
 
         public void Exit()
         {
-            exitRequested = true;
+            ShouldExit = true;
             host.Exit();
         }
 
@@ -407,21 +376,21 @@ namespace Microsoft.Xna.Framework
         {
             try
             {
-                if (this.ShouldExit || !this.doneFirstUpdate || (this.Window.IsMinimized || !this.BeginDraw()))
+                if (ShouldExit || !doneFirstUpdate || (Window.IsMinimized || !BeginDraw()))
                     return;
-                this.gameTime.TotalRealTime = this.clock.CurrentTime;
-                this.gameTime.ElapsedRealTime = this.lastFrameElapsedRealTime;
-                this.gameTime.TotalGameTime = this.totalGameTime;
-                this.gameTime.ElapsedGameTime = this.lastFrameElapsedGameTime;
-                this.gameTime.IsRunningSlowly = this.drawRunningSlowly;
-                this.Draw(this.gameTime);
-                this.EndDraw();
-                this.doneFirstDraw = true;
+                gameTime.TotalRealTime = clock.CurrentTime;
+                gameTime.ElapsedRealTime = lastFrameElapsedRealTime;
+                gameTime.TotalGameTime = totalGameTime;
+                gameTime.ElapsedGameTime = lastFrameElapsedGameTime;
+                gameTime.IsRunningSlowly = drawRunningSlowly;
+                Draw(gameTime);
+                EndDraw();
+                doneFirstDraw = true;
             }
             finally
             {
-                this.lastFrameElapsedRealTime = TimeSpan.Zero;
-                this.lastFrameElapsedGameTime = TimeSpan.Zero;
+                lastFrameElapsedRealTime = TimeSpan.Zero;
+                lastFrameElapsedGameTime = TimeSpan.Zero;
             }
         }
 
@@ -556,17 +525,17 @@ namespace Microsoft.Xna.Framework
 
         private void HostDeactivated(object sender, EventArgs e)
         {
-            if (!isActive)
+            if (!IsActiveIgnoringGuide)
                 return;
-            isActive = false;
+            IsActiveIgnoringGuide = false;
             OnDeactivated(this, EventArgs.Empty);
         }
 
         private void HostActivated(object sender, EventArgs e)
         {
-            if (isActive)
+            if (IsActiveIgnoringGuide)
                 return;
-            isActive = true;
+            IsActiveIgnoringGuide = true;
             OnActivated(this, EventArgs.Empty);
         }
 
@@ -606,7 +575,7 @@ namespace Microsoft.Xna.Framework
 
         private void DeviceDisposing(object sender, EventArgs e)
         {
-            content.Unload();
+            Content?.Unload();
             UnloadContent();
         }
 
@@ -630,8 +599,8 @@ namespace Microsoft.Xna.Framework
                 return;
             lock (this)
             {
-                var components = new IGameComponent[gameComponents.Count];
-                gameComponents.CopyTo(components, 0);
+                var components = new IGameComponent[Components.Count];
+                Components.CopyTo(components, 0);
                 for (int i = 0; i < components.Length; ++i)
                 {
                     (components[i] as IDisposable)?.Dispose();
