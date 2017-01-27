@@ -29,12 +29,18 @@ namespace SDUnitTests
         public void TestArrayContains()
         {
             var arr = new Array<string> { "a", "b", "c", "d" };
-
             Assert.IsTrue(arr.Contains("c"), "Contains should work for existing items");
             Assert.IsFalse(arr.Contains("x"), "Contains should not give false positives");
-
             arr.Add(null);
             Assert.IsTrue(arr.Contains(null), "Contains must detect null properly");
+
+            var obj = "c";
+            var refs = new Array<string> { "a", "b", "c", "d" };
+            refs.Add(obj);
+            Assert.IsTrue(refs.ContainsRef(obj), "Contains should work for existing items");
+            Assert.IsFalse(refs.ContainsRef("x"), "Contains should not give false positives");
+            refs.Add(null);
+            Assert.IsTrue(refs.ContainsRef(null), "Contains must detect null properly");
         }
 
         [Test]
