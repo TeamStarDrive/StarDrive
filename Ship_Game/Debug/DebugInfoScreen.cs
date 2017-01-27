@@ -551,7 +551,7 @@ namespace Ship_Game.Debug
                 {
                     Circle circle = ProjectCircleWorldToScreen(kv.Value.System.Position, kv.Value.RankImportance * 20000);
                     Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
-                    circle = ProjectCircleWorldToScreen(kv.Value.System.Position, kv.Value.IdealShipStrength * 10);
+                    circle = ProjectCircleWorldToScreen(kv.Value.System.Position, kv.Value.IdealShipStrength * 100);
                     Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, e.EmpireColor);
                     circle = ProjectCircleWorldToScreen(kv.Value.System.Position, kv.Value.TroopsWanted * 10000);
                     Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 4, e.EmpireColor);

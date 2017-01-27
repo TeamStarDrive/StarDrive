@@ -66,7 +66,7 @@ namespace Ship_Game.Gameplay
                     else if (FineDetail || Buckets.Count > 20 || CollidableProjectiles.Count == 0)
                         Setup(200000, 200000, 50000, system.Position);
                 }
-                for (int index = 0; index < CollidableObjects.Count; ++index)
+                for (int index = CollidableObjects.Count - 1; index >= 0; --index)
                 {
                     GameplayObject gameplayObject = CollidableObjects[index];
                     if (gameplayObject != null)
@@ -81,7 +81,7 @@ namespace Ship_Game.Gameplay
 
                     }
                 }
-                for (int index = 0; index < CollidableProjectiles.Count; ++index)
+                for (int index = CollidableProjectiles.Count - 1; index >= 0; --index)
                 {
                     Projectile gameplayObject = CollidableProjectiles[index];
                     if (gameplayObject.System!= null && system == null)
@@ -116,7 +116,7 @@ namespace Ship_Game.Gameplay
             if (bucketUpdateTimer <= 0f)
             {
                 ClearBuckets();
-                for (int index = 0; index < CollidableObjects.Count; ++index)
+                for (int index = CollidableObjects.Count - 1; index >= 0; --index)
                 {
                     GameplayObject gameplayObject = CollidableObjects[index];
                     if (gameplayObject != null)
