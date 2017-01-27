@@ -15,6 +15,7 @@ namespace Ship_Game
 
         public static int IndexOf<T>(this IReadOnlyList<T> list, T item) where T : class
         {
+            // ReSharper disable once CollectionNeverUpdated.Local
             if (list is IList<T> ilist)
                 return ilist.IndexOf(item);
 
@@ -138,21 +139,21 @@ namespace Ship_Game
 
         public static bool Any<T>(this Array<T> list, Predicate<T> match)
         {
-            int n = list.Count;
-            for (int i = 0; i < n; ++i)
-                if (match(list[i]))
-                    return true;
+            int count = list.Count;
+            T[] items = list.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+                if (match(items[i])) return true;
             return false;
         }
 
         public static int Count<T>(this Array<T> list, Predicate<T> match)
         {
-            int count = 0;
-            int n = list.Count;
-            for (int i = 0; i < n; ++i)
-                if (match(list[i]))
-                    ++count;
-            return count;
+            int n = 0;
+            int count = list.Count;
+            T[] items = list.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+                if (match(items[i])) ++n;
+            return n;
         }
 
         // warning, this is O(n*m), worst case O(n^2)
@@ -163,8 +164,7 @@ namespace Ship_Game
             {
                 T item = arr1[i];
                 for (int j = 0; j < arr2.Length; ++j)
-                    if (item == arr2[i])
-                        return true;
+                    if (item == arr2[i]) return true;
             }
             return false;
         }
