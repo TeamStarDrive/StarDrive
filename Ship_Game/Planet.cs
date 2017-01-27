@@ -465,7 +465,7 @@ namespace Ship_Game
                         od.Target.Habitable = false;
                         od.Target.highlighted = false;
                         od.Target.Biosphere = false;
-                        this.TerraformPoints--; 
+                        //this.TerraformPoints--;
                         //Building Wasteland = new Building;
                         //Wasteland.Name="Fissionables";
                         //od.Target.building=Wasteland;

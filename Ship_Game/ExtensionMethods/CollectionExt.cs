@@ -155,6 +155,21 @@ namespace Ship_Game
             return count;
         }
 
+        // warning, this is O(n*m), worst case O(n^2)
+        public static bool ContainsAny<T>(this T[] arr1, T[] arr2)
+        {
+            var c = EqualityComparer<T>.Default;
+            for (int i = 0; i < arr1.Length; ++i)
+            {
+                for (int j = 0; j < arr2.Length; ++j)
+                {
+                    if (c.Equals(arr1[i], arr2[j]))
+                        return true;
+                }
+            }
+            return false;
+        }
+
         // The following methods are all specific implementations
         // of ToArray() and ToList() as ToArrayList(); Main goal is to improve performance
         // compared to generic .NET ToList() which doesn't reserve capacity etc.

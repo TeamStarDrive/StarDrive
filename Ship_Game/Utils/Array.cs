@@ -273,7 +273,7 @@ namespace Ship_Game
                 return false;
             }
             var c = EqualityComparer<T>.Default;
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < count; ++i)
                 if (c.Equals(Items[i], item))
                     return true;
             return false;
