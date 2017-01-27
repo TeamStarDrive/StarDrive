@@ -199,7 +199,7 @@ namespace Ship_Game.AI
                 tempP.Add(p);
             }
             OurPlanetsInAo = tempP.ToArray();
-            for (int index = 0; index < OffensiveForcePool.Count; index++)
+            for (int index = OffensiveForcePool.Count - 1; index >= 0; index--)
             {
                 Ship ship = OffensiveForcePool[index];
                 if (ship.Active && ship.fleet == null && ship.shipData.Role != ShipData.RoleName.troop &&
@@ -214,7 +214,7 @@ namespace Ship_Game.AI
             if (ShipsWaitingForCoreFleet.Count >0 && !CoreFleetFull()
                 && (CoreFleet.Ships.Count ==0 || CoreFleet.Task == null))
 			{
-			    for (int index = 0; index < ShipsWaitingForCoreFleet.Count; index++)
+			    for (int index = ShipsWaitingForCoreFleet.Count - 1; index >= 0; index--)
 			    {
 			        Ship waiting = ShipsWaitingForCoreFleet[index];
 			        if (waiting.fleet == null)
