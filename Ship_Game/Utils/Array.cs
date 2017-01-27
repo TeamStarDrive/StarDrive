@@ -261,22 +261,27 @@ namespace Ship_Game
             Count = 0;
         }
 
+        // This is slower than ContainsRef if T is a class
         public bool Contains(T item)
         {
-            int count = Count;
-            if (count == 0)
-                return false;
-            if (item == null)
+            unchecked
             {
-                for (int i = 0; i < count; i++)
-                    if (Items[i] == null) return true;
+                int count = Count;
+                if (count == 0)
+                    return false;
+
+                T[] items = Items;
+                if (item == null)
+                {
+                    for (int i = 0; i < count; ++i)
+                        if (items[i] == null) return true;
+                    return false;
+                }
+                EqualityComparer<T> c = EqualityComparer<T>.Default;
+                for (int i = 0; i < count; ++i)
+                    if (c.Equals(items[i], item)) return true;
                 return false;
             }
-            var c = EqualityComparer<T>.Default;
-            for (int i = 0; i < count; ++i)
-                if (c.Equals(Items[i], item))
-                    return true;
-            return false;
         }
 
         public void CopyTo(T[] array, int arrayIndex = 0)
@@ -287,15 +292,24 @@ namespace Ship_Game
 
         public bool Remove(T item)
         {
-            int i = Array.IndexOf(Items, item);
+            int i = IndexOf(item);
             if (i < 0) return false;
             RemoveAt(i);
             return true;
         }
 
+        // This is slower than IndexOfRef if T is a class
         public int IndexOf(T item)
         {
-            return Array.IndexOf(Items, item);
+            unchecked
+            {
+                int count = Count;
+                T[] items = Items;
+                EqualityComparer<T> c = EqualityComparer<T>.Default;
+                for (int i = 0; i < count; ++i)
+                    if (c.Equals(items[i], item)) return i;
+                return -1;
+            }
         }
 
         public void RemoveAt(int index)
@@ -459,14 +473,13 @@ namespace Ship_Game
             Array.Clear(Items, Count, count);
         }
 
-        public int FindIndex(Predicate<T> match)
+        public int IndexOf(Predicate<T> match)
         {
             unchecked
             {
-                int n = Count;
-                for (int i = 0; i < n; ++i)
-                    if (match(Items[i]))
-                        return i;
+                int count = Count;
+                for (int i = 0; i < count; ++i)
+                    if (match(Items[i])) return i;
                 return -1;
             }
         }
@@ -512,6 +525,42 @@ namespace Ship_Game
         }
     }
 
+    // Optimized specializations for speeding up reference based lookup
+    public static class ArrayOptimizations
+    {
+        public static bool ContainsRef<T>(this Array<T> list, T item) where T : class
+        {
+            unchecked
+            {
+                int count = list.Count;
+                if (count == 0)
+                    return false;
+
+                T[] items = list.GetInternalArrayItems();
+                if (item == null)
+                {
+                    for (int i = 0; i < count; ++i)
+                        if (items[i] == null) return true;
+                    return false;
+                }
+                for (int i = 0; i < count; ++i)
+                    if (items[i] == item) return true;
+                return false;
+            }
+        }
+
+        public static int IndexOfRef<T>(this Array<T> list, T item) where T : class
+        {
+            unchecked
+            {
+                int count = list.Count;
+                T[] items = list.GetInternalArrayItems();
+                for (int i = 0; i < count; ++i)
+                    if (items[i] == item) return i;
+                return -1;
+            }
+        }
+    }
 
     internal sealed class CollectionDebugView<T>
     {
@@ -582,6 +631,4 @@ namespace Ship_Game
             }
         }
     }
-
-
 }

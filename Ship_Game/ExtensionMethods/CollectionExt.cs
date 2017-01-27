@@ -156,18 +156,49 @@ namespace Ship_Game
         }
 
         // warning, this is O(n*m), worst case O(n^2)
-        public static bool ContainsAny<T>(this T[] arr1, T[] arr2)
+        // Special optimized version that only works with reference types
+        public static bool ContainsAnyRef<T>(this T[] arr1, T[] arr2) where T : class
         {
-            var c = EqualityComparer<T>.Default;
-            for (int i = 0; i < arr1.Length; ++i)
+            for (int i = 0; i < arr1.Length; ++i) // @note CLR can only optimize away bounds checking if we use .Length directly in the loop condition
             {
+                T item = arr1[i];
                 for (int j = 0; j < arr2.Length; ++j)
-                {
-                    if (c.Equals(arr1[i], arr2[j]))
+                    if (item == arr2[i])
                         return true;
-                }
             }
             return false;
+        }
+
+        // For Crunchy: Take a look at this and see if this works for you @todo remove this comment after review
+        /// <summary>
+        /// Excludes items from this array. All elements in the arrays must be unique to speed this algorithm up.
+        /// The resulting exclusion array will be UNSTABLE, meaning item ordering will be changed for performance reasons
+        /// </summary>
+        public static T[] UniqueExclude<T>(this T[] arr, T[] itemsToExclude) where T : class
+        {
+            int count  = arr.Length;
+            if (count == 0)
+                return Empty<T>.Array;
+
+            var unique = new T[count];
+            Memory.HybridCopyRefs(unique, 0, arr, count); // good average copy performance
+
+            for (int i = 0; i < itemsToExclude.Length; ++i) {
+                T item = itemsToExclude[i];
+                for (int j = 0; j < count; ++j) {
+                    if (unique[j] == item) {
+                        unique[j] = unique[--count];
+                        break;
+                    }
+                }
+            }
+
+            if (count >= unique.Length)
+                return unique;
+
+            var items = new T[count]; // trim excess
+            Memory.HybridCopyRefs(items, 0, unique, count);
+            return items;
         }
 
         // The following methods are all specific implementations
