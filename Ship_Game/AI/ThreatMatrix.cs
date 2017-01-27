@@ -319,7 +319,7 @@ namespace Ship_Game.AI
         public void ScrubMatrix()
         {
             var pins = Pins.ToArray();
-            for (int index = 0; index < Pins.Count; index++)
+            for (int index = Pins.Count - 1; index >= 0; index--)
             {
                 var pin = pins[index];
                 if (pin.Value.EmpireName == string.Empty)
