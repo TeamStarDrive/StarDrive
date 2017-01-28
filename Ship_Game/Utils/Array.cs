@@ -328,15 +328,17 @@ namespace Ship_Game
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
         public IEnumerator<T> GetEnumerator()   => new Enumerator(this);
 
-        // Get a subslice enumerator from this Array<T>
-        public SubrangeEnumerator<T> SubRange(int start, int end)
+        /// <summary>Get a subslice enumerator from this ArrayT</summary>
+        /// <param name="start">Start of range (inclusive)</param>
+        /// <param name="end">End of range (exclusive)</param>
+        public ArrayView<T> SubRange(int start, int end)
         {
             unchecked
             {
                 int count = Count;
                 if ((uint)start >= (uint)count) ThrowIndexOutOfBounds(start);
-                if ((uint)end >= (uint)count)   ThrowIndexOutOfBounds(end);
-                return new SubrangeEnumerator<T>(start, end, Items);
+                if ((uint)end   >  (uint)count) ThrowIndexOutOfBounds(end);
+                return new ArrayView<T>(start, end, Items);
             }
         }
 
@@ -583,19 +585,39 @@ namespace Ship_Game
         }
     }
 
-    public struct SubrangeEnumerator<T> : IEnumerable<T>
+    public struct ArrayView<T> : IReadOnlyList<T>
     {
         private readonly int Start;
-        private readonly int End;
+        public           int Count { get; }
         private readonly T[] Items;
-        public SubrangeEnumerator(int start, int end, T[] items)
+        // start (inclusive), end (exclusive)
+        public ArrayView(int start, int end, T[] items)
         {
             Start = start;
-            End   = end;
+            Count = end - start;
             Items = items;
         }
-        public IEnumerator<T> GetEnumerator()   => new Enumerator(Start, End, Items);
-        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(Start, End, Items);
+        public IEnumerator<T> GetEnumerator()   => new Enumerator(Start, Start + Count, Items);
+        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(Start, Start + Count, Items);
+
+        public T this[int index]
+        {
+            get
+            {
+                unchecked
+                {
+                    int idx = Start + index;
+                    if ((uint)index >= (uint)Count)
+                        ThrowIndexOutOfRange(idx);
+                    return Items[idx];
+                }
+            }
+        }
+
+        private void ThrowIndexOutOfRange(int index)
+        {
+            throw new IndexOutOfRangeException($"Index [{index}] out of range({Count}) {ToString()}");
+        }
 
         public struct Enumerator : IEnumerator<T>
         {
@@ -619,7 +641,7 @@ namespace Ship_Game
             {
                 unchecked
                 {
-                    if (Index >= End)
+                    if (Index >= End) // end index is considered invalid, since it's exclusive
                         return false;
                     Current = Items[Index++];
                     return true;
