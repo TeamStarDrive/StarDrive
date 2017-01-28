@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
-using ns0;
 using ns11;
 using ns6;
 using System;
@@ -60,7 +59,6 @@ namespace SynapseGaming.LightingSystem.Core
             {
                 if (LightingSystemManager.lightingSystemManager_0 == null)
                     throw new ArgumentException("LightingSystemManager unavailable, please create an instance of the manager before using this object.");
-                Class0.CheckProductActivation1();
                 return LightingSystemManager.lightingSystemManager_0;
             }
         }
@@ -93,7 +91,6 @@ namespace SynapseGaming.LightingSystem.Core
             LightingSystemManager.lightingSystemManager_0 = this;
             this.iserviceProvider_0 = service;
             this.class15_0 = new LightingSystemManager.Class15(service);
-            Class0.CheckProductActivation1();
         }
 
         /// <summary>Cleans up a deleted LightingSystemManager instance.</summary>

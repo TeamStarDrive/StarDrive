@@ -32,29 +32,6 @@
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
     <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\StarDrive\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\StarDrive\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
@@ -63,6 +40,26 @@
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\StarDrive\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>..\StarDrive\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
@@ -80,18 +77,6 @@
     <Compile Include="Class35.cs" />
     <Compile Include="Class36.cs" />
     <Compile Include="Class55.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\ApertureAuthorityService.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\VerifyAuthorizationCodeCompletedEventArgs.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\VerifyAuthorizationCodeCompletedEventHandler.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\GenerateAuthorizationFileCompletedEventArgs.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\GenerateAuthorizationFileCompletedEventHandler.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\GetQueueStatsCompletedEventArgs.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Production\GetQueueStatsCompletedEventHandler.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\ApertureAuthorityService.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\VerifyAuthorizationCodeCompletedEventArgs.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\VerifyAuthorizationCodeCompletedEventHandler.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\GenerateAuthorizationFileCompletedEventArgs.cs" />
-    <Compile Include="SynapseGaming\DRM\ApertureClient\Test\GenerateAuthorizationFileCompletedEventHandler.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\FullFrameQuad.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\TransparencyMode.cs" />
     <Compile Include="SynapseGaming\LightingSystem\Core\ObjectType.cs" />
@@ -254,10 +239,6 @@
     <Compile Include="SynapseGaming\LightingSystem\Rendering\Forward\RenderManager.cs" />
     <Compile Include="ns1\Class5.cs" />
     <Compile Include="ns1\Class6.cs" />
-    <Compile Include="ns0\Class0.cs" />
-    <Compile Include="ns0\Class1.cs" />
-    <Compile Include="ns0\Class2.cs" />
-    <Compile Include="ns0\Class4.cs" />
     <Compile Include="ns2\Class7.cs" />
     <Compile Include="ns2\Class8.cs" />
     <Compile Include="ns3\Class9.cs" />

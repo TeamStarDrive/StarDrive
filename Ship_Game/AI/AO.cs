@@ -24,7 +24,7 @@ namespace Ship_Game.AI
         [Serialize(3)] public Array<Guid> ShipsWaitingGuids = new Array<Guid>();
         [Serialize(4)] public Guid FleetGuid;
         [Serialize(5)] public int WhichFleet = -1;
-        [Serialize(6)] private bool Flip;
+        //[Serialize(6)] private bool Flip; // @todo Change savegame version before reassigning Serialize indices
         [Serialize(7)] public float Radius;
         [Serialize(8)] public int TurnsToRelax;
         
