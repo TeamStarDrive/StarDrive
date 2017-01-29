@@ -1902,61 +1902,61 @@ namespace Ship_Game.Gameplay
             int num4 = 0;
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
-                ShipModule shipModule = Ship_Game.ResourceManager.ShipModulesDict[moduleSlot.InstalledModuleUID];
-                switch (shipModule.ModuleType)
+                ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(moduleSlot.InstalledModuleUID);
+                switch (moduleTemplate.ModuleType)
                 {
                     case ShipModuleType.Turret:
-                        if ((int)shipModule.TechLevel > num3)
+                        if ((int)moduleTemplate.TechLevel > num3)
                         {
-                            num3 = (int)shipModule.TechLevel;
+                            num3 = (int)moduleTemplate.TechLevel;
                             continue;
                         }
                         else
                             continue;
                     case ShipModuleType.MainGun:
-                        if ((int)shipModule.TechLevel > num3)
+                        if ((int)moduleTemplate.TechLevel > num3)
                         {
-                            num3 = (int)shipModule.TechLevel;
+                            num3 = (int)moduleTemplate.TechLevel;
                             continue;
                         }
                         else
                             continue;
                     case ShipModuleType.PowerPlant:
-                        if ((int)shipModule.TechLevel > num4)
+                        if ((int)moduleTemplate.TechLevel > num4)
                         {
-                            num4 = (int)shipModule.TechLevel;
+                            num4 = (int)moduleTemplate.TechLevel;
                             continue;
                         }
                         else
                             continue;
                     case ShipModuleType.Engine:
-                        if ((int)shipModule.TechLevel > num2)
+                        if ((int)moduleTemplate.TechLevel > num2)
                         {
-                            num2 = (int)shipModule.TechLevel;
+                            num2 = (int)moduleTemplate.TechLevel;
                             continue;
                         }
                         else
                             continue;
                     case ShipModuleType.Shield:
-                        if ((int)shipModule.TechLevel > num1)
+                        if ((int)moduleTemplate.TechLevel > num1)
                         {
-                            num1 = (int)shipModule.TechLevel;
+                            num1 = (int)moduleTemplate.TechLevel;
                             continue;
                         }
                         else
                             continue;
                     case ShipModuleType.MissileLauncher:
-                        if ((int)shipModule.TechLevel > num3)
+                        if ((int)moduleTemplate.TechLevel > num3)
                         {
-                            num3 = (int)shipModule.TechLevel;
+                            num3 = (int)moduleTemplate.TechLevel;
                             continue;
                         }
                         else
                             continue;
                     case ShipModuleType.Bomb:
-                        if ((int)shipModule.TechLevel > num3)
+                        if ((int)moduleTemplate.TechLevel > num3)
                         {
-                            num3 = (int)shipModule.TechLevel;
+                            num3 = (int)moduleTemplate.TechLevel;
                             continue;
                         }
                         else
@@ -2915,7 +2915,7 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 moduleSlot.SetParent(this);
-                if (!Ship_Game.ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
+                if (!ResourceManager.ModuleExists(moduleSlot.InstalledModuleUID))
                     return false;
                 moduleSlot.InitializeFromSave();
                 if (moduleSlot.module == null)
@@ -2949,7 +2949,7 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 moduleSlot.SetParent(this);
-                if (!ResourceManager.ShipModulesDict.ContainsKey(moduleSlot.InstalledModuleUID))
+                if (!ResourceManager.ModuleExists(moduleSlot.InstalledModuleUID))
                 {
                     Log.Warning("Ship {0} init failed, module {1} doesn't exist", Name, moduleSlot.InstalledModuleUID);
                     return false;
@@ -5020,7 +5020,7 @@ namespace Ship_Game.Gameplay
             {
                 if (slot.module.isDummy) continue;
                 bool isFullyHealed = slot.module.Health >= slot.module.HealthMax;
-                slot.module.HealthMax = ResourceManager.ShipModulesDict[slot.module.UID].HealthMax;
+                slot.module.HealthMax = ResourceManager.GetModuleTemplate(slot.module.UID).HealthMax;
                 slot.module.HealthMax = slot.module.HealthMax + slot.module.HealthMax * loyalty.data.Traits.ModHpModifier;
                 if (isFullyHealed)
                 {                                                                   //Basically, set maxhealth to what it would be with no modifier, then

@@ -541,11 +541,9 @@ namespace Ship_Game
 
                     foreach (ModuleSlotData moduleSD in shipData.data.ModuleSlotList)
                     {
-                        ShipModule mismatch =null;
-                        bool exists =ResourceManager.ShipModulesDict.TryGetValue(moduleSD.InstalledModuleUID,out mismatch);
-                        if (exists)
+                        if (ResourceManager.ModuleExists(moduleSD.InstalledModuleUID))
                             continue;
-                        Log.Info("mismatch = "+ moduleSD.InstalledModuleUID);
+                        Log.Info("mismatch = {0}", moduleSD.InstalledModuleUID);
                     }
 
 
