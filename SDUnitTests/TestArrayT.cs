@@ -29,12 +29,18 @@ namespace SDUnitTests
         public void TestArrayContains()
         {
             var arr = new Array<string> { "a", "b", "c", "d" };
-
             Assert.IsTrue(arr.Contains("c"), "Contains should work for existing items");
             Assert.IsFalse(arr.Contains("x"), "Contains should not give false positives");
-
             arr.Add(null);
             Assert.IsTrue(arr.Contains(null), "Contains must detect null properly");
+
+            var obj = "c";
+            var refs = new Array<string> { "a", "b", "c", "d" };
+            refs.Add(obj);
+            Assert.IsTrue(refs.ContainsRef(obj), "Contains should work for existing items");
+            Assert.IsFalse(refs.ContainsRef("x"), "Contains should not give false positives");
+            refs.Add(null);
+            Assert.IsTrue(refs.ContainsRef(null), "Contains must detect null properly");
         }
 
         [Test]
@@ -92,7 +98,7 @@ namespace SDUnitTests
             Assert.AreEqual(arr, arr2);
         }
 
-        private static void ReportPerf<T>(float e1, float e2, float e3, float e4)
+        private static void ReportCopyPerf<T>(float e1, float e2, float e3, float e4)
         {
             Console.WriteLine("{0} for:{1,3}ms  .NET:{2,3}ms  APEX:{3,3}ms  Hybrid:{4,3}ms", 
                 typeof(T).Name.PadLeft(7), 
@@ -142,9 +148,9 @@ namespace SDUnitTests
                 float e4 = t.ElapsedMillis;
                 Assert.AreEqual(arr, copy);
 
-                ReportPerf<T>(e1, e2, e3, e4);
+                ReportCopyPerf<T>(e1, e2, e3, e4);
             }
-            GC.Collect();
+            GC.GetTotalMemory(forceFullCollection: true);
         }
 
 
@@ -189,5 +195,91 @@ namespace SDUnitTests
             }
         }
 
+
+
+        private static void ReportToArrayPerf<T>(float e1, float e2, float e3, float e4)
+        {
+            Console.WriteLine("{0} ToArray() for:{1,3}ms foreach:{2,3}ms  Array<T> for:{3,3}ms foreach:{4,3}ms", 
+                typeof(T).Name.PadLeft(7), (int)e1, (int)e2, (int)e3, (int)e4);
+        }
+
+        public void ToArrayPerf<T>(T[] values, int count, int timesToRun)
+        {
+            {
+                var arr = new Array<T>(count);
+                for (int i = 0; i < count; ++i)
+                    arr.Add(values[i % values.Length]);
+
+                // warmup expression
+                Assert.AreEqual(arr.ToArray(), arr.ToArray());
+
+                PerfTimer t = PerfTimer.StartNew();
+                double sum1 = 0.0;
+                for (int j = 0; j < timesToRun; ++j) {
+                    T[] items = arr.ToArray();
+                    for (int i = 0; i < items.Length; ++i) {
+                        T item = items[i];
+                        sum1 += 1.0;
+                    }
+                }
+                float e1 = t.ElapsedMillis;
+
+                t.Start();
+                double sum2 = 0.0;
+                for (int j = 0; j < timesToRun; ++j) {
+                    foreach (T item in arr.ToArray())
+                        sum2 += 1.0;
+                }
+                float e2 = t.ElapsedMillis;
+
+                t.Start();
+                double sum3 = 0.0;
+                for (int j = 0; j < timesToRun; ++j) {
+                    for (int i = 0; i < arr.Count; ++i) {
+                        T item = arr[i];
+                        sum3 += 1.0;
+                    }
+                }
+                float e3 = t.ElapsedMillis;
+
+                t.Start();
+                double sum4 = 0.0;
+                for (int j = 0; j < timesToRun; ++j) {
+                    foreach (T item in arr)
+                        sum4 += 1.0;
+                }
+                float e4 = t.ElapsedMillis;
+
+                Assert.AreEqual(sum1, sum2);
+                Assert.AreEqual(sum3, sum4);
+                ReportToArrayPerf<T>(e1, e2, e3, e4);
+            }
+            GC.GetTotalMemory(forceFullCollection: true);
+        }
+
+
+        [Test]
+        public void TestToArrayPerfCutoff()
+        {
+            string[] strings = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
+            Weapon[] weapons = { new Weapon(), new Weapon(), new Weapon(), new Weapon() };
+
+            float[] singles = { 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f };
+            Vector2[] vectors = { new Vector2(0f), new Vector2(0.5f), new Vector2(1f), new Vector2(1.33f), new Vector2(2.66f), new Vector2(-3.33f) };
+
+
+            int[] sizes = { 4, 8, 12, 16, 32, 64, 256, 512, 1024, 2048, 8192, 32768 };
+            const int elementsToProcess = 2500000;
+
+            foreach (int size in sizes)
+            {
+                int iterations = elementsToProcess / size;
+                Console.WriteLine("==== <{0}>.ToArray() iterations {1} ====", size, iterations);
+                ToArrayPerf(strings, size, timesToRun: iterations);
+                ToArrayPerf(weapons, size, timesToRun: iterations);
+                ToArrayPerf(singles, size, timesToRun: iterations);
+                ToArrayPerf(vectors, size, timesToRun: iterations);
+            }
+        }
     }
 }

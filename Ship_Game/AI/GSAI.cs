@@ -2521,7 +2521,7 @@ namespace Ship_Game.AI
 			{
                 baseDefensePct = 0.35f;
 			}
-			float EntireStrength = 0f;
+			//float EntireStrength = 0f;
 			//foreach (Ship ship in this.empire.GetShips())
 			//{
 			//	EntireStrength = EntireStrength + ship.GetStrength();
