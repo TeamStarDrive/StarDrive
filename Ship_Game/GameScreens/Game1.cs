@@ -38,14 +38,6 @@ namespace Ship_Game
 
             Exiting += GameExiting;
 
-//#if DEBUG
-//            MethodUtil.ReplaceMethod(typeof(ZeroSplash).GetMethod("Update"), typeof(SplashScreen).GetMethod("Update"));
-//            foreach (var method in from type in Assembly.GetAssembly(typeof(SplashScreen)).GetTypes() where type.Name == "a" select type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic) into methods from method in methods where method.Name == "k" select method)
-//            {
-//                MethodUtil.ReplaceMethod(typeof(ZeroSplash).GetMethod("k2", BindingFlags.Static | BindingFlags.Public), method);
-//            }
-//#endif
-
             Graphics = new GraphicsDeviceManager(this)
 			{
 				MinimumPixelShaderProfile  = ShaderProfile.PS_2_0,
@@ -141,10 +133,10 @@ namespace Ship_Game
 			IsLoaded = true;
 		}
 
-		private void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
+		private static void PrepareDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
 		{
             GraphicsAdapter a = e.GraphicsDeviceInformation.Adapter;
-            var p = e.GraphicsDeviceInformation.PresentationParameters;
+            PresentationParameters p = e.GraphicsDeviceInformation.PresentationParameters;
 
 			if (a.CheckDeviceMultiSampleType(DeviceType.Hardware, a.CurrentDisplayMode.Format, 
                                                    false, MultiSampleType.TwoSamples, out int quality))

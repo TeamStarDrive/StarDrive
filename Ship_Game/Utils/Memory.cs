@@ -93,8 +93,7 @@ namespace Ship_Game
         /// <param name="count">This should not be 0</param>
         public static void HybridCopy<T>(T[] dst, int dstIndex, T[] src, int count)
         {
-            unchecked
-            {
+            unchecked {
                 // not going to do this check here. let the caller worry about it
                 //if (count == 0 || src.Length == 0)
                 //    return;
@@ -102,15 +101,32 @@ namespace Ship_Game
                 // so the for-loop cutoff point is earlier than struct
                 // "src[0] is ValueType" seems to be the fastest way to check if T is struct
                 int limit = src[0] is ValueType ? 28 : 10;
-                if (count <= limit)
-                {
+                if (count <= limit) {
                     for (int i = 0; i < count; ++i)
                         dst[dstIndex + i] = src[i];
-                }
-                else
-                {
-                    Array.Copy(src, 0, dst, dstIndex, count);
-                }
+                } else Array.Copy(src, 0, dst, dstIndex, count);
+            }
+        }
+
+        // HybridCopy reference types
+        public static void HybridCopyRefs<T>(T[] dst, int dstIndex, T[] src, int count) where T : class
+        {
+            unchecked {
+                if (count <= 28) {
+                    for (int i = 0; i < count; ++i)
+                        dst[dstIndex + i] = src[i];
+                } else Array.Copy(src, 0, dst, dstIndex, count);
+            }
+        }
+
+        // HybridCopy value types
+        public static void HybridCopyValues<T>(T[] dst, int dstIndex, T[] src, int count) where T : struct
+        {
+            unchecked {
+                if (count <= 28) {
+                    for (int i = 0; i < count; ++i)
+                        dst[dstIndex + i] = src[i];
+                } else Array.Copy(src, 0, dst, dstIndex, count);
             }
         }
 
