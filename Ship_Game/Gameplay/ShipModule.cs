@@ -1059,9 +1059,9 @@ namespace Ship_Game.Gameplay
 			{
                 float test = HealthMax;
                 if (ModuleType != ShipModuleType.Dummy)
-                 test = ResourceManager.ShipModulesDict[UID].HealthMax;
+                 test = ResourceManager.GetModuleTemplate(UID).HealthMax;
                 else if(!string.IsNullOrEmpty(ParentOfDummy?.UID))
-                    test = ResourceManager.ShipModulesDict[ParentOfDummy.UID].HealthMax;
+                    test = ResourceManager.GetModuleTemplate(ParentOfDummy.UID).HealthMax;
                 HealthMax = test + test * Parent.loyalty.data.Traits.ModHpModifier;
                 Health = HealthMax;     //Gretman (Health bug fix)
 			}
@@ -1444,7 +1444,7 @@ namespace Ship_Game.Gameplay
 
         private void ConfigWeapon(bool addToParent)
         {
-            this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.ShipModulesDict[this.UID].WeaponType);
+            this.InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.GetModuleTemplate(UID).WeaponType);
             this.InstalledWeapon.moduleAttachedTo = this;
             this.InstalledWeapon.Owner = Parent;
             this.InstalledWeapon.Center = this.Center;

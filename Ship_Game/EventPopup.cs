@@ -81,9 +81,7 @@ namespace Ship_Game
                     theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);
 			        if (ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked.Count > 0)
 			        {
-			            ShipModule unlockedMod =
-			                ResourceManager.ShipModulesDict[
-			                    ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked[0].ModuleUID];
+			            ShipModule unlockedMod = ResourceManager.GetModuleTemplate(ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked[0].ModuleUID);
 			            Rectangle IconRect = new Rectangle((int) theirTextPos.X, (int) theirTextPos.Y, 16 * unlockedMod.XSIZE,
 			                16 * unlockedMod.YSIZE);
 
@@ -98,7 +96,7 @@ namespace Ship_Game
 			                IconRect.Y = IconRect.Y + 48 - IconRect.Height / 2;
 			            }
 			            ScreenManager.SpriteBatch.Draw(
-			                ResourceManager.TextureDict[ResourceManager.ShipModulesDict[unlockedMod.UID].IconTexturePath],
+			                ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(unlockedMod.UID).IconTexturePath],
 			                IconRect, Color.White);
 			            string moduleName = Localizer.Token(unlockedMod.NameIndex);
 			            DrawString(Fonts.Arial20Bold, moduleName,

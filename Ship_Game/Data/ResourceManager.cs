@@ -31,7 +31,7 @@ namespace Ship_Game
         public static Map<string, Building> BuildingsDict         = new Map<string, Building>();
         public static Map<string, Good> GoodsDict                 = new Map<string, Good>();
         public static Map<string, Weapon> WeaponsDict             = new Map<string, Weapon>();
-        public static Map<string, ShipModule> ShipModulesDict     = new Map<string, ShipModule>();
+        private static Map<string, ShipModule> ShipModulesDict     = new Map<string, ShipModule>();
         public static Map<string, Texture2D> ProjTextDict         = new Map<string, Texture2D>();
         public static Map<string, ModelMesh> ProjectileMeshDict   = new Map<string, ModelMesh>();
         public static Map<string, Model> ProjectileModelDict      = new Map<string, Model>();
@@ -761,7 +761,7 @@ namespace Ship_Game
             return template.Cost;
         }
 
-        public static ShipModule GetModule(string uid)
+        public static ShipModule CreateModuleFromUid(string uid)
         {
             ShipModule template = ShipModulesDict[uid];
             ShipModule module = new ShipModule
@@ -808,6 +808,14 @@ namespace Ship_Game
             module.TargetValue += module.isWeapon ? 1 : 0;
             return module;
         }
+
+        public static ShipModule GetModuleTemplate(string uid)
+        {
+            return ShipModulesDict[uid];
+        }
+        public static bool ModuleExists(string uid) => ShipModulesDict.ContainsKey(uid);
+        public static IReadOnlyDictionary<string, ShipModule> ShipModules => ShipModulesDict;
+        public static bool TryGetModule(string uid, out ShipModule mod) => ShipModulesDict.TryGetValue(uid, out mod);
 
         public static RacialTraits RaceTraits
             => RacialTraits ?? (RacialTraits = TryDeserialize<RacialTraits>("RacialTraits/RacialTraits.xml")); 

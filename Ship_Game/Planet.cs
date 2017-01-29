@@ -2816,7 +2816,7 @@ namespace Ship_Game
                             //repairing = true;
                             if(ship.loyalty.data.Traits.ModHpModifier >0 )
                             {
-                                float test = ResourceManager.ShipModulesDict[slot.module.UID].HealthMax;
+                                float test = ResourceManager.GetModuleTemplate(slot.module.UID).HealthMax;
                                 slot.module.HealthMax = test + test * ship.loyalty.data.Traits.ModHpModifier; 
                             }
                             if (slot.module.Health < slot.module.HealthMax)

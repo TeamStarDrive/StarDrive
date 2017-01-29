@@ -713,7 +713,7 @@ namespace Ship_Game
                     ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
                     {
                         Type = "SHIPMODULE",
-                        module = ResourceManager.ShipModulesDict[unlockMod.ModuleUID]
+                        module = ResourceManager.GetModuleTemplate(unlockMod.ModuleUID)
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
