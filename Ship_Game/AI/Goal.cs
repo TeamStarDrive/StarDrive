@@ -99,7 +99,6 @@ namespace Ship_Game.AI
                 case "IncreasePassengerShips":  DoIncreasePassTranGoal();   break;
                 case "BuildDefensiveShips":     DoBuildDefensiveShipsGoal();break;
                 case "BuildOffensiveShips":     DoBuildOffensiveShipsGoal();break;
-               // case "FleetRequisition":        DoFleetRequisition();       break;
                 case "Build Troop":             DoBuildTroop();             break;
                 case "Build Scout":             DoBuildScoutGoal();         break;
             }
@@ -107,8 +106,8 @@ namespace Ship_Game.AI
 
         public virtual void EvaluateGoal()
         {
-            
         }
+
         public Planet GetPlanetWhereBuilding()
         {
             return PlanetBuildingAt;
@@ -172,9 +171,9 @@ namespace Ship_Game.AI
                             break;
                         int num2 = 0;
                         foreach (QueueItem queueItem in (Array<QueueItem>)planet2.ConstructionQueue)
-                            num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());//planet2.NetProductionPerTurn);
+                            num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());
                         if (planet2.ConstructionQueue.Count == 0)
-                            num2 = (int)((beingBuilt.GetCost(empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());//planet2.NetProductionPerTurn);
+                            num2 = (int)((beingBuilt.GetCost(empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());
                         if (num2 < num1)
                         {
                             num1 = num2;
@@ -202,11 +201,8 @@ namespace Ship_Game.AI
                         if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
                         {
                             if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .5f)
-                            {
                                 PlanetBuildingAt.ApplyStoredProduction(0);
-                            }
                         }
-
                         break;
                     }
                 case 2:
@@ -252,9 +248,9 @@ namespace Ship_Game.AI
                         {
                             int num2 = 0;
                             foreach (QueueItem queueItem in (Array<QueueItem>)planet2.ConstructionQueue)
-                                num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());//planet2.NetProductionPerTurn);
+                                num2 += (int)((queueItem.Cost - queueItem.productionTowards) / planet2.GetMaxProductionPotential());
                             if (planet2.ConstructionQueue.Count == 0)
-                                num2 = (int)((this.beingBuilt.GetCost(this.empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());//planet2.NetProductionPerTurn);
+                                num2 = (int)((this.beingBuilt.GetCost(this.empire) - planet2.ProductionHere) / planet2.GetMaxProductionPotential());
                             if (num2 < num1)
                             {
                                 num1 = num2;
@@ -276,14 +272,6 @@ namespace Ship_Game.AI
                     break;
                 case 1:
                     {
-                        //if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
-                        //{
-                        //    if (PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE * .75f)
-                        //    {
-                        //        PlanetBuildingAt.ApplyStoredProduction(0);
-                        //    }
-                        //}
-
                         break;
                     }
 
@@ -316,14 +304,6 @@ namespace Ship_Game.AI
 
                 case 1:
                     {
-                        if (PlanetBuildingAt.ConstructionQueue.Count >0 && PlanetBuildingAt.ConstructionQueue[0].Goal == this)
-                        {
-                           //if(PlanetBuildingAt.ProductionHere > PlanetBuildingAt.MAX_STORAGE *.25f)
-                           //{
-                           //    PlanetBuildingAt.ApplyStoredProduction(0);
-                           //}
-                        }
-
                         break;
                     }
                 case 2:
@@ -381,40 +361,33 @@ namespace Ship_Game.AI
                     {
                         if (planet.HasShipyard)
                             list.Add(planet);
-                    }                                //I Changed this line so it would pick the LEAST busy shipyard - Gretman
+                    }
                     IOrderedEnumerable<Planet> orderedEnumerable = Enumerable.OrderBy<Planet, float>((IEnumerable<Planet>)list, (Func<Planet, float>)(planet => planet.ConstructionQueue.Count ));
 
-                    //Then I got excited, and decided to make it also look for the closest  =)
                     int TotalPlanets = Enumerable.Count<Planet>((IEnumerable<Planet>)orderedEnumerable);
                     if (TotalPlanets <= 0) break;
 
                     int leastque = Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, 0).ConstructionQueue.Count;
-                    float leastdist = float.MaxValue;   //So the first on the list will always overwrite this
+                    float leastdist = float.MaxValue;
                     int bestplanet = 0;
 
                     for (short looper = 0; looper < TotalPlanets; looper++)
-                    {   //Look through the list, of all the ones that have the same queue (likely empty) choose the closest of those
-                        
-                        //if the queue of this one is bigger than the last, then we already found all the least busy
-                        if (Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, looper).ConstructionQueue.Count > leastque) break;
-
-                        //If the distance from this planet to the build site is less than the last one, mark this the best planet to assign construction to
+                    {                        
+                        if (Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, looper).ConstructionQueue.Count > leastque)
+                            break;
                         float currentdist = Vector2.Distance(orderedEnumerable.ElementAt(looper).Position, this.BuildPosition);
                         if (currentdist < leastdist)
                         {
-                            bestplanet = looper;    //Mark this one as the best
+                            bestplanet = looper;
                             leastdist = currentdist;
                         }
                     }
-                    //after all that, assign the contruction site based on the best found above
+
                     PlanetBuildingAt = orderedEnumerable.ElementAt(bestplanet);
-
-                    //Ok, i'm done   -Gretman
-
                     QueueItem queueItem = new QueueItem();
                     queueItem.isShip = true;
                     queueItem.DisplayName = "Construction Ship";
-                    queueItem.QueueNumber = PlanetBuildingAt.ConstructionQueue.Count; //Gretman
+                    queueItem.QueueNumber = PlanetBuildingAt.ConstructionQueue.Count;
                     queueItem.sData = ResourceManager.ShipsDict[EmpireManager.Player.data.CurrentConstructor].GetShipData();
                     queueItem.Goal = this;
                     queueItem.Cost = ResourceManager.ShipsDict[this.ToBuildUID].GetCost(this.empire);
@@ -432,10 +405,6 @@ namespace Ship_Game.AI
                             empiredefaultShip = this.empire.data.DefaultSmallTransport;
                         }
                         ResourceManager.ShipsDict.TryGetValue(empiredefaultShip, out this.beingBuilt);
-                        //if(this.beingBuilt == null)
-                        //{
-                        //    ResourceManager.ShipsDict.TryGetValue(ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultSmallTransport, out this.beingBuilt);
-                        //}
                         this.empire.data.DefaultConstructor = empiredefaultShip;
                     }
                     Enumerable.ElementAt<Planet>((IEnumerable<Planet>)orderedEnumerable, bestplanet).ConstructionQueue.Add(queueItem); //Gretman
@@ -449,7 +418,6 @@ namespace Ship_Game.AI
 
         private void DoMarkedColonizeGoal()
         {
-
             switch (this.Step)
             {
                 case 0:
@@ -505,9 +473,7 @@ namespace Ship_Game.AI
                             queueItem.isShip = true;
                             queueItem.QueueNumber = planet1.ConstructionQueue.Count;
                             if (ResourceManager.ShipsDict.ContainsKey(this.empire.data.DefaultColonyShip))
-                            {
                                 queueItem.sData = ResourceManager.ShipsDict[this.empire.data.DefaultColonyShip].GetShipData();
-                            }
                             else
                             {
                                 queueItem.sData = ResourceManager.ShipsDict[ResourceManager.GetEmpireByName(this.empire.data.Traits.Name).DefaultColonyShip].GetShipData();
@@ -705,8 +671,6 @@ namespace Ship_Game.AI
                                 .ThenByDescending(ship => (int)(ship.WarpThrust / ship.Mass/1000f))
                                 .ThenByDescending(ship => ship.Thrust / ship.Mass)
                                 .FirstOrDefault();
-
-                        
 
                             if(toBuild == null)
                             {
