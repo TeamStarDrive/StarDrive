@@ -42,59 +42,29 @@ namespace Ship_Game.AI
                     areasOfOperation.ThreatLevel = min;
             }
 
-            Array<Planet> planets = new Array<Planet>();
+            
             Planet[] aoPlanets = GetAOPlanets();
 
             if (aoPlanets.Length == Owner.GetPlanets().Count)
                 return;
-            foreach(Planet planet in planets)
-            {
-                
-            }
-            foreach(Planet aop in aoPlanets)
+            Planet[] ownedPlanets =Owner.GetPlanets().ToArray();
+            Planet[] planets = ownedPlanets.Except(aoPlanets);
+            if (planets == null || planets.Length == 0) return;
 
-            foreach (Planet planet1 in Owner.GetPlanets())
-            {
-                if (planet1.GetMaxProductionPotential() <= 5f || !planet1.HasShipyard)
-                {
-                    continue;
-                }
-                bool flag = false;
-                
-                Planet p = AreasOfOperations.Find(ao => ao.GetPlanet() == planet1).GetPlanet();
-
-                foreach (AO areasOfOperation1 in AreasOfOperations)
-                {
-                    if( areasOfOperation1.GetPlanets().Contains(planet1))
-
-                    if (areasOfOperation1.GetPlanet() != planet1) continue;
-  
-                    flag = true;
-                    break;
-                }
-                if (flag)
-                {
-                    continue;
-                }
-                planets.Add(planet1);
-            }
-            if (planets.Count == 0)
-            {
-                return;
-            }
             IOrderedEnumerable<Planet> maxProductionPotential =
                 from planet in planets
+                where planet != null
                 orderby planet.GetMaxProductionPotential() descending
                 select planet;
 
-            foreach (Planet planet2 in maxProductionPotential)
+            foreach (Planet coreWorld in maxProductionPotential)
             {
+                if (coreWorld == null || coreWorld.GetMaxProductionPotential() <= 5f || !coreWorld.HasShipyard) continue;
                 float aoSize = 0;
-                foreach (SolarSystem system in planet2.system.FiveClosestSystems)
+                foreach (SolarSystem system in coreWorld.system.FiveClosestSystems)
                 {
-
-                    if (aoSize < Vector2.Distance(planet2.Position, system.Position))
-                        aoSize = Vector2.Distance(planet2.Position, system.Position);
+                    if (aoSize < Vector2.Distance(coreWorld.Position, system.Position))
+                        aoSize = Vector2.Distance(coreWorld.Position, system.Position);
                 }
                 float aomax = Empire.Universe.Size.X * .2f;
                 if (aoSize > aomax)
@@ -103,7 +73,7 @@ namespace Ship_Game.AI
                 foreach (AO areasOfOperation2 in AreasOfOperations)
                 {
 
-                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Position, planet2.Position) >= aoSize)
+                    if (Vector2.Distance(areasOfOperation2.GetPlanet().Position, coreWorld.Position) >= aoSize)
                         continue;
                     flag1 = false;
                     break;
@@ -113,7 +83,7 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                AO aO2 = new AO(planet2, aoSize);
+                AO aO2 = new AO(coreWorld, aoSize);
                 AreasOfOperations.Add(aO2);
             }
         }

@@ -1701,7 +1701,7 @@ namespace Ship_Game.AI
 
         }
         public void CalculateShipneeds()
-            +{
+        {
             float predicted = Us.GetGSAI().ThreatMatrix.PingRadarStr(System.Position, 150000 * 2, Us);
             int min = (int)ValueToUs; //(Math.Pow(ValueToUs, 3)
             foreach (var system in System.FiveClosestSystems)
@@ -1712,13 +1712,13 @@ namespace Ship_Game.AI
                     predicted += (int)Us.GetGSAI().ThreatMatrix.PingRadarStr(system.Position, 100000, Us);
                     continue;
                 }
-                min += (int)(syscom.ValueToUs * syscom.RankImportance);                
+                min += (int)(syscom.ValueToUs * syscom.RankImportance);
             }
             min = (int)(min * RankImportance);
             if (predicted <= 0f) IdealShipStrength = min;
             else
             {
-                IdealShipStrength = (int)(predicted * RankImportance / 10);                
+                IdealShipStrength = (int)(predicted * RankImportance / 10);
                 IdealShipStrength += min;
             }
         }
