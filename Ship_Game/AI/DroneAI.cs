@@ -72,7 +72,7 @@ namespace Ship_Game.AI
 			if (angleDiff0 > 0.2f)
                 this.Owner.Rotation = this.Owner.Rotation + Math.Min(angleDiff0, facing0 * elapsedTime * this.Owner.speed / 350f);
 			wantedForward0 = Vector2.Normalize(forward);
-			//this.Owner.Velocity = wantedForward0 * (elapsedTime * this.Owner.speed);      //This was getting assigned a value twice in a row...?
+			this.Owner.Velocity = wantedForward0 * (elapsedTime * this.Owner.speed);
 			this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
 		}
 
