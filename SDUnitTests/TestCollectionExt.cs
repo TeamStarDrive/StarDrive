@@ -54,5 +54,30 @@ namespace SDUnitTests
             Assert.AreEqual(6, list.Count(s => true));
             Assert.AreEqual(1, list.Count(s => s == "ccc"));
         }
+
+
+
+        [Test]
+        public void TestUniqueExclude()
+        {
+            string[] setA = { "E", "F", "G", "H", "A", "B", "C", "D" };
+            string[] setB = { "G", "D", "A", "H" };
+            // unique exclude is unstable, so the resulting order will be scrambled
+            string[] excluded = setA.UniqueExclude(setB);
+
+            Assert.AreEqual(4, excluded.Length, "Expected exclusion length doesn't match expected");
+            Assert.Contains("B", excluded); // unstable ordering
+            Assert.Contains("C", excluded);
+            Assert.Contains("E", excluded);
+            Assert.Contains("F", excluded);
+            //Assert.AreEqual(new[] { "E", "F", "B", "C"}, excluded, "Invalid exclusion result");
+
+            string[] empty1 = { };
+            string[] excludedEmpty = empty1.UniqueExclude(setB);
+            Assert.AreEqual(0, excludedEmpty.Length, "Empty exclusion should be an empty array");
+
+            string[] excludeNothing = setA.UniqueExclude(empty1);
+            Assert.AreEqual(setA, excludeNothing, "Excluding with empty should be equal to original");
+        }
     }
 }

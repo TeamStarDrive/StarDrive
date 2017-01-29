@@ -29,25 +29,24 @@ namespace Ship_Game.AI
         {
             if (ship.Size > 0 )
             {
-                byte pd =0;
-                byte mains=0;
-                float fireRate =0;
+                byte pd = 0;
+                byte mains= 0;
+                float fireRate = 0;
                 foreach(Weapon w in ship.Weapons)
                 {
-                    if(w.isBeam || w.isMainGun || w.moduleAttachedTo.XSIZE*w.moduleAttachedTo.YSIZE >4)
+                    if(w.isBeam || w.isMainGun || w.moduleAttachedTo.XSIZE*w.moduleAttachedTo.YSIZE > 4)
                         mains++;
-                    if(w.SalvoCount>2 || w.Tag_PD )
+                    if(w.SalvoCount > 2 || w.Tag_PD )
                         pd++;
                     fireRate += w.fireDelay;
                 }
                 if (ship.Weapons.Count > 0)
                     fireRate /= ship.Weapons.Count;
 
-                LargeAttackWeight = mains>2 ?3: fireRate >.5 ?2:0;
+                LargeAttackWeight = mains > 2 ? 3 : fireRate > 0.5 ? 2 : 0;
                 SmallAttackWeight = mains == 0 && fireRate < .1 && pd > 1 ? 3 : 0;
                 MediumAttackWeight = mains < 3 && fireRate > .1 ? 3 : 0;
-                float stlspeed = ship.velocityMaximum;
-                if (ship.loyalty.isFaction || stlspeed > 500)
+                if (ship.loyalty.isFaction || ship.velocityMaximum > 500)
                     VultureWeight = 2;
                 if (ship.loyalty.isFaction)
                     PirateWeight = 3;
