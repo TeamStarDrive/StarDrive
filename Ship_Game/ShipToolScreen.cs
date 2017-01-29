@@ -193,7 +193,7 @@ namespace Ship_Game
 			}
 			if (this.ActiveModule != null)
 			{
-				this.spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[Ship_Game.ResourceManager.ShipModulesDict[this.ActiveModule.UID].IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
+				this.spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath], new Rectangle(this.mouseStateCurrent.X, this.mouseStateCurrent.Y, 16 * this.ActiveModule.XSIZE, 16 * this.ActiveModule.YSIZE), Color.White);
 				for (int i = 0; i < this.ActiveModule.XSIZE; i++)
 				{
 					for (int j = 0; j < this.ActiveModule.YSIZE; j++)

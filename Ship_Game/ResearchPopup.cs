@@ -84,7 +84,7 @@ namespace Ship_Game
                             destinationRectangle.Y = entry.clickRect.Y + entry.clickRect.Height / 2 - destinationRectangle.Height / 2;
                         }
                     }
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[unlockItem.module.UID].IconTexturePath], destinationRectangle, Color.White);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(unlockItem.module.UID).IconTexturePath], destinationRectangle, Color.White);
                     Localizer.Token((int)unlockItem.module.NameIndex);
                     string text = HelperFunctions.ParseText(Fonts.Arial12, unlockItem.Description, (float)(entry.clickRect.Width - 100));
                     float num = (float)(Fonts.Arial14Bold.LineSpacing + 5) + Fonts.Arial12.MeasureString(text).Y;
@@ -171,12 +171,13 @@ namespace Ship_Game
 			{
                 if (EmpireManager.Player.data.Traits.ShipType == UnlockedMod.Type || UnlockedMod.Type == null || UnlockedMod.Type == EmpireManager.Player.GetTDict()[this.TechUID].AcquiredFrom)
                 {
+                    ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(UnlockedMod.ModuleUID);
                     UnlockItem unlock = new UnlockItem()
                     {
                         Type = UnlockType.SHIPMODULE,
-                        module = ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID],
-                        Description = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].DescriptionIndex),
-                        privateName = Localizer.Token(ResourceManager.ShipModulesDict[UnlockedMod.ModuleUID].NameIndex)
+                        module = moduleTemplate,
+                        Description = Localizer.Token(moduleTemplate.DescriptionIndex),
+                        privateName = Localizer.Token(moduleTemplate.NameIndex)
                     };
                     this.UnlockSL.AddItem(unlock);
                 }

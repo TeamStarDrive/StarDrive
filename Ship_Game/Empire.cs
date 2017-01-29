@@ -516,10 +516,10 @@ namespace Ship_Game
                 TechnologyDict.Add(keyValuePair.Key, techEntry);
             }
 
-            foreach (var kv in ResourceManager.HullsDict)       UnlockedHullsDict[kv.Value.Hull]  = false;
-            foreach (var kv in ResourceManager.TroopsDict)      UnlockedTroopDict[kv.Key]         = false;
-            foreach (var kv in ResourceManager.BuildingsDict)   UnlockedBuildingsDict[kv.Key]     = false;
-            foreach (var kv in ResourceManager.ShipModulesDict) UnlockedModulesDict[kv.Key]       = false;
+            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull]  = false;
+            foreach (var kv in ResourceManager.TroopsDict)    UnlockedTroopDict[kv.Key]         = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]     = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]       = false;
 
             //unlock from empire data file
             foreach (string building in data.unlockBuilding)
@@ -638,10 +638,10 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            foreach (var kv in ResourceManager.HullsDict)       UnlockedHullsDict[kv.Value.Hull]  = false;
-            foreach (var kv in ResourceManager.TroopsDict)      UnlockedTroopDict[kv.Key]         = false;
-            foreach (var kv in ResourceManager.BuildingsDict)   UnlockedBuildingsDict[kv.Key]     = false;
-            foreach (var kv in ResourceManager.ShipModulesDict) UnlockedModulesDict[kv.Key]       = false;
+            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull]  = false;
+            foreach (var kv in ResourceManager.TroopsDict)    UnlockedTroopDict[kv.Key]         = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]     = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]       = false;
 
             // unlock from empire data file
             // Added by gremlin Figure out techs with modules that we have ships for.
@@ -818,7 +818,7 @@ namespace Ship_Game
                 if (unlockedMod.Type == data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == TechnologyDict[techID].AcquiredFrom)
                 {
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
-                    if (ResourceManager.ShipModulesDict.TryGetValue(unlockedMod.ModuleUID, out ShipModule checkmod))
+                    if (ResourceManager.TryGetModule(unlockedMod.ModuleUID, out ShipModule checkmod))
                     {
                         canBuildTroopShips = canBuildTroopShips || checkmod.IsTroopBay;
                         canBuildCarriers   = canBuildCarriers || checkmod.MaximumHangarShipSize > 0;

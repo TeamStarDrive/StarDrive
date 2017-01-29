@@ -6167,13 +6167,14 @@ namespace Ship_Game
                     vector2_2 = MathExt.PointFromAngle(angleAndDistance1, MathHelper.ToDegrees(radians), distance);
                     viewport = this.ScreenManager.GraphicsDevice.Viewport;
                     Vector3 vector3_1 = viewport.Project(new Vector3(vector2_2, 0.0f), this.projection, this.view, Matrix.Identity);
-                    Vector2 origin1 = new Vector2((float)(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[moduleSlot.module.UID].IconTexturePath].Width / 2), (float)(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[moduleSlot.module.UID].IconTexturePath].Height / 2));
+                    ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(moduleSlot.module.UID);
+                    Vector2 origin1 = new Vector2((float)(ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width / 2), (ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Height / 2));
                     float num6 = moduleSlot.module.Health / moduleSlot.module.HealthMax;
-                    string index1 = ResourceManager.ShipModulesDict[moduleSlot.module.UID].IconTexturePath;
-                    float scale1 = 0.75f * (float)this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / this.camHeight / (float)(ResourceManager.TextureDict[ResourceManager.ShipModulesDict[moduleSlot.module.UID].IconTexturePath].Width / ((int)ResourceManager.ShipModulesDict[moduleSlot.module.UID].XSIZE * 16));
+                    string index1 = moduleTemplate.IconTexturePath;
+                    float scale1 = 0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight / (ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width / (moduleTemplate.XSIZE * 16));
                     if (moduleSlot.module.ModuleType == ShipModuleType.PowerConduit)
                     {
-                        origin1 = new Vector2((float)(ResourceManager.TextureDict[moduleSlot.module.IconTexturePath].Width / 2), (float)(ResourceManager.TextureDict[moduleSlot.module.IconTexturePath].Width / 2));
+                        origin1 = new Vector2((float)(ResourceManager.TextureDict[moduleSlot.module.IconTexturePath].Width / 2), (ResourceManager.TextureDict[moduleSlot.module.IconTexturePath].Width / 2));
                         float num7 = (float)(ResourceManager.TextureDict[moduleSlot.module.IconTexturePath].Width / 16);
                         float scale2 = 0.75f * (float)this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / this.camHeight / num7;
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[moduleSlot.module.IconTexturePath], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.White, ship.Rotation, origin1, scale2, SpriteEffects.None, 1f);

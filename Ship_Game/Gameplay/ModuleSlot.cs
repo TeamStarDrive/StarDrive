@@ -38,32 +38,36 @@ namespace Ship_Game.Gameplay
 			return this.Parent;
 		}
 
+        private bool InitializeModule()
+        {
+            if (InstalledModuleUID != "Dummy" && InstalledModuleUID != null)
+            {
+                if (module != null)
+                    Log.Error("A module was reinitialized for no reason. This is a bug");
+                module = ResourceManager.CreateModuleFromUid(InstalledModuleUID);
+                module.installedSlot = this;
+                module.SetParent(Parent);
+                module.facing = facing;
+                return true;
+            }
+            return false;
+        }
+
 		public void Initialize()
 		{
-			if (this.InstalledModuleUID != "Dummy" && this.InstalledModuleUID != null)
-			{
-				this.module = ResourceManager.GetModule(this.InstalledModuleUID);
-                this.module.installedSlot = this;
-				this.module.SetParent(this.Parent);
-				this.module.facing = this.facing;
-				this.module.Initialize(this.Position);
-			}
-		}
+            if (InitializeModule())
+                module.Initialize(Position);
+        }
+
         public void InitializeFromSave()
         {
-            if (this.InstalledModuleUID != "Dummy" && this.InstalledModuleUID != null)
-            {
-                this.module = ResourceManager.GetModule(this.InstalledModuleUID);
-                this.module.installedSlot = this;
-                this.module.SetParent(this.Parent);
-                this.module.facing = this.facing;
-                this.module.InitializeFromSave(this.Position);
-            }
+            if (InitializeModule())
+                module.InitializeFromSave(Position);
         }
 
 		public void InitializeForLoad()
 		{
-			this.module = ResourceManager.ShipModulesDict[this.InstalledModuleUID];
+			module = ResourceManager.CreateModuleFromUid(InstalledModuleUID);
 		}
 
 		public void SetParent(Ship ship)

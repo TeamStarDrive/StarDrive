@@ -8527,15 +8527,15 @@ namespace Ship_Game.AI
                         if (!this.empire.canBuildBombers && shortTermBest.BombBays.Count > 0)
                         {
                             mod = (int)ResourceManager.TechTree.Values.Where(tech => shortTermBest.shipData.techsNeeded.Contains(tech.UID) && tech.ModulesUnlocked
-                                .Where(modu => ResourceManager.ShipModulesDict[modu.ModuleUID].ModuleType == ShipModuleType.Bomb).Count() > 0).Sum(tech => tech.Cost);
+                                .Where(modu => ResourceManager.GetModuleTemplate(modu.ModuleUID).ModuleType == ShipModuleType.Bomb).Count() > 0).Sum(tech => tech.Cost);
                         }
                         if (!this.empire.canBuildCarriers && shortTermBest.GetHangars().Count > 0)
                             mod = (int)ResourceManager.TechTree.Values.Where(tech => shortTermBest.shipData.techsNeeded.Contains(tech.UID) && tech.ModulesUnlocked
-                                .Where(modu => ResourceManager.ShipModulesDict[modu.ModuleUID].ModuleType == ShipModuleType.Hangar).Count() > 0).Sum(tech => tech.Cost);
+                                .Where(modu => ResourceManager.GetModuleTemplate(modu.ModuleUID).ModuleType == ShipModuleType.Hangar).Count() > 0).Sum(tech => tech.Cost);
                         if (!this.empire.canBuildTroopShips && shortTermBest.hasAssaultTransporter || shortTermBest.hasOrdnanceTransporter || shortTermBest.hasRepairBeam || shortTermBest.HasRepairModule || shortTermBest.HasSupplyBays || shortTermBest.hasTransporter || shortTermBest.InhibitionRadius > 0)
                             mod = (int)ResourceManager.TechTree.Values.Where(tech => shortTermBest.shipData.techsNeeded.Contains(tech.UID) && tech.ModulesUnlocked
                                 .Where(modu => {
-                                    ShipModuleType test =ResourceManager.ShipModulesDict[modu.ModuleUID].ModuleType;
+                                    ShipModuleType test = ResourceManager.GetModuleTemplate(modu.ModuleUID).ModuleType;
                                     return (test == ShipModuleType.Troop || test == ShipModuleType.Transporter || test == ShipModuleType.Hangar);                                        
                                 }
                                     ).Count() > 0).Sum(tech => tech.Cost);
@@ -9242,61 +9242,61 @@ namespace Ship_Game.AI
             {
                 if (keyValuePair.Value)
                 {
-                    ShipModule shipModule = ResourceManager.ShipModulesDict[keyValuePair.Key];
-                    switch (shipModule.ModuleType)
+                    ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(keyValuePair.Key);
+                    switch (moduleTemplate.ModuleType)
                     {
                         case ShipModuleType.Turret:
-                            if ((int)shipModule.TechLevel > num3)
+                            if ((int)moduleTemplate.TechLevel > num3)
                             {
-                                num3 = (int)shipModule.TechLevel;
+                                num3 = (int)moduleTemplate.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.MainGun:
-                            if ((int)shipModule.TechLevel > num3)
+                            if ((int)moduleTemplate.TechLevel > num3)
                             {
-                                num3 = (int)shipModule.TechLevel;
+                                num3 = (int)moduleTemplate.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.PowerPlant:
-                            if ((int)shipModule.TechLevel > num4)
+                            if ((int)moduleTemplate.TechLevel > num4)
                             {
-                                num4 = (int)shipModule.TechLevel;
+                                num4 = (int)moduleTemplate.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.Engine:
-                            if ((int)shipModule.TechLevel > num2)
+                            if ((int)moduleTemplate.TechLevel > num2)
                             {
-                                num2 = (int)shipModule.TechLevel;
+                                num2 = (int)moduleTemplate.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.Shield:
-                            if ((int)shipModule.TechLevel > num1)
+                            if ((int)moduleTemplate.TechLevel > num1)
                             {
-                                num1 = (int)shipModule.TechLevel;
+                                num1 = (int)moduleTemplate.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.MissileLauncher:
-                            if ((int)shipModule.TechLevel > num3)
+                            if ((int)moduleTemplate.TechLevel > num3)
                             {
-                                num3 = (int)shipModule.TechLevel;
+                                num3 = (int)moduleTemplate.TechLevel;
                                 continue;
                             }
                             else
                                 continue;
                         case ShipModuleType.Bomb:
-                            if ((int)shipModule.TechLevel > num3)
+                            if ((int)moduleTemplate.TechLevel > num3)
                             {
-                                num3 = (int)shipModule.TechLevel;
+                                num3 = (int)moduleTemplate.TechLevel;
                                 continue;
                             }
                             else
