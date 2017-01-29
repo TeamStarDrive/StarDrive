@@ -48,12 +48,11 @@ namespace Ship_Game.AI
             if (aoPlanets.Length == Owner.GetPlanets().Count)
                 return;
             Planet[] ownedPlanets =Owner.GetPlanets().ToArray();
-            Planet[] planets = ownedPlanets.Except(aoPlanets);
+            Planet[] planets = ownedPlanets.UniqueExclude<Planet>(aoPlanets);
             if (planets == null || planets.Length == 0) return;
 
             IOrderedEnumerable<Planet> maxProductionPotential =
                 from planet in planets
-                where planet != null
                 orderby planet.GetMaxProductionPotential() descending
                 select planet;
 
