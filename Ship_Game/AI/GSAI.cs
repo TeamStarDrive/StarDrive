@@ -77,12 +77,15 @@ namespace Ship_Game.AI
         Ship BestCombatShip;
         //string BestCombatHull = "";
         //string BestSupportShip = "";
+        private OffensiveForcePoolManager OffensiveForcePoolManager;
+
         private string postResearchTopic = "";
 		public GSAI(Empire e)
 		{
 			this.EmpireName = e.data.Traits.Name;
 			this.empire = e;
 			this.DefensiveCoordinator = new DefensiveCoordinator(e);
+            OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
 			if (this.empire.data.EconomicPersonality != null)
 			{
 				this.numberOfShipGoals = this.numberOfShipGoals + this.empire.data.EconomicPersonality.ShipGoalsPlus;
@@ -7260,7 +7263,7 @@ namespace Ship_Game.AI
 			{
 				return;
 			}
-			this.ManageAOs();
+            OffensiveForcePoolManager.ManageAOs();
 			foreach (AO ao in this.AreasOfOperations)
 			{
 				ao.Update();

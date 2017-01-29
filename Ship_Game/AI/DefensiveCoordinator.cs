@@ -194,7 +194,7 @@ namespace Ship_Game.AI
                 shipsAvailableForAssignment.AddRange(kv.Value.RemoveExtraShips());
             }
             //Add available force to pool:            
-            for(int x = 0; x< DefensiveForcePool.Count;x++)
+            for(int x = DefensiveForcePool.Count - 1; x >= 0; x--)
             {
                 Ship ship = DefensiveForcePool[x];
                 if (ship.Active  
@@ -268,7 +268,7 @@ namespace Ship_Game.AI
                 // find max number of troops for system.
                 
                 int currentTroops = kv.Value.TroopCount;
-                for (int i = 0; i < troopShips.Count; i++)
+                for (int i = troopShips.Count - 1; i >= 0; i--)
                 {
                     Ship troop = troopShips[i];
 
