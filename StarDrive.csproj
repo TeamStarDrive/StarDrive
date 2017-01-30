@@ -3503,4 +3503,8 @@
   <PropertyGroup>
     <PreBuildEvent>cd  $(ProjectDir) &amp;&amp;   powershell -ExecutionPolicy ByPass  -file Deploy\Config\Pre-run.ps1</PreBuildEvent>
   </PropertyGroup>
+  <!-- <Target Name="AfterBuild"> -->
+    <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->
+	<!-- <XslTransformation XslInputPath="C:\Projects\ResharperCLT\dupFinder.xsl" XmlInputPaths="dupReport.xml" OutputPaths="dupReport.html"/> -->
+  <!-- </Target> -->
 </Project>
