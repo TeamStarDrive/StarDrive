@@ -90,7 +90,7 @@
     <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Prefer32Bit>true</Prefer32Bit>
-    <WarningLevel>1</WarningLevel>
+    <WarningLevel>0</WarningLevel>
     <NoWarn>3270</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release -Auto Fast|x86' ">
@@ -3498,13 +3498,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(ProjectDir)deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
+    <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  $(ProjectDir)deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>cd  $(ProjectDir) &amp;&amp;   powershell -ExecutionPolicy ByPass  -file Deploy\Config\Pre-run.ps1</PreBuildEvent>
+    <PreBuildEvent>cd  $(ProjectDir) &amp;&amp; if "$(ConfigurationName)" == "Deploy"   powershell -ExecutionPolicy ByPass  -file Deploy\Config\Pre-run.ps1</PreBuildEvent>
   </PropertyGroup>
   <!-- <Target Name="AfterBuild"> -->
-    <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->
-	<!-- <XslTransformation XslInputPath="C:\Projects\ResharperCLT\dupFinder.xsl" XmlInputPaths="dupReport.xml" OutputPaths="dupReport.html"/> -->
+  <!-- <Exec Command="C:\Projects\ResharperCLT\dupfinder.exe /output=&quot;dupReport.xml&quot; /show-text &quot;StarDrive.csproj&quot;"/> -->
+  <!-- <XslTransformation XslInputPath="C:\Projects\ResharperCLT\dupFinder.xsl" XmlInputPaths="dupReport.xml" OutputPaths="dupReport.html"/> -->
   <!-- </Target> -->
 </Project>
