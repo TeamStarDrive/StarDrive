@@ -74,9 +74,9 @@ namespace Ship_Game.AI
 
 
             bool found = false;
-            if (systoDefend != null) //check for specific system commander
+            if (systoDefend != null && DefenseDict.TryGetValue(systoDefend, out SystemCommander sysCom)) //check for specific system commander
             {
-                if (!DefenseDict[systoDefend].RemoveShip(ship))
+                if (!sysCom.RemoveShip(ship))
                 {
                     if (ship.Active)
                         Log.Info(color: ConsoleColor.Yellow, text: "SystemCommander: Remove : Not in SystemCommander");
