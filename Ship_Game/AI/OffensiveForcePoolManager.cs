@@ -28,6 +28,8 @@ namespace Ship_Game.AI
                 if (areasOfOperation.GetPlanet().Owner != Owner)
                 {
                     AreasOfOperations.RemoveAt(index);
+
+                    areasOfOperation.Dispose();
                     continue;
                 }
                 areasOfOperation.ThreatLevel = 0;
@@ -41,13 +43,12 @@ namespace Ship_Game.AI
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
             }
-
             
-            Planet[] aoPlanets = GetAOPlanets();
+            Planet[] aoPlanets = GetAOPlanets(out HashSet<SolarSystem> aoSystems);
 
             if (aoPlanets.Length == Owner.GetPlanets().Count)
                 return;
-            Planet[] ownedPlanets =Owner.GetPlanets().ToArray();
+            var ownedPlanets = Owner.GetPlanets().ToArray();
             Planet[] planets = ownedPlanets.UniqueExclude<Planet>(aoPlanets);
             if (planets == null || planets.Length == 0) return;
 
@@ -62,6 +63,7 @@ namespace Ship_Game.AI
                 float aoSize = 0;
                 foreach (SolarSystem system in coreWorld.system.FiveClosestSystems)
                 {
+                    if (aoSystems.Contains(system)) continue;                                       
                     if (aoSize < Vector2.Distance(coreWorld.Position, system.Position))
                         aoSize = Vector2.Distance(coreWorld.Position, system.Position);
                 }
@@ -86,16 +88,20 @@ namespace Ship_Game.AI
                 AreasOfOperations.Add(aO2);
             }
         }
-        public Planet[] GetAOPlanets()
+        public Planet[] GetAOPlanets(out HashSet<SolarSystem> systems)
         {
+            systems = new HashSet<SolarSystem>();
             int planetCount = 0;
             foreach (AO ao in AreasOfOperations)
                 planetCount += ao.GetPlanets().Length;            
             Planet[] allPlanets = new Planet[planetCount];
             int x = 0;
             foreach (AO ao in AreasOfOperations)
-                foreach(Planet planet in ao.GetPlanets())                
+                foreach (Planet planet in ao.GetPlanets())
+                {
+                    systems.Add(planet.ParentSystem);
                     allPlanets[x++] = planet;
+                }
             return allPlanets;
         }
     }

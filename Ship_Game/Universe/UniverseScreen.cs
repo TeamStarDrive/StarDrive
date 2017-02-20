@@ -743,7 +743,7 @@ namespace Ship_Game
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
                     militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
-                    EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.Remnants.GetFleetsDict().Add(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
                     EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }
@@ -761,7 +761,7 @@ namespace Ship_Game
                             planetFleetAt.Task = militaryTask;
                             planetFleetAt.TaskStep = 3;
                             militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
-                            EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, planetFleetAt);
+                            EmpireManager.Remnants.GetFleetsDict().Add(EmpireManager.Remnants.GetFleetsDict().Count + 10, planetFleetAt);
                             EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                             militaryTask.Step = 2;
                         }
@@ -778,7 +778,7 @@ namespace Ship_Game
                     defensiveFleetAt.Task = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
                     militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
-                    EmpireManager.Remnants.GetFleetsDict().TryAdd(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
+                    EmpireManager.Remnants.GetFleetsDict().Add(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
                     EmpireManager.Remnants.GetGSAI().TaskList.Add(militaryTask);
                     militaryTask.Step = 2;
                 }

@@ -6219,9 +6219,6 @@ namespace Ship_Game.AI
                 }
                 areasOfOperation.ThreatLevel = 0;
                 areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStr(areasOfOperation.Position, areasOfOperation.Radius, empire);
-                
-
-
                 int min = (int)(empireStr * ((DefensiveCoordinator.GetDefensiveThreatFromPlanets(areasOfOperation.GetPlanets())+1) * .01f));
                 if (areasOfOperation.ThreatLevel < min)
                     areasOfOperation.ThreatLevel = min;
