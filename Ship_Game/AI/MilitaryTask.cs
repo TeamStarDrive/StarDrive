@@ -279,7 +279,7 @@ namespace Ship_Game.AI
 
                     bomberFleet.Owner.GetGSAI().TasksToAdd.Add(GlassPlanet);
                     GlassPlanet.WhichFleet = this.Empire.GetUnusedKeyForFleet();
-                    this.Empire.GetFleetsDict().TryAdd(GlassPlanet.WhichFleet, bomberFleet);
+                    this.Empire.GetFleetsDict().Add(GlassPlanet.WhichFleet, bomberFleet);
                     bomberFleet.Task = GlassPlanet;
                     bomberFleet.Name = "Bomber Fleet";
 

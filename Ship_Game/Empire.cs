@@ -21,7 +21,7 @@ namespace Ship_Game
     {
         public static float ProjectorRadius = 150000f;
         //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
-        private readonly ConcurrentDictionary<int, Fleet> FleetsDict    = new ConcurrentDictionary<int, Fleet>();
+        private readonly Map<int, Fleet> FleetsDict    = new Map<int, Fleet>();
         private readonly Map<string, bool> UnlockedHullsDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedTroopDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
@@ -133,7 +133,7 @@ namespace Ship_Game
             public int CacheHits;
             public PatchCacheEntry(Array<Vector2> path) { Path = path; }
         }
-        public ConcurrentDictionary<int, Fleet> GetFleetsDict()
+        public Map<int, Fleet> GetFleetsDict()
         {
             return FleetsDict;
         }
@@ -437,11 +437,11 @@ namespace Ship_Game
         public void Initialize()
         {
             GSAI = new GSAI(this);
-            for (int key = 1; key < 100; ++key)
+            for (int key = 1; key < 10; ++key)
             {
                 Fleet fleet = new Fleet {Owner = this};
                 fleet.SetNameByFleetIndex(key);
-                FleetsDict.TryAdd(key, fleet);
+                FleetsDict.Add(key, fleet);
             }
 
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
@@ -632,7 +632,7 @@ namespace Ship_Game
             {
                 Fleet fleet = new Fleet {Owner = this};
                 fleet.SetNameByFleetIndex(key);
-                FleetsDict.TryAdd(key, fleet);
+                FleetsDict.Add(key, fleet);
             }
 
             if (string.IsNullOrEmpty(data.DefaultTroopShip))

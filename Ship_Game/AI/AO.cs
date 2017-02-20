@@ -51,7 +51,7 @@ namespace Ship_Game.AI
             CoreWorld = p;
             CoreWorldGuid = p.guid;
             WhichFleet = p.Owner.GetUnusedKeyForFleet();
-			p.Owner.GetFleetsDict().TryAdd(WhichFleet, CoreFleet);
+			p.Owner.GetFleetsDict().Add(WhichFleet, CoreFleet);
             CoreFleet.Name = "Core Fleet";
             CoreFleet.Position = p.Position;
             CoreFleet.Owner = p.Owner;
@@ -259,6 +259,16 @@ namespace Ship_Game.AI
         private void Dispose(bool disposing)
         {
             OffensiveForcePool = null;
+            int findex = -1;
+            if (CoreFleet?.Owner != null)
+                foreach (var kv in CoreFleet.Owner.GetFleetsDict())
+                {
+                    if (kv.Value == CoreFleet)
+                        findex = kv.Key;
+                }
+            if (findex != -1)
+                CoreFleet.Owner.GetFleetsDict().Remove(findex);            
+
             CoreFleet?.Dispose(ref CoreFleet);
         }
        

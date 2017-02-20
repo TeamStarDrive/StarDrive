@@ -2926,16 +2926,16 @@ namespace Ship_Game.Gameplay
                 {
                     moduleSlot.module.Health = moduleSlot.ModuleHealth;
                     moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                    if (moduleSlot.module.Health == 0.0)
+                    if (moduleSlot.module.Health < 1)
                         moduleSlot.module.Active = false;
                 }
             }
             foreach (ModuleSlot moduleSlot in list)
             {
-                moduleSlot.Initialize();
+                moduleSlot.InitializeFromSave();
                 moduleSlot.module.Health = moduleSlot.ModuleHealth;
                 moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                if ((double)moduleSlot.module.Health == 0.0)
+                if (moduleSlot.module.Health < 1)
                     moduleSlot.module.Active = false;
             }
             this.RecalculatePower();
