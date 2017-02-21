@@ -3398,6 +3398,8 @@ namespace Ship_Game.Gameplay
 
         public void RecalculatePower()
         {
+            RecalculatePower2();
+            return;
             //added by Gremlin Parallel recalculate power.
             //global::System.Threading.Tasks.Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
             ModuleSlot module;
@@ -3481,7 +3483,86 @@ namespace Ship_Game.Gameplay
                 }
             }//);
         }
+        public void RecalculatePower2()
+        {
+            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+            {
+                moduleSlot.Powered = false;
+                moduleSlot.module.Powered = false;
+                moduleSlot.CheckedConduits = false;
+                if (moduleSlot.module != null)
+                    moduleSlot.module.Powered = false;
+            }
+            //added by Gremlin Parallel recalculate power.
+            global::System.Threading.Tasks.Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot =>
+                //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+            {
+                if (moduleSlot.module != null && moduleSlot.module.ModuleType == ShipModuleType.PowerPlant && moduleSlot.module.Active)
+                {
+                    foreach (ModuleSlot slot in this.ModuleSlotList)
+                    {
+                        if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - moduleSlot.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - moduleSlot.Position.Y) / 16 == 1 && slot.module != null))
+                            this.CheckAndPowerConduit(slot);
+                    }
+                }
+                else if (moduleSlot.module.ParentOfDummy != null && moduleSlot.module.ParentOfDummy.ModuleType == ShipModuleType.PowerPlant && moduleSlot.module.ParentOfDummy.Active)
+                {
+                    foreach (ModuleSlot slot in this.ModuleSlotList)
+                    {
+                        if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - moduleSlot.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - moduleSlot.Position.Y) / 16 == 1 && slot.module != null))
+                            this.CheckAndPowerConduit(slot);
+                    }
+                }
+            });
 
+            //foreach (ModuleSlot moduleSlot1 in this.ModuleSlotList)
+            global::System.Threading.Tasks.Parallel.ForEach<ModuleSlot>(this.ModuleSlotList, moduleSlot1 =>
+            {
+                if (!moduleSlot1.isDummy && moduleSlot1.module != null && ((int)moduleSlot1.module.PowerRadius > 0 && moduleSlot1.module.Active) && (moduleSlot1.module.ModuleType != ShipModuleType.PowerConduit || moduleSlot1.module.Powered))
+                {
+                    foreach (ModuleSlot moduleSlot2 in this.ModuleSlotList)
+                    {
+                        if ((int)Math.Abs(moduleSlot1.Position.X - moduleSlot2.Position.X) / 16 + (int)Math.Abs(moduleSlot1.Position.Y - moduleSlot2.Position.Y) / 16 <= (int)moduleSlot1.module.PowerRadius)
+                            moduleSlot2.Powered = true;
+                    }
+                    if ((int)moduleSlot1.module.XSIZE > 1 || (int)moduleSlot1.module.YSIZE > 1)
+                    {
+                        for (int index1 = 0; index1 < (int)moduleSlot1.module.YSIZE; ++index1)
+                        {
+                            for (int index2 = 0; index2 < (int)moduleSlot1.module.XSIZE; ++index2)
+                            {
+                                if (!(index2 == 0 & index1 == 0))
+                                {
+                                    foreach (ModuleSlot moduleSlot2 in this.ModuleSlotList)
+                                    {
+                                        if ((double)moduleSlot2.Position.Y == (double)moduleSlot1.Position.Y + (double)(16 * index1) && (double)moduleSlot2.Position.X == (double)moduleSlot1.Position.X + (double)(16 * index2))
+                                        {
+                                            foreach (ModuleSlot moduleSlot3 in this.ModuleSlotList)
+                                            {
+                                                if ((int)Math.Abs(moduleSlot2.Position.X - moduleSlot3.Position.X) / 16 + (int)Math.Abs(moduleSlot2.Position.Y - moduleSlot3.Position.Y) / 16 <= (int)moduleSlot1.module.PowerRadius)
+                                                    moduleSlot3.Powered = true;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+            {
+                if (moduleSlot.Powered)
+                {
+                    if (moduleSlot.module != null && moduleSlot.module.ModuleType != ShipModuleType.PowerConduit)
+                        moduleSlot.module.Powered = true;
+                    if (moduleSlot.module.isDummy && moduleSlot.module.ParentOfDummy != null)
+                        moduleSlot.module.ParentOfDummy.Powered = true;
+                }
+                if (!moduleSlot.Powered && moduleSlot.module != null && moduleSlot.module.IndirectPower)
+                    moduleSlot.module.Powered = true;
+            }
+        }
         public ShipData ToShipData()
         {
             ShipData shipData = new ShipData();

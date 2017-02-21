@@ -3103,7 +3103,7 @@ namespace Ship_Game
             if (empire == null) return true;
             if(!TryGetRelations(empire, out Relationship rel) || rel ==null || !rel.Known) return true;            
             //common place to think about if an empire is attackable
-            if (empire.isFaction && !rel.Treaty_NAPact) return true;            
+            if (empire.isFaction ) return true;            
             if (rel.AtWar) return true;
             if (rel.Treaty_NAPact) return false;
             Ship ship = target as Ship;
