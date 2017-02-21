@@ -67,9 +67,9 @@ namespace Ship_Game.AI
                     if (aoSize < Vector2.Distance(coreWorld.Position, system.Position))
                         aoSize = Vector2.Distance(coreWorld.Position, system.Position);
                 }
-                float aomax = Empire.Universe.Size.X * .2f;
-                if (aoSize > aomax)
-                    aoSize = aomax;
+                //float aomax = Empire.Universe.Size.X * .2f;
+                //if (aoSize > aomax)
+                //    aoSize = aomax;
                 bool flag1 = true;
                 foreach (AO areasOfOperation2 in AreasOfOperations)
                 {

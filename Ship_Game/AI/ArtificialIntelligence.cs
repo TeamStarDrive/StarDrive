@@ -497,9 +497,9 @@ namespace Ship_Game.AI
 	            if (Owner.shipData.Role != ShipData.RoleName.troop
 	                &&
 	                (Owner.Health / Owner.HealthMax < DmgLevel[(int) Owner.shipData.ShipCategory] ||
-	                 Owner.shield_max > 0 && Owner.shield_percent <= 0)
-	                || Owner.OrdinanceMax > 0 && Owner.Ordinance / Owner.OrdinanceMax <= .1f
-	                || Owner.PowerCurrent <= 1f && Owner.PowerDraw / Owner.PowerFlowMax <= .1f
+	                 (Owner.shield_max > 0 && Owner.shield_percent <= 0))
+	                || (Owner.OrdinanceMax > 0 && Owner.Ordinance / Owner.OrdinanceMax <= .1f)
+	                || (Owner.PowerCurrent <= 1f && Owner.PowerDraw / Owner.PowerFlowMax <= .1f)
 	            )
 	            {
 	                OrderReturnToHangar();
@@ -4591,17 +4591,17 @@ namespace Ship_Game.AI
             if(thisSystem != null)
                 foreach (Planet p in thisSystem.PlanetList)
                 {
-                    Empire emp = p.Owner;
-                    if (emp !=null && emp != Owner.loyalty)
-                    {
-                        Relationship test = null;
-                        Owner.loyalty.TryGetRelations(emp, out test);
-                        if (!test.Treaty_OpenBorders || !test.Treaty_NAPact || Vector2.Distance(Owner.Center, p.Position) >Radius)
-                            BadGuysNear = true;
-                        break;
-                    }
-
-
+                    BadGuysNear = Owner.loyalty.IsEmpireAttackable(p.Owner, null) && Owner.Center.InRadius(p.Position, Radius);
+                    //@TODO remove below once new logic is checked
+                    //Empire emp = p.Owner;
+                    //if (emp !=null && emp != Owner.loyalty)
+                    //{
+                    //    Relationship test = null;
+                    //    Owner.loyalty.TryGetRelations(emp, out test);
+                    //    if (!test.Treaty_OpenBorders || !test.Treaty_NAPact || Vector2.Distance(Owner.Center, p.Position) >Radius)
+                    //        BadGuysNear = true;
+                    //    break;
+                    //}
                 }
             {
                 if (EscortTarget != null && EscortTarget.Active && EscortTarget.GetAI().Target != null)
@@ -4615,48 +4615,34 @@ namespace Ship_Game.AI
                 for (var i = 0; i < nearby.Count; i++)
                 {
                     var item1 = nearby[i] as Ship;
-                    float distance = Vector2.Distance(Owner.Center, item1.Center);
-                    if (item1 != null && item1.Active && !item1.dying && distance <= Radius + (Radius == 0 ? 10000 : 0))
-                    {
-                        
+                    if (item1 == null) continue;
+                    float distance = Owner.Center.Distance(item1.Center);
+                    if ( item1.Active && !item1.dying && distance <= Radius + (Radius < 0.01f ? 10000 : 0))
+                    {                       
                         Empire empire = item1.loyalty;
                         var shipTarget = item1.GetAI().Target as Ship;
+                        bool isAttackable = Owner.loyalty.IsEmpireAttackable(item1.loyalty, shipTarget);
                         if (empire == Owner.loyalty)
                         {
                             FriendliesNearby.Add(item1);
                         }
-                        else if (empire != Owner.loyalty && Radius > 0
-                            && shipTarget != null
-                            && shipTarget == EscortTarget && item1.engineState != Ship.MoveState.Warp)
-                        {
-
-                            var sw = new ShipWeight();
-                            sw.ship = item1;
-                            sw.weight = 3f;
-
-                            NearbyShips.Add(sw);
-                            BadGuysNear = true;
-                            //this.PotentialTargets.Add(item1);
-                        }
-                        else if (Radius > 0 && (item1.loyalty != Owner.loyalty 
-                            && Owner.loyalty.GetRelations(item1.loyalty).AtWar
-                            || Owner.loyalty.isFaction || item1.loyalty.isFaction))//&& Vector2.Distance(this.Owner.Center, item.Center) < 15000f)
+                        else if(isAttackable && Radius > 0)
                         {
                             var sw = new ShipWeight();
                             sw.ship = item1;
                             sw.weight = 1f;
                             NearbyShips.Add(sw);
-                            //this.PotentialTargets.Add(item1);
-                            BadGuysNear = Vector2.Distance(Position, item1.Position) <= Radius;
-                        }
-                        else if (Radius == 0 &&
-                            (item1.loyalty != Owner.loyalty
-                            && Owner.loyalty.GetRelations(item1.loyalty).AtWar
-                            || Owner.loyalty.isFaction || item1.loyalty.isFaction)
-                            )
-                        {
+                            BadGuysNear = Position.InRadius(item1.Center, Radius);
+
+                            if (BadGuysNear && shipTarget != null
+                               && shipTarget == EscortTarget && item1.engineState != Ship.MoveState.Warp)
+                            {
+                                sw.weight = 3f;                                
+                            }                           
+                        }                       
+                        else if (isAttackable)                        
                             BadGuysNear = true;
-                        }
+                        
                     }
                 }
             }
