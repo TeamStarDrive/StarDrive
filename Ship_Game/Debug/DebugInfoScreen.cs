@@ -17,6 +17,7 @@ namespace Ship_Game.Debug
         Pathing,
         DefenseCo,
         Trade,
+        AO,
         ThreatMatrix
     }
 
@@ -560,6 +561,13 @@ namespace Ship_Game.Debug
                 {                    
                     Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
                     Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
+                }
+                foreach(AO ao in e.GetGSAI().AreasOfOperations)
+                {
+                    Vector2 spot = ao.Position;
+                    float radius = ao.Radius;
+                    Circle circle = ProjectCircleWorldToScreen(spot, radius);
+                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 16, e.EmpireColor);
                 }
 
             }
