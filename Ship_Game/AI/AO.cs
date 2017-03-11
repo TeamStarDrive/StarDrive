@@ -32,6 +32,8 @@ namespace Ship_Game.AI
 
 	    public AO()
 		{
+            PlanetsInAo = new Planet[0];
+            OurPlanetsInAo = new Planet[0];
 		}
 
 	    private bool CoreFleetFull()

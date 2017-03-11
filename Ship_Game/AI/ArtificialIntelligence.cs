@@ -4616,40 +4616,40 @@ namespace Ship_Game.AI
                 {
                     var item1 = nearby[i] as Ship;
                     if (item1 == null) continue;
-                    float distance = Owner.Center.Distance(item1.Center);
-                    if ( item1.Active && !item1.dying && distance <= Radius + (Radius < 0.01f ? 10000 : 0))
-                    {                       
+                    if (item1.Active && !item1.dying
+                        && Owner.Center.InRadius(item1.Center, Radius + (Radius < 0.01f ? 10000 : 0)))
+                    {
                         Empire empire = item1.loyalty;
                         var shipTarget = item1.GetAI().Target as Ship;
-                        bool isAttackable = Owner.loyalty.IsEmpireAttackable(item1.loyalty, shipTarget);
                         if (empire == Owner.loyalty)
                         {
                             FriendliesNearby.Add(item1);
+                            continue;
                         }
-                        else if(isAttackable && Radius > 0)
+                        bool isAttackable = Owner.loyalty.IsEmpireAttackable(item1.loyalty, item1);
+                        if (!isAttackable) continue;
+                        BadGuysNear = true;
+                        if (Radius < 1)                            
+                            continue;
+                        var sw = new ShipWeight
                         {
-                            var sw = new ShipWeight();
-                            sw.ship = item1;
-                            sw.weight = 1f;
-                            NearbyShips.Add(sw);
-                            BadGuysNear = Position.InRadius(item1.Center, Radius);
+                            ship = item1,
+                            weight = 1f
+                        };
+                        NearbyShips.Add(sw);                         
+                        if (BadGuysNear && shipTarget != null
+                           && shipTarget == EscortTarget && item1.engineState != Ship.MoveState.Warp)
+                        {
+                            sw.weight = 3f;
+                        }
 
-                            if (BadGuysNear && shipTarget != null
-                               && shipTarget == EscortTarget && item1.engineState != Ship.MoveState.Warp)
-                            {
-                                sw.weight = 3f;                                
-                            }                           
-                        }                       
-                        else if (isAttackable)                        
-                            BadGuysNear = true;
-                        
                     }
                 }
             }
 
 
             #region supply ship logic   //fbedard: for launch only
-            if (Owner.GetHangars().Where(hangar => hangar.IsSupplyBay).Count() > 0 && Owner.engineState != Ship.MoveState.Warp)  // && !this.Owner.isSpooling
+            if (Owner.GetHangars().Find(hangar => hangar.IsSupplyBay) !=null && Owner.engineState != Ship.MoveState.Warp)  // && !this.Owner.isSpooling
             {
                 IOrderedEnumerable<Ship> sortedList = null;
                 {
@@ -4707,7 +4707,7 @@ namespace Ship_Game.AI
                                 }
                                 continue;
                             }
-                            if (!hangar.Active || hangar.hangarTimer > 0f || Owner.Ordinance >= 100f && sortedList.Skip(skip).Count() <= 0)
+                            if (!hangar.Active || hangar.hangarTimer > 0f || Owner.Ordinance >= 100f && sortedList.Skip(skip).Any() )
                                 continue;                            
                             if (ResourceManager.ShipsDict["Supply_Shuttle"].Mass / 5f > Owner.Ordinance)  //fbedard: New spawning cost
                                 continue;
@@ -4840,10 +4840,10 @@ namespace Ship_Game.AI
                             ShipWeight selfDefenseWeight = nearbyShip;
                             selfDefenseWeight.weight = selfDefenseWeight.weight + 0.2f * CombatAI.SelfDefenseWeight;
                         }
-                        else if (otherShip.ship.GetAI().Target != nearbyShip.ship)
-                        {
-                            continue;
-                        }
+                        //else if (otherShip.ship.GetAI().Target != nearbyShip.ship)
+                        //{
+                        //    continue;
+                        //}
                 }
                 else
                 {

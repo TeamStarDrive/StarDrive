@@ -43,7 +43,7 @@ namespace Ship_Game.Gameplay
             if (InstalledModuleUID != "Dummy" && InstalledModuleUID != null)
             {
                 if (module != null)
-                    Log.Error("A module was reinitialized for no reason. This is a bug");
+                    Log.Warning("A module was reinitialized for no reason. This is a bug");
                 module = ResourceManager.CreateModuleFromUid(InstalledModuleUID);
                 module.installedSlot = this;
                 module.SetParent(Parent);

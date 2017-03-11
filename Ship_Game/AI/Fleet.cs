@@ -446,6 +446,7 @@ namespace Ship_Game.AI
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(Task); break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(Task); break;
             }
+            this.Owner.GetGSAI().TaskList.ApplyPendingRemovals();
         }
 
         private void DoCorsairRaid(float elapsedTime)
@@ -1748,27 +1749,34 @@ namespace Ship_Game.AI
                     Map<Vector2, float> threatDict = this.Owner.GetGSAI().ThreatMatrix.PingRadarStrengthClusters(this.Task.AO, this.Task.AORadius, 10000f, this.Owner);
                     float strength = this.GetStrength();
                     this.targetPosition = Vector2.Zero;
-                    
-                    if (threatDict.Count != 0)
+
+                    if (threatDict.Count == 0)
                     {
-                        KeyValuePair<Vector2, float> targetSpot = threatDict
-                            .OrderByDescending(p => p.Value < strength * .9f)
-                            .ThenByDescending(p => p.Value).First();
-                        if (targetSpot.Value < strength)
-                            targetPosition = targetSpot.Key;
+                        this.Task.EndTask();
+                        break;
                     }
+
+                    //TODO: add this to threat dictionary. find max in strength
+                    KeyValuePair<Vector2, float> targetSpot = threatDict
+                        .OrderByDescending(p => p.Value < strength * .9f)
+                        .ThenByDescending(p => p.Value).First();
+                    if (targetSpot.Value < strength)
+                        targetPosition = targetSpot.Key;
+
                     if (this.targetPosition != Vector2.Zero)
                     {
                         Vector2 fvec = Vector2.Normalize(Task.AO - this.targetPosition);
                         this.FormationWarpTo(this.targetPosition, targetPosition.RadiansToTarget(Task.AO), fvec);
                         this.TaskStep = 2;
-                        break;
+
                     }
-                    else
-                    {
+                    else                    
                         this.Task.EndTask();
-                        break;
-                    }
+                    
+
+                    break;
+                    
+                    
                 case 2:
 
                     if (this.Owner.GetGSAI().ThreatMatrix.PingRadarStr(this.targetPosition, 150000, this.Owner) == 0)
@@ -2223,8 +2231,9 @@ namespace Ship_Game.AI
             }
             else
             {
-                if (EmpireManager.Player == Owner || IsCoreFleet || Ships.Count <= 0)
+                if (EmpireManager.Player == Owner || IsCoreFleet )
                     return;
+                Owner.GetGSAI().UsedFleets.Remove(which);                
                 foreach (Ship s in Ships)
                 {                    
                     s.GetAI().OrderQueue.Clear();
@@ -2237,7 +2246,6 @@ namespace Ship_Game.AI
                     else
                         Owner.ForcePoolAdd(s);
                 }
-                Owner.GetGSAI().UsedFleets.Remove(which);
                 Reset();
             }
         }

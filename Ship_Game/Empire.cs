@@ -123,6 +123,8 @@ namespace Ship_Game
         public byte[,] grid;
         [XmlIgnore]
         public int granularity = 0;
+        [XmlIgnore]
+        public int AtWarCount = 0;
 
         public Empire()
         {
@@ -142,7 +144,11 @@ namespace Ship_Game
             get { return FleetsDict[1]; }
             set
             {
-                foreach (Ship s in FleetsDict[1].Ships) s.fleet?.RemoveShip(s);
+                for (int index = 0; index < FleetsDict[1].Ships.Count; index++)
+                {
+                    Ship s = FleetsDict[1].Ships[index];
+                    s?.fleet?.RemoveShip(s);
+                }
                 FleetsDict[1] = value;
             }
         }
@@ -1394,7 +1400,16 @@ namespace Ship_Game
                         this.AssessHostilePresence();
                 }
                 //added by gremlin. empire ship reserve.
-
+                int numWars = 0;
+                foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in AllRelations)
+                {
+                    if (!Relationship.Value.AtWar || Relationship.Key.isFaction)
+                    {
+                        continue;
+                    }
+                    numWars++;
+                }
+                float defStr = GSAI.DefensiveCoordinator.GetForcePoolStrength();
                 this.EmpireShipCountReserve = 0;
 
                 if (!this.isPlayer)
@@ -2094,14 +2109,14 @@ namespace Ship_Game
         private void TakeTurn()
         {
             //Added by McShooterz: Home World Elimination game mode
-            if (!isFaction && !data.Defeated 
-                && (OwnedPlanets.Count == 0 || GlobalStats.EliminationMode 
+            if (!isFaction && !data.Defeated
+                && (OwnedPlanets.Count == 0 || GlobalStats.EliminationMode
                 && Capital != null && Capital.Owner != this))
             {
                 SetAsDefeated();
                 if (Universe.PlayerEmpire == this)
                 {
-                    foreach(Ship ship in Universe.MasterShipList)
+                    foreach (Ship ship in Universe.MasterShipList)
                     {
                         ship.Die(null, true);
                     }
@@ -2139,7 +2154,7 @@ namespace Ship_Game
             this.data.AgentList.ApplyPendingRemovals();
             if (this.Money < 0.0 && !this.isFaction)
             {
-                this.data.TurnsBelowZero += (short)(1+-1*(this.Money) /500);
+                this.data.TurnsBelowZero += (short)(1 + -1 * (this.Money) / 500);
             }
             else
             {
@@ -2256,31 +2271,31 @@ namespace Ship_Game
                     StatTracker.SnapshotsDict[Universe.StarDate.ToString("#.0")][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                 int num2 = planet.HasWinBuilding ? 1 : 0;
             }
-            if (this.data.TurnsBelowZero > 0  && (this.Money < 0.0 && !Universe.Debug))// && this.isPlayer)) // && this == Empire.Universe.PlayerEmpire)
+            if (this.data.TurnsBelowZero > 0 && (this.Money < 0.0 && !Universe.Debug))// && this.isPlayer)) // && this == Empire.Universe.PlayerEmpire)
             {
                 if (this.data.TurnsBelowZero >= 25)
                 {
                     Empire rebelsFromEmpireData = EmpireManager.GetEmpireByName(this.data.RebelName);
-                    Log.Info("Rebellion for: "+ data.Traits.Name);
-                    if(rebelsFromEmpireData == null)
-                    foreach (Empire rebel in EmpireManager.Empires)
-                    {
-                        if (rebel.data.PortraitName == this.data.RebelName)
+                    Log.Info("Rebellion for: " + data.Traits.Name);
+                    if (rebelsFromEmpireData == null)
+                        foreach (Empire rebel in EmpireManager.Empires)
                         {
-                            Log.Info("Found Existing Rebel: "+ rebel.data.PortraitName);
-                            rebelsFromEmpireData = rebel;
-                            break;
+                            if (rebel.data.PortraitName == this.data.RebelName)
+                            {
+                                Log.Info("Found Existing Rebel: " + rebel.data.PortraitName);
+                                rebelsFromEmpireData = rebel;
+                                break;
+                            }
                         }
-                    }
                     if (rebelsFromEmpireData == null)
                     {
                         rebelsFromEmpireData = CreatingNewGameScreen.CreateRebelsFromEmpireData(this.data, this);
                         if (rebelsFromEmpireData != null)
                         {
-                            rebelsFromEmpireData.data.IsRebelFaction  = true;
-                            rebelsFromEmpireData.data.Traits.Name     = data.RebelName;
+                            rebelsFromEmpireData.data.IsRebelFaction = true;
+                            rebelsFromEmpireData.data.Traits.Name = data.RebelName;
                             rebelsFromEmpireData.data.Traits.Singular = data.RebelSing;
-                            rebelsFromEmpireData.data.Traits.Plural   = data.RebelPlur;
+                            rebelsFromEmpireData.data.Traits.Plural = data.RebelPlur;
                             rebelsFromEmpireData.isFaction = true;
                             foreach (Empire key in EmpireManager.Empires)
                             {
@@ -2325,13 +2340,13 @@ namespace Ship_Game
                         {
                             Ship pirate = null;
                             using (GetShips().AcquireReadLock())
-                            foreach (Ship pirateChoice in GetShips())
-                            {
-                                if (pirateChoice == null || !pirateChoice.Active)
-                                    continue;
-                                pirate = pirateChoice;
-                                break;
-                            }
+                                foreach (Ship pirateChoice in GetShips())
+                                {
+                                    if (pirateChoice == null || !pirateChoice.Active)
+                                        continue;
+                                    pirate = pirateChoice;
+                                    break;
+                                }
                             if (pirate != null)
                             {
                                 pirate.loyalty = rebelsFromEmpireData;
@@ -2344,131 +2359,113 @@ namespace Ship_Game
                     else Log.Info("Rebellion Failure: {0}", this.data.RebelName);
                     data.TurnsBelowZero = 0;
                 }
-               
+
             }
             this.CalculateScore();
-            //Process technology research
-            //Parallel.Invoke(
-            //    ()=>
-                {
-                    if (!string.IsNullOrEmpty(this.ResearchTopic))
-                    {
-                        this.Research = 0;
-                        foreach (Planet planet in this.OwnedPlanets)
-                            this.Research += planet.NetResearchPerTurn;
-                        float research = this.Research + this.leftoverResearch;
-                        TechEntry tech;
-                        if (this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
-                        {
-                            float cyberneticMultiplier = 1.0f;
-                            if (this.data.Traits.Cybernetic > 0)
-                            {
-                                foreach (Technology.UnlockedBuilding buildingName in tech.Tech.BuildingsUnlocked)
-                                {
-                                    Building building = ResourceManager.CreateBuilding(buildingName.Name);
-                                    if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0 || building.PlusTerraformPoints > 0)
-                                    {
-                                        cyberneticMultiplier = .5f;
-                                        break;
-                                    }
 
-                                }
-                            }
-                            if ((tech.Tech.Cost*cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
+            if (!string.IsNullOrEmpty(this.ResearchTopic))
+            {
+                this.Research = 0;
+                foreach (Planet planet in this.OwnedPlanets)
+                    this.Research += planet.NetResearchPerTurn;
+                float research = this.Research + this.leftoverResearch;
+                TechEntry tech;
+                if (this.TechnologyDict.TryGetValue(this.ResearchTopic, out tech))
+                {
+                    float cyberneticMultiplier = 1.0f;
+                    if (this.data.Traits.Cybernetic > 0)
+                    {
+                        foreach (Technology.UnlockedBuilding buildingName in tech.Tech.BuildingsUnlocked)
+                        {
+                            Building building = ResourceManager.CreateBuilding(buildingName.Name);
+                            if (building.PlusFlatFoodAmount > 0 || building.PlusFoodPerColonist > 0 || building.PlusTerraformPoints > 0)
                             {
-                                tech.Progress += research;
-                                this.leftoverResearch = 0f;
-                                research = 0;
+                                cyberneticMultiplier = .5f;
+                                break;
                             }
-                            else
-                            {
-    
-                                
-                                research -= (tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
-                                tech.Progress = tech.Tech.Cost * UniverseScreen.GamePaceStatic;
-                                this.UnlockTech(this.ResearchTopic);
-                                if (this.isPlayer)
-                                    Universe.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
-                                this.data.ResearchQueue.Remove(this.ResearchTopic);
-                                if (this.data.ResearchQueue.Count > 0)
-                                {
-                                    this.ResearchTopic = this.data.ResearchQueue[0];
-                                    this.data.ResearchQueue.RemoveAt(0);
-                                }
-                                else
-                                    this.ResearchTopic = "";
-                            }
+
                         }
-                        this.leftoverResearch = research;
                     }
-                    else if (this.data.ResearchQueue.Count > 0)
-                        this.ResearchTopic = this.data.ResearchQueue[0];
-                    
-                }//,
-
-            //    ()=>
-                {
-
-                    if (this == Universe.PlayerEmpire)
+                    if ((tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress > research)
                     {
-                        foreach (var kv in Relationships)
-                            kv.Value.UpdatePlayerRelations(this, kv.Key);
-                    }
-                    else if (!isFaction)
-                        UpdateRelationships();
-
-                    if (this.isFaction)
-                        this.GSAI.FactionUpdate();
-                    else if (!this.data.Defeated)
-                        this.GSAI.Update();
-                    if ((double)this.Money > (double)this.data.CounterIntelligenceBudget)
-                    {
-                        this.Money -= this.data.CounterIntelligenceBudget;
-                        foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
-                        {
-                            var relationWithUs = keyValuePair.Key.GetRelations(this);
-                            relationWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
-                            if (relationWithUs.IntelligencePenetration < 0.0f)
-                            relationWithUs.IntelligencePenetration = 0.0f;
-                        }
-                    } 
-                }//);
-                //()=>
-                {
-                    if (this.isFaction || this.MinorRace)
-                        return;
-                    if (!this.isPlayer)
-                    {
-                        //Parallel.Invoke(
-                        //  ()  =>
-                        {
-                        this.AssessFreighterNeeds();
-                        }//,
-                        //()=>
-                        {
-                        this.AssignExplorationTasks();
-                        }
-                        //);
+                        tech.Progress += research;
+                        this.leftoverResearch = 0f;
+                        research = 0;
                     }
                     else
                     {
-                        if (this.AutoFreighters)
-                            this.AssessFreighterNeeds();
-                        if (this.AutoExplore)
-                            this.AssignExplorationTasks();
-                    }  
+
+
+                        research -= (tech.Tech.Cost * cyberneticMultiplier) * UniverseScreen.GamePaceStatic - tech.Progress;
+                        tech.Progress = tech.Tech.Cost * UniverseScreen.GamePaceStatic;
+                        this.UnlockTech(this.ResearchTopic);
+                        if (this.isPlayer)
+                            Universe.NotificationManager.AddResearchComplete(this.ResearchTopic, this);
+                        this.data.ResearchQueue.Remove(this.ResearchTopic);
+                        if (this.data.ResearchQueue.Count > 0)
+                        {
+                            this.ResearchTopic = this.data.ResearchQueue[0];
+                            this.data.ResearchQueue.RemoveAt(0);
+                        }
+                        else
+                            this.ResearchTopic = "";
+                    }
                 }
-            
-             return;
+                this.leftoverResearch = research;
+            }
+            else if (this.data.ResearchQueue.Count > 0)
+                this.ResearchTopic = this.data.ResearchQueue[0];
+
+
+
+            UpdateRelationships();
+
+            if (this.isFaction)
+                this.GSAI.FactionUpdate();
+            else if (!this.data.Defeated)
+                this.GSAI.Update();
+            if (Money > data.CounterIntelligenceBudget)
+            {
+                this.Money -= this.data.CounterIntelligenceBudget;
+                foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
+                {
+                    var relationWithUs = keyValuePair.Key.GetRelations(this);
+                    relationWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
+                    if (relationWithUs.IntelligencePenetration < 0.0f)
+                        relationWithUs.IntelligencePenetration = 0.0f;
+                }
+            }
+
+            if (this.isFaction || this.MinorRace)
+                return;
+            if (!this.isPlayer)
+            {
+                this.AssessFreighterNeeds();
+                this.AssignExplorationTasks();
+            }
+            else
+            {
+                if (this.AutoFreighters)
+                    this.AssessFreighterNeeds();
+                if (this.AutoExplore)
+                    this.AssignExplorationTasks();
+            }
+
+
+            return;
         }
 
         private void UpdateRelationships()
         {
-            foreach (KeyValuePair<Empire, Relationship> keyValuePair in this.Relationships)
-            {
-                if (keyValuePair.Value.Known)
-                    keyValuePair.Value.UpdateRelationship(this, keyValuePair.Key);
-            }
+            if (isFaction) return;
+            int atwar = 0;
+            foreach (var kv in Relationships)
+                if (kv.Value.Known || isPlayer)
+                {
+                    kv.Value.UpdateRelationship(this, kv.Key);
+                    if (kv.Value.AtWar && !kv.Key.isFaction) atwar++;
+                }
+            AtWarCount = atwar;
         }
 
         private void CalculateScore()
