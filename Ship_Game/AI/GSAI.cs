@@ -61,11 +61,11 @@ namespace Ship_Game.AI
         public float spyBudget = 0;
         public float toughnuts = 0;
         //public float SSPBudget = 0;
+	    public float DefStr;
 
+        //private int ThirdDemand = 75;
 
-		//private int ThirdDemand = 75;
-
-		private GSAI.ResearchStrategy res_strat = GSAI.ResearchStrategy.Scripted;
+        private GSAI.ResearchStrategy res_strat = GSAI.ResearchStrategy.Scripted;
         bool modSupport = bool.Parse( ConfigurationManager.AppSettings["ModSupport"]);
         float minimumWarpRange = GlobalStats.MinimumWarpRange;
         //SizeLimiter
@@ -2504,18 +2504,12 @@ namespace Ship_Game.AI
 
 		public void AssignShipToForce(Ship toAdd)
 		{
-			int numWars = 0;
-			foreach (KeyValuePair<Empire, Ship_Game.Gameplay.Relationship> Relationship in this.empire.AllRelations)
-			{
-				if (!Relationship.Value.AtWar || Relationship.Key.isFaction)
-				{
-					continue;
-				}
-				numWars++;
-			}
-			float baseDefensePct = 0.1f;
+			int numWars = empire.AtWarCount;
+
+            float defStr = DefStr;
+            float baseDefensePct = 0.1f;
 			baseDefensePct = baseDefensePct + 0.15f * (float)numWars;
-            float defStr = this.DefensiveCoordinator.GetForcePoolStrength();
+            
            
 			if (baseDefensePct > 0.35f)
 			{
@@ -9333,8 +9327,9 @@ namespace Ship_Game.AI
         }
 
 		public void Update()
-		{
-			if (!this.empire.isFaction)
+		{		    
+		    DefStr = this.DefensiveCoordinator.GetForcePoolStrength();
+		    if (!this.empire.isFaction)
 			{
 				this.RunManagers();
 			}
@@ -9346,31 +9341,6 @@ namespace Ship_Game.AI
             this.Goals.ApplyPendingRemovals();
         }
 
-        // @todo Why is this usage commented out? What does it actually do?
-        //private void UpdateThreatMatrix()
-        //{
-        //    foreach (var kv in ThreatMatrix.Pins)
-        //    {
-        //        bool shouldRemove = true;
-        //        bool insideEmpireSensors = empire.IsPointInSensors(kv.Value.Position);
-        //        if (insideEmpireSensors)
-        //        {
-        //            using (Empire.Universe.MasterShipList.AcquireReadLock())
-        //            foreach (Ship ship in Empire.Universe.MasterShipList)
-        //            {
-        //                if (kv.Key != ship.guid)
-        //                    continue;
-        //                shouldRemove = !ship.Active;
-        //                break;
-        //            }
-        //        }
-        //        else shouldRemove = false;
-
-        //        if (!shouldRemove)
-        //            continue;
-        //        ThreatMatrix.Pins.TryRemove(kv.Key, out ThreatMatrix.Pin pin);
-        //    }
-        //}
 
 		public struct PeaceAnswer
 		{

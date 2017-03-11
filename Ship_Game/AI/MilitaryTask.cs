@@ -383,7 +383,7 @@ namespace Ship_Game.AI
                         return;
 					}
 
-				    for (int index = 0; index < Fleet.Ships.Count; index++)
+				    for (int index = Fleet.Ships.Count - 1; index >= 0; index--)
 				    {
 				        Ship ship = Fleet.Ships[index];
 				        ship.GetAI().OrderQueue.Clear();
@@ -409,18 +409,19 @@ namespace Ship_Game.AI
 				if (this.type == TaskType.Exploration)
 				{
 					Array<Troop> toLaunch = new Array<Troop>();
-					foreach (Troop t in this.TargetPlanet.TroopsHere)
-					{
-						if (   t.GetOwner() != this.Empire
-                            || this.TargetPlanet.system.CombatInSystem
-                            || t.AvailableAttackActions==0
-                            || t.MoveTimer>0)
-                            continue;
+				    for (int index = this.TargetPlanet.TroopsHere.Count - 1; index >= 0; index--)
+				    {
+				        Troop t = this.TargetPlanet.TroopsHere[index];
+				        if (t.GetOwner() != this.Empire
+				            || this.TargetPlanet.system.CombatInSystem
+				            || t.AvailableAttackActions == 0
+				            || t.MoveTimer > 0)
+				            continue;
 
-						toLaunch.Add(t);
-					}
+				        toLaunch.Add(t);
+				    }
 
-					foreach (Troop t in toLaunch)
+				    foreach (Troop t in toLaunch)
 					{
 						Ship troopship = t.Launch();
 						if (troopship == null)

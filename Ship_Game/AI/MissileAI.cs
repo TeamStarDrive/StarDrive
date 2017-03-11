@@ -245,7 +245,7 @@ namespace Ship_Game.AI
         {
 			if (this.Target != null && GlobalStats.ActiveModInfo != null && (GlobalStats.ActiveModInfo.enableECM || this.Owner.weapon.TerminalPhaseAttack))
             {
-                float DistancetoTarget = Vector2.Distance(this.Owner.Center, this.Target.Center);
+                float DistancetoTarget = this.Owner.Center.Distance(this.Target.Center);
                 if (this.Jammed)
                 {
                     this.MoveTowardsTargetJammed(elapsedTime);
