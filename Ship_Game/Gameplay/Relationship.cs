@@ -481,6 +481,11 @@ namespace Ship_Game.Gameplay
             if (GlobalStats.perf && Empire.Universe.PlayerEmpire == them)
                 return;
         #endif
+            if(us.isPlayer)
+            {
+                UpdatePlayerRelations(us, them);
+                return;
+            }
             if (FedQuest != null)
             {
                 var enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);

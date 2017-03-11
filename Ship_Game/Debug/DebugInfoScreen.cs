@@ -287,10 +287,10 @@ namespace Ship_Game.Debug
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Manager OK", cursor, Color.White);
                     }
                 }
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;                
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    ship.InCombat ? "InCombat" : "Not in Combat", cursor,
-                    ship.InCombat ? Color.Green : Color.LightPink);
+                    ship.InCombat ? ship.GetAI().BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat", cursor,
+                    ship.InCombat ? Color.Green : Color.LightPink);                
                 cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
                     ship.GetAI().hasPriorityTarget ? "Priority Target" : "No Priority Target", cursor, Color.White);

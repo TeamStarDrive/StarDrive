@@ -3317,7 +3317,7 @@ namespace Ship_Game.Gameplay
                         {
                             //standard for loop through each weapon group.
                             //for (int T = start; T < end; T++)
-                            for (int T = 0; T < projectiles.Count; T++)
+                            for (int T = projectiles.Count - 1; T >= 0; T--)
                             {
                                 if (this.projectiles[T] != null && this.projectiles[T].Active)
                                     this.projectiles[T].Update(elapsedTime);
