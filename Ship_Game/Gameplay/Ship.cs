@@ -2906,39 +2906,24 @@ namespace Ship_Game.Gameplay
 
         public bool InitFromSave()
         {
-            this.SetShipData(this.GetShipData());
-            this.ModulesInitialized = true;
-            this.Weapons.Clear();
-            Array<ModuleSlot> list = new Array<ModuleSlot>();
-            if (this.Name == "Left Right Test")
-                this.Weapons.Clear();
-            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+            SetShipData(GetShipData());
+            ModulesInitialized = true;
+            Weapons.Clear();
+            foreach (ModuleSlot slot in ModuleSlotList)
             {
-                moduleSlot.SetParent(this);
-                if (!ResourceManager.ModuleExists(moduleSlot.InstalledModuleUID))
+                slot.SetParent(this);
+                if (!ResourceManager.ModuleExists(slot.InstalledModuleUID))
                     return false;
-                moduleSlot.InitializeFromSave();
-                if (moduleSlot.module == null)
-                {
-                    list.Add(moduleSlot);
-                }
-                else
-                {
-                    moduleSlot.module.Health = moduleSlot.ModuleHealth;
-                    moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                    if (moduleSlot.module.Health < 1)
-                        moduleSlot.module.Active = false;
-                }
+
+                if (slot.module == null)
+                    slot.InitializeFromSave();
+
+                slot.module.Health       = slot.ModuleHealth;
+                slot.module.shield_power = slot.Shield_Power;
+                if (slot.module.Health < 1)
+                    slot.module.Active = false;
             }
-            foreach (ModuleSlot moduleSlot in list)
-            {
-                moduleSlot.InitializeFromSave();
-                moduleSlot.module.Health = moduleSlot.ModuleHealth;
-                moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                if (moduleSlot.module.Health < 1)
-                    moduleSlot.module.Active = false;
-            }
-            this.RecalculatePower();
+            RecalculatePower();
             return true;
         }
 
