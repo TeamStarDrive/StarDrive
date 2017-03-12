@@ -123,7 +123,7 @@ namespace Ship_Game.AI
 				empire.GetRelations(Them).HasDefenseFleet = false;
 				if (empire.GetRelations(Them).DefenseFleet != -1)
 				{
-					this.empire.GetFleetsDict()[empire.GetRelations(Them).DefenseFleet].Task.EndTask();
+					this.empire.GetFleetsDict()[empire.GetRelations(Them).DefenseFleet].FleetTask.EndTask();
 				}
 				//lock (GlobalStats.TaskLocker)
 				{
@@ -161,7 +161,7 @@ namespace Ship_Game.AI
 					Them.GetRelations(this.empire).HaveRejected_TRADE = false;
 					if (Them.GetRelations(this.empire).DefenseFleet != -1)
 					{
-						Them.GetFleetsDict()[Them.GetRelations(this.empire).DefenseFleet].Task.EndTask();
+						Them.GetFleetsDict()[Them.GetRelations(this.empire).DefenseFleet].FleetTask.EndTask();
 					}
 					//lock (GlobalStats.TaskLocker)
 					{
@@ -513,7 +513,7 @@ namespace Ship_Game.AI
 				empire.GetRelations(Them).HasDefenseFleet = false;
 				if (empire.GetRelations(Them).DefenseFleet != -1)
 				{
-					this.empire.GetFleetsDict()[empire.GetRelations(Them).DefenseFleet].Task.EndTask();
+					this.empire.GetFleetsDict()[empire.GetRelations(Them).DefenseFleet].FleetTask.EndTask();
 				}
 				//lock (GlobalStats.TaskLocker)
 				{
@@ -550,7 +550,7 @@ namespace Ship_Game.AI
 					Them.GetRelations(this.empire).HaveRejected_TRADE = false;
 					if (Them.GetRelations(this.empire).DefenseFleet != -1)
 					{
-						Them.GetFleetsDict()[Them.GetRelations(this.empire).DefenseFleet].Task.EndTask();
+						Them.GetFleetsDict()[Them.GetRelations(this.empire).DefenseFleet].FleetTask.EndTask();
 					}
 					//lock (GlobalStats.TaskLocker)
 					{

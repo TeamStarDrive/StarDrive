@@ -1917,7 +1917,7 @@ namespace Ship_Game.AI
 			if (distance < 100f || DistanceLast > distance)
 			    OrderQueue.RemoveFirst();
 			else
-			    MoveTowardsPosition(Goal.fleet.Position + Owner.FleetOffset, elapsedTime, Goal.fleet.speed);
+			    MoveTowardsPosition(Goal.fleet.Position + Owner.FleetOffset, elapsedTime, Goal.fleet.Speed);
 		    DistanceLast = distance;
 		}
         //movement in direction
@@ -2335,13 +2335,13 @@ namespace Ship_Game.AI
 				ActiveWayPoints.Clear();
 			}
 			OrderQueue.Clear();
-			OrderMoveDirectlyTowardsPosition(destination, facing, fvec, true, Owner.fleet.speed);
+			OrderMoveDirectlyTowardsPosition(destination, facing, fvec, true, Owner.fleet.Speed);
 			State = AIState.FormationWarp;
 		}
         //order movement fleet queued
 		public void OrderFormationWarpQ(Vector2 destination, float facing, Vector2 fvec)
 		{
-			OrderMoveDirectlyTowardsPosition(destination, facing, fvec, false, Owner.fleet.speed);
+			OrderMoveDirectlyTowardsPosition(destination, facing, fvec, false, Owner.fleet.Speed);
 			State = AIState.FormationWarp;
 		}
         //order intercept
@@ -4591,7 +4591,7 @@ namespace Ship_Game.AI
             if(thisSystem != null)
                 foreach (Planet p in thisSystem.PlanetList)
                 {
-                    BadGuysNear = Owner.loyalty.IsEmpireAttackable(p.Owner, null) && Owner.Center.InRadius(p.Position, Radius);
+                    BadGuysNear = Owner.loyalty.IsEmpireAttackable(p.Owner) && Owner.Center.InRadius(p.Position, Radius);
                     //@TODO remove below once new logic is checked
                     //Empire emp = p.Owner;
                     //if (emp !=null && emp != Owner.loyalty)
@@ -4606,43 +4606,42 @@ namespace Ship_Game.AI
             {
                 if (EscortTarget != null && EscortTarget.Active && EscortTarget.GetAI().Target != null)
                 {
-                    var sw = new ShipWeight();
-                    sw.ship = EscortTarget.GetAI().Target as Ship;
-                    sw.weight = 2f;
+                    var sw = new ShipWeight
+                    {
+                        ship = EscortTarget.GetAI().Target as Ship,
+                        weight = 2f
+                    };
                     NearbyShips.Add(sw);
                 }
                 var nearby = UniverseScreen.ShipSpatialManager.GetNearby(Owner);
-                for (var i = 0; i < nearby.Count; i++)
+                for (int i = 0; i < nearby.Count; i++)
                 {
-                    var item1 = nearby[i] as Ship;
-                    if (item1 == null) continue;
-                    if (item1.Active && !item1.dying
-                        && Owner.Center.InRadius(item1.Center, Radius + (Radius < 0.01f ? 10000 : 0)))
-                    {
-                        Empire empire = item1.loyalty;
-                        var shipTarget = item1.GetAI().Target as Ship;
-                        if (empire == Owner.loyalty)
-                        {
-                            FriendliesNearby.Add(item1);
-                            continue;
-                        }
-                        bool isAttackable = Owner.loyalty.IsEmpireAttackable(item1.loyalty, item1);
-                        if (!isAttackable) continue;
-                        BadGuysNear = true;
-                        if (Radius < 1)                            
-                            continue;
-                        var sw = new ShipWeight
-                        {
-                            ship = item1,
-                            weight = 1f
-                        };
-                        NearbyShips.Add(sw);                         
-                        if (BadGuysNear && shipTarget != null
-                           && shipTarget == EscortTarget && item1.engineState != Ship.MoveState.Warp)
-                        {
-                            sw.weight = 3f;
-                        }
+                    Ship nearbyShip = nearby[i] as Ship;
+                    if (nearbyShip == null || !nearbyShip.Active || nearbyShip.dying
+                        || Owner.Center.OutsideRadius(nearbyShip.Center, Radius + (Radius < 0.01f ? 10000 : 0))) continue;
 
+                    Empire empire = nearbyShip.loyalty;
+                    Ship shipTarget = nearbyShip.GetAI().Target as Ship;
+                    if (empire == Owner.loyalty)
+                    {
+                        FriendliesNearby.Add(nearbyShip);
+                        continue;
+                    }
+                    bool isAttackable = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
+                    if (!isAttackable) continue;
+                    BadGuysNear = true;
+                    if (Radius < 1)
+                        continue;
+                    var sw = new ShipWeight
+                    {
+                        ship = nearbyShip,
+                        weight = 1f
+                    };
+                    NearbyShips.Add(sw);
+                    if (BadGuysNear && shipTarget != null
+                       && shipTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
+                    {
+                        sw.weight = 3f;
                     }
                 }
             }
@@ -5374,21 +5373,21 @@ namespace Ship_Game.AI
                     }
 
                     float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove;
-                    speedLimit = Owner.fleet.speed;
+                    speedLimit = Owner.fleet.Speed;
 
                 #region FleetGrouping
                 #if true
                     if (Distance <= distanceFleetCenterToDistance)
                     {
                         float speedreduction = distanceFleetCenterToDistance - Distance;
-                        speedLimit = Owner.fleet.speed - speedreduction;
+                        speedLimit = Owner.fleet.Speed - speedreduction;
 
-                        if (speedLimit > Owner.fleet.speed) speedLimit = Owner.fleet.speed;
+                        if (speedLimit > Owner.fleet.Speed) speedLimit = Owner.fleet.Speed;
                     }
                     else if (Distance > distanceFleetCenterToDistance && Distance > Owner.speed)
                     {
                         float speedIncrease = Distance - distanceFleetCenterToDistance;
-                        speedLimit = Owner.fleet.speed + speedIncrease;
+                        speedLimit = Owner.fleet.Speed + speedIncrease;
                     }
                 #endif
                 #endregion
@@ -5591,22 +5590,22 @@ namespace Ship_Game.AI
                         }
 
                         float distanceFleetCenterToDistance = Owner.fleet.StoredFleetDistancetoMove; //
-                            speedLimit = Owner.fleet.speed;
+                            speedLimit = Owner.fleet.Speed;
 #region FleetGrouping
                             float fleetPosistionDistance = Distance;
                             if (fleetPosistionDistance <= distanceFleetCenterToDistance )
                             {
                                 float speedreduction = distanceFleetCenterToDistance - Distance;
-                                speedLimit = (int)( Owner.fleet.speed - speedreduction);
+                                speedLimit = (int)( Owner.fleet.Speed - speedreduction);
                                 if (speedLimit < 0)
                                     speedLimit = 0;
-                                else if (speedLimit > Owner.fleet.speed)
-                                    speedLimit = (int)Owner.fleet.speed;
+                                else if (speedLimit > Owner.fleet.Speed)
+                                    speedLimit = (int)Owner.fleet.Speed;
                             }
                             else if (fleetPosistionDistance > distanceFleetCenterToDistance && Distance > Ownerspeed)
                             {
                                 float speedIncrease = Distance - distanceFleetCenterToDistance ;                             
-                                speedLimit = (int)(Owner.fleet.speed + speedIncrease);
+                                speedLimit = (int)(Owner.fleet.Speed + speedIncrease);
   
                             }
 #endregion
@@ -5925,7 +5924,7 @@ namespace Ship_Game.AI
 	                if (DistanceToFleetOffset <= 75f)
 	                {
 	                    Owner.Velocity = Vector2.Zero;
-	                    Vector2 vector2 = MathExt.PointFromRadians(Vector2.Zero, Owner.fleet.facing, 1f);
+	                    Vector2 vector2 = MathExt.PointFromRadians(Vector2.Zero, Owner.fleet.Facing, 1f);
 	                    Vector2 fvec = Vector2.Zero.FindVectorToTarget(vector2);
 	                    Vector2 wantedForward = Vector2.Normalize(fvec);
 	                    var forward = new Vector2((float) Math.Sin((double) Owner.Rotation),
@@ -5945,7 +5944,7 @@ namespace Ship_Game.AI
 	                }
 	                else if (State != AIState.HoldPosition && DistanceToFleetOffset > 75f)
 	                {
-	                    ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.fleet.speed);
+	                    ThrustTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, elapsedTime, Owner.fleet.Speed);
 	                    lock (WayPointLocker)
 	                    {
 	                        ActiveWayPoints.Clear();

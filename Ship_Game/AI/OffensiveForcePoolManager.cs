@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace Ship_Game.AI
@@ -49,7 +46,7 @@ namespace Ship_Game.AI
             if (aoPlanets.Length == Owner.GetPlanets().Count)
                 return;
             var ownedPlanets = Owner.GetPlanets().ToArray();
-            Planet[] planets = ownedPlanets.UniqueExclude<Planet>(aoPlanets);
+            Planet[] planets = ownedPlanets.UniqueExclude(aoPlanets);
             if (planets == null || planets.Length == 0) return;
 
             IOrderedEnumerable<Planet> maxProductionPotential =
@@ -66,10 +63,7 @@ namespace Ship_Game.AI
                     if (aoSystems.Contains(system)) continue;                                       
                     if (aoSize < Vector2.Distance(coreWorld.Position, system.Position))
                         aoSize = Vector2.Distance(coreWorld.Position, system.Position);
-                }
-                //float aomax = Empire.Universe.Size.X * .2f;
-                //if (aoSize > aomax)
-                //    aoSize = aomax;
+                }          
                 bool flag1 = true;
                 foreach (AO areasOfOperation2 in AreasOfOperations)
                 {

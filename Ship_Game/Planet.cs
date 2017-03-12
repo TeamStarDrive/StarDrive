@@ -3155,25 +3155,39 @@ namespace Ship_Game
         public float GetDefendingTroopStrength()
         {
             float num = 0;
-            foreach (Troop troop in this.TroopsHere)
+            for (int index = 0; index < this.TroopsHere.Count; index++)
             {
+                Troop troop = this.TroopsHere[index];
                 if (troop.GetOwner() == this.Owner)
                     num += troop.Strength;
             }
             return num;
         }
-
-        public int GetDefendingTroopCount()
+        public int GetEmpireTroopCount(Empire us)
         {
             int num = 0;
-            foreach (Troop troop in this.TroopsHere)
+            for (int index = 0; index < this.TroopsHere.Count; index++)
             {
-                if (troop.GetOwner() == this.Owner)
+                Troop troop = this.TroopsHere[index];
+                if (troop.GetOwner() == us)
                     num++;
             }
             return num;
         }
-
+        public int GetDefendingTroopCount()
+        {            
+            return GetEmpireTroopCount(this.Owner);
+        }
+        public bool AnyOfOurTroops(Empire us)
+        {
+            for (int index = 0; index < this.TroopsHere.Count; index++)
+            {
+                Troop troop = this.TroopsHere[index];
+                if (troop.GetOwner() == us)
+                    return true;
+            }
+            return false;
+        }
 
 
         public Array<Building> GetBuildingsWeCanBuildHere()

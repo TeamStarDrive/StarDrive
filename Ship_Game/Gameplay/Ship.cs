@@ -473,24 +473,26 @@ namespace Ship_Game.Gameplay
                     int assaultSpots = 0;
                     if (this.shipData.Role == ShipData.RoleName.troop)
                     {
-                        assaultSpots += this.TroopList.Count;
+                        assaultSpots += TroopList.Count;
 
                     }
                     if (this.HasTroopBay)
-                        foreach (ShipModule sm in this.Hangars)
+                        for (int index = 0; index < Hangars.Count; index++)
                         {
+                            ShipModule sm = Hangars[index];
                             if (sm.IsTroopBay)
                                 assaultSpots++;
                         }
-                    if (this.hasAssaultTransporter) //  this.Transporters.Count > 0)
-                        foreach (ShipModule at in this.Transporters)
+                    if (hasAssaultTransporter)
+                        for (int index = 0; index < this.Transporters.Count; index++)
                         {
+                            ShipModule at = this.Transporters[index];
                             assaultSpots += at.TransporterTroopLanding;
                         }
 
                     if (assaultSpots > 0)
                     {
-                        int temp = assaultSpots - this.TroopList.Count;
+                        int temp = assaultSpots - TroopList.Count;
                         assaultSpots -= temp < 0 ? 0 : temp;
                     }
                     return assaultSpots;
@@ -4195,7 +4197,7 @@ namespace Ship_Game.Gameplay
 
                         //if I am not mistaken, this is being run completely twice. The two Parallel foreach loops above are derived from 'this.ModuleSlotList' which
                         //is processed in its entirety again here. I think this is redundant, and likely a reasonable performance hit.    -Gretman
-                        //Task modules = new Task(() =>
+                        //FleetTask modules = new FleetTask(() =>
                         if (universeScreen.ShowShipNames || this.AI.BadGuysNear)
                         {
                             float cos = (float)Math.Cos((double)this.Rotation);
@@ -4214,7 +4216,7 @@ namespace Ship_Game.Gameplay
                     }
                     if (universeScreen.ShowShipNames || this.AI.BadGuysNear)
                     {
-                        //Task modules = new Task(() =>
+                        //FleetTask modules = new FleetTask(() =>
                         if (this.AI.BadGuysNear)
                         {
 
@@ -4235,7 +4237,7 @@ namespace Ship_Game.Gameplay
                 else if (elapsedTime < 0.0 && !this.UpdatedModulesOnce)
                 {
 
-                    //Task modules = new Task(() =>
+                    //FleetTask modules = new FleetTask(() =>
                     if (universeScreen.ShowShipNames || this.AI.BadGuysNear)
                     {
                         float cos = (float)Math.Cos((double)this.Rotation);
