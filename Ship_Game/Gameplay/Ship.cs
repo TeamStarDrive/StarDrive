@@ -904,7 +904,7 @@ namespace Ship_Game.Gameplay
         }
         public float GetmaxFTLSpeed { get { return maxFTLSpeed; } }
 
-    	
+        
 
         public float GetSTLSpeed()
         {
@@ -956,9 +956,9 @@ namespace Ship_Game.Gameplay
             if (e != null)
             {
                 //Added by McShooterz: hull bonus starting cost
-				num += (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.shipData.Hull) ? ResourceManager.HullBonuses[this.shipData.Hull].StartingCost : 0);
+                num += (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.shipData.Hull) ? ResourceManager.HullBonuses[this.shipData.Hull].StartingCost : 0);
                 num += num * e.data.Traits.ShipCostMod;
-				return (float)(int)(num * (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.shipData.Hull) ? 1f - ResourceManager.HullBonuses[this.shipData.Hull].CostBonus : 1));
+                return (float)(int)(num * (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses && ResourceManager.HullBonuses.ContainsKey(this.shipData.Hull) ? 1f - ResourceManager.HullBonuses[this.shipData.Hull].CostBonus : 1));
             }
             else
                 return (float)(int)num;
@@ -1659,7 +1659,7 @@ namespace Ship_Game.Gameplay
 
         public float GetMaintCost()
         {
-			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
                 if(this.loyalty == null)
                 return this.GetMaintCostRealism();
@@ -1801,7 +1801,7 @@ namespace Ship_Game.Gameplay
         //CG modified so that the original function will call the mod only function if a mod is present and such.
         public float GetMaintCost(Empire empire)
         {
-			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
             {
                 return this.GetMaintCostRealism(empire);
             }
@@ -3780,7 +3780,7 @@ namespace Ship_Game.Gameplay
 
                         weapon.fireDelay = Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay;
                         //Added by McShooterz: weapon tag modifiers with check if mod uses them
-						if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useWeaponModifiers)
+                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useWeaponModifiers)
                         {
                             if (weapon.Tag_Beam)
                                 weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Beam"].Rate;
@@ -3826,7 +3826,7 @@ namespace Ship_Game.Gameplay
                                 weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * this.loyalty.data.WeaponTags["Tractor"].Rate;
                         }
                         //Added by McShooterz: Hull bonus Fire Rate
-						if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
+                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                         {
                             HullBonus mod;
                             if (Ship_Game.ResourceManager.HullBonuses.TryGetValue(this.shipData.Hull, out mod))
@@ -3923,7 +3923,7 @@ namespace Ship_Game.Gameplay
                 if (this.Health < this.HealthMax)
                 {
                     shipStatusChanged = true;
-					if (!InCombat || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair)
+                    if (!InCombat || GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair)
                     {
                         //Added by McShooterz: Priority repair
                         float repairTracker = InCombat ? RepairRate * 0.1f : RepairRate;
