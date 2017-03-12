@@ -766,7 +766,7 @@ namespace Ship_Game.AI
                                 TaskStep = 5;
                             
                             else
-                            {                              //   task.GetTargetPlanet().system.ShipList)
+                            {                              //TODO: Indiction logic.   this doesnt work. 
                                 foreach (Ship key in Owner.GetGSAI().ThreatMatrix.PingRadarShip(task.GetTargetPlanet().Position,10000,Owner))
                                 {
                                     if (Owner.IsEmpireAttackable(key.loyalty,key)                                        
