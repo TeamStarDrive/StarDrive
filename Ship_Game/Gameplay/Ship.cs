@@ -5,7 +5,6 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SgMotion;
@@ -17,8 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Configuration;
 using System.Threading;
 using System.Collections.Concurrent;
 using Ship_Game.AI;
@@ -971,10 +968,10 @@ namespace Ship_Game.Gameplay
 
         public ShipData GetShipData()
         {
-            if (ResourceManager.ShipsDict.TryGetValue(this.Name, out Ship sd))
+            if (ResourceManager.ShipsDict.TryGetValue(Name, out Ship sd))
                 return sd.shipData;            
             else
-                return (ShipData)null;
+                return null;
         }
 
         public void SetShipData(ShipData data)
@@ -2052,7 +2049,7 @@ namespace Ship_Game.Gameplay
                 this.IsPlatform = true;
             this.Weapons.Clear();
             this.Center = new Vector2(this.Position.X + this.Dimensions.X / 2f, this.Position.Y + this.Dimensions.Y / 2f);
-            this.InitFromSave();
+            this.Init(fromSave: true);
             if (string.IsNullOrEmpty(this.VanityName))
             this.VanityName = this.Name;
             if (Ship_Game.ResourceManager.ShipsDict.ContainsKey(this.Name) && Ship_Game.ResourceManager.ShipsDict[this.Name].IsPlayerDesign)
@@ -2897,28 +2894,40 @@ namespace Ship_Game.Gameplay
 
         public virtual void InitializeModules()
         {
-            this.Weapons.Clear();
-            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+            if (ModulesInitialized)
+                return;
+            ModulesInitialized = true;
+            Weapons.Clear();
+            foreach (ModuleSlot moduleSlot in ModuleSlotList)
             {
-                moduleSlot.SetParent(this);
+                moduleSlot.Parent = this;
                 moduleSlot.Initialize();
             }
-            this.ModulesInitialized = true;
         }
 
-        public bool InitFromSave()
+        public bool Init(bool fromSave = false)
         {
-            SetShipData(GetShipData());
+            if (ModulesInitialized)
+                return true;
             ModulesInitialized = true;
+
+            if (fromSave)
+                SetShipData(GetShipData());
             Weapons.Clear();
             foreach (ModuleSlot slot in ModuleSlotList)
             {
-                slot.SetParent(this);
+                slot.Parent = this;
                 if (!ResourceManager.ModuleExists(slot.InstalledModuleUID))
-                    return false;
+                {
+                    Log.Warning("Ship {0} init failed: module {1} doesn't exist", Name, slot.InstalledModuleUID);
+                    return false; // loading failed, this ship shouldn't be added to world
+                }
 
-                if (slot.module == null)
-                    slot.InitializeFromSave();
+                if (slot.module == null && !slot.Initialize(fromSave))
+                {
+                    Log.Warning("Ship {0} init failed: module {1} init failed", Name, slot.InstalledModuleUID);
+                    return false;
+                }
 
                 slot.module.Health       = slot.ModuleHealth;
                 slot.module.shield_power = slot.Shield_Power;
@@ -2928,33 +2937,6 @@ namespace Ship_Game.Gameplay
             RecalculatePower();
             return true;
         }
-
-        public bool InitForLoad()
-        {
-            this.ModulesInitialized = true;
-            this.Weapons.Clear();
-            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-            {
-                moduleSlot.SetParent(this);
-                if (!ResourceManager.ModuleExists(moduleSlot.InstalledModuleUID))
-                {
-                    Log.Warning("Ship {0} init failed, module {1} doesn't exist", Name, moduleSlot.InstalledModuleUID);
-                    return false;
-                }
-
-                moduleSlot.InitializeForLoad();
-                moduleSlot.module.Health = moduleSlot.ModuleHealth;
-                moduleSlot.module.shield_power = moduleSlot.Shield_Power;
-                if (!(moduleSlot.module.Health > 0f))
-                    moduleSlot.module.Active = false;
-            }
-            RecalculatePower();
-            return true;
-        }
-
-        //public virtual void LoadContent(ContentManager contentManager)
-        //{
-        //}
 
         public override void Update(float elapsedTime)
         {
@@ -3475,7 +3457,6 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
                 moduleSlot.Powered = false;
-                moduleSlot.module.Powered = false;
                 moduleSlot.CheckedConduits = false;
                 if (moduleSlot.module != null)
                     moduleSlot.module.Powered = false;

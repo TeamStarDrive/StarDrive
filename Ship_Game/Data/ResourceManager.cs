@@ -444,7 +444,7 @@ namespace Ship_Game
             foreach (ModuleSlot slot in template.ModuleSlotList)
             {
                 ModuleSlot newSlot = new ModuleSlot();
-                newSlot.SetParent(ship);
+                newSlot.Parent       = ship;
                 newSlot.SlotOptions  = slot.SlotOptions;
                 newSlot.Restrictions = slot.Restrictions;
                 newSlot.Position = slot.Position;
@@ -1185,7 +1185,7 @@ namespace Ship_Game
 
                     Ship newShip = Ship.CreateShipFromShipData(shipData);
                     newShip.SetShipData(shipData);
-                    if (!newShip.InitForLoad())
+                    if (!newShip.Init(fromSave:false))
                         return; // continue PFor
 
                     newShip.InitializeStatus();
