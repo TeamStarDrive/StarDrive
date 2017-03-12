@@ -523,7 +523,7 @@ namespace Ship_Game
 						shipData.data.Hull = shipData.Hull;
 						Ship newShip = Ship.CreateShipFromShipData(shipData.data);
 						newShip.SetShipData(shipData.data);
-						if (!newShip.InitForLoad())
+						if (!newShip.Init(fromSave: false))
 						{
 							continue;
 						}

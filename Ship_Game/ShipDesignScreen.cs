@@ -6570,7 +6570,7 @@ namespace Ship_Game
 
             Ship newShip = Ship.CreateShipFromShipData(toSave);
             newShip.SetShipData(toSave);
-            newShip.InitForLoad();
+            newShip.Init(fromSave: false);
             newShip.InitializeStatus();
             newShip.IsPlayerDesign = true;
             ResourceManager.ShipsDict[name] = newShip;
