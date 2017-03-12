@@ -80,7 +80,7 @@ namespace Ship_Game.AI
             }
             
             //@corefleet speed less than 4k arbitrary logic means a likely problem 
-		    if (CoreFleet.Task == null && ship.fleet == null && CoreFleet.speed < 4000 && !CoreFleetFull())
+		    if (CoreFleet.FleetTask == null && ship.fleet == null && CoreFleet.Speed < 4000 && !CoreFleetFull())
 		    {
                 CoreFleetAddShip(ship);
 		        float strength = CoreFleet.GetStrength();
@@ -161,7 +161,7 @@ namespace Ship_Game.AI
             }
             foreach (var kv in owner.GetFleetsDict())
             {
-                if (kv.Value.guid == FleetGuid)
+                if (kv.Value.Guid == FleetGuid)
                     SetFleet(kv.Value);
             }
         }
@@ -178,7 +178,7 @@ namespace Ship_Game.AI
 			{
                 ShipsWaitingGuids.Add(ship.guid);
 			}
-            FleetGuid = CoreFleet.guid;
+            FleetGuid = CoreFleet.Guid;
 		}
 
 		public void SetFleet(Fleet f)
@@ -210,10 +210,10 @@ namespace Ship_Game.AI
                 OffensiveForcePool.Remove(ship);
             }
 		    
-            if (CoreFleet.speed > 4000) //@again arbitrary core fleet speed
+            if (CoreFleet.Speed > 4000) //@again arbitrary core fleet speed
                 return;
             if (ShipsWaitingForCoreFleet.Count >0 && !CoreFleetFull()
-                && (CoreFleet.Ships.Count ==0 || CoreFleet.Task == null))
+                && (CoreFleet.Ships.Count ==0 || CoreFleet.FleetTask == null))
 			{
 			    for (int index = ShipsWaitingForCoreFleet.Count - 1; index >= 0; index--)
 			    {
@@ -229,16 +229,16 @@ namespace Ship_Game.AI
                 CoreFleet.AutoArrange();
                 CoreFleet.MoveToNow(Position, 0f, new Vector2(0f, -1f));
 			}
-			if (CoreFleet.Task == null)
+			if (CoreFleet.FleetTask == null)
 			{
 				TurnsToRelax += TurnsToRelax + 1;
 			}
 			if (ThreatLevel * ( 1-(TurnsToRelax / 10)) < CoreFleet.GetStrength())
 			{
-				if (CoreFleet.Task == null && !CoreWorld.Owner.isPlayer)
+				if (CoreFleet.FleetTask == null && !CoreWorld.Owner.isPlayer)
 				{
 					var clearArea = new MilitaryTask(this);
-                    CoreFleet.Task = clearArea;
+                    CoreFleet.FleetTask = clearArea;
                     CoreFleet.TaskStep = 1;
 				    if (CoreFleet.Owner == null)
 				    {

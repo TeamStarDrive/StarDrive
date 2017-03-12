@@ -635,9 +635,9 @@ namespace Ship_Game
 				{
 					Fleet fleet = new Fleet()
 					{
-						guid = fleetsave.FleetGuid,
+						Guid = fleetsave.FleetGuid,
 						IsCoreFleet = fleetsave.IsCoreFleet,
-						facing = fleetsave.facing
+						Facing = fleetsave.facing
 					};
 					foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
 					{
@@ -668,7 +668,7 @@ namespace Ship_Game
 							break;
 						}
 					}
-					fleet.AssignPositions(fleet.facing);
+					fleet.AssignPositions(fleet.Facing);
 					fleet.Name = fleetsave.Name;
 					fleet.TaskStep = fleetsave.TaskStep;
 					fleet.Owner = e;
@@ -683,7 +683,7 @@ namespace Ship_Game
 						e.GetFleetsDict().Add(fleetsave.Key, fleet);
 					}
 					e.GetFleetsDict()[fleetsave.Key].SetSpeed();
-                    fleet.findAveragePositionset();
+                    fleet.FindAveragePositionset();
                     fleet.Setavgtodestination();
                     
 				}
@@ -755,7 +755,7 @@ namespace Ship_Game
 					{
 						foreach (KeyValuePair<int, Fleet> Fleet in e.GetFleetsDict())
 						{
-							if (Fleet.Value.guid != gsave.fleetGuid)
+							if (Fleet.Value.Guid != gsave.fleetGuid)
 							{
 								continue;
 							}
@@ -829,7 +829,7 @@ namespace Ship_Game
 						try
 						{
 							if (task.WhichFleet != -1)
-								e.GetFleetsDict()[task.WhichFleet].Task = task;
+								e.GetFleetsDict()[task.WhichFleet].FleetTask = task;
 						}
 						catch
 						{
@@ -876,7 +876,7 @@ namespace Ship_Game
 							{
 								foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
 								{
-									if (fleet.Value.guid != sg.fleetGuid)
+									if (fleet.Value.Guid != sg.fleetGuid)
 									{
 										continue;
 									}

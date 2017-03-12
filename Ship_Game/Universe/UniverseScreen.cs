@@ -740,7 +740,7 @@ namespace Ship_Game
                     militaryTask.AO = solarSystem.PlanetList[0].Position;
                     militaryTask.AORadius = 120000f;
                     militaryTask.type = MilitaryTask.TaskType.DefendSystem;
-                    defensiveFleetAt.Task = militaryTask;
+                    defensiveFleetAt.FleetTask = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
                     militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
                     EmpireManager.Remnants.GetFleetsDict().Add(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
@@ -758,7 +758,7 @@ namespace Ship_Game
                             militaryTask.AO = solarSystem.PlanetList[0].Position;
                             militaryTask.AORadius = 120000f;
                             militaryTask.type = MilitaryTask.TaskType.DefendSystem;
-                            planetFleetAt.Task = militaryTask;
+                            planetFleetAt.FleetTask = militaryTask;
                             planetFleetAt.TaskStep = 3;
                             militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
                             EmpireManager.Remnants.GetFleetsDict().Add(EmpireManager.Remnants.GetFleetsDict().Count + 10, planetFleetAt);
@@ -775,7 +775,7 @@ namespace Ship_Game
                     militaryTask.AO = solarSystem.Position + fleetAndPos.Pos;
                     militaryTask.AORadius = 75000f;
                     militaryTask.type = MilitaryTask.TaskType.DefendSystem;
-                    defensiveFleetAt.Task = militaryTask;
+                    defensiveFleetAt.FleetTask = militaryTask;
                     defensiveFleetAt.TaskStep = 3;
                     militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
                     EmpireManager.Remnants.GetFleetsDict().Add(EmpireManager.Remnants.GetFleetsDict().Count + 10, defensiveFleetAt);
@@ -910,7 +910,7 @@ namespace Ship_Game
             MuzzleFlashManager.universeScreen     = this;
             DroneAI.UniverseScreen                = this;
             ExplosionManager.Universe             = this;
-            Fleet.screen                          = this;
+            Fleet.Screen                          = this;
             Bomb.Screen                           = this;
             Anomaly.screen                        = this;
             PlanetScreen.screen                   = this;
@@ -1536,7 +1536,7 @@ namespace Ship_Game
                         {
                             fleet.Setavgtodestination();
                             fleet.SetSpeed();
-                            fleet.StoredFleetPosition = fleet.findAveragePositionset();
+                            fleet.StoredFleetPosition = fleet.FindAveragePositionset();
                         }
                     }
                 }
@@ -1581,7 +1581,7 @@ namespace Ship_Game
                 (shipsInCombat < 5 ? peacefulSystems : combatSystems).Add(system);
             }
 
-            //Task DeepSpaceTask = Task.Factory.StartNew(() =>
+            //FleetTask DeepSpaceTask = FleetTask.Factory.StartNew(() =>
             {
                 DeepSpaceThread();
                 foreach (SolarSystem system in combatSystems)
@@ -1616,7 +1616,7 @@ namespace Ship_Game
             //    DeepSpaceTask.Wait();
 //#endif
 #if PLAYERONLY
-            Task DeepSpaceTask = Task.Factory.StartNew(this.DeepSpaceThread);
+            FleetTask DeepSpaceTask = FleetTask.Factory.StartNew(this.DeepSpaceThread);
             foreach (SolarSystem solarsystem in this.SolarSystemDict.Values)
             {
                 SystemUpdaterTaskBased(solarsystem);
@@ -3003,8 +3003,8 @@ namespace Ship_Game
                                 {
                                     this.ViewingShip = false;
                                     this.AdjustCamTimer = 0.5f;
-                                    this.transitionDestination.X = this.SelectedFleet.findAveragePosition().X;
-                                    this.transitionDestination.Y = this.SelectedFleet.findAveragePosition().Y;
+                                    this.transitionDestination.X = this.SelectedFleet.FindAveragePosition().X;
+                                    this.transitionDestination.Y = this.SelectedFleet.FindAveragePosition().Y;
                                     if (this.viewState < UniverseScreen.UnivScreenState.SystemView)
                                         this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                                 }
@@ -3300,8 +3300,8 @@ namespace Ship_Game
                     {
                         this.ViewingShip = false;
                         this.AdjustCamTimer = 0.5f;
-                        this.transitionDestination.X = this.SelectedFleet.findAveragePosition().X;
-                        this.transitionDestination.Y = this.SelectedFleet.findAveragePosition().Y;
+                        this.transitionDestination.X = this.SelectedFleet.FindAveragePosition().X;
+                        this.transitionDestination.Y = this.SelectedFleet.FindAveragePosition().Y;
                         if (this.camHeight < this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView))
                             this.transitionDestination.Z = this.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                     }
@@ -4107,7 +4107,7 @@ namespace Ship_Game
                     else
                         if (this.SelectedFleet != null && this.SelectedFleet.Ships.Count > 0)
                         {
-                            this.transitionDestination = new Vector3(this.SelectedFleet.findAveragePosition().X, this.SelectedFleet.findAveragePosition().Y, num2);
+                            this.transitionDestination = new Vector3(this.SelectedFleet.FindAveragePosition().X, this.SelectedFleet.FindAveragePosition().Y, num2);
                         }
                         else
                             if (this.SelectedShipList.Count > 0 && this.SelectedShipList[0] != null && this.SelectedShipList[0].Active)
@@ -4680,7 +4680,7 @@ namespace Ship_Game
             star_particles.UnloadContent();
             neb_particles.UnloadContent();
             SolarSystemDict.Clear();
-            Fleet.screen                          = null;
+            Fleet.Screen                          = null;
             Bomb.Screen                           = null;
             Anomaly.screen                        = null;
             PlanetScreen.screen                   = null;
@@ -5545,7 +5545,7 @@ namespace Ship_Game
                     if (kv.Value.Ships.Count <= 0)
                         continue;
 
-                    Vector2 averagePosition = kv.Value.findAveragePositionset();
+                    Vector2 averagePosition = kv.Value.FindAveragePositionset();
                     bool flag = player.IsPointInSensors(averagePosition);
 
                     if (flag || Debug || kv.Value.Owner == player)

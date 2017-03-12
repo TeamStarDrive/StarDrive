@@ -2003,9 +2003,9 @@ namespace Ship_Game
 					this.ClickableSquads.Add(cs);
 				}
 			}
-			Vector2 p = MathExt.PointFromRadians(this.fleet.Position, this.fleet.facing, 1f);
+			Vector2 p = MathExt.PointFromRadians(this.fleet.Position, this.fleet.Facing, 1f);
 			Vector2 fvec = fleet.Position.FindVectorToTarget(p);
-			this.fleet.AssembleFleet(this.fleet.facing, fvec);
+			this.fleet.AssembleFleet(this.fleet.Facing, fvec);
 			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 		}
 
