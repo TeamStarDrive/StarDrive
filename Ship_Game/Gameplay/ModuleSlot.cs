@@ -1,9 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
@@ -21,63 +20,54 @@ namespace Ship_Game.Gameplay
 		public float Shield_Power;
 		public bool isDummy;
 		public string InstalledModuleUID;
-		private Ship Parent;
         public ShipModule module;
 
-		public ModuleSlot()
+        [XmlIgnore][JsonIgnore]
+        public Ship Parent;
+
+        public ModuleSlot()
 		{
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			this.module.Draw(spriteBatch);
+			module.Draw(spriteBatch);
 		}
 
 		public Ship GetParent()
 		{
-			return this.Parent;
+			return Parent;
 		}
 
-        private bool InitializeModule()
+        public bool Initialize(bool fromSave = false)
         {
-            if (InstalledModuleUID != "Dummy" && InstalledModuleUID != null)
+            if (module != null)
+                Log.Warning("A module was reinitialized for no reason. This is a bug");
+
+            if (InstalledModuleUID == "Dummy")
             {
-                if (module != null)
-                    Log.Warning("A module was reinitialized for no reason. This is a bug");
+                module = ResourceManager.CreateModuleFromUid(InstalledModuleUID);
+                return true;
+            }
+            if (InstalledModuleUID != null)
+            {
                 module = ResourceManager.CreateModuleFromUid(InstalledModuleUID);
                 module.installedSlot = this;
                 module.SetParent(Parent);
                 module.facing = facing;
+
+                if (fromSave)
+                    module.InitializeFromSave(Position);
+                else
+                    module.Initialize(Position);
                 return true;
             }
             return false;
         }
 
-		public void Initialize()
-		{
-            if (InitializeModule())
-                module.Initialize(Position);
-        }
-
-        public void InitializeFromSave()
-        {
-            if (InitializeModule())
-                module.InitializeFromSave(Position);
-        }
-
-		public void InitializeForLoad()
-		{
-			module = ResourceManager.CreateModuleFromUid(InstalledModuleUID);
-		}
-
-		public void SetParent(Ship ship)
-		{
-			this.Parent = ship;
-		}
-
 		public void Update(float elapsedTime)
 		{
-			this.module.Update(elapsedTime);
+			module.Update(elapsedTime);
 		}
 	}
 }
