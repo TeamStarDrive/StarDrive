@@ -3094,23 +3094,22 @@ namespace Ship_Game
             ship.GetAI().State = AIState.AwaitingOrders;
             ship.RemoveFromAllFleets();
         }
-        public bool IsEmpireAttackable(Empire empire, GameplayObject target)
+        public bool IsEmpireAttackable(Empire empire, GameplayObject target =null)
         {
             if (empire == this) return false;
-            if (empire == null) return true;
-            if(!TryGetRelations(empire, out Relationship rel) || rel ==null || !rel.Known) return true;            
-            //common place to think about if an empire is attackable
-            if (empire.isFaction ) return true;            
+            if (empire == null) return true;            
+            if (!TryGetRelations(empire, out Relationship rel) || rel ==null || !rel.Known) return true;            
             if (rel.AtWar) return true;
             if (rel.Treaty_NAPact) return false;
             Ship ship = target as Ship;
             if(ship != null)
-            {
+            {                
                 if (!rel.Treaty_OpenBorders && !rel.Treaty_Trade
                 &&  GSAI.ThreatMatrix.ShipInOurBorders(ship)) return true;
 
                 if (ship.isColonyShip && ship.System != null && rel.WarnedSystemsList.Contains(ship.System.guid)) return true;
-            }            
+            }
+            if (empire.isFaction) return true;
             return false;
         }
         public class InfluenceNode

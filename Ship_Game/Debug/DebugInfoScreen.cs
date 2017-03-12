@@ -164,15 +164,15 @@ namespace Ship_Game.Debug
             if (Screen.SelectedFleet != null)
             {
                 cursor = new Vector2(Win.X + 10, 600f);
-                if (Screen.SelectedFleet.Task != null)
+                if (Screen.SelectedFleet.FleetTask != null)
                 {
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        Screen.SelectedFleet.Task.type.ToString(), cursor, Color.White);
+                        Screen.SelectedFleet.FleetTask.type.ToString(), cursor, Color.White);
                     cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    if (Screen.SelectedFleet.Task.GetTargetPlanet() != null)
+                    if (Screen.SelectedFleet.FleetTask.GetTargetPlanet() != null)
                     {
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            Screen.SelectedFleet.Task.GetTargetPlanet().Name, cursor, Color.White);
+                            Screen.SelectedFleet.FleetTask.GetTargetPlanet().Name, cursor, Color.White);
                         cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                     }
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
@@ -222,7 +222,7 @@ namespace Ship_Game.Debug
                         string.Concat("Fleet pos: ", ship.fleet.Position.ToString()), cursor, Color.White);
                     cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        string.Concat("Fleet speed: ", ship.fleet.speed), cursor, Color.White);
+                        string.Concat("Fleet speed: ", ship.fleet.Speed), cursor, Color.White);
                 }
                 cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
@@ -465,7 +465,7 @@ namespace Ship_Game.Debug
                             cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                             SpriteBatch spriteBatch4 = ScreenManager.SpriteBatch;
                             SpriteFont arial12Bold2 = Fonts.Arial12Bold;
-                            var str1 = new[] { "Task: ", task.type.ToString(), " (", sysName, ")" };
+                            var str1 = new[] { "FleetTask: ", task.type.ToString(), " (", sysName, ")" };
                             spriteBatch4.DrawString(arial12Bold2, string.Concat(str1), cursor, e.EmpireColor);
                             cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,

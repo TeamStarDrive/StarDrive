@@ -256,8 +256,8 @@ namespace Ship_Game
 						IsCoreFleet = fleet.Value.IsCoreFleet,
 						TaskStep    = fleet.Value.TaskStep,
 						Key         = fleet.Key,
-						facing      = fleet.Value.facing,
-						FleetGuid   = fleet.Value.guid,
+						facing      = fleet.Value.Facing,
+						FleetGuid   = fleet.Value.Guid,
 						Position    = fleet.Value.Position,
 						ShipsInFleet = new Array<FleetShipSave>()
 					};                    
@@ -349,7 +349,7 @@ namespace Ship_Game
 				    }
 				    if (g.GetFleet() != null)
 				    {
-				        gdata.fleetGuid = g.GetFleet().guid;
+				        gdata.fleetGuid = g.GetFleet().Guid;
 				    }
 				    gdata.GoalGuid = g.guid;
 				    gdata.GoalName = g.GoalName;
@@ -444,7 +444,7 @@ namespace Ship_Game
 						};
 						if (sgoal.fleet != null)
 						{
-							gsave.fleetGuid = sgoal.fleet.guid;
+							gsave.fleetGuid = sgoal.fleet.Guid;
 						}
 						gsave.FacingVector = sgoal.FacingVector;
 						if (sgoal.goal != null)
