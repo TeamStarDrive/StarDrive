@@ -26,6 +26,7 @@ namespace Ship_Game
         private readonly Map<string, bool> UnlockedTroopDict     = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedModulesDict   = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship>      Inhibitors     = new Array<Ship>();
         public Array<Ship>      ShipsToAdd     = new Array<Ship>();
@@ -190,6 +191,7 @@ namespace Ship_Game
             UnlockedHullsDict.Clear();
             UnlockedModulesDict.Clear();
             UnlockedTroopDict.Clear();
+            UnlockedTroops.Clear();
             Inhibitors.Clear();
             OwnedProjectors.Clear();
             ShipsToAdd.Clear();
@@ -340,6 +342,8 @@ namespace Ship_Game
         {
             return UnlockedTroopDict;
         }
+
+        public IReadOnlyList<Troop> GetUnlockedTroops() => UnlockedTroops;
 
         public Map<string, bool> GetBDict()
         {
@@ -526,6 +530,7 @@ namespace Ship_Game
             foreach (var kv in ResourceManager.TroopsDict)    UnlockedTroopDict[kv.Key]         = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]     = false;
             foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]       = false;
+            UnlockedTroops.Clear();
 
             //unlock from empire data file
             foreach (string building in data.unlockBuilding)
@@ -648,6 +653,7 @@ namespace Ship_Game
             foreach (var kv in ResourceManager.TroopsDict)    UnlockedTroopDict[kv.Key]         = false;
             foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]     = false;
             foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]       = false;
+            UnlockedTroops.Clear();
 
             // unlock from empire data file
             // Added by gremlin Figure out techs with modules that we have ships for.
@@ -745,12 +751,12 @@ namespace Ship_Game
         
         public EconomicResearchStrategy getResStrat()
         {
-            return this.economicResearchStrategy;
+            return economicResearchStrategy;
         }
 
         public bool WeCanBuildTroop(string ID)
         {
-            return this.UnlockedTroopDict.ContainsKey(ID) && this.UnlockedTroopDict[ID];
+            return UnlockedTroopDict.ContainsKey(ID) && UnlockedTroopDict[ID];
         }
 
         public void UnlockTech(string techID) //@todo rewrite. the empire tech dictionary is made of techentries which have a reference to the technology.
@@ -833,11 +839,8 @@ namespace Ship_Game
                 }
 
             }
-            foreach (Technology.UnlockedTroop unlockedTroop in technology.TroopsUnlocked)
-            {
-                if (unlockedTroop.Type == data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null || unlockedTroop.Type == techEntry.AcquiredFrom)
-                    UnlockedTroopDict[unlockedTroop.Name] = true;
-            }
+
+            UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, techEntry.AcquiredFrom);
             foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
             {
                 if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == techEntry.AcquiredFrom)
@@ -1004,6 +1007,19 @@ namespace Ship_Game
             data.ResearchQueue.Remove(techID);
         }
 
+        private void UnlockTroops(Array<Technology.UnlockedTroop> unlockedTroops, string shipType, string techType = null)
+        {
+            foreach (Technology.UnlockedTroop unlockedTroop in unlockedTroops)
+            {
+                if (unlockedTroop.Type == null || unlockedTroop.Type == "ALL" || 
+                    unlockedTroop.Type == shipType || (techType != null && unlockedTroop.Type == techType))
+                {
+                    UnlockedTroopDict[unlockedTroop.Name] = true;
+                    UnlockedTroops.AddUniqueRef(ResourceManager.TroopsDict[unlockedTroop.Name]);
+                }
+            }
+        }
+
         public void UnlockTechFromSave(TechEntry tech)
         {
             var technology = tech.Tech;
@@ -1029,11 +1045,7 @@ namespace Ship_Game
                 if (unlockedMod.Type == data.Traits.ShipType || unlockedMod.Type == null || unlockedMod.Type == tech.AcquiredFrom)
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
             }
-            foreach (Technology.UnlockedTroop unlockedTroop in technology.TroopsUnlocked)
-            {
-                if (unlockedTroop.Type == data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null || unlockedTroop.Type == tech.AcquiredFrom)
-                    UnlockedTroopDict[unlockedTroop.Name] = true;
-            }
+            UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, tech.AcquiredFrom);
             foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
             {
                 if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == tech.AcquiredFrom)
@@ -1046,11 +1058,7 @@ namespace Ship_Game
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
                 }
             }
-            foreach (Technology.UnlockedTroop unlockedTroop in technology.TroopsUnlocked)
-            {
-                if (unlockedTroop.Type == data.Traits.ShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null || unlockedTroop.Type == tech.AcquiredFrom)
-                    UnlockedTroopDict[unlockedTroop.Name] = true;
-            }
+            UnlockTroops(technology.TroopsUnlocked, data.Traits.ShipType, tech.AcquiredFrom);
             foreach (Technology.UnlockedHull unlockedHull in technology.HullsUnlocked)
             {
                 if (unlockedHull.ShipType == data.Traits.ShipType || unlockedHull.ShipType == null || unlockedHull.ShipType == tech.AcquiredFrom)
@@ -1070,22 +1078,20 @@ namespace Ship_Game
 
         public void UnlockHullsSave(string techID, string AbsorbedShipType)
         {
-            foreach (Technology.UnlockedTroop unlockedTroop in ResourceManager.TechTree[techID].TroopsUnlocked)
-            {
-                if (unlockedTroop.Type == AbsorbedShipType || unlockedTroop.Type == "ALL" || unlockedTroop.Type == null)
-                    UnlockedTroopDict[unlockedTroop.Name] = true;
-            }
-            foreach (Technology.UnlockedHull unlockedHull in ResourceManager.TechTree[techID].HullsUnlocked)
+            var tech = ResourceManager.TechTree[techID];
+            UnlockTroops(tech.TroopsUnlocked, AbsorbedShipType);
+
+            foreach (Technology.UnlockedHull unlockedHull in tech.HullsUnlocked)
             {
                 if (unlockedHull.ShipType == AbsorbedShipType || unlockedHull.ShipType == null)
                     UnlockedHullsDict[unlockedHull.Name] = true;
             }
-            foreach (Technology.UnlockedMod unlockedMod in ResourceManager.TechTree[techID].ModulesUnlocked)
+            foreach (Technology.UnlockedMod unlockedMod in tech.ModulesUnlocked)
             {
                 if (unlockedMod.Type == AbsorbedShipType || unlockedMod.Type == null)
                     UnlockedModulesDict[unlockedMod.ModuleUID] = true;
             }
-            foreach (Technology.UnlockedBuilding unlockedBuilding in ResourceManager.TechTree[techID].BuildingsUnlocked)
+            foreach (Technology.UnlockedBuilding unlockedBuilding in tech.BuildingsUnlocked)
             {
                 if (unlockedBuilding.Type == AbsorbedShipType || unlockedBuilding.Type == null)
                     UnlockedBuildingsDict[unlockedBuilding.Name] = true;
@@ -2023,7 +2029,7 @@ namespace Ship_Game
                     influenceNode1.Position = planet.system.Position;
                 }
                 influenceNode1.Radius = 1f;
-				if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 {
                     foreach (Building t in planet.BuildingList)
                     {
@@ -2552,18 +2558,21 @@ namespace Ship_Game
             target.GetProjectors().Clear();
             foreach (KeyValuePair<string, TechEntry> keyValuePair in target.GetTDict())
             {
-                if (keyValuePair.Value.Unlocked && !this.TechnologyDict[keyValuePair.Key].Unlocked)
-                    this.UnlockTech(keyValuePair.Key);
+                if (keyValuePair.Value.Unlocked && !TechnologyDict[keyValuePair.Key].Unlocked)
+                    UnlockTech(keyValuePair.Key);
             }
-            foreach (KeyValuePair<string, bool> keyValuePair in target.GetHDict())
+            foreach (KeyValuePair<string, bool> kv in target.GetHDict())
             {
-                if (keyValuePair.Value)
-                    this.UnlockedHullsDict[keyValuePair.Key] = true;
+                if (kv.Value)
+                    UnlockedHullsDict[kv.Key] = true;
             }
-            foreach (KeyValuePair<string, bool> keyValuePair in target.GetTrDict())
+            foreach (KeyValuePair<string, bool> kv in target.GetTrDict())
             {
-                if (keyValuePair.Value)
-                    this.UnlockedTroopDict[keyValuePair.Key] = true;
+                if (kv.Value)
+                {
+                    UnlockedTroopDict[kv.Key] = true;
+                    UnlockedTroops.AddUniqueRef(ResourceManager.TroopsDict[kv.Key]);
+                }
             }
             foreach (Artifact artifact in target.data.OwnedArtifacts)
             {
@@ -3023,8 +3032,8 @@ namespace Ship_Game
         }
 
         public void RemoveArtifact(Artifact art)
-		{
-			this.data.OwnedArtifacts.Remove(art);
+        {
+            this.data.OwnedArtifacts.Remove(art);
             if (art.DiplomacyMod > 0f)
             {
                 this.data.Traits.DiplomacyMod -= (art.DiplomacyMod + art.DiplomacyMod * this.data.Traits.Spiritual);
