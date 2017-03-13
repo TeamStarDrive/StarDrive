@@ -147,6 +147,7 @@
       <HintPath>packages\SharpRaven.2.1.0\lib\net45\SharpRaven.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />

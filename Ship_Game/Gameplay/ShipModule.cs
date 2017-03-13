@@ -7,11 +7,15 @@ using System;
 using System.Collections.Generic;
 using Ship_Game.AI;
 using Ship_Game.Debug;
+using System.Diagnostics;
 
 namespace Ship_Game.Gameplay
 {
+    [DebuggerDisplay("UID = {Advanced.UID} InternalPos={XMLPosition} WorldPos={Position}")]
     public sealed class ShipModule : GameplayObject
     {
+        //private static int TotalModules = 0;
+        //public int ID = ++TotalModules;
         public ShipModule_Advanced Advanced; //This is where all the other member variables went. Having this as a member object
                                              //allows me to instance the variables inside it, so they are not duplicated. This
                                              //can offer much better memory usage since ShipModules are so numerous.     -Gretman
@@ -38,7 +42,7 @@ namespace Ship_Game.Gameplay
         public ushort DescriptionIndex;
         public Restrictions Restrictions;
         public float shield_power;
-        public bool shieldsOff=false;
+        public bool shieldsOff;
         private Shield shield;
         public string hangarShipUID;
         private Ship hangarShip;
@@ -1494,7 +1498,7 @@ namespace Ship_Game.Gameplay
 
         private void HandleDamageFireTrail(float elapsedTime)
         {
-            if (Parent.InFrustum && Active && Ship.universeScreen.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (Parent.InFrustum && Active && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
                 if (reallyFuckedUp)
                 {

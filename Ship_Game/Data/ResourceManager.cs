@@ -540,11 +540,11 @@ namespace Ship_Game
         // Hangar Ship Creation
         public static Ship CreateShipFromHangar(string key, Empire owner, Vector2 p, Ship parent)
         {
-            Ship s = CreateShipAtPoint(key, owner, p);
-            if (s == null) return null;
-            s.Mothership = parent;
-            s.Velocity = parent.Velocity;
-            return s;
+            Ship ship = CreateShipAtPoint(key, owner, p);
+            if (ship == null) return null;
+            ship.Mothership = parent;
+            ship.Velocity = parent.Velocity;
+            return ship;
         }
 
         public static Troop CreateTroop(Troop template, Empire forOwner)
@@ -1179,18 +1179,18 @@ namespace Ship_Game
                 {
                     FileInfo info = shipDescriptors[i];
                     if (info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
-                        return; // continue PFor
+                        continue;
 
                     try
                     {
                         ShipData shipData = ShipData.Parse(info);
                         if (shipData.Role == ShipData.RoleName.disabled)
-                            return; // continue PFor
+                            continue;
 
                         Ship newShip = Ship.CreateShipFromShipData(shipData);
                         newShip.SetShipData(shipData);
                         if (!newShip.Init(fromSave: false))
-                            return; // continue PFor
+                            continue;
 
                         newShip.InitializeStatus();
 

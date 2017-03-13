@@ -179,11 +179,11 @@ namespace Ship_Game.AI
 				Them.GetRelations(this.empire).ActiveWar = null;
 				if (Them == Empire.Universe.PlayerEmpire || this.empire == Empire.Universe.PlayerEmpire)
 				{
-					Ship.universeScreen.NotificationManager.AddPeaceTreatyEnteredNotification(this.empire, Them);
+					Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(this.empire, Them);
 				}
 				else if (Empire.Universe.PlayerEmpire.GetRelations(Them).Known && Empire.Universe.PlayerEmpire.GetRelations(this.empire).Known)
 				{
-					Ship.universeScreen.NotificationManager.AddPeaceTreatyEnteredNotification(this.empire, Them);
+					Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(this.empire, Them);
 				}
 			}
 			if (ToUs.NAPact)
@@ -2732,9 +2732,9 @@ namespace Ship_Game.AI
                 }
             }
             if (them == Empire.Universe.PlayerEmpire || this.empire == Empire.Universe.PlayerEmpire)
-                Ship.universeScreen.NotificationManager.AddWarDeclaredNotification(this.empire, them);
+                Empire.Universe.NotificationManager.AddWarDeclaredNotification(this.empire, them);
             else if (Empire.Universe.PlayerEmpire.GetRelations(them).Known && Empire.Universe.PlayerEmpire.GetRelations(this.empire).Known)
-                Ship.universeScreen.NotificationManager.AddWarDeclaredNotification(this.empire, them);
+                Empire.Universe.NotificationManager.AddWarDeclaredNotification(this.empire, them);
             empire.GetRelations(them).AtWar = true;
             empire.GetRelations(them).Posture = Posture.Hostile;
             empire.GetRelations(them).ActiveWar = new War(this.empire, them, Empire.Universe.StarDate);
@@ -2827,11 +2827,11 @@ namespace Ship_Game.AI
 			}
 			if (them == Empire.Universe.PlayerEmpire || this.empire == Empire.Universe.PlayerEmpire)
 			{
-				Ship.universeScreen.NotificationManager.AddWarDeclaredNotification(this.empire, them);
+				Empire.Universe.NotificationManager.AddWarDeclaredNotification(this.empire, them);
 			}
 			else if (Empire.Universe.PlayerEmpire.GetRelations(them).Known && Empire.Universe.PlayerEmpire.GetRelations(this.empire).Known)
 			{
-				Ship.universeScreen.NotificationManager.AddWarDeclaredNotification(this.empire, them);
+				Empire.Universe.NotificationManager.AddWarDeclaredNotification(this.empire, them);
 			}
 			empire.GetRelations(them).AtWar = true;
 			empire.GetRelations(them).Posture = Posture.Hostile;
@@ -3148,7 +3148,7 @@ namespace Ship_Game.AI
                 }
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
-            float offSpyModifier = (int)Ship.universeScreen.GameDifficulty * .1f;
+            float offSpyModifier = (int)Empire.Universe.GameDifficulty * .1f;
             int DesiredOffense = (int)(this.empire.data.AgentList.Count * offSpyModifier);
             //int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .33f); // (int)(0.33f * (float)this.empire.data.AgentList.Count);
             //int DesiredOffense = this.empire.data.AgentList.Count / 2;
@@ -3356,7 +3356,7 @@ namespace Ship_Game.AI
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
            // int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .2);// (int)(0.20f * (float)this.empire.data.AgentList.Count);
-            float offSpyModifier = (int)Ship.universeScreen.GameDifficulty *.17f ;
+            float offSpyModifier = (int)Empire.Universe.GameDifficulty *.17f ;
 
             int DesiredOffense = (int)(this.empire.data.AgentList.Count * offSpyModifier);
             foreach (Agent agent in this.empire.data.AgentList)
@@ -3790,7 +3790,7 @@ namespace Ship_Game.AI
                 }
                 a.AssignMission(AgentMission.Training, this.empire, "");
             }
-            float offSpyModifier = (int)Ship.universeScreen.GameDifficulty * .08f;
+            float offSpyModifier = (int)Empire.Universe.GameDifficulty * .08f;
             int DesiredOffense = (int)(this.empire.data.AgentList.Count * offSpyModifier);// /(int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .4f);
             foreach (Agent agent in this.empire.data.AgentList)
             {
@@ -4404,7 +4404,7 @@ namespace Ship_Game.AI
                                                 assimilate.isColonyShip = true;
 
 
-                                                Planet capture = Ship.universeScreen.PlanetsDict.Values
+                                                Planet capture = Empire.Universe.PlanetsDict.Values
                                                     .Where(potentials => potentials.Owner == null && potentials.habitable)
                                                     .OrderBy(potentials => Vector2.Distance(assimilate.Center, potentials.Position))
                                                     .FirstOrDefault();
@@ -4436,7 +4436,7 @@ namespace Ship_Game.AI
                                         assimilate.isColonyShip = true;
 
 
-                                        Planet capture = Ship.universeScreen.PlanetsDict.Values
+                                        Planet capture = Empire.Universe.PlanetsDict.Values
                                             .Where(potentials => potentials.Owner == null && potentials.habitable)
                                             .OrderBy(potentials => Vector2.Distance(assimilate.Center, potentials.Position))
                                             .FirstOrDefault();
@@ -6308,7 +6308,7 @@ namespace Ship_Game.AI
 
 		private void RunAgentManager()
 		{
-            float spyincomemodifer = .01f; // ((int)Ship.universeScreen.GameDifficulty + 1) * .0033f;
+            float spyincomemodifer = .01f; // ((int)Empire.Universe.GameDifficulty + 1) * .0033f;
             int income = (int)((this.empire.Money * spyincomemodifer) * (1 - this.empire.data.TaxRate));//-this.empire.GrossTaxes*5 );//* .2f);
             if (income < 0 || this.empire.data.SpyBudget > this.empire.Money * .75f)
                 income = 0;
@@ -6454,7 +6454,7 @@ namespace Ship_Game.AI
         private void RunExpansionPlanner()
         {
             int numColonyGoals = 0;
-            this.desired_ColonyGoals = ((int)Ship.universeScreen.GameDifficulty+3) ;
+            this.desired_ColonyGoals = ((int)Empire.Universe.GameDifficulty+3) ;
             foreach (Goal g in this.Goals)
             {
                 if (g.type != GoalType.Colonize)
@@ -6863,11 +6863,11 @@ namespace Ship_Game.AI
 
 			requiredStrength = requiredStrength + requiredStrength * this.empire.data.Traits.GroundCombatModifier;
 
-			if (Ship.universeScreen.GameDifficulty < UniverseData.GameDifficulty.Hard)
+			if (Empire.Universe.GameDifficulty < UniverseData.GameDifficulty.Hard)
 			{
 				requiredStrength = requiredStrength * .5f;
 			}
-			if (Ship.universeScreen.GameDifficulty == UniverseData.GameDifficulty.Easy)
+			if (Empire.Universe.GameDifficulty == UniverseData.GameDifficulty.Easy)
 			{
 				requiredStrength = requiredStrength * .5f;
 			}
@@ -7184,7 +7184,7 @@ namespace Ship_Game.AI
 					}
 				}
 			}
-			if (this.empire != Ship.universeScreen.player)
+			if (this.empire != Empire.Universe.player)
 			{
 				foreach (SpaceRoad road in ToRemove)
 				{
@@ -7698,7 +7698,7 @@ namespace Ship_Game.AI
                             return 0;
                         float weight = 0;
                         weight += (this.empire.currentMilitaryStrength - empire.MinimumTaskForceStrength) / this.empire.currentMilitaryStrength * 5;
-                        //weight += ((Ship.universeScreen.Size.X*.25f) - this.GetDistanceFromOurAO(empire.AO)) / (Ship.universeScreen.Size.X * .25f) * 10;
+                        //weight += ((Empire.Universe.Size.X*.25f) - this.GetDistanceFromOurAO(empire.AO)) / (Empire.Universe.Size.X * .25f) * 10;
 
                         if (empire.GetTargetPlanet() == null)
                         {
@@ -7752,7 +7752,7 @@ namespace Ship_Game.AI
                     else if (!this.empire.GetOwnedSystems().Contains(task.GetTargetPlanet().system))
                     {
                         bool dobreak = false;
-                        foreach (KeyValuePair<Guid, Planet> entry in Ship.universeScreen.PlanetsDict)
+                        foreach (KeyValuePair<Guid, Planet> entry in Empire.Universe.PlanetsDict)
                         {
                             if (task.GetTargetPlanet() == entry.Value)
                             {
@@ -7788,7 +7788,7 @@ namespace Ship_Game.AI
                     if (!this.empire.GetOwnedSystems().Contains(task.GetTargetPlanet().system))
                     {
                         bool dobreak = false;
-                        foreach (KeyValuePair<Guid, Planet> entry in Ship.universeScreen.PlanetsDict)
+                        foreach (KeyValuePair<Guid, Planet> entry in Empire.Universe.PlanetsDict)
                         {
                             if (task.GetTargetPlanet() != entry.Value)
                             {
@@ -8557,7 +8557,7 @@ namespace Ship_Game.AI
 
                     if (shipchange)
                     {
-                        if (Ship.universeScreen.Debug)
+                        if (Empire.Universe.Debug)
                         {
                             Log.Info(this.empire.data.PortraitName + " : NewBestShip :" + this.BestCombatShip.Name + " : " + this.BestCombatShip.shipData.HullRole.ToString());
                         }
@@ -9017,7 +9017,7 @@ namespace Ship_Game.AI
             foreach (KeyValuePair<Empire, Relationship> r in this.empire.AllRelations.OrderByDescending(anger =>
            {
                float angerMod = Vector2.Distance(anger.Key.GetWeightedCenter(), this.empire.GetWeightedCenter());
-               angerMod = (Ship.universeScreen.Size.X - angerMod) / UniverseData.UniverseWidth;
+               angerMod = (Empire.Universe.Size.X - angerMod) / UniverseData.UniverseWidth;
                if (anger.Value.AtWar)
                    angerMod *= 100;
                return anger.Value.TotalAnger * angerMod;

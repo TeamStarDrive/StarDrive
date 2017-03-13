@@ -5,11 +5,11 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
 {
-	public sealed class DefensiveCoordinator: IDisposable
-	{
-		private readonly Empire Us;
-		public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
-		public Array<Ship> DefensiveForcePool = new Array<Ship>();
+    public sealed class DefensiveCoordinator: IDisposable
+    {
+        private readonly Empire Us;
+        public Map<SolarSystem, SystemCommander> DefenseDict = new Map<SolarSystem, SystemCommander>();
+        public Array<Ship> DefensiveForcePool = new Array<Ship>();
         public float DefenseDeficit;        
         public float EmpireTroopRatio;
         public float UniverseWants;
@@ -17,9 +17,9 @@ namespace Ship_Game.AI
         public float GetPctOfValue(SolarSystem system) => DefenseDict[system].PercentageOfValue;
         private int TotalValue;
         public DefensiveCoordinator(Empire e)
-		{
+        {
             Us = e;
-		}
+        }
         public void AddShip(Ship ship)
         {
             ship.GetAI().OrderQueue.Clear();
@@ -43,18 +43,18 @@ namespace Ship_Game.AI
             return strength;
         }
 
-	    public float GetDefensiveThreatFromPlanets(Planet[] planets)
-	    {
-	        if (DefenseDict.Count == 0) return 0;
+        public float GetDefensiveThreatFromPlanets(Planet[] planets)
+        {
+            if (DefenseDict.Count == 0) return 0;
             int count = 0;
             float str = 0;            
-	        for (int index = 0; index < planets.Length; index++)
-	        {
-	            Planet planet = planets[index];	      
+            for (int index = 0; index < planets.Length; index++)
+            {
+                Planet planet = planets[index];	      
                 if (!DefenseDict.TryGetValue(planet.system, out SystemCommander scom)) continue;
                 count++;
                 str += scom.RankImportance;	                
-	        }
+            }
             return str / count;
         }
         public Planet AssignIdleShips(Ship ship)
@@ -106,7 +106,7 @@ namespace Ship_Game.AI
         }
         private void CalculateSystemImportance()
         {
-            foreach (Planet p in Ship.universeScreen.PlanetsDict.Values) //@TODO move this to planet. this is removing troops without any safety
+            foreach (Planet p in Empire.Universe.PlanetsDict.Values) //@TODO move this to planet. this is removing troops without any safety
             {
                 if (p.Owner != Us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(Us))
                 {

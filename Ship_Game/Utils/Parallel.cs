@@ -121,6 +121,32 @@ namespace Ship_Game
             return newTask;
         }
 
+        private static int PhysicalCoreCount;
+        private static int NumPhysicalCores
+        {
+            get
+            {
+                if (PhysicalCoreCount == 0)
+                {
+                    var results = new System.Management.ManagementObjectSearcher("Select NumberOfCores from Win32_Processor").Get();
+                    if (results.Count > 0)
+                    {
+                        foreach (var item in results)
+                        {
+                            PhysicalCoreCount = (int)(uint)item["NumberOfCores"];
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // Query failed, so assume HT or SMT is enabled
+                        PhysicalCoreCount = Environment.ProcessorCount / 2;
+                    }
+                }
+                return PhysicalCoreCount;
+            }
+        }
+
         /// <summary>
         /// Several times faster than System.Threading.Tasks.Parallel.For,
         /// will utilize all cores of the CPU at default affinity.
@@ -151,7 +177,7 @@ namespace Ship_Game
                 return; // no work done on empty ranges
 
             int range = rangeEnd - rangeStart;
-            int cores = Math.Min(range, Environment.ProcessorCount);
+            int cores = Math.Min(range, NumPhysicalCores);
             int len = range / cores;
 
             // this can happen if the target CPU only has 1 core, or if the list has 1 item

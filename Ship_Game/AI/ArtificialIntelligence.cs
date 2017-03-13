@@ -1476,7 +1476,7 @@ namespace Ship_Game.AI
                         TrackProjectiles = TrackProjectiles.OrderBy(prj =>  Vector2.Distance(Owner.Center, prj.Center)).ToArrayList();
                     }
        
-                    float lag = Ship.universeScreen.Lag;
+                    float lag = Empire.Universe.Lag;
                     //Go through each weapon
                     float index = 0; //count up weapons.
                     //save target ship if it is a ship.

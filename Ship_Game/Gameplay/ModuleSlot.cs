@@ -2,10 +2,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
+    [DebuggerDisplay("UID = {InstalledModuleUID}  Module = {module}")]
     public sealed class ModuleSlot
     {
         public Vector2 Position;

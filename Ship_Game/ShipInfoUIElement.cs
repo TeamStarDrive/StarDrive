@@ -473,12 +473,12 @@ namespace Ship_Game
                         this.DoubleClickTimer -= 0.01666f;
                     if (HelperFunctions.CheckIntersection(this.ShipInfoRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released && this.DoubleClickTimer > 0)
                     {
-                        Ship.universeScreen.ViewingShip = false;
-                        Ship.universeScreen.AdjustCamTimer = 0.5f;
-                        Ship.universeScreen.transitionDestination.X = this.ship.Center.X;
-                        Ship.universeScreen.transitionDestination.Y = this.ship.Center.Y;
-                        if (Ship.universeScreen.viewState < UniverseScreen.UnivScreenState.SystemView)
-                            Ship.universeScreen.transitionDestination.Z = Ship.universeScreen.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
+                        Empire.Universe.ViewingShip = false;
+                        Empire.Universe.AdjustCamTimer = 0.5f;
+                        Empire.Universe.transitionDestination.X = this.ship.Center.X;
+                        Empire.Universe.transitionDestination.Y = this.ship.Center.Y;
+                        if (Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView)
+                            Empire.Universe.transitionDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
                     }
                     else if (HelperFunctions.CheckIntersection(this.ElementRect, input.CursorPosition) && input.CurrentMouseState.LeftButton == ButtonState.Pressed && input.LastMouseState.LeftButton == ButtonState.Released)
                         this.DoubleClickTimer = 0.25f;    

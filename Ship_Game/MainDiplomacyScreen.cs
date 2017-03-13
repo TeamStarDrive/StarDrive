@@ -656,9 +656,9 @@ namespace Ship_Game
                 if (this.SelectedEmpire.data.Traits.MaintMod != 0)
                     this.DrawStat(Localizer.Token(4037), this.SelectedEmpire.data.Traits.MaintMod, ref TextCursor, true);
                 this.DrawStat(Localizer.Token(4025), this.SelectedEmpire.data.Traits.InBordersSpeedBonus, ref TextCursor, false);
-                if (Ship.universeScreen.FTLModifier != 1f)
+                if (Empire.Universe.FTLModifier != 1f)
                 {
-                    float fTLModifier = Ship.universeScreen.FTLModifier * 100f;
+                    float fTLModifier = Empire.Universe.FTLModifier * 100f;
                     this.DrawBadStat(Localizer.Token(4038), string.Concat(fTLModifier.ToString("##"), "%"), ref TextCursor);
                 }
                 this.DrawStat(Localizer.Token(4026), string.Concat(this.SelectedEmpire.data.FTLModifier, "x"), ref TextCursor);

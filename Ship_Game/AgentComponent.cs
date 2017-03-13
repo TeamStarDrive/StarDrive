@@ -57,7 +57,7 @@ namespace Ship_Game
             this.AutoTrain = EmpireManager.Player.data.SpyMissionRepeat;
             this.Escreen = Escreen;
             this.ComponentRect = r;
-            this.ScreenManager = Ship.universeScreen.ScreenManager;
+            this.ScreenManager = Empire.Universe.ScreenManager;
             this.SubRect = new Rectangle(this.ComponentRect.X, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
             this.OpsSubRect = new Rectangle(Escreen.OperationsRect.X + 20, this.ComponentRect.Y + 25, this.ComponentRect.Width, this.ComponentRect.Height - 25);
             Submenu sub = new Submenu(this.ScreenManager, this.ComponentRect);
@@ -130,7 +130,7 @@ namespace Ship_Game
 						{
 							Vector2 targetCursor = namecursor;
 							targetCursor.X = targetCursor.X + 75f;
-							missionstring = string.Concat(Localizer.Token(2199), ": ", Ship.universeScreen.PlanetsDict[(e.item as Agent).TargetGUID].Name);
+							missionstring = string.Concat(Localizer.Token(2199), ": ", Empire.Universe.PlanetsDict[(e.item as Agent).TargetGUID].Name);
 							this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
 						}
 						if ((e.item as Agent).Mission != AgentMission.Undercover)
@@ -234,7 +234,7 @@ namespace Ship_Game
                         {
                             Vector2 targetCursor = namecursor;
                             targetCursor.X += 75f;
-                            missionstring = Localizer.Token(2199) + ": " + Ship.universeScreen.PlanetsDict[agent.TargetGUID].Name;
+                            missionstring = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[agent.TargetGUID].Name;
                             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, missionstring, targetCursor, Color.Gray);
                         }
                         if (agent.Mission != AgentMission.Undercover)
@@ -369,7 +369,7 @@ namespace Ship_Game
 							}
 							else
 							{
-								ToolTip.CreateTooltip(Localizer.Token(2198), Ship.universeScreen.ScreenManager);
+								ToolTip.CreateTooltip(Localizer.Token(2198), Empire.Universe.ScreenManager);
 							}
 						}
 					}
@@ -456,7 +456,7 @@ namespace Ship_Game
                             }
                             else
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(2198), Ship.universeScreen.ScreenManager);
+                                ToolTip.CreateTooltip(Localizer.Token(2198), Empire.Universe.ScreenManager);
                             }
                         }
                     }
