@@ -596,54 +596,54 @@ namespace Ship_Game
 						{
 							case "Research":
 							{
-								string res = (ResourceManager.TechTree.ContainsKey(Ship.universeScreen.player.ResearchTopic) ? Localizer.Token(ResourceManager.TechTree[Ship.universeScreen.player.ResearchTopic].NameIndex) : Localizer.Token(341));
+								string res = (ResourceManager.TechTree.ContainsKey(Empire.Universe.player.ResearchTopic) ? Localizer.Token(ResourceManager.TechTree[Empire.Universe.player.ResearchTopic].NameIndex) : Localizer.Token(341));
 								string[] strArrays = { Localizer.Token(2306), "\n\n", Localizer.Token(1405), ": ", res };
-								ToolTip.CreateTooltip(string.Concat(strArrays), Ship.universeScreen.ScreenManager, "R");
+								ToolTip.CreateTooltip(string.Concat(strArrays), Empire.Universe.ScreenManager, "R");
 								break;
 							}
 							case "Budget":
 							{
-								ToolTip.CreateTooltip(Localizer.Token(2305), Ship.universeScreen.ScreenManager, "T");
+								ToolTip.CreateTooltip(Localizer.Token(2305), Empire.Universe.ScreenManager, "T");
 								break;
 							}
 							case "Main Menu":
 							{
-								ToolTip.CreateTooltip(Localizer.Token(2301), Ship.universeScreen.ScreenManager, "O");
+								ToolTip.CreateTooltip(Localizer.Token(2301), Empire.Universe.ScreenManager, "O");
 								break;
 							}
 							case "Shipyard":
 							{
-								ToolTip.CreateTooltip(Localizer.Token(2297), Ship.universeScreen.ScreenManager, "Y");
+								ToolTip.CreateTooltip(Localizer.Token(2297), Empire.Universe.ScreenManager, "Y");
 								break;
 							}
 							case "Empire":
 							{
-								ToolTip.CreateTooltip(Localizer.Token(2298), Ship.universeScreen.ScreenManager, "U");
+								ToolTip.CreateTooltip(Localizer.Token(2298), Empire.Universe.ScreenManager, "U");
 								break;
 							}
 							case "Diplomacy":
 							{
-								ToolTip.CreateTooltip(Localizer.Token(2299), Ship.universeScreen.ScreenManager, "I");
+								ToolTip.CreateTooltip(Localizer.Token(2299), Empire.Universe.ScreenManager, "I");
 								break;
 							}
                             case "Espionage":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(7043), Ship.universeScreen.ScreenManager, "E");
+                                ToolTip.CreateTooltip(Localizer.Token(7043), Empire.Universe.ScreenManager, "E");
                                 break;
                             }
                             case "ShipList":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(7044), Ship.universeScreen.ScreenManager, "K");
+                                ToolTip.CreateTooltip(Localizer.Token(7044), Empire.Universe.ScreenManager, "K");
                                 break;
                             }
                             case "Fleets":
                             {
-                                ToolTip.CreateTooltip(Localizer.Token(7045), Ship.universeScreen.ScreenManager, "J");
+                                ToolTip.CreateTooltip(Localizer.Token(7045), Empire.Universe.ScreenManager, "J");
                                 break;
                             }
 							case "?":
 							{
-								ToolTip.CreateTooltip(Localizer.Token(2302), Ship.universeScreen.ScreenManager, "P");
+								ToolTip.CreateTooltip(Localizer.Token(2302), Empire.Universe.ScreenManager, "P");
 								break;
 							}
 						}

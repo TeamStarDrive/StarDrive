@@ -131,7 +131,8 @@ namespace Ship_Game
         public static void Error(Exception ex, string error = null)
         {
             string text = CurryExceptionMessage(ex, error);
-            LogFile.WriteLine(text);
+            string withStack = text + "\n" + CleanStackTrace(ex.StackTrace);
+            LogFile.WriteLine(withStack);
             
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
@@ -139,7 +140,7 @@ namespace Ship_Game
                 return;
             }
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine(text);
+            Console.WriteLine(withStack);
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }

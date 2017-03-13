@@ -351,7 +351,7 @@ namespace Ship_Game.AI
             
             if (closestAO == null)
             {
-                if (this.WhichFleet != -1 && !this.Fleet.IsCoreFleet && this.Empire != Ship.universeScreen.player)
+                if (this.WhichFleet != -1 && !this.Fleet.IsCoreFleet && this.Empire != Empire.Universe.player)
                 {
                     foreach (Ship ship in this.Empire.GetFleetsDict()[this.WhichFleet].Ships)
                     {
@@ -373,7 +373,7 @@ namespace Ship_Game.AI
 				{
 					if (!this.Empire.GetFleetsDict().ContainsKey(this.WhichFleet))
 					{ //what the hell is this for? dictionary doesnt contain the key the foreach below would blow up. 
-                        if (!this.IsCoreFleetTask && this.Empire != Ship.universeScreen.player)
+                        if (!this.IsCoreFleetTask && this.Empire != Empire.Universe.player)
                         {
                             foreach (Ship ship in this.Empire.GetFleetsDict()[this.WhichFleet].Ships)
                             {
