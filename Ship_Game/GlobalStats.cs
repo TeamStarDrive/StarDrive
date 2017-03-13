@@ -364,7 +364,7 @@ namespace Ship_Game
             RemnantKills = RemnantKills + exp;
 			if (ActiveModInfo != null && ActiveModInfo.RemnantTechCount > 0)
             {
-                if (RemnantKills >= 5 + (int)Ship.universeScreen.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
+                if (RemnantKills >= 5 + (int)Empire.Universe.GameDifficulty* 3 && RemnantActivation < ActiveModInfo.RemnantTechCount)
                 {
                     RemnantActivation += 1;
                     Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);

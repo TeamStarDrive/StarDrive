@@ -146,7 +146,7 @@ namespace Ship_Game.Gameplay
             
             if (GlobalStats.perf && Empire.Universe.PlayerEmpire == Them)
                 return;
-            float angerMod = 1+ ((int)Ship.universeScreen.GameDifficulty+1) * .2f;
+            float angerMod = 1+ ((int)Empire.Universe.GameDifficulty+1) * .2f;
             Amount *= angerMod;
             string str = why;
 			string str1 = str;
@@ -401,7 +401,7 @@ namespace Ship_Game.Gameplay
 
 		public SolarSystem GetContestedSystem()
 		{
-			return Ship.universeScreen.SolarSystemDict[this.contestedSystemGuid];
+			return Empire.Universe.SolarSystemDict[this.contestedSystemGuid];
 		}
 
 		public float GetStrength()
@@ -491,10 +491,10 @@ namespace Ship_Game.Gameplay
                 var enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
                 if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
                 {
-                    var ds = new DiplomacyScreen(Empire.Universe, us, Ship.universeScreen.PlayerEmpire, "Federation_YouDidIt_KilledEnemy", true)
+                    var ds = new DiplomacyScreen(Empire.Universe, us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_KilledEnemy", true)
                     { empToDiscuss = enemyEmpire };
                     Empire.Universe.ScreenManager.AddScreen(ds);
-                    Ship.universeScreen.PlayerEmpire.AbsorbEmpire(us);
+                    Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
                     FedQuest = null;
                     return;
                 }
@@ -504,14 +504,14 @@ namespace Ship_Game.Gameplay
                     {
                         FedQuest = null;
                     }
-                    else if (Ship.universeScreen.PlayerEmpire.GetRelations(enemyEmpire).Treaty_Alliance)
+                    else if (Empire.Universe.PlayerEmpire.GetRelations(enemyEmpire).Treaty_Alliance)
                     {
-                        var ds = new DiplomacyScreen(Empire.Universe, us, Ship.universeScreen.PlayerEmpire, "Federation_YouDidIt_AllyFriend", true)
+                        var ds = new DiplomacyScreen(Empire.Universe, us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_AllyFriend", true)
                         {
                             empToDiscuss = EmpireManager.GetEmpireByName(FedQuest.EnemyName)
                         };
                         Empire.Universe.ScreenManager.AddScreen(ds);
-                        Ship.universeScreen.PlayerEmpire.AbsorbEmpire(us);
+                        Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
                         FedQuest = null;
                         return;
                     }

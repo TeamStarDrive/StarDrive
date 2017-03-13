@@ -91,7 +91,7 @@ namespace Ship_Game
 
 		public EmpireScreenEntry(Planet planet, int x, int y, int width1, int height, EmpireScreen eScreen)
 		{
-			if (Ship.universeScreen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366)
+			if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366)
 			{
 				this.LowRes = true;
 			}
@@ -935,7 +935,7 @@ namespace Ship_Game
 
 		public void SetNewPos(int x, int y)
 		{
-			if (Ship.universeScreen.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366)
+			if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366)
 			{
 				this.LowRes = true;
 			}

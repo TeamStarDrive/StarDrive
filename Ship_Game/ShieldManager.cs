@@ -39,7 +39,7 @@ namespace Ship_Game
 				foreach (Shield shield in ShieldList)
 				{
 					Vector3 shieldcenter = new Vector3(shield.Owner.Center, 0f);
-					if (Ship.universeScreen.Frustum.Contains(shieldcenter) == ContainmentType.Disjoint)
+					if (Empire.Universe.Frustum.Contains(shieldcenter) == ContainmentType.Disjoint)
 						continue;
 					if (shield.pointLight.Intensity <= 0f)
 						shield.pointLight.Enabled = false;

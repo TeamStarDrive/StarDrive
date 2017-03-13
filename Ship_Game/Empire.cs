@@ -2219,9 +2219,9 @@ namespace Ship_Game
                                     {
                                         Empire strongest = list3.OrderByDescending(emp => biggest.GetRelations(emp).GetStrength()).First();
                                         if (!biggest.GetRelations(strongest).AtWar)
-                                            Ship.universeScreen.NotificationManager.AddPeacefulMergerNotification(biggest, strongest);
+                                            Empire.Universe.NotificationManager.AddPeacefulMergerNotification(biggest, strongest);
                                         else
-                                            Ship.universeScreen.NotificationManager.AddSurrendered(biggest, strongest);
+                                            Empire.Universe.NotificationManager.AddSurrendered(biggest, strongest);
                                         biggest.AbsorbEmpire(strongest);
                                     }
                                 }

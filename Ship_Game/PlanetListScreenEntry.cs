@@ -66,7 +66,7 @@ namespace Ship_Game
 			}
 
 			Goal goal = new Goal();
-			foreach (Goal g in Ship.universeScreen.player.GetGSAI().Goals)
+			foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
 			{
 				if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != p)
 				{
@@ -389,8 +389,8 @@ namespace Ship_Game
 					if (!this.marked)
 					{
 						AudioManager.PlayCue("echo_affirm");
-						Goal g = new Goal(this.planet, Ship.universeScreen.player);
-						Ship.universeScreen.player.GetGSAI().Goals.Add(g);
+						Goal g = new Goal(this.planet, Empire.Universe.player);
+						Empire.Universe.player.GetGSAI().Goals.Add(g);
 						this.Colonize.Text = "Cancel Colonize";
                         this.Colonize.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
                         this.Colonize.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_hover"];
@@ -398,7 +398,7 @@ namespace Ship_Game
 						this.marked = true;
 						return;
 					}
-					foreach (Goal g in Ship.universeScreen.player.GetGSAI().Goals)
+					foreach (Goal g in Empire.Universe.player.GetGSAI().Goals)
 					{
 						if (g.GetMarkedPlanet() == null || g.GetMarkedPlanet() != this.planet)
 						{
@@ -409,7 +409,7 @@ namespace Ship_Game
 						{
 							g.GetColonyShip().GetAI().OrderOrbitNearest(true);
 						}
-						Ship.universeScreen.player.GetGSAI().Goals.QueuePendingRemoval(g);
+						Empire.Universe.player.GetGSAI().Goals.QueuePendingRemoval(g);
 						this.marked = false;
 						this.Colonize.Text = "Colonize";
                         this.Colonize.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip"];
@@ -417,7 +417,7 @@ namespace Ship_Game
                         this.Colonize.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px_dip_pressed"];
 						break;
 					}
-					Ship.universeScreen.player.GetGSAI().Goals.ApplyPendingRemovals();
+					Empire.Universe.player.GetGSAI().Goals.ApplyPendingRemovals();
 					return;
 				}
 

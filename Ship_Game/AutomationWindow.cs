@@ -273,7 +273,8 @@ namespace Ship_Game
 
 			if (string.IsNullOrEmpty(empire.data.CurrentAutoScout) || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoScout))
 			{
-				empire.data.CurrentAutoScout = ScoutDropDown.Options[ScoutDropDown.ActiveIndex].Name;
+                if (ScoutDropDown.Options.Count > 0)
+                    empire.data.CurrentAutoScout = ScoutDropDown.Options[ScoutDropDown.ActiveIndex].Name;
 			}
 			else
 			{
