@@ -42,6 +42,22 @@ namespace Ship_Game
             return found;
         }
 
+        public static T FindMax<T>(this IReadOnlyList<T> list, Func<T, float> selector) where T : class
+        {
+            int count = list.Count;
+            T found = null;
+            float max = float.MinValue;
+            for (int i = 0; i < count; ++i)
+            {
+                T item = list[i];
+                float value = selector(item);
+                if (value <= max) continue;
+                max = value;
+                found = item;
+            }
+            return found;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T FindMax<T>(this T[] items, Func<T, float> selector) where T : class
             => items.FindMax(items.Length, selector);
@@ -53,7 +69,6 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool FindMax<T>(this Array<T> list, out T elem, Func<T, float> selector) where T : class
             => (elem = FindMax(list, selector)) != null;
-
 
         public static T FindMaxFiltered<T>(this T[] items, int count, Predicate<T> filter, Func<T, float> selector) where T : class
         {
@@ -92,6 +107,22 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 T item = items[i];
+                float value = selector(item);
+                if (value > min) continue;
+                min = value;
+                found = item;
+            }
+            return found;
+        }
+
+        public static T FindMin<T>(this IReadOnlyList<T> list, Func<T, float> selector) where T : class
+        {
+            int count = list.Count;
+            T found = null;
+            float min = float.MaxValue;
+            for (int i = 0; i < count; ++i)
+            {
+                T item = list[i];
                 float value = selector(item);
                 if (value > min) continue;
                 min = value;
