@@ -225,6 +225,12 @@ namespace Ship_Game
             }
         }
 
+        public void AddUnique(T item)
+        {
+            if (!Contains(item))
+                Add(item);
+        }
+
         public void Insert(int index, T item)
         {
             unchecked
@@ -572,6 +578,12 @@ namespace Ship_Game
                     if (items[i] == item) return true;
                 return false;
             }
+        }
+
+        public static void AddUniqueRef<T>(this Array<T> list, T item) where T : class
+        {
+            if (!list.ContainsRef(item))
+                list.Add(item);
         }
 
         public static int IndexOfRef<T>(this Array<T> list, T item) where T : class
