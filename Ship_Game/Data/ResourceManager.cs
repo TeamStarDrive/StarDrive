@@ -1172,36 +1172,42 @@ namespace Ship_Game
         private static Array<Ship> LoadShips(FileInfo[] shipDescriptors)
         {
             var ships = new Array<Ship>();
-            System.Threading.Tasks.Parallel.ForEach(shipDescriptors, info => 
+
+            RangeAction loadShips = (start, end) =>
             {
-                if (info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
-                    return; // continue PFor
-
-                try
+                for (int i = start; i < end; ++i)
                 {
-                    ShipData shipData = ShipData.Parse(info);
-                    if (shipData.Role == ShipData.RoleName.disabled)
+                    FileInfo info = shipDescriptors[i];
+                    if (info.DirectoryName.IndexOf("disabled", StringComparison.OrdinalIgnoreCase) != -1)
                         return; // continue PFor
 
-                    Ship newShip = Ship.CreateShipFromShipData(shipData);
-                    newShip.SetShipData(shipData);
-                    if (!newShip.Init(fromSave:false))
-                        return; // continue PFor
-
-                    newShip.InitializeStatus();
-
-                    lock (ships)
+                    try
                     {
-                        ShipsDict[shipData.Name] = newShip;
-                        ships.Add(newShip);
+                        ShipData shipData = ShipData.Parse(info);
+                        if (shipData.Role == ShipData.RoleName.disabled)
+                            return; // continue PFor
+
+                        Ship newShip = Ship.CreateShipFromShipData(shipData);
+                        newShip.SetShipData(shipData);
+                        if (!newShip.Init(fromSave: false))
+                            return; // continue PFor
+
+                        newShip.InitializeStatus();
+
+                        lock (ships)
+                        {
+                            ShipsDict[shipData.Name] = newShip;
+                            ships.Add(newShip);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, $"LoadShip {info.Name} failed");
                     }
                 }
-                catch (Exception e)
-                {
-                    Log.Error(e, $"LoadShip {info.Name} failed");
-                }
-            });
-
+            };
+            Parallel.For(shipDescriptors.Length, loadShips);
+            //loadShips(0, shipDescriptors.Length); // test without parallel for
             return ships;
         }
 

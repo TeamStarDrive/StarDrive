@@ -325,6 +325,29 @@ namespace Ship_Game
             }
         }
 
+        // This is slower than RemoveDuplicateRefs if T is a class
+        public int RemoveDuplicates()
+        {
+            int removed = 0;
+            int count = Count;
+            T[] items = Items;
+            EqualityComparer<T> c = EqualityComparer<T>.Default;
+            for (int i = 0; i < count; ++i)
+            {
+                T item = items[i];
+                for (int j = count - 1; j >= 0; --j)
+                {
+                    if (i != j && c.Equals(items[j], item))
+                    {
+                        RemoveAt(j);
+                        --count;
+                        ++removed;
+                    }
+                }
+            }
+            return removed;
+        }
+
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
         public IEnumerator<T> GetEnumerator()   => new Enumerator(this);
 
@@ -561,6 +584,27 @@ namespace Ship_Game
                     if (items[i] == item) return i;
                 return -1;
             }
+        }
+
+        public static int RemoveDuplicateRefs<T>(this Array<T> list) where T : class
+        {
+            int removed = 0;
+            int count = list.Count;
+            T[] items = list.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                T item = items[i];
+                for (int j = count - 1; j >= 0; --j)
+                {
+                    if (i != j && items[j] == item)
+                    {
+                        list.RemoveAt(j);
+                        --count;
+                        ++removed;
+                    }
+                }
+            }
+            return removed;
         }
     }
 
