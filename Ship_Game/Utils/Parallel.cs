@@ -136,6 +136,15 @@ namespace Ship_Game
         /// <param name="rangeStart">Start of the range (inclusive)</param>
         /// <param name="rangeEnd">End of the range (exclusive)</param>
         /// <param name="body">delegate void RangeAction(int start, int end)</param>
+        /// <example>
+        /// Parallel.For(0, arr.Length, (start, end) =>
+        /// {
+        ///     for (int i = start; i < end; i++)
+        ///     {
+        ///         var elem = arr[i];
+        ///     }
+        /// });
+        /// </example>
         public static void For(int rangeStart, int rangeEnd, RangeAction body)
         {
             if (rangeStart >= rangeEnd)
