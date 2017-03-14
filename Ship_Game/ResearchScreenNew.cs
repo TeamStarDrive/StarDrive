@@ -710,7 +710,7 @@ namespace Ship_Game
 			{
                 if (EmpireManager.Player.data.Traits.ShipType == unlockMod.Type || unlockMod.Type == null || unlockMod.Type == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
-                    ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
+                    UnlockItem unlock = new UnlockItem()
                     {
                         Type = "SHIPMODULE",
                         module = ResourceManager.GetModuleTemplate(unlockMod.ModuleUID)
@@ -722,10 +722,10 @@ namespace Ship_Game
 			{
                 if (troop.Type == EmpireManager.Player.data.Traits.ShipType || troop.Type == null || troop.Type == "ALL" || troop.Type == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
-                    ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
+                    UnlockItem unlock = new UnlockItem()
                     {
                         Type = "TROOP",
-                        troop = ResourceManager.TroopsDict[troop.Name]
+                        troop = ResourceManager.GetTroopTemplate(troop.Name)
                     };
                     this.UnlockSL.AddItem(unlock);
                 }
@@ -734,7 +734,7 @@ namespace Ship_Game
 			{
                 if (EmpireManager.Player.data.Traits.ShipType == hull.ShipType || hull.ShipType == null || hull.ShipType == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
-                    ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
+                    UnlockItem unlock = new UnlockItem()
                     {
                         Type = "HULL",
                         privateName = hull.Name,
@@ -749,7 +749,7 @@ namespace Ship_Game
 			{
                 if (EmpireManager.Player.data.Traits.ShipType == unlockedB.Type || unlockedB.Type == null || unlockedB.Type == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
-                    ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
+                    UnlockItem unlock = new UnlockItem()
                     {
                         Type = "BUILDING",
                         building = ResourceManager.BuildingsDict[unlockedB.Name]
@@ -761,7 +761,7 @@ namespace Ship_Game
 			{
                 if (EmpireManager.Player.data.Traits.ShipType == ub.Type || ub.Type == null || ub.Type == EmpireManager.Player.GetTDict()[techUID].AcquiredFrom)
                 {
-                    ResearchScreenNew.UnlockItem unlock = new ResearchScreenNew.UnlockItem()
+                    UnlockItem unlock = new UnlockItem()
                     {
                         Type = "ADVANCE",
                         privateName = ub.Name,

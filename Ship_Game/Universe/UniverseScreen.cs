@@ -2724,8 +2724,8 @@ namespace Ship_Game
                     }
                     else if (SelectedPlanet != null && Debug && (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X)))
                     {
-                        foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
-                            SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(keyValuePair.Value, EmpireManager.Remnants));
+                        foreach (string troopType in ResourceManager.TroopTypes)
+                            SelectedPlanet.AssignTroopToTile(ResourceManager.CreateTroop(troopType, EmpireManager.Remnants));
                     }
 
                     if (input.CurrentKeyboardState.IsKeyDown(Keys.LeftShift) && input.CurrentKeyboardState.IsKeyDown(Keys.V) && !input.LastKeyboardState.IsKeyDown(Keys.V))
@@ -5838,17 +5838,19 @@ namespace Ship_Game
                         Progress = queueItem.productionTowards
                     }.Draw(this.ScreenManager.SpriteBatch);
                 }
-                if (!queueItem.isTroop)
-                    return;
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Troops/" + queueItem.troop.TexturePath], new Rectangle((int)vector2.X, (int)vector2.Y, 29, 30), Color.White);
-                Vector2 position5 = new Vector2(vector2.X + 40f, vector2.Y);
-                this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, queueItem.troop.Name, position5, Color.White);
-                position5.Y += (float)Fonts.Arial12Bold.LineSpacing;
-                new ProgressBar(new Rectangle((int)position5.X, (int)position5.Y, 150, 18))
+                if (queueItem.isTroop)
                 {
-                    Max = queueItem.Cost,
-                    Progress = queueItem.productionTowards
-                }.Draw(this.ScreenManager.SpriteBatch);
+                    Troop template = ResourceManager.GetTroopTemplate(queueItem.troopType);
+                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Troops/" + template.TexturePath], new Rectangle((int)vector2.X, (int)vector2.Y, 29, 30), Color.White);
+                    Vector2 position5 = new Vector2(vector2.X + 40f, vector2.Y);
+                    this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, queueItem.troopType, position5, Color.White);
+                    position5.Y += (float)Fonts.Arial12Bold.LineSpacing;
+                    new ProgressBar(new Rectangle((int)position5.X, (int)position5.Y, 150, 18))
+                    {
+                        Max = queueItem.Cost,
+                        Progress = queueItem.productionTowards
+                    }.Draw(this.ScreenManager.SpriteBatch);
+                }
             }
             else
                 this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(1408), new Vector2((float)(this.stuffSelector.Menu.X + 40), (float)(this.stuffSelector.Menu.Y + 20)), new Color(byte.MaxValue, (byte)239, (byte)208));

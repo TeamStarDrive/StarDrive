@@ -526,10 +526,10 @@ namespace Ship_Game
                 TechnologyDict.Add(keyValuePair.Key, techEntry);
             }
 
-            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull]  = false;
-            foreach (var kv in ResourceManager.TroopsDict)    UnlockedTroopDict[kv.Key]         = false;
-            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]     = false;
-            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]       = false;
+            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull] = false;
+            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
             UnlockedTroops.Clear();
 
             //unlock from empire data file
@@ -649,10 +649,10 @@ namespace Ship_Game
             if (string.IsNullOrEmpty(data.DefaultTroopShip))
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
-            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull]  = false;
-            foreach (var kv in ResourceManager.TroopsDict)    UnlockedTroopDict[kv.Key]         = false;
-            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]     = false;
-            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]       = false;
+            foreach (var kv in ResourceManager.HullsDict)     UnlockedHullsDict[kv.Value.Hull] = false;
+            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
             UnlockedTroops.Clear();
 
             // unlock from empire data file
@@ -1015,7 +1015,7 @@ namespace Ship_Game
                     unlockedTroop.Type == shipType || (techType != null && unlockedTroop.Type == techType))
                 {
                     UnlockedTroopDict[unlockedTroop.Name] = true;
-                    UnlockedTroops.AddUniqueRef(ResourceManager.TroopsDict[unlockedTroop.Name]);
+                    UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(unlockedTroop.Name));
                 }
             }
         }
@@ -2329,12 +2329,12 @@ namespace Ship_Game
                                 Universe.NotificationManager.AddRebellionNotification(planet, rebelsFromEmpireData); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable
                             for (int index = 0; index < planet.Population / 1000; ++index)
                             {
-                                foreach (var keyValuePair in ResourceManager.TroopsDict)
+                                foreach (string troopType in ResourceManager.TroopTypes)
                                 {
-                                    if (!WeCanBuildTroop(keyValuePair.Key))
+                                    if (!WeCanBuildTroop(troopType))
                                         continue;
 
-                                    Troop troop = ResourceManager.CreateTroop(keyValuePair.Value, rebelsFromEmpireData);
+                                    Troop troop = ResourceManager.CreateTroop(troopType, rebelsFromEmpireData);
                                     troop.Name = Localizer.Token(rebelsFromEmpireData.data.TroopNameIndex);
                                     troop.Description = Localizer.Token(rebelsFromEmpireData.data.TroopDescriptionIndex);
                                     planet.AssignTroopToTile(troop); //Enumerable.First<Planet>((IEnumerable<Planet>)orderedEnumerable)
@@ -2571,7 +2571,7 @@ namespace Ship_Game
                 if (kv.Value)
                 {
                     UnlockedTroopDict[kv.Key] = true;
-                    UnlockedTroops.AddUniqueRef(ResourceManager.TroopsDict[kv.Key]);
+                    UnlockedTroops.AddUniqueRef(ResourceManager.GetTroopTemplate(kv.Key));
                 }
             }
             foreach (Artifact artifact in target.data.OwnedArtifacts)
