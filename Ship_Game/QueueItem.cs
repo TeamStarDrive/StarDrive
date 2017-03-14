@@ -17,7 +17,7 @@ namespace Ship_Game
 
 		public Ship_Game.Building Building;
 
-		public Troop troop;
+		public string troopType;
 
 		public Rectangle rect;
 

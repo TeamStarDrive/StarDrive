@@ -166,7 +166,7 @@ namespace Ship_Game
 								qi.isTroop = item.isTroop;
 								if (qi.isTroop)
 								{
-									qi.UID = item.troop.Name;
+									qi.UID = item.troopType;
 								}
 								qi.ProgressTowards = item.productionTowards;
 								if (item.Goal != null)

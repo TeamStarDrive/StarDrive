@@ -288,18 +288,20 @@ namespace Ship_Game.AI
             switch (this.Step)
             {
                 case 0:
-                    if (this.ToBuildUID != null)
-                        this.PlanetBuildingAt.ConstructionQueue.Add(new QueueItem()
+                    if (ToBuildUID != null)
+                    {
+                        Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
+                        PlanetBuildingAt.ConstructionQueue.Add(new QueueItem()
                         {
                             isTroop = true,
-                            QueueNumber = this.PlanetBuildingAt.ConstructionQueue.Count,
-                            troop = ResourceManager.CopyTroop(ResourceManager.TroopsDict[this.ToBuildUID]),
+                            QueueNumber = PlanetBuildingAt.ConstructionQueue.Count,
+                            troopType = ToBuildUID,
                             Goal = this,
-                            Cost = ResourceManager.TroopsDict[this.ToBuildUID].GetCost()
+                            Cost = troopTemplate.GetCost()
                         });
-                    else Log.Info("Missing Troop ");
-                    this.Step = 1;
-
+                    }
+                    else Log.Info("Missing Troop {0}", ToBuildUID);
+                    Step = 1;
                     break;
 
                 case 1:

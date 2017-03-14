@@ -311,5 +311,46 @@ namespace Ship_Game
                 Array.Resize(ref items, count);
             return items;
         }
+
+        public static bool Contains<T>(this IReadOnlyList<T> list, T item)
+        {
+            unchecked
+            {
+                int count = list.Count;
+                if (count == 0)
+                    return false;
+
+                if (item == null)
+                {
+                    for (int i = 0; i < count; ++i)
+                        if (list[i] == null) return true;
+                    return false;
+                }
+                EqualityComparer<T> c = EqualityComparer<T>.Default;
+                for (int i = 0; i < count; ++i)
+                    if (c.Equals(list[i], item)) return true;
+                return false;
+            }
+        }
+
+        public static bool ContainsRef<T>(this IReadOnlyList<T> list, T item) where T : class
+        {
+            unchecked
+            {
+                int count = list.Count;
+                if (count == 0)
+                    return false;
+
+                if (item == null)
+                {
+                    for (int i = 0; i < count; ++i)
+                        if (list[i] == null) return true;
+                    return false;
+                }
+                for (int i = 0; i < count; ++i)
+                    if (list[i] == item) return true;
+                return false;
+            }
+        }
     }
 }

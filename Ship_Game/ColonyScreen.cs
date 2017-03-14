@@ -344,15 +344,14 @@ namespace Ship_Game
 
         private void AddTroopToQ()
         {
-            int count = this.p.ConstructionQueue.Count;
             QueueItem qItem = new QueueItem()
             {
                 isTroop = true,
-                troop = ResourceManager.TroopsDict["Terran/Space Marine"],
-                Cost = ResourceManager.TroopsDict["Terran/Space Marine"].GetCost(),
+                troopType = "Terran/Space Marine",
+                Cost = ResourceManager.GetTroopCost("Terran/Space Marine"),
                 productionTowards = 0f
             };
-            this.p.ConstructionQueue.Add(qItem);
+            p.ConstructionQueue.Add(qItem);
         }
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -727,18 +726,18 @@ namespace Ship_Game
                 }
                 this.playerDesignsToggle.Draw(this.ScreenManager);
             }
-            else if (!this.p.HasShipyard && this.p.AllowInfantry && this.build.Tabs[1].Selected)
+            else if (!p.HasShipyard && p.AllowInfantry && build.Tabs[1].Selected)
             {
-                if (this.Reset)
+                if (Reset)
                 {
-                    this.buildSL.Reset();
-                    this.buildSL.indexAtTop = 0;
-                    foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
+                    buildSL.Reset();
+                    buildSL.indexAtTop = 0;
+                    foreach (string troopType in ResourceManager.TroopTypes)
                     {
-                        if (this.p.Owner.WeCanBuildTroop(keyValuePair.Key))
-                            this.buildSL.AddItem((object)keyValuePair.Value, 1, 0);
+                        if (p.Owner.WeCanBuildTroop(troopType))
+                            buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), 1, 0);
                     }
-                    this.Reset = false;
+                    Reset = false;
                 }
                 vector2_1 = new Vector2((float)(this.build.Menu.X + 20), (float)(this.build.Menu.Y + 45));
                 for (int index = this.buildSL.indexAtTop; index < this.buildSL.Entries.Count; ++index)
@@ -827,23 +826,23 @@ namespace Ship_Game
                         break;
                 }
             }
-            else if (this.build.Tabs.Count > 2 && this.build.Tabs[2].Selected)
+            else if (build.Tabs.Count > 2 && build.Tabs[2].Selected)
             {
-                if (this.Reset)
+                if (Reset)
                 {
-                    this.buildSL.Reset();
-                    this.buildSL.indexAtTop = 0;
-                    foreach (KeyValuePair<string, Troop> keyValuePair in ResourceManager.TroopsDict)
+                    buildSL.Reset();
+                    buildSL.indexAtTop = 0;
+                    foreach (string troopType in ResourceManager.TroopTypes)
                     {
-                        if (this.p.Owner.WeCanBuildTroop(keyValuePair.Key))
-                            this.buildSL.AddItem((object)keyValuePair.Value, 1, 0);
+                        if (p.Owner.WeCanBuildTroop(troopType))
+                            buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), 1, 0);
                     }
-                    this.Reset = false;
+                    Reset = false;
                 }
-                vector2_1 = new Vector2((float)(this.build.Menu.X + 20), (float)(this.build.Menu.Y + 45));
-                for (int index = this.buildSL.indexAtTop; index < this.buildSL.Entries.Count; ++index)
+                vector2_1 = new Vector2(build.Menu.X + 20, build.Menu.Y + 45);
+                for (int index = buildSL.indexAtTop; index < buildSL.Entries.Count; ++index)
                 {
-                    if (index < this.buildSL.indexAtTop + this.buildSL.entriesToDisplay)
+                    if (index < buildSL.indexAtTop + buildSL.entriesToDisplay)
                     {
                         try
                         {
@@ -935,49 +934,52 @@ namespace Ship_Game
                     vector2_1.Y = (float)entry.clickRect.Y;
                     if (HelperFunctions.CheckIntersection(entry.clickRect, pos))
                         entry.clickRectHover = 1;
-                    if ((entry.item as QueueItem).isBuilding)
+
+                    var qi = (entry.item as QueueItem);
+                    if (qi.isBuilding)
                     {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + (entry.item as QueueItem).Building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Buildings/icon_" + qi.Building.Icon + "_48x48"], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token((entry.item as QueueItem).Building.NameTranslationIndex), position, Color.White);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(qi.Building.NameTranslationIndex), position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                         Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
                         if (this.LowRes)
                             r.Width = 120;
                         new ProgressBar(r)
                         {
-                            Max = (entry.item as QueueItem).Cost,
-                            Progress = (entry.item as QueueItem).productionTowards
+                            Max = qi.Cost,
+                            Progress = qi.productionTowards
                         }.Draw(this.ScreenManager.SpriteBatch);
                     }
-                    if ((entry.item as QueueItem).isShip)
+                    else if (qi.isShip)
                     {
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(entry.item as QueueItem).sData.Hull].IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
+                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[qi.sData.Hull].IconPath], new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30), Color.White);
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as QueueItem).DisplayName != null ? (entry.item as QueueItem).DisplayName : (entry.item as QueueItem).sData.Name, position, Color.White);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.DisplayName != null ? qi.DisplayName : qi.sData.Name, position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                         Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
                         if (this.LowRes)
                             r.Width = 120;
                         new ProgressBar(r)
                         {
-                            Max = (int)((entry.item as QueueItem).Cost * this.p.ShipBuildingModifier),
-                            Progress = (entry.item as QueueItem).productionTowards
+                            Max = (int)(qi.Cost * this.p.ShipBuildingModifier),
+                            Progress = qi.productionTowards
                         }.Draw(this.ScreenManager.SpriteBatch);
                     }
-                    if ((entry.item as QueueItem).isTroop)
+                    else if (qi.isTroop)
                     {
-                        (entry.item as QueueItem).troop.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
+                        Troop template = ResourceManager.GetTroopTemplate(qi.troopType);
+                        template.Draw(this.ScreenManager.SpriteBatch, new Rectangle((int)vector2_1.X, (int)vector2_1.Y, 29, 30));
                         Vector2 position = new Vector2(vector2_1.X + 40f, vector2_1.Y);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, (entry.item as QueueItem).troop.Name, position, Color.White);
+                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, qi.troopType, position, Color.White);
                         position.Y += (float)Fonts.Arial12Bold.LineSpacing;
                         Rectangle r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
                         if (this.LowRes)
                             r.Width = 120;
                         new ProgressBar(r)
                         {
-                            Max = (entry.item as QueueItem).Cost,
-                            Progress = (entry.item as QueueItem).productionTowards
+                            Max = qi.Cost,
+                            Progress = qi.productionTowards
                         }.Draw(this.ScreenManager.SpriteBatch);
                     }
                     if (entry.clickRectHover == 1)
@@ -988,14 +990,14 @@ namespace Ship_Game
                         this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover1"], entry.cancel, Color.White);
                         if (HelperFunctions.CheckIntersection(entry.up, pos))
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_up_hover2"], entry.up, Color.White);
-                        if (HelperFunctions.CheckIntersection(entry.down, pos) && PlanetScreen.screen.IsActive)
+                        if (HelperFunctions.CheckIntersection(entry.down, pos) && Empire.Universe.IsActive)
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_arrow_down_hover2"], entry.down, Color.White);
-                        if (HelperFunctions.CheckIntersection(entry.apply, pos) && PlanetScreen.screen.IsActive)
+                        if (HelperFunctions.CheckIntersection(entry.apply, pos) && Empire.Universe.IsActive)
                         {
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_rushconstruction_hover2"], entry.apply, Color.White);
                             ToolTip.CreateTooltip(50, this.ScreenManager);
                         }
-                        if (HelperFunctions.CheckIntersection(entry.cancel, pos) && PlanetScreen.screen.IsActive)
+                        if (HelperFunctions.CheckIntersection(entry.cancel, pos) && Empire.Universe.IsActive)
                         {
                             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_queue_delete_hover2"], entry.cancel, Color.White);
                             ToolTip.CreateTooltip(53, this.ScreenManager);
@@ -1025,7 +1027,7 @@ namespace Ship_Game
             Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, this.SliderFood.sRect, this.SliderFood.Color);
             Rectangle rectangle1 = new Rectangle(this.SliderFood.sRect.X - 40, this.SliderFood.sRect.Y + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_food"].Height / 2, ResourceManager.TextureDict["NewUI/icon_food"].Width, ResourceManager.TextureDict["NewUI/icon_food"].Height);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_food"], rectangle1, this.p.Owner.data.Traits.Cybernetic > 0 ? new Color((byte)110, (byte)110, (byte)110, byte.MaxValue) : Color.White);
-            if (HelperFunctions.CheckIntersection(rectangle1, pos) && PlanetScreen.screen.IsActive)
+            if (HelperFunctions.CheckIntersection(rectangle1, pos) && Empire.Universe.IsActive)
             {
                 if (this.p.Owner.data.Traits.Cybernetic == 0)
                     ToolTip.CreateTooltip(70, this.ScreenManager);
@@ -1058,7 +1060,7 @@ namespace Ship_Game
             Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, this.SliderProd.sRect, this.SliderProd.Color);
             Rectangle rectangle2 = new Rectangle(this.SliderProd.sRect.X - 40, this.SliderProd.sRect.Y + this.SliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_production"].Height / 2, ResourceManager.TextureDict["NewUI/icon_production"].Width, ResourceManager.TextureDict["NewUI/icon_production"].Height);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_production"], rectangle2, Color.White);
-            if (HelperFunctions.CheckIntersection(rectangle2, pos) && PlanetScreen.screen.IsActive)
+            if (HelperFunctions.CheckIntersection(rectangle2, pos) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(71, this.ScreenManager);
             if (this.SliderProd.cState == "normal")
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.SliderProd.cursor, Color.White);
@@ -1107,7 +1109,7 @@ namespace Ship_Game
             Primitives2D.DrawRectangle(this.ScreenManager.SpriteBatch, this.SliderRes.sRect, this.SliderRes.Color);
             Rectangle rectangle3 = new Rectangle(this.SliderRes.sRect.X - 40, this.SliderRes.sRect.Y + this.SliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/icon_science"].Height / 2, ResourceManager.TextureDict["NewUI/icon_science"].Width, ResourceManager.TextureDict["NewUI/icon_science"].Height);
             this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_science"], rectangle3, Color.White);
-            if (HelperFunctions.CheckIntersection(rectangle3, pos) && PlanetScreen.screen.IsActive)
+            if (HelperFunctions.CheckIntersection(rectangle3, pos) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(72, this.ScreenManager);
             if (this.SliderRes.cState == "normal")
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/slider_crosshair"], this.SliderRes.cursor, Color.White);
@@ -1182,14 +1184,14 @@ namespace Ship_Game
             Color color = new Color(byte.MaxValue, (byte)239, (byte)208);
             spriteBatch1.DrawString(arial12Bold, text4, position4, color);
             Rectangle rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385) + ":").X, Fonts.Arial12Bold.LineSpacing);
-            if (HelperFunctions.CheckIntersection(rect, pos) && PlanetScreen.screen.IsActive)
+            if (HelperFunctions.CheckIntersection(rect, pos) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(75, this.ScreenManager);
             vector2_2.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(386) + ":", vector2_2, Color.Orange);
             this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, this.p.Fertility.ToString(format), position3, new Color(byte.MaxValue, (byte)239, (byte)208));
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386) + ":").X, Fonts.Arial12Bold.LineSpacing);
-            if (HelperFunctions.CheckIntersection(rect, pos) && PlanetScreen.screen.IsActive)
+            if (HelperFunctions.CheckIntersection(rect, pos) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20, this.ScreenManager);
             vector2_2.Y += (float)(Fonts.Arial12Bold.LineSpacing + 2);
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
@@ -1241,7 +1243,7 @@ namespace Ship_Game
 
 
 
-            if (HelperFunctions.CheckIntersection(rect, pos) && PlanetScreen.screen.IsActive)
+            if (HelperFunctions.CheckIntersection(rect, pos) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21, this.ScreenManager);
             if (ResourceManager.TextureDict.ContainsKey("Portraits/" + this.p.Owner.data.PortraitName))
             {
@@ -1376,9 +1378,9 @@ namespace Ship_Game
       if (HelperFunctions.CheckIntersection(this.MoneyRect, pos))
         ToolTip.CreateTooltip(142, this.ScreenManager);
            */
-            if (HelperFunctions.CheckIntersection(this.foodStorageIcon, pos) && PlanetScreen.screen.IsActive)
+            if (HelperFunctions.CheckIntersection(this.foodStorageIcon, pos) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(73, this.ScreenManager);
-            if (!HelperFunctions.CheckIntersection(this.profStorageIcon, pos) || !PlanetScreen.screen.IsActive)
+            if (!HelperFunctions.CheckIntersection(this.profStorageIcon, pos) || !Empire.Universe.IsActive)
                 return;
             ToolTip.CreateTooltip(74, this.ScreenManager);
         }
@@ -2095,14 +2097,14 @@ namespace Ship_Game
                 }
                 return;
             }
-            if ((input.Left || this.LeftColony.HandleInput(input)) && (PlanetScreen.screen.Debug || this.p.Owner == EmpireManager.Player))
+            if ((input.Left || this.LeftColony.HandleInput(input)) && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
             {
                 int thisindex = this.p.Owner.GetPlanets().IndexOf(this.p);
                 thisindex = (thisindex <= 0 ? this.p.Owner.GetPlanets().Count - 1 : thisindex - 1);
                 if (this.p.Owner.GetPlanets()[thisindex] != this.p)
                 {
                     this.p = this.p.Owner.GetPlanets()[thisindex];
-                    PlanetScreen.screen.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
+                    Empire.Universe.workersPanel = new ColonyScreen(this.p, this.ScreenManager, this.eui);
                 }
                 if (input.CurrentMouseState.RightButton != ButtonState.Released || this.previousMouse.RightButton != ButtonState.Released)
                 {
@@ -2501,7 +2503,7 @@ namespace Ship_Game
                     }
                     if (HelperFunctions.CheckIntersection(e.up, MousePos))
                     {
-                        ToolTip.CreateTooltip(63, PlanetScreen.screen.ScreenManager);
+                        ToolTip.CreateTooltip(63, Empire.Universe.ScreenManager);
                         if (!input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                         {
                             if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i > 0)
@@ -2523,7 +2525,7 @@ namespace Ship_Game
                     }
                     if (HelperFunctions.CheckIntersection(e.down, MousePos))
                     {
-                        ToolTip.CreateTooltip(64, PlanetScreen.screen.ScreenManager);
+                        ToolTip.CreateTooltip(64, Empire.Universe.ScreenManager);
                         if (!input.CurrentKeyboardState.IsKeyDown(Keys.RightControl) && !input.CurrentKeyboardState.IsKeyDown(Keys.LeftControl) || this.currentMouse.LeftButton != ButtonState.Pressed || this.previousMouse.LeftButton != ButtonState.Released)
                         {
                             if (this.currentMouse.LeftButton == ButtonState.Pressed && this.previousMouse.LeftButton == ButtonState.Released && i + 1 < this.QSL.Copied.Count)
@@ -2560,7 +2562,7 @@ namespace Ship_Game
                                 }
                             }
                         }
-                        //else if (PlanetScreen.screen.Debug)
+                        //else if (Empire.Universe.Debug)
                         //{
                         //    this.p.ApplyProductiontoQueue(this.p.ConstructionQueue[i].Cost - this.p.ConstructionQueue[i].productionTowards, i);
                         //}
@@ -2721,11 +2723,11 @@ namespace Ship_Game
                                     this.p.ConstructionQueue.Add(qi);
                                     AudioManager.PlayCue("sd_ui_mouseover");
                                 }
-                                else if (e.item is Troop)
+                                else if (e.item is Troop troop)
                                 {
                                     qi.isTroop = true;
-                                    qi.troop = e.item as Troop;
-                                    qi.Cost = (e.item as Troop).GetCost();
+                                    qi.troopType = troop.Name;
+                                    qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                                     qi.productionTowards = 0f;
                                     this.p.ConstructionQueue.Add(qi);
                                     AudioManager.PlayCue("sd_ui_mouseover");
@@ -2767,11 +2769,11 @@ namespace Ship_Game
                             qi.productionTowards = 0f;
                             this.p.ConstructionQueue.Add(qi);
                         }
-                        else if (e.item is Troop)
+                        else if (e.item is Troop troop)
                         {
                             qi.isTroop = true;
-                            qi.troop = e.item as Troop;
-                            qi.Cost = (e.item as Troop).GetCost();
+                            qi.troopType = troop.Name;
+                            qi.Cost = ResourceManager.GetTroopCost(troop.Name);
                             qi.productionTowards = 0f;
                             this.p.ConstructionQueue.Add(qi);
                         }
