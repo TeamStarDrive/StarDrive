@@ -207,48 +207,53 @@ namespace Ship_Game
 				float x1 = (float)Mouse.GetState().X;
 				MouseState mouseState = Mouse.GetState();
 				Vector2 MousePos = new Vector2(x1, (float)mouseState.Y);
-				if ((this.DraggedEntry.item as QueueItem).isBuilding)
+
+                var queueItem = DraggedEntry.item as QueueItem;
+                if (queueItem.isBuilding)
 				{
 					Vector2 bCursor = MousePos + this.DraggedOffset;
-					spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", (this.DraggedEntry.item as QueueItem).Building.Icon, "_48x48")], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+					spriteBatch.Draw(ResourceManager.TextureDict[string.Concat("Buildings/icon_", queueItem.Building.Icon, "_48x48")], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
-					spriteBatch.DrawString(Fonts.Arial12Bold, (this.DraggedEntry.item as QueueItem).Building.Name, tCursor, Color.White);
+					spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.Building.Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					Rectangle pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
 					ProgressBar pb = new ProgressBar(pbRect)
 					{
-						Max = (this.DraggedEntry.item as QueueItem).Cost,
-						Progress = (this.DraggedEntry.item as QueueItem).productionTowards
+						Max = queueItem.Cost,
+						Progress = queueItem.productionTowards
 					};
 					pb.Draw(spriteBatch);
 				}
-				if ((this.DraggedEntry.item as QueueItem).isShip)
+				else if (queueItem.isShip)
 				{
 					Vector2 bCursor = MousePos + this.DraggedOffset;
-					spriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[(this.DraggedEntry.item as QueueItem).sData.Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+					spriteBatch.Draw(ResourceManager.TextureDict[ResourceManager.HullsDict[queueItem.sData.Hull].IconPath], new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
-					spriteBatch.DrawString(Fonts.Arial12Bold, (this.DraggedEntry.item as QueueItem).sData.Name, tCursor, Color.White);
+					spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.sData.Name, tCursor, Color.White);
 					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
 					Rectangle pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
 					ProgressBar pb = new ProgressBar(pbRect)
 					{
-						Max = (this.DraggedEntry.item as QueueItem).Cost,
-						Progress = (this.DraggedEntry.item as QueueItem).productionTowards
+						Max = queueItem.Cost,
+						Progress = queueItem.productionTowards
 					};
 					pb.Draw(spriteBatch);
 				}
-				if ((this.DraggedEntry.item as QueueItem).isTroop)
+				else if (queueItem.isTroop)
 				{
 					Vector2 bCursor = MousePos + this.DraggedOffset;
-					(this.DraggedEntry.item as QueueItem).troop.Draw(spriteBatch, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30));
+
+                    Troop template = ResourceManager.GetTroopTemplate(queueItem.troopType);
+                    template.Draw(spriteBatch, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30));
+
 					Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
-					spriteBatch.DrawString(Fonts.Arial12Bold, (this.DraggedEntry.item as QueueItem).troop.Name, tCursor, Color.White);
-					tCursor.Y = tCursor.Y + (float)Fonts.Arial12Bold.LineSpacing;
+					spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.troopType, tCursor, Color.White);
+					tCursor.Y = tCursor.Y + Fonts.Arial12Bold.LineSpacing;
 					Rectangle pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y, 150, 18);
 					ProgressBar pb = new ProgressBar(pbRect)
 					{
-						Max = (this.DraggedEntry.item as QueueItem).Cost,
-						Progress = (this.DraggedEntry.item as QueueItem).productionTowards
+						Max = queueItem.Cost,
+						Progress = queueItem.productionTowards
 					};
 					pb.Draw(spriteBatch);
 				}

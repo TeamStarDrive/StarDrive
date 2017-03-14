@@ -2735,10 +2735,7 @@ namespace Ship_Game
                         {
                             if (ship.TroopCapacity > ship.TroopList.Count)
                             {
-                                string redshirtType = "Wyvern";
-                                Troop xeno = ResourceManager.TroopsDict[redshirtType];
-                                xeno = ResourceManager.CreateTroop(xeno, ship.loyalty);
-                                ship.TroopList.Add(ResourceManager.CreateTroop(xeno, ship.loyalty));
+                                ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
                             }
                             if (this.Owner != null && this.Population > 0)
                             {
@@ -2752,10 +2749,7 @@ namespace Ship_Game
                         }
                         else if (this.ParentSystem.combatTimer < -30 && ship.TroopCapacity > ship.TroopList.Count)
                         {
-                            string redshirtType = "Wyvern";
-                            Troop xeno = ResourceManager.TroopsDict[redshirtType];
-                            xeno = ResourceManager.CreateTroop(xeno, ship.loyalty);
-                            ship.TroopList.Add(ResourceManager.CreateTroop(xeno, ship.loyalty));
+                            ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
                             this.ParentSystem.combatTimer = 0;
                         }
                         
@@ -5249,20 +5243,18 @@ namespace Ship_Game
                     }
                     if (addTroop && this.AllowInfantry)
                     {
-                        foreach (KeyValuePair<string, Troop> troop in ResourceManager.TroopsDict)
+                        foreach (string troopType in ResourceManager.TroopTypes)
                         {
-                            if (this.Owner.WeCanBuildTroop(troop.Key))
-                            {
-
-                                QueueItem qi = new QueueItem();
-                                qi.isTroop = true;
-                                qi.troop = troop.Value;
-                                qi.Cost = troop.Value.GetCost();
-                                qi.productionTowards = 0f;
-                                qi.NotifyOnEmpty = false;
-                                this.ConstructionQueue.Add(qi);
-                                break;
-                            }
+                            if (!Owner.WeCanBuildTroop(troopType))
+                                continue;
+                            QueueItem qi = new QueueItem();
+                            qi.isTroop = true;
+                            qi.troopType = troopType;
+                            qi.Cost = ResourceManager.GetTroopCost(troopType);
+                            qi.productionTowards = 0f;
+                            qi.NotifyOnEmpty = false;
+                            ConstructionQueue.Add(qi);
+                            break;
                         }
                     }
 
@@ -5792,17 +5784,11 @@ output = maxp * take10 = 5
                 }
                 else if (queueItem.isTroop &&  queueItem.productionTowards >= queueItem.Cost)
                 {
-                    Troop troop = ResourceManager.CreateTroop(queueItem.troop, this.Owner);
-                    if (this.AssignTroopToTile(troop))
+                    if (AssignTroopToTile(ResourceManager.CreateTroop(queueItem.troopType, Owner)))
                     {
-
-                        troop.SetOwner(this.Owner);
                         if (queueItem.Goal != null)
-                        {
-                            Goal step = queueItem.Goal;
-                            step.Step = step.Step + 1;
-                        }
-                        this.ConstructionQueue.QueuePendingRemoval(queueItem);
+                            ++queueItem.Goal.Step;
+                        ConstructionQueue.QueuePendingRemoval(queueItem);
                     }
                 }
             }

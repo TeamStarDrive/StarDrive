@@ -167,7 +167,7 @@ namespace Ship_Game
             {
                 foreach (string troopname in TroopsGranted)
                 {
-                    Troop t = ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopname], triggerer);
+                    Troop t = ResourceManager.CreateTroop(troopname, triggerer);
                     t.SetOwner(triggerer);
                     if (p.AssignTroopToNearestAvailableTile(t, eventLocation))
                     {
@@ -180,8 +180,7 @@ namespace Ship_Game
             {
                 foreach (string troopname in TroopsToSpawn)
                 {
-                    Troop t = ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopname],
-                        EmpireManager.Unknown);
+                    Troop t = ResourceManager.CreateTroop(troopname, EmpireManager.Unknown);
                     t.SetOwner(EmpireManager.Unknown);
                     if (p.AssignTroopToNearestAvailableTile(t, eventLocation))
                     {

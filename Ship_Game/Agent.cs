@@ -619,13 +619,11 @@ namespace Ship_Game
                             Empire darebels = EmpireManager.GetEmpireByName(targetEmpire.data.RebelName);
                             for (int i = 0; i < 4; i++)
                             {
-                                foreach (var troop in ResourceManager.TroopsDict)
+                                foreach (string troopType in ResourceManager.TroopTypes)
                                 {
-                                    if (!targetEmpire.WeCanBuildTroop(troop.Key))
-                                    {
+                                    if (!targetEmpire.WeCanBuildTroop(troopType))
                                         continue;
-                                    }
-                                    Troop t = ResourceManager.CreateTroop(troop.Value, darebels);
+                                    Troop t = ResourceManager.CreateTroop(troopType, darebels);
                                     t.Name = Localizer.Token(darebels.data.TroopNameIndex);
                                     t.Description = Localizer.Token(darebels.data.TroopDescriptionIndex);
                                     target.AssignTroopToTile(t);

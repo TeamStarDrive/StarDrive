@@ -189,7 +189,7 @@ namespace Ship_Game
                     UnlockItem unlock = new UnlockItem()
                     {
                         Type = UnlockType.TROOP,
-                        troop = ResourceManager.TroopsDict[troop.Name]
+                        troop = ResourceManager.GetTroopTemplate(troop.Name)
                     };
                     this.UnlockSL.AddItem(unlock);
                 }

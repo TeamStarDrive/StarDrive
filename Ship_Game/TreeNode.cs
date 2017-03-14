@@ -130,14 +130,12 @@ namespace Ship_Game
                     techTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.GetTDict()[this.tech.UID].AcquiredFrom)
 				{
 					UnlockItem unlock = new UnlockItem();
-					//{
-						unlock.troop = ResourceManager.TroopsDict[techTemplate.TroopsUnlocked[i].Name];
-						unlock.privateName = techTemplate.TroopsUnlocked[i].Name;
-						unlock.Description = unlock.troop.Description;
-                        unlock.Type = UnlockType.TROOP;
-					//};
+					unlock.troop       = ResourceManager.GetTroopTemplate(techTemplate.TroopsUnlocked[i].Name);
+					unlock.privateName = techTemplate.TroopsUnlocked[i].Name;
+					unlock.Description = unlock.troop.Description;
+                    unlock.Type        = UnlockType.TROOP;
 					numUnlocks++;
-					this.Unlocks.Add(unlock);
+					Unlocks.Add(unlock);
 				}
 			}
 			int numColumns = numUnlocks / 2 + numUnlocks % 2;

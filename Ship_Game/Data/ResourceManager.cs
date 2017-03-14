@@ -38,7 +38,9 @@ namespace Ship_Game
         public static bool Initialized                            = false;
 
         public static Array<RandomItem> RandomItemsList           = new Array<RandomItem>();
-        public static Map<string, Troop> TroopsDict               = new Map<string, Troop>();
+        private static Map<string, Troop> TroopsDict              = new Map<string, Troop>();
+        private static Array<string>      TroopsDictKeys          = new Array<string>();
+        public static IReadOnlyList<string> TroopTypes            => TroopsDictKeys;
         public static Map<string, DiplomacyDialog> DDDict         = new Map<string, DiplomacyDialog>();
         public static Map<string, LocalizationFile> LanguageDict  = new Map<string, LocalizationFile>();
 
@@ -381,7 +383,9 @@ namespace Ship_Game
             return list;
         }
 
-
+        public static float GetTroopCost(string troopType) => TroopsDict[troopType].GetCost();
+        public static Troop GetTroopTemplate(string troopType) => TroopsDict[troopType];
+        public static Array<Troop> GetTroopTemplates() => new Array<Troop>(TroopsDict.Values);
 
         public static Troop CopyTroop(Troop t)
         {
@@ -391,6 +395,26 @@ namespace Ship_Game
             troop.SetOwner(t.GetOwner());
             return troop;
         }
+
+        // @todo Remove this
+        private static Troop CreateTroop(Troop template, Empire forOwner)
+        {
+            Troop troop = CopyTroop(template);
+            if (forOwner != null)
+                troop.Strength += (int)(forOwner.data.Traits.GroundCombatModifier * troop.Strength);
+            troop.SetOwner(forOwner);
+            return troop;
+        }
+
+        public static Troop CreateTroop(string troopType, Empire forOwner)
+        {
+            Troop troop = CopyTroop(TroopsDict[troopType]);
+            if (forOwner != null)
+                troop.Strength += (int)(forOwner.data.Traits.GroundCombatModifier * troop.Strength);
+            troop.SetOwner(forOwner);
+            return troop;
+        }
+
 
         public static Ship GetShipTemplate(string shipName)
         {
@@ -545,15 +569,6 @@ namespace Ship_Game
             ship.Mothership = parent;
             ship.Velocity = parent.Velocity;
             return ship;
-        }
-
-        public static Troop CreateTroop(Troop template, Empire forOwner)
-        {
-            Troop troop = CopyTroop(template);
-            if (forOwner != null)
-                troop.Strength += (int) (forOwner.data.Traits.GroundCombatModifier * troop.Strength);
-            troop.SetOwner(forOwner);
-            return troop;
         }
 
         public static Ship CreateTroopShipAtPoint(string shipName, Empire owner, Vector2 point, Troop troop)
@@ -1489,6 +1504,10 @@ namespace Ship_Game
                 if (troop.StrengthMax <= 0)
                     troop.StrengthMax = troop.Strength;
             }
+
+            TroopsDictKeys.Clear();
+            TroopsDictKeys.Capacity = TroopsDict.Count;
+            foreach (var kv in TroopsDict) TroopsDictKeys.Add(kv.Key);
         }
 
         
@@ -1555,6 +1574,7 @@ namespace Ship_Game
             HullsDict.Clear();
             WeaponsDict.Clear();
             TroopsDict.Clear();
+            TroopsDictKeys.Clear();
             BuildingsDict.Clear();
             ShipModulesDict.Clear();
             FlagTextures.Clear();

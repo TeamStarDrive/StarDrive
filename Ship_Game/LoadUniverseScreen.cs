@@ -183,7 +183,7 @@ namespace Ship_Game
 				p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
                 {
-                    if (!ResourceManager.TroopsDict.ContainsKey(t.Name))
+                    if (!ResourceManager.TroopTypes.Contains(t.Name))
                         continue;
                     pgs.TroopsHere.Add(t);
                     p.TroopsHere.Add(t);
@@ -942,9 +942,9 @@ namespace Ship_Game
 						}
 						if (qisave.isTroop)
 						{
-							qi.isTroop = true;
-							qi.troop = ResourceManager.TroopsDict[qisave.UID];
-                            qi.Cost = qi.troop.GetCost();
+                            qi.isTroop = true;
+							qi.troopType = qisave.UID;
+                            qi.Cost = ResourceManager.GetTroopCost(qisave.UID);
                             qi.NotifyOnEmpty = false;
 						}
 						if (qisave.isShip)

@@ -2446,115 +2446,105 @@ namespace Ship_Game.Gameplay
 
             #region ModuleCheck
             
-            foreach (ModuleSlot moduleSlotList in ModuleSlotList)
+            foreach (ModuleSlot slot in ModuleSlotList)
             {
-                if (moduleSlotList.Restrictions == Restrictions.I)
+                if (slot.Restrictions == Restrictions.I)
                     ++number_Internal_slots;
-                if (moduleSlotList.module.ModuleType == ShipModuleType.Dummy)
+                if (slot.module.ModuleType == ShipModuleType.Dummy)
                     continue;
-                if (moduleSlotList.module.ModuleType == ShipModuleType.Colony)
+                if (slot.module.ModuleType == ShipModuleType.Colony)
                     isColonyShip = true;
-                if (moduleSlotList.module.ModuleType == ShipModuleType.Construction)
+                if (slot.module.ModuleType == ShipModuleType.Construction)
                 {
                     isConstructor = true;
                     shipData.Role = ShipData.RoleName.construction;
                 }
                 
-                if (moduleSlotList.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(moduleSlotList.module.ResourceStored) && !ResourceManager.GoodsDict[moduleSlotList.module.ResourceStored].IsCargo)
+                if (slot.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(slot.module.ResourceStored) && !ResourceManager.GoodsDict[slot.module.ResourceStored].IsCargo)
                 {
-                    Map<string, float> maxGoodStorageDict = MaxGoodStorageDict;
-                    Map<string, float> strs = maxGoodStorageDict;
-                    string resourceStored = moduleSlotList.module.ResourceStored;
-                    string str = resourceStored;
-                    maxGoodStorageDict[resourceStored] = strs[str] + moduleSlotList.module.ResourceStorageAmount;
+                    string resourceStored = slot.module.ResourceStored;
+                    MaxGoodStorageDict[resourceStored] = MaxGoodStorageDict[resourceStored] + slot.module.ResourceStorageAmount;
                 }
 
-                #region Troopload
-                for (int i = 0; i < moduleSlotList.module.TroopsSupplied; i++)
+                for (int i = 0; i < slot.module.TroopsSupplied; i++) // TroopLoad (?)
                 {
-                    int hangars = ModuleSlotList.Where(hangarbay => hangarbay.module.IsTroopBay).Count();
-
-                    if (hangars < TroopList.Count())
+                    int numTroopHangars = ModuleSlotList.Count(hangarbay => hangarbay.module.IsTroopBay);
+                    if (numTroopHangars < TroopList.Count)
                     {
-                        if (TroopList.Where(trooptype => trooptype.Name == tankType).Count() <= hangars / 2)
-                        {
-                            TroopList.Add(ResourceManager.CreateTroop(ResourceManager.TroopsDict[tankType], loyalty)); //"Space Marine"
+                        string type = troopType; // ex: "Space Marine"
+                        if (TroopList.Count(trooptype => trooptype.Name == tankType) <= numTroopHangars / 2)
+                            type = tankType;
 
-                        }
-                        else
-                        {
-                            TroopList.Add(ResourceManager.CreateTroop(ResourceManager.TroopsDict[troopType], loyalty)); //"Space Marine
-                        }
+                        TroopList.Add(ResourceManager.CreateTroop(type, loyalty));
                     }
                     else
                     {
-                        TroopList.Add(ResourceManager.CreateTroop(ResourceManager.TroopsDict[redshirtType], loyalty)); //"Space Marine"
+                        TroopList.Add(ResourceManager.CreateTroop(redshirtType, loyalty));
                     }
-                #endregion
                 }
-                if (moduleSlotList.module.SensorRange > SensorRange)
+                if (slot.module.SensorRange > SensorRange)
                 {
-                    SensorRange = moduleSlotList.module.SensorRange;
+                    SensorRange = slot.module.SensorRange;
                 }
-                if (moduleSlotList.module.SensorBonus > sensorBonus)
+                if (slot.module.SensorBonus > sensorBonus)
                 {
-                    sensorBonus = moduleSlotList.module.SensorBonus;
+                    sensorBonus = slot.module.SensorBonus;
                 }
-                if (moduleSlotList.module.ECM > ECMValue)
+                if (slot.module.ECM > ECMValue)
                 {
-                    ECMValue = moduleSlotList.module.ECM;
+                    ECMValue = slot.module.ECM;
                     if (ECMValue > 1.0f)
                         ECMValue = 1.0f;
                     if (ECMValue < 0f)
                         ECMValue = 0f;
                 }
-                TroopCapacity += moduleSlotList.module.TroopCapacity;
-                MechanicalBoardingDefense += moduleSlotList.module.MechanicalBoardingDefense;
+                TroopCapacity += slot.module.TroopCapacity;
+                MechanicalBoardingDefense += slot.module.MechanicalBoardingDefense;
                 if (MechanicalBoardingDefense < 1f)
                 {
                     MechanicalBoardingDefense = 1f;
                 }
-                if (moduleSlotList.module.ModuleType == ShipModuleType.Hangar)
+                if (slot.module.ModuleType == ShipModuleType.Hangar)
                 {
-                    moduleSlotList.module.hangarShipUID = moduleSlotList.SlotOptions;
-                    if (moduleSlotList.module.IsTroopBay)
+                    slot.module.hangarShipUID = slot.SlotOptions;
+                    if (slot.module.IsTroopBay)
                     {
                         HasTroopBay = true;
                     }
                 }
-                if (moduleSlotList.module.ModuleType == ShipModuleType.Transporter)
-                    Transporters.Add(moduleSlotList.module);
-                if (moduleSlotList.module.InstalledWeapon != null && moduleSlotList.module.InstalledWeapon.isRepairBeam)
-                    RepairBeams.Add(moduleSlotList.module);
-                if (moduleSlotList.module.ModuleType == ShipModuleType.Armor && loyalty != null)
+                if (slot.module.ModuleType == ShipModuleType.Transporter)
+                    Transporters.Add(slot.module);
+                if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.isRepairBeam)
+                    RepairBeams.Add(slot.module);
+                if (slot.module.ModuleType == ShipModuleType.Armor && loyalty != null)
                 {
-                    float modifiedMass = moduleSlotList.module.Mass * loyalty.data.ArmourMassModifier;
+                    float modifiedMass = slot.module.Mass * loyalty.data.ArmourMassModifier;
                     Mass += modifiedMass;
                 }
                 else
-                    Mass += moduleSlotList.module.Mass;
-                Thrust += moduleSlotList.module.thrust;
-                WarpThrust += moduleSlotList.module.WarpThrust;
+                    Mass += slot.module.Mass;
+                Thrust += slot.module.thrust;
+                WarpThrust += slot.module.WarpThrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
-                PowerStoreMax += moduleSlotList.module.PowerStoreMax + moduleSlotList.module.PowerStoreMax * (loyalty != null ? loyalty.data.FuelCellModifier : 0);
-                PowerCurrent += moduleSlotList.module.PowerStoreMax;
-                PowerFlowMax += moduleSlotList.module.PowerFlowMax + (loyalty != null ? moduleSlotList.module.PowerFlowMax * loyalty.data.PowerFlowMod : 0);
-                shield_max += moduleSlotList.module.shield_power_max + (loyalty != null ? moduleSlotList.module.shield_power_max * loyalty.data.ShieldPowerMod : 0);
-                if (moduleSlotList.module.ModuleType == ShipModuleType.Armor)
+                PowerStoreMax += slot.module.PowerStoreMax + slot.module.PowerStoreMax * (loyalty != null ? loyalty.data.FuelCellModifier : 0);
+                PowerCurrent += slot.module.PowerStoreMax;
+                PowerFlowMax += slot.module.PowerFlowMax + (loyalty != null ? slot.module.PowerFlowMax * loyalty.data.PowerFlowMod : 0);
+                shield_max += slot.module.shield_power_max + (loyalty != null ? slot.module.shield_power_max * loyalty.data.ShieldPowerMod : 0);
+                if (slot.module.ModuleType == ShipModuleType.Armor)
                 {
-                    armor_max += moduleSlotList.module.HealthMax;
+                    armor_max += slot.module.HealthMax;
                 }
                 Size += 1;
-                CargoSpace_Max += moduleSlotList.module.Cargo_Capacity;
-                OrdinanceMax += (float)moduleSlotList.module.OrdinanceCapacity;
-                Ordinance += (float)moduleSlotList.module.OrdinanceCapacity;
-                if(moduleSlotList.module.ModuleType != ShipModuleType.Shield)
-                    ModulePowerDraw += moduleSlotList.module.PowerDraw;
+                CargoSpace_Max += slot.module.Cargo_Capacity;
+                OrdinanceMax += (float)slot.module.OrdinanceCapacity;
+                Ordinance += (float)slot.module.OrdinanceCapacity;
+                if(slot.module.ModuleType != ShipModuleType.Shield)
+                    ModulePowerDraw += slot.module.PowerDraw;
                 else
-                    ShieldPowerDraw += moduleSlotList.module.PowerDraw;
-                Health += moduleSlotList.module.HealthMax;
-                if (moduleSlotList.module.FTLSpoolTime > FTLSpoolTime)
-                    FTLSpoolTime = moduleSlotList.module.FTLSpoolTime;
+                    ShieldPowerDraw += slot.module.PowerDraw;
+                Health += slot.module.HealthMax;
+                if (slot.module.FTLSpoolTime > FTLSpoolTime)
+                    FTLSpoolTime = slot.module.FTLSpoolTime;
             }
 
             #endregion
