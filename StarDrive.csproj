@@ -269,7 +269,7 @@
     <Compile Include="Ship_Game\Data\ShipNames.cs" />
     <Compile Include="Ship_Game\ShipRole.cs" />
     <Compile Include="Ship_Game\SpriteSystem\TextureAtlas.cs" />
-    <Compile Include="Ship_Game\SubClasses.cs" />
+    <Compile Include="Ship_Game\ShipModuleFlyweight.cs" />
     <Compile Include="Ship_Game\TechnologyType.cs" />
     <Compile Include="Ship_Game\GenericSlider.cs">
       <AutoGen>false</AutoGen>
