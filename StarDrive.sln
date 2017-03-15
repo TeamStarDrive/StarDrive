@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26127.0
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarDrive", "StarDrive.csproj", "{8071E07A-300E-485D-B139-066E15E82178}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -37,8 +37,8 @@ Global
 		{8071E07A-300E-485D-B139-066E15E82178}.Release|LAAx86.Build.0 = Release|x86
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Debug - Auto Fast|LAAx86.ActiveCfg = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Debug - Auto Fast|LAAx86.Build.0 = Release|Win32
-		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Debug|LAAx86.ActiveCfg = Debug|Win32
-		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Debug|LAAx86.Build.0 = Debug|Win32
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Debug|LAAx86.ActiveCfg = Release|Win32
+		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Debug|LAAx86.Build.0 = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Deploy|LAAx86.ActiveCfg = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Deploy|LAAx86.Build.0 = Release|Win32
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}.Release - Auto Fast|LAAx86.ActiveCfg = Release|Win32
