@@ -781,8 +781,8 @@ namespace Ship_Game
             ShipModule template = ShipModulesDict[uid];
             ShipModule module = new ShipModule
             {
-                // All complex properties here have been replaced by this single reference to 'ShipModule_Advanced' which now contains them all - Gretman
-                Advanced             = template.Advanced,
+                // All complex properties here have been replaced by this single reference to 'ShipModuleFlyweight' which now contains them all - Gretman
+                Flyweight            = template.Flyweight,
                 DescriptionIndex     = template.DescriptionIndex,
                 FieldOfFire          = template.FieldOfFire,
                 hangarShipUID        = template.hangarShipUID,
@@ -795,10 +795,8 @@ namespace Ship_Game
                 NameIndex            = template.NameIndex,
                 OrdinanceCapacity    = template.OrdinanceCapacity,
                 shield_power         = template.shield_power_max, //Hmmm... This one is strange -Gretman
-                UID                  = template.UID,
                 XSIZE                = template.XSIZE,
                 YSIZE                = template.YSIZE,
-                PermittedHangarRoles = template.PermittedHangarRoles,
                 shieldsOff           = template.shieldsOff
             };
             // @todo This might need to be updated with latest ModuleType logic?
@@ -1166,9 +1164,9 @@ namespace Ship_Game
                 if (data.WeaponType != null)
                     data.WeaponType = string.Intern(data.WeaponType);
 
-                if (data.IsCommandModule  && data.TargetTracking == 0 && data.FixedTracking == 0)
+                if (data.IsCommandModule && data.TargetTracking == 0 && data.FixedTracking == 0)
                 {
-                    data.TargetTracking = Convert.ToSByte((data.XSIZE*data.YSIZE) / 3);
+                    data.TargetTracking = (sbyte)((data.XSIZE*data.YSIZE) / 3);
                 }
 
             #if DEBUG
@@ -1178,7 +1176,7 @@ namespace Ship_Game
                 ShipModulesDict[data.UID] = data.ConvertToShipModule();
             }
 
-            Log.Info("Num ShipModule_Advanced: {0}", ShipModule_Advanced.TotalNumModules);
+            Log.Info("Num ShipModule_Advanced: {0}", ShipModuleFlyweight.TotalNumModules);
 
             foreach (var entry in ShipModulesDict)
                 entry.Value.SetAttributesNoParent();

@@ -1168,7 +1168,7 @@ namespace Ship_Game.AI
                 module.GetParent().PowerCurrent -= module.TransporterPower * (TransferAmount / module.TransporterOrdnance);
                 if (Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
                 {
-                    GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
+                    GameplayObject.audioListener.Position = Empire.Universe.camPos;
                     AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
                 }
                 return;
@@ -1207,7 +1207,7 @@ namespace Ship_Game.AI
                         module.TransporterTimer = module.TransporterTimerConstant;
                         if (Owner.InFrustum && ResourceManager.SoundEffectDict.ContainsKey("transporter"))
                         {
-                            GameplayObject.audioListener.Position = ShipModule.universeScreen.camPos;
+                            GameplayObject.audioListener.Position = Empire.Universe.camPos;
                             AudioManager.PlaySoundEffect(ResourceManager.SoundEffectDict["transporter"], GameplayObject.audioListener, module.GetParent().emitter, 0.5f);
                         }
                         return;

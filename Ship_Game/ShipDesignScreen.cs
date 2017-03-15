@@ -2335,7 +2335,7 @@ namespace Ship_Game
                     }
 
 
-                    if (mod.PermittedHangarRoles.Count != 0)
+                    if (mod.PermittedHangarRoles.Length > 0)
                     {
                         modTitlePos.Y = Math.Max(modTitlePos.Y, MaxDepth) + (float)Fonts.Arial12Bold.LineSpacing;
                         Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);

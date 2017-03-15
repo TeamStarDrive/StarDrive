@@ -913,11 +913,13 @@ namespace Ship_Game.Gameplay
             return speed > 2500f ? 2500 : speed;
         }
 
-        public Map<Vector2, ModuleSlot> GetMD()
+        public Map<Vector2, ModuleSlot> GetMD() => ModulesDictionary;
+        public bool TryGetModule(Vector2 pos, out ShipModule module)
         {
-            return this.ModulesDictionary;
+            bool res = ModulesDictionary.TryGetValue(pos, out ModuleSlot slot);
+            module = slot?.module;
+            return res;
         }
-
         public void TetherToPlanet(Planet p)
         {
             this.TetheredTo = p;
