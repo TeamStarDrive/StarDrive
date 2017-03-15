@@ -194,7 +194,7 @@ namespace Ship_Game
         // else, growth is 1.5x
         // 1.5x may use less memory, but can potentially cause more reallocations
         // This should be tested to measure memory usage and GC pressure
-        private const bool AgressiveGrowth = false;
+        private const bool AgressiveGrowth = true;
 
         private void Grow(int capacity)
         {
