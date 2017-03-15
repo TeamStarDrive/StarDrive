@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Ship_Game.AI;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
@@ -109,23 +110,18 @@ namespace Ship_Game
 
         public HashSet<string> ShipTechs = new HashSet<string>();
         //added by gremlin
-        float leftoverResearch;
+        private float leftoverResearch;
         public float exportPTrack;
         public float exportFTrack;
         public float averagePLanetStorage;
-        [XmlIgnore]
-        public Map<Point, Map<Point, PatchCacheEntry>> PathCache = new Map<Point, Map<Point, PatchCacheEntry>>();
-        //public Map<Array<Vector2>, int> pathcache = new Map<Array<Vector2>, int>();
-        [XmlIgnore]
-        public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
-        [XmlIgnore]
-        public int pathcacheMiss = 0;
-        [XmlIgnore]
-        public byte[,] grid;
-        [XmlIgnore]
-        public int granularity = 0;
-        [XmlIgnore]
-        public int AtWarCount = 0;
+        [XmlIgnore][JsonIgnore] public Map<Point, Map<Point, PatchCacheEntry>> PathCache = new Map<Point, Map<Point, PatchCacheEntry>>();
+        [XmlIgnore][JsonIgnore] public ReaderWriterLockSlim LockPatchCache = new ReaderWriterLockSlim();
+        [XmlIgnore][JsonIgnore] public int pathcacheMiss = 0;
+        [XmlIgnore][JsonIgnore] public byte[,] grid;
+        [XmlIgnore][JsonIgnore] public int granularity = 0;
+        [XmlIgnore][JsonIgnore] public int AtWarCount = 0;
+
+        public string Name => data.Traits.Name;
 
         public Empire()
         {
@@ -136,10 +132,9 @@ namespace Ship_Game
             public int CacheHits;
             public PatchCacheEntry(Array<Vector2> path) { Path = path; }
         }
-        public Map<int, Fleet> GetFleetsDict()
-        {
-            return FleetsDict;
-        }
+
+        public Map<int, Fleet> GetFleetsDict() => FleetsDict;
+
         public Fleet FirstFleet
         {
             get { return FleetsDict[1]; }
