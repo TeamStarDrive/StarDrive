@@ -4,9 +4,9 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-	public class EmpireManager
-	{
-		private static readonly Array<Empire> EmpireList = new Array<Empire>();
+    public class EmpireManager
+    {
+        private static readonly Array<Empire>       EmpireList = new Array<Empire>();
         private static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>(); 
 
         private static Empire PlayerEmpire;
@@ -87,5 +87,5 @@ namespace Ship_Game
                     allies.Add(empire);
             return allies;
         }
-	}
+    }
 }
