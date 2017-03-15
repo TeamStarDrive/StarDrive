@@ -55,7 +55,7 @@ namespace Ship_Game.AI
 
         public Fleet()
         {
-            this.FleetIconIndex = RandomMath.IntBetween(1, 10);
+            FleetIconIndex = RandomMath.IntBetween(1, 10);
         }
 
         public void SetNameByFleetIndex(int index)
