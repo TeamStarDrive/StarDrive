@@ -618,7 +618,7 @@ namespace Ship_Game.AI
                             break;
                         }
                     case 4:
-                        if (FleetReadyCheck())
+                        if (IsFleetSupplied())
                         {
                             this.TaskStep = 5;
                             break;
@@ -762,7 +762,7 @@ namespace Ship_Game.AI
                             TaskStep = 3;
                             break;
                         case 3:
-                            if (FleetReadyCheck())                            
+                            if (IsFleetSupplied())                            
                                 TaskStep = 5;
                             
                             else
@@ -867,7 +867,7 @@ namespace Ship_Game.AI
                                     }
                                 }
                             }
-                            if (FleetReadyCheck())
+                            if (!IsFleetSupplied())
                             {
                                 this.TaskStep = 5;
                                 break;
@@ -980,7 +980,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private bool FleetReadyCheck()
+        private bool IsFleetSupplied()
         {
             float currentAmmo = 0.0f;
             float maxAmmo = 0.0f;
@@ -1148,7 +1148,7 @@ namespace Ship_Game.AI
                             break;
                         }
                     case 4:
-                        if (FleetReadyCheck())
+                        if (IsFleetSupplied())
                         {
                             this.TaskStep = 5;
                             break;
@@ -1328,7 +1328,7 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 4:
-                    if (FleetReadyCheck())
+                    if (IsFleetSupplied())
                     {
                         this.TaskStep = 5;
                         break;
@@ -1714,7 +1714,7 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 4:
-                    if (FleetReadyCheck())
+                    if (IsFleetSupplied())
                     {
                         this.TaskStep = 5;
                         break;
@@ -1831,7 +1831,7 @@ namespace Ship_Game.AI
                         this.TaskStep = 4;
                         break;
                     case 4:
-                        if (FleetReadyCheck())
+                        if (IsFleetSupplied())
                         {
                             this.TaskStep = 5;
                             break;
@@ -1922,7 +1922,7 @@ namespace Ship_Game.AI
                         ship.GetAI().HasPriorityOrder = true;
                     break;
                 case 2:
-                    if (FleetReadyCheck())
+                    if (IsFleetSupplied())
                     {
                         this.TaskStep = 5;
                         break;
@@ -2020,7 +2020,7 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 4:
-                    if (FleetReadyCheck())
+                    if (IsFleetSupplied())
                     {
                         this.TaskStep = 5;
                         break;
