@@ -16,11 +16,12 @@ namespace Ship_Game
         // If non-null, a parent resource manager is checked first for existing resources
         // to avoid double loading resources into memory
         private readonly GameContentManager Parent;
-        private Dictionary<string, object> LoadedAssets;
+        private Dictionary<string, object> LoadedAssets; // uses OrdinalIgnoreCase
         private List<IDisposable> DisposableAssets;
         public string Name { get; }
 
         public IReadOnlyDictionary<string, object> Loaded => LoadedAssets;
+        private object LoadSync = new object();
 
         static GameContentManager()
         {
@@ -190,7 +191,7 @@ namespace Ship_Game
             //if (assetNoExt.StartsWith("Content/", StringComparison.OrdinalIgnoreCase))
             //    assetNoExt = assetNoExt.Substring("Content/".Length);
 
-        #if DEBUG
+        #if true // #if DEBUG
             // if we forbid relative paths, we can streamline our resource manager and eliminate almost all duplicate loading
             if (assetNoExt.Contains("..") || assetNoExt.Contains("./"))
                 throw new ArgumentException($"Asset name cannot contain relative paths: '{assetNoExt}'");
@@ -211,7 +212,21 @@ namespace Ship_Game
             }
 
             var asset = ReadAsset<T>(assetNoExt, RecordDisposableObject);
-            LoadedAssets.Add(assetNoExt, asset);
+
+            // detect possible memory leaks -- this is very slow, so only enable on demand
+            #if false
+                string[] keys;
+                lock (LoadSync) keys = LoadedAssets.Keys.ToArray();
+                foreach (string key in keys)
+                {
+                    if (key.EndsWith(assetNoExt, StringComparison.OrdinalIgnoreCase) || 
+                        assetNoExt.EndsWith(key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Log.Warning($"Possible ResLeak: '{key}' may be duplicated by '{assetNoExt}'");
+                    }
+                }
+            #endif
+            lock (LoadSync) LoadedAssets.Add(assetNoExt, asset);
             return asset;
         }
 
@@ -220,7 +235,7 @@ namespace Ship_Game
             try
             {
                 // trying to do a direct Mod asset load, this may be different from currently active mod
-                if (assetName.StartsWith("Mods/")) 
+                if (assetName.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase)) 
                 {
                     var info = new FileInfo(assetName + ".xnb");
                     if (info.Exists) return info.OpenRead();

@@ -66,7 +66,6 @@ namespace Ship_Game.AI
         //private int ThirdDemand = 75;
 
         private GSAI.ResearchStrategy res_strat = GSAI.ResearchStrategy.Scripted;
-        bool modSupport = bool.Parse( ConfigurationManager.AppSettings["ModSupport"]);
         float minimumWarpRange = GlobalStats.MinimumWarpRange;
         //SizeLimiter
 
@@ -6172,9 +6171,9 @@ namespace Ship_Game.AI
 
         public void InitialzeAOsFromSave(UniverseData data)
         {
-            foreach (AO area in this.AreasOfOperations)
+            foreach (AO area in AreasOfOperations)
             {
-                area.InitFromSave(data, this.empire);                
+                area.InitFromSave(data, empire);                
             }
         }
 
