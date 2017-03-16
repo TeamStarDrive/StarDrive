@@ -3704,8 +3704,8 @@ namespace Ship_Game.Gameplay
         {
             //if (elapsedTime == 0.0f)
             //    return;
-            
-            
+
+
             if (velocityMaximum == 0f && shipData.Role <= ShipData.RoleName.station)
             {
                 Rotation += 0.003f;
@@ -3713,7 +3713,7 @@ namespace Ship_Game.Gameplay
             MoveModulesTimer -= elapsedTime;
             updateTimer -= elapsedTime;
             //Disable if enough EMP damage
-            if (this.EMPDamage > 0 || this.disabled)
+            if (elapsedTime > 0 && (this.EMPDamage > 0 || this.disabled))
             {
                 --EMPDamage;
                 if (EMPDamage < 0.0)
@@ -3749,12 +3749,12 @@ namespace Ship_Game.Gameplay
                 if (troop.GetOwner() == loyalty)
                     TroopBoardingDefense += troop.Strength;
             }
-            if (updateTimer <= 0.0 ) //|| shipStatusChanged)
+            if (updateTimer <= 0.0) //|| shipStatusChanged)
             {
                 if ((InCombat && !disabled && hasCommand || PlayerShip) && Weapons.Count > 0)
                 {
                     IOrderedEnumerable<Weapon> orderedEnumerable;
-                    if(GetAI().CombatState == CombatState.ShortRange)
+                    if (GetAI().CombatState == CombatState.ShortRange)
                         orderedEnumerable = Enumerable.OrderBy<Weapon, float>((IEnumerable<Weapon>)Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
                     else
                         orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
@@ -3774,47 +3774,47 @@ namespace Ship_Game.Gameplay
                         if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useWeaponModifiers)
                         {
                             if (weapon.Tag_Beam)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Beam"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Beam"].Rate;
                             if (weapon.Tag_Energy)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Energy"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Energy"].Rate;
                             if (weapon.Tag_Explosive)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Explosive"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Explosive"].Rate;
                             if (weapon.Tag_Guided)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Guided"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Guided"].Rate;
                             if (weapon.Tag_Hybrid)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Hybrid"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Hybrid"].Rate;
                             if (weapon.Tag_Intercept)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Intercept"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Intercept"].Rate;
                             if (weapon.Tag_Kinetic)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Kinetic"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Kinetic"].Rate;
                             if (weapon.Tag_Missile)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Missile"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Missile"].Rate;
                             if (weapon.Tag_Railgun)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Railgun"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Railgun"].Rate;
                             if (weapon.Tag_Torpedo)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Torpedo"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Torpedo"].Rate;
                             if (weapon.Tag_Cannon)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Cannon"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Cannon"].Rate;
                             if (weapon.Tag_Subspace)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Subspace"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Subspace"].Rate;
                             if (weapon.Tag_PD)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["PD"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["PD"].Rate;
                             if (weapon.Tag_Bomb)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Bomb"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Bomb"].Rate;
                             if (weapon.Tag_SpaceBomb)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Spacebomb"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Spacebomb"].Rate;
                             if (weapon.Tag_BioWeapon)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["BioWeapon"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["BioWeapon"].Rate;
                             if (weapon.Tag_Drone)
                                 weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Drone"].Rate;
                             if (weapon.Tag_Warp)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Warp"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Warp"].Rate;
                             if (weapon.Tag_Array)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Array"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Array"].Rate;
                             if (weapon.Tag_Flak)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Flak"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Flak"].Rate;
                             if (weapon.Tag_Tractor)
-                                weapon.fireDelay += - Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Tractor"].Rate;
+                                weapon.fireDelay += -Ship_Game.ResourceManager.WeaponsDict[weapon.UID].fireDelay * loyalty.data.WeaponTags["Tractor"].Rate;
                         }
                         //Added by McShooterz: Hull bonus Fire Rate
                         if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
@@ -3828,25 +3828,25 @@ namespace Ship_Game.Gameplay
 
                 try
                 {
-                    if(InhibitedTimer < 2f)
-                    foreach (Empire index1 in EmpireManager.Empires)
-                    {
-                        if (index1 != loyalty && !loyalty.GetRelations(index1).Treaty_OpenBorders)
+                    if (InhibitedTimer < 2f)
+                        foreach (Empire index1 in EmpireManager.Empires)
                         {
-                            for (int index2 = 0; index2 < index1.Inhibitors.Count; ++index2)
+                            if (index1 != loyalty && !loyalty.GetRelations(index1).Treaty_OpenBorders)
                             {
-                                Ship ship = index1.Inhibitors[index2];
-                                if (ship != null && Vector2.Distance(Center, ship.Position) <= ship.InhibitionRadius)
+                                for (int index2 = 0; index2 < index1.Inhibitors.Count; ++index2)
                                 {
+                                    Ship ship = index1.Inhibitors[index2];
+                                    if (ship != null && Vector2.Distance(Center, ship.Position) <= ship.InhibitionRadius)
+                                    {
                                         Inhibited = true;
                                         InhibitedTimer = 5f;
-                                    break;
+                                        break;
+                                    }
                                 }
+                                if (Inhibited)
+                                    break;
                             }
-                            if (Inhibited)
-                                break;
                         }
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -3905,7 +3905,7 @@ namespace Ship_Game.Gameplay
                 if (Ordinance < OrdinanceMax)
                 {
                     Ordinance += OrdAddedPerSecond;
-                    if(Ordinance > OrdinanceMax)
+                    if (Ordinance > OrdinanceMax)
                         Ordinance = OrdinanceMax;
                 }
                 else
@@ -4090,7 +4090,7 @@ namespace Ship_Game.Gameplay
                         {
                             fleet.Ships.Remove(this);
                             RemoveFromAllFleets();
-                            fleet?.RemoveShip(this); 
+                            fleet?.RemoveShip(this);
                         }
                         AI.ClearOrdersNext = true;
                         AI.State = AIState.AwaitingOrders;
@@ -4103,69 +4103,19 @@ namespace Ship_Game.Gameplay
                     RecalculatePower();
                     NeedRecalculate = false;
                 }
-               
+
             }
-            else if (this.Active && this.GetAI().BadGuysNear || (this.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView )
-                || this.MoveModulesTimer > 0.0 ||  GlobalStats.ForceFullSim) // || (Empire.Universe !=null && Empire.Universe.Lag <= .03f)))
+            else if (this.Active && this.GetAI().BadGuysNear || (this.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) || this.MoveModulesTimer > 0.0 || GlobalStats.ForceFullSim) 
             {
-                if (elapsedTime > 0.0)
+                if (elapsedTime > 0.0 || this.UpdatedModulesOnce)
                 {
-                    //if (this.Velocity != Vector2.Zero) ||  this.Velocity != Vector2.Zero
-                    this.UpdatedModulesOnce = false;
-                    //if (this.GetAI().BadGuysNear  || this.isTurning || this.TetheredTo != null || this.shipData.Role <= ShipData.RoleName.station)
+                      this.UpdatedModulesOnce = elapsedTime > 0;
+
+                   // if (Empire.Universe.ShowShipNames ) // I dont know what showshipnamesis
                     {
-                    //    this.UpdatedModulesOnce = false;
-
-                        
-
-                        //if I am not mistaken, this is being run completely twice. The two Parallel foreach loops above are derived from 'this.ModuleSlotList' which
-                        //is processed in its entirety again here. I think this is redundant, and likely a reasonable performance hit.    -Gretman
-                        //FleetTask modules = new FleetTask(() =>
-                        if (Empire.Universe.ShowShipNames || AI.BadGuysNear)
-                        {
-                            float cos = (float)Math.Cos((double)Rotation);
-                            float sin = (float)Math.Sin((double)Rotation);
-                            float tan = (float)Math.Tan((double)yRotation);
-                            foreach (ModuleSlot moduleSlot in ModuleSlotList)
-                            {
-                                ++GlobalStats.ModuleUpdates;
-                                moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                                if (!Active)
-                                    break;
-                            }
-                        }
-                        //);
-                        //modules.Start();
-                    }
-                    if (Empire.Universe.ShowShipNames || this.AI.BadGuysNear)
-                    //{
-                    //    //FleetTask modules = new FleetTask(() =>
-                        if (this.AI.BadGuysNear)
-                    //    {
-
-                            float cos = (float)Math.Cos((double)this.Rotation);
-                            float sin = (float)Math.Sin((double)this.Rotation);
-                            float tan = (float)Math.Tan((double)this.yRotation);
-                            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-                    //        {
-                    //            ++GlobalStats.ModuleUpdates;
-                    //            moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                                if (!this.Active)
-                    //                break;
-                    //        }
-                    //    }//); modules.Start();
-                        this.UpdatedModulesOnce = true;
-                    //}
-                }
-                else if (elapsedTime < 0.0 && !this.UpdatedModulesOnce)
-                {
-
-                    //FleetTask modules = new FleetTask(() =>
-                    if (Empire.Universe.ShowShipNames || this.AI.BadGuysNear)
-                    {
-                        float cos = (float)Math.Cos((double)Rotation);
-                        float sin = (float)Math.Sin((double)Rotation);
-                        float tan = (float)Math.Tan((double)yRotation);
+                        float cos = (float)Math.Cos(Rotation);
+                        float sin = (float)Math.Sin(Rotation);
+                        float tan = (float)Math.Tan(yRotation);
                         foreach (ModuleSlot moduleSlot in ModuleSlotList)
                         {
                             ++GlobalStats.ModuleUpdates;
@@ -4173,9 +4123,9 @@ namespace Ship_Game.Gameplay
                             if (!Active)
                                 break;
                         }
-                    }//); modules.Start();
-                    UpdatedModulesOnce = true;
+                    }
                 }
+
             }
             SetmaxFTLSpeed();
             if (Ordinance > OrdinanceMax)
@@ -4247,7 +4197,7 @@ namespace Ship_Game.Gameplay
                 //this.velocityMaximum *= this.FTLmodifier;
                 Velocity = Vector2.Normalize(new Vector2((float)Math.Sin((double)Rotation), -(float)Math.Cos((double)Rotation))) * velocityMaximum;
             }
-            if ((Thrust <= 0.0f || Mass <= 0.0f )&& !IsTethered())
+            if ((Thrust <= 0.0f || Mass <= 0.0f) && !IsTethered())
             {
                 EnginesKnockedOut = true;
                 velocityMaximum = Velocity.Length();
