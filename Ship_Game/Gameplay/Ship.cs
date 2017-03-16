@@ -3716,7 +3716,7 @@ namespace Ship_Game.Gameplay
             this.MoveModulesTimer -= elapsedTime;
             this.updateTimer -= elapsedTime;
             //Disable if enough EMP damage
-            if (this.EMPDamage > 0 || this.disabled)
+            if (elapsedTime >0 && (this.EMPDamage > 0 || this.disabled))
             {
                 --this.EMPDamage;
                 if (this.EMPDamage < 0.0)

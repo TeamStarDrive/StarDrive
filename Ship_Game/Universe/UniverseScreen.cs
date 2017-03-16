@@ -1091,7 +1091,7 @@ namespace Ship_Game
                                 ship.InFrustum = false;
                                 ship.GetSO().Visibility = ObjectVisibility.None;
                             }
-                            ship.UpdateShipStatus(0);
+                            ship.Update(0);
                         }
                         ClickTimer += deltaTime;
                         ClickTimer2 += deltaTime;
