@@ -1155,6 +1155,8 @@ namespace Ship_Game.Gameplay
                 }     
 
             }
+            if (Parent == null)
+                Log.Error("module parent is null");
         }
 
         //added by gremlin boarding parties
