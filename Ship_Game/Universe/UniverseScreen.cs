@@ -916,7 +916,6 @@ namespace Ship_Game
             PlanetScreen.screen                   = this;
             MinimapButtons.screen                 = this;
             Projectile.universeScreen             = this;
-            ShipModule.universeScreen             = this;
             Empire.Universe                       = this;
             ResourceManager.UniverseScreen        = this;
             Empire.Universe                   = this;
@@ -4688,7 +4687,6 @@ namespace Ship_Game
             MinimapButtons.screen                 = null;
             Projectile.contentManager             = null;
             Projectile.universeScreen             = null;
-            ShipModule.universeScreen             = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
             Empire.Universe                   = null;
