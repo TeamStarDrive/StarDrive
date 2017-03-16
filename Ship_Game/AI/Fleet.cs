@@ -74,8 +74,11 @@ namespace Ship_Game.AI
             return this.GoalStack;
         }
 
-        public void AddShip(Ship shiptoadd)
+        public void AddShip(Ship shiptoadd, bool updateOnly = false)
         {
+            
+            this.HasRepair = HasRepair || shiptoadd.hasRepairBeam || (shiptoadd.HasRepairModule && shiptoadd.Ordinance > 0);        
+            if (updateOnly) return;
             if (shiptoadd.shipData.Role == ShipData.RoleName.station || shiptoadd.IsPlatform)
                 return;
             this.Ships.Add(shiptoadd);
@@ -693,40 +696,20 @@ namespace Ship_Game.AI
                     {
                         case -1:
                         case 0:
-                            Array<Planet> rallyPlanets = new Array<Planet>();
-                            foreach (Planet planet in Owner.GetPlanets()
-                                .OrderBy(combat => combat.ParentSystem.combatTimer < 30)
-                                .ThenBy(shipyard => shipyard.HasShipyard)
-                                .ThenBy(distance=> distance.Position.SqDist(FleetTask.AO)))
-                            {
-                                bool flag = false;
-                                for (int index = 0; index < planet.ParentSystem.PlanetList.Count; index++)
-                                {
-                                    Planet notsafe = planet.ParentSystem.PlanetList[index];
-                                    if (notsafe.Owner == null || !Owner.IsEmpireAttackable(notsafe.Owner)) continue;
-                                    flag = true;
-                                    break;                                    
-                                }
-                                if(!flag)
-                                rallyPlanets.Add(planet);
-                            }
+                            Planet goaltarget = Owner.RallyPoints.FindMin(distance => distance.Position.SqDist(FleetTask.AO));
                             
-                            if (rallyPlanets.Count > 0)
-                            {
-                                Planet goaltarget = rallyPlanets.First();
-                                Vector2 fVec = Vector2.Normalize(task.AO - goaltarget.Position);
-                                Vector2 vector2 = goaltarget.Position;
- 
-                                MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);
-        
-                                TaskStep = 1;
-                                break;
-                            }
-                            else
+                            if(goaltarget == null)
                             {
                                 task.EndTask();
                                 break;
                             }
+                            
+                            Vector2 fVec = Vector2.Normalize(task.AO - goaltarget.Position);
+                            Vector2 vector2 = goaltarget.Position;
+                            MoveToNow(vector2, vector2.RadiansToTarget(task.AO), fVec);        
+                            TaskStep = 1;
+                            break;
+
                         case 1:                            
                             
                             bool nearFleet = IsFleetAssembled(5000, out bool endTask);
@@ -2172,27 +2155,24 @@ namespace Ship_Game.AI
             ship.fleet = null;
             return Ships.Remove(ship);
         }
+        
         public void Update(float elapsedTime)
         {
             this.HasRepair = false;
 
-            foreach(Ship ship in this.Ships)
+            for (int index = Ships.Count - 1; index >= 0; index--)
             {
+                Ship ship = Ships[index];
                 if (!ship.Active)
-                {
-                    ship.fleet = null;
-                    this.Ships.QueuePendingRemoval(ship);
-                }
-                else
-                               if (ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0))
-                    this.HasRepair = true;
+                    RemoveShip(ship);
+                else AddShip(ship, true);
             }
 
-            this.Ships.ApplyPendingRemovals();
+            Ships.ApplyPendingRemovals();
 
-            if (this.Ships.Count <= 0 || this.GoalStack.Count <= 0)
+            if (Ships.Count <= 0 || GoalStack.Count <= 0)
                 return;
-            this.GoalStack.Peek().Evaluate(elapsedTime);
+            GoalStack.Peek().Evaluate(elapsedTime);
         }
 
         public enum FleetCombatStatus

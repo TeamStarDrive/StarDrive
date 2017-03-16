@@ -3705,8 +3705,8 @@ namespace Ship_Game.Gameplay
 
         public virtual void UpdateShipStatus(float elapsedTime)
         {
-            if (elapsedTime == 0.0f)
-                return;
+            //if (elapsedTime == 0.0f)
+            //    return;
             
             
             if (this.velocityMaximum == 0f && this.shipData.Role <= ShipData.RoleName.station)
@@ -4108,50 +4108,18 @@ namespace Ship_Game.Gameplay
                 }
                
             }
-            else if (this.Active && this.GetAI().BadGuysNear || (this.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView )|| this.MoveModulesTimer > 0.0 ||  GlobalStats.ForceFullSim) // || (Empire.Universe !=null && Empire.Universe.Lag <= .03f)))
+            else if (this.Active && this.GetAI().BadGuysNear || (this.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView )
+                || this.MoveModulesTimer > 0.0 ||  GlobalStats.ForceFullSim) // || (Empire.Universe !=null && Empire.Universe.Lag <= .03f)))
             {
                 if (elapsedTime > 0.0)
                 {
-                    //if (this.Velocity != Vector2.Zero)
-                    //this.UpdatedModulesOnce = false;
-                    if (this.GetAI().BadGuysNear ||  this.Velocity != Vector2.Zero || this.isTurning || this.TetheredTo != null || this.shipData.Role <= ShipData.RoleName.station)
+                    //if (this.Velocity != Vector2.Zero) ||  this.Velocity != Vector2.Zero
+                    this.UpdatedModulesOnce = false;
+                    //if (this.GetAI().BadGuysNear  || this.isTurning || this.TetheredTo != null || this.shipData.Role <= ShipData.RoleName.station)
                     {
-                        this.UpdatedModulesOnce = false;
+                    //    this.UpdatedModulesOnce = false;
 
-                        //int half = this.ModuleSlotList.Count / 2;
-
-                        //Array<ModuleSlot> firsthalf = this.ModuleSlotList.Skip(half).ToList();
-                        //Array<ModuleSlot> Secondhalf = this.ModuleSlotList.Reverse().Skip(this.ModuleSlotList.Count - half).ToList();
-
-                        //foreach (ModuleSlot slots in this.ModuleSlotList)
-                        //{
-                        //    if (half > 0)
-                        //        firsthalf.Add(slots.module);
-                        //    else
-                        //        Secondhalf.Add(slots.module);
-                        //    half--;
-                        //}
-
-                        //Parallel.Invoke(() =>
-                        //{
-                        //    foreach (ModuleSlot moduleSlot in firsthalf)
-                        //    {
-                        //        ++GlobalStats.ModuleUpdates;
-                        //        moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        //    }
-
-                        //},
-                        //     () =>
-                        //     {
-
-                        //         foreach (ModuleSlot moduleSlot in Secondhalf)
-                        //         {
-                        //             ++GlobalStats.ModuleUpdates;
-                        //             moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                        //         }
-                        //     }
-
-                        //     );
+                        
 
                         //if I am not mistaken, this is being run completely twice. The two Parallel foreach loops above are derived from 'this.ModuleSlotList' which
                         //is processed in its entirety again here. I think this is redundant, and likely a reasonable performance hit.    -Gretman
@@ -4172,31 +4140,31 @@ namespace Ship_Game.Gameplay
                         //);
                         //modules.Start();
                     }
-                    if (Empire.Universe.ShowShipNames || this.AI.BadGuysNear)
-                    {
-                        //FleetTask modules = new FleetTask(() =>
-                        if (this.AI.BadGuysNear)
-                        {
+                    //if (Empire.Universe.ShowShipNames || this.AI.BadGuysNear)
+                    //{
+                    //    //FleetTask modules = new FleetTask(() =>
+                    //    if (this.AI.BadGuysNear)
+                    //    {
 
-                            float cos = (float)Math.Cos((double)this.Rotation);
-                            float sin = (float)Math.Sin((double)this.Rotation);
-                            float tan = (float)Math.Tan((double)this.yRotation);
-                            foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
-                            {                                
-                                ++GlobalStats.ModuleUpdates;
-                                moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                                if (!this.Active)
-                                    break;
-                            }
-                        }//); modules.Start();
-                        this.UpdatedModulesOnce = true;
-                    }
+                    //        float cos = (float)Math.Cos((double)this.Rotation);
+                    //        float sin = (float)Math.Sin((double)this.Rotation);
+                    //        float tan = (float)Math.Tan((double)this.yRotation);
+                    //        foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
+                    //        {
+                    //            ++GlobalStats.ModuleUpdates;
+                    //            moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                    //            if (!this.Active)
+                    //                break;
+                    //        }
+                    //    }//); modules.Start();
+                    //    this.UpdatedModulesOnce = true;
+                    //}
                 }
-                else if (elapsedTime < 0.0 && !this.UpdatedModulesOnce)
+                else if ( !this.UpdatedModulesOnce)
                 {
 
                     //FleetTask modules = new FleetTask(() =>
-                    if (Empire.Universe.ShowShipNames || this.AI.BadGuysNear)
+                   // if (Empire.Universe.ShowShipNames || this.AI.BadGuysNear)
                     {
                         float cos = (float)Math.Cos((double)this.Rotation);
                         float sin = (float)Math.Sin((double)this.Rotation);

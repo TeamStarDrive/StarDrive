@@ -121,6 +121,9 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int granularity = 0;
         [XmlIgnore][JsonIgnore] public int AtWarCount = 0;
 
+        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints;
+       
+
         public string Name => data.Traits.Name;
 
         public Empire()
@@ -147,6 +150,44 @@ namespace Ship_Game
                 }
                 FleetsDict[1] = value;
             }
+        }
+
+        public void SetRallyPoints()
+        {
+            Array<Planet> rallyPlanets = new Array<Planet>();
+            var goodSystems = new HashSet<SolarSystem>();
+            foreach (SolarSystem systemCheck in OwnedSolarSystems)
+            {
+                if (systemCheck.combatTimer > 10) continue;                
+                foreach (Empire empire in systemCheck.OwnerList)
+                    if (empire == this || !IsEmpireAttackable(empire)) continue;
+
+                foreach (Planet planet in systemCheck.PlanetList)
+                {
+                    if (planet.Owner != this || !planet.HasShipyard) continue;
+                    rallyPlanets.Add(planet);
+                }
+
+            }
+            if (rallyPlanets.Count > 0)
+            {
+                RallyPoints = rallyPlanets.ToArray();
+                return;
+            }
+
+            foreach (Planet planet in OwnedPlanets)
+            {
+                if (planet.HasShipyard)
+                    rallyPlanets.Add(planet);
+            }
+
+            if (rallyPlanets.Count > 0)
+            {
+                RallyPoints = rallyPlanets.ToArray();
+                return;
+            }
+            rallyPlanets.Add(OwnedPlanets.FindMax(planet => planet.GrossProductionPerTurn));
+            RallyPoints = rallyPlanets.ToArray();
         }
 
         public int GetUnusedKeyForFleet()
@@ -1312,12 +1353,7 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            //foreach (Ship s in this.ShipsToAdd)
-            //{
-            //    this.AddShip(s);
-            //    if (!this.isPlayer)
-            //        this.ForcePoolAdd(s);
-            //}
+
 #if PLAYERONLY
             if(!this.isPlayer && !this.isFaction)
             foreach (Ship ship in this.GetShips())
@@ -1326,22 +1362,7 @@ namespace Ship_Game
                 return;
 
 #endif
-            //this.ShipsToAdd.Clear();
-            //{
-            //    Empire empire = this;
-            //    empire.updateContactsTimer = empire.updateContactsTimer -  0.01666667f;//elapsedTime;
-            //    if (this.updateContactsTimer <= 0f && !this.data.Defeated)
-            //    {
-            //        this.ResetBorders();
-            //        lock (GlobalStats.KnownShipsLock)
-            //        {
-            //            this.KnownShips.Clear();
-            //        }
-            //        //this.UnownedShipsInOurBorders.Clear();
-            //        this.UpdateKnownShips();
-            //        this.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
-            //    }
-            //}
+
             
             this.UpdateTimer -= elapsedTime;
             if (this.UpdateTimer <= 0f)
@@ -1468,16 +1489,18 @@ namespace Ship_Game
                 this.DoMoney();
                 this.TakeTurn();
             }
-            this.UpdateFleets(elapsedTime);
-            this.OwnedShips.ApplyPendingRemovals();
-            this.OwnedProjectors.ApplyPendingRemovals();  //fbedard
+            SetRallyPoints();
+            UpdateFleets(elapsedTime);
+            OwnedShips.ApplyPendingRemovals();
+            OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
+        
 
         public void UpdateFleets(float elapsedTime)
         {
             updateContactsTimer -= elapsedTime;
-            FleetUpdateTimer -= elapsedTime;
-            foreach (KeyValuePair<int, Fleet> kv in FleetsDict)
+            FleetUpdateTimer -= elapsedTime;            
+            foreach (var kv in FleetsDict)
             {
                 kv.Value.Update(elapsedTime);
                 if (FleetUpdateTimer <= 0f)
@@ -1487,7 +1510,6 @@ namespace Ship_Game
             }
             if (FleetUpdateTimer < 0.0)
                 FleetUpdateTimer = 5f;
-            OwnedShips.ApplyPendingRemovals();
         }
 
         public float GetPlanetIncomes()
