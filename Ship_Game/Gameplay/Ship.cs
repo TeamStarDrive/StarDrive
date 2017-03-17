@@ -4222,126 +4222,126 @@ namespace Ship_Game.Gameplay
                 Hangars.Clear();
                 Shields.Clear();
                 Transporters.Clear();
-                Thrust = 0f;
-                Mass = Size / 2f;
-                shield_max = 0f;
+                Thrust                      = 0f;
+                Mass                        = Size / 2f;
+                shield_max                  = 0f;
                 number_Alive_Internal_slots = 0f;
-                BonusEMP_Protection = 0f;
-                PowerStoreMax = 0f;
-                PowerFlowMax = 0f;
-                OrdinanceMax = 0f;
-                ModulePowerDraw = 0.0f;
-                ShieldPowerDraw = 0f;
-                RepairRate = 0f;
-                CargoSpace_Max = 0f;
-                SensorRange = 0f;
-                HasTroopBay = false;
-                WarpThrust = 0f;
-                TurnThrust = 0f;
-                NormalWarpThrust = 0f;
-                FTLSlowTurnBoost = false;
-                InhibitionRadius = 0f;
-                OrdAddedPerSecond = 0f;
-                WarpDraw = 0f;
-                HealPerTurn = 0;
-                ECMValue = 0f;
-                FTLSpoolTime = 0f;
-                hasCommand = IsPlatform;
-                TrackingPower = 0;
-                FixedTrackingPower = 0;
+                BonusEMP_Protection         = 0f;
+                PowerStoreMax               = 0f;
+                PowerFlowMax                = 0f;
+                OrdinanceMax                = 0f;
+                ModulePowerDraw             = 0.0f;
+                ShieldPowerDraw             = 0f;
+                RepairRate                  = 0f;
+                CargoSpace_Max              = 0f;
+                SensorRange                 = 0f;
+                HasTroopBay                 = false;
+                WarpThrust                  = 0f;
+                TurnThrust                  = 0f;
+                NormalWarpThrust            = 0f;
+                FTLSlowTurnBoost            = false;
+                InhibitionRadius            = 0f;
+                OrdAddedPerSecond           = 0f;
+                WarpDraw                    = 0f;
+                HealPerTurn                 = 0;
+                ECMValue                    = 0f;
+                FTLSpoolTime                = 0f;
+                hasCommand                  = IsPlatform;
+                TrackingPower               = 0;
+                FixedTrackingPower          = 0;
             }
-            foreach (ModuleSlot moduleSlot in ModuleSlotList)
+            foreach (ModuleSlot slot in ModuleSlotList)
             {
                 //Get total internal slots
-                if (moduleSlot.Restrictions == Restrictions.I && moduleSlot.module.Active)
+                if (slot.Restrictions == Restrictions.I && slot.module.Active)
                     ++number_Alive_Internal_slots;
-                if (moduleSlot.module.ModuleType == ShipModuleType.Dummy)
+                if (slot.module.ModuleType == ShipModuleType.Dummy)
                     continue;
-                Health += moduleSlot.module.Health;
+                Health += slot.module.Health;
                 //if (this.shipStatusChanged)
                 {
-                    RepairRate += moduleSlot.module.BonusRepairRate;
-                    if (moduleSlot.module.Mass < 0.0 && moduleSlot.Powered)
+                    RepairRate += slot.module.BonusRepairRate;
+                    if (slot.module.Mass < 0.0 && slot.Powered)
                     {
                         //Ship ship3 = this;
                         //float num3 = ship3.Mass + moduleSlot.module.Mass;     //Some minor performance tweaks -Gretman
-                        Mass += moduleSlot.module.Mass;
+                        Mass += slot.module.Mass;
                     }
-                    else if (moduleSlot.module.Mass > 0.0)
+                    else if (slot.module.Mass > 0.0)
                     {
                         //Ship ship3 = this;
 
                         //float num3;
-                        if (moduleSlot.module.ModuleType == ShipModuleType.Armor && loyalty != null)
+                        if (slot.module.ModuleType == ShipModuleType.Armor && loyalty != null)
                         {
                             float ArmourMassModifier = loyalty.data.ArmourMassModifier;
-                            float ArmourMass = moduleSlot.module.Mass * ArmourMassModifier;
+                            float ArmourMass = slot.module.Mass * ArmourMassModifier;
                             Mass += ArmourMass;
                         }
                         else
                         {
-                            Mass += moduleSlot.module.Mass;
+                            Mass += slot.module.Mass;
                         }
                         //ship3.Mass = num3;
                     }
                     //Checks to see if there is an active command module
 
-                    if (moduleSlot.module.Active && (moduleSlot.module.Powered || moduleSlot.module.PowerDraw == 0))
+                    if (slot.module.Active && (slot.module.Powered || slot.module.PowerDraw == 0))
                     {
-                        if (!hasCommand && moduleSlot.module.IsCommandModule)
+                        if (!hasCommand && slot.module.IsCommandModule)
                             hasCommand = true;
                         //Doctor: For 'Fixed' tracking power modules - i.e. a system whereby a module provides a non-cumulative/non-stacking tracking power.
                         //The normal stacking/cumulative tracking is added on after the for loop for mods that want to mix methods. The original cumulative function is unaffected.
-                        if (moduleSlot.module.FixedTracking > 0 && moduleSlot.module.FixedTracking > FixedTrackingPower)
-                            FixedTrackingPower = moduleSlot.module.FixedTracking;
-                        if (moduleSlot.module.TargetTracking > 0)
-                            TrackingPower += moduleSlot.module.TargetTracking;
-                        OrdinanceMax += (float)moduleSlot.module.OrdinanceCapacity;
-                        CargoSpace_Max += moduleSlot.module.Cargo_Capacity;
-                        InhibitionRadius += moduleSlot.module.InhibitionRadius;
-                        BonusEMP_Protection += moduleSlot.module.EMP_Protection;
-                        if (moduleSlot.module.SensorRange > SensorRange)
-                            SensorRange = moduleSlot.module.SensorRange;
-                        if (moduleSlot.module.SensorBonus > sensorBonus)
-                            sensorBonus = moduleSlot.module.SensorBonus;
-                        if (moduleSlot.module.shield_power_max > 0f)
+                        if (slot.module.FixedTracking > 0 && slot.module.FixedTracking > FixedTrackingPower)
+                            FixedTrackingPower = slot.module.FixedTracking;
+                        if (slot.module.TargetTracking > 0)
+                            TrackingPower += slot.module.TargetTracking;
+                        OrdinanceMax += (float)slot.module.OrdinanceCapacity;
+                        CargoSpace_Max += slot.module.Cargo_Capacity;
+                        InhibitionRadius += slot.module.InhibitionRadius;
+                        BonusEMP_Protection += slot.module.EMP_Protection;
+                        if (slot.module.SensorRange > SensorRange)
+                            SensorRange = slot.module.SensorRange;
+                        if (slot.module.SensorBonus > sensorBonus)
+                            sensorBonus = slot.module.SensorBonus;
+                        if (slot.module.shield_power_max > 0f)
                         {
-                            shield_max += moduleSlot.module.GetShieldsMax();
-                            ShieldPowerDraw += moduleSlot.module.PowerDraw;
-                            Shields.Add(moduleSlot.module);
+                            shield_max += slot.module.GetShieldsMax();
+                            ShieldPowerDraw += slot.module.PowerDraw;
+                            Shields.Add(slot.module);
                         }
                         else
-                            ModulePowerDraw += moduleSlot.module.PowerDraw;
-                        Thrust += moduleSlot.module.thrust;
-                        WarpThrust += moduleSlot.module.WarpThrust;
-                        TurnThrust += moduleSlot.module.TurnThrust;
-                        if (moduleSlot.module.ECM > ECMValue)
+                            ModulePowerDraw += slot.module.PowerDraw;
+                        Thrust += slot.module.thrust;
+                        WarpThrust += slot.module.WarpThrust;
+                        TurnThrust += slot.module.TurnThrust;
+                        if (slot.module.ECM > ECMValue)
                         {
-                            ECMValue = moduleSlot.module.ECM;
+                            ECMValue = slot.module.ECM;
                             if (ECMValue > 1.0f)
                                 ECMValue = 1.0f;
                             if (ECMValue < 0f)
                                 ECMValue = 0f;
                         }
-                        OrdAddedPerSecond += moduleSlot.module.OrdnanceAddedPerSecond;
-                        HealPerTurn += moduleSlot.module.HealPerTurn;
-                        if (moduleSlot.module.ModuleType == ShipModuleType.Hangar)
+                        OrdAddedPerSecond += slot.module.OrdnanceAddedPerSecond;
+                        HealPerTurn += slot.module.HealPerTurn;
+                        if (slot.module.ModuleType == ShipModuleType.Hangar)
                         {
-                            Hangars.Add(moduleSlot.module);
-                            if (moduleSlot.module.IsTroopBay)
+                            Hangars.Add(slot.module);
+                            if (slot.module.IsTroopBay)
                                 HasTroopBay = true;
                         }
-                        if (moduleSlot.module.ModuleType == ShipModuleType.Transporter)
-                            Transporters.Add(moduleSlot.module);
-                        if (moduleSlot.module.InstalledWeapon != null && moduleSlot.module.InstalledWeapon.isRepairBeam)
-                            RepairBeams.Add(moduleSlot.module);
-                        if (moduleSlot.module.PowerStoreMax > 0)
-                            PowerStoreMax += moduleSlot.module.PowerStoreMax;
-                        if (moduleSlot.module.PowerFlowMax >  0)
-                            PowerFlowMax += moduleSlot.module.PowerFlowMax;
-                        WarpDraw += moduleSlot.module.PowerDrawAtWarp;
-                        if (moduleSlot.module.FTLSpoolTime > FTLSpoolTime)
-                            FTLSpoolTime = moduleSlot.module.FTLSpoolTime;
+                        if (slot.module.ModuleType == ShipModuleType.Transporter)
+                            Transporters.Add(slot.module);
+                        if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.isRepairBeam)
+                            RepairBeams.Add(slot.module);
+                        if (slot.module.PowerStoreMax > 0)
+                            PowerStoreMax += slot.module.PowerStoreMax;
+                        if (slot.module.PowerFlowMax >  0)
+                            PowerFlowMax += slot.module.PowerFlowMax;
+                        WarpDraw += slot.module.PowerDrawAtWarp;
+                        if (slot.module.FTLSpoolTime > FTLSpoolTime)
+                            FTLSpoolTime = slot.module.FTLSpoolTime;
                     }
                 }
             }
@@ -4366,16 +4366,14 @@ namespace Ship_Game.Gameplay
                 }
                 if (FTLSpoolTime <= 0)
                     FTLSpoolTime = 3f;
-                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
+                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses && 
+                    ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
                 {
-                    if (ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
-                    {
-                        RepairRate     += RepairRate * mod.RepairBonus;
-                        CargoSpace_Max += CargoSpace_Max * mod.CargoBonus;
-                        SensorRange    += SensorRange * mod.SensorBonus;
-                        WarpThrust     += WarpThrust * mod.SpeedBonus;
-                        Thrust         += Thrust * mod.SpeedBonus;
-                    }
+                    RepairRate     += RepairRate * mod.RepairBonus;
+                    CargoSpace_Max += CargoSpace_Max * mod.CargoBonus;
+                    SensorRange    += SensorRange * mod.SensorBonus;
+                    WarpThrust     += WarpThrust * mod.SpeedBonus;
+                    Thrust         += Thrust * mod.SpeedBonus;
                 }
             }
             
