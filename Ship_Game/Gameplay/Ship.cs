@@ -2403,7 +2403,7 @@ namespace Ship_Game.Gameplay
             armor_max = 0f;
             //CrewRequired = 0;    //Not referenced in code, removing to save memory
             //CrewSupplied = 0;    //Not referenced in code, removing to save memory
-            Size = 0;
+            Size = ModuleSlotList.Count;
             velocityMaximum = 0f;
             speed = 0f;
             SensorRange = 0f;
@@ -2531,7 +2531,7 @@ namespace Ship_Game.Gameplay
                 {
                     armor_max += slot.module.HealthMax;
                 }
-                Size += 1;
+                
                 CargoSpace_Max += slot.module.Cargo_Capacity;
                 OrdinanceMax += (float)slot.module.OrdinanceCapacity;
                 Ordinance += (float)slot.module.OrdinanceCapacity;
@@ -2587,7 +2587,6 @@ namespace Ship_Game.Gameplay
             armor_max = 0.0f;
             //CrewRequired = 0;    //Not referenced in code, removing to save memory
             //CrewSupplied = 0;    //Not referenced in code, removing to save memory
-            Size = 0;
             velocityMaximum = 0.0f;
             speed = 0.0f;
             OrdinanceMax = 0.0f;
@@ -2598,12 +2597,13 @@ namespace Ship_Game.Gameplay
             TroopBoardingDefense = 0.0f;
             ECMValue = 0.0f;
             FTLSpoolTime = 0f;
-
+            Size = ModuleSlotList.Count;
 
             foreach (ModuleSlot slot in ModuleSlotList)
             {
                 if (slot.Restrictions == Restrictions.I)
                     ++number_Internal_slots;
+                
                 if (slot.module.ModuleType == ShipModuleType.Dummy)
                     continue;
                 if (slot.module.ECM > ECMValue)
@@ -2618,8 +2618,7 @@ namespace Ship_Game.Gameplay
                 float massModifier = 1.0f;
                 if (slot.module.ModuleType == ShipModuleType.Armor && loyalty != null)
                     massModifier = loyalty.data.ArmourMassModifier;
-                Mass += slot.module.Mass * massModifier;
-
+                Mass += slot.module.Mass * massModifier;                
                 Thrust += slot.module.thrust;
                 WarpThrust += slot.module.WarpThrust;
                 MechanicalBoardingDefense += slot.module.MechanicalBoardingDefense;
@@ -2629,8 +2628,7 @@ namespace Ship_Game.Gameplay
                 shield_max += slot.module.GetShieldsMax();
                 shield_power += slot.module.shield_power;
                 if (slot.module.ModuleType == ShipModuleType.Armor)
-                    armor_max += slot.module.HealthMax;
-                ++Size;
+                    armor_max += slot.module.HealthMax;                
                 CargoSpace_Max += slot.module.Cargo_Capacity;
                 OrdinanceMax += (float)slot.module.OrdinanceCapacity;
                 if (slot.module.ModuleType != ShipModuleType.Shield)
