@@ -24,7 +24,7 @@ namespace Ship_Game.Gameplay
         public byte YSIZE = 1;
         public bool Powered;
         public bool isDummy;
-        public Array<ShipModule> LinkedModulesList = new Array<ShipModule>();
+        private ShipModule[] DummyModules = Empty<ShipModule>.Array;
         private float distanceToParentCenter;
         private float offsetAngle;
         public float FieldOfFire;
@@ -51,7 +51,7 @@ namespace Ship_Game.Gameplay
         private Vector3 Center3D;
         public float BombTimer;
         public ShipModuleType ModuleType;
-        public Vector2 moduleCenter = new Vector2(0f, 0f);
+        public Vector2 moduleCenter;
         public Vector2 ModuleCenter;
         public string IconTexturePath;
 
@@ -221,7 +221,7 @@ namespace Ship_Game.Gameplay
 
         public void Clear()
         {
-            LinkedModulesList.Clear();
+            DummyModules = Empty<ShipModule>.Array;
         }
 
         private float ApplyShieldResistances(Weapon weapon, float damage)
@@ -352,7 +352,7 @@ namespace Ship_Game.Gameplay
                 {
                     reallyFuckedUp = true;
                 }
-                foreach (ShipModule dummy in LinkedModulesList)
+                foreach (ShipModule dummy in DummyModules)
                 {
                     dummy.DamageDummy(damageAmount);
                 }
@@ -587,7 +587,7 @@ namespace Ship_Game.Gameplay
                 {
                     reallyFuckedUp = true;
                 }
-                foreach (ShipModule dummy in LinkedModulesList)
+                foreach (ShipModule dummy in DummyModules)
                 {
                     dummy.DamageDummy(damageAmount);
                 }
@@ -856,7 +856,7 @@ namespace Ship_Game.Gameplay
                     Active = true;
                     onFire = false;
                 }
-                foreach (ShipModule dummy in LinkedModulesList)
+                foreach (ShipModule dummy in DummyModules)
                 {
                     dummy.DamageDummy(damageAmount);
                 }
@@ -979,7 +979,7 @@ namespace Ship_Game.Gameplay
             DebugInfoScreen.ModulesDied += 1;
             if (!isDummy)
             {
-                foreach (ShipModule link in LinkedModulesList)
+                foreach (ShipModule link in DummyModules)
                 {
                     if (!link.Active)
                         continue;
@@ -1071,7 +1071,9 @@ namespace Ship_Game.Gameplay
                 Health    = Math.Min(Health, HealthMax);     //Gretman (Health bug fix)
             }
 
-            LinkedModulesList.Capacity = XSIZE * YSIZE;
+            int expectedDummies = (XSIZE - 1) * (YSIZE - 1) + (YSIZE - 1);
+            DummyModules = new ShipModule[expectedDummies];
+            int numDummies = 0;
             if (XSIZE > 1)
             {
                 for (int xs = XSIZE; xs > 1; xs--)
@@ -1087,7 +1089,7 @@ namespace Ship_Game.Gameplay
                     dummy.HealthMax     = HealthMax;
                     dummy.ModuleType    = ShipModuleType.Dummy;
                     dummy.Initialize();
-                    LinkedModulesList.Add(dummy);
+                    DummyModules[numDummies++] = dummy;
                     if (YSIZE > 1)
                     {
                         for (int ys = YSIZE; ys > 1; ys--)
@@ -1103,7 +1105,7 @@ namespace Ship_Game.Gameplay
                             dummy.HealthMax     = HealthMax;
                             dummy.ModuleType    = ShipModuleType.Dummy;
                             dummy.Initialize();
-                            LinkedModulesList.Add(dummy);
+                            DummyModules[numDummies++] = dummy;
                         }
                     }
                 }
@@ -1123,12 +1125,12 @@ namespace Ship_Game.Gameplay
                     dummy.HealthMax     = HealthMax;
                     dummy.ModuleType    = ShipModuleType.Dummy;
                     dummy.Initialize();
-                    LinkedModulesList.Add(dummy);
+                    DummyModules[numDummies++] = dummy;
                 }
             }
             if (!isDummy)
             {
-                foreach (ShipModule module in LinkedModulesList)
+                foreach (ShipModule module in DummyModules)
                 {
                     module.Parent          = Parent;
                     module.System          = Parent.System;
@@ -1537,7 +1539,7 @@ namespace Ship_Game.Gameplay
             if (Health < HealthMax) return;
 
             Health = HealthMax;
-            foreach (ShipModule dummy in LinkedModulesList)
+            foreach (ShipModule dummy in DummyModules)
                 dummy.Health = dummy.HealthMax;
         }
 
