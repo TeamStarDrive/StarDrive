@@ -1034,15 +1034,8 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        public Ship GetHangarShip()
-        {
-            return hangarShip;
-        }
-
-        public Ship GetParent()
-        {
-            return Parent;
-        }
+        public Ship GetHangarShip() => hangarShip;
+        public Ship GetParent() => Parent;
 
         public void Initialize(Vector2 pos)
         {
@@ -1051,7 +1044,7 @@ namespace Ship_Game.Gameplay
             Radius = 8f;
             Position = pos;
             Dimensions = new Vector2(16f, 16f);
-            Vector2 relativeShipCenter = new Vector2(512f, 512f);
+            var relativeShipCenter = new Vector2(512f, 512f);
             moduleCenter.X = pos.X + 256f;
             moduleCenter.Y = pos.Y + 256f;
 
@@ -1071,54 +1064,33 @@ namespace Ship_Game.Gameplay
                 Health    = Math.Min(Health, HealthMax);     //Gretman (Health bug fix)
             }
 
-            int expectedDummies = (XSIZE - 1) * (YSIZE - 1) + (YSIZE - 1);
-            DummyModules = new ShipModule[expectedDummies];
             int numDummies = 0;
-            if (XSIZE > 1)
+            int expectedDummies = XSIZE * YSIZE - 1;
+            if (expectedDummies > 0)
             {
-                for (int xs = XSIZE; xs > 1; xs--)
-                {
-                    ShipModule dummy = new ShipModule();
-                    dummy.XMLPosition   = XMLPosition;
-                    dummy.XMLPosition.X = dummy.XMLPosition.X + (16 * (xs - 1));
-                    dummy.isDummy       = true;
-                    dummy.ParentOfDummy = this;
-                    dummy.Mass          = 0f;
-                    dummy.Parent        = Parent;
-                    dummy.Health        = Health;
-                    dummy.HealthMax     = HealthMax;
-                    dummy.ModuleType    = ShipModuleType.Dummy;
-                    dummy.Initialize();
-                    DummyModules[numDummies++] = dummy;
-                    if (YSIZE > 1)
-                    {
-                        for (int ys = YSIZE; ys > 1; ys--)
-                        {
-                            dummy = new ShipModule();
-                            dummy.ParentOfDummy = this;
-                            dummy.XMLPosition.X = XMLPosition.X + (16 * (xs - 1));
-                            dummy.XMLPosition.Y = XMLPosition.Y + (16 * (ys - 1));
-                            dummy.isDummy       = true;
-                            dummy.Mass          = 0f;
-                            dummy.Parent        = Parent;
-                            dummy.Health        = Health;
-                            dummy.HealthMax     = HealthMax;
-                            dummy.ModuleType    = ShipModuleType.Dummy;
-                            dummy.Initialize();
-                            DummyModules[numDummies++] = dummy;
-                        }
-                    }
-                }
+                DummyModules = new ShipModule[expectedDummies];
             }
-            if (YSIZE > 1)
+            for (int xs = XSIZE; xs > 1; xs--)
             {
+                var dummy = new ShipModule();
+                dummy.XMLPosition   = XMLPosition;
+                dummy.XMLPosition.X = dummy.XMLPosition.X + (16 * (xs - 1));
+                dummy.isDummy       = true;
+                dummy.ParentOfDummy = this;
+                dummy.Mass          = 0f;
+                dummy.Parent        = Parent;
+                dummy.Health        = Health;
+                dummy.HealthMax     = HealthMax;
+                dummy.ModuleType    = ShipModuleType.Dummy;
+                dummy.Initialize();
+                DummyModules[numDummies++] = dummy;
                 for (int ys = YSIZE; ys > 1; ys--)
                 {
-                    ShipModule dummy = new ShipModule();
-                    dummy.XMLPosition   = XMLPosition;
-                    dummy.XMLPosition.Y = dummy.XMLPosition.Y + (16 * (ys - 1));
-                    dummy.isDummy       = true;
+                    dummy = new ShipModule();
                     dummy.ParentOfDummy = this;
+                    dummy.XMLPosition.X = XMLPosition.X + (16 * (xs - 1));
+                    dummy.XMLPosition.Y = XMLPosition.Y + (16 * (ys - 1));
+                    dummy.isDummy       = true;
                     dummy.Mass          = 0f;
                     dummy.Parent        = Parent;
                     dummy.Health        = Health;
@@ -1128,6 +1100,25 @@ namespace Ship_Game.Gameplay
                     DummyModules[numDummies++] = dummy;
                 }
             }
+            for (int ys = YSIZE; ys > 1; ys--)
+            {
+                var dummy = new ShipModule();
+                dummy.XMLPosition   = XMLPosition;
+                dummy.XMLPosition.Y = dummy.XMLPosition.Y + (16 * (ys - 1));
+                dummy.isDummy       = true;
+                dummy.ParentOfDummy = this;
+                dummy.Mass          = 0f;
+                dummy.Parent        = Parent;
+                dummy.Health        = Health;
+                dummy.HealthMax     = HealthMax;
+                dummy.ModuleType    = ShipModuleType.Dummy;
+                dummy.Initialize();
+                DummyModules[numDummies++] = dummy;
+            }
+
+            if (numDummies != expectedDummies)
+                Log.Error("Dummy count mismatch!");
+
             if (!isDummy)
             {
                 foreach (ShipModule module in DummyModules)
@@ -1175,7 +1166,7 @@ namespace Ship_Game.Gameplay
                     hangarShip.DoEscort(Parent);
                     return;
                 }
-                if (Ship_Game.ResourceManager.ShipsDict["Assault_Shuttle"].Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
+                if (ResourceManager.ShipsDict["Assault_Shuttle"].Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
                     return;
                 if (hangarTimer <= 0f && hangarShip == null)
                 {
@@ -1345,7 +1336,7 @@ namespace Ship_Game.Gameplay
         public void SetHangarShip(Ship ship)
         {
             hangarShip = ship;
-            if(ship != null)
+            if (ship != null)
                 installedSlot.HangarshipGuid = ship.guid;  //fbedard: save mothership
         }
 
@@ -1372,37 +1363,42 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        private void AddExternalModule(ShipModule module, int moduleQuadrant)
+        {
+            module.isExternal = true;
+            module.quadrant   = (sbyte)moduleQuadrant;
+            ModuleSlot slot = module.isDummy ? module.ParentOfDummy.installedSlot : module.installedSlot;
+            if (slot == null)
+                Log.Error("Module {0} installedSlot was null", module);
+            Parent.ExternalSlots.Add(slot);
+        }
+
         public void SetNewExternals()
         {
             quadrant = -1;
-            ShipModule module;
-            Vector2 up = new Vector2(XMLPosition.X, XMLPosition.Y - 16f);
-            if (Parent.TryGetModule(up, out module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
+
+            var up = new Vector2(XMLPosition.X, XMLPosition.Y - 16f);
+            if (Parent.TryGetModule(up, out ShipModule module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
             {
-                module.isExternal = true;
-                module.quadrant = 1;
-                Parent.ExternalSlots.Add(module.installedSlot);
+                AddExternalModule(module, 1);
             }
-            Vector2 right = new Vector2(XMLPosition.X + 16f, XMLPosition.Y);
+
+            var right = new Vector2(XMLPosition.X + 16f, XMLPosition.Y);
             if (Parent.TryGetModule(right, out module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
             {
-                module.isExternal = true;
-                module.quadrant = 2;
-                Parent.ExternalSlots.Add(module.installedSlot);
+                AddExternalModule(module, 2);
             }
-            Vector2 left = new Vector2(XMLPosition.X - 16f, XMLPosition.Y);
-            if (Parent.TryGetModule(left, out module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
-            {
-                module.isExternal = true;
-                module.quadrant = 4;
-                Parent.ExternalSlots.Add(module.installedSlot);
-            }
-            Vector2 down = new Vector2(XMLPosition.X, XMLPosition.Y + 16f);
+
+            var down = new Vector2(XMLPosition.X, XMLPosition.Y + 16f);
             if (Parent.TryGetModule(down, out module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
             {
-                module.isExternal = true;
-                module.quadrant = 3;
-                Parent.ExternalSlots.Add(module.installedSlot);
+                AddExternalModule(module, 3);
+            }
+
+            var left = new Vector2(XMLPosition.X - 16f, XMLPosition.Y);
+            if (Parent.TryGetModule(left, out module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
+            {
+                AddExternalModule(module, 4);
             }
         }
 
@@ -1426,7 +1422,7 @@ namespace Ship_Game.Gameplay
             }
             if (Health <= 0f && Active)
             {
-                Die(base.LastDamagedBy, false);
+                Die(LastDamagedBy, false);
             }
             if (Health >= HealthMax)
             {

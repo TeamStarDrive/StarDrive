@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Net.NetworkInformation;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SynapseGaming.LightingSystem.Rendering;
@@ -51,6 +48,12 @@ namespace Ship_Game
             return (float)Sqrt(dx*dx + dy*dy + dz*dz);
         }
 
+
+        public static Vector2 Normalized(this Vector2 v)
+        {
+            float len = (float)Sqrt(v.X * v.X + v.Y * v.Y);
+            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
+        }
 
         // True if this given position is within the radius of Circle [center,radius]
         public static bool InRadius(this Vector2 position, Vector2 center, float radius)
