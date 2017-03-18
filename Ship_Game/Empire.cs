@@ -3127,6 +3127,7 @@ namespace Ship_Game
             if (!TryGetRelations(empire, out Relationship rel) || rel ==null || !rel.Known) return true;            
             if (rel.AtWar) return true;
             if (rel.Treaty_NAPact) return false;
+            if (isFaction || empire.isFaction ) return true;            
             Ship ship = target as Ship;
             if(ship != null)
             {                
