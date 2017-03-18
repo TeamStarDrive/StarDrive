@@ -8,8 +8,7 @@ namespace Ship_Game.AI
 	{
 		public Projectile Owner;
 		private GameplayObject Target;
-		private BatchRemovalCollection<Ship> TargetList = new BatchRemovalCollection<Ship>();
-		public static UniverseScreen universeScreen;
+		private readonly BatchRemovalCollection<Ship> TargetList = new BatchRemovalCollection<Ship>();
 		private float thinkTimer = 0.15f;
 		private bool TargetSet;
         private bool Jammed = false;
@@ -17,28 +16,22 @@ namespace Ship_Game.AI
 
 		public MissileAI(Projectile owner)
 		{
-			this.Owner = owner;
-			if (MissileAI.universeScreen != null)
-			{
-				Array<GameplayObject> GPO;
-                if (this.Owner.Owner == null)
-                {
-                    GPO = UniverseScreen.ShipSpatialManager.GetNearby(this.Owner);
-                    for (int i = 0; i < GPO.Count; i++)
-                    {
-                        Ship target = GPO[i] as Ship;
-                        if (target != null)
-                        {
-                            if (target != null && target.loyalty != this.Owner.loyalty && this.Owner.weapon.TargetValid(target.shipData.Role))
-                                this.TargetList.Add(target);
-                        }
-                    }
-                }
-                else
-                {
-                    this.TargetList = this.Owner.Owner.GetAI().PotentialTargets;
-                }
-			}
+			Owner = owner;
+		    if (Empire.Universe == null) return;
+		    if (Owner.Owner == null)
+		    {
+		        GameplayObject[] nearby = UniverseScreen.ShipSpatialManager.GetNearby(Owner);
+		        for (int i = 0; i < nearby.Length; i++)
+		        {
+		            if (!(nearby[i] is Ship ship)) continue;
+		            if (ship.loyalty != Owner.loyalty && Owner.weapon.TargetValid(ship.shipData.Role))
+		                TargetList.Add(ship);
+		        }
+		    }
+		    else
+		    {
+		        TargetList = Owner.Owner.GetAI().PotentialTargets;
+		    }
 		}
 
         //added by gremlin deveks ChooseTarget

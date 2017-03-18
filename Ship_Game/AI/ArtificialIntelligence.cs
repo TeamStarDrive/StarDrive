@@ -4613,15 +4613,15 @@ namespace Ship_Game.AI
                     };
                     NearbyShips.Add(sw);
                 }
-                var nearby = UniverseScreen.ShipSpatialManager.GetNearby(Owner);
-                for (int i = 0; i < nearby.Count; i++)
+                GameplayObject[] nearby = UniverseScreen.ShipSpatialManager.GetNearby(Owner);
+                for (int i = 0; i < nearby.Length; i++)
                 {
-                    Ship nearbyShip = nearby[i] as Ship;
+                    var nearbyShip = nearby[i] as Ship;
                     if (nearbyShip == null || !nearbyShip.Active || nearbyShip.dying
-                        || Owner.Center.OutsideRadius(nearbyShip.Center, Radius + (Radius < 0.01f ? 10000 : 0))) continue;
+                        || Owner.Center.OutsideRadius(nearbyShip.Center, Radius + (Radius < 0.01f ? 10000 : 0)))
+                        continue;
 
                     Empire empire = nearbyShip.loyalty;
-                    Ship shipTarget = nearbyShip.GetAI().Target as Ship;
                     if (empire == Owner.loyalty)
                     {
                         FriendliesNearby.Add(nearbyShip);
@@ -4638,8 +4638,9 @@ namespace Ship_Game.AI
                         weight = 1f
                     };
                     NearbyShips.Add(sw);
-                    if (BadGuysNear && shipTarget != null
-                       && shipTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
+
+                    if (BadGuysNear && nearbyShip.GetAI().Target is Ship targetShip && 
+                        targetShip == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                     {
                         sw.weight = 3f;
                     }

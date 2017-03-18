@@ -5,239 +5,340 @@
 
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Ship_Game.Gameplay
 {
-    public sealed class SpatialManager: IDisposable
+    public sealed class SpatialManager : IDisposable
     {
-        public Array<GameplayObject> CollidableObjects = new Array<GameplayObject>();
-        public Array<Projectile> CollidableProjectiles = new Array<Projectile>();
-        public Array<Asteroid> Asteroids = new Array<Asteroid>();
-        public Array<Beam> BeamList = new Array<Beam>();
-        private float BucketUpdateTimer = 0.5f;
-        private readonly Array<CollisionResult> CollisionResults = new Array<CollisionResult>();
-        private int Cols;
-        private int Rows;
-        private Vector2 UpperLeftBound;
-        private ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>> Buckets;
-        public int SceneWidth;
-        public int SceneHeight;
-        public int CellSize;
-        public bool FineDetail;        
+        private readonly Array<Ship>       Ships       = new Array<Ship>();
+        private readonly Array<Projectile> Projectiles = new Array<Projectile>();
+        private readonly Array<Asteroid>   Asteroids   = new Array<Asteroid>();
+        private readonly Array<Beam>       Beams       = new Array<Beam>();
 
-        public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 Pos)
+        private float BucketUpdateTimer;
+        private readonly Array<CollisionResult> CollisionResults = new Array<CollisionResult>();
+        private int Width;
+        private int Height;
+        private int Size;
+        private Vector2 UpperLeftBound;
+        private Array<GameplayObject>[] Buckets;
+        private int CellSize;
+        private bool FineDetail;        
+
+        public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 center)
         {
-            UpperLeftBound.X = Pos.X - (sceneWidth / 2f);
-            UpperLeftBound.Y = Pos.Y - (sceneHeight / 2f);
-            Cols = sceneWidth / cellSize;
-            Rows = sceneHeight / cellSize;
-            //Buckets = new Map<int, Array<GameplayObject>>(Cols * Rows);
-            Buckets = new ConcurrentDictionary<int, BatchRemovalCollection<GameplayObject>>();
-            for (int key = 0; key < Cols * Rows; ++key)
-                Buckets.TryAdd(key, new BatchRemovalCollection<GameplayObject>());
-            SceneWidth  = sceneWidth;
-            SceneHeight = sceneHeight;
-            CellSize    = cellSize;
+            UpperLeftBound.X = center.X - (sceneWidth  / 2f);
+            UpperLeftBound.Y = center.Y - (sceneHeight / 2f);
+            Width            = sceneWidth  / cellSize;
+            Height           = sceneHeight / cellSize;
+            Size             = Width * Height;
+            Buckets          = new Array<GameplayObject>[Size];
+            CellSize         = cellSize;
+        }
+
+        private static bool CheckNotNull(GameplayObject obj)
+        {
+            if (obj != null)
+                return true;
+            Log.Error("SpatialManager null object");
+            return false;
+        }
+
+        public void Add(Ship ship)
+        {
+            if (CheckNotNull(ship) && !Contains(ship))
+            {
+                Ships.Add(ship);
+                PlaceIntoBucket(ship);
+            }
+        }
+        public void Add(Projectile projectile)
+        {
+            if (CheckNotNull(projectile) && !Contains(projectile))
+            {
+                Projectiles.Add(projectile);
+                PlaceIntoBucket(projectile);
+            }
+        }
+        public void Add(Asteroid asteroid)
+        {
+            if (CheckNotNull(asteroid) && !Contains(asteroid))
+            {
+                Asteroids.Add(asteroid);
+                PlaceIntoBucket(asteroid);
+            }
+        }
+        public void Add(Beam beam)
+        {
+            if (CheckNotNull(beam) && !Contains(beam))
+            {
+                Beams.Add(beam);
+                PlaceIntoBucket(beam);
+            }
+        }
+
+        public void Remove(Ship ship)
+        {
+            if (CheckNotNull(ship)) Ships.Remove(ship);
+        }
+        public void Remove(Projectile projectile)
+        {
+            if (CheckNotNull(projectile)) Projectiles.Remove(projectile);
+        }
+        public void Remove(Asteroid asteroid)
+        {
+            if (CheckNotNull(asteroid)) Asteroids.Remove(asteroid);
+        }
+        public void Remove(Beam beam)
+        {
+            if (CheckNotNull(beam)) Beams.Remove(beam);
+        }
+
+        public bool Contains(Ship ship)             => Ships.ContainsRef(ship);
+        public bool Contains(Projectile projectile) => Projectiles.ContainsRef(projectile);
+        public bool Contains(Asteroid asteroid)     => Asteroids.ContainsRef(asteroid);
+        public bool Contains(Beam beam)             => Beams.ContainsRef(beam);
+
+        public IReadOnlyList<Ship> ShipsList => Ships;
+
+        public void GetDeepSpaceShips(Array<Ship> copyTo)
+        {
+            copyTo.Clear();
+            for (int i = 0; i < Ships.Count; ++i)
+            {
+                Ship ship = Ships[i];
+                if (ship.Active && ship.isInDeepSpace && ship.System == null)
+                    copyTo.Add(ship);
+            }
         }
 
         public void Update(float elapsedTime, SolarSystem system)
         {
-            BucketUpdateTimer -= elapsedTime;
-            if (BucketUpdateTimer <= 0.0)
+            BucketUpdateTimer += elapsedTime;
+            if (BucketUpdateTimer >= 0.5f) // update all buckets
             {
+                BucketUpdateTimer = 0.0f;
                 ClearBuckets();
+
                 if (system != null)
                 {
                     if (system.CombatInSystem && system.ShipList.Count > 10)
                     {
-                        if (!FineDetail || Buckets.Count < 20 && CollidableProjectiles.Count > 0)
+                        if (!FineDetail || Size < 20 && Projectiles.Count > 0)
                         {
                             Setup(200000, 200000, 6000, system.Position);
                             FineDetail = true;
                         }
                     }
-                    else if (FineDetail || Buckets.Count > 20 || CollidableProjectiles.Count == 0)
+                    else if (FineDetail || Size > 20 || Projectiles.Count == 0)
                         Setup(200000, 200000, 50000, system.Position);
                 }
-                for (int index = CollidableObjects.Count - 1; index >= 0; --index)
-                {
-                    GameplayObject gameplayObject = CollidableObjects[index];
-                    if (gameplayObject != null)
-                    {
-                        if (gameplayObject.System != null && system == null)
-                            CollidableObjects.Remove(gameplayObject);
 
-                        if (gameplayObject.Active)
-                            RegisterObject(gameplayObject);
-                        else
-                            CollidableObjects.Remove(gameplayObject);
-
-                    }
-                }
-                for (int index = CollidableProjectiles.Count - 1; index >= 0; --index)
+                for (int i = Ships.Count - 1; i >= 0; --i)
                 {
-                    Projectile gameplayObject = CollidableProjectiles[index];
-                    if (gameplayObject.System!= null && system == null)
-                        CollidableObjects.Remove(gameplayObject); 
-                    else if (gameplayObject.Active)
-                        RegisterObject(gameplayObject);
+                    Ship ship = Ships[i];
+                    if (!ship.Active || ship.System != null && system == null)
+                        Ships.RemoveAt(i);
+                    else PlaceIntoBucket(ship);
                 }
-                BucketUpdateTimer = 0.5f;
-            }
-            if (CollidableProjectiles.Count > 0)
-            {
-                for (int index = 0; index < CollidableObjects.Count; ++index)
+                for (int i = Projectiles.Count - 1; i >= 0; --i)
                 {
-                    GameplayObject gameplayObject = CollidableObjects[index];
-                    Ship oShip = gameplayObject as Ship;                    
-                    if (gameplayObject != null && !(gameplayObject.System!= null & system == null) 
-                        && (oShip == null || system != null || oShip.GetAI().BadGuysNear))
-                        MoveAndCollide(gameplayObject);
+                    Projectile projectile = Projectiles[i];
+                    if (!projectile.Active || projectile.System != null && system == null)
+                        Projectiles.Remove(projectile); 
+                    else PlaceIntoBucket(projectile);
                 }
             }
-            for (int index = 0; index < BeamList.Count; ++index)
+
+            // run collision checks, the loops look weird because they are optimized for .NET JIT
+            int numProjectiles = Projectiles.Count;
+            if (numProjectiles > 0)
             {
-                Beam beam = BeamList[index];
-                if (beam != null)
-                    CollideBeam(beam);
+                Projectile[] items = Projectiles.GetInternalArrayItems();
+                for (int i = 0; i < numProjectiles && i < items.Length; ++i)
+                {
+                    Projectile projectile = items[i];
+                    if (projectile.Active)
+                        MoveAndCollide(projectile);
+                }
+            }
+            int numBeams = Beams.Count;
+            if (numBeams > 0)
+            {
+                Beam[] items = Beams.GetInternalArrayItems();
+                for (int i = 0; i < numBeams && i < items.Length; ++i)
+                {
+                    Beam beam = items[i];
+                    if (beam.Active)
+                        CollideBeam(beam);
+                }
             }
         }
 
         public void UpdateBucketsOnly(float elapsedTime)
         {
-            BucketUpdateTimer -= elapsedTime;
-            if (BucketUpdateTimer <= 0f)
-            {
-                ClearBuckets();
-                for (int i = CollidableObjects.Count - 1; i >= 0; --i)
-                {
-                    GameplayObject go = CollidableObjects[i];
-                    if (go.Active)
-                        RegisterObject(go);
-                    else
-                        CollidableObjects.Remove(go);
-                }
-                BucketUpdateTimer = 0.5f;
-            }
-        }
-
-        internal Array<GameplayObject> GetNearby(GameplayObject obj)
-        {
-            var nearby = new Array<GameplayObject>();
-            foreach (int key in GetIdForObj(obj))
-            {
-                if (!Buckets.TryGetValue(key, out var list))
-                    return Buckets[1];
-                nearby.AddRange(list);
-            }
-            return nearby;
-        }
-
-        internal Array<GameplayObject> GetNearby(Vector2 position)
-        {
-            var list = new Array<GameplayObject>();
-            foreach (int key in GetIdForPos(position))
-            {
-                if (Buckets.TryGetValue(key, out BatchRemovalCollection<GameplayObject> test))
-                    list.AddRange(test);
-            }
-            return list;
-        }
-
-        internal Array<T> GetNearby<T>(Vector2 position) where T : GameplayObject
-        {
-            var list = new Array<T>();
-            foreach (int key in GetIdForPos(position))
-            {
-                if (!Buckets.TryGetValue(key, out BatchRemovalCollection<GameplayObject> test))
-                    continue;
-                foreach (GameplayObject go in test)
-                {
-                    if (go is T item)
-                        list.Add(item);
-                }
-            }
-            return list;
-        }
-
-        internal void RegisterObject(GameplayObject obj)
-        {
-            foreach (int key in GetIdForObj(obj))
-            {
-                if (Buckets.TryGetValue(key, out BatchRemovalCollection<GameplayObject> test))
-                    test.Add(obj);
-                else
-                    Buckets[1].Add(obj);
-            }
-        }
-
-        public Array<int> GetIdForObj(GameplayObject obj)
-        {
-            Array<int> buckettoaddto = new Array<int>();
-            Vector2 vector2_1 = obj.Center - UpperLeftBound;
-            Vector2 vector = new Vector2(vector2_1.X - obj.Radius, vector2_1.Y - obj.Radius);
-            Vector2 vector2_2 = new Vector2(vector2_1.X + obj.Radius, vector2_1.Y + obj.Radius);
-            float width = (float)SceneWidth / CellSize;
-            AddBucket(vector, width, buckettoaddto);
-            AddBucket(new Vector2(vector2_2.X, vector.Y), width, buckettoaddto);
-            AddBucket(new Vector2(vector2_2.X, vector2_2.Y), width, buckettoaddto);
-            AddBucket(new Vector2(vector.X, vector2_2.Y), width, buckettoaddto);
-            return buckettoaddto;
-        }
-
-        public Array<int> GetIdForPos(Vector2 Position)
-        {
-            Array<int> buckettoaddto = new Array<int>();
-            Vector2 vector2_1 = Position - UpperLeftBound;
-            Vector2 vector = new Vector2(vector2_1.X - 100f, vector2_1.Y - 100f);
-            Vector2 vector2_2 = new Vector2(vector2_1.X + 100f, vector2_1.Y + 100f);
-            float width = (float)SceneWidth / CellSize;
-            AddBucket(vector, width, buckettoaddto);
-            AddBucket(new Vector2(vector2_2.X, vector.Y), width, buckettoaddto);
-            AddBucket(new Vector2(vector2_2.X, vector2_2.Y), width, buckettoaddto);
-            AddBucket(new Vector2(vector.X, vector2_2.Y), width, buckettoaddto);
-            return buckettoaddto;
-        }
-
-
-        private void AddBucket(Vector2 vector, float width, Array<int> buckettoaddto)
-        {
-            int num = (int)(Math.Floor(vector.X / CellSize) + Math.Floor(vector.Y / CellSize) * width);
-            if (buckettoaddto.Contains(num))
+            BucketUpdateTimer += elapsedTime;
+            if (BucketUpdateTimer < 0.5f)
                 return;
-            buckettoaddto.Add(num);
+            BucketUpdateTimer = 0.0f;
+            ClearBuckets();
+
+            for (int i = Ships.Count - 1; i >= 0; --i)
+            {
+                Ship ship = Ships[i];
+                if (!ship.Active) Ships.RemoveAt(i);
+                else              PlaceIntoBucket(ship);
+            }
+            for (int i = Projectiles.Count - 1; i >= 0; --i)
+            {
+                Projectile projectile = Projectiles[i];
+                if (!projectile.Active) Projectiles.Remove(projectile);
+                else                    PlaceIntoBucket(projectile);
+            }
         }
+
+        // clockwise 4 quadrants, however, values can be -1 if the quadrants were too far or nonexistant
+        [StructLayout(LayoutKind.Sequential)]
+        [DebuggerDisplay("Length = {Length} [0]={Quad0} [1]={Quad1} [2]={Quad2} [3]={Quad3}")]
+        private struct QuadrantIds
+        {
+            public int Length;
+            private int Quad0;
+            private int Quad1;
+            private int Quad2;
+            private int Quad3;
+
+            public unsafe int this[int index]
+            {
+                get
+                {
+                    fixed (int* quads = &Quad0)
+                        return quads[index];
+                }
+            }
+
+            public unsafe void Add(int quadrantId)
+            {
+                fixed (int* quads = &Quad0)
+                {
+                    for (int i = 0; i < Length; ++i)
+                        if (quads[i] == quadrantId)
+                            return;
+                    quads[Length++] = quadrantId;
+                }
+            }
+        }
+
+        private QuadrantIds GetIdForPos(Vector2 objPos, float radius = 100f)
+        {
+            Vector2 gridPos = objPos - UpperLeftBound;
+
+            float left  = gridPos.X - radius;
+            float right = gridPos.X + radius;
+            float top   = gridPos.Y - radius;
+            float bot   = gridPos.Y + radius;
+
+            var quadrants = new QuadrantIds();
+            AddBucket(ref quadrants, left,  top);
+            AddBucket(ref quadrants, right, top);
+            AddBucket(ref quadrants, right, bot);
+            AddBucket(ref quadrants, left,  bot);
+            return quadrants;
+        }
+
+        private void AddBucket(ref QuadrantIds quadrants, float posX, float posY)
+        {
+            int x = (int)posX / CellSize;
+            int y = (int)posY / CellSize;
+            int quadrantId = x + y * Width;
+            if (0 <= quadrantId && quadrantId < Size)
+                quadrants.Add(quadrantId);
+        }
+
+        public GameplayObject[] GetNearby(GameplayObject obj) => GetNearby(obj.Center, obj.Radius);
+
+        public GameplayObject[] GetNearby(Vector2 position, float radius = 100f)
+        {
+            QuadrantIds ids = GetIdForPos(position, radius);
+
+            int totalObjects = 0;
+            for (int i = 0; i < ids.Length; ++i)
+            {
+                Array<GameplayObject> bucket = Buckets[ids[i]];
+                if (bucket != null) totalObjects += bucket.Count;
+            }
+
+            var objects = new GameplayObject[totalObjects];
+            int numObjects = 0;
+            for (int i = 0; i < objects.Length; ++i)
+            {
+                Array<GameplayObject> bucket = Buckets[ids[i]];
+                if (bucket == null) continue;
+                for (int j = 0; j < bucket.Count; ++j)
+                {
+                    GameplayObject obj = bucket[j];
+                    if (!objects.ContainsRef(numObjects, obj))
+                        objects[numObjects++] = obj;
+                }
+            }
+
+            if (objects.Length != numObjects)
+                Array.Resize(ref objects, numObjects);
+            return objects;
+        }
+
+        private void PlaceIntoBucket(GameplayObject obj)
+        {
+            if (CellSize == 0)
+                return; // not initialized yet (probably during loading)
+
+            QuadrantIds ids = GetIdForPos(obj.Center, obj.Radius);
+            if (ids.Length == 0)
+                Log.Error("GameplayObject fell outside of SpatialManager grid: {0}", obj.Position);
+
+            for (int i = 0; i < ids.Length; ++i)
+            {
+                int bucketIdx = ids[i];
+                if (Buckets[bucketIdx] == null)
+                    Buckets[bucketIdx] = new Array<GameplayObject>();
+                Buckets[bucketIdx].Add(obj);
+            }
+        }
+
 
         public void Destroy()
         {
-            Buckets = null;// (Dictionary<int, Array<GameplayObject>>)null;
+            ClearBuckets();
+            Ships.Clear();
+            Projectiles.Clear();
+            Asteroids.Clear();
+            Beams.Clear();
+            Buckets = null;
         }
 
         internal void ClearBuckets()
         {
-            for (int index = 0; index < Cols * Rows; ++index)
-            {
-                BatchRemovalCollection<GameplayObject> test;
-                if(Buckets.TryGetValue(index, out test))
-                {
-                    test.Clear();
-                }
-            }
+            for (int i = 0; i < Size; ++i)
+                Buckets[i]?.Clear();
         }
 
-        private void MoveAndCollide(GameplayObject thisObj)
+        private void MoveAndCollide(Projectile projectile)
         {
-            Collide(thisObj);
+            CollisionResults.Clear();
+            foreach (GameplayObject otherObj in GetNearby(projectile))
+                if (CollideWith(projectile, otherObj))
+                    break; // projectile died, no need to continue collisions
+
             if (CollisionResults.Count > 0)
             {
                 CollisionResults.Sort(CollisionResult.Compare);
                 foreach (CollisionResult cr in CollisionResults)
                 {
-                    if (thisObj.Touch(cr.GameplayObject) || cr.GameplayObject.Touch(thisObj))
+                    if (projectile.Touch(cr.GameplayObject) || cr.GameplayObject.Touch(projectile))
                         return;
                 }
             }
@@ -302,7 +403,7 @@ namespace Ship_Game.Gameplay
                 return;
             Vector2 unitV = Vector2.Normalize(beam.Destination - beam.Source);
 
-            Ray beampath = new Ray(new Vector3(beam.Source, 0), new Vector3(unitV.X, unitV.Y, 0));
+            var beampath = new Ray(new Vector3(beam.Source, 0), new Vector3(unitV.X, unitV.Y, 0));
             float hit2 = beam.range;
 
             for (int i = 0; i < nearby.Length; i++)
@@ -392,230 +493,99 @@ namespace Ship_Game.Gameplay
             beam.ActualHitDestination = beam.Destination;
         }
 
-        // This function needs a lot more love
-        public void Collide(GameplayObject thisObj)
+        // @return TRUE if a collision happens, false if nothing happened
+        private bool CollideWith(Projectile thisProj, GameplayObject otherObj)
         {
-            CollisionResults.Clear();
-            if (!thisObj.Active)
-                return;
+            if (thisProj == otherObj || !otherObj.Active || otherObj.CollidedThisFrame)
+                return false;
 
-            foreach (GameplayObject otherObj in GetNearby(thisObj))
+            if (otherObj is Projectile otherProj)
             {
-                if (thisObj == otherObj || !otherObj.Active || otherObj.CollidedThisFrame)
-                    continue;
-
-                if (thisObj is Ship thisShip)
+                if (thisProj.Center.InRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherProj.weapon.ProjectileRadius))
                 {
-                    if (otherObj is Projectile otherProj && thisShip.loyalty != otherProj.loyalty)
+                    CollisionResults.Add(new CollisionResult
                     {
-                        ++GlobalStats.Comparisons;
-                        if (thisObj.Center.InRadius(otherObj.Center, otherProj.weapon.ProjectileRadius + thisShip.GetSO().WorldBoundingSphere.Radius + 100.0f))
-                        {
-                            thisShip.MoveModulesTimer = 2f;
-                            float projVel = otherProj.Velocity.Length();
-                            if (projVel / 60f > 10f) // if fast enough??
-                            {
-                                bool collision = false;
-                                Vector2 direction = otherObj.Velocity.Normalized();
-
-                                var shipShields = thisShip.GetShields();
-                                for (int i = 0; i < shipShields.Count; ++i)
-                                {
-                                    ++GlobalStats.DistanceCheckTotal;
-                                    ShipModule shieldModule = shipShields[i];
-                                    if (shieldModule.shield_power <= 0.0f || !otherProj.IgnoresShields)
-                                    {
-                                        if (shieldModule.shield_power > 0.0f && shieldModule.Active)
-                                        {
-                                            float collisionRadius = 12.0f + shieldModule.shield_radius;
-                                            int num2 = 8;
-                                            while (num2 < projVel / 60.0f) // this is raymarching ?
-                                            {
-                                                ++GlobalStats.Comparisons;
-                                                if (shieldModule.Center.InRadius(otherObj.Center + direction * num2, collisionRadius))
-                                                {
-                                                    otherObj.Center = otherObj.Center + direction * num2;
-                                                    otherObj.Position = otherObj.Center;
-                                                    otherProj.Touch(shieldModule);
-                                                    otherObj.CollidedThisFrame = true;
-                                                    collision = true;
-                                                    break;
-                                                }
-                                                num2 += 8;
-                                            }
-                                            if (collision)
-                                                break;
-                                        }
-                                    }
-                                    else break;
-                                }
-                                if (collision)
-                                    break;
-                                for (int i = 0; i < thisShip.ExternalSlots.Count; ++i)
-                                {
-                                    ++GlobalStats.DistanceCheckTotal;
-                                    ModuleSlot extSlot = thisShip.ExternalSlots[i];
-                                    if (extSlot.module != null && (extSlot.module.shield_power <= 0.0 || !otherProj.IgnoresShields) && extSlot.module.Active)
-                                    {
-                                        int num2 = 8;
-                                        while (num2 < projVel / 60.0)
-                                        {
-                                            ++GlobalStats.Comparisons;
-                                            if (Vector2.Distance(otherObj.Center + direction * num2, extSlot.module.Center) <= 8.0 + otherProj.weapon.ProjectileRadius + (extSlot.module.shield_power > 0.0 ? extSlot.module.shield_radius : 0.0))
-                                            {
-                                                otherObj.Center = otherObj.Center + direction * num2;
-                                                otherObj.Position = otherObj.Center;
-                                                otherProj.Touch(extSlot.module);
-                                                otherObj.CollidedThisFrame = true;
-                                                collision = true;
-                                                break;
-                                            }
-                                            num2 += 8;
-                                        }
-                                        if (collision) break;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                bool collision = false;
-                                for (int i = 0; i < thisShip.GetShields().Count; ++i)
-                                {
-                                    ++GlobalStats.Comparisons;
-                                    ++GlobalStats.DistanceCheckTotal;
-                                    ShipModule shield = thisShip.GetShields()[i];
-                                    if ((shield.shield_power <= 0.0 || !otherProj.IgnoresShields) && shield.Active && otherObj.Center.Distance(shield.Center) <= 10.0f + (shield.shield_power > 0.0 ? shield.shield_radius : 0.0))
-                                    {
-                                        collision = true;
-                                        otherProj.Touch(shield);
-                                        break;
-                                    }
-                                }
-                                if (!collision)
-                                {
-                                    for (int index = 0; index < thisShip.ExternalSlots.Count; ++index)
-                                    {
-                                        ++GlobalStats.DistanceCheckTotal;
-                                        ModuleSlot moduleSlot = thisShip.ExternalSlots[index];
-                                        if (moduleSlot.module != null && moduleSlot.module.Active && 
-                                            (moduleSlot.module.shield_power <= 0.0f || !otherProj.IgnoresShields) &&
-                                            moduleSlot.module.Center.InRadius(otherObj.Center, 10.0f + (moduleSlot.module.shield_power > 0.0f ? moduleSlot.module.shield_radius : 0.0f)))
-                                        {
-                                            otherProj.Touch(moduleSlot.module);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                        Distance = 0.0f,
+                        Normal = new Vector2(),
+                        GameplayObject = otherObj
+                    });
+                    return true; // thisProj died
                 }
-                else if (thisObj is Projectile thisProj)
+            }
+            else if (otherObj is Asteroid)
+            {
+                if (thisProj.Center.InRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherObj.Radius))
                 {
-                    if (otherObj is Projectile otherProj)
+                    CollisionResults.Add(new CollisionResult
                     {
-                        if (thisObj.Center.InRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherProj.weapon.ProjectileRadius))
-                        {
-                            CollisionResults.Add(new CollisionResult
-                            {
-                                Distance = 0.0f,
-                                Normal = new Vector2(),
-                                GameplayObject = otherObj
-                            });
-                            break;
-                        }
-                    }
-                    else if (otherObj is Asteroid)
+                        Distance = 0.0f,
+                        Normal = new Vector2(),
+                        GameplayObject = otherObj
+                    });
+                    return true; // thisProj died
+                }
+            }
+            else 
+            if (otherObj is Ship otherShip && 
+                thisProj.loyalty != otherShip.loyalty && 
+                thisProj.Center.InRadius(otherObj.Center, otherObj.Radius + thisProj.Radius + thisProj.speed / 60.0f))
+            {
+                otherShip.MoveModulesTimer = 2f;
+                if (thisProj.speed / 60.0 > 16.0) // raymarch type of collision?
+                {
+                    Vector2 direction = thisProj.Velocity.Normalized();
+                    for (int i = 0; i < otherShip.ExternalSlots.Count; ++i)
                     {
-                        if (thisObj.Center.InRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherObj.Radius))
+                        ++GlobalStats.DistanceCheckTotal;
+                        ModuleSlot slot = otherShip.ExternalSlots[i];
+                        if (slot.module != null && (slot.module.shield_power <= 0.0 || !thisProj.IgnoresShields) && slot.module.Active)
                         {
-                            CollisionResults.Add(new CollisionResult
-                            {
-                                Distance = 0.0f,
-                                Normal = new Vector2(),
-                                GameplayObject = otherObj
-                            });
-                            break;
-                        }
-                    }
-                    else if (otherObj is Ship otherShip && thisProj.loyalty != otherShip.loyalty && Vector2.Distance(thisObj.Center, otherObj.Center) < otherObj.Radius + thisObj.Radius + thisProj.speed / 60.0)
-                    {
-                        otherShip.MoveModulesTimer = 2f;
-                        if (thisProj.speed / 60.0 > 16.0)
-                        {
-                            Vector2 direction = Vector2.Normalize(thisObj.Velocity);
-                            for (int i = 0; i < otherShip.ExternalSlots.Count; ++i)
-                            {
-                                ++GlobalStats.DistanceCheckTotal;
-                                ModuleSlot slot = otherShip.ExternalSlots[i];
-                                if (slot.module != null && (slot.module.shield_power <= 0.0 || !thisProj.IgnoresShields) && slot.module.Active)
-                                {
-                                    bool collision = false;
-                                    float radius = 8.0f + (slot.module.shield_power > 0.0f ? slot.module.shield_radius : 0.0f);
+                            float radius = 8.0f + (slot.module.shield_power > 0.0f ? slot.module.shield_radius : 0.0f);
 
-                                    int num1 = 8;
-                                    while (num1 < thisProj.speed * 2.0 / 60.0) // raymarch again?
-                                    {
-                                        ++GlobalStats.Comparisons;
-                                        if (slot.module.Center.InRadius(thisObj.Center + direction * num1, radius))
-                                        {
-                                            thisObj.Center   = thisObj.Center + direction * num1;
-                                            thisObj.Position = thisObj.Center;
-                                            CollisionResults.Add(new CollisionResult
-                                            {
-                                                Distance       = thisObj.Radius + slot.module.Radius,
-                                                Normal         = new Vector2(),
-                                                GameplayObject = slot.module
-                                            });
-                                            collision = true;
-                                            break;
-                                        }
-                                        num1 += 8;
-                                    }
-                                    if (collision)
-                                        break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            for (int i = 0; i < otherShip.ExternalSlots.Count; ++i)
+                            int num1 = 8;
+                            while (num1 < thisProj.speed * 2.0 / 60.0) // raymarch again?
                             {
                                 ++GlobalStats.Comparisons;
-                                ++GlobalStats.DistanceCheckTotal;
-                                ModuleSlot slot = otherShip.ExternalSlots.ElementAt(i);
-                                if (slot.module != null && slot.module.Active && 
-                                    (slot.module.shield_power <= 0.0 || !thisProj.IgnoresShields) &&
-                                    slot.module.Center.InRadius(thisObj.Center, 10.0f + (slot.module.shield_power > 0.0f ? slot.module.shield_radius : 0.0f)))
+                                if (slot.module.Center.InRadius(thisProj.Center + direction * num1, radius))
                                 {
+                                    thisProj.Center   = thisProj.Center + direction * num1;
+                                    thisProj.Position = thisProj.Center;
                                     CollisionResults.Add(new CollisionResult
                                     {
-                                        Distance       = thisObj.Radius + slot.module.Radius,
+                                        Distance       = thisProj.Radius + slot.module.Radius,
                                         Normal         = new Vector2(),
                                         GameplayObject = slot.module
                                     });
-                                    return;
+                                    return true; // thisProj died
                                 }
+                                num1 += 8;
                             }
                         }
                     }
                 }
                 else
                 {
-                    Vector2 fromThisToOther = otherObj.Center - thisObj.Center;
-                    float distance = fromThisToOther.Length();
-                    if (distance > 0.0f)
+                    for (int i = 0; i < otherShip.ExternalSlots.Count; ++i)
                     {
-                        float dist2 = MathHelper.Max(distance - (otherObj.Radius + thisObj.Radius), 0.0f);
-                        CollisionResults.Add(new CollisionResult
+                        ++GlobalStats.Comparisons;
+                        ++GlobalStats.DistanceCheckTotal;
+                        ModuleSlot slot = otherShip.ExternalSlots[i];
+                        if (slot.module != null && slot.module.Active && 
+                            (slot.module.shield_power <= 0.0 || !thisProj.IgnoresShields) &&
+                            slot.module.Center.InRadius(thisProj.Center, 10.0f + (slot.module.shield_power > 0.0f ? slot.module.shield_radius : 0.0f)))
                         {
-                            Distance = dist2,
-                            Normal = Vector2.Normalize(fromThisToOther),
-                            GameplayObject = otherObj
-                        });
+                            CollisionResults.Add(new CollisionResult
+                            {
+                                Distance       = thisProj.Radius + slot.module.Radius,
+                                Normal         = new Vector2(),
+                                GameplayObject = slot.module
+                            });
+                            return true; // thisProj died
+                        }
                     }
                 }
             }
+            return false; // no collisions
         }
 
         //Added by McShooterz: New way to distribute exploding projectile damage
@@ -640,7 +610,7 @@ namespace Ship_Game.Gameplay
                 if (source.Owner != null && source.Owner.loyalty == ship.loyalty)
                     continue;
 
-                if (ship.loyalty != null && ship.loyalty.data.ExplosiveRadiusReduction != 0)
+                if (ship.loyalty != null && ship.loyalty.data.ExplosiveRadiusReduction > 0)
                     modifiedRadius *= (1 - ship.loyalty.data.ExplosiveRadiusReduction);
 
                 // @todo This expression is very messy, simplify and optimize
@@ -668,7 +638,7 @@ namespace Ship_Game.Gameplay
         {
             if (damageRadius <= 0.0f || hitModule.GetParent().dying || !hitModule.GetParent().Active)
                 return;
-            BatchRemovalCollection<ExplosionRay> removalCollection = new BatchRemovalCollection<ExplosionRay>(false);
+            var removalCollection = new BatchRemovalCollection<ExplosionRay>(false);
             float num2 = (360f / 15);
             for (int i = 0; i < 15; ++i)
                 removalCollection.Add(new ExplosionRay
@@ -829,10 +799,10 @@ namespace Ship_Game.Gameplay
 
         private void Dispose(bool disposing)
         {
-            CollidableObjects = null;
-            CollidableProjectiles = null;
-            Asteroids = null;
-            BeamList = null;
+            Ships.Clear();
+            Projectiles.Clear();
+            Asteroids.Clear();
+            Beams.Clear();
         }
     }
 }

@@ -720,8 +720,8 @@ namespace Ship_Game
                 this.Stars.Add(nebulousOverlay);
             }
             this.LoadGraphics();
-            DeepSpaceManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));       //Mer Investigate me
-            UniverseScreen.ShipSpatialManager.Setup((int)this.Size.X, (int)this.Size.Y, (int)(500000.0 * (double)this.GameScale), new Vector2(this.Size.X / 2f, this.Size.Y / 2f));
+            DeepSpaceManager.Setup((int)Size.X, (int)Size.Y, (int)(500000.0 * GameScale), new Vector2(Size.X / 2f, Size.Y / 2f));       //Mer Investigate me
+            ShipSpatialManager.Setup((int)Size.X, (int)Size.Y, (int)(500000.0 * GameScale), new Vector2(Size.X / 2f, Size.Y / 2f));
             this.DoParticleLoad();
             this.bg3d = new Background3D(this);
             this.starfield = new Starfield(Vector2.Zero, this.ScreenManager.GraphicsDevice, TransientContent);
@@ -915,12 +915,10 @@ namespace Ship_Game
             Anomaly.screen                        = this;
             PlanetScreen.screen                   = this;
             MinimapButtons.screen                 = this;
-            Projectile.universeScreen             = this;
             Empire.Universe                       = this;
             ResourceManager.UniverseScreen        = this;
             Empire.Universe                   = this;
             ArtificialIntelligence.universeScreen = this;
-            MissileAI.universeScreen              = this;
             CombatScreen.universeScreen           = this;
             FleetDesignScreen.screen              = this;
 
@@ -1465,7 +1463,7 @@ namespace Ship_Game
                     foreach (Ship ship in ShipsToAdd)
                     {
                         MasterShipList.Add(ship);
-                        ShipSpatialManager.CollidableObjects.Add(ship);
+                        ShipSpatialManager.Add(ship);
                     }
                     ShipsToAdd.Clear();
                 }
@@ -1500,22 +1498,18 @@ namespace Ship_Game
                         {
                             if (Vector2.Distance(ship.Position, s.Position) < 100000.0)
                             {
-                                                                                                       
                                 s.ExploredDict[ship.loyalty] = true;
                                 ship.SetSystem(s);
                                 s.ShipList.Add(ship);
-                                if (!s.spatialManager.CollidableObjects.Contains((GameplayObject)ship))
-                                    s.spatialManager.CollidableObjects.Add((GameplayObject)ship);
+                                s.spatialManager.Add(ship);
                                 break;       //No need to keep looping through all other systems if one is found -Gretman
                             }
                                                    
                         }
                         if (ship.System == null)
                         {
-                                                 
                             ship.isInDeepSpace = true;
-                            if (!DeepSpaceManager.CollidableObjects.Contains((GameplayObject)ship))
-                                DeepSpaceManager.CollidableObjects.Add((GameplayObject)ship);
+                            DeepSpaceManager.Add(ship);
                         }
                     }
                 }//);
@@ -1636,8 +1630,8 @@ namespace Ship_Game
             {
                 if (elapsedTime > 0)
                 {
-                    this.SpatManUpdate2(elapsedTime);
-                    UniverseScreen.ShipSpatialManager.UpdateBucketsOnly(elapsedTime);
+                    SpatManUpdate2(elapsedTime);
+                    ShipSpatialManager.UpdateBucketsOnly(elapsedTime);
                 }
             }//,
             //() =>
@@ -1867,7 +1861,7 @@ namespace Ship_Game
            // lock (GlobalStats.DeepSpaceLock)
             {
                 foreach (Projectile item_0 in DSProjectilesToAdd)
-                    DeepSpaceManager.CollidableObjects.Add(item_0);
+                    DeepSpaceManager.Add(item_0);
             }
             DSProjectilesToAdd.Clear();
             DeepSpaceManager.Update(elapsedTime, null);
@@ -1875,28 +1869,9 @@ namespace Ship_Game
 
         private void DeepSpaceThread()
         {
-            float elapsedTime = !this.Paused ? 0.01666667f : 0.0f;
+            float elapsedTime = !Paused ? 0.01666667f : 0.0f;
 
-            this.DeepSpaceShips.Clear();
-
-            
-            {
-                //Parallel.For(0, DeepSpaceManager.CollidableObjects.Count, (start, end) =>
-                {
-                    for (int i = 0; i < DeepSpaceManager.CollidableObjects.Count; i++)
-                    {
-                        GameplayObject item = DeepSpaceManager.CollidableObjects[i];
-                        if (item is Ship)
-                        {
-                            Ship ship = item as Ship;
-                            if (ship.Active && ship.isInDeepSpace && ship.System == null)
-                            {
-                                this.DeepSpaceShips.Add(ship);
-                            }
-                        }
-                    }
-                }//);
-            }
+            DeepSpaceManager.GetDeepSpaceShips(DeepSpaceShips);
 
             //Parallel.For(0, DeepSpaceShips.Count, (start, end) =>
             {
@@ -4582,9 +4557,8 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             EmpireUI.empire = null;
             EmpireUI = null;
-            DeepSpaceManager.CollidableObjects.Clear();
-            DeepSpaceManager.CollidableProjectiles.Clear();
-            ShipSpatialManager.CollidableObjects.Clear();
+            DeepSpaceManager.Destroy();
+            ShipSpatialManager.Destroy();
             ScreenManager.Music.Stop(AudioStopOptions.Immediate);
             NebulousShit.Clear();
             bloomComponent = null;
@@ -4598,9 +4572,6 @@ namespace Ship_Game
             MasterShipList.Clear();
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                solarSystem.spatialManager.CollidableProjectiles.Clear();
-                solarSystem.spatialManager.CollidableObjects.Clear();
-                solarSystem.spatialManager.ClearBuckets();
                 solarSystem.spatialManager.Destroy();
                 solarSystem.spatialManager = null;
                 solarSystem.FiveClosestSystems.Clear();
@@ -4653,11 +4624,6 @@ namespace Ship_Game
             ClickableShipsList.Clear();
             ClickPlanetList.Clear();
             ClickableSystems.Clear();
-            DeepSpaceManager.ClearBuckets();
-            DeepSpaceManager.CollidableObjects.Clear();
-            DeepSpaceManager.CollidableObjects.Clear();
-            DeepSpaceManager.CollidableProjectiles.Clear();
-            DeepSpaceManager.ClearBuckets();
             DeepSpaceManager.Destroy();
             DeepSpaceManager = null;
             SolarSystemList.Clear();
@@ -4686,12 +4652,10 @@ namespace Ship_Game
             PlanetScreen.screen                   = null;
             MinimapButtons.screen                 = null;
             Projectile.contentManager             = null;
-            Projectile.universeScreen             = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
             Empire.Universe                   = null;
             ArtificialIntelligence.universeScreen = null;
-            MissileAI.universeScreen              = null;
             CombatScreen.universeScreen           = null;
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
