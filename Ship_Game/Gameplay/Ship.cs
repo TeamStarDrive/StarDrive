@@ -2165,20 +2165,20 @@ namespace Ship_Game.Gameplay
                 module.isExternal = true;
                 module.quadrant   = 1;
             }
-            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y + 16f), out ModuleSlot quadrant2) || !quadrant2.module.Active)
+            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X + 16f, pos.Y), out ModuleSlot quadrant4) || !quadrant4.module.Active)
             {
                 module.isExternal = true;
-                module.quadrant   = 2;
+                module.quadrant = 2;
             }
-            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X - 16f, pos.Y), out ModuleSlot quadrant3) || !quadrant3.module.Active)
+            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y + 16f), out ModuleSlot quadrant2) || !quadrant2.module.Active)
             {
                 module.isExternal = true;
                 module.quadrant   = 3;
             }
-            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X + 16f, pos.Y), out ModuleSlot quadrant4) || !quadrant4.module.Active)
+            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X - 16f, pos.Y), out ModuleSlot quadrant3) || !quadrant3.module.Active)
             {
                 module.isExternal = true;
-                module.quadrant = 4;
+                module.quadrant   = 4;
             }
         }
 
