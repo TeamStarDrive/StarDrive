@@ -1747,29 +1747,29 @@ namespace Ship_Game.AI
                 if (RandomMath.RandomBetween(0f, 100f) < 5f + firetarget.experience)
                     return;
 
-            var nearest = 0;
-            ModuleSlot ClosestES = null;
+            int nearest = 0;
+            ModuleSlot closestExtSlot = null;
             //bad fix for external module badness.
             try
             {
-                foreach (ModuleSlot ES in firetarget.ExternalSlots)
+                foreach (ModuleSlot extSlot in firetarget.ExternalSlots)
                 {
-                    if (ES.module.ModuleType == ShipModuleType.Dummy || !ES.module.Active || ES.module.Health <= 0)
+                    if (extSlot.module.ModuleType == ShipModuleType.Dummy || !extSlot.module.Active || extSlot.module.Health <= 0f)
                         continue;
-                    var temp = (int)ES.module.Center.Distance(Owner.Center);
+                    int temp = (int)extSlot.module.Center.Distance(Owner.Center);
                     if (nearest == 0 || temp < nearest)
                     {
                         nearest = temp;
-                        ClosestES = ES;
+                        closestExtSlot = extSlot;
                     } 
                 }
             }
             catch { }
-            if (ClosestES == null)
+            if (closestExtSlot == null)
                 return;           
             var externalSlots = firetarget.ExternalSlots.
                 Where(close => close.module.Active && close.module.ModuleType != ShipModuleType.Dummy 
-                && close.module.quadrant == ClosestES.module.quadrant && close.module.Health > 0).ToList();                         
+                && close.module.quadrant == closestExtSlot.module.quadrant && close.module.Health > 0).ToList();                         
             if (firetarget.shield_power > 0f)
             {
                 for (var i = 0; i < firetarget.GetShields().Count; i++)
