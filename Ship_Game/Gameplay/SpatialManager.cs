@@ -497,462 +497,232 @@ namespace Ship_Game.Gameplay
                 beam.ActualHitDestination = beam.Destination;
             }
         }
-        public void Collide(GameplayObject gameplayObject)
+
+        // This function needs a lot more love
+        public void Collide(GameplayObject thisObj)
         {
             collisionResults.Clear();
-            if (!gameplayObject.Active)
+            if (!thisObj.Active)
                 return;
-            foreach (GameplayObject gameplayObject1 in GetNearby(gameplayObject))
+
+            foreach (GameplayObject otherObj in GetNearby(thisObj))
             {
-                if (gameplayObject1 != null && gameplayObject != gameplayObject1 && (gameplayObject1.Active && !gameplayObject1.CollidedThisFrame))
+                if (thisObj == otherObj || !otherObj.Active || otherObj.CollidedThisFrame)
+                    continue;
+
+                if (thisObj is Ship thisShip)
                 {
-                    if (gameplayObject is Ship)
+                    if (otherObj is Projectile otherProj && thisShip.loyalty != otherProj.loyalty)
                     {
-                        if (gameplayObject1 is Projectile && (gameplayObject as Ship).loyalty != (gameplayObject1 as Projectile).loyalty)
+                        ++GlobalStats.Comparisons;
+                        if (thisObj.Center.InRadius(otherObj.Center, otherProj.weapon.ProjectileRadius + thisShip.GetSO().WorldBoundingSphere.Radius + 100.0f))
                         {
-                            ++GlobalStats.Comparisons;
-                            if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) < (gameplayObject1 as Projectile).weapon.ProjectileRadius + (double)(gameplayObject as Ship).GetSO().WorldBoundingSphere.Radius + 100.0)
+                            thisShip.MoveModulesTimer = 2f;
+                            float projVel = otherProj.Velocity.Length();
+                            if (projVel / 60f > 10f) // if fast enough??
                             {
-                                (gameplayObject as Ship).MoveModulesTimer = 2f;
-                                float num1 = (gameplayObject1 as Projectile).Velocity.Length();
-                                if (num1 / 60f > 10f)
-                                {
-                                    bool flag = false;
-                                    Vector2 vector2 = Vector2.Normalize(gameplayObject1.Velocity);
-                                    for (int index = 0; index < (gameplayObject as Ship).GetShields().Count; ++index)
-                                    {
-                                        ++GlobalStats.DistanceCheckTotal;
-                                        ShipModule shipModule = (gameplayObject as Ship).GetShields()[index];
-                                        if (shipModule != null)
-                                        {
-                                            if (shipModule.shield_power <= 0.0 || !(gameplayObject1 as Projectile).IgnoresShields)
-                                            {
-                                                if (shipModule.shield_power > 0.0 && shipModule.Active)
-                                                {
-                                                    int num2 = 8;
-                                                    while (num2 < num1 / 60.0)
-                                                    {
-                                                        ++GlobalStats.Comparisons;
-                                                        if (Vector2.Distance(gameplayObject1.Center + vector2 * num2, shipModule.Center) <= 12.0 + (shipModule.shield_power > 0.0 ? shipModule.shield_radius : 0.0))
-                                                        {
-                                                            gameplayObject1.Center = gameplayObject1.Center + vector2 * num2;
-                                                            gameplayObject1.Position = gameplayObject1.Center;
-                                                            (gameplayObject1 as Projectile).Touch((GameplayObject)shipModule);
-                                                            gameplayObject1.CollidedThisFrame = true;
-                                                            flag = true;
-                                                            break;
-                                                        }
-                                                        else
-                                                            num2 += 8;
-                                                    }
-                                                    if (flag)
-                                                        break;
-                                                }
-                                            }
-                                            else
-                                                break;
-                                        }
-                                    }
-                                    if (flag)
-                                        break;
-                                    for (int index = 0; index < (gameplayObject as Ship).ExternalSlots.Count; ++index)
-                                    {
-                                        ++GlobalStats.DistanceCheckTotal;
-                                        ModuleSlot moduleSlot = (gameplayObject as Ship).ExternalSlots.ElementAt(index);
-                                        if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject1 as Projectile).IgnoresShields) && moduleSlot.module.Active)
-                                        {
-                                            int num2 = 8;
-                                            while (num2 < num1 / 60.0)
-                                            {
-                                                ++GlobalStats.Comparisons;
-                                                if (Vector2.Distance(gameplayObject1.Center + vector2 * num2, moduleSlot.module.Center) <= 8.0 + (gameplayObject1 as Projectile).weapon.ProjectileRadius + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
-                                                {
-                                                    gameplayObject1.Center = gameplayObject1.Center + vector2 * num2;
-                                                    gameplayObject1.Position = gameplayObject1.Center;
-                                                    (gameplayObject1 as Projectile).Touch((GameplayObject)moduleSlot.module);
-                                                    gameplayObject1.CollidedThisFrame = true;
-                                                    flag = true;
-                                                    break;
-                                                }
-                                                else
-                                                    num2 += 8;
-                                            }
-                                            if (flag)
-                                                break;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    bool flag = false;
-                                    for (int index = 0; index < (gameplayObject as Ship).GetShields().Count; ++index)
-                                    {
-                                        ++GlobalStats.Comparisons;
-                                        ++GlobalStats.DistanceCheckTotal;
-                                        ShipModule shipModule = (gameplayObject as Ship).GetShields()[index];
-                                        if (shipModule != null && (shipModule.shield_power <= 0.0 || !(gameplayObject1 as Projectile).IgnoresShields) && shipModule.Active && Vector2.Distance(gameplayObject1.Center, shipModule.Center) <= 10.0 + (shipModule.shield_power > 0.0 ? shipModule.shield_radius : 0.0))
-                                        {
-                                            flag = true;
-                                            (gameplayObject1 as Projectile).Touch((GameplayObject)shipModule);
-                                            break;
-                                        }
-                                    }
-                                    if (!flag)
-                                    {
-                                        for (int index = 0; index < (gameplayObject as Ship).ExternalSlots.Count; ++index)
-                                        {
-                                            ++GlobalStats.DistanceCheckTotal;
-                                            ModuleSlot moduleSlot = (gameplayObject as Ship).ExternalSlots.ElementAt(index);
-                                            if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject1 as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject1.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
-                                            {
-                                                (gameplayObject1 as Projectile).Touch((GameplayObject)moduleSlot.module);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else if (gameplayObject is Projectile)
-                    {
-                        if (gameplayObject1 is Projectile)
-                        {
-                            if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + (gameplayObject1 as Projectile).weapon.ProjectileRadius)
-                            {
-                                collisionResults.Add(new SpatialManager.CollisionResult()
-                                {
-                                    Distance = 0.0f,
-                                    Normal = Vector2.Normalize(Vector2.Zero),
-                                    GameplayObject = gameplayObject1
-                                });
-                                break;
-                            }
-                        }
-                        else if (gameplayObject1 is Asteroid)
-                        {
-                            if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + gameplayObject1.Radius)
-                            {
-                                collisionResults.Add(new SpatialManager.CollisionResult()
-                                {
-                                    Distance = 0.0f,
-                                    Normal = Vector2.Normalize(Vector2.Zero),
-                                    GameplayObject = gameplayObject1
-                                });
-                                break;
-                            }
-                        }
-                        else if (gameplayObject1 is Ship && (gameplayObject as Projectile).loyalty != (gameplayObject1 as Ship).loyalty && Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) < gameplayObject1.Radius + gameplayObject.Radius + (gameplayObject as Projectile).speed / 60.0)
-                        {
-                            (gameplayObject1 as Ship).MoveModulesTimer = 2f;
-                            if ((gameplayObject as Projectile).speed / 60.0 > 16.0)
-                            {
-                                Vector2 vector2 = Vector2.Normalize(gameplayObject.Velocity);
-                                for (int index = 0; index < (gameplayObject1 as Ship).ExternalSlots.Count; ++index)
+                                bool collision = false;
+                                Vector2 direction = otherObj.Velocity.Normalized();
+
+                                var shipShields = thisShip.GetShields();
+                                for (int i = 0; i < shipShields.Count; ++i)
                                 {
                                     ++GlobalStats.DistanceCheckTotal;
-                                    ModuleSlot moduleSlot = (gameplayObject1 as Ship).ExternalSlots.ElementAt(index);
-                                    if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active)
+                                    ShipModule shieldModule = shipShields[i];
+                                    if (shieldModule.shield_power <= 0.0f || !otherProj.IgnoresShields)
                                     {
-                                        bool flag = false;
-                                        int num1 = 8;
-                                        while (num1 < (gameplayObject as Projectile).speed * 2.0 / 60.0)
+                                        if (shieldModule.shield_power > 0.0f && shieldModule.Active)
+                                        {
+                                            float collisionRadius = 12.0f + shieldModule.shield_radius;
+                                            int num2 = 8;
+                                            while (num2 < projVel / 60.0f) // this is raymarching ?
+                                            {
+                                                ++GlobalStats.Comparisons;
+                                                if (shieldModule.Center.InRadius(otherObj.Center + direction * num2, collisionRadius))
+                                                {
+                                                    otherObj.Center = otherObj.Center + direction * num2;
+                                                    otherObj.Position = otherObj.Center;
+                                                    otherProj.Touch(shieldModule);
+                                                    otherObj.CollidedThisFrame = true;
+                                                    collision = true;
+                                                    break;
+                                                }
+                                                num2 += 8;
+                                            }
+                                            if (collision)
+                                                break;
+                                        }
+                                    }
+                                    else break;
+                                }
+                                if (collision)
+                                    break;
+                                for (int i = 0; i < thisShip.ExternalSlots.Count; ++i)
+                                {
+                                    ++GlobalStats.DistanceCheckTotal;
+                                    ModuleSlot extSlot = thisShip.ExternalSlots[i];
+                                    if (extSlot.module != null && (extSlot.module.shield_power <= 0.0 || !otherProj.IgnoresShields) && extSlot.module.Active)
+                                    {
+                                        int num2 = 8;
+                                        while (num2 < projVel / 60.0)
                                         {
                                             ++GlobalStats.Comparisons;
-                                            //double num2 = (double)Vector2.Distance(gameplayObject.Center + vector2 * (float)num1, moduleSlot.module.Center);
-                                            if (Vector2.Distance(gameplayObject.Center + vector2 * num1, moduleSlot.module.Center) <= 8.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
+                                            if (Vector2.Distance(otherObj.Center + direction * num2, extSlot.module.Center) <= 8.0 + otherProj.weapon.ProjectileRadius + (extSlot.module.shield_power > 0.0 ? extSlot.module.shield_radius : 0.0))
                                             {
-                                                gameplayObject.Center = gameplayObject.Center + vector2 * num1;
-                                                gameplayObject.Position = gameplayObject.Center;
-                                                collisionResults.Add(new SpatialManager.CollisionResult()
-                                                {
-                                                    Distance = gameplayObject.Radius + moduleSlot.module.Radius,
-                                                    Normal = Vector2.Zero,
-                                                    GameplayObject = (GameplayObject)moduleSlot.module
-                                                });
-                                                flag = true;
+                                                otherObj.Center = otherObj.Center + direction * num2;
+                                                otherObj.Position = otherObj.Center;
+                                                otherProj.Touch(extSlot.module);
+                                                otherObj.CollidedThisFrame = true;
+                                                collision = true;
                                                 break;
                                             }
-                                            else
-                                                num1 += 8;
+                                            num2 += 8;
                                         }
-                                        if (flag)
-                                            break;
+                                        if (collision) break;
                                     }
                                 }
                             }
                             else
                             {
-                                for (int index = 0; index < (gameplayObject1 as Ship).ExternalSlots.Count; ++index)
+                                bool collision = false;
+                                for (int i = 0; i < thisShip.GetShields().Count; ++i)
                                 {
                                     ++GlobalStats.Comparisons;
                                     ++GlobalStats.DistanceCheckTotal;
-                                    ModuleSlot moduleSlot = (gameplayObject1 as Ship).ExternalSlots.ElementAt(index);
-                                    if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
+                                    ShipModule shield = thisShip.GetShields()[i];
+                                    if ((shield.shield_power <= 0.0 || !otherProj.IgnoresShields) && shield.Active && otherObj.Center.Distance(shield.Center) <= 10.0f + (shield.shield_power > 0.0 ? shield.shield_radius : 0.0))
                                     {
-                                        collisionResults.Add(new SpatialManager.CollisionResult()
+                                        collision = true;
+                                        otherProj.Touch(shield);
+                                        break;
+                                    }
+                                }
+                                if (!collision)
+                                {
+                                    for (int index = 0; index < thisShip.ExternalSlots.Count; ++index)
+                                    {
+                                        ++GlobalStats.DistanceCheckTotal;
+                                        ModuleSlot moduleSlot = thisShip.ExternalSlots[index];
+                                        if (moduleSlot.module != null && moduleSlot.module.Active && 
+                                            (moduleSlot.module.shield_power <= 0.0f || !otherProj.IgnoresShields) &&
+                                            moduleSlot.module.Center.InRadius(otherObj.Center, 10.0f + (moduleSlot.module.shield_power > 0.0f ? moduleSlot.module.shield_radius : 0.0f)))
                                         {
-                                            Distance = gameplayObject.Radius + moduleSlot.module.Radius,
-                                            Normal = Vector2.Normalize(Vector2.Zero),
-                                            GameplayObject = (GameplayObject)moduleSlot.module
-                                        });
-                                        return;
+                                            otherProj.Touch(moduleSlot.module);
+                                            break;
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }
-                    else
-                    {
-                        // double num1 = (double)gameplayObject1.Radius;
-                        // double num2 = (double)gameplayObject.Radius;
-                        Vector2 vector2 = gameplayObject1.Center - gameplayObject.Center;
-                        float num3 = vector2.Length();
-                        if (num3 > 0.0)
-                        {
-                            float num4 = MathHelper.Max(num3 - (gameplayObject1.Radius + gameplayObject.Radius), 0.0f);
-                            collisionResults.Add(new SpatialManager.CollisionResult()
-                            {
-                                Distance = num4,
-                                Normal = Vector2.Normalize(vector2),
-                                GameplayObject = gameplayObject1
-                            });
                         }
                     }
                 }
-            }
-        }
-        public void Collidenew(GameplayObject gameplayObject)
-        {
-            collisionResults.Clear();
-            if (!gameplayObject.Active)
-                return;
-            object locker = new object();
-            Array<GameplayObject> nearbythings = GetNearby(gameplayObject);
-            if (nearbythings.Count == 0)
-                return;
-            //handle each weapon group in parallel
-            //Parallel.For(0, nearbythings.Count, (start, end) =>
-            {
-                //standard for loop through each weapon group.
-                //for (int T = start; T < end; T++)
-                for (int i = 0; i < nearbythings.Count; i++)
+                else if (thisObj is Projectile thisProj)
                 {
-                    GameplayObject gameplayObject1 = nearbythings[i];
-                    BoundingSphere object1;
-
-                    //float minHit = 0f;          //Not referenced in code, removing to save memory
-                    // foreach (GameplayObject gameplayObject1 in GetNearby(gameplayObject))
-                    //{
-                    if (gameplayObject1 != null && gameplayObject != gameplayObject1 && (gameplayObject1.Active && !gameplayObject1.CollidedThisFrame))
+                    if (otherObj is Projectile otherProj)
                     {
-                        Ship GOShip = gameplayObject as Ship;
-                        Projectile GO1Projectile = gameplayObject1 as Projectile;
-                        if (GOShip != null)
+                        if (thisObj.Center.InRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherProj.weapon.ProjectileRadius))
                         {
-                            if ( GO1Projectile != null && GOShip.loyalty != GO1Projectile.loyalty)
+                            collisionResults.Add(new CollisionResult
                             {
-                                if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) < GO1Projectile.weapon.ProjectileRadius + GOShip.GetSO().WorldBoundingSphere.Radius + 575)
-                                {
-                                    var object1position = new Vector3(gameplayObject1.Center.X, gameplayObject1.Center.Y, 0);
-                                    object1 = new BoundingSphere(object1position, gameplayObject1.Radius);
-                                    ++GlobalStats.Comparisons;
-
-                                    Ship ship1 = GOShip;
-                                    float hitM = 0f;
-                                    float hit2 = 0f;
-                                    if (true)
-                                    {
-
-
-                                        ShipModule damaged = null;
-                                        Vector3 shieldCenter = new Vector3(0, 0, 0);
-                                        BoundingSphere shieldhit = new BoundingSphere(new Vector3(0f, 0f, 0f), 0f); //create a bounding sphere object for shields.
-                                        //hit shields first.
-                                        if(!GO1Projectile.IgnoresShields)
-                                        foreach (ShipModule shield in ship1.GetShields())
-                                        {
-                                            if (!shield.Active || shield.shield_power <=0)
-                                                continue;
-                                            ShipModule test = shield;
-
-                                            shieldhit.Radius = test.Radius;
-                                            
-                                            shieldhit.Center.X = test.Center.X;
-                                            shieldhit.Center.Y = test.Center.Y;
-
-                                            if (object1.Intersects(shieldhit))
-                                            {
-
-                                                hitM = Vector2.Distance(GO1Projectile.Center, test.Center);
-
-                                                if (hitM > hit2)
-                                                {
-                                                    hit2 = (float)hitM;
-                                                    damaged = test;
-                                                    GOShip.MoveModulesTimer = 2f;
-                                                }
-                                                //break;
-                                            }
-
-                                        }
-                                        if (damaged != null && GO1Projectile.Touch(damaged))
-                                        {
-                                            GO1Projectile.CollidedThisFrame = damaged.CollidedThisFrame = true;
-                                            ((Ship)gameplayObject).MoveModulesTimer = 2f;
-                                            return;
-                                        }
-                                        if (GOShip.GetSO().WorldBoundingSphere.Intersects(object1))
-                                        {
-                                            foreach (ModuleSlot shield in ship1.ExternalSlots)
-                                            {
-                                                if (!shield.module.Active || shield.module.quadrant < 1)
-                                                    continue;
-                                                ShipModule test = shield.module;
-                                                shieldhit.Radius = 8;
-                                                shieldhit.Center.X = test.Center.X;
-                                                shieldhit.Center.Y = test.Center.Y;
-
-                                                if (object1.Intersects(shieldhit))
-                                                {
-                                                    damaged = shield.module;
-                                                    GOShip.MoveModulesTimer = 2f;
-                                                    if (damaged != null && GO1Projectile.Touch(damaged))
-                                                    {
-                                                        GO1Projectile.CollidedThisFrame = damaged.CollidedThisFrame = true;
-                                                        ((Ship)gameplayObject).MoveModulesTimer = 2f;
-                                                        return;
-                                                    }
-                                                    //break;
-                                                }
-
-                                            }
-                                        }
-  
-                                        
-                                    }
-
-
-                                }
-                            }
+                                Distance = 0.0f,
+                                Normal = new Vector2(),
+                                GameplayObject = otherObj
+                            });
+                            break;
                         }
-                        
-                        else if (gameplayObject is Projectile)
+                    }
+                    else if (otherObj is Asteroid)
+                    {
+                        if (thisObj.Center.InRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherObj.Radius))
                         {
-                            if (gameplayObject1 is Projectile)
+                            collisionResults.Add(new CollisionResult
                             {
-                                if (gameplayObject1.Health >0 && Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + (gameplayObject1 as Projectile).weapon.ProjectileRadius)
-                                {
-                                    //gameplayObject.Touch(gameplayObject1);
-                                    lock (locker)
-                                        collisionResults.Add(new SpatialManager.CollisionResult()
-                                        {
-                                            Distance = 0.0f,
-                                            Normal = Vector2.Normalize(Vector2.Zero),
-                                            GameplayObject = gameplayObject1
-                                        });
-                                    return;
-                                }
-                            }
-                            else if (gameplayObject1 is Asteroid)
+                                Distance = 0.0f,
+                                Normal = new Vector2(),
+                                GameplayObject = otherObj
+                            });
+                            break;
+                        }
+                    }
+                    else if (otherObj is Ship otherShip && thisProj.loyalty != otherShip.loyalty && Vector2.Distance(thisObj.Center, otherObj.Center) < otherObj.Radius + thisObj.Radius + thisProj.speed / 60.0)
+                    {
+                        otherShip.MoveModulesTimer = 2f;
+                        if (thisProj.speed / 60.0 > 16.0)
+                        {
+                            Vector2 direction = Vector2.Normalize(thisObj.Velocity);
+                            for (int i = 0; i < otherShip.ExternalSlots.Count; ++i)
                             {
-                                if (Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) <= (gameplayObject as Projectile).weapon.ProjectileRadius + gameplayObject1.Radius)
+                                ++GlobalStats.DistanceCheckTotal;
+                                ModuleSlot slot = otherShip.ExternalSlots[i];
+                                if (slot.module != null && (slot.module.shield_power <= 0.0 || !thisProj.IgnoresShields) && slot.module.Active)
                                 {
-                                    lock (locker)
-                                        collisionResults.Add(new SpatialManager.CollisionResult()
-                                        {
-                                            Distance = 0.0f,
-                                            Normal = Vector2.Normalize(Vector2.Zero),
-                                            GameplayObject = gameplayObject1
-                                        });
-                                    return;
-                                }
-                            }
-                            else if (gameplayObject1 is Ship && (gameplayObject as Projectile).loyalty != (gameplayObject1 as Ship).loyalty && Vector2.Distance(gameplayObject.Center, gameplayObject1.Center) < gameplayObject1.Radius + gameplayObject.Radius + (gameplayObject as Projectile).speed / 60.0)
-                            {
-                                (gameplayObject1 as Ship).MoveModulesTimer = 2f;
-                                if ((gameplayObject as Projectile).speed / 60f > 16)
-                                {
-                                    Vector2 vector2 = Vector2.Normalize(gameplayObject.Velocity);
-                                    for (int index = 0; index < (gameplayObject1 as Ship).ExternalSlots.Count; ++index)
-                                    {
-                                        ++GlobalStats.DistanceCheckTotal;
-                                        ModuleSlot moduleSlot = (gameplayObject1 as Ship).ExternalSlots.ElementAt(index);
-                                        if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active)
-                                        {
-                                            bool flag = false;
-                                            int num1 = 8;
-                                            while (num1 < (gameplayObject as Projectile).speed * 2 / 60f)
-                                            {
-                                                ++GlobalStats.Comparisons;
-                                                //double num2 = (double)Vector2.Distance(gameplayObject.Center + vector2 * (float)num1, moduleSlot.module.Center);
-                                                if (Vector2.Distance(gameplayObject.Center + vector2 * num1, moduleSlot.module.Center) <= 8f + (moduleSlot.module.shield_power > 0f ? moduleSlot.module.shield_radius : 0f))
-                                                {
-                                                    gameplayObject.Center = gameplayObject.Center + vector2 * num1;
-                                                    gameplayObject.Position = gameplayObject.Center;
-                                                    lock (locker)
-                                                        collisionResults.Add(new SpatialManager.CollisionResult()
-                                                        {
-                                                            Distance = gameplayObject.Radius + moduleSlot.module.Radius,
-                                                            Normal = Vector2.Zero,
-                                                            GameplayObject = (GameplayObject)moduleSlot.module
-                                                        });
-                                                    flag = true;
-                                                    break;
-                                                }
-                                                else
-                                                    num1 += 8;
-                                            }
-                                            if (flag)
-                                                break;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    for (int index = 0; index < (gameplayObject1 as Ship).ExternalSlots.Count; ++index)
+                                    bool collision = false;
+                                    float radius = 8.0f + (slot.module.shield_power > 0.0f ? slot.module.shield_radius : 0.0f);
+
+                                    int num1 = 8;
+                                    while (num1 < thisProj.speed * 2.0 / 60.0) // raymarch again?
                                     {
                                         ++GlobalStats.Comparisons;
-                                        ++GlobalStats.DistanceCheckTotal;
-                                        ModuleSlot moduleSlot = (gameplayObject1 as Ship).ExternalSlots.ElementAt(index);
-                                        if (moduleSlot != null && moduleSlot.module != null && (moduleSlot.module.shield_power <= 0.0 || !(gameplayObject as Projectile).IgnoresShields) && moduleSlot.module.Active && Vector2.Distance(gameplayObject.Center, moduleSlot.module.Center) <= 10.0 + (moduleSlot.module.shield_power > 0.0 ? moduleSlot.module.shield_radius : 0.0))
+                                        if (slot.module.Center.InRadius(thisObj.Center + direction * num1, radius))
                                         {
-                                            lock (locker)
-                                                collisionResults.Add(new SpatialManager.CollisionResult()
-                                                {
-                                                    Distance = gameplayObject.Radius + moduleSlot.module.Radius,
-                                                    Normal = Vector2.Normalize(Vector2.Zero),
-                                                    GameplayObject = (GameplayObject)moduleSlot.module
-                                                });
-                                            return;
+                                            thisObj.Center   = thisObj.Center + direction * num1;
+                                            thisObj.Position = thisObj.Center;
+                                            collisionResults.Add(new CollisionResult
+                                            {
+                                                Distance       = thisObj.Radius + slot.module.Radius,
+                                                Normal         = new Vector2(),
+                                                GameplayObject = slot.module
+                                            });
+                                            collision = true;
+                                            break;
                                         }
+                                        num1 += 8;
                                     }
+                                    if (collision)
+                                        break;
                                 }
                             }
                         }
                         else
                         {
-                            // double num1 = (double)gameplayObject1.Radius;
-                            // double num2 = (double)gameplayObject.Radius;
-                            Vector2 vector2 = gameplayObject1.Center - gameplayObject.Center;
-                            float num3 = vector2.Length();
-                            if (num3 > 0.0)
+                            for (int i = 0; i < otherShip.ExternalSlots.Count; ++i)
                             {
-                                float num4 = MathHelper.Max(num3 - (gameplayObject1.Radius + gameplayObject.Radius), 0.0f);
-                                lock (locker)
-                                    collisionResults.Add(new SpatialManager.CollisionResult()
+                                ++GlobalStats.Comparisons;
+                                ++GlobalStats.DistanceCheckTotal;
+                                ModuleSlot slot = otherShip.ExternalSlots.ElementAt(i);
+                                if (slot.module != null && slot.module.Active && 
+                                    (slot.module.shield_power <= 0.0 || !thisProj.IgnoresShields) &&
+                                    slot.module.Center.InRadius(thisObj.Center, 10.0f + (slot.module.shield_power > 0.0f ? slot.module.shield_radius : 0.0f)))
+                                {
+                                    collisionResults.Add(new CollisionResult
                                     {
-                                        Distance = num4,
-                                        Normal = Vector2.Normalize(vector2),
-                                        GameplayObject = gameplayObject1
+                                        Distance       = thisObj.Radius + slot.module.Radius,
+                                        Normal         = new Vector2(),
+                                        GameplayObject = slot.module
                                     });
+                                    return;
+                                }
                             }
                         }
                     }
                 }
-            }//);
+                else
+                {
+                    Vector2 fromThisToOther = otherObj.Center - thisObj.Center;
+                    float distance = fromThisToOther.Length();
+                    if (distance > 0.0f)
+                    {
+                        float dist2 = MathHelper.Max(distance - (otherObj.Radius + thisObj.Radius), 0.0f);
+                        collisionResults.Add(new CollisionResult
+                        {
+                            Distance = dist2,
+                            Normal = Vector2.Normalize(fromThisToOther),
+                            GameplayObject = otherObj
+                        });
+                    }
+                }
+            }
         }
-
 
         public void Explode(GameplayObject source, float damageAmount, Vector2 position, float damageRadius)
         {
@@ -1217,7 +987,7 @@ namespace Ship_Game.Gameplay
                     Direction = MathExt.PointOnCircle(num2 * (float)index, 1f),
                     Damage = damageAmount / (float)num1
                 });
-            Array<ShipModule> list = new Array<ShipModule>();
+            var list = new Array<ShipModule>();
             list.Add(HitModule);
             foreach (ModuleSlot slot in HitModule.GetParent().ModuleSlotList.
                 Where(moduleSlot => Vector2.Distance(HitModule.Center, moduleSlot.module.Center) <= damageRadius)

@@ -628,20 +628,20 @@ namespace Ship_Game.Gameplay
 
 		public override bool Touch(GameplayObject target)
 		{
-			if (this.Miss)
+			if (Miss)
 			{
 				return false;
 			}
 			if (target != null)
 			{
-				if (target == this.owner && !this.weapon.HitsFriendlies)
+				if (target == owner && !weapon.HitsFriendlies)
 				{
 					return false;
 				}
 				Projectile projectile = target as Projectile;
 				if (projectile != null)
 				{
-					if (this.owner != null && projectile.loyalty == this.owner.loyalty)
+					if (owner != null && projectile.loyalty == owner.loyalty)
 					{
 						return false;
 					}
@@ -650,45 +650,44 @@ namespace Ship_Game.Gameplay
 						float ran = UniverseRandom.RandomBetween(0f, 1f);
 						if (projectile.loyalty != null && ran >= projectile.loyalty.data.MissileDodgeChance)
 						{
-							projectile.DamageMissile(this, this.damageAmount);
+							projectile.DamageMissile(this, damageAmount);
 							return true;
 						}
 					}
-					else if (this.weapon.Tag_Intercept || projectile.weapon.Tag_Intercept)
+					else if (weapon.Tag_Intercept || projectile.weapon.Tag_Intercept)
 					{
-						this.DieNextFrame = true;
+						DieNextFrame = true;
 						projectile.DieNextFrame = true;
 					}
 					return false;
 				}
 				if (target is Asteroid)
 				{
-					if (!this.explodes)
+					if (!explodes)
 					{
-						target.Damage(this, this.damageAmount);
+						target.Damage(this, damageAmount);
 					}
-					this.Die(null, false);
+					Die(null, false);
 					return true;
 				}
-				if (target is ShipModule)
+				if (target is ShipModule module)
 				{
-                    ShipModule module = target as ShipModule;
-                    if (module != null && module.GetParent().loyalty == this.loyalty && !this.weapon.HitsFriendlies || module == null)
+                    if (module.GetParent().loyalty == loyalty && !weapon.HitsFriendlies)
                         return false;
 
-					if (this.weapon.TruePD)
+					if (weapon.TruePD)
 					{
-						this.DieNextFrame = true;
+						DieNextFrame = true;
 						return true;
 					}
                     if (module.GetParent().shipData.Role == ShipData.RoleName.fighter && module.GetParent().loyalty.data.Traits.DodgeMod > 0f)
                     {
                         if (UniverseRandom.RandomBetween(0f, 100f) < module.GetParent().loyalty.data.Traits.DodgeMod * 100f)
                         {
-                            this.Miss = true;
+                            Miss = true;
                         }
                     }
-                    if (this.Miss)
+                    if (Miss)
                     {
                         return false;
                     }

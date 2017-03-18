@@ -2158,99 +2158,48 @@ namespace Ship_Game.Gameplay
             shipInitialized = true;
         }
 
+        private void CheckIfExternalModule(Vector2 pos, ShipModule module)
+        {
+            if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y - 16f), out ModuleSlot quadrant1) || !quadrant1.module.Active)
+            {
+                module.isExternal = true;
+                module.quadrant   = 1;
+            }
+            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y + 16f), out ModuleSlot quadrant2) || !quadrant2.module.Active)
+            {
+                module.isExternal = true;
+                module.quadrant   = 2;
+            }
+            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X - 16f, pos.Y), out ModuleSlot quadrant3) || !quadrant3.module.Active)
+            {
+                module.isExternal = true;
+                module.quadrant   = 3;
+            }
+            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X + 16f, pos.Y), out ModuleSlot quadrant4) || !quadrant4.module.Active)
+            {
+                module.isExternal = true;
+                module.quadrant = 4;
+            }
+        }
+
         private void FillExternalSlots()
         {
             ExternalSlots.Clear();
             ModulesDictionary.Clear();
-            foreach (ModuleSlot moduleSlot in ModuleSlotList)
-                ModulesDictionary.Add(moduleSlot.Position, moduleSlot);
-            foreach (KeyValuePair<Vector2, ModuleSlot> keyValuePair in ModulesDictionary)
+            foreach (ModuleSlot slot in ModuleSlotList)
+                ModulesDictionary.Add(slot.Position, slot);
+            foreach (KeyValuePair<Vector2, ModuleSlot> kv in ModulesDictionary)
             {
+                ModuleSlot slot   = kv.Value;
+                ShipModule module = slot.module;
+                if (module.Active)
+                    CheckIfExternalModule(kv.Key, module);
 
-                if (keyValuePair.Value.module.Active)
-                {
-                    Vector2 key1 = new Vector2(keyValuePair.Key.X, keyValuePair.Key.Y - 16f);
-                    if (ModulesDictionary.ContainsKey(key1))
-                    {
-                        if (!ModulesDictionary[key1].module.Active)
-                        {
-                            keyValuePair.Value.module.isExternal = true;
-                            keyValuePair.Value.module.quadrant = 1;
-                            ExternalSlots.Add(keyValuePair.Value);
+                if (module.shield_power > 0.0f)
+                    module.isExternal = true;
 
-                        }
-                        else
-                        {
-                            Vector2 key2 = new Vector2(keyValuePair.Key.X, keyValuePair.Key.Y + 16f);
-                            if (ModulesDictionary.ContainsKey(key2))
-                            {
-                                if (!ModulesDictionary[key2].module.Active)
-                                {
-                                    keyValuePair.Value.module.isExternal = true;
-                                    keyValuePair.Value.module.quadrant = 2;
-                                    ExternalSlots.Add(keyValuePair.Value);
-                                }
-                                else
-                                {
-                                    Vector2 key3 = new Vector2(keyValuePair.Key.X - 16f, keyValuePair.Key.Y);
-                                    if (ModulesDictionary.ContainsKey(key3))
-                                    {
-                                        if (!ModulesDictionary[key3].module.Active)
-                                        {
-                                            keyValuePair.Value.module.isExternal = true;
-                                            keyValuePair.Value.module.quadrant = 3;
-                                            ExternalSlots.Add(keyValuePair.Value);
-                                        }
-                                        else
-                                        {
-                                            Vector2 key4 = new Vector2(keyValuePair.Key.X + 16f, keyValuePair.Key.Y);
-                                            if (ModulesDictionary.ContainsKey(key4))
-                                            {
-                                                if (!ModulesDictionary[key4].module.Active)
-                                                {
-                                                    keyValuePair.Value.module.isExternal = true;
-                                                    keyValuePair.Value.module.quadrant = 4;
-                                                    ExternalSlots.Add(keyValuePair.Value);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                keyValuePair.Value.module.isExternal = true;
-                                                keyValuePair.Value.module.quadrant = 4;
-                                                ExternalSlots.Add(keyValuePair.Value);
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        keyValuePair.Value.module.isExternal = true;
-                                        keyValuePair.Value.module.quadrant = 3;
-
-                                        ExternalSlots.Add(keyValuePair.Value);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                keyValuePair.Value.module.isExternal = true;
-                                keyValuePair.Value.module.quadrant = 2;
-                                ExternalSlots.Add(keyValuePair.Value);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        keyValuePair.Value.module.isExternal = true;
-                        keyValuePair.Value.module.quadrant = 1;
-                        ExternalSlots.Add(keyValuePair.Value);
-                    }
-                }
-                if (keyValuePair.Value.module.shield_power > 0.0 && !keyValuePair.Value.module.isExternal)
-                {
-                    keyValuePair.Value.module.isExternal = true;
-                    ExternalSlots.Add(keyValuePair.Value);
-
-                }
+                if (module.isExternal)
+                    ExternalSlots.Add(slot);
             }
         }
 
