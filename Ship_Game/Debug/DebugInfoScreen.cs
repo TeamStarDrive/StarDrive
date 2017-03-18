@@ -256,7 +256,7 @@ namespace Ship_Game.Debug
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", cursor, Color.White);
                     lock (GlobalStats.DeepSpaceLock)
                     {
-                        if (!UniverseScreen.DeepSpaceManager.CollidableObjects.Contains(ship))
+                        if (!UniverseScreen.DeepSpaceManager.Contains(ship))
                         {
                             cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "ERROR-DS CO", cursor,
@@ -275,7 +275,7 @@ namespace Ship_Game.Debug
                     cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
                         string.Concat(ship.System.Name, " system"), cursor, Color.White);
-                    if (!ship.System.spatialManager.CollidableObjects.Contains(ship))
+                    if (!ship.System.spatialManager.Contains(ship))
                     {
                         cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "ERROR -SM CO", cursor,
@@ -526,20 +526,16 @@ namespace Ship_Game.Debug
                     foreach (Ship ship in Screen.SelectedSystem.ShipList)
                     {
                         ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            ship.Active ? ship.Name : string.Concat(ship.Name, " (inactive)"), cursor, Color.White);
+                            ship.Active ? ship.Name : ship.Name + " (inactive)", cursor, Color.White);
                         cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                     }
                     cursor = new Vector2(Win.X + 300, 600f);
-                    foreach (GameplayObject go in Screen.SelectedSystem.spatialManager.CollidableObjects)
+                    foreach (Ship ship in Screen.SelectedSystem.spatialManager.ShipsList)
                     {
-                        if (!(go is Ship))
-                            continue;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat((go as Ship).Name, " "),
-                            cursor, Color.White);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name + " ", cursor, Color.White);
                         cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                     }
                 }
-
             }
 
         }

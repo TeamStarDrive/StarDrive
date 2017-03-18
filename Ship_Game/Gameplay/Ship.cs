@@ -816,20 +816,20 @@ namespace Ship_Game.Gameplay
             if (System != null)
             {
                 System.ShipList.QueuePendingRemoval(this);
-                System.spatialManager.CollidableObjects.Remove((GameplayObject)this);
+                System.spatialManager.Remove(this);
             }
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Hangars)
                 {
                     if (shipModule.GetHangarShip() == this)
-                        shipModule.SetHangarShip((Ship)null);
+                        shipModule.SetHangarShip(null);
                 }
             }
             else if (isInDeepSpace)
-                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove((GameplayObject)this);
+                UniverseScreen.DeepSpaceManager.Remove(this);
             for (int index = 0; index < projectiles.Count; ++index)
-                projectiles[index].Die((GameplayObject)this, false);
+                projectiles[index].Die(this, false);
             projectiles.Clear();
 
             foreach (ModuleSlot moduleSlot in ModuleSlotList)
@@ -840,8 +840,8 @@ namespace Ship_Game.Gameplay
             ShipSO.Clear();
 
             loyalty.RemoveShip(this);
-            System = (SolarSystem)null;
-            TetheredTo = (Planet)null;
+            System = null;
+            TetheredTo = null;
         }
 
         public Ship(Vector2 pos, Vector2 dim, float rot)
@@ -2055,18 +2055,19 @@ namespace Ship_Game.Gameplay
             if (Empire.Universe != null)
                 Empire.Universe.ShipsToAdd.Add(this);
             else
-                UniverseScreen.ShipSpatialManager.CollidableObjects.Add((GameplayObject)this);
-            if (System != null && !System.spatialManager.CollidableObjects.Contains((GameplayObject)this))
+                UniverseScreen.ShipSpatialManager.Add(this);
+
+            if (System != null && !System.spatialManager.Contains(this))
             {
                 isInDeepSpace = false;
-                System.spatialManager.CollidableObjects.Add((GameplayObject)this);
+                System.spatialManager.Add(this);
                 if (!System.ShipList.Contains(this))
                     System.ShipList.Add(this);
             }
             else if (isInDeepSpace)
             {
                 lock (GlobalStats.DeepSpaceLock)
-                    UniverseScreen.DeepSpaceManager.CollidableObjects.Add((GameplayObject)this);
+                    UniverseScreen.DeepSpaceManager.Add(this);
             }
             FillExternalSlots();
             //this.hyperspace = (Cue)null;   //Removed to save space, because this is set to null in ship initilizers, and never reassigned. -Gretman
@@ -2120,7 +2121,7 @@ namespace Ship_Game.Gameplay
             lock (GlobalStats.AddShipLocker)
             {
                 if (Empire.Universe == null)
-                    UniverseScreen.ShipSpatialManager.CollidableObjects.Add(this);
+                    UniverseScreen.ShipSpatialManager.Add(this);
                 else
                     Empire.Universe.ShipsToAdd.Add(this);
             }
@@ -3804,19 +3805,15 @@ namespace Ship_Game.Gameplay
                     inSensorRange = true;
                 else if (!inSensorRange)
                 {
-                    Array<GameplayObject> nearby = UniverseScreen.ShipSpatialManager.GetNearby((GameplayObject)this);
-                    for (int index = 0; index < nearby.Count; ++index)
-                    //Parallel.For(0, nearby.Count, (index,status) =>
+                    GameplayObject[] nearby = UniverseScreen.ShipSpatialManager.GetNearby(this);
+                    for (int i = 0; i < nearby.Length; ++i)
                     {
-                        Ship ship = nearby[index] as Ship;
-                        if (ship != null && ship.loyalty == EmpireManager.Player && ((double)Vector2.Distance(ship.Position, Center) <= (double)ship.SensorRange || Empire.Universe.Debug))
+                        if (nearby[i] is Ship ship && ship.loyalty == EmpireManager.Player && (Center.Distance(ship.Position) <= ship.SensorRange || Empire.Universe.Debug))
                         {
                             inSensorRange = true;
                             break;
-                            //status.Stop();
-                            //return;
                         }
-                    }//);
+                    }
                 }
                 if (shipStatusChanged || InCombat)
                     ShipStatusChange();
@@ -4677,10 +4674,10 @@ namespace Ship_Game.Gameplay
             if (System != null)
             {
                 System.ShipList.QueuePendingRemoval(this);
-                System.spatialManager.CollidableObjects.Remove(this);
+                System.spatialManager.Remove(this);
             }
             else if (isInDeepSpace)
-                UniverseScreen.DeepSpaceManager.CollidableObjects.Remove(this);
+                UniverseScreen.DeepSpaceManager.Remove(this);
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Hangars)

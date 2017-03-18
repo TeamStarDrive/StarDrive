@@ -338,17 +338,27 @@ namespace Ship_Game
             unchecked
             {
                 int count = list.Count;
-                if (count == 0)
-                    return false;
-
-                if (item == null)
-                {
-                    for (int i = 0; i < count; ++i)
-                        if (list[i] == null) return true;
-                    return false;
-                }
                 for (int i = 0; i < count; ++i)
                     if (list[i] == item) return true;
+                return false;
+            }
+        }
+
+        public static bool ContainsRef<T>(this T[] array, T item) where T : class
+        {
+            unchecked
+            {
+                for (int i = 0; i < array.Length; ++i)
+                    if (array[i] == item) return true;
+                return false;
+            }
+        }
+        public static bool ContainsRef<T>(this T[] array, int length, T item) where T : class
+        {
+            unchecked
+            {
+                for (int i = 0; i < length; ++i)
+                    if (array[i] == item) return true;
                 return false;
             }
         }

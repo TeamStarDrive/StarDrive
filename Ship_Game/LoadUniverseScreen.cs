@@ -1074,8 +1074,8 @@ namespace Ship_Game
 				return;
 
             var system = data.SolarSystemsList[systemToMake];
-			system.spatialManager.Setup((int)(200000f * this.GameScale), (int)(200000f * this.GameScale), (int)(100000f * this.GameScale), system.Position);
-			this.percentloaded = systemToMake / (float)data.SolarSystemsList.Count;
+			system.spatialManager.Setup((int)(200000f * GameScale), (int)(200000f * GameScale), (int)(25000f * GameScale), system.Position);
+			percentloaded = systemToMake / (float)data.SolarSystemsList.Count;
 			foreach (Planet p in system.PlanetList)
 			{
 				p.system = system;
