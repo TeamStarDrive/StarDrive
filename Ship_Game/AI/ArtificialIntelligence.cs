@@ -4591,7 +4591,7 @@ namespace Ship_Game.AI
             if(thisSystem != null)
                 foreach (Planet p in thisSystem.PlanetList)
                 {
-                    BadGuysNear = Owner.loyalty.IsEmpireAttackable(p.Owner) && Owner.Center.InRadius(p.Position, Radius);
+                    BadGuysNear =BadGuysNear || Owner.loyalty.IsEmpireAttackable(p.Owner) && Owner.Center.InRadius(p.Position, Radius);
                     //@TODO remove below once new logic is checked
                     //Empire emp = p.Owner;
                     //if (emp !=null && emp != Owner.loyalty)
