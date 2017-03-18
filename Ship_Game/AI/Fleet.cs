@@ -740,7 +740,7 @@ namespace Ship_Game.AI
                             AssembleFleet(Facing, Vector2.Normalize(Position - FindAveragePosition()));
                             break;
                         case 3:
-                            if (IsFleetSupplied())
+                            if (!IsFleetSupplied())
                             {
                                 TaskStep = 5;
                                 break;
@@ -945,11 +945,11 @@ namespace Ship_Game.AI
                         energyDps = weapon.DamageAmount / weapon.fireDelay;
                 }
             }
-            if (ammoDps >= (ammoDps + energyDps) * 0.5f && currentAmmo <= maxAmmo * 0.1f)
+            if (ammoDps >= (ammoDps + energyDps) * 0.5f && currentAmmo <= maxAmmo * 0.1f) //is ammo really needed and if so is ammo < 1/10th of max
             {
-                return true;
+                return false;
             }
-            return false;
+            return true;
         }
 
         private float GetGroundStrOfPlanet(Planet p)
