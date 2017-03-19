@@ -359,7 +359,7 @@ namespace Ship_Game.Gameplay
             }
             moduleAttachedTo.GetParent().Beams.Add(beam);
 			ToggleSoundOn = false;
-			if ((Owner.System != null && Owner.System.isVisible || Owner.isInDeepSpace) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+			if ((Owner.System != null && Owner.System.isVisible || Owner.InDeepSpace) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
 			{
                 PlayFireCue(fireCueName, Owner.emitter, !Owner.isPlayerShip());
                 if (!string.IsNullOrEmpty(ToggleSoundName) && !ToggleSoundOn)
@@ -740,7 +740,7 @@ namespace Ship_Game.Gameplay
 			projectile.Initialize(ProjectileSpeed, direction, owner.Center);
 			projectile.Radius = ProjectileRadius;
 			projectile.LoadContent(ProjectileTexturePath, ModelPath);
-			if (owner.System != null && owner.System.isVisible || owner.isInDeepSpace)
+			if (owner.System != null && owner.System.isVisible || owner.InDeepSpace)
 			{
 				projectile.DieSound = true;
 				if (!string.IsNullOrEmpty(ResourceManager.WeaponsDict[UID].dieCue))

@@ -375,32 +375,36 @@ namespace Ship_Game
                     ThrusterEffect = TransientContent.Load<Effect>("Effects/Thrust");
                     firstRun = false;
                 }
-                Data.SolarSystemsList[systemToMake].spatialManager.Setup((int)(200000.0 * (double)this.Scale), (int)(200000.0 * (double)this.Scale), (int)(100000.0 * (double)this.Scale), this.Data.SolarSystemsList[this.systemToMake].Position);
+
+
+                SolarSystem wipSystem = Data.SolarSystemsList[systemToMake];
+                wipSystem.spatialManager.SetupForSystem(Scale, wipSystem);
+
                 PercentLoaded = (counter + systemToMake) / (float)(Data.SolarSystemsList.Count * 2);
                 foreach (Empire key in Data.EmpireList)
-                    Data.SolarSystemsList[systemToMake].ExploredDict.Add(key, false);
-                foreach (Planet planet in Data.SolarSystemsList[systemToMake].PlanetList)
+                    wipSystem.ExploredDict.Add(key, false);
+                foreach (Planet planet in wipSystem.PlanetList)
                 {
-                    planet.system = Data.SolarSystemsList[systemToMake];
-                    planet.Position += Data.SolarSystemsList[systemToMake].Position;
+                    planet.system = wipSystem;
+                    planet.Position += wipSystem.Position;
                     planet.InitializeUpdate();
                     ScreenManager.inter.ObjectManager.Submit(planet.SO);
                     foreach (Empire key in Data.EmpireList)
                         planet.ExploredDict.Add(key, false);
                 }
-                foreach (Asteroid asteroid in Data.SolarSystemsList[systemToMake].AsteroidsList)
+                foreach (Asteroid asteroid in wipSystem.AsteroidsList)
                 {
-                    asteroid.Position3D.X += Data.SolarSystemsList[systemToMake].Position.X;
-                    asteroid.Position3D.Y += Data.SolarSystemsList[systemToMake].Position.Y;
+                    asteroid.Position3D.X += wipSystem.Position.X;
+                    asteroid.Position3D.Y += wipSystem.Position.Y;
                     asteroid.Initialize();
                     ScreenManager.inter.ObjectManager.Submit(asteroid.So);
                 }
-                foreach (Moon moon in Data.SolarSystemsList[systemToMake].MoonList)
+                foreach (Moon moon in wipSystem.MoonList)
                 {
                     moon.Initialize();
                     ScreenManager.inter.ObjectManager.Submit(moon.So);
                 }
-                foreach (Ship ship in Data.SolarSystemsList[systemToMake].ShipList)
+                foreach (Ship ship in wipSystem.ShipList)
                 {
                     ship.Position = ship.loyalty.GetPlanets()[0].Position + new Vector2(6000f, 2000f);
                     ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0.0f));
@@ -412,20 +416,20 @@ namespace Ship_Game
                         thruster.InitializeForViewing();
                     }
                 }
-                ++this.systemToMake;
-                if (this.systemToMake == this.Data.SolarSystemsList.Count)
+                ++systemToMake;
+                if (systemToMake == Data.SolarSystemsList.Count)
                 {
-                    foreach (SolarSystem solarSystem1 in this.Data.SolarSystemsList)
+                    foreach (SolarSystem solarSystem1 in Data.SolarSystemsList)
                     {
-                        Array<CreatingNewGameScreen.SysDisPair> list = new Array<CreatingNewGameScreen.SysDisPair>();
-                        foreach (SolarSystem solarSystem2 in this.Data.SolarSystemsList)
+                        var list = new Array<SysDisPair>();
+                        foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
                         {
                             if (solarSystem1 != solarSystem2)
                             {
                                 float num1 = Vector2.Distance(solarSystem1.Position, solarSystem2.Position);
                                 if (list.Count < 5)
                                 {
-                                    list.Add(new CreatingNewGameScreen.SysDisPair()
+                                    list.Add(new SysDisPair
                                     {
                                         System = solarSystem2,
                                         Distance = num1
@@ -437,14 +441,14 @@ namespace Ship_Game
                                     float num2 = 0.0f;
                                     for (int index2 = 0; index2 < 5; ++index2)
                                     {
-                                        if ((double)list[index2].Distance > (double)num2)
+                                        if (list[index2].Distance > num2)
                                         {
                                             index1 = index2;
                                             num2 = list[index2].Distance;
                                         }
                                     }
-                                    if ((double)num1 < (double)num2)
-                                        list[index1] = new CreatingNewGameScreen.SysDisPair()
+                                    if (num1 < num2)
+                                        list[index1] = new SysDisPair
                                         {
                                             System = solarSystem2,
                                             Distance = num1

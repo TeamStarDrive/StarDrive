@@ -87,9 +87,7 @@ namespace Ship_Game.Gameplay
         {
             loyalty = owner.loyalty;
             this.owner = owner;
-            isInDeepSpace = owner.isInDeepSpace;
-            if (!isInDeepSpace)
-                System = owner.System;
+            SetSystem(owner.System);
             this.moduleAttachedTo = moduleAttachedTo;
             Center = Position = moduleAttachedTo.Center;
             emitter.Position = new Vector3(Position, 0f);
@@ -97,7 +95,7 @@ namespace Ship_Game.Gameplay
 
         public Projectile(Planet p, Vector2 direction)
         {
-            System   = p.system;
+            SetSystem(p.system);
             Position = p.Position;
             loyalty  = p.Owner;
             Velocity = direction;
@@ -243,14 +241,7 @@ namespace Ship_Game.Gameplay
                     Empire.Universe.ScreenManager.inter.LightManager.Remove(this.MuzzleFlash);
                 }
             }
-            if (System == null)
-            {
-                UniverseScreen.DeepSpaceManager.Remove(this);
-            }
-            else
-            {
-                System.spatialManager.Remove(this);
-            }
+            SetSystem(null);
             base.Die(source, cleanupOnly);
         }
 
@@ -301,17 +292,17 @@ namespace Ship_Game.Gameplay
                     AnimationFrame = UniverseRandom.InRange(weapon.Frames);
                 }
             }
-            if (this.owner.loyalty.data.ArmorPiercingBonus > 0 && (this.weapon.WeaponType == "Missile" || this.weapon.WeaponType == "Ballistic Cannon"))
+            if (owner.loyalty.data.ArmorPiercingBonus > 0 && (weapon.WeaponType == "Missile" || weapon.WeaponType == "Ballistic Cannon"))
             {
-                this.ArmorPiercing += (byte)this.owner.loyalty.data.ArmorPiercingBonus;
+                ArmorPiercing += (byte)owner.loyalty.data.ArmorPiercingBonus;
             }
             Projectile projectile1 = this;
-            projectile1.particleDelay = projectile1.particleDelay + this.weapon.particleDelay;
-            if (this.weapon.Tag_Guided)
+            projectile1.particleDelay = projectile1.particleDelay + weapon.particleDelay;
+            if (weapon.Tag_Guided)
             {
-                this.missileAI = new MissileAI(this);
+                missileAI = new MissileAI(this);
             }
-            if (this.WeaponType != "Missile" && this.WeaponType != "Drone" && this.WeaponType != "Rocket" || (this.System == null || !this.System.isVisible) && !this.isInDeepSpace)
+            if (WeaponType != "Missile" && WeaponType != "Drone" && WeaponType != "Rocket" || (System == null || !System.isVisible) && !InDeepSpace)
             {
                 if (owner != null && owner.loyalty.data.Traits.Blind > 0)
                 {
@@ -330,18 +321,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
-            if (System == null)
-            {
-                UniverseScreen.DeepSpaceManager.Add(this);
-                if (weapon.Tag_Intercept && Empire.Universe != null)
-                {
-                    Empire.Universe.DSProjectilesToAdd.Add(this);
-                }
-            }
-            else
-            {
-                System.spatialManager.Add(this);
-            }
+            SetSystem(System);
             base.Initialize();
         }
 
@@ -374,15 +354,7 @@ namespace Ship_Game.Gameplay
             {
                 this.droneAI = new DroneAI(this);
             }
-            if (this.System == null)
-            {
-                Empire.Universe.DSProjectilesToAdd.Add(this);
-                UniverseScreen.DeepSpaceManager.Add(this);
-            }
-            else
-            {
-                System.spatialManager.Add(this);
-            }
+            SetSystem(System);
             base.Initialize();
         }
 
@@ -425,23 +397,15 @@ namespace Ship_Game.Gameplay
                 this.missileAI = new MissileAI(this);
                 this.missileAI.SetTarget(Target);
             }
-            if (this.ProjSO != null && (this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.System != null && this.System.isVisible || this.isInDeepSpace))
+            if (ProjSO != null && (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket") && (System != null && System.isVisible || InDeepSpace))
             {
-                this.wasAddedToSceneGraph = true;
+                wasAddedToSceneGraph = true;
                 lock (GlobalStats.ObjectManagerLocker)
                 {
-                    Empire.Universe.ScreenManager.inter.ObjectManager.Submit(this.ProjSO);
+                    Empire.Universe.ScreenManager.inter.ObjectManager.Submit(ProjSO);
                 }
             }
-            if (System == null)
-            {
-                Empire.Universe.DSProjectilesToAdd.Add(this);
-                UniverseScreen.DeepSpaceManager.Add(this);
-            }
-            else
-            {
-                System.spatialManager.Add(this);
-            }
+            SetSystem(System);
             base.Initialize();
         }
 
@@ -471,7 +435,7 @@ namespace Ship_Game.Gameplay
                 this.missileAI = new MissileAI(this);
                 this.missileAI.SetTarget(Target);
             }
-            if (this.ProjSO != null && (this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.System != null && this.System.isVisible || this.isInDeepSpace))
+            if (ProjSO != null && (WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket") && (System != null && System.isVisible || InDeepSpace))
             {
                 this.wasAddedToSceneGraph = true;
                 lock (GlobalStats.ObjectManagerLocker)
@@ -479,15 +443,7 @@ namespace Ship_Game.Gameplay
                     Empire.Universe.ScreenManager.inter.ObjectManager.Submit(this.ProjSO);
                 }
             }
-            if (this.System == null)
-            {
-                Empire.Universe.DSProjectilesToAdd.Add(this);
-                UniverseScreen.DeepSpaceManager.Add(this);
-            }
-            else
-            {
-                System.spatialManager.Add(this);
-            }
+            SetSystem(System);
             base.Initialize();
         }
 
@@ -523,23 +479,15 @@ namespace Ship_Game.Gameplay
             {
                 this.missileAI = new MissileAI(this);
             }
-            if ((this.WeaponType == "Missile" || this.WeaponType == "Drone" || this.WeaponType == "Rocket") && (this.System != null && this.System.isVisible || this.isInDeepSpace) && this.ProjSO != null)
+            if ((WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket") && (System != null && System.isVisible || InDeepSpace) && ProjSO != null)
             {
-                this.wasAddedToSceneGraph = true;
+                wasAddedToSceneGraph = true;
                 lock (GlobalStats.ObjectManagerLocker)
                 {
                     Empire.Universe.ScreenManager.inter.ObjectManager.Submit(this.ProjSO);
                 }
             }
-            if (this.System == null)
-            {
-                Empire.Universe.DSProjectilesToAdd.Add(this);
-                UniverseScreen.DeepSpaceManager.Add(this);
-            }
-            else
-            {
-                System.spatialManager.Add(this);
-            }
+            SetSystem(System);
             base.Initialize();
         }
 
@@ -825,14 +773,14 @@ namespace Ship_Game.Gameplay
             else
                 this.Center = new Vector2(this.Position.X, this.Position.Y);
             this.emitter.Position = new Vector3(this.Center, 0.0f);
-            if (this.ProjSO !=null && (this.isInDeepSpace || this.System != null && this.System.isVisible) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (ProjSO !=null && (InDeepSpace || System != null && System.isVisible) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                if (this.zStart < -25.0)
-                    this.zStart += this.velocityMaximum * elapsedTime;
+                if (zStart < -25.0)
+                    zStart += velocityMaximum * elapsedTime;
                 else
-                    this.zStart = -25f;
-                this.ProjSO.World = Matrix.Identity * Matrix.CreateScale(this.Scale) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.Center.X, this.Center.Y, -this.zStart);
-                this.WorldMatrix = this.ProjSO.World;
+                    zStart = -25f;
+                ProjSO.World = Matrix.Identity * Matrix.CreateScale(Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(Center.X, Center.Y, -zStart);
+                WorldMatrix = ProjSO.World;
             }
             Vector3 newPosition = new Vector3(this.Center.X, this.Center.Y, -this.zStart);
             if (this.firetrailEmitter != null && this.WeaponEffectType == "Plasma" && (this.duration > this.initialDuration * 0.699999988079071 && this.particleDelay <= 0.0))

@@ -517,7 +517,6 @@ namespace Ship_Game
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
         {
             Ship ship = CreateShipAtPoint(shipName, owner, p.Position + deltaPos);
-            ship.isInDeepSpace = false; // Planet p implies we're not in deep space
             if (doOrbit)
                 ship.DoOrbit(p);
 
@@ -556,9 +555,7 @@ namespace Ship_Game
         // Unused... Battle mode, eh?
         public static Ship CreateShipForBattleMode(string shipName, Empire owner, Vector2 p)
         {
-            Ship ship = CreateShipAtPoint(shipName, owner, p);
-            ship.isInDeepSpace = true;
-            return ship;
+            return CreateShipAtPoint(shipName, owner, p);
         }
 
         // Hangar Ship Creation
