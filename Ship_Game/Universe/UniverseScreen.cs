@@ -17,7 +17,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Ship_Game.AI;
 using Ship_Game.Debug;
@@ -52,27 +51,27 @@ namespace Ship_Game
         public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
         public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
-        public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<UniverseScreen.ClickableItemUnderConstruction>();
-        protected Array<ClickableSystem> ClickableSystems = new Array<ClickableSystem>();
+        public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
+        protected Array<ClickableSystem> ClickableSystems    = new Array<ClickableSystem>();
         public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
-        protected Array<ClickableShip> ClickableShipsList = new Array<ClickableShip>();
+        protected Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
         protected float PieMenuDelay = 1f;
         protected Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
         public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
-        public Background bg = new Background();
-        public Vector2 Size = new Vector2(5000000f, 5000000f);
-        public float FTLModifier = 1f;
-        public float EnemyFTLModifier = 1f;
+        public Background bg            = new Background();
+        public Vector2 Size             = new Vector2(5000000f, 5000000f);
+        public float FTLModifier        = 1f;
+        public float EnemyFTLModifier   = 1f;
         public bool FTLInNuetralSystems = true;
         public UniverseData.GameDifficulty GameDifficulty = UniverseData.GameDifficulty.Normal;
         public Vector3 transitionStartPosition;
         public Vector3 camTransitionPosition;
-        public Array<NebulousOverlay> Stars = new Array<NebulousOverlay>();
+        public Array<NebulousOverlay> Stars        = new Array<NebulousOverlay>();
         public Array<NebulousOverlay> NebulousShit = new Array<NebulousOverlay>();
         private Rectangle ScreenRectangle;
-        public Map<Guid, Planet> PlanetsDict = new Map<Guid, Planet>();
-        public Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
-        public BatchRemovalCollection<Bomb> BombList = new BatchRemovalCollection<Bomb>();
+        public Map<Guid, Planet> PlanetsDict            = new Map<Guid, Planet>();
+        public Map<Guid, SolarSystem> SolarSystemDict   = new Map<Guid, SolarSystem>();
+        public BatchRemovalCollection<Bomb> BombList    = new BatchRemovalCollection<Bomb>();
         private AutoResetEvent DrawCompletedEvt         = new AutoResetEvent(false);
         private AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
         public float camHeight = 2550f;
@@ -91,10 +90,10 @@ namespace Ship_Game
         private ManualResetEvent DeepSpaceDone          = new ManualResetEvent(false);
         private AutoResetEvent   EmpireGateKeeper       = new AutoResetEvent(false);
         private ManualResetEvent EmpireDone             = new ManualResetEvent(false);
-        private Array<Ship> DeepSpaceShips = new Array<Ship>();
-        private object thislock = new object();
-        public bool ViewingShip = true;
-        public float transDuration = 3f;
+        private Array<Ship> DeepSpaceShips  = new Array<Ship>();
+        private object thislock             = new object();
+        public bool ViewingShip             = true;
+        public float transDuration          = 3f;
         protected float SectorMiniMapHeight = 20000f;
         public Vector2 mouseWorldPos;
         public float SelectedSomethingTimer = 3f;
@@ -251,10 +250,10 @@ namespace Ship_Game
 
         public UIButton ShipsInCombat;    
         public UIButton PlanetsInCombat;
-        public int lastshipcombat = 0;
+        public int lastshipcombat   = 0;
         public int lastplanetcombat = 0;
-        public int reducer = 1;
-        public float screenDelay = 0f;
+        public int reducer          = 1;
+        public float screenDelay    = 0f;
 
         public UniverseScreen() : base(null)
         {
