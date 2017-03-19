@@ -20,7 +20,7 @@ namespace Ship_Game.AI
 		    if (Empire.Universe == null) return;
 		    if (Owner.Owner == null)
 		    {
-		        GameplayObject[] nearby = UniverseScreen.ShipSpatialManager.GetNearby(Owner);
+		        GameplayObject[] nearby = Owner.GetNearby();
 		        for (int i = 0; i < nearby.Length; i++)
 		        {
 		            if (!(nearby[i] is Ship ship)) continue;

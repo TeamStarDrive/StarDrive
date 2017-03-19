@@ -304,6 +304,21 @@ namespace Ship_Game
             return true;
         }
 
+        // does a fast removal by swapping the item with the last element in the array
+        public bool RemoveSwapLast(T item)
+        {
+            unchecked
+            {
+                int i = IndexOf(item);
+                if (i < 0) return false;
+
+                int last = --Count;
+                Items[i]    = Items[last];
+                Items[last] = default(T);
+                return true;
+            }
+        }
+
         // This is slower than IndexOfRef if T is a class
         public int IndexOf(T item)
         {
@@ -327,7 +342,19 @@ namespace Ship_Game
                     ThrowIndexOutOfBounds(index);
                 Count = --count;
                 if (index < count) Array.Copy(Items, index + 1, Items, index, count - index);
-                Items[Count] = default(T);
+                Items[count] = default(T);
+            }
+        }
+
+        // does a fast removal by swapping the item at index with the last element in the array
+        // if index is outside bounds, an OOB exception will throw
+        public void RemoveAtSwapLast(int index)
+        {
+            unchecked
+            {
+                int last = --Count;
+                Items[index] = Items[last];
+                Items[last]  = default(T);
             }
         }
 

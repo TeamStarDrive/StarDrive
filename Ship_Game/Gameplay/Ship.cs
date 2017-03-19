@@ -1,20 +1,13 @@
-// Type: Ship_Game.Gameplay.Ship
-// Assembly: StarDrive, Version=1.0.9.0, Culture=neutral, PublicKeyToken=null
-// MVID: C34284EE-F947-460F-BF1D-3C6685B19387
-// Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SgMotion;
 using SgMotion.Controllers;
-using Ship_Game;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Collections.Concurrent;
@@ -25,7 +18,7 @@ namespace Ship_Game.Gameplay
 {
     public class Ship : GameplayObject, IDisposable
     {
-        public string VanityName = "";
+        public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Troop> TroopList = new Array<Troop>();
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         public bool RecallFightersBeforeFTL = true;
@@ -60,12 +53,12 @@ namespace Ship_Game.Gameplay
         public Vector2 VelocityLast = new Vector2();
         public Vector2 ScreenPosition = new Vector2();
         public float ScuttleTimer = -1f;
-        public Vector2 FleetOffset = new Vector2();
-        public Vector2 RelativeFleetOffset = new Vector2();
+        public Vector2 FleetOffset;
+        public Vector2 RelativeFleetOffset;
         private Array<ShipModule> Shields = new Array<ShipModule>();
         private Array<ShipModule> Hangars = new Array<ShipModule>();
         public Array<ShipModule> BombBays = new Array<ShipModule>();
-        public bool shipStatusChanged = false;
+        public bool shipStatusChanged;
         public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
         private AnimationController animationController;
@@ -106,7 +99,7 @@ namespace Ship_Game.Gameplay
         public bool isThrusting;
         public float CargoSpace_Max;
         public float WarpDraw;
-        public string Name;
+        public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float DamageModifier;
         public Empire loyalty;
         public int Size;
@@ -202,12 +195,12 @@ namespace Ship_Game.Gameplay
         public float RangeForOverlay;
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         Array<ModuleSlot> AttackerTargetting = new Array<ModuleSlot>();
-        public sbyte TrackingPower = 0;
-        public sbyte FixedTrackingPower = 0;
+        public sbyte TrackingPower;
+        public sbyte FixedTrackingPower;
         public Ship lastAttacker = null;
-        private bool LowHealth = false; //fbedard: recalculate strength after repair
+        private bool LowHealth; //fbedard: recalculate strength after repair
         public float TradeTimer;
-        public bool shipInitialized = false;
+        public bool shipInitialized;
         public float maxFTLSpeed;
         public float maxSTLSpeed;
         public float NormalWarpThrust;
@@ -802,22 +795,18 @@ namespace Ship_Game.Gameplay
         }
         public void ShipRecreate()
         {
-            Active = false;
-            AI.Target = (GameplayObject)null;
-            AI.ColonizeTarget = (Planet)null;
-            AI.EscortTarget = (Ship)null;
-            AI.start = (Planet)null;
-            AI.end = (Planet)null;
+            Active            = false;
+            AI.Target         = null;
+            AI.ColonizeTarget = null;
+            AI.EscortTarget   = null;
+            AI.start          = null;
+            AI.end            = null;
             AI.PotentialTargets.Clear();
             AI.NearbyShips.Clear();
             AI.FriendliesNearby.Clear();
 
+            System?.ShipList.QueuePendingRemoval(this);
 
-            if (System != null)
-            {
-                System.ShipList.QueuePendingRemoval(this);
-                System.spatialManager.Remove(this);
-            }
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Hangars)
@@ -826,21 +815,21 @@ namespace Ship_Game.Gameplay
                         shipModule.SetHangarShip(null);
                 }
             }
-            else if (isInDeepSpace)
-                UniverseScreen.DeepSpaceManager.Remove(this);
-            for (int index = 0; index < projectiles.Count; ++index)
-                projectiles[index].Die(this, false);
+
+            for (int i = 0; i < projectiles.Count; ++i)
+                projectiles[i].Die(this, false);
             projectiles.Clear();
 
-            foreach (ModuleSlot moduleSlot in ModuleSlotList)
-                moduleSlot.module.Clear();
+            foreach (ModuleSlot slot in ModuleSlotList)
+                slot.module.Clear();
+
             ModuleSlotList.Clear();
             TroopList.Clear();
             RemoveFromAllFleets();
             ShipSO.Clear();
 
             loyalty.RemoveShip(this);
-            System = null;
+            SetSystem(null);
             TetheredTo = null;
         }
 
@@ -2031,7 +2020,7 @@ namespace Ship_Game.Gameplay
                     }
                     else
                     {
-                        ShipSO = new SceneObject(((ReadOnlyCollection<ModelMesh>)Ship_Game.ResourceManager.GetModel(ModelPath).Meshes)[0]);
+                        ShipSO = new SceneObject((ResourceManager.GetModel(ModelPath).Meshes)[0]);
                         ShipSO.ObjectType = ObjectType.Dynamic;
                     }
                 }
@@ -2040,35 +2029,25 @@ namespace Ship_Game.Gameplay
 
         public void InitializeFromSave()
         {
+            if (string.IsNullOrEmpty(VanityName))
+                VanityName = Name;
+
             if (shipData.Role == ShipData.RoleName.platform)
                 IsPlatform = true;
             Weapons.Clear();
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
             Init(fromSave: true);
-            if (string.IsNullOrEmpty(VanityName))
-                VanityName = Name;
-            if (Ship_Game.ResourceManager.ShipsDict.ContainsKey(Name) && Ship_Game.ResourceManager.ShipsDict[Name].IsPlayerDesign)
+            if (ResourceManager.ShipsDict.ContainsKey(Name) && ResourceManager.ShipsDict[Name].IsPlayerDesign)
                 IsPlayerDesign = true;
-            else if (!Ship_Game.ResourceManager.ShipsDict.ContainsKey(Name))
+            else if (!ResourceManager.ShipsDict.ContainsKey(Name))
                 FromSave = true;
             LoadInitializeStatus();
             if (Empire.Universe != null)
                 Empire.Universe.ShipsToAdd.Add(this);
-            else
-                UniverseScreen.ShipSpatialManager.Add(this);
 
-            if (System != null && !System.spatialManager.Contains(this))
-            {
-                isInDeepSpace = false;
-                System.spatialManager.Add(this);
-                if (!System.ShipList.Contains(this))
-                    System.ShipList.Add(this);
-            }
-            else if (isInDeepSpace)
-            {
-                lock (GlobalStats.DeepSpaceLock)
-                    UniverseScreen.DeepSpaceManager.Add(this);
-            }
+            SetSystem(System);
+            System?.ShipList.AddUnique(this);
+
             FillExternalSlots();
             //this.hyperspace = (Cue)null;   //Removed to save space, because this is set to null in ship initilizers, and never reassigned. -Gretman
             base.Initialize();
@@ -2109,21 +2088,17 @@ namespace Ship_Game.Gameplay
 
         public override void Initialize()
         {
+            if (string.IsNullOrEmpty(VanityName))
+                VanityName = Name;
+
             if (shipData.Role == ShipData.RoleName.platform)
                 IsPlatform = true;
             SetShipData(GetShipData());
-            if (string.IsNullOrEmpty(VanityName))
-            {
-                VanityName = Name;
-            }
             Weapons.Clear();
             Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
             lock (GlobalStats.AddShipLocker)
             {
-                if (Empire.Universe == null)
-                    UniverseScreen.ShipSpatialManager.Add(this);
-                else
-                    Empire.Universe.ShipsToAdd.Add(this);
+                Empire.Universe?.ShipsToAdd.Add(this);
             }
             InitializeModules();
 
@@ -3087,13 +3062,8 @@ namespace Ship_Game.Gameplay
                             AI.OrderQueue.Clear();
                         }
                     }
-                    //this.Velocity.Length(); //Pretty sure this return value is a useless waste of 0.00012 CPU cycles... -Gretman
-                    //Ship ship2 = this;
-                    //Vector2 vector2_1 = this.Position + this.Velocity * elapsedTime;
                     Position += Velocity * elapsedTime;
-                    //Ship ship3 = this;
-                    //Vector2 vector2_2 = this.Center + this.Velocity * elapsedTime;
-                    Center += Velocity * elapsedTime;
+                    Center   += Velocity * elapsedTime;
                     UpdateShipStatus(elapsedTime);
                     if (!Active)
                         return;
@@ -3629,21 +3599,11 @@ namespace Ship_Game.Gameplay
         }
         public bool DoneRecovering()
         {
-            for (int index = 0; index < Hangars.Count; ++index)
+            for (int i = 0; i < Hangars.Count; ++i)
             {
-                try
-                {
-                    ShipModule shipModule = Hangars[index];
-                    if (shipModule.GetHangarShip() != null)
-                    {
-                        if (shipModule.GetHangarShip().Active)
-                            return false;
-                    }
-                }
-                catch
-                {
+                bool? hangarShipActive = Hangars[i]?.GetHangarShip()?.Active;
+                if (hangarShipActive.HasValue && hangarShipActive.Value)
                     return false;
-                }
             }
             return true;
         }
@@ -3805,7 +3765,7 @@ namespace Ship_Game.Gameplay
                     inSensorRange = true;
                 else if (!inSensorRange)
                 {
-                    GameplayObject[] nearby = UniverseScreen.ShipSpatialManager.GetNearby(this);
+                    GameplayObject[] nearby = GetNearby();
                     for (int i = 0; i < nearby.Length; ++i)
                     {
                         if (nearby[i] is Ship ship && ship.loyalty == EmpireManager.Player && (Center.Distance(ship.Position) <= ship.SensorRange || Empire.Universe.Debug))
@@ -4671,13 +4631,7 @@ namespace Ship_Game.Gameplay
             if (Empire.Universe.SelectedShip == this)
                 Empire.Universe.SelectedShip = null;
             Empire.Universe.SelectedShipList.Remove(this);
-            if (System != null)
-            {
-                System.ShipList.QueuePendingRemoval(this);
-                System.spatialManager.Remove(this);
-            }
-            else if (isInDeepSpace)
-                UniverseScreen.DeepSpaceManager.Remove(this);
+
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Hangars)
@@ -4714,7 +4668,7 @@ namespace Ship_Game.Gameplay
                 Empire.Universe.ScreenManager.inter.ObjectManager.Remove(ShipSO);
 
             loyalty.RemoveShip(this);
-            System = null;
+            SetSystem(null);
             TetheredTo = null;
             Transporters.Clear();
             RepairBeams.Clear();
@@ -4929,5 +4883,6 @@ namespace Ship_Game.Gameplay
             if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);
         }
 
+        public override string ToString() => $"Ship '{VanityName}' Pos {Position}";
     }
 }

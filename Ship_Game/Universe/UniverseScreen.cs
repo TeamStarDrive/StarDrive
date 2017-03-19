@@ -27,18 +27,17 @@ namespace Ship_Game
     public class UniverseScreen : GameScreen
     {
         private readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
-        private readonly PerfTimer Perfavg2 = new PerfTimer();
-        private readonly PerfTimer PreEmpirePerf = new PerfTimer();
-        private readonly PerfTimer perfavg4 = new PerfTimer();
-        private readonly PerfTimer perfavg5 = new PerfTimer();
+        private readonly PerfTimer Perfavg2          = new PerfTimer();
+        private readonly PerfTimer PreEmpirePerf     = new PerfTimer();
+        private readonly PerfTimer perfavg4          = new PerfTimer();
+        private readonly PerfTimer perfavg5          = new PerfTimer();
 
         public static float GamePaceStatic      = 1f;
         public static float GameScaleStatic     = 1f;
         public static bool ShipWindowOpen       = false;
         public static bool ColonizeWindowOpen   = false;
         public static bool PlanetViewWindowOpen = false;
-        public static SpatialManager DeepSpaceManager = new SpatialManager();
-        public static SpatialManager ShipSpatialManager = new SpatialManager();
+        public static SpatialManager DeepSpaceManager    = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         public static bool DisableClicks = false;
@@ -92,8 +91,6 @@ namespace Ship_Game
         private ManualResetEvent DeepSpaceDone          = new ManualResetEvent(false);
         private AutoResetEvent   EmpireGateKeeper       = new AutoResetEvent(false);
         private ManualResetEvent EmpireDone             = new ManualResetEvent(false);
-        //public Array<Ship> ShipsToRemove = new Array<Ship>();
-        public Array<Projectile> DSProjectilesToAdd = new Array<Projectile>();
         private Array<Ship> DeepSpaceShips = new Array<Ship>();
         private object thislock = new object();
         public bool ViewingShip = true;
@@ -585,42 +582,47 @@ namespace Ship_Game
 
         public void ViewPlanet(object sender)
         {
-            this.ShowShipNames = false;
-            if (this.SelectedPlanet == null)
+            ShowShipNames = false;
+            if (SelectedPlanet == null)
                 return;
-            if (!this.SelectedPlanet.system.ExploredDict[this.player])
+            if (!SelectedPlanet.system.ExploredDict[player])
             {
-                this.PlayNegativeSound();
+                PlayNegativeSound();
             }
             else
             {
                 bool flag = false;
-                foreach (Mole mole in this.player.data.MoleList)
+                foreach (Mole mole in player.data.MoleList)
                 {
-                    if (mole.PlanetGuid == this.SelectedPlanet.guid)
+                    if (mole.PlanetGuid == SelectedPlanet.guid)
+                    {
                         flag = true;
+                        break;
+                    }
                 }
-                this.workersPanel = this.SelectedPlanet.Owner == this.player || flag || this.Debug && this.SelectedPlanet.Owner != null ? (PlanetScreen)new ColonyScreen(this.SelectedPlanet, this.ScreenManager, this.EmpireUI) : (this.SelectedPlanet.Owner == null ? (PlanetScreen)new UnexploredPlanetScreen(this.SelectedPlanet, this.ScreenManager) : (PlanetScreen)new UnownedPlanetScreen(this.SelectedPlanet, this.ScreenManager));
-                this.LookingAtPlanet = true;
-                this.transitionStartPosition = this.camPos;
-                this.transitionDestination = new Vector3(this.SelectedPlanet.Position.X, this.SelectedPlanet.Position.Y + 400f, 2500f);
-                this.AdjustCamTimer = 2f;
-                this.transitionElapsedTime = 0.0f;
-                this.transDuration = 5f;
-                if (this.ViewingShip)
-                    this.returnToShip = true;
-                this.ViewingShip = false;
-                this.snappingToShip = false;
-                this.SelectedFleet = (Fleet)null;
-                if (this.SelectedShip != null && this.previousSelection != this.SelectedShip) //fbedard
-                    this.previousSelection = this.SelectedShip;
-                this.SelectedShip = (Ship)null;
-                this.SelectedShipList.Clear();
-                this.SelectedItem = null;
+                workersPanel = SelectedPlanet.Owner == player || flag || Debug && SelectedPlanet.Owner != null 
+                    ? new ColonyScreen(SelectedPlanet, ScreenManager, EmpireUI) : (SelectedPlanet.Owner == null 
+                    ? new UnexploredPlanetScreen(SelectedPlanet, ScreenManager) : (PlanetScreen)new UnownedPlanetScreen(SelectedPlanet, ScreenManager));
+                LookingAtPlanet         = true;
+                transitionStartPosition = camPos;
+                transitionDestination   = new Vector3(SelectedPlanet.Position.X, SelectedPlanet.Position.Y + 400f, 2500f);
+                AdjustCamTimer          = 2f;
+                transitionElapsedTime   = 0.0f;
+                transDuration           = 5f;
+                if (ViewingShip)
+                    returnToShip = true;
+                ViewingShip    = false;
+                snappingToShip = false;
+                SelectedFleet  = null;
+                if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
+                    previousSelection = SelectedShip;
+                SelectedShip = null;
+                SelectedShipList.Clear();
+                SelectedItem = null;
             }
         }
 
-        public void SnapViewSystem(SolarSystem system, UniverseScreen.UnivScreenState camHeight)
+        public void SnapViewSystem(SolarSystem system, UnivScreenState camHeight)
         {
             float x = this.GetZfromScreenState(camHeight);
             this.transitionDestination = new Vector3(system.Position.X, system.Position.Y + 400f, x);
@@ -674,8 +676,7 @@ namespace Ship_Game
                 AdjustCamTimer          = 2f;
                 transitionElapsedTime   = 0.0f;
                 transDuration           = 5f;
-                if (ViewingShip)
-                    returnToShip = true;
+                if (ViewingShip) returnToShip = true;
                 ViewingShip    = false;
                 snappingToShip = false;
                 SelectedFleet  = null;
@@ -694,11 +695,11 @@ namespace Ship_Game
 
         protected void ViewSystem(SolarSystem system)
         {
-            this.ViewingShip = false;
-            this.transitionDestination = new Vector3(system.Position, 147000f);
-            this.AdjustCamTimer = 1f;
-            this.transDuration = 3f;
-            this.transitionElapsedTime = 0.0f;
+            transitionDestination = new Vector3(system.Position, 147000f);
+            ViewingShip           = false;
+            AdjustCamTimer        = 1f;
+            transDuration         = 3f;
+            transitionElapsedTime = 0.0f;
         }
 
         public override void LoadContent()
@@ -706,32 +707,31 @@ namespace Ship_Game
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";
             SystemInfoUIElement.SysFont = Fonts.Arial12Bold;
             SystemInfoUIElement.DataFont = Fonts.Arial10;
-            this.NotificationManager = new NotificationManager(this.ScreenManager, this);
-            this.aw = new AutomationWindow(this.ScreenManager, this);
-            for (int index = 0; (double)index < (double)this.Size.X / 5000.0; ++index)
+            NotificationManager = new NotificationManager(ScreenManager, this);
+            aw = new AutomationWindow(ScreenManager, this);
+            for (int i = 0; i < Size.X / 5000.0f; ++i)
             {
                 NebulousOverlay nebulousOverlay = new NebulousOverlay();
                 float z = RandomMath.RandomBetween(-200000f, -2E+07f);
                 nebulousOverlay.Path = "Textures/smoke";
-                nebulousOverlay.Position = new Vector3(RandomMath.RandomBetween(-0.5f * this.Size.X, this.Size.X + 0.5f * this.Size.X), RandomMath.RandomBetween(-0.5f * this.Size.X, this.Size.X + 0.5f * this.Size.X), z);
+                nebulousOverlay.Position = new Vector3(RandomMath.RandomBetween(-0.5f * Size.X, Size.X + 0.5f * Size.X), RandomMath.RandomBetween(-0.5f * Size.X, Size.X + 0.5f * Size.X), z);
                 float radians = RandomMath.RandomBetween(0.0f, 6.283185f);
                 nebulousOverlay.Scale = RandomMath.RandomBetween(10f, 100f);
                 nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f) * Matrix.CreateScale(nebulousOverlay.Scale) * Matrix.CreateRotationZ(radians) * Matrix.CreateTranslation(nebulousOverlay.Position);
-                this.Stars.Add(nebulousOverlay);
+                Stars.Add(nebulousOverlay);
             }
-            this.LoadGraphics();
-            DeepSpaceManager.Setup((int)Size.X, (int)Size.Y, (int)(500000.0 * GameScale), new Vector2(Size.X / 2f, Size.Y / 2f));       //Mer Investigate me
-            ShipSpatialManager.Setup((int)Size.X, (int)Size.Y, (int)(500000.0 * GameScale), new Vector2(Size.X / 2f, Size.Y / 2f));
-            this.DoParticleLoad();
-            this.bg3d = new Background3D(this);
-            this.starfield = new Starfield(Vector2.Zero, this.ScreenManager.GraphicsDevice, TransientContent);
-            this.starfield.LoadContent();
-            GameplayObject.audioListener = this.listener;
-            Weapon.audioListener = this.listener;
-            GameplayObject.audioListener = this.listener;
-            this.projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, (float)this.ScreenManager.GraphicsDevice.Viewport.Width / (float)this.ScreenManager.GraphicsDevice.Viewport.Height, 1000f, 3E+07f);
-            this.SetLighting(this.UseRealLights);
-            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            LoadGraphics();
+            DeepSpaceManager.SetupForDeepSpace(Size.X, Size.Y);
+            DoParticleLoad();
+            bg3d = new Background3D(this);
+            starfield = new Starfield(Vector2.Zero, ScreenManager.GraphicsDevice, TransientContent);
+            starfield.LoadContent();
+            GameplayObject.audioListener = listener;
+            Weapon.audioListener         = listener;
+            GameplayObject.audioListener = listener;
+            projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, ScreenManager.GraphicsDevice.Viewport.Width / ScreenManager.GraphicsDevice.Viewport.Height, 1000f, 3E+07f);
+            SetLighting(UseRealLights);
+            foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 foreach (string FleetUID in solarSystem.DefensiveFleets)
                 {
@@ -1463,7 +1463,6 @@ namespace Ship_Game
                     foreach (Ship ship in ShipsToAdd)
                     {
                         MasterShipList.Add(ship);
-                        ShipSpatialManager.Add(ship);
                     }
                     ShipsToAdd.Clear();
                 }
@@ -1476,11 +1475,11 @@ namespace Ship_Game
        
             perfavg4.Start();
             #region Mid
-            if (elapsedTime > 0.0 && shiptimer <= 0.0)
+            if (elapsedTime > 0.0f && shiptimer <= 0.0f)
             {
                 foreach (SolarSystem solarSystem in SolarSystemList)
                     solarSystem.ShipList.Clear();
-                this.shiptimer = 1f;
+                shiptimer = 1f;
                 //foreach (Ship ship in (Array<Ship>)this.MasterShipList)
                 //var source = Enumerable.Range(0, this.MasterShipList.Count).ToArray();
                 //var rangePartitioner = Partitioner.Create(0, source.Length);
@@ -1489,27 +1488,18 @@ namespace Ship_Game
                 //Parallel.For(this.MasterShipList.Count, (start, end) =>
                 {
                     //for (int i = start; i < end; i++)
-                    for (int i = 0; i < this.MasterShipList.Count; i++)
+                    for (int i = 0; i < MasterShipList.Count; i++)
                     {                                               
-                        Ship ship = this.MasterShipList[i];
-                        ship.isInDeepSpace = false;
-                        ship.SetSystem((SolarSystem)null);
-                        foreach (SolarSystem s in UniverseScreen.SolarSystemList)
+                        Ship ship = MasterShipList[i];
+                        foreach (SolarSystem system in SolarSystemList)
                         {
-                            if (Vector2.Distance(ship.Position, s.Position) < 100000.0)
+                            if (ship.Position.InRadius(system.Position, 100000.0f))
                             {
-                                s.ExploredDict[ship.loyalty] = true;
-                                ship.SetSystem(s);
-                                s.ShipList.Add(ship);
-                                s.spatialManager.Add(ship);
-                                break;       //No need to keep looping through all other systems if one is found -Gretman
+                                system.ExploredDict[ship.loyalty] = true;
+                                ship.SetSystem(system);
+                                break; // No need to keep looping through all other systems if one is found -Gretman
                             }
                                                    
-                        }
-                        if (ship.System == null)
-                        {
-                            ship.isInDeepSpace = true;
-                            DeepSpaceManager.Add(ship);
                         }
                     }
                 }//);
@@ -1628,10 +1618,9 @@ namespace Ship_Game
             //Log.Info(this.zgameTime.TotalGameTime.Seconds - elapsedTime);
             //System.Threading.Tasks.Parallel.Invoke(() =>
             {
-                if (elapsedTime > 0)
+                if (elapsedTime > 0f)
                 {
-                    SpatManUpdate2(elapsedTime);
-                    ShipSpatialManager.UpdateBucketsOnly(elapsedTime);
+                    DeepSpaceManager.Update(elapsedTime, null);
                 }
             }//,
             //() =>
@@ -1855,16 +1844,6 @@ namespace Ship_Game
                 }//);
                 // this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
             }
-        }
-        protected void SpatManUpdate2(float elapsedTime)
-        {
-           // lock (GlobalStats.DeepSpaceLock)
-            {
-                foreach (Projectile item_0 in DSProjectilesToAdd)
-                    DeepSpaceManager.Add(item_0);
-            }
-            DSProjectilesToAdd.Clear();
-            DeepSpaceManager.Update(elapsedTime, null);
         }
 
         private void DeepSpaceThread()
@@ -4513,7 +4492,7 @@ namespace Ship_Game
                             {
                                 try
                                 {
-                                    foreach (Ship ship in (Array<Ship>)this.SelectedShipList)
+                                    foreach (Ship ship in SelectedShipList)
                                     {
                                         if (ship.fleet == null || ship.fleet != this.SelectedShipList[0].fleet)
                                             flag4 = false;
@@ -4527,9 +4506,9 @@ namespace Ship_Game
                             }
                         }
                         if (this.SelectedFleet != null)
-                            this.shipListInfoUI.SetShipList((Array<Ship>)this.SelectedShipList, true);
+                            this.shipListInfoUI.SetShipList(SelectedShipList, true);
                         else
-                            this.shipListInfoUI.SetShipList((Array<Ship>)this.SelectedShipList, false);
+                            this.shipListInfoUI.SetShipList(SelectedShipList, false);
                     }
                     if (this.SelectedFleet == null)
                         this.ShipInfoUIElement.SetShip(this.SelectedShipList[0]);
@@ -4558,7 +4537,6 @@ namespace Ship_Game
             EmpireUI.empire = null;
             EmpireUI = null;
             DeepSpaceManager.Destroy();
-            ShipSpatialManager.Destroy();
             ScreenManager.Music.Stop(AudioStopOptions.Immediate);
             NebulousShit.Clear();
             bloomComponent = null;

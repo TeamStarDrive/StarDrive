@@ -1,8 +1,3 @@
-// Type: Ship_Game.Gameplay.SpatialManager
-// Assembly: StarDrive, Version=1.0.9.0, Culture=neutral, PublicKeyToken=null
-// MVID: C34284EE-F947-460F-BF1D-3C6685B19387
-// Assembly location: E:\Games\Steam\steamapps\common\StarDrive\oStarDrive.exe
-
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -18,6 +13,7 @@ namespace Ship_Game.Gameplay
         private readonly Array<Projectile> Projectiles = new Array<Projectile>();
         private readonly Array<Asteroid>   Asteroids   = new Array<Asteroid>();
         private readonly Array<Beam>       Beams       = new Array<Beam>();
+        private readonly Array<GameplayObject> AllObjects = new Array<GameplayObject>();
 
         private float BucketUpdateTimer;
         private readonly Array<CollisionResult> CollisionResults = new Array<CollisionResult>();
@@ -25,83 +21,101 @@ namespace Ship_Game.Gameplay
         private int Height;
         private int Size;
         private Vector2 UpperLeftBound;
-        private Array<GameplayObject>[] Buckets;
+        private Array<ushort>[] Buckets;
         private int CellSize;
-        private bool FineDetail;        
+        private bool FineDetail;    
 
-        public void Setup(int sceneWidth, int sceneHeight, int cellSize, Vector2 center)
+        private void Setup(float sceneWidth, float sceneHeight, float cellSize, float centerX, float centerY)
         {
-            UpperLeftBound.X = center.X - (sceneWidth  / 2f);
-            UpperLeftBound.Y = center.Y - (sceneHeight / 2f);
-            Width            = sceneWidth  / cellSize;
-            Height           = sceneHeight / cellSize;
+            UpperLeftBound.X = centerX - (sceneWidth  / 2f);
+            UpperLeftBound.Y = centerY - (sceneHeight / 2f);
+            Width            = (int)sceneWidth  / (int)cellSize;
+            Height           = (int)sceneHeight / (int)cellSize;
             Size             = Width * Height;
-            Buckets          = new Array<GameplayObject>[Size];
-            CellSize         = cellSize;
+            Buckets          = new Array<ushort>[Size];
+            CellSize         = (int)cellSize;
         }
 
-        private static bool CheckNotNull(GameplayObject obj)
+        public void SetupForDeepSpace(float universeRadiusX, float universeRadiusY)
         {
-            if (obj != null)
-                return true;
-            Log.Error("SpatialManager null object");
-            return false;
+            float gameScale = Empire.Universe.GameScale;
+
+            // assuming universe size uses radius...
+            float universeWidth = universeRadiusX * 2;
+            float universeHeight = universeRadiusY * 2;
+            Setup(universeWidth, universeHeight, 150000f * gameScale, 0f, 0f);
+            Log.Info("SetupForDeepSpace spaceSize: {0}x{1}  grid: {2}x{3}  size: {4}", universeWidth, universeHeight, Width, Height, Size);
         }
 
-        public void Add(Ship ship)
+        public void SetupForSystem(float gameScale, SolarSystem system, float cellSize = 25000f)
         {
-            if (CheckNotNull(ship) && !Contains(ship))
-            {
-                Ships.Add(ship);
-                PlaceIntoBucket(ship);
-            }
-        }
-        public void Add(Projectile projectile)
-        {
-            if (CheckNotNull(projectile) && !Contains(projectile))
-            {
-                Projectiles.Add(projectile);
-                PlaceIntoBucket(projectile);
-            }
-        }
-        public void Add(Asteroid asteroid)
-        {
-            if (CheckNotNull(asteroid) && !Contains(asteroid))
-            {
-                Asteroids.Add(asteroid);
-                PlaceIntoBucket(asteroid);
-            }
-        }
-        public void Add(Beam beam)
-        {
-            if (CheckNotNull(beam) && !Contains(beam))
-            {
-                Beams.Add(beam);
-                PlaceIntoBucket(beam);
-            }
+            Setup(200000f * gameScale, 200000f * gameScale, cellSize * gameScale, system.Position.X, system.Position.Y);
         }
 
-        public void Remove(Ship ship)
+        public void Add(GameplayObject obj)
         {
-            if (CheckNotNull(ship)) Ships.Remove(ship);
-        }
-        public void Remove(Projectile projectile)
-        {
-            if (CheckNotNull(projectile)) Projectiles.Remove(projectile);
-        }
-        public void Remove(Asteroid asteroid)
-        {
-            if (CheckNotNull(asteroid)) Asteroids.Remove(asteroid);
-        }
-        public void Remove(Beam beam)
-        {
-            if (CheckNotNull(beam)) Beams.Remove(beam);
+            if (obj == null)
+            {
+                Log.Error("SpatialManager null object");
+                return;
+            }
+
+            if (obj.SpatialIndex != -1) // the object is already in a SpatialManager
+            {
+                if (Contains(obj))
+                    return; // this SpatialManager already contains this object
+
+                Log.Error("SpatialManager cannot add object {0} because it's in another SpatialManager", obj);
+                return;
+            }
+
+            if (obj is Ship ship)              Ships.Add(ship);
+            else if (obj is Projectile proj)   Projectiles.Add(proj);
+            //else if (obj is Asteroid asteroid) Asteroids.Add(asteroid);
+            else if (obj is Beam beam)         Beams.Add(beam);
+            else return;
+
+            int idx = AllObjects.Count;
+            AllObjects.Add(obj);
+            PlaceIntoBucket(obj, idx);
         }
 
-        public bool Contains(Ship ship)             => Ships.ContainsRef(ship);
-        public bool Contains(Projectile projectile) => Projectiles.ContainsRef(projectile);
-        public bool Contains(Asteroid asteroid)     => Asteroids.ContainsRef(asteroid);
-        public bool Contains(Beam beam)             => Beams.ContainsRef(beam);
+        public void Remove(GameplayObject obj)
+        {
+            if (obj == null)
+            {
+                Log.Error("SpatialManager null object");
+                return;
+            }
+
+            int idx = obj.SpatialIndex;
+            if (idx == -1)
+                return; // not in any SpatialManagers, so Remove is no-op
+
+            if (idx != -1 && !Contains(obj))
+            {
+                Log.Error("SpatialManager cannot remove object {0} because it's in another SpatialManager", obj);
+                return;
+            }
+
+            RemoveByIndex(obj, idx);
+        }
+
+        private void RemoveByIndex(GameplayObject obj, int index)
+        {
+            if (obj is Ship ship)              Ships.RemoveSwapLast(ship);
+            else if (obj is Projectile proj)   Projectiles.RemoveSwapLast(proj);
+            else if (obj is Asteroid asteroid) Asteroids.RemoveSwapLast(asteroid);
+            else if (obj is Beam beam)         Beams.RemoveSwapLast(beam);
+
+            AllObjects[index] = null;
+            obj.SpatialIndex  = -1;
+        }
+
+        public bool Contains(GameplayObject gameObj)
+        {
+            return AllObjects.ContainsRef(gameObj);
+        }
 
         public IReadOnlyList<Ship> ShipsList => Ships;
 
@@ -111,7 +125,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                if (ship.Active && ship.isInDeepSpace && ship.System == null)
+                if (ship.Active && ship.InDeepSpace)
                     copyTo.Add(ship);
             }
         }
@@ -122,82 +136,72 @@ namespace Ship_Game.Gameplay
             if (BucketUpdateTimer >= 0.5f) // update all buckets
             {
                 BucketUpdateTimer = 0.0f;
-                ClearBuckets();
 
-                if (system != null)
+                if (system != null) // System.spatialManager
                 {
                     if (system.CombatInSystem && system.ShipList.Count > 10)
                     {
                         if (!FineDetail || Size < 20 && Projectiles.Count > 0)
                         {
-                            Setup(200000, 200000, 6000, system.Position);
+                            SetupForSystem(Empire.Universe.GameScale, system, 5000f);
                             FineDetail = true;
                         }
                     }
                     else if (FineDetail || Size > 20 || Projectiles.Count == 0)
-                        Setup(200000, 200000, 50000, system.Position);
+                    {
+                        SetupForSystem(Empire.Universe.GameScale, system);
+                        FineDetail = false;
+                    }
                 }
 
-                for (int i = Ships.Count - 1; i >= 0; --i)
-                {
-                    Ship ship = Ships[i];
-                    if (!ship.Active || ship.System != null && system == null)
-                        Ships.RemoveAt(i);
-                    else PlaceIntoBucket(ship);
-                }
-                for (int i = Projectiles.Count - 1; i >= 0; --i)
-                {
-                    Projectile projectile = Projectiles[i];
-                    if (!projectile.Active || projectile.System != null && system == null)
-                        Projectiles.Remove(projectile); 
-                    else PlaceIntoBucket(projectile);
-                }
+                RebuildBuckets();
             }
 
-            // run collision checks, the loops look weird because they are optimized for .NET JIT
-            int numProjectiles = Projectiles.Count;
-            if (numProjectiles > 0)
+            // move and collide projectiles/beams:
+            for (int i = 0; i < Projectiles.Count; ++i)
             {
-                Projectile[] items = Projectiles.GetInternalArrayItems();
-                for (int i = 0; i < numProjectiles && i < items.Length; ++i)
-                {
-                    Projectile projectile = items[i];
-                    if (projectile.Active)
-                        MoveAndCollide(projectile);
-                }
+                Projectile projectile = Projectiles[i];
+                if (projectile.Active)
+                    MoveAndCollide(projectile);
             }
-            int numBeams = Beams.Count;
-            if (numBeams > 0)
+            for (int i = 0; i < Beams.Count; ++i)
             {
-                Beam[] items = Beams.GetInternalArrayItems();
-                for (int i = 0; i < numBeams && i < items.Length; ++i)
-                {
-                    Beam beam = items[i];
-                    if (beam.Active)
-                        CollideBeam(beam);
-                }
+                Beam beam = Beams[i];
+                if (beam.Active)
+                    CollideBeam(beam);
             }
         }
 
         public void UpdateBucketsOnly(float elapsedTime)
         {
             BucketUpdateTimer += elapsedTime;
-            if (BucketUpdateTimer < 0.5f)
-                return;
-            BucketUpdateTimer = 0.0f;
-            ClearBuckets();
-
-            for (int i = Ships.Count - 1; i >= 0; --i)
+            if (BucketUpdateTimer >= 0.5f) // update all buckets
             {
-                Ship ship = Ships[i];
-                if (!ship.Active) Ships.RemoveAt(i);
-                else              PlaceIntoBucket(ship);
+                BucketUpdateTimer = 0.0f;
+                RebuildBuckets();
             }
-            for (int i = Projectiles.Count - 1; i >= 0; --i)
+        }
+
+        private void RebuildBuckets()
+        {
+            // consolidate removed AllObjects and remove inactive objects
+            ClearBuckets();
+            for (int i = 0; i < AllObjects.Count; ++i)
             {
-                Projectile projectile = Projectiles[i];
-                if (!projectile.Active) Projectiles.Remove(projectile);
-                else                    PlaceIntoBucket(projectile);
+                GameplayObject obj = AllObjects[i];
+                if (obj == null)
+                {
+                    AllObjects.RemoveAtSwapLast(i);
+                }
+                else if (!obj.Active)
+                {
+                    RemoveByIndex(obj, i);
+                    AllObjects.RemoveAtSwapLast(i);
+                }
+
+                // and now place whatever object we have at [i] into Buckets grid:
+                if (i < AllObjects.Count)
+                    PlaceIntoBucket(AllObjects[i], i);
             }
         }
 
@@ -233,21 +237,69 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        private QuadrantIds GetIdForPos(Vector2 objPos, float radius = 100f)
-        {
-            Vector2 gridPos = objPos - UpperLeftBound;
 
+        private void AddBucketNonNull(ref QuadrantIds quadrants, float posX, float posY)
+        {
+            int x = (int)posX / CellSize;
+            int y = (int)posY / CellSize;
+            int quadrantId = x + y * Width;
+            if (0 <= quadrantId && quadrantId < Size && Buckets[quadrantId] != null)
+                quadrants.Add(quadrantId);
+        }
+
+        public GameplayObject[] GetNearby(GameplayObject obj) => GetNearby(obj.Center, obj.Radius);
+
+        public unsafe GameplayObject[] GetNearby(Vector2 position, float radius = 100f)
+        {
+            var ids = new QuadrantIds();
+            Vector2 gridPos = position - UpperLeftBound;
             float left  = gridPos.X - radius;
             float right = gridPos.X + radius;
             float top   = gridPos.Y - radius;
             float bot   = gridPos.Y + radius;
+            AddBucketNonNull(ref ids, left,  top);
+            AddBucketNonNull(ref ids, right, top);
+            AddBucketNonNull(ref ids, right, bot);
+            AddBucketNonNull(ref ids, left,  bot);
+            if (ids.Length == 0) return Empty<GameplayObject>.Array;
 
-            var quadrants = new QuadrantIds();
-            AddBucket(ref quadrants, left,  top);
-            AddBucket(ref quadrants, right, top);
-            AddBucket(ref quadrants, right, bot);
-            AddBucket(ref quadrants, left,  bot);
-            return quadrants;
+            if (ids.Length == 1) // fast path
+            {
+                Array<ushort> bucket = Buckets[ids[0]];
+                if (bucket.IsEmpty) return Empty<GameplayObject>.Array;
+
+                int count = bucket.Count;
+                var objs = new GameplayObject[count];
+                for (int i = 0; i < count; ++i)
+                    objs[i] = AllObjects[bucket[i]];
+                return objs;
+            }
+
+            // probe if selected buckets are empty to avoid unnecessary allocations
+            int totalObjects = 0;
+            for (int i = 0; i < ids.Length; ++i)
+                totalObjects += Buckets[ids[i]].Count;
+            if (totalObjects == 0) return Empty<GameplayObject>.Array;
+
+            // create a histogram with all the objectId frequencies
+            int numAllObjects = AllObjects.Count;
+            byte* histogram = stackalloc byte[numAllObjects];
+            for (int i = 0; i < ids.Length; ++i)
+                foreach(ushort objectId in Buckets[ids[i]])
+                    histogram[objectId] += 1;
+
+            // how many objectId-s are unique?
+            int numUnique = 0;
+            for (int i = 0; i < numAllObjects; ++i)
+                if (histogram[i] > 0) ++numUnique;
+
+            // reconstruct unique sorted array:
+            var unique = new GameplayObject[numUnique];
+            numUnique = 0;
+            for (int i = 0; i < numAllObjects; ++i)
+                if (histogram[i] > 0) unique[numUnique++] = AllObjects[i];
+
+            return unique;
         }
 
         private void AddBucket(ref QuadrantIds quadrants, float posX, float posY)
@@ -259,44 +311,25 @@ namespace Ship_Game.Gameplay
                 quadrants.Add(quadrantId);
         }
 
-        public GameplayObject[] GetNearby(GameplayObject obj) => GetNearby(obj.Center, obj.Radius);
-
-        public GameplayObject[] GetNearby(Vector2 position, float radius = 100f)
-        {
-            QuadrantIds ids = GetIdForPos(position, radius);
-
-            int totalObjects = 0;
-            for (int i = 0; i < ids.Length; ++i)
-            {
-                Array<GameplayObject> bucket = Buckets[ids[i]];
-                if (bucket != null) totalObjects += bucket.Count;
-            }
-
-            var objects = new GameplayObject[totalObjects];
-            int numObjects = 0;
-            for (int i = 0; i < objects.Length; ++i)
-            {
-                Array<GameplayObject> bucket = Buckets[ids[i]];
-                if (bucket == null) continue;
-                for (int j = 0; j < bucket.Count; ++j)
-                {
-                    GameplayObject obj = bucket[j];
-                    if (!objects.ContainsRef(numObjects, obj))
-                        objects[numObjects++] = obj;
-                }
-            }
-
-            if (objects.Length != numObjects)
-                Array.Resize(ref objects, numObjects);
-            return objects;
-        }
-
-        private void PlaceIntoBucket(GameplayObject obj)
+        private void PlaceIntoBucket(GameplayObject obj, int id)
         {
             if (CellSize == 0)
                 return; // not initialized yet (probably during loading)
 
-            QuadrantIds ids = GetIdForPos(obj.Center, obj.Radius);
+            var ids = new QuadrantIds();
+            Vector2 gridPos = obj.Center - UpperLeftBound;
+            float radius = obj.Radius;
+            float left  = gridPos.X - radius;
+            float right = gridPos.X + radius;
+            float top   = gridPos.Y - radius;
+            float bot   = gridPos.Y + radius;
+            AddBucket(ref ids, left,  top);
+            AddBucket(ref ids, right, top);
+            AddBucket(ref ids, right, bot);
+            AddBucket(ref ids, left,  bot);
+
+            // if we keep hitting this error, then a fallback bucket needs to be created
+            // something like DefaultBucket... or Buckets[0]
             if (ids.Length == 0)
                 Log.Error("GameplayObject fell outside of SpatialManager grid: {0}", obj.Position);
 
@@ -304,8 +337,8 @@ namespace Ship_Game.Gameplay
             {
                 int bucketIdx = ids[i];
                 if (Buckets[bucketIdx] == null)
-                    Buckets[bucketIdx] = new Array<GameplayObject>();
-                Buckets[bucketIdx].Add(obj);
+                    Buckets[bucketIdx] = new Array<ushort>();
+                Buckets[bucketIdx].Add((ushort)id);
             }
         }
 
@@ -639,7 +672,7 @@ namespace Ship_Game.Gameplay
             if (damageRadius <= 0.0f || hitModule.GetParent().dying || !hitModule.GetParent().Active)
                 return;
             var removalCollection = new BatchRemovalCollection<ExplosionRay>(false);
-            float num2 = (360f / 15);
+            const float num2 = (360f / 15);
             for (int i = 0; i < 15; ++i)
                 removalCollection.Add(new ExplosionRay
                 {
@@ -665,9 +698,7 @@ namespace Ship_Game.Gameplay
                     {
                         if (!shipModule.Active || !(shipModule.Health > 0.0))
                             continue;
-                        Vector2 vector21 = hitModule.Center + explosionRay.Direction * num3;
-                        Vector2 vector22 = shipModule.Center - vector21;
-                        if (!(Vector2.Distance(vector21, shipModule.Center) <= 8.0) || !(explosionRay.Damage > 0.0))
+                        if (!shipModule.Center.InRadius(hitModule.Center + explosionRay.Direction * num3, 8.0f) || !(explosionRay.Damage > 0.0))
                             continue;
                         float health = shipModule.Health;
                         shipModule.Damage(source, explosionRay.Damage);

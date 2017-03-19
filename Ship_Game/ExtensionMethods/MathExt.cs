@@ -67,7 +67,6 @@ namespace Ship_Game
         public static bool OutsideRadius(this Vector2 position, Vector2 center, float radius)
             => position.SqDist(center) > radius*radius;
 
-
         // Reverse of WithinRadius, returns true if position is outside of Circle [center,radius]
         public static bool OutsideRadius(this Vector3 position, Vector3 center, float radius)
             => position.SqDist(center) > radius*radius;
