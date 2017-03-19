@@ -54,6 +54,9 @@ namespace Ship_Game.Gameplay
             Setup(200000f * gameScale, 200000f * gameScale, cellSize * gameScale, system.Position.X, system.Position.Y);
         }
 
+        private static bool IsSpatialType(GameplayObject obj)
+            => obj is Ship || obj is Projectile || obj is Beam;
+
         public void Add(GameplayObject obj)
         {
             if (obj == null)
