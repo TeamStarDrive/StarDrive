@@ -359,6 +359,7 @@ namespace Ship_Game.Gameplay
             Projectiles.Clear();
             Asteroids.Clear();
             Beams.Clear();
+            Size = 0;
             Buckets = null;
         }
 
