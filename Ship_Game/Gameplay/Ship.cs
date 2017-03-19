@@ -805,8 +805,6 @@ namespace Ship_Game.Gameplay
             AI.NearbyShips.Clear();
             AI.FriendliesNearby.Clear();
 
-            System?.ShipList.QueuePendingRemoval(this);
-
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Hangars)
@@ -4511,7 +4509,6 @@ namespace Ship_Game.Gameplay
                 beams.Remove(beam);
             }
             
-            
             ++DebugInfoScreen.ShipsDied;
             Projectile psource = source as Projectile;
             if (!cleanupOnly)
@@ -4534,7 +4531,6 @@ namespace Ship_Game.Gameplay
             if (dying && !reallyDie)
                 return;
 
-            System?.ShipList.QueuePendingRemoval(this);
             if (psource?.owner != null)
             {
                 float amount = 1f;
@@ -4608,6 +4604,7 @@ namespace Ship_Game.Gameplay
 
         public void QueueTotalRemoval()
         {
+            SetSystem(null);
             Empire.Universe.ShipsToRemove.Add(this);
         }
 
