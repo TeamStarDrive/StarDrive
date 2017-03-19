@@ -27,6 +27,8 @@ namespace Ship_Game.Gameplay
 
         private void Setup(float sceneWidth, float sceneHeight, float cellSize, float centerX, float centerY)
         {
+            ClearBuckets();
+
             UpperLeftBound.X = centerX - (sceneWidth  / 2f);
             UpperLeftBound.Y = centerY - (sceneHeight / 2f);
             Width            = (int)sceneWidth  / (int)cellSize;
@@ -69,11 +71,13 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
+            if (!IsSpatialType(obj))
+                return; // not a supported spatial manager type. just ignore it
+
             if (obj is Ship ship)              Ships.Add(ship);
             else if (obj is Projectile proj)   Projectiles.Add(proj);
-            //else if (obj is Asteroid asteroid) Asteroids.Add(asteroid);
+            else if (obj is Asteroid asteroid) Asteroids.Add(asteroid);
             else if (obj is Beam beam)         Beams.Add(beam);
-            else return;
 
             int idx = AllObjects.Count;
             AllObjects.Add(obj);
@@ -186,7 +190,7 @@ namespace Ship_Game.Gameplay
         {
             // consolidate removed AllObjects and remove inactive objects
             ClearBuckets();
-            for (int i = 0; i < AllObjects.Count; ++i)
+            for (int i = 0; i < AllObjects.Count; )
             {
                 GameplayObject obj = AllObjects[i];
                 if (obj == null)
@@ -198,11 +202,12 @@ namespace Ship_Game.Gameplay
                     RemoveByIndex(obj, i);
                     AllObjects.RemoveAtSwapLast(i);
                 }
-
-                // and now place whatever object we have at [i] into Buckets grid:
-                if (i < AllObjects.Count)
-                    PlaceIntoBucket(AllObjects[i], i);
+                else ++i;
             }
+
+            // and now place whatever object we have at [i] into Buckets grid:
+            for (int i = 0; i < AllObjects.Count; ++i)
+                PlaceIntoBucket(AllObjects[i], i);
         }
 
         // clockwise 4 quadrants, however, values can be -1 if the quadrants were too far or nonexistant
@@ -313,8 +318,8 @@ namespace Ship_Game.Gameplay
 
         private void PlaceIntoBucket(GameplayObject obj, int id)
         {
-            if (CellSize == 0)
-                return; // not initialized yet (probably during loading)
+            if (CellSize == 0 || Buckets == null)
+                return; // not initialized yet (probably during loading) OR Destroyed
 
             var ids = new QuadrantIds();
             Vector2 gridPos = obj.Center - UpperLeftBound;
@@ -335,10 +340,11 @@ namespace Ship_Game.Gameplay
 
             for (int i = 0; i < ids.Length; ++i)
             {
+                var buckets = Buckets;
                 int bucketIdx = ids[i];
-                if (Buckets[bucketIdx] == null)
-                    Buckets[bucketIdx] = new Array<ushort>();
-                Buckets[bucketIdx].Add((ushort)id);
+                if (buckets[bucketIdx] == null)
+                    buckets[bucketIdx] = new Array<ushort>();
+                buckets[bucketIdx].Add((ushort)id);
             }
         }
 
