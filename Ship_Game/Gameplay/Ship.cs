@@ -2044,10 +2044,8 @@ namespace Ship_Game.Gameplay
                 Empire.Universe.ShipsToAdd.Add(this);
 
             SetSystem(System);
-            System?.ShipList.AddUnique(this);
-
             FillExternalSlots();
-            //this.hyperspace = (Cue)null;   //Removed to save space, because this is set to null in ship initilizers, and never reassigned. -Gretman
+
             base.Initialize();
             foreach (ModuleSlot ss in ModuleSlotList)
             {

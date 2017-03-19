@@ -729,7 +729,7 @@ namespace Ship_Game
             GameplayObject.audioListener = listener;
             Weapon.audioListener         = listener;
             GameplayObject.audioListener = listener;
-            projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, ScreenManager.GraphicsDevice.Viewport.Width / ScreenManager.GraphicsDevice.Viewport.Height, 1000f, 3E+07f);
+            projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, (float)ScreenManager.GraphicsDevice.Viewport.Width / (float)ScreenManager.GraphicsDevice.Viewport.Height, 1000f, 3E+07f);
             SetLighting(UseRealLights);
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
@@ -1815,7 +1815,7 @@ namespace Ship_Game
 
                     using (system.ShipList.AcquireReadLock())
                     {
-                        foreach (Ship ship in (Array<Ship>)system.ShipList)
+                        foreach (Ship ship in system.ShipList)
                         {
                             if (ship.System == null)
                                 continue;
