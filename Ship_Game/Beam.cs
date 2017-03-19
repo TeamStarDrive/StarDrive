@@ -54,15 +54,8 @@ namespace Ship_Game
             {
                 DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
             }
-            if (owner.isInDeepSpace || owner.System== null)
-            {
-                UniverseScreen.DeepSpaceManager.Add(this);
-            }
-            else
-            {
-                System = owner.System;
-                System.spatialManager.Add(this);
-            }
+
+            SetSystem(owner.System);
             Source = srcCenter;
             BeamOffsetAngle = Owner.Rotation - srcCenter.AngleToTarget(TargetPosition).ToRadians();
             Destination = MathExt.PointFromRadians(srcCenter, Owner.Rotation + BeamOffsetAngle, range);
@@ -82,15 +75,7 @@ namespace Ship_Game
         {
             Target = target;
             DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
-            if (Owner.isInDeepSpace || Owner.System== null)
-            {
-                UniverseScreen.DeepSpaceManager.Add(this);
-            }
-            else
-            {
-                System = Owner.System;
-                System.spatialManager.Add(this);
-            }
+            SetSystem(Owner.System);
             Source          = srcCenter;
             BeamOffsetAngle = 0f;
             Vertices        = new VertexPositionNormalTexture[4];
@@ -135,15 +120,7 @@ namespace Ship_Game
             {
                 DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
             }
-            if (owner.isInDeepSpace || owner.System== null)
-            {
-                UniverseScreen.DeepSpaceManager.Add(this);
-            }
-            else
-            {
-                System = owner.System;
-                System.spatialManager.Add(this);
-            }
+            SetSystem(owner.System);
             Source          = srcCenter;
             BeamOffsetAngle = Owner.Rotation - srcCenter.RadiansToTarget(TargetPosition);
             Destination     = MathExt.PointFromRadians(srcCenter, Owner.Rotation + BeamOffsetAngle, range);
@@ -166,16 +143,8 @@ namespace Ship_Game
             {
                 DamageToggleSound = AudioManager.GetCue("sd_shield_static_1");
             }
-            if (owner.isInDeepSpace || owner.System== null)
-            {
-                UniverseScreen.DeepSpaceManager.Add(this);
-            }
-            else
-            {
-                System = owner.System;
-                System.spatialManager.Add(this);
-            }
-            Source          = srcCenter;
+            SetSystem(owner.System);
+            Source = srcCenter;
             Thickness       = thickness;
             BeamOffsetAngle = shipOwner.Rotation - srcCenter.RadiansToTarget(destination);
             Destination     = srcCenter.PointFromRadians(shipOwner.Rotation + BeamOffsetAngle, range);
@@ -201,24 +170,12 @@ namespace Ship_Game
             if (owner != null)
             {
                 owner.Beams.Remove(this);
-                if (owner.System!= null)
-                {
-                    System = owner.System;
-                    System.spatialManager.Remove(this);
-                }
-                else
-                    UniverseScreen.DeepSpaceManager.Remove(this);
+                SetSystem(owner.System);
             }
             else if (weapon.drowner != null)
             {
                 (weapon.drowner as Projectile).GetDroneAI().Beams.QueuePendingRemoval(this);
-                if (weapon.drowner.System!= null)
-                {
-                    System = weapon.drowner.System;
-                    System.spatialManager.Remove(this);
-                }
-                else
-                    UniverseScreen.DeepSpaceManager.Remove(this);
+                SetSystem(weapon.drowner.System);
             }
             weapon.ResetToggleSound();
         }

@@ -1668,7 +1668,7 @@ namespace Ship_Game.AI
                     bool allInCombat = true;
                     foreach (Ship ship in this.Ships)
                     {
-                        if (ship.GetAI().BadGuysNear && !ship.isInDeepSpace)
+                        if (ship.GetAI().BadGuysNear && !ship.InDeepSpace)
                         {
                             allInCombat = false;
                             break;
@@ -1853,7 +1853,7 @@ namespace Ship_Game.AI
 
                             if (!flag1)
                             {
-                                if (ship.isInDeepSpace && ship.engineState != Ship.MoveState.Warp && ship.speed ==0 && ship.InCombatTimer <15)
+                                if (ship.InDeepSpace && ship.engineState != Ship.MoveState.Warp && ship.speed ==0 && ship.InCombatTimer <15)
                                     this.FleetTask.EndTask();
                                 break;
                             }

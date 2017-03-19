@@ -1015,8 +1015,8 @@ namespace Ship_Game.Gameplay
                 }
                 if (explodes)
                 {
-                    var mgr = inSystem?.spatialManager ?? UniverseScreen.DeepSpaceManager;
-                    mgr.ExplodeAtModule(Parent.LastDamagedBy, this, damageAmount:size*2500, damageRadius:size*64);
+                    SpatialManagerForSystem(inSystem)
+                        .ExplodeAtModule(Parent.LastDamagedBy, this, damageAmount:size*2500, damageRadius:size*64);
                 }
                 if (PowerFlowMax > 0 || PowerRadius > 0)
                     Parent.NeedRecalculate = true;
@@ -1123,8 +1123,8 @@ namespace Ship_Game.Gameplay
             {
                 foreach (ShipModule module in DummyModules)
                 {
+                    module.SetSystem(Parent?.System);
                     module.Parent          = Parent;
-                    module.System          = Parent.System;
                     module.Dimensions      = Dimensions;
                     module.IconTexturePath = IconTexturePath;
                     foreach (ModuleSlot slot in Parent.ModuleSlotList)
