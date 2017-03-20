@@ -1407,15 +1407,15 @@ namespace Ship_Game
                     if (!this.InitialziedHostilesDict)
                     {
                         this.InitialziedHostilesDict = true;
-                        foreach (SolarSystem key in UniverseScreen.SolarSystemList)
+                        foreach (SolarSystem system in UniverseScreen.SolarSystemList)
                         {
                             bool flag = false;
-                            foreach (Ship ship in (Array<Ship>)key.ShipList)
+                            foreach (Ship ship in system.ShipList)
                             {
                                 if (ship.loyalty != this && (ship.loyalty.isFaction || this.Relationships[ship.loyalty].AtWar))
                                     flag = true;
                             }
-                            this.HostilesPresent.Add(key, flag);
+                            this.HostilesPresent.Add(system, flag);
                         }
                     }
                     else

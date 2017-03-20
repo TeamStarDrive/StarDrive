@@ -1,13 +1,12 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Ship_Game.Gameplay
 {
-    public sealed class SpatialManager : IDisposable
+    public sealed unsafe class SpatialManager : IDisposable
     {
         private readonly Array<Ship>       Ships       = new Array<Ship>();
         private readonly Array<Projectile> Projectiles = new Array<Projectile>();
@@ -21,21 +20,66 @@ namespace Ship_Game.Gameplay
         private int Height;
         private int Size;
         private Vector2 UpperLeftBound;
-        private Array<ushort>[] Buckets;
+        private PoolArrayU16** Buckets;
         private int CellSize;
-        private bool FineDetail;    
+        private bool FineDetail;
+        private DynamicMemoryPool MemoryPool;
+        private SolarSystem System;
 
         private void Setup(float sceneWidth, float sceneHeight, float cellSize, float centerX, float centerY)
         {
-            ClearBuckets();
-
             UpperLeftBound.X = centerX - (sceneWidth  / 2f);
             UpperLeftBound.Y = centerY - (sceneHeight / 2f);
             Width            = (int)sceneWidth  / (int)cellSize;
             Height           = (int)sceneHeight / (int)cellSize;
-            Size             = Width * Height;
-            Buckets          = new Array<ushort>[Size];
             CellSize         = (int)cellSize;
+            Size             = Width * Height;
+
+            if (Buckets != null)
+                Marshal.FreeHGlobal(new IntPtr(Buckets));
+
+            Buckets = (PoolArrayU16**)Marshal.AllocHGlobal(Size * sizeof(PoolArrayU16*));
+            for (int i = 0; i < Size; ++i)
+                Buckets[i] = null;
+
+            if (MemoryPool == null)
+                MemoryPool = new DynamicMemoryPool();
+            else
+                MemoryPool.Reset();
+        }
+
+        public void Destroy()
+        {
+            Ships.Clear();
+            Projectiles.Clear();
+            Asteroids.Clear();
+            Beams.Clear();
+
+            Size = 0;
+            MemoryPool?.Destroy();
+            if (Buckets == null)
+                return;
+            Marshal.FreeHGlobal(new IntPtr(Buckets));
+            Buckets = null;
+        }
+
+        private void ClearBuckets()
+        {
+            MemoryPool.Reset(); // reset the pools to their default max-available state
+            for (int i = 0; i < Size; ++i)
+                Buckets[i] = null;
+        }
+
+        public void Dispose()
+        {
+            Destroy();
+            MemoryPool?.Dispose(ref MemoryPool);
+            GC.SuppressFinalize(this);
+        }
+        ~SpatialManager()
+        {
+            Destroy();
+            MemoryPool?.Dispose(ref MemoryPool);
         }
 
         public void SetupForDeepSpace(float universeRadiusX, float universeRadiusY)
@@ -51,11 +95,12 @@ namespace Ship_Game.Gameplay
 
         public void SetupForSystem(float gameScale, SolarSystem system, float cellSize = 25000f)
         {
+            System = system;
             Setup(200000f * gameScale, 200000f * gameScale, cellSize * gameScale, system.Position.X, system.Position.Y);
         }
 
         private static bool IsSpatialType(GameplayObject obj)
-            => obj is Ship || obj is Projectile || obj is Beam;
+            => obj is Ship || obj is Projectile/*also Beam*/;
 
         public void Add(GameplayObject obj)
         {
@@ -83,8 +128,13 @@ namespace Ship_Game.Gameplay
             else if (obj is Beam beam)         Beams.Add(beam);
 
             int idx = AllObjects.Count;
+            if (idx >= ushort.MaxValue)
+                Log.Error("SpatialManager maximum number of support objects (65536) exceeded! Fatal error!");
+
+            obj.SpatialIndex = idx;
             AllObjects.Add(obj);
-            PlaceIntoBucket(obj, idx);
+
+            if (Buckets != null) PlaceIntoBucket(obj, idx);
         }
 
         public void Remove(GameplayObject obj)
@@ -144,17 +194,17 @@ namespace Ship_Game.Gameplay
             {
                 BucketUpdateTimer = 0.0f;
 
-                if (system != null) // System.spatialManager
+                if (system != null) // this is a System.spatialManager
                 {
                     if (system.CombatInSystem && system.ShipList.Count > 10)
                     {
-                        if (!FineDetail || Size < 20 && Projectiles.Count > 0)
+                        if (!FineDetail && Size < 20 && Projectiles.Count > 0)
                         {
                             SetupForSystem(Empire.Universe.GameScale, system, 5000f);
                             FineDetail = true;
                         }
                     }
-                    else if (FineDetail || Size > 20 || Projectiles.Count == 0)
+                    else if (FineDetail && Size > 20 || Projectiles.Count == 0)
                     {
                         SetupForSystem(Empire.Universe.GameScale, system);
                         FineDetail = false;
@@ -191,8 +241,9 @@ namespace Ship_Game.Gameplay
 
         private void RebuildBuckets()
         {
-            // consolidate removed AllObjects and remove inactive objects
             ClearBuckets();
+
+            // remove null values and remove inactive objects
             for (int i = 0; i < AllObjects.Count; )
             {
                 GameplayObject obj = AllObjects[i];
@@ -208,93 +259,117 @@ namespace Ship_Game.Gameplay
                 else ++i;
             }
 
-            // and now place whatever object we have at [i] into Buckets grid:
-            for (int i = 0; i < AllObjects.Count; ++i)
-                PlaceIntoBucket(AllObjects[i], i);
-        }
+            // now rebuild buckets and reassign spatial indexes
+            int count = AllObjects.Count;
+            GameplayObject[] allObjects = AllObjects.GetInternalArrayItems();
 
-        // clockwise 4 quadrants, however, values can be -1 if the quadrants were too far or nonexistant
-        [StructLayout(LayoutKind.Sequential)]
-        [DebuggerDisplay("Length = {Length} [0]={Quad0} [1]={Quad1} [2]={Quad2} [3]={Quad3}")]
-        private struct QuadrantIds
-        {
-            public int Length;
-            private int Quad0;
-            private int Quad1;
-            private int Quad2;
-            private int Quad3;
-
-            public unsafe int this[int index]
+            for (int i = 0; i < count; ++i)
             {
-                get
-                {
-                    fixed (int* quads = &Quad0)
-                        return quads[index];
-                }
-            }
-
-            public unsafe void Add(int quadrantId)
-            {
-                fixed (int* quads = &Quad0)
-                {
-                    for (int i = 0; i < Length; ++i)
-                        if (quads[i] == quadrantId)
-                            return;
-                    quads[Length++] = quadrantId;
-                }
+                GameplayObject obj = allObjects[i];
+                obj.SpatialIndex = i;
+                PlaceIntoBucket(obj, (ushort)i);
             }
         }
 
 
-        private void AddBucketNonNull(ref QuadrantIds quadrants, float posX, float posY)
+        // @note This method is heavily optimized. If you find even more ways to optimize, then please lend a hand!
+        // @note All of the code is inlined by hand to maximize performance
+        public T[] GetNearby<T>(Vector2 position, float radius) where T : GameplayObject
         {
-            int x = (int)posX / CellSize;
-            int y = (int)posY / CellSize;
-            int quadrantId = x + y * Width;
-            if (0 <= quadrantId && quadrantId < Size && Buckets[quadrantId] != null)
-                quadrants.Add(quadrantId);
-        }
+            int numIds = 0;
+            int* ids = stackalloc int[4];
 
-        public GameplayObject[] GetNearby(GameplayObject obj) => GetNearby(obj.Center, obj.Radius);
+            float posX   = position.X - UpperLeftBound.X;
+            float posY   = position.Y - UpperLeftBound.Y;
+            int cellSize = CellSize;
+            int width    = Width;
 
-        public unsafe GameplayObject[] GetNearby(Vector2 position, float radius = 100f)
-        {
-            var ids = new QuadrantIds();
-            Vector2 gridPos = position - UpperLeftBound;
-            float left  = gridPos.X - radius;
-            float right = gridPos.X + radius;
-            float top   = gridPos.Y - radius;
-            float bot   = gridPos.Y + radius;
-            AddBucketNonNull(ref ids, left,  top);
-            AddBucketNonNull(ref ids, right, top);
-            AddBucketNonNull(ref ids, right, bot);
-            AddBucketNonNull(ref ids, left,  bot);
-            if (ids.Length == 0) return Empty<GameplayObject>.Array;
+            int leftColOffs  = (int)((posX - radius) / cellSize);
+            int rightColOffs = (int)((posX + radius) / cellSize);
+            int topRowOffs   = (int)((posY - radius) / cellSize) * width;
+            int botRowOffs   = (int)((posY + radius) / cellSize) * width;
 
-            if (ids.Length == 1) // fast path
+            PoolArrayU16** buckets = Buckets;
+
+            if (leftColOffs == rightColOffs && topRowOffs == botRowOffs)
             {
-                Array<ushort> bucket = Buckets[ids[0]];
-                if (bucket.IsEmpty) return Empty<GameplayObject>.Array;
+                int id = topRowOffs + leftColOffs;
+                if ((uint)id < Size && buckets[id] != null)
+                    ids[numIds++] = id;
+            }
+            else
+            {
+                // manual loop unrolling with no bounds checking! yay! :D -- to avoid duplicate Id-s looping
+                // ids[0] != id is rearranged (in a weird way) to provide statistically faster exclusion (most results give numIds=1)
+                int size = Size;
+                int id = topRowOffs + leftColOffs;
+                if ((uint)id < size && buckets[id] != null)
+                    ids[numIds++] = id;
 
-                int count = bucket.Count;
-                var objs = new GameplayObject[count];
+                id = topRowOffs + rightColOffs;
+                if (ids[0] != id && (uint)id < size && buckets[id] != null)
+                    ids[numIds++] = id;
+
+                id = botRowOffs + rightColOffs;
+                if (ids[0] != id && (uint)id < size && buckets[id] != null && ids[1] != id)
+                    ids[numIds++] = id;
+
+                id = botRowOffs + rightColOffs;
+                if (ids[0] != id && (uint)id < size && buckets[id] != null && ids[1] != id && ids[2] != id)
+                    ids[numIds++] = id;
+            }
+
+
+            if (numIds == 0) // all this work for nothing?? pffft.
+                return Empty<T>.Array;
+
+            GameplayObject[] allObjects = AllObjects.GetInternalArrayItems();
+            if (numIds == 1) // fast path
+            {
+                PoolArrayU16* bucket = buckets[ids[0]];
+                if (bucket == null) return Empty<T>.Array;
+
+                int count = bucket->Count;
+                ushort* objectIds = bucket->Items;
+                int numItems = 0; // probe number of valid items first
                 for (int i = 0; i < count; ++i)
-                    objs[i] = AllObjects[bucket[i]];
+                    if (allObjects[objectIds[i]] is T)
+                        ++numItems;
+
+                var objs = new T[numItems]; // we only want to allocate once, to reduce memory pressure
+                numItems = 0;
+                for (int i = 0; i < count; ++i) {
+                    if (allObjects[objectIds[i]] is T item)
+                        objs[numItems++] = item;
+                }
+
+                if (objs.Length != numItems)
+                    Log.Warning("SpatialManager bucket modified during GetNearby() !!");
                 return objs;
             }
 
             // probe if selected buckets are empty to avoid unnecessary allocations
             int totalObjects = 0;
-            for (int i = 0; i < ids.Length; ++i)
-                totalObjects += Buckets[ids[i]].Count;
-            if (totalObjects == 0) return Empty<GameplayObject>.Array;
+            for (int i = 0; i < numIds; ++i)
+                totalObjects += buckets[ids[i]]->Count;
+            if (totalObjects == 0) return Empty<T>.Array;
 
             // create a histogram with all the objectId frequencies
+            // while filtering objects based on the requested type of T
             int numAllObjects = AllObjects.Count;
             byte* histogram = stackalloc byte[numAllObjects];
-            for (int i = 0; i < ids.Length; ++i)
-                foreach(ushort objectId in Buckets[ids[i]])
-                    histogram[objectId] += 1;
+            for (int i = 0; i < numIds; ++i)
+            {
+                PoolArrayU16* bucket = buckets[ids[i]];
+                int count = bucket->Count;
+                ushort* objectIds = bucket->Items;
+                for (int j = 0; j < count; ++j)
+                {
+                    ushort objectId = objectIds[j];
+                    if (allObjects[objectId] is T)
+                        ++histogram[objectId];
+                }
+            }
 
             // how many objectId-s are unique?
             int numUnique = 0;
@@ -302,77 +377,86 @@ namespace Ship_Game.Gameplay
                 if (histogram[i] > 0) ++numUnique;
 
             // reconstruct unique sorted array:
-            var unique = new GameplayObject[numUnique];
+            var unique = new T[numUnique];
             numUnique = 0;
             for (int i = 0; i < numAllObjects; ++i)
-                if (histogram[i] > 0) unique[numUnique++] = AllObjects[i];
+                if (histogram[i] > 0 && allObjects[i] is T item) {
+                    unique[numUnique++] = item;
+                }
 
+            if (unique.Length != numUnique)
+                Log.Warning("SpatialManager bucket modified during GetNearby() !!");
             return unique;
         }
 
-        private void AddBucket(ref QuadrantIds quadrants, float posX, float posY)
+        private void PlaceIntoBucket(GameplayObject obj, int objId)
         {
-            int x = (int)posX / CellSize;
-            int y = (int)posY / CellSize;
-            int quadrantId = x + y * Width;
-            if (0 <= quadrantId && quadrantId < Size)
-                quadrants.Add(quadrantId);
-        }
+            // Sorry, this is an almost identicaly copy-paste from the above function "GetNearby"
+            // All of this for the sole reason of extreme performance optimization. Forgive us :'(
+            int numIds = 0;
+            int* ids = stackalloc int[4];
 
-        private void PlaceIntoBucket(GameplayObject obj, int id)
-        {
-            if (CellSize == 0 || Buckets == null)
-                return; // not initialized yet (probably during loading) OR Destroyed
-
-            var ids = new QuadrantIds();
-            Vector2 gridPos = obj.Center - UpperLeftBound;
+            float posX   = obj.Position.X - UpperLeftBound.X;
+            float posY   = obj.Position.Y - UpperLeftBound.Y;
+            int   width  = Width;
             float radius = obj.Radius;
-            float left  = gridPos.X - radius;
-            float right = gridPos.X + radius;
-            float top   = gridPos.Y - radius;
-            float bot   = gridPos.Y + radius;
-            AddBucket(ref ids, left,  top);
-            AddBucket(ref ids, right, top);
-            AddBucket(ref ids, right, bot);
-            AddBucket(ref ids, left,  bot);
+            int cellSize = CellSize;
 
-            // if we keep hitting this error, then a fallback bucket needs to be created
-            // something like DefaultBucket... or Buckets[0]
-            if (ids.Length == 0)
-                Log.Error("GameplayObject fell outside of SpatialManager grid: {0}", obj.Position);
+            int leftColOffs  = (int)((posX - radius) / cellSize);
+            int rightColOffs = (int)((posX + radius) / cellSize);
+            int topRowOffs   = (int)((posY - radius) / cellSize) * width;
+            int botRowOffs   = (int)((posY + radius) / cellSize) * width;
 
-            for (int i = 0; i < ids.Length; ++i)
+            if (leftColOffs == rightColOffs && topRowOffs == botRowOffs)
             {
-                var buckets = Buckets;
-                int bucketIdx = ids[i];
-                if (buckets[bucketIdx] == null)
-                    buckets[bucketIdx] = new Array<ushort>();
-                buckets[bucketIdx].Add((ushort)id);
+                int id = topRowOffs + leftColOffs;
+                if ((uint)id < Size) ids[numIds++] = id;
             }
-        }
+            else
+            {
+                int size = Size;
+                int id = topRowOffs + leftColOffs;
+                if ((uint)id < size)
+                    ids[numIds++] = id;
+
+                id = topRowOffs + rightColOffs;
+                if (ids[0] != id && (uint)id < size)
+                    ids[numIds++] = id;
+
+                id = botRowOffs + rightColOffs;
+                if (ids[0] != id && (uint)id < size && ids[1] != id)
+                    ids[numIds++] = id;
+
+                id = botRowOffs + rightColOffs;
+                if (ids[0] != id && (uint)id < size && ids[1] != id && ids[2] != id)
+                    ids[numIds++] = id;
+            }
 
 
-        public void Destroy()
-        {
-            ClearBuckets();
-            Ships.Clear();
-            Projectiles.Clear();
-            Asteroids.Clear();
-            Beams.Clear();
-            Size = 0;
-            Buckets = null;
-        }
+            // this can happen if a ship is performing FTL, so it jumps out of the Solar system
+            // best course of action is to just ignore it and not insert into buckets
+            if (numIds == 0)
+            {
+                if (System != null && System.Position.InRadius(obj.Position, 100000f))
+                    Log.Error("SpatialManager logic error: object {0} is outside of system grid {1}", obj, System);
+                return;
+            }
 
-        internal void ClearBuckets()
-        {
-            for (int i = 0; i < Size; ++i)
-                Buckets[i]?.Clear();
+            PoolArrayU16** buckets = Buckets;
+            for (int i = 0; i < numIds; ++i)
+            {
+                int quadrantId = ids[i];
+                PoolArrayU16** bucketRef = &buckets[quadrantId];
+                MemoryPool.ArrayAdd(bucketRef, (ushort)objId);
+            }
         }
 
         private void MoveAndCollide(Projectile projectile)
         {
             CollisionResults.Clear();
-            foreach (GameplayObject otherObj in GetNearby(projectile))
+
+            GameplayObject[] nearby = GetNearby<GameplayObject>(projectile.Position, 100f);
+            foreach (GameplayObject otherObj in nearby)
                 if (CollideWith(projectile, otherObj))
                     break; // projectile died, no need to continue collisions
 
@@ -433,17 +517,19 @@ namespace Ship_Game.Gameplay
                 else
                     Log.Info("beam null");
             }
-            else if (beam.Owner != null)
-                gameplayObject1 = beam.owner;
+            else gameplayObject1 = beam.owner;
 
             if (gameplayObject1 == null)
             {
                 Log.Info("CollideBeam gameplayObject1 null");
+                return;
             }
 
-            GameplayObject[] nearby = GetNearby(gameplayObject1).OrderBy(distance => beam.Source.SqDist(distance.Center)).ToArray();
+            GameplayObject[] nearby = GetNearby<GameplayObject>(gameplayObject1.Position, gameplayObject1.Radius);
             if (nearby.Length == 0)
                 return;
+            nearby.Sort(obj => beam.Source.SqDist(obj.Position));
+
             Vector2 unitV = Vector2.Normalize(beam.Destination - beam.Source);
 
             var beampath = new Ray(new Vector3(beam.Source, 0), new Vector3(unitV.X, unitV.Y, 0));
@@ -637,10 +723,9 @@ namespace Ship_Game.Gameplay
             if (damageRadius <= 0.0)
                 return;
 
-            var ships = GetNearby(source)
-                .Where(go => go is Ship && go.Active && !((Ship)go).dying)
-                .OrderBy(go => Vector2.Distance(source.Center, go.Center))
-                .Cast<Ship>();
+            Ship[] ships = GetNearby<Ship>(source.Position, source.Radius)
+                           .Where(ship => ship.Active && !ship.dying).ToArray();
+            ships.Sort(ship => ship.Center.SqDist(source.Center));
 
             foreach (Ship ship in ships)
             {
@@ -648,27 +733,35 @@ namespace Ship_Game.Gameplay
                 // Doctor: Reset the radius on every foreach loop in case ships of different loyalty are to be affected:
                 float modifiedRadius = damageRadius;
                 
-                //Check if valid target
-                //added by gremlin check that projectile owner is not null
-                if (source.Owner != null && source.Owner.loyalty == ship.loyalty)
+                // Check if valid target
+                if (source.Owner?.loyalty == ship.loyalty)
                     continue;
 
-                if (ship.loyalty != null && ship.loyalty.data.ExplosiveRadiusReduction > 0)
-                    modifiedRadius *= (1 - ship.loyalty.data.ExplosiveRadiusReduction);
+                if (ship.loyalty?.data.ExplosiveRadiusReduction > 0f)
+                    modifiedRadius *= 1f - ship.loyalty.data.ExplosiveRadiusReduction;
 
-                // @todo This expression is very messy, simplify and optimize
-                float damageTracker = 0;
-                var modules = ship.ModuleSlotList
-                    .Where(slot => slot.module.Health > 0.0 && (slot.module.shield_power > 0.0 && !source.IgnoresShields)
-                        ? Vector2.Distance(source.Center, slot.module.Center) <= modifiedRadius + slot.module.shield_radius
-                        : Vector2.Distance(source.Center, slot.module.Center) <= modifiedRadius + 10f)
-                    .OrderBy(slot => (slot.module.shield_power > 0.0 && !source.IgnoresShields)
-                                ? Vector2.Distance(source.Center, slot.module.Center) - slot.module.shield_radius
-                                : Vector2.Distance(source.Center, slot.module.Center));
+                ModuleSlot[] modules = ship.ModuleSlotList.FilterBy(slot =>
+                {
+                    ShipModule module = slot.module;
+                    float dist = modifiedRadius + (module.Health > 0f && module.shield_power > 0f && !source.IgnoresShields
+                                                ? module.shield_radius 
+                                                : 10f);
+                    return source.Center.InRadius(module.Center, dist);
+                });
+                modules.Sort(slot =>
+                {
+                    ShipModule module = slot.module;
+                    float dist = source.Center.SqDist(module.Center);
+                    if (module.shield_power > 0.0 && !source.IgnoresShields)
+                        dist -= module.shield_radius * module.shield_radius;
+                    return dist;
+                });
+
+                float damageTracker = 0f;
                 foreach (ModuleSlot moduleSlot in modules)
                 {
                     moduleSlot.module.Damage(source, damageAmount, ref damageTracker);
-                    if (damageTracker > 0)
+                    if (damageTracker > 0f)
                         damageAmount = damageTracker;
                     else return;
                 }
@@ -691,6 +784,8 @@ namespace Ship_Game.Gameplay
                 });
             var list = new Array<ShipModule>();
             list.Add(hitModule);
+
+            // @todo This is very messy. Fix and replace
             foreach (ModuleSlot slot in hitModule.GetParent().ModuleSlotList.
                 Where(moduleSlot => Vector2.Distance(hitModule.Center, moduleSlot.module.Center) <= damageRadius)
                 .OrderBy(moduleSlot => Vector2.Distance(hitModule.Center, moduleSlot.module.Center)))
@@ -736,7 +831,8 @@ namespace Ship_Game.Gameplay
                 });
             }
 
-            foreach (GameplayObject otherObj in GetNearby(thisShip))
+            GameplayObject[] nearby = GetNearby<GameplayObject>(thisShip.Position, thisShip.Radius);
+            foreach (GameplayObject otherObj in nearby)
             {
                 if (otherObj == null || otherObj is Projectile) continue;
                 if (!otherObj.Active || otherObj == thisShip)   continue;
@@ -828,22 +924,6 @@ namespace Ship_Game.Gameplay
             {
                 return a.Distance.CompareTo(b.Distance);
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~SpatialManager() { Dispose(false); }
-
-        private void Dispose(bool disposing)
-        {
-            Ships.Clear();
-            Projectiles.Clear();
-            Asteroids.Clear();
-            Beams.Clear();
         }
     }
 }

@@ -166,7 +166,6 @@ namespace Ship_Game
             {
                 if (firstRun)
                 {
-                    UniverseScreen.DeepSpaceManager = new SpatialManager();
                     var removalCollection = new BatchRemovalCollection<EmpireData>();
                     foreach (EmpireData empireData in ResourceManager.Empires)
                     {
