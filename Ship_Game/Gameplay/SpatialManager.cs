@@ -39,7 +39,6 @@ namespace Ship_Game.Gameplay
                 MemoryPool.Reset();
 
             Buckets = MemoryPool.NewArrayGrid(Width * Height);
-
         }
 
         public void Destroy()
@@ -75,10 +74,10 @@ namespace Ship_Game.Gameplay
             float gameScale = Empire.Universe.GameScale;
 
             // assuming universe size uses radius...
-            float universeWidth = universeRadiusX * 2;
+            float universeWidth  = universeRadiusX * 2;
             float universeHeight = universeRadiusY * 2;
             Setup(universeWidth, universeHeight, 150000f * gameScale, 0f, 0f);
-            Log.Info("SetupForDeepSpace spaceSize: {0}x{1}  grid: {2}x{3}  size: {4}", universeWidth, universeHeight, Width, Height, Size);
+            Log.Info("SetupForDeepSpace spaceSize: {0}x{1}  grid: {2}x{3}  size: {4}", universeWidth, universeHeight, Width, Height, Buckets.Count);
         }
 
         public void SetupForSystem(float gameScale, SolarSystem system, float cellSize = 25000f)
@@ -122,7 +121,7 @@ namespace Ship_Game.Gameplay
             obj.SpatialIndex = idx;
             AllObjects.Add(obj);
 
-            if (Buckets != null) PlaceIntoBucket(obj, idx);
+            if (Buckets.Count > 0) PlaceIntoBucket(obj, idx);
         }
 
         public void Remove(GameplayObject obj)
@@ -186,13 +185,13 @@ namespace Ship_Game.Gameplay
                 {
                     if (system.CombatInSystem && system.ShipList.Count > 10)
                     {
-                        if (!FineDetail && Size < 20 && Projectiles.Count > 0)
+                        if (!FineDetail && Buckets.Count < 20 && Projectiles.Count > 0)
                         {
                             SetupForSystem(Empire.Universe.GameScale, system, 5000f);
                             FineDetail = true;
                         }
                     }
-                    else if (FineDetail && Size > 20 || Projectiles.Count == 0)
+                    else if (FineDetail && Buckets.Count > 20 || Projectiles.Count == 0)
                     {
                         SetupForSystem(Empire.Universe.GameScale, system);
                         FineDetail = false;
@@ -277,19 +276,18 @@ namespace Ship_Game.Gameplay
             int topRowOffs   = (int)((posY - radius) / cellSize) * width;
             int botRowOffs   = (int)((posY + radius) / cellSize) * width;
 
-            PoolArrayU16** buckets = Buckets;
-
+            PoolArrayU16** buckets = Buckets.Items;
             if (leftColOffs == rightColOffs && topRowOffs == botRowOffs)
             {
                 int id = topRowOffs + leftColOffs;
-                if ((uint)id < Size && buckets[id] != null)
+                if ((uint)id < Buckets.Count && buckets[id] != null)
                     ids[numIds++] = id;
             }
             else
             {
+                int size = Buckets.Count;
                 // manual loop unrolling with no bounds checking! yay! :D -- to avoid duplicate Id-s looping
                 // ids[0] != id is rearranged (in a weird way) to provide statistically faster exclusion (most results give numIds=1)
-                int size = Size;
                 int id = topRowOffs + leftColOffs;
                 if ((uint)id < size && buckets[id] != null)
                     ids[numIds++] = id;
@@ -402,11 +400,11 @@ namespace Ship_Game.Gameplay
             if (leftColOffs == rightColOffs && topRowOffs == botRowOffs)
             {
                 int id = topRowOffs + leftColOffs;
-                if ((uint)id < Size) ids[numIds++] = id;
+                if ((uint)id < Buckets.Count) ids[numIds++] = id;
             }
             else
             {
-                int size = Size;
+                int size = Buckets.Count;
                 int id = topRowOffs + leftColOffs;
                 if ((uint)id < size)
                     ids[numIds++] = id;
@@ -434,7 +432,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            PoolArrayU16** buckets = Buckets;
+            PoolArrayU16** buckets = Buckets.Items;
             for (int i = 0; i < numIds; ++i)
             {
                 int quadrantId = ids[i];

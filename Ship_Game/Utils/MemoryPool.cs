@@ -34,7 +34,9 @@ namespace Ship_Game
         {
             if (Base == null)
             {
-                Available = DefaultPoolSize < numBytes ? DefaultPoolSize*4 : DefaultPoolSize;
+                Available = DefaultPoolSize;
+                if (numBytes > Available)
+                    Available = numBytes + DefaultPoolSize - (numBytes % DefaultPoolSize);
                 Ptr = Base = (byte*)Marshal.AllocHGlobal(Available).ToPointer();
             }
             else if (Available < numBytes)
@@ -67,8 +69,9 @@ namespace Ship_Game
                     return mem;
             }
 
-            Array.Resize(ref PoolStack, PoolStack.Length + 1); // non-amortized growth
-            return PoolStack[PoolStack.Length].Alloc(numBytes);
+            int len = PoolStack.Length;
+            Array.Resize(ref PoolStack, len + 1); // non-amortized growth
+            return PoolStack[len].Alloc(numBytes);
         }
 
         // reset the pools to their default max-available state
@@ -150,8 +153,15 @@ namespace Ship_Game
             PoolArrayGridU16 grid;
             grid.Count = size;
             grid.Items = (PoolArrayU16**)Alloc(sizeof(PoolArrayU16*) * size);
-            for (int i = 0; i < size; ++i)
-                grid.Items[i] = null;
+            if (grid.Items == null)
+            {
+                Log.Error("MemoryPool NewArrayGrid failed: pools are too small to fit ArrayGrid");
+            }
+            else
+            {
+                for (int i = 0; i < size; ++i)
+                    grid.Items[i] = null;
+            }
             return grid;
         }
     }
