@@ -18,7 +18,7 @@ namespace Ship_Game
 
         //public Array<Empire> OwnerList = new Array<Empire>();
         public HashSet<Empire> OwnerList = new HashSet<Empire>();
-        public BatchRemovalCollection<Ship> ShipList = new BatchRemovalCollection<Ship>();
+        public Array<Ship> ShipList = new Array<Ship>();
         public SpatialManager spatialManager = new SpatialManager();
         public bool isVisible;
         public Vector2 Position;
@@ -842,9 +842,11 @@ namespace Ship_Game
 
         private void Dispose(bool disposing)
         {
-            ShipList?.Dispose(ref ShipList);
+            ShipList = null;
             AsteroidsList?.Dispose(ref AsteroidsList);
             spatialManager?.Dispose(ref spatialManager);
         }
+
+        public override string ToString() => $"System '{Name}' Pos={Position} Combat={CombatInSystem} Rings={NumberOfRings}";
     }
 }

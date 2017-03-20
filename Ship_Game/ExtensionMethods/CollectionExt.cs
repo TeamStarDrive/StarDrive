@@ -362,5 +362,18 @@ namespace Ship_Game
                 return false;
             }
         }
+
+        public static void Sort<T, TKey>(this T[] array, Func<T, TKey> keyPredicate) where T : class
+        {
+            int count = array.Length;
+            if (count <= 1)
+                return;
+
+            var keys = new TKey[count];
+            for (int i = 0; i < count; ++i)
+                keys[i] = keyPredicate(array[i]);
+
+            Array.Sort(keys, array, 0, count);
+        }
     }
 }

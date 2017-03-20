@@ -4,35 +4,34 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
 {
-	public sealed class MissileAI
-	{
-		public Projectile Owner;
-		private GameplayObject Target;
-		private readonly BatchRemovalCollection<Ship> TargetList = new BatchRemovalCollection<Ship>();
-		private float thinkTimer = 0.15f;
-		private bool TargetSet;
+    public sealed class MissileAI
+    {
+        public Projectile Owner;
+        private GameplayObject Target;
+        private readonly BatchRemovalCollection<Ship> TargetList = new BatchRemovalCollection<Ship>();
+        private float thinkTimer = 0.15f;
+        private bool TargetSet;
         private bool Jammed = false;
         private bool ECMRun = false;
 
-		public MissileAI(Projectile owner)
-		{
-			Owner = owner;
-		    if (Empire.Universe == null) return;
-		    if (Owner.Owner == null)
-		    {
-		        GameplayObject[] nearby = Owner.GetNearby();
-		        for (int i = 0; i < nearby.Length; i++)
-		        {
-		            if (!(nearby[i] is Ship ship)) continue;
-		            if (ship.loyalty != Owner.loyalty && Owner.weapon.TargetValid(ship.shipData.Role))
-		                TargetList.Add(ship);
-		        }
-		    }
-		    else
-		    {
-		        TargetList = Owner.Owner.GetAI().PotentialTargets;
-		    }
-		}
+        public MissileAI(Projectile owner)
+        {
+            Owner = owner;
+            if (Empire.Universe == null) return;
+            if (Owner.Owner == null)
+            {
+                Ship[] nearbyShips = Owner.GetNearby<Ship>();
+                foreach(Ship nearbyShip in nearbyShips)
+                {
+                    if (nearbyShip.loyalty != Owner.loyalty && Owner.weapon.TargetValid(nearbyShip.shipData.Role))
+                        TargetList.Add(nearbyShip);
+                }
+            }
+            else
+            {
+                TargetList = Owner.Owner.GetAI().PotentialTargets;
+            }
+        }
 
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
@@ -98,58 +97,58 @@ namespace Ship_Game.AI
             }
         }
 
-		public void ClearTarget()
-		{
+        public void ClearTarget()
+        {
             this.TargetSet = false;
-			this.Target = null;
-		}
+            this.Target = null;
+        }
 
-		private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
-		{
-			Vector2 Vec2Target = new Vector2(0f, 0f)
-			{
-				X = -(OwnerPos.X - TargetPos.X),
-				Y = OwnerPos.Y - TargetPos.Y
-			};
-			return Vec2Target;
-		}
+        private Vector2 findVectorToTarget(Vector2 OwnerPos, Vector2 TargetPos)
+        {
+            Vector2 Vec2Target = new Vector2(0f, 0f)
+            {
+                X = -(OwnerPos.X - TargetPos.X),
+                Y = OwnerPos.Y - TargetPos.Y
+            };
+            return Vec2Target;
+        }
 
-		private void MoveStraight(float elapsedTime)
-		{
-			Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-			Vector2 wantedForward = Vector2.Normalize(forward);
-			this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
-			this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
-		}
+        private void MoveStraight(float elapsedTime)
+        {
+            Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+            Vector2 wantedForward = Vector2.Normalize(forward);
+            this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
+            this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
+        }
 
-		private void MoveTowardsTarget(float elapsedTime)
-		{
-			if (this.Target == null)
-				return;
-			try
-			{
-				Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
-				Vector2 right = new Vector2(-forward.Y, forward.X);
-				Vector2 LeftStick = this.findVectorToTarget(this.Owner.Center, this.Target.Center);
-				LeftStick.Y = -LeftStick.Y;
-				Vector2 wantedForward = Vector2.Normalize(LeftStick);
-				float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
-				float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
+        private void MoveTowardsTarget(float elapsedTime)
+        {
+            if (this.Target == null)
+                return;
+            try
+            {
+                Vector2 forward = new Vector2((float)Math.Sin((double)this.Owner.Rotation), -(float)Math.Cos((double)this.Owner.Rotation));
+                Vector2 right = new Vector2(-forward.Y, forward.X);
+                Vector2 LeftStick = this.findVectorToTarget(this.Owner.Center, this.Target.Center);
+                LeftStick.Y = -LeftStick.Y;
+                Vector2 wantedForward = Vector2.Normalize(LeftStick);
+                float angleDiff = (float)Math.Acos((double)Vector2.Dot(wantedForward, forward));
+                float facing = (Vector2.Dot(wantedForward, right) > 0f ? 1f : -1f);
                 // I suspect this is in radians - so 0.2f angle difference is actually about 11 degrees; can be problematic for missile AI guidance trying to hit target as it won't adjust early enough. Trying 0.1f
-				if (angleDiff > 0.1f)
-				{
-					Projectile owner = this.Owner;
-					owner.Rotation = owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
-				}
-				wantedForward = Vector2.Normalize(forward);
-				this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
-				this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
-			}
-			catch
-			{
-				this.Target = null;
-			}
-		}
+                if (angleDiff > 0.1f)
+                {
+                    Projectile owner = this.Owner;
+                    owner.Rotation = owner.Rotation + Math.Min(angleDiff, facing * elapsedTime * this.Owner.RotationRadsPerSecond);
+                }
+                wantedForward = Vector2.Normalize(forward);
+                this.Owner.Velocity = wantedForward * (elapsedTime * this.Owner.speed);
+                this.Owner.Velocity = Vector2.Normalize(this.Owner.Velocity) * this.Owner.velocityMaximum;
+            }
+            catch
+            {
+                this.Target = null;
+            }
+        }
 
         private void MoveTowardsTargetJammed(float elapsedTime)
         {
@@ -225,18 +224,18 @@ namespace Ship_Game.AI
             }
         }
 
-		public void SetTarget(GameplayObject target)
-		{
+        public void SetTarget(GameplayObject target)
+        {
             if (target == null)
                 return;
-			this.TargetSet = true;
-			this.Target = target;
-		}
+            this.TargetSet = true;
+            this.Target = target;
+        }
 
         //added by gremlin Deveksmod Missilethink.
         public void Think(float elapsedTime)
         {
-			if (this.Target != null && GlobalStats.ActiveModInfo != null && (GlobalStats.ActiveModInfo.enableECM || this.Owner.weapon.TerminalPhaseAttack))
+            if (this.Target != null && GlobalStats.ActiveModInfo != null && (GlobalStats.ActiveModInfo.enableECM || this.Owner.weapon.TerminalPhaseAttack))
             {
                 float DistancetoTarget = this.Owner.Center.Distance(this.Target.Center);
                 if (this.Jammed)
@@ -244,7 +243,7 @@ namespace Ship_Game.AI
                     this.MoveTowardsTargetJammed(elapsedTime);
                     return;
                 }
-				if (GlobalStats.ActiveModInfo.enableECM && (this.Target is ShipModule) && !this.ECMRun && DistancetoTarget <= 4000)
+                if (GlobalStats.ActiveModInfo.enableECM && (this.Target is ShipModule) && !this.ECMRun && DistancetoTarget <= 4000)
                 {
                     this.ECMRun = true;
                     float TargetECM = (this.Target as ShipModule).GetParent().ECMValue;
@@ -279,5 +278,5 @@ namespace Ship_Game.AI
             }
             this.MoveStraight(elapsedTime);
         }
-	}
+    }
 }

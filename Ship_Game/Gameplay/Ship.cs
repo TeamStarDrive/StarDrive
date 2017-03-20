@@ -2286,14 +2286,15 @@ namespace Ship_Game.Gameplay
             if (Jump != null && Jump.IsPlaying)
             {
                 Jump.Stop(AudioStopOptions.Immediate);
-                Jump = (Cue)null;
+                Jump = null;
             }
-            if (engineState == Ship.MoveState.Warp && Vector2.Distance(Center, new Vector2(Empire.Universe.camPos.X, Empire.Universe.camPos.Y)) < 100000.0 && Empire.Universe.camHeight < 250000)
+            if (engineState == MoveState.Warp && 
+                Center.InRadius(Empire.Universe.camPos.ToVec2(), 100000f) && Empire.Universe.camHeight < 250000)
             {
                 AudioManager.PlayCue(GetEndWarpCue(), Empire.Universe.listener, emitter);
                 FTLManager.AddFTL(Center);
             }
-            engineState = Ship.MoveState.Sublight;
+            engineState = MoveState.Sublight;
             ResetJumpTimer();
             isSpooling = false;
             velocityMaximum = GetSTLSpeed();
@@ -2859,8 +2860,8 @@ namespace Ship_Game.Gameplay
             }
             if (System == null || System.isVisible)
             {
-                BoundingSphere sphere = new BoundingSphere(new Vector3(Position, 0.0f), 2000f);
-                
+                var sphere = new BoundingSphere(new Vector3(Position, 0.0f), 2000f);
+
                 if (Empire.Universe.Frustum.Contains(sphere) != ContainmentType.Disjoint && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
                 {
                     InFrustum = true;
@@ -3761,10 +3762,10 @@ namespace Ship_Game.Gameplay
                     inSensorRange = true;
                 else if (!inSensorRange)
                 {
-                    GameplayObject[] nearby = GetNearby();
-                    for (int i = 0; i < nearby.Length; ++i)
+                    Ship[] nearby = GetNearby<Ship>();
+                    foreach (Ship ship in nearby)
                     {
-                        if (nearby[i] is Ship ship && ship.loyalty == EmpireManager.Player && (Center.Distance(ship.Position) <= ship.SensorRange || Empire.Universe.Debug))
+                        if (ship.loyalty == EmpireManager.Player && (Center.Distance(ship.Position) <= ship.SensorRange || Empire.Universe.Debug))
                         {
                             inSensorRange = true;
                             break;
@@ -4878,6 +4879,6 @@ namespace Ship_Game.Gameplay
             if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);
         }
 
-        public override string ToString() => $"Ship '{VanityName}' Pos {Position}";
+        public override string ToString() => $"Ship Id={Id} '{VanityName}' Pos {Position}";
     }
 }
