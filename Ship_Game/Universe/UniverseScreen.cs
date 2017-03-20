@@ -5052,7 +5052,7 @@ namespace Ship_Game
             // Wait for ProcessTurns to finish before we start drawing
             if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock
                 if (!ProcessTurnsCompletedEvt.WaitOne(100))
-                    Log.Warning("Universe Draw WaitOne timed out");
+                    Log.Warning("Universe ProcessTurns Wait timed out: ProcessTurns was taking too long!");
 
             lock (GlobalStats.BeamEffectLocker)
             {

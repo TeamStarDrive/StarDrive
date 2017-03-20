@@ -345,6 +345,8 @@ namespace Ship_Game.Gameplay
 
                 if (objs.Length != numItems)
                     Log.Warning("SpatialManager bucket modified during GetNearby() !!");
+                if (objs.Length > 512)
+                    Log.Warning("SpatialManager GetNearby returned {0} items. Seems a bit inefficient.", objs.Length);
                 return objs;
             }
 
@@ -386,6 +388,8 @@ namespace Ship_Game.Gameplay
 
             if (unique.Length != numUnique)
                 Log.Warning("SpatialManager bucket modified during GetNearby() !!");
+            if (unique.Length > 512)
+                Log.Warning("SpatialManager GetNearby returned {0} items. Seems a bit inefficient.", unique.Length);
             return unique;
         }
 
