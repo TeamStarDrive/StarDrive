@@ -18,9 +18,8 @@ namespace Ship_Game.Gameplay
         private readonly Array<CollisionResult> CollisionResults = new Array<CollisionResult>();
         private int Width;
         private int Height;
-        private int Size;
         private Vector2 UpperLeftBound;
-        private PoolArrayU16** Buckets;
+        private PoolArrayGridU16 Buckets;
         private int CellSize;
         private bool FineDetail;
         private DynamicMemoryPool MemoryPool;
@@ -33,19 +32,14 @@ namespace Ship_Game.Gameplay
             Width            = (int)sceneWidth  / (int)cellSize;
             Height           = (int)sceneHeight / (int)cellSize;
             CellSize         = (int)cellSize;
-            Size             = Width * Height;
-
-            if (Buckets != null)
-                Marshal.FreeHGlobal(new IntPtr(Buckets));
-
-            Buckets = (PoolArrayU16**)Marshal.AllocHGlobal(Size * sizeof(PoolArrayU16*));
-            for (int i = 0; i < Size; ++i)
-                Buckets[i] = null;
 
             if (MemoryPool == null)
                 MemoryPool = new DynamicMemoryPool();
             else
                 MemoryPool.Reset();
+
+            Buckets = MemoryPool.NewArrayGrid(Width * Height);
+
         }
 
         public void Destroy()
@@ -55,19 +49,15 @@ namespace Ship_Game.Gameplay
             Asteroids.Clear();
             Beams.Clear();
 
-            Size = 0;
             MemoryPool?.Dispose(ref MemoryPool);
-            if (Buckets == null)
-                return;
-            Marshal.FreeHGlobal(new IntPtr(Buckets));
-            Buckets = null;
+            Buckets.Count = 0;
+            Buckets.Items = null;
         }
 
         private void ClearBuckets()
         {
             MemoryPool.Reset(); // reset the pools to their default max-available state
-            for (int i = 0; i < Size; ++i)
-                Buckets[i] = null;
+            Buckets = MemoryPool.NewArrayGrid(Width * Height);
         }
 
         public void Dispose()
