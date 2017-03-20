@@ -271,36 +271,44 @@ namespace Ship_Game.Gameplay
             int cellSize = CellSize;
             int width    = Width;
 
-            int leftColOffs  = (int)((posX - radius) / cellSize);
-            int rightColOffs = (int)((posX + radius) / cellSize);
-            int topRowOffs   = (int)((posY - radius) / cellSize) * width;
-            int botRowOffs   = (int)((posY + radius) / cellSize) * width;
+            int minX = (int)((posX - radius) / cellSize);
+            int maxX = (int)((posX + radius) / cellSize);
+            int minY = (int)((posY - radius) / cellSize);
+            int maxY = (int)((posY + radius) / cellSize);
 
             PoolArrayU16** buckets = Buckets.Items;
-            if (leftColOffs == rightColOffs && topRowOffs == botRowOffs)
+            if (minX == maxX && minY == maxY)
             {
-                int id = topRowOffs + leftColOffs;
+                int id = minY * Width + minX;
                 if ((uint)id < Buckets.Count && buckets[id] != null)
                     ids[numIds++] = id;
             }
             else
             {
+                int spanX = maxX - minX + 1;
+                int spanY = maxY - minY + 1;
+                if (spanX > 2 || spanY > 2)
+                    Log.Warning("GetNearby bucket selection is larger than 2x2 !!");
+
+                int topRowOffs = minY * width;
+                int botRowOffs = maxX * width;
+
                 int size = Buckets.Count;
                 // manual loop unrolling with no bounds checking! yay! :D -- to avoid duplicate Id-s looping
                 // ids[0] != id is rearranged (in a weird way) to provide statistically faster exclusion (most results give numIds=1)
-                int id = topRowOffs + leftColOffs;
+                int id = topRowOffs + minX;
                 if ((uint)id < size && buckets[id] != null)
                     ids[numIds++] = id;
 
-                id = topRowOffs + rightColOffs;
+                id = topRowOffs + maxX;
                 if (ids[0] != id && (uint)id < size && buckets[id] != null)
                     ids[numIds++] = id;
 
-                id = botRowOffs + rightColOffs;
+                id = botRowOffs + maxX;
                 if (ids[0] != id && (uint)id < size && buckets[id] != null && ids[1] != id)
                     ids[numIds++] = id;
 
-                id = botRowOffs + rightColOffs;
+                id = botRowOffs + maxX;
                 if (ids[0] != id && (uint)id < size && buckets[id] != null && ids[1] != id && ids[2] != id)
                     ids[numIds++] = id;
             }
