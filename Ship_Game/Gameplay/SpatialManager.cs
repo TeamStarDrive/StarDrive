@@ -56,7 +56,7 @@ namespace Ship_Game.Gameplay
             Beams.Clear();
 
             Size = 0;
-            MemoryPool?.Destroy();
+            MemoryPool?.Dispose(ref MemoryPool);
             if (Buckets == null)
                 return;
             Marshal.FreeHGlobal(new IntPtr(Buckets));
@@ -73,13 +73,11 @@ namespace Ship_Game.Gameplay
         public void Dispose()
         {
             Destroy();
-            MemoryPool?.Dispose(ref MemoryPool);
             GC.SuppressFinalize(this);
         }
         ~SpatialManager()
         {
             Destroy();
-            MemoryPool?.Dispose(ref MemoryPool);
         }
 
         public void SetupForDeepSpace(float universeRadiusX, float universeRadiusY)
