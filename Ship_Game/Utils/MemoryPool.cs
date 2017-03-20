@@ -14,7 +14,7 @@ namespace Ship_Game
     public unsafe struct MemoryPool
     {
         // 4KB seems to be pretty optimal, since most pools only see 5% memory usage, while a few can grab 70%
-        private const int PoolSize = 4096;
+        private const int DefaultPoolSize = 4096;
         private byte* Base;
         private byte* Ptr;
         private int Available; // @warning Read-only access please :))
@@ -33,11 +33,14 @@ namespace Ship_Game
         public void* Alloc(int numBytes)
         {
             if (Base == null)
-                Ptr = Base = (byte*)Marshal.AllocHGlobal(Available = PoolSize).ToPointer();
+            {
+                Available = DefaultPoolSize < numBytes ? DefaultPoolSize*4 : DefaultPoolSize;
+                Ptr = Base = (byte*)Marshal.AllocHGlobal(Available).ToPointer();
+            }
             else if (Available < numBytes)
                 return null;
             void* mem = Ptr;
-            Ptr += numBytes;
+            Ptr       += numBytes;
             Available -= numBytes;
             return mem;
         }
@@ -141,6 +144,16 @@ namespace Ship_Game
 
             bucket->Items[bucket->Count++] = id;
         }
+
+        public PoolArrayGridU16 NewArrayGrid(int size)
+        {
+            PoolArrayGridU16 grid;
+            grid.Count = size;
+            grid.Items = (PoolArrayU16**)Alloc(sizeof(PoolArrayU16*) * size);
+            for (int i = 0; i < size; ++i)
+                grid.Items[i] = null;
+            return grid;
+        }
     }
 
     // custom dynamic array for ushort values, this is an 'inline array', memory layout:
@@ -159,6 +172,25 @@ namespace Ship_Game
             get
             {
                 var items = new ushort[Count];
+                for (int i = 0; i < items.Length; ++i)
+                    items[i] = Items[i];
+                return items;
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [DebuggerDisplay("Count = {Count}")]
+    public unsafe struct PoolArrayGridU16
+    {
+        public int Count;
+        public PoolArrayU16** Items;
+
+        public PoolArrayU16*[] ItemsArray
+        {
+            get
+            {
+                var items = new PoolArrayU16*[Count];
                 for (int i = 0; i < items.Length; ++i)
                     items[i] = Items[i];
                 return items;
