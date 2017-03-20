@@ -1065,6 +1065,8 @@ namespace Ship_Game
                 {
                     // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns inbetween
                     DrawCompletedEvt.WaitOne();
+                    if (ProcessTurnsThread == null)
+                        return; // this thread is aborting
 
                     float deltaTime = (float)zgameTime.ElapsedGameTime.TotalSeconds;
                     if (Paused)
@@ -4524,8 +4526,10 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            ProcessTurnsThread.Abort();
+            var processTurnsThread = ProcessTurnsThread;
             ProcessTurnsThread = null;
+            DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
+            processTurnsThread.Join(250);
             EmpireUI.empire = null;
             EmpireUI = null;
             DeepSpaceManager.Destroy();
