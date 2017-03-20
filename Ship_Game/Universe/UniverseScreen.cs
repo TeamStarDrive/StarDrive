@@ -1476,8 +1476,6 @@ namespace Ship_Game
             #region Mid
             if (elapsedTime > 0.0f && shiptimer <= 0.0f)
             {
-                foreach (SolarSystem solarSystem in SolarSystemList)
-                    solarSystem.ShipList.Clear();
                 shiptimer = 1f;
                 //foreach (Ship ship in (Array<Ship>)this.MasterShipList)
                 //var source = Enumerable.Range(0, this.MasterShipList.Count).ToArray();
@@ -1498,7 +1496,6 @@ namespace Ship_Game
                                 ship.SetSystem(system);
                                 break; // No need to keep looping through all other systems if one is found -Gretman
                             }
-                                                   
                         }
                     }
                 }//);
@@ -1812,34 +1809,31 @@ namespace Ship_Game
                             planet.Station.Update(elapsedTime);
                     }                    
 
-                    using (system.ShipList.AcquireReadLock())
+                    for (int i = 0; i < system.ShipList.Count; ++i)
                     {
-                        foreach (Ship ship in system.ShipList)
+                        Ship ship = system.ShipList[i];
+                        if (ship.System == null)
+                            continue;
+                        if (!ship.Active || ship.ModuleSlotList.Count == 0) // added by gremlin ghost ship killer
                         {
-                            if (ship.System == null)
-                                continue;
-                            if (!ship.Active || ship.ModuleSlotList.Count == 0) // added by gremlin ghost ship killer
+                            ship.Die(null, true);
+                        }
+                        else
+                        {
+                            if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
                             {
-                                ship.Die(null, true);
+                                ship.Inhibited = true;
+                                ship.InhibitedTimer = 10f;
                             }
-                            else
-                            {
-                                if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-                                {
-                                    ship.Inhibited = true;
-                                    ship.InhibitedTimer = 10f;
-                                }
-                                //ship.PauseUpdate = true;
-                                ship.Update(elapsedTime);
-                                if (ship.PlayerShip)
-                                    ship.ProcessInput(elapsedTime);
-                            }
+                            //ship.PauseUpdate = true;
+                            ship.Update(elapsedTime);
+                            if (ship.PlayerShip)
+                                ship.ProcessInput(elapsedTime);
                         }
                     }
                     if (!Paused && IsActive)
                         system.spatialManager.Update(elapsedTime, system);
                     system.AsteroidsList.ApplyPendingRemovals();
-                    system.ShipList.ApplyPendingRemovals();
                 }//);
                 // this.SystemResetEvents[list[0].IndexOfResetEvent].Set();
             }
@@ -1959,7 +1953,6 @@ namespace Ship_Game
                         asteroid.Update(elapsedTime);
                 }
                 system.AsteroidsList.ApplyPendingRemovals();
-                system.ShipList.ApplyPendingRemovals();
             }
         }
 
@@ -5058,7 +5051,8 @@ namespace Ship_Game
         {
             // Wait for ProcessTurns to finish before we start drawing
             if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock
-                ProcessTurnsCompletedEvt.WaitOne();
+                if (!ProcessTurnsCompletedEvt.WaitOne(100))
+                    Log.Warning("Universe Draw WaitOne timed out");
 
             lock (GlobalStats.BeamEffectLocker)
             {

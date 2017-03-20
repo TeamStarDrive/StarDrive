@@ -227,6 +227,7 @@
     <Compile Include="Ship_Game\Moon.cs" />
     <Compile Include="Ship_Game\Data\HostileFleets.cs" />
     <Compile Include="Ship_Game\MainMenuShipList.cs" />
+    <Compile Include="Ship_Game\Utils\MemoryPool.cs" />
     <Compile Include="Ship_Game\Utils\MethodUtil.cs" />
     <Compile Include="Ship_Game\PlanetEdict.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -381,6 +381,28 @@ namespace Ship_Game
             return removed;
         }
 
+        // A quite memory efficient filtering function to replace Where clauses
+        public unsafe T[] FilterBy(Func<T, bool> predicate)
+        {
+            int count = Count;
+            byte* map = stackalloc byte[count];
+
+            int resultCount = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                bool keep = predicate(Items[i]);
+                if (keep) ++resultCount;
+                map[i] = keep ? (byte)1 : (byte)0;
+            }
+
+            var results = new T[resultCount];
+            resultCount = 0;
+            for (int i = 0; i < count; ++i)
+                if (map[i] > 0) results[resultCount++] = Items[i];
+
+            return results;
+        }
+
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
         public IEnumerator<T> GetEnumerator()   => new Enumerator(this);
 

@@ -6446,19 +6446,9 @@ namespace Ship_Game.AI
                 Planet markedPlanet = g.GetMarkedPlanet();
                 if (markedPlanet != null && markedPlanet.ParentSystem != null)
                 {
-                    if (markedPlanet.ParentSystem.ShipList.Where(ship => ship.loyalty != null && ship.loyalty.isFaction).Count() > 0)
-                    {
-                        numColonyGoals--;
-                    }
-                    //foreach (Ship enemy in g.GetMarkedPlanet().ParentSystem.ShipList)
-                    //{
-                    //    if (enemy.loyalty != this.empire)
-                    //    {
-                    //        numColonyGoals--;
-                    //        break;
-                    //    }
-                    //}
-                    numColonyGoals++;
+                    if (markedPlanet.ParentSystem.ShipList.Any(ship => ship.loyalty != null && ship.loyalty.isFaction))
+                        --numColonyGoals;
+                    ++numColonyGoals;
                 }
             }
             if (numColonyGoals < this.desired_ColonyGoals + (this.empire.data.EconomicPersonality != null ? this.empire.data.EconomicPersonality.ColonyGoalsPlus : 0) )//

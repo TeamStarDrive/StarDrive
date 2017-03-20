@@ -1456,24 +1456,12 @@ namespace Ship_Game.AI
                         TrackProjectiles.AddRange(Owner.Mothership.GetAI().TrackProjectiles);
                     if (Owner.TrackingPower > 0 && hasPD) //update projectile list                         
                     {
-
-                        if (Owner.System!= null)
-                            foreach (GameplayObject missile in Owner.System.spatialManager.GetNearby(Owner))
-                            {
-                                var targettrack = missile as Projectile;
-                                if (targettrack == null || targettrack.loyalty == Owner.loyalty || !targettrack.weapon.Tag_Intercept)
-                                    continue;
-                                TrackProjectiles.Add(targettrack);
-                            }
-                        else
-                            foreach (GameplayObject missile in UniverseScreen.DeepSpaceManager.GetNearby(Owner))
-                            {
-                                var targettrack = missile as Projectile;
-                                if (targettrack == null || targettrack.loyalty == Owner.loyalty || !targettrack.weapon.Tag_Intercept)
-                                    continue;
-                                TrackProjectiles.Add(targettrack);
-                            }
-                        TrackProjectiles = TrackProjectiles.OrderBy(prj =>  Vector2.Distance(Owner.Center, prj.Center)).ToArrayList();
+                        foreach (Projectile missile in Owner.GetNearby<Projectile>())
+                        {
+                            if (missile.loyalty != Owner.loyalty && missile.weapon.Tag_Intercept)
+                                TrackProjectiles.Add(missile);
+                        }
+                        TrackProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
                     }
        
                     float lag = Empire.Universe.Lag;
@@ -4613,11 +4601,10 @@ namespace Ship_Game.AI
                     };
                     NearbyShips.Add(sw);
                 }
-                GameplayObject[] nearby = Owner.GetNearby();
-                for (int i = 0; i < nearby.Length; i++)
+                Ship[] nearbyShips = Owner.GetNearby<Ship>();
+                foreach (Ship nearbyShip in nearbyShips)
                 {
-                    var nearbyShip = nearby[i] as Ship;
-                    if (nearbyShip == null || !nearbyShip.Active || nearbyShip.dying
+                    if (!nearbyShip.Active || nearbyShip.dying
                         || Owner.Center.OutsideRadius(nearbyShip.Center, Radius + (Radius < 0.01f ? 10000 : 0)))
                         continue;
 

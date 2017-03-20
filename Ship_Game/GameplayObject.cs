@@ -33,6 +33,10 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
         [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
 
+
+        private static int GameObjIds;
+        [XmlIgnore] [JsonIgnore] public int Id = ++GameObjIds;
+
         protected GameplayObject()
         {
         }
@@ -72,7 +76,7 @@ namespace Ship_Game
         public static SpatialManager SpatialManagerForSystem(SolarSystem system)
             => system?.spatialManager ?? UniverseScreen.DeepSpaceManager;
 
-        public GameplayObject[] GetNearby() => SpatialManagerForSystem(System).GetNearby(this);
+        public T[] GetNearby<T>() where T : GameplayObject => SpatialManagerForSystem(System).GetNearby<T>(Position, Radius);
 
         public void SetSystem(SolarSystem system)
         {
@@ -89,7 +93,7 @@ namespace Ship_Game
 
             if (this is Ship ship)
             {
-                System?.ShipList.Remove(ship);
+                System?.ShipList.RemoveSwapLast(ship);
                 system?.ShipList.AddUnique(ship);
             }
             System = system;
@@ -117,6 +121,6 @@ namespace Ship_Game
         {
         }
 
-
+        public override string ToString() => $"GameObj Id={Id} Pos={Position}";
     }
 }

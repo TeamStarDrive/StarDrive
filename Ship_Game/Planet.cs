@@ -2644,7 +2644,7 @@ namespace Ship_Game
                     if (building.isWeapon)
                     {
                         building.WeaponTimer -= elapsedTime;
-                        if (building.WeaponTimer < 0 && this.system.ShipList.Count>0)
+                        if (building.WeaponTimer < 0 && this.system.ShipList.Count > 0)
                         {
                             if (this.Owner != null)
                             {
@@ -5884,7 +5884,7 @@ output = maxp * take10 = 5
                 else if (keyValuePair.Value.Active && keyValuePair.Value.GetShipData().IsShipyard)
                 {
 
-					if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
+                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
                     {
                         shipbuildingmodifier *= (1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyards)); //+= GlobalStats.ActiveModInfo.ShipyardBonus;
                     }

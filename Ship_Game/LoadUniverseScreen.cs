@@ -417,7 +417,6 @@ namespace Ship_Game
 		    base.ScreenManager.inter.ObjectManager.Clear();
 			this.data = new UniverseData();
 			RandomEventManager.ActiveEvent = this.savedData.RandomEvent;
-			UniverseScreen.DeepSpaceManager = new SpatialManager();
 			ThrusterEffect  = Game1.GameContent.Load<Effect>("Effects/Thrust");
             ThrusterModel   = Game1.GameContent.Load<Model>("Effects/ThrustCylinderB");
             ThrusterTexture = Game1.GameContent.Load<Texture3D>("Effects/NoiseVolume");
@@ -1248,7 +1247,7 @@ namespace Ship_Game
 				this.us.LoadContent();
 
                 Log.Info("LoadUniverseScreen.UpdateAllSystems(0.01)");
-				this.us.UpdateAllSystems(0.01f);
+				us.UpdateAllSystems(0.01f);
                 ResourceManager.MarkShipDesignsUnlockable();
                 /*
 				foreach (Ship ship in this.data.MasterShipList)
