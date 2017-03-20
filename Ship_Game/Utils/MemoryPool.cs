@@ -138,30 +138,20 @@ namespace Ship_Game
     // [ushort][ushort][ushort*][ ushort[Capacity] ]
     // can support max 65536 items
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    [DebuggerTypeProxy(typeof(PoolArrayU16DebugView))]
     [DebuggerDisplay("Count = {Count}  Capacity = {Capacity}")]
     public unsafe struct PoolArrayU16
     {
         public ushort Count;
         public ushort Capacity;
         public ushort* Items;
-    }
 
-    internal sealed class PoolArrayU16DebugView
-    {
-        private PoolArrayU16 Arr;
-        public PoolArrayU16DebugView(PoolArrayU16 arr)
-        {
-            Arr = arr;
-        }
-        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public unsafe ushort[] Items
+        public ushort[] ItemsArray
         {
             get
             {
-                var items = new ushort[Arr.Count];
+                var items = new ushort[Count];
                 for (int i = 0; i < items.Length; ++i)
-                    items[i] = Arr.Items[i];
+                    items[i] = Items[i];
                 return items;
             }
         }
