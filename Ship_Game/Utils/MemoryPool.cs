@@ -93,26 +93,21 @@ namespace Ship_Game
         // called again to reallocate the pools
         public void Destroy()
         {
-            // leaving this uncommented to catch odd Destroy() bugs :)
-            // if you get a crash here, it means you're not properly disposing the MemoryPool !
-            //if (MemoryPools == null) return; // Disposed!
+            if (PoolStack == null) return;
             for (int i = 0; i < PoolStack.Length; ++i)
                 PoolStack[i].Destroy();
+            PoolStack = null;
         }
 
         public void Dispose()
         {
-            GC.SuppressFinalize(this);
-            if (PoolStack == null) return;
             Destroy();
-            PoolStack = null;
+            GC.SuppressFinalize(this);
         }
 
         ~DynamicMemoryPool()
         {
-            if (PoolStack == null) return;
             Destroy();
-            PoolStack = null;
         }
 
         // this would be so much easier in C++... *sigh*
