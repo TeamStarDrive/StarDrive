@@ -13,7 +13,8 @@ namespace Ship_Game
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct MemoryPool
     {
-        private const int PoolSize = 65536;
+        // 4KB seems to be pretty optimal, since most pools only see 5% memory usage, while a few can grab 70%
+        private const int PoolSize = 4096;
         private byte* Base;
         private byte* Ptr;
         private int Available; // @warning Read-only access please :))
@@ -40,39 +41,52 @@ namespace Ship_Game
             Available -= numBytes;
             return mem;
         }
+        public int BytesUsed  => (int)(Ptr - Base);
+        public int BytesTotal => (int)(Ptr - Base) + Available;
     }
 
     public sealed unsafe class DynamicMemoryPool : IDisposable
     {
-        private MemoryPool[] MemoryPools = new MemoryPool[1];
+        private MemoryPool[] PoolStack = new MemoryPool[1];
 
         // burn some memory from the pools. this is never 'freed', we just clear the bucket pointers
         // if you want to 'free' all allocated pool memory for REUSE, call Reset()
         // if you intend to completely abandon and free all memory, call Destroy() or Dispose()
         public void* Alloc(int numBytes)
         {
-            for (;;)
+            // if a pool has 64 bytes and we request 512, we need to use the next pool
+            // or allocate another pool. However, next request may be 64, which would fill
+            // the first pool.... this is why we use a simple for loop to iterate the Pools
+            for (int i = 0; i < PoolStack.Length; ++i)
             {
-                void* mem = MemoryPools[0].Alloc(numBytes);
-                if (mem != null)
+                void* mem = PoolStack[i].Alloc(numBytes);
+                if (mem != null) 
                     return mem;
-
-                // first pool is full, resize array by 1 and rotate the items
-                int len = MemoryPools.Length;
-                Array.Resize(ref MemoryPools, len + 1); // non-amortized growth
-
-                // rotate
-                MemoryPool full = MemoryPools[0];
-                Array.Copy(MemoryPools, 1, MemoryPools, 0, len);
-                MemoryPools[len] = full;
             }
+
+            Array.Resize(ref PoolStack, PoolStack.Length + 1); // non-amortized growth
+            return PoolStack[PoolStack.Length].Alloc(numBytes);
         }
 
         // reset the pools to their default max-available state
         public void Reset()
         {
-            for (int i = 0; i < MemoryPools.Length; ++i)
-                MemoryPools[i].Reset();
+            // Some debug stats
+            //int total = 0;
+            //int used = 0;
+            //for (int i = 0; i < MemoryPools.Length; ++i)
+            //{
+            //    total += MemoryPools[i].BytesTotal;
+            //    used  += MemoryPools[i].BytesUsed;
+            //}
+            //if (total != 0 && used != 0)
+            //{
+            //    int percent = (used * 100) / total;
+            //    if (percent > 50)
+            //        Log.Info("NumPools: {0}  mem used: {1}%", MemoryPools.Length, percent);
+            //}
+            for (int i = 0; i < PoolStack.Length; ++i)
+                PoolStack[i].Reset();
         }
 
         // actually free all mem in the pools, however Alloc can be
@@ -82,23 +96,23 @@ namespace Ship_Game
             // leaving this uncommented to catch odd Destroy() bugs :)
             // if you get a crash here, it means you're not properly disposing the MemoryPool !
             //if (MemoryPools == null) return; // Disposed!
-            for (int i = 0; i < MemoryPools.Length; ++i)
-                MemoryPools[i].Destroy();
+            for (int i = 0; i < PoolStack.Length; ++i)
+                PoolStack[i].Destroy();
         }
 
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            if (MemoryPools == null) return;
+            if (PoolStack == null) return;
             Destroy();
-            MemoryPools = null;
+            PoolStack = null;
         }
 
         ~DynamicMemoryPool()
         {
-            if (MemoryPools == null) return;
+            if (PoolStack == null) return;
             Destroy();
-            MemoryPools = null;
+            PoolStack = null;
         }
 
         // this would be so much easier in C++... *sigh*
