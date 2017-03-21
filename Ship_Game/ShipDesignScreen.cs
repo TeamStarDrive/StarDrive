@@ -6586,15 +6586,15 @@ namespace Ship_Game
         {
             ShipData savedShip = new ShipData()
             {
-                Animated = this.ActiveHull.Animated,
-                CombatState = this.ActiveHull.CombatState,
-                Hull = this.ActiveHull.Hull,
-                IconPath = this.ActiveHull.IconPath,
-                ModelPath = this.ActiveHull.ModelPath,
-                Name = this.ActiveHull.Name,
-                Role = this.ActiveHull.Role,
-                ShipStyle = this.ActiveHull.ShipStyle,
-                ThrusterList = this.ActiveHull.ThrusterList,
+                Animated       = this.ActiveHull.Animated,
+                CombatState    = this.ActiveHull.CombatState,
+                Hull           = this.ActiveHull.Hull,
+                IconPath       = this.ActiveHull.IconPath,
+                ModelPath      = this.ActiveHull.ModelPath,
+                Name           = this.ActiveHull.Name,
+                Role           = this.ActiveHull.Role,
+                ShipStyle      = this.ActiveHull.ShipStyle,
+                ThrusterList   = this.ActiveHull.ThrusterList,
                 ModuleSlotList = new Array<ModuleSlotData>()
             };
             foreach (SlotStruct slot in this.Slots)
@@ -6643,10 +6643,9 @@ namespace Ship_Game
             string path = Dir.ApplicationData;
             CombatState defaultstate = this.ActiveHull.CombatState;
             savedShip.CombatState = this.CombatState;
-            string filename = string.Format("{0:yyyy-MM-dd}__{1}", DateTime.Now, this.ActiveHull.Name);
-            savedShip.Name = filename;
+            savedShip.Name = string.Format("{0:yyyy-MM-dd}__{1}", DateTime.Now, ActiveHull.Name);
             XmlSerializer Serializer = new XmlSerializer(typeof(ShipData));
-            TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/WIP/", filename, ".xml"));
+            TextWriter WriteFileStream = new StreamWriter(string.Concat(path, "/StarDrive/WIP/", savedShip.Name, ".xml"));
             Serializer.Serialize(WriteFileStream, savedShip);
             WriteFileStream.Close();
             savedShip.CombatState = defaultstate;
