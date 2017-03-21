@@ -7,25 +7,37 @@ using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
+    public sealed class ModuleSlotData
+    {
+        public Vector2 Position;
+        public string InstalledModuleUID;
+        public Guid HangarshipGuid;
+        public float Health;
+        public float Shield_Power;
+        public float facing;
+        public ShipDesignScreen.ActiveModuleState state;
+        public Restrictions Restrictions;
+        public string SlotOptions;
+    }
+
     [DebuggerDisplay("UID = {InstalledModuleUID}  Module = {module}")]
     public sealed class ModuleSlot
     {
         public Vector2 Position;
-        public float facing;
-        public Guid HangarshipGuid;
-        public Restrictions Restrictions;
-        public bool Powered;
-        public bool CheckedConduits;
-        public string SlotOptions;
-        public ShipDesignScreen.ActiveModuleState state;
-        public float ModuleHealth;
-        public float Shield_Power;
-        public bool isDummy;
         public string InstalledModuleUID;
-        public ShipModule module;
+        public Guid HangarshipGuid;
+        public float Health;
+        public float Shield_Power;
+        public float facing;
+        public ShipDesignScreen.ActiveModuleState state;
+        public Restrictions Restrictions;
+        public string SlotOptions;
 
-        [XmlIgnore][JsonIgnore]
-        public Ship Parent;
+        [XmlIgnore] [JsonIgnore] public bool Powered;
+        [XmlIgnore] [JsonIgnore] public bool CheckedConduits;
+        [XmlIgnore] [JsonIgnore] public bool isDummy;
+        [XmlIgnore] [JsonIgnore] public ShipModule module;
+        [XmlIgnore] [JsonIgnore] public Ship Parent;
 
         public ModuleSlot()
         {

@@ -958,9 +958,8 @@ namespace Ship_Game
                             qi.Cost = 0f;
                             foreach (ModuleSlot slot in shipTemplate.ModuleSlotList)
                             {
-                                if (slot.InstalledModuleUID == null)
-                                    continue;
-                                qi.Cost += ResourceManager.GetModuleCost(slot.InstalledModuleUID) * savedData.GamePacing;
+                                if (slot.InstalledModuleUID != null)
+                                    qi.Cost += ResourceManager.GetModuleCost(slot.InstalledModuleUID) * savedData.GamePacing;
                             }
                             QueueItem queueItem = qi;
                             queueItem.Cost += qi.Cost * p.Owner.data.Traits.ShipCostMod;
