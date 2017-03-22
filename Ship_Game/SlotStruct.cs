@@ -20,7 +20,7 @@ namespace Ship_Game
 
 		public bool Powered;
 
-		public ModuleSlotData slotReference;
+		public ModuleSlot slotReference;
 
 		public string ModuleUID;
 

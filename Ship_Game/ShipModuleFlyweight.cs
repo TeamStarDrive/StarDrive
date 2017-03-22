@@ -119,7 +119,7 @@ namespace Ship_Game.Gameplay
         public readonly sbyte TargetTracking;
         public readonly sbyte FixedTracking;
 
-        public readonly static ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
+        public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
         public readonly string UID = string.Empty;
 
         public ShipModuleFlyweight()
@@ -138,7 +138,7 @@ namespace Ship_Game.Gameplay
             ResourceStorageAmount       = s.ResourceStorageAmount;
             IsCommandModule             = s.IsCommandModule;
             IsRepairModule              = s.IsRepairModule;
-            PermittedHangarRoles        = s.PermittedHangarRoles;
+            PermittedHangarRoles        = s.PermittedHangarRoles ?? Empty<string>.Array;
             MaximumHangarShipSize       = s.MaximumHangarShipSize;
             FightersOnly                = s.FightersOnly;
             DroneModule                 = s.DroneModule;

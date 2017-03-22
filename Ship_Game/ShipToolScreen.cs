@@ -634,71 +634,52 @@ namespace Ship_Game
 
 		public void SaveShipData(string name)
 		{
-			ShipData data = new ShipData()
+			var data = new ShipData()
 			{
-				Name = this.HullName,
-				ModelPath = Path.GetFileNameWithoutExtension(this.ModelPath),
-				Role = ShipData.RoleName.carrier,
-				Hull = this.HullName,
-				IconPath = "ShipIcons/hunter"
+				Name      = HullName,
+				ModelPath = Path.GetFileNameWithoutExtension(ModelPath),
+				Role      = ShipData.RoleName.carrier,
+				Hull      = HullName,
+				IconPath  = "ShipIcons/hunter"
 			};
-			Array<ModuleSlotData> slotDataList = new Array<ModuleSlotData>();
-			foreach (SlotStruct slot in this.SlotList)
+
+		    var filledModules = new Array<ModuleSlot> { Capacity = SlotList.Count };
+		    for (int i = 0; i < SlotList.Count; ++i)
 			{
+                SlotStruct slot = SlotList[i];
 				if (!slot.pq.isFilled)
-				{
 					continue;
-				}
-				Vector2 Position = new Vector2((float)(slot.pq.X + slot.pq.W / 2 - this.border.X), (float)(slot.pq.Y + slot.pq.H / 2 - this.border.Y));
-                ModuleSlotData newData = new ModuleSlotData()
-				{
-					Position = Position,
-					InstalledModuleUID = slot.ModuleUID,
-					Restrictions = slot.Restrictions
-				};
-				slotDataList.Add(newData);
+
+				var pos = new Vector2(slot.pq.X + slot.pq.W / 2 - border.X, slot.pq.Y + slot.pq.H / 2 - border.Y);
+                filledModules.Add(new ModuleSlot
+                {
+                    Position = pos,
+                    InstalledModuleUID = slot.ModuleUID,
+                    Restrictions = slot.Restrictions
+                });
 			}
-			data.ModuleSlotList = slotDataList;
-			data.DefaultAIState = AIState.AwaitingOrders;
-			data.ThrusterList = this.TList;
-			XmlSerializer Serializer = new XmlSerializer(typeof(ShipData));
-			TextWriter WriteFileStream = new StreamWriter(string.Concat("Ship Tool/", this.HullName, ".xml"));
-			Serializer.Serialize(WriteFileStream, data);
-			WriteFileStream.Close();
+            data.ModuleSlotList = filledModules.ToArray();
+            data.DefaultAIState = AIState.AwaitingOrders;
+			data.ThrusterList   = TList;
+			var ser = new XmlSerializer(typeof(ShipData));
+            using (var wfs = new StreamWriter("Ship Tool/" + HullName + ".xml"))
+                ser.Serialize(wfs, data);
 		}
 
 		public void SetActiveModule(ShipModule mod)
 		{
 			AudioManager.GetCue("smallservo").Play();
-			this.ActiveModule = mod;
+			ActiveModule = mod;
 		}
 
 		public void SetRestrictionFromText(string text)
 		{
-			string str = text;
-			string str1 = str;
-			if (str != null)
+			switch (text)
 			{
-				if (str1 == "I")
-				{
-					this.DesignState = Restrictions.I;
-					return;
-				}
-				if (str1 == "O")
-				{
-					this.DesignState = Restrictions.O;
-					return;
-				}
-				if (str1 == "IO")
-				{
-					this.DesignState = Restrictions.IO;
-					return;
-				}
-				if (str1 != "E")
-				{
-					return;
-				}
-				this.DesignState = Restrictions.E;
+			    case "I":  DesignState = Restrictions.I;  return;
+			    case "O":  DesignState = Restrictions.O;  return;
+			    case "IO": DesignState = Restrictions.IO; return;
+			    case "E":  DesignState = Restrictions.E;  return;
 			}
 		}
 

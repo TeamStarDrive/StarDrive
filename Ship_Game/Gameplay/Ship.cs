@@ -2726,8 +2726,8 @@ namespace Ship_Game.Gameplay
             ship.shipData  = data;
             ship.ModelPath = data.ModelPath;
 
-            ship.ModuleSlotList.Capacity = data.ModuleSlotList.Count;
-            foreach (ModuleSlotData slotData in data.ModuleSlotList)
+            ship.ModuleSlotList.Capacity = data.ModuleSlotList.Length;
+            foreach (ModuleSlot slotData in data.ModuleSlotList)
             {
                 var slot = new ModuleSlot();
                 slot.Health             = slotData.Health;
@@ -2780,8 +2780,23 @@ namespace Ship_Game.Gameplay
             parent.experience = data.experience;
             parent.shipData   = data;
             parent.ModelPath  = data.ModelPath;
-            parent.ModuleSlotList = SlotDataListToSlotList(data.ModuleSlotList, parent);
-            
+
+            parent.ModuleSlotList.Capacity = data.ModuleSlotList.Length;
+            foreach (ModuleSlot slotData in data.ModuleSlotList)
+            {
+                var slot = new ModuleSlot();
+                slot.Health             = slotData.Health;
+                slot.Shield_Power       = slotData.Shield_Power;
+                slot.Position           = slotData.Position;
+                slot.facing             = slotData.facing;
+                slot.state              = slotData.state;
+                slot.Restrictions       = slotData.Restrictions;
+                slot.InstalledModuleUID = slotData.InstalledModuleUID;
+                slot.HangarshipGuid     = slotData.HangarshipGuid;
+                slot.SlotOptions        = slotData.SlotOptions;
+                parent.ModuleSlotList.Add(slot);
+            }
+
             foreach (var thrusterZone in data.ThrusterList)
                 parent.ThrusterList.Add(new Thruster()
                 {
@@ -2790,23 +2805,6 @@ namespace Ship_Game.Gameplay
                     Parent = parent
                 });
             return parent;
-        }
-
-        public static Array<ModuleSlot> SlotDataListToSlotList(Array<ModuleSlotData> dataList, Ship parent)
-        {
-            var list = new Array<ModuleSlot>();
-            foreach (ModuleSlotData moduleSlotData in dataList)
-                list.Add(new ModuleSlot
-                {
-                    Position       = moduleSlotData.Position,
-                    state          = moduleSlotData.state,
-                    facing         = moduleSlotData.facing,
-                    Restrictions   = moduleSlotData.Restrictions,
-                    HangarshipGuid = moduleSlotData.HangarshipGuid,
-                    InstalledModuleUID = moduleSlotData.InstalledModuleUID,
-                    SlotOptions    = moduleSlotData.SlotOptions
-                });
-            return list;
         }
 
         public virtual void InitializeModules()
@@ -3451,39 +3449,39 @@ namespace Ship_Game.Gameplay
         }
         public ShipData ToShipData()
         {
-            ShipData shipData = new ShipData();
-            shipData.BaseCanWarp = this.shipData.BaseCanWarp;
-            shipData.BaseStrength = BaseStrength;
-            shipData.techsNeeded = this.shipData.techsNeeded;
-            shipData.TechScore = this.shipData.TechScore;
-            shipData.ShipCategory = this.shipData.ShipCategory;
-            shipData.Name = Name;
-            shipData.Level = (byte)Level;
-            shipData.experience = (byte)experience;
-            shipData.Role = this.shipData.Role;
-            shipData.IsShipyard = GetShipData().IsShipyard;
-            shipData.IsOrbitalDefense = GetShipData().IsOrbitalDefense;
-            shipData.Animated = GetShipData().Animated;
-            shipData.CombatState = GetAI().CombatState;
-            shipData.ModelPath = GetShipData().ModelPath;
-            shipData.ModuleSlotList = ConvertToData(ModuleSlotList);
-            shipData.ThrusterList = new Array<ShipToolScreen.ThrusterZone>();
-            shipData.MechanicalBoardingDefense = MechanicalBoardingDefense;
+            var data = new ShipData();
+            data.BaseCanWarp      = shipData.BaseCanWarp;
+            data.BaseStrength     = BaseStrength;
+            data.techsNeeded      = shipData.techsNeeded;
+            data.TechScore        = shipData.TechScore;
+            data.ShipCategory     = shipData.ShipCategory;
+            data.Name             = Name;
+            data.Level            = (byte)Level;
+            data.experience       = (byte)experience;
+            data.Role             = shipData.Role;
+            data.IsShipyard       = GetShipData().IsShipyard;
+            data.IsOrbitalDefense = GetShipData().IsOrbitalDefense;
+            data.Animated         = GetShipData().Animated;
+            data.CombatState      = GetAI().CombatState;
+            data.ModelPath        = GetShipData().ModelPath;
+            data.ModuleSlotList   = ModuleSlotList.ToArray();
+            data.ThrusterList     = new Array<ShipToolScreen.ThrusterZone>();
+            data.MechanicalBoardingDefense = MechanicalBoardingDefense;
             foreach (Thruster thruster in ThrusterList)
-                shipData.ThrusterList.Add(new ShipToolScreen.ThrusterZone()
+                data.ThrusterList.Add(new ShipToolScreen.ThrusterZone()
                 {
                     Scale = thruster.tscale,
                     Position = thruster.XMLPos
                 });
-            return shipData;
+            return data;
         }
 
-        private Array<ModuleSlotData> ConvertToData(Array<ModuleSlot> slotList)
+        private Array<ModuleSlot> ConvertToData(Array<ModuleSlot> slotList)
         {
-            Array<ModuleSlotData> list = new Array<ModuleSlotData>();
+            Array<ModuleSlot> list = new Array<ModuleSlot>();
             foreach (ModuleSlot moduleSlot in slotList)
             {
-                ModuleSlotData moduleSlotData = new ModuleSlotData
+                ModuleSlot moduleSlotData = new ModuleSlot
                 {
                     Position = moduleSlot.Position,
                     InstalledModuleUID = moduleSlot.InstalledModuleUID
