@@ -47,7 +47,7 @@ namespace Ship_Game
         public bool CarrierShip;
         public float BaseStrength;
         public bool BaseCanWarp;
-        public Array<ModuleSlotData> ModuleSlotList;
+        public ModuleSlot[] ModuleSlotList;
         public bool hullUnlockable;
         public bool allModulesUnlocakable = true;
         public bool unLockable;
@@ -184,12 +184,12 @@ namespace Ship_Game
                 Enum.TryParse(s->DefaultAIState.AsString, out ship.DefaultAIState);
 
                 // @todo Remove conversion to List
-                // @todo Remove SDNative.ModuleSlotData conversion
-                ship.ModuleSlotList = new Array<ModuleSlotData>(s->ModuleSlotsLen);
+                // @todo Remove SDNative.ModuleSlot conversion
+                ship.ModuleSlotList = new ModuleSlot[s->ModuleSlotsLen];
                 for (int i = 0; i < s->ModuleSlotsLen; ++i)
                 {
                     CModuleSlot* msd = &s->ModuleSlots[i];
-                    ModuleSlotData slot = new ModuleSlotData();
+                    var slot = new ModuleSlot();
                     slot.Position           = new Vector2(msd->PosX, msd->PosY);
                     slot.InstalledModuleUID = msd->InstalledModuleUID.AsInternedOrNull;
                     slot.HangarshipGuid     = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
@@ -197,9 +197,9 @@ namespace Ship_Game
                     slot.Shield_Power       = msd->ShieldPower;
                     slot.facing             = msd->Facing;
                     slot.SlotOptions        = msd->SlotOptions.AsInterned;
-                    Enum.TryParse(msd->State.AsString, out slot.state);
+                    Enum.TryParse(msd->State.AsString,        out slot.state);
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
-                    ship.ModuleSlotList.Add(slot);
+                    ship.ModuleSlotList[i] = slot;
                 }
 
                 // @todo Remove conversion to List

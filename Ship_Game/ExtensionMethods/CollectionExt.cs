@@ -4,7 +4,21 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-    public static class CollectionExtensions
+    /// <summary>
+    /// This contains multiple simple yet useful extension algorithms for different data structures
+    /// The goal is to increase performance by specializing for concrete container types,
+    /// which helps to eliminate virtual dispatch, greatly speeding up iteration times
+    /// 
+    /// As much as possible, we try to avoid any kind of IEnumerable or foreach loops, because
+    /// they have apalling performance and .NET JIT fails to optimize most of our use cases.
+    /// 
+    /// We don't benefit from lazy evaluation either, because most of the algorithms are very data-heavy,
+    /// with no way to exclude elements.
+    /// 
+    /// If you find these extensions repetitive, then yes, this is your worst nightmare --- however,
+    /// all of this repetitive looping provides the best possible performance on .NET JIT. It's just not good enough.
+    /// </summary>
+    public static class CollectionExt
     {
         public static TValue ConsumeValue<TKey,TValue>(this Dictionary<TKey, TValue> dict, TKey key)
         {
@@ -374,6 +388,32 @@ namespace Ship_Game
                 keys[i] = keyPredicate(array[i]);
 
             Array.Sort(keys, array, 0, count);
+        }
+
+        // this will mess up the ordering of your items due to SwapLast optimization and it will shrink the array by 1 element
+        // the result will be passed to the out parameter
+        public static void Remove<T>(this T[] array, T item, out T[] result) where T : class
+        {
+            for (int i = 0; i < array.Length; ++i)
+            {
+                if (array[i] != item)
+                    continue;
+
+                int newLength = array.Length - 1;
+                array[i] = array[newLength];
+                Memory.HybridCopyRefs(result = new T[newLength], 0, array, newLength);
+                return;
+            }
+            result = array;
+        }
+
+        // Warning! This array add does not have amortized growth and will resize the array every time you Add !
+        // DO NOT USE THIS IN A LOOP
+        public static void Add<T>(this T[] array, T item, out T[] result) where T : class
+        {
+            int newLength = array.Length + 1;
+            Memory.HybridCopyRefs(result = new T[newLength], 0, array, array.Length);
+            result[newLength] = item;
         }
     }
 }
