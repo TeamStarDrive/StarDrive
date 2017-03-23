@@ -1658,28 +1658,16 @@ namespace Ship_Game.AI
         //fire on calculate and fire
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
-            var moduleTarget = target as ShipModule;
-            var projectileTarget = target as Projectile;
-            Vector2 dir = Vector2.Zero;
-            Vector2 projectedPosition = Vector2.Zero;
-            if (projectileTarget !=null)
+            GameplayObject realTarget = (target is ShipModule sm) ? sm.GetParent() : target;
+
+            Vector2 predictedPos = weapon.Center.FindPredictedVectorToTarget(
+                                        weapon.ProjectileSpeed, target.Center, realTarget.Velocity);
+
+            if (Owner.CheckIfInsideFireArc(weapon, predictedPos))
             {
-                projectedPosition = weapon.Center.FindPredictedVectorToTarget(weapon.ProjectileSpeed,
-                    target.Center, projectileTarget.Velocity);
-            }
-            else if (moduleTarget !=null)
-            {
-                projectedPosition = weapon.Center.FindPredictedVectorToTarget(weapon.ProjectileSpeed,
-                    target.Center, moduleTarget.GetParent().Velocity);
- 
-            }
-            if (Owner.CheckIfInsideFireArc(weapon, projectedPosition))
-            {
-                projectedPosition = Vector2.Normalize(projectedPosition - weapon.Center);
-                if (SalvoFire)
-                    weapon.FireSalvo(projectedPosition, target);
-                else
-                    weapon.Fire(projectedPosition, target);
+                Vector2 direction = (predictedPos - weapon.Center).Normalized(); 
+                if (SalvoFire) weapon.FireSalvo(direction, target);
+                else           weapon.Fire(direction, target);
             }
         }
         //fire on non visible
