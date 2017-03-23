@@ -1660,8 +1660,8 @@ namespace Ship_Game.AI
         {
             GameplayObject realTarget = (target is ShipModule sm) ? sm.GetParent() : target;
 
-            Vector2 predictedPos = weapon.Center.FindPredictedVectorToTarget(
-                                        weapon.ProjectileSpeed, target.Center, realTarget.Velocity);
+            Vector2 predictedPos = weapon.Center.FindPredictedTargetPosition(
+                weapon.Owner.Velocity, weapon.ProjectileSpeed, target.Center, realTarget.Velocity);
 
             if (Owner.CheckIfInsideFireArc(weapon, predictedPos))
             {
