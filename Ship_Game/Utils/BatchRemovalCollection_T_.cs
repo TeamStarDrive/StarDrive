@@ -147,10 +147,17 @@ namespace Ship_Game
         //    return result;
         //}
 
-        public new void AddRange(IEnumerable<T> collection)
+        public new void AddRange(ICollection<T> collection)
         {
             ThisLock.EnterWriteLock();
             base.AddRange(collection);
+            ThisLock.ExitWriteLock();
+        }
+
+        public new void AddRange(IEnumerable<T> enumerable)
+        {
+            ThisLock.EnterWriteLock();
+            base.AddRange(enumerable);
             ThisLock.ExitWriteLock();
         }
         // to use this:

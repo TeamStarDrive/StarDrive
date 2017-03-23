@@ -55,17 +55,13 @@ namespace Ship_Game.Gameplay
         public Vector2 ModuleCenter;
         public string IconTexturePath;
 
-        public string UID
-        {
-            get => Flyweight.UID;
-            //set => Flyweight.UID = value;
-        }
+        public string UID => Flyweight.UID;
         
         public ModuleSlot installedSlot;
         public bool isExternal;
-        public int TargetValue=0;
+        public int TargetValue;
         public sbyte quadrant = -1;
-        public float TransporterTimer = 0f;
+        public float TransporterTimer;
 
         // Used to configure how good of a target this module is
         public int ModuleTargettingValue => TargetValue 
