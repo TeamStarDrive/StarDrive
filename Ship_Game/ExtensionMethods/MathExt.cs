@@ -203,15 +203,98 @@ namespace Ship_Game
             return Vector2.Normalize(target - origin);
         }
 
-        public static Vector2 FindPredictedVectorToTarget(this Vector2 origin, float speedToTarget, Vector2 target, Vector2 targetVelocity)
+        public static Vector2 FindPredictedTargetPosition(this Vector2 weaponPos, Vector2 ownerVelocity,
+            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
         {
-            Vector2 vectorToTarget = target - origin;
+            Vector2 pos0 = weaponPos.FindPredictedTargetPosition0(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
+            Vector2 pos1 = weaponPos.FindPredictedTargetPosition1(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
+            Vector2 pos2 = weaponPos.FindPredictedTargetPosition2(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
+
+            Log.Info("PredictTargetPos 0={0}  1={1}  2={2}", pos0, pos1, pos2);
+            return pos1;
+        }
+
+        public static Vector2 FindPredictedTargetPosition0(this Vector2 weaponPos, Vector2 ownerVelocity,
+            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
+        {
+            Vector2 vectorToTarget     = targetPos - weaponPos;
+            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
+
             float distance = vectorToTarget.Length();
-            float time = distance / speedToTarget;
-            Vector2 spaceTraveled = targetVelocity * time;
-            Vector2 predictedVector = target + spaceTraveled;
-            vectorToTarget = predictedVector;
-            return vectorToTarget;
+            float time = distance / projectileVelocity.Length();
+            return targetPos + targetVelocity * time;
+        }
+
+        public static Vector2 FindPredictedTargetPosition1(this Vector2 weaponPos, Vector2 ownerVelocity, 
+            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
+        {
+            Vector2 delta = targetPos - weaponPos;
+            Vector2 directionToTarget = delta.Normalized();
+
+            // projectile inherits parent velocity
+            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
+
+            float a = targetVelocity.LengthSquared() - projectileVelocity.LengthSquared();
+            float b = 2 * Vector2.Dot(targetPos, directionToTarget);
+            float c = directionToTarget.LengthSquared();
+
+            // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
+            if (Abs(a) < 0.0001f)
+                return Vector2.Zero; // no solution
+
+            float sqrt = b*b - 4 * a * c;
+            if (sqrt < 0.0f)
+                return Vector2.Zero; // no solution
+            sqrt = (float)Sqrt(sqrt);
+
+            // Those values are the time values at which point you can hit the target.
+            float timeToImpact1 = (-b - sqrt) / (2 * a);
+            float timeToImpact2 = (-b + sqrt) / (2 * a);
+
+            // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
+            // Take any of the remaining positive values (probably the smaller one).
+            if (timeToImpact1 < 0.0f && timeToImpact2 < 0.0f)
+                return Vector2.Zero; // no solution, can't go back in time
+
+            float predictedTimeToImpact;
+            if      (timeToImpact1 < 0.0f) predictedTimeToImpact = timeToImpact2;
+            else if (timeToImpact2 < 0.0f) predictedTimeToImpact = timeToImpact1;
+            else predictedTimeToImpact = timeToImpact1 < timeToImpact2 ? timeToImpact1 : timeToImpact2;
+
+            // this is the predicted target position
+            return targetPos + targetVelocity * predictedTimeToImpact;
+        }
+
+        public static Vector2 FindPredictedTargetPosition2(this Vector2 weaponPos, Vector2 ownerVelocity, 
+            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
+        {
+            Vector2 distToTarget = targetPos - weaponPos;
+
+            // projectile inherits parent velocity
+            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
+
+            float interceptSpeed = projectileVelocity.LengthSquared();
+            float targetSpeed    = targetVelocity.LengthSquared();
+            float dot            = Vector2.Dot(distToTarget, targetVelocity);
+            float sqdistToTarget = distToTarget.LengthSquared();
+
+            float d = (dot * dot) - sqdistToTarget * (targetSpeed - interceptSpeed);
+            if (d < 0.1f)  // negative == no possible course because the interceptor isn't fast enough
+                return Vector2.Zero;
+
+            float sqrt = (float)Sqrt(d);
+            float timeToImpact1 = (-dot - sqrt) / sqdistToTarget;
+            float timeToImpact2 = (-dot + sqrt) / sqdistToTarget;
+
+            if (timeToImpact1 < 0.0f && timeToImpact2 < 0.0f)
+                return Vector2.Zero; // no solution, can't go back in time
+
+            float predictedTimeToImpact;
+            if      (timeToImpact1 < 0.0f) predictedTimeToImpact = timeToImpact2;
+            else if (timeToImpact2 < 0.0f) predictedTimeToImpact = timeToImpact1;
+            else predictedTimeToImpact = timeToImpact1 < timeToImpact2 ? timeToImpact1 : timeToImpact2;
+
+            return predictedTimeToImpact * distToTarget + targetVelocity;
         }
 
         // Generates a new point on a circular radius from position
