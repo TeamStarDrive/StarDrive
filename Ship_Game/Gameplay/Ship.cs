@@ -206,21 +206,14 @@ namespace Ship_Game.Gameplay
         public float NormalWarpThrust;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense  +TroopBoardingDefense);
 
-        private Array<Empire> BorderCheck = new Array<Empire>();
-        public Array<Empire> getBorderCheck
-        {
-            get {
-                return BorderCheck; }
-            set {
-                BorderCheck = value; }
-        }
+        public Array<Empire> BorderCheck = new Array<Empire>();
+
         public bool IsInNeutralSpace
         {
             get
             {                
                 foreach (Empire e in BorderCheck)
                 {
-                    
                     Relationship rel = loyalty.GetRelations(e);
                     if (rel.AtWar || rel.Treaty_Alliance || e == loyalty)
                     {
