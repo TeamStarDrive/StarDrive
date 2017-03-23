@@ -69,5 +69,10 @@ namespace Ship_Game
         {
             return (this as ICollection<KeyValuePair<TKey, TValue>>).ToArray();
         }
+
+        public TValue[] AtomicValuesArray()
+        {
+            lock (this) return Values.ToArray();
+        }
     }
 }

@@ -218,9 +218,6 @@ namespace Ship_Game
                 throw ex;
         }
 
-        public static void For(int rangeLength, RangeAction body)
-        {
-            For(0, rangeLength, body);
-        }
+        public static void For(int rangeLength, RangeAction body) => For(0, rangeLength, body);
     }
 }
