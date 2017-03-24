@@ -2167,6 +2167,60 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        // @note ExternalSlots are always Alive (Active). This is because ExternalSlots get
+        //       updated every time a module dies. The code for that is in ShipModule.cs
+        public ModuleSlot FindClosestExternalSlot(Vector2 point)
+        {
+            return ExternalSlots.FindMin(slot => point.SqDist(slot.module.Center));
+        }
+
+        public Array<ShipModule> FindExternalModules(int quadrant)
+        {
+            var modules = new Array<ShipModule>();
+            for (int i = 0; i < ExternalSlots.Count; ++i)
+            {
+                ShipModule module = ExternalSlots[i].module;
+                if (module.quadrant == quadrant && module.Health > 0f)
+                    modules.Add(module);
+            }
+            return modules;
+        }
+
+        public ShipModule FindUnshieldedExternalModule(int quadrant)
+        {
+            for (int i = 0; i < ExternalSlots.Count; ++i)
+            {
+                ShipModule module = ExternalSlots[i].module;
+                if (module.quadrant == quadrant && module.Health > 0f && module.shield_power <= 0f)
+                    return module;
+            }
+            return null; // aargghh ;(
+        }
+
+        // find ShipModules that collide with a this wide RAY
+        // direction must be normalized!!
+        public Array<ShipModule> FindModulesIntersectingRay(
+            Vector2 startPos, Vector2 direction, float distance, float rayRadius)
+        {
+            Vector2 endPos = startPos + direction * distance;
+
+            var modules = new Array<ShipModule>();
+            int count = ModuleSlotList.Count;
+            var slots = ModuleSlotList.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                ShipModule module = slots[i].module;
+                if (module.isDummy || !module.Active || module.Health <= 0f)
+                    continue;
+
+                Vector2 point = module.Position.FindClosestPointOnLine(startPos, endPos);
+                if (module.HitTest(point, rayRadius))
+                    modules.Add(module);
+            }
+            modules.Sort(module => startPos.SqDist(module.Position));
+            return modules;
+        }
+        
         public void ResetJumpTimer()
         {
             JumpTimer = FTLSpoolTime * loyalty.data.SpoolTimeModifier;

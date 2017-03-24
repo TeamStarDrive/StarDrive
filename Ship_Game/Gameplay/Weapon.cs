@@ -173,6 +173,18 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore]
         public static AudioListener audioListener { get; set; }
 
+
+        // When ships are off-screen, we do cheap and dirty invisible damage calculation
+        [XmlIgnore][JsonIgnore]
+        public float InvisibleDamageAmount
+        {
+            get
+            {
+                float damage = DamageAmount;
+                return damage + damage*SalvoCount + damage*(isBeam ? 90f : 0f);
+            }
+        }
+
         public Weapon(Ship owner, ShipModule moduleAttachedTo)
         {
             Owner = owner;
@@ -389,7 +401,7 @@ namespace Ship_Game.Gameplay
             projectile.WeaponEffectType      = WeaponEffectType;
             projectile.WeaponType            = WeaponType;
             projectile.RotationRadsPerSecond = RotationRadsPerSecond;
-            projectile.ArmorPiercing         = (byte)ArmourPen;
+            projectile.ArmorPiercing         = (int)ArmourPen;
 
             if (owner.Level > 0)
                 projectile.damageAmount += projectile.damageAmount * owner.Level * 0.05f;
@@ -493,7 +505,7 @@ namespace Ship_Game.Gameplay
             projectile.WeaponType            = WeaponType;
             projectile.LoadContent(ProjectileTexturePath, ModelPath);
             projectile.RotationRadsPerSecond = RotationRadsPerSecond;
-            projectile.ArmorPiercing         = (byte)ArmourPen;
+            projectile.ArmorPiercing         = (int)ArmourPen;
 
             ModifyProjectile(projectile);
             if (Tag_Guided) projectile.InitializeMissilePlanet(projectile.speed, direction, target, p);
@@ -801,7 +813,7 @@ namespace Ship_Game.Gameplay
             }
             if (!isBeam)
             {
-                projectile.ArmorPiercing         += (byte)wepTags[tag].ArmourPenetration;
+                projectile.ArmorPiercing         += (int)wepTags[tag].ArmourPenetration;
                 projectile.Health                += HitPoints * wepTags[tag].HitPoints;
                 projectile.RotationRadsPerSecond += wepTags[tag].Turn * RotationRadsPerSecond;
                 projectile.speed                 += wepTags[tag].Speed * ProjectileSpeed;

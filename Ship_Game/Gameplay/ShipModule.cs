@@ -259,6 +259,62 @@ namespace Ship_Game.Gameplay
             return damage;
         }
 
+        // Collision test with this ShipModule. Returns TRUE if point is inside this module's
+        // The collision bounds are APPROXIMATED by using radius checks. This means corners
+        // are not accurately checked.
+        // HitTest uses the World scene POSITION. Not module XML location
+        public bool HitTest(Vector2 point, float radius)
+        {
+            if (XSIZE == YSIZE) // we are a Square module
+            {
+                float ourRadius = XSIZE * 10.0f; // slightly bigger radius than default 8.0
+                float r2 = ourRadius + radius;
+                float dx = Position.X - point.X;
+                float dy = Position.Y - point.Y;
+                return dx * dx + dy * dy <= r2 * r2;
+            }
+
+            // we are a non-square module, run collision detect N times
+            int larger = XSIZE > YSIZE ? XSIZE : YSIZE;
+            // run early exclusion (most things don't collide)
+            {
+                float ourRadius = larger * 10.0f; // approximated, slightly bigger radius
+                float r2 = ourRadius + radius;
+                float dx = Position.X - point.X;
+                float dy = Position.Y - point.Y;
+                if (dx * dx + dy * dy > r2 * r2)
+                    return false; // out of range
+            }
+
+            // now for more expensive and accurate collision testing
+            int smaller = XSIZE < YSIZE ? XSIZE : YSIZE;
+            float sizeRatio  = (float)smaller / larger;
+            float diameter   = sizeRatio * smaller * 16.0f;
+            float moduleSpan = larger * 16.0f; // larger span of the module
+
+            // if high module, use forward vector, if wide module, use right vector
+            Vector2 dir = Rotation.AngleToDirection();
+            if (XSIZE > YSIZE) dir = dir.RightVector();
+
+            Vector2 pos = Position - dir * (0.5f * (moduleSpan - diameter));
+
+            float collRadius = diameter * 0.5f * 1.25f; // slightly bigger radius than default 8.0
+            int numChecks = (int)Math.Ceiling(sizeRatio);
+            for (int i = 0; i < numChecks; ++i)
+            {
+                float r2 = collRadius + radius;
+                float dx = pos.X - point.X;
+                float dy = pos.Y - point.Y;
+                if (dx * dx + dy * dy <= r2 * r2)
+                    return true;
+                pos += dir * diameter;
+            }
+            return false;
+        }
+
+        // gives the approximate radius of the module, depending on module XSIZE & YSIZE
+        public float ApproxRadius => 8.0f * (XSIZE > YSIZE ? XSIZE : YSIZE);
+
         public bool Damage(GameplayObject source, float damageAmount, ref float damageRemainder)
         {
             if (ModuleType == ShipModuleType.Dummy)
@@ -331,7 +387,7 @@ namespace Ship_Game.Gameplay
                 }
                 else
                 {
-                    damageRemainder = 0;
+                    damageRemainder = 0f;
                     Health -= damageAmount;
                 }
                 if (Health >= HealthMax)
@@ -447,7 +503,7 @@ namespace Ship_Game.Gameplay
 
             Projectile proj = source as Projectile;
             Beam beam = source as Beam;
-
+            
             if (proj != null)
             {
                 Parent.LastDamagedBy = source;
