@@ -205,7 +205,7 @@ namespace Ship_Game
                         privateName = hull.Name,
                         HullUnlocked = ResourceManager.HullsDict[hull.Name].Name
                     };
-                    int size = ResourceManager.HullsDict[hull.Name].ModuleSlotList.Count;
+                    int size = ResourceManager.HullsDict[hull.Name].ModuleSlotList.Length;
                     unlock.Description = string.Concat(Localizer.Token(4042), " ", Localizer.GetRole(ResourceManager.HullsDict[hull.Name].Role, EmpireManager.Player));
                     this.UnlockSL.AddItem(unlock);
                 }
