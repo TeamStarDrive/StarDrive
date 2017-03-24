@@ -158,9 +158,15 @@ namespace Ship_Game
             var goodSystems = new HashSet<SolarSystem>();
             foreach (SolarSystem systemCheck in OwnedSolarSystems)
             {
-                if (systemCheck.combatTimer > 10) continue;                
+                if (systemCheck.combatTimer > 10) continue;
+                bool systemHasUnfriendlies = false;
                 foreach (Empire empire in systemCheck.OwnerList)
-                    if (empire == this || !IsEmpireAttackable(empire)) continue;
+                {
+                    if (!IsEmpireAttackable(empire)) continue;
+                    systemHasUnfriendlies = true;
+                    break;
+                }
+                if (systemHasUnfriendlies) continue;                     
 
                 foreach (Planet planet in systemCheck.PlanetList)
                 {
@@ -461,7 +467,15 @@ namespace Ship_Game
         {
             return OwnedShips;
         }
-
+        public Array<Ship> GetShipsFromOffensePools()
+        {
+            Array<Ship> ships = new Array<Ship>();
+            foreach (AO ao in GetGSAI().AreasOfOperations)
+            {
+                ships.AddRange(ao.GetOffensiveForcePool());
+            }
+            return ships;
+        }
         public BatchRemovalCollection<Ship> GetProjectors()
         {
             return OwnedProjectors;
@@ -3127,7 +3141,8 @@ namespace Ship_Game
             if (!TryGetRelations(empire, out Relationship rel) || rel ==null || !rel.Known) return true;            
             if (rel.AtWar) return true;
             if (rel.Treaty_NAPact) return false;
-            if (isFaction || empire.isFaction ) return true;            
+            if (isFaction || empire.isFaction ) return true;
+            if (target == null) return true;
             Ship ship = target as Ship;
             if(ship != null)
             {                
@@ -3136,7 +3151,6 @@ namespace Ship_Game
 
                 if (ship.isColonyShip && ship.System != null && rel.WarnedSystemsList.Contains(ship.System.guid)) return true;
             }
-            if (empire.isFaction) return true;
             return false;
         }
         public class InfluenceNode
