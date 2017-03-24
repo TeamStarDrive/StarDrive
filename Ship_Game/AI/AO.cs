@@ -30,7 +30,11 @@ namespace Ship_Game.AI
         //[Serialize(6)] private bool Flip; // @todo Change savegame version before reassigning Serialize indices
         [Serialize(7)] public float Radius;
         [Serialize(8)] public int TurnsToRelax;
-
+        public Fleet GetCoreFleet() => CoreFleet;
+        public Planet GetPlanet() => CoreWorld;
+        public Planet[] GetPlanets() => OurPlanetsInAo;
+        public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
+        public IReadOnlyList<Ship> GetWaitingShips() => ShipsWaitingForCoreFleet;
         public AO()
         {
         }
@@ -64,45 +68,53 @@ namespace Ship_Game.AI
             PlanetsInAo = tempPlanet.ToArray();
         }
 
-        public bool AddShip(Ship ship)
+        public void AddShip(Ship ship)
         {
             if (ship.BaseStrength <1)
-                return false;
+                return ;
+            if (OffensiveForcePool.Contains(ship))
+            {
+                Log.Warning("offensive forcepool already contains this ship. not adding");
+                return;
+            }
+            if (ship.fleet !=null)
+                Log.Error("readding corefleet ship");
             //@check for arbitraty comarison threatlevel
             if (CoreFleetFull() || ship.BombBays.Count > 0 || ship.hasAssaultTransporter || ship.HasTroopBay)
             {
+               
                 OffensiveForcePool.Add(ship);
+                return ;
+            }
+            ShipsWaitingForCoreFleet.Add(ship);
+            ////@corefleet speed less than 4k arbitrary logic means a likely problem 
+            //if (CoreFleet.FleetTask == null && ship.fleet == null && CoreFleet.Speed < 4000 && !CoreFleetFull())
+            //{
+            //    CoreFleetAddShip(ship);
+            //    float strength = CoreFleet.GetStrength();
+            //    foreach (Ship waiting in ShipsWaitingForCoreFleet)
+            //    {
+            //        if (waiting.fleet != null)
+            //            continue;
+            //        strength += waiting.GetStrength();
+            //        if (ThreatLevel < strength) break;
+            //        CoreFleet.AddShip(waiting);
+            //        waiting.GetAI().OrderQueue.Clear();
+            //        waiting.GetAI().HasPriorityOrder = false;
+            //    }
+            //    CoreFleet.Position = CoreWorld.Position;
+            //    CoreFleet.AutoArrange();
+            //    CoreFleet.MoveToNow(Position, 0f, new Vector2(0f, -1f));
+            //    ShipsWaitingForCoreFleet.Clear();
 
-            }
-            
-            //@corefleet speed less than 4k arbitrary logic means a likely problem 
-            if (CoreFleet.FleetTask == null && ship.fleet == null && CoreFleet.Speed < 4000 && !CoreFleetFull())
-            {
-                CoreFleetAddShip(ship);
-                float strength = CoreFleet.GetStrength();
-                foreach (Ship waiting in ShipsWaitingForCoreFleet)
-                {
-                    if (waiting.fleet != null)
-                        continue;
-                    strength += waiting.GetStrength();
-                    if (ThreatLevel < strength) break;
-                    CoreFleet.AddShip(waiting);
-                    waiting.GetAI().OrderQueue.Clear();
-                    waiting.GetAI().HasPriorityOrder = false;
-                }
-                CoreFleet.Position = CoreWorld.Position;
-                CoreFleet.AutoArrange();
-                CoreFleet.MoveToNow(Position, 0f, new Vector2(0f, -1f));
-                ShipsWaitingForCoreFleet.Clear();
-
-            }
-            else if (ship.fleet == null)
-            {
-                ShipsWaitingForCoreFleet.Add(ship);
-                OffensiveForcePool.Add(ship);
-                return true;
-            }
-            return false;
+            //}
+            //else if (ship.fleet == null)
+            //{
+            //    ShipsWaitingForCoreFleet.Add(ship);
+            //    OffensiveForcePool.Add(ship);
+            //    return true;
+            //}
+            //return false;
         }
         public bool RemoveShip(Ship ship)
         {
@@ -113,11 +125,7 @@ namespace Ship_Game.AI
         }
 
 
-        public Fleet GetCoreFleet()  => CoreFleet;
-        public Planet GetPlanet()    => CoreWorld;
-        public Planet[] GetPlanets() => OurPlanetsInAo;
-        public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
-        public IReadOnlyList<Ship> GetWaitingShips() => ShipsWaitingForCoreFleet;
+
 
         public void InitFromSave(UniverseData data, Empire owner)
         {
@@ -206,35 +214,42 @@ namespace Ship_Game.AI
             for (int index = OffensiveForcePool.Count - 1; index >= 0; index--)
             {
                 Ship ship = OffensiveForcePool[index];
-                if (ship.Active && ship.fleet == null && ship.shipData.Role != ShipData.RoleName.troop &&
+                if (ship.Active && ship.fleet == null && ship.shipData.Role != ShipData.RoleName.troop && 
                     ship.GetStrength() > 0)
                     continue;
-
+                if(ship.Active)
+                Log.Error("invalid ship in offensive force pool");
                 OffensiveForcePool.Remove(ship);
             }
-            
-            if (CoreFleet.Speed > 4000) //@again arbitrary core fleet speed
-                return;
-            if (ShipsWaitingForCoreFleet.Count >0 && !CoreFleetFull()
-                && (CoreFleet.Ships.Count ==0 || CoreFleet.FleetTask == null))
+                        
+            if (CoreFleet.FleetTask ==null && ShipsWaitingForCoreFleet.Count >0)
+                //&& (CoreFleet.Ships.Count ==0 || CoreFleet.FleetTask == null))
             {
+                bool full = CoreFleetFull();
                 for (int index = ShipsWaitingForCoreFleet.Count - 1; index >= 0; index--)
                 {
                     Ship waiting = ShipsWaitingForCoreFleet[index];
-                    if (waiting.fleet == null)
+                    if (!full)
                     {
+                        if (waiting.fleet != null)
+                            Log.Error("Ship has fleet already");
+                        ShipsWaitingForCoreFleet.Remove(waiting);
                         CoreFleetAddShip(waiting);
+                        full = CoreFleetFull();
                     }
-                    OffensiveForcePool.Remove(waiting);
+                    else    
+                        AddShip(waiting);
+                    
                 }
-                ShipsWaitingForCoreFleet.Clear();
+                if (full)
+                    ShipsWaitingForCoreFleet.Clear();
+                
                 CoreFleet.Position = CoreWorld.Position;
                 CoreFleet.AutoArrange();
                 CoreFleet.MoveToNow(Position, 0f, new Vector2(0f, -1f));
-            }
-            if (CoreFleet.FleetTask == null)
-            {
-                TurnsToRelax += TurnsToRelax + 1;
+                
+            
+                TurnsToRelax +=  1;
             }
             if (ThreatLevel * ( 1-(TurnsToRelax / 10)) < CoreFleet.GetStrength())
             {

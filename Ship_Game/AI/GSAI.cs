@@ -2503,6 +2503,10 @@ namespace Ship_Game.AI
 
         public void AssignShipToForce(Ship toAdd)
         {
+            if(empire.GetForcePool().Contains(toAdd))
+            {
+                Log.Error("ship already in force pool");
+            }
             int numWars = empire.AtWarCount;
 
             float defStr = DefStr;
@@ -6026,10 +6030,9 @@ namespace Ship_Game.AI
                     ran = sortedList.Count();
                 ship = sortedList.Skip(ran).First();
                 name = ship.Name;
-            #if TRACE
+            if(Empire.Universe.showdebugwindow)
                 Log.Info("Chosen Role: {0}  Chosen Hull: {1}  Strength: {2}", 
-                    ship.GetShipData().Role, ship.GetShipData().Hull, ship.BaseStrength); 
-            #endif
+                    ship.GetShipData().Role, ship.GetShipData().Hull, ship.BaseStrength);            
             }
             else
             {
@@ -7214,10 +7217,13 @@ namespace Ship_Game.AI
             {
                 return;
             }
-            OffensiveForcePoolManager.ManageAOs();
-            foreach (AO ao in this.AreasOfOperations)
+            if (!this.empire.isPlayer)
             {
-                ao.Update();
+                OffensiveForcePoolManager.ManageAOs();
+                foreach (AO ao in this.AreasOfOperations)
+                {
+                    ao.Update();
+                }
             }
             //this.UpdateThreatMatrix();
             if (!this.empire.isFaction && !this.empire.MinorRace)

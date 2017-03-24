@@ -221,7 +221,7 @@ namespace Ship_Game
         public bool Paused;
         public bool SkipRightOnce;
         private bool UseRealLights = true;
-        private bool showdebugwindow;
+        public bool showdebugwindow;
         private bool NeedARelease;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
@@ -2523,7 +2523,10 @@ namespace Ship_Game
             }
             if (input.CurrentKeyboardState.IsKeyDown(Keys.H) && !input.LastKeyboardState.IsKeyDown(Keys.H) && this.Debug)
             {
-                this.debugwin = new DebugInfoScreen(this.ScreenManager, this);
+                if (!showdebugwindow)
+                    this.debugwin = new DebugInfoScreen(this.ScreenManager, this);
+                else
+                    debugwin = null;
                 this.showdebugwindow = !this.showdebugwindow;
             }
             {
