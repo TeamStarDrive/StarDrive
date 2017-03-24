@@ -265,51 +265,32 @@ namespace Ship_Game.Gameplay
         // HitTest uses the World scene POSITION. Not module XML location
         public bool HitTest(Vector2 point, float radius)
         {
-            if (XSIZE == YSIZE) // we are a Square module
-            {
-                float ourRadius = XSIZE * 10.0f; // slightly bigger radius than default 8.0
-                float r2 = ourRadius + radius;
-                float dx = Position.X - point.X;
-                float dy = Position.Y - point.Y;
-                return dx * dx + dy * dy <= r2 * r2;
-            }
+            int larger = XSIZE >= YSIZE ? XSIZE : YSIZE;
+            float ourRadius = larger * 9.0f; // approximated, slightly bigger radius
+            float r2 = ourRadius + radius;
+            float dx = Position.X - point.X;
+            float dy = Position.Y - point.Y;
+            if (dx * dx + dy * dy > r2 * r2)
+                return false; // definitely out of radius for SQUARE and non-square modules
 
-            // we are a non-square module, run collision detect N times
-            int larger = XSIZE > YSIZE ? XSIZE : YSIZE;
-            // run early exclusion (most things don't collide)
-            {
-                float ourRadius = larger * 10.0f; // approximated, slightly bigger radius
-                float r2 = ourRadius + radius;
-                float dx = Position.X - point.X;
-                float dy = Position.Y - point.Y;
-                if (dx * dx + dy * dy > r2 * r2)
-                    return false; // out of range
-            }
-
-            // now for more expensive and accurate collision testing
+            // we are a Square module? since we're already inside radius, collision happened
             int smaller = XSIZE < YSIZE ? XSIZE : YSIZE;
-            float sizeRatio  = (float)smaller / larger;
-            float diameter   = sizeRatio * smaller * 16.0f;
-            float moduleSpan = larger * 16.0f; // larger span of the module
+            if (larger == smaller)
+                return true;
+
+            // now for more expensive and accurate capsule-line collision testing
+            // since we can have 4x1 modules etc, so we need to construct a line+radius
+            float diameter   = ((float)smaller / larger) * smaller * 16.0f;
 
             // if high module, use forward vector, if wide module, use right vector
             Vector2 dir = Rotation.AngleToDirection();
             if (XSIZE > YSIZE) dir = dir.RightVector();
 
-            Vector2 pos = Position - dir * (0.5f * (moduleSpan - diameter));
-
-            float collRadius = diameter * 0.5f * 1.25f; // slightly bigger radius than default 8.0
-            int numChecks = (int)Math.Ceiling(sizeRatio);
-            for (int i = 0; i < numChecks; ++i)
-            {
-                float r2 = collRadius + radius;
-                float dx = pos.X - point.X;
-                float dy = pos.Y - point.Y;
-                if (dx * dx + dy * dy <= r2 * r2)
-                    return true;
-                pos += dir * diameter;
-            }
-            return false;
+            float offset = (larger*16.0f - diameter) * 0.5f;
+            Vector2 startPos = Position - dir * offset;
+            Vector2 endPos   = Position + dir * offset;
+            float rayWidth = diameter * 1.125f; // approx 18.0x instead of 16.0x
+            return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
         // gives the approximate radius of the module, depending on module XSIZE & YSIZE
