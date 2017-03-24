@@ -57,6 +57,7 @@ namespace Ship_Game.Debug
 
         public DebugInfoScreen(ScreenManager screenManager, UniverseScreen screen)
         {
+            this.IsOpen = true;
             this.Screen = screen;
             this.ScreenManager = screenManager;
             Win = new Rectangle(30, 200, 1200, 700);

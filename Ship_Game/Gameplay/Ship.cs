@@ -3990,8 +3990,7 @@ namespace Ship_Game.Gameplay
                         if (fleet != null)
                         {
                             fleet.Ships.Remove(this);
-                            RemoveFromAllFleets();
-                            fleet?.RemoveShip(this);
+                            RemoveFromAllFleets();                            
                         }
                         AI.ClearOrdersNext = true;
                         AI.State = AIState.AwaitingOrders;
