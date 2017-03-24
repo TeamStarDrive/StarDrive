@@ -2607,7 +2607,7 @@ namespace Ship_Game
             foreach (KeyValuePair<Guid, Ship> keyValuePair in this.Shipyards)
             {
                 if (!keyValuePair.Value.Active 
-                    || keyValuePair.Value.ModuleSlotList.Count == 0
+                    || keyValuePair.Value.Size == 0
                     //|| keyValuePair.Value.loyalty != this.Owner
                     )
                     list.Add(keyValuePair.Key);

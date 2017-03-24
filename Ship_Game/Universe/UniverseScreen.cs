@@ -1193,8 +1193,8 @@ namespace Ship_Game
             int granularity = (int) (this.Size.X / this.reducer);
             foreach (var node in empire.BorderNodes)
             {
-                SolarSystem ss = node.KeyedObject as SolarSystem;
-                Planet p = node.KeyedObject as Planet;
+                SolarSystem ss = node.SourceObject as SolarSystem;
+                Planet p = node.SourceObject as Planet;
                 if (this.FTLModifier < 1 && ss != null)
                     weight += 20;
                 if ((this.EnemyFTLModifier < 1 || !this.FTLInNuetralSystems) && ss != null && weight > 1)
@@ -1310,55 +1310,46 @@ namespace Ship_Game
                     //for (int i = start; i < end; i++)
                     for (int i = 0; i < EmpireManager.Empires.Count; i++)
                     {
-                        foreach (Ship s in EmpireManager.Empires[i].ShipsToAdd)
+                        var empire = EmpireManager.Empires[i];
+                        foreach (Ship s in empire.ShipsToAdd)
                         {
-                            EmpireManager.Empires[i].AddShip(s);
-                            if (!EmpireManager.Empires[i].isPlayer)
-                                EmpireManager.Empires[i].ForcePoolAdd(s);
+                            empire.AddShip(s);
+                            if (!empire.isPlayer) empire.ForcePoolAdd(s);
                         }
 
-                        EmpireManager.Empires[i].ShipsToAdd.Clear();
-                        EmpireManager.Empires[i].updateContactsTimer -= 0.01666667f;//elapsedTime;
-                        if (EmpireManager.Empires[i].updateContactsTimer <= 0f && !EmpireManager.Empires[i].data.Defeated)
+                        empire.ShipsToAdd.Clear();
+                        empire.updateContactsTimer -= 0.01666667f;//elapsedTime;
+                        if (empire.updateContactsTimer <= 0f && !empire.data.Defeated)
                         {
-                            int check = EmpireManager.Empires[i].BorderNodes.Count;
-                            EmpireManager.Empires[i].ResetBorders();
+                            int check = empire.BorderNodes.Count;
+                            empire.ResetBorders();
 
-                            if (EmpireManager.Empires[i].BorderNodes.Count != check)
+                            if (empire.BorderNodes.Count != check)
                             {
                                 rebuild = true;
-                                EmpireManager.Empires[i].PathCache.Clear();
-                                // empire.lockPatchCache.ExitWriteLock();
-
+                                empire.PathCache.Clear();
                             }
-                            // empire.KnownShips.thisLock.EnterWriteLock();
-                            {
-                                EmpireManager.Empires[i].KnownShips.Clear();
-                            }
-                            //empire.KnownShips.thisLock.ExitWriteLock();
-                            //this.UnownedShipsInOurBorders.Clear();
                             foreach (Ship ship in MasterShipList)
                             {
                                 //added by gremlin reset border stats.
-                                ship.getBorderCheck.Remove(EmpireManager.Empires[i]);
+                                ship.BorderCheck.Remove(empire);
                             }
-                            EmpireManager.Empires[i].UpdateKnownShips();
-                            EmpireManager.Empires[i].updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
+
+                            empire.UpdateKnownShips();
+                            empire.updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
                         }
                     }
                     
                 }//);
                 if (rebuild)
                 {
-                    this.reducer = (int) (Empire.ProjectorRadius*.75f);
+                    reducer = (int) (Empire.ProjectorRadius*.75f);
                     int granularity = (int)(Size.X / reducer);
                     int elegran = granularity*2;
                     int elements = elegran < 128 ? 128 : elegran < 256 ? 256 : elegran < 512 ? 512 : 1024;
-                   // this.reducer =(int)this.Size.X/elements;
                     byte[,] grid = new byte[elements, elements];
-                        //  [granularity*2, granularity*2];     //[1024, 1024];// 
-                    for (int x = 0; x < grid.GetLength(0); x++)
-                        for (int y = 0; y < grid.GetLength(1); y++)
+                    for (int x = 0; x < elements; x++)
+                        for (int y = 0; y < elements; y++)
                         {
                             if (x > elegran || y > elegran)
                                 grid[x, y] = 0;
@@ -1383,10 +1374,12 @@ namespace Ship_Game
                         //for (int i = start; i < end; i++)
                         for (int i = 0; i < EmpireManager.Empires.Count; i++)
                         {
-                            byte[,] grid1 = (byte[,])grid.Clone();
-                            PathGridtranslateBordernode(EmpireManager.Empires[i], 1, grid1);
+                            var empire = EmpireManager.Empires[i];
 
-                            foreach (KeyValuePair<Empire, Relationship> rels in EmpireManager.Empires[i].AllRelations)
+                            byte[,] grid1 = (byte[,])grid.Clone();
+                            PathGridtranslateBordernode(empire, 1, grid1);
+
+                            foreach (KeyValuePair<Empire, Relationship> rels in empire.AllRelations)
                             {
                                 if (!rels.Value.Known)
                                     continue;
@@ -1400,46 +1393,8 @@ namespace Ship_Game
                                     PathGridtranslateBordernode(rels.Key, 0, grid1);
                             }
 
-                            EmpireManager.Empires[i].grid = grid1;
-                            EmpireManager.Empires[i].granularity = granularity;
-#if false
-                        if (this.Debug && empire.isPlayer && this.debugwin != null && false)
-                        {
-                            using (var fs = new FileStream("map.astar", FileMode.Create, FileAccess.Write))
-                            {
-                                fs.WriteByte((byte)(0 >> 8));
-                                fs.WriteByte((byte) (0 & 0x000000FF));
-                                fs.WriteByte((byte) (0 >> 8));
-                                fs.WriteByte((byte) (0 & 0x000000FF));
-                                fs.WriteByte((byte) (256 >> 8));
-                                fs.WriteByte((byte) (256 & 0x000000FF));
-                                fs.WriteByte((byte) (256 >> 8));
-                                fs.WriteByte((byte) (256 & 0x000000FF));
-                                fs.WriteByte((byte) (true ? 1 : 0));
-                                fs.WriteByte((byte) (true ? 1 : 0));
-                                fs.WriteByte((byte) (false ? 1 : 0));
-                                fs.WriteByte((byte) (true ? 1 : 0));
-                                fs.WriteByte((byte) 2);
-                                fs.WriteByte((byte) 2);
-                                fs.WriteByte((byte) (false ? 1 : 0));
-                                fs.WriteByte((byte) (16) >> 24);
-                                fs.WriteByte((byte) (16 >> 16));
-                                fs.WriteByte((byte) (16 >> 8));
-                                fs.WriteByte((byte) (16 & 0x000000FF));
-                                fs.WriteByte((byte) 10);
-                                fs.WriteByte((byte) 10);
-
-                                for (int y = 0; y < 1000; y++)
-                                for (int x = 0; x < 1000; x++)
-                                {
-                                    if (y < elegran && x < elegran)
-                                        fs.WriteByte(grid1[x, y]);
-                                    else
-                                        fs.WriteByte(0);
-                                }
-                            }
-                        }
-#endif
+                            empire.grid = grid1;
+                            empire.granularity = granularity;
                         }
                     }//);
                 }
@@ -5138,10 +5093,10 @@ namespace Ship_Game
                         foreach (Projectile projectile in planet.Projectiles)
                         {
                             if (projectile.WeaponType != "Missile" && projectile.WeaponType != "Rocket" && projectile.WeaponType != "Drone")
-                                DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath], projectile.GetWorld(), 
+                                DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath], projectile.GetWorld(), 
                                     view, projection, projectile.weapon.Animated != 0 
-                                        ? ResourceManager.TextureDict[projectile.texturePath] 
-                                        : ResourceManager.ProjTextDict[projectile.texturePath], projectile.Scale);
+                                        ? ResourceManager.TextureDict[projectile.TexturePath] 
+                                        : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
                         }
                     }
                 }
@@ -6390,11 +6345,11 @@ namespace Ship_Game
                     && projectile.WeaponType != "Drone")
 
                 {
-                    DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath],
+                    DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath],
                         projectile.GetWorld(), this.view, this.projection,
                         projectile.weapon.Animated != 0
-                            ? ResourceManager.TextureDict[projectile.texturePath]
-                            : ResourceManager.ProjTextDict[projectile.texturePath], projectile.Scale);
+                            ? ResourceManager.TextureDict[projectile.TexturePath]
+                            : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
                 }
             }
         }

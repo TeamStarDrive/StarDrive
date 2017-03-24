@@ -178,6 +178,18 @@ namespace Ship_Game
             return degrees * ((float)PI / 180.0f);
         }
 
+        // assuming this is a direction vector, gives the right side perpendicular vector
+        public static Vector2 RightVector(this Vector2 directionVector)
+        {
+            return new Vector2(directionVector.Y, -directionVector.X);
+        }
+
+        // assuming this is a direction vector, gives the left side perpendicular vector
+        public static Vector2 LeftVector(this Vector2 directionVector)
+        {
+            return new Vector2(-directionVector.Y, directionVector.X);
+        }
+
         // Converts rotation radians into a 2D direction vector
         public static Vector2 RadiansToDirection(this float radians)
         {
@@ -203,15 +215,100 @@ namespace Ship_Game
             return Vector2.Normalize(target - origin);
         }
 
-        public static Vector2 FindPredictedVectorToTarget(this Vector2 origin, float speedToTarget, Vector2 target, Vector2 targetVelocity)
+        public static Vector2 FindPredictedTargetPosition(this Vector2 weaponPos, Vector2 ownerVelocity,
+            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
         {
-            Vector2 vectorToTarget = target - origin;
+            Vector2 pos0 = weaponPos.FindPredictedTargetPosition0(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
+            Vector2 pos1 = weaponPos.FindPredictedTargetPosition1(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
+
+            Log.Info("PredictTargetPos 0={0}  1={1}", pos0, pos1);
+            return pos1;
+        }
+
+        public static Vector2 FindPredictedTargetPosition0(this Vector2 weaponPos, Vector2 ownerVelocity,
+            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
+        {
+            Vector2 vectorToTarget     = targetPos - weaponPos;
+            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
+
             float distance = vectorToTarget.Length();
-            float time = distance / speedToTarget;
-            Vector2 spaceTraveled = targetVelocity * time;
-            Vector2 predictedVector = target + spaceTraveled;
-            vectorToTarget = predictedVector;
-            return vectorToTarget;
+            float time = distance / projectileVelocity.Length();
+            return targetPos + targetVelocity * time;
+        }
+
+        public static Vector2 FindPredictedTargetPosition1(this Vector2 weaponPos, Vector2 ownerVelocity, 
+            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
+        {
+            Vector2 delta = targetPos - weaponPos;
+            Vector2 directionToTarget = delta.Normalized();
+
+            // projectile inherits parent velocity
+            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
+
+            float a = targetVelocity.LengthSquared() - projectileVelocity.LengthSquared();
+            float b = 2 * Vector2.Dot(targetPos, directionToTarget);
+            float c = directionToTarget.LengthSquared();
+
+            // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
+            if (Abs(a) < 0.0001f)
+                return Vector2.Zero; // no solution
+
+            float sqrt = b*b - 4 * a * c;
+            if (sqrt < 0.0f)
+                return Vector2.Zero; // no solution
+            sqrt = (float)Sqrt(sqrt);
+
+            // Those values are the time values at which point you can hit the target.
+            float timeToImpact1 = (-b - sqrt) / (2 * a);
+            float timeToImpact2 = (-b + sqrt) / (2 * a);
+
+            // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
+            // Take any of the remaining positive values (probably the smaller one).
+            if (timeToImpact1 < 0.0f && timeToImpact2 < 0.0f)
+                return Vector2.Zero; // no solution, can't go back in time
+
+            float predictedTimeToImpact;
+            if      (timeToImpact1 < 0.0f) predictedTimeToImpact = timeToImpact2;
+            else if (timeToImpact2 < 0.0f) predictedTimeToImpact = timeToImpact1;
+            else predictedTimeToImpact = timeToImpact1 < timeToImpact2 ? timeToImpact1 : timeToImpact2;
+
+            // this is the predicted target position
+            return targetPos + targetVelocity * predictedTimeToImpact;
+        }
+
+        // can be used for collision detection
+        public static Vector2 FindClosestPointOnLine(this Vector2 center, Vector2 lineStart, Vector2 lineEnd)
+        {
+            float a1 = lineEnd.Y - lineStart.Y;
+            float b1 = lineStart.X - lineEnd.X;
+            float c1 = (lineEnd.Y - lineStart.Y) * lineStart.X + (lineStart.X - lineEnd.X) * lineStart.Y;
+            float c2 = -b1 * center.X + a1 * center.Y;
+            float det = a1*a1 + b1*b1;
+            if (det > 0.0f)
+            {
+                return new Vector2(
+                    (a1 * c1 - b1 * c2) / det,
+                    (a1 * c2 - -b1 * c1) / det);
+            }
+            return center;
+        }
+
+        // does this wide RAY collide with our Circle?
+        public static bool RayHitTestCircle(this Vector2 center, float radius, Vector2 rayStart, Vector2 rayEnd, float rayWidth)
+        {
+            float a1 = rayEnd.Y - rayStart.Y;
+            float b1 = rayStart.X - rayEnd.X;
+            float c1 = (rayEnd.Y - rayStart.Y) * rayStart.X + (rayStart.X - rayEnd.X) * rayStart.Y;
+            float c2 = -b1 * center.X + a1 * center.Y;
+            float det = a1 * a1 + b1 * b1;
+            if (det > 0.0f)
+            {
+                float r2 = radius + rayWidth / 2;
+                float dx = center.X - ((a1 * c1 - b1 * c2) / det);
+                float dy = center.Y - ((a1 * c2 - -b1 * c1) / det);
+                return dx * dx + dy * dy <= r2 * r2;
+            }
+            return true;
         }
 
         // Generates a new point on a circular radius from position
@@ -247,7 +344,7 @@ namespace Ship_Game
         public static float AngleDiffTo(this GameplayObject origin, Vector2 target, out Vector2 right, out Vector2 forward)
         {
             forward = new Vector2((float)Sin(origin.Rotation), -(float)Cos(origin.Rotation));
-            right = new Vector2(-forward.Y, forward.X);
+            right = new Vector2(forward.Y, -forward.X);
             return (float)Acos(Vector2.Dot(target, forward));
         }
 

@@ -3,15 +3,15 @@ using System;
 
 namespace Ship_Game
 {
-	public static class RandomMath
-	{
-		public static readonly Random Random = new Random();
+    public static class RandomMath
+    {
+        public static readonly Random Random = new Random();
 
         /// Generate random, inclusive [minimum, maximum]
-		public static float RandomBetween(float minimum, float maximum)
-		{
-			return minimum + (float)Random.NextDouble() * (maximum - minimum);
-		}
+        public static float RandomBetween(float minimum, float maximum)
+        {
+            return minimum + (float)Random.NextDouble() * (maximum - minimum);
+        }
 
         /// Generate random, inclusive [minimum, maximum]
         public static int IntBetween(int minimum, int maximum)
@@ -33,17 +33,17 @@ namespace Ship_Game
             return Random.Next(0, arrayLength);
         }
 
-		public static Vector2 RandomDirection()
-		{
-			float angle = RandomBetween(0f, 6.28318548f);
-			return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
-		}
+        public static Vector2 RandomDirection()
+        {
+            float angle = RandomBetween(0f, 6.28318548f);
+            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+        }
 
-		public static Vector2 RandomDirection(float minimumAngle, float maximumAngle)
-		{
-			float angle = RandomBetween(minimumAngle.ToRadians(), maximumAngle.ToRadians()) - 1.57079637f;
-			return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
-		}
+        public static Vector2 RandomDirection(float minimumAngle, float maximumAngle)
+        {
+            float angle = RandomBetween(minimumAngle.ToRadians(), maximumAngle.ToRadians()) - 1.57079637f;
+            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+        }
 
         // Generates a Vector2 with X Y in range [-radius, +radius]
         public static Vector2 Vector2D(float radius)
@@ -70,5 +70,5 @@ namespace Ship_Game
         {
             return new Vector3(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius), 0f);
         }
-	}
+    }
 }
