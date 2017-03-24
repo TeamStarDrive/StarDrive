@@ -5090,10 +5090,10 @@ namespace Ship_Game
                         foreach (Projectile projectile in planet.Projectiles)
                         {
                             if (projectile.WeaponType != "Missile" && projectile.WeaponType != "Rocket" && projectile.WeaponType != "Drone")
-                                DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath], projectile.GetWorld(), 
+                                DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath], projectile.GetWorld(), 
                                     view, projection, projectile.weapon.Animated != 0 
-                                        ? ResourceManager.TextureDict[projectile.texturePath] 
-                                        : ResourceManager.ProjTextDict[projectile.texturePath], projectile.Scale);
+                                        ? ResourceManager.TextureDict[projectile.TexturePath] 
+                                        : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
                         }
                     }
                 }
@@ -6342,11 +6342,11 @@ namespace Ship_Game
                     && projectile.WeaponType != "Drone")
 
                 {
-                    DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.modelPath],
+                    DrawTransparentModel(ResourceManager.ProjectileModelDict[projectile.ModelPath],
                         projectile.GetWorld(), this.view, this.projection,
                         projectile.weapon.Animated != 0
-                            ? ResourceManager.TextureDict[projectile.texturePath]
-                            : ResourceManager.ProjTextDict[projectile.texturePath], projectile.Scale);
+                            ? ResourceManager.TextureDict[projectile.TexturePath]
+                            : ResourceManager.ProjTextDict[projectile.TexturePath], projectile.Scale);
                 }
             }
         }
