@@ -638,8 +638,9 @@ namespace Ship_Game.Gameplay
                     });
                     return true; // thisProj died
                 }
+                return false;
             }
-            else if (otherObj is Asteroid)
+            if (otherObj is Asteroid)
             {
                 if (thisProj.Center.InRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherObj.Radius))
                 {
@@ -651,8 +652,8 @@ namespace Ship_Game.Gameplay
                     });
                     return true; // thisProj died
                 }
+                return false;
             }
-            else 
             if (otherObj is Ship otherShip && 
                 thisProj.loyalty != otherShip.loyalty && 
                 thisProj.Center.InRadius(otherObj.Center, otherObj.Radius + thisProj.Radius + thisProj.speed / 60.0f))

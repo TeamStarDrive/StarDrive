@@ -178,6 +178,18 @@ namespace Ship_Game
             return degrees * ((float)PI / 180.0f);
         }
 
+        // assuming this is a direction vector, gives the right side perpendicular vector
+        public static Vector2 RightVector(this Vector2 directionVector)
+        {
+            return new Vector2(directionVector.Y, -directionVector.X);
+        }
+
+        // assuming this is a direction vector, gives the left side perpendicular vector
+        public static Vector2 LeftVector(this Vector2 directionVector)
+        {
+            return new Vector2(-directionVector.Y, directionVector.X);
+        }
+
         // Converts rotation radians into a 2D direction vector
         public static Vector2 RadiansToDirection(this float radians)
         {
@@ -208,9 +220,8 @@ namespace Ship_Game
         {
             Vector2 pos0 = weaponPos.FindPredictedTargetPosition0(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
             Vector2 pos1 = weaponPos.FindPredictedTargetPosition1(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
-            Vector2 pos2 = weaponPos.FindPredictedTargetPosition2(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
 
-            Log.Info("PredictTargetPos 0={0}  1={1}  2={2}", pos0, pos1, pos2);
+            Log.Info("PredictTargetPos 0={0}  1={1}", pos0, pos1);
             return pos1;
         }
 
@@ -265,36 +276,39 @@ namespace Ship_Game
             return targetPos + targetVelocity * predictedTimeToImpact;
         }
 
-        public static Vector2 FindPredictedTargetPosition2(this Vector2 weaponPos, Vector2 ownerVelocity, 
-            float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
+        // can be used for collision detection
+        public static Vector2 FindClosestPointOnLine(this Vector2 center, Vector2 lineStart, Vector2 lineEnd)
         {
-            Vector2 distToTarget = targetPos - weaponPos;
+            float a1 = lineEnd.Y - lineStart.Y;
+            float b1 = lineStart.X - lineEnd.X;
+            float c1 = (lineEnd.Y - lineStart.Y) * lineStart.X + (lineStart.X - lineEnd.X) * lineStart.Y;
+            float c2 = -b1 * center.X + a1 * center.Y;
+            float det = a1*a1 + b1*b1;
+            if (det > 0.0f)
+            {
+                return new Vector2(
+                    (a1 * c1 - b1 * c2) / det,
+                    (a1 * c2 - -b1 * c1) / det);
+            }
+            return center;
+        }
 
-            // projectile inherits parent velocity
-            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
-
-            float interceptSpeed = projectileVelocity.LengthSquared();
-            float targetSpeed    = targetVelocity.LengthSquared();
-            float dot            = Vector2.Dot(distToTarget, targetVelocity);
-            float sqdistToTarget = distToTarget.LengthSquared();
-
-            float d = (dot * dot) - sqdistToTarget * (targetSpeed - interceptSpeed);
-            if (d < 0.1f)  // negative == no possible course because the interceptor isn't fast enough
-                return Vector2.Zero;
-
-            float sqrt = (float)Sqrt(d);
-            float timeToImpact1 = (-dot - sqrt) / sqdistToTarget;
-            float timeToImpact2 = (-dot + sqrt) / sqdistToTarget;
-
-            if (timeToImpact1 < 0.0f && timeToImpact2 < 0.0f)
-                return Vector2.Zero; // no solution, can't go back in time
-
-            float predictedTimeToImpact;
-            if      (timeToImpact1 < 0.0f) predictedTimeToImpact = timeToImpact2;
-            else if (timeToImpact2 < 0.0f) predictedTimeToImpact = timeToImpact1;
-            else predictedTimeToImpact = timeToImpact1 < timeToImpact2 ? timeToImpact1 : timeToImpact2;
-
-            return predictedTimeToImpact * distToTarget + targetVelocity;
+        // does this wide RAY collide with our Circle?
+        public static bool RayHitTestCircle(this Vector2 center, float radius, Vector2 rayStart, Vector2 rayEnd, float rayWidth)
+        {
+            float a1 = rayEnd.Y - rayStart.Y;
+            float b1 = rayStart.X - rayEnd.X;
+            float c1 = (rayEnd.Y - rayStart.Y) * rayStart.X + (rayStart.X - rayEnd.X) * rayStart.Y;
+            float c2 = -b1 * center.X + a1 * center.Y;
+            float det = a1 * a1 + b1 * b1;
+            if (det > 0.0f)
+            {
+                float r2 = radius + rayWidth / 2;
+                float dx = center.X - ((a1 * c1 - b1 * c2) / det);
+                float dy = center.Y - ((a1 * c2 - -b1 * c1) / det);
+                return dx * dx + dy * dy <= r2 * r2;
+            }
+            return true;
         }
 
         // Generates a new point on a circular radius from position
@@ -330,7 +344,7 @@ namespace Ship_Game
         public static float AngleDiffTo(this GameplayObject origin, Vector2 target, out Vector2 right, out Vector2 forward)
         {
             forward = new Vector2((float)Sin(origin.Rotation), -(float)Cos(origin.Rotation));
-            right = new Vector2(-forward.Y, forward.X);
+            right = new Vector2(forward.Y, -forward.X);
             return (float)Acos(Vector2.Dot(target, forward));
         }
 

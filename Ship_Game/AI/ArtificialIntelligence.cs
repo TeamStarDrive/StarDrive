@@ -1655,6 +1655,7 @@ namespace Ship_Game.AI
             }
             TargetShip = null;
         }
+
         //fire on calculate and fire
         public void CalculateAndFire(Weapon weapon, GameplayObject target, bool SalvoFire)
         {
@@ -1670,6 +1671,7 @@ namespace Ship_Game.AI
                 else           weapon.Fire(direction, target);
             }
         }
+
         //fire on non visible
         private void FireOnTargetNonVisible(Weapon w, GameplayObject fireTarget)
         {
@@ -1681,114 +1683,60 @@ namespace Ship_Game.AI
             if (TargetShip == null || !TargetShip.Active || TargetShip.dying || !w.TargetValid(TargetShip.shipData.Role)
                 || TargetShip.engineState == Ship.MoveState.Warp || !Owner.CheckIfInsideFireArc(w, TargetShip))
                 return;
-            Ship owner = Owner;
-            owner.Ordinance = owner.Ordinance - w.OrdinanceRequiredToFire;
-            Ship powerCurrent = Owner;
-            powerCurrent.PowerCurrent = powerCurrent.PowerCurrent - w.PowerRequiredToFire;
-            powerCurrent.PowerCurrent -= w.BeamPowerCostPerSecond * w.BeamDuration;
 
+            Owner.Ordinance    -= w.OrdinanceRequiredToFire;
+            Owner.PowerCurrent -= w.PowerRequiredToFire;
+            Owner.PowerCurrent -= w.BeamPowerCostPerSecond * w.BeamDuration;
             Owner.InCombatTimer = 15f;
+
             if (fireTarget is Projectile)
             {
                 fireTarget.Damage(w.Owner, w.DamageAmount);
                 return;
             }
-            if (!(fireTarget is Ship))
+            if (!(fireTarget is Ship targetShip))
             {
-
-                if (fireTarget is ShipModule)
+                if (fireTarget is ShipModule shipModule)
                 {
                     w.timeToNextFire = w.fireDelay;
-                    var sortedList =
-                        from slot in (fireTarget as ShipModule).GetParent().ExternalSlots
-                        orderby Vector2.Distance(slot.module.Center, Owner.Center)
-                        select slot;
-                    float damage = w.DamageAmount;
-                    if (w.isBeam)
-                        damage = damage * 90f;
-                    if (w.SalvoCount > 0)
-                        damage = damage * (float) w.SalvoCount;
-                    sortedList.First().module.Damage(Owner, damage);
+                    shipModule.GetParent().FindClosestExternalSlot(Owner.Center).module.Damage(Owner, w.InvisibleDamageAmount);
                 }
                 return;
             }
             w.timeToNextFire = w.fireDelay;
-             var firetarget = fireTarget as Ship;
-            if (firetarget.ExternalSlots.Count == 0)
+            if (targetShip.ExternalSlots.IsEmpty)
             {
-                firetarget.Die(null, true);
+                targetShip.Die(null, true);
                 return;
             }//@todo invisible ecm and such should match visible
+
             if ((fireTarget as Ship).GetAI().CombatState == CombatState.Evade)   //fbedard: firing on evading ship can miss !
-                if (RandomMath.RandomBetween(0f, 100f) < 5f + firetarget.experience)
+                if (RandomMath.RandomBetween(0f, 100f) < 5f + targetShip.experience)
                     return;
 
-            int nearest = 0;
-            ModuleSlot closestExtSlot = null;
-            //bad fix for external module badness.
-            try
+
+            if (targetShip.shield_power > 0f)
             {
-                foreach (ModuleSlot extSlot in firetarget.ExternalSlots)
+                Array<ShipModule> shields = targetShip.GetShields();
+                for (int i = 0; i < shields.Count; ++i)
                 {
-                    if (extSlot.module.ModuleType == ShipModuleType.Dummy || !extSlot.module.Active || extSlot.module.Health <= 0f)
-                        continue;
-                    int temp = (int)extSlot.module.Center.Distance(Owner.Center);
-                    if (nearest == 0 || temp < nearest)
+                    ShipModule shield = shields[i];
+                    if (shield.Active && shield.shield_power > 0f)
                     {
-                        nearest = temp;
-                        closestExtSlot = extSlot;
-                    } 
+                        shield.Damage(Owner, w.InvisibleDamageAmount);
+                        return;
+                    }
                 }
+                return;
             }
-            catch { }
+
+            ModuleSlot closestExtSlot = targetShip.FindClosestExternalSlot(Owner.Center);
             if (closestExtSlot == null)
-                return;           
-            var externalSlots = firetarget.ExternalSlots.
-                Where(close => close.module.Active && close.module.ModuleType != ShipModuleType.Dummy 
-                && close.module.quadrant == closestExtSlot.module.quadrant && close.module.Health > 0).ToList();                         
-            if (firetarget.shield_power > 0f)
-            {
-                for (var i = 0; i < firetarget.GetShields().Count; i++)
-                    if (firetarget.GetShields()[i].Active && firetarget.GetShields()[i].shield_power > 0f)
-                    {
-                        float damage = w.DamageAmount;
-                        if (w.isBeam)
-                            damage = damage * 90f;
-                        if (w.SalvoCount > 0)
-                            damage = damage * (float)w.SalvoCount;
-                        firetarget.GetShields()[i].Damage(Owner, damage);
-                        return;
-                    }
                 return;
-            }            
-            if (externalSlots.ElementAt(0).module.shield_power > 0f)
-            {
-                for (var i = 0; i < externalSlots.Count(); i++)
-                    if (externalSlots.ElementAt(i).module.Active && externalSlots.ElementAt(i).module.shield_power <= 0f)
-                    {
-                        float damage = w.DamageAmount;
-                        if (w.isBeam)
-                            damage = damage * 90f;
-                        if (w.SalvoCount > 0)
-                            damage = damage * (float)w.SalvoCount;
-                        externalSlots.ElementAt(i).module.Damage(Owner, damage);
-                        return;
-                    }
-                return;
-            }
-
-            for (var i = 0; i < externalSlots.Count(); i++)
-                if (externalSlots.ElementAt(i).module.Active && externalSlots.ElementAt(i).module.shield_power <= 0f)
-                {
-                    float damage = w.DamageAmount;
-                    if (w.isBeam)
-                        damage = damage * 90f;
-                    if (w.SalvoCount > 0)
-                        damage = damage * w.SalvoCount;
-                    externalSlots.ElementAt(i).module.Damage(Owner, damage);
-                    return;
-                }
+            ShipModule unshieldedModule = targetShip.FindUnshieldedExternalModule(closestExtSlot.module.quadrant);
+            unshieldedModule?.Damage(Owner, w.InvisibleDamageAmount);
         }
+
         //go colonize
         public void GoColonize(Planet p)
         {
