@@ -145,7 +145,7 @@ namespace Ship_Game
                 if (shipData.hullUnlockable)
                 {
                     shipData.allModulesUnlocakable = true;
-                    foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlotList)
+                    foreach (ModuleSlot module in kv.Value.shipData.ModuleSlotList)
                     {
                         if (module.InstalledModuleUID == "Dummy")
                             continue;
@@ -464,22 +464,10 @@ namespace Ship_Game
             foreach (Thruster t in template.GetTList())
                 ship.AddThruster(t);
 
-            ship.ModuleSlotList.Capacity = template.ModuleSlotList.Count;
-            foreach (ModuleSlot slot in template.ModuleSlotList)
-            {
-                ModuleSlot newSlot = new ModuleSlot();
-                newSlot.Parent       = ship;
-                newSlot.SlotOptions  = slot.SlotOptions;
-                newSlot.Restrictions = slot.Restrictions;
-                newSlot.Position = slot.Position;
-                newSlot.facing   = slot.facing;
-                newSlot.state    = slot.state;
-                newSlot.InstalledModuleUID = slot.InstalledModuleUID;
-                ship.ModuleSlotList.Add(newSlot);
-            }
+            ship.LoadModuleSlotsFromTemplate(template);
 
             // Added by McShooterz: add automatic ship naming
-            if (GlobalStats.ActiveMod != null)
+            if (GlobalStats.HasMod)
                 ship.VanityName = ShipNames.GetName(owner.data.Traits.ShipType, ship.shipData.Role);
 
             if (ship.shipData.Role == ShipData.RoleName.fighter)
@@ -513,6 +501,7 @@ namespace Ship_Game
             owner.AddShip(ship);
             return ship;
         }
+
         //@bug #1002  cant add a ship to a system in readlock. 
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, Vector2 deltaPos, bool doOrbit)
         {
@@ -521,8 +510,6 @@ namespace Ship_Game
                 ship.DoOrbit(p);
 
             ship.SetSystem(p.system);
-            //p.system.ShipList.Add(ship);
-            //p.system.spatialManager.CollidableObjects.Add(ship);
             return ship;
         }
 

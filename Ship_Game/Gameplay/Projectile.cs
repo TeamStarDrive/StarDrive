@@ -15,7 +15,7 @@ namespace Ship_Game.Gameplay
     {
         public float ShieldDamageBonus;
         public float ArmorDamageBonus;
-        public byte ArmorPiercing;
+        public int ArmorPiercing;
         public static GameContentManager contentManager;
         public Ship owner;
         public bool IgnoresShields;
@@ -47,8 +47,8 @@ namespace Ship_Game.Gameplay
         public float RotationRadsPerSecond;
         private DroneAI droneAI;
         public Weapon weapon;
-        public string texturePath;
-        public string modelPath;
+        public string TexturePath;
+        public string ModelPath;
         private float zStart = -25f;
         private float particleDelay;
         private PointLight light;
@@ -294,7 +294,7 @@ namespace Ship_Game.Gameplay
             }
             if (owner.loyalty.data.ArmorPiercingBonus > 0 && (weapon.WeaponType == "Missile" || weapon.WeaponType == "Ballistic Cannon"))
             {
-                ArmorPiercing += (byte)owner.loyalty.data.ArmorPiercingBonus;
+                ArmorPiercing += owner.loyalty.data.ArmorPiercingBonus;
             }
             Projectile projectile1 = this;
             projectile1.particleDelay = projectile1.particleDelay + weapon.particleDelay;
@@ -491,53 +491,47 @@ namespace Ship_Game.Gameplay
             base.Initialize();
         }
 
-        public void LoadContent(string texturePath, string modelPath)
+        public void LoadContent(string texPath, string modelFilePath)
         {
-            this.texturePath = texturePath;
-            this.modelPath = modelPath;
-            //if(this.owner.Projectiles.Count <20)
-            //if (Empire.Universe !=null && RandomMath.InRange((int)(Empire.Universe.Lag *100)) >3 )
-            //    return;
-            this.ProjSO = new SceneObject(Ship_Game.ResourceManager.ProjectileMeshDict[modelPath])
+            TexturePath = texPath;
+            ModelPath = modelFilePath;
+
+            ProjSO = new SceneObject(Ship_Game.ResourceManager.ProjectileMeshDict[modelFilePath])
             {
                 Visibility = ObjectVisibility.Rendered,
                 ObjectType = ObjectType.Dynamic
             };
-            if (Empire.Universe != null && this.ProjSO !=null)
+            if (Empire.Universe != null && ProjSO !=null)
             {
-                if (this.weapon.WeaponEffectType == "RocketTrail")
+                switch (weapon.WeaponEffectType)
                 {
-                    this.trailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
-                    this.firetrailEmitter = new ParticleEmitter(Empire.Universe.fireTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
-                }
-                if (this.weapon.WeaponEffectType == "Plasma")
-                {
-                    this.firetrailEmitter = new ParticleEmitter(Empire.Universe.flameParticles, 500f, new Vector3(this.Center, 0f));
-                }
-                if (this.weapon.WeaponEffectType == "SmokeTrail")
-                {
-                    this.trailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
-                }
-                if (this.weapon.WeaponEffectType == "MuzzleSmoke")
-                {
-                    this.firetrailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 1000f, new Vector3(this.Center, 0f));
-                }
-                if (this.weapon.WeaponEffectType == "MuzzleSmokeFire")
-                {
-                    this.firetrailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 1000f, new Vector3(this.Center, 0f));
-                    this.trailEmitter = new ParticleEmitter(Empire.Universe.fireTrailParticles, 750f, new Vector3(this.Center, -this.zStart));
-                }
-                if (this.weapon.WeaponEffectType == "FullSmokeMuzzleFire")
-                {
-                    this.trailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
-                    this.firetrailEmitter = new ParticleEmitter(Empire.Universe.fireTrailParticles, 500f, new Vector3(this.Center, -this.zStart));
+                    case "RocketTrail":
+                        trailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 500f, new Vector3(Center, -zStart));
+                        firetrailEmitter = new ParticleEmitter(Empire.Universe.fireTrailParticles, 500f, new Vector3(Center, -zStart));
+                        break;
+                    case "Plasma":
+                        firetrailEmitter = new ParticleEmitter(Empire.Universe.flameParticles, 500f, new Vector3(Center, 0f));
+                        break;
+                    case "SmokeTrail":
+                        trailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 500f, new Vector3(Center, -zStart));
+                        break;
+                    case "MuzzleSmoke":
+                        firetrailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 1000f, new Vector3(Center, 0f));
+                        break;
+                    case "MuzzleSmokeFire":
+                        firetrailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 1000f, new Vector3(Center, 0f));
+                        trailEmitter = new ParticleEmitter(Empire.Universe.fireTrailParticles, 750f, new Vector3(Center, -zStart));
+                        break;
+                    case "FullSmokeMuzzleFire":
+                        trailEmitter = new ParticleEmitter(Empire.Universe.projectileTrailParticles, 500f, new Vector3(Center, -zStart));
+                        firetrailEmitter = new ParticleEmitter(Empire.Universe.fireTrailParticles, 500f, new Vector3(Center, -zStart));
+                        break;
                 }
 
             }
-            if (this.weapon.Animated == 1 && this.ProjSO !=null)
+            if (weapon.Animated == 1 && ProjSO !=null)
             {
-                string remainder = this.AnimationFrame.ToString(fmt);
-                this.texturePath = string.Concat(this.weapon.AnimationPath, remainder);
+                TexturePath = weapon.AnimationPath + AnimationFrame.ToString(fmt);
             }
         }
 
@@ -610,58 +604,32 @@ namespace Ship_Game.Gameplay
                     //Non exploding projectiles should go through multiple modules if it has enough damage
                     if (!explodes && module.Active)
                     {
-                        float remainder;
-
                         //Doc: If module has resistance to Armour Piercing effects, deduct that from the projectile's AP before starting AP and damage checks
                         if (module.APResist > 0)
-                        {
-                            int ap = ArmorPiercing - module.APResist;
-                            if (ap < 0) ap = 0;
-                            ArmorPiercing = (byte)ap;
-                        }
+                            ArmorPiercing = ArmorPiercing - module.APResist;
 
-                        if (ArmorPiercing == 0 || !(module.ModuleType == ShipModuleType.Armor || (module.ModuleType == ShipModuleType.Dummy && module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
-                        {
-                            remainder = 0;
-                            module.Damage(this, damageAmount, ref remainder);
-                        }
+                        if (ArmorPiercing <= 0 || !(module.ModuleType == ShipModuleType.Armor || (module.ModuleType == ShipModuleType.Dummy && module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
+                            module.Damage(this, damageAmount, ref damageAmount);
                         else
+                            ArmorPiercing -= (module.XSIZE + module.YSIZE) / 2;
+
+                        if (damageAmount > 0f) // damage passes through to next modules
                         {
-                            ArmorPiercing--;
-                            remainder = damageAmount;
-                        }
-                        if (remainder > 0)
-                        {
-                            damageAmount = remainder;
-                            int depth = 10;
-                            Vector2 unitVector = Velocity;
-                            while (damageAmount > 0)
+                            Vector2 projectileDir = Velocity.Normalized();
+                            var projectedModules = module.GetParent().FindModulesIntersectingRay(Center, projectileDir, 100.0f, 2.0f);
+
+                            // now pierce through all of the modules while we can still pierce and damage:
+                            foreach (ShipModule impactModule in projectedModules)
                             {
-                                unitVector.Normalize();
-                                unitVector *= depth;
-                                bool slotFound = false;
-                                foreach (ModuleSlot slot in module.GetParent().ModuleSlotList)
+                                if (ArmorPiercing > 0 && impactModule.ModuleType == ShipModuleType.Armor)
                                 {
-                                    if (!slot.module.Center.InRadius(Center + unitVector, 8f))
-                                        continue;
-                                    slotFound = true;
-                                    if (slot.module.Active)
-                                    {
-                                        if (ArmorPiercing > 0 && (slot.module.ModuleType == ShipModuleType.Armor || (slot.module.ModuleType == ShipModuleType.Dummy && slot.module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
-                                            break;
-                                        remainder = 0;
-                                        slot.module.Damage(this, damageAmount, ref remainder);
-                                        damageAmount = remainder > 0 ? remainder : 0f;
-                                    }
+                                    ArmorPiercing -= (impactModule.XSIZE + impactModule.YSIZE) / 2;
+                                    continue; // SKIP/Phase through this armor module (yikes!)
+                                }
+
+                                impactModule.Damage(this, damageAmount, ref damageAmount);
+                                if (damageAmount <= 0f)
                                     break;
-                                }
-                                
-                                if (slotFound) // Slot found means it is still in the ship
-                                {
-                                    depth += 8;
-                                    ArmorPiercing--;
-                                }
-                                else break;
                             }
                         }
                     }
@@ -737,7 +705,7 @@ namespace Ship_Game.Gameplay
                     if (AnimationFrame >= weapon.Frames)
                         AnimationFrame = 0;
                 }
-                texturePath = weapon.AnimationPath + AnimationFrame.ToString(fmt);
+                TexturePath = weapon.AnimationPath + AnimationFrame.ToString(fmt);
             }
             if (!string.IsNullOrEmpty(this.InFlightCue) && this.inFlight == null)
             {
