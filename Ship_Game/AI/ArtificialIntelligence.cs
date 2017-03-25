@@ -346,7 +346,7 @@ namespace Ship_Game.AI
                         foreach (Troop st in s.GetHangarShip().TroopList)
                         {
                             OurTroopStrength += st.Strength;
-                            Ship escShip = s.GetHangarShip().GetAI().EscortTarget;
+                            Ship escShip = s.GetHangarShip().AI.EscortTarget;
                             if (escShip != null && escShip != Target && escShip != Owner)
                                 continue;
 
@@ -383,7 +383,7 @@ namespace Ship_Game.AI
                         ShipModule hangar = Owner.GetHangars()[i];
                         if (!hangar.IsTroopBay || hangar.GetHangarShip() == null)
                             continue;
-                        hangar.GetHangarShip().GetAI().OrderTroopToBoardShip(shipTarget);
+                        hangar.GetHangarShip().AI.OrderTroopToBoardShip(shipTarget);
                     }
                     boarding = true;
                 }
@@ -471,7 +471,7 @@ namespace Ship_Game.AI
                 }
             }
             else if (Distance > 10000f 
-                &&  Owner.Mothership?.GetAI().CombatState == CombatState.AssaultShip) OrderReturnToHangar();
+                &&  Owner.Mothership.AI.CombatState == CombatState.AssaultShip) OrderReturnToHangar();
         }
 
         private void DoCombat(float elapsedTime)
@@ -566,7 +566,7 @@ namespace Ship_Game.AI
                                             troop.IsTroopBay && troop.GetHangarShip() != null &&
                                             troop.GetHangarShip().Active)
                                     .Select(ship => ship.GetHangarShip()))
-                                troop.GetAI().OrderAssaultPlanet(invadeThis);
+                                troop.AI.OrderAssaultPlanet(invadeThis);
                         }
                         else if (shipTarget?.shipData.Role >= ShipData.RoleName.drone)
                         {
@@ -580,7 +580,7 @@ namespace Ship_Game.AI
                                         hangar.GetHangarShip().shipData.Role != ShipData.RoleName.troop ||
                                         shipTarget.shipData.Role < ShipData.RoleName.drone)
                                         continue;
-                                    hangar.GetHangarShip().GetAI().OrderTroopToBoardShip(shipTarget);
+                                    hangar.GetHangarShip().AI.OrderTroopToBoardShip(shipTarget);
                                 }
                             }
                         }
@@ -1268,8 +1268,8 @@ namespace Ship_Game.AI
                 OrderResupplyNearest(false);
                 return;
             }
-            if (EscortTarget.GetAI().State == AIState.Resupply || EscortTarget.GetAI().State == AIState.Scrap ||
-                EscortTarget.GetAI().State == AIState.Refit)
+            if (EscortTarget.AI.State == AIState.Resupply || EscortTarget.AI.State == AIState.Scrap ||
+                EscortTarget.AI.State == AIState.Refit)
             {
                 OrderQueue.Clear();
                 OrderResupplyNearest(false);
@@ -1453,7 +1453,7 @@ namespace Ship_Game.AI
                     }
                     TrackProjectiles.Clear(); 
                     if (Owner.Mothership != null)
-                        TrackProjectiles.AddRange(Owner.Mothership.GetAI().TrackProjectiles);
+                        TrackProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
                     if (Owner.TrackingPower > 0 && hasPD) //update projectile list                         
                     {
                         foreach (Projectile missile in Owner.GetNearby<Projectile>())
@@ -1710,7 +1710,7 @@ namespace Ship_Game.AI
                 return;
             }//@todo invisible ecm and such should match visible
 
-            if ((fireTarget as Ship).GetAI().CombatState == CombatState.Evade)   //fbedard: firing on evading ship can miss !
+            if ((fireTarget as Ship).AI.CombatState == CombatState.Evade)   //fbedard: firing on evading ship can miss !
                 if (RandomMath.RandomBetween(0f, 100f) < 5f + targetShip.experience)
                     return;
 
@@ -2703,7 +2703,7 @@ namespace Ship_Game.AI
                 OrderQueue.Clear();
             int troops = Owner.loyalty
                 .GetShips().Where(troop => troop.TroopList.Count > 0)
-                .Count(troopAi => troopAi.GetAI().OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
+                .Count(troopAi => troopAi.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
 
             if (troops >= p.GetGroundLandingSpots())
             {
@@ -2737,7 +2737,7 @@ namespace Ship_Game.AI
                 from planet in Owner.loyalty.GetPlanets()
                 //added by gremlin if the planet is full of troops dont rebase there. RERC2 I dont think the about looking at incoming troops works.
                 where Owner.loyalty.GetShips( )
-                .Where(troop => troop.TroopList.Count > 0).Count(troopAi => troopAi.GetAI().OrderQueue
+                .Where(troop => troop.TroopList.Count > 0).Count(troopAi => troopAi.AI.OrderQueue
                 .Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet)) <= planet.GetGroundLandingSpots()
 
 
@@ -3096,7 +3096,7 @@ namespace Ship_Game.AI
                 resourceRecharge =  PlanetCheck.NetProductionPerTurn;
                 resourceAmount = PlanetCheck.ProductionHere;
             }
-            float timeTotarget = ship.GetAI().TimeToTarget(PlanetCheck);
+            float timeTotarget = ship.AI.TimeToTarget(PlanetCheck);
             float Effeciency =  resourceRecharge * timeTotarget;
             
             // return PlanetCheck.MAX_STORAGE / (PlanetCheck.MAX_STORAGE -(Effeciency + resourceAmount));
@@ -3233,7 +3233,7 @@ namespace Ship_Game.AI
                                 Ship s = Owner.loyalty.GetShips()[k];
                                 if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != Owner && !s.isConstructor)
                                 {
-                                    if (s.GetAI().State == AIState.SystemTrader && s.GetAI().end == p && s.GetAI().FoodOrProd == "Food" && s.CargoSpace_Used > 0)
+                                    if (s.AI.State == AIState.SystemTrader && s.AI.end == p && s.AI.FoodOrProd == "Food" && s.CargoSpace_Used > 0)
                                     {
 
                                         float currenTrade = TradeSort(s, p, "Food", s.CargoSpace_Max, true);                                        
@@ -3343,7 +3343,7 @@ namespace Ship_Game.AI
                                     Ship s = Owner.loyalty.GetShips()[k];
                                     if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != Owner && !s.isConstructor)
                                     {
-                                        if (s.GetAI().State == AIState.SystemTrader && s.GetAI().end == p && s.GetAI().FoodOrProd == "Prod")
+                                        if (s.AI.State == AIState.SystemTrader && s.AI.end == p && s.AI.FoodOrProd == "Prod")
                                         {
 
                                             float currenTrade = TradeSort(s, p, "Production", s.CargoSpace_Max, true);
@@ -3437,7 +3437,7 @@ namespace Ship_Game.AI
                                     Ship s = Owner.loyalty.GetShips()[k];
                                     if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != Owner && !s.isConstructor)
                                     {
-                                        if (s.GetAI().State == AIState.SystemTrader && s.GetAI().end == p && s.GetAI().FoodOrProd == "Food")
+                                        if (s.AI.State == AIState.SystemTrader && s.AI.end == p && s.AI.FoodOrProd == "Food")
                                         {
 
                                             float currenTrade = TradeSort(s, p, "Food", s.CargoSpace_Max, true);
@@ -3533,9 +3533,9 @@ namespace Ship_Game.AI
                                     Ship s = Owner.loyalty.GetShips()[k];
                                     if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != Owner && !s.isConstructor)
                                     {
-                                        ShipGoal plan = s.GetAI().OrderQueue.PeekLast;
+                                        ShipGoal plan = s.AI.OrderQueue.PeekLast;
 
-                                        if (plan != null && s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && plan.Plan == Plan.PickupGoods && s.GetAI().FoodOrProd == "Food")
+                                        if (plan != null && s.AI.State == AIState.SystemTrader && s.AI.start == p && plan.Plan == Plan.PickupGoods && s.AI.FoodOrProd == "Food")
                                         {
 
                                             float currenTrade = TradeSort(s, p, "Food", s.CargoSpace_Max, false);
@@ -3614,8 +3614,8 @@ namespace Ship_Game.AI
                                     Ship s = Owner.loyalty.GetShips()[k];
                                     if (s != null && (s.shipData.Role == ShipData.RoleName.freighter || s.shipData.ShipCategory == ShipData.Category.Civilian) && s != Owner && !s.isConstructor)
                                     {
-                                        plan = s.GetAI().OrderQueue.PeekLast;
-                                        if (plan != null && s.GetAI().State == AIState.SystemTrader && s.GetAI().start == p && plan.Plan == Plan.PickupGoods && s.GetAI().FoodOrProd == "Prod")
+                                        plan = s.AI.OrderQueue.PeekLast;
+                                        if (plan != null && s.AI.State == AIState.SystemTrader && s.AI.start == p && plan.Plan == Plan.PickupGoods && s.AI.FoodOrProd == "Prod")
                                         {
 
                                             float currenTrade = TradeSort(s, p, "Production", s.CargoSpace_Max, false);      
@@ -4528,11 +4528,11 @@ namespace Ship_Game.AI
                     //}
                 }
             {
-                if (EscortTarget != null && EscortTarget.Active && EscortTarget.GetAI().Target != null)
+                if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
                 {
                     var sw = new ShipWeight
                     {
-                        ship = EscortTarget.GetAI().Target as Ship,
+                        ship = EscortTarget.AI.Target as Ship,
                         weight = 2f
                     };
                     NearbyShips.Add(sw);
@@ -4562,7 +4562,7 @@ namespace Ship_Game.AI
                     };
                     NearbyShips.Add(sw);
 
-                    if (BadGuysNear && nearbyShip.GetAI().Target is Ship targetShip && 
+                    if (BadGuysNear && nearbyShip.AI.Target is Ship targetShip && 
                         targetShip == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                     {
                         sw.weight = 3f;
@@ -4578,9 +4578,9 @@ namespace Ship_Game.AI
                 {
                     sortedList = FriendliesNearby.Where(ship => ship != Owner 
                         && ship.engineState != Ship.MoveState.Warp
-                        && ship.GetAI().State != AIState.Scrap
-                        && ship.GetAI().State != AIState.Resupply
-                        && ship.GetAI().State != AIState.Refit
+                        && ship.AI.State != AIState.Scrap
+                        && ship.AI.State != AIState.Resupply
+                        && ship.AI.State != AIState.Refit
                         && ship.Mothership == null 
                         && ship.OrdinanceMax > 0 
                         && ship.Ordinance / ship.OrdinanceMax < 0.5f
@@ -4598,27 +4598,27 @@ namespace Ship_Game.AI
                         {
                             if (hangar.GetHangarShip() != null && hangar.GetHangarShip().Active)
                             {
-                                if (hangar.GetHangarShip().GetAI().State != AIState.Ferrying && hangar.GetHangarShip().GetAI().State != AIState.ReturnToHangar && hangar.GetHangarShip().GetAI().State != AIState.Resupply && hangar.GetHangarShip().GetAI().State != AIState.Scrap)
+                                if (hangar.GetHangarShip().AI.State != AIState.Ferrying && hangar.GetHangarShip().AI.State != AIState.ReturnToHangar && hangar.GetHangarShip().AI.State != AIState.Resupply && hangar.GetHangarShip().AI.State != AIState.Scrap)
                                 {
                                     if (sortedList.Skip(skip).Count() > 0)
                                     {
                                         var g1 = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
-                                        hangar.GetHangarShip().GetAI().EscortTarget = sortedList.Skip(skip).First();
+                                        hangar.GetHangarShip().AI.EscortTarget = sortedList.Skip(skip).First();
 
-                                        hangar.GetHangarShip().GetAI().IgnoreCombat = true;
-                                        hangar.GetHangarShip().GetAI().OrderQueue.Clear();
-                                        hangar.GetHangarShip().GetAI().OrderQueue.Enqueue(g1);
-                                        hangar.GetHangarShip().GetAI().State = AIState.Ferrying;
+                                        hangar.GetHangarShip().AI.IgnoreCombat = true;
+                                        hangar.GetHangarShip().AI.OrderQueue.Clear();
+                                        hangar.GetHangarShip().AI.OrderQueue.Enqueue(g1);
+                                        hangar.GetHangarShip().AI.State = AIState.Ferrying;
                                         continue;
                                     }
                                     else
                                     {
                                         //hangar.GetHangarShip().QueueTotalRemoval();
-                                        hangar.GetHangarShip().GetAI().State = AIState.ReturnToHangar;  //shuttle with no target
+                                        hangar.GetHangarShip().AI.State = AIState.ReturnToHangar;  //shuttle with no target
                                         continue;
                                     }
                                 }
-                                else if (sortedList.Skip(skip).Count() > 0 && hangar.GetHangarShip().GetAI().EscortTarget == sortedList.Skip(skip).First() && hangar.GetHangarShip().GetAI().State == AIState.Ferrying)
+                                else if (sortedList.Skip(skip).Count() > 0 && hangar.GetHangarShip().AI.EscortTarget == sortedList.Skip(skip).First() && hangar.GetHangarShip().AI.State == AIState.Ferrying)
                                 {
                                     inboundOrdinance = inboundOrdinance + 100f;
                                     if ((inboundOrdinance + sortedList.Skip(skip).First().Ordinance) / sortedList.First().OrdinanceMax > 0.5f)
@@ -4649,19 +4649,19 @@ namespace Ship_Game.AI
                                 Owner.Ordinance = Owner.Ordinance - 100f;
                                 hangar.SetHangarShip(shuttle);
                                 var g = new ShipGoal(Plan.SupplyShip, Vector2.Zero, 0f);
-                                shuttle.GetAI().EscortTarget = sortedList.Skip(skip).First();
-                                shuttle.GetAI().IgnoreCombat = true;
-                                shuttle.GetAI().OrderQueue.Clear();
-                                shuttle.GetAI().OrderQueue.Enqueue(g);
-                                shuttle.GetAI().State = AIState.Ferrying;
+                                shuttle.AI.EscortTarget = sortedList.Skip(skip).First();
+                                shuttle.AI.IgnoreCombat = true;
+                                shuttle.AI.OrderQueue.Clear();
+                                shuttle.AI.OrderQueue.Enqueue(g);
+                                shuttle.AI.State = AIState.Ferrying;
                             }
                             else  //fbedard: Go fetch ordinance when mothership is low on ordinance
                             {
                                 shuttle.Ordinance = 0f;
                                 hangar.SetHangarShip(shuttle);
-                                shuttle.GetAI().IgnoreCombat = true;
-                                shuttle.GetAI().State = AIState.Resupply;
-                                shuttle.GetAI().OrderResupplyNearest(true);
+                                shuttle.AI.IgnoreCombat = true;
+                                shuttle.AI.State = AIState.Resupply;
+                                shuttle.AI.OrderResupplyNearest(true);
                             }
                             break;
                         }
@@ -4748,7 +4748,7 @@ namespace Ship_Game.AI
                             nearbyShip.weight += 1;
                         else
                             nearbyShip.weight -= 2;
-                        if (nearbyShip.ship.GetAI().Target == EscortTarget)
+                        if (nearbyShip.ship.AI.Target == EscortTarget)
                             nearbyShip.weight += 1;
 
                     }
@@ -4758,7 +4758,7 @@ namespace Ship_Game.AI
                     foreach (ShipWeight otherShip in NearbyShips)
                         if (otherShip.ship.loyalty != Owner.loyalty)
                         {
-                            if (otherShip.ship.GetAI().Target != Owner)
+                            if (otherShip.ship.AI.Target != Owner)
                                 continue;
                             ShipWeight selfDefenseWeight = nearbyShip;
                             selfDefenseWeight.weight = selfDefenseWeight.weight + 0.2f * CombatAI.SelfDefenseWeight;
@@ -4870,7 +4870,7 @@ namespace Ship_Game.AI
                     Target = ScanForCombatTargets(senseCenter, radius);
 
                     if (Target == null)
-                        Target = Owner.Mothership.GetAI().Target;
+                        Target = Owner.Mothership.AI.Target;
                 }
                 else
                 {
@@ -4881,7 +4881,7 @@ namespace Ship_Game.AI
             {
 
                 if (Owner.Mothership != null)
-                    Target = ScanForCombatTargets(senseCenter, radius) ?? Owner.Mothership.GetAI().Target;
+                    Target = ScanForCombatTargets(senseCenter, radius) ?? Owner.Mothership.AI.Target;
                 else
                     ScanForCombatTargets(senseCenter, radius);
             }
@@ -5285,8 +5285,8 @@ namespace Ship_Game.AI
                     {
                         foreach (Ship ship in Owner.fleet.Ships)
                         {
-                            if (ship.GetAI().State != AIState.FormationWarp) continue;
-                            if (ship.GetAI().ReadyToWarp && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f || ship.isSpooling))
+                            if (ship.AI.State != AIState.FormationWarp) continue;
+                            if (ship.AI.ReadyToWarp && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f || ship.isSpooling))
                             {
                                 if (Owner.FightersOut) Owner.RecoverFighters();       //Recall Fighters
                                 continue;
@@ -5497,9 +5497,9 @@ namespace Ship_Game.AI
                         {
                             foreach (Ship ship in Owner.fleet.Ships)
                             {
-                                if(ship.GetAI().State != AIState.FormationWarp)
+                                if(ship.AI.State != AIState.FormationWarp)
                                     continue;
-                                if (ship.GetAI().ReadyToWarp
+                                if (ship.AI.ReadyToWarp
                                 
                                     && (ship.PowerCurrent / (ship.PowerStoreMax + 0.01f) >= 0.2f || ship.isSpooling ) 
                                 )
@@ -5767,7 +5767,7 @@ namespace Ship_Game.AI
                                         if (Owner.BaseStrength == 0 ||
                                             Owner.Mothership == null &&
                                             EscortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) ||
-                                            Owner.Mothership == null || !Owner.Mothership.GetAI().BadGuysNear ||
+                                            Owner.Mothership == null || !Owner.Mothership.AI.BadGuysNear ||
                                             EscortTarget != Owner.Mothership)
                                         {
                                             OrbitShip(EscortTarget, elapsedTime);
@@ -6051,9 +6051,9 @@ namespace Ship_Game.AI
                     foreach (ShipModule hangar in Owner.GetHangars())
                     {
                         if (hangar.IsTroopBay || hangar.IsSupplyBay || hangar.GetHangarShip() == null
-                            || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar)
+                            || hangar.GetHangarShip().AI.State == AIState.ReturnToHangar)
                             continue;
-                        hangar.GetHangarShip().GetAI().OrderReturnToHangar();
+                        hangar.GetHangarShip().AI.OrderReturnToHangar();
                     }
                 else if (Owner.GetHangars().Count > 0)
                     foreach (ShipModule hangar in Owner.GetHangars())
@@ -6061,9 +6061,9 @@ namespace Ship_Game.AI
                         if (hangar.IsTroopBay
                             || hangar.IsSupplyBay
                             || hangar.GetHangarShip() == null
-                            || hangar.GetHangarShip().GetAI().State == AIState.ReturnToHangar
-                            || hangar.GetHangarShip().GetAI().hasPriorityTarget
-                            || hangar.GetHangarShip().GetAI().HasPriorityOrder
+                            || hangar.GetHangarShip().AI.State == AIState.ReturnToHangar
+                            || hangar.GetHangarShip().AI.hasPriorityTarget
+                            || hangar.GetHangarShip().AI.HasPriorityOrder
 
                         )
                             continue;

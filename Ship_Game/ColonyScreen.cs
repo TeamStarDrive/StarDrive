@@ -451,8 +451,8 @@ namespace Ship_Game
                
                 int troopsInvading = eui.empire.GetShips()
                     .Where(troop => troop.TroopList.Count > 0)
-                    .Where(ai => ai.GetAI().State != AIState.Resupply)
-                    .Count(troopAI => troopAI.GetAI().OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
+                    .Where(ai => ai.AI.State != AIState.Resupply)
+                    .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == p));
                 if (troopsInvading > 0)
                     SendTroops.Text = "Landing: " + troopsInvading;
                 else
@@ -2177,7 +2177,7 @@ namespace Ship_Game
                     using (eui.empire.GetShips().AcquireReadLock())
                         troopShips = new Array<Ship>(this.eui.empire.GetShips()
                         .Where(troop => troop.TroopList.Count > 0
-                            && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
+                            && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
                             && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, this.p.Position)));
 
                     Array<Planet> planetTroops = new Array<Planet>(this.eui.empire.GetPlanets()
@@ -2187,7 +2187,7 @@ namespace Ship_Game
                     if (troopShips.Count > 0)
                     {
                         AudioManager.PlayCue("echo_affirm");
-                        troopShips.First().GetAI().OrderRebase(this.p,true);
+                        troopShips.First().AI.OrderRebase(this.p,true);
                     }
                     else if (planetTroops.Count > 0)
                     {
@@ -2198,7 +2198,7 @@ namespace Ship_Game
                             if (troop != null)
                             {
                                 AudioManager.PlayCue("echo_affirm");
-                                troop.GetAI().OrderRebase(this.p,true);
+                                troop.AI.OrderRebase(this.p,true);
                             }
                         }
                     }

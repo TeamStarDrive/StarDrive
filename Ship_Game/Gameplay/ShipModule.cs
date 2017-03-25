@@ -265,51 +265,32 @@ namespace Ship_Game.Gameplay
         // HitTest uses the World scene POSITION. Not module XML location
         public bool HitTest(Vector2 point, float radius)
         {
-            if (XSIZE == YSIZE) // we are a Square module
-            {
-                float ourRadius = XSIZE * 10.0f; // slightly bigger radius than default 8.0
-                float r2 = ourRadius + radius;
-                float dx = Position.X - point.X;
-                float dy = Position.Y - point.Y;
-                return dx * dx + dy * dy <= r2 * r2;
-            }
+            int larger = XSIZE >= YSIZE ? XSIZE : YSIZE;
+            float ourRadius = larger * 9.0f; // approximated, slightly bigger radius
+            float r2 = ourRadius + radius;
+            float dx = Position.X - point.X;
+            float dy = Position.Y - point.Y;
+            if (dx * dx + dy * dy > r2 * r2)
+                return false; // definitely out of radius for SQUARE and non-square modules
 
-            // we are a non-square module, run collision detect N times
-            int larger = XSIZE > YSIZE ? XSIZE : YSIZE;
-            // run early exclusion (most things don't collide)
-            {
-                float ourRadius = larger * 10.0f; // approximated, slightly bigger radius
-                float r2 = ourRadius + radius;
-                float dx = Position.X - point.X;
-                float dy = Position.Y - point.Y;
-                if (dx * dx + dy * dy > r2 * r2)
-                    return false; // out of range
-            }
-
-            // now for more expensive and accurate collision testing
+            // we are a Square module? since we're already inside radius, collision happened
             int smaller = XSIZE < YSIZE ? XSIZE : YSIZE;
-            float sizeRatio  = (float)smaller / larger;
-            float diameter   = sizeRatio * smaller * 16.0f;
-            float moduleSpan = larger * 16.0f; // larger span of the module
+            if (larger == smaller)
+                return true;
+
+            // now for more expensive and accurate capsule-line collision testing
+            // since we can have 4x1 modules etc, so we need to construct a line+radius
+            float diameter   = ((float)smaller / larger) * smaller * 16.0f;
 
             // if high module, use forward vector, if wide module, use right vector
             Vector2 dir = Rotation.AngleToDirection();
             if (XSIZE > YSIZE) dir = dir.RightVector();
 
-            Vector2 pos = Position - dir * (0.5f * (moduleSpan - diameter));
-
-            float collRadius = diameter * 0.5f * 1.25f; // slightly bigger radius than default 8.0
-            int numChecks = (int)Math.Ceiling(sizeRatio);
-            for (int i = 0; i < numChecks; ++i)
-            {
-                float r2 = collRadius + radius;
-                float dx = pos.X - point.X;
-                float dy = pos.Y - point.Y;
-                if (dx * dx + dy * dy <= r2 * r2)
-                    return true;
-                pos += dir * diameter;
-            }
-            return false;
+            float offset = (larger*16.0f - diameter) * 0.5f;
+            Vector2 startPos = Position - dir * offset;
+            Vector2 endPos   = Position + dir * offset;
+            float rayWidth = diameter * 1.125f; // approx 18.0x instead of 16.0x
+            return point.RayHitTestCircle(radius, startPos, endPos, rayWidth);
         }
 
         // gives the approximate radius of the module, depending on module XSIZE & YSIZE
@@ -323,11 +304,10 @@ namespace Ship_Game.Gameplay
                 return true;
             }
             Projectile psource = source as Projectile;
-            Beam bsource = source as Beam;
             Parent.InCombatTimer = 15f;
             Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
-            if (psource !=null)
+            if (psource != null)
             {
                 Parent.LastDamagedBy = source;
                 if (Parent.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
@@ -343,15 +323,12 @@ namespace Ship_Game.Gameplay
             if (psource != null)
                 damageAmount = ApplyResistances(psource.weapon, damageAmount);
 
-            if (bsource !=null)
-                damageAmount = ApplyResistances(psource.weapon, damageAmount);
-
             //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
             if (damageAmount <= DamageThreshold)
                 damageAmount = 0f;
 
             //Added by McShooterz: shields keep charge when manually turned off
-            if (shield_power <= 0f || shieldsOff || psource !=null && psource.IgnoresShields)
+            if (shield_power <= 0f || shieldsOff || psource != null && psource.IgnoresShields)
             {
                 //Added by McShooterz: ArmorBonus Hull Bonus
                 if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
@@ -359,9 +336,9 @@ namespace Ship_Game.Gameplay
                     if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
                         damageAmount *= (1f - mod.ArmoredBonus);
                 }
-                if (psource !=null && psource.weapon.EMPDamage > 0f)
+                if (psource != null && psource.weapon.EMPDamage > 0f)
                 {
-                    Parent.EMPDamage += (source as Projectile).weapon.EMPDamage;
+                    Parent.EMPDamage += psource.weapon.EMPDamage;
                 }
                 if (shield_power_max > 0f && (!isExternal || quadrant <= 0))
                 {
@@ -412,7 +389,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 float damageAmountvsShields = damageAmount;
-                if (psource!=null)
+                if (psource != null)
                 {
                     if (psource.isSecondary)
                     {
@@ -423,13 +400,11 @@ namespace Ship_Game.Gameplay
                     }
                     else
                     {
-                        damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                        damageAmountvsShields *= psource.weapon.EffectVSShields;
                     }
                 }
 
-                if (psource !=null)
-                    damageAmountvsShields = ApplyShieldResistances(psource.weapon, damageAmountvsShields);
-                else if (bsource != null)
+                if (psource != null)
                     damageAmountvsShields = ApplyShieldResistances(psource.weapon, damageAmountvsShields);
 
                 if (damageAmountvsShields <= shield_threshold)
@@ -1213,7 +1188,7 @@ namespace Ship_Game.Gameplay
                 if (hangarShip != null)
                 {
                     //this.hangarShip.GetAI().State == AIState.AssaultPlanet || this.hangarShip.GetAI().State == AIState.Boarding ||
-                    if (hangarShip.GetAI().State == AIState.ReturnToHangar || hangarShip.GetAI().EscortTarget != null || hangarShip.GetAI().OrbitTarget != null)
+                    if (hangarShip.AI.State == AIState.ReturnToHangar || hangarShip.AI.EscortTarget != null || hangarShip.AI.OrbitTarget != null)
                         return;
                     hangarShip.DoEscort(Parent);
                     return;
@@ -1250,11 +1225,11 @@ namespace Ship_Game.Gameplay
                 return;
             if (hangarShip != null && hangarShip.Active)
             {
-                if (hangarShip.GetAI().State == AIState.ReturnToHangar 
-                    || hangarShip.GetAI().HasPriorityOrder 
-                    || hangarShip.GetAI().hasPriorityTarget
-                    || hangarShip.GetAI().IgnoreCombat 
-                    || hangarShip.GetAI().Target != null
+                if (hangarShip.AI.State == AIState.ReturnToHangar 
+                    || hangarShip.AI.HasPriorityOrder 
+                    || hangarShip.AI.hasPriorityTarget
+                    || hangarShip.AI.IgnoreCombat 
+                    || hangarShip.AI.Target != null
                     || hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange)
                 ) return;
                 hangarShip.DoEscort(Parent);
@@ -1271,7 +1246,6 @@ namespace Ship_Game.Gameplay
                                                    || !Parent.loyalty.ShipsWeCanBuild.Contains(hangarShipUID)))
             {
                 temphangarship = ResourceManager.ShipsDict[startingscout];
-                Array<Ship> fighters = new Array<Ship>();
                 foreach (string shipsWeCanBuild in Parent.loyalty.ShipsWeCanBuild)
                 {
 

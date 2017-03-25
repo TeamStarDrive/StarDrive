@@ -6,31 +6,31 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-	public class ShipGroup : IDisposable
-	{
-		public BatchRemovalCollection<Ship> Ships = new BatchRemovalCollection<Ship>();
-		public float ProjectedFacing;
+    public class ShipGroup : IDisposable
+    {
+        public BatchRemovalCollection<Ship> Ships = new BatchRemovalCollection<Ship>();
+        public float ProjectedFacing;
 
-		public ShipGroup()
-		{
-		}
+        public override string ToString() => $"FleetGroup size={Ships.Count}";
 
-		public virtual void ProjectPos(Vector2 position, float facing, Array<Fleet.Squad> flank)
-		{//This is basically here so it can be overridden in fleet.cs -Gretman
-		}
+        public ShipGroup()
+        {
+        }
 
-		public virtual void ProjectPos(Vector2 position, float facing, Vector2 fVec)
-		{
-		    ProjectedFacing = facing;
-			Ships[0].projectedPosition = position;
-			for (int i = 1; i < Ships.Count; i++)
-			{
+        public virtual void ProjectPos(Vector2 position, float facing, Array<Fleet.Squad> flank)
+        {//This is basically here so it can be overridden in fleet.cs -Gretman
+        }
+
+        public virtual void ProjectPos(Vector2 position, float facing, Vector2 fVec)
+        {
+            ProjectedFacing = facing;
+            Ships[0].projectedPosition = position;
+            for (int i = 1; i < Ships.Count; i++)
+            {
                 float facingRandomizer = (i % 2 == 0) ? -1.57079637f : +1.57079637f;
-				Ships[i].projectedPosition = MathExt.PointFromRadians(position, facing + facingRandomizer, i * 500);
-			}
-		}
-
-
+                Ships[i].projectedPosition = position.PointFromRadians(facing + facingRandomizer, i * 500);
+            }
+        }
 
         public void Dispose()
         {

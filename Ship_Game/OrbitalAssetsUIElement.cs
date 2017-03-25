@@ -110,12 +110,12 @@ namespace Ship_Game
 				{
 					foreach (Ship ship in p.system.ShipList)
 					{
-						if (ship.loyalty != EmpireManager.Player || ship.GetAI().State != AIState.Bombard)
+						if (ship.loyalty != EmpireManager.Player || ship.AI.State != AIState.Bombard)
 						{
 							continue;
 						}
-						ship.GetAI().OrderQueue.Clear();
-						ship.GetAI().State = AIState.AwaitingOrders;
+						ship.AI.OrderQueue.Clear();
+						ship.AI.State = AIState.AwaitingOrders;
 					}
 				}
 				else
@@ -126,7 +126,7 @@ namespace Ship_Game
 						{
 							continue;
 						}
-						ship.GetAI().OrderBombardPlanet(p);
+						ship.AI.OrderBombardPlanet(p);
 					}
 				}
 			}

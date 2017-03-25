@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Ship_Game
@@ -22,6 +23,7 @@ namespace Ship_Game
     [DebuggerTypeProxy(typeof(CollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}  Capacity = {Capacity}")]
     [Serializable]
+    [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
     public class Array<T> : IList<T>, IReadOnlyList<T>
     {
         protected static readonly int SizeOf = typeof(T).SizeOfRef();
@@ -45,7 +47,7 @@ namespace Ship_Game
         {
             Items = Empty<T>.Array;
             if ((Count = list.Count) > 0)
-                list.CopyTo(Items = new T[Count], 0);
+                list.CopyTo(Items = new T[Count]);
         }
         /// <summary>Array capacity is reserved exactly, CopyTo is used so the speed will vary
         /// on the container implementation. ArrayT CopyTo uses an extremly fast internal C++ copy routine
@@ -63,14 +65,12 @@ namespace Ship_Game
             {
                 Items = Empty<T>.Array;
                 int count = list.Count;
-                if ((Count = count) > 0)
-                {
-                    Items = new T[count];
-                    if (list is ICollection<T> c)
-                        c.CopyTo(Items, 0);
-                    else for (int i = 0; i < count; ++i)
-                        Items[i] = list[i];
-                }
+                if ((Count = count) <= 0) return;
+                Items = new T[count];
+                if (list is ICollection<T> c)
+                    c.CopyTo(Items, 0);
+                else for (int i = 0; i < count; ++i)
+                    Items[i] = list[i];
             }
         }
         /// <summary>Array capacity is reserved exactly, but dynamic enumeration is used if collection is not an ICollection (very slow)</summary>
@@ -80,15 +80,14 @@ namespace Ship_Game
             {
                 Items = Empty<T>.Array;
                 int count = collection.Count;
-                if ((Count = count) > 0)
-                {
-                    Items = new T[count];
-                    if (collection is ICollection<T> c)
-                        c.CopyTo(Items, 0);
-                    else using (var e = collection.GetEnumerator())
-                        for (int i = 0; i < count && e.MoveNext(); ++i)
-                            Items[i] = e.Current;
-                }
+                if ((Count = count) <= 0)
+                    return;
+                Items = new T[count];
+                if (collection is ICollection<T> c)
+                    c.CopyTo(Items, 0);
+                else using (IEnumerator<T> e = collection.GetEnumerator())
+                    for (int i = 0; i < count && e.MoveNext(); ++i)
+                        Items[i] = e.Current;
             }
         }
         /// <summary>The slowest way to construct an new ArrayT.
@@ -109,25 +108,23 @@ namespace Ship_Game
                 else if (sequence is IReadOnlyList<T> rl)
                 {
                     int count = rl.Count;
-                    if ((Count = count) > 0) {
-                        Items = new T[count];
-                        for (int i = 0; i < count; ++i)
-                            Items[i] = rl[i];
-                    }
+                    if ((Count = count) <= 0) return;
+                    Items = new T[count];
+                    for (int i = 0; i < count; ++i)
+                        Items[i] = rl[i];
                 }
                 else if (sequence is IReadOnlyCollection<T> rc)
                 {
                     int count = rc.Count;
-                    if ((Count = count) > 0) {
-                        Items = new T[count];
-                        using (var e = rc.GetEnumerator())
-                            for (int i = 0; i < count && e.MoveNext(); ++i)
-                                Items[i] = e.Current;
-                    }
+                    if ((Count = count) <= 0) return;
+                    Items = new T[count];
+                    using (IEnumerator<T> e = rc.GetEnumerator())
+                        for (int i = 0; i < count && e.MoveNext(); ++i)
+                            Items[i] = e.Current;
                 }
                 else // fall back to epicly slow enumeration
                 {
-                    using (var e = sequence.GetEnumerator())
+                    using (IEnumerator<T> e = sequence.GetEnumerator())
                         while (e.MoveNext()) Add(e.Current);
                 }
             }
@@ -352,10 +349,21 @@ namespace Ship_Game
         {
             unchecked
             {
+                if ((uint)index >= (uint)Count)
+                    ThrowIndexOutOfBounds(index);
                 int last = --Count;
                 Items[index] = Items[last];
                 Items[last]  = default(T);
             }
+        }
+
+        public T PopLast()
+        {
+            if (Count == 0)
+                ThrowIndexOutOfBounds(0);
+            T item       = Items[--Count];
+            Items[Count] = default(T);
+            return item;
         }
 
         // This is slower than RemoveDuplicateRefs if T is a class
@@ -370,38 +378,19 @@ namespace Ship_Game
                 T item = items[i];
                 for (int j = count - 1; j >= 0; --j)
                 {
-                    if (i != j && c.Equals(items[j], item))
-                    {
-                        RemoveAt(j);
-                        --count;
-                        ++removed;
-                    }
+                    if (i == j || !c.Equals(items[j], item)) continue;
+                    int last = --count; // RemoveAtSwapLast():
+                    Count    = last;
+                    Items[j]    = Items[last];
+                    Items[last] = default(T);
+                    ++removed;
                 }
             }
             return removed;
         }
 
         // A quite memory efficient filtering function to replace Where clauses
-        public unsafe T[] FilterBy(Func<T, bool> predicate)
-        {
-            int count = Count;
-            byte* map = stackalloc byte[count];
-
-            int resultCount = 0;
-            for (int i = 0; i < count; ++i)
-            {
-                bool keep = predicate(Items[i]);
-                if (keep) ++resultCount;
-                map[i] = keep ? (byte)1 : (byte)0;
-            }
-
-            var results = new T[resultCount];
-            resultCount = 0;
-            for (int i = 0; i < count; ++i)
-                if (map[i] > 0) results[resultCount++] = Items[i];
-
-            return results;
-        }
+        public T[] FilterBy(Func<T, bool> predicate) => Items.FilterBy(Count, predicate);
 
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
         public IEnumerator<T> GetEnumerator()   => new Enumerator(this);
@@ -662,6 +651,12 @@ namespace Ship_Game
             }
         }
 
+        public static void RemoveRef<T>(this Array<T> list, T item) where T : class
+        {
+            int index = list.IndexOfRef(item);
+            if (index != -1) list.RemoveAtSwapLast(index);
+        }
+
         public static int RemoveDuplicateRefs<T>(this Array<T> list) where T : class
         {
             int removed = 0;
@@ -672,16 +667,18 @@ namespace Ship_Game
                 T item = items[i];
                 for (int j = count - 1; j >= 0; --j)
                 {
-                    if (i != j && items[j] == item)
-                    {
-                        list.RemoveAt(j);
-                        --count;
-                        ++removed;
-                    }
+                    if (i == j || items[j] != item) continue;
+                    list.RemoveAtSwapLast(j);
+                    --count;
+                    ++removed;
                 }
             }
             return removed;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] UniqueGameObjects<T>(this Array<T> list) where T : GameplayObject
+            => list.GetInternalArrayItems().UniqueGameObjects(list.Count);
     }
 
     internal sealed class CollectionDebugView<T>

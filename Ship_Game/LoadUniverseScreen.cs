@@ -380,7 +380,7 @@ namespace Ship_Game
                 {
                     if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
                 }
-                else if (ship.GetAI().State == AIState.SystemDefender)
+                else if (ship.AI.State == AIState.SystemDefender)
                 {
                     ship.loyalty.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Add(ship);
                     ship.AddedOnLoad = true;
@@ -574,43 +574,43 @@ namespace Ship_Game
                     }
                     ship.loyalty = e;
                     ship.InitializeAI();
-                    ship.GetAI().CombatState          = shipData.data.CombatState;
-                    ship.GetAI().FoodOrProd           = shipData.AISave.FoodOrProd;
-                    ship.GetAI().State                = shipData.AISave.state;
-                    ship.GetAI().DefaultAIState       = shipData.AISave.defaultstate;
-                    ship.GetAI().GotoStep             = shipData.AISave.GoToStep;
-                    ship.GetAI().MovePosition         = shipData.AISave.MovePosition;
-                    ship.GetAI().OrbitTargetGuid      = shipData.AISave.OrbitTarget;
+                    ship.AI.CombatState          = shipData.data.CombatState;
+                    ship.AI.FoodOrProd           = shipData.AISave.FoodOrProd;
+                    ship.AI.State                = shipData.AISave.state;
+                    ship.AI.DefaultAIState       = shipData.AISave.defaultstate;
+                    ship.AI.GotoStep             = shipData.AISave.GoToStep;
+                    ship.AI.MovePosition         = shipData.AISave.MovePosition;
+                    ship.AI.OrbitTargetGuid      = shipData.AISave.OrbitTarget;
                     //ship.GetAI().ColonizeTargetGuid = shipData.AISave.ColonizeTarget;          //Not referenced in code, removing to save memory
-                    ship.GetAI().TargetGuid           = shipData.AISave.AttackTarget;
-                    ship.GetAI().SystemToDefendGuid   = shipData.AISave.SystemToDefend;
-                    ship.GetAI().EscortTargetGuid     = shipData.AISave.EscortTarget;
+                    ship.AI.TargetGuid           = shipData.AISave.AttackTarget;
+                    ship.AI.SystemToDefendGuid   = shipData.AISave.SystemToDefend;
+                    ship.AI.EscortTargetGuid     = shipData.AISave.EscortTarget;
                     bool hasCargo = false;
                     if (shipData.FoodCount > 0f)
                     {
                         ship.AddGood("Food", (int)shipData.FoodCount);
-                        ship.GetAI().FoodOrProd = "Food";
+                        ship.AI.FoodOrProd = "Food";
                         hasCargo = true;
                     }
                     if (shipData.ProdCount > 0f)
                     {
                         ship.AddGood("Production", (int)shipData.ProdCount);
-                        ship.GetAI().FoodOrProd = "Prod";
+                        ship.AI.FoodOrProd = "Prod";
                         hasCargo = true;
                     }
                     if (shipData.PopCount > 0f)
                     {
                         ship.AddGood("Colonists_1000", (int)shipData.PopCount);
-                        ship.GetAI().FoodOrProd = "Pass";
+                        ship.AI.FoodOrProd = "Pass";
                     }
-                    AIState state = ship.GetAI().State;
+                    AIState state = ship.AI.State;
                     if (state == AIState.SystemTrader)
                     {
-                        ship.GetAI().OrderTradeFromSave(hasCargo, shipData.AISave.startGuid, shipData.AISave.endGuid);
+                        ship.AI.OrderTradeFromSave(hasCargo, shipData.AISave.startGuid, shipData.AISave.endGuid);
                     }
                     else if (state == AIState.PassengerTransport)
                     {
-                        ship.GetAI().OrderTransportPassengersFromSave();
+                        ship.AI.OrderTransportPassengersFromSave();
                     }
 
                     e.AddShip(ship);
@@ -622,7 +622,7 @@ namespace Ship_Game
                         p.Position = pdata.Position;
                         p.Center = pdata.Position;
                         p.duration = pdata.Duration;
-                        ship.Projectiles.Add(p);
+                        ship.AddProjectile(p);
                     }
                     this.data.MasterShipList.Add(ship);
                 }
@@ -632,20 +632,24 @@ namespace Ship_Game
                 Empire e = EmpireManager.GetEmpireByName(d.Name);
                 foreach (SavedGame.FleetSave fleetsave in d.FleetsList)
                 {
-                    Fleet fleet = new Fleet()
+                    var fleet = new Fleet
                     {
-                        Guid = fleetsave.FleetGuid,
+                        Guid        = fleetsave.FleetGuid,
                         IsCoreFleet = fleetsave.IsCoreFleet,
-                        Facing = fleetsave.facing
+                        Facing      = fleetsave.facing
                     };
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
-                        foreach (Ship ship in this.data.MasterShipList)
+                        foreach (Ship ship in data.MasterShipList)
                         {
                             if (ship.guid != ssave.shipGuid)
-                            {
                                 continue;
-                            }
+
+                            // fleet saves can be corrupted because in older saves,
+                            // so for avoiding bugs, don't add ship to the same fleet twice
+                            if (ship.fleet == fleet)
+                                continue;
+
                             ship.RelativeFleetOffset = ssave.fleetOffset;
                             fleet.AddShip(ship);
                         }
@@ -846,7 +850,7 @@ namespace Ship_Game
                         }
                         foreach (Vector2 waypoint in shipData.AISave.ActiveWayPoints)
                         {
-                            ship.GetAI().ActiveWayPoints.Enqueue(waypoint);
+                            ship.AI.ActiveWayPoints.Enqueue(waypoint);
                         }
                         foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                         {
@@ -858,17 +862,17 @@ namespace Ship_Game
                                     if (sg.TargetPlanetGuid == p.guid)
                                     {
                                         g.TargetPlanet = p;
-                                        ship.GetAI().ColonizeTarget = p;
+                                        ship.AI.ColonizeTarget = p;
                                     }
                                     if (p.guid == shipData.AISave.startGuid)
                                     {
-                                        ship.GetAI().start = p;
+                                        ship.AI.start = p;
                                     }
                                     if (p.guid != shipData.AISave.endGuid)
                                     {
                                         continue;
                                     }
-                                    ship.GetAI().end = p;
+                                    ship.AI.end = p;
                                 }
                             }
                             if (sg.fleetGuid != Guid.Empty)
@@ -893,7 +897,7 @@ namespace Ship_Game
                                 }
                                 g.goal = goal;
                             }
-                            ship.GetAI().OrderQueue.Enqueue(g);
+                            ship.AI.OrderQueue.Enqueue(g);
                             if (g.Plan == ArtificialIntelligence.Plan.DeployStructure)
                                 ship.isConstructor = true;
                         }
@@ -1110,7 +1114,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    Guid orbitTargetGuid = ship.GetAI().OrbitTargetGuid;
+                    Guid orbitTargetGuid = ship.AI.OrbitTargetGuid;
                     foreach (SolarSystem s in this.data.SolarSystemsList)
                     {
                         foreach (Planet p in s.PlanetList)
@@ -1129,45 +1133,45 @@ namespace Ship_Game
                                 p.Shipyards[add.guid] = add;
                                 add.TetherToPlanet(p);
                             }
-                            if (p.guid != ship.GetAI().OrbitTargetGuid)
+                            if (p.guid != ship.AI.OrbitTargetGuid)
                             {
                                 continue;
                             }
-                            ship.GetAI().OrbitTarget = p;
-                            if (ship.GetAI().State != AIState.Orbit)
+                            ship.AI.OrbitTarget = p;
+                            if (ship.AI.State != AIState.Orbit)
                             {
                                 continue;
                             }
-                            ship.GetAI().OrderToOrbit(p, true);
+                            ship.AI.OrderToOrbit(p, true);
                         }
                     }
-                    Guid systemToDefendGuid = ship.GetAI().SystemToDefendGuid;
-                    if (ship.GetAI().State == AIState.SystemDefender)
+                    Guid systemToDefendGuid = ship.AI.SystemToDefendGuid;
+                    if (ship.AI.State == AIState.SystemDefender)
                     {
                         foreach (SolarSystem s in this.data.SolarSystemsList)
                         {
-                            if (s.guid != ship.GetAI().SystemToDefendGuid)
+                            if (s.guid != ship.AI.SystemToDefendGuid)
                             {
                                 continue;
                             }
-                            ship.GetAI().SystemToDefend = s;
-                            ship.GetAI().State = AIState.SystemDefender;
+                            ship.AI.SystemToDefend = s;
+                            ship.AI.State = AIState.SystemDefender;
                         }
                     }
                     if (ship.GetShipData().IsShipyard && !ship.IsTethered())
                         ship.Active = false;
-                    Guid escortTargetGuid = ship.GetAI().EscortTargetGuid;
+                    Guid escortTargetGuid = ship.AI.EscortTargetGuid;
                     foreach (Ship s in this.data.MasterShipList)
                     {
-                        if (s.guid == ship.GetAI().EscortTargetGuid)
+                        if (s.guid == ship.AI.EscortTargetGuid)
                         {
-                            ship.GetAI().EscortTarget = s;
+                            ship.AI.EscortTarget = s;
                         }
-                        if (s.guid != ship.GetAI().TargetGuid)
+                        if (s.guid != ship.AI.TargetGuid)
                         {
                             continue;
                         }
-                        ship.GetAI().Target = s;
+                        ship.AI.Target = s;
                     }
                     base.ScreenManager.inter.ObjectManager.Submit(ship.GetSO());
                     foreach (Thruster t in ship.GetTList())

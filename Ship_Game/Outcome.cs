@@ -121,7 +121,7 @@ namespace Ship_Game
             foreach (string ship in RemnantShipsToSpawn)
             {
                 Ship tomake = ResourceManager.CreateShipAt(ship, EmpireManager.Remnants, p, true);
-                tomake.GetAI().DefaultAIState = AIState.Exterminate;
+                tomake.AI.DefaultAIState = AIState.Exterminate;
             }
         }
 
