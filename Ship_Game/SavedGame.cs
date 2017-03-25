@@ -412,31 +412,31 @@ namespace Ship_Game
                
                     sdata.AISave = new ShipAISave()
                     {
-                        FoodOrProd = ship.GetAI().FoodOrProd,
-                        state      = ship.GetAI().State
+                        FoodOrProd = ship.AI.FoodOrProd,
+                        state      = ship.AI.State
                     };
-                    if (ship.GetAI().Target != null && ship.GetAI().Target is Ship)
+                    if (ship.AI.Target != null && ship.AI.Target is Ship)
                     {
-                        sdata.AISave.AttackTarget = (ship.GetAI().Target as Ship).guid;
+                        sdata.AISave.AttackTarget = (ship.AI.Target as Ship).guid;
                     }
-                    sdata.AISave.defaultstate = ship.GetAI().DefaultAIState;
-                    if (ship.GetAI().start != null)
+                    sdata.AISave.defaultstate = ship.AI.DefaultAIState;
+                    if (ship.AI.start != null)
                     {
-                        sdata.AISave.startGuid = ship.GetAI().start.guid;
+                        sdata.AISave.startGuid = ship.AI.start.guid;
                     }
-                    if (ship.GetAI().end != null)
+                    if (ship.AI.end != null)
                     {
-                        sdata.AISave.endGuid = ship.GetAI().end.guid;
+                        sdata.AISave.endGuid = ship.AI.end.guid;
                     }
-                    sdata.AISave.GoToStep = ship.GetAI().GotoStep;
-                    sdata.AISave.MovePosition = ship.GetAI().MovePosition;
+                    sdata.AISave.GoToStep = ship.AI.GotoStep;
+                    sdata.AISave.MovePosition = ship.AI.MovePosition;
                     sdata.AISave.ActiveWayPoints = new Array<Vector2>();
-                    foreach (Vector2 waypoint in ship.GetAI().ActiveWayPoints)
+                    foreach (Vector2 waypoint in ship.AI.ActiveWayPoints)
                     {
                         sdata.AISave.ActiveWayPoints.Add(waypoint);
                     }
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
-                    foreach (ArtificialIntelligence.ShipGoal sgoal in ship.GetAI().OrderQueue)
+                    foreach (ArtificialIntelligence.ShipGoal sgoal in ship.AI.OrderQueue)
                     {
                         ShipGoalSave gsave = new ShipGoalSave()
                         {
@@ -461,21 +461,21 @@ namespace Ship_Game
                         gsave.SpeedLimit = sgoal.SpeedLimit;
                         sdata.AISave.ShipGoalsList.Add(gsave);
                     }
-                    if (ship.GetAI().OrbitTarget != null)
+                    if (ship.AI.OrbitTarget != null)
                     {
-                        sdata.AISave.OrbitTarget = ship.GetAI().OrbitTarget.guid;
+                        sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.guid;
                     }
-                    if (ship.GetAI().ColonizeTarget != null)
+                    if (ship.AI.ColonizeTarget != null)
                     {
-                        sdata.AISave.ColonizeTarget = ship.GetAI().ColonizeTarget.guid;
+                        sdata.AISave.ColonizeTarget = ship.AI.ColonizeTarget.guid;
                     }
-                    if (ship.GetAI().SystemToDefend != null)
+                    if (ship.AI.SystemToDefend != null)
                     {
-                        sdata.AISave.SystemToDefend = ship.GetAI().SystemToDefend.guid;
+                        sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.guid;
                     }
-                    if (ship.GetAI().EscortTarget != null)
+                    if (ship.AI.EscortTarget != null)
                     {
-                        sdata.AISave.EscortTarget = ship.GetAI().EscortTarget.guid;
+                        sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
                     }
                     sdata.Projectiles = new Array<ProjectileSaveData>();
                     foreach (Projectile p in ship.Projectiles)
@@ -524,11 +524,11 @@ namespace Ship_Game
                     sdata.InCombatTimer = ship.InCombatTimer;
                     sdata.AISave = new ShipAISave
                     {
-                        FoodOrProd      = ship.GetAI().FoodOrProd,
-                        state           = ship.GetAI().State,
-                        defaultstate    = ship.GetAI().DefaultAIState,
-                        GoToStep        = ship.GetAI().GotoStep,
-                        MovePosition    = ship.GetAI().MovePosition,
+                        FoodOrProd      = ship.AI.FoodOrProd,
+                        state           = ship.AI.State,
+                        defaultstate    = ship.AI.DefaultAIState,
+                        GoToStep        = ship.AI.GotoStep,
+                        MovePosition    = ship.AI.MovePosition,
                         ActiveWayPoints = new Array<Vector2>(),
                         ShipGoalsList   = new Array<ShipGoalSave>(),
                     };
@@ -693,12 +693,16 @@ namespace Ship_Game
             [Serialize(6)] public int Key;
             [Serialize(7)] public Array<FleetShipSave> ShipsInFleet;
             [Serialize(8)] public Array<FleetDataNode> DataNodes;
+
+            public override string ToString() => $"FleetSave {Name} (core={IsCoreFleet}) {FleetGuid} {Position}";
         }
 
         public struct FleetShipSave
         {
             [Serialize(0)] public Guid shipGuid;
             [Serialize(1)] public Vector2 fleetOffset;
+
+            public override string ToString() => $"FleetShipSave {shipGuid} {fleetOffset}";
         }
 
         public struct GoalSave

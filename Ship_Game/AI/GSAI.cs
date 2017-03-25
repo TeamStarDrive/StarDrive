@@ -420,7 +420,7 @@ namespace Ship_Game.AI
                 }
                 foreach (Ship ship in TroopShips)
                 {
-                    ship.GetAI().OrderRebaseToNearest();
+                    ship.AI.OrderRebaseToNearest();
                 }
             }
             foreach (string planetName in ToUs.ColoniesOffered)
@@ -481,7 +481,7 @@ namespace Ship_Game.AI
                 }
                 foreach (Ship ship in TroopShips)
                 {
-                    ship.GetAI().OrderRebaseToNearest();
+                    ship.AI.OrderRebaseToNearest();
                 }
             }
         }
@@ -785,7 +785,7 @@ namespace Ship_Game.AI
                 }
                 foreach (Ship ship in TroopShips)
                 {
-                    ship.GetAI().OrderRebaseToNearest();
+                    ship.AI.OrderRebaseToNearest();
                 }
             }
             foreach (string planetName in ToUs.ColoniesOffered)
@@ -840,7 +840,7 @@ namespace Ship_Game.AI
                 }
                 foreach (Ship ship in TroopShips)
                 {
-                    ship.GetAI().OrderRebaseToNearest();
+                    ship.AI.OrderRebaseToNearest();
                 }
             }
             us.GetRelations(Them).UpdateRelationship(us, Them);
@@ -2436,7 +2436,7 @@ namespace Ship_Game.AI
                 select system;
             if (sortedList.Count<SolarSystem>() <= 0)
             {
-                queryingShip.GetAI().OrderQueue.Clear();
+                queryingShip.AI.OrderQueue.Clear();
                 return null;
             }
             this.MarkedForExploration.Add(sortedList.First<SolarSystem>());
@@ -2477,7 +2477,7 @@ namespace Ship_Game.AI
                 select system;
             if (sortedList.Count<SolarSystem>() <= 0)
             {
-                queryingShip.GetAI().OrderQueue.Clear();
+                queryingShip.AI.OrderQueue.Clear();
                 return null;
             }
             //SolarSystem nearesttoScout = sortedList.OrderBy(furthest => Vector2.Distance(queryingShip.Center, furthest.Position)).FirstOrDefault();
@@ -4323,7 +4323,7 @@ namespace Ship_Game.AI
                             foundhome = true;
                             foreach (Ship fship in empire.GetFleetsDict()[task.WhichFleet].Ships)
                             {
-                                fship.GetAI().OrderQueue.Clear();
+                                fship.AI.OrderQueue.Clear();
                                 fship.DoEscort(ship);
                             }
                             break;
@@ -4332,8 +4332,8 @@ namespace Ship_Game.AI
                         {
                             foreach (Ship ship in this.empire.GetFleetsDict()[task.WhichFleet].Ships)
                             {
-                                ship.GetAI().OrderQueue.Clear();
-                                ship.GetAI().State = AIState.AwaitingOrders;
+                                ship.AI.OrderQueue.Clear();
+                                ship.AI.State = AIState.AwaitingOrders;
                             }
                         }
                     }
@@ -4397,7 +4397,7 @@ namespace Ship_Game.AI
                                                     .OrderBy(potentials => Vector2.Distance(assimilate.Center, potentials.Position))
                                                     .FirstOrDefault();
                                                 if (capture != null)
-                                                    assimilate.GetAI().OrderColonization(capture);
+                                                    assimilate.AI.OrderColonization(capture);
                                             }
 
                                         }
@@ -4405,11 +4405,11 @@ namespace Ship_Game.AI
                                     else 
                                     {
                                         if (assimilate.Size < 50)
-                                            assimilate.GetAI().OrderRefitTo("Heavy Drone");
+                                            assimilate.AI.OrderRefitTo("Heavy Drone");
                                         else if (assimilate.Size < 100)
-                                            assimilate.GetAI().OrderRefitTo("Remnant Slaver");
+                                            assimilate.AI.OrderRefitTo("Remnant Slaver");
                                         else if (assimilate.Size >= 100)
-                                            assimilate.GetAI().OrderRefitTo("Remnant Exterminator");
+                                            assimilate.AI.OrderRefitTo("Remnant Exterminator");
                                     }
                                 }
                                 else
@@ -4426,7 +4426,7 @@ namespace Ship_Game.AI
                                             .OrderBy(potentials => Vector2.Distance(assimilate.Center, potentials.Position))
                                             .FirstOrDefault();
                                         if (capture != null)
-                                            assimilate.GetAI().OrderColonization(capture);
+                                            assimilate.AI.OrderColonization(capture);
 
 
 
@@ -4439,12 +4439,12 @@ namespace Ship_Game.AI
                             else
                             {
                                 Planet target = null;
-                                if (assimilate.System!= null && assimilate.GetAI().State == AIState.AwaitingOrders)
+                                if (assimilate.System!= null && assimilate.AI.State == AIState.AwaitingOrders)
                                 {
                                     target = assimilate.System.PlanetList.Where(owner => owner.Owner != this.empire && owner.Owner != null).FirstOrDefault();
                                     if (target !=null && (assimilate.HasTroopBay || assimilate.hasAssaultTransporter))
                                         if (assimilate.TroopList.Count > assimilate.GetHangars().Count)
-                                            assimilate.GetAI().OrderAssaultPlanet(target);
+                                            assimilate.AI.OrderAssaultPlanet(target);
                                 }
                                 
                             }
@@ -5478,7 +5478,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < this.empire.GetShips().Count(); i++)
             {
                 Ship item = this.empire.GetShips()[i];
-                if (item != null && item.Active && item.Mothership == null && item.GetAI().State != AIState.Scrap)
+                if (item != null && item.Active && item.Mothership == null && item.AI.State != AIState.Scrap)
                 {
                     ShipData.RoleName str = item.shipData.HullRole;                    
                     float upkeep = 0f;
@@ -5487,7 +5487,7 @@ namespace Ship_Game.AI
                     else
                         upkeep = item.GetMaintCost();
 
-                    if (item.GetAI().State == AIState.Scrap)
+                    if (item.AI.State == AIState.Scrap)
                     {
                         capScrapping += upkeep;
                         continue;
@@ -5745,7 +5745,7 @@ namespace Ship_Game.AI
                     numTroops > DesiredTroops)
                     {
                     foreach (Ship ship in this.empire.GetShips()
-                        .Where(ship => !ship.InCombat && ship.inborders && ship.fleet == null && ship.GetAI().State != AIState.Scrap && ship.Mothership == null && ship.Active && ship.shipData.HullRole >= ShipData.RoleName.fighter && ship.GetMaintCost(this.empire) >0)
+                        .Where(ship => !ship.InCombat && ship.inborders && ship.fleet == null && ship.AI.State != AIState.Scrap && ship.Mothership == null && ship.Active && ship.shipData.HullRole >= ShipData.RoleName.fighter && ship.GetMaintCost(this.empire) >0)
                         .OrderByDescending(defense => this.DefensiveCoordinator.DefensiveForcePool.Contains(defense))
                         .ThenBy(ship => ship.Level)
                         .ThenBy(ship => ship.BaseStrength)
@@ -5754,42 +5754,42 @@ namespace Ship_Game.AI
                         if (numFighters > (DesiredFighters) && (ship.shipData.HullRole == ShipData.RoleName.fighter || ship.shipData.HullRole == ShipData.RoleName.scout))
                         {
                             numFighters--;
-                            ship.GetAI().OrderScrapShip();
+                            ship.AI.OrderScrapShip();
                         }
                         else if (numCarriers > (DesiredCarriers) && (ship.GetHangars().Where(fighters => fighters.MaximumHangarShipSize > 0).Count() > 0 == true))
                         {
                             numCarriers--;
-                            ship.GetAI().OrderScrapShip();
+                            ship.AI.OrderScrapShip();
                         }
                         else if (numTroops > (DesiredTroops) && (ship.HasTroopBay || ship.hasTransporter))
                         {
                             numTroops--;
-                            ship.GetAI().OrderScrapShip();
+                            ship.AI.OrderScrapShip();
                         }
                         else if (numBombers > (DesiredBombers) && (ship.BombBays.Count > 0))
                         {
                             numBombers--;
-                            ship.GetAI().OrderScrapShip();
+                            ship.AI.OrderScrapShip();
                         }
                         else if (numCorvettes > (DesiredCorvettes) && (ship.shipData.HullRole == ShipData.RoleName.corvette || ship.shipData.HullRole == ShipData.RoleName.gunboat))
                         {
                             numCorvettes--;
-                            ship.GetAI().OrderScrapShip();
+                            ship.AI.OrderScrapShip();
                         }
                         else if (numFrigates > (DesiredFrigates) && (ship.shipData.HullRole == ShipData.RoleName.frigate || ship.shipData.HullRole == ShipData.RoleName.destroyer))
                         {
                             numFrigates--;    
-                            ship.GetAI().OrderScrapShip();
+                            ship.AI.OrderScrapShip();
                         }
                         else if (numCruisers > (DesiredCruisers) && ship.shipData.HullRole == ShipData.RoleName.cruiser)
                         {
                             numCruisers--;
-                            ship.GetAI().OrderScrapShip();
+                            ship.AI.OrderScrapShip();
                         }
                         else if (numCapitals > (DesiredCapitals) && (ship.shipData.HullRole == ShipData.RoleName.capital || ship.shipData.HullRole == ShipData.RoleName.carrier))
                         {
                             numCapitals--;    
-                            ship.GetAI().OrderScrapShip();
+                            ship.AI.OrderScrapShip();
                         }
                         
                         if (numFighters <= DesiredFighters
@@ -6388,11 +6388,11 @@ namespace Ship_Game.AI
             SolarSystem sharedSystem = null;
             Them.Key.GetShips().ForEach(ship => //foreach (Ship ship in Them.Key.GetShips())
             {
-                if (ship.GetAI().State != AIState.Colonize || ship.GetAI().ColonizeTarget == null)
+                if (ship.AI.State != AIState.Colonize || ship.AI.ColonizeTarget == null)
                 {
                     return;
                 }
-                TheirTargetPlanets.Add(ship.GetAI().ColonizeTarget);
+                TheirTargetPlanets.Add(ship.AI.ColonizeTarget);
             }, false, false, false);
 
             foreach (Planet p in OurTargetPlanets)
@@ -7191,13 +7191,13 @@ namespace Ship_Game.AI
                             using (empire.GetShips().AcquireReadLock())                               
                             foreach (Ship ship in this.empire.GetShips())
                             {
-                                ArtificialIntelligence.ShipGoal goal = ship.GetAI().OrderQueue.PeekLast;
+                                ArtificialIntelligence.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
                                 
                                 if (goal?.goal == null || goal.goal.type != GoalType.DeepSpaceConstruction || goal.goal.BuildPosition != node.Position)
                                 {
                                     continue;
                                 }
-                                ship.GetAI().OrderScrapShip();
+                                ship.AI.OrderScrapShip();
                                 
                                 break;
 
@@ -7362,7 +7362,7 @@ namespace Ship_Game.AI
 
                 foreach (Ship ship1 in this.empire.GetShips())
                 {
-                    if (ship1.GetAI().State != AIState.Scrap)
+                    if (ship1.AI.State != AIState.Scrap)
                     {
                         continue;
                     }
@@ -9281,7 +9281,7 @@ namespace Ship_Game.AI
                     if (list.Count > 0)
                     {
                         IOrderedEnumerable<string> orderedEnumerable = Enumerable.OrderByDescending<string, int>((IEnumerable<string>)list, (Func<string, int>)(uid => ResourceManager.ShipsDict[uid].GetTechScore()));
-                        ship.GetAI().OrderRefitTo(Enumerable.First<string>((IEnumerable<string>)orderedEnumerable));
+                        ship.AI.OrderRefitTo(Enumerable.First<string>((IEnumerable<string>)orderedEnumerable));
                         this.empire.GetForcePool().QueuePendingRemoval(ship);
                         ++num5;
                     }

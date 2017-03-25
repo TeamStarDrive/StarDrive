@@ -288,7 +288,7 @@ namespace Ship_Game
             {
                 int troopsInvading = this.screen.empUI.empire.GetShips()
                  .Where(troop => troop.TroopList.Count > 0)
-                 .Where(ai => ai.GetAI().State != AIState.Resupply).Count(troopAI => troopAI.GetAI().OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet));
+                 .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet));
                 if (troopsInvading > 0)
                 {
                     this.SendTroops.Text = "Invading: " + troopsInvading;
@@ -310,7 +310,7 @@ namespace Ship_Game
             {
                 int troopsInvading = this.screen.empUI.empire.GetShips()
                  .Where(troop => troop.TroopList.Count > 0)
-                 .Where(ai => ai.GetAI().State != AIState.Resupply).Count(troopAI => troopAI.GetAI().OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet));
+                 .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this.planet));
                 if (troopsInvading > 0)
                 {
                     this.SendTroops.Text = "Landing: " + troopsInvading.ToString();
@@ -345,7 +345,7 @@ namespace Ship_Game
                     {
                         troopShips = new Array<Ship>(this.screen.empUI.empire.GetShips()
                             .Where(troop => troop.TroopList.Count > 0
-                                && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
+                                && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
                                 && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, planet.Position)));
                     }
 
@@ -357,7 +357,7 @@ namespace Ship_Game
                     if (troopShips.Count > 0)
                     {
                         AudioManager.PlayCue("echo_affirm");
-                        troopShips.First().GetAI().OrderAssaultPlanet(this.planet);
+                        troopShips.First().AI.OrderAssaultPlanet(this.planet);
                     }
                     else
                         if (planetTroops.Count > 0)
@@ -367,7 +367,7 @@ namespace Ship_Game
                                 if (troop != null)
                                 {
                                     AudioManager.PlayCue("echo_affirm");
-                                    troop.GetAI().OrderAssaultPlanet(this.planet);
+                                    troop.AI.OrderAssaultPlanet(this.planet);
                                 }
                             }
                         }
@@ -407,7 +407,7 @@ namespace Ship_Game
 						AudioManager.PlayCue("echo_affirm");
 						if (g.GetColonyShip() != null)
 						{
-							g.GetColonyShip().GetAI().OrderOrbitNearest(true);
+							g.GetColonyShip().AI.OrderOrbitNearest(true);
 						}
 						Empire.Universe.player.GetGSAI().Goals.QueuePendingRemoval(g);
 						this.marked = false;

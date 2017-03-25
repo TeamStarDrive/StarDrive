@@ -497,36 +497,36 @@ namespace Ship_Game
                                     switch (toggleButton.Action)
                                     {
                                         case "attack":
-                                            this.ship.GetAI().CombatState = CombatState.AttackRuns;
+                                            this.ship.AI.CombatState = CombatState.AttackRuns;
                                             break;
                                         case "arty":
-                                            this.ship.GetAI().CombatState = CombatState.Artillery;
+                                            this.ship.AI.CombatState = CombatState.Artillery;
                                             break;
                                         case "hold":
-                                            this.ship.GetAI().CombatState = CombatState.HoldPosition;
-                                            this.ship.GetAI().OrderAllStop();
+                                            this.ship.AI.CombatState = CombatState.HoldPosition;
+                                            this.ship.AI.OrderAllStop();
                                             break;
                                         case "orbit_left":
-                                            this.ship.GetAI().CombatState = CombatState.OrbitLeft;
+                                            this.ship.AI.CombatState = CombatState.OrbitLeft;
                                             break;
                                         case "broadside_left":
-                                            this.ship.GetAI().CombatState = CombatState.BroadsideLeft;
+                                            this.ship.AI.CombatState = CombatState.BroadsideLeft;
                                             break;
                                         case "orbit_right":
-                                            this.ship.GetAI().CombatState = CombatState.OrbitRight;
+                                            this.ship.AI.CombatState = CombatState.OrbitRight;
                                             break;
                                         case "broadside_right":
-                                            this.ship.GetAI().CombatState = CombatState.BroadsideRight;
+                                            this.ship.AI.CombatState = CombatState.BroadsideRight;
                                             break;
                                         case "evade":
-                                            this.ship.GetAI().CombatState = CombatState.Evade;
+                                            this.ship.AI.CombatState = CombatState.Evade;
                                             break;
                                         case "short":
-                                            this.ship.GetAI().CombatState = CombatState.ShortRange;
+                                            this.ship.AI.CombatState = CombatState.ShortRange;
                                             break;
                                     }
-                                    if (toggleButton.Action != "hold" && this.ship.GetAI().State == AIState.HoldPosition)
-                                        this.ship.GetAI().State = AIState.AwaitingOrders;
+                                    if (toggleButton.Action != "hold" && this.ship.AI.State == AIState.HoldPosition)
+                                        this.ship.AI.State = AIState.AwaitingOrders;
                                 }
                             }
                             else
@@ -534,31 +534,31 @@ namespace Ship_Game
                             switch (toggleButton.Action)
                             {
                                 case "attack":
-                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.AttackRuns;
+                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.AttackRuns;
                                     continue;
                                 case "arty":
-                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.Artillery;
+                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.Artillery;
                                     continue;
                                 case "hold":
-                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.HoldPosition;
+                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.HoldPosition;
                                     continue;
                                 case "orbit_left":
-                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.OrbitLeft;
+                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.OrbitLeft;
                                     continue;
                                 case "broadside_left":
-                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.BroadsideLeft;
+                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.BroadsideLeft;
                                     continue;
                                 case "orbit_right":
-                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.OrbitRight;
+                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.OrbitRight;
                                     continue;
                                 case "broadside_right":
-                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.BroadsideRight;
+                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.BroadsideRight;
                                     continue;
                                 case "evade":
-                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.Evade;
+                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.Evade;
                                     continue;
                                 case "short":
-                                    toggleButton.Active = this.ship.GetAI().CombatState == CombatState.ShortRange;
+                                    toggleButton.Active = this.ship.AI.CombatState == CombatState.ShortRange;
                                     continue;
                                 default:
                                     continue;
@@ -611,11 +611,11 @@ namespace Ship_Game
 			{
 				return;
 			}
-			if (ship.GetAI().OrderQueue.NotEmpty)
+			if (ship.AI.OrderQueue.NotEmpty)
 			{
 				try
 				{
-					if (ship.GetAI().OrderQueue.PeekLast.Plan == ArtificialIntelligence.Plan.DeployStructure)
+					if (ship.AI.OrderQueue.PeekLast.Plan == ArtificialIntelligence.Plan.DeployStructure)
 					{
 						return;
 					}
@@ -633,7 +633,7 @@ namespace Ship_Game
                 };
                 this.Orders.Add(resupply);
             }
-            if (this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.GetAI().State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
+            if (this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.AI.State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
 			{
 				OrdersButton ao = new OrdersButton(this.ship, Vector2.Zero, OrderType.DefineAO, 15)
 				{
@@ -644,7 +644,7 @@ namespace Ship_Game
 				};
                 this.Orders.Add(ao);
             }
-            if (this.ship.CargoSpace_Max > 0f && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.GetAI().State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
+            if (this.ship.CargoSpace_Max > 0f && this.ship.shipData.Role != ShipData.RoleName.troop && this.ship.AI.State != AIState.Colonize && this.ship.shipData.Role != ShipData.RoleName.station && ship.Mothership == null)
 			{
 				OrdersButton tf = new OrdersButton(this.ship, Vector2.Zero, OrderType.TradeFood, 16)
 				{
@@ -729,7 +729,7 @@ namespace Ship_Game
                     this.Orders.Add(ob2);
                 }
 			}
-            if (this.ship.shipData.Role >= ShipData.RoleName.fighter && ship.Mothership == null && this.ship.GetAI().State != AIState.Colonize && ship.shipData.ShipCategory != ShipData.Category.Civilian)
+            if (this.ship.shipData.Role >= ShipData.RoleName.fighter && ship.Mothership == null && this.ship.AI.State != AIState.Colonize && ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
 			    OrdersButton exp = new OrdersButton(this.ship, Vector2.Zero, OrderType.Explore, 136)
 			    {

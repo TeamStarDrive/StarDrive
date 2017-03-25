@@ -233,7 +233,7 @@ namespace Ship_Game.Gameplay
             ModifyProjectile(projectile);
             projectile.InitializeDrone(projectile.speed, direction);
             projectile.Radius = ProjectileRadius;
-            Owner.Projectiles.Add(projectile);
+            Owner.AddProjectile(projectile);
             if (Owner.InFrustum)
             {
                 projectile.DieSound = true;
@@ -333,7 +333,7 @@ namespace Ship_Game.Gameplay
                 beam.Die(null, true);
                 return;
             }
-            moduleAttachedTo.GetParent().Beams.Add(beam);
+            moduleAttachedTo.GetParent().AddBeam(beam);
             ToggleSoundOn = false;
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && moduleAttachedTo.GetParent().InFrustum)
             {
@@ -369,7 +369,7 @@ namespace Ship_Game.Gameplay
                 beam.Die(null, true);
                 return;
             }
-            moduleAttachedTo.GetParent().Beams.Add(beam);
+            moduleAttachedTo.GetParent().AddBeam(beam);
             ToggleSoundOn = false;
             if ((Owner.System != null && Owner.System.isVisible || Owner.InDeepSpace) && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
@@ -448,7 +448,7 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-            Owner.Projectiles.Add(projectile);
+            Owner.AddProjectile(projectile);
             return projectile;
         }
 
@@ -857,7 +857,7 @@ namespace Ship_Game.Gameplay
                         if (Tag_Guided)
                             FireSalvo(SalvoDirection, SalvoTarget);
                         else
-                            Owner.GetAI().CalculateAndFire(this, SalvoTarget, true);
+                            Owner.AI.CalculateAndFire(this, SalvoTarget, true);
                     }
                 }
             }

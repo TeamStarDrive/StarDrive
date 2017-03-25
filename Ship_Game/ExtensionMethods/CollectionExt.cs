@@ -415,5 +415,75 @@ namespace Ship_Game
             Memory.HybridCopyRefs(result = new T[newLength], 0, array, array.Length);
             result[newLength] = item;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] FilterBy<T>(this T[] items, Func<T, bool> predicate) => items.FilterBy(items.Length, predicate);
+
+        // A quite memory efficient filtering function to replace Where clauses
+        public static unsafe T[] FilterBy<T>(this T[] items, int count, Func<T, bool> predicate)
+        {
+            byte* map = stackalloc byte[count];
+
+            int resultCount = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                bool keep = predicate(items[i]);
+                if (keep) ++resultCount;
+                map[i] = keep ? (byte)1 : (byte)0;
+            }
+
+            var results = new T[resultCount];
+            resultCount = 0;
+            for (int i = 0; i < count; ++i)
+                if (map[i] > 0) results[resultCount++] = items[i];
+
+            return results;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] UniqueGameObjects<T>(this T[] items) where T : GameplayObject
+            => items.UniqueGameObjects(items.Length);
+
+        // Returns a new copy of the array, with all duplicates removed. Even if no duplicates are found, a copy is made.
+        // This version is optimized to handle GameplayObjects and manages to exclude dups in just Theta(3n)
+        public static unsafe T[] UniqueGameObjects<T>(this T[] items, int count) where T : GameplayObject
+        {
+            if (count == 0)
+                return Empty<T>.Array;
+
+            // find min-max Id
+            int min = items[0].Id;
+            int max = min;
+            for (int i = 1; i < count; ++i)
+            {
+                int value = items[i].Id;
+                if      (value < min) min = value;
+                else if (value > max) max = value;
+            }
+
+            int mapSpan = (max - min) + 1; // number of elements in the sparse map
+            int* sparseMap = stackalloc int[mapSpan]; // a sparse map of (index + 1) values, so 0 (default value) is invalid index
+
+            int numUniques = 0;
+            for (int i = 0; i < count; ++i) // populate the index map
+            {
+                int mapIdx = items[i].Id - min;
+                if (sparseMap[mapIdx] == 0)
+                {
+                    sparseMap[mapIdx] = i + 1; // store 1-based index
+                    ++numUniques;
+                }
+            }
+
+            // write out the results
+            var results = new T[numUniques];
+            int resultsCount = 0;
+            for (int mapIdx = 0; mapIdx < mapSpan; ++mapIdx)
+            {
+                int itemIdx = sparseMap[mapIdx];
+                if (itemIdx > 0) results[resultsCount++] = items[itemIdx - 1];
+            }
+            return results;
+        }
     }
 }
