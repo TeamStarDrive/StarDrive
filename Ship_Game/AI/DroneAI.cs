@@ -26,9 +26,9 @@ namespace Ship_Game.AI
             DroneTarget = null;
 			Array<Ship> potentials = new Array<Ship>();
 
-		    for (int index = 0; index < Owner.owner.GetAI().FriendliesNearby.Count; index++)
+		    for (int index = 0; index < Owner.owner.AI.FriendliesNearby.Count; index++)
 		    {
-		        Ship go = Owner.owner.GetAI().FriendliesNearby[index];
+		        Ship go = Owner.owner.AI.FriendliesNearby[index];
 
 		        if (go == null || !go.Active || go.loyalty != Owner.loyalty || go.Health >= go.HealthMax)
 		        {

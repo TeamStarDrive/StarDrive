@@ -61,7 +61,7 @@ namespace Ship_Game
 				weapon = ResourceManager.WeaponsDict["AncientRepulsor"]
 			};
 			this.b1.LoadContent(Anomaly.screen.ScreenManager, Anomaly.screen.view, Anomaly.screen.projection);
-			this.s1.Beams.Add(this.b1);
+			this.s1.AddBeam(this.b1);
 			this.b1.infinite = true;
 			this.b1.range = 2500f;
 			this.b1.thickness = 75;
@@ -73,7 +73,7 @@ namespace Ship_Game
 			};
 			this.b2.LoadContent(Anomaly.screen.ScreenManager, Anomaly.screen.view, Anomaly.screen.projection);
 			this.b2.infinite = true;
-			this.s2.Beams.Add(this.b2);
+			this.s2.AddBeam(this.b2);
 			this.b2.range = 2500f;
 			this.b2.thickness = 75;
 			this.b2.PowerCost = 0f;
@@ -84,7 +84,7 @@ namespace Ship_Game
 			};
 			this.b3.LoadContent(Anomaly.screen.ScreenManager, Anomaly.screen.view, Anomaly.screen.projection);
 			this.b3.infinite = true;
-			this.s3.Beams.Add(this.b3);
+			this.s3.AddBeam(this.b3);
 			this.b3.range = 2500f;
 			this.b3.thickness = 75;
 			this.b3.PowerCost = 0f;
@@ -132,7 +132,7 @@ namespace Ship_Game
 				{
 					Ship enemy = ResourceManager.CreateShipAtPoint("Heavy Drone", EmpireManager.Remnants, this.Position);
 					enemy.Velocity = this.GenerateRandomV2(100f);
-					enemy.GetAI().State = AIState.AwaitingOrders;
+					enemy.AI.State = AIState.AwaitingOrders;
 					this.timer = 2f;
 					DimensionalPrison dimensionalPrison1 = this;
 					dimensionalPrison1.numCreated = dimensionalPrison1.numCreated + 1;

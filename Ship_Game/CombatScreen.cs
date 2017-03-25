@@ -710,7 +710,7 @@ namespace Ship_Game
 							ScrollList.Entry e = this.OrbitSL.Entries[i];
 							if (e.item is Ship)
 							{
-								(e.item as Ship).GetAI().OrderLandAllTroops(this.p);
+								(e.item as Ship).AI.OrderLandAllTroops(this.p);
 							}
 							else if (e.item is Troop)
 							{

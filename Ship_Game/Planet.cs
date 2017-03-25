@@ -2842,15 +2842,15 @@ namespace Ship_Game
                             RepairPool = -shieldrepair;
                         }
                     }
-                    else if(ship.GetAI().State == AIState.Resupply)
+                    else if(ship.AI.State == AIState.Resupply)
                     {
                 
-                        ship.GetAI().OrderQueue.Clear();
+                        ship.AI.OrderQueue.Clear();
                     
-                        ship.GetAI().Target = null;
-                        ship.GetAI().PotentialTargets.Clear();
-                        ship.GetAI().HasPriorityOrder = false;
-                        ship.GetAI().State = AIState.AwaitingOrders;
+                        ship.AI.Target = null;
+                        ship.AI.PotentialTargets.Clear();
+                        ship.AI.HasPriorityOrder = false;
+                        ship.AI.State = AIState.AwaitingOrders;
 
                     }
                     //auto load troop:
@@ -5311,7 +5311,7 @@ namespace Ship_Game
                         {
                             if (platform.BaseStrength <= 0)
                                 continue;
-                            if (platform.GetAI().State == AIState.Scrap)
+                            if (platform.AI.State == AIState.Scrap)
                                 continue;
                             if (platform.shipData.Role == ShipData.RoleName.station)
                             {
@@ -5319,7 +5319,7 @@ namespace Ship_Game
                                 if (DefBudget - stationUpkeep < -stationUpkeep)
                                 {
 
-                                    platform.GetAI().OrderScrapShip();
+                                    platform.AI.OrderScrapShip();
                                     continue;
                                 }
                                 DefBudget -= stationUpkeep;
@@ -5330,7 +5330,7 @@ namespace Ship_Game
                                 platformUpkeep = platform.GetMaintCost();
                                 if (DefBudget - platformUpkeep < -platformUpkeep)
                                 {
-                                    platform.GetAI().OrderScrapShip();
+                                    platform.AI.OrderScrapShip();
 
                                     continue;
                                 }
@@ -5763,7 +5763,7 @@ output = maxp * take10 = 5
                     {
                         if (queueItem.Goal.GoalName == "BuildConstructionShip")
                         {
-                            shipAt.GetAI().OrderDeepSpaceBuild(queueItem.Goal);
+                            shipAt.AI.OrderDeepSpaceBuild(queueItem.Goal);
                             //shipAt.shipData.Role = ShipData.RoleName.construction;
                             shipAt.isConstructor = true;
                             shipAt.VanityName = "Construction Ship";
