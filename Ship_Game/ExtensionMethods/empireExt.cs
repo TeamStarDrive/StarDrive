@@ -14,7 +14,7 @@ namespace Ship_Game
                 if (ship.shipData.Role != ShipData.RoleName.troop
                     || ship.fleet != null
                     || ship.Mothership != null
-                    || ship.GetAI().HasPriorityOrder)
+                    || ship.AI.HasPriorityOrder)
                     continue;
                 troopShips.Add(ship);
                 for (int i = 0; i < ship.TroopList.Count; i++)

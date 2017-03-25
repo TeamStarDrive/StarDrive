@@ -273,8 +273,8 @@ namespace Ship_Game
             }
             foreach (Ship ship in OwnedShips)
             {
-                ship.GetAI().OrderQueue.Clear();
-                ship.GetAI().State = AIState.AwaitingOrders;
+                ship.AI.OrderQueue.Clear();
+                ship.AI.State = AIState.AwaitingOrders;
             }
             GSAI.Goals.Clear();
             GSAI.TaskList.Clear();
@@ -339,8 +339,8 @@ namespace Ship_Game
             }
             foreach (Ship ship in OwnedShips)
             {
-                ship.GetAI().OrderQueue.Clear();
-                ship.GetAI().State = AIState.AwaitingOrders;
+                ship.AI.OrderQueue.Clear();
+                ship.AI.State = AIState.AwaitingOrders;
             }
             GSAI.Goals.Clear();
             GSAI.TaskList.Clear();
@@ -2561,16 +2561,16 @@ namespace Ship_Game
                 this.OwnedShips.Add(ship);
                 ship.loyalty = this;
                 ship.fleet?.RemoveShip(ship);
-                ship.GetAI().State = AIState.AwaitingOrders;
-                ship.GetAI().OrderQueue.Clear();
+                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.OrderQueue.Clear();
             }
             foreach (Ship ship in target.GetProjectors())
             {
                 this.OwnedProjectors.Add(ship);
                 ship.loyalty = this;
                 ship.fleet?.RemoveShip(ship);
-                ship.GetAI().State = AIState.AwaitingOrders;
-                ship.GetAI().OrderQueue.Clear();
+                ship.AI.State = AIState.AwaitingOrders;
+                ship.AI.OrderQueue.Clear();
             }
             target.GetShips().Clear();
             target.GetProjectors().Clear();
@@ -2622,8 +2622,8 @@ namespace Ship_Game
                 foreach (Ship s in this.OwnedShips)
                 {
                     //added by gremlin Do not include 0 strength ships in defensive force pool
-                    s.GetAI().OrderQueue.Clear();
-                    s.GetAI().State = AIState.AwaitingOrders;
+                    s.AI.OrderQueue.Clear();
+                    s.AI.State = AIState.AwaitingOrders;
                     ForcePoolAdd(s);
                 }
                 if (this.data.Traits.Cybernetic != 0)
@@ -2739,19 +2739,19 @@ namespace Ship_Game
                     continue;
                 //fbedard: civilian can be freighter too!
                 //if (!(ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.Role == ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null)
-                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.GetAI() == null || ship.isConstructor
-                    || ship.GetAI().State == AIState.Refit || ship.GetAI().State == AIState.Scrap
+                if ((ship.shipData.ShipCategory != ShipData.Category.Civilian && ship.shipData.Role != ShipData.RoleName.freighter) || ship.isColonyShip || ship.CargoSpace_Max == 0 || ship.AI == null || ship.isConstructor
+                    || ship.AI.State == AIState.Refit || ship.AI.State == AIState.Scrap
                     )
                 {
-                    if (ship.GetAI().State == AIState.PassengerTransport || ship.GetAI().State == AIState.SystemTrader)
-                        ship.GetAI().State = AIState.AwaitingOrders;
+                    if (ship.AI.State == AIState.PassengerTransport || ship.AI.State == AIState.SystemTrader)
+                        ship.AI.State = AIState.AwaitingOrders;
                     continue;
                 }
                 this.freighterBudget += ship.GetMaintCost();
-                if (ship.GetAI().State != AIState.AwaitingOrders && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader)
+                if (ship.AI.State != AIState.AwaitingOrders && ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader)
                     continue;
                     
-                if ((ship.GetAI().start == null || ship.GetAI().end == null) ||  ship.GetAI().OrderQueue.IsEmpty) // && //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
+                if ((ship.AI.start == null || ship.AI.end == null) ||  ship.AI.OrderQueue.IsEmpty) // && //(ship.GetAI().State == AIState.SystemTrader || ship.GetAI().State == AIState.PassengerTransport) &&
                 {
                     // if ()  //fbedard: dont scrap loaded ship
                     if (ship.TradeTimer != 0 && ship.TradeTimer < 1)
@@ -2761,11 +2761,11 @@ namespace Ship_Game
 
 
                 }
-                else if (ship.GetAI().State == AIState.PassengerTransport)
+                else if (ship.AI.State == AIState.PassengerTransport)
                 {
                     passengerShips++;
                 }
-                else if (ship.GetAI().State == AIState.SystemTrader)
+                else if (ship.AI.State == AIState.SystemTrader)
                     tradeShips++;
                 else
                 {
@@ -2787,7 +2787,7 @@ namespace Ship_Game
                 Ship ship = unusedFreighters[0 + skipped];                
                 if ( ship.TradeTimer < 1 && ship.CargoSpace_Used ==0)
                 {
-                    ship.GetAI().OrderScrapShip();
+                    ship.AI.OrderScrapShip();
                     unusedFreighters.Remove(ship);
                 }
                 else skipped++;
@@ -2805,21 +2805,21 @@ namespace Ship_Game
                 //assignedShips.Add(ship);
                 unusedFreighters.Remove(ship);
                 freighters--;
-                if (ship.GetAI().State != AIState.Flee)
+                if (ship.AI.State != AIState.Flee)
                 {
                     switch (type)
                     {
                         case 1:
                             {
-                                ship.GetAI().State = AIState.SystemTrader;
-                                ship.GetAI().OrderTrade(0.1f);
+                                ship.AI.State = AIState.SystemTrader;
+                                ship.AI.OrderTrade(0.1f);
                                 type++;
                                 break;
                             }
                         case 2:
                             {
-                                ship.GetAI().State = AIState.PassengerTransport;
-                                ship.GetAI().OrderTransportPassengers(0.1f);
+                                ship.AI.State = AIState.PassengerTransport;
+                                ship.AI.OrderTransportPassengers(0.1f);
                                 type++;
                                 break;
                             }
@@ -2829,7 +2829,7 @@ namespace Ship_Game
                     }
                     if (type > 2)
                         type = 1;
-                    if (ship.GetAI().start == null && ship.GetAI().end == null)
+                    if (ship.AI.start == null && ship.AI.end == null)
                         assignedShips.Add(ship);
 
 
@@ -2993,8 +2993,8 @@ namespace Ship_Game
             {
                 foreach (Ship ship in (Array<Ship>)this.OwnedShips)
                 {
-                    if (ship.GetAI().State == AIState.Explore)
-                        ship.GetAI().OrderRebaseToNearest();
+                    if (ship.AI.State == AIState.Explore)
+                        ship.AI.OrderRebaseToNearest();
                 }
             }
         }
@@ -3116,9 +3116,9 @@ namespace Ship_Game
             ship.fleet?.RemoveShip(ship);
             GetGSAI().DefensiveCoordinator.Remove(ship);
             
-            ship.GetAI().OrderQueue.Clear();
+            ship.AI.OrderQueue.Clear();
            
-            ship.GetAI().State = AIState.AwaitingOrders;
+            ship.AI.State = AIState.AwaitingOrders;
             ship.RemoveFromAllFleets();
         }
         public bool IsEmpireAttackable(Empire empire, GameplayObject target =null)

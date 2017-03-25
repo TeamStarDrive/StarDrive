@@ -185,7 +185,7 @@ namespace Ship_Game.Debug
                     DrawString("Ships: " + Screen.SelectedFleet.Ships.Count);
                     DrawString("Strength: " + Screen.SelectedFleet.GetStrength());
 
-                    string shipAI = Screen.SelectedFleet.Ships.FirstOrDefault()?.GetAI().State.ToString() ?? "";
+                    string shipAI = Screen.SelectedFleet.Ships.FirstOrDefault().AI.State.ToString() ?? "";
                     DrawString("Ship State: " + shipAI);
                 }
             }
@@ -207,9 +207,9 @@ namespace Ship_Game.Debug
                 DrawString(!Screen.SelectedShip.loyalty.GetForcePool().Contains(Screen.SelectedShip)
                     ? "NOT In Force Pool"
                     : "In Force Pool");
-                if (Screen.SelectedShip.GetAI().State == AIState.SystemDefender)
+                if (Screen.SelectedShip.AI.State == AIState.SystemDefender)
                 {
-                    SolarSystem systemToDefend = Screen.SelectedShip.GetAI().SystemToDefend;
+                    SolarSystem systemToDefend = Screen.SelectedShip.AI.SystemToDefend;
                     if (systemToDefend != null)
 
                         DrawString("Defending "+systemToDefend.Name);
@@ -236,24 +236,24 @@ namespace Ship_Game.Debug
                         DrawString("Manager OK");
                 }
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
-                    ship.InCombat ? ship.GetAI().BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
-                DrawString(ship.GetAI().hasPriorityTarget ? "Priority Target" : "No Priority Target");
-                DrawString(ship.GetAI().HasPriorityOrder ? "Priority Order" : "No Priority Order");
-                DrawString("AI State: "+ship.GetAI().State);
+                    ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
+                DrawString(ship.AI.hasPriorityTarget ? "Priority Target" : "No Priority Target");
+                DrawString(ship.AI.HasPriorityOrder ? "Priority Order" : "No Priority Order");
+                DrawString("AI State: "+ship.AI.State);
 
 
-                if (ship.GetAI().OrderQueue.IsEmpty)
+                if (ship.AI.OrderQueue.IsEmpty)
                 {
                     DrawString("Nothing in the Order queue");
                 }
                 else
                 {
-                    foreach (ShipGoal order in ship.GetAI().OrderQueue)
+                    foreach (ShipGoal order in ship.AI.OrderQueue)
                     {
                         DrawString("Executing Order: "+order.Plan);
                     }
                 }
-                if (ship.GetAI().Target is Ship shipTarget)
+                if (ship.AI.Target is Ship shipTarget)
                 {
                     SetTextCursor(Win.X + 150, 600f, Color.White);
                     DrawString("Target: "+ shipTarget.Name);
@@ -448,7 +448,7 @@ namespace Ship_Game.Debug
 
                 foreach (Ship ship in e.GetShips())
                 {
-                    ArtificialIntelligence ai = ship.GetAI();
+                    ArtificialIntelligence ai = ship.AI;
                     if (ai.State != AIState.SystemTrader) continue;
                     if (ai.OrderQueue.Count == 0) continue;
                     
