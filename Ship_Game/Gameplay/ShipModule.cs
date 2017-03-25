@@ -263,13 +263,21 @@ namespace Ship_Game.Gameplay
         // The collision bounds are APPROXIMATED by using radius checks. This means corners
         // are not accurately checked.
         // HitTest uses the World scene POSITION. Not module XML location
-        public bool HitTest(Vector2 point, float radius)
+        public bool HitTest(Vector2 point, float radius, bool ignoreShields = false)
         {
+            float r2, dx, dy;
+            if (!ignoreShields && shield_power > 0.0f) // if module is shielded, then radius check is always circular
+            {
+                r2 = radius + Radius; // Radius is the Exact shield radius, no extra scaling
+                dx = Position.X - point.X;
+                dy = Position.Y - point.Y;
+                return dx * dx + dy * dy <= r2 * r2;
+            }
+
             int larger = XSIZE >= YSIZE ? XSIZE : YSIZE;
-            float ourRadius = larger * 9.0f; // approximated, slightly bigger radius
-            float r2 = ourRadius + radius;
-            float dx = Position.X - point.X;
-            float dy = Position.Y - point.Y;
+            r2 = radius + larger * 8.0f * 1.125f; // approximated, slightly bigger radius
+            dx = Position.X - point.X;
+            dy = Position.Y - point.Y;
             if (dx * dx + dy * dy > r2 * r2)
                 return false; // definitely out of radius for SQUARE and non-square modules
 

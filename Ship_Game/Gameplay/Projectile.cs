@@ -581,7 +581,8 @@ namespace Ship_Game.Gameplay
                 }
                 if (target is ShipModule module)
                 {
-                    if (module.GetParent().loyalty == loyalty && !weapon.HitsFriendlies)
+                    Ship parent = module.GetParent();
+                    if (parent.loyalty == loyalty && !weapon.HitsFriendlies)
                         return false;
 
                     if (weapon.TruePD)
@@ -589,17 +590,13 @@ namespace Ship_Game.Gameplay
                         DieNextFrame = true;
                         return true;
                     }
-                    if (module.GetParent().shipData.Role == ShipData.RoleName.fighter && module.GetParent().loyalty.data.Traits.DodgeMod > 0f)
+                    if (parent.shipData.Role == ShipData.RoleName.fighter && parent.loyalty.data.Traits.DodgeMod > 0f)
                     {
-                        if (UniverseRandom.RandomBetween(0f, 100f) < module.GetParent().loyalty.data.Traits.DodgeMod * 100f)
-                        {
+                        if (UniverseRandom.RandomBetween(0f, 100f) < parent.loyalty.data.Traits.DodgeMod * 100f)
                             Miss = true;
-                        }
                     }
                     if (Miss)
-                    {
                         return false;
-                    }
 
                     //Non exploding projectiles should go through multiple modules if it has enough damage
                     if (!explodes && module.Active)
@@ -616,7 +613,7 @@ namespace Ship_Game.Gameplay
                         if (damageAmount > 0f) // damage passes through to next modules
                         {
                             Vector2 projectileDir = Velocity.Normalized();
-                            var projectedModules = module.GetParent().FindModulesIntersectingRay(Center, projectileDir, 100.0f, 2.0f);
+                            var projectedModules = parent.RayHitTestModules(Center, projectileDir, 64.0f, Radius, ignoreShields:true);
 
                             // now pierce through all of the modules while we can still pierce and damage:
                             foreach (ShipModule impactModule in projectedModules)

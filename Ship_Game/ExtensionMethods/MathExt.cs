@@ -9,6 +9,12 @@ namespace Ship_Game
     // Added by RedFox
     public static class MathExt
     {
+        // clamp a value between [min, max]: min <= value <= max
+        public static float Clamp(this float value, float min, float max)
+        {
+            return Max(min, Min(value, max));
+        }
+
         // Gets the Squared distance from source point a to destination b
         // This is faster than Vector2.Distance()
         public static float SqDist(this Vector2 a, Vector2 b)
