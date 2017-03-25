@@ -352,10 +352,21 @@ namespace Ship_Game
         {
             unchecked
             {
+                if ((uint)index >= (uint)Count)
+                    ThrowIndexOutOfBounds(index);
                 int last = --Count;
                 Items[index] = Items[last];
                 Items[last]  = default(T);
             }
+        }
+
+        public T PopLast()
+        {
+            if (Count == 0)
+                ThrowIndexOutOfBounds(0);
+            T item       = Items[--Count];
+            Items[Count] = default(T);
+            return item;
         }
 
         // This is slower than RemoveDuplicateRefs if T is a class
@@ -382,26 +393,7 @@ namespace Ship_Game
         }
 
         // A quite memory efficient filtering function to replace Where clauses
-        public unsafe T[] FilterBy(Func<T, bool> predicate)
-        {
-            int count = Count;
-            byte* map = stackalloc byte[count];
-
-            int resultCount = 0;
-            for (int i = 0; i < count; ++i)
-            {
-                bool keep = predicate(Items[i]);
-                if (keep) ++resultCount;
-                map[i] = keep ? (byte)1 : (byte)0;
-            }
-
-            var results = new T[resultCount];
-            resultCount = 0;
-            for (int i = 0; i < count; ++i)
-                if (map[i] > 0) results[resultCount++] = Items[i];
-
-            return results;
-        }
+        public T[] FilterBy(Func<T, bool> predicate) => Items.FilterBy(Count, predicate);
 
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
         public IEnumerator<T> GetEnumerator()   => new Enumerator(this);
