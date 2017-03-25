@@ -214,7 +214,7 @@ namespace Ship_Game
         public bool showingRangeOverlay;
 
         public DeepSpaceBuildingWindow dsbw;
-        private DebugInfoScreen debugwin;
+        public DebugInfoScreen DebugWin;
         public bool ShowShipNames;
         public InputState input;
         private float Memory;
@@ -2479,15 +2479,15 @@ namespace Ship_Game
             if (input.CurrentKeyboardState.IsKeyDown(Keys.H) && !input.LastKeyboardState.IsKeyDown(Keys.H) && this.Debug)
             {
                 if (!showdebugwindow)
-                    this.debugwin = new DebugInfoScreen(this.ScreenManager, this);
+                    DebugWin = new DebugInfoScreen(this.ScreenManager, this);
                 else
-                    debugwin = null;
+                    DebugWin = null;
                 this.showdebugwindow = !this.showdebugwindow;
             }
             {
                 if (Debug && showdebugwindow)
                 {
-                    this.debugwin.HandleInput(input);
+                    DebugWin.HandleInput(input);
                 }
             }
             if (this.DefiningAO)
@@ -4993,7 +4993,7 @@ namespace Ship_Game
 
             this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size.X / 2f, this.Size.Y / 2f, 0.0f), this.projection, this.view, Matrix.Identity);
             this.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
-            if (!Debug) // don't draw dark fog in debug
+            if (!Debug) // don't draw fog of war in debug
             {
                 Vector3 vector3_1 = ScreenManager.GraphicsDevice.Viewport.Project(Vector3.Zero, this.projection, this.view, Matrix.Identity);
                 Vector3 vector3_2 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.Size.X, this.Size.Y, 0.0f), this.projection, this.view, Matrix.Identity);
@@ -5106,7 +5106,7 @@ namespace Ship_Game
             }       
             if (Debug) //input.CurrentKeyboardState.IsKeyDown(Keys.T) && !input.LastKeyboardState.IsKeyDown(Keys.T) && 
             {
-                foreach (Empire e in EmpireManager.Empires)
+                //foreach (Empire e in EmpireManager.Empires)
                 {
                     //if (e.isPlayer || e.isFaction)
                     //    continue;
@@ -5346,7 +5346,7 @@ namespace Ship_Game
                 NotificationManager.Draw();
             
             if (Debug && showdebugwindow)
-                debugwin.Draw(gameTime);
+                DebugWin.Draw(gameTime);
 
             if (aw.isOpen && !LookingAtPlanet)
                 aw.Draw(gameTime);

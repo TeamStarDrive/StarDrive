@@ -693,12 +693,16 @@ namespace Ship_Game
             [Serialize(6)] public int Key;
             [Serialize(7)] public Array<FleetShipSave> ShipsInFleet;
             [Serialize(8)] public Array<FleetDataNode> DataNodes;
+
+            public override string ToString() => $"FleetSave {Name} (core={IsCoreFleet}) {FleetGuid} {Position}";
         }
 
         public struct FleetShipSave
         {
             [Serialize(0)] public Guid shipGuid;
             [Serialize(1)] public Vector2 fleetOffset;
+
+            public override string ToString() => $"FleetShipSave {shipGuid} {fleetOffset}";
         }
 
         public struct GoalSave
