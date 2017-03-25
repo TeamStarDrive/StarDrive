@@ -2085,12 +2085,20 @@ namespace Ship_Game.Gameplay
             return ExternalSlots.FindMin(slot => point.SqDist(slot.module.Center));
         }
 
+        // @todo Optimize this; linear lookup is pretty severe
+        public ShipModule FindClosestExternalModule(Vector2 point)
+        {
+            return FindClosestExternalSlot(point)?.module;
+        }
+
         public Array<ShipModule> FindExternalModules(int quadrant)
         {
             var modules = new Array<ShipModule>();
-            for (int i = 0; i < ExternalSlots.Count; ++i)
+            int count = ExternalSlots.Count;
+            var slots = ExternalSlots.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
             {
-                ShipModule module = ExternalSlots[i].module;
+                ShipModule module = slots[i].module;
                 if (module.quadrant == quadrant && module.Health > 0f)
                     modules.Add(module);
             }
@@ -2099,19 +2107,62 @@ namespace Ship_Game.Gameplay
 
         public ShipModule FindUnshieldedExternalModule(int quadrant)
         {
-            for (int i = 0; i < ExternalSlots.Count; ++i)
+            int count = ExternalSlots.Count;
+            var slots = ExternalSlots.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
             {
-                ShipModule module = ExternalSlots[i].module;
+                ShipModule module = slots[i].module;
                 if (module.quadrant == quadrant && module.Health > 0f && module.shield_power <= 0f)
                     return module;
             }
             return null; // aargghh ;(
         }
 
+        public ShipModule RayHitTestExternalModules(
+            Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields = false)
+        {
+            Vector2 endPos = startPos + direction * distance;
+
+            int count = ExternalSlots.Count;
+            var slots = ExternalSlots.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                ShipModule module = slots[i].module;
+                if (!module.Active || module.Health <= 0f)
+                    continue;
+
+                ++GlobalStats.DistanceCheckTotal;
+
+                Vector2 point = module.Center.FindClosestPointOnLine(startPos, endPos);
+                if (module.HitTest(point, rayRadius, ignoreShields))
+                    return module;
+            }
+            return null;
+        }
+
+        public ShipModule HitTestExternalModules(Vector2 hitPos, float hitRadius, bool ignoreShields = false)
+        {
+            int count = ExternalSlots.Count;
+            var slots = ExternalSlots.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                ShipModule module = slots[i].module;
+                if (!module.Active || module.Health <= 0f)
+                    continue;
+
+                ++GlobalStats.DistanceCheckTotal;
+
+                if (module.HitTest(hitPos, hitRadius, ignoreShields))
+                    return module;
+            }
+            return null;
+        }
+
         // find ShipModules that collide with a this wide RAY
         // direction must be normalized!!
-        public Array<ShipModule> FindModulesIntersectingRay(
-            Vector2 startPos, Vector2 direction, float distance, float rayRadius)
+        // results are sorted by distance
+        public Array<ShipModule> RayHitTestModules(
+            Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields = false)
         {
             Vector2 endPos = startPos + direction * distance;
 
@@ -2121,17 +2172,42 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < count; ++i)
             {
                 ShipModule module = slots[i].module;
-                if (module.isDummy || !module.Active || module.Health <= 0f)
+                if (!module.Active || module.Health <= 0f)
                     continue;
 
+                ++GlobalStats.DistanceCheckTotal;
+
                 Vector2 point = module.Position.FindClosestPointOnLine(startPos, endPos);
-                if (module.HitTest(point, rayRadius))
+                if (module.HitTest(point, rayRadius, ignoreShields))
                     modules.Add(module);
             }
             modules.Sort(module => startPos.SqDist(module.Position));
             return modules;
         }
-        
+
+        // find ShipModules that fall into hit radius (eg an explosion)
+        // results are sorted by distance
+        public Array<ShipModule> HitTestModules(Vector2 hitPos, float hitRadius, bool ignoreShields = false)
+        {
+            var modules = new Array<ShipModule>();
+            int count = ModuleSlotList.Count;
+            var slots = ModuleSlotList.GetInternalArrayItems();
+            for (int i = 0; i < count; ++i)
+            {
+                ShipModule module = slots[i].module;
+                if (!module.Active || module.Health <= 0f)
+                    continue;
+
+                ++GlobalStats.DistanceCheckTotal;
+
+                if (module.HitTest(hitPos, hitRadius, ignoreShields))
+                    modules.Add(module);
+            }
+            modules.Sort(module => hitPos.SqDist(module.Position));
+            return modules;
+        }
+
+
         public void ResetJumpTimer()
         {
             JumpTimer = FTLSpoolTime * loyalty.data.SpoolTimeModifier;
@@ -2140,7 +2216,7 @@ namespace Ship_Game.Gameplay
         //added by gremlin: Fighter recall and stuff
         public void EngageStarDrive()
         {
-            if (isSpooling || engineState == Ship.MoveState.Warp || GetmaxFTLSpeed <= 2500 )
+            if (isSpooling || engineState == MoveState.Warp || GetmaxFTLSpeed <= 2500 )
             {
                 return;
             }
@@ -4770,9 +4846,9 @@ namespace Ship_Game.Gameplay
         public void UpdateShields()
         {
             float shieldPower = 0.0f;
-            for (int index = 0; index < Shields.Count; index++)
+            for (int i = 0; i < Shields.Count; i++)
             {                
-                shieldPower += Shields[index].shield_power;
+                shieldPower += Shields[i].shield_power;
             }
             if (shieldPower > shield_max)
                 shieldPower = shield_max;
