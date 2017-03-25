@@ -47,8 +47,8 @@ namespace Ship_Game.AI
 
         private void CoreFleetAddShip(Ship ship)
         {
-            ship.GetAI().OrderQueue.Clear();
-            ship.GetAI().HasPriorityOrder = false;
+            ship.AI.OrderQueue.Clear();
+            ship.AI.HasPriorityOrder = false;
             CoreFleet.AddShip(ship);
         }
         public AO(Planet p, float radius)

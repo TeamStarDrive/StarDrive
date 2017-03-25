@@ -29,7 +29,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                TargetList = Owner.Owner.GetAI().PotentialTargets;
+                TargetList = Owner.Owner.AI.PotentialTargets;
             }
         }
 
@@ -38,7 +38,7 @@ namespace Ship_Game.AI
         {
             if (this.Owner.owner != null && this.Owner.owner.Active && !this.Owner.owner.dying)
             {
-                GameplayObject sourceTarget = this.Owner.owner.GetAI().Target;
+                GameplayObject sourceTarget = this.Owner.owner.AI.Target;
                 Relationship relTarget = null;
    
                 Ship sourceTargetShip = sourceTarget as Ship;

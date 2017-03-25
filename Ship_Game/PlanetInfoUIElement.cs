@@ -281,7 +281,7 @@ namespace Ship_Game
                 this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/dan_button_blue"], SendTroops, Color.White);         
                 troops= this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0 )
-                     .Where(troopAI => troopAI.GetAI().OrderQueue
+                     .Where(troopAI => troopAI.AI.OrderQueue
                          .Where(goal => goal.TargetPlanet != null && goal.TargetPlanet == p).Count() >0).Count();
                 if (!HelperFunctions.CheckIntersection(this.SendTroops, MousePos))
                     this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,String.Concat("Invading : ",troops) , Text, new Color(88, 108, 146)); // Localizer.Token(1425)
@@ -527,8 +527,8 @@ namespace Ship_Game
 					{
 						lock (markedGoal.GetColonyShip())
 						{
-							markedGoal.GetColonyShip().GetAI().OrderQueue.Clear();
-							markedGoal.GetColonyShip().GetAI().State = AIState.AwaitingOrders;
+							markedGoal.GetColonyShip().AI.OrderQueue.Clear();
+							markedGoal.GetColonyShip().AI.State = AIState.AwaitingOrders;
 						}
 					}
 					EmpireManager.Player.GetGSAI().Goals.QueuePendingRemoval(markedGoal);
@@ -545,13 +545,13 @@ namespace Ship_Game
             {
                 Array<Ship> troopShips = new Array<Ship>(this.screen.player.GetShips()
                      .Where(troop => troop.TroopList.Count > 0
-                         && (troop.GetAI().State == AIState.AwaitingOrders || troop.GetAI().State == AIState.Orbit)
+                         && (troop.AI.State == AIState.AwaitingOrders || troop.AI.State == AIState.Orbit)
                          && troop.fleet == null && !troop.InCombat).OrderBy(distance => Vector2.Distance(distance.Center, p.Position)));
                 Array<Planet> planetTroops = new Array<Planet>(this.screen.player.GetPlanets().Where(troops => troops.TroopsHere.Count > 1).OrderBy(distance => Vector2.Distance(distance.Position, p.Position)));
                 if (troopShips.Count > 0)
                 {
                     AudioManager.PlayCue("echo_affirm");
-                    troopShips.First().GetAI().OrderAssaultPlanet(this.p);
+                    troopShips.First().AI.OrderAssaultPlanet(this.p);
 
                 }
                 else
@@ -562,7 +562,7 @@ namespace Ship_Game
                             if (troop != null)
                             {
                                 AudioManager.PlayCue("echo_affirm");                              
-                                troop.GetAI().OrderAssaultPlanet(this.p);
+                                troop.AI.OrderAssaultPlanet(this.p);
                             }
                         }
                     }

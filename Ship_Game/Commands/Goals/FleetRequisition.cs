@@ -133,7 +133,7 @@ namespace Ship_Game.Commands
 
                             ship.fleet = fleet;
                             ship.RelativeFleetOffset = current.FleetOffset;
-                            ship.GetAI().OrderMoveToFleetPosition(fleet.Position + ship.FleetOffset, ship.fleet.Facing, new Vector2(0.0f, -1f), true, fleet.Speed, fleet);
+                            ship.AI.OrderMoveToFleetPosition(fleet.Position + ship.FleetOffset, ship.fleet.Facing, new Vector2(0.0f, -1f), true, fleet.Speed, fleet);
                         }
                         break;
                     }

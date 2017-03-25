@@ -22,11 +22,11 @@ namespace Ship_Game.AI
         }
         public void AddShip(Ship ship)
         {
-            ship.GetAI().OrderQueue.Clear();
-            ship.GetAI().SystemToDefend = null;
-            ship.GetAI().SystemToDefendGuid = Guid.Empty;
-            ship.GetAI().HasPriorityOrder = false;
-            ship.GetAI().State = AIState.SystemDefender;
+            ship.AI.OrderQueue.Clear();
+            ship.AI.SystemToDefend = null;
+            ship.AI.SystemToDefendGuid = Guid.Empty;
+            ship.AI.HasPriorityOrder = false;
+            ship.AI.State = AIState.SystemDefender;
             DefenseDeficit -= ship.GetStrength();
             DefensiveForcePool.Add(ship);
         }
@@ -59,11 +59,11 @@ namespace Ship_Game.AI
         }
         public Planet AssignIdleShips(Ship ship)
         {
-            return DefenseDict[ship.GetAI().SystemToDefend].AssignIdleDuties(ship);
+            return DefenseDict[ship.AI.SystemToDefend].AssignIdleDuties(ship);
         }
         public void Remove(Ship ship)
         {
-            SolarSystem systoDefend = ship.GetAI().SystemToDefend;
+            SolarSystem systoDefend = ship.AI.SystemToDefend;
              if (!DefensiveForcePool.Remove(ship))
             {
                 if(ship.Active && systoDefend != null)
@@ -198,12 +198,12 @@ namespace Ship_Game.AI
             {
                 Ship ship = DefensiveForcePool[x];
                 if (ship.Active  
-                    && !(ship.GetAI().HasPriorityOrder || ship.GetAI().State == AIState.Resupply))
+                    && !(ship.AI.HasPriorityOrder || ship.AI.State == AIState.Resupply))
                 {
-                    if (ship.GetAI().SystemToDefend == null)
+                    if (ship.AI.SystemToDefend == null)
                         shipsAvailableForAssignment.Add(ship);
                     else
-                        ship.GetAI().State = AIState.SystemDefender;
+                        ship.AI.State = AIState.SystemDefender;
                 }
                 else Remove(ship);
             }
@@ -222,9 +222,9 @@ namespace Ship_Game.AI
                     foreach (Ship ship in shipsAvailableForAssignment
                         .OrderBy(ship => ship.Center.SqDist(kv.Key.Position)))
                     {
-                        if (ship.GetAI().State == AIState.Resupply
-                            || (ship.GetAI().State == AIState.SystemDefender
-                            && ship.GetAI().SystemToDefend != null))
+                        if (ship.AI.State == AIState.Resupply
+                            || (ship.AI.State == AIState.SystemDefender
+                            && ship.AI.SystemToDefend != null))
                             continue;
                         if (!ship.Active)
                         {
@@ -278,7 +278,7 @@ namespace Ship_Game.AI
                         continue;
                     }
 
-                    ArtificialIntelligence troopAI = troop.GetAI();
+                    ArtificialIntelligence troopAI = troop.AI;
                     if (troopAI == null)
                     {
                         troopShips.Remove(troop);
@@ -330,7 +330,7 @@ namespace Ship_Game.AI
                             target = lowTroops;
                     }
                     if (target == null) continue;
-                    troopShip.GetAI().OrderRebase(target, true);
+                    troopShip.AI.OrderRebase(target, true);
                 }
             }
             EmpireTroopRatio = UniverseWants;

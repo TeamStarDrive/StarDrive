@@ -304,11 +304,10 @@ namespace Ship_Game.Gameplay
                 return true;
             }
             Projectile psource = source as Projectile;
-            Beam bsource = source as Beam;
             Parent.InCombatTimer = 15f;
             Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
-            if (psource !=null)
+            if (psource != null)
             {
                 Parent.LastDamagedBy = source;
                 if (Parent.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
@@ -324,15 +323,12 @@ namespace Ship_Game.Gameplay
             if (psource != null)
                 damageAmount = ApplyResistances(psource.weapon, damageAmount);
 
-            if (bsource !=null)
-                damageAmount = ApplyResistances(psource.weapon, damageAmount);
-
             //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
             if (damageAmount <= DamageThreshold)
                 damageAmount = 0f;
 
             //Added by McShooterz: shields keep charge when manually turned off
-            if (shield_power <= 0f || shieldsOff || psource !=null && psource.IgnoresShields)
+            if (shield_power <= 0f || shieldsOff || psource != null && psource.IgnoresShields)
             {
                 //Added by McShooterz: ArmorBonus Hull Bonus
                 if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
@@ -340,9 +336,9 @@ namespace Ship_Game.Gameplay
                     if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
                         damageAmount *= (1f - mod.ArmoredBonus);
                 }
-                if (psource !=null && psource.weapon.EMPDamage > 0f)
+                if (psource != null && psource.weapon.EMPDamage > 0f)
                 {
-                    Parent.EMPDamage += (source as Projectile).weapon.EMPDamage;
+                    Parent.EMPDamage += psource.weapon.EMPDamage;
                 }
                 if (shield_power_max > 0f && (!isExternal || quadrant <= 0))
                 {
@@ -393,7 +389,7 @@ namespace Ship_Game.Gameplay
             else
             {
                 float damageAmountvsShields = damageAmount;
-                if (psource!=null)
+                if (psource != null)
                 {
                     if (psource.isSecondary)
                     {
@@ -404,13 +400,11 @@ namespace Ship_Game.Gameplay
                     }
                     else
                     {
-                        damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
+                        damageAmountvsShields *= psource.weapon.EffectVSShields;
                     }
                 }
 
-                if (psource !=null)
-                    damageAmountvsShields = ApplyShieldResistances(psource.weapon, damageAmountvsShields);
-                else if (bsource != null)
+                if (psource != null)
                     damageAmountvsShields = ApplyShieldResistances(psource.weapon, damageAmountvsShields);
 
                 if (damageAmountvsShields <= shield_threshold)
@@ -1194,7 +1188,7 @@ namespace Ship_Game.Gameplay
                 if (hangarShip != null)
                 {
                     //this.hangarShip.GetAI().State == AIState.AssaultPlanet || this.hangarShip.GetAI().State == AIState.Boarding ||
-                    if (hangarShip.GetAI().State == AIState.ReturnToHangar || hangarShip.GetAI().EscortTarget != null || hangarShip.GetAI().OrbitTarget != null)
+                    if (hangarShip.AI.State == AIState.ReturnToHangar || hangarShip.AI.EscortTarget != null || hangarShip.AI.OrbitTarget != null)
                         return;
                     hangarShip.DoEscort(Parent);
                     return;
@@ -1231,11 +1225,11 @@ namespace Ship_Game.Gameplay
                 return;
             if (hangarShip != null && hangarShip.Active)
             {
-                if (hangarShip.GetAI().State == AIState.ReturnToHangar 
-                    || hangarShip.GetAI().HasPriorityOrder 
-                    || hangarShip.GetAI().hasPriorityTarget
-                    || hangarShip.GetAI().IgnoreCombat 
-                    || hangarShip.GetAI().Target != null
+                if (hangarShip.AI.State == AIState.ReturnToHangar 
+                    || hangarShip.AI.HasPriorityOrder 
+                    || hangarShip.AI.hasPriorityTarget
+                    || hangarShip.AI.IgnoreCombat 
+                    || hangarShip.AI.Target != null
                     || hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange)
                 ) return;
                 hangarShip.DoEscort(Parent);
@@ -1252,7 +1246,6 @@ namespace Ship_Game.Gameplay
                                                    || !Parent.loyalty.ShipsWeCanBuild.Contains(hangarShipUID)))
             {
                 temphangarship = ResourceManager.ShipsDict[startingscout];
-                Array<Ship> fighters = new Array<Ship>();
                 foreach (string shipsWeCanBuild in Parent.loyalty.ShipsWeCanBuild)
                 {
 

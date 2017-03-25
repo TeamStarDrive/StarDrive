@@ -92,7 +92,7 @@ namespace Ship_Game.AI
                     || ship.fleet != null
                     || ship.Mothership != null
                     || Empire.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(ship)
-                    || ship.GetAI().State !=  AIState.AwaitingOrders
+                    || ship.AI.State !=  AIState.AwaitingOrders
                     || (ship.System!= null && ship.System.CombatInSystem)   )
                     continue;
 
@@ -243,7 +243,7 @@ namespace Ship_Game.AI
                     
                     ship.fleet?.RemoveShip(ship);
 
-                    ship.GetAI().OrderQueue.Clear();
+                    ship.AI.OrderQueue.Clear();
                     this.Empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                     
 
@@ -284,7 +284,7 @@ namespace Ship_Game.AI
 
                     foreach (Ship ship in BombTaskForce)
                     {
-                        ship.GetAI().OrderQueue.Clear();
+                        ship.AI.OrderQueue.Clear();
                         this.Empire.GetGSAI().DefensiveCoordinator.Remove(ship);
                         ship.fleet?.RemoveShip(ship);
 
@@ -383,18 +383,18 @@ namespace Ship_Game.AI
                     for (int index = Fleet.Ships.Count - 1; index >= 0; index--)
                     {
                         Ship ship = Fleet.Ships[index];
-                        ship.GetAI().OrderQueue.Clear();
-                        ship.GetAI().State = AIState.AwaitingOrders;
+                        ship.AI.OrderQueue.Clear();
+                        ship.AI.State = AIState.AwaitingOrders;
                         Fleet.RemoveShip(ship);
                         ship.HyperspaceReturn();
                         ship.isSpooling = false;
                         if (ship.shipData.Role != ShipData.RoleName.troop)
-                            ship.GetAI().OrderRebaseToNearest();
+                            ship.AI.OrderRebaseToNearest();
                         else
                         {
 
                             closestAO.AddShip(ship);
-                            ship.GetAI().OrderResupplyNearest(false);
+                            ship.AI.OrderResupplyNearest(false);
                         }
                         
                     }
@@ -424,7 +424,7 @@ namespace Ship_Game.AI
                         if (troopship == null)
                             continue;
 
-                        troopship.GetAI().OrderRebaseToNearest();
+                        troopship.AI.OrderRebaseToNearest();
                     }
                     toLaunch.Clear();
                 }
@@ -683,17 +683,17 @@ namespace Ship_Game.AI
             float currentStrength = 0f;
             foreach (Ship ship in this.Empire.GetFleetsDict()[this.WhichFleet].Ships)
             {
-                if (!ship.Active || ship.InCombat && this.Step < 1 || ship.GetAI().State == AIState.Scrap)
+                if (!ship.Active || ship.InCombat && this.Step < 1 || ship.AI.State == AIState.Scrap)
                 {
                     this.Empire.GetFleetsDict()[this.WhichFleet].Ships.QueuePendingRemoval(ship);
-                    if (ship.Active && ship.GetAI().State != AIState.Scrap)
+                    if (ship.Active && ship.AI.State != AIState.Scrap)
                     {
                         if (ship.fleet != null)
                             this.Empire.GetFleetsDict()[this.WhichFleet].Ships.QueuePendingRemoval(ship);
                         
                         this.Empire.ForcePoolAdd(ship);
                     }
-                    else if (ship.GetAI().State == AIState.Scrap)
+                    else if (ship.AI.State == AIState.Scrap)
                     {
                         if (ship.fleet != null)
                             this.Empire.GetFleetsDict()[this.WhichFleet].Ships.QueuePendingRemoval(ship);
@@ -742,19 +742,19 @@ namespace Ship_Game.AI
 
                     foreach (Ship ship in this.Empire.GetFleetsDict()[this.WhichFleet].Ships)
                     {
-                        ship.GetAI().OrderQueue.Clear();
-                        ship.GetAI().State = AIState.AwaitingOrders;
+                        ship.AI.OrderQueue.Clear();
+                        ship.AI.State = AIState.AwaitingOrders;
                         Empire.GetFleetsDict()[WhichFleet].RemoveShip(ship);
                         ship.HyperspaceReturn();
                         ship.isSpooling = false;
 
                         if (ship.shipData.Role != ShipData.RoleName.troop)
                         {
-                            ship.GetAI().OrderResupplyNearest(false);
+                            ship.AI.OrderResupplyNearest(false);
                         }
                         else
                         {
-                            ship.GetAI().OrderRebaseToNearest();
+                            ship.AI.OrderRebaseToNearest();
                         }
                     }
                     this.TaskForce.Clear();
@@ -780,7 +780,7 @@ namespace Ship_Game.AI
                         if (troopship == null)
                             continue;
 
-                        troopship.GetAI().OrderRebaseToNearest();
+                        troopship.AI.OrderRebaseToNearest();
                     }
                     toLaunch.Clear();
                 }
@@ -893,7 +893,7 @@ namespace Ship_Game.AI
                         for (int index = 0; index < ships.Length; index++)
                         {
                             Ship ship = ships[index];
-                            if (ship.GetAI().BadGuysNear || ship.fleet != null || tfstrength >= MinimumEscortStrength ||
+                            if (ship.AI.BadGuysNear || ship.fleet != null || tfstrength >= MinimumEscortStrength ||
                                 ship.GetStrength() <= 0f
                                 || ship.shipData.Role == ShipData.RoleName.troop || ship.hasAssaultTransporter ||
                                 ship.HasTroopBay
@@ -998,11 +998,11 @@ namespace Ship_Game.AI
             foreach (Ship ship in elTaskForce)
             {
                 newFleet.AddShip(ship);
-                ship.GetAI().OrderQueue.Clear();
-                ship.GetAI().State = AIState.AwaitingOrders;
+                ship.AI.OrderQueue.Clear();
+                ship.AI.State = AIState.AwaitingOrders;
                
                 closestAO.RemoveShip(ship);
-                if (ship.GetAI().SystemToDefend != null)
+                if (ship.AI.SystemToDefend != null)
                     this.Empire.GetGSAI().DefensiveCoordinator.Remove(ship);
             }
             newFleet.AutoArrange();
@@ -1055,8 +1055,6 @@ namespace Ship_Game.AI
             potentialTroops = GetTroopsOnPlanets(potentialTroops,rallypoint.Position);
             int troopCount = potentialTroops.Count();
             troopCount += CountShipTroopAndStrength(potentialAssaultShips, out float ourAvailableStrength);
-
-            bool GoodToGo = false;
 
             foreach (Troop t in potentialTroops)
             ourAvailableStrength = ourAvailableStrength + t.Strength;

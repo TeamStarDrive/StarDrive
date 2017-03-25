@@ -1092,7 +1092,7 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							this.SelectedNodeList[0].Ship.GetAI().CombatState = this.SelectedNodeList[0].CombatState;
+							this.SelectedNodeList[0].Ship.AI.CombatState = this.SelectedNodeList[0].CombatState;
 							button.Active = true;
 							AudioManager.PlayCue("echo_affirm");
 							break;
@@ -1198,7 +1198,7 @@ namespace Ship_Game
 								{
 									continue;
 								}
-								node.Ship.GetAI().CombatState = node.CombatState;
+								node.Ship.AI.CombatState = node.CombatState;
 							}
 						}
 					}
