@@ -15,7 +15,6 @@ namespace Ship_Game.Gameplay
         private readonly Array<GameplayObject> AllObjects = new Array<GameplayObject>();
 
         private float BucketUpdateTimer;
-        private readonly Array<CollisionResult> CollisionResults = new Array<CollisionResult>();
         private int Width;
         private int Height;
         private Vector2 UpperLeftBound;
@@ -158,7 +157,7 @@ namespace Ship_Game.Gameplay
 
         public bool Contains(GameplayObject gameObj)
         {
-            return AllObjects.ContainsRef(gameObj);
+            return gameObj.SpatialIndex != -1 && AllObjects.ContainsRef(gameObj);
         }
 
         public IReadOnlyList<Ship> ShipsList => Ships;
@@ -375,10 +374,10 @@ namespace Ship_Game.Gameplay
             // reconstruct unique sorted array:
             var unique = new T[numUnique];
             numUnique = 0;
-            for (int i = 0; i < numAllObjects; ++i)
-                if (histogram[i] > 0 && allObjects[i] is T item) {
+            for (int i = 0; i < numAllObjects; ++i) {
+                if (histogram[i] > 0 && allObjects[i] is T item)
                     unique[numUnique++] = item;
-                }
+            }
 
             if (unique.Length != numUnique)
                 Log.Warning("SpatialManager bucket modified during GetNearby() !!");
@@ -451,20 +450,13 @@ namespace Ship_Game.Gameplay
 
         private void MoveAndCollide(Projectile projectile)
         {
-            CollisionResults.Clear();
-
             GameplayObject[] nearby = GetNearby<GameplayObject>(projectile.Position, 100f);
             foreach (GameplayObject otherObj in nearby)
-                if (CollideWith(projectile, otherObj))
-                    break; // projectile died, no need to continue collisions
-
-            if (CollisionResults.Count > 0)
             {
-                CollisionResults.Sort(CollisionResult.Compare);
-                foreach (CollisionResult cr in CollisionResults)
+                if (CollideWith(projectile, otherObj, out GameplayObject collidedWith) && 
+                    projectile.Touch(collidedWith) || collidedWith.Touch(projectile))
                 {
-                    if (projectile.Touch(cr.GameplayObject) || cr.GameplayObject.Touch(projectile))
-                        return;
+                    return; // projectile collided (and died), no need to continue collisions
                 }
             }
         }
@@ -472,7 +464,6 @@ namespace Ship_Game.Gameplay
         // @todo This method is a complete mess, like all other decompiled parts. It needs a lot of cleanup.
         private void CollideBeam(Beam beam)
         {
-            CollisionResults.Clear();
             beam.CollidedThisFrame = false;
             float distanceToTarget = beam.Destination.Distance(beam.Source);
             if (distanceToTarget > beam.range + 10f)
@@ -621,99 +612,49 @@ namespace Ship_Game.Gameplay
         }
 
         // @return TRUE if a collision happens, false if nothing happened
-        private bool CollideWith(Projectile thisProj, GameplayObject otherObj)
+        private bool CollideWith(Projectile thisProj, GameplayObject otherObj, out GameplayObject collidedWith)
         {
+            collidedWith = null;
             if (thisProj == otherObj || !otherObj.Active || otherObj.CollidedThisFrame)
                 return false;
 
-            if (otherObj is Projectile otherProj)
+            if (otherObj is Ship otherShip)
             {
-                if (thisProj.Center.InRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherProj.weapon.ProjectileRadius))
-                {
-                    CollisionResults.Add(new CollisionResult
-                    {
-                        Distance = 0.0f,
-                        Normal = new Vector2(),
-                        GameplayObject = otherObj
-                    });
-                    return true; // thisProj died
-                }
-                return false;
-            }
-            if (otherObj is Asteroid)
-            {
-                if (thisProj.Center.InRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherObj.Radius))
-                {
-                    CollisionResults.Add(new CollisionResult
-                    {
-                        Distance = 0.0f,
-                        Normal = new Vector2(),
-                        GameplayObject = otherObj
-                    });
-                    return true; // thisProj died
-                }
-                return false;
-            }
-            if (otherObj is Ship otherShip && 
-                thisProj.loyalty != otherShip.loyalty && 
-                thisProj.Center.InRadius(otherObj.Center, otherObj.Radius + thisProj.Radius + thisProj.speed / 60.0f))
-            {
-                otherShip.MoveModulesTimer = 2f;
-                if (thisProj.speed / 60.0 > 16.0) // raymarch type of collision?
-                {
-                    Vector2 direction = thisProj.Velocity.Normalized();
-                    for (int i = 0; i < otherShip.ExternalSlots.Count; ++i)
-                    {
-                        ++GlobalStats.DistanceCheckTotal;
-                        ModuleSlot slot = otherShip.ExternalSlots[i];
-                        if (slot.module != null && (slot.module.shield_power <= 0.0 || !thisProj.IgnoresShields) && slot.module.Active)
-                        {
-                            float radius = 8.0f + (slot.module.shield_power > 0.0f ? slot.module.shield_radius : 0.0f);
+                if (thisProj.loyalty == otherShip.loyalty)
+                    return false;
 
-                            int num1 = 8;
-                            while (num1 < thisProj.speed * 2.0 / 60.0) // raymarch again?
-                            {
-                                ++GlobalStats.Comparisons;
-                                if (slot.module.Center.InRadius(thisProj.Center + direction * num1, radius))
-                                {
-                                    thisProj.Center   = thisProj.Center + direction * num1;
-                                    thisProj.Position = thisProj.Center;
-                                    CollisionResults.Add(new CollisionResult
-                                    {
-                                        Distance       = thisProj.Radius + slot.module.Radius,
-                                        Normal         = new Vector2(),
-                                        GameplayObject = slot.module
-                                    });
-                                    return true; // thisProj died
-                                }
-                                num1 += 8;
-                            }
-                        }
-                    }
+                // if projectile travels more than 16 units (module width) per frame, we need to do ray collision
+                float distPerFrame = thisProj.speed / 60.0f;
+                if (thisProj.Center.OutsideRadius(otherShip.Center, otherShip.Radius + thisProj.Radius + distPerFrame))
+                    return false;
+
+                otherShip.MoveModulesTimer = 2f;
+
+                if (distPerFrame > 16.0f) // ray collision
+                {
+                    Vector2 dir = thisProj.Velocity.Normalized();
+                    collidedWith = otherShip.RayHitTestExternalModules(
+                        thisProj.Center, dir, distPerFrame, thisProj.Radius, thisProj.IgnoresShields);
                 }
                 else
                 {
-                    for (int i = 0; i < otherShip.ExternalSlots.Count; ++i)
-                    {
-                        ++GlobalStats.Comparisons;
-                        ++GlobalStats.DistanceCheckTotal;
-                        ModuleSlot slot = otherShip.ExternalSlots[i];
-                        if (slot.module != null && slot.module.Active && 
-                            (slot.module.shield_power <= 0.0 || !thisProj.IgnoresShields) &&
-                            slot.module.Center.InRadius(thisProj.Center, 10.0f + (slot.module.shield_power > 0.0f ? slot.module.shield_radius : 0.0f)))
-                        {
-                            CollisionResults.Add(new CollisionResult
-                            {
-                                Distance       = thisProj.Radius + slot.module.Radius,
-                                Normal         = new Vector2(),
-                                GameplayObject = slot.module
-                            });
-                            return true; // thisProj died
-                        }
-                    }
+                    collidedWith = otherShip.HitTestExternalModules(thisProj.Center, thisProj.Radius, thisProj.IgnoresShields);
                 }
+                return collidedWith != null;
             }
-            return false; // no collisions
+            if (otherObj is Projectile otherProj)
+            {
+                if (thisProj.Center.OutsideRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherProj.weapon.ProjectileRadius))
+                    return false;
+                collidedWith = otherObj;
+                return true; // thisProj died
+            }
+
+            // finally, generic collision with any kind of 'simple' object
+            if (thisProj.Center.OutsideRadius(otherObj.Center, thisProj.weapon.ProjectileRadius + otherObj.Radius))
+                return false;
+            collidedWith = otherObj;
+            return true; // thisProj died
         }
 
         //Added by McShooterz: New way to distribute exploding projectile damage
@@ -722,8 +663,7 @@ namespace Ship_Game.Gameplay
             if (damageRadius <= 0.0)
                 return;
 
-            Ship[] ships = GetNearby<Ship>(source.Position, source.Radius)
-                           .Where(ship => ship.Active && !ship.dying).ToArray();
+            Ship[] ships = GetNearby<Ship>(source.Position, source.Radius).FilterBy(ship => ship.Active && !ship.dying);
             ships.Sort(ship => ship.Center.SqDist(source.Center));
 
             foreach (Ship ship in ships)
@@ -739,189 +679,106 @@ namespace Ship_Game.Gameplay
                 if (ship.loyalty?.data.ExplosiveRadiusReduction > 0f)
                     modifiedRadius *= 1f - ship.loyalty.data.ExplosiveRadiusReduction;
 
-                ModuleSlot[] modules = ship.ModuleSlotList.FilterBy(slot =>
-                {
-                    ShipModule module = slot.module;
-                    float dist = modifiedRadius + (module.Health > 0f && module.shield_power > 0f && !source.IgnoresShields
-                                                ? module.shield_radius 
-                                                : 10f);
-                    return source.Center.InRadius(module.Center, dist);
-                });
-                modules.Sort(slot =>
-                {
-                    ShipModule module = slot.module;
-                    float dist = source.Center.SqDist(module.Center);
-                    if (module.shield_power > 0.0 && !source.IgnoresShields)
-                        dist -= module.shield_radius * module.shield_radius;
-                    return dist;
-                });
+                Array<ShipModule> modules = ship.HitTestModules(source.Center, modifiedRadius, source.IgnoresShields);
 
-                float damageTracker = 0f;
-                foreach (ModuleSlot moduleSlot in modules)
+                float damageTracker = damageAmount;
+                foreach (ShipModule module in modules)
                 {
-                    moduleSlot.module.Damage(source, damageAmount, ref damageTracker);
-                    if (damageTracker > 0f)
-                        damageAmount = damageTracker;
-                    else return;
+                    module.Damage(source, damageTracker, ref damageTracker);
+                    if (damageTracker <= 0f)
+                        return;
                 }
                 // Doctor: Reduces the effective explosion radius on ships with the 'Reactive Armour' type radius reduction in their empire traits.
             }
         }
 
-        //Modified by McShooterz: not used before, changed to be used for exploding modules
+        private static float DamageFalloff(Vector2 explosionCenter, Vector2 affectedPoint, float damageRadius, float minFalloff = 0.4f)
+        {
+            return Math.Min(1.0f, explosionCenter.Distance(affectedPoint) / damageRadius + minFalloff);
+        }
+
+        // Refactored by RedFox
         public void ExplodeAtModule(GameplayObject source, ShipModule hitModule, float damageAmount, float damageRadius)
         {
-            if (damageRadius <= 0.0f || hitModule.GetParent().dying || !hitModule.GetParent().Active)
+            if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
-            var removalCollection = new BatchRemovalCollection<ExplosionRay>(false);
-            const float num2 = (360f / 15);
-            for (int i = 0; i < 15; ++i)
-                removalCollection.Add(new ExplosionRay
-                {
-                    Direction = MathExt.PointOnCircle(num2 * i, 1f),
-                    Damage = damageAmount / 15
-                });
-            var list = new Array<ShipModule>();
-            list.Add(hitModule);
+            Ship parent = hitModule.GetParent();
+            if (parent.dying || !parent.Active)
+                return;
 
-            // @todo This is very messy. Fix and replace
-            foreach (ModuleSlot slot in hitModule.GetParent().ModuleSlotList.
-                Where(moduleSlot => Vector2.Distance(hitModule.Center, moduleSlot.module.Center) <= damageRadius)
-                .OrderBy(moduleSlot => Vector2.Distance(hitModule.Center, moduleSlot.module.Center)))
+            // affected modules sorted by distance
+            Vector2 explosionCenter = hitModule.Center;
+            var hitModules = parent.HitTestModules(explosionCenter, damageRadius, ignoreShields: false/*internal explosion*/);
+
+            // start dishing out damage from inside out to first 8 modules
+            // since damage is internal, we can't explode with radial falloff
+            float damageTracker = damageAmount;
+            while (damageTracker > 0.0f && hitModules.Count > 0)
             {
-                list.Add(slot.module);
-            }
-            int num3 = 0;
-            while (num3 <damageRadius)
-            {
-                foreach (ExplosionRay explosionRay in removalCollection)
+                float damage = damageTracker / 8;
+
+                for (int i = 0; i < hitModules.Count; ++i)
                 {
-                    if (!(explosionRay.Damage > 0.0))
-                        continue;
-                    foreach (ShipModule shipModule in list)
-                    {
-                        if (!shipModule.Active || !(shipModule.Health > 0.0))
-                            continue;
-                        if (!shipModule.Center.InRadius(hitModule.Center + explosionRay.Direction * num3, 8.0f) || !(explosionRay.Damage > 0.0))
-                            continue;
-                        float health = shipModule.Health;
-                        shipModule.Damage(source, explosionRay.Damage);
-                        explosionRay.Damage -= health;
-                    }
+                    ShipModule module = hitModules[i];
+                    float damageFalloff = DamageFalloff(explosionCenter, module.Center, damageRadius);
+                    float health = module.Health;
+                    module.Damage(source, damage * damageFalloff);
+                    damageTracker -= health - module.Health;
+
+                    if (module.Health <= 0.0f)
+                        hitModules.RemoveAt(i--); // don't use SwapLast, 
                 }
-                num3 += 8;
             }
         }
 
         public void ShipExplode(Ship thisShip, float damageAmount, Vector2 position, float damageRadius)
         {
-            if (damageRadius <= 0.0)
+            if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
-            float num1 = damageRadius * damageRadius;
-            Vector2 explosionCenter = thisShip.Center;
-            var removalCollection = new BatchRemovalCollection<ExplosionRay>(false);
-            const int angle = 360 / 15;
-            for (int i = 0; i < 15; ++i)
-            {
-                removalCollection.Add(new ExplosionRay
-                {
-                    Direction = MathExt.PointOnCircle(angle * i, 1f),
-                    Damage = damageAmount / 15
-                });
-            }
 
+            Vector2 explosionCenter = thisShip.Center;
             GameplayObject[] nearby = GetNearby<GameplayObject>(thisShip.Position, thisShip.Radius);
-            foreach (GameplayObject otherObj in nearby)
+
+            for (int i = 0; i < nearby.Length; ++i)
             {
-                if (otherObj == null || otherObj is Projectile) continue;
-                if (!otherObj.Active || otherObj == thisShip)   continue;
+                GameplayObject otherObj = nearby[i];
+                if (otherObj == thisShip || !otherObj.Active) continue;
+                if (otherObj is Projectile) continue;
                 if (!otherObj.Center.InRadius(thisShip.Center, damageRadius + otherObj.Radius))
                     continue;
 
-                Vector2 vector21 = Vector2.Zero;
-                if (otherObj is Ship otherShip && thisShip != otherObj)
+                if (otherObj is Ship otherShip)
                 {
-                    var affectedModules = new Array<ModuleSlot>();
-                    foreach (ModuleSlot slot in otherShip.ExternalSlots)
-                    {
-                        if (slot.module.Active && slot.module.Center.InRadius(explosionCenter, damageRadius + slot.module.Radius))
-                            affectedModules.Add(slot);
-                    }
-                    if (affectedModules.Count == 0)
-                        break;
+                    ShipModule nearest = otherShip.FindClosestExternalModule(explosionCenter);
+                    if (nearest == null)
+                        continue;
 
-                    affectedModules.Sort(slot => explosionCenter.SqDist(slot.module.Center));
-                    int rayMarch = 0;
-                    while (rayMarch < damageRadius)
-                    {
-                        foreach (ExplosionRay explosionRay in removalCollection)
-                        {
-                            if (explosionRay.Damage <= 0.0f)
-                                continue;
-                            foreach (ModuleSlot slot in affectedModules)
-                            {
-                                ShipModule module = slot.module;
-                                if (!module.Active || module.Health <= 0.0f)
-                                    continue;
-                                if (!module.Center.InRadius(explosionCenter + explosionRay.Direction * rayMarch, 8.0f))
-                                    continue;
-                                vector21 += 3f * explosionRay.Damage * explosionRay.Direction;
-                                if (!otherShip.dying)
-                                {
-                                    if (otherShip.yRotation > 0.0f)
-                                    {
-                                        otherShip.yRotation += explosionRay.Damage / (float)Math.Pow(otherShip.Mass, 1.3);
-                                        if (otherShip.yRotation > otherShip.maxBank)
-                                            otherShip.yRotation = otherShip.maxBank;
-                                    }
-                                    else
-                                    {
-                                        otherShip.yRotation -= explosionRay.Damage / (float)Math.Pow(otherShip.Mass, 1.3);
-                                        if (otherShip.yRotation < -otherShip.maxBank)
-                                            otherShip.yRotation = -otherShip.maxBank;
-                                    }
-                                }
+                    float reducedDamageRadius = damageRadius - explosionCenter.Distance(nearest.Center);
+                    if (reducedDamageRadius <= 0.0f)
+                        continue;
 
-                                if (explosionRay.Damage > 0.0f)
-                                {
-                                    float health = module.Health;
-                                    module.Damage(thisShip, explosionRay.Damage);
-                                    explosionRay.Damage -= health;
-                                }
-                            }
-                        }
-                        rayMarch += 8;
+                    float damageFalloff = DamageFalloff(explosionCenter, nearest.Center, damageRadius);
+                    ExplodeAtModule(thisShip, nearest, damageAmount * damageFalloff, reducedDamageRadius);
+
+                    if (!otherShip.dying)
+                    {
+                        float rotationImpulse = damageRadius / (float)Math.Pow(otherShip.Mass, 1.3);
+                        otherShip.yRotation = otherShip.yRotation > 0.0f ? rotationImpulse : -rotationImpulse;
+                        otherShip.yRotation = otherShip.yRotation.Clamp(-otherShip.maxBank, otherShip.maxBank);
                     }
-                    if (vector21.Length() > 200.0)
-                        vector21 = Vector2.Normalize(vector21) * 200f;
-                    if (!float.IsNaN(vector21.X))
-                        otherObj.Velocity += vector21;
+
+                    // apply some impulse from the explosion
+                    Vector2 impulse = 3f * (otherShip.Center - explosionCenter);
+                    if (impulse.Length() > 200.0)
+                        impulse = impulse.Normalized() * 200f;
+                    if (!float.IsNaN(impulse.X))
+                        otherObj.Velocity += impulse;
                 }
                 else
                 {
-                    if (otherObj is Ship && thisShip == otherObj)
-                        break;
-                    float sqDist = (otherObj.Center - position).LengthSquared();
-                    if (sqDist > 0.0f && sqDist <= num1)
-                    {
-                        float num3 = (float)Math.Sqrt(sqDist);
-                        float damageAmount1 = damageAmount * (damageRadius - num3) / damageRadius;
-                        if (damageAmount1 > 0.0)
-                            otherObj.Damage(thisShip, damageAmount1);
-                    }
+                    float damageFalloff = DamageFalloff(explosionCenter, otherObj.Center, damageRadius, 0.25f);
+                    otherObj.Damage(thisShip, damageAmount * damageFalloff);
                 }
-            }
-        }
-
-        private struct CollisionResult
-        {
-            public float Distance;
-            public Vector2 Normal;
-            public GameplayObject GameplayObject;
-
-            public static int Compare(CollisionResult a, CollisionResult b)
-            {
-                return a.Distance.CompareTo(b.Distance);
             }
         }
     }
