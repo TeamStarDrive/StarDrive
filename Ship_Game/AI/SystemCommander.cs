@@ -93,8 +93,8 @@ namespace Ship_Game.AI
             if (ShipsDict.Remove(shipToRemove.guid))
             {
                 CurrentShipStr -= (int)shipToRemove.BaseStrength;
-                shipToRemove.GetAI().SystemToDefend = null;
-                shipToRemove.GetAI().SystemToDefendGuid = Guid.Empty;
+                shipToRemove.AI.SystemToDefend = null;
+                shipToRemove.AI.SystemToDefendGuid = Guid.Empty;
                 return true;                
             }            
             return false;
@@ -107,15 +107,15 @@ namespace Ship_Game.AI
                 ShipsDict.Add(ship.guid, ship);
                 CurrentShipStr += (int)ship.BaseStrength;                                
             }
-            if (ship.GetAI().SystemToDefend != System)
-                ship.GetAI().OrderSystemDefense(System);            
+            if (ship.AI.SystemToDefend != System)
+                ship.AI.OrderSystemDefense(System);            
             return true;
         }
         private void Clear()
         {
             if (ShipsDict == null) return;
             foreach (Ship ship in ShipsDict.Values)
-                ship.GetAI().SystemToDefend = null;
+                ship.AI.SystemToDefend = null;
             ShipsDict.Clear();
             CurrentShipStr = 0;
         }
@@ -152,12 +152,12 @@ namespace Ship_Game.AI
                         if (!kv.Value.InCombat && kv.Value.System == System)
                         {
                             if ((assignedStr > 0f && assignedStr >= enemy.GetStrength())
-                                || kv.Value.GetAI().State == AIState.Resupply
+                                || kv.Value.AI.State == AIState.Resupply
                                 ||assignedShips.Contains(kv.Value))
                                 continue;
 
-                            kv.Value.GetAI().Intercepting = true;
-                            kv.Value.GetAI().OrderAttackSpecificTarget(enemy);
+                            kv.Value.AI.Intercepting = true;
+                            kv.Value.AI.OrderAttackSpecificTarget(enemy);
                             assignedShips[i++]=kv.Value;
                             assignedStr += kv.Value.GetStrength();
                         }
@@ -173,20 +173,20 @@ namespace Ship_Game.AI
                     Ship ship = kv.Value;
                     if (!assignedShips.Contains(ship))
                         continue;
-                    if (ship.GetAI().State == AIState.Resupply || ship.System != System)
+                    if (ship.AI.State == AIState.Resupply || ship.System != System)
                         continue;
 
-                    ship.GetAI().Intercepting = true;
-                    ship.GetAI().OrderAttackSpecificTarget(assignedShips[0]?.GetAI().Target as Ship);
+                    ship.AI.Intercepting = true;
+                    ship.AI.OrderAttackSpecificTarget(assignedShips[0].AI.Target as Ship);
                 }
             }
             else
             {
                 foreach (var kv in ShipsDict)
                 {
-                    if (kv.Value.GetAI().State == AIState.Resupply ) continue;
+                    if (kv.Value.AI.State == AIState.Resupply ) continue;
    
-                    kv.Value.GetAI().OrderSystemDefense(System);
+                    kv.Value.AI.OrderSystemDefense(System);
                 }
             }
         }

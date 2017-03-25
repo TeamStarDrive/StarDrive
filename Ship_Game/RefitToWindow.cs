@@ -147,7 +147,7 @@ namespace Ship_Game
 					ToolTip.CreateTooltip(Localizer.Token(2267), base.ScreenManager);
 					if (input.InGameSelect)
 					{
-						this.shiptorefit.GetAI().OrderRefitTo(this.RefitTo);
+						this.shiptorefit.AI.OrderRefitTo(this.RefitTo);
 						AudioManager.PlayCue("echo_affirm");
 						this.ExitScreen();
 					}
@@ -163,7 +163,7 @@ namespace Ship_Game
 							{
 								continue;
 							}
-							ship.GetAI().OrderRefitTo(this.RefitTo);
+							ship.AI.OrderRefitTo(this.RefitTo);
 						}
 						AudioManager.PlayCue("echo_affirm");
 						this.ExitScreen();

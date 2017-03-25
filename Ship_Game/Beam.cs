@@ -169,12 +169,12 @@ namespace Ship_Game
             }
             if (owner != null)
             {
-                owner.Beams.Remove(this);
+                owner.RemoveBeam(this);
                 SetSystem(owner.System);
             }
             else if (weapon.drowner != null)
             {
-                (weapon.drowner as Projectile).GetDroneAI().Beams.QueuePendingRemoval(this);
+                (weapon.drowner as Projectile)?.GetDroneAI().Beams.QueuePendingRemoval(this);
                 SetSystem(weapon.drowner.System);
             }
             weapon.ResetToggleSound();

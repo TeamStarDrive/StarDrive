@@ -16,7 +16,7 @@ using Ship_Game.Debug;
 
 namespace Ship_Game.Gameplay
 {
-    public class Ship : GameplayObject, IDisposable
+    public sealed class Ship : GameplayObject, IDisposable
     {
         public string VanityName = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Troop> TroopList = new Array<Troop>();
@@ -33,7 +33,7 @@ namespace Ship_Game.Gameplay
         private Map<string, float> MaxGoodStorageDict = new Map<string, float>();
         private Map<string, float> ResourceDrawDict = new Map<string, float>();
         public Vector2 projectedPosition;
-        protected Array<Thruster> ThrusterList = new Array<Thruster>();
+        private Array<Thruster> ThrusterList = new Array<Thruster>();
         public bool TradingFood = true;
         public bool TradingProd = true;
         public bool ShieldsUp = true;
@@ -46,7 +46,7 @@ namespace Ship_Game.Gameplay
         public Array<Weapon> Weapons = new Array<Weapon>();
         //public float fireThresholdSquared = 0.25f;    //Not referenced in code, removing to save memory
         public Array<ModuleSlot> ExternalSlots = new Array<ModuleSlot>();
-        protected float JumpTimer = 3f;
+        private float JumpTimer = 3f;
         public Array<ProjectileTracker> ProjectilesFired = new Array<ProjectileTracker>();
         public AudioEmitter emitter = new AudioEmitter();
         public float ClickTimer = 10f;
@@ -91,7 +91,7 @@ namespace Ship_Game.Gameplay
         private KeyboardState lastKBState;
         private KeyboardState currentKeyBoardState;
         public bool IsPlatform;
-        protected SceneObject ShipSO;
+        private SceneObject ShipSO;
         public bool ManualHangarOverride;
         public Fleet.FleetCombatStatus FleetCombatStatus;
         public Ship Mothership;
@@ -108,7 +108,7 @@ namespace Ship_Game.Gameplay
         public float Ordinance;
         public float OrdinanceMax;
         //public float scale;    //Not referenced in code, removing to save memory
-        protected ArtificialIntelligence AI;
+        public ArtificialIntelligence AI { get; private set; }
         public float speed;
         public float Thrust;
         public float velocityMaximum;
@@ -143,7 +143,7 @@ namespace Ship_Game.Gameplay
         public float OrdAddedPerSecond;
         public bool HasTroopBay;
         //public bool WeaponCentered;    //Not referenced in code, removing to save memory
-        protected Cue drone;
+        private Cue drone;
         public float ShieldRechargeTimer;
         public bool InCombat;
         private Vector3 pointat;
@@ -216,12 +216,8 @@ namespace Ship_Game.Gameplay
                 {
                     Relationship rel = loyalty.GetRelations(e);
                     if (rel.AtWar || rel.Treaty_Alliance || e == loyalty)
-                    {
                         return false;
-                    }
-                    
                 }
-
                 return true; 
             }
         }
@@ -288,41 +284,43 @@ namespace Ship_Game.Gameplay
             }
 
         }
-        public float GetFTLmodifier
+        public float GetFTLmodifier => FTLmodifier;
+
+        public IReadOnlyList<Projectile> Projectiles => projectiles;
+        public IReadOnlyList<Beam> Beams => beams;
+
+        public void AddBeam(Beam beam)
         {
-            get
-            {
-                return FTLmodifier;
+            if (beam == null || beams.ContainsRef(beam)) {
+                Log.Error($"Invalid beam: {beam}");
+                return;
             }
+            beams.Add(beam);
         }
-        public Array<Projectile> Projectiles
+        public void RemoveBeam(Beam beam)
         {
-            get
-            {
-                return projectiles;
+            if (beam == null || !beams.ContainsRef(beam)) {
+                Log.Error($"Invalid beam: {beam}");
+                return;
             }
+            beams.RemoveRef(beam);
+        }
+        public void AddProjectile(Projectile projectile)
+        {
+            if (projectile == null || beams.ContainsRef(projectile)) {
+                Log.Error($"Invalid projectile: {projectile}");
+                return;
+            }
+            projectiles.Add(projectile);
         }
 
-        public Array<Beam> Beams
-        {
-            get
-            {
-                return beams;
-            }
-        }
         public bool needResupplyOrdnance
         {
             get
             {
-                if (OrdinanceMax > 0f && Ordinance / OrdinanceMax < 0.05f && !GetAI().hasPriorityTarget)//this.Owner.loyalty != ArtificialIntelligence.EmpireManager.Player)
-                {
-                    if (GetAI().FriendliesNearby.Where(supply => supply.HasSupplyBays && supply.Ordinance >= 100).Count() == 0)
-                    {
-                        return true;
-                    }
-                    else return false;
-                }
-                return false;
+                if (!(OrdinanceMax > 0f) || !(Ordinance / OrdinanceMax < 0.05f) || AI.hasPriorityTarget)
+                    return false;
+                return !AI.FriendliesNearby.Any(supply => supply.HasSupplyBays && supply.Ordinance >= 100);
             }
 
         }
@@ -330,119 +328,37 @@ namespace Ship_Game.Gameplay
         {
             get
             {
-                try
-                {
-                    byte assaultSpots = 0;
-                    if (Hangars.Count > 0)
-                        foreach (ShipModule sm in Hangars)
-                        {
-                            if (sm.IsTroopBay)
-                                assaultSpots++;
-                        }
-                    if (Transporters.Count > 0)
-                        foreach (ShipModule at in Transporters)
-                        {
-                            assaultSpots += at.TransporterTroopLanding;
-                        }
-                    byte troops = 0;
-                    if (TroopList.Count > 0)
-                        foreach (Troop troop in TroopList)
-                        {
-                            troops++;
-                            if (troops >= assaultSpots)
-                                break;
-                        }
-                    return assaultSpots == 0 ? false : troops / (float)assaultSpots < .5f ? true : false;
-                }
-                catch { }
-                return false;
+                int assaultSpots = Hangars.Count(sm => sm.IsTroopBay);
+                assaultSpots += Transporters.Sum(sm => sm.TransporterTroopLanding);
+
+                int troops = Math.Min(TroopList.Count, assaultSpots);
+                return assaultSpots != 0 && (troops / (float)assaultSpots) < 0.5f;
             }
         }
-        public byte ReadyPlanetAssaulttTroops
+        public int ReadyPlanetAssaulttTroops
         {
             get
             {
-                try
-                {
-                    byte assaultSpots = 0;
-                    if (Hangars.Count > 0)
-                        foreach (ShipModule sm in Hangars)
-                        {
-                            if (sm.hangarTimer < 0)
-                                continue;
-                            if (sm.IsTroopBay)
-                                assaultSpots++;
-                        }
-                    if (Transporters.Count > 0)
-                        foreach (ShipModule at in Transporters)
-                        {
-                            if (at.TransporterTimer > 0)
-                                continue;
-                            assaultSpots += at.TransporterTroopLanding;
-                        }
-                    byte troops = 0;
-                    if (TroopList.Count > 0)
-                        foreach (Troop troop in TroopList)
-                        {
-                            troops++;
-                            if (troops >= assaultSpots)
-                                break;
-                        }
-
-                    return troops;
-                }
-                catch
-                { }
-                return 0;
-
-
+                if (TroopList.IsEmpty)
+                    return 0;
+                int assaultSpots = Hangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
+                assaultSpots += Transporters.Sum(sm => sm.TransporterTimer > 0 ? 0 : sm.TransporterTroopLanding);
+                return Math.Min(TroopList.Count, assaultSpots);
             }
         }
         public float PlanetAssaultStrength
         {
             get
             {
-                try
-                {
-                    float assaultSpots = 0;
-                    float assaultStrength = 0;
-                    if (shipData.Role == ShipData.RoleName.troop)
-                    {
-                        assaultSpots += TroopList.Count;
+                if (TroopList.IsEmpty)
+                    return 0.0f;
 
-                    }
-                    if (Hangars.Count > 0)
-                        foreach (ShipModule sm in Hangars)
-                        {
-                            //if (sm.hangarTimer > 0)
-                            //    continue;
-                            if (sm.IsTroopBay)
-                                assaultSpots++;
-                        }
-                    if (Transporters.Count > 0)
-                        foreach (ShipModule at in Transporters)
-                        {
-                            //if (at.TransporterTimer > 0)
-                            //    continue;
-                            assaultSpots += at.TransporterTroopLanding;
-                        }
-                    byte troops = 0;
-                    if (TroopList.Count > 0)
-                        foreach (Troop troop in TroopList)
-                        {
-                            troops++;
-                            assaultStrength += troop.Strength;
-                            if (troops >= assaultSpots)
-                                break;
-                        }
+                int assaultSpots = shipData.Role == ShipData.RoleName.troop ? TroopList.Count : 0;
+                assaultSpots += Hangars.Count(sm => sm.IsTroopBay);
+                assaultSpots += Transporters.Sum(sm => sm.TransporterTroopLanding);
 
-                    return assaultStrength;
-                }
-                catch
-                { }
-                return 0;
-
-
+                int troops = Math.Min(TroopList.Count, assaultSpots);
+                return TroopList.SubRange(0, troops).Sum(troop => troop.Strength);
             }
         }
         public int PlanetAssaultCount
@@ -593,9 +509,9 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                GetAI().start = null;
-                GetAI().end = null;
-                GetAI().OrderTrade(5f);
+                AI.start = null;
+                AI.end = null;
+                AI.OrderTrade(5f);
             }
         }
 
@@ -607,9 +523,9 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                GetAI().start = null;
-                GetAI().end = null;
-                GetAI().OrderTransportPassengers(5f);
+                AI.start = null;
+                AI.end = null;
+                AI.OrderTransportPassengers(5f);
             }
         }
 
@@ -645,7 +561,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                GetAI().OrderExplore();
+                AI.OrderExplore();
             }
         }
 
@@ -657,7 +573,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                GetAI().OrderResupplyNearest(true);
+                AI.OrderResupplyNearest(true);
             }
         }
 
@@ -675,14 +591,14 @@ namespace Ship_Game.Gameplay
                 if (EmpireManager.Player.GetGSAI().DefensiveCoordinator.DefensiveForcePool.Contains(this))
                 {
                     EmpireManager.Player.GetGSAI().DefensiveCoordinator.Remove(this);
-                    GetAI().OrderQueue.Clear();
-                    GetAI().HasPriorityOrder = false;
-                    GetAI().State = AIState.AwaitingOrders;
+                    AI.OrderQueue.Clear();
+                    AI.HasPriorityOrder = false;
+                    AI.State = AIState.AwaitingOrders;
 
                     return;
                 }                
                 EmpireManager.Player.GetGSAI().DefensiveCoordinator.AddShip(this);
-                GetAI().State = AIState.SystemDefender;
+                AI.State = AIState.SystemDefender;
             }
         }
         //added by gremlin : troops out property        
@@ -758,7 +674,7 @@ namespace Ship_Game.Gameplay
             }
             set
             {
-                GetAI().OrderScrapShip();
+                AI.OrderScrapShip();
             }
         }
 
@@ -1184,7 +1100,7 @@ namespace Ship_Game.Gameplay
             //added by gremlin attackrun compensator
             float modifyRangeAR = 50f;
             Vector2 pos = PickedPos;
-            if (w.PrimaryTarget && !w.isBeam && GetAI().CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
+            if (w.PrimaryTarget && !w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
                 modifyRangeAR = speed;
                 if (modifyRangeAR < 50)
@@ -1298,7 +1214,7 @@ namespace Ship_Game.Gameplay
             //added by gremlin attackrun compensator
             float modifyRangeAR = 50f;
             Vector2 pos = new Vector2(PickedPos.X, PickedPos.Y);
-            if (!w.isBeam && GetAI().CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
+            if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && maxWeaponsRange < 2000 && w.SalvoCount > 0)
             {
                 modifyRangeAR = speed;
                 if (modifyRangeAR < 50)
@@ -1358,7 +1274,7 @@ namespace Ship_Game.Gameplay
                 }
             }
             
-            if (!w.isBeam && GetAI().CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.Owner.speed) //&& this.maxWeaponsRange < 2000
+            if (!w.isBeam && AI.CombatState == CombatState.AttackRuns && w.SalvoTimer > 0 && distance / w.SalvoTimer < w.Owner.speed) //&& this.maxWeaponsRange < 2000
             {
                 
                 
@@ -1486,11 +1402,6 @@ namespace Ship_Game.Gameplay
         public void UpdateInitialWorldTransform()
         {
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0.0f));
-        }
-
-        public ArtificialIntelligence GetAI()
-        {
-            return AI;
         }
 
         public void ReturnToHangar()
@@ -2239,7 +2150,7 @@ namespace Ship_Game.Gameplay
             if (RecallFightersBeforeFTL && GetHangars().Count > 0)
             {
                 bool RecallFigters = false;
-                float JumpDistance = Vector2.Distance(Center, GetAI().MovePosition);
+                float JumpDistance = Vector2.Distance(Center, AI.MovePosition);
                 float slowfighter = speed * 2;
                 if (JumpDistance > 7500f)
                 {
@@ -2854,7 +2765,7 @@ namespace Ship_Game.Gameplay
             return parent;
         }
 
-        public virtual void InitializeModules()
+        public void InitializeModules()
         {
             Weapons.Clear();
             foreach (ModuleSlot slot in ModuleSlotList)
@@ -3019,15 +2930,15 @@ namespace Ship_Game.Gameplay
                         animationController.Update(Game1.Instance.TargetElapsedTime, Matrix.Identity);
                     }
                 }
-                for (int i = 0; i < Projectiles.Count; ++i)
+                for (int i = 0; i < projectiles.Count; ++i)
                 {
-                    Projectile projectile = Projectiles[i];
+                    Projectile projectile = projectiles[i];
                     if (projectile == null)
                         continue;
                     if (projectile.Active)
                         projectile.Update(elapsedTime);
                     else
-                        Projectiles.Remove(projectile);
+                        projectiles.RemoveRef(projectile);
                 }
                 emitter.Position = new Vector3(Center, 0);
                 for (int index = 0; index < ModuleSlotList.Count; index++)
@@ -3249,14 +3160,13 @@ namespace Ship_Game.Gameplay
                         {
                             //standard for loop through each weapon group.
                             //for (int T = start; T < end; T++)
-                            for (int T = projectiles.Count - 1; T >= 0; T--)
+                            for (int i = projectiles.Count - 1; i >= 0; i--)
                             {
-                                if (projectiles[T] != null && projectiles[T].Active)
-                                    projectiles[T].Update(elapsedTime);
+                                Projectile projectile = projectiles[i];
+                                if ((bool)projectile?.Active)
+                                    projectiles[i].Update(elapsedTime);
                                 else
-                                {
-                                    Projectiles.Remove(projectiles[T]);
-                                }
+                                    projectiles.RemoveRef(projectile);
                             }
                         }//); 
                     }
@@ -3271,14 +3181,13 @@ namespace Ship_Game.Gameplay
                         {
                             //standard for loop through each weapon group.
                             //for (int T = start; T < end; T++)
-                            for (int T = 0; T < beams.Count; T++)
+                            for (int i = 0; i < beams.Count; i++)
                             {
-                                Beam beam = beams[T];
-                                Vector2 origin = new Vector2();
+                                Beam beam = beams[i];
                                 if (beam.moduleAttachedTo != null)
                                 {
                                     ShipModule shipModule = beam.moduleAttachedTo;
-                                    origin = (int)shipModule.XSIZE != 1
+                                    Vector2 origin = (int)shipModule.XSIZE != 1
                                         || (int)shipModule.YSIZE != 3
                                         ? ((int)shipModule.XSIZE != 2 || (int)shipModule.YSIZE != 5 ? new Vector2(shipModule.Center.X - 8f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))
                                         : new Vector2(shipModule.Center.X - 80f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2))) : new Vector2(shipModule.Center.X - 50f + (float)(16 * (int)shipModule.XSIZE / 2), shipModule.Center.Y - 8f + (float)(16 * (int)shipModule.YSIZE / 2));
@@ -3299,7 +3208,7 @@ namespace Ship_Game.Gameplay
                                     if (beam.duration < 0f && !beam.infinite)
                                     {
                                         beam.Die(null, false);
-                                        beams.Remove(beam);
+                                        beams.RemoveRef(beam);
                                     }
                                 }
                                 else
@@ -3509,7 +3418,7 @@ namespace Ship_Game.Gameplay
             data.IsShipyard       = GetShipData().IsShipyard;
             data.IsOrbitalDefense = GetShipData().IsOrbitalDefense;
             data.Animated         = GetShipData().Animated;
-            data.CombatState      = GetAI().CombatState;
+            data.CombatState      = AI.CombatState;
             data.ModelPath        = GetShipData().ModelPath;
             data.ModuleSlotList   = ModuleSlotList.ToArray();
             data.ThrusterList     = new Array<ShipToolScreen.ThrusterZone>();
@@ -3664,7 +3573,7 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        public virtual void UpdateShipStatus(float elapsedTime)
+        public void UpdateShipStatus(float elapsedTime)
         {
             //if (elapsedTime == 0.0f)
             //    return;
@@ -3677,16 +3586,13 @@ namespace Ship_Game.Gameplay
             MoveModulesTimer -= elapsedTime;
             updateTimer -= elapsedTime;
             //Disable if enough EMP damage
-            if (elapsedTime > 0 && (this.EMPDamage > 0 || this.disabled))
+            if (elapsedTime > 0 && (EMPDamage > 0 || disabled))
             {
                 --EMPDamage;
                 if (EMPDamage < 0.0)
                     EMPDamage = 0.0f;
 
-                if (EMPDamage > Size + BonusEMP_Protection)
-                    disabled = true;
-                else
-                    disabled = false;
+                disabled = EMPDamage > Size + BonusEMP_Protection;
             }
             //this.CargoMass = 0.0f;    //Not referenced in code, removing to save memory
             if (Rotation > 2.0 * Math.PI)
@@ -3718,7 +3624,7 @@ namespace Ship_Game.Gameplay
                 if ((InCombat && !disabled && hasCommand || PlayerShip) && Weapons.Count > 0)
                 {
                     IOrderedEnumerable<Weapon> orderedEnumerable;
-                    if (GetAI().CombatState == CombatState.ShortRange)
+                    if (AI.CombatState == CombatState.ShortRange)
                         orderedEnumerable = Enumerable.OrderBy<Weapon, float>((IEnumerable<Weapon>)Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
                     else
                         orderedEnumerable = Enumerable.OrderByDescending<Weapon, float>((IEnumerable<Weapon>)Weapons, (Func<Weapon, float>)(weapon => weapon.GetModifiedRange()));
@@ -4064,7 +3970,7 @@ namespace Ship_Game.Gameplay
                 }
 
             }
-            else if (this.Active && this.GetAI().BadGuysNear || (this.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) || this.MoveModulesTimer > 0.0 || GlobalStats.ForceFullSim) 
+            else if (this.Active && this.AI.BadGuysNear || (this.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) || this.MoveModulesTimer > 0.0 || GlobalStats.ForceFullSim) 
             {
                 if (elapsedTime > 0.0 || this.UpdatedModulesOnce)
                 {
@@ -4559,11 +4465,11 @@ namespace Ship_Game.Gameplay
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            for (int index = 0; index < beams.Count; index++)
+            for (int i = 0; i < beams.Count; i++)
             {
-                Beam beam = beams[index];
+                Beam beam = beams[i];
                 beam.Die(this, true);
-                beams.Remove(beam);
+                beams.RemoveRef(beam);
             }
             
             ++DebugInfoScreen.ShipsDied;
@@ -4612,7 +4518,7 @@ namespace Ship_Game.Gameplay
             ExternalSlots.Clear();
             ModulesDictionary.Clear();
             ThrusterList.Clear();
-            GetAI().PotentialTargets.Clear();
+            AI.PotentialTargets.Clear();
             AttackerTargetting.Clear();
             Velocity = Vector2.Zero;
             velocityMaximum = 0.0f;
@@ -4765,24 +4671,14 @@ namespace Ship_Game.Gameplay
 
         ~Ship() { Dispose(false); }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
-            projectiles = null;
-            beams = null;
-            supplyLock      ?.Dispose(ref supplyLock);
-            AI              ?.Dispose(ref AI);
+            supplyLock?.Dispose(ref supplyLock);
+            AI.Dispose();
+            AI               = null;
+            projectiles      = null;
+            beams            = null;
             ProjectilesFired = null;
-        }
-        
-        public class target
-        {
-            public ShipModule module;
-            public int weight;
-            public target(ShipModule module, int weight)
-            {
-                this.module = module;
-                this.weight = weight;
-            }
         }
 
         public static ModuleSlot ClosestModuleSlot(Array<ModuleSlot> slots, Vector2 center, float maxRange=999999f)
@@ -4884,7 +4780,7 @@ namespace Ship_Game.Gameplay
             shield_power = shieldPower;
         }
 
-        public virtual void StopAllSounds()
+        public void StopAllSounds()
         {
             if (drone == null)
                 return;

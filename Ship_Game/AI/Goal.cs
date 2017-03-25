@@ -206,7 +206,7 @@ namespace Ship_Game.AI
                         break;
                     }
                 case 2:
-                    beingBuilt.GetAI().State = AIState.AwaitingOrders;
+                    beingBuilt.AI.State = AIState.AwaitingOrders;
                     empire.GetGSAI().Goals.QueuePendingRemoval(this);
                     break;
             }
@@ -426,7 +426,7 @@ namespace Ship_Game.AI
                     bool flag1 = false;
                     foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                     {
-                        if (ship.isColonyShip && !ship.isPlayerShip() && (ship.GetAI() != null && ship.GetAI().State != AIState.Colonize))
+                        if (ship.isColonyShip && !ship.isPlayerShip() && (ship.AI != null && ship.AI.State != AIState.Colonize))
                         {
                             this.colonyShip = ship;
                             flag1 = true;
@@ -531,7 +531,7 @@ namespace Ship_Game.AI
                             flag3 = false;
                             foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                             {
-                                if (ship.isColonyShip && !ship.isPlayerShip() && (ship.GetAI() != null && ship.GetAI().State != AIState.Colonize))
+                                if (ship.isColonyShip && !ship.isPlayerShip() && (ship.AI != null && ship.AI.State != AIState.Colonize))
                                 {
                                     this.colonyShip = ship;
                                     flag3 = true;
@@ -558,7 +558,7 @@ namespace Ship_Game.AI
                         this.Step = 0;
                         break;
                     }
-                    else if (this.colonyShip != null && this.colonyShip.Active && this.colonyShip.GetAI().State != AIState.Colonize)
+                    else if (this.colonyShip != null && this.colonyShip.Active && this.colonyShip.AI.State != AIState.Colonize)
                     {
                         this.Step = 0;
                         break;
@@ -575,7 +575,7 @@ namespace Ship_Game.AI
                         foreach (KeyValuePair<Empire, Relationship> Them in this.empire.AllRelations)
                             this.empire.GetGSAI().CheckClaim(Them, this.markedPlanet);
                         this.empire.GetGSAI().Goals.QueuePendingRemoval(this);
-                        this.colonyShip.GetAI().State = AIState.AwaitingOrders;
+                        this.colonyShip.AI.State = AIState.AwaitingOrders;
                         this.Step = 4;
                         break;
                     }
@@ -594,7 +594,7 @@ namespace Ship_Game.AI
                         Ship ship = this.empire.GetShips()[index];
                         if (ship != null && !ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0 && (ship.shipData.Role == ShipData.RoleName.freighter && (ship.shipData.ShipCategory == ShipData.Category.Civilian || ship.shipData.ShipCategory == ShipData.Category.Unclassified) 
                             && !ship.isPlayerShip()) 
-                            && (ship.GetAI() != null && ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
+                            && (ship.AI != null && ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
                         {
                             this.freighter = ship;
                             flag1 = true;
@@ -696,7 +696,7 @@ namespace Ship_Game.AI
                     bool flag2 = false;
                     foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && !ship.isConstructor && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader && (!ship.GetAI().HasPriorityOrder && ship.GetAI().State != AIState.Refit)) && ship.GetAI().State != AIState.Scrap)
+                        if (!ship.isColonyShip && !ship.isConstructor && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader && (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Refit)) && ship.AI.State != AIState.Scrap)
                         {
                             this.freighter = ship;
                             flag2 = true;
@@ -704,8 +704,8 @@ namespace Ship_Game.AI
                     }
                     if (!flag2)
                         break;
-                    this.freighter.GetAI().State = AIState.SystemTrader;                    
-                    this.freighter.GetAI().OrderTrade(0.1f);
+                    this.freighter.AI.State = AIState.SystemTrader;                    
+                    this.freighter.AI.OrderTrade(0.1f);
                     this.empire.ReportGoalComplete(this);
                     break;
             }
@@ -785,7 +785,7 @@ namespace Ship_Game.AI
                     }
                     if (!flag)
                         break;
-                    this.freighter.GetAI().OrderExplore();
+                    this.freighter.AI.OrderExplore();
                     this.empire.ReportGoalComplete(this);
                     break;
             }
@@ -799,7 +799,7 @@ namespace Ship_Game.AI
                     bool flag1 = false;
                     foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0 && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader))
+                        if (!ship.isColonyShip && !ship.isConstructor && ship.CargoSpace_Max >0 && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader))
                         {
                             this.passTran = ship;
                             flag1 = true;
@@ -881,7 +881,7 @@ namespace Ship_Game.AI
                     bool flag2 = false;
                     foreach (Ship ship in (Array<Ship>)this.empire.GetShips())
                     {
-                        if (!ship.isColonyShip && !ship.isConstructor && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.GetAI() != null) && (ship.GetAI().State != AIState.PassengerTransport && ship.GetAI().State != AIState.SystemTrader && (!ship.GetAI().HasPriorityOrder && ship.GetAI().State != AIState.Refit)) && ship.GetAI().State != AIState.Scrap)
+                        if (!ship.isColonyShip && !ship.isConstructor && (ship.shipData.Role == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian) && (!ship.isPlayerShip() && ship.AI != null) && (ship.AI.State != AIState.PassengerTransport && ship.AI.State != AIState.SystemTrader && (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Refit)) && ship.AI.State != AIState.Scrap)
                         {
                             this.passTran = ship;
                             flag2 = true;
@@ -889,7 +889,7 @@ namespace Ship_Game.AI
                     }
                     if (flag2)
                     {
-                        this.passTran.GetAI().OrderTransportPassengers(0.1f);
+                        this.passTran.AI.OrderTransportPassengers(0.1f);
                         this.empire.ReportGoalComplete(this);
                         break;
                     }
