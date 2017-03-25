@@ -632,20 +632,24 @@ namespace Ship_Game
                 Empire e = EmpireManager.GetEmpireByName(d.Name);
                 foreach (SavedGame.FleetSave fleetsave in d.FleetsList)
                 {
-                    Fleet fleet = new Fleet()
+                    var fleet = new Fleet
                     {
-                        Guid = fleetsave.FleetGuid,
+                        Guid        = fleetsave.FleetGuid,
                         IsCoreFleet = fleetsave.IsCoreFleet,
-                        Facing = fleetsave.facing
+                        Facing      = fleetsave.facing
                     };
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
-                        foreach (Ship ship in this.data.MasterShipList)
+                        foreach (Ship ship in data.MasterShipList)
                         {
                             if (ship.guid != ssave.shipGuid)
-                            {
                                 continue;
-                            }
+
+                            // fleet saves can be corrupted because in older saves,
+                            // so for avoiding bugs, don't add ship to the same fleet twice
+                            if (ship.fleet == fleet)
+                                continue;
+
                             ship.RelativeFleetOffset = ssave.fleetOffset;
                             fleet.AddShip(ship);
                         }

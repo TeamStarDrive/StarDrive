@@ -415,5 +415,29 @@ namespace Ship_Game
             Memory.HybridCopyRefs(result = new T[newLength], 0, array, array.Length);
             result[newLength] = item;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] FilterBy<T>(this T[] items, Func<T, bool> predicate) => items.FilterBy(items.Length, predicate);
+
+        // A quite memory efficient filtering function to replace Where clauses
+        public static unsafe T[] FilterBy<T>(this T[] items, int count, Func<T, bool> predicate)
+        {
+            byte* map = stackalloc byte[count];
+
+            int resultCount = 0;
+            for (int i = 0; i < count; ++i)
+            {
+                bool keep = predicate(items[i]);
+                if (keep) ++resultCount;
+                map[i] = keep ? (byte)1 : (byte)0;
+            }
+
+            var results = new T[resultCount];
+            resultCount = 0;
+            for (int i = 0; i < count; ++i)
+                if (map[i] > 0) results[resultCount++] = items[i];
+
+            return results;
+        }
     }
 }

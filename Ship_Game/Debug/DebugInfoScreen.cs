@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -95,446 +96,273 @@ namespace Ship_Game.Debug
         }
 
 
+        private Vector2 TextCursor  = Vector2.Zero;
+        private Color   TextColor   = Color.White;
+        private SpriteFont TextFont = Fonts.Arial12Bold;
+
+        private void SetTextCursor(Vector2 cursor, Color color)
+        {
+            TextCursor = cursor;
+            TextColor  = color;
+        }
+        private void SetTextCursor(float x, float y, Color color)
+        {
+            TextCursor = new Vector2(x, y);
+            TextColor  = color;
+        }
+        private void DrawString(string text)
+        {
+            ScreenManager.SpriteBatch.DrawString(TextFont, text, TextCursor, TextColor);
+            NewLine(text.Count(c => c == '\n') + 1);
+        }
+        private void DrawString(float offsetX, string text)
+        {
+            Vector2 pos = TextCursor;
+            pos.X += offsetX;
+            ScreenManager.SpriteBatch.DrawString(TextFont, text, pos, TextColor);
+            NewLine(text.Count(c => c == '\n') + 1);
+        }
+        private void DrawString(Color color, string text)
+        {
+            ScreenManager.SpriteBatch.DrawString(TextFont, text, TextCursor, color);
+            NewLine(text.Count(c => c == '\n') + 1);
+        }
+        private void NewLine(int lines = 1) => TextCursor.Y += (TextFont == Fonts.Arial12Bold ? TextFont.LineSpacing : TextFont.LineSpacing+2) * lines;
+
         public void Draw(GameTime gameTime)
         {
-            Vector2 halloweenCursor = new Vector2(50f, 50f);
-            HalloweenCursor(ref halloweenCursor, Mode.ToString(), Color.Yellow, Fonts.Arial20Bold);
-            HalloweenCursor(ref halloweenCursor, string.Concat("Ships Died: ", ShipsDied),Color.Red, Fonts.Arial20Bold);
-            HalloweenCursor(ref halloweenCursor, string.Concat("Proj Died: ", ProjDied), Color.Red, Fonts.Arial20Bold);
-            HalloweenCursor(ref halloweenCursor, string.Concat("Proj Created: ", ProjCreated), Color.Red, Fonts.Arial20Bold);
-            HalloweenCursor(ref halloweenCursor, string.Concat("Mods Created: ", ModulesCreated), Color.Red, Fonts.Arial20Bold);
-            HalloweenCursor(ref halloweenCursor, string.Concat("Mods Died: ", ModulesDied), Color.Red, Fonts.Arial20Bold);
-    
-            halloweenCursor.Y = halloweenCursor.Y - (float) (Fonts.Arial20Bold.LineSpacing + 2) * 4;
-            halloweenCursor.X = halloweenCursor.X + Fonts.Arial20Bold.MeasureString("XXXXXXXXXXXXXXXXXXXX").X;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                string.Concat("LastMTaskCanceled: ", CanceledMTaskName), halloweenCursor, Color.Red);
-            halloweenCursor.Y = halloweenCursor.Y + (Fonts.Arial20Bold.LineSpacing + 2);
+            TextFont = Fonts.Arial20Bold;
+            SetTextCursor(50f, 50f, Color.Red);
 
-            HalloweenCursor(ref halloweenCursor, string.Concat(CanceledMTask1Name, ": ", CanceledMtask1Count), Color.Red, Fonts.Arial20Bold);
-            HalloweenCursor(ref halloweenCursor, string.Concat(CanceledMTask2Name, ": ", CanceledMtask2Count), Color.Red, Fonts.Arial20Bold);
-            HalloweenCursor(ref halloweenCursor, string.Concat(CanceledMTask3Name, ": ", CanceledMtask2Count), Color.Red, Fonts.Arial20Bold);
-            HalloweenCursor(ref halloweenCursor, string.Concat(CanceledMTask4Name, ": ", CanceledMtask2Count), Color.Red, Fonts.Arial20Bold);
-            
+            DrawString(Color.Yellow, Mode.ToString());
+            DrawString("Ships Died:   " + ShipsDied);
+            DrawString("Proj Died:    " + ProjDied);
+            DrawString("Proj Created: " + ProjCreated);
+            DrawString("Mods Created: " + ModulesCreated);
+            DrawString("Mods Died:    " + ModulesDied);
 
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                string.Concat("Ships not in Any Pool: ", Shipsnotinforcepool, " In Defenspool: ",
-                    ShipsinDefforcepool), halloweenCursor, Color.Red);
+            TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
+            TextCursor.X += Fonts.Arial20Bold.MeasureString("XXXXXXXXXXXXXXXXXXXX").X;
+            DrawString("LastMTaskCanceled: "+ CanceledMTaskName);
 
+            DrawString(CanceledMTask1Name + ": " + CanceledMtask1Count);
+            DrawString(CanceledMTask2Name + ": " + CanceledMtask2Count);
+            DrawString(CanceledMTask3Name + ": " + CanceledMtask3Count);
+            DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
 
-            Vector2 cursor =Vector2.Zero;
+            DrawString("Ships not in Any Pool: "+Shipsnotinforcepool+" In Defenspool: "+ShipsinDefforcepool);
 
-            int column = 0;
-            
+            TextFont = Fonts.Arial12Bold;
             switch (Mode)
             {
-                case DebugModes.Normal:
-                    {
-                        EmpireInfo(column, cursor);                        
-                        break;
-                    }
-                case DebugModes.DefenseCo:
-                    {
-                        DefcoInfo();
-
-                    }
-                    break;
-                case DebugModes.ThreatMatrix:
-                    {
-                        ThreatMatrixInfo();
-                        break;
-                    }
-                case DebugModes.Pathing:
-                    {
-                        PathingInfo();
-                        break;
-                    }
-                case DebugModes.Trade:
-                    {
-                        TradeInfo();
-                        break;
-                    }
-
-                default:
-                    break;
+                case DebugModes.Normal:       EmpireInfo();       break;
+                case DebugModes.DefenseCo:    DefcoInfo();        break;
+                case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
+                case DebugModes.Pathing:      PathingInfo();      break;
+                case DebugModes.Trade:        TradeInfo();        break;
             }
-            ShipInfo(cursor);
+            ShipInfo();
         }
-        private void ShipInfo(Vector2 cursor)
+        private void ShipInfo()
         {
             if (Screen.SelectedFleet != null)
             {
-                cursor = new Vector2(Win.X + 10, 600f);
+                SetTextCursor(Win.X + 10, 600f, Color.White);
                 if (Screen.SelectedFleet.FleetTask != null)
                 {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        Screen.SelectedFleet.FleetTask.type.ToString(), cursor, Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                    DrawString(Screen.SelectedFleet.FleetTask.type.ToString());
+
                     if (Screen.SelectedFleet.FleetTask.GetTargetPlanet() != null)
-                    {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            Screen.SelectedFleet.FleetTask.GetTargetPlanet().Name, cursor, Color.White);
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    }
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        string.Concat("Step: ", Screen.SelectedFleet.TaskStep.ToString()), cursor, Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                        DrawString(Screen.SelectedFleet.FleetTask.GetTargetPlanet().Name);
+
+                    DrawString("Step: "+Screen.SelectedFleet.TaskStep);
                 }
                 else
                 {
                     // @todo DrawLines similar to UniverseScreen.DrawLines. This code should be refactored
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        "core fleet :" + Screen.SelectedFleet.IsCoreFleet, cursor, Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Screen.SelectedFleet.Name, cursor,
-                        Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        "Ships: " + Screen.SelectedFleet.Ships.Count, cursor, Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        "Strength: " + Screen.SelectedFleet.GetStrength(), cursor, Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                    DrawString("core fleet :" + Screen.SelectedFleet.IsCoreFleet);
+                    DrawString(Screen.SelectedFleet.Name);
+                    DrawString("Ships: " + Screen.SelectedFleet.Ships.Count);
+                    DrawString("Strength: " + Screen.SelectedFleet.GetStrength());
 
                     string shipAI = Screen.SelectedFleet.Ships.FirstOrDefault()?.GetAI().State.ToString() ?? "";
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Ship State: " + shipAI, cursor,
-                                                Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                    DrawString("Ship State: " + shipAI);
                 }
             }
             if (Screen.SelectedShip != null)
             {
                 Ship ship = Screen.SelectedShip;
-                cursor = new Vector2(Win.X + 10, 600f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Screen.SelectedShip.Name, cursor,
-                    Color.White);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Center.ToString(), cursor,
-                    Color.White);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("On Defense: ", ship.DoingSystemDefense.ToString()), cursor, Color.White);
+                SetTextCursor(Win.X + 10, 600f, Color.White);
+
+                DrawString(Screen.SelectedShip.Name);
+                DrawString(ship.Center.ToString());
+                DrawString("On Defense: "+ship.DoingSystemDefense);
                 if (ship.fleet != null)
                 {
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.fleet.Name, cursor, Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        string.Concat("Fleet pos: ", ship.fleet.Position.ToString()), cursor, Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        string.Concat("Fleet speed: ", ship.fleet.Speed), cursor, Color.White);
+                    DrawString(ship.fleet.Name);
+                    DrawString("Fleet pos: "+ship.fleet.Position);
+                    DrawString("Fleet speed: "+ship.fleet.Speed);
                 }
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("Ship speed: ", ship.Velocity.Length()), cursor, Color.White);
-                if (!Screen.SelectedShip.loyalty.GetForcePool().Contains(Screen.SelectedShip))
-                {
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "NOT In Force Pool", cursor,
-                        Color.White);
-                }
-                else
-                {
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "In Force Pool", cursor, Color.White);
-                }
+                DrawString("Ship speed: "+ship.Velocity.Length());
+                DrawString(!Screen.SelectedShip.loyalty.GetForcePool().Contains(Screen.SelectedShip)
+                    ? "NOT In Force Pool"
+                    : "In Force Pool");
                 if (Screen.SelectedShip.GetAI().State == AIState.SystemDefender)
                 {
                     SolarSystem systemToDefend = Screen.SelectedShip.GetAI().SystemToDefend;
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
                     if (systemToDefend != null)
 
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            string.Concat("Defending ", systemToDefend.Name), cursor, Color.White);
+                        DrawString("Defending "+systemToDefend.Name);
                     else
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            string.Concat("Defending ", "Awaiting Order"), cursor, Color.White);
+                        DrawString("Defending Awaiting Order");
                 }
                 if (ship.System == null)
                 {
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Deep Space", cursor, Color.White);
+                    DrawString("Deep Space");
                     lock (GlobalStats.DeepSpaceLock)
                     {
                         if (!UniverseScreen.DeepSpaceManager.Contains(ship))
-                        {
-                            cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "ERROR-DS CO", cursor,
-                                Color.LightPink);
-                        }
+                            DrawString(Color.LightPink, "ERROR-DS CO");
                         else
-                        {
-                            cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Manager OK", cursor,
-                                Color.White);
-                        }
+                            DrawString("Manager OK");
                     }
                 }
                 else
                 {
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        string.Concat(ship.System.Name, " system"), cursor, Color.White);
+                    DrawString(ship.System.Name+" system");
                     if (!ship.System.spatialManager.Contains(ship))
-                    {
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "ERROR -SM CO", cursor,
-                            Color.LightPink);
-                    }
+                        DrawString(Color.LightPink, "ERROR -SM CO");
                     else
-                    {
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Manager OK", cursor, Color.White);
-                    }
+                        DrawString("Manager OK");
                 }
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;                
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    ship.InCombat ? ship.GetAI().BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat", cursor,
-                    ship.InCombat ? Color.Green : Color.LightPink);                
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    ship.GetAI().hasPriorityTarget ? "Priority Target" : "No Priority Target", cursor, Color.White);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    ship.GetAI().HasPriorityOrder ? "Priority Order" : "No Priority Order", cursor, Color.White);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("AI State: ", ship.GetAI().State.ToString()), cursor, Color.White);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                DrawString(ship.InCombat ? Color.Green : Color.LightPink,
+                    ship.InCombat ? ship.GetAI().BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");                
+                DrawString(ship.GetAI().hasPriorityTarget ? "Priority Target" : "No Priority Target");
+                DrawString(ship.GetAI().HasPriorityOrder ? "Priority Order" : "No Priority Order");
+                DrawString("AI State: "+ship.GetAI().State);
+
 
                 if (ship.GetAI().OrderQueue.IsEmpty)
                 {
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Nothing in the Order queue", cursor,
-                        Color.White);
+                    DrawString("Nothing in the Order queue");
                 }
                 else
                 {
-                    foreach (ArtificialIntelligence.ShipGoal order in ship.GetAI().OrderQueue)
+                    foreach (ShipGoal order in ship.GetAI().OrderQueue)
                     {
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            string.Concat("Executing Order: ", order.Plan), cursor, Color.White);
+                        DrawString("Executing Order: "+order.Plan);
                     }
                 }
-                if (ship.GetAI().Target != null)
+                if (ship.GetAI().Target is Ship shipTarget)
                 {
-                    cursor = new Vector2(Win.X + 150, 600f);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        string.Concat("Target: ", (ship.GetAI().Target as Ship).Name), cursor, Color.White);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        (ship.GetAI().Target as Ship).Active ? "Active" : "Error - Active", cursor, Color.White);
+                    SetTextCursor(Win.X + 150, 600f, Color.White);
+                    DrawString("Target: "+ shipTarget.Name);
+                    DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
+                DrawString("Strength: " + ship.BaseStrength);
+                DrawString("HP: " + ship.Health + " / " + ship.HealthMax);
 
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    "Strength: " + ship.BaseStrength, cursor, Color.White);
-                cursor.Y =
-                    cursor.Y + Fonts.Arial12Bold.LineSpacing; //Added by Gretman so I can test the health bug
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    "HP: " + ship.Health + " / " + ship.HealthMax, cursor, Color.White);
-                cursor = new Vector2(Win.X + 250, 600f);
-                foreach (var entry in ship.loyalty.GetGSAI()
-                    .DefensiveCoordinator.DefenseDict)
-                    foreach (var defender in entry.Value.ShipsDict)
-                    {
-                        if (defender.Key != ship.guid)
-                            continue;
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, entry.Value.System.Name, cursor,
-                            Color.White);
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                SetTextCursor(Win.X + 250, 600f, Color.White);
+                foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetGSAI().DefensiveCoordinator.DefenseDict)
+                    foreach (var defender in entry.Value.ShipsDict) {
+                        if (defender.Key == ship.guid)
+                            DrawString(entry.Value.System.Name);
                     }
             }
         }
-        private void EmpireInfo(int column, Vector2 cursor )
+        private void EmpireInfo()
         {
+            int column = 0;
             foreach (Empire e in EmpireManager.Empires)
             {
                 if (e.isFaction || e.MinorRace)
                     continue;
-                cursor = new Vector2(Win.X + 10 + 225 * column, Win.Y + 10);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, e.data.Traits.Name, cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+
+                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);
+                DrawString(e.data.Traits.Name);
+
                 if (e.data.DiplomaticPersonality != null)
                 {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, e.data.DiplomaticPersonality.Name,
-                        cursor, e.EmpireColor);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, e.data.EconomicPersonality.Name,
-                        cursor, e.EmpireColor);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                    DrawString(e.data.DiplomaticPersonality.Name);
+                    DrawString(e.data.EconomicPersonality.Name);
                 }
-                SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-                SpriteFont arial12Bold = Fonts.Arial12Bold;
-                var str = new object[]
-                    {"Money: ", e.Money.ToString(Fmt), " (", e.GetActualNetLastTurn(), ")"};
-                spriteBatch.DrawString(arial12Bold, string.Concat(str), cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                DrawString($"Money: {e.Money.ToString(Fmt)} ({e.GetActualNetLastTurn()})");
                 float taxRate = e.data.TaxRate * 100f;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("Tax Rate: ", taxRate.ToString("#.0"), "%"), cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("Ship Maint: ", e.GetTotalShipMaintenance()), cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("Ship Count: ", e.GetShips().Count), cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("Build Maint: ", e.GetTotalBuildingMaintenance()), cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("Spy Count: ", e.data.AgentList.Count()), cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("Spy Defenders: ",
-                        e.data.AgentList.Where(defenders => defenders.Mission == AgentMission.Defending).Count()),
-                    cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("Planet Count: ", e.GetPlanets().Count()), cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
+                DrawString("Ship Maint:    "+e.GetTotalShipMaintenance());
+                DrawString("Ship Count:    "+e.GetShips().Count);
+                DrawString("Build Maint:   "+e.GetTotalBuildingMaintenance());
+                DrawString("Spy Count:     "+e.data.AgentList.Count);
+                DrawString("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
+                DrawString("Planet Count:  "+e.GetPlanets().Count);
                 if (!string.IsNullOrEmpty(e.ResearchTopic))
                 {
-                    SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
-                    SpriteFont spriteFont = Fonts.Arial12Bold;
-                    var strArrays = new[]
-                    {
-                        "Research: ", e.GetTDict()[e.ResearchTopic].Progress.ToString("0"), "/", null, null, null, null
-                    };
-                    float gamePaceStatic = UniverseScreen.GamePaceStatic *
-                                           ResourceManager.TechTree[e.ResearchTopic].Cost;
-                    strArrays[3] = gamePaceStatic.ToString("0");
-                    strArrays[4] = "(";
-                    float projectedResearchNextTurn = e.GetProjectedResearchNextTurn();
-                    strArrays[5] = projectedResearchNextTurn.ToString(Fmt);
-                    strArrays[6] = ")";
-                    spriteBatch1.DrawString(spriteFont, string.Concat(strArrays), cursor, e.EmpireColor);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                        string.Concat("   --", e.ResearchTopic), cursor, e.EmpireColor);
+                    float gamePaceStatic = UniverseScreen.GamePaceStatic * ResourceManager.TechTree[e.ResearchTopic].Cost;
+                    DrawString($"Research: {e.GetTDict()[e.ResearchTopic].Progress:0}/{gamePaceStatic:0}({e.GetProjectedResearchNextTurn().ToString(Fmt)})");
+                    DrawString("   --"+e.ResearchTopic);
                 }
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                SpriteBatch spriteBatch2 = ScreenManager.SpriteBatch;
-                SpriteFont arial12Bold1 = Fonts.Arial12Bold;
-                float totalPop = e.GetTotalPop();
-                spriteBatch2.DrawString(arial12Bold1, string.Concat("Total Pop: ", totalPop.ToString(Fmt)), cursor,
-                    e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                SpriteBatch spriteBatch3 = ScreenManager.SpriteBatch;
-                SpriteFont spriteFont1 = Fonts.Arial12Bold;
-                float grossFoodPerTurn = e.GetGrossFoodPerTurn();
-                spriteBatch3.DrawString(spriteFont1, string.Concat("Gross Food: ", grossFoodPerTurn.ToString(Fmt)),
-                    cursor, e.EmpireColor);
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    string.Concat("Military Str: ", e.MilitaryScore), cursor, e.EmpireColor);
+
+                NewLine(3);
+                DrawString("Total Pop: "+ e.GetTotalPop().ToString(Fmt));
+                DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().ToString(Fmt));
+                DrawString("Military Str: "+ e.MilitaryScore);
                 foreach (Goal g in e.GetGSAI().Goals)
                 {
                     if (g.GoalName != "MarkForColonization")
                         continue;
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                    g.Held
-                        ? string.Concat("(Held)", g.GoalName, " ", g.GetMarkedPlanet().Name)
-                        : string.Concat(g.GoalName, " ", g.GetMarkedPlanet().Name), cursor, e.EmpireColor);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat("Step: ", g.Step),
-                        cursor + new Vector2(15f, 0f), e.EmpireColor);
-                    if (g.GetColonyShip() == null || !g.GetColonyShip().Active)
-                        continue;
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Has ship",
-                        cursor + new Vector2(15f, 0f), e.EmpireColor);
+
+                    NewLine();
+                    string held = g.Held ? "(Held" : "";
+                    DrawString($"{held}{g.GoalName} {g.GetMarkedPlanet().Name}");
+                    DrawString(15f, "Step: " + g.Step);
+                    if (g.GetColonyShip() != null && g.GetColonyShip().Active)
+                        DrawString(15f, "Has ship");
                 }
 
+                foreach (MilitaryTask task in e.GetGSAI().TaskList)
                 {
-                    e.GetGSAI()
-                        .TaskList.ForEach(task =>
-                        {
-                            string sysName = "Deep Space";
-                            foreach (SolarSystem sys in UniverseScreen.SolarSystemList)
-                            {
-                                if (Vector2.Distance(task.AO, sys.Position) >= 100000f)
-                                    continue;
-                                sysName = sys.Name;
-                            }
-                            cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            SpriteBatch spriteBatch4 = ScreenManager.SpriteBatch;
-                            SpriteFont arial12Bold2 = Fonts.Arial12Bold;
-                            var str1 = new[] { "FleetTask: ", task.type.ToString(), " (", sysName, ")" };
-                            spriteBatch4.DrawString(arial12Bold2, string.Concat(str1), cursor, e.EmpireColor);
-                            cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                                string.Concat("Step: ", task.Step),
-                                cursor + new Vector2(15f, 0f), e.EmpireColor);
-                            cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                                string.Concat("Str Needed: ", task.MinimumTaskForceStrength),
-                                cursor + new Vector2(15f, 0f),
-                                e.EmpireColor);
-                            cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                                string.Concat("Which Fleet: ", task.WhichFleet), cursor + new Vector2(15f, 0f),
-                                e.EmpireColor);
-                        }, false, false, false);
+                    string sysName = "Deep Space";
+                    foreach (SolarSystem sys in UniverseScreen.SolarSystemList)
+                    {
+                        if (task.AO.InRadius(sys.Position, 100000f))
+                            sysName = sys.Name;
+                    }
+                    NewLine();
+                    DrawString($"FleetTask: {task.type} ({sysName})");
+                    DrawString(15f, "Step: " + task.Step);
+                    DrawString(15f, "Str Needed: " + task.MinimumTaskForceStrength);
+                    DrawString(15f, "Which Fleet: " + task.WhichFleet);
                 }
-                cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+
+                NewLine();
                 foreach (var relationship in e.AllRelations)
                 {
+                    TextColor = relationship.Key.EmpireColor;
                     if (relationship.Value.Treaty_NAPact)
-                    {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            string.Concat("NA Pact with ", relationship.Key.data.Traits.Plural),
-                            cursor + new Vector2(15f, 0f), relationship.Key.EmpireColor);
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    }
+                        DrawString(15f, "NA Pact with "+ relationship.Key.data.Traits.Plural);
+
                     if (relationship.Value.Treaty_Trade)
-                    {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            string.Concat("Trade Pact with ", relationship.Key.data.Traits.Plural),
-                            cursor + new Vector2(15f, 0f), relationship.Key.EmpireColor);
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    }
+                        DrawString(15f, "Trade Pact with "+ relationship.Key.data.Traits.Plural);
+
                     if (relationship.Value.Treaty_OpenBorders)
-                    {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            string.Concat("Open Borders with ", relationship.Key.data.Traits.Plural),
-                            cursor + new Vector2(15f, 0f), relationship.Key.EmpireColor);
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
-                    }
-                    if (!relationship.Value.AtWar)
-                        continue;
-                    SpriteBatch spriteBatch5 = ScreenManager.SpriteBatch;
-                    SpriteFont spriteFont2 = Fonts.Arial12Bold;
-                    var plural = new object[]
-                    {
-                        "War with ", relationship.Key.data.Traits.Plural, " (", relationship.Value.ActiveWar.WarType,
-                        ")"
-                    };
-                    spriteBatch5.DrawString(spriteFont2, string.Concat(plural), cursor + new Vector2(15f, 0f),
-                        relationship.Key.EmpireColor);
-                    cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                        DrawString(15f, "Open Borders with "+ relationship.Key.data.Traits.Plural);
+
+                    if (relationship.Value.AtWar)
+                        DrawString(15f, $"War with {relationship.Key.data.Traits.Plural} ({relationship.Value.ActiveWar.WarType})");
                 }
-                column++;
+                ++column;
                 if (Screen.SelectedSystem != null)
                 {
-                    cursor = new Vector2(Win.X + 10, 600f);
+                    SetTextCursor(Win.X + 10, 600f, Color.White);
                     foreach (Ship ship in Screen.SelectedSystem.ShipList)
                     {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold,
-                            ship.Active ? ship.Name : ship.Name + " (inactive)", cursor, Color.White);
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                        DrawString(ship.Active ? ship.Name : ship.Name + " (inactive)");
                     }
-                    cursor = new Vector2(Win.X + 300, 600f);
+
+                    SetTextCursor(Win.X + 300, 600f, Color.White);
                     foreach (Ship ship in Screen.SelectedSystem.spatialManager.ShipsList)
                     {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ship.Name + " ", cursor, Color.White);
-                        cursor.Y = cursor.Y + Fonts.Arial12Bold.LineSpacing;
+                        DrawString(ship.Name + " ");
                     }
                 }
             }
@@ -608,7 +436,6 @@ namespace Ship_Game.Debug
         {
             foreach (Empire e in EmpireManager.Empires)
             {
-                GSAI info = e.GetGSAI();
                 foreach (Planet planet in e.GetPlanets())
                 {
 
@@ -622,53 +449,37 @@ namespace Ship_Game.Debug
                 foreach (Ship ship in e.GetShips())
                 {
                     ArtificialIntelligence ai = ship.GetAI();
-                    if (ai.State == AIState.SystemTrader)
+                    if (ai.State != AIState.SystemTrader) continue;
+                    if (ai.OrderQueue.Count == 0) continue;
+                    
+                    var plan = ai.OrderQueue.PeekLast.Plan;
+                    switch (plan)
                     {
-                        if (ai.OrderQueue.Count == 0) continue;
-                         
-                        var plan = ai.OrderQueue.PeekLast.Plan;
-                        switch (plan)
+                        case Plan.DropOffGoods:
                         {
-                            case Plan.DropOffGoods:
-                                {
-                                    Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
-                                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue);
-                                    break;
-                                }
-                            case Plan.PickupGoods:
-                                {
-                                    Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
-                                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, ai.FoodOrProd=="Food" ? Color.GreenYellow: Color.SteelBlue);
-                                    break;
-                                }
-                            case Plan.PickupPassengers:
-                            case Plan.DropoffPassengers:
-                                {
-                                    Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
-                                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 32, e.EmpireColor);
-                                    break;
-                                }
-                            default:
-                                break;
+                            Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
+                            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue);
+                            break;
                         }
-
-                        
-                        
-                        
-
-                        if (plan == Plan.DropOffGoods)
+                        case Plan.PickupGoods:
                         {
-                            
+                            Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
+                            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, ai.FoodOrProd=="Food" ? Color.GreenYellow: Color.SteelBlue);
+                            break;
                         }
-                        
-                        
-
-
-
-
-
+                        case Plan.PickupPassengers:
+                        case Plan.DropoffPassengers:
+                        {
+                            Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
+                            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 32, e.EmpireColor);
+                            break;
+                        }
                     }
 
+                    if (plan == Plan.DropOffGoods)
+                    {
+                            
+                    }
                 }   
 
             }
@@ -681,7 +492,7 @@ namespace Ship_Game.Debug
             
         }
 
-        public  bool  HandleInput(InputState input)
+        public bool HandleInput(InputState input)
         {
             if (input.CurrentKeyboardState.IsKeyDown(Keys.Left) && input.LastKeyboardState.IsKeyUp(Keys.Left))
                 Mode--;
