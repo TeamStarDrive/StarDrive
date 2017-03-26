@@ -15,6 +15,7 @@ namespace Ship_Game.Debug
     public enum DebugModes
     {
         Normal,
+        Targeting,
         Pathing,
         DefenseCo,
         Trade,
@@ -160,8 +161,36 @@ namespace Ship_Game.Debug
                 case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
                 case DebugModes.Pathing:      PathingInfo();      break;
                 case DebugModes.Trade:        TradeInfo();        break;
+                case DebugModes.Targeting:    Targeting();        break;
             }
             ShipInfo();
+        }
+        private void Targeting()
+        {
+            try
+            {
+                for (int index = 0; index < Screen.MasterShipList.Count; index++)
+                {
+                    Ship ship = Screen.MasterShipList[index];
+                    if (ship == null || !ship.InFrustum || ship.AI.Target == null) continue;
+                    Vector3 drawOrgin;
+                    Vector3 drawDest;
+
+                    foreach (Weapon weapon in ship.Weapons)
+                    {
+                        if (weapon.fireTarget == null) continue;
+                        Vector2 projDest = weapon.Center.FindPredictedTargetPosition(ship.Velocity,
+                            weapon.ProjectileSpeed
+                            , weapon.fireTarget.Center, ship.AI.Target.Velocity);
+                        
+                        Screen.DrawLine(weapon.Center, projDest, Color.Yellow);
+                    }
+
+                    Screen.DrawLine(ship.Center, ship.AI.Target.Position, Color.Yellow);
+
+                }
+            }
+            catch { }
         }
         private void ShipInfo()
         {

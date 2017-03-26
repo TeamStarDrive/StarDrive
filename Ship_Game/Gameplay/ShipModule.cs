@@ -314,6 +314,9 @@ namespace Ship_Game.Gameplay
 
         public override bool Damage(GameplayObject source, float damageAmount)
         {
+            if (source != null)
+                Parent.LastDamagedBy = source;
+
             if (ModuleType == ShipModuleType.Dummy)
             {
                 ParentOfDummy.Damage(source, damageAmount);
@@ -322,9 +325,6 @@ namespace Ship_Game.Gameplay
             Parent.InCombatTimer = 15f;
             Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
-
-            if (source != null)
-                Parent.LastDamagedBy = source;
 
             var proj = source as Projectile;
             var beam = source as Beam;
@@ -576,9 +576,11 @@ namespace Ship_Game.Gameplay
 
         public void DamageInvisible(GameplayObject source, float damageAmount)
         {
+            if (source != null)
+                Parent.LastDamagedBy = source;
+
             if (source is Projectile)
             {
-                Parent.LastDamagedBy = source;
                 if (Parent.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
                 {
                     damageAmount = damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
@@ -859,8 +861,10 @@ namespace Ship_Game.Gameplay
                 }
                 if (explodes)
                 {
-                    SpatialManagerForSystem(inSystem)
-                        .ExplodeAtModule(Parent.LastDamagedBy, this, damageAmount:size*2500, damageRadius:size*64);
+                    GameplayObject damageCauser = Parent.LastDamagedBy;
+                    if (damageCauser == null)
+                        Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
+                    SpatialManagerForSystem(inSystem).ExplodeAtModule(damageCauser, this, damageAmount:size*2500, damageRadius:size*64);
                 }
                 if (PowerFlowMax > 0 || PowerRadius > 0)
                     Parent.NeedRecalculate = true;
@@ -967,7 +971,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach (ShipModule module in DummyModules)
                 {
-                    module.SetSystem(Parent?.System);
+                    //module.SetSystem(Parent?.System);
                     module.Parent          = Parent;
                     module.Dimensions      = Dimensions;
                     module.IconTexturePath = IconTexturePath;
