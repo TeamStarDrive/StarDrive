@@ -13,6 +13,7 @@ namespace Ship_Game.Commands
     {
         public FleetRequisition(ArtificialIntelligence.ShipGoal goal, ArtificialIntelligence ai)
         {
+            return;
             FleetDataNode node = ai.Owner.fleet.DataNodes.First(thenode => thenode.Ship == ai.Owner);
             beingBuilt = ResourceManager.ShipsDict[goal.VariableString];
             GoalName = "FleetRequisition";

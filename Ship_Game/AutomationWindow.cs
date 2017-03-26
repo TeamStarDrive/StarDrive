@@ -89,6 +89,7 @@ namespace Ship_Game
         public bool HandleInput(InputState input)
         {
             var empire = EmpireManager.Player;
+            return false;
             if (!ColonyShipDropDown.Open && !ScoutDropDown.Open && !ConstructorDropDown.Open)
             {
                 AutoFreighterDropDown.HandleInput(input);

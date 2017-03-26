@@ -82,7 +82,6 @@ namespace Ship_Game.AI
                 {
                     RemoveShip(ship);
                     ships.Add(ship);
-                    CurrentShipStr -= (int) str;
                 }
             }
             return ships;

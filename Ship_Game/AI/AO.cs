@@ -230,6 +230,8 @@ namespace Ship_Game.AI
                 while (ShipsWaitingForCoreFleet.Count > 0)
                 {
                     Ship waiting = ShipsWaitingForCoreFleet.PopLast();
+                    if (!waiting.Active) continue;
+
                     if (IsCoreFleetFull())
                     {
                         OffensiveForcePool.AddUnique(waiting);
