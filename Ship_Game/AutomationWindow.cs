@@ -9,17 +9,17 @@ using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
-	public sealed class AutomationWindow
-	{
-		public bool isOpen;
-		private ScreenManager ScreenManager;
-		private Submenu ConstructionSubMenu;
-		private UniverseScreen Universe;
-		private Rectangle win;
-		private Array<Checkbox> Checkboxes = new Array<Checkbox>();
-		private DropOptions AutoFreighterDropDown;
-		private DropOptions ColonyShipDropDown;
-		private DropOptions ScoutDropDown;
+    public sealed class AutomationWindow
+    {
+        public bool isOpen;
+        private ScreenManager ScreenManager;
+        private Submenu ConstructionSubMenu;
+        private UniverseScreen Universe;
+        private Rectangle win;
+        private Array<Checkbox> Checkboxes = new Array<Checkbox>();
+        private DropOptions AutoFreighterDropDown;
+        private DropOptions ColonyShipDropDown;
+        private DropOptions ScoutDropDown;
         private DropOptions ConstructorDropDown;
         private Vector2 ConstructorTitle;
         private string ConstructorString;
@@ -34,13 +34,13 @@ namespace Ship_Game
         }
 
         public AutomationWindow(ScreenManager screenManager, UniverseScreen universe)
-		{
-			Universe = universe;
-			ScreenManager = screenManager;
-			const int windowWidth = 210;
-			win = new Rectangle(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 115 - windowWidth, 490, windowWidth, 300);
-			ConstructionSubMenu = new Submenu(screenManager, win, true);
-			ConstructionSubMenu.AddTab(Localizer.Token(304));
+        {
+            Universe = universe;
+            ScreenManager = screenManager;
+            const int windowWidth = 210;
+            win = new Rectangle(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 115 - windowWidth, 490, windowWidth, 300);
+            ConstructionSubMenu = new Submenu(screenManager, win, true);
+            ConstructionSubMenu.AddTab(Localizer.Token(304));
 
             ScoutDropDown      = new DropOptions(new Rectangle(win.X + 12, win.Y + 25 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
             ColonyShipDropDown = new DropOptions(new Rectangle(win.X + 12, win.Y + 65 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
@@ -49,7 +49,7 @@ namespace Ship_Game
             Checkbox(win.X, win.Y + 65,  () => EmpireManager.Player.AutoColonize,   title:306, tooltip:2227);
             Checkbox(win.X, win.Y + 105, () => EmpireManager.Player.AutoFreighters, title:308, tooltip:2229);
 
-			AutoFreighterDropDown = new DropOptions(new Rectangle(win.X + 12, win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
+            AutoFreighterDropDown = new DropOptions(new Rectangle(win.X + 12, win.Y + 105 + Fonts.Arial12Bold.LineSpacing + 7, 190, 18));
 
             ConstructorTitle = new Vector2(win.X + 29, win.Y + 155);
             ConstructorString = Localizer.Token(6181);
@@ -62,28 +62,28 @@ namespace Ship_Game
             Checkbox(win.X, yPos(2), () => EmpireManager.Player.AutoResearch,   title:6136, tooltip:7039);
             Checkbox(win.X, yPos(3), () => EmpireManager.Player.data.AutoTaxes, title:6138, tooltip:7040);
 
-			this.SetDropDowns();
-		}
+            this.SetDropDowns();
+        }
 
 
-		public void Draw(GameTime gameTime)
-		{
-			Rectangle r = ConstructionSubMenu.Menu;
-			r.Y = r.Y + 25;
-			r.Height = r.Height - 25;
-			Selector sel = new Selector(ScreenManager, r, new Color(0, 0, 0, 210));
-			sel.Draw();
-			ConstructionSubMenu.Draw();
-			foreach (Checkbox cb in Checkboxes)
-			{
-				cb.Draw(ScreenManager);
-			}
+        public void Draw(GameTime gameTime)
+        {
+            Rectangle r = ConstructionSubMenu.Menu;
+            r.Y = r.Y + 25;
+            r.Height = r.Height - 25;
+            Selector sel = new Selector(ScreenManager, r, new Color(0, 0, 0, 210));
+            sel.Draw();
+            ConstructionSubMenu.Draw();
+            foreach (Checkbox cb in Checkboxes)
+            {
+                cb.Draw(ScreenManager);
+            }
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, ConstructorString, ConstructorTitle, Color.White);
             ConstructorDropDown.Draw(ScreenManager.SpriteBatch);
-			AutoFreighterDropDown.Draw(ScreenManager.SpriteBatch);
-			ColonyShipDropDown.Draw(ScreenManager.SpriteBatch);
-			ScoutDropDown.Draw(ScreenManager.SpriteBatch);
-		}
+            AutoFreighterDropDown.Draw(ScreenManager.SpriteBatch);
+            ColonyShipDropDown.Draw(ScreenManager.SpriteBatch);
+            ScoutDropDown.Draw(ScreenManager.SpriteBatch);
+        }
 
 
         public bool HandleInput(InputState input)
@@ -153,51 +153,51 @@ namespace Ship_Game
             return true;
         }
 
-		public void SetDropDowns()
-		{
+        public void SetDropDowns()
+        {
             ResetDropDowns();
             var playerData = Universe.player.data;
-		    string current = !string.IsNullOrEmpty(playerData.CurrentAutoFreighter) ? playerData.CurrentAutoFreighter : playerData.DefaultSmallTransport;
+            string current = !string.IsNullOrEmpty(playerData.CurrentAutoFreighter) ? playerData.CurrentAutoFreighter : playerData.DefaultSmallTransport;
 
             var empire = EmpireManager.Player;
-			foreach (string ship in empire.ShipsWeCanBuild)
-			{                
+            foreach (string ship in empire.ShipsWeCanBuild)
+            {                
                 if (!ResourceManager.ShipsDict.TryGetValue(ship, out Ship automation) 
                         || automation.isColonyShip || automation.CargoSpace_Max <= 0f || automation.Thrust <= 0f 
                         || ResourceManager.ShipRoles[automation.shipData.Role].Protected)
-					continue;
-				AutoFreighterDropDown.AddOption(automation.Name, 0);
-			}
-			foreach (Entry e in AutoFreighterDropDown.Options)
-			{
-				if (e.Name != current)
-					continue;
-				AutoFreighterDropDown.ActiveIndex = AutoFreighterDropDown.Options.IndexOf(e);
-				empire.data.CurrentAutoFreighter  = AutoFreighterDropDown.Options[AutoFreighterDropDown.ActiveIndex].Name;
-			}
+                    continue;
+                AutoFreighterDropDown.AddOption(automation.Name, 0);
+            }
+            foreach (Entry e in AutoFreighterDropDown.Options)
+            {
+                if (e.Name != current)
+                    continue;
+                AutoFreighterDropDown.ActiveIndex = AutoFreighterDropDown.Options.IndexOf(e);
+                empire.data.CurrentAutoFreighter  = AutoFreighterDropDown.Options[AutoFreighterDropDown.ActiveIndex].Name;
+            }
 
             string currentColony = !string.IsNullOrEmpty(playerData.CurrentAutoColony) ? playerData.CurrentAutoColony : playerData.DefaultColonyShip;
             
-			foreach (string ship in empire.ShipsWeCanBuild)
-			{
-				if (!ResourceManager.ShipsDict.TryGetValue(ship, out Ship automation) || !automation.isColonyShip || automation.Thrust <= 0f)
-					continue;
-				ColonyShipDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
-			}
-			if (string.IsNullOrEmpty(empire.data.CurrentAutoColony) || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoColony))
-			{
-				empire.data.CurrentAutoColony = ColonyShipDropDown.Options[ColonyShipDropDown.ActiveIndex].Name;
-			}
-			else
-			{
-				foreach (Entry e in ColonyShipDropDown.Options)
-				{
-					if (e.Name != currentColony)
-						continue;
-					ColonyShipDropDown.ActiveIndex = ColonyShipDropDown.Options.IndexOf(e);
-					empire.data.CurrentAutoColony  = ColonyShipDropDown.Options[ColonyShipDropDown.ActiveIndex].Name;
-				}
-			}
+            foreach (string ship in empire.ShipsWeCanBuild)
+            {
+                if (!ResourceManager.ShipsDict.TryGetValue(ship, out Ship automation) || !automation.isColonyShip || automation.Thrust <= 0f)
+                    continue;
+                ColonyShipDropDown.AddOption(ResourceManager.ShipsDict[ship].Name, 0);
+            }
+            if (string.IsNullOrEmpty(empire.data.CurrentAutoColony) || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoColony))
+            {
+                empire.data.CurrentAutoColony = ColonyShipDropDown.Options[ColonyShipDropDown.ActiveIndex].Name;
+            }
+            else
+            {
+                foreach (Entry e in ColonyShipDropDown.Options)
+                {
+                    if (e.Name != currentColony)
+                        continue;
+                    ColonyShipDropDown.ActiveIndex = ColonyShipDropDown.Options.IndexOf(e);
+                    empire.data.CurrentAutoColony  = ColonyShipDropDown.Options[ColonyShipDropDown.ActiveIndex].Name;
+                }
+            }
 
 
             string constructor;
@@ -245,11 +245,11 @@ namespace Ship_Game
 
 
 
-			string currentScout = !string.IsNullOrEmpty(playerData.CurrentAutoScout) ? playerData.CurrentAutoScout : playerData.StartingScout;
-			if (ScoutDropDown.Options.Count > 0)
-				currentScout = ScoutDropDown.Options[ScoutDropDown.ActiveIndex].Name;
+            string currentScout = !string.IsNullOrEmpty(playerData.CurrentAutoScout) ? playerData.CurrentAutoScout : playerData.StartingScout;
+            if (ScoutDropDown.Options.Count > 0)
+                currentScout = ScoutDropDown.Options[ScoutDropDown.ActiveIndex].Name;
 
-			if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.reconDropDown)
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.reconDropDown)
             {
                 foreach (string shipName in empire.ShipsWeCanBuild)
                 {
@@ -272,21 +272,21 @@ namespace Ship_Game
                 }
             }
 
-			if (string.IsNullOrEmpty(empire.data.CurrentAutoScout) || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoScout))
-			{
+            if (string.IsNullOrEmpty(empire.data.CurrentAutoScout) || !ResourceManager.ShipsDict.ContainsKey(empire.data.CurrentAutoScout))
+            {
                 if (ScoutDropDown.Options.Count > 0)
                     empire.data.CurrentAutoScout = ScoutDropDown.Options[ScoutDropDown.ActiveIndex].Name;
-			}
-			else
-			{
-				foreach (Entry e in ScoutDropDown.Options)
-				{
-					if (e.Name != currentScout)
-						continue;
-					ScoutDropDown.ActiveIndex = ScoutDropDown.Options.IndexOf(e);
-				}
-			}
-		}
+            }
+            else
+            {
+                foreach (Entry e in ScoutDropDown.Options)
+                {
+                    if (e.Name != currentScout)
+                        continue;
+                    ScoutDropDown.ActiveIndex = ScoutDropDown.Options.IndexOf(e);
+                }
+            }
+        }
 
         private void ResetDropDowns()
         {
@@ -295,5 +295,5 @@ namespace Ship_Game
             ScoutDropDown.Options.Clear();
             ConstructorDropDown.Options.Clear();
         }
-	}
+    }
 }

@@ -173,8 +173,6 @@ namespace Ship_Game.Debug
                 {
                     Ship ship = Screen.MasterShipList[index];
                     if (ship == null || !ship.InFrustum || ship.AI.Target == null) continue;
-                    Vector3 drawOrgin;
-                    Vector3 drawDest;
 
                     foreach (Weapon weapon in ship.Weapons)
                     {

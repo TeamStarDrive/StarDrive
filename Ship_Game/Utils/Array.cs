@@ -526,6 +526,24 @@ namespace Ship_Game
             Array.Sort(keys, items, 0, count);
         }
 
+        public T[] SortedBy<TKey>(Func<T, TKey> keyPredicate)
+        {
+            int count = Count;
+            if (count <= 1)
+                return Empty<T>.Array;
+
+
+            var items = new T[count];
+            Memory.HybridCopy(items, 0, Items, count);
+
+            var keys = new TKey[items.Length];
+            for (int i = 0; i < items.Length; ++i) // items.Length allows CLR to optimize the loop
+                keys[i] = keyPredicate(items[i]);
+
+            Array.Sort(keys, items, 0, items.Length);
+            return items;
+        }
+
         public void RemoveAll(Predicate<T> match)
         {
             unchecked
