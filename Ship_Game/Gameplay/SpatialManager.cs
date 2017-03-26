@@ -453,8 +453,8 @@ namespace Ship_Game.Gameplay
             GameplayObject[] nearby = GetNearby<GameplayObject>(projectile.Position, 100f);
             foreach (GameplayObject otherObj in nearby)
             {
-                if (CollideWith(projectile, otherObj, out GameplayObject collidedWith) && 
-                    projectile.Touch(collidedWith) || collidedWith.Touch(projectile))
+                if (CollideWith(projectile, otherObj, out GameplayObject collidedWith) && collidedWith != null && (
+                    projectile.Touch(collidedWith) || collidedWith.Touch(projectile)))
                 {
                     return; // projectile collided (and died), no need to continue collisions
                 }

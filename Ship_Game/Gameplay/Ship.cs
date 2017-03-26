@@ -4754,7 +4754,7 @@ namespace Ship_Game.Gameplay
         private void Dispose(bool disposing)
         {
             supplyLock?.Dispose(ref supplyLock);
-            AI.Dispose();
+            AI?.Dispose();
             AI               = null;
             projectiles      = null;
             beams            = null;
