@@ -304,177 +304,16 @@ namespace Ship_Game.Gameplay
         // gives the approximate radius of the module, depending on module XSIZE & YSIZE
         public float ApproxRadius => 8.0f * (XSIZE > YSIZE ? XSIZE : YSIZE);
 
-        public bool Damage(GameplayObject source, float damageAmount, ref float damageRemainder)
+        public bool Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
-            if (ModuleType == ShipModuleType.Dummy)
-            {
-                ParentOfDummy.Damage(source, damageAmount, ref damageRemainder);
-                return true;
-            }
-            Projectile psource = source as Projectile;
-            Parent.InCombatTimer = 15f;
-            Parent.ShieldRechargeTimer = 0f;
-            //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
-            if (psource != null)
-            {
-                Parent.LastDamagedBy = source;
-                if (Parent.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
-                {
-                    damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
-                }
-            }
-            if (source is Ship && (source as Ship).shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
-            {
-                damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
-            }
-
-            if (psource != null)
-                damageAmount = ApplyResistances(psource.weapon, damageAmount);
-
-            //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
-            if (damageAmount <= DamageThreshold)
-                damageAmount = 0f;
-
-            //Added by McShooterz: shields keep charge when manually turned off
-            if (shield_power <= 0f || shieldsOff || psource != null && psource.IgnoresShields)
-            {
-                //Added by McShooterz: ArmorBonus Hull Bonus
-                if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
-                {
-                    if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
-                        damageAmount *= (1f - mod.ArmoredBonus);
-                }
-                if (psource != null && psource.weapon.EMPDamage > 0f)
-                {
-                    Parent.EMPDamage += psource.weapon.EMPDamage;
-                }
-                if (shield_power_max > 0f && (!isExternal || quadrant <= 0))
-                {
-                    return false;
-                }
-                if (ModuleType == ShipModuleType.Armor && source is Projectile sourceProjectile)
-                {
-                    if (sourceProjectile.isSecondary)
-                    {
-                        ResourceManager.WeaponsDict.TryGetValue(sourceProjectile.weapon.SecondaryFire, out Weapon shooter);
-                        damageAmount *= shooter.EffectVsArmor;
-                        //damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
-                    }
-                    else
-                    {
-                        damageAmount *= sourceProjectile.weapon.EffectVsArmor;
-                    }
-                }
-                if (damageAmount > Health)
-                {
-                    damageRemainder = damageAmount - Health;
-                    Health = 0;
-                }
-                else
-                {
-                    damageRemainder = 0f;
-                    Health -= damageAmount;
-                }
-                if (Health >= HealthMax)
-                {
-                    Health = HealthMax;
-                    Active = true;
-                    onFire = false;
-                }
-                if (Health / HealthMax < 0.5f)
-                {
-                    onFire = true;
-                }
-                if ((Parent.Health / Parent.HealthMax) < 0.5 && Health < 0.5 * HealthMax)
-                {
-                    reallyFuckedUp = true;
-                }
-                foreach (ShipModule dummy in DummyModules)
-                {
-                    dummy.DamageDummy(damageAmount);
-                }
-            }
-            else
-            {
-                float damageAmountvsShields = damageAmount;
-                if (psource != null)
-                {
-                    if (psource.isSecondary)
-                    {
-                        Weapon shooter = psource.weapon;
-                        ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
-                        damageAmountvsShields *= shooter.EffectVSShields; 
-                        //damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
-                    }
-                    else
-                    {
-                        damageAmountvsShields *= psource.weapon.EffectVSShields;
-                    }
-                }
-
-                if (psource != null)
-                    damageAmountvsShields = ApplyShieldResistances(psource.weapon, damageAmountvsShields);
-
-                if (damageAmountvsShields <= shield_threshold)
-                    damageAmountvsShields = 0f;
-
-                if (damageAmountvsShields > shield_power)
-                {
-                    damageRemainder = damageAmountvsShields - shield_power;
-                    shield_power = 0;
-                }
-                else
-                {
-                    damageRemainder = 0;
-                    shield_power -= damageAmountvsShields;
-                }
-
-                if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && Parent.InFrustum)
-                {
-                    shield.Rotation = source.Rotation - 3.14159274f;
-                    shield.displacement = 0f;
-                    shield.texscale = 2.8f;
-                    shield.pointLight.Refresh(Empire.Universe);
-
-                    if (psource != null && !psource.IgnoresShields && Parent.InFrustum)
-                    {
-                        Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
-                        shieldcue.Apply3D(Empire.Universe.listener, Parent.emitter);
-                        shieldcue.Play();
-                        shield.Radius = Radius;
-                        shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                        shield.texscale = 2.8f;
-                        shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                        shield.pointLight.World = psource.GetWorld();
-                        shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                        shield.pointLight.Radius = Radius;
-                        shield.pointLight.Intensity = 8f;
-                        shield.pointLight.Enabled = true;
-                        Vector2 vel = Vector2.Normalize(psource.Center - Center);
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3(psource.Center, Center3D.Z), Vector3.Zero);
-                        for (int i = 0; i < 20; i++)
-                        {
-                            Empire.Universe.sparks.AddParticleThreadB(new Vector3(psource.Center, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-                        }
-                    }
-                }
-            }
-            //Added by McShooterz: shields keep charge when manually turned off
-            if (shield_power > 0f && !shieldsOff)
-            {
-                Radius = shield_radius;
-            }
-            else
-            {
-                Radius = 8f;
-            }
-            return true;
+            float health = Health;
+            bool result = Damage(source, damageAmount);
+            damageRemainder = damageAmount - (health - Health);
+            return result;
         }
 
         public override bool Damage(GameplayObject source, float damageAmount)
         {
-            if (source == null)  //fbedard: prevent a crash
-                return false;
             if (ModuleType == ShipModuleType.Dummy)
             {
                 ParentOfDummy.Damage(source, damageAmount);
@@ -484,33 +323,30 @@ namespace Ship_Game.Gameplay
             Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
 
-            Projectile proj = source as Projectile;
-            Beam beam = source as Beam;
+            if (source != null)
+                Parent.LastDamagedBy = source;
+
+            var proj = source as Projectile;
+            var beam = source as Beam;
             
             if (proj != null)
             {
-                Parent.LastDamagedBy = source;
                 if (Parent.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
                 {
                     damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
                 }
             }
 
-
-            if (source is Ship && (source as Ship).shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
-            {
+            if (source is Ship ship && ship.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
                 damageAmount += damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
-            }
+
+            // Vulnerabilities and resistances for modules, XML-defined.
+            if (proj != null)
+                damageAmount = ApplyResistances(proj.weapon, damageAmount);
+
             //Added by McShooterz: shields keep charge when manually turned off
             if (shield_power <= 0f || shieldsOff || proj != null && proj.IgnoresShields)
             {
-                // Vulnerabilities and resistances for modules, XML-defined.
-                if (proj != null)
-                    damageAmount = ApplyResistances(proj.weapon, damageAmount);
-
-                if (beam != null)
-                    damageAmount = ApplyResistances(beam.weapon, damageAmount);
-
                 //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
                 if (damageAmount <= DamageThreshold)
                     damageAmount = 0f;
@@ -518,8 +354,7 @@ namespace Ship_Game.Gameplay
                 //Added by McShooterz: ArmorBonus Hull Bonus
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useHullBonuses)
                 {
-                    HullBonus mod;
-                    if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out mod))
+                    if (ResourceManager.HullBonuses.TryGetValue(GetParent().shipData.Hull, out HullBonus mod))
                         damageAmount *= (1f - mod.ArmoredBonus);
                 }
                 if (proj?.weapon.EMPDamage > 0f)
@@ -583,16 +418,14 @@ namespace Ship_Game.Gameplay
 
                 if (ModuleType == ShipModuleType.Armor && source is Projectile)
                 {
-                    if ((source as Projectile).isSecondary)
+                    if (proj.isSecondary)
                     {
-                        Weapon shooter = (source as Projectile).weapon;
-                        ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
-                        damageAmount *= shooter.EffectVsArmor; 
-                        //damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
+                        Weapon secondary = ResourceManager.GetWeaponTemplate(proj.weapon.SecondaryFire);
+                        damageAmount *= secondary.EffectVsArmor; 
                     }
                     else
                     {
-                        damageAmount *= (source as Projectile).weapon.EffectVsArmor;
+                        damageAmount *= proj.weapon.EffectVsArmor;
                     }
                 }
                 else if (ModuleType == ShipModuleType.Armor && beam != null)
@@ -629,51 +462,27 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                //Damage module health if shields fail from damage
-                float damageAmountvsShields = damageAmount;
+                if (proj != null)
+                    damageAmount *= proj.weapon.EffectVSShields;
 
-                if (source is Projectile)
-                {
-                    if ((source as Projectile).isSecondary)
-                    {
-                        Weapon shooter = (source as Projectile).weapon;
-                        ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
-                        damageAmountvsShields *= shooter.EffectVSShields; 
-                        //damageAmountvsShields *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
-                    }
-                    else
-                    {
-                        damageAmountvsShields *= (source as Projectile).weapon.EffectVSShields;
-                    }
-                }
-                else if (beam != null)
-                {
-                    damageAmountvsShields *= beam.weapon.EffectVSShields;
-                }
+                if (damageAmount <= shield_threshold)
+                    damageAmount = 0f;
 
-
-                if (source is Projectile)
-                    damageAmount = ApplyResistances((source as Projectile).weapon, damageAmount);
-                else if (source is Beam)
-                    damageAmount = ApplyResistances(beam.weapon, damageAmount);
-
-                if (damageAmountvsShields <= shield_threshold)
-                    damageAmountvsShields = 0f;
-
-                if (damageAmountvsShields > shield_power)
+                if (damageAmount > shield_power)
                 {
                     shield_power = 0;
                     Parent.UpdateShields();
                 }
                 else
                 {
-                    shield_power -= damageAmountvsShields;
+                    shield_power -= damageAmount;
                     Parent.UpdateShields();
                 }
 
                 if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && Parent.InFrustum)
                 {
-                    shield.Rotation = source.Rotation - 3.14159274f;
+                    if (source != null)
+                        shield.Rotation = source.Rotation - 3.14159274f;
                     shield.displacement = 0f;
                     shield.texscale = 2.8f;
                     shield.pointLight.Refresh(Empire.Universe);
@@ -724,7 +533,7 @@ namespace Ship_Game.Gameplay
                                 shield_power = 0f;
                         }
                     }
-                    else if (source is Projectile && !(source as Projectile).IgnoresShields && Parent.InFrustum)
+                    else if (source is Projectile && !proj.IgnoresShields && Parent.InFrustum)
                     {
                         Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
                         shieldcue.Apply3D(Empire.Universe.listener, Parent.emitter);
