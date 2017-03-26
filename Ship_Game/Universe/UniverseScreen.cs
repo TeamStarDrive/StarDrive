@@ -6932,27 +6932,21 @@ namespace Ship_Game
                         lock (this.SelectedShip.AI.WayPointLocker)
                         {
                             bool waydpoint = false;
-                            for (int local_23 = 0; local_23 < this.SelectedShip.AI.ActiveWayPoints.Count; ++local_23)
+                            for (int index = 0; index < this.SelectedShip.AI.ActiveWayPoints.Count; ++index)
                             {
                                 waydpoint = true;
-                                if (local_23 == 0)
+                                if (index == 0)                                
+                                    DrawLine(SelectedShip.Center, SelectedShip.AI.ActiveWayPoints.Peek(), mode);                                
+                                else if (index < this.SelectedShip.AI.ActiveWayPoints.Count - 1)
                                 {
-                                    Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                    Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.AI.ActiveWayPoints.Peek(), 0.0f), this.projection, this.view, Matrix.Identity);
-                                    Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), mode);
+                                    Vector2[] waypoints = SelectedShip.AI.ActiveWayPoints.ToArray();
+                                    DrawLine(waypoints[index], waypoints[index + 1], mode);
                                 }
-                                else if (local_23 < this.SelectedShip.AI.ActiveWayPoints.Count - 1)
-                                {
-                                    Vector3 local_26 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.AI.ActiveWayPoints.ToArray()[local_23], 0.0f), this.projection, this.view, Matrix.Identity);
-                                    Vector3 local_27 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.AI.ActiveWayPoints.ToArray()[local_23 + 1], 2500f), this.projection, this.view, Matrix.Identity);
-                                    Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_26.X, local_26.Y), new Vector2(local_27.X, local_27.Y), mode);
-                                }
+                                
                             }
                             if (!waydpoint && target != Vector2.Zero) //this.SelectedShip.GetAI().OrderQueue.First.Value.TargetPlanet.Position
                             {
-                                Vector3 local_24 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(this.SelectedShip.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Vector3 local_25 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(target, 0.0f), this.projection, this.view, Matrix.Identity);
-                                Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, new Vector2(local_24.X, local_24.Y), new Vector2(local_25.X, local_25.Y), mode);
+                                DrawLine(SelectedShip.Center, target, mode);
                             }
                         }
 
@@ -7398,6 +7392,11 @@ namespace Ship_Game
                     }
                 }
             }
+        }
+
+        public void DrawLine(Vector2 origin, Vector2 destination, Color color, float zAxis = 0)
+        {
+            DrawLineBase(origin, destination, projection, view, color, zAxis);
         }
 
         protected void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
