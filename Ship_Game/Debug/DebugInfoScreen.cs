@@ -167,38 +167,40 @@ namespace Ship_Game.Debug
         }
         private void Targeting()
         {
-            //Ship ship = Screen.SelectedShip;
             try
             {
                 for (int index = 0; index < Screen.MasterShipList.Count; index++)
                 {
                     Ship ship = Screen.MasterShipList[index];
                     if (ship == null || !ship.InFrustum || ship.AI.Target == null) continue;
+                    Vector3 drawOrgin;
+                    Vector3 drawDest;
 
+                    foreach (Weapon weapon in ship.Weapons)
                     {
-                        foreach (Weapon weapon in ship.Weapons)
-                        {
-                            if (weapon.fireTarget == null) continue;
-                            Vector2 projDest = weapon.Center.FindPredictedTargetPosition(ship.Velocity,
-                                weapon.ProjectileSpeed
-                                , weapon.fireTarget.Center, ship.AI.Target.Velocity);
-                            Vector3 drawOrgin = ScreenManager.GraphicsDevice.Viewport.Project(weapon.Center.ToVec3(0.0f),
-                                Screen.projection, Screen.view, Matrix.Identity);
-                            Vector3 drawDest = ScreenManager.GraphicsDevice.Viewport.Project(projDest.ToVec3(0f),
-                                Screen.projection, Screen.view, Matrix.Identity);
-                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, drawOrgin.ToVec2(), drawDest.ToVec2(),
-                                Color.Yellow);                            
-                        }
+                        if (weapon.fireTarget == null) continue;
+                        Vector2 projDest = weapon.Center.FindPredictedTargetPosition(ship.Velocity,
+                            weapon.ProjectileSpeed
+                            , weapon.fireTarget.Center, ship.AI.Target.Velocity);
 
-                        {
-                            Vector3 drawOrgin = ScreenManager.GraphicsDevice.Viewport.Project(
-                                Screen.SelectedShip.Center.ToVec3(0.0f), Screen.projection, Screen.view, Matrix.Identity);
-                            Vector3 drawDest = ScreenManager.GraphicsDevice.Viewport.Project(
-                                ship.AI.Target.Position.ToVec3(0f), Screen.projection, Screen.view, Matrix.Identity);
-                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(drawOrgin.X, drawOrgin.Y),
-                                new Vector2(drawDest.X, drawDest.Y), Color.Red);
-                        }
+                        drawOrgin = ScreenManager.GraphicsDevice.Viewport.Project(weapon.Center.ToVec3(0.0f),
+                            Screen.projection, Screen.view, Matrix.Identity);
+
+                        drawDest = ScreenManager.GraphicsDevice.Viewport.Project(projDest.ToVec3(0f),
+                            Screen.projection, Screen.view, Matrix.Identity);
+
+                        Primitives2D.DrawLine(ScreenManager.SpriteBatch, drawOrgin.ToVec2(), drawDest.ToVec2(),
+                            Color.Yellow);
                     }
+
+
+                    drawOrgin = ScreenManager.GraphicsDevice.Viewport.Project(
+                        Screen.SelectedShip.Center.ToVec3(0.0f), Screen.projection, Screen.view, Matrix.Identity);
+                    drawDest = ScreenManager.GraphicsDevice.Viewport.Project(
+                        ship.AI.Target.Position.ToVec3(0f), Screen.projection, Screen.view, Matrix.Identity);
+                    Primitives2D.DrawLine(ScreenManager.SpriteBatch, drawOrgin.ToVec2(),
+                        drawDest.ToVec2(), Color.Red);
+
                 }
             }
             catch { }
