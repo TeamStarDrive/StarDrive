@@ -432,7 +432,7 @@ namespace Ship_Game
         }
 
         // Returns true if a is almost equal to b, within float epsilon error margin
-        private static bool AlmostEqual(this float a, float b)
+        public static bool AlmostEqual(this float a, float b)
         {
             float delta = a - b;
             return -1.40129846432482E-45 <= delta && delta <= 1.40129846432482E-45;

@@ -4887,8 +4887,8 @@ namespace Ship_Game
         // this does some magic to convert a game position/coordinate to a drawable screen position
         private Vector2 ProjectToScreenPosition(Vector2 position, float zAxis = 0f)
         {
-            return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(
-                position.ToVec3(zAxis), ref projection, ref view);
+            //return ScreenManager.GraphicsDevice.Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
+            return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(position.ToVec3(zAxis), ref projection, ref view);
         }
 
         // Refactored by RedFox
@@ -5514,137 +5514,14 @@ namespace Ship_Game
 
         private void DrawSelectedShipGroup(Array<Circle> CircleList, Color color, float Thickness)
         {
-            for (int index = 0; index < CircleList.Count; ++index)
+            for (int i = 0; i < CircleList.Count; ++i)
             {
-                Rectangle rect = new Rectangle((int)CircleList[index].Center.X - (int)CircleList[index].Radius, (int)CircleList[index].Center.Y - (int)CircleList[index].Radius, (int)CircleList[index].Radius * 2, (int)CircleList[index].Radius * 2);
-                if (index < CircleList.Count - 1)
-                    Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, rect, new Color(color.R, color.G, color.B, (byte)100), 3);
+                Circle c = CircleList[i];
+                Rectangle rect = new Rectangle((int)c.Center.X - (int)c.Radius, (int)c.Center.Y - (int)c.Radius, (int)c.Radius * 2, (int)c.Radius * 2);
+                if (i < CircleList.Count - 1)
+                    Primitives2D.BracketRectangle(ScreenManager.SpriteBatch, rect, new Color(color.R, color.G, color.B, 100), 3);
                 else
-                    Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, rect, color, 3);
-            }
-        }
-
-        public void DrawOverlappingCirlces(Array<Circle> CircleList, Color color, float Thickness)
-        {
-            BatchRemovalCollection<UniverseScreen.Intersection> removalCollection = new BatchRemovalCollection<UniverseScreen.Intersection>();
-            foreach (Circle A in CircleList)
-            {
-                A.IsChecked = true;
-                bool flag = false;
-                foreach (Circle B in CircleList)
-                {
-                    Vector2[] vector2Array = this.Get2Intersections(A, B);
-                    if (vector2Array != null)
-                    {
-                        UniverseScreen.Intersection intersection1 = new UniverseScreen.Intersection();
-                        intersection1.C1 = A;
-                        intersection1.C2 = B;
-                        intersection1.inter = vector2Array[0];
-                        UniverseScreen.Intersection intersection2 = new UniverseScreen.Intersection();
-                        intersection2.C1 = A;
-                        intersection2.C2 = B;
-                        intersection2.inter = vector2Array[1];
-                        flag = true;
-                        if (!B.IsChecked)
-                        {
-                            removalCollection.Add(intersection1);
-                            removalCollection.Add(intersection2);
-                        }
-                    }
-                }
-                if (!flag)
-                    Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, A.Center, A.Radius, 100, color, Thickness);
-            }
-            int num1 = 0;
-            foreach (UniverseScreen.Intersection intersection in (Array<UniverseScreen.Intersection>)removalCollection)
-                ++num1;
-            Array<Array<Vector2>> list1 = new Array<Array<Vector2>>();
-            foreach (Circle circle in CircleList)
-            {
-                Array<Intersection> list2 = new Array<Intersection>();
-                foreach (Intersection intersection in removalCollection)
-                {
-                    if (intersection.C1 == circle || intersection.C2 == circle)
-                    {
-                        list2.Add(intersection);
-                        float num2 = Math.Abs(circle.Center.AngleToTarget(intersection.inter)) - 90f;
-                        if (num2 < 0.0)
-                            num2 += 360f;
-                        intersection.Angle = num2;
-                    }
-                }
-
-                
-                IOrderedEnumerable<UniverseScreen.Intersection> orderedEnumerable = Enumerable.OrderBy(list2, (Func<UniverseScreen.Intersection, float>)(inter => inter.Angle));
-                for (int index = 0; index < Enumerable.Count<UniverseScreen.Intersection>(orderedEnumerable); ++index)
-                {
-                    Vector2[] vector2Array = HelperFunctions.CircleIntersection(Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).C1, Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).C2);
-                    //Vector2 vector2_1 = new Vector2();
-                    //Vector2 vector2_2 = new Vector2();
-                    Vector2 C0;
-                    Vector2 C1;
-                    if (index < Enumerable.Count<UniverseScreen.Intersection>(orderedEnumerable) - 1)
-                    {
-                        C0 = Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).inter;
-                        C1 = Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index + 1).inter;
-                    }
-                    else
-                    {
-                        C0 = Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).inter;
-                        C1 = Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, 0).inter;
-                    }
-                    float num2 = MathHelper.ToDegrees((float)Math.Asin((double)Vector2.Distance(C0, C1) / 2.0 / (double)circle.Radius) * 2f);
-                    //float num3 = 0.0f;
-                    if (float.IsNaN((double)Vector2.Distance(Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).C1.Center, Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).C2.Center) >= (double)vector2Array[2].Y ? 360f - num2 : num2))
-                        //num3 = 180f;
-                    Enumerable.ElementAt(orderedEnumerable, index).AngularDistance = 360f;
-                    Array<Vector2> myArc = Primitives2D.CreateMyArc(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 50, Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).Angle, Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).AngularDistance, C0, C1, color, Thickness, CircleList);
-                    list1.Add(myArc);
-                }
-            }
-            Array<Vector2> list3 = new Array<Vector2>();
-            foreach (Array<Vector2> list4 in list1)
-                list3.AddRange(list4);
-            foreach (Vector2 center in list3)
-                Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, 2f, 10, color, 2f);
-        }
-        private Vector2[] Get2Intersections(Circle a, Circle b)
-        {
-            Vector2[] vector2Array = HelperFunctions.CircleIntersection(a, b);
-            if (vector2Array == null)
-                return null;
-            return new []
-            {
-                new Vector2(vector2Array[0].X, vector2Array[0].Y),
-                new Vector2(vector2Array[1].X, vector2Array[1].Y)
-            };
-        }
-
-        private void DrawCircleConnections(Circle A, Array<Circle> Circles)
-        {
-            A.IsChecked = true;
-            foreach (Circle B in Circles)
-            {
-                if (!B.IsChecked)
-                {
-                    Vector2[] vector2Array = HelperFunctions.CircleIntersection(A, B);
-                    if (vector2Array != null)
-                    {
-                        Vector2 vector2_1 = new Vector2(vector2Array[0].X, vector2Array[0].Y);
-                        Vector2 vector2_2 = new Vector2(vector2Array[1].X, vector2Array[1].Y);
-                        float num1 = Vector2.Distance(vector2_1, vector2_2);
-                        float num2 = MathHelper.ToDegrees((float)Math.Asin((double)num1 / 2.0 / (double)A.Radius) * 2f);
-                        float degrees1 = (double)Vector2.Distance(B.Center, A.Center) >= (double)vector2Array[2].Y ? 360f - num2 : num2;
-                        float startingAngle1 = Math.Abs(A.Center.AngleToTarget(vector2_2)) - 90f;
-                        Primitives2D.DrawMyArc(this.ScreenManager.SpriteBatch, A.Center, A.Radius, 50, startingAngle1, degrees1, vector2_1, vector2_2, Color.Red, 3f, Circles);
-                        float num3 = MathHelper.ToDegrees((float)Math.Asin((double)num1 / 2.0 / (double)B.Radius) * 2f);
-                        float startingAngle2 = Math.Abs(B.Center.AngleToTarget(vector2_1)) - 90f;
-                        float degrees2 = (double)Vector2.Distance(B.Center, A.Center) >= (double)vector2Array[2].X ? 360f - num3 : num3;
-                        Primitives2D.DrawMyArc(this.ScreenManager.SpriteBatch, B.Center, B.Radius, 50, startingAngle2, degrees2, vector2_2, vector2_1, Color.Red, 3f, Circles);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, "C0", vector2_1, Color.White);
-                        this.ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, "C1", vector2_2, Color.White);
-                    }
-                }
+                    Primitives2D.BracketRectangle(ScreenManager.SpriteBatch, rect, color, 3);
             }
         }
 
@@ -7653,15 +7530,6 @@ namespace Ship_Game
             public Fleet fleet;
             public Vector2 ScreenPos;
             public float ClickRadius;
-        }
-
-        private class Intersection
-        {
-            public Vector2 inter;
-            public Circle C1;
-            public Circle C2;
-            public float Angle;
-            public float AngularDistance;
         }
 
         protected enum CursorState
