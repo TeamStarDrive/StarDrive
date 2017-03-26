@@ -15,6 +15,7 @@ namespace Ship_Game.Debug
     public enum DebugModes
     {
         Normal,
+        Targeting,
         Pathing,
         DefenseCo,
         Trade,
@@ -160,8 +161,47 @@ namespace Ship_Game.Debug
                 case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
                 case DebugModes.Pathing:      PathingInfo();      break;
                 case DebugModes.Trade:        TradeInfo();        break;
+                case DebugModes.Targeting:    Targeting();        break;
             }
             ShipInfo();
+        }
+        private void Targeting()
+        {
+            //Ship ship = Screen.SelectedShip;
+            try
+            {
+                for (int index = 0; index < Screen.MasterShipList.Count; index++)
+                {
+                    Ship ship = Screen.MasterShipList[index];
+                    if (ship == null || !ship.InFrustum || ship.AI.Target == null) continue;
+
+                    {
+                        foreach (Weapon weapon in ship.Weapons)
+                        {
+                            if (weapon.fireTarget == null) continue;
+                            Vector2 projDest = weapon.Center.FindPredictedTargetPosition(ship.Velocity,
+                                weapon.ProjectileSpeed
+                                , weapon.fireTarget.Center, ship.AI.Target.Velocity);
+                            Vector3 drawOrgin = ScreenManager.GraphicsDevice.Viewport.Project(weapon.Center.ToVec3(0.0f),
+                                Screen.projection, Screen.view, Matrix.Identity);
+                            Vector3 drawDest = ScreenManager.GraphicsDevice.Viewport.Project(projDest.ToVec3(0f),
+                                Screen.projection, Screen.view, Matrix.Identity);
+                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, drawOrgin.ToVec2(), drawDest.ToVec2(),
+                                Color.Yellow);                            
+                        }
+
+                        {
+                            Vector3 drawOrgin = ScreenManager.GraphicsDevice.Viewport.Project(
+                                Screen.SelectedShip.Center.ToVec3(0.0f), Screen.projection, Screen.view, Matrix.Identity);
+                            Vector3 drawDest = ScreenManager.GraphicsDevice.Viewport.Project(
+                                ship.AI.Target.Position.ToVec3(0f), Screen.projection, Screen.view, Matrix.Identity);
+                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, new Vector2(drawOrgin.X, drawOrgin.Y),
+                                new Vector2(drawDest.X, drawDest.Y), Color.Red);
+                        }
+                    }
+                }
+            }
+            catch { }
         }
         private void ShipInfo()
         {
