@@ -49,12 +49,12 @@ namespace Ship_Game
         {
             float step = 6.28318530717959f / sides;
 
-            var start = new Vector2(radius /* radius*cos0 */, 0.0f /* radius*sin0 */);
+            var start = new Vector2(center.X + radius, center.Y); // 0 angle is horizontal right
             Vector2 previous = start;
 
             for (float theta = step; theta < 6.28318530717959f; theta += step)
             {
-                var current = new Vector2(radius * (float)Math.Cos(theta), radius * (float)Math.Sin(theta));
+                var current = new Vector2(center.X + radius * (float)Math.Cos(theta), center.Y + radius * (float)Math.Sin(theta));
 
                 DrawLine(spriteBatch, previous, current, color, thickness);
                 previous = current;
