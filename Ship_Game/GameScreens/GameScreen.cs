@@ -143,20 +143,5 @@ namespace Ship_Game
 	    {
 	        TransientContent?.Dispose(ref TransientContent);
 	    }
-
-        public Vector3 ViewOrigin(Vector2 origin, Matrix projection, Matrix view, float zAxis =0f)
-        {
-            return ScreenManager.GraphicsDevice.Viewport.Project(origin.ToVec3(zAxis), projection, view, Matrix.Identity);            
-        }
-
-        public Vector3 ViewDestination(Vector2 origin, Matrix projection, Matrix view, float zAxis = 0f)
-        {
-            return ScreenManager.GraphicsDevice.Viewport.Project(origin.ToVec3(zAxis), projection, view, Matrix.Identity);
-	    }
-
-        public void DrawLineBase(Vector2 origin, Vector2 destination, Matrix projection, Matrix view, Color color,  float zAxis = 0f)
-        {
-            Primitives2D.DrawLine(ScreenManager.SpriteBatch, ViewOrigin(origin,projection,view).ToVec2(), ViewDestination(destination, projection, view).ToVec2(), color);            
-        }
     }
 }
