@@ -1051,7 +1051,7 @@ namespace Ship_Game.Gameplay
                 if (explodes)
                 {
                     SpatialManagerForSystem(inSystem)
-                        .ExplodeAtModule(Parent.LastDamagedBy, this, damageAmount:size*2500, damageRadius:size*64);
+                        .ExplodeAtModule(Parent.LastDamagedBy ?? this.Parent, this, damageAmount:size*2500, damageRadius:size*64);
                 }
                 if (PowerFlowMax > 0 || PowerRadius > 0)
                     Parent.NeedRecalculate = true;
@@ -1158,7 +1158,7 @@ namespace Ship_Game.Gameplay
             {
                 foreach (ShipModule module in DummyModules)
                 {
-                    module.SetSystem(Parent?.System);
+                    //module.SetSystem(Parent?.System);
                     module.Parent          = Parent;
                     module.Dimensions      = Dimensions;
                     module.IconTexturePath = IconTexturePath;
