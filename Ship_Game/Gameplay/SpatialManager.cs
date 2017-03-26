@@ -453,8 +453,8 @@ namespace Ship_Game.Gameplay
             GameplayObject[] nearby = GetNearby<GameplayObject>(projectile.Position, 100f);
             foreach (GameplayObject otherObj in nearby)
             {
-                if (CollideWith(projectile, otherObj, out GameplayObject collidedWith) && collidedWith !=null &&
-                    (projectile.Touch(collidedWith) || collidedWith.Touch(projectile)))
+                if (CollideWith(projectile, otherObj, out GameplayObject collidedWith) && 
+                    projectile.Touch(collidedWith) || collidedWith.Touch(projectile))
                 {
                     return; // projectile collided (and died), no need to continue collisions
                 }
@@ -684,7 +684,7 @@ namespace Ship_Game.Gameplay
                 float damageTracker = damageAmount;
                 foreach (ShipModule module in modules)
                 {
-                    module.Damage(source, damageTracker, ref damageTracker);
+                    module.Damage(source, damageTracker, out damageTracker);
                     if (damageTracker <= 0f)
                         return;
                 }
@@ -698,7 +698,7 @@ namespace Ship_Game.Gameplay
         }
 
         // Refactored by RedFox
-        public void ExplodeAtModule(GameplayObject source, ShipModule hitModule, float damageAmount, float damageRadius)
+        public void ExplodeAtModule(GameplayObject damageSource, ShipModule hitModule, float damageAmount, float damageRadius)
         {
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
@@ -713,21 +713,28 @@ namespace Ship_Game.Gameplay
             // start dishing out damage from inside out to first 8 modules
             // since damage is internal, we can't explode with radial falloff
             float damageTracker = damageAmount;
-            while (damageTracker > 0.0f && hitModules.Count > 0)
+            while (damageTracker > 0.0f)
             {
                 float damage = damageTracker / 8;
-
+                int affected = 0;
                 for (int i = 0; i < hitModules.Count; ++i)
                 {
                     ShipModule module = hitModules[i];
+                    if (module.Health <= 0.0f)
+                        continue;
+
                     float damageFalloff = DamageFalloff(explosionCenter, module.Center, damageRadius);
                     float health = module.Health;
-                    module.Damage(source, damage * damageFalloff);
-                    damageTracker -= health - module.Health;
+                    module.Damage(damageSource, damage * damageFalloff);
+                    float damageDone = health - module.Health;
+                    damageTracker -= damageDone;
 
-                    if (module.Health <= 0.0f)
-                        hitModules.RemoveAt(i--); // don't use SwapLast,                    
+                    if (damageDone > 0.0f)
+                        ++affected;
                 }
+
+                if (affected == 0) // no damage was dished out, all modules seem to be dead
+                    break;
             }
         }
 

@@ -606,7 +606,7 @@ namespace Ship_Game.Gameplay
                             ArmorPiercing = ArmorPiercing - module.APResist;
 
                         if (ArmorPiercing <= 0 || !(module.ModuleType == ShipModuleType.Armor || (module.ModuleType == ShipModuleType.Dummy && module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
-                            module.Damage(this, damageAmount, ref damageAmount);
+                            module.Damage(this, damageAmount, out damageAmount);
                         else
                             ArmorPiercing -= (module.XSIZE + module.YSIZE) / 2;
 
@@ -624,7 +624,7 @@ namespace Ship_Game.Gameplay
                                     continue; // SKIP/Phase through this armor module (yikes!)
                                 }
 
-                                impactModule.Damage(this, damageAmount, ref damageAmount);
+                                impactModule.Damage(this, damageAmount, out damageAmount);
                                 if (damageAmount <= 0f)
                                     break;
                             }
