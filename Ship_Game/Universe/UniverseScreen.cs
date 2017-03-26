@@ -4884,13 +4884,6 @@ namespace Ship_Game
             }
         }
 
-        // this does some magic to convert a game position/coordinate to a drawable screen position
-        private Vector2 ProjectToScreenPosition(Vector2 position, float zAxis = 0f)
-        {
-            //return ScreenManager.GraphicsDevice.Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
-            return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(position.ToVec3(zAxis), ref projection, ref view);
-        }
-
         // Refactored by RedFox
         // this draws the colored empire borders
         // the borders are drawn into a separate framebuffer texture and later blended with final visual
@@ -5405,29 +5398,6 @@ namespace Ship_Game
             DrawCompletedEvt.Set();
         }
 
-        private void DrawLines(Vector2 position, Array<string> lines)
-        {
-            foreach (string line in lines)
-            {
-                if (line.Length != 0)
-                    ScreenManager.SpriteBatch.DrawString(
-                        Fonts.Arial12Bold, line, position, Color.White);
-                position.Y += Fonts.Arial12Bold.LineSpacing + 2;
-            }
-        }
-
-        private void DrawCircle(Vector2 worldPos, float radius, Color c, float thickness)
-        {
-            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(worldPos.X, worldPos.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-            Vector2 center = new Vector2(vector3_1.X, vector3_1.Y);
-            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(worldPos.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
-            float radius1 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), center);
-            Rectangle destinationRectangle = new Rectangle((int)center.X, (int)center.Y, (int)radius1 * 2, (int)radius1 * 2);
-            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], destinationRectangle, new Rectangle?(), new Color(c, (byte)50), 0.0f, origin, SpriteEffects.None, 1f);
-            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, radius1, 50, c, thickness);
-        }
-
         private void DrawFleetIcons(GameTime gameTime)
         {
             ClickableFleetsList.Clear();
@@ -5506,18 +5476,12 @@ namespace Ship_Game
             }
         }
 
-        private void DrawOverlappingCirlcesLite(Array<Circle> CircleList, Color color, float Thickness)
-        {
-            foreach (Circle circle in CircleList)
-                ;
-        }
-
         private void DrawSelectedShipGroup(Array<Circle> CircleList, Color color, float Thickness)
         {
             for (int i = 0; i < CircleList.Count; ++i)
             {
                 Circle c = CircleList[i];
-                Rectangle rect = new Rectangle((int)c.Center.X - (int)c.Radius, (int)c.Center.Y - (int)c.Radius, (int)c.Radius * 2, (int)c.Radius * 2);
+                var rect = new Rectangle((int)c.Center.X - (int)c.Radius, (int)c.Center.Y - (int)c.Radius, (int)c.Radius * 2, (int)c.Radius * 2);
                 if (i < CircleList.Count - 1)
                     Primitives2D.BracketRectangle(ScreenManager.SpriteBatch, rect, new Color(color.R, color.G, color.B, 100), 3);
                 else
@@ -6133,7 +6097,7 @@ namespace Ship_Game
             //}
             else
             {
-                if (this.viewState != UniverseScreen.UnivScreenState.ShipView || this.LookingAtPlanet)
+                if (this.viewState != UnivScreenState.ShipView || this.LookingAtPlanet)
                     return;
                 float num1 = ship.GetSO().WorldBoundingSphere.Radius;
                 Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(ship.Position, 0.0f), this.projection, this.view, Matrix.Identity);
@@ -6144,7 +6108,7 @@ namespace Ship_Game
                 if ((double)num2 < 5.0)
                     num2 = 5f;
                 float scale = num2 / (float)(45 - GlobalStats.IconSize); //45
-                float check = this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView);
+                float check = this.GetZfromScreenState(UnivScreenState.ShipView);
                 if (ship.shipData.Role != ShipData.RoleName.fighter && ship.shipData.Role != ShipData.RoleName.scout)
                 {
                     
@@ -6152,8 +6116,8 @@ namespace Ship_Game
                 }
                 else
                 {
-                   // scale2 *= this.camHeight * 2 > this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView) ? 1 : this.camHeight * 2 / this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView);
-                     scale2 *= (this.camHeight * 3 / this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView));
+                   // scale2 *= this.camHeight * 2 > this.GetZfromScreenState(UnivScreenState.ShipView) ? 1 : this.camHeight * 2 / this.GetZfromScreenState(UniverseScreen.UnivScreenState.ShipView);
+                     scale2 *= (this.camHeight * 3 / this.GetZfromScreenState(UnivScreenState.ShipView));
                 }
 
                 if (!ship.Active )
@@ -6181,21 +6145,20 @@ namespace Ship_Game
                     this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"], position, new Rectangle?(), ship.loyalty.EmpireColor, ship.Rotation, origin, scale2, SpriteEffects.None, 1f);
                 }
                 
-                if ((double)ship.OrdinanceMax <= 0.0)
+                if (ship.OrdinanceMax <= 0.0f)
                     return;
-                if ((double)ship.Ordinance < 0.200000002980232 * (double)ship.OrdinanceMax)
+                if (ship.Ordinance <= 0.2f * ship.OrdinanceMax)
                 {
-                     position = new Vector2(vector2_1.X + 15f * scale, vector2_1.Y + 15f * scale);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_ammo"], position, new Rectangle?(), Color.Red, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 1f);
+                    position = new Vector2(vector2_1.X + 15f * scale, vector2_1.Y + 15f * scale);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_ammo"], position, new Rectangle?(), Color.Red, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 1f);
                 }
                 else
                 {
-                    if ((double)ship.Ordinance >= 0.5 * (double)ship.OrdinanceMax)
+                    if (ship.Ordinance >= 0.5f * ship.OrdinanceMax)
                         return;
-                     position = new Vector2(vector2_1.X + 15f * scale, vector2_1.Y + 15f * scale);
-                    this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_ammo"], position, new Rectangle?(), Color.Yellow, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 1f);
+                    position = new Vector2(vector2_1.X + 15f * scale, vector2_1.Y + 15f * scale);
+                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["NewUI/icon_ammo"], position, new Rectangle?(), Color.Yellow, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 1f);
                 }
-
             }
         }
 
@@ -6256,7 +6219,7 @@ namespace Ship_Game
                 if (this.viewState < UniverseScreen.UnivScreenState.SectorView)
                     return new Circle(Center, Radius);
             }
-            return (Circle)null;
+            return null;
         }
 
         protected void RenderParticles()
@@ -7272,14 +7235,46 @@ namespace Ship_Game
             }
         }
 
-        public void DrawLine(Vector2 origin, Vector2 destination, Color color, float zAxis = 0)
+        // this does some magic to convert a game position/coordinate to a drawable screen position
+        private Vector2 ProjectToScreenPosition(Vector2 position, float zAxis = 0f)
         {
-            Primitives2D.DrawLine(ScreenManager.SpriteBatch, ProjectToScreenPosition(origin,zAxis), ProjectToScreenPosition(destination),color);
+            //return ScreenManager.GraphicsDevice.Viewport.Project(position.ToVec3(zAxis), projection, view, Matrix.Identity).ToVec2();
+            return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(position.ToVec3(zAxis), ref projection, ref view);
         }
 
-        public void DrawCircle(Vector2 origin, float radius, Color color, int sides = 16, float zAxis = 0)
+        public void DrawLine(Vector2 start, Vector2 end, Color color, float zAxis = 0f)
         {
-            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, ProjectToScreenPosition(origin, zAxis), radius, sides, color);
+            Primitives2D.DrawLine(ScreenManager.SpriteBatch, ProjectToScreenPosition(start, zAxis), ProjectToScreenPosition(end, zAxis), color);
+        }
+
+        public void DrawCircle(Vector2 center, float radius, Color color, int sides = 16, float zAxis = 0)
+        {
+            Vector2 circleCenter = ProjectToScreenPosition(center, zAxis);
+            Vector2 circleEdge   = ProjectToScreenPosition(new Vector2(center.X + radius, center.Y), zAxis);
+            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circleCenter, circleCenter.Distance(circleEdge), sides, color);
+        }
+
+        private void DrawLines(Vector2 position, Array<string> lines)
+        {
+            foreach (string line in lines)
+            {
+                if (line.Length != 0)
+                    ScreenManager.SpriteBatch.DrawString(
+                        Fonts.Arial12Bold, line, position, Color.White);
+                position.Y += Fonts.Arial12Bold.LineSpacing + 2;
+            }
+        }
+
+        private void DrawCircle(Vector2 worldPos, float radius, Color c, float thickness)
+        {
+            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(worldPos.X, worldPos.Y, 0.0f), this.projection, this.view, Matrix.Identity);
+            Vector2 center = new Vector2(vector3_1.X, vector3_1.Y);
+            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(worldPos.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
+            float radius1 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), center);
+            Rectangle destinationRectangle = new Rectangle((int)center.X, (int)center.Y, (int)radius1 * 2, (int)radius1 * 2);
+            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
+            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], destinationRectangle, new Rectangle?(), new Color(c, (byte)50), 0.0f, origin, SpriteEffects.None, 1f);
+            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, radius1, 50, c, thickness);
         }
 
         protected void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)
