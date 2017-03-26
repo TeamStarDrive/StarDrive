@@ -430,5 +430,23 @@ namespace Ship_Game
                 * Matrix.CreateRotationZ(zRads)
                 * Matrix.CreateTranslation(position.ToVec3());
         }
+
+        // Returns true if a is almost equal to b, within float epsilon error margin
+        private static bool AlmostEqual(this float a, float b)
+        {
+            float delta = a - b;
+            return -1.40129846432482E-45 <= delta && delta <= 1.40129846432482E-45;
+        }
+
+        public static Vector2 ProjectTo2D(this Viewport viewport, Vector3 source, ref Matrix projection, ref Matrix view)
+        {
+            Matrix.Multiply(ref view, ref projection, out Matrix matrix);
+            Vector3.Transform(ref source, ref matrix, out Vector3 vector3);
+            float len = source.X*matrix.M14 + source.Y*matrix.M24 + source.Z*matrix.M34 + matrix.M44;
+            if (!len.AlmostEqual(1f)) // normalize
+                vector3 /= len;
+            return new Vector2((vector3.X + 1.0f)  * 0.5f * viewport.Width  + viewport.X,
+                               (-vector3.Y + 1.0f) * 0.5f * viewport.Height + viewport.Y);
+        }
     }
 }
