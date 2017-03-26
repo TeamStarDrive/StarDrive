@@ -4885,10 +4885,10 @@ namespace Ship_Game
         }
 
         // this does some magic to convert a game position/coordinate to a drawable screen position
-        private Vector2 ProjectToScreenPosition(Vector2 position)
+        private Vector2 ProjectToScreenPosition(Vector2 position, float zAxis = 0f)
         {
-            return ScreenManager.GraphicsDevice.Viewport.Project(
-                position.ToVec3(), projection, view, Matrix.Identity).ToVec2();
+            return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(
+                position.ToVec3(zAxis), ref projection, ref view);
         }
 
         // Refactored by RedFox
@@ -5561,49 +5561,50 @@ namespace Ship_Game
             Array<Array<Vector2>> list1 = new Array<Array<Vector2>>();
             foreach (Circle circle in CircleList)
             {
-                Array<UniverseScreen.Intersection> list2 = new Array<UniverseScreen.Intersection>();
-                foreach (UniverseScreen.Intersection intersection in (Array<UniverseScreen.Intersection>)removalCollection)
+                Array<Intersection> list2 = new Array<Intersection>();
+                foreach (Intersection intersection in removalCollection)
                 {
                     if (intersection.C1 == circle || intersection.C2 == circle)
+                    {
                         list2.Add(intersection);
+                        float num2 = Math.Abs(circle.Center.AngleToTarget(intersection.inter)) - 90f;
+                        if (num2 < 0.0)
+                            num2 += 360f;
+                        intersection.Angle = num2;
+                    }
                 }
-                foreach (UniverseScreen.Intersection intersection in list2)
+
+                
+                IOrderedEnumerable<UniverseScreen.Intersection> orderedEnumerable = Enumerable.OrderBy(list2, (Func<UniverseScreen.Intersection, float>)(inter => inter.Angle));
+                for (int index = 0; index < Enumerable.Count<UniverseScreen.Intersection>(orderedEnumerable); ++index)
                 {
-                    float num2 = Math.Abs(circle.Center.AngleToTarget(intersection.inter)) - 90f;
-                    if ((double)num2 < 0.0)
-                        num2 += 360f;
-                    intersection.Angle = num2;
-                }
-                IOrderedEnumerable<UniverseScreen.Intersection> orderedEnumerable = Enumerable.OrderBy<UniverseScreen.Intersection, float>((IEnumerable<UniverseScreen.Intersection>)list2, (Func<UniverseScreen.Intersection, float>)(inter => inter.Angle));
-                for (int index = 0; index < Enumerable.Count<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable); ++index)
-                {
-                    Vector2[] vector2Array = HelperFunctions.CircleIntersection(Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).C1, Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).C2);
+                    Vector2[] vector2Array = HelperFunctions.CircleIntersection(Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).C1, Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).C2);
                     //Vector2 vector2_1 = new Vector2();
                     //Vector2 vector2_2 = new Vector2();
                     Vector2 C0;
                     Vector2 C1;
-                    if (index < Enumerable.Count<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable) - 1)
+                    if (index < Enumerable.Count<UniverseScreen.Intersection>(orderedEnumerable) - 1)
                     {
-                        C0 = Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).inter;
-                        C1 = Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index + 1).inter;
+                        C0 = Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).inter;
+                        C1 = Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index + 1).inter;
                     }
                     else
                     {
-                        C0 = Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).inter;
-                        C1 = Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, 0).inter;
+                        C0 = Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).inter;
+                        C1 = Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, 0).inter;
                     }
                     float num2 = MathHelper.ToDegrees((float)Math.Asin((double)Vector2.Distance(C0, C1) / 2.0 / (double)circle.Radius) * 2f);
                     //float num3 = 0.0f;
-                    if (float.IsNaN((double)Vector2.Distance(Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).C1.Center, Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).C2.Center) >= (double)vector2Array[2].Y ? 360f - num2 : num2))
+                    if (float.IsNaN((double)Vector2.Distance(Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).C1.Center, Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).C2.Center) >= (double)vector2Array[2].Y ? 360f - num2 : num2))
                         //num3 = 180f;
-                    Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).AngularDistance = 360f;
-                    Array<Vector2> myArc = Primitives2D.CreateMyArc(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 50, Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).Angle, Enumerable.ElementAt<UniverseScreen.Intersection>((IEnumerable<UniverseScreen.Intersection>)orderedEnumerable, index).AngularDistance, C0, C1, color, Thickness, CircleList);
+                    Enumerable.ElementAt(orderedEnumerable, index).AngularDistance = 360f;
+                    Array<Vector2> myArc = Primitives2D.CreateMyArc(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 50, Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).Angle, Enumerable.ElementAt<UniverseScreen.Intersection>(orderedEnumerable, index).AngularDistance, C0, C1, color, Thickness, CircleList);
                     list1.Add(myArc);
                 }
             }
             Array<Vector2> list3 = new Array<Vector2>();
-            foreach (Array<Vector2> list2 in list1)
-                list3.AddRange((IEnumerable<Vector2>)list2);
+            foreach (Array<Vector2> list4 in list1)
+                list3.AddRange(list4);
             foreach (Vector2 center in list3)
                 Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, 2f, 10, color, 2f);
         }
