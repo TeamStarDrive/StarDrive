@@ -2755,32 +2755,33 @@ namespace Ship_Game.Gameplay
 
         public static Ship LoadSavedShip(ShipData data)
         {
-            Ship ship = new Ship();
-            //if (data.Name == "Left Right Test")
-            //    parent.Position = new Vector2(200f, 200f);
-            ship.Position  = new Vector2(200f, 200f);
-            ship.Name      = data.Name;
-            ship.Level     = data.Level;
-            ship.shipData  = data;
-            ship.ModelPath = data.ModelPath;
+            var ship = new Ship
+            {
+                Position       = new Vector2(200f, 200f),
+                Name           = data.Name,
+                Level          = data.Level,
+                shipData       = data,
+                ModelPath      = data.ModelPath,
+                ModuleSlotList = {Capacity = data.ModuleSlotList.Length}
+            };
 
-            ship.ModuleSlotList.Capacity = data.ModuleSlotList.Length;
             foreach (ModuleSlot slotData in data.ModuleSlotList)
             {
-                var slot = new ModuleSlot();
-                slot.Health             = slotData.Health;
-                slot.Shield_Power       = slotData.Shield_Power;
-                slot.Position           = slotData.Position;
-                slot.facing             = slotData.facing;
-                slot.state              = slotData.state;
-                slot.Restrictions       = slotData.Restrictions;
-                slot.InstalledModuleUID = slotData.InstalledModuleUID;
-                slot.HangarshipGuid     = slotData.HangarshipGuid;
-                slot.SlotOptions        = slotData.SlotOptions;
-                ship.ModuleSlotList.Add(slot);
+                ship.ModuleSlotList.Add(new ModuleSlot
+                {
+                    Health             = slotData.Health,
+                    Shield_Power       = slotData.Shield_Power,
+                    Position           = slotData.Position,
+                    facing             = slotData.facing,
+                    state              = slotData.state,
+                    Restrictions       = slotData.Restrictions,
+                    InstalledModuleUID = slotData.InstalledModuleUID,
+                    HangarshipGuid     = slotData.HangarshipGuid,
+                    SlotOptions        = slotData.SlotOptions
+                });
             }
 
-            foreach (var thrusterZone in data.ThrusterList)
+            foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
                 ship.ThrusterList.Add(new Thruster
                 {
                     tscale = thrusterZone.Scale,
@@ -2796,47 +2797,50 @@ namespace Ship_Game.Gameplay
             ModuleSlotList.Capacity = template.ModuleSlotList.Count;
             foreach (ModuleSlot slotData in template.ModuleSlotList)
             {
-                var slot = new ModuleSlot();
-                slot.Shield_Power       = slotData.Shield_Power;
-                slot.Position           = slotData.Position;
-                slot.facing             = slotData.facing;
-                slot.state              = slotData.state;
-                slot.Restrictions       = slotData.Restrictions;
-                slot.InstalledModuleUID = slotData.InstalledModuleUID;
-                slot.HangarshipGuid     = slotData.HangarshipGuid;
-                slot.SlotOptions        = slotData.SlotOptions;
-                ModuleSlotList.Add(slot);
+                ModuleSlotList.Add(new ModuleSlot
+                {
+                    Shield_Power       = slotData.Shield_Power,
+                    Position           = slotData.Position,
+                    facing             = slotData.facing,
+                    state              = slotData.state,
+                    Restrictions       = slotData.Restrictions,
+                    InstalledModuleUID = slotData.InstalledModuleUID,
+                    HangarshipGuid     = slotData.HangarshipGuid,
+                    SlotOptions        = slotData.SlotOptions
+                });
             }
         }
 
         public static Ship CreateShipFromShipData(ShipData data)
         {
-            Ship parent = new Ship();
-            parent.Position = new Vector2(200f, 200f);
-            parent.Name = data.Name;
-            parent.Level = data.Level;
-            parent.experience = data.experience;
-            parent.shipData   = data;
-            parent.ModelPath  = data.ModelPath;
-
-            parent.ModuleSlotList.Capacity = data.ModuleSlotList.Length;
+            var parent = new Ship
+            {
+                Position       = new Vector2(200f, 200f),
+                Name           = data.Name,
+                Level          = data.Level,
+                experience     = data.experience,
+                shipData       = data,
+                ModelPath      = data.ModelPath,
+                ModuleSlotList = {Capacity = data.ModuleSlotList.Length}
+            };
             foreach (ModuleSlot slotData in data.ModuleSlotList)
             {
-                var slot = new ModuleSlot();
-                slot.Health             = slotData.Health;
-                slot.Shield_Power       = slotData.Shield_Power;
-                slot.Position           = slotData.Position;
-                slot.facing             = slotData.facing;
-                slot.state              = slotData.state;
-                slot.Restrictions       = slotData.Restrictions;
-                slot.InstalledModuleUID = slotData.InstalledModuleUID;
-                slot.HangarshipGuid     = slotData.HangarshipGuid;
-                slot.SlotOptions        = slotData.SlotOptions;
-                parent.ModuleSlotList.Add(slot);
+                parent.ModuleSlotList.Add(new ModuleSlot
+                {
+                    Health             = slotData.Health,
+                    Shield_Power       = slotData.Shield_Power,
+                    Position           = slotData.Position,
+                    facing             = slotData.facing,
+                    state              = slotData.state,
+                    Restrictions       = slotData.Restrictions,
+                    InstalledModuleUID = slotData.InstalledModuleUID,
+                    HangarshipGuid     = slotData.HangarshipGuid,
+                    SlotOptions        = slotData.SlotOptions
+                });
             }
 
-            foreach (var thrusterZone in data.ThrusterList)
-                parent.ThrusterList.Add(new Thruster()
+            foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
+                parent.ThrusterList.Add(new Thruster
                 {
                     tscale = thrusterZone.Scale,
                     XMLPos = thrusterZone.Position,
@@ -4723,10 +4727,10 @@ namespace Ship_Game.Gameplay
             if (fleet == null)
                 return;
             fleet.Ships.Remove(this);
-            foreach (FleetDataNode fleetDataNode in (Array<FleetDataNode>)fleet.DataNodes)
+            foreach (FleetDataNode fleetDataNode in fleet.DataNodes)
             {
-                if (fleetDataNode.Ship== this)
-                    fleetDataNode.Ship = (Ship)null;
+                if (fleetDataNode.Ship == this)
+                    fleetDataNode.Ship = null;
             }
             foreach (Array<Fleet.Squad> list in fleet.AllFlanks)
             {
@@ -4734,10 +4738,10 @@ namespace Ship_Game.Gameplay
                 {
                     if (squad.Ships.Contains(this))
                         squad.Ships.QueuePendingRemoval(this);
-                    foreach (FleetDataNode fleetDataNode in (Array<FleetDataNode>)squad.DataNodes)
+                    foreach (FleetDataNode fleetDataNode in squad.DataNodes)
                     {
-                        if (fleetDataNode.Ship== this)
-                            fleetDataNode.Ship = (Ship)null;
+                        if (fleetDataNode.Ship == this)
+                            fleetDataNode.Ship = null;
                     }
                 }
             }
