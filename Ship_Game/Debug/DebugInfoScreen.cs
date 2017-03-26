@@ -182,24 +182,11 @@ namespace Ship_Game.Debug
                         Vector2 projDest = weapon.Center.FindPredictedTargetPosition(ship.Velocity,
                             weapon.ProjectileSpeed
                             , weapon.fireTarget.Center, ship.AI.Target.Velocity);
-
-                        drawOrgin = ScreenManager.GraphicsDevice.Viewport.Project(weapon.Center.ToVec3(0.0f),
-                            Screen.projection, Screen.view, Matrix.Identity);
-
-                        drawDest = ScreenManager.GraphicsDevice.Viewport.Project(projDest.ToVec3(0f),
-                            Screen.projection, Screen.view, Matrix.Identity);
-
-                        Primitives2D.DrawLine(ScreenManager.SpriteBatch, drawOrgin.ToVec2(), drawDest.ToVec2(),
-                            Color.Yellow);
+                        
+                        Screen.DrawLine(weapon.Center, projDest, Color.Yellow);
                     }
 
-
-                    drawOrgin = ScreenManager.GraphicsDevice.Viewport.Project(
-                        Screen.SelectedShip.Center.ToVec3(0.0f), Screen.projection, Screen.view, Matrix.Identity);
-                    drawDest = ScreenManager.GraphicsDevice.Viewport.Project(
-                        ship.AI.Target.Position.ToVec3(0f), Screen.projection, Screen.view, Matrix.Identity);
-                    Primitives2D.DrawLine(ScreenManager.SpriteBatch, drawOrgin.ToVec2(),
-                        drawDest.ToVec2(), Color.Red);
+                    Screen.DrawLine(ship.Center, ship.AI.Target.Position, Color.Yellow);
 
                 }
             }
