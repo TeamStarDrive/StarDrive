@@ -10,7 +10,7 @@ namespace Ship_Game
 	{
 		private static readonly Map<string, Array<Vector2>> m_arcCache;
 
-		private static Texture2D m_pixel;
+		private static Texture2D Pixel;
 
 		static Primitives2D()
 		{
@@ -196,49 +196,21 @@ namespace Ship_Game
 			return points;
 		}
 
-		private static Array<Vector2> CreateMyCircle(Circle ToDraw, double radius, int sides, Array<Circle> CircleList)
-		{
-			BatchRemovalCollection<Vector2> vectors = new BatchRemovalCollection<Vector2>();
-			double step = 6.28318530717959 / (double)sides;
-			for (double theta = 0; theta < 6.28318530717959; theta = theta + step)
-			{
-				Vector2 r = new Vector2((float)(radius * Math.Cos(theta)), (float)(radius * Math.Sin(theta)));
-				vectors.Add(r);
-			}
-			Vector2 r1 = new Vector2((float)(radius * Math.Cos(0)), (float)(radius * Math.Sin(0)));
-			r1 = r1 + ToDraw.Center;
-			vectors.Add(r1);
-			foreach (Circle ToCheck in CircleList)
-			{
-				foreach (Vector2 point in vectors)
-				{
-					if (Vector2.Distance(point, ToCheck.Center) >= ToCheck.Radius - 0.1f)
-					{
-						continue;
-					}
-					vectors.QueuePendingRemoval(point);
-				}
-			}
-			return vectors;
-		}
-
 		private static void CreateThePixel(SpriteBatch spriteBatch)
 		{
-			Primitives2D.m_pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
-			Primitives2D.m_pixel.SetData<Color>(new Color[] { Color.White });
+			Pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
+			Pixel.SetData(new []{ Color.White });
 		}
 
 		public static void DrawArc(SpriteBatch spriteBatch, Vector2 center, float radius, int sides, float startingAngle, float degrees, Color color)
 		{
-			Primitives2D.DrawArc(spriteBatch, center, radius, sides, startingAngle, degrees, color, 1f);
+			DrawArc(spriteBatch, center, radius, sides, startingAngle, degrees, color, 1f);
 		}
 
-		public static Vector2[] DrawArc(SpriteBatch spriteBatch, Vector2 center, float radius, int sides, float startingAngle, float degrees, Color color, float thickness)
+		public static void DrawArc(SpriteBatch spriteBatch, Vector2 center, float radius, int sides, float startingAngle, float degrees, Color color, float thickness)
 		{
-			Array<Vector2> arc = Primitives2D.CreateArc(radius, sides, startingAngle, degrees);
-			Primitives2D.DrawPoints(spriteBatch, center, arc, color, thickness);
-			Vector2[] ret = new Vector2[] { arc[0], arc[arc.Count - 1] };
-			return ret;
+			Array<Vector2> arc = CreateArc(radius, sides, startingAngle, degrees);
+			DrawPoints(spriteBatch, center, arc, color, thickness);
 		}
 
 		public static void DrawCircle(SpriteBatch spriteBatch, Vector2 center, float radius, int sides, Color color)
@@ -294,13 +266,13 @@ namespace Ship_Game
 
 		public static void DrawLine(SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness)
 		{
-			if (Primitives2D.m_pixel == null)
+			if (Primitives2D.Pixel == null)
 			{
 				Primitives2D.CreateThePixel(spriteBatch);
 			}
 			Vector2 v = new Vector2(length, thickness);
 			Rectangle? nullable = null;
-			spriteBatch.Draw(Primitives2D.m_pixel, point, nullable, color, angle, Vector2.Zero, v, SpriteEffects.None, 0f);
+			spriteBatch.Draw(Primitives2D.Pixel, point, nullable, color, angle, Vector2.Zero, v, SpriteEffects.None, 0f);
 		}
 
 		public static void DrawLowerLine(SpriteBatch spriteBatch, float x1, float y1, float x2, float y2, Color color)
@@ -498,21 +470,21 @@ namespace Ship_Game
 
 		public static void FillRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color)
 		{
-			if (Primitives2D.m_pixel == null)
+			if (Pixel == null)
 			{
-				Primitives2D.CreateThePixel(spriteBatch);
+				CreateThePixel(spriteBatch);
 			}
-			spriteBatch.Draw(Primitives2D.m_pixel, rect, color);
+			spriteBatch.Draw(Primitives2D.Pixel, rect, color);
 		}
 
 		public static void FillRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color, float angle)
 		{
-			if (Primitives2D.m_pixel == null)
+			if (Primitives2D.Pixel == null)
 			{
 				Primitives2D.CreateThePixel(spriteBatch);
 			}
 			Rectangle? nullable = null;
-			spriteBatch.Draw(Primitives2D.m_pixel, rect, nullable, color, angle, Vector2.Zero, SpriteEffects.None, 0f);
+			spriteBatch.Draw(Primitives2D.Pixel, rect, nullable, color, angle, Vector2.Zero, SpriteEffects.None, 0f);
 		}
 
 		public static void FillRectangle(SpriteBatch spriteBatch, Vector2 location, Vector2 size, Color color)
@@ -522,17 +494,17 @@ namespace Ship_Game
 
 		public static void FillRectangle(SpriteBatch spriteBatch, Vector2 location, Vector2 size, Color color, float angle)
 		{
-			if (Primitives2D.m_pixel == null)
+			if (Primitives2D.Pixel == null)
 			{
 				Primitives2D.CreateThePixel(spriteBatch);
 			}
 			Rectangle? nullable = null;
-			spriteBatch.Draw(Primitives2D.m_pixel, location, nullable, color, angle, Vector2.Zero, size, SpriteEffects.None, 0f);
+			spriteBatch.Draw(Primitives2D.Pixel, location, nullable, color, angle, Vector2.Zero, size, SpriteEffects.None, 0f);
 		}
 
 		public static void FillRectangle(SpriteBatch spriteBatch, float x1, float y1, float x2, float y2, Color color)
 		{
-			if (Primitives2D.m_pixel == null)
+			if (Primitives2D.Pixel == null)
 			{
 				Primitives2D.CreateThePixel(spriteBatch);
 			}
@@ -541,7 +513,7 @@ namespace Ship_Game
 
 		public static void FillRectangle(SpriteBatch spriteBatch, float x1, float y1, float x2, float y2, Color color, float thickness)
 		{
-			if (Primitives2D.m_pixel == null)
+			if (Primitives2D.Pixel == null)
 			{
 				Primitives2D.CreateThePixel(spriteBatch);
 			}
@@ -618,11 +590,11 @@ namespace Ship_Game
 
 		public static void PutPixel(SpriteBatch spriteBatch, Vector2 position, Color color)
 		{
-			if (Primitives2D.m_pixel == null)
+			if (Primitives2D.Pixel == null)
 			{
 				Primitives2D.CreateThePixel(spriteBatch);
 			}
-			spriteBatch.Draw(Primitives2D.m_pixel, position, color);
+			spriteBatch.Draw(Primitives2D.Pixel, position, color);
 		}
 	}
 }

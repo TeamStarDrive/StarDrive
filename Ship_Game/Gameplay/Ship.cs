@@ -2610,60 +2610,64 @@ namespace Ship_Game.Gameplay
                 FTLSpoolTime = 3f;
         }
 
-        public void RenderOverlay(SpriteBatch spriteBatch, Rectangle where, bool ShowModules)
+        public void RenderOverlay(SpriteBatch spriteBatch, Rectangle drawRect, bool showModules)
         {
-            if (Ship_Game.ResourceManager.HullsDict.ContainsKey(shipData.Hull) && !string.IsNullOrEmpty(Ship_Game.ResourceManager.HullsDict[shipData.Hull].SelectionGraphic) && !ShowModules)
+            if (!ResourceManager.TryGetHull(shipData.Hull, out ShipData hullData))
+                return;
+            if (hullData.SelectionGraphic.NotEmpty() && !showModules)
             {
-                Rectangle destinationRectangle = where;
+                Rectangle destinationRectangle = drawRect;
                 destinationRectangle.X += 2;
-                spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["SelectionBox Ships/" + Ship_Game.ResourceManager.HullsDict[shipData.Hull].SelectionGraphic], destinationRectangle, Color.White);
+
+                spriteBatch.Draw(ResourceManager.LoadTexture("SelectionBox Ships/" + hullData.SelectionGraphic), destinationRectangle, Color.White);
                 if (shield_power > 0.0)
                 {
-                    float num = (float)byte.MaxValue * (float)shield_percent;
-                    spriteBatch.Draw(Ship_Game.ResourceManager.TextureDict["SelectionBox Ships/" + Ship_Game.ResourceManager.HullsDict[shipData.Hull].SelectionGraphic + "_shields"], destinationRectangle, new Color(Color.White, (byte)num));
+                    byte alpha = (byte)(shield_percent * 255.0f);
+                    spriteBatch.Draw(ResourceManager.LoadTexture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destinationRectangle, new Color(Color.White, alpha));
                 }
             }
-            if (!ShowModules && !string.IsNullOrEmpty(Ship_Game.ResourceManager.HullsDict[shipData.Hull].SelectionGraphic) || ModuleSlotList.Count == 0)
+            if (!showModules || hullData.SelectionGraphic.IsEmpty() || ModuleSlotList.Count == 0)
                 return;
-            IOrderedEnumerable<ModuleSlot> orderedEnumerable1 = Enumerable.OrderBy<ModuleSlot, float>((IEnumerable<ModuleSlot>)ModuleSlotList, (Func<ModuleSlot, float>)(slot => slot.Position.X));
-            if (Enumerable.Count<ModuleSlot>((IEnumerable<ModuleSlot>)orderedEnumerable1) == 0)
-                return;
-            float num1 = (float)(Enumerable.Last<ModuleSlot>((IEnumerable<ModuleSlot>)orderedEnumerable1).Position.X - Enumerable.First<ModuleSlot>((IEnumerable<ModuleSlot>)orderedEnumerable1).Position.X + 16.0);
-            IOrderedEnumerable<ModuleSlot> orderedEnumerable2 = Enumerable.OrderBy<ModuleSlot, float>((IEnumerable<ModuleSlot>)ModuleSlotList, (Func<ModuleSlot, float>)(slot => slot.Position.Y));
-            float num2 = (float)(Enumerable.Last<ModuleSlot>((IEnumerable<ModuleSlot>)orderedEnumerable2).Position.Y - Enumerable.First<ModuleSlot>((IEnumerable<ModuleSlot>)orderedEnumerable2).Position.Y + 16.0);
-            int num3;
-            if (num1 > num2)
-            {
-                double num4 = num1 / where.Width;
-                num3 = (int)num1 / 16 + 1;
-            }
-            else
-            {
-                double num4 = num2 / where.Width;
-                num3 = (int)num2 / 16 + 1;
-            }
-            float num5 = (float)(where.Width / num3);
-            if (num5 < 2.0)
-                num5 = (float)where.Width / (float)num3;
-            if (num5 > 10.0)
-                num5 = 10f;
+
+            ModuleSlot[] sortedByX = ModuleSlotList.ToArray();
+            sortedByX.Sort(slot => slot.Position.X);
+
+            ModuleSlot[] sortedByY = ModuleSlotList.ToArray();
+            sortedByY.Sort(slot => slot.Position.Y);
+
+            float spanX = sortedByX[sortedByX.Length - 1].Position.X - sortedByX[0].Position.X + 16.0f;
+            float spanY = sortedByY[sortedByY.Length - 1].Position.Y - sortedByY[0].Position.Y + 16.0f;
+
+            int maxSpan = (int)Math.Max(spanX, spanY) / 16 + 1;
+
+            float moduleSize = (drawRect.Width / maxSpan);
+            if (moduleSize < 2.0)
+                moduleSize = drawRect.Width / (float)maxSpan;
+            if (moduleSize > 10.0)
+                moduleSize = 10f;
             foreach (ModuleSlot moduleSlot in ModuleSlotList)
             {
-                Vector2 vector2_1 = moduleSlot.module.XMLPosition - new Vector2(264f, 264f);
-                Vector2 vector2_2 = new Vector2(vector2_1.X / 16f, vector2_1.Y / 16f) * num5;
-                if (Math.Abs(vector2_2.X) > (where.Width / 2) || Math.Abs(vector2_2.Y) > (where.Height / 2))
+                Vector2 moduleOffset = moduleSlot.module.XMLPosition - new Vector2(264f, 264f);
+                Vector2 vector2_2 = new Vector2(moduleOffset.X / 16f, moduleOffset.Y / 16f) * moduleSize;
+                if (Math.Abs(vector2_2.X) > (drawRect.Width / 2) || Math.Abs(vector2_2.Y) > (drawRect.Height / 2))
                 {
-                    num5 = (float)(where.Width / (num3 + 10));
+                    moduleSize = (float)(drawRect.Width / (maxSpan + 10));
                     break;
                 }
             }
             foreach (ModuleSlot moduleSlot in ModuleSlotList)
             {
-                Vector2 vector2 = moduleSlot.module.XMLPosition - new Vector2(264f, 264f);
-                vector2 = new Vector2(vector2.X / 16f, vector2.Y / 16f) * num5;
-                Rectangle rect = new Rectangle(where.X + where.Width / 2 + (int)vector2.X, where.Y + where.Height / 2 + (int)vector2.Y, (int)num5, (int)num5);
-                Color green = Color.Green;
-                Color color = moduleSlot.module.Health / moduleSlot.module.HealthMax < 0.899999976158142 ? (moduleSlot.module.Health / moduleSlot.module.HealthMax < 0.649999976158142 ? (moduleSlot.module.Health / moduleSlot.module.HealthMax < 0.449999988079071 ? (moduleSlot.module.Health / moduleSlot.module.HealthMax < 0.150000005960464 ? (moduleSlot.module.Health / moduleSlot.module.HealthMax > 0.150000005960464 || moduleSlot.module.Health <= 0.0 ? Color.Red : Color.Red) : Color.OrangeRed) : Color.Yellow) : Color.GreenYellow) : Color.Green;
+                Vector2 moduleOffset = moduleSlot.module.XMLPosition - new Vector2(264f, 264f);
+                moduleOffset = new Vector2(moduleOffset.X / 16f, moduleOffset.Y / 16f) * moduleSize;
+                Rectangle rect = new Rectangle(drawRect.X + drawRect.Width / 2 + (int)moduleOffset.X, drawRect.Y + drawRect.Height / 2 + (int)moduleOffset.Y, (int)moduleSize, (int)moduleSize);
+
+                Color color = Color.Green;
+                float healthPercent = moduleSlot.module.Health / moduleSlot.module.HealthMax;
+                if      (healthPercent < 0.90f) color = Color.GreenYellow;
+                else if (healthPercent < 0.65f) color = Color.Yellow;
+                else if (healthPercent < 0.45f) color = Color.OrangeRed;
+                else if (healthPercent < 0.15f) color = Color.Red;
+
                 Primitives2D.FillRectangle(spriteBatch, rect, color);
             }
         }

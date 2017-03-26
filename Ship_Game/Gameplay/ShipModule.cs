@@ -1185,7 +1185,7 @@ namespace Ship_Game.Gameplay
 
         public void SetInitialPosition()
         {
-            float parentFacing = Parent.Rotation * 180f / 3.14159274f;
+            float parentFacing = Parent.Rotation.ToDegrees();
 
             Vector2 position = Parent.Center;
             float angle = offsetAngle + parentFacing;
