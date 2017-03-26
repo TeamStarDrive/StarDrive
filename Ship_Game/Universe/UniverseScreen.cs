@@ -7274,7 +7274,12 @@ namespace Ship_Game
 
         public void DrawLine(Vector2 origin, Vector2 destination, Color color, float zAxis = 0)
         {
-            DrawLineBase(origin, destination, projection, view, color, zAxis);
+            Primitives2D.DrawLine(ScreenManager.SpriteBatch, ProjectToScreenPosition(origin,zAxis), ProjectToScreenPosition(destination),color);
+        }
+
+        public void DrawCircle(Vector2 origin, float radius, Color color, int sides = 16, float zAxis = 0)
+        {
+            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, ProjectToScreenPosition(origin, zAxis), radius, sides, color);
         }
 
         protected void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)

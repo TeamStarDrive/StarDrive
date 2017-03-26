@@ -401,26 +401,17 @@ namespace Ship_Game.Debug
             {
                 DefensiveCoordinator defco = e.GetGSAI().DefensiveCoordinator;
                 foreach (var kv in defco.DefenseDict)
-                {
-                    Circle circle = ProjectCircleWorldToScreen(kv.Value.System.Position, kv.Value.RankImportance * 20000);
-                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
-                    circle = ProjectCircleWorldToScreen(kv.Value.System.Position, kv.Value.IdealShipStrength * 100);
-                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, e.EmpireColor);
-                    circle = ProjectCircleWorldToScreen(kv.Value.System.Position, kv.Value.TroopsWanted * 10000);
-                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 4, e.EmpireColor);
-                }
-                foreach(Ship ship in defco.DefensiveForcePool)
                 {                    
-                    Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
-                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
+                    Screen.DrawCircle(kv.Value.System.Position, kv.Value.RankImportance * 100, e.EmpireColor, 6);
+                    Screen.DrawCircle(kv.Value.System.Position, kv.Value.IdealShipStrength * 10, e.EmpireColor, 3);
+                    Screen.DrawCircle(kv.Value.System.Position, kv.Value.TroopsWanted * 100, e.EmpireColor, 4);
                 }
-                foreach(AO ao in e.GetGSAI().AreasOfOperations)
-                {
-                    Vector2 spot = ao.Position;
-                    float radius = ao.Radius;
-                    Circle circle = ProjectCircleWorldToScreen(spot, radius);
-                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 16, e.EmpireColor);
-                }
+                foreach(Ship ship in defco.DefensiveForcePool)                                                        
+                    Screen.DrawCircle(ship.Center, 50f, e.EmpireColor, 6);
+                
+                foreach(AO ao in e.GetGSAI().AreasOfOperations)                
+                    Screen.DrawCircle(ao.Position, ao.Radius, e.EmpireColor, 16);
+                
 
             }
         }
@@ -432,14 +423,13 @@ namespace Ship_Game.Debug
                     continue;
                 foreach (ThreatMatrix.Pin pin in e.GetGSAI().ThreatMatrix.Pins.Values)
                 {
-                    if (pin.Position != Vector2.Zero) // && pin.InBorders)
+                    if (pin.Position != Vector2.Zero)
                     {
-                        Circle circle = ProjectCircleWorldToScreen(pin.Position, 50f);
-                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
+                        Screen.DrawCircle(pin.Position, 50f, e.EmpireColor, 6);
+
                         if (pin.InBorders)
                         {
-                            circle = ProjectCircleWorldToScreen(pin.Position, 50f);
-                            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, e.EmpireColor);
+                            Screen.DrawCircle(pin.Position, 50f, e.EmpireColor, 3);                            
                         }
                     }
                 }
@@ -454,9 +444,8 @@ namespace Ship_Game.Debug
                     {
                         if (e.grid[x, y] != 1)
                             continue;
-                        Vector2 translated = new Vector2((x - e.granularity) * Screen.reducer, (y - e.granularity) * Screen.reducer);
-                        Circle circle = ProjectCircleWorldToScreen(translated, Screen.reducer * .5f);
-                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 4, e.EmpireColor);
+                        Vector2 translated = new Vector2((x - e.granularity) * Screen.reducer, (y - e.granularity) * Screen.reducer);                        
+                        Screen.DrawCircle(translated, Screen.reducer * .001f , e.EmpireColor, 4);
                     }
         }
         private void TradeInfo()
@@ -464,13 +453,9 @@ namespace Ship_Game.Debug
             foreach (Empire e in EmpireManager.Empires)
             {
                 foreach (Planet planet in e.GetPlanets())
-                {
-
-                    Circle circle = ProjectCircleWorldToScreen(planet.Position, planet.ExportFSWeight * 1000);
-                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
-                    circle = ProjectCircleWorldToScreen(planet.Position, planet.ExportPSWeight * 10);
-                    Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, e.EmpireColor);
-
+                {                    
+                    Screen.DrawCircle(planet.Position, planet.ExportFSWeight * 1000, e.EmpireColor, 6);
+                    Screen.DrawCircle(planet.Position, planet.ExportPSWeight * 10, e.EmpireColor, 3);                    
                 }
 
                 foreach (Ship ship in e.GetShips())
@@ -483,23 +468,21 @@ namespace Ship_Game.Debug
                     switch (plan)
                     {
                         case Plan.DropOffGoods:
-                        {
-                            Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
-                            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue);
-                            break;
+                        {                            
+                            Screen.DrawCircle(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 6);
+                                break;
                         }
                         case Plan.PickupGoods:
-                        {
-                            Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
-                            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, ai.FoodOrProd=="Food" ? Color.GreenYellow: Color.SteelBlue);
-                            break;
+                        {                            
+                            Screen.DrawCircle(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 3);
+                                break;
                         }
                         case Plan.PickupPassengers:
                         case Plan.DropoffPassengers:
-                        {
-                            Circle circle = ProjectCircleWorldToScreen(ship.Center, 50f);
-                            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circle.Center, circle.Radius, 32, e.EmpireColor);
-                            break;
+                        {                            
+                            Screen.DrawCircle(ship.Center, 50f, e.EmpireColor, 32);
+
+                                break;
                         }
                     }
 
