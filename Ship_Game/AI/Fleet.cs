@@ -2019,10 +2019,32 @@ namespace Ship_Game.AI
                 Reset();
             }
         }
-
+        private void RemoveFromAllSquads(Ship ship)
+        {
+            
+            foreach (FleetDataNode fleetDataNode in DataNodes)
+            {
+                if (fleetDataNode.Ship == ship)
+                    fleetDataNode.Ship = (Ship)null;
+            }
+            foreach (var list in AllFlanks)
+            {
+                foreach (Squad squad in list)
+                {
+                    if (squad.Ships.Contains(ship))
+                        squad.Ships.QueuePendingRemoval(ship);
+                    foreach (FleetDataNode fleetDataNode in squad.DataNodes)
+                    {
+                        if (fleetDataNode.Ship == ship)
+                            fleetDataNode.Ship = (Ship)null;
+                    }
+                }
+            }
+        }
         private void RemoveShipAt(Ship ship, int index)
         {
             ship.fleet = null;
+            RemoveFromAllSquads(ship);
             Ships.RemoveAtSwapLast(index);
         }
 
@@ -2031,6 +2053,7 @@ namespace Ship_Game.AI
             if (ship.Active && ship.fleet != this)
                 Log.Error("{0} : not equal {1}", ship.fleet.Name, Name);
             ship.fleet = null;
+            RemoveFromAllSquads(ship);
             if (!Ships.Remove(ship) && ship.Active)
             {
                 Log.Error("Ship is not in this fleet");
