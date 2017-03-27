@@ -22,7 +22,6 @@ namespace Ship_Game.Gameplay
 
         [XmlIgnore] [JsonIgnore] public bool Powered;
         [XmlIgnore] [JsonIgnore] public bool CheckedConduits;
-        [XmlIgnore] [JsonIgnore] public bool IsDummy;
         [XmlIgnore] [JsonIgnore] public ShipModule Module;
         [XmlIgnore] [JsonIgnore] public Ship Parent;
 

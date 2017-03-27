@@ -14,7 +14,7 @@ namespace Ship_Game
         Shield,
         MissileLauncher,
         Storage,
-        Dummy,
+        Dummy, // here for backwards compatibility... we should remove this if possible
         Colony,
         FuelCell,
         Hangar,

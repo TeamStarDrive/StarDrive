@@ -464,7 +464,7 @@ namespace Ship_Game
             foreach (Thruster t in template.GetTList())
                 ship.AddThruster(t);
 
-            ship.LoadModuleSlotsFromTemplate(template);
+            ship.LoadModuleSlotsAsCopy(template.ModuleSlotList);
 
             // Added by McShooterz: add automatic ship naming
             if (GlobalStats.HasMod)
@@ -955,24 +955,30 @@ namespace Ship_Game
         public static Array<ShipData> LoadHullData() // Refactored by RedFox
         {
             var retList = new Array<ShipData>();
-            System.Threading.Tasks.Parallel.ForEach(GatherFilesUnified("Hulls", "xml"), info =>
-            {
-                try
-                {
-                    string dirName = info.Directory?.Name ?? "";
-                    ShipData shipData  = ShipData.Parse(info);
-                    shipData.Hull      = string.Intern(dirName + "/" + shipData.Hull);
-                    shipData.ShipStyle = string.Intern(dirName);
 
-                    lock (retList)
-                    {
-                        HullsDict[shipData.Hull] = shipData;
-                        retList.Add(shipData);
-                    }
-                }
-                catch (Exception e)
+            FileInfo[] hullFiles = GatherFilesUnified("Hulls", "xml");
+            Parallel.For(hullFiles.Length, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
                 {
-                    Log.Error(e, $"LoadHullData {info.Name} failed");
+                    FileInfo info = hullFiles[i];
+                    try
+                    {
+                        string dirName     = info.Directory?.Name ?? "";
+                        ShipData shipData  = ShipData.Parse(info);
+                        shipData.Hull      = string.Intern(dirName + "/" + shipData.Hull);
+                        shipData.ShipStyle = string.Intern(dirName);
+
+                        lock (retList)
+                        {
+                            HullsDict[shipData.Hull] = shipData;
+                            retList.Add(shipData);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, $"LoadHullData {info.Name} failed");
+                    }
                 }
             });
             return retList;

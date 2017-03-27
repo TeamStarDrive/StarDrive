@@ -190,6 +190,9 @@ namespace Ship_Game
             var tasks = new ParallelTask[cores];
             lock (Pool)
             {
+                // Rationale: if you nest parallel for loops, you will spawn a huge number of threads
+                // and thus killing off any performance gains. For example on a 6-core cpu it would spawn
+                // 6*6 = 36 threads !!. Adjust your algorithms to prevent parellel loop nesting.
                 if (Running)
                     throw new ThreadStateException("Another Parallel.For loop is already running. Nested Parallel.For loops are forbidden");
                 Running = true;

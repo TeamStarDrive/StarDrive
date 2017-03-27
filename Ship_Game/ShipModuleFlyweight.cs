@@ -273,7 +273,6 @@ namespace Ship_Game.Gameplay
         public bool Powered;
         public byte TechLevel;
         public float OrdnanceAddedPerSecond;
-        public bool isDummy;
         public string BombType;
         public float WarpMassCapacity;
         public float FieldOfFire;

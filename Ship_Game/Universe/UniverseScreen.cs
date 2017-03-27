@@ -1771,7 +1771,7 @@ namespace Ship_Game
                         Ship ship = system.ShipList[i];
                         if (ship.System == null)
                             continue;
-                        if (!ship.Active || ship.ModuleSlotList.Count == 0) // added by gremlin ghost ship killer
+                        if (!ship.Active || ship.ModuleSlotList.Length == 0) // added by gremlin ghost ship killer
                         {
                             ship.Die(null, true);
                         }
@@ -1810,7 +1810,7 @@ namespace Ship_Game
                     if (!DeepSpaceShips[i].shipInitialized)
                         continue;
 
-                    if (DeepSpaceShips[i].Active && DeepSpaceShips[i].ModuleSlotList.Count != 0)
+                    if (DeepSpaceShips[i].Active && DeepSpaceShips[i].ModuleSlotList.Length != 0)
                     {
                         if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
                         {
@@ -2632,7 +2632,7 @@ namespace Ship_Game
                         {
                             foreach (ModuleSlot mod in SelectedShip.ModuleSlotList)
                             { mod.Module.Health = 1; }    //Added by Gretman so I can hurt ships when the disobey me... I mean for testing... Yea, thats it...
-                            SelectedShip.Health = SelectedShip.ModuleSlotList.Count;
+                            SelectedShip.Health = SelectedShip.ModuleSlotList.Length;
                         }
                         else if (input.CurrentKeyboardState.IsKeyDown(Keys.X) && !input.LastKeyboardState.IsKeyDown(Keys.X))
                             SelectedShip.Die(null, false);
@@ -5808,16 +5808,7 @@ namespace Ship_Game
                         }
                     }
                 }
-                else if (Debug)
-                {
-                    if (moduleSlot.Module.isExternal && moduleSlot.Module.Active)
-                    {
-                        float scale = 500f / camHeight;
-                        Color color = moduleSlot.GetHealthStatusColor();
-                        DrawTextureProjected(symbolFighter, slotCenter, scale, ship.Rotation, color);
-                    }
-                }
-                else if (!moduleSlot.Module.isDummy)
+                else
                 {
                     int xsize = moduleSlot.Module.XSIZE;
                     int ysize = moduleSlot.Module.YSIZE;
@@ -5929,6 +5920,13 @@ namespace Ship_Game
                     {
                         float scale = 1250f / camHeight;
                         ScreenManager.SpriteBatch.Draw(lightningBolt, moduleScreenCenter, null, Color.White, 0.0f, lightningBolt.Center(), scale, SpriteEffects.None, 1f);
+                    }
+
+                    if (Debug && moduleSlot.Module.isExternal && moduleSlot.Module.Active)
+                    {
+                        float scale = 500f / camHeight;
+                        Color color = moduleSlot.GetHealthStatusColor();
+                        DrawTextureProjected(symbolFighter, slotCenter, scale, ship.Rotation, color);
                     }
                 }
             }

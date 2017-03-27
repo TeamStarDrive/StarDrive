@@ -23,15 +23,12 @@ namespace Ship_Game.Gameplay
         public byte XSIZE = 1;
         public byte YSIZE = 1;
         public bool Powered;
-        public bool isDummy;
-        private ShipModule[] DummyModules = Empty<ShipModule>.Array;
         private float distanceToParentCenter;
         private float offsetAngle;
         public float FieldOfFire;
         public float facing;
         public Vector2 XMLPosition;
         private Ship Parent;
-        public ShipModule ParentOfDummy;
         public float HealthMax;
         public string WeaponType;
         public ushort NameIndex;
@@ -190,7 +187,6 @@ namespace Ship_Game.Gameplay
             YSIZE                = s.YSIZE;
             Mass                 = s.Mass;
             Powered              = s.Powered;
-            isDummy              = s.isDummy;
             FieldOfFire          = s.FieldOfFire;
             facing               = s.facing;
             XMLPosition          = s.XMLPosition;
@@ -213,11 +209,6 @@ namespace Ship_Game.Gameplay
             isExternal           = s.isExternal;
             TargetValue          = s.TargetValue;
             quadrant             = s.quadrant;
-        }
-
-        public void Clear()
-        {
-            DummyModules = Empty<ShipModule>.Array;
         }
 
         private float ApplyShieldResistances(Weapon weapon, float damage)
@@ -265,19 +256,18 @@ namespace Ship_Game.Gameplay
         // HitTest uses the World scene POSITION. Not module XML location
         public bool HitTest(Vector2 point, float radius, bool ignoreShields = false)
         {
-            float r2, dx, dy;
+            int larger = XSIZE >= YSIZE ? XSIZE : YSIZE;
+
+            float r2 = radius + larger * 8.0f * 1.125f; // approximated, slightly bigger radius
+            float dx = Center.X - point.X;
+            float dy = Center.Y - point.Y;
+
             if (!ignoreShields && shield_power > 0.0f) // if module is shielded, then radius check is always circular
             {
-                r2 = radius + Radius; // Radius is the Exact shield radius, no extra scaling
-                dx = Position.X - point.X;
-                dy = Position.Y - point.Y;
+                r2 += Radius; // Radius is the Exact shield radius, no extra scaling
                 return dx * dx + dy * dy <= r2 * r2;
             }
 
-            int larger = XSIZE >= YSIZE ? XSIZE : YSIZE;
-            r2 = radius + larger * 8.0f * 1.125f; // approximated, slightly bigger radius
-            dx = Position.X - point.X;
-            dy = Position.Y - point.Y;
             if (dx * dx + dy * dy > r2 * r2)
                 return false; // definitely out of radius for SQUARE and non-square modules
 
@@ -317,11 +307,6 @@ namespace Ship_Game.Gameplay
             if (source != null)
                 Parent.LastDamagedBy = source;
 
-            if (ModuleType == ShipModuleType.Dummy)
-            {
-                ParentOfDummy.Damage(source, damageAmount);
-                return true;
-            }
             Parent.InCombatTimer = 15f;
             Parent.ShieldRechargeTimer = 0f;
             //Added by McShooterz: Fix for Ponderous, now negative dodgemod increases damage taken.
@@ -454,10 +439,6 @@ namespace Ship_Game.Gameplay
                 if ((Parent.Health / Parent.HealthMax) < 0.5 && Health < 0.5 * (HealthMax))
                 {
                     reallyFuckedUp = true;
-                }
-                foreach (ShipModule dummy in DummyModules)
-                {
-                    dummy.DamageDummy(damageAmount);
                 }
             }
             else
@@ -592,11 +573,6 @@ namespace Ship_Game.Gameplay
             }
 
             Parent.InCombatTimer = 15f;
-            if (ModuleType == ShipModuleType.Dummy)
-            {
-                ParentOfDummy.DamageInvisible(source, damageAmount);
-                return;
-            }
             //Added by McShooterz: shields keep charge when manually turned off
             if (shield_power <= 0f || shieldsOff)
             {
@@ -701,10 +677,6 @@ namespace Ship_Game.Gameplay
                     Health = HealthMax;
                     Active = true;
                     onFire = false;
-                }
-                foreach (ShipModule dummy in DummyModules)
-                {
-                    dummy.DamageDummy(damageAmount);
                 }
             }
             else
@@ -822,22 +794,13 @@ namespace Ship_Game.Gameplay
 
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            DebugInfoScreen.ModulesDied += 1;
-            if (!isDummy)
-            {
-                foreach (ShipModule link in DummyModules)
-                {
-                    if (!link.Active)
-                        continue;
-                    link.Die(source, true);
-                }
-            }
+            ++DebugInfoScreen.ModulesDied;
             if (shield_power_max > 0f)
                 Health = 0f;
 
             SetNewExternals();
             Health = 0f;
-            Vector3 center = new Vector3(Center.X, Center.Y, -100f);
+            var center = new Vector3(Center.X, Center.Y, -100f);
 
             SolarSystem inSystem = Parent.System;
             if (Active && Parent.InFrustum)
@@ -903,87 +866,9 @@ namespace Ship_Game.Gameplay
 
             if (Parent?.loyalty != null)
             {
-                float max = HealthMax;
-                if (ModuleType != ShipModuleType.Dummy)
-                    max = ResourceManager.GetModuleTemplate(UID).HealthMax;
-                else if(!string.IsNullOrEmpty(ParentOfDummy?.UID))
-                    max = ResourceManager.GetModuleTemplate(ParentOfDummy.UID).HealthMax;
+                float max = ResourceManager.GetModuleTemplate(UID).HealthMax;
                 HealthMax = max + max * Parent.loyalty.data.Traits.ModHpModifier;
                 Health    = Math.Min(Health, HealthMax);     //Gretman (Health bug fix)
-            }
-
-            int numDummies = 0;
-            int expectedDummies = XSIZE * YSIZE - 1;
-            if (expectedDummies > 0)
-            {
-                DummyModules = new ShipModule[expectedDummies];
-            }
-            for (int xs = XSIZE; xs > 1; xs--)
-            {
-                var dummy = new ShipModule();
-                dummy.XMLPosition   = XMLPosition;
-                dummy.XMLPosition.X = dummy.XMLPosition.X + (16 * (xs - 1));
-                dummy.isDummy       = true;
-                dummy.ParentOfDummy = this;
-                dummy.Mass          = 0f;
-                dummy.Parent        = Parent;
-                dummy.Health        = Health;
-                dummy.HealthMax     = HealthMax;
-                dummy.ModuleType    = ShipModuleType.Dummy;
-                dummy.Initialize();
-                DummyModules[numDummies++] = dummy;
-                for (int ys = YSIZE; ys > 1; ys--)
-                {
-                    dummy = new ShipModule();
-                    dummy.ParentOfDummy = this;
-                    dummy.XMLPosition.X = XMLPosition.X + (16 * (xs - 1));
-                    dummy.XMLPosition.Y = XMLPosition.Y + (16 * (ys - 1));
-                    dummy.isDummy       = true;
-                    dummy.Mass          = 0f;
-                    dummy.Parent        = Parent;
-                    dummy.Health        = Health;
-                    dummy.HealthMax     = HealthMax;
-                    dummy.ModuleType    = ShipModuleType.Dummy;
-                    dummy.Initialize();
-                    DummyModules[numDummies++] = dummy;
-                }
-            }
-            for (int ys = YSIZE; ys > 1; ys--)
-            {
-                var dummy = new ShipModule();
-                dummy.XMLPosition   = XMLPosition;
-                dummy.XMLPosition.Y = dummy.XMLPosition.Y + (16 * (ys - 1));
-                dummy.isDummy       = true;
-                dummy.ParentOfDummy = this;
-                dummy.Mass          = 0f;
-                dummy.Parent        = Parent;
-                dummy.Health        = Health;
-                dummy.HealthMax     = HealthMax;
-                dummy.ModuleType    = ShipModuleType.Dummy;
-                dummy.Initialize();
-                DummyModules[numDummies++] = dummy;
-            }
-
-            if (numDummies != expectedDummies)
-                Log.Error("Dummy count mismatch!");
-
-            if (!isDummy)
-            {
-                foreach (ShipModule module in DummyModules)
-                {
-                    //module.SetSystem(Parent?.System);
-                    module.Parent          = Parent;
-                    module.Dimensions      = Dimensions;
-                    module.IconTexturePath = IconTexturePath;
-                    foreach (ModuleSlot slot in Parent.ModuleSlotList)
-                    {
-                        if (slot.Position != module.XMLPosition)
-                            continue;
-                        slot.Module = module;
-                        break;
-                    }
-                    module.Initialize(module.XMLPosition);
-                }
             }
 
             base.Initialize();
@@ -1137,7 +1022,6 @@ namespace Ship_Game.Gameplay
                     break;
             }
             Health = HealthMax;
-            if (isDummy) return;
             if (shield_power_max > 0.0)
                 shield = ShieldManager.AddShield(this, Rotation, Center);
             if (IsSupplyBay)
@@ -1214,10 +1098,9 @@ namespace Ship_Game.Gameplay
         {
             module.isExternal = true;
             module.quadrant   = (sbyte)moduleQuadrant;
-            ModuleSlot slot = module.isDummy ? module.ParentOfDummy.installedSlot : module.installedSlot;
-            if (slot == null)
+            if (module.installedSlot == null)
                 Log.Error("Module {0} installedSlot was null", module);
-            Parent.ExternalSlots.Add(slot);
+            Parent.ExternalSlots.Add(module.installedSlot);
         }
 
         public void SetNewExternals()
@@ -1277,43 +1160,34 @@ namespace Ship_Game.Gameplay
                 onFire = false;
             }
 
-            //Added by Gretman
-            if (ParentOfDummy != null && isDummy)
+            BombTimer -= elapsedTime;
+            //Added by McShooterz: shields keep charge when manually turned off
+            if (shield_power <= 0f || shieldsOff)
             {
-                Health = ParentOfDummy.Health;
-                HealthMax = ParentOfDummy.HealthMax;
+                Radius = 8f;
             }
+            else
+                Radius = shield_radius;
+            if (ModuleType == ShipModuleType.Hangar && Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
+                hangarTimer -= elapsedTime;
+            //Shield Recharge
+            float shieldMax = GetShieldsMax();
+            if (Active && Powered && shield_power < shieldMax)
+            {
+                if (Parent.ShieldRechargeTimer > shield_recharge_delay)
+                    shield_power += shield_recharge_rate * elapsedTime;
+                else if (shield_power > 0)
+                    shield_power += shield_recharge_combat_rate * elapsedTime;
+                if (shield_power > shieldMax)
+                    shield_power = shieldMax;
+            }
+            if (shield_power < 0f)
+            {
+                shield_power = 0f;
+            }
+            if (TransporterTimer > 0)
+                TransporterTimer -= elapsedTime;
 
-            if (!isDummy)
-            {
-                BombTimer -= elapsedTime;
-                //Added by McShooterz: shields keep charge when manually turned off
-                if (shield_power <= 0f || shieldsOff)
-                {
-                    Radius = 8f;
-                }
-                else
-                    Radius = shield_radius;
-                if (ModuleType == ShipModuleType.Hangar && Active) //(this.hangarShip == null || !this.hangarShip.Active) && 
-                    hangarTimer -= elapsedTime;
-                //Shield Recharge
-                float shieldMax = GetShieldsMax();
-                if (Active && Powered && shield_power < shieldMax)
-                {
-                    if (Parent.ShieldRechargeTimer > shield_recharge_delay)
-                        shield_power += shield_recharge_rate * elapsedTime;
-                    else if (shield_power > 0)
-                        shield_power += shield_recharge_combat_rate * elapsedTime;
-                    if (shield_power > shieldMax)
-                        shield_power = shieldMax;
-                }
-                if (shield_power < 0f)
-                {
-                    shield_power = 0f;
-                }
-                if (TransporterTimer > 0)
-                    TransporterTimer -= elapsedTime;
-            }
             base.Update(elapsedTime);
         }
 
@@ -1382,8 +1256,6 @@ namespace Ship_Game.Gameplay
             if (Health < HealthMax) return;
 
             Health = HealthMax;
-            foreach (ShipModule dummy in DummyModules)
-                dummy.Health = dummy.HealthMax;
         }
 
         public float GetShieldsMax()

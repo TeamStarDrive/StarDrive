@@ -489,7 +489,7 @@ namespace Ship_Game
                 Empire e = EmpireManager.GetEmpireByName(d.empireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                 {
-                    Ship ship = Ship.LoadSavedShip(shipData.data);
+                    Ship ship = Ship.CreateShipFromShipData(shipData.data);
                     ship.guid = shipData.guid;
                     ship.Name = shipData.Name;
                     if (shipData.Name != shipData.VanityName)//  !string.IsNullOrEmpty(shipData.VanityName))
