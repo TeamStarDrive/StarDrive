@@ -224,9 +224,8 @@ namespace Ship_Game
         public static Vector2 FindPredictedTargetPosition(this Vector2 weaponPos, Vector2 ownerVelocity,
             float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
         {
-            Vector2 pos0 = weaponPos.FindPredictedTargetPosition0(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
-            Vector2 pos1 = weaponPos.FindPredictedTargetPosition1(ownerVelocity, projectileSpeed, targetPos, targetVelocity);
-
+            Vector2 pos0 = weaponPos.FindPredictedTargetPosition0(ownerVelocity, projectileSpeed , targetPos, targetVelocity);
+            Vector2 pos1 = weaponPos.FindPredictedTargetPosition1(ownerVelocity, projectileSpeed , targetPos, targetVelocity);
             Log.Info("PredictTargetPos 0={0}  1={1}", pos0, pos1);
             return pos1;
         }
@@ -235,8 +234,7 @@ namespace Ship_Game
             float projectileSpeed, Vector2 targetPos, Vector2 targetVelocity)
         {
             Vector2 vectorToTarget     = targetPos - weaponPos;
-            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
-
+            Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;            
             float distance = vectorToTarget.Length();
             float time = distance / projectileVelocity.Length();
             return targetPos + targetVelocity * time;
@@ -251,9 +249,9 @@ namespace Ship_Game
             // projectile inherits parent velocity
             Vector2 projectileVelocity = ownerVelocity + ownerVelocity.Normalized() * projectileSpeed;
 
-            float a = targetVelocity.LengthSquared() - projectileVelocity.LengthSquared();
-            float b = 2 * Vector2.Dot(targetPos, directionToTarget);
-            float c = directionToTarget.LengthSquared();
+            float a = Vector2.Dot(targetVelocity, targetVelocity) - projectileVelocity.LengthSquared();  //targetVelocity.LengthSquared() - projectileVelocity.LengthSquared();
+            float b = 2 * Vector2.Dot(delta, targetVelocity);//2 * Vector2.Dot(targetPos, directionToTarget);
+            float c = Vector2.Dot(delta, delta);//directionToTarget.LengthSquared();
 
             // Then solve the quadratic equation for a, b, and c.That is, time = (-b + -sqrt(b * b - 4 * a * c)) / 2a.
             if (Abs(a) < 0.0001f)
@@ -266,7 +264,7 @@ namespace Ship_Game
 
             // Those values are the time values at which point you can hit the target.
             float timeToImpact1 = (-b - sqrt) / (2 * a);
-            float timeToImpact2 = (-b + sqrt) / (2 * a);
+            float timeToImpact2 = (b + sqrt) / (2 * a);
 
             // If any of them are negative, discard them, because you can't send the target back in time to hit it.  
             // Take any of the remaining positive values (probably the smaller one).
