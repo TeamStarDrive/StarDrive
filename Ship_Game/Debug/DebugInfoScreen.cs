@@ -173,18 +173,31 @@ namespace Ship_Game.Debug
                 {
                     Ship ship = Screen.MasterShipList[index];
                     if (ship == null || !ship.InFrustum || ship.AI.Target == null) continue;
-
+                    Array<Weapon> noiseFilter = new Array<Weapon>();
                     foreach (Weapon weapon in ship.Weapons)
                     {
-                        if (weapon.fireTarget == null) continue;
+                        ShipModule module = weapon.fireTarget as ShipModule;
+                        if (module == null || module.GetParent() != ship.AI.Target ) continue;
+                        noiseFilter.Add(weapon);
+                        if (noiseFilter.Count > 1) break;
                         Vector2 projDest = weapon.Center.FindPredictedTargetPosition(ship.Velocity,
                             weapon.ProjectileSpeed
                             , weapon.fireTarget.Center, ship.AI.Target.Velocity);
-                        
+
                         Screen.DrawLine(weapon.Center, projDest, Color.Yellow);
+                        if (weapon.fireTarget != null)
+                            Screen.DrawCircle(weapon.fireTarget.Center, 8f, Color.Pink, 5);
                     }
 
-                    Screen.DrawLine(ship.Center, ship.AI.Target.Position, Color.Yellow);
+                    for (int i = 0; i < ship.Projectiles.Count; i++)
+                    {                        
+                        Projectile projectile = ship.Projectiles[i];
+                        if (!noiseFilter.ContainsRef(projectile.weapon)) continue;
+                        Screen.DrawLine(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);                        
+                    }
+
+                    Screen.DrawLine(ship.Center
+                        ,ship.Center.FindPredictedTargetPosition(ship.Velocity, ship.speed, ship.AI.Target.Center, ship.AI.Target.Velocity),Color.TransparentWhite);//, ship.AI.Target.Position, Color.Yellow);
 
                 }
             }
