@@ -1249,9 +1249,13 @@ namespace Ship_Game
             bool fighters = false;
             bool weapons = false;
 
-            foreach (ModuleSlot slot in ship.ModuleSlotList.Where(dummy => dummy.InstalledModuleUID != "Dummy"))
+
+            foreach (ModuleSlot slot in ship.ModuleSlotList)
             {
-                ShipModule module = ShipModulesDict[slot.InstalledModuleUID];
+                if (slot.InstalledModuleUID == "Dummy")
+                    continue; // Ignore dummy modules -- they are deprecated
+
+                ShipModule module = GetModuleTemplate(slot.InstalledModuleUID);
                 weapons  |=  module.InstalledWeapon != null;
                 fighters |=  module.hangarShipUID   != null && !module.IsSupplyBay && !module.IsTroopBay;
 
@@ -1492,10 +1496,7 @@ namespace Ship_Game
                 if (troop.StrengthMax <= 0)
                     troop.StrengthMax = troop.Strength;
             }
-
-            TroopsDictKeys.Clear();
-            TroopsDictKeys.Capacity = TroopsDict.Count;
-            foreach (var kv in TroopsDict) TroopsDictKeys.Add(kv.Key);
+            TroopsDictKeys = new Array<string>(TroopsDict.Keys);
         }
 
         

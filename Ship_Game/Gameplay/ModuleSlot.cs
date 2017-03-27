@@ -7,6 +7,19 @@ using System.Xml.Serialization;
 
 namespace Ship_Game.Gameplay
 {
+    public sealed class ShipModuleSaveData
+    {
+        public Vector2 Position;
+        public string InstalledModuleUID;
+        public Guid HangarshipGuid;
+        public float Health;
+        public float ShieldPower;
+        public float Facing;
+        public ShipDesignScreen.ActiveModuleState State; // @todo This duplicates Facing... ?? Remove this
+        public Restrictions Restrictions;
+        public string SlotOptions;
+    }
+
     [DebuggerDisplay("UID = {InstalledModuleUID}  Module = {Module}")]
     public sealed class ModuleSlot
     {
@@ -42,9 +55,10 @@ namespace Ship_Game.Gameplay
 
             if (InstalledModuleUID == "Dummy")
             {
-                Module = ResourceManager.CreateModuleFromUid(InstalledModuleUID);
-                return true;
+                Log.Error("A dummy module was initialized. Dummys are deprecated. This is a fatal bug.");
+                return false;
             }
+
             if (InstalledModuleUID != null)
             {
                 Module = ResourceManager.CreateModuleFromUid(InstalledModuleUID);
