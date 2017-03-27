@@ -488,7 +488,7 @@ namespace Ship_Game.Gameplay
                     }
                     foreach (ModuleSlot current in ship2.ModuleSlotList)
                     {
-                        ShipModule module = current.module;
+                        ShipModule module = current.Module;
                         module.Health -= beam.damageAmount;
 
                         if (module.Health < 0f)
@@ -579,13 +579,13 @@ namespace Ship_Game.Gameplay
                 var shieldhit = new BoundingSphere(new Vector3(0f, 0f, 0f), 0f); //create a bounding sphere object for shields.
                 foreach (ModuleSlot shield in ship1.ModuleSlotList)
                 {
-                    if (!shield.module.Active)
+                    if (!shield.Module.Active)
                         continue;
-                    ShipModule test = shield.module;
+                    ShipModule test = shield.Module;
                     shieldhit.Radius = 8;
-                    if (shield.module.shield_power > 0)
+                    if (shield.Module.shield_power > 0)
                     {
-                        shieldhit.Radius += shield.module.Radius;
+                        shieldhit.Radius += shield.Module.Radius;
                     }
 
 
@@ -596,7 +596,7 @@ namespace Ship_Game.Gameplay
                     if (hitM < hit2)
                     {
                         hit2 = (float)hitM;
-                        damaged = shield.module;
+                        damaged = shield.Module;
                         actualHitDestination = (beampath.Position + beampath.Direction * hitM.Value).ToVec2();
                     }
                 }

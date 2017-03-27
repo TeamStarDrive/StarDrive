@@ -979,7 +979,7 @@ namespace Ship_Game.Gameplay
                     {
                         if (slot.Position != module.XMLPosition)
                             continue;
-                        slot.module = module;
+                        slot.Module = module;
                         break;
                     }
                     module.Initialize(module.XMLPosition);
@@ -1337,7 +1337,7 @@ namespace Ship_Game.Gameplay
             Center3D.Z = tan * (256f - XMLPosition.X);
 
             // this can only happen if onFire is already true
-            reallyFuckedUp = Parent.percent < 0.5f && Health / HealthMax < 0.25f;
+            reallyFuckedUp = Parent.InternalSlotsHealthPercent < 0.5f && Health / HealthMax < 0.25f;
 
             HandleDamageFireTrail(elapsedTime);
             Rotation = Parent.Rotation;

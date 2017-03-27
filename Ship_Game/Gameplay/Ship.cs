@@ -117,8 +117,8 @@ namespace Ship_Game.Gameplay
         public float armor_max;
         public float shield_max;
         public float shield_power;
-        public float number_Internal_slots;
-        public float number_Alive_Internal_slots;
+        public int InternalSlotCount;       // total number of internal slots (@todo this should be in ShipTemplate !!)
+        public int ActiveInternalSlotCount; // active slots have Health > 0
         public float PowerCurrent;
         public float PowerFlowMax;
         public float PowerStoreMax;
@@ -170,7 +170,7 @@ namespace Ship_Game.Gameplay
         public float MoveModulesTimer;
         public float HealPerTurn;
         private bool UpdatedModulesOnce;
-        public float percent;
+        public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
         private float xdie;
         private float ydie;
         private float zdie;
@@ -728,7 +728,7 @@ namespace Ship_Game.Gameplay
             projectiles.Clear();
 
             foreach (ModuleSlot slot in ModuleSlotList)
-                slot.module.Clear();
+                slot.Module.Clear();
 
             ModuleSlotList.Clear();
             TroopList.Clear();
@@ -812,7 +812,7 @@ namespace Ship_Game.Gameplay
         public bool TryGetModule(Vector2 pos, out ShipModule module)
         {
             bool res = ModulesDictionary.TryGetValue(pos, out ModuleSlot slot);
-            module = slot?.module;
+            module = slot?.Module;
             return res;
         }
         public void TetherToPlanet(Planet p)
@@ -849,7 +849,7 @@ namespace Ship_Game.Gameplay
                 return shipData.FixedCost;
             float num = 0.0f;
             foreach (ModuleSlot moduleSlot in ModuleSlotList)
-                num += moduleSlot.module.Cost * UniverseScreen.GamePaceStatic;
+                num += moduleSlot.Module.Cost * UniverseScreen.GamePaceStatic;
             if (e != null)
             {
                 //Added by McShooterz: hull bonus starting cost
@@ -1669,9 +1669,9 @@ namespace Ship_Game.Gameplay
                 {
                     maintModReduction *= 2f;
                 }
-                if (number_Alive_Internal_slots < number_Internal_slots)
+                if (ActiveInternalSlotCount < InternalSlotCount)
                 {
-                    float damRepair = 2 - number_Internal_slots / number_Alive_Internal_slots;
+                    float damRepair = 2 - InternalSlotCount / ActiveInternalSlotCount;
                     if (damRepair > 1.5f) damRepair = 1.5f;
                     if (damRepair < 1) damRepair = 1;
                     maintModReduction *= damRepair;
@@ -1952,27 +1952,27 @@ namespace Ship_Game.Gameplay
             base.Initialize();
             foreach (ModuleSlot ss in ModuleSlotList)
             {
-                if (ss.module.ModuleType == ShipModuleType.PowerConduit)
-                    ss.module.IconTexturePath = GetConduitGraphic(ss, this);
-                if (ss.module.ModuleType == ShipModuleType.Hangar)
+                if (ss.Module.ModuleType == ShipModuleType.PowerConduit)
+                    ss.Module.IconTexturePath = GetConduitGraphic(ss, this);
+                if (ss.Module.ModuleType == ShipModuleType.Hangar)
                 {
-                    ss.module.hangarShipUID = ss.SlotOptions;
-                    Hangars.Add(ss.module);
+                    ss.Module.hangarShipUID = ss.SlotOptions;
+                    Hangars.Add(ss.Module);
                 }
-                if (ss.module.ModuleType == ShipModuleType.Transporter)
+                if (ss.Module.ModuleType == ShipModuleType.Transporter)
                 {
-                    Transporters.Add(ss.module);
+                    Transporters.Add(ss.Module);
                     hasTransporter = true;
-                    if (ss.module.TransporterOrdnance > 0)
+                    if (ss.Module.TransporterOrdnance > 0)
                         hasOrdnanceTransporter = true;
-                    if (ss.module.TransporterTroopAssault > 0)
+                    if (ss.Module.TransporterTroopAssault > 0)
                         hasAssaultTransporter = true;
                 }
-                if (ss.module.IsRepairModule)
+                if (ss.Module.IsRepairModule)
                     HasRepairModule = true;
-                if (ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam)
+                if (ss.Module.InstalledWeapon != null && ss.Module.InstalledWeapon.isRepairBeam)
                 {
-                    RepairBeams.Add(ss.module);
+                    RepairBeams.Add(ss.Module);
                     hasRepairBeam = true;
                 }
             }
@@ -2014,19 +2014,19 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot ss in ModuleSlotList)
             {
                 if (ss.InstalledModuleUID == "Dummy") continue;
-                if (ss.module.ModuleType == ShipModuleType.PowerConduit)
-                    ss.module.IconTexturePath = GetConduitGraphic(ss, this);
+                if (ss.Module.ModuleType == ShipModuleType.PowerConduit)
+                    ss.Module.IconTexturePath = GetConduitGraphic(ss, this);
 
-                HasRepairModule |= ss.module.IsRepairModule;
-                isColonyShip    |= ss.module.ModuleType == ShipModuleType.Colony;
+                HasRepairModule |= ss.Module.IsRepairModule;
+                isColonyShip    |= ss.Module.ModuleType == ShipModuleType.Colony;
 
-                if (ss.module.ModuleType == ShipModuleType.Transporter)
+                if (ss.Module.ModuleType == ShipModuleType.Transporter)
                 {
                     hasTransporter = true;
-                    hasOrdnanceTransporter |= ss.module.TransporterOrdnance > 0;
-                    hasAssaultTransporter  |= ss.module.TransporterTroopAssault > 0;
+                    hasOrdnanceTransporter |= ss.Module.TransporterOrdnance > 0;
+                    hasAssaultTransporter  |= ss.Module.TransporterTroopAssault > 0;
                 }
-                hasRepairBeam |= ss.module.InstalledWeapon != null && ss.module.InstalledWeapon.isRepairBeam;
+                hasRepairBeam |= ss.Module.InstalledWeapon != null && ss.Module.InstalledWeapon.isRepairBeam;
             }
             RecalculatePower();        
             ShipStatusChange();
@@ -2035,22 +2035,22 @@ namespace Ship_Game.Gameplay
 
         private void CheckIfExternalModule(Vector2 pos, ShipModule module)
         {
-            if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y - 16f), out ModuleSlot quadrant1) || !quadrant1.module.Active)
+            if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y - 16f), out ModuleSlot quadrant1) || !quadrant1.Module.Active)
             {
                 module.isExternal = true;
                 module.quadrant   = 1;
             }
-            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X + 16f, pos.Y), out ModuleSlot quadrant4) || !quadrant4.module.Active)
+            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X + 16f, pos.Y), out ModuleSlot quadrant4) || !quadrant4.Module.Active)
             {
                 module.isExternal = true;
                 module.quadrant = 2;
             }
-            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y + 16f), out ModuleSlot quadrant2) || !quadrant2.module.Active)
+            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X, pos.Y + 16f), out ModuleSlot quadrant2) || !quadrant2.Module.Active)
             {
                 module.isExternal = true;
                 module.quadrant   = 3;
             }
-            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X - 16f, pos.Y), out ModuleSlot quadrant3) || !quadrant3.module.Active)
+            else if (!ModulesDictionary.TryGetValue(new Vector2(pos.X - 16f, pos.Y), out ModuleSlot quadrant3) || !quadrant3.Module.Active)
             {
                 module.isExternal = true;
                 module.quadrant   = 4;
@@ -2066,7 +2066,7 @@ namespace Ship_Game.Gameplay
             foreach (KeyValuePair<Vector2, ModuleSlot> kv in ModulesDictionary)
             {
                 ModuleSlot slot   = kv.Value;
-                ShipModule module = slot.module;
+                ShipModule module = slot.Module;
                 if (module.Active)
                     CheckIfExternalModule(kv.Key, module);
 
@@ -2082,13 +2082,13 @@ namespace Ship_Game.Gameplay
         //       updated every time a module dies. The code for that is in ShipModule.cs
         public ModuleSlot FindClosestExternalSlot(Vector2 point)
         {
-            return ExternalSlots.FindMin(slot => point.SqDist(slot.module.Center));
+            return ExternalSlots.FindMin(slot => point.SqDist(slot.Module.Center));
         }
 
         // @todo Optimize this; linear lookup is pretty severe
         public ShipModule FindClosestExternalModule(Vector2 point)
         {
-            return FindClosestExternalSlot(point)?.module;
+            return FindClosestExternalSlot(point)?.Module;
         }
 
         public Array<ShipModule> FindExternalModules(int quadrant)
@@ -2098,7 +2098,7 @@ namespace Ship_Game.Gameplay
             var slots = ExternalSlots.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
-                ShipModule module = slots[i].module;
+                ShipModule module = slots[i].Module;
                 if (module.quadrant == quadrant && module.Health > 0f)
                     modules.Add(module);
             }
@@ -2111,7 +2111,7 @@ namespace Ship_Game.Gameplay
             var slots = ExternalSlots.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
-                ShipModule module = slots[i].module;
+                ShipModule module = slots[i].Module;
                 if (module.quadrant == quadrant && module.Health > 0f && module.shield_power <= 0f)
                     return module;
             }
@@ -2127,7 +2127,7 @@ namespace Ship_Game.Gameplay
             var slots = ExternalSlots.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
-                ShipModule module = slots[i].module;
+                ShipModule module = slots[i].Module;
                 if (!module.Active || module.Health <= 0f)
                     continue;
 
@@ -2146,7 +2146,7 @@ namespace Ship_Game.Gameplay
             var slots = ExternalSlots.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
-                ShipModule module = slots[i].module;
+                ShipModule module = slots[i].Module;
                 if (!module.Active || module.Health <= 0f)
                     continue;
 
@@ -2171,7 +2171,7 @@ namespace Ship_Game.Gameplay
             var slots = ModuleSlotList.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
-                ShipModule module = slots[i].module;
+                ShipModule module = slots[i].Module;
                 if (!module.Active || module.Health <= 0f)
                     continue;
 
@@ -2194,7 +2194,7 @@ namespace Ship_Game.Gameplay
             var slots = ModuleSlotList.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
-                ShipModule module = slots[i].module;
+                ShipModule module = slots[i].Module;
                 if (!module.Active || module.Health <= 0f)
                     continue;
 
@@ -2401,26 +2401,26 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot slot in ModuleSlotList)
             {
                 if (slot.Restrictions == Restrictions.I)
-                    ++number_Internal_slots;
-                if (slot.module.ModuleType == ShipModuleType.Dummy)
+                    ++InternalSlotCount;
+                if (slot.Module.ModuleType == ShipModuleType.Dummy)
                     continue;
-                if (slot.module.ModuleType == ShipModuleType.Colony)
+                if (slot.Module.ModuleType == ShipModuleType.Colony)
                     isColonyShip = true;
-                if (slot.module.ModuleType == ShipModuleType.Construction)
+                if (slot.Module.ModuleType == ShipModuleType.Construction)
                 {
                     isConstructor = true;
                     shipData.Role = ShipData.RoleName.construction;
                 }
                 
-                if (slot.module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(slot.module.ResourceStored) && !ResourceManager.GoodsDict[slot.module.ResourceStored].IsCargo)
+                if (slot.Module.ResourceStorageAmount > 0f && ResourceManager.GoodsDict.ContainsKey(slot.Module.ResourceStored) && !ResourceManager.GoodsDict[slot.Module.ResourceStored].IsCargo)
                 {
-                    string resourceStored = slot.module.ResourceStored;
-                    MaxGoodStorageDict[resourceStored] += slot.module.ResourceStorageAmount;
+                    string resourceStored = slot.Module.ResourceStored;
+                    MaxGoodStorageDict[resourceStored] += slot.Module.ResourceStorageAmount;
                 }
 
-                for (int i = 0; i < slot.module.TroopsSupplied; i++) // TroopLoad (?)
+                for (int i = 0; i < slot.Module.TroopsSupplied; i++) // TroopLoad (?)
                 {
-                    int numTroopHangars = ModuleSlotList.Count(hangarbay => hangarbay.module.IsTroopBay);
+                    int numTroopHangars = ModuleSlotList.Count(hangarbay => hangarbay.Module.IsTroopBay);
                     if (numTroopHangars < TroopList.Count)
                     {
                         string type = troopType; // ex: "Space Marine"
@@ -2434,69 +2434,69 @@ namespace Ship_Game.Gameplay
                         TroopList.Add(ResourceManager.CreateTroop(redshirtType, loyalty));
                     }
                 }
-                if (slot.module.SensorRange > SensorRange)
+                if (slot.Module.SensorRange > SensorRange)
                 {
-                    SensorRange = slot.module.SensorRange;
+                    SensorRange = slot.Module.SensorRange;
                 }
-                if (slot.module.SensorBonus > sensorBonus)
+                if (slot.Module.SensorBonus > sensorBonus)
                 {
-                    sensorBonus = slot.module.SensorBonus;
+                    sensorBonus = slot.Module.SensorBonus;
                 }
-                if (slot.module.ECM > ECMValue)
+                if (slot.Module.ECM > ECMValue)
                 {
-                    ECMValue = slot.module.ECM;
+                    ECMValue = slot.Module.ECM;
                     if (ECMValue > 1.0f)
                         ECMValue = 1.0f;
                     if (ECMValue < 0f)
                         ECMValue = 0f;
                 }
-                TroopCapacity += slot.module.TroopCapacity;
-                MechanicalBoardingDefense += slot.module.MechanicalBoardingDefense;
+                TroopCapacity += slot.Module.TroopCapacity;
+                MechanicalBoardingDefense += slot.Module.MechanicalBoardingDefense;
                 if (MechanicalBoardingDefense < 1f)
                 {
                     MechanicalBoardingDefense = 1f;
                 }
-                if (slot.module.ModuleType == ShipModuleType.Hangar)
+                if (slot.Module.ModuleType == ShipModuleType.Hangar)
                 {
-                    slot.module.hangarShipUID = slot.SlotOptions;
-                    if (slot.module.IsTroopBay)
+                    slot.Module.hangarShipUID = slot.SlotOptions;
+                    if (slot.Module.IsTroopBay)
                     {
                         HasTroopBay = true;
                     }
                 }
-                if (slot.module.ModuleType == ShipModuleType.Transporter)
-                    Transporters.Add(slot.module);
-                if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.isRepairBeam)
-                    RepairBeams.Add(slot.module);
-                if (slot.module.ModuleType == ShipModuleType.Armor && loyalty != null)
+                if (slot.Module.ModuleType == ShipModuleType.Transporter)
+                    Transporters.Add(slot.Module);
+                if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.isRepairBeam)
+                    RepairBeams.Add(slot.Module);
+                if (slot.Module.ModuleType == ShipModuleType.Armor && loyalty != null)
                 {
-                    float modifiedMass = slot.module.Mass * loyalty.data.ArmourMassModifier;
+                    float modifiedMass = slot.Module.Mass * loyalty.data.ArmourMassModifier;
                     Mass += modifiedMass;
                 }
                 else
-                    Mass += slot.module.Mass;
-                Thrust += slot.module.thrust;
-                WarpThrust += slot.module.WarpThrust;
+                    Mass += slot.Module.Mass;
+                Thrust += slot.Module.thrust;
+                WarpThrust += slot.Module.WarpThrust;
                 //Added by McShooterz: fuel cell modifier apply to all modules with power store
-                PowerStoreMax += slot.module.PowerStoreMax + slot.module.PowerStoreMax * (loyalty != null ? loyalty.data.FuelCellModifier : 0);
-                PowerCurrent += slot.module.PowerStoreMax;
-                PowerFlowMax += slot.module.PowerFlowMax + (loyalty != null ? slot.module.PowerFlowMax * loyalty.data.PowerFlowMod : 0);
-                shield_max += slot.module.shield_power_max + (loyalty != null ? slot.module.shield_power_max * loyalty.data.ShieldPowerMod : 0);
-                if (slot.module.ModuleType == ShipModuleType.Armor)
+                PowerStoreMax += slot.Module.PowerStoreMax + slot.Module.PowerStoreMax * (loyalty != null ? loyalty.data.FuelCellModifier : 0);
+                PowerCurrent += slot.Module.PowerStoreMax;
+                PowerFlowMax += slot.Module.PowerFlowMax + (loyalty != null ? slot.Module.PowerFlowMax * loyalty.data.PowerFlowMod : 0);
+                shield_max += slot.Module.shield_power_max + (loyalty != null ? slot.Module.shield_power_max * loyalty.data.ShieldPowerMod : 0);
+                if (slot.Module.ModuleType == ShipModuleType.Armor)
                 {
-                    armor_max += slot.module.HealthMax;
+                    armor_max += slot.Module.HealthMax;
                 }
                 
-                CargoSpace_Max += slot.module.Cargo_Capacity;
-                OrdinanceMax += (float)slot.module.OrdinanceCapacity;
-                Ordinance += (float)slot.module.OrdinanceCapacity;
-                if(slot.module.ModuleType != ShipModuleType.Shield)
-                    ModulePowerDraw += slot.module.PowerDraw;
+                CargoSpace_Max += slot.Module.Cargo_Capacity;
+                OrdinanceMax += (float)slot.Module.OrdinanceCapacity;
+                Ordinance += (float)slot.Module.OrdinanceCapacity;
+                if(slot.Module.ModuleType != ShipModuleType.Shield)
+                    ModulePowerDraw += slot.Module.PowerDraw;
                 else
-                    ShieldPowerDraw += slot.module.PowerDraw;
-                Health += slot.module.HealthMax;
-                if (slot.module.FTLSpoolTime > FTLSpoolTime)
-                    FTLSpoolTime = slot.module.FTLSpoolTime;
+                    ShieldPowerDraw += slot.Module.PowerDraw;
+                Health += slot.Module.HealthMax;
+                if (slot.Module.FTLSpoolTime > FTLSpoolTime)
+                    FTLSpoolTime = slot.Module.FTLSpoolTime;
             }
 
             #endregion
@@ -2518,7 +2518,7 @@ namespace Ship_Game.Gameplay
             }
             #endregion
             HealthMax = base.Health;
-            number_Alive_Internal_slots = number_Internal_slots;
+            ActiveInternalSlotCount = InternalSlotCount;
             velocityMaximum = Thrust / Mass;
             speed = velocityMaximum;
             rotationRadiansPerSecond = speed / (float)Size;
@@ -2557,13 +2557,13 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot slot in ModuleSlotList)
             {
                 if (slot.Restrictions == Restrictions.I)
-                    ++number_Internal_slots;
+                    ++InternalSlotCount;
                 
-                if (slot.module.ModuleType == ShipModuleType.Dummy)
+                if (slot.Module.ModuleType == ShipModuleType.Dummy)
                     continue;
-                if (slot.module.ECM > ECMValue)
+                if (slot.Module.ECM > ECMValue)
                 {
-                    ECMValue = slot.module.ECM;
+                    ECMValue = slot.Module.ECM;
                     if (ECMValue > 1.0f)
                         ECMValue = 1.0f;
                     if (ECMValue < 0f)
@@ -2571,29 +2571,29 @@ namespace Ship_Game.Gameplay
                 }
 
                 float massModifier = 1.0f;
-                if (slot.module.ModuleType == ShipModuleType.Armor && loyalty != null)
+                if (slot.Module.ModuleType == ShipModuleType.Armor && loyalty != null)
                     massModifier = loyalty.data.ArmourMassModifier;
-                Mass += slot.module.Mass * massModifier;                
-                Thrust += slot.module.thrust;
-                WarpThrust += slot.module.WarpThrust;
-                MechanicalBoardingDefense += slot.module.MechanicalBoardingDefense;
+                Mass += slot.Module.Mass * massModifier;                
+                Thrust += slot.Module.thrust;
+                WarpThrust += slot.Module.WarpThrust;
+                MechanicalBoardingDefense += slot.Module.MechanicalBoardingDefense;
                 //Added by McShooterz
-                PowerStoreMax += loyalty.data.FuelCellModifier * slot.module.PowerStoreMax + slot.module.PowerStoreMax;
-                PowerFlowMax += slot.module.PowerFlowMax + (loyalty != null ? slot.module.PowerFlowMax * loyalty.data.PowerFlowMod : 0);
-                shield_max += slot.module.GetShieldsMax();
-                shield_power += slot.module.shield_power;
-                if (slot.module.ModuleType == ShipModuleType.Armor)
-                    armor_max += slot.module.HealthMax;                
-                CargoSpace_Max += slot.module.Cargo_Capacity;
-                OrdinanceMax += (float)slot.module.OrdinanceCapacity;
-                if (slot.module.ModuleType != ShipModuleType.Shield)
-                    ModulePowerDraw += slot.module.PowerDraw;
+                PowerStoreMax += loyalty.data.FuelCellModifier * slot.Module.PowerStoreMax + slot.Module.PowerStoreMax;
+                PowerFlowMax += slot.Module.PowerFlowMax + (loyalty != null ? slot.Module.PowerFlowMax * loyalty.data.PowerFlowMod : 0);
+                shield_max += slot.Module.GetShieldsMax();
+                shield_power += slot.Module.shield_power;
+                if (slot.Module.ModuleType == ShipModuleType.Armor)
+                    armor_max += slot.Module.HealthMax;                
+                CargoSpace_Max += slot.Module.Cargo_Capacity;
+                OrdinanceMax += (float)slot.Module.OrdinanceCapacity;
+                if (slot.Module.ModuleType != ShipModuleType.Shield)
+                    ModulePowerDraw += slot.Module.PowerDraw;
                 else
-                    ShieldPowerDraw += slot.module.PowerDraw;
-                Health += slot.module.HealthMax;
-                TroopCapacity += slot.module.TroopCapacity;
-                if (slot.module.FTLSpoolTime > FTLSpoolTime)
-                    FTLSpoolTime = slot.module.FTLSpoolTime;
+                    ShieldPowerDraw += slot.Module.PowerDraw;
+                Health += slot.Module.HealthMax;
+                TroopCapacity += slot.Module.TroopCapacity;
+                if (slot.Module.FTLSpoolTime > FTLSpoolTime)
+                    FTLSpoolTime = slot.Module.FTLSpoolTime;
             }
             MechanicalBoardingDefense += (Size / 20);
             if (MechanicalBoardingDefense < 1f)
@@ -2604,7 +2604,7 @@ namespace Ship_Game.Gameplay
             velocityMaximum             = Thrust / Mass;
             speed                       = velocityMaximum;
             rotationRadiansPerSecond    = speed / 700f;
-            number_Alive_Internal_slots = number_Internal_slots;
+            ActiveInternalSlotCount = InternalSlotCount;
             ShipMass                    = Mass;
             if (FTLSpoolTime == 0)
                 FTLSpoolTime = 3f;
@@ -2647,7 +2647,7 @@ namespace Ship_Game.Gameplay
                 moduleSize = 10f;
             foreach (ModuleSlot moduleSlot in ModuleSlotList)
             {
-                Vector2 moduleOffset = moduleSlot.module.XMLPosition - new Vector2(264f, 264f);
+                Vector2 moduleOffset = moduleSlot.Module.XMLPosition - new Vector2(264f, 264f);
                 Vector2 vector2_2 = new Vector2(moduleOffset.X / 16f, moduleOffset.Y / 16f) * moduleSize;
                 if (Math.Abs(vector2_2.X) > (drawRect.Width / 2) || Math.Abs(vector2_2.Y) > (drawRect.Height / 2))
                 {
@@ -2657,7 +2657,7 @@ namespace Ship_Game.Gameplay
             }
             foreach (ModuleSlot moduleSlot in ModuleSlotList)
             {
-                Vector2 moduleOffset = moduleSlot.module.XMLPosition - new Vector2(264f, 264f);
+                Vector2 moduleOffset = moduleSlot.Module.XMLPosition - new Vector2(264f, 264f);
                 moduleOffset = new Vector2(moduleOffset.X / 16f, moduleOffset.Y / 16f) * moduleSize;
                 var rect = new Rectangle(drawRect.X + drawRect.Width / 2 + (int)moduleOffset.X, drawRect.Y + drawRect.Height / 2 + (int)moduleOffset.Y, (int)moduleSize, (int)moduleSize);
 
@@ -2669,12 +2669,12 @@ namespace Ship_Game.Gameplay
         public void ScrambleAssaultShips(float strengthNeeded)
         {
             bool flag = strengthNeeded > 0;
-            foreach (ModuleSlot slot in ModuleSlotList.Where(slot => slot.module != null && slot.module.ModuleType == ShipModuleType.Hangar && slot.module.IsTroopBay && TroopList.Count > 0 && slot.module.GetHangarShip() == null && slot.module.hangarTimer <= 0f))
+            foreach (ModuleSlot slot in ModuleSlotList.Where(slot => slot.Module != null && slot.Module.ModuleType == ShipModuleType.Hangar && slot.Module.IsTroopBay && TroopList.Count > 0 && slot.Module.GetHangarShip() == null && slot.Module.hangarTimer <= 0f))
             {                
                 if (flag && strengthNeeded < 0)
                     break;
                 strengthNeeded -= TroopList[0].Strength;
-                slot.module.LaunchBoardingParty(TroopList[0]);
+                slot.Module.LaunchBoardingParty(TroopList[0]);
                 TroopList.RemoveAt(0);
             }
         }
@@ -2735,10 +2735,10 @@ namespace Ship_Game.Gameplay
                 ship.ModuleSlotList.Add(new ModuleSlot
                 {
                     Health             = slotData.Health,
-                    Shield_Power       = slotData.Shield_Power,
+                    ShieldPower       = slotData.ShieldPower,
                     Position           = slotData.Position,
-                    facing             = slotData.facing,
-                    state              = slotData.state,
+                    Facing             = slotData.Facing,
+                    State              = slotData.State,
                     Restrictions       = slotData.Restrictions,
                     InstalledModuleUID = slotData.InstalledModuleUID,
                     HangarshipGuid     = slotData.HangarshipGuid,
@@ -2764,10 +2764,10 @@ namespace Ship_Game.Gameplay
             {
                 ModuleSlotList.Add(new ModuleSlot
                 {
-                    Shield_Power       = slotData.Shield_Power,
+                    ShieldPower       = slotData.ShieldPower,
                     Position           = slotData.Position,
-                    facing             = slotData.facing,
-                    state              = slotData.state,
+                    Facing             = slotData.Facing,
+                    State              = slotData.State,
                     Restrictions       = slotData.Restrictions,
                     InstalledModuleUID = slotData.InstalledModuleUID,
                     HangarshipGuid     = slotData.HangarshipGuid,
@@ -2793,10 +2793,10 @@ namespace Ship_Game.Gameplay
                 parent.ModuleSlotList.Add(new ModuleSlot
                 {
                     Health             = slotData.Health,
-                    Shield_Power       = slotData.Shield_Power,
+                    ShieldPower       = slotData.ShieldPower,
                     Position           = slotData.Position,
-                    facing             = slotData.facing,
-                    state              = slotData.state,
+                    Facing             = slotData.Facing,
+                    State              = slotData.State,
                     Restrictions       = slotData.Restrictions,
                     InstalledModuleUID = slotData.InstalledModuleUID,
                     HangarshipGuid     = slotData.HangarshipGuid,
@@ -2820,7 +2820,7 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot slot in ModuleSlotList)
             {
                 slot.Parent = this;
-                if (slot.module == null)
+                if (slot.Module == null)
                 {
                     if (!ResourceManager.ModuleExists(slot.InstalledModuleUID))
                     {
@@ -2844,7 +2844,7 @@ namespace Ship_Game.Gameplay
             foreach (ModuleSlot slot in ModuleSlotList)
             {
                 slot.Parent = this;
-                if (slot.module == null)
+                if (slot.Module == null)
                 {
                     if (!ResourceManager.ModuleExists(slot.InstalledModuleUID))
                     {
@@ -2857,10 +2857,10 @@ namespace Ship_Game.Gameplay
                         return false;
                     }
                 }
-                slot.module.Health       = slot.Health;
-                slot.module.shield_power = slot.Shield_Power;
-                if (slot.module.Health < 1)
-                    slot.module.Active = false;
+                slot.Module.Health       = slot.Health;
+                slot.Module.shield_power = slot.ShieldPower;
+                if (slot.Module.Health < 1)
+                    slot.Module.Active = false;
             }
             RecalculatePower();
             return true;
@@ -2993,7 +2993,7 @@ namespace Ship_Game.Gameplay
                 for (int index = 0; index < ModuleSlotList.Count; index++)
                 {
                     ModuleSlot moduleSlot = ModuleSlotList[index];
-                    moduleSlot.module.UpdateWhileDying(elapsedTime);
+                    moduleSlot.Module.UpdateWhileDying(elapsedTime);
                 }
             }
             else if (!dying)
@@ -3275,13 +3275,13 @@ namespace Ship_Game.Gameplay
 
         private void CheckAndPowerConduit(ModuleSlot slot)
         {
-            if (!slot.module.Active)
+            if (!slot.Module.Active)
                 return;
-            slot.module.Powered = true;
+            slot.Module.Powered = true;
             slot.CheckedConduits = true;
             foreach (ModuleSlot slot1 in ModuleSlotList)
             {
-                if (slot1 != slot && (int)Math.Abs(slot.Position.X - slot1.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - slot1.Position.Y) / 16 == 1 && (slot1.module != null && slot1.module.ModuleType == ShipModuleType.PowerConduit) && (slot1.module.ModuleType == ShipModuleType.PowerConduit && !slot1.CheckedConduits))
+                if (slot1 != slot && (int)Math.Abs(slot.Position.X - slot1.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - slot1.Position.Y) / 16 == 1 && (slot1.Module != null && slot1.Module.ModuleType == ShipModuleType.PowerConduit) && (slot1.Module.ModuleType == ShipModuleType.PowerConduit && !slot1.CheckedConduits))
                     CheckAndPowerConduit(slot1);
             }
         }
@@ -3299,10 +3299,10 @@ namespace Ship_Game.Gameplay
                 module = ModuleSlotList[i];
 
                 module.Powered = false;
-                module.module.Powered = false;
+                module.Module.Powered = false;
                 module.CheckedConduits = false;
-                if (module.module != null)
-                    module.module.Powered = false;
+                if (module.Module != null)
+                    module.Module.Powered = false;
             }
 
             //Parallel.For(this.ModuleSlotList.Count, (start, end) =>
@@ -3312,35 +3312,35 @@ namespace Ship_Game.Gameplay
                 {
                     module = ModuleSlotList[i];
 
-                    if (module.module != null && module.module.ModuleType == ShipModuleType.PowerPlant && module.module.Active)
+                    if (module.Module != null && module.Module.ModuleType == ShipModuleType.PowerPlant && module.Module.Active)
                     {
                         foreach (ModuleSlot slot in ModuleSlotList)
                         {
-                            if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - module.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - module.Position.Y) / 16 == 1 && slot.module != null))
+                            if (slot.Module != null && slot.Module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - module.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - module.Position.Y) / 16 == 1 && slot.Module != null))
                                 CheckAndPowerConduit(slot);
                         }
                     }
-                    else if (module.module.ParentOfDummy != null && module.module.ParentOfDummy.ModuleType == ShipModuleType.PowerPlant && module.module.ParentOfDummy.Active)
+                    else if (module.Module.ParentOfDummy != null && module.Module.ParentOfDummy.ModuleType == ShipModuleType.PowerPlant && module.Module.ParentOfDummy.Active)
                     {
                         foreach (ModuleSlot slot in ModuleSlotList)
                         {
-                            if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - module.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - module.Position.Y) / 16 == 1 && slot.module != null))
+                            if (slot.Module != null && slot.Module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - module.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - module.Position.Y) / 16 == 1 && slot.Module != null))
                                 CheckAndPowerConduit(slot);
                         }
                     }
 
-                    if (!module.isDummy && module.module != null && ((int)module.module.PowerRadius > 0 && module.module.Active) && (module.module.ModuleType != ShipModuleType.PowerConduit || module.module.Powered))
+                    if (!module.IsDummy && module.Module != null && ((int)module.Module.PowerRadius > 0 && module.Module.Active) && (module.Module.ModuleType != ShipModuleType.PowerConduit || module.Module.Powered))
                     {
                         foreach (ModuleSlot moduleSlot2 in ModuleSlotList)
                         {
-                            if ((int)Math.Abs(module.Position.X - moduleSlot2.Position.X) / 16 + (int)Math.Abs(module.Position.Y - moduleSlot2.Position.Y) / 16 <= (int)module.module.PowerRadius)
+                            if ((int)Math.Abs(module.Position.X - moduleSlot2.Position.X) / 16 + (int)Math.Abs(module.Position.Y - moduleSlot2.Position.Y) / 16 <= (int)module.Module.PowerRadius)
                                 moduleSlot2.Powered = true;
                         }
-                        if ((int)module.module.XSIZE > 1 || (int)module.module.YSIZE > 1)
+                        if ((int)module.Module.XSIZE > 1 || (int)module.Module.YSIZE > 1)
                         {
-                            for (int index1 = 0; index1 < (int)module.module.YSIZE; ++index1)
+                            for (int index1 = 0; index1 < (int)module.Module.YSIZE; ++index1)
                             {
-                                for (int index2 = 0; index2 < (int)module.module.XSIZE; ++index2)
+                                for (int index2 = 0; index2 < (int)module.Module.XSIZE; ++index2)
                                 {
                                     if (!(index2 == 0 & index1 == 0))
                                     {
@@ -3350,7 +3350,7 @@ namespace Ship_Game.Gameplay
                                             {
                                                 foreach (ModuleSlot moduleSlot3 in ModuleSlotList)
                                                 {
-                                                    if ((int)Math.Abs(moduleSlot2.Position.X - moduleSlot3.Position.X) / 16 + (int)Math.Abs(moduleSlot2.Position.Y - moduleSlot3.Position.Y) / 16 <= (int)module.module.PowerRadius)
+                                                    if ((int)Math.Abs(moduleSlot2.Position.X - moduleSlot3.Position.X) / 16 + (int)Math.Abs(moduleSlot2.Position.Y - moduleSlot3.Position.Y) / 16 <= (int)module.Module.PowerRadius)
                                                         moduleSlot3.Powered = true;
                                                 }
                                             }
@@ -3363,13 +3363,13 @@ namespace Ship_Game.Gameplay
 
                     if (module.Powered)
                     {
-                        if (module.module != null && module.module.ModuleType != ShipModuleType.PowerConduit)
-                            module.module.Powered = true;
-                        if (module.module.isDummy && module.module.ParentOfDummy != null)
-                            module.module.ParentOfDummy.Powered = true;
+                        if (module.Module != null && module.Module.ModuleType != ShipModuleType.PowerConduit)
+                            module.Module.Powered = true;
+                        if (module.Module.isDummy && module.Module.ParentOfDummy != null)
+                            module.Module.ParentOfDummy.Powered = true;
                     }
-                    if (!module.Powered && module.module != null && module.module.IndirectPower)
-                        module.module.Powered = true;
+                    if (!module.Powered && module.Module != null && module.Module.IndirectPower)
+                        module.Module.Powered = true;
                 }
             }//);
         }
@@ -3379,26 +3379,26 @@ namespace Ship_Game.Gameplay
             {
                 moduleSlot.Powered = false;
                 moduleSlot.CheckedConduits = false;
-                if (moduleSlot.module != null)
-                    moduleSlot.module.Powered = false;
+                if (moduleSlot.Module != null)
+                    moduleSlot.Module.Powered = false;
             }
             //added by Gremlin Parallel recalculate power.
             global::System.Threading.Tasks.Parallel.ForEach<ModuleSlot>(ModuleSlotList, moduleSlot =>
                 //foreach (ModuleSlot moduleSlot in this.ModuleSlotList)
             {
-                if (moduleSlot.module != null && moduleSlot.module.ModuleType == ShipModuleType.PowerPlant && moduleSlot.module.Active)
+                if (moduleSlot.Module != null && moduleSlot.Module.ModuleType == ShipModuleType.PowerPlant && moduleSlot.Module.Active)
                 {
                     foreach (ModuleSlot slot in ModuleSlotList)
                     {
-                        if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - moduleSlot.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - moduleSlot.Position.Y) / 16 == 1 && slot.module != null))
+                        if (slot.Module != null && slot.Module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - moduleSlot.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - moduleSlot.Position.Y) / 16 == 1 && slot.Module != null))
                             CheckAndPowerConduit(slot);
                     }
                 }
-                else if (moduleSlot.module.ParentOfDummy != null && moduleSlot.module.ParentOfDummy.ModuleType == ShipModuleType.PowerPlant && moduleSlot.module.ParentOfDummy.Active)
+                else if (moduleSlot.Module.ParentOfDummy != null && moduleSlot.Module.ParentOfDummy.ModuleType == ShipModuleType.PowerPlant && moduleSlot.Module.ParentOfDummy.Active)
                 {
                     foreach (ModuleSlot slot in ModuleSlotList)
                     {
-                        if (slot.module != null && slot.module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - moduleSlot.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - moduleSlot.Position.Y) / 16 == 1 && slot.module != null))
+                        if (slot.Module != null && slot.Module.ModuleType == ShipModuleType.PowerConduit && ((int)Math.Abs(slot.Position.X - moduleSlot.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - moduleSlot.Position.Y) / 16 == 1 && slot.Module != null))
                             CheckAndPowerConduit(slot);
                     }
                 }
@@ -3407,18 +3407,18 @@ namespace Ship_Game.Gameplay
             //foreach (ModuleSlot moduleSlot1 in this.ModuleSlotList)
             global::System.Threading.Tasks.Parallel.ForEach<ModuleSlot>(ModuleSlotList, moduleSlot1 =>
             {
-                if (!moduleSlot1.isDummy && moduleSlot1.module != null && ((int)moduleSlot1.module.PowerRadius > 0 && moduleSlot1.module.Active) && (moduleSlot1.module.ModuleType != ShipModuleType.PowerConduit || moduleSlot1.module.Powered))
+                if (!moduleSlot1.IsDummy && moduleSlot1.Module != null && ((int)moduleSlot1.Module.PowerRadius > 0 && moduleSlot1.Module.Active) && (moduleSlot1.Module.ModuleType != ShipModuleType.PowerConduit || moduleSlot1.Module.Powered))
                 {
                     foreach (ModuleSlot moduleSlot2 in ModuleSlotList)
                     {
-                        if ((int)Math.Abs(moduleSlot1.Position.X - moduleSlot2.Position.X) / 16 + (int)Math.Abs(moduleSlot1.Position.Y - moduleSlot2.Position.Y) / 16 <= (int)moduleSlot1.module.PowerRadius)
+                        if ((int)Math.Abs(moduleSlot1.Position.X - moduleSlot2.Position.X) / 16 + (int)Math.Abs(moduleSlot1.Position.Y - moduleSlot2.Position.Y) / 16 <= (int)moduleSlot1.Module.PowerRadius)
                             moduleSlot2.Powered = true;
                     }
-                    if ((int)moduleSlot1.module.XSIZE > 1 || (int)moduleSlot1.module.YSIZE > 1)
+                    if ((int)moduleSlot1.Module.XSIZE > 1 || (int)moduleSlot1.Module.YSIZE > 1)
                     {
-                        for (int index1 = 0; index1 < (int)moduleSlot1.module.YSIZE; ++index1)
+                        for (int index1 = 0; index1 < (int)moduleSlot1.Module.YSIZE; ++index1)
                         {
-                            for (int index2 = 0; index2 < (int)moduleSlot1.module.XSIZE; ++index2)
+                            for (int index2 = 0; index2 < (int)moduleSlot1.Module.XSIZE; ++index2)
                             {
                                 if (!(index2 == 0 & index1 == 0))
                                 {
@@ -3428,7 +3428,7 @@ namespace Ship_Game.Gameplay
                                         {
                                             foreach (ModuleSlot moduleSlot3 in ModuleSlotList)
                                             {
-                                                if ((int)Math.Abs(moduleSlot2.Position.X - moduleSlot3.Position.X) / 16 + (int)Math.Abs(moduleSlot2.Position.Y - moduleSlot3.Position.Y) / 16 <= (int)moduleSlot1.module.PowerRadius)
+                                                if ((int)Math.Abs(moduleSlot2.Position.X - moduleSlot3.Position.X) / 16 + (int)Math.Abs(moduleSlot2.Position.Y - moduleSlot3.Position.Y) / 16 <= (int)moduleSlot1.Module.PowerRadius)
                                                     moduleSlot3.Powered = true;
                                             }
                                         }
@@ -3443,13 +3443,13 @@ namespace Ship_Game.Gameplay
             {
                 if (moduleSlot.Powered)
                 {
-                    if (moduleSlot.module != null && moduleSlot.module.ModuleType != ShipModuleType.PowerConduit)
-                        moduleSlot.module.Powered = true;
-                    if (moduleSlot.module.isDummy && moduleSlot.module.ParentOfDummy != null)
-                        moduleSlot.module.ParentOfDummy.Powered = true;
+                    if (moduleSlot.Module != null && moduleSlot.Module.ModuleType != ShipModuleType.PowerConduit)
+                        moduleSlot.Module.Powered = true;
+                    if (moduleSlot.Module.isDummy && moduleSlot.Module.ParentOfDummy != null)
+                        moduleSlot.Module.ParentOfDummy.Powered = true;
                 }
-                if (!moduleSlot.Powered && moduleSlot.module != null && moduleSlot.module.IndirectPower)
-                    moduleSlot.module.Powered = true;
+                if (!moduleSlot.Powered && moduleSlot.Module != null && moduleSlot.Module.IndirectPower)
+                    moduleSlot.Module.Powered = true;
             }
         }
         public ShipData ToShipData()
@@ -3494,12 +3494,12 @@ namespace Ship_Game.Gameplay
                 if (moduleSlot.HangarshipGuid != Guid.Empty)
                     moduleSlotData.HangarshipGuid = moduleSlot.HangarshipGuid;
                 moduleSlotData.Restrictions = moduleSlot.Restrictions;
-                if (moduleSlot.module.ModuleType == ShipModuleType.Hangar)
-                    moduleSlotData.SlotOptions = moduleSlot.module.hangarShipUID;
-                moduleSlotData.facing = moduleSlot.module.facing;
-                moduleSlotData.Health = moduleSlot.module.Health;
-                moduleSlotData.Shield_Power = moduleSlot.module.shield_power;
-                moduleSlotData.state = moduleSlot.state;
+                if (moduleSlot.Module.ModuleType == ShipModuleType.Hangar)
+                    moduleSlotData.SlotOptions = moduleSlot.Module.hangarShipUID;
+                moduleSlotData.Facing = moduleSlot.Module.facing;
+                moduleSlotData.Health = moduleSlot.Module.Health;
+                moduleSlotData.ShieldPower = moduleSlot.Module.shield_power;
+                moduleSlotData.State = moduleSlot.State;
                 list.Add(moduleSlotData);
             }
             return list;
@@ -3519,20 +3519,20 @@ namespace Ship_Game.Gameplay
             int num1 = 0;
             foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
             {
-                if (moduleSlot.module != null && moduleSlot.module.ModuleType == ShipModuleType.PowerConduit && moduleSlot != ss)
+                if (moduleSlot.Module != null && moduleSlot.Module.ModuleType == ShipModuleType.PowerConduit && moduleSlot != ss)
                 {
-                    int num2 = (int)Math.Abs(moduleSlot.module.XMLPosition.X - ss.module.XMLPosition.X) / 16;
-                    int num3 = (int)Math.Abs(moduleSlot.module.XMLPosition.Y - ss.module.XMLPosition.Y) / 16;
+                    int num2 = (int)Math.Abs(moduleSlot.Module.XMLPosition.X - ss.Module.XMLPosition.X) / 16;
+                    int num3 = (int)Math.Abs(moduleSlot.Module.XMLPosition.Y - ss.Module.XMLPosition.Y) / 16;
                     if (num2 == 1 && num3 == 0)
                     {
-                        if ((double)moduleSlot.module.XMLPosition.X > (double)ss.module.XMLPosition.X)
+                        if ((double)moduleSlot.Module.XMLPosition.X > (double)ss.Module.XMLPosition.X)
                             flag1 = true;
                         else
                             flag2 = true;
                     }
                     if (num3 == 1 && num2 == 0)
                     {
-                        if ((double)moduleSlot.module.XMLPosition.Y > (double)ss.module.XMLPosition.Y)
+                        if ((double)moduleSlot.Module.XMLPosition.Y > (double)ss.Module.XMLPosition.Y)
                             flag4 = true;
                         else
                             flag3 = true;
@@ -3801,7 +3801,7 @@ namespace Ship_Game.Gameplay
                 //This is what updates all of the modules of a ship
                 if (loyalty.RecalculateMaxHP) HealthMax = 0;
                 foreach (ModuleSlot slot in ModuleSlotList)
-                    slot.module.Update(1f);
+                    slot.Module.Update(1f);
                 //Check Current Shields
                 if (engineState == Ship.MoveState.Warp || !ShieldsUp)
                     shield_power = 0f;
@@ -3834,22 +3834,22 @@ namespace Ship_Game.Gameplay
                         //Added by McShooterz: Priority repair
                         float repairTracker = InCombat ? RepairRate * 0.1f : RepairRate;
                         var damagedModules = ModuleSlotList
-                            .Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health < slot.module.HealthMax)
-                            .OrderBy(moduleSlot => moduleSlot.module.ModulePriority);
+                            .Where(slot => slot.Module.ModuleType != ShipModuleType.Dummy && slot.Module.Health < slot.Module.HealthMax)
+                            .OrderBy(moduleSlot => moduleSlot.Module.ModulePriority);
                         foreach (ModuleSlot moduleSlot in damagedModules)
                         {
                             //if destroyed do not repair in combat
-                            if (InCombat && moduleSlot.module.Health < 1)
+                            if (InCombat && moduleSlot.Module.Health < 1)
                                 continue;
-                            if (moduleSlot.module.HealthMax - moduleSlot.module.Health > repairTracker)
+                            if (moduleSlot.Module.HealthMax - moduleSlot.Module.Health > repairTracker)
                             {
-                                moduleSlot.module.Repair(repairTracker);
+                                moduleSlot.Module.Repair(repairTracker);
                                 break;
                             }
                             else
                             {
-                                repairTracker -= moduleSlot.module.HealthMax - moduleSlot.module.Health;
-                                moduleSlot.module.Repair(moduleSlot.module.HealthMax);
+                                repairTracker -= moduleSlot.Module.HealthMax - moduleSlot.Module.Health;
+                                moduleSlot.Module.Repair(moduleSlot.Module.HealthMax);
                             }
                         }
                     }
@@ -4033,7 +4033,7 @@ namespace Ship_Game.Gameplay
                         foreach (ModuleSlot moduleSlot in ModuleSlotList)
                         {
                             ++GlobalStats.ModuleUpdates;
-                            moduleSlot.module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                            moduleSlot.Module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
                             if (!Active)
                                 break;
                         }
@@ -4044,8 +4044,8 @@ namespace Ship_Game.Gameplay
             SetmaxFTLSpeed();
             if (Ordinance > OrdinanceMax)
                 Ordinance = OrdinanceMax;
-            percent = number_Alive_Internal_slots / number_Internal_slots;
-            if (percent < 0.35)
+            InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
+            if (InternalSlotsHealthPercent < 0.35f)
                 Die(LastDamagedBy, false);
             if (Mass < (Size / 2))
                 Mass = (Size / 2);
@@ -4131,131 +4131,129 @@ namespace Ship_Game.Gameplay
         {
             Health = 0f;
             float sensorBonus = 0f;
-            //if (this.shipStatusChanged)
-            {
-                Hangars.Clear();
-                Shields.Clear();
-                Transporters.Clear();
-                Thrust                      = 0f;
-                Mass                        = Size / 2f;
-                shield_max                  = 0f;
-                number_Alive_Internal_slots = 0f;
-                BonusEMP_Protection         = 0f;
-                PowerStoreMax               = 0f;
-                PowerFlowMax                = 0f;
-                OrdinanceMax                = 0f;
-                ModulePowerDraw             = 0.0f;
-                ShieldPowerDraw             = 0f;
-                RepairRate                  = 0f;
-                CargoSpace_Max              = 0f;
-                SensorRange                 = 0f;
-                HasTroopBay                 = false;
-                WarpThrust                  = 0f;
-                TurnThrust                  = 0f;
-                NormalWarpThrust            = 0f;
-                FTLSlowTurnBoost            = false;
-                InhibitionRadius            = 0f;
-                OrdAddedPerSecond           = 0f;
-                WarpDraw                    = 0f;
-                HealPerTurn                 = 0;
-                ECMValue                    = 0f;
-                FTLSpoolTime                = 0f;
-                hasCommand                  = IsPlatform;
-                TrackingPower               = 0;
-                FixedTrackingPower          = 0;
-            }
+            Hangars.Clear();
+            Shields.Clear();
+            Transporters.Clear();
+            Thrust                      = 0f;
+            Mass                        = Size / 2f;
+            shield_max                  = 0f;
+            ActiveInternalSlotCount     = 0;
+            BonusEMP_Protection         = 0f;
+            PowerStoreMax               = 0f;
+            PowerFlowMax                = 0f;
+            OrdinanceMax                = 0f;
+            ModulePowerDraw             = 0.0f;
+            ShieldPowerDraw             = 0f;
+            RepairRate                  = 0f;
+            CargoSpace_Max              = 0f;
+            SensorRange                 = 0f;
+            HasTroopBay                 = false;
+            WarpThrust                  = 0f;
+            TurnThrust                  = 0f;
+            NormalWarpThrust            = 0f;
+            FTLSlowTurnBoost            = false;
+            InhibitionRadius            = 0f;
+            OrdAddedPerSecond           = 0f;
+            WarpDraw                    = 0f;
+            HealPerTurn                 = 0;
+            ECMValue                    = 0f;
+            FTLSpoolTime                = 0f;
+            hasCommand                  = IsPlatform;
+            TrackingPower               = 0;
+            FixedTrackingPower          = 0;
+
             foreach (ModuleSlot slot in ModuleSlotList)
             {
                 //Get total internal slots
-                if (slot.Restrictions == Restrictions.I && slot.module.Active)
-                    ++number_Alive_Internal_slots;
-                if (slot.module.ModuleType == ShipModuleType.Dummy)
+                if (slot.Restrictions == Restrictions.I && slot.Module.Active)
+                    ++ActiveInternalSlotCount;
+                if (slot.Module.ModuleType == ShipModuleType.Dummy)
                     continue;
-                Health += slot.module.Health;
+                Health += slot.Module.Health;
                 //if (this.shipStatusChanged)
                 {
-                    RepairRate += slot.module.BonusRepairRate;
-                    if (slot.module.Mass < 0.0 && slot.Powered)
+                    RepairRate += slot.Module.BonusRepairRate;
+                    if (slot.Module.Mass < 0.0 && slot.Powered)
                     {
                         //Ship ship3 = this;
                         //float num3 = ship3.Mass + moduleSlot.module.Mass;     //Some minor performance tweaks -Gretman
-                        Mass += slot.module.Mass;
+                        Mass += slot.Module.Mass;
                     }
-                    else if (slot.module.Mass > 0.0)
+                    else if (slot.Module.Mass > 0.0)
                     {
                         //Ship ship3 = this;
 
                         //float num3;
-                        if (slot.module.ModuleType == ShipModuleType.Armor && loyalty != null)
+                        if (slot.Module.ModuleType == ShipModuleType.Armor && loyalty != null)
                         {
                             float ArmourMassModifier = loyalty.data.ArmourMassModifier;
-                            float ArmourMass = slot.module.Mass * ArmourMassModifier;
+                            float ArmourMass = slot.Module.Mass * ArmourMassModifier;
                             Mass += ArmourMass;
                         }
                         else
                         {
-                            Mass += slot.module.Mass;
+                            Mass += slot.Module.Mass;
                         }
                         //ship3.Mass = num3;
                     }
                     //Checks to see if there is an active command module
 
-                    if (slot.module.Active && (slot.module.Powered || slot.module.PowerDraw == 0))
+                    if (slot.Module.Active && (slot.Module.Powered || slot.Module.PowerDraw == 0))
                     {
-                        if (!hasCommand && slot.module.IsCommandModule)
+                        if (!hasCommand && slot.Module.IsCommandModule)
                             hasCommand = true;
                         //Doctor: For 'Fixed' tracking power modules - i.e. a system whereby a module provides a non-cumulative/non-stacking tracking power.
                         //The normal stacking/cumulative tracking is added on after the for loop for mods that want to mix methods. The original cumulative function is unaffected.
-                        if (slot.module.FixedTracking > 0 && slot.module.FixedTracking > FixedTrackingPower)
-                            FixedTrackingPower = slot.module.FixedTracking;
-                        if (slot.module.TargetTracking > 0)
-                            TrackingPower += slot.module.TargetTracking;
-                        OrdinanceMax += (float)slot.module.OrdinanceCapacity;
-                        CargoSpace_Max += slot.module.Cargo_Capacity;
-                        InhibitionRadius += slot.module.InhibitionRadius;
-                        BonusEMP_Protection += slot.module.EMP_Protection;
-                        if (slot.module.SensorRange > SensorRange)
-                            SensorRange = slot.module.SensorRange;
-                        if (slot.module.SensorBonus > sensorBonus)
-                            sensorBonus = slot.module.SensorBonus;
-                        if (slot.module.shield_power_max > 0f)
+                        if (slot.Module.FixedTracking > 0 && slot.Module.FixedTracking > FixedTrackingPower)
+                            FixedTrackingPower = slot.Module.FixedTracking;
+                        if (slot.Module.TargetTracking > 0)
+                            TrackingPower += slot.Module.TargetTracking;
+                        OrdinanceMax += (float)slot.Module.OrdinanceCapacity;
+                        CargoSpace_Max += slot.Module.Cargo_Capacity;
+                        InhibitionRadius += slot.Module.InhibitionRadius;
+                        BonusEMP_Protection += slot.Module.EMP_Protection;
+                        if (slot.Module.SensorRange > SensorRange)
+                            SensorRange = slot.Module.SensorRange;
+                        if (slot.Module.SensorBonus > sensorBonus)
+                            sensorBonus = slot.Module.SensorBonus;
+                        if (slot.Module.shield_power_max > 0f)
                         {
-                            shield_max += slot.module.GetShieldsMax();
-                            ShieldPowerDraw += slot.module.PowerDraw;
-                            Shields.Add(slot.module);
+                            shield_max += slot.Module.GetShieldsMax();
+                            ShieldPowerDraw += slot.Module.PowerDraw;
+                            Shields.Add(slot.Module);
                         }
                         else
-                            ModulePowerDraw += slot.module.PowerDraw;
-                        Thrust += slot.module.thrust;
-                        WarpThrust += slot.module.WarpThrust;
-                        TurnThrust += slot.module.TurnThrust;
-                        if (slot.module.ECM > ECMValue)
+                            ModulePowerDraw += slot.Module.PowerDraw;
+                        Thrust += slot.Module.thrust;
+                        WarpThrust += slot.Module.WarpThrust;
+                        TurnThrust += slot.Module.TurnThrust;
+                        if (slot.Module.ECM > ECMValue)
                         {
-                            ECMValue = slot.module.ECM;
+                            ECMValue = slot.Module.ECM;
                             if (ECMValue > 1.0f)
                                 ECMValue = 1.0f;
                             if (ECMValue < 0f)
                                 ECMValue = 0f;
                         }
-                        OrdAddedPerSecond += slot.module.OrdnanceAddedPerSecond;
-                        HealPerTurn += slot.module.HealPerTurn;
-                        if (slot.module.ModuleType == ShipModuleType.Hangar)
+                        OrdAddedPerSecond += slot.Module.OrdnanceAddedPerSecond;
+                        HealPerTurn += slot.Module.HealPerTurn;
+                        if (slot.Module.ModuleType == ShipModuleType.Hangar)
                         {
-                            Hangars.Add(slot.module);
-                            if (slot.module.IsTroopBay)
+                            Hangars.Add(slot.Module);
+                            if (slot.Module.IsTroopBay)
                                 HasTroopBay = true;
                         }
-                        if (slot.module.ModuleType == ShipModuleType.Transporter)
-                            Transporters.Add(slot.module);
-                        if (slot.module.InstalledWeapon != null && slot.module.InstalledWeapon.isRepairBeam)
-                            RepairBeams.Add(slot.module);
-                        if (slot.module.PowerStoreMax > 0)
-                            PowerStoreMax += slot.module.PowerStoreMax;
-                        if (slot.module.PowerFlowMax >  0)
-                            PowerFlowMax += slot.module.PowerFlowMax;
-                        WarpDraw += slot.module.PowerDrawAtWarp;
-                        if (slot.module.FTLSpoolTime > FTLSpoolTime)
-                            FTLSpoolTime = slot.module.FTLSpoolTime;
+                        if (slot.Module.ModuleType == ShipModuleType.Transporter)
+                            Transporters.Add(slot.Module);
+                        if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.isRepairBeam)
+                            RepairBeams.Add(slot.Module);
+                        if (slot.Module.PowerStoreMax > 0)
+                            PowerStoreMax += slot.Module.PowerStoreMax;
+                        if (slot.Module.PowerFlowMax >  0)
+                            PowerFlowMax += slot.Module.PowerFlowMax;
+                        WarpDraw += slot.Module.PowerDrawAtWarp;
+                        if (slot.Module.FTLSpoolTime > FTLSpoolTime)
+                            FTLSpoolTime = slot.Module.FTLSpoolTime;
                     }
                 }
             }
@@ -4351,9 +4349,9 @@ namespace Ship_Game.Gameplay
                     //Log.Info("No base strength: " + this.Name +" datastrength: " +this.shipData.BaseStrength);
 
 #endif
-                if (!slot.module.isDummy && (BaseStrength == -1 ||( slot.module.Powered && slot.module.Active )))
+                if (!slot.Module.isDummy && (BaseStrength == -1 ||( slot.Module.Powered && slot.Module.Active )))
                 {
-                    ShipModule module = slot.module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
+                    ShipModule module = slot.Module;//ResourceManager.ShipModulesDict[slot.InstalledModuleUID];
 
                     if (module.InstalledWeapon != null)
                     {
@@ -4664,7 +4662,7 @@ namespace Ship_Game.Gameplay
             projectiles.Clear();
 
             foreach (ModuleSlot moduleSlot in ModuleSlotList)
-                moduleSlot.module.Clear();
+                moduleSlot.Module.Clear();
             Shields.Clear();
             Hangars.Clear();
             BombBays.Clear();
@@ -4736,11 +4734,11 @@ namespace Ship_Game.Gameplay
             ModuleSlot closestModule = null;
             foreach (ModuleSlot slot in slots)
             {
-                if (slot.module.ModuleType == ShipModuleType.Dummy 
-                    || !slot.module.Active || slot.module.quadrant == 0 || slot.module.Health <= 0f)
+                if (slot.Module.ModuleType == ShipModuleType.Dummy 
+                    || !slot.Module.Active || slot.Module.quadrant == 0 || slot.Module.Health <= 0f)
                     continue;
 
-                float sqDist = center.SqDist(slot.module.Center);
+                float sqDist = center.SqDist(slot.Module.Center);
                 if (!(sqDist < nearest) && closestModule != null)
                     continue;
                 nearest       = sqDist;
@@ -4751,15 +4749,15 @@ namespace Ship_Game.Gameplay
 
         public Array<ModuleSlot> FilterSlotsInDamageRange(Array<ModuleSlot> slots, ModuleSlot closestExtSlot)
         {
-            Vector2 extSlotCenter = closestExtSlot.module.Center;
-            sbyte quadrant        = closestExtSlot.module.quadrant;
+            Vector2 extSlotCenter = closestExtSlot.Module.Center;
+            sbyte quadrant        = closestExtSlot.Module.quadrant;
             float sqDamageRadius  = Center.SqDist(extSlotCenter);
 
             var filtered = new Array<ModuleSlot>();
             foreach (ModuleSlot slot in slots)
             {
                 if (slot == null) continue;
-                var module = slot.module;
+                var module = slot.Module;
                 if (module.ModuleType == ShipModuleType.Dummy || !module.Active || module.Health <= 0f || 
                     (module.quadrant != quadrant && module.isExternal))
                     continue;
@@ -4777,7 +4775,7 @@ namespace Ship_Game.Gameplay
 
             if (closestExtSlot == null) // ship might be destroyed, no point in targeting it
             {
-                return ExternalSlots.Count == 0 ? null : ExternalSlots[0].module;
+                return ExternalSlots.Count == 0 ? null : ExternalSlots[0].Module;
             }
 
             if (inAttackerTargetting == null || !inAttackerTargetting.Contains(closestExtSlot))
@@ -4786,19 +4784,19 @@ namespace Ship_Game.Gameplay
                 if (level > 1)
                 {
                     // Sort Descending, so first element is the module with greatest TargettingValue
-                    inAttackerTargetting.Sort((sa, sb) => sb.module.ModuleTargettingValue 
-                                                        - sa.module.ModuleTargettingValue);
+                    inAttackerTargetting.Sort((sa, sb) => sb.Module.ModuleTargettingValue 
+                                                        - sa.Module.ModuleTargettingValue);
                 }
             }
 
             if (inAttackerTargetting.Count == 0)
-                return ExternalSlots.Count == 0 ? null : ExternalSlots[0].module;
+                return ExternalSlots.Count == 0 ? null : ExternalSlots[0].Module;
 
             if (inAttackerTargetting.Count == 0)
                 return null;
             // higher levels lower the limit, which causes a better random pick
             int limit = inAttackerTargetting.Count / (level + 1);
-            return inAttackerTargetting[RandomMath.InRange(limit)].module;
+            return inAttackerTargetting[RandomMath.InRange(limit)].Module;
         }
 
         public ShipModule GetRandomInternalModule(Weapon source)
@@ -4867,16 +4865,16 @@ namespace Ship_Game.Gameplay
             HealthMax = 0;
             foreach (ModuleSlot slot in ModuleSlotList)
             {
-                if (slot.module.isDummy) continue;
-                bool isFullyHealed = slot.module.Health >= slot.module.HealthMax;
-                slot.module.HealthMax = ResourceManager.GetModuleTemplate(slot.module.UID).HealthMax;
-                slot.module.HealthMax = slot.module.HealthMax + slot.module.HealthMax * loyalty.data.Traits.ModHpModifier;
+                if (slot.Module.isDummy) continue;
+                bool isFullyHealed = slot.Module.Health >= slot.Module.HealthMax;
+                slot.Module.HealthMax = ResourceManager.GetModuleTemplate(slot.Module.UID).HealthMax;
+                slot.Module.HealthMax = slot.Module.HealthMax + slot.Module.HealthMax * loyalty.data.Traits.ModHpModifier;
                 if (isFullyHealed)
                 {                                                                   //Basically, set maxhealth to what it would be with no modifier, then
-                    slot.module.Health = slot.module.HealthMax;                     //apply the total benefit to it. Next, if the module is fully healed,
-                    slot.Health        = slot.module.HealthMax;                     //adjust its HP so it is still fully healed. Also calculate and adjust                                            
+                    slot.Module.Health = slot.Module.HealthMax;                     //apply the total benefit to it. Next, if the module is fully healed,
+                    slot.Health        = slot.Module.HealthMax;                     //adjust its HP so it is still fully healed. Also calculate and adjust                                            
                 }                                                                   //the ships MaxHP so it will display properly.        -Gretman
-                HealthMax += slot.module.HealthMax;
+                HealthMax += slot.Module.HealthMax;
             }
             if (Health >= HealthMax) Health = HealthMax;
             if (VanityName == "MerCraft") Log.Info("Health is  " + Health + " / " + HealthMax);

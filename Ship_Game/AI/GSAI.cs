@@ -5975,19 +5975,19 @@ namespace Ship_Game.AI
 
                 foreach (ModuleSlot slot in ship.ModuleSlotList)
                 {
-                    if (slot.module.ModuleType == ShipModuleType.Bomb)
+                    if (slot.Module.ModuleType == ShipModuleType.Bomb)
                     {
-                        bombcount += slot.module.XSIZE * slot.module.YSIZE;
+                        bombcount += slot.Module.XSIZE * slot.Module.YSIZE;
                         if (bombcount > ship.Size * .2)
                             bombs = true;
                     }
-                    if (slot.module.MaximumHangarShipSize > 0)
+                    if (slot.Module.MaximumHangarShipSize > 0)
                     {
-                        hangarcount += slot.module.YSIZE * slot.module.XSIZE;
+                        hangarcount += slot.Module.YSIZE * slot.Module.XSIZE;
                         if (hangarcount > ship.Size * .2)
                             hangars = true;
                     }
-                    if (slot.module.IsTroopBay || slot.module.TransporterRange > 0)
+                    if (slot.Module.IsTroopBay || slot.Module.TransporterRange > 0)
                         troops = true;
 
                 }
