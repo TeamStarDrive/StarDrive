@@ -2619,11 +2619,11 @@ namespace Ship_Game.Gameplay
                 Rectangle destinationRectangle = drawRect;
                 destinationRectangle.X += 2;
 
-                spriteBatch.Draw(ResourceManager.LoadTexture("SelectionBox Ships/" + hullData.SelectionGraphic), destinationRectangle, Color.White);
+                spriteBatch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic), destinationRectangle, Color.White);
                 if (shield_power > 0.0)
                 {
                     byte alpha = (byte)(shield_percent * 255.0f);
-                    spriteBatch.Draw(ResourceManager.LoadTexture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destinationRectangle, new Color(Color.White, alpha));
+                    spriteBatch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destinationRectangle, new Color(Color.White, alpha));
                 }
             }
             if (!showModules || hullData.SelectionGraphic.IsEmpty() || ModuleSlotList.Count == 0)
@@ -2659,44 +2659,23 @@ namespace Ship_Game.Gameplay
             {
                 Vector2 moduleOffset = moduleSlot.module.XMLPosition - new Vector2(264f, 264f);
                 moduleOffset = new Vector2(moduleOffset.X / 16f, moduleOffset.Y / 16f) * moduleSize;
-                Rectangle rect = new Rectangle(drawRect.X + drawRect.Width / 2 + (int)moduleOffset.X, drawRect.Y + drawRect.Height / 2 + (int)moduleOffset.Y, (int)moduleSize, (int)moduleSize);
+                var rect = new Rectangle(drawRect.X + drawRect.Width / 2 + (int)moduleOffset.X, drawRect.Y + drawRect.Height / 2 + (int)moduleOffset.Y, (int)moduleSize, (int)moduleSize);
 
-                Color color = Color.Green;
-                float healthPercent = moduleSlot.module.Health / moduleSlot.module.HealthMax;
-                if      (healthPercent < 0.90f) color = Color.GreenYellow;
-                else if (healthPercent < 0.65f) color = Color.Yellow;
-                else if (healthPercent < 0.45f) color = Color.OrangeRed;
-                else if (healthPercent < 0.15f) color = Color.Red;
-
-                Primitives2D.FillRectangle(spriteBatch, rect, color);
+                Primitives2D.FillRectangle(spriteBatch, rect, moduleSlot.GetHealthStatusColor());
             }
         }
 
-        public void ScrambleAssaultShipsORIG()
-        {
-            foreach (ModuleSlot moduleSlot in ModuleSlotList)
-            {
-                if (moduleSlot.module != null && moduleSlot.module.ModuleType == ShipModuleType.Hangar && (moduleSlot.module.IsTroopBay && TroopList.Count > 0) && (moduleSlot.module.GetHangarShip() == null && moduleSlot.module.hangarTimer <= 0.0))
-                {
-                    moduleSlot.module.LaunchBoardingParty(TroopList[0]);
-                    TroopList.RemoveAt(0);
-                }
-            }
-        }
         //added by gremlin deveksmod scramble assault ships
         public void ScrambleAssaultShips(float strengthNeeded)
         {
             bool flag = strengthNeeded > 0;
             foreach (ModuleSlot slot in ModuleSlotList.Where(slot => slot.module != null && slot.module.ModuleType == ShipModuleType.Hangar && slot.module.IsTroopBay && TroopList.Count > 0 && slot.module.GetHangarShip() == null && slot.module.hangarTimer <= 0f))
             {                
-                if ( flag && strengthNeeded < 0)
+                if (flag && strengthNeeded < 0)
                     break;
                 strengthNeeded -= TroopList[0].Strength;
                 slot.module.LaunchBoardingParty(TroopList[0]);
-
                 TroopList.RemoveAt(0);
-                
-                
             }
         }
 
@@ -2724,35 +2703,21 @@ namespace Ship_Game.Gameplay
 
         public void ScrambleFighters()
         {
-            for (int index = 0; index < Hangars.Count; ++index)
-            {
-                try
-                {
-                    Hangars[index].ScrambleFighters();
-                }
-                catch
-                {
-                }
-            }
+            for (int i = 0; i < Hangars.Count; ++i)
+                Hangars[i].ScrambleFighters();
         }
 
         public void RecoverFighters()
         {
-            for (int index = 0; index < Hangars.Count; ++index)
+            for (int i = 0; i < Hangars.Count; ++i)
             {
-                try
-                {
-                    ShipModule shipModule = Hangars[index];
-                    if (shipModule.GetHangarShip() != null && shipModule.GetHangarShip().Active)
-                        shipModule.GetHangarShip().ReturnToHangar();
-                }
-                catch
-                {
-                }
+                ShipModule shipModule = Hangars[i];
+                if (shipModule.GetHangarShip() != null && shipModule.GetHangarShip().Active)
+                    shipModule.GetHangarShip().ReturnToHangar();
             }
         }
 
-
+        // @todo Reduce duplication
         public static Ship LoadSavedShip(ShipData data)
         {
             var ship = new Ship
