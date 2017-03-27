@@ -618,7 +618,7 @@ namespace Ship_Game
             }
             if (template.isWeapon)
             {
-                newB.theWeapon = GetWeapon(template.Weapon);
+                newB.theWeapon = CreateWeapon(template.Weapon);
             }
             return newB;
         }
@@ -835,7 +835,7 @@ namespace Ship_Game
         }
 
         // Refactored by RedFox, gets a new weapon instance based on weapon UID
-        public static Weapon GetWeapon(string uid)
+        public static Weapon CreateWeapon(string uid)
         {
             Weapon template = WeaponsDict[uid];
             return template.Clone();

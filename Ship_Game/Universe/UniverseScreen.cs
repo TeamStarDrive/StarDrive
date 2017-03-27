@@ -5867,7 +5867,6 @@ namespace Ship_Game
                     }
                     else
                     {
-
                         float moduleSize = moduleTex.Width / (moduleTemplate.XSIZE * 16);
                         float scale = (0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight) / moduleSize;
 

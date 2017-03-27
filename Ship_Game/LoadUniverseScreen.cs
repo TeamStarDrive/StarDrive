@@ -498,12 +498,9 @@ namespace Ship_Game
                     {
                         if (ship.shipData.Role == ShipData.RoleName.troop)
                         {
-                            if (shipData.TroopList.Count > 0)
-                            {
-                                ship.VanityName = shipData.TroopList[0].Name;
-                            }
-                            else
-                                ship.VanityName = shipData.Name;
+                            ship.VanityName = shipData.TroopList.Count > 0 
+                                ? shipData.TroopList[0].Name 
+                                : shipData.Name;
                         }
                         else
                             ship.VanityName = shipData.Name;
@@ -538,11 +535,11 @@ namespace Ship_Game
                     }
                     ship.BaseStrength = ResourceManager.CalculateBaseStrength(ship);
 
-                    foreach (ModuleSlot moduleSD in shipData.data.ModuleSlotList)
+                    foreach (ModuleSlot slot in shipData.data.ModuleSlotList)
                     {
-                        if (ResourceManager.ModuleExists(moduleSD.InstalledModuleUID))
+                        if (ResourceManager.ModuleExists(slot.InstalledModuleUID))
                             continue;
-                        Log.Info("mismatch = {0}", moduleSD.InstalledModuleUID);
+                        Log.Info("mismatch = {0}", slot.InstalledModuleUID);
                     }
 
 
@@ -616,12 +613,13 @@ namespace Ship_Game
                     e.AddShip(ship);
                     foreach (SavedGame.ProjectileSaveData pdata in shipData.Projectiles)
                     {
-                        Weapon w = Ship_Game.ResourceManager.GetWeapon(pdata.Weapon);
+                        Weapon w = Ship_Game.ResourceManager.CreateWeapon(pdata.Weapon);
                         Projectile p = w.LoadProjectiles(pdata.Velocity, ship);
                         p.Velocity = pdata.Velocity;
                         p.Position = pdata.Position;
                         p.Center = pdata.Position;
                         p.duration = pdata.Duration;
+                        
                         ship.AddProjectile(p);
                     }
                     this.data.MasterShipList.Add(ship);
