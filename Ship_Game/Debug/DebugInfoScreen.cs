@@ -177,37 +177,30 @@ namespace Ship_Game.Debug
                     foreach (Weapon weapon in ship.Weapons)
                     {
                         ShipModule module = weapon.fireTarget as ShipModule;
-                        if (module == null || module.GetParent() != ship.AI.Target ) continue;
+                        if (module == null || module.GetParent() != ship.AI.Target || weapon.Tag_Beam || weapon.Tag_Guided) continue;                        
+                        if (noiseFilter.Count > 0) break;
                         noiseFilter.Add(weapon);
-                        if (noiseFilter.Count > 1) break;
-                        Vector2 projDest = weapon.Center.FindPredictedTargetPosition(ship.Velocity,
-                            weapon.ProjectileSpeed
-                            , weapon.fireTarget.Center, ship.AI.Target.Velocity);
-<<<<<<< local
+                        Vector2 projDest1 = weapon.Center.FindPredictedTargetPosition1(ship.Velocity,
+                            weapon.ProjectileSpeed, weapon.fireTarget.Center, ship.AI.Target.Velocity);
 
-                        Screen.DrawLine(weapon.Center, projDest, Color.Yellow);
+                        Vector2 projDest0 = weapon.Center.FindPredictedTargetPosition0(ship.Velocity,
+                            weapon.ProjectileSpeed, weapon.fireTarget.Center, ship.AI.Target.Velocity);
+
                         if (weapon.fireTarget != null)
-                            Screen.DrawCircle(weapon.fireTarget.Center, 8f, Color.Pink, 5);
-=======
-                        
-                        Screen.DrawLineProjected(weapon.Center, projDest, Color.Yellow);
->>>>>>> other
-                    }
+                            Screen.DrawCircleProjected(weapon.fireTarget.Center, 8f, 6, Color.Pink);
+    
+                        Screen.DrawLineProjected(weapon.Center, projDest1, Color.Yellow);
+                        Screen.DrawLineProjected(weapon.Center, projDest0, Color.LightYellow);
 
-<<<<<<< local
+                    }
+                    
                     for (int i = 0; i < ship.Projectiles.Count; i++)
                     {                        
                         Projectile projectile = ship.Projectiles[i];
                         if (!noiseFilter.ContainsRef(projectile.weapon)) continue;
-                        Screen.DrawLine(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);                        
+                        Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);
+                                         
                     }
-
-                    Screen.DrawLine(ship.Center
-                        ,ship.Center.FindPredictedTargetPosition(ship.Velocity, ship.speed, ship.AI.Target.Center, ship.AI.Target.Velocity),Color.TransparentWhite);//, ship.AI.Target.Position, Color.Yellow);
-=======
-                    Screen.DrawLineProjected(ship.Center, ship.AI.Target.Position, Color.Yellow);
->>>>>>> other
-
                 }
             }
             catch { }
