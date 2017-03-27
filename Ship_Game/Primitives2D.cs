@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
@@ -64,13 +65,11 @@ namespace Ship_Game
             DrawLine(spriteBatch, previous, start, color, thickness);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void DrawCircle(SpriteBatch spriteBatch, float x, float y, float radius, int sides, Color color, float thickness = 1f)
             => DrawCircle(spriteBatch, new Vector2(x, y), radius, sides, color, thickness);
 
-        public static void DrawLine(SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color)
-            => DrawLine(spriteBatch, point1, point2, color, 1f);
-
-        public static void DrawLine(SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness)
+        public static void DrawLine(SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness = 1f)
         {
             float distance = Vector2.Distance(point1, point2);
             float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
