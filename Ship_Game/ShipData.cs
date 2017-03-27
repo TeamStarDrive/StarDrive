@@ -12,9 +12,6 @@ namespace Ship_Game
 {
     public sealed class ShipData
     {
-        [XmlIgnore][JsonIgnore]
-        public int Id;
-
         public bool Animated;
         public string ShipStyle;
         public string EventOnDeath;
@@ -151,7 +148,7 @@ namespace Ship_Game
                 if (!s->ErrorMessage.Empty)
                     throw new InvalidDataException(s->ErrorMessage.AsString);
 
-                ShipData ship = new ShipData()
+                var ship = new ShipData
                 {
                     Animated       = s->Animated != 0,
                     ShipStyle      = s->ShipStyle.AsInternedOrNull,
@@ -194,7 +191,7 @@ namespace Ship_Game
                     slot.InstalledModuleUID = msd->InstalledModuleUID.AsInternedOrNull;
                     slot.HangarshipGuid     = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health             = msd->Health;
-                    slot.ShieldPower       = msd->ShieldPower;
+                    slot.ShieldPower        = msd->ShieldPower;
                     slot.Facing             = msd->Facing;
                     slot.SlotOptions        = msd->SlotOptions.AsInterned;
                     Enum.TryParse(msd->State.AsString,        out slot.State);

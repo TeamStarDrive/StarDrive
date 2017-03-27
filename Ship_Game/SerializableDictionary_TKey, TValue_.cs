@@ -7,59 +7,59 @@ using System.Xml.Serialization;
 namespace Ship_Game
 {
     [Serializable]
-	[XmlRoot("dictionary")]
-	public sealed class SerializableDictionary<TKey, TValue> : Map<TKey, TValue>, IXmlSerializable
-	{
-		public SerializableDictionary()
-		{
-		}
+    [XmlRoot("dictionary")]
+    public sealed class SerializableDictionary<TKey, TValue> : Map<TKey, TValue>, IXmlSerializable
+    {
+        public SerializableDictionary()
+        {
+        }
 
-		public XmlSchema GetSchema()
-		{
-			return null;
-		}
+        public XmlSchema GetSchema()
+        {
+            return null;
+        }
 
-		public void ReadXml(XmlReader reader)
-		{
-			XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
-			XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
-			bool wasEmpty = reader.IsEmptyElement;
-			reader.Read();
-			if (wasEmpty)
-			{
-				return;
-			}
-			while (reader.NodeType != XmlNodeType.EndElement)
-			{
-				reader.ReadStartElement("item");
-				reader.ReadStartElement("key");
-				TKey key = (TKey)keySerializer.Deserialize(reader);
-				reader.ReadEndElement();
-				reader.ReadStartElement("value");
-				TValue value = (TValue)valueSerializer.Deserialize(reader);
-				reader.ReadEndElement();
-				base.Add(key, value);
-				reader.ReadEndElement();
-				reader.MoveToContent();
-			}
-			reader.ReadEndElement();
-		}
+        public void ReadXml(XmlReader reader)
+        {
+            var keySerializer   = new XmlSerializer(typeof(TKey));
+            var valueSerializer = new XmlSerializer(typeof(TValue));
+            bool wasEmpty = reader.IsEmptyElement;
+            reader.Read();
+            if (wasEmpty)
+            {
+                return;
+            }
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                reader.ReadStartElement("item");
+                reader.ReadStartElement("key");
+                var key = (TKey)keySerializer.Deserialize(reader);
+                reader.ReadEndElement();
+                reader.ReadStartElement("value");
+                var value = (TValue)valueSerializer.Deserialize(reader);
+                reader.ReadEndElement();
+                base.Add(key, value);
+                reader.ReadEndElement();
+                reader.MoveToContent();
+            }
+            reader.ReadEndElement();
+        }
 
-		public void WriteXml(XmlWriter writer)
-		{
-			XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
-			XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
-			foreach (TKey key in base.Keys)
-			{
-				writer.WriteStartElement("item");
-				writer.WriteStartElement("key");
-				keySerializer.Serialize(writer, key);
-				writer.WriteEndElement();
-				writer.WriteStartElement("value");
-				valueSerializer.Serialize(writer, base[key]);
-				writer.WriteEndElement();
-				writer.WriteEndElement();
-			}
-		}
-	}
+        public void WriteXml(XmlWriter writer)
+        {
+            var keySerializer = new XmlSerializer(typeof(TKey));
+            var valueSerializer = new XmlSerializer(typeof(TValue));
+            foreach (TKey key in base.Keys)
+            {
+                writer.WriteStartElement("item");
+                writer.WriteStartElement("key");
+                keySerializer.Serialize(writer, key);
+                writer.WriteEndElement();
+                writer.WriteStartElement("value");
+                valueSerializer.Serialize(writer, base[key]);
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+            }
+        }
+    }
 }

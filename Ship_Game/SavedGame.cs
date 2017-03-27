@@ -219,7 +219,7 @@ namespace Ship_Game
             
             foreach (Empire e in EmpireManager.Empires)
             {
-                EmpireSaveData empireToSave = new EmpireSaveData
+                var empireToSave = new EmpireSaveData
                 {
                     IsFaction   = e.isFaction,
                     isMinorRace = e.MinorRace,
@@ -250,7 +250,7 @@ namespace Ship_Game
                 foreach (KeyValuePair<int, Fleet> fleet in e.GetFleetsDict())
                 {
                     if (fleet.Value.DataNodes == null) continue;
-                    FleetSave fs = new FleetSave()
+                    var fs = new FleetSave()
                     {
                         Name        = fleet.Value.Name,
                         IsCoreFleet = fleet.Value.IsCoreFleet,
@@ -284,7 +284,7 @@ namespace Ship_Game
                 empireToSave.SpaceRoadData = new Array<SpaceRoadSave>();
                 foreach (SpaceRoad road in e.SpaceRoadsList)
                 {
-                    SpaceRoadSave rdata = new SpaceRoadSave()
+                    var rdata = new SpaceRoadSave()
                     {
                         OriginGUID = road.GetOrigin().guid,
                         DestGUID = road.GetDestination().guid,
@@ -304,7 +304,7 @@ namespace Ship_Game
                     }
                     empireToSave.SpaceRoadData.Add(rdata);
                 }
-                GSAISAVE gsaidata = new GSAISAVE()
+                var gsaidata = new GSAISAVE()
                 {
                     UsedFleets = e.GetGSAI().UsedFleets,
                     Goals      = new Array<GoalSave>(),
@@ -328,21 +328,23 @@ namespace Ship_Game
                 }
                 foreach (Goal g in e.GetGSAI().Goals)
                 {
-                    GoalSave gdata = new GoalSave()
+                    var gdata = new GoalSave
                     {
-                        BuildPosition = g.BuildPosition
+                        BuildPosition = g.BuildPosition,
+                        GoalStep = g.Step,
+                        ToBuildUID = g.ToBuildUID,
+                        type = g.type,
+                        GoalGuid = g.guid,
+                        GoalName = g.GoalName
                     };
                     if (g.GetColonyShip() != null)
                     {
                         gdata.colonyShipGuid = g.GetColonyShip().guid;
                     }
-                    gdata.GoalStep = g.Step;
                     if (g.GetMarkedPlanet() != null)
                     {
                         gdata.markedPlanetGuid = g.GetMarkedPlanet().guid;
                     }
-                    gdata.ToBuildUID = g.ToBuildUID;
-                    gdata.type = g.type;
                     if (g.GetPlanetWhereBuilding() != null)
                     {
                         gdata.planetWhereBuildingAtGuid = g.GetPlanetWhereBuilding().guid;
@@ -351,8 +353,6 @@ namespace Ship_Game
                     {
                         gdata.fleetGuid = g.GetFleet().Guid;
                     }
-                    gdata.GoalGuid = g.guid;
-                    gdata.GoalName = g.GoalName;
                     if (g.beingBuilt != null)
                     {
                         gdata.beingBuiltGUID = g.beingBuilt.guid;
@@ -367,7 +367,7 @@ namespace Ship_Game
 
                 foreach (Ship ship in e.GetShips())
                 {
-                    ShipSaveData sdata = new ShipSaveData()
+                    var sdata = new ShipSaveData
                     {
                         guid       = ship.guid,
                         data       = ship.ToShipData(),
@@ -379,10 +379,10 @@ namespace Ship_Game
                     };
                     if (ship.GetTether() != null)
                     {
-                        sdata.TetheredTo = ship.GetTether().guid;
+                        sdata.TetheredTo   = ship.GetTether().guid;
                         sdata.TetherOffset = ship.TetherOffset;
                     }
-                    sdata.Name = ship.Name;
+                    sdata.Name       = ship.Name;
                     sdata.VanityName = ship.VanityName;
                     if (ship.PlayerShip)
                     {
@@ -415,9 +415,9 @@ namespace Ship_Game
                         FoodOrProd = ship.AI.FoodOrProd,
                         state      = ship.AI.State
                     };
-                    if (ship.AI.Target != null && ship.AI.Target is Ship)
+                    if (ship.AI.Target is Ship targetShip)
                     {
-                        sdata.AISave.AttackTarget = (ship.AI.Target as Ship).guid;
+                        sdata.AISave.AttackTarget = targetShip.guid;
                     }
                     sdata.AISave.defaultstate = ship.AI.DefaultAIState;
                     if (ship.AI.start != null)
@@ -438,7 +438,7 @@ namespace Ship_Game
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
                     foreach (ArtificialIntelligence.ShipGoal sgoal in ship.AI.OrderQueue)
                     {
-                        ShipGoalSave gsave = new ShipGoalSave()
+                        var gsave = new ShipGoalSave()
                         {
                             DesiredFacing = sgoal.DesiredFacing
                         };
@@ -480,7 +480,7 @@ namespace Ship_Game
                     sdata.Projectiles = new Array<ProjectileSaveData>();
                     foreach (Projectile p in ship.Projectiles)
                     {
-                        ProjectileSaveData pdata = new ProjectileSaveData()
+                        var pdata = new ProjectileSaveData
                         {
                             Velocity = p.Velocity,
                             Rotation = p.Rotation,
@@ -495,7 +495,7 @@ namespace Ship_Game
 
                 foreach (Ship ship in e.GetProjectors())  //fbedard
                 {
-                    ShipSaveData sdata = new ShipSaveData()
+                    var sdata = new ShipSaveData()
                     {
                         guid       = ship.guid,
                         data       = ship.ToShipData(),
@@ -503,7 +503,6 @@ namespace Ship_Game
                         experience = ship.experience,
                         kills      = ship.kills,
                         Velocity   = ship.Velocity,
-
                     };
                     if (ship.GetTether() != null)
                     {

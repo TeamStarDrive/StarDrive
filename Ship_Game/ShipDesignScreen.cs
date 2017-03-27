@@ -218,10 +218,9 @@ namespace Ship_Game
 
         public void ChangeHull(ShipData hull)       //Mer
         {
-#if SHIPYARD
+        #if SHIPYARD
             TotalI = TotalO = TotalE = TotalIO = TotalIE = TotalOE = TotalIOE = 0;
-#endif
-
+        #endif
             Reset = true;
             DesignStack.Clear();
             lastDesignActionPos = Vector2.Zero;
@@ -250,7 +249,7 @@ namespace Ship_Game
             };
             techs.Clear();
             AddToTechList(ActiveHull.HullData.techsNeeded);
-            CarrierOnly = hull.CarrierShip;
+            CarrierOnly  = hull.CarrierShip;
             LoadCategory = hull.ShipCategory;
             fml = true;
             fmlevenmore = true;
@@ -267,7 +266,7 @@ namespace Ship_Game
                     InstalledModuleUID = hullSlot.InstalledModuleUID
                 };
                 ActiveHull.ModuleSlotList[i] = data;
-#if SHIPYARD
+            #if SHIPYARD
                 if (data.Restrictions == Restrictions.I) TotalI++;
                 if (data.Restrictions == Restrictions.O) TotalO++;
                 if (data.Restrictions == Restrictions.E) TotalE++;
@@ -275,7 +274,7 @@ namespace Ship_Game
                 if (data.Restrictions == Restrictions.IE) TotalIE++;
                 if (data.Restrictions == Restrictions.OE) TotalOE++;
                 if (data.Restrictions == Restrictions.IOE) TotalIOE++;
-#endif
+            #endif
             }
             this.CombatState = hull.CombatState;
             if (!hull.Animated)
