@@ -485,5 +485,16 @@ namespace Ship_Game
             }
             return results;
         }
+
+        public static T[] CloneArray<T>(this T[] items)
+        {
+            int count = items.Length;
+            if (count == 0)
+                return items;
+
+            var copy = new T[count];
+            Memory.HybridCopy(copy, 0, items, count);
+            return copy;
+        }
     }
 }

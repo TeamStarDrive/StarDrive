@@ -605,7 +605,7 @@ namespace Ship_Game.Gameplay
                         if (module.APResist > 0)
                             ArmorPiercing = ArmorPiercing - module.APResist;
 
-                        if (ArmorPiercing <= 0 || !(module.ModuleType == ShipModuleType.Armor || (module.ModuleType == ShipModuleType.Dummy && module.ParentOfDummy.ModuleType == ShipModuleType.Armor)))
+                        if (ArmorPiercing <= 0 || module.ModuleType != ShipModuleType.Armor)
                             module.Damage(this, damageAmount, out damageAmount);
                         else
                             ArmorPiercing -= (module.XSIZE + module.YSIZE) / 2;
