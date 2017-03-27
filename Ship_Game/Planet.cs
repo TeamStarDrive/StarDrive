@@ -2805,8 +2805,6 @@ namespace Ship_Game
                         ship.shipStatusChanged = true;
                         foreach (ModuleSlot slot in ship.ModuleSlotList) // .Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health != slot.module.HealthMax))
                         {
-                            if (slot.Module.ModuleType == ShipModuleType.Dummy)
-                                continue;
                             //repairing = true;
                             if(ship.loyalty.data.Traits.ModHpModifier >0 )
                             {
