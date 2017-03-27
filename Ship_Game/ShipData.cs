@@ -194,10 +194,10 @@ namespace Ship_Game
                     slot.InstalledModuleUID = msd->InstalledModuleUID.AsInternedOrNull;
                     slot.HangarshipGuid     = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health             = msd->Health;
-                    slot.Shield_Power       = msd->ShieldPower;
-                    slot.facing             = msd->Facing;
+                    slot.ShieldPower       = msd->ShieldPower;
+                    slot.Facing             = msd->Facing;
                     slot.SlotOptions        = msd->SlotOptions.AsInterned;
-                    Enum.TryParse(msd->State.AsString,        out slot.state);
+                    Enum.TryParse(msd->State.AsString,        out slot.State);
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
                     ship.ModuleSlotList[i] = slot;
                 }

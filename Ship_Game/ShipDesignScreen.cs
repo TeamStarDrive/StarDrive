@@ -263,7 +263,7 @@ namespace Ship_Game
                 {
                     Position           = hullSlot.Position,
                     Restrictions       = hullSlot.Restrictions,
-                    facing             = hullSlot.facing,
+                    Facing             = hullSlot.Facing,
                     InstalledModuleUID = hullSlot.InstalledModuleUID
                 };
                 ActiveHull.ModuleSlotList[i] = data;
@@ -6440,14 +6440,14 @@ namespace Ship_Game
                     };
                     if (slot.module != null)
                     {
-                        data.facing = slot.module.facing;
+                        data.Facing = slot.module.facing;
                     }
                     toSave.ModuleSlotList[i] = data;
                     if (slot.module != null && slot.module.ModuleType == ShipModuleType.Hangar)
                     {
                         data.SlotOptions = slot.module.hangarShipUID;
                     }
-                    data.state = slot.state;
+                    data.State = slot.state;
                 }
             }
             string path = Dir.ApplicationData;
@@ -6521,8 +6521,8 @@ namespace Ship_Game
                     };
                     if (slot.module != null)
                     {
-                        data.facing = slot.module.facing;
-                        data.state = slot.state;
+                        data.Facing = slot.module.facing;
+                        data.State = slot.state;
                     }
                     savedShip.ModuleSlotList[i] = data;
                     if (slot.module == null || slot.module.ModuleType != ShipModuleType.Hangar)
@@ -6714,9 +6714,9 @@ namespace Ship_Game
                 PrimitiveQuad pq = new PrimitiveQuad(slot.Position.X + this.offset.X - 8f, slot.Position.Y + this.offset.Y - 8f, 16f, 16f);
                 ss.pq = pq;
                 ss.Restrictions = slot.Restrictions;
-                ss.facing = slot.facing;
+                ss.facing = slot.Facing;
                 ss.ModuleUID = slot.InstalledModuleUID;
-                ss.state = slot.state;
+                ss.state = slot.State;
                 ss.slotReference = slot;
                 ss.SlotOptions = slot.SlotOptions;
                 this.Slots.Add(ss);
