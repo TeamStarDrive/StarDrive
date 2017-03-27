@@ -167,43 +167,37 @@ namespace Ship_Game.Debug
         }
         private void Targeting()
         {
-            try
+            for (int i = 0; i < Screen.MasterShipList.Count; ++i)
             {
-                for (int index = 0; index < Screen.MasterShipList.Count; index++)
+                Ship ship = Screen.MasterShipList[i];
+                if (ship == null || !ship.InFrustum || ship.AI.Target == null)
+                    continue;
+                foreach (Weapon weapon in ship.Weapons)
                 {
-                    Ship ship = Screen.MasterShipList[index];
-                    if (ship == null || !ship.InFrustum || ship.AI.Target == null) continue;
-                    Array<Weapon> noiseFilter = new Array<Weapon>();
-                    foreach (Weapon weapon in ship.Weapons)
-                    {
-                        ShipModule module = weapon.fireTarget as ShipModule;
-                        if (module == null || module.GetParent() != ship.AI.Target || weapon.Tag_Beam || weapon.Tag_Guided) continue;                        
-                        if (noiseFilter.Count > 0) break;
-                        noiseFilter.Add(weapon);
-                        Vector2 projDest1 = weapon.Center.FindPredictedTargetPosition1(ship.Velocity,
-                            weapon.ProjectileSpeed, weapon.fireTarget.Center, ship.AI.Target.Velocity);
+                    var module = weapon.fireTarget as ShipModule;
+                    if (module == null || module.GetParent() != ship.AI.Target || weapon.Tag_Beam || weapon.Tag_Guided)
+                        continue;                        
 
-                        Vector2 projDest0 = weapon.Center.FindPredictedTargetPosition0(ship.Velocity,
-                            weapon.ProjectileSpeed, weapon.fireTarget.Center, ship.AI.Target.Velocity);
+                    Vector2 projDest1 = weapon.Center.FindPredictedTargetPosition1(ship.Velocity,
+                        weapon.ProjectileSpeed, weapon.fireTarget.Center, ship.AI.Target.Velocity);
 
-                        if (weapon.fireTarget != null)
-                            Screen.DrawCircleProjected(weapon.fireTarget.Center, 8f, 6, Color.Pink);
+                    Vector2 projDest0 = weapon.Center.FindPredictedTargetPosition0(ship.Velocity,
+                        weapon.ProjectileSpeed, weapon.fireTarget.Center, ship.AI.Target.Velocity);
+
+                    if (weapon.fireTarget != null)
+                        Screen.DrawCircleProjected(weapon.fireTarget.Center, 8f, 6, Color.Pink);
     
-                        Screen.DrawLineProjected(weapon.Center, projDest1, Color.Yellow);
-                        Screen.DrawLineProjected(weapon.Center, projDest0, Color.LightYellow);
+                    Screen.DrawLineProjected(weapon.Center, projDest1, Color.Yellow);
+                    Screen.DrawLineProjected(weapon.Center, projDest0, Color.LightYellow);
 
-                    }
-                    
-                    for (int i = 0; i < ship.Projectiles.Count; i++)
-                    {                        
-                        Projectile projectile = ship.Projectiles[i];
-                        if (!noiseFilter.ContainsRef(projectile.weapon)) continue;
+                    Projectile projectile = ship.Projectiles.FirstOrDefault(p => p.weapon == weapon);
+                    if (projectile != null)
+                    {
                         Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);
-                                         
                     }
+                    break;
                 }
             }
-            catch { }
         }
         private void ShipInfo()
         {
