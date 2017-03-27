@@ -36,7 +36,7 @@ namespace Ship_Game
         public static bool ShipWindowOpen       = false;
         public static bool ColonizeWindowOpen   = false;
         public static bool PlanetViewWindowOpen = false;
-        public static SpatialManager DeepSpaceManager    = new SpatialManager();
+        public static readonly SpatialManager DeepSpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         public static bool DisableClicks = false;
@@ -720,7 +720,9 @@ namespace Ship_Game
                 Stars.Add(nebulousOverlay);
             }
             LoadGraphics();
+
             DeepSpaceManager.SetupForDeepSpace(Size.X, Size.Y);
+
             DoParticleLoad();
             bg3d = new Background3D(this);
             starfield = new Starfield(Vector2.Zero, ScreenManager.GraphicsDevice, TransientContent);
@@ -912,13 +914,11 @@ namespace Ship_Game
             Fleet.Screen                          = this;
             Bomb.Screen                           = this;
             Anomaly.screen                        = this;
-            PlanetScreen.screen                   = this;
             MinimapButtons.screen                 = this;
             Empire.Universe                       = this;
             ResourceManager.UniverseScreen        = this;
             Empire.Universe                   = this;
             ArtificialIntelligence.universeScreen = this;
-            CombatScreen.universeScreen           = this;
             FleetDesignScreen.screen              = this;
 
             projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, device.Viewport.Width / (float)device.Viewport.Height, 1000f, 3E+07f);
@@ -1917,14 +1917,22 @@ namespace Ship_Game
         {
             if (this.ShipToView == null)
                 this.ViewingShip = false;
+
+            
+            #if DEBUG
+                float minCamHeight = 400.0f;
+            #else
+                float minCamHeight = Debug ? 1337.0f : 400.0f;
+            #endif
+
             this.AdjustCamTimer -= elapsedTime;
             if (this.ViewingShip && !this.snappingToShip)
             {
                 this.camPos.X = this.ShipToView.Center.X;
                 this.camPos.Y = this.ShipToView.Center.Y;
                 this.camHeight = (float)(int)MathHelper.SmoothStep(this.camHeight, this.transitionDestination.Z, 0.2f);
-                if ((double)this.camHeight < 550.0)
-                    this.camHeight = 550f;
+                if (camHeight < minCamHeight)
+                    camHeight = minCamHeight;
             }
             if (this.AdjustCamTimer > 0.0)
             {
@@ -1966,8 +1974,8 @@ namespace Ship_Game
                         this.AdjustCamTimer = -1f;
                     }
                 }
-                if ((double)this.camHeight < 550.0)
-                    this.camHeight = 550f;
+                if (camHeight < minCamHeight)
+                    camHeight = minCamHeight;
             }
             else if (this.LookingAtPlanet && this.SelectedPlanet != null)
             {
@@ -1982,10 +1990,11 @@ namespace Ship_Game
                 float num2 = MathHelper.SmoothStep(this.camHeight, this.transitionDestination.Z, 0.2f);
                 this.camTransitionPosition.Y = num1;
                 this.camHeight = num2;
-                if ((double)this.camHeight < 550.0)
-                    this.camHeight = 550f;
+                if (camHeight < minCamHeight)
+                    camHeight = minCamHeight;
                 this.camPos = this.camTransitionPosition;
             }
+
             if (this.camPos.X > this.Size.X)
                 this.camPos.X = this.Size.X;
             if (this.camPos.X < -this.Size.X)   //So the camera can pan out into the new negative map coordinates -Gretman
@@ -1996,8 +2005,8 @@ namespace Ship_Game
                 this.camPos.Y = -this.Size.Y;
             if ((double)this.camHeight > (double)this.MaxCamHeight * (double)this.GameScale)
                 this.camHeight = this.MaxCamHeight * this.GameScale;
-            else if ((double)this.camHeight < 1337.0)
-                this.camHeight = 1337f;
+            else if (camHeight < minCamHeight)
+                camHeight = minCamHeight;
             if ((double)this.camHeight > 30000.0)
             {
                 this.viewState = UniverseScreen.UnivScreenState.SystemView;
@@ -3941,15 +3950,14 @@ namespace Ship_Game
         {
             if ((double)this.AdjustCamTimer >= 0.0)
                 return;
+
+            float scrollAmount = 1500.0f * camHeight / 3000.0f + 100.0f;
+
             if ((input.ScrollOut || input.BButtonHeld) && !this.LookingAtPlanet)
             {
-                float num = (float)(1500.0 * (double)this.camHeight / 3000.0 + 100.0);
-                //fbedard: faster scroll
-                //if ((double)this.camHeight < 10000.0)
-                //    num -= 200f;
                 this.transitionDestination.X = this.camPos.X;
                 this.transitionDestination.Y = this.camPos.Y;
-                this.transitionDestination.Z = this.camHeight + num;
+                this.transitionDestination.Z = this.camHeight + scrollAmount;
                 if ((double)this.camHeight > 12000.0)
                 {
                     this.transitionDestination.Z += 3000f;
@@ -3977,11 +3985,8 @@ namespace Ship_Game
             }
             if (!input.YButtonHeld && !input.ScrollIn || this.LookingAtPlanet)
                 return;
-            float num1 = (float)(1500.0 * (double)this.camHeight / 3000.0 + 100.0);
-            //fbedard: faster scroll
-            //if ((double)this.camHeight < 10000.0)
-            //    num1 -= 200f;
-            this.transitionDestination.Z = this.camHeight - num1;
+
+            this.transitionDestination.Z = this.camHeight - scrollAmount;
             if ((double)this.camHeight >= 16000.0)
             {
                 this.transitionDestination.Z -= 2000f;
@@ -3994,7 +3999,7 @@ namespace Ship_Game
                 this.transitionDestination.Z = (double)this.camHeight <= 65000.0 ? 10000f : 60000f;
             if (this.ViewingShip)
                 return;
-            if ((double)this.camHeight <= 450.0)
+            if ((double)this.camHeight <= 450.0f)
                this.camHeight = 450f;
             float num2 = this.transitionDestination.Z;
             
@@ -4557,7 +4562,6 @@ namespace Ship_Game
             ClickPlanetList.Clear();
             ClickableSystems.Clear();
             DeepSpaceManager.Destroy();
-            DeepSpaceManager = null;
             SolarSystemList.Clear();
             starfield.UnloadContent();
             starfield.Dispose();
@@ -4581,14 +4585,12 @@ namespace Ship_Game
             Fleet.Screen                          = null;
             Bomb.Screen                           = null;
             Anomaly.screen                        = null;
-            PlanetScreen.screen                   = null;
             MinimapButtons.screen                 = null;
             Projectile.contentManager             = null;
             Empire.Universe                       = null;
             ResourceManager.UniverseScreen        = null;
             Empire.Universe                   = null;
             ArtificialIntelligence.universeScreen = null;
-            CombatScreen.universeScreen           = null;
             MuzzleFlashManager.universeScreen     = null;
             FleetDesignScreen.screen              = null;
             ExplosionManager.Universe             = null;
@@ -5108,11 +5110,11 @@ namespace Ship_Game
                     //    if (pin.Position != Vector2.Zero) // && pin.InBorders)
                     //    {
                     //        Circle circle = this.DrawSelectionCircles(pin.Position, 50f);
-                    //        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 6, e.EmpireColor);
+                    //        DrawCircle(circle.Center, circle.Radius, 6, e.EmpireColor);
                     //        if(pin.InBorders)
                     //        {
                     //            circle = this.DrawSelectionCircles(pin.Position, 50f);
-                    //            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 3, e.EmpireColor);
+                    //            DrawCircle(circle.Center, circle.Radius, 3, e.EmpireColor);
                     //        }
                     //    }
                     //}
@@ -5123,7 +5125,7 @@ namespace Ship_Game
                     //            continue;
                     //        Vector2 translated = new Vector2((x - e.granularity) * reducer, (y - e.granularity) * reducer);
                     //        Circle circle = this.DrawSelectionCircles(translated, reducer *.5f);
-                    //        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 4, e.EmpireColor);
+                    //        DrawCircle(circle.Center, circle.Radius, 4, e.EmpireColor);
                     //    }
                 }
             }
@@ -5134,103 +5136,53 @@ namespace Ship_Game
                 var inhibit = ResourceManager.TextureDict["UI/node_inhibit"];
                 lock (GlobalStats.ClickableSystemsLock)
                 {
-                    foreach (ClickablePlanets item_1 in ClickPlanetList)
+                    foreach (ClickablePlanets cplanet in ClickPlanetList)
                     {
-                        float local_14 = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(item_1.planetToClick.scale)) / 1.5)));
-                        Vector3 local_15 = graphics.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), projection, view, Matrix.Identity);
-                        Vector2 local_16 = local_15.ToVec2();
-
-
-                        Vector3 local_18 = graphics.Viewport.Project(new Vector3(item_1.planetToClick.Position.PointOnCircle(90f, local_14), 0.0f), projection, view, Matrix.Identity);
-                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-
-                        ScreenManager.SpriteBatch.Draw(inhibit, local_21, null, 
-                            new Color(200, 0, 0, 50), 0.0f, inhibit.Center(), SpriteEffects.None, 1f);
-
-                        Primitives2D.DrawCircle(ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(255, 50, 0, 150), 1f);
+                        float radius = GlobalStats.GravityWellRange * (1 + (((float)Math.Log(cplanet.planetToClick.scale)) / 1.5f));
+                        DrawCircleProjected(cplanet.planetToClick.Position, radius, new Color(255, 50, 0, 150), 50, 1f, inhibit, new Color(200, 0, 0, 50));
                     }
                 }
                 foreach (ClickableShip ship in ClickableShipsList)
                 {
-                    if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0)
+                    if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0f)
                     {
-                        float local_14 = ship.shipToClick.InhibitionRadius;
-                        Vector3 local_15 = graphics.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), projection, view, Matrix.Identity);
-                        Vector2 local_16 = local_15.ToVec2();
-                        Vector3 local_18 = graphics.Viewport.Project(new Vector3(ship.shipToClick.Position.PointOnCircle(90f, local_14), 0.0f), projection, view, Matrix.Identity);
-                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-
-                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-                        this.ScreenManager.SpriteBatch.Draw(inhibit, local_21, null, 
-                            new Color(200, 0, 0, 40), 0.0f, inhibit.Center(), SpriteEffects.None, 1f);
-
-                        Primitives2D.DrawCircle(ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(255, 50, 0, 150), 1f);
+                        float radius = ship.shipToClick.InhibitionRadius;
+                        DrawCircleProjected(ship.shipToClick.Position, radius, new Color(255, 50, 0, 150), 50, 1f, inhibit, new Color(200, 0, 0, 40));
                     }
                 }
                 if (viewState >= UnivScreenState.SectorView)
                 {
                     foreach (Empire.InfluenceNode influ in player.BorderNodes.AtomicCopy())
                     {
-                        Vector3 local_15 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(influ.Position.X, influ.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 local_16 = local_15.ToVec2();
-                        Vector3 local_18 = ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(influ.Position.PointOnCircle(90f, influ.Radius), 0.0f), this.projection, this.view, Matrix.Identity);
-                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-
-                        ScreenManager.SpriteBatch.Draw(inhibit, local_21, null, new Color(0, 200, 0, 20), 0.0f, inhibit.Center(), SpriteEffects.None, 1f);
-
-                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(30, 30, 150, 150), 1f);
+                        DrawCircleProjected(influ.Position, influ.Radius, new Color(30, 30, 150, 150), 50, 1f, inhibit, new Color(0, 200, 0, 20));
                     }
                 }
             }
 
-            if (this.showingRangeOverlay && !this.LookingAtPlanet)
+            if (showingRangeOverlay && !LookingAtPlanet)
             {
-                foreach (ClickableShip ship in this.ClickableShipsList)
+                var shipRangeTex = ResourceManager.Texture("UI/node_shiprange");
+                foreach (ClickableShip ship in ClickableShipsList)
                 {
-                    if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0 && ship.shipToClick.loyalty == EmpireManager.Player)
+                    if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0f)
                     {
-                        float local_14 = (float)(ship.shipToClick.RangeForOverlay);
-                        Vector3 local_15 = graphics.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = graphics.Viewport.Project(new Vector3(ship.shipToClick.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
-                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_shiprange"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_shiprange"].Height / 2));
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_shiprange"], local_21, new Rectangle?(), new Color((byte)0, (byte)200, (byte)0, (byte)30), 0.0f, local_22, SpriteEffects.None, 1f);
-                        //Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 2f);
-                    }
-                    else if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0)
-                    {
-                        float local_14 = (float)(ship.shipToClick.RangeForOverlay);
-                        Vector3 local_15 = graphics.Viewport.Project(new Vector3(ship.shipToClick.Position.X, ship.shipToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = graphics.Viewport.Project(new Vector3(ship.shipToClick.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
-                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-                        Vector2 local_22 = new Vector2((float)(ResourceManager.TextureDict["UI/node_shiprange"].Width / 2), (float)(ResourceManager.TextureDict["UI/node_shiprange"].Height / 2));
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node_shiprange"], local_21, new Rectangle?(), new Color((byte)200, (byte)0, (byte)0, (byte)30), 0.0f, local_22, SpriteEffects.None, 1f);
-                        //Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(byte.MaxValue, (byte)50, (byte)0, (byte)150), 2f);
+                        Color color = (ship.shipToClick.loyalty == EmpireManager.Player) ? new Color(0, 200, 0, 30) : new Color(200, 0, 0, 30);
+                        float radius = ship.shipToClick.RangeForOverlay;
+                        //DrawCircleProjected(ship.shipToClick.Position, radius, new Color(255, 50, 0, 150), 50, 2f, nodeShipRange, color);
+                        DrawTextureProjected(shipRangeTex, ship.shipToClick.Position, radius, color);
                     }
                 }
             }
             
             if (showingDSBW && !LookingAtPlanet)
             {
+                var nodeTex = ResourceManager.TextureDict["UI/node1"];
                 lock (GlobalStats.ClickableSystemsLock)
                 {
-                    foreach (ClickablePlanets item_1 in ClickPlanetList)
+                    foreach (ClickablePlanets cplanet in ClickPlanetList)
                     {
-                        float local_14 = 2500f * item_1.planetToClick.scale;
-                        Vector3 local_15 = graphics.Viewport.Project(new Vector3(item_1.planetToClick.Position.X, item_1.planetToClick.Position.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 local_16 = new Vector2(local_15.X, local_15.Y);
-                        Vector3 local_18 = graphics.Viewport.Project(new Vector3(item_1.planetToClick.Position.PointOnCircle(90f, local_14), 0.0f), this.projection, this.view, Matrix.Identity);
-                        float local_20 = Vector2.Distance(new Vector2(local_18.X, local_18.Y), local_16);
-                        Rectangle local_21 = new Rectangle((int)local_16.X, (int)local_16.Y, (int)local_20 * 2, (int)local_20 * 2);
-                        Vector2 local_22 = new Vector2(ResourceManager.TextureDict["UI/node"].Width / 2f, ResourceManager.TextureDict["UI/node"].Height / 2f);
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], local_21, new Rectangle?(), new Color(0, 0, 255, 50), 0.0f, local_22, SpriteEffects.None, 1f);
-                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, local_16, local_20, 50, new Color(255, 165, 0, 150), 1f);
+                        float radius = 2500f * cplanet.planetToClick.scale;
+                        DrawCircleProjected(cplanet.planetToClick.Position, radius, new Color(255, 165, 0, 150), 50, 1f, nodeTex, new Color(0, 0, 255, 50));
                     }
                 }
                 dsbw.Draw(gameTime);
@@ -5238,33 +5190,33 @@ namespace Ship_Game
             DrawFleetIcons(gameTime);
 
             //fbedard: display values in new buttons
-            ShipsInCombat.Text = "Ships: " + this.player.empireShipCombat;  
+            ShipsInCombat.Text = "Ships: " + this.player.empireShipCombat;
             if (player.empireShipCombat > 0)
             {
-                ShipsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"];
-                ShipsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"];
-                ShipsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"];
+                ShipsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
+                ShipsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
+                ShipsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
             }
             else
             {
-                ShipsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
-                ShipsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
-                ShipsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+                ShipsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu");
+                ShipsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
+                ShipsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
             }
             ShipsInCombat.Draw(ScreenManager.SpriteBatch);
 
             PlanetsInCombat.Text = "Planets: " + player.empirePlanetCombat;
             if (player.empirePlanetCombat > 0)
             {
-                PlanetsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px"];
-                PlanetsInCombat.HoverTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_hover"];
-                PlanetsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_pressed"];
+                PlanetsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px");
+                PlanetsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_hover");
+                PlanetsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_pressed");
             }
             else
             {
-                PlanetsInCombat.NormalTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu"];
-                PlanetsInCombat.HoverTexture  = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_hover"];
-                PlanetsInCombat.PressedTexture = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_132px_menu_pressed"];
+                PlanetsInCombat.NormalTexture  = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu");
+                PlanetsInCombat.HoverTexture   = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_hover");
+                PlanetsInCombat.PressedTexture = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px_menu_pressed");
             }
             PlanetsInCombat.Draw(ScreenManager.SpriteBatch);
 
@@ -5596,10 +5548,9 @@ namespace Ship_Game
 
         private void DrawItemInfoForUI()
         {
-            if (this.SelectedItem == null || this.SelectedItem == null)
-                return;
-            Circle circle = this.DrawSelectionCircles(this.SelectedItem.AssociatedGoal.BuildPosition, 50f);
-            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, circle.Center, circle.Radius, 50, this.SelectedItem.AssociatedGoal.empire.EmpireColor);
+            var goal = SelectedItem?.AssociatedGoal;
+            if (goal != null)
+                DrawCircleProjected(goal.BuildPosition, 50f, 50, goal.empire.EmpireColor);
         }
 
         protected void DrawShipUI(GameTime gameTime)
@@ -5657,15 +5608,15 @@ namespace Ship_Game
 
         protected void DrawShipsInRange()
         {
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.One;
+            renderState.AlphaBlendEnable       = true;
+            renderState.AlphaBlendOperation    = BlendFunction.Add;
+            renderState.SourceBlend            = Blend.SourceAlpha;
+            renderState.DestinationBlend       = Blend.One;
             renderState.DepthBufferWriteEnable = false;
-            renderState.CullMode = CullMode.None;
+            renderState.CullMode               = CullMode.None;
             //lock (GlobalStats.KnownShipsLock)
             using (player.KnownShips.AcquireReadLock())
             {
@@ -5677,37 +5628,33 @@ namespace Ship_Game
                         DrawInRange(ship);
                 }
             }
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            this.ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.InverseSourceAlpha;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            renderState.AlphaBlendEnable       = true;
+            renderState.AlphaBlendOperation    = BlendFunction.Add;
+            renderState.SourceBlend            = Blend.SourceAlpha;
+            renderState.DestinationBlend       = Blend.InverseSourceAlpha;
             renderState.DepthBufferWriteEnable = false;
-            renderState.CullMode = CullMode.None;
+            renderState.CullMode               = CullMode.None;
 
             using (player.KnownShips.AcquireReadLock())
             {
                 foreach (Ship ship in player.KnownShips)
                 {
-                    if (!ship.Active)
+                    if (!ship.Active || !ScreenRectangle.HitTest(ship.ScreenPosition))
                         continue;
-                    this.DrawTacticalIcons(ship);
-                    this.DrawOverlay(ship);
-                    if ((this.SelectedShipList.Contains(ship) || this.SelectedShip == ship) && HelperFunctions.CheckIntersection(this.ScreenRectangle, ship.ScreenPosition))
+
+                    DrawTacticalIcons(ship);
+                    DrawOverlay(ship);
+
+                    if (SelectedShip == ship || SelectedShipList.Contains(ship))
                     {
-                        //Color local_3 = new Color();
-                        Relationship rel;
-                        if (player.TryGetRelations(ship.loyalty, out rel))
+                        Color color = Color.LightGreen;
+                        if (player.TryGetRelations(ship.loyalty, out Relationship rel))
                         {
-                            Color local_3_2 = rel.AtWar || ship.loyalty.isFaction ? Color.Red : Color.Gray;
-                            Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_2);
+                            color = rel.AtWar || ship.loyalty.isFaction ? Color.Red : Color.Gray;
                         }
-                        else
-                        {
-                            Color local_3_1 = Color.LightGreen;
-                            Primitives2D.BracketRectangle(this.ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, local_3_1);
-                        }
+                        Primitives2D.BracketRectangle(ScreenManager.SpriteBatch, ship.ScreenPosition, ship.ScreenRadius, color);
                     }
                 }
             }
@@ -5732,13 +5679,13 @@ namespace Ship_Game
                             {
                                 Vector3 local_10 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item.AssociatedGoal.BuildPosition + new Vector2(Empire.ProjectorRadius, 0.0f), 0.0f), this.projection, this.view, Matrix.Identity);
                                 float local_11 = Vector2.Distance(new Vector2(local_8.X, local_8.Y), new Vector2(local_10.X, local_10.Y));
-                                Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, new Vector2(local_8.X, local_8.Y), local_11, 50, Color.Orange, 2f);
+                                DrawCircle(new Vector2(local_8.X, local_8.Y), local_11, 50, Color.Orange, 2f);
                             }
                             else if ((double)ResourceManager.ShipsDict[item.UID].SensorRange > 0.0)
                             {
                                 Vector3 local_13 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(item.AssociatedGoal.BuildPosition + new Vector2(ResourceManager.ShipsDict[item.UID].SensorRange, 0.0f), 0.0f), this.projection, this.view, Matrix.Identity);
                                 float local_14 = Vector2.Distance(new Vector2(local_8.X, local_8.Y), new Vector2(local_13.X, local_13.Y));
-                                Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, new Vector2(local_8.X, local_8.Y), local_14, 50, Color.Blue, 1f);
+                                DrawCircle(new Vector2(local_8.X, local_8.Y), local_14, 50, Color.Blue, 1f);
                             }
                         }
                     }
@@ -5751,7 +5698,7 @@ namespace Ship_Game
             Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(Vector2.Zero, 0.0f), this.projection, this.view, Matrix.Identity);
             Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(vector2, 0.0f), this.projection, this.view, Matrix.Identity);
             float num = Vector2.Distance(new Vector2(vector3_1.X, vector3_1.Y), new Vector2(vector3_2.X, vector3_2.Y));
-            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, MathHelper.SmoothStep(this.radlast, num, 0.01f), 50, Color.Orange, 2f);
+            DrawCircle(center, MathHelper.SmoothStep(this.radlast, num, 0.01f), 50, Color.Orange, 2f);
             this.radlast = num;
         }
 
@@ -5783,216 +5730,205 @@ namespace Ship_Game
         {
             if (LookingAtPlanet || viewState > UnivScreenState.SystemView || (!ShowShipNames || ship.dying) || !ship.InFrustum)
                 return;
-            var symbolFighter = ResourceManager.TextureDict["TacticalIcons/symbol_fighter"];
-            foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
+            var symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
+            var concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
+            var arc90         = ResourceManager.Texture("Arcs/Arc90");
+            var lightningBolt = ResourceManager.Texture("UI/lightningBolt");
+
+            foreach (ModuleSlot moduleSlot in ship.ModuleSlotList) // draw the module background tiles
             {
-                Vector2 vector2_2 = new Vector2(moduleSlot.module.Center.X, moduleSlot.module.Center.Y);
-                float scale = 0.75f * (float)this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / this.camHeight;
-                Vector3 vector3 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(vector2_2, 0.0f), this.projection, this.view, Matrix.Identity);
-                this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Modules/tile_concreteglass_1x1"], new Vector2(vector3.X, vector3.Y), new Rectangle?(), Color.White, ship.Rotation, new Vector2(8f, 8f), scale, SpriteEffects.None, 1f);
+                float scale = 0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight;
+                DrawTextureProjected(concreteGlass, moduleSlot.module.Center, scale, ship.Rotation, Color.White);
             }
-            bool flag = false; // @todo What debug flag is this?
-            if (flag)
+
+            const bool enableModuleDebug = true;
+            if (enableModuleDebug)
             {
                 foreach (Projectile projectile in ship.Projectiles)
-                {
-                    Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(projectile.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                    Vector2 center = new Vector2(vector3_1.X, vector3_1.Y);
-                    Vector2 vector2_2 = projectile.Center + new Vector2(8f, 0.0f);
-                    Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(vector2_2.X, vector2_2.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                    float radius = Vector2.Distance(center, new Vector2(vector3_2.X, vector3_2.Y));
-                    Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, radius, 50, Color.Red, 3f);
-                }
+                    DrawCircleProjected(projectile.Center, projectile.Radius, 50, Color.Red, 3f);
             }
 
             foreach (ModuleSlot moduleSlot in ship.ModuleSlotList)
             {
+                Vector2 slotCenter = moduleSlot.module.Center; // 1x1 slot center
+
                 Viewport viewport;
-                if (camHeight > 6000.0)
+                if (camHeight > 6000.0f) // long distance view?
                 {
-                    string index = "TacticalIcons/symbol_fighter";
-                    viewport = this.ScreenManager.GraphicsDevice.Viewport;
-                    Vector3 vector3_1 = viewport.Project(new Vector3(moduleSlot.module.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                    Vector2 origin1 = new Vector2((float)(symbolFighter.Width / 2), (float)(symbolFighter.Height / 2));
-                    float num1 = moduleSlot.module.Health / moduleSlot.module.HealthMax;
-                    float scale = 500f / this.camHeight;
-                    var tex = ResourceManager.TextureDict[index];
+                    Vector2 projSlotCenter = ProjectToScreenPosition(slotCenter);
 
-                    var color = Color.Black;
-                    if (Debug && moduleSlot.module.isExternal) color = Color.Blue;
-                    else if (num1 >= 0.899999976158142) color = Color.Green;
-                    else if (num1 >= 0.649999976158142) color = Color.GreenYellow;
-                    else if (num1 >= 0.449999988079071) color = Color.Yellow;
-                    else if (num1 >= 0.150000005960464) color = Color.OrangeRed;
-                    else if (num1 < 0.0 && num1 <= 0.150000005960464) color = Color.Red;
-                    else color = Color.Black;
+                    float scale = 500f / camHeight;
+                    DrawTextureToScreen(symbolFighter, projSlotCenter, scale, ship.Rotation, moduleSlot.GetHealthStatusColor());
+                    //DrawTextureProjected(symbolFighter, slotCenter, scale, ship.Rotation, moduleSlot.GetHealthStatusColor());
 
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[index], new Vector2(vector3_1.X, vector3_1.Y), 
-                                                   null, color, ship.Rotation, origin1, scale, SpriteEffects.None, 1f);
-
-                    if (ship.isPlayerShip() && (double)moduleSlot.module.FieldOfFire != 0.0 && moduleSlot.module.InstalledWeapon != null)
+                    if (ship.isPlayerShip() && moduleSlot.module.FieldOfFire != 0.0f && moduleSlot.module.InstalledWeapon != null)
                     {
-                        float num2 = moduleSlot.module.FieldOfFire / 2f;
-                        Vector2 angleAndDistance1 = moduleSlot.module.Center.PointFromAngle((float)((double)MathHelper.ToDegrees(ship.Rotation) + (double)moduleSlot.module.facing + -(double)num2), moduleSlot.module.InstalledWeapon.Range);
-                        Vector2 angleAndDistance2 = moduleSlot.module.Center.PointFromAngle(MathHelper.ToDegrees(ship.Rotation) + moduleSlot.module.facing + num2, moduleSlot.module.InstalledWeapon.Range);
+                        float halfArcDegs = moduleSlot.module.FieldOfFire / 2f;
+                        float wepArcDir   = ship.Rotation.ToDegrees() + moduleSlot.module.facing;
+                        Vector2 arcLeft  = slotCenter.PointFromAngle(wepArcDir - halfArcDegs, moduleSlot.module.InstalledWeapon.Range);
+                        Vector2 arcRight = slotCenter.PointFromAngle(wepArcDir + halfArcDegs, moduleSlot.module.InstalledWeapon.Range);
+
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
-                        Vector3 vector3_2 = viewport.Project(new Vector3(angleAndDistance1, 0.0f), this.projection, this.view, Matrix.Identity);
+                        Vector3 vector3_2 = viewport.Project(new Vector3(arcLeft, 0.0f), this.projection, this.view, Matrix.Identity);
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
-                        Vector3 vector3_3 = viewport.Project(new Vector3(angleAndDistance2, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 point1 = new Vector2(vector3_1.X, vector3_1.Y);
+                        Vector3 vector3_3 = viewport.Project(new Vector3(arcRight, 0.0f), this.projection, this.view, Matrix.Identity);
                         Vector2 point2_1 = new Vector2(vector3_2.X, vector3_2.Y);
                         Vector2 point2_2 = new Vector2(vector3_3.X, vector3_3.Y);
-                        float num3 = Vector2.Distance(point1, point2_1);
-                        Color color1 = new Color(byte.MaxValue, (byte)165, (byte)0, (byte)100);
+                        float num3 = Vector2.Distance(projSlotCenter, point2_1);
+
+                        Color color1 = new Color(255, 165, 0, 100);
                         Vector2 origin2 = new Vector2(250f, 250f);
+
+                        float rotation = moduleSlot.module.facing.ToRadians() + ship.Rotation;
+                        float layerDepth = 1.0f - moduleSlot.module.InstalledWeapon.Range / 99999.0f;
+
+
                         if (moduleSlot.module.InstalledWeapon.WeaponType == "Flak" || moduleSlot.module.InstalledWeapon.WeaponType == "Vulcan")
                         {
-                            Color color2 = new Color(byte.MaxValue, byte.MaxValue, (byte)0, byte.MaxValue);
-                            Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num3 * 2, (int)num3 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            Color color2 = new Color(255, 255, 0, 255);
+                            Rectangle destinationRectangle = new Rectangle((int)projSlotCenter.X, (int)projSlotCenter.Y, (int)num3 * 2, (int)num3 * 2);
+                            this.ScreenManager.SpriteBatch.Draw(arc90, destinationRectangle, null, color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "Laser" || moduleSlot.module.InstalledWeapon.WeaponType == "HeavyLaser")
                         {
-                            Color color2 = new Color(byte.MaxValue, (byte)0, (byte)0, byte.MaxValue);
-                            Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num3 * 2, (int)num3 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            Color color2 = new Color(255, 0, 0, 255);
+                            Rectangle destinationRectangle = new Rectangle((int)projSlotCenter.X, (int)projSlotCenter.Y, (int)num3 * 2, (int)num3 * 2);
+                            this.ScreenManager.SpriteBatch.Draw(arc90, destinationRectangle, null, color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "PhotonCannon")
                         {
-                            Color color2 = new Color((byte)0, (byte)0, byte.MaxValue, byte.MaxValue);
-                            Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num3 * 2, (int)num3 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            Color color2 = new Color(0, 0, 255, 255);
+                            Rectangle destinationRectangle = new Rectangle((int)projSlotCenter.X, (int)projSlotCenter.Y, (int)num3 * 2, (int)num3 * 2);
+                            this.ScreenManager.SpriteBatch.Draw(arc90, destinationRectangle, null, color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else
                         {
-                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, point1, point2_1, new Color(byte.MaxValue, (byte)0, (byte)0, (byte)75), 1f);
-                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, point1, point2_2, new Color(byte.MaxValue, (byte)0, (byte)0, (byte)75), 1f);
+                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, projSlotCenter, point2_1, new Color(255, 0, 0, 75), 1f);
+                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, projSlotCenter, point2_2, new Color(255, 0, 0, 75), 1f);
                         }
                     }
                 }
-                else if (this.Debug)
+                else if (Debug)
                 {
                     if (moduleSlot.module.isExternal && moduleSlot.module.Active)
                     {
-                        string index = "TacticalIcons/symbol_fighter";
-                        viewport = this.ScreenManager.GraphicsDevice.Viewport;
-                        Vector3 vector3 = viewport.Project(new Vector3(moduleSlot.module.Center, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Width / 2), (float)(ResourceManager.TextureDict["TacticalIcons/symbol_fighter"].Height / 2));
-                        float scale = 500f / this.camHeight;
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[index], new Vector2(vector3.X, vector3.Y), new Rectangle?(), Color.Blue, ship.Rotation, origin, scale, SpriteEffects.None, 1f);
+                        float scale = 500f / camHeight;
+                        Color color = moduleSlot.GetHealthStatusColor();
+                        DrawTextureProjected(symbolFighter, slotCenter, scale, ship.Rotation, color);
                     }
                 }
                 else if (!moduleSlot.module.isDummy)
                 {
-                    byte num1 = moduleSlot.module.XSIZE;
-                    byte num2 = moduleSlot.module.YSIZE;
-                    float num3 = 0.0f;
-                    if (moduleSlot.state == ShipDesignScreen.ActiveModuleState.Left)
-                        num3 = 4.712389f;
-                    else if (moduleSlot.state == ShipDesignScreen.ActiveModuleState.Right)
-                        num3 = 1.570796f;
-                    else if (moduleSlot.state == ShipDesignScreen.ActiveModuleState.Rear)
-                        num3 = 3.141593f;
-                    Vector2 vector2_2 = (int)moduleSlot.module.XSIZE != 1 || (int)moduleSlot.module.YSIZE != 3 ? ((int)moduleSlot.module.XSIZE != 2 || (int)moduleSlot.module.YSIZE != 5 ? new Vector2(moduleSlot.module.Center.X - 8f + (float)(16 * (int)num1 / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)num2 / 2)) : new Vector2(moduleSlot.module.Center.X - 80f + (float)(16 * (int)num1 / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)num2 / 2))) : new Vector2(moduleSlot.module.Center.X - 50f + (float)(16 * (int)num1 / 2), moduleSlot.module.Center.Y - 8f + (float)(16 * (int)num2 / 2));
-                    Vector2 target = new Vector2(moduleSlot.module.Center.X - 8f, moduleSlot.module.Center.Y - 8f);
+                    int xsize = moduleSlot.module.XSIZE;
+                    int ysize = moduleSlot.module.YSIZE;
+                    float slotOrientation = 0.0f;
+                    if (moduleSlot.state == ShipDesignScreen.ActiveModuleState.Left)       slotOrientation = 4.712389f; // 270 degs
+                    else if (moduleSlot.state == ShipDesignScreen.ActiveModuleState.Right) slotOrientation = 1.570796f; // 90
+                    else if (moduleSlot.state == ShipDesignScreen.ActiveModuleState.Rear)  slotOrientation = 3.141593f; // 180
 
-                    float angleToTarget = vector2_2.AngleToTargetSigned(target);
-                    Vector2 angleAndDistance1 = moduleSlot.module.Center.PointFromAngle(
+                    Vector2 realModuleCenter; // center of a large 4x4 module
+                    if (xsize == 1 && ysize == 3)
+                    {
+                        realModuleCenter = new Vector2(slotCenter.X - 50f + 16f * xsize / 2,
+                            slotCenter.Y - 8f + 16f * ysize / 2);
+                    }
+                    else if (xsize == 2 && ysize == 5)
+                    {
+                        realModuleCenter = new Vector2(slotCenter.X - 80f + 16f * xsize / 2,
+                            slotCenter.Y - 8f + 16f * ysize / 2);
+                    }
+                    else
+                    {
+                        realModuleCenter = new Vector2(slotCenter.X - 8f + 16f * xsize / 2,
+                            slotCenter.Y - 8f + 16f * ysize / 2);
+                    }
+
+                    Vector2 target = new Vector2(slotCenter.X - 8f, slotCenter.Y - 8f);
+
+                    float angleToTarget = realModuleCenter.AngleToTargetSigned(target);
+                    Vector2 angleAndDistance1 = slotCenter.PointFromAngle(
                         MathHelper.ToDegrees(ship.Rotation) - angleToTarget, 8f * (float)Math.Sqrt(2.0));
 
-                    float num4 = (float)((int)num1 * 16 / 2);
-                    float num5 = (float)((int)num2 * 16 / 2);
+                    float num4 = (float)((int)xsize * 16 / 2);
+                    float num5 = (float)((int)ysize * 16 / 2);
                     float distance = (float)Math.Sqrt((double)((float)Math.Pow((double)num4, 2.0) + (float)Math.Pow((double)num5, 2.0)));
                     float radians = 3.141593f - (float)Math.Asin((double)num4 / (double)distance) + ship.Rotation;
-                    vector2_2 = MathExt.PointFromAngle(angleAndDistance1, MathHelper.ToDegrees(radians), distance);
-                    viewport = this.ScreenManager.GraphicsDevice.Viewport;
-                    Vector3 vector3_1 = viewport.Project(new Vector3(vector2_2, 0.0f), this.projection, this.view, Matrix.Identity);
+                    realModuleCenter = MathExt.PointFromAngle(angleAndDistance1, MathHelper.ToDegrees(radians), distance);
+
+                    Vector2 moduleScreenCenter = ProjectToScreenPosition(realModuleCenter);
+
                     ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(moduleSlot.module.UID);
-                    Vector2 origin1 = new Vector2((float)(ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width / 2), (ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Height / 2));
+                    var moduleTex = ResourceManager.Texture(moduleTemplate.IconTexturePath);
+
                     float num6 = moduleSlot.module.Health / moduleSlot.module.HealthMax;
                     string index1 = moduleTemplate.IconTexturePath;
-                    float scale1 = 0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight / (ResourceManager.TextureDict[moduleTemplate.IconTexturePath].Width / (moduleTemplate.XSIZE * 16));
                     if (moduleSlot.module.ModuleType == ShipModuleType.PowerConduit)
                     {
-                        origin1 = new Vector2((float)(ResourceManager.TextureDict[moduleSlot.module.IconTexturePath].Width / 2), (ResourceManager.TextureDict[moduleSlot.module.IconTexturePath].Width / 2));
-                        float num7 = (float)(ResourceManager.TextureDict[moduleSlot.module.IconTexturePath].Width / 16);
-                        float scale2 = 0.75f * (float)this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / this.camHeight / num7;
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[moduleSlot.module.IconTexturePath], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.White, ship.Rotation, origin1, scale2, SpriteEffects.None, 1f);
+                        float moduleSize = moduleTex.Width / 16;
+                        float scale = 0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight / moduleSize;
+                        DrawTextureToScreen(moduleTex, moduleScreenCenter, scale, ship.Rotation, Color.White);
+
                         if (moduleSlot.module.Powered)
                         {
-                            string index2 = moduleSlot.module.IconTexturePath + "_power";
-                            float scale3 = 0.75f * (float)this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / this.camHeight / num7;
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[index2], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.White, ship.Rotation, origin1, scale3, SpriteEffects.None, 1f);
+                            var poweredTex = ResourceManager.Texture(moduleSlot.module.IconTexturePath + "_power");
+                            DrawTextureToScreen(moduleTex, moduleScreenCenter, scale, ship.Rotation, Color.White);
                         }
                     }
                     else
                     {
-                        if ((double)num6 >= 0.899999976158142)
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[index1], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.White, ship.Rotation + num3, origin1, scale1, SpriteEffects.None, 1f);
-                        else if ((double)num6 >= 0.649999976158142)
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[index1], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.GreenYellow, ship.Rotation + num3, origin1, scale1, SpriteEffects.None, 1f);
-                        else if ((double)num6 >= 0.449999988079071)
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[index1], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.Yellow, ship.Rotation + num3, origin1, scale1, SpriteEffects.None, 1f);
-                        else if ((double)num6 >= 0.150000005960464)
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[index1], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.OrangeRed, ship.Rotation + num3, origin1, scale1, SpriteEffects.None, 1f);
-                        else if ((double)num6 <= 0.150000005960464 && (double)num6 > 0.0)
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[index1], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.Red, ship.Rotation + num3, origin1, scale1, SpriteEffects.None, 1f);
-                        else
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict[index1], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.Black, ship.Rotation + num3, origin1, scale1, SpriteEffects.None, 1f);
-                        if (flag)
+
+                        float moduleSize = moduleTex.Width / (moduleTemplate.XSIZE * 16);
+                        float scale = (0.75f * ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / camHeight) / moduleSize;
+
+                        DrawTextureToScreen(moduleTex, moduleScreenCenter, scale, ship.Rotation + slotOrientation, moduleSlot.GetHealthStatusColorWhite());
+
+                        if (enableModuleDebug)
                         {
-                            Vector2 center = new Vector2(vector3_1.X, vector3_1.Y);
-                            Vector2 vector2_3 = vector2_2 + new Vector2(8f, 0.0f);
-                            viewport = this.ScreenManager.GraphicsDevice.Viewport;
-                            Vector3 vector3_2 = viewport.Project(new Vector3(vector2_3.X, vector2_3.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-                            float radius = Vector2.Distance(center, new Vector2(vector3_2.X, vector3_2.Y));
-                            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, radius, 50, Color.Red, 3f);
+                            DrawCircleProjected(realModuleCenter, moduleSlot.module.ApproxRadius, 16, Color.Red, 2f);
                         }
                     }
-                    if (ship.isPlayerShip() && (double)moduleSlot.module.FieldOfFire != 0.0 && moduleSlot.module.InstalledWeapon != null)
+                    if (ship.isPlayerShip() && moduleSlot.module.FieldOfFire != 0.0f && moduleSlot.module.InstalledWeapon != null)
                     {
                         float num7 = moduleSlot.module.FieldOfFire / 2f;
-                        Vector2 angleAndDistance2 = vector2_2.PointFromAngle((float)((double)MathHelper.ToDegrees(ship.Rotation) + (double)moduleSlot.module.facing + -(double)num7), moduleSlot.module.InstalledWeapon.Range);
-                        Vector2 angleAndDistance3 = vector2_2.PointFromAngle(MathHelper.ToDegrees(ship.Rotation) + moduleSlot.module.facing + num7, moduleSlot.module.InstalledWeapon.Range);
+                        Vector2 angleAndDistance2 = realModuleCenter.PointFromAngle((float)((double)MathHelper.ToDegrees(ship.Rotation) + (double)moduleSlot.module.facing + -(double)num7), moduleSlot.module.InstalledWeapon.Range);
+                        Vector2 angleAndDistance3 = realModuleCenter.PointFromAngle(MathHelper.ToDegrees(ship.Rotation) + moduleSlot.module.facing + num7, moduleSlot.module.InstalledWeapon.Range);
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
                         Vector3 vector3_2 = viewport.Project(new Vector3(angleAndDistance2, 0.0f), this.projection, this.view, Matrix.Identity);
                         viewport = this.ScreenManager.GraphicsDevice.Viewport;
                         Vector3 vector3_3 = viewport.Project(new Vector3(angleAndDistance3, 0.0f), this.projection, this.view, Matrix.Identity);
-                        Vector2 point1 = new Vector2(vector3_1.X, vector3_1.Y);
                         Vector2 point2_1 = new Vector2(vector3_2.X, vector3_2.Y);
                         Vector2 point2_2 = new Vector2(vector3_3.X, vector3_3.Y);
-                        float num8 = Vector2.Distance(point1, point2_1);
-                        Color color1 = new Color(byte.MaxValue, (byte)165, (byte)0, (byte)100);
+                        float num8 = Vector2.Distance(moduleScreenCenter, point2_1);
+                        Color color1 = new Color(255, 165, 0, 100);
                         Vector2 origin2 = new Vector2(250f, 250f);
                         if (moduleSlot.module.InstalledWeapon.WeaponType == "Flak" || moduleSlot.module.InstalledWeapon.WeaponType == "Vulcan")
                         {
-                            Color color2 = new Color(byte.MaxValue, byte.MaxValue, (byte)0, byte.MaxValue);
-                            Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num8 * 2, (int)num8 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            Color color2 = new Color(255, 255, 0, 255);
+                            var rect = new Rectangle((int)moduleScreenCenter.X, (int)moduleScreenCenter.Y, (int)num8 * 2, (int)num8 * 2);
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], rect, null, color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "Laser" || moduleSlot.module.InstalledWeapon.WeaponType == "HeavyLaser")
                         {
-                            Color color2 = new Color(byte.MaxValue, (byte)0, (byte)0, byte.MaxValue);
-                            Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num8 * 2, (int)num8 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            Color color2 = new Color(255, (byte)0, (byte)0, byte.MaxValue);
+                            var rect = new Rectangle((int)moduleScreenCenter.X, (int)moduleScreenCenter.Y, (int)num8 * 2, (int)num8 * 2);
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], rect, null, color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else if (moduleSlot.module.InstalledWeapon.WeaponType == "PhotonCannon")
                         {
                             Color color2 = new Color((byte)0, (byte)0, byte.MaxValue, byte.MaxValue);
-                            Rectangle destinationRectangle = new Rectangle((int)point1.X, (int)point1.Y, (int)num8 * 2, (int)num8 * 2);
-                            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], destinationRectangle, new Rectangle?(), color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
+                            var rect = new Rectangle((int)moduleScreenCenter.X, (int)moduleScreenCenter.Y, (int)num8 * 2, (int)num8 * 2);
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["Arcs/Arc90"], rect, null, color2, moduleSlot.module.facing.ToRadians() + ship.Rotation, origin2, SpriteEffects.None, (float)(1.0 - (double)moduleSlot.module.InstalledWeapon.Range / 99999.0));
                         }
                         else
                         {
-                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, point1, point2_1, new Color(byte.MaxValue, (byte)0, (byte)0, (byte)75), 1f);
-                            Primitives2D.DrawLine(this.ScreenManager.SpriteBatch, point1, point2_2, new Color(byte.MaxValue, (byte)0, (byte)0, (byte)75), 1f);
+                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, moduleScreenCenter, point2_1, new Color(255, 0, 0, 75), 1f);
+                            Primitives2D.DrawLine(ScreenManager.SpriteBatch, moduleScreenCenter, point2_2, new Color(255, 0, 0, 75), 1f);
                         }
                     }
-                    if (!moduleSlot.module.Powered && (double)moduleSlot.module.PowerDraw > 0.0 && moduleSlot.module.ModuleType != ShipModuleType.PowerConduit)
+                    if (!moduleSlot.module.Powered && moduleSlot.module.PowerDraw > 0.0f && moduleSlot.module.ModuleType != ShipModuleType.PowerConduit)
                     {
-                        Vector2 origin2 = new Vector2(8f, 8f);
-                        float scale2 = 1250f / this.camHeight;
-                        this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/lightningBolt"], new Vector2(vector3_1.X, vector3_1.Y), new Rectangle?(), Color.White, 0.0f, origin2, scale2, SpriteEffects.None, 1f);
+                        float scale = 1250f / camHeight;
+                        ScreenManager.SpriteBatch.Draw(lightningBolt, moduleScreenCenter, null, Color.White, 0.0f, lightningBolt.Center(), scale, SpriteEffects.None, 1f);
                     }
                 }
             }
@@ -6353,9 +6289,9 @@ namespace Ship_Game
                                 if (this.viewState != UniverseScreen.UnivScreenState.ShipView)
                                 {
                                     if (planet.Owner == null)
-                                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, new Vector2(vector3_2.X, vector3_2.Y), radius, 100, new Color((byte)50, (byte)50, (byte)50, (byte)90), 3f);
+                                        DrawCircle(new Vector2(vector3_2.X, vector3_2.Y), radius, 100, new Color((byte)50, (byte)50, (byte)50, (byte)90), 3f);
                                     else
-                                        Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, new Vector2(vector3_2.X, vector3_2.Y), radius, 100, new Color(planet.Owner.EmpireColor.R, planet.Owner.EmpireColor.G, planet.Owner.EmpireColor.B, (byte)100), 3f);
+                                        DrawCircle(new Vector2(vector3_2.X, vector3_2.Y), radius, 100, new Color(planet.Owner.EmpireColor.R, planet.Owner.EmpireColor.G, planet.Owner.EmpireColor.B, (byte)100), 3f);
                                 }
                             }
                         }
@@ -6437,7 +6373,7 @@ namespace Ship_Game
                             if (this.viewState == UniverseScreen.UnivScreenState.SectorView)
                             {
                                 vector2.Y += radius;
-                                Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, new Vector2(vector3_4.X, vector3_4.Y), radius, 100, new Color((byte)50, (byte)50, (byte)50, (byte)90), 1f);
+                                DrawCircle(new Vector2(vector3_4.X, vector3_4.Y), radius, 100, new Color((byte)50, (byte)50, (byte)50, (byte)90), 1f);
                             }
                             else
                                 vector2.Y += num2;
@@ -6777,17 +6713,17 @@ namespace Ship_Game
                             {
                                 waydpoint = true;
                                 if (index == 0)                                
-                                    DrawLine(SelectedShip.Center, SelectedShip.AI.ActiveWayPoints.Peek(), mode);                                
+                                    DrawLineProjected(SelectedShip.Center, SelectedShip.AI.ActiveWayPoints.Peek(), mode);                                
                                 else if (index < this.SelectedShip.AI.ActiveWayPoints.Count - 1)
                                 {
                                     Vector2[] waypoints = SelectedShip.AI.ActiveWayPoints.ToArray();
-                                    DrawLine(waypoints[index], waypoints[index + 1], mode);
+                                    DrawLineProjected(waypoints[index], waypoints[index + 1], mode);
                                 }
                                 
                             }
                             if (!waydpoint && target != Vector2.Zero) //this.SelectedShip.GetAI().OrderQueue.First.Value.TargetPlanet.Position
                             {
-                                DrawLine(SelectedShip.Center, target, mode);
+                                DrawLineProjected(SelectedShip.Center, target, mode);
                             }
                         }
 
@@ -7242,16 +7178,10 @@ namespace Ship_Game
             return ScreenManager.GraphicsDevice.Viewport.ProjectTo2D(position.ToVec3(zAxis), ref projection, ref view);
         }
 
-        public void DrawLine(Vector2 start, Vector2 end, Color color, float zAxis = 0f)
+        // projects the line from World positions into Screen positions, then draws the line
+        public void DrawLineProjected(Vector2 worldPosStart, Vector2 worldPosEnd, Color color, float zAxis = 0f)
         {
-            Primitives2D.DrawLine(ScreenManager.SpriteBatch, ProjectToScreenPosition(start, zAxis), ProjectToScreenPosition(end, zAxis), color);
-        }
-
-        public void DrawCircle(Vector2 center, float radius, Color color, int sides = 16, float zAxis = 0)
-        {
-            Vector2 circleCenter = ProjectToScreenPosition(center, zAxis);
-            Vector2 circleEdge   = ProjectToScreenPosition(new Vector2(center.X + radius, center.Y), zAxis);
-            Primitives2D.DrawCircle(ScreenManager.SpriteBatch, circleCenter, circleCenter.Distance(circleEdge), sides, color);
+            DrawLine(ProjectToScreenPosition(worldPosStart, zAxis), ProjectToScreenPosition(worldPosEnd, zAxis), color);
         }
 
         private void DrawLines(Vector2 position, Array<string> lines)
@@ -7265,16 +7195,47 @@ namespace Ship_Game
             }
         }
 
-        private void DrawCircle(Vector2 worldPos, float radius, Color c, float thickness)
+        public void DrawCircleProjected(Vector2 worldPos, float radius, int sides, Color color, float thickness = 1f)
         {
-            Vector3 vector3_1 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(worldPos.X, worldPos.Y, 0.0f), this.projection, this.view, Matrix.Identity);
-            Vector2 center = new Vector2(vector3_1.X, vector3_1.Y);
-            Vector3 vector3_2 = this.ScreenManager.GraphicsDevice.Viewport.Project(new Vector3(worldPos.PointOnCircle(90f, radius), 0.0f), this.projection, this.view, Matrix.Identity);
-            float radius1 = Vector2.Distance(new Vector2(vector3_2.X, vector3_2.Y), center);
-            Rectangle destinationRectangle = new Rectangle((int)center.X, (int)center.Y, (int)radius1 * 2, (int)radius1 * 2);
-            Vector2 origin = new Vector2((float)(ResourceManager.TextureDict["UI/node"].Width / 2), (float)(ResourceManager.TextureDict["UI/node"].Height / 2));
-            this.ScreenManager.SpriteBatch.Draw(ResourceManager.TextureDict["UI/node1"], destinationRectangle, new Rectangle?(), new Color(c, (byte)50), 0.0f, origin, SpriteEffects.None, 1f);
-            Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, center, radius1, 50, c, thickness);
+            Vector2 circleCenter = ProjectToScreenPosition(worldPos);
+            Vector2 circleEdge = ProjectToScreenPosition(new Vector2(worldPos.X + radius, worldPos.Y));
+            DrawCircle(circleCenter, circleCenter.Distance(circleEdge), sides, color, thickness);
+        }
+
+        public void DrawCircleProjectedZ(Vector2 worldPos, float radius, Color color, int sides = 16, float zAxis = 0f)
+        {
+            Vector2 circleCenter = ProjectToScreenPosition(worldPos, zAxis);
+            Vector2 circleEdge   = ProjectToScreenPosition(new Vector2(worldPos.X + radius, worldPos.Y), zAxis);
+            DrawCircle(circleCenter, circleCenter.Distance(circleEdge), sides, color);
+        }
+
+        // draws a projected circle, with an additional overlay texture
+        public void DrawCircleProjected(Vector2 worldPos, float radius, Color color, int sides, float thickness, Texture2D overlay, Color overlayColor)
+        {
+            Vector2 circleCenter = ProjectToScreenPosition(worldPos, 0f);
+            Vector2 circleEdge   = ProjectToScreenPosition(new Vector2(worldPos.X + radius, worldPos.Y), 0f);
+            float circleRadius   = circleCenter.Distance(circleEdge);
+
+            var rect = new Rectangle((int)circleCenter.X, (int)circleCenter.Y, (int)circleRadius * 2, (int)circleRadius * 2);
+            ScreenManager.SpriteBatch.Draw(overlay, rect, null, overlayColor, 0.0f, overlay.Center(), SpriteEffects.None, 1f);
+
+            DrawCircle(circleCenter, circleRadius, sides, color, thickness);
+        }
+
+        public void DrawTextureProjected(Texture2D texture, Vector2 worldPos, float scale, Color textureColor)
+        {
+            DrawTextureProjected(texture, worldPos, scale, 0.0f, textureColor);
+        }
+
+        public void DrawTextureProjected(Texture2D texture, Vector2 worldPos, float scale, float rotation, Color textureColor)
+        {
+            Vector2 screenPos = ProjectToScreenPosition(worldPos);
+            ScreenManager.SpriteBatch.Draw(texture, screenPos, null, textureColor, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
+        }
+
+        public void DrawTextureToScreen(Texture2D texture, Vector2 screenPos, float scale, float rotation, Color textureColor)
+        {
+            ScreenManager.SpriteBatch.Draw(texture, screenPos, null, textureColor, rotation, texture.Center(), scale, SpriteEffects.None, 1f);
         }
 
         protected void DrawTransparentModel(Model model, Matrix world, Matrix viewMat, Matrix projMat, Texture2D projTex)

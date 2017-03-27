@@ -183,12 +183,18 @@ namespace Ship_Game.Debug
                         Vector2 projDest = weapon.Center.FindPredictedTargetPosition(ship.Velocity,
                             weapon.ProjectileSpeed
                             , weapon.fireTarget.Center, ship.AI.Target.Velocity);
+<<<<<<< local
 
                         Screen.DrawLine(weapon.Center, projDest, Color.Yellow);
                         if (weapon.fireTarget != null)
                             Screen.DrawCircle(weapon.fireTarget.Center, 8f, Color.Pink, 5);
+=======
+                        
+                        Screen.DrawLineProjected(weapon.Center, projDest, Color.Yellow);
+>>>>>>> other
                     }
 
+<<<<<<< local
                     for (int i = 0; i < ship.Projectiles.Count; i++)
                     {                        
                         Projectile projectile = ship.Projectiles[i];
@@ -198,6 +204,9 @@ namespace Ship_Game.Debug
 
                     Screen.DrawLine(ship.Center
                         ,ship.Center.FindPredictedTargetPosition(ship.Velocity, ship.speed, ship.AI.Target.Center, ship.AI.Target.Velocity),Color.TransparentWhite);//, ship.AI.Target.Position, Color.Yellow);
+=======
+                    Screen.DrawLineProjected(ship.Center, ship.AI.Target.Position, Color.Yellow);
+>>>>>>> other
 
                 }
             }
@@ -415,15 +424,15 @@ namespace Ship_Game.Debug
                 DefensiveCoordinator defco = e.GetGSAI().DefensiveCoordinator;
                 foreach (var kv in defco.DefenseDict)
                 {                    
-                    Screen.DrawCircle(kv.Value.System.Position, kv.Value.RankImportance * 100, e.EmpireColor, 6);
-                    Screen.DrawCircle(kv.Value.System.Position, kv.Value.IdealShipStrength * 10, e.EmpireColor, 3);
-                    Screen.DrawCircle(kv.Value.System.Position, kv.Value.TroopsWanted * 100, e.EmpireColor, 4);
+                    Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.RankImportance * 100, e.EmpireColor, 6);
+                    Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.IdealShipStrength * 10, e.EmpireColor, 3);
+                    Screen.DrawCircleProjectedZ(kv.Value.System.Position, kv.Value.TroopsWanted * 100, e.EmpireColor, 4);
                 }
                 foreach(Ship ship in defco.DefensiveForcePool)                                                        
-                    Screen.DrawCircle(ship.Center, 50f, e.EmpireColor, 6);
+                    Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 6);
                 
                 foreach(AO ao in e.GetGSAI().AreasOfOperations)                
-                    Screen.DrawCircle(ao.Position, ao.Radius, e.EmpireColor, 16);
+                    Screen.DrawCircleProjectedZ(ao.Position, ao.Radius, e.EmpireColor, 16);
                 
 
             }
@@ -438,11 +447,11 @@ namespace Ship_Game.Debug
                 {
                     if (pin.Position != Vector2.Zero)
                     {
-                        Screen.DrawCircle(pin.Position, 50f, e.EmpireColor, 6);
+                        Screen.DrawCircleProjectedZ(pin.Position, 50f, e.EmpireColor, 6);
 
                         if (pin.InBorders)
                         {
-                            Screen.DrawCircle(pin.Position, 50f, e.EmpireColor, 3);                            
+                            Screen.DrawCircleProjectedZ(pin.Position, 50f, e.EmpireColor, 3);                            
                         }
                     }
                 }
@@ -458,7 +467,7 @@ namespace Ship_Game.Debug
                         if (e.grid[x, y] != 1)
                             continue;
                         Vector2 translated = new Vector2((x - e.granularity) * Screen.reducer, (y - e.granularity) * Screen.reducer);                        
-                        Screen.DrawCircle(translated, Screen.reducer * .001f , e.EmpireColor, 4);
+                        Screen.DrawCircleProjectedZ(translated, Screen.reducer * .001f , e.EmpireColor, 4);
                     }
         }
         private void TradeInfo()
@@ -467,8 +476,8 @@ namespace Ship_Game.Debug
             {
                 foreach (Planet planet in e.GetPlanets())
                 {                    
-                    Screen.DrawCircle(planet.Position, planet.ExportFSWeight * 1000, e.EmpireColor, 6);
-                    Screen.DrawCircle(planet.Position, planet.ExportPSWeight * 10, e.EmpireColor, 3);                    
+                    Screen.DrawCircleProjectedZ(planet.Position, planet.ExportFSWeight * 1000, e.EmpireColor, 6);
+                    Screen.DrawCircleProjectedZ(planet.Position, planet.ExportPSWeight * 10, e.EmpireColor, 3);                    
                 }
 
                 foreach (Ship ship in e.GetShips())
@@ -477,31 +486,18 @@ namespace Ship_Game.Debug
                     if (ai.State != AIState.SystemTrader) continue;
                     if (ai.OrderQueue.Count == 0) continue;
                     
-                    var plan = ai.OrderQueue.PeekLast.Plan;
-                    switch (plan)
+                    switch (ai.OrderQueue.PeekLast.Plan)
                     {
                         case Plan.DropOffGoods:
-                        {                            
-                            Screen.DrawCircle(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 6);
-                                break;
-                        }
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 6);
+                            break;
                         case Plan.PickupGoods:
-                        {                            
-                            Screen.DrawCircle(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 3);
-                                break;
-                        }
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, ai.FoodOrProd == "Food" ? Color.GreenYellow : Color.SteelBlue, 3);
+                            break;
                         case Plan.PickupPassengers:
                         case Plan.DropoffPassengers:
-                        {                            
-                            Screen.DrawCircle(ship.Center, 50f, e.EmpireColor, 32);
-
-                                break;
-                        }
-                    }
-
-                    if (plan == Plan.DropOffGoods)
-                    {
-                            
+                            Screen.DrawCircleProjectedZ(ship.Center, 50f, e.EmpireColor, 32);
+                            break;
                     }
                 }   
 

@@ -66,5 +66,40 @@ namespace Ship_Game.Gameplay
         {
             module.Update(elapsedTime);
         }
+
+        public Color GetHealthStatusColor()
+        {
+            if (module == null)
+                return Color.Purple;
+
+            float healthPercent = module.Health / module.HealthMax;
+
+            if (Empire.Universe.Debug && module.isExternal)
+            {
+                if (healthPercent >= 0.5f) return Color.Blue;
+                if (healthPercent >  0.0f) return Color.DarkSlateBlue;
+                return Color.DarkSlateGray;
+            }
+
+            if (healthPercent >= 0.90f) return Color.Green;
+            if (healthPercent >= 0.65f) return Color.GreenYellow;
+            if (healthPercent >= 0.45f) return Color.Yellow;
+            if (healthPercent >= 0.15f) return Color.OrangeRed;
+            if (healthPercent >  0.00f) return Color.Red;
+            return Color.Black;
+        }
+
+        // @todo Find a way to get rid of this duplication ?
+        public Color GetHealthStatusColorWhite()
+        {
+            float healthPercent = module.Health / module.HealthMax;
+
+            if (healthPercent >= 0.90f) return Color.White;
+            if (healthPercent >= 0.65f) return Color.GreenYellow;
+            if (healthPercent >= 0.45f) return Color.Yellow;
+            if (healthPercent >= 0.15f) return Color.OrangeRed;
+            if (healthPercent >  0.00f) return Color.Red;
+            return Color.Black;
+        }
     }
 }

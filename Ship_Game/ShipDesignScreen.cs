@@ -1024,7 +1024,7 @@ namespace Ship_Game
                     if (slot.module.shield_power_max > 0f)
                     {
                         Vector2 Center = new Vector2((float)(slot.pq.enclosingRect.X + 16 * slot.module.XSIZE / 2), (float)(slot.pq.enclosingRect.Y + 16 * slot.module.YSIZE / 2));
-                        Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, Center, slot.module.shield_radius, 50, Color.LightGreen);
+                        DrawCircle(Center, slot.module.shield_radius, 50, Color.LightGreen);
                     }
                     //Original by The Doctor, modified by McShooterz
                     if (slot.module.FieldOfFire == 90f && Ship_Game.ResourceManager.TextureDict.ContainsKey("Arcs/Arc90"))
@@ -1456,7 +1456,7 @@ namespace Ship_Game
                 if (this.ActiveModule.shield_power_max > 0f)
                 {
                     Vector2 center = new Vector2((float)this.mouseStateCurrent.X, (float)this.mouseStateCurrent.Y) + new Vector2((float)(moduleTemplate.XSIZE * 16 / 2), (float)(moduleTemplate.YSIZE * 16 / 2));
-                    Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, center, this.ActiveModule.shield_radius * this.camera.Zoom, 50, Color.LightGreen);
+                    DrawCircle(center, this.ActiveModule.shield_radius * this.camera.Zoom, 50, Color.LightGreen);
                 }
             }
             this.DrawUI(gameTime);
