@@ -1088,11 +1088,11 @@ namespace Ship_Game
                 base.ScreenManager.inter.ObjectManager.Submit(roid.So);
             foreach (Moon moon in system.MoonList)
                 base.ScreenManager.inter.ObjectManager.Submit(moon.So);
-            LoadUniverseScreen loadUniverseScreen = this;
-            loadUniverseScreen.systemToMake = loadUniverseScreen.systemToMake + 1;
-            if (this.systemToMake == this.data.SolarSystemsList.Count)
+
+            ++systemToMake;
+            if (systemToMake == data.SolarSystemsList.Count)
             {
-                foreach (Ship ship in this.data.MasterShipList)
+                foreach (Ship ship in data.MasterShipList)
                 {
                     ship.LoadFromSave();
                     ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.Position, 0f));

@@ -343,7 +343,7 @@ namespace Ship_Game
 						}
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
 					}
-					Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, pPos, Radius, 250, new Color(255, 255, 255, 70), 2f);
+					DrawCircle(pPos, Radius, 250, new Color(255, 255, 255, 70), 2f);
 				}
 				else
 				{
@@ -365,7 +365,7 @@ namespace Ship_Game
 						}
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
 					}
-					Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, pPos, Radius, 250, new Color(255, 255, 255, 70), 2f);
+					DrawCircle(pPos, Radius, 250, new Color(255, 255, 255, 70), 2f);
 				}
 			}
 			foreach (FleetDataNode node in this.SelectedNodeList)
@@ -393,7 +393,7 @@ namespace Ship_Game
 						}
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
 					}
-					Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, pPos, Radius, 250, Color.White, 2f);
+					DrawCircle(pPos, Radius, 250, Color.White, 2f);
 				}
 				else
 				{
@@ -415,7 +415,7 @@ namespace Ship_Game
 						}
 						Primitives2D.DrawLine(base.ScreenManager.SpriteBatch, squad.screenPos, pPos, new Color(0, 255, 0, 70), 2f);
 					}
-					Primitives2D.DrawCircle(base.ScreenManager.SpriteBatch, pPos, Radius, 250, Color.White, 2f);
+					DrawCircle(pPos, Radius, 250, Color.White, 2f);
 				}
 			}
 			this.DrawFleetManagementIndicators();

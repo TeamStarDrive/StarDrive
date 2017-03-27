@@ -107,7 +107,7 @@ namespace Ship_Game
                 {
                     Vector2 planetPos = pPos.PointFromAngle(s.PlanetList[i].OrbitalAngle, 40 + 40 * i);
                     planetPos = planetPos - ((Vector2.Normalize(planetPos - pPos) * (float)(40 + 40 * i)) * transitionOffset);
-                    Primitives2D.DrawCircle(this.ScreenManager.SpriteBatch, pPos, Vector2.Distance(pPos, planetPos), 50, (this.s.PlanetList[i].Owner == null ? new Color(50, 50, 50, 90) : new Color(this.s.PlanetList[i].Owner.EmpireColor, 100)), 2f);
+                    DrawCircle(pPos, Vector2.Distance(pPos, planetPos), 50, (this.s.PlanetList[i].Owner == null ? new Color(50, 50, 50, 90) : new Color(this.s.PlanetList[i].Owner.EmpireColor, 100)), 2f);
                 }
                 for (int i = 0; i < this.s.PlanetList.Count; i++)
                 {

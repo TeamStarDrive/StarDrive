@@ -9,16 +9,11 @@ using System.Runtime.CompilerServices;
 using System.Linq;
 using Ship_Game.AI;
 
-//fbedard: used for .where
-
-
 namespace Ship_Game
 {
     public sealed class ColonyScreen : PlanetScreen, IDisposable
     {
         public Planet p;
-
-        private ScreenManager ScreenManager;
 
         public ToggleButton playerDesignsToggle;
 
@@ -121,12 +116,6 @@ namespace Ship_Game
 
         private bool draggingSlider3;
 
-        private float slider1Last;
-
-        private float slider2Last;
-
-        private float slider3Last;
-
         private Selector selector;
 
         private int buildingsHereLast;
@@ -139,7 +128,7 @@ namespace Ship_Game
 
         private int editHoverState;
 
-        private Rectangle edit_name_button = new Rectangle();
+        private Rectangle edit_name_button;
 
         private Array<Building> BuildingsCanBuild = new Array<Building>();
 
@@ -149,36 +138,36 @@ namespace Ship_Game
 
         private MouseState previousMouse;
 
-        private bool rmouse = false;
-        private static bool popup = false;  //fbedard
+        private bool rmouse;
+        private static bool popup;  //fbedard
 
-        public ColonyScreen(Planet p, Ship_Game.ScreenManager ScreenManager, EmpireUIOverlay empUI)
+        public ColonyScreen(Planet p, ScreenManager screenMgr, EmpireUIOverlay empUI)
         {
             empUI.empire.UpdateShipsWeCanBuild();
             this.eui = empUI;
-            this.ScreenManager = ScreenManager;
+            ScreenManager = screenMgr;
             this.p = p;
             if (this.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366)
                 this.LowRes = true;
-            Rectangle theMenu1 = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
-            this.TitleBar = new Menu2(ScreenManager, theMenu1);
+            Rectangle theMenu1 = new Rectangle(2, 44, screenMgr.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
+            this.TitleBar = new Menu2(screenMgr, theMenu1);
             this.LeftColony = new ToggleButton(new Rectangle(theMenu1.X + 25, theMenu1.Y + 24, 14, 35), "SelectionBox/button_arrow_left", "SelectionBox/button_arrow_left", "SelectionBox/button_arrow_left_hover", "SelectionBox/button_arrow_left_hover", "");
             this.RightColony = new ToggleButton(new Rectangle(theMenu1.X + theMenu1.Width - 39, theMenu1.Y + 24, 14, 35), "SelectionBox/button_arrow_right", "SelectionBox/button_arrow_right", "SelectionBox/button_arrow_right_hover", "SelectionBox/button_arrow_right_hover", "");
             this.TitlePos = new Vector2((float)(theMenu1.X + theMenu1.Width / 2) - Fonts.Laserian14.MeasureString("Colony Overview").X / 2f, (float)(theMenu1.Y + theMenu1.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-            Rectangle theMenu2 = new Rectangle(2, theMenu1.Y + theMenu1.Height + 5, theMenu1.Width, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (theMenu1.Y + theMenu1.Height) - 7);
-            this.LeftMenu = new Menu1(ScreenManager, theMenu2);
-            Rectangle theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 3 - 15, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - theMenu1.Y - 2);
-            this.RightMenu = new Menu1(ScreenManager, theMenu3);
+            Rectangle theMenu2 = new Rectangle(2, theMenu1.Y + theMenu1.Height + 5, theMenu1.Width, screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight - (theMenu1.Y + theMenu1.Height) - 7);
+            this.LeftMenu = new Menu1(screenMgr, theMenu2);
+            Rectangle theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, screenMgr.GraphicsDevice.PresentationParameters.BackBufferWidth / 3 - 15, screenMgr.GraphicsDevice.PresentationParameters.BackBufferHeight - theMenu1.Y - 2);
+            this.RightMenu = new Menu1(screenMgr, theMenu3);
             var iconMoney = ResourceManager.TextureDict["NewUI/icon_money"];
             this.MoneyRect = new Rectangle(theMenu2.X + theMenu2.Width - 75, theMenu2.Y + 20, iconMoney.Width, iconMoney.Height);
             this.close = new CloseButton(new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
             Rectangle theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
-            this.PlanetInfo = new Submenu(ScreenManager, theMenu4);
+            this.PlanetInfo = new Submenu(screenMgr, theMenu4);
             this.PlanetInfo.AddTab(Localizer.Token(326));
             Rectangle theMenu5 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
-            this.pDescription = new Submenu(ScreenManager, theMenu5);
+            this.pDescription = new Submenu(screenMgr, theMenu5);
             Rectangle theMenu6 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + 20, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
-            this.pLabor = new Submenu(ScreenManager, theMenu6);
+            this.pLabor = new Submenu(screenMgr, theMenu6);
             this.pLabor.AddTab(Localizer.Token(327));
             float num1 = (float)(int)((double)theMenu6.Width * 0.600000023841858);
             while ((double)num1 % 10.0 != 0.0)
@@ -208,7 +197,7 @@ namespace Ship_Game
             this.ResLock.LockRect = new Rectangle(this.SliderFood.sRect.X + this.SliderFood.sRect.Width + 50, this.SliderRes.sRect.Y + 2 + this.SliderFood.sRect.Height / 2 - foodLockTex.Height / 2, foodLockTex.Width, foodLockTex.Height);
             this.ResLock.Locked = p.ResLocked;
             Rectangle theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + theMenu6.Height + 40, (int)(0.400000005960464 * (double)theMenu2.Width), (int)(0.25 * (double)(theMenu2.Height - 80)));
-            this.pStorage = new Submenu(ScreenManager, theMenu7);
+            this.pStorage = new Submenu(screenMgr, theMenu7);
             this.pStorage.AddTab(Localizer.Token(328));
             Empire.Universe.ShipsInCombat.Active = false;
             Empire.Universe.PlanetsInCombat.Active = false;
@@ -246,10 +235,10 @@ namespace Ship_Game
                 this.prodDropDown.ActiveIndex = (int)p.ps;
             }
             Rectangle theMenu8 = new Rectangle(theMenu2.X + 20 + theMenu4.Width + 20, theMenu4.Y, theMenu2.Width - 60 - theMenu4.Width, (int)((double)theMenu2.Height * 0.5));
-            this.subColonyGrid = new Submenu(ScreenManager, theMenu8);
+            this.subColonyGrid = new Submenu(screenMgr, theMenu8);
             this.subColonyGrid.AddTab(Localizer.Token(332));
             Rectangle theMenu9 = new Rectangle(theMenu2.X + 20 + theMenu4.Width + 20, theMenu8.Y + theMenu8.Height + 20, theMenu2.Width - 60 - theMenu4.Width, theMenu2.Height - 20 - theMenu8.Height - 40);
-            this.pFacilities = new Submenu(ScreenManager, theMenu9);
+            this.pFacilities = new Submenu(screenMgr, theMenu9);
             this.pFacilities.AddTab(Localizer.Token(333));
             this.launchTroops = new UIButton();
             var empireTopBarBtn = ResourceManager.TextureDict["EmpireTopBar/empiretopbar_btn_168px"];
@@ -271,7 +260,7 @@ namespace Ship_Game
 
             this.CommoditiesSL = new ScrollList(this.pFacilities, 40);
             Rectangle theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (double)(theMenu3.Height - 60)));
-            this.build = new Submenu(ScreenManager, theMenu10);
+            this.build = new Submenu(screenMgr, theMenu10);
             this.build.AddTab(Localizer.Token(334));
             this.buildSL = new ScrollList(this.build);
             this.playerDesignsToggle = new ToggleButton(new Rectangle(this.build.Menu.X + this.build.Menu.Width - 270, this.build.Menu.Y, 29, 20), "SelectionBox/button_grid_active", "SelectionBox/button_grid_inactive", "SelectionBox/button_grid_hover", "SelectionBox/button_grid_pressed", "SelectionBox/icon_grid");
@@ -281,7 +270,7 @@ namespace Ship_Game
             if (p.AllowInfantry)
                 this.build.AddTab(Localizer.Token(336));
             Rectangle theMenu11 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20 + 20 + theMenu10.Height, theMenu3.Width - 40, theMenu3.Height - 40 - theMenu10.Height - 20 - 3);
-            this.queue = new Submenu(ScreenManager, theMenu11);
+            this.queue = new Submenu(screenMgr, theMenu11);
             this.queue.AddTab(Localizer.Token(337));
             this.QSL = new ScrollList(this.queue);
             this.QSL.IsDraggable = true;
@@ -555,7 +544,7 @@ namespace Ship_Game
                                 entry.clickRectHover = 1;
                         }
 #if !DEBUG
-		            }
+                    }
             catch
             {
             }  
@@ -650,7 +639,7 @@ namespace Ship_Game
                                     position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                                     // Use correct upkeep method depending on mod settings
                                     string upkeep = "Doctor rocks";
-									if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                                     {
                                         upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
                                     }
@@ -682,7 +671,7 @@ namespace Ship_Game
                                     position = new Vector2((float)(destinationRectangle2.X - 60), (float)(1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2));
                                     // Use correct upkeep method depending on mod settings
                                     string upkeep = "Doctor rocks";
-									if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
                                     {
                                         upkeep = (entry.item as Ship).GetMaintCostRealism(this.p.Owner).ToString("F2");
                                     }
@@ -2074,7 +2063,7 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(Localizer.Token(2280), this.ScreenManager);
             }
-            if ((input.Right || this.RightColony.HandleInput(input)) && (screen.Debug || this.p.Owner == EmpireManager.Player))
+            if ((input.Right || this.RightColony.HandleInput(input)) && (Empire.Universe.Debug || this.p.Owner == EmpireManager.Player))
             {
                 try
                 {
@@ -2083,7 +2072,7 @@ namespace Ship_Game
                     if (p.Owner.GetPlanets()[thisindex] != p)
                     {
                         p = p.Owner.GetPlanets()[thisindex];
-                        screen.workersPanel = new ColonyScreen(p, ScreenManager, eui);
+                        Empire.Universe.workersPanel = new ColonyScreen(p, ScreenManager, eui);
                     }
                 }
                 catch (Exception ex)
@@ -3079,19 +3068,28 @@ namespace Ship_Game
                     }
                 }
             }
-            MathHelper.Clamp(this.p.FarmerPercentage, 0f, 1f);
-            MathHelper.Clamp(this.p.WorkerPercentage, 0f, 1f);
-            MathHelper.Clamp(this.p.ResearcherPercentage, 0f, 1f);
-            this.slider1Last = (float)this.SliderFood.cursor.X;
-            this.slider2Last = (float)this.SliderProd.cursor.X;
-            this.slider3Last = (float)this.SliderRes.cursor.X;
-            this.SliderFood.amount = this.p.FarmerPercentage;
-            this.SliderFood.cursor = new Rectangle(this.SliderFood.sRect.X + (int)((float)this.SliderFood.sRect.Width * this.SliderFood.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderFood.sRect.Y + this.SliderFood.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
-            this.SliderProd.amount = this.p.WorkerPercentage;
-            this.SliderProd.cursor = new Rectangle(this.SliderProd.sRect.X + (int)((float)this.SliderProd.sRect.Width * this.SliderProd.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderProd.sRect.Y + this.SliderProd.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
-            this.SliderRes.amount = this.p.ResearcherPercentage;
-            this.SliderRes.cursor = new Rectangle(this.SliderRes.sRect.X + (int)((float)this.SliderRes.sRect.Width * this.SliderRes.amount) - ResourceManager.TextureDict["NewUI/slider_crosshair"].Width / 2, this.SliderRes.sRect.Y + this.SliderRes.sRect.Height / 2 - ResourceManager.TextureDict["NewUI/slider_crosshair"].Height / 2, ResourceManager.TextureDict["NewUI/slider_crosshair"].Width, ResourceManager.TextureDict["NewUI/slider_crosshair"].Height);
-            this.p.UpdateIncomes(false);
+
+            //MathHelper.Clamp(p.FarmerPercentage, 0f, 1f);
+            //MathHelper.Clamp(p.WorkerPercentage, 0f, 1f);
+            //MathHelper.Clamp(p.ResearcherPercentage, 0f, 1f);
+
+            SliderFood.amount = p.FarmerPercentage;
+            SliderProd.amount = p.WorkerPercentage;
+            SliderRes.amount = p.ResearcherPercentage;
+
+            SliderFood.cursor = CursorRectForSlider(SliderFood);
+            SliderProd.cursor = CursorRectForSlider(SliderProd);
+            SliderRes.cursor = CursorRectForSlider(SliderRes);
+
+            p.UpdateIncomes(false);
+        }
+
+        private static Rectangle CursorRectForSlider(Slider slider)
+        {
+            Texture2D crosshairTex = ResourceManager.Texture("NewUI/slider_crosshair");
+            int posX = slider.sRect.X + (int)(slider.sRect.Width * slider.amount) - crosshairTex.Width / 2;
+            int posY = slider.sRect.Y + slider.sRect.Height / 2 - crosshairTex.Height / 2;
+            return new Rectangle(posX, posY, crosshairTex.Width, crosshairTex.Height);
         }
 
         private string parseText(string text, float Width)
@@ -3243,7 +3241,7 @@ namespace Ship_Game
             public Rectangle cursor;
 
             public Color Color = new Color((byte)72, (byte)61, (byte)38);
-            public string state = "normal";
+            public string state  = "normal";
             public string cState = "normal";
 
             public Slider()
