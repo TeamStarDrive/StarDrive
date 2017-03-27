@@ -2735,7 +2735,7 @@ namespace Ship_Game.Gameplay
                 ship.ModuleSlotList.Add(new ModuleSlot
                 {
                     Health             = slotData.Health,
-                    ShieldPower       = slotData.ShieldPower,
+                    ShieldPower        = slotData.ShieldPower,
                     Position           = slotData.Position,
                     Facing             = slotData.Facing,
                     State              = slotData.State,
@@ -3469,7 +3469,7 @@ namespace Ship_Game.Gameplay
             data.Animated         = GetShipData().Animated;
             data.CombatState      = AI.CombatState;
             data.ModelPath        = GetShipData().ModelPath;
-            data.ModuleSlotList   = ModuleSlotList.ToArray();
+            data.ModuleSlotList   = GetRefreshedModuleSlotsArray();
             data.ThrusterList     = new Array<ShipToolScreen.ThrusterZone>();
             data.MechanicalBoardingDefense = MechanicalBoardingDefense;
             foreach (Thruster thruster in ThrusterList)
@@ -3481,28 +3481,23 @@ namespace Ship_Game.Gameplay
             return data;
         }
 
-        private Array<ModuleSlot> ConvertToData(Array<ModuleSlot> slotList)
+        // @todo This exists solely because ModuleSlot updating is buggy
+        // if you get a chance, just fix ModuleSlot updates so this isn't needed
+        private ModuleSlot[] GetRefreshedModuleSlotsArray()
         {
-            Array<ModuleSlot> list = new Array<ModuleSlot>();
-            foreach (ModuleSlot moduleSlot in slotList)
+            for (int i = 0; i < ModuleSlotList.Count; ++i)
             {
-                ModuleSlot moduleSlotData = new ModuleSlot
-                {
-                    Position = moduleSlot.Position,
-                    InstalledModuleUID = moduleSlot.InstalledModuleUID
-                };
-                if (moduleSlot.HangarshipGuid != Guid.Empty)
-                    moduleSlotData.HangarshipGuid = moduleSlot.HangarshipGuid;
-                moduleSlotData.Restrictions = moduleSlot.Restrictions;
-                if (moduleSlot.Module.ModuleType == ShipModuleType.Hangar)
-                    moduleSlotData.SlotOptions = moduleSlot.Module.hangarShipUID;
-                moduleSlotData.Facing = moduleSlot.Module.facing;
-                moduleSlotData.Health = moduleSlot.Module.Health;
-                moduleSlotData.ShieldPower = moduleSlot.Module.shield_power;
-                moduleSlotData.State = moduleSlot.State;
-                list.Add(moduleSlotData);
+                ModuleSlot slot = ModuleSlotList[i];
+                ShipModule module = slot.Module;
+
+                if (module.ModuleType == ShipModuleType.Hangar)
+                    slot.SlotOptions = module.hangarShipUID;
+
+                slot.Facing = slot.Module.facing;
+                slot.Health = slot.Module.Health;
+                slot.ShieldPower = slot.Module.shield_power;
             }
-            return list;
+            return ModuleSlotList.ToArray();
         }
 
         public float CalculateRange()
