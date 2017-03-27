@@ -234,9 +234,9 @@ namespace Ship_Game.AI
             var BuildingsAdded = new Array<string>();
             foreach (ModuleSlot slot in Owner.ModuleSlotList)//@TODO create building placement methods in planet.cs that take into account the below logic. 
             {
-                if (slot.module == null || slot.module.ModuleType != ShipModuleType.Colony || slot.module.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.module.DeployBuildingOnColonize))
+                if (slot.Module == null || slot.Module.ModuleType != ShipModuleType.Colony || slot.Module.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.Module.DeployBuildingOnColonize))
                     continue;
-                Building building = ResourceManager.CreateBuilding(slot.module.DeployBuildingOnColonize);
+                Building building = ResourceManager.CreateBuilding(slot.Module.DeployBuildingOnColonize);
                 var ok = true;
                 if (building.Unique)
                     foreach (Building b in ColonizeTarget.BuildingList)
@@ -248,7 +248,7 @@ namespace Ship_Game.AI
                     }
                 if (!ok)
                     continue;
-                BuildingsAdded.Add(slot.module.DeployBuildingOnColonize);
+                BuildingsAdded.Add(slot.Module.DeployBuildingOnColonize);
                 ColonizeTarget.BuildingList.Add(building);
                 ColonizeTarget.AssignBuildingToTileOnColonize(building);
             }
@@ -274,11 +274,11 @@ namespace Ship_Game.AI
                 }
             foreach (ModuleSlot slot in Owner.ModuleSlotList)
             {
-                if (slot.module.ModuleType != ShipModuleType.Colony)
+                if (slot.Module.ModuleType != ShipModuleType.Colony)
                     continue;			    
-                ColonizeTarget.FoodHere += slot.module.numberOfFood;				
-                ColonizeTarget.ProductionHere += slot.module.numberOfEquipment;				
-                ColonizeTarget.Population += slot.module.numberOfColonists;
+                ColonizeTarget.FoodHere += slot.Module.numberOfFood;				
+                ColonizeTarget.ProductionHere += slot.Module.numberOfEquipment;				
+                ColonizeTarget.Population += slot.Module.numberOfColonists;
             }
             var TroopsRemoved = false;
             var PlayerTroopsRemoved = false;
@@ -1699,7 +1699,7 @@ namespace Ship_Game.AI
                 if (fireTarget is ShipModule shipModule)
                 {
                     w.timeToNextFire = w.fireDelay;
-                    shipModule.GetParent().FindClosestExternalSlot(Owner.Center).module.Damage(Owner, w.InvisibleDamageAmount);
+                    shipModule.GetParent().FindClosestExternalSlot(Owner.Center).Module.Damage(Owner, w.InvisibleDamageAmount);
                 }
                 return;
             }
@@ -1733,7 +1733,7 @@ namespace Ship_Game.AI
             ModuleSlot closestExtSlot = targetShip.FindClosestExternalSlot(Owner.Center);
             if (closestExtSlot == null)
                 return;
-            ShipModule unshieldedModule = targetShip.FindUnshieldedExternalModule(closestExtSlot.module.quadrant);
+            ShipModule unshieldedModule = targetShip.FindUnshieldedExternalModule(closestExtSlot.Module.quadrant);
             unshieldedModule?.Damage(Owner, w.InvisibleDamageAmount);
         }
 
