@@ -302,7 +302,7 @@ namespace Ship_Game.Gameplay
         }
 
         // gives the approximate radius of the module, depending on module XSIZE & YSIZE
-        public float ApproxRadius => 8.0f * (XSIZE > YSIZE ? XSIZE : YSIZE);
+        public float ApproxRadius => 8.0f * 1.125f * (XSIZE > YSIZE ? XSIZE : YSIZE);
 
         public bool Damage(GameplayObject source, float damageAmount, out float damageRemainder)
         {
