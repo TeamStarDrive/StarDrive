@@ -38,11 +38,6 @@ namespace Ship_Game.Gameplay
         [XmlIgnore] [JsonIgnore] public ShipModule Module;
         [XmlIgnore] [JsonIgnore] public Ship Parent;
 
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            Module.Draw(spriteBatch);
-        }
-
         public Ship GetParent()
         {
             return Parent;

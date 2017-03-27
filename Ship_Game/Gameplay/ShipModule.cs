@@ -302,6 +302,7 @@ namespace Ship_Game.Gameplay
             return result;
         }
 
+        // @todo Unify with DamageInvisible
         public override bool Damage(GameplayObject source, float damageAmount)
         {
             if (source != null)
@@ -494,14 +495,13 @@ namespace Ship_Game.Gameplay
                         shield.texscale           = 2.8f;
                         shield.texscale           = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
                         shield.pointLight.Enabled = true;
-                        Vector2 vel = beam.Source - Center;
-                        vel = Vector2.Normalize(vel);
                         if (RandomMath.RandomBetween(0f, 100f) > 90f && Parent.InFrustum)
                         {
                             Empire.Universe.flash.AddParticleThreadA(new Vector3(beam.ActualHitDestination, Center3D.Z), Vector3.Zero);
                         }
                         if (Parent.InFrustum)
                         {
+                            Vector2 vel = (beam.Source - Center).Normalized();
                             for (int i = 0; i < 20; i++)
                             {
                                 Empire.Universe.sparks.AddParticleThreadA(new Vector3(beam.ActualHitDestination, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
@@ -514,282 +514,32 @@ namespace Ship_Game.Gameplay
                                 shield_power = 0f;
                         }
                     }
-                    else if (source is Projectile && !proj.IgnoresShields && Parent.InFrustum)
+                    else if (proj != null && !proj.IgnoresShields && Parent.InFrustum)
                     {
                         Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
                         shieldcue.Apply3D(Empire.Universe.listener, Parent.emitter);
                         shieldcue.Play();
-                        shield.Radius = Radius;
+                        shield.Radius       = Radius;
                         shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                        shield.texscale = 2.8f;
-                        shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                        shield.pointLight.World = (source as Projectile).GetWorld();
+                        shield.texscale     = 2.8f;
+                        shield.texscale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
+                        shield.pointLight.World        = proj.GetWorld();
                         shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                        shield.pointLight.Radius = Radius;
-                        shield.pointLight.Intensity = 8f;
-                        shield.pointLight.Enabled = true;
-                        Vector2 vel = Vector2.Normalize((source as Projectile).Center - Center);
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3((source as Projectile).Center, Center3D.Z), Vector3.Zero);
+                        shield.pointLight.Radius       = Radius;
+                        shield.pointLight.Intensity    = 8f;
+                        shield.pointLight.Enabled      = true;
+                        Vector2 vel = proj.Center - Center.Normalized();
+                        Empire.Universe.flash.AddParticleThreadB(new Vector3(proj.Center, Center3D.Z), Vector3.Zero);
                         for (int i = 0; i < 20; i++)
                         {
-                            Empire.Universe.sparks.AddParticleThreadB(new Vector3((source as Projectile).Center, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
+                            Empire.Universe.sparks.AddParticleThreadB(new Vector3(proj.Center, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
                         }
                     }
                 }
             }
             //Added by McShooterz: shields keep charge when manually turned off
-            if (shield_power > 0f && !shieldsOff)
-            {
-                Radius = shield_radius;
-            }
-            else
-            {
-                Radius = 8f;
-            }
+            Radius = shield_power > 0f && !shieldsOff ? shield_radius : 8f;
             return true;
-        }
-
-        public bool DamageDummy(float damageAmount)
-        {
-            Health -= damageAmount;
-            return true;
-        }
-
-        public void DamageInvisible(GameplayObject source, float damageAmount)
-        {
-            if (source != null)
-                Parent.LastDamagedBy = source;
-
-            if (source is Projectile)
-            {
-                if (Parent.shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
-                {
-                    damageAmount = damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
-                }
-            }
-            if (source is Ship && (source as Ship).shipData.Role == ShipData.RoleName.fighter && Parent.loyalty.data.Traits.DodgeMod < 0f)
-            {
-                damageAmount = damageAmount * Math.Abs(Parent.loyalty.data.Traits.DodgeMod);
-            }
-
-            Parent.InCombatTimer = 15f;
-            //Added by McShooterz: shields keep charge when manually turned off
-            if (shield_power <= 0f || shieldsOff)
-            {
-                if (source is Projectile)
-                    damageAmount = ApplyResistances((source as Projectile).weapon, damageAmount);
-
-                if (source is Beam)
-                    damageAmount = ApplyResistances((source as Beam).weapon, damageAmount);
-
-                //Doc: If the resistance-modified damage amount is less than an armour's damage threshold, no damage is applied.
-                if (damageAmount <= DamageThreshold)
-                    damageAmount = 0f;
-
-                if (source is Projectile && (source as Projectile).weapon.EMPDamage > 0f)
-                {
-                    Parent.EMPDamage = Parent.EMPDamage + (source as Projectile).weapon.EMPDamage;
-                }
-                if (source is Beam)
-                {
-                    Vector2 vel = (source as Beam).Source - Center;
-                    vel = Vector2.Normalize(vel);
-                    if (RandomMath.RandomBetween(0f, 100f) > 90f && Parent.InFrustum)
-                    {
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination, Center3D.Z), Vector3.Zero);
-                    }
-                    if (Parent.InFrustum)
-                    {
-                        for (int i = 0; i < 20; i++)
-                        {
-                            Empire.Universe.sparks.AddParticleThreadB(new Vector3((source as Beam).ActualHitDestination, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-                        }
-                    }
-                    if ((source as Beam).weapon.PowerDamage > 0f)
-                    {
-                        Parent.PowerCurrent = Parent.PowerCurrent - (source as Beam).weapon.PowerDamage;
-                        if (Parent.PowerCurrent < 0f)
-                        {
-                            Parent.PowerCurrent = 0f;
-                        }
-                    }
-                    if ((source as Beam).weapon.TroopDamageChance > 0f)
-                    {
-                        if (Parent.TroopList.Count > 0)
-                        {
-                            if (UniverseRandom.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
-                            {
-                                Parent.TroopList[0].Strength = Parent.TroopList[0].Strength - 1;
-                                if (Parent.TroopList[0].Strength <= 0)
-                                {
-                                    Parent.TroopList.RemoveAt(0);
-                                }
-                            }
-                        }
-                        else if (Parent.MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < (source as Beam).weapon.TroopDamageChance)
-                        {
-                            Parent.MechanicalBoardingDefense -= 1f;
-                        }
-                    }
-                    if ((source as Beam).weapon.MassDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
-                    {
-                        Parent.Mass = Parent.Mass + (source as Beam).weapon.MassDamage;
-                        Parent.velocityMaximum = Parent.Thrust / Parent.Mass;
-                        Parent.speed = Parent.velocityMaximum;
-                        Parent.rotationRadiansPerSecond = Parent.speed / 700f;
-                    }
-                    if ((source as Beam).weapon.RepulsionDamage > 0f && !Parent.IsTethered() && !Parent.EnginesKnockedOut)
-                    {
-                        Parent.Velocity = Parent.Velocity + (((Center - (source as Beam).Owner.Center) * (source as Beam).weapon.RepulsionDamage) / Parent.Mass);
-                    }
-                }
-                //Added by McShooterz: shields keep charge when manually turned off
-
-                if (shield_power <= 0f || shieldsOff)
-                {
-                    if (source is Projectile && ModuleType == ShipModuleType.Armor)
-                    {
-                        if ((source as Projectile).isSecondary)
-                        {
-                            Weapon shooter = (source as Projectile).weapon;
-                            ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
-                            damageAmount *= shooter.EffectVsArmor;  // (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVsArmor);
-                        }
-                        else
-                        {
-                            damageAmount *= (source as Projectile).weapon.EffectVsArmor;
-                        }
-                    }
-                    //ShipModule health = this;
-                    Health = Health - damageAmount;
-                }
-                else
-                {
-                    //ShipModule shieldPower = this;
-                    shield_power = shield_power - damageAmount;
-                    if (shield_power < 0f)
-                    {
-                        shield_power = 0f;
-                    }
-                }
-                if (Health >= HealthMax)
-                {
-                    Health = HealthMax;
-                    Active = true;
-                    onFire = false;
-                }
-            }
-            else
-            {
-                //ShipModule shipModule = this;
-                if (source is Projectile)
-                {
-                    if ((source as Projectile).isSecondary)
-                    {
-                        Weapon shooter = (source as Projectile).weapon;
-                        ResourceManager.WeaponsDict.TryGetValue(shooter.SecondaryFire, out shooter);
-                        damageAmount *= shooter.EffectVSShields; 
-                        //damageAmount *= (ResourceManager.GetWeapon(shooter.SecondaryFire).EffectVSShields);
-                    }
-                    else
-                    {
-                        damageAmount *= (source as Projectile).weapon.EffectVSShields;
-                    }
-                }
-                else if (source is Beam)
-                {
-                    damageAmount *= (source as Beam).weapon.EffectVSShields;
-                }
-
-                if (source is Projectile)
-                    damageAmount = ApplyShieldResistances((source as Projectile).weapon, damageAmount);
-                else if (source is Beam)
-                    damageAmount = ApplyShieldResistances((source as Beam).weapon, damageAmount);
-
-                if (damageAmount <= shield_threshold)
-                    damageAmount = 0f;
-
-                shield_power = shield_power - damageAmount;
-                if (Empire.Universe.viewState == UniverseScreen.UnivScreenState.ShipView && Parent.InFrustum)
-                {
-                    shield.Rotation = source.Rotation - 3.14159274f;
-                    shield.displacement = 0f;
-                    shield.texscale = 2.8f;
-                    shield.pointLight.Refresh(Empire.Universe);
-
-                    if (source is Beam)
-                    {
-                        shield.Rotation = Center.RadiansToTarget((source as Beam).Source);
-                        shield.pointLight.World = Matrix.CreateTranslation(new Vector3((source as Beam).ActualHitDestination, 0f));
-                        shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                        shield.pointLight.Radius = shield_radius * 2f;
-                        shield.pointLight.Intensity = RandomMath.RandomBetween(4f, 10f);
-                        shield.displacement = 0f;
-                        shield.Radius = Radius;
-                        shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                        shield.texscale = 2.8f;
-                        shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                        shield.pointLight.Enabled = true;
-                        Vector2 vel = (source as Beam).Source - Center;
-                        vel = Vector2.Normalize(vel);
-                        if (RandomMath.IntBetween(0, 100) > 90 && Parent.InFrustum)
-                        {
-                            Empire.Universe.flash.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, Center3D.Z), Vector3.Zero);
-                        }
-                        if (Parent.InFrustum)
-                        {
-                            for (int i = 0; i < 20; i++)
-                            {
-                                Empire.Universe.sparks.AddParticleThreadA(new Vector3((source as Beam).ActualHitDestination, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-                            }
-                        }
-                        if ((source as Beam).weapon.SiphonDamage > 0f)
-                        {
-                            //ShipModule shieldPower1 = this;
-                            shield_power = shield_power - (source as Beam).weapon.SiphonDamage;
-                            if (shield_power < 0f)
-                            {
-                                shield_power = 0f;
-                            }
-                            (source as Beam).owner.PowerCurrent += (source as Beam).weapon.SiphonDamage;
-                        }
-                    }
-                    else if (source is Projectile && !(source as Projectile).IgnoresShields && Parent.InFrustum)
-                    {
-                        Cue shieldcue = AudioManager.GetCue("sd_impact_shield_01");
-                        shieldcue.Apply3D(Empire.Universe.listener, Parent.emitter);
-                        shieldcue.Play();
-                        shield.Radius = Radius;
-                        shield.displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
-                        shield.texscale = 2.8f;
-                        shield.texscale = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
-                        shield.pointLight.World = (source as Projectile).GetWorld();
-                        shield.pointLight.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-                        shield.pointLight.Radius = Radius;
-                        shield.pointLight.Intensity = 8f;
-                        shield.pointLight.Enabled = true;
-                        Vector2 vel = Vector2.Normalize((source as Projectile).Center - Center);
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3((source as Projectile).Center, Center3D.Z), Vector3.Zero);
-                        for (int i = 0; i < 20; i++)
-                        {
-                            Empire.Universe.sparks.AddParticleThreadB(new Vector3((source as Projectile).Center, Center3D.Z), new Vector3(vel * RandomMath.RandomBetween(40f, 80f), RandomMath.RandomBetween(-25f, 25f)));
-                        }
-                    }
-                }
-            }
-            //Added by McShooterz: shields keep charge when manually turned off
-            if (shield_power > 0f && !shieldsOff)
-            {
-                Radius = shield_radius;
-            }
-            else
-            {
-                Radius = 8f;
-            }
-            if (Health <= 0f)
-            {
-                Die(source, true);
-            }
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -841,12 +591,8 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
-        {
-        }
-
         public Ship GetHangarShip() => hangarShip;
-        public Ship GetParent() => Parent;
+        public Ship GetParent()     => Parent;
 
         public void Initialize(Vector2 pos)
         {
@@ -919,11 +665,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-
-        public void LoadContent(GameContentManager contentManager)
-        {
-        }
-
         //added by gremlin fighter rearm fix
         public void ScrambleFighters()
         {
@@ -944,53 +685,43 @@ namespace Ship_Game.Gameplay
             if (hangarTimer > 0f || (hangarShip != null && (hangarShip == null || hangarShip.Active)))
                 return;
 
-            string hangarship    = hangarShipUID;
             string startingscout = Parent.loyalty.data.StartingShip;
 
-            Ship temphangarship=null;
+            Ship ship = null;
             if (!Parent.loyalty.isFaction && (hangarShipUID == startingscout 
                                                    || !Parent.loyalty.ShipsWeCanBuild.Contains(hangarShipUID)))
             {
-                temphangarship = ResourceManager.ShipsDict[startingscout];
+                ship = ResourceManager.GetShipTemplate(startingscout);
                 foreach (string shipsWeCanBuild in Parent.loyalty.ShipsWeCanBuild)
                 {
 
-                    if (!PermittedHangarRoles.Contains(ResourceManager.ShipsDict[shipsWeCanBuild].shipData.GetRole()) 
-                        || ResourceManager.ShipsDict[shipsWeCanBuild].Size > MaximumHangarShipSize)
+                    if (!PermittedHangarRoles.Contains(ResourceManager.GetShipTemplate(shipsWeCanBuild).shipData.GetRole()) 
+                        || ResourceManager.GetShipTemplate(shipsWeCanBuild).Size > MaximumHangarShipSize)
                     {
                         continue;
                     }
-                    Ship tempship =ResourceManager.ShipsDict[shipsWeCanBuild];
-                    if(temphangarship.BaseStrength  < tempship.BaseStrength || temphangarship.Size < tempship .Size)
-                        temphangarship = tempship;
+                    Ship tempship = ResourceManager.GetShipTemplate(shipsWeCanBuild);
+                    if (ship.BaseStrength  < tempship.BaseStrength || ship.Size < tempship .Size)
+                        ship = tempship;
                 }
-                hangarShipUID = temphangarship.Name;
-                hangarship = hangarShipUID;
+                hangarShipUID = ship.Name;
             }
-
-            if (string.IsNullOrEmpty(hangarship) )
+            if (ship == null || ship.Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
                 return;
-                   
-            temphangarship = ResourceManager.ShipsDict[hangarship];
-                    
-            if (temphangarship.Mass / 5f > Parent.Ordinance)  //fbedard: New spawning cost
-                return;
-            SetHangarShip(ResourceManager.CreateShipFromHangar(temphangarship.Name, Parent.loyalty, Center, Parent));
 
-            if (hangarShip != null)
+            SetHangarShip(ResourceManager.CreateShipFromHangar(ship.Name, Parent.loyalty, Center, Parent));
+
+            hangarShip.DoEscort(Parent);
+            hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().speed + Parent.Velocity;
+            if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
             {
-                hangarShip.DoEscort(Parent);
-                hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().speed + Parent.Velocity;
-                if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-                {
-                    hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.speed;
-                }
-                hangarShip.Mothership = Parent;
-                installedSlot.HangarshipGuid = GetHangarShip().guid;
-
-                hangarTimer = hangarTimerConstant;
-                Parent.Ordinance -= hangarShip.Mass / 5f;
+                hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.speed;
             }
+            hangarShip.Mothership = Parent;
+            installedSlot.HangarshipGuid = GetHangarShip().guid;
+
+            hangarTimer = hangarTimerConstant;
+            Parent.Ordinance -= hangarShip.Mass / 5f;
         }
 
         public void SetAttributesByType()
@@ -1055,7 +786,7 @@ namespace Ship_Game.Gameplay
 
         private void ConfigWeapon(bool addToParent)
         {
-            InstalledWeapon = ResourceManager.GetWeapon(ResourceManager.GetModuleTemplate(UID).WeaponType);
+            InstalledWeapon = ResourceManager.CreateWeapon(ResourceManager.GetModuleTemplate(UID).WeaponType);
             InstalledWeapon.moduleAttachedTo = this;
             InstalledWeapon.Owner = Parent;
             InstalledWeapon.Center = Center;
@@ -1107,26 +838,20 @@ namespace Ship_Game.Gameplay
         {
             quadrant = -1;
 
-            var up = new Vector2(XMLPosition.X, XMLPosition.Y - 16f);
-            if (Parent.TryGetModule(up, out ShipModule module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
+            Vector2 pos = XMLPosition;
+            if (Parent.TryGetModule(new Vector2(pos.X, pos.Y - 16f), out ShipModule module) && module.Active && !module.isExternal)
             {
                 AddExternalModule(module, 1);
             }
-
-            var right = new Vector2(XMLPosition.X + 16f, XMLPosition.Y);
-            if (Parent.TryGetModule(right, out module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
+            else if (Parent.TryGetModule(new Vector2(pos.X + 16f, pos.Y), out module) && module.Active && !module.isExternal)
             {
                 AddExternalModule(module, 2);
             }
-
-            var down = new Vector2(XMLPosition.X, XMLPosition.Y + 16f);
-            if (Parent.TryGetModule(down, out module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
+            else if (Parent.TryGetModule(new Vector2(pos.X, pos.Y + 16f), out module) && module.Active && !module.isExternal)
             {
                 AddExternalModule(module, 3);
             }
-
-            var left = new Vector2(XMLPosition.X - 16f, XMLPosition.Y);
-            if (Parent.TryGetModule(left, out module) && module.Active && (!module.isExternal || module.shield_power_max > 0))
+            else if (Parent.TryGetModule(new Vector2(pos.X - 16f, pos.Y), out module) && module.Active && !module.isExternal)
             {
                 AddExternalModule(module, 4);
             }

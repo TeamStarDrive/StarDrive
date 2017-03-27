@@ -386,10 +386,7 @@ namespace Ship_Game.Gameplay
 
         private Projectile CreateProjectile(Ship owner, Vector2 direction, ShipModule attachedTo, GameplayObject target, bool playSound = true)
         {
-            
-              var  projectile = new Projectile(owner, direction, attachedTo);
-            
-
+            var projectile = new Projectile(owner, direction, attachedTo);
             projectile.range                 = Range;
             projectile.weapon                = this;
             projectile.explodes              = explodes;
@@ -457,7 +454,7 @@ namespace Ship_Game.Gameplay
             if (SecondaryFire != null && AltFireTriggerFighter && AltFireMode &&
                 target is ShipModule shipModule && shipModule.GetParent().shipData.Role == ShipData.RoleName.fighter)
             {
-                Weapon altFire = ResourceManager.GetWeapon(SecondaryFire);
+                Weapon altFire = ResourceManager.CreateWeapon(SecondaryFire);
                 Projectile projectile = altFire.CreateProjectile(Owner, direction, moduleAttachedTo, shipModule, playSound);
                 projectile.isSecondary = true;
             }
@@ -692,9 +689,9 @@ namespace Ship_Game.Gameplay
 
         private IEnumerable<Vector2> EnumFireArc(Vector2 direction, int projectileCount)
         {
-            float degreesBetweenShots = FireArc / (float)ProjectileCount;
+            float degreesBetweenShots = FireArc / (float)projectileCount;
             float angleToTarget = direction.ToDegrees() - FireArc * 0.5f;
-            for (int i = 0; i < ProjectileCount; ++i)
+            for (int i = 0; i < projectileCount; ++i)
             {
                 Vector2 dir = angleToTarget.AngleToDirection();
                 angleToTarget += degreesBetweenShots;
