@@ -3335,7 +3335,7 @@ namespace Ship_Game.Gameplay
                 float cy = slot.Module.YSIZE * 8;
                       cy = cy <= 8 ? slot.Position.Y : slot.Position.Y + cy;
 
-                int powerRadius = (int)module.PowerRadius * 16 + 8;
+                int powerRadius = (int)module.PowerRadius + 8; //+8 to make power radius not lose .5 of an int.
 
                 foreach (ModuleSlot slot2 in ModuleSlotList)
                 {
