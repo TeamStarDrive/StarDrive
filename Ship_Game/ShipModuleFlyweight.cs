@@ -39,29 +39,29 @@ namespace Ship_Game.Gameplay
         public readonly float SensorRange;
         public readonly float MechanicalBoardingDefense;
         public readonly float EMP_Protection;
-        public readonly byte PowerRadius;
-        public readonly byte TechLevel;
+        public readonly int PowerRadius;
+        public readonly int TechLevel;
         public readonly float OrdnanceAddedPerSecond;
         public readonly string BombType;
         public readonly float WarpMassCapacity;
         public readonly float BonusRepairRate;
-        public readonly float Cargo_Capacity;
+        public readonly int Cargo_Capacity;
         public readonly float shield_radius;
         public readonly float shield_power_max;
         public readonly float shield_recharge_rate;
         public readonly float shield_recharge_combat_rate;
         public readonly float shield_recharge_delay;
         public readonly float shield_threshold;
-        public readonly sbyte shield_kinetic_resist;
-        public readonly sbyte shield_energy_resist;
-        public readonly sbyte shield_explosive_resist;
-        public readonly sbyte shield_missile_resist;
-        public readonly sbyte shield_flak_resist;
-        public readonly sbyte shield_hybrid_resist;
-        public readonly sbyte shield_railgun_resist;
-        public readonly sbyte shield_subspace_resist;
-        public readonly sbyte shield_warp_resist;
-        public readonly sbyte shield_beam_resist;
+        public readonly int shield_kinetic_resist;
+        public readonly int shield_energy_resist;
+        public readonly int shield_explosive_resist;
+        public readonly int shield_missile_resist;
+        public readonly int shield_flak_resist;
+        public readonly int shield_hybrid_resist;
+        public readonly int shield_railgun_resist;
+        public readonly int shield_subspace_resist;
+        public readonly int shield_warp_resist;
+        public readonly int shield_beam_resist;
         public readonly float numberOfColonists;
         public readonly float numberOfEquipment;
         public readonly float numberOfFood;
@@ -76,8 +76,8 @@ namespace Ship_Game.Gameplay
         public readonly float PowerDrawAtWarp;
         public readonly float PowerStoreMax;
         public readonly float HealPerTurn;
-        public readonly byte TroopCapacity;
-        public readonly byte TroopsSupplied;
+        public readonly int TroopCapacity;
+        public readonly int TroopsSupplied;
         public readonly float Cost;
         public readonly float InhibitionRadius;
         public readonly float FTLSpoolTime;
@@ -87,8 +87,8 @@ namespace Ship_Game.Gameplay
         public readonly float TransporterRange;
         public readonly float TransporterPower;
         public readonly float TransporterOrdnance;
-        public readonly byte TransporterTroopLanding;
-        public readonly byte TransporterTroopAssault;
+        public readonly int TransporterTroopLanding;
+        public readonly int TransporterTroopAssault;
 
         //Doctor: these were floats for a reason: they're decimal fractions to define damage resistance. Loading them with sbytes caused crashes from xml and broke the resistance mechanics.
         //Likewise, DamageThreshold is a set damage amount which armour disregards damage value under - immediately broke as a byte as some armours had values higher than 255.
@@ -116,8 +116,8 @@ namespace Ship_Game.Gameplay
         public readonly bool IndirectPower;
         public readonly bool isPowerArmour;
         public readonly bool isBulkhead;
-        public readonly sbyte TargetTracking;
-        public readonly sbyte FixedTracking;
+        public readonly int TargetTracking;
+        public readonly int FixedTracking;
 
         public static readonly ShipModuleFlyweight Empty = new ShipModuleFlyweight();    //A static instance to be assigned to leftover modules
         public readonly string UID = string.Empty;
@@ -131,7 +131,6 @@ namespace Ship_Game.Gameplay
         {
             //This should only be called once per module XML file -Gretman
             ++TotalNumModules;
-
             FTLSpeed                    = s.FTLSpeed;
             DeployBuildingOnColonize    = s.DeployBuildingOnColonize;
             ResourceStored              = s.ResourceStored;
@@ -241,8 +240,8 @@ namespace Ship_Game.Gameplay
     {
         public float FTLSpeed;
         public string DeployBuildingOnColonize;
-        public byte XSIZE = 1;
-        public byte YSIZE = 1;
+        public int XSIZE = 1;
+        public int YSIZE = 1;
         public string ResourceStored;
         public float ResourceStorageAmount;
         public string ResourceRequired;
@@ -269,9 +268,9 @@ namespace Ship_Game.Gameplay
         public float MechanicalBoardingDefense;
         public float EMP_Protection;
         public float TroopBoardingDefense;
-        public byte PowerRadius;
+        public int PowerRadius;
         public bool Powered;
-        public byte TechLevel;
+        public int TechLevel;
         public float OrdnanceAddedPerSecond;
         public string BombType;
         public float WarpMassCapacity;
@@ -279,30 +278,29 @@ namespace Ship_Game.Gameplay
         public float facing;
         public Vector2 XMLPosition;
         public float BonusRepairRate;
-        public float Cargo_Capacity;
+        public int Cargo_Capacity;
         public float HealthMax;
         public string WeaponType;
         public ushort NameIndex;
         public ushort DescriptionIndex;
         public Restrictions Restrictions;
         public float shield_power;
-        public bool shieldsOff = false;
         public float shield_radius;
         public float shield_power_max;
         public float shield_recharge_rate;
         public float shield_recharge_combat_rate;
         public float shield_recharge_delay;
         public float shield_threshold;
-        public sbyte shield_kinetic_resist;
-        public sbyte shield_energy_resist;
-        public sbyte shield_explosive_resist;
-        public sbyte shield_missile_resist;
-        public sbyte shield_flak_resist;
-        public sbyte shield_hybrid_resist;
-        public sbyte shield_railgun_resist;
-        public sbyte shield_subspace_resist;
-        public sbyte shield_warp_resist;
-        public sbyte shield_beam_resist;
+        public int shield_kinetic_resist;
+        public int shield_energy_resist;
+        public int shield_explosive_resist;
+        public int shield_missile_resist;
+        public int shield_flak_resist;
+        public int shield_hybrid_resist;
+        public int shield_railgun_resist;
+        public int shield_subspace_resist;
+        public int shield_warp_resist;
+        public int shield_beam_resist;
         public float numberOfColonists;
         public float numberOfEquipment;
         public float numberOfFood;
@@ -326,8 +324,8 @@ namespace Ship_Game.Gameplay
         public bool MountRear;
         public short OrdinanceCapacity;
         public float BombTimer;
-        public byte TroopCapacity;
-        public byte TroopsSupplied;
+        public int TroopCapacity;
+        public int TroopsSupplied;
         public float Cost;
         public ShipModuleType ModuleType;
         public Vector2 moduleCenter;
@@ -345,8 +343,8 @@ namespace Ship_Game.Gameplay
         public float TransporterRange;
         public float TransporterPower;
         public float TransporterOrdnance;
-        public byte TransporterTroopLanding;
-        public byte TransporterTroopAssault;
+        public int TransporterTroopLanding;
+        public int TransporterTroopAssault;
         public int TargetValue;
         public float KineticResist;
         public float EnergyResist;
@@ -372,9 +370,9 @@ namespace Ship_Game.Gameplay
         public bool IndirectPower;
         public bool isPowerArmour;
         public bool isBulkhead;
-        public sbyte quadrant = -1;
-        public sbyte TargetTracking;
-        public sbyte FixedTracking;
+        public int quadrant = -1;
+        public int TargetTracking;
+        public int FixedTracking;
 
         public ShipModule ConvertToShipModule() => new ShipModule(this);
     }

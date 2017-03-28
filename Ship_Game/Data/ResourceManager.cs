@@ -145,7 +145,7 @@ namespace Ship_Game
                 if (shipData.hullUnlockable)
                 {
                     shipData.allModulesUnlocakable = true;
-                    foreach (ModuleSlot module in kv.Value.shipData.ModuleSlotList)
+                    foreach (ModuleSlotData module in kv.Value.shipData.ModuleSlots)
                     {
                         if (module.InstalledModuleUID == "Dummy")
                             continue;
@@ -464,7 +464,7 @@ namespace Ship_Game
             foreach (Thruster t in template.GetTList())
                 ship.AddThruster(t);
 
-            ship.LoadModuleSlotsAsCopy(template.ModuleSlotList);
+            ship.CreateModuleSlotsFromData(template.GetShipData().ModuleSlots);
 
             // Added by McShooterz: add automatic ship naming
             if (GlobalStats.HasMod)
@@ -778,10 +778,9 @@ namespace Ship_Game
                 ModuleType           = template.ModuleType,
                 NameIndex            = template.NameIndex,
                 OrdinanceCapacity    = template.OrdinanceCapacity,
-                shield_power         = template.shield_power_max, //Hmmm... This one is strange -Gretman
+                ShieldPower         = template.shield_power_max, //Hmmm... This one is strange -Gretman
                 XSIZE                = template.XSIZE,
-                YSIZE                = template.YSIZE,
-                shieldsOff           = template.shieldsOff
+                YSIZE                = template.YSIZE
             };
             // @todo This might need to be updated with latest ModuleType logic?
             module.TargetValue += module.ModuleType == ShipModuleType.Armor ? -1 : 0;
@@ -1192,10 +1191,8 @@ namespace Ship_Game
 
                         Ship newShip = Ship.CreateShipFromShipData(shipData);
                         newShip.SetShipData(shipData);
-                        if (!newShip.Init(fromSave: false))
+                        if (!newShip.InitializeStatus(fromSave: false))
                             continue;
-
-                        newShip.InitializeStatus();
 
                         lock (ships)
                         {
@@ -1249,20 +1246,16 @@ namespace Ship_Game
             bool fighters = false;
             bool weapons = false;
 
-
-            foreach (ModuleSlot slot in ship.ModuleSlotList)
+            foreach (ShipModule slot in ship.ModuleSlotList)
             {
-                if (slot.InstalledModuleUID == "Dummy")
-                    continue; // Ignore dummy modules -- they are deprecated
+                //ShipModule template = GetModuleTemplate(slot.UID);
+                weapons  |= slot.InstalledWeapon != null;
+                fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
 
-                ShipModule module = GetModuleTemplate(slot.InstalledModuleUID);
-                weapons  |=  module.InstalledWeapon != null;
-                fighters |=  module.hangarShipUID   != null && !module.IsSupplyBay && !module.IsTroopBay;
+                offense += CalculateModuleOffense(slot);
+                defense += CalculateModuleDefense(slot, ship.Size);
 
-                offense += CalculateModuleOffense(module);
-                defense += CalculateModuleDefense(module, ship.Size);
-
-                if (ShipModulesDict[module.UID].WarpThrust > 0)
+                if (ShipModulesDict[slot.UID].WarpThrust > 0)
                     ship.BaseCanWarp = true;
             }
 
@@ -1439,7 +1432,7 @@ namespace Ship_Game
                         if (module.InstalledWeapon != null || module.MaximumHangarShipSize > 0
                             || module.ModuleType == ShipModuleType.Hangar)
                             tech.TechnologyType = TechnologyType.ShipWeapons;
-                        else if (module.shield_power > 0 
+                        else if (module.ShieldPower > 0 
                                  || module.ModuleType == ShipModuleType.Armor
                                  || module.ModuleType == ShipModuleType.Countermeasure
                                  || module.ModuleType == ShipModuleType.Shield)
