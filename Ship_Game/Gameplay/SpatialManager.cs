@@ -312,7 +312,6 @@ namespace Ship_Game.Gameplay
                     ids[numIds++] = id;
             }
 
-
             if (numIds == 0) // all this work for nothing?? pffft.
                 return Empty<T>.Array;
 
@@ -484,10 +483,9 @@ namespace Ship_Game.Gameplay
                     if (beam.damageAmount >= 0f)
                         return;
 
-                    // @todo Why is this here??
-                    foreach (ModuleSlot current in ship.ModuleSlotList)
+                    // @todo Why is this here?? Healing stuff shuld be handled elsewhere! like target.Touch(beam)
+                    foreach (ShipModule module in ship.ModuleSlotList)
                     {
-                        ShipModule module = current.Module;
                         module.Health -= beam.damageAmount;
 
                         if (module.Health < 0f)

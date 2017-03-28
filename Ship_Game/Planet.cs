@@ -2803,26 +2803,26 @@ namespace Ship_Game
                     {
                         //bool repairing = false;
                         ship.shipStatusChanged = true;
-                        foreach (ModuleSlot slot in ship.ModuleSlotList) // .Where(slot => slot.module.ModuleType != ShipModuleType.Dummy && slot.module.Health != slot.module.HealthMax))
+                        foreach (ShipModule slot in ship.ModuleSlotList) // .Where(slot => slot.ModuleType != ShipModuleType.Dummy && slot.Health != slot.HealthMax))
                         {
                             //repairing = true;
                             if(ship.loyalty.data.Traits.ModHpModifier >0 )
                             {
-                                float test = ResourceManager.GetModuleTemplate(slot.Module.UID).HealthMax;
-                                slot.Module.HealthMax = test + test * ship.loyalty.data.Traits.ModHpModifier; 
+                                float test = ResourceManager.GetModuleTemplate(slot.UID).HealthMax;
+                                slot.HealthMax = test + test * ship.loyalty.data.Traits.ModHpModifier; 
                             }
-                            if (slot.Module.Health < slot.Module.HealthMax)
+                            if (slot.Health < slot.HealthMax)
                             {
-                                if (slot.Module.HealthMax - slot.Module.Health > RepairPool)
+                                if (slot.HealthMax - slot.Health > RepairPool)
                                 {
-                                    slot.Module.Repair(RepairPool);
+                                    slot.Repair(RepairPool);
                                     RepairPool = 0;
                                     break;
                                 }
                                 else
                                 {
-                                    RepairPool -= slot.Module.HealthMax - slot.Module.Health;
-                                    slot.Module.Repair(slot.Module.HealthMax);
+                                    RepairPool -= slot.HealthMax - slot.Health;
+                                    slot.Repair(slot.HealthMax);
                                 }
                             }
                         }                        
