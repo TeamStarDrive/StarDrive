@@ -260,20 +260,18 @@ namespace Ship_Game
         {
             if (target == null)
                 return true;
-
-            bool isShipModule = target is ShipModule;
-            ShipModule targetModule = target as ShipModule;
             if (target == owner && !weapon.HitsFriendlies)
                 return false;
-
             if (target is Projectile && WeaponType != "Missile")
                 return false;
             if (target is Ship)
                 return false;
-            if (damageAmount < 0f && isShipModule && targetModule.shield_power > 0f)
+
+            var targetModule = target as ShipModule;
+            if (damageAmount < 0f && targetModule?.shield_power > 0f)
                 return false;
 
-            if (!DamageToggleOn && isShipModule)
+            if (!DamageToggleOn && targetModule != null)
             {
                 DamageToggleOn = true;
             }

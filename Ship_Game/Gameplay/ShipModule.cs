@@ -804,25 +804,12 @@ namespace Ship_Game.Gameplay
 
         public void SetInitialPosition()
         {
-            float parentFacing = Parent.Rotation.ToDegrees();
+            float angle = offsetAngle + Parent.Rotation.ToDegrees();
 
-            Vector2 position = Parent.Center;
-            float angle = offsetAngle + parentFacing;
-            float distance = distanceToParentCenter;
-            ModuleCenter = position.PointFromAngle(angle, distance);
+            ModuleCenter = Parent.Center.PointFromAngle(angle, distanceToParentCenter);
 
             Position = new Vector2(ModuleCenter.X - 8f, ModuleCenter.Y - 8f);
             Center = ModuleCenter;
-        }
-
-        public void SetModuleToCenter()
-        {
-            Position = Parent.Position;
-            Center = Parent.Center;
-            if (isWeapon)
-            {
-                InstalledWeapon.Center = Center;
-            }
         }
 
         private void AddExternalModule(ShipModule module, int moduleQuadrant)

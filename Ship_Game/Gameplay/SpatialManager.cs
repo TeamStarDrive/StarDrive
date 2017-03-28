@@ -465,28 +465,27 @@ namespace Ship_Game.Gameplay
         private void CollideBeam(Beam beam)
         {
             beam.CollidedThisFrame = false;
-            float distanceToTarget = beam.Destination.Distance(beam.Source);
-            if (distanceToTarget > beam.range + 10f)
-                return;
-            beam.ActualHitDestination = beam.Destination;
 
-            Ship ship1 = null;
-            Vector2 actualHitDestination = Vector2.Zero;
-            GameplayObject gameplayObject1 = null;
+            Vector2 beamStart = beam.Source;
+            Vector2 beamEnd = beam.Destination;
+            float distance = beamEnd.Distance(beamStart);
+            if (distance > beam.range + 10f)
+                return;
+
+            GameplayObject targetObject = null;
             GameplayObject beamTarget = beam.GetTarget();
             if (beamTarget != null)
             {
-                if (beamTarget is Ship ship2)
+                if (beamTarget is Ship ship)
                 {
-                    gameplayObject1 = ship2; // @todo Is this correct? Should fix a null pointer crash...
-                    ship2.MoveModulesTimer = 2f;
+                    targetObject = ship; // @todo Is this correct? Should fix a null pointer crash...
+                    ship.MoveModulesTimer = 2f;
                     beam.ActualHitDestination = beamTarget.Center;
                     if (beam.damageAmount >= 0f)
-                    {
-                        //beam.owner.Beams.QueuePendingRemoval(beam);
                         return;
-                    }
-                    foreach (ModuleSlot current in ship2.ModuleSlotList)
+
+                    // @todo Why is this here??
+                    foreach (ModuleSlot current in ship.ModuleSlotList)
                     {
                         ShipModule module = current.Module;
                         module.Health -= beam.damageAmount;
@@ -497,37 +496,27 @@ namespace Ship_Game.Gameplay
                             module.Health = module.HealthMax;
                     }
                 }
-                else if (beamTarget is ShipModule)
-                {
-                    gameplayObject1 = (beamTarget as ShipModule).GetParent();
-                }
+                else if (beamTarget is ShipModule targetModule)
+                    targetObject = targetModule.GetParent();
                 else if (beamTarget is Asteroid)
-                    gameplayObject1 = beam.GetTarget();
-                else
-                    Log.Info("beam null");
+                    targetObject = beamTarget;
+                else Log.Error("Unexpected beamTarget");
             }
-            else gameplayObject1 = beam.owner;
 
-            if (gameplayObject1 == null)
+            if (targetObject == null)
             {
-                Log.Info("CollideBeam gameplayObject1 null");
+                Log.Error("CollideBeam targetObject null, where are you aiming at??? :S");
                 return;
             }
 
-            GameplayObject[] nearby = GetNearby<GameplayObject>(gameplayObject1.Position, gameplayObject1.Radius);
+            Ship[] nearby = GetNearby<Ship>(targetObject.Position, targetObject.Radius);
             if (nearby.Length == 0)
                 return;
-            nearby.Sort(obj => beam.Source.SqDist(obj.Position));
-
-            Vector2 unitV = Vector2.Normalize(beam.Destination - beam.Source);
-
-            var beampath = new Ray(new Vector3(beam.Source, 0), new Vector3(unitV.X, unitV.Y, 0));
-            float hit2 = beam.range;
+            nearby.SortByDistance(beamStart);
 
             for (int i = 0; i < nearby.Length; i++)
             {
-                if (!(nearby[i] is Ship ship))
-                    continue;
+                Ship ship = nearby[i];
                 if (ship.loyalty == beam.owner?.loyalty)
                     continue; // dont hit allied. need to expand this to actual allies.
 
@@ -536,83 +525,28 @@ namespace Ship_Game.Gameplay
 
                 ++GlobalStats.BeamTests;
 
-                var shipShields = ship.GetShields();
-                if (!beam.IgnoresShields && shipShields.Count > 0)
-                {
-                    var shieldhit = new BoundingSphere(new Vector3(0f, 0f, 0f), 0f); //create a bounding sphere object for shields.
+                ShipModule hit = ship.RayHitTestExternalModules(beamStart, beamEnd, 8f, beam.IgnoresShields);
+                if (!beam.Touch(hit)) // dish out damage if we can
+                    continue;
 
-                    foreach (ShipModule shield in shipShields)
-                    {
-                        if (!shield.Powered || shield.shield_power <= 0 || !shield.Active)
-                            continue;
-                        shieldhit.Center.X = shield.Center.X;
-                        shieldhit.Center.Y = shield.Center.Y;
-                        shieldhit.Radius = shield.Radius + 4;
+                ship.MoveModulesTimer = 2f;
 
-                        float? hit = beampath.Intersects(shieldhit);
-                        if (hit.HasValue && hit < hit2)
-                        {
-                            hit2 = (float)hit;
-                            ship1 = ship;
-                            ship1.MoveModulesTimer = 2f;
+                Vector2 hitPos;
+                float hitDistance = hit.Center.RayCircleIntersect(hit.ApproxRadius, beamStart, beamEnd);
+                if (hitDistance > 0f)
+                    hitPos = beamStart + (beamEnd - beamStart).Normalized()*hitDistance;
+                else // the beam probably glanced the module from side, so just get the closest point:
+                    hitPos = hit.Center.FindClosestPointOnLine(beamStart, beamEnd);
 
-                            actualHitDestination = (beampath.Position + beampath.Direction * hit.Value).ToVec2();
-                        }
-                    }
-                }
-                {
-                    float? hit = beampath.Intersects(ship.GetSO().WorldBoundingSphere);
-                    if (hit.HasValue && hit < hit2)
-                    {
-                        hit2 = (float)hit;
-                        ship1 = ship;
-                        ship1.MoveModulesTimer = 2f;
-                        actualHitDestination = (beampath.Position + beampath.Direction * hit.Value).ToVec2();
-                    }
-                }
+                beam.CollidedThisFrame = hit.CollidedThisFrame = true;
+                beam.ActualHitDestination = hitPos;
+                return; // beam collision happened
             }
-
-            hit2 = beam.range;
-            if (ship1 != null)
-            {
-                ShipModule damaged = null;
-                var shieldhit = new BoundingSphere(new Vector3(0f, 0f, 0f), 0f); //create a bounding sphere object for shields.
-                foreach (ModuleSlot shield in ship1.ModuleSlotList)
-                {
-                    if (!shield.Module.Active)
-                        continue;
-                    ShipModule test = shield.Module;
-                    shieldhit.Radius = 8;
-                    if (shield.Module.shield_power > 0)
-                    {
-                        shieldhit.Radius += shield.Module.Radius;
-                    }
-
-
-                    shieldhit.Center.X = test.Center.X;
-                    shieldhit.Center.Y = test.Center.Y;
-
-                    float? hitM = beampath.Intersects(shieldhit);
-                    if (hitM < hit2)
-                    {
-                        hit2 = (float)hitM;
-                        damaged = shield.Module;
-                        actualHitDestination = (beampath.Position + beampath.Direction * hitM.Value).ToVec2();
-                    }
-                }
-                if (damaged != null && beam.Touch(damaged))
-                {
-                    beam.CollidedThisFrame = damaged.CollidedThisFrame = true;
-                    beam.ActualHitDestination = actualHitDestination;
-                    return;
-                }
-            }
-
-            beam.ActualHitDestination = beam.Destination;
+            beam.ActualHitDestination = beamEnd;
         }
 
         // @return TRUE if a collision happens, false if nothing happened
-        private bool CollideWith(Projectile thisProj, GameplayObject otherObj, out GameplayObject collidedWith)
+        private static bool CollideWith(Projectile thisProj, GameplayObject otherObj, out GameplayObject collidedWith)
         {
             collidedWith = null;
             if (thisProj == otherObj || !otherObj.Active || otherObj.CollidedThisFrame)
@@ -664,7 +598,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             Ship[] ships = GetNearby<Ship>(source.Position, source.Radius).FilterBy(ship => ship.Active && !ship.dying);
-            ships.Sort(ship => ship.Center.SqDist(source.Center));
+            ships.SortByDistance(source.Center);
 
             foreach (Ship ship in ships)
             {
@@ -708,7 +642,7 @@ namespace Ship_Game.Gameplay
 
             // affected modules sorted by distance
             Vector2 explosionCenter = hitModule.Center;
-            var hitModules = parent.HitTestModules(explosionCenter, damageRadius, ignoreShields: false/*internal explosion*/);
+            Array<ShipModule> hitModules = parent.HitTestModules(explosionCenter, damageRadius, ignoreShields: true/*internal explosion*/);
 
             // start dishing out damage from inside out to first 8 modules
             // since damage is internal, we can't explode with radial falloff
