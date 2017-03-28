@@ -3328,36 +3328,46 @@ namespace Ship_Game.Gameplay
             {
                 ModuleSlot slot = ModuleSlotList[i];
                 ShipModule module = slot.Module;
+                if (!module.Active || (module.PowerRadius < 1 && module.ModuleType != ShipModuleType.PowerConduit) || module.Powered) continue;
 
-                if ((module.PowerRadius > 0 && module.Active) && (module.ModuleType != ShipModuleType.PowerConduit || module.Powered))
+                float cx = slot.Module.XSIZE * 8;
+                      cx = cx <= 8 ? slot.Position.X : slot.Position.X + cx;
+                float cy = slot.Module.YSIZE * 8;
+                      cy = cy <= 8 ? slot.Position.Y : slot.Position.Y + cy;
+
+                int powerRadius = (int)module.PowerRadius * 16 + 8;
+
+                foreach (ModuleSlot slot2 in ModuleSlotList)
                 {
-                    foreach (ModuleSlot slot2 in ModuleSlotList)
+                    if (!slot2.Module.Active || slot2.Module.PowerDraw < 1) continue;
+                    if ((int)Math.Abs(cx - slot2.Position.X) / 16 + (int)Math.Abs(cy - slot2.Position.Y) / 16 <= powerRadius)
                     {
-                        if ((int)Math.Abs(slot.Position.X - slot2.Position.X) / 16 + (int)Math.Abs(slot.Position.Y - slot2.Position.Y) / 16 <= (int)module.PowerRadius)
-                            slot2.Powered = true;
+                        slot2.Powered = true;
+                        continue;
                     }
-                    for (int y = 0; y < module.YSIZE; ++y)
+                    ShipModule module2 = slot2.Module;
+                    for (int y = 0; y < module2.YSIZE; ++y)
                     {
-                        for (int x = 0; x < module.XSIZE; ++x)
+                        if (slot2.Powered) break;
+                        float sy = slot2.Position.Y + (y * 16);
+                        for (int x = 0; x < module2.XSIZE; ++x)
                         {
                             if (x == 0 && y == 0)
                                 continue;
 
-                            foreach (ModuleSlot slot2 in ModuleSlotList)
+                            float sx = slot2.Position.X + (x * 16);
+                            if ((int)Math.Abs(cx - sx) / 16 + (int)Math.Abs(cy - sy) /16 <= powerRadius)
                             {
-                                if (slot2.Position.Y == slot.Position.Y + (16 * y) && slot2.Position.X == slot.Position.X + (16 * x))
-                                {
-                                    foreach (ModuleSlot moduleSlot3 in ModuleSlotList)
-                                    {
-                                        if ((int)Math.Abs(slot2.Position.X - moduleSlot3.Position.X) / 16 + (int)Math.Abs(slot2.Position.Y - moduleSlot3.Position.Y) / 16 <= (int)module.PowerRadius)
-                                            moduleSlot3.Powered = true;
-                                    }
-                                }
+                                slot2.Powered = true;
+                                break;
                             }
+
                         }
                     }
                 }
+
             }
+
 
             foreach (ModuleSlot moduleSlot in ModuleSlotList)
             {
