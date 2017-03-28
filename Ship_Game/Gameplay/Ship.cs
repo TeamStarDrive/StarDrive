@@ -2067,9 +2067,6 @@ namespace Ship_Game.Gameplay
                 if (module.Active)
                     CheckIfExternalModule(kv.Key, module);
 
-                if (module.shield_power > 0.0f)
-                    module.isExternal = true;
-
                 if (module.isExternal)
                     ExternalSlots.Add(slot);
             }
@@ -2118,8 +2115,12 @@ namespace Ship_Game.Gameplay
         public ShipModule RayHitTestExternalModules(
             Vector2 startPos, Vector2 direction, float distance, float rayRadius, bool ignoreShields = false)
         {
-            Vector2 endPos = startPos + direction * distance;
+            return RayHitTestExternalModules(startPos, startPos + direction * distance, rayRadius, ignoreShields);
+        }
 
+        // @todo This needs optimization
+        public ShipModule RayHitTestExternalModules(Vector2 startPos, Vector2 endPos, float rayRadius, bool ignoreShields = false)
+        {
             int count = ExternalSlots.Count;
             var slots = ExternalSlots.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
@@ -3310,9 +3311,7 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ModuleSlot slot = ModuleSlotList[i];
-                ShipModule module = slot?.Module;
-                if (module == null)
-                    continue;
+                ShipModule module = slot.Module;
 
                 if (module.ModuleType == ShipModuleType.PowerPlant && module.Active)
                 {
@@ -3323,6 +3322,12 @@ namespace Ship_Game.Gameplay
                             CheckAndPowerConduit(slot2);
                     }
                 }
+            }
+
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+            {
+                ModuleSlot slot = ModuleSlotList[i];
+                ShipModule module = slot.Module;
 
                 if ((module.PowerRadius > 0 && module.Active) && (module.ModuleType != ShipModuleType.PowerConduit || module.Powered))
                 {
@@ -3927,32 +3932,24 @@ namespace Ship_Game.Gameplay
                 }
 
             }
-            else if (this.Active && this.AI.BadGuysNear || (this.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) || this.MoveModulesTimer > 0.0 || GlobalStats.ForceFullSim) 
+            else if (Active && AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) || MoveModulesTimer > 0.0f || GlobalStats.ForceFullSim) 
             {
-                if (elapsedTime > 0.0 || this.UpdatedModulesOnce)
+                if (elapsedTime > 0.0f || UpdatedModulesOnce)
                 {
-                      this.UpdatedModulesOnce = elapsedTime > 0;
+                    UpdatedModulesOnce = elapsedTime > 0;
 
-                   // if (Empire.Universe.ShowShipNames ) // I dont know what showshipnamesis
+                    float cos = (float)Math.Cos(Rotation);
+                    float sin = (float)Math.Sin(Rotation);
+                    float tan = (float)Math.Tan(yRotation);
+                    ModuleSlot[] slots = ModuleSlotList;
+                    for (int i = 0; i < slots.Length; ++i)
                     {
-                        float cos = (float)Math.Cos(Rotation);
-                        float sin = (float)Math.Sin(Rotation);
-                        float tan = (float)Math.Tan(yRotation);
-                        foreach (ModuleSlot moduleSlot in ModuleSlotList)
-                        {
-                        #if DEBUG
-                            if (moduleSlot.InstalledModuleUID == "Dummy")
-                                Log.Error("Deprecated Dummy module. All dummy modules must be removed!");
-
-                        #endif
-                            ++GlobalStats.ModuleUpdates;
-                            moduleSlot.Module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
-                            if (!Active)
-                                break;
-                        }
+                        if (!Active)
+                            break;
+                        slots[i].Module.UpdateEveryFrame(elapsedTime, cos, sin, tan);
+                        ++GlobalStats.ModuleUpdates;
                     }
                 }
-
             }
             SetmaxFTLSpeed();
             if (Ordinance > OrdinanceMax)
@@ -3965,32 +3962,8 @@ namespace Ship_Game.Gameplay
             PowerCurrent -= PowerDraw * elapsedTime;
             if (PowerCurrent < PowerStoreMax)
                 PowerCurrent += (PowerFlowMax + (PowerFlowMax * loyalty?.data.PowerFlowMod ?? 0)) * elapsedTime;
-            //if (this.ResourceDrawDict.Count > 0)
-            //{
 
-            //    //foreach (KeyValuePair<string, float> draw in this.ResourceDrawDict)
-            //    //{
-            //    //    string index1 = draw.Key;
-            //    //    float drawvalue = draw.Value;
-            //    //    if (drawvalue <= 0 || this.CargoDict[index1] <= 0.0f)
-            //    //        continue;
-            //    //    float store = this.CargoDict[index1];
-            //    //    store -= drawvalue * elapsedTime;
-
-            //    //    if (store < 0)
-            //    //        store = 0;
-            //    //    this.CargoDict[index1] = store;
-            //    //}
-            //    foreach (string index1 in Enumerable.ToArray<string>((IEnumerable<string>)this.ResourceDrawDict.Keys))
-            //    {
-            //        Map<string, float> dictionary;
-            //        string index2;
-            //        (dictionary = this.CargoDict)[index2 = index1] = dictionary[index2] - this.ResourceDrawDict[index1] * elapsedTime;
-            //        if ((double)this.CargoDict[index1] <= 0.0)
-            //            this.CargoDict[index1] = 0.0f;
-            //    }
-            //}
-            if (PowerCurrent <= 0.0)
+            if (PowerCurrent <= 0.0f)
             {
                 PowerCurrent = 0.0f;
                 HyperspaceReturn();
@@ -4006,10 +3979,10 @@ namespace Ship_Game.Gameplay
                 Mass = 1f;
             switch (engineState)
             {
-                case Ship.MoveState.Sublight:
+                case MoveState.Sublight:
                     velocityMaximum = GetSTLSpeed();
                     break;
-                case Ship.MoveState.Warp:
+                case MoveState.Warp:
                     velocityMaximum = GetmaxFTLSpeed;
                     break;
             }
@@ -4028,9 +4001,7 @@ namespace Ship_Game.Gameplay
             {
                 EnginesKnockedOut = true;
                 velocityMaximum = Velocity.Length();
-                Ship ship = this;
-                Vector2 vector2 = ship.Velocity - Velocity * (elapsedTime * 0.1f);
-                ship.Velocity = vector2;
+                Velocity -= Velocity * (elapsedTime * 0.1f);
                 if (engineState == MoveState.Warp)
                     HyperspaceReturn();
             }
@@ -4040,6 +4011,7 @@ namespace Ship_Game.Gameplay
                 return;
             Velocity = Vector2.Normalize(Velocity) * velocityMaximum;
         }
+
         public void ShipStatusChange()
         {
             Health = 0f;

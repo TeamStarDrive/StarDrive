@@ -303,7 +303,7 @@ namespace Ship_Game
             float b1 = rayStart.X - rayEnd.X;
             float c1 = (rayEnd.Y - rayStart.Y) * rayStart.X + (rayStart.X - rayEnd.X) * rayStart.Y;
             float c2 = -b1 * center.X + a1 * center.Y;
-            float det = a1 * a1 + b1 * b1;
+            float det = a1*a1 + b1*b1;
             if (det > 0.0f)
             {
                 float r2 = radius + rayWidth / 2;
@@ -311,7 +311,35 @@ namespace Ship_Game
                 float dy = center.Y - ((a1 * c2 - -b1 * c1) / det);
                 return dx * dx + dy * dy <= r2 * r2;
             }
-            return true;
+            return true; // ray intersects center?
+        }
+
+        // returns distance from rayStart to the point of intersection, OR 0 if no intersect
+        public static float RayCircleIntersect(this Vector2 center, float radius, Vector2 rayStart, Vector2 rayEnd)
+        {
+            Vector2 d = rayEnd - rayStart;
+            Vector2 f = rayStart - center;
+
+            float a = Vector2.Dot(d, d);
+            float b = 2 * Vector2.Dot(f, d);
+            float c = Vector2.Dot(f, f) - radius;
+
+            float discriminant = b*b - 4*a*c;
+            if (discriminant < 0f)
+                return 0f; // no solutions, complete miss
+
+            discriminant = (float)Sqrt(discriminant);
+
+            float t1 = (-b - discriminant) / (2*a);
+            if (0f <= t1 && t1 <= 1f)
+                return t1 * d.Length(); // Impale, Poke
+
+            float t2 = (discriminant - b) / (2*a);
+            if (0f <= t2 && t2 <= 1f)
+                return t2 * d.Length(); // ExitWound
+
+            // no intersection: FallShort, Past, CompletelyInside
+            return 0f;
         }
 
         // Generates a new point on a circular radius from position

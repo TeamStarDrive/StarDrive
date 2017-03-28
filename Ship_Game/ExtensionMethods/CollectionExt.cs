@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -379,15 +380,26 @@ namespace Ship_Game
 
         public static void Sort<T, TKey>(this T[] array, Func<T, TKey> keyPredicate) where T : class
         {
-            int count = array.Length;
-            if (count <= 1)
+            if (array.Length <= 1)
                 return;
 
-            var keys = new TKey[count];
-            for (int i = 0; i < count; ++i)
+            var keys = new TKey[array.Length];
+            for (int i = 0; i < array.Length; ++i)
                 keys[i] = keyPredicate(array[i]);
 
-            Array.Sort(keys, array, 0, count);
+            Array.Sort(keys, array, 0, array.Length);
+        }
+
+        public static void SortByDistance<T>(this T[] array, Vector2 fromPos) where T : GameplayObject
+        {
+            if (array.Length <= 1)
+                return;
+
+            var keys = new float[array.Length];
+            for (int i = 0; i < array.Length; ++i)
+                keys[i] = array[i].Center.SqDist(fromPos);
+
+            Array.Sort(keys, array, 0, array.Length);
         }
 
         // this will mess up the ordering of your items due to SwapLast optimization and it will shrink the array by 1 element
