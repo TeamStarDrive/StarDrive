@@ -13,7 +13,7 @@ namespace Ship_Game
 		public SlotStruct parent;
 		public ShipDesignScreen.ActiveModuleState state;
 		public bool Powered;
-		public ModuleSlot slotReference;
+		public ModuleSlotData slotReference;
 		public string ModuleUID;
 		public ShipModule module;
 		public string SlotOptions;

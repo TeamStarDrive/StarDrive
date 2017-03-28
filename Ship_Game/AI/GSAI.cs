@@ -5973,21 +5973,21 @@ namespace Ship_Game.AI
                 int bombcount = 0;
                 int hangarcount = 0;
 
-                foreach (ModuleSlot slot in ship.ModuleSlotList)
+                foreach (ShipModule slot in ship.ModuleSlotList)
                 {
-                    if (slot.Module.ModuleType == ShipModuleType.Bomb)
+                    if (slot.ModuleType == ShipModuleType.Bomb)
                     {
-                        bombcount += slot.Module.XSIZE * slot.Module.YSIZE;
+                        bombcount += slot.XSIZE * slot.YSIZE;
                         if (bombcount > ship.Size * .2)
                             bombs = true;
                     }
-                    if (slot.Module.MaximumHangarShipSize > 0)
+                    if (slot.MaximumHangarShipSize > 0)
                     {
-                        hangarcount += slot.Module.YSIZE * slot.Module.XSIZE;
+                        hangarcount += slot.YSIZE * slot.XSIZE;
                         if (hangarcount > ship.Size * .2)
                             hangars = true;
                     }
-                    if (slot.Module.IsTroopBay || slot.Module.TransporterRange > 0)
+                    if (slot.IsTroopBay || slot.TransporterRange > 0)
                         troops = true;
 
                 }

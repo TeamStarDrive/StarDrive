@@ -643,7 +643,7 @@ namespace Ship_Game
                 IconPath  = "ShipIcons/hunter"
             };
 
-            var filledModules = new Array<ModuleSlot> { Capacity = SlotList.Count };
+            var filledModules = new Array<ModuleSlotData> { Capacity = SlotList.Count };
             for (int i = 0; i < SlotList.Count; ++i)
             {
                 SlotStruct slot = SlotList[i];
@@ -651,14 +651,14 @@ namespace Ship_Game
                     continue;
 
                 var pos = new Vector2(slot.pq.X + slot.pq.W / 2 - border.X, slot.pq.Y + slot.pq.H / 2 - border.Y);
-                filledModules.Add(new ModuleSlot
+                filledModules.Add(new ModuleSlotData
                 {
-                    Position = pos,
+                    Position           = pos,
                     InstalledModuleUID = slot.ModuleUID,
-                    Restrictions = slot.Restrictions
+                    Restrictions       = slot.Restrictions
                 });
             }
-            data.ModuleSlotList = filledModules.ToArray();
+            data.ModuleSlots    = filledModules.ToArray();
             data.DefaultAIState = AIState.AwaitingOrders;
             data.ThrusterList   = TList;
             var ser = new XmlSerializer(typeof(ShipData));
