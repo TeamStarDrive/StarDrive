@@ -284,6 +284,18 @@ namespace Ship_Game.Gameplay
             }
 
         }
+
+        private int Calculatesize()
+        {
+            int size = 0;
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                size += module.XSIZE * module.YSIZE;
+            }
+
+            return size;
+        }
+
         public float GetFTLmodifier => FTLmodifier;
 
         public IReadOnlyList<Projectile> Projectiles => projectiles;
@@ -2283,7 +2295,7 @@ namespace Ship_Game.Gameplay
             shield_max                = 0f;
             shield_power              = 0f;
             armor_max                 = 0f;
-            Size                      = ModuleSlotList.Length;
+            Size                      = Calculatesize();
             velocityMaximum           = 0f;
             speed                     = 0f;
             SensorRange               = 0f;
@@ -2473,7 +2485,7 @@ namespace Ship_Game.Gameplay
             TroopBoardingDefense      = 0.0f;
             ECMValue                  = 0.0f;
             FTLSpoolTime              = 0f;
-            Size                      = ModuleSlotList.Length;
+            Size                      = Calculatesize();
 
             foreach (ShipModule module in ModuleSlotList)
             {
