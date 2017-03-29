@@ -268,7 +268,7 @@ namespace Ship_Game
                 return false;
 
             var targetModule = target as ShipModule;
-            if (damageAmount < 0f && targetModule?.shield_power > 0f)
+            if (damageAmount < 0f && targetModule?.ShieldPower > 0f)
                 return false;
 
             if (!DamageToggleOn && targetModule != null)
@@ -307,7 +307,7 @@ namespace Ship_Game
                 Duration = 0f;
                 return;
             }
-            Ship ship = Target as Ship;
+            var ship = Target as Ship;
             if (owner.engineState == Ship.MoveState.Warp || ship != null && ship.engineState == Ship.MoveState.Warp )
             {
                 Die(null, false);

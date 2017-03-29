@@ -232,11 +232,11 @@ namespace Ship_Game.AI
             ColonizeTarget.InitializeSliders(Owner.loyalty);
             ColonizeTarget.ExploredDict[Owner.loyalty] = true;
             var BuildingsAdded = new Array<string>();
-            foreach (ModuleSlot slot in Owner.ModuleSlotList)//@TODO create building placement methods in planet.cs that take into account the below logic. 
+            foreach (ShipModule slot in Owner.ModuleSlotList)//@TODO create building placement methods in planet.cs that take into account the below logic. 
             {
-                if (slot.Module == null || slot.Module.ModuleType != ShipModuleType.Colony || slot.Module.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.Module.DeployBuildingOnColonize))
+                if (slot == null || slot.ModuleType != ShipModuleType.Colony || slot.DeployBuildingOnColonize == null || BuildingsAdded.Contains(slot.DeployBuildingOnColonize))
                     continue;
-                Building building = ResourceManager.CreateBuilding(slot.Module.DeployBuildingOnColonize);
+                Building building = ResourceManager.CreateBuilding(slot.DeployBuildingOnColonize);
                 var ok = true;
                 if (building.Unique)
                     foreach (Building b in ColonizeTarget.BuildingList)
@@ -248,7 +248,7 @@ namespace Ship_Game.AI
                     }
                 if (!ok)
                     continue;
-                BuildingsAdded.Add(slot.Module.DeployBuildingOnColonize);
+                BuildingsAdded.Add(slot.DeployBuildingOnColonize);
                 ColonizeTarget.BuildingList.Add(building);
                 ColonizeTarget.AssignBuildingToTileOnColonize(building);
             }
@@ -272,13 +272,13 @@ namespace Ship_Game.AI
                     if (p.Owner.TryGetRelations(Owner.loyalty, out Relationship rel) && !rel.Treaty_OpenBorders)
                         p.Owner.DamageRelationship(Owner.loyalty, "Colonized Owned System", 20f, p);
                 }
-            foreach (ModuleSlot slot in Owner.ModuleSlotList)
+            foreach (ShipModule slot in Owner.ModuleSlotList)
             {
-                if (slot.Module.ModuleType != ShipModuleType.Colony)
+                if (slot.ModuleType != ShipModuleType.Colony)
                     continue;			    
-                ColonizeTarget.FoodHere += slot.Module.numberOfFood;				
-                ColonizeTarget.ProductionHere += slot.Module.numberOfEquipment;				
-                ColonizeTarget.Population += slot.Module.numberOfColonists;
+                ColonizeTarget.FoodHere += slot.numberOfFood;				
+                ColonizeTarget.ProductionHere += slot.numberOfEquipment;				
+                ColonizeTarget.Population += slot.numberOfColonists;
             }
             var TroopsRemoved = false;
             var PlayerTroopsRemoved = false;
@@ -1255,7 +1255,7 @@ namespace Ship_Game.AI
                     //at 1.01 that should be 3 seconds for the default hangar.
                     hangar.SetHangarShip(null);
                     hangar.hangarTimer = rearmTime;
-                    hangar.installedSlot.HangarshipGuid = Guid.Empty;                   
+                    hangar.HangarShipGuid = Guid.Empty;                   
                 }
             }
         }
@@ -1560,7 +1560,7 @@ namespace Ship_Game.AI
                                         if (weapon.fireTarget == null && Owner.TrackingPower > 0)
                                         {
                                             //limit to one target per level.
-                                            sbyte tracking = Owner.TrackingPower;
+                                            int tracking = Owner.TrackingPower;
                                             for (var i = 0;
                                                 i < PotentialTargets.Count &&
                                                 i < tracking + Owner.Level;
@@ -1631,7 +1631,7 @@ namespace Ship_Game.AI
                                     if (index > 10 && lag > .05 && !GlobalStats.ForceFullSim && !weapon.Tag_Intercept && weapon.fireTarget is ShipModule)
                                         FireOnTargetNonVisible(weapon, (weapon.fireTarget as ShipModule).GetParent());
                                     else
-                                        weapon.Fire(new Vector2((float)Math.Sin((double)Owner.Rotation + weapon.moduleAttachedTo.facing.ToRadians()), -(float)Math.Cos((double)Owner.Rotation + weapon.moduleAttachedTo.facing.ToRadians())), target);
+                                        weapon.Fire(new Vector2((float)Math.Sin((double)Owner.Rotation + weapon.moduleAttachedTo.Facing.ToRadians()), -(float)Math.Cos((double)Owner.Rotation + weapon.moduleAttachedTo.Facing.ToRadians())), target);
                                     index++;
                                 }
                                 else
@@ -1699,7 +1699,7 @@ namespace Ship_Game.AI
                 if (fireTarget is ShipModule shipModule)
                 {
                     w.timeToNextFire = w.fireDelay;
-                    shipModule.GetParent().FindClosestExternalSlot(Owner.Center).Module.Damage(Owner, w.InvisibleDamageAmount);
+                    shipModule.GetParent().FindClosestExternalModule(Owner.Center).Damage(Owner, w.InvisibleDamageAmount);
                 }
                 return;
             }
@@ -1721,7 +1721,7 @@ namespace Ship_Game.AI
                 for (int i = 0; i < shields.Count; ++i)
                 {
                     ShipModule shield = shields[i];
-                    if (shield.Active && shield.shield_power > 0f)
+                    if (shield.Active && shield.ShieldPower > 0f)
                     {
                         shield.Damage(Owner, w.InvisibleDamageAmount);
                         return;
@@ -1730,10 +1730,10 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ModuleSlot closestExtSlot = targetShip.FindClosestExternalSlot(Owner.Center);
+            ShipModule closestExtSlot = targetShip.FindClosestExternalModule(Owner.Center);
             if (closestExtSlot == null)
                 return;
-            ShipModule unshieldedModule = targetShip.FindUnshieldedExternalModule(closestExtSlot.Module.quadrant);
+            ShipModule unshieldedModule = targetShip.FindUnshieldedExternalModule(closestExtSlot.quadrant);
             unshieldedModule?.Damage(Owner, w.InvisibleDamageAmount);
         }
 
