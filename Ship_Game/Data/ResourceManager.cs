@@ -210,7 +210,7 @@ namespace Ship_Game
             LoadWeapons();
             LoadShipModules();
             LoadGoods();
-            LoadShips();
+            LoadShipTemplates();
             LoadJunk();
             LoadAsteroids();
             LoadProjTexts();
@@ -464,7 +464,7 @@ namespace Ship_Game
             foreach (Thruster t in template.GetTList())
                 ship.AddThruster(t);
 
-            ship.CreateModuleSlotsFromData(template.GetShipData().ModuleSlots);
+            ship.CreateModuleSlotsFromData(template.GetShipData().ModuleSlots, fromSave: false);
 
             // Added by McShooterz: add automatic ship naming
             if (GlobalStats.HasMod)
@@ -1124,7 +1124,7 @@ namespace Ship_Game
                 entry.Value.SetAttributesNoParent();
         }
 
-        private static Array<Ship> LoadShips(FileInfo[] shipDescriptors)
+        private static Array<Ship> LoadShipTemplates(FileInfo[] shipDescriptors)
         {
             var ships = new Array<Ship>();
 
@@ -1142,7 +1142,7 @@ namespace Ship_Game
                         if (shipData.Role == ShipData.RoleName.disabled)
                             continue;
 
-                        Ship newShip = Ship.CreateShipFromShipData(shipData);
+                        Ship newShip = Ship.CreateShipFromShipData(shipData, fromSave: false);
                         newShip.SetShipData(shipData);
                         if (!newShip.InitializeStatus(fromSave: false))
                             continue;
@@ -1166,20 +1166,20 @@ namespace Ship_Game
 
         // Refactored by RedFox
         // This is a hotpath during loading and ~50% of time is spent here
-        public static void LoadShips()
+        public static void LoadShipTemplates()
         {
             ShipsDict.Clear();
 
-            foreach (Ship ship in LoadShips(GatherFilesModOrVanilla("StarterShips", "xml")))
+            foreach (Ship ship in LoadShipTemplates(GatherFilesModOrVanilla("StarterShips", "xml")))
                 ship.reserved = true;
 
-            foreach (Ship ship in LoadShips(GatherFilesUnified("SavedDesigns", "xml")))
+            foreach (Ship ship in LoadShipTemplates(GatherFilesUnified("SavedDesigns", "xml")))
                 ship.reserved = true;
 
-            foreach (Ship ship in LoadShips(Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml")))
+            foreach (Ship ship in LoadShipTemplates(Dir.GetFiles(Dir.ApplicationData + "/StarDrive/Saved Designs", "xml")))
                 ship.IsPlayerDesign = true;
 
-            foreach (Ship ship in LoadShips(GatherFilesUnified("ShipDesigns", "xml")))
+            foreach (Ship ship in LoadShipTemplates(GatherFilesUnified("ShipDesigns", "xml")))
             {
                 ship.reserved = true;
                 ship.IsPlayerDesign = true;

@@ -659,9 +659,10 @@ namespace Ship_Game.Gameplay
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
 
-        public void Initialize(Vector2 pos)
+        private void Initialize(Vector2 pos)
         {
-            DebugInfoScreen.ModulesCreated++;
+            ++DebugInfoScreen.ModulesCreated;
+
             XMLPosition = pos;
             Radius = 8f;
             Position = pos;

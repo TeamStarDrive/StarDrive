@@ -2630,7 +2630,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void CreateModuleSlotsFromData(ModuleSlotData[] templateSlots)
+        public void CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave)
         {
             int count = 0;
             for (int i = 0; i < templateSlots.Length; ++i)
@@ -2647,15 +2647,18 @@ namespace Ship_Game.Gameplay
                     continue;
 
                 ShipModule module = ShipModule.Create(slotData.InstalledModuleUID, this, slotData.Position, slotData.Facing);
-                module.Health         = slotData.Health;
-                module.ShieldPower    = slotData.ShieldPower;
+                if (fromSave)
+                {
+                    module.Health      = slotData.Health;
+                    module.ShieldPower = slotData.ShieldPower;
+                }
                 module.HangarShipGuid = slotData.HangarshipGuid;
                 module.hangarShipUID  = slotData.SlotOptions;
                 ModuleSlotList[count++] = module;
             }
         }
 
-        public static Ship CreateShipFromShipData(ShipData data)
+        public static Ship CreateShipFromShipData(ShipData data, bool fromSave)
         {
             var ship = new Ship
             {
@@ -2667,7 +2670,7 @@ namespace Ship_Game.Gameplay
                 ModelPath      = data.ModelPath
             };
 
-            ship.CreateModuleSlotsFromData(data.ModuleSlots);
+            ship.CreateModuleSlotsFromData(data.ModuleSlots, fromSave);
 
             foreach (ShipToolScreen.ThrusterZone thrusterZone in data.ThrusterList)
                 ship.ThrusterList.Add(new Thruster
