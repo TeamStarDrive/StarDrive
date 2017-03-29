@@ -2634,7 +2634,7 @@ namespace Ship_Game.Gameplay
         {
             int count = 0;
             for (int i = 0; i < templateSlots.Length; ++i)
-                if (templateSlots[i].InstalledModuleUID != "Dummy")
+                if (ShipModule.CanCreate(templateSlots[i].InstalledModuleUID))
                     ++count; // @note Backwards savegame compatibility, dummy modules are deprecated
 
             ModuleSlotList = new ShipModule[count];
@@ -2643,10 +2643,10 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < templateSlots.Length; ++i)
             {
                 ModuleSlotData slotData = templateSlots[i];
-                if (slotData.InstalledModuleUID == "Dummy")
-                    continue; // @note Backwards savegame compatibility, dummy modules are deprecated
+                if (!ShipModule.CanCreate(slotData.InstalledModuleUID))
+                    continue;
 
-                ShipModule module = ShipModule.CreateShipModule(slotData.InstalledModuleUID, this, slotData.Position, slotData.Facing);
+                ShipModule module = ShipModule.Create(slotData.InstalledModuleUID, this, slotData.Position, slotData.Facing);
                 module.Health         = slotData.Health;
                 module.ShieldPower    = slotData.ShieldPower;
                 module.HangarShipGuid = slotData.HangarshipGuid;

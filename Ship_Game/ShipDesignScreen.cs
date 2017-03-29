@@ -2312,24 +2312,18 @@ namespace Ship_Game
                             continue;
                         }
                         module.Value.ModuleType.ToString();
-                        ShipModule tmp = Ship_Game.ResourceManager.CreateModuleFromUid(module.Key);
+                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                         tmp.SetAttributesNoParent();
                         bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
                             || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
                         if (restricted)
                         {
                             if (this.ActiveHull.Role == ShipData.RoleName.drone && tmp.DroneModule == false)
-                            {
                                 continue;
-                            }
-                            if ((this.ActiveHull.Role == ShipData.RoleName.fighter || this.ActiveHull.Role == ShipData.RoleName.scout) && tmp.FighterModule == false)
-                            {
+                            if ((this.ActiveHull.Role == ShipData.RoleName.fighter || ActiveHull.Role == ShipData.RoleName.scout) && tmp.FighterModule == false)
                                 continue;
-                            }
-                            if ((this.ActiveHull.Role == ShipData.RoleName.corvette || this.ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
-                            {
+                            if ((this.ActiveHull.Role == ShipData.RoleName.corvette || ActiveHull.Role == ShipData.RoleName.gunboat) && tmp.CorvetteModule == false)
                                 continue;
-                            }
                             if (this.ActiveHull.Role == ShipData.RoleName.frigate && tmp.FrigateModule == false)
                             {
                                 continue;
@@ -2433,7 +2427,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            ShipModule tmp = Ship_Game.ResourceManager.CreateModuleFromUid(module.Key);
+                            ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                             tmp.SetAttributesNoParent();                            
                             bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
                             || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
@@ -2545,7 +2539,7 @@ namespace Ship_Game
                             continue;
                         }
                         module.Value.ModuleType.ToString();
-                        ShipModule tmp = Ship_Game.ResourceManager.CreateModuleFromUid(module.Key);
+                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                         tmp.SetAttributesNoParent();                        
                         bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
                             || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
@@ -2634,7 +2628,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            ShipModule tmp = Ship_Game.ResourceManager.CreateModuleFromUid(module.Key);
+                            ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                             tmp.SetAttributesNoParent();
 
                             bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
@@ -2722,7 +2716,7 @@ namespace Ship_Game
                             continue;
                         }
                         module.Value.ModuleType.ToString();
-                        ShipModule tmp = Ship_Game.ResourceManager.CreateModuleFromUid(module.Key);
+                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                         tmp.SetAttributesNoParent();                        
                         bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
                             || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
@@ -2793,7 +2787,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            ShipModule tmp = Ship_Game.ResourceManager.CreateModuleFromUid(module.Key);
+                            ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                             tmp.SetAttributesNoParent();
                             bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
                             || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
@@ -2872,7 +2866,7 @@ namespace Ship_Game
                             continue;
                         }
                         module.Value.ModuleType.ToString();
-                        ShipModule tmp = Ship_Game.ResourceManager.CreateModuleFromUid(module.Key);
+                        ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                         tmp.SetAttributesNoParent();
                         bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
                             || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
@@ -2943,7 +2937,7 @@ namespace Ship_Game
                             {
                                 continue;
                             }
-                            ShipModule tmp = Ship_Game.ResourceManager.CreateModuleFromUid(module.Key);
+                            ShipModule tmp = ShipModule.CreateNoParent(module.Key);
                             tmp.SetAttributesNoParent();
                             bool restricted = tmp.FighterModule || tmp.CorvetteModule || tmp.FrigateModule || tmp.StationModule || tmp.DestroyerModule || tmp.CruiserModule
                             || tmp.CarrierModule || tmp.CapitalModule || tmp.FreighterModule || tmp.PlatformModule || tmp.DroneModule;
@@ -4765,7 +4759,7 @@ namespace Ship_Game
                 }
                 if (designAction.clickedSS.ModuleUID != null)
                 {
-                    this.ActiveModule = ResourceManager.CreateModuleFromUid(designAction.clickedSS.ModuleUID);
+                    this.ActiveModule = ShipModule.CreateNoParent(designAction.clickedSS.ModuleUID);
                     this.ResetModuleState();
                     this.InstallModuleNoStack(slot1);
                 }
@@ -4775,7 +4769,7 @@ namespace Ship_Game
                     {
                         if (slot2.pq == slotStruct.pq && slotStruct.ModuleUID != null)
                         {
-                            this.ActiveModule = ResourceManager.CreateModuleFromUid(slotStruct.ModuleUID);
+                            this.ActiveModule = ShipModule.CreateNoParent(slotStruct.ModuleUID);
                             this.ResetModuleState();
                             this.InstallModuleNoStack(slot2);
                             slot2.facing = slotStruct.facing;
@@ -4928,7 +4922,7 @@ namespace Ship_Game
                         this.selector = new Selector(this.ScreenManager, e.clickRect);
                         if (input.InGameSelect)
                         {
-                            this.SetActiveModule(ResourceManager.CreateModuleFromUid((e.item as ShipModule).UID));
+                            this.SetActiveModule(ShipModule.CreateNoParent((e.item as ShipModule).UID));
                             this.ResetModuleState();
                             return;
                         }
@@ -5070,7 +5064,7 @@ namespace Ship_Game
                         if (HelperFunctions.CheckIntersection(moduleButton.moduleRect, vector2))
                         {
                             if (input.InGameSelect)
-                                this.SetActiveModule(ResourceManager.CreateModuleFromUid(moduleButton.ModuleUID));
+                                this.SetActiveModule(ShipModule.CreateNoParent(moduleButton.ModuleUID));
                             moduleButton.isHighlighted = true;
                         }
                         else
@@ -5306,21 +5300,21 @@ namespace Ship_Game
                 ClearDestinationSlots(slot);
 
                 slot.ModuleUID            = ActiveModule.UID;
-                slot.module               = ResourceManager.CreateModuleFromUid(ActiveModule.UID);
+                slot.module               = ShipModule.CreateNoParent(ActiveModule.UID);
                 slot.module.XSIZE         = ActiveModule.XSIZE;
                 slot.module.YSIZE         = ActiveModule.YSIZE;
                 slot.module.XMLPosition   = ActiveModule.XMLPosition;
                 slot.state                = ActiveModState;
                 slot.module.hangarShipUID = ActiveModule.hangarShipUID;
                 slot.module.Facing        = ActiveModule.Facing;
-                slot.tex = ResourceManager.Texture(ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath);
+                slot.tex = ResourceManager.Texture(ActiveModule.IconTexturePath);
                 slot.module.SetAttributesNoParent();
 
                 RecalculatePower();
                 ShipSaved = false;
                 if (ActiveModule.ModuleType != ShipModuleType.Hangar)
                 {
-                    ActiveModule = ResourceManager.CreateModuleFromUid(ActiveModule.UID);
+                    ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
                 }
                 ChangeModuleState(ActiveModState);
             }
@@ -5338,7 +5332,7 @@ namespace Ship_Game
                 slot.module    = ActiveModule; 
                 slot.state     = activeModuleState;
                 slot.module.Facing = slot.facing;
-                slot.tex = ResourceManager.TextureDict[ResourceManager.GetModuleTemplate(ActiveModule.UID).IconTexturePath];
+                slot.tex = ResourceManager.TextureDict[ActiveModule.IconTexturePath];
                 slot.module.SetAttributesNoParent();
 
                 RecalculatePower();
@@ -5364,7 +5358,7 @@ namespace Ship_Game
                 ShipSaved = false;
                 if (ActiveModule.ModuleType != ShipModuleType.Hangar)
                 {
-                    ActiveModule = ResourceManager.CreateModuleFromUid(ActiveModule.UID);
+                    ActiveModule = ShipModule.CreateNoParent(ActiveModule.UID);
                 }
                 //grabs a fresh copy of the same module type to cursor 
                 ChangeModuleState(ActiveModState);
@@ -6179,7 +6173,7 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                this.ActiveModule = Ship_Game.ResourceManager.CreateModuleFromUid(slot.ModuleUID);
+                this.ActiveModule = ShipModule.CreateNoParent(slot.ModuleUID);
                 this.ChangeModuleState(slot.state);
                 this.InstallModuleFromLoad(slot);
                 if (slot.module == null || slot.module.ModuleType != ShipModuleType.Hangar)
